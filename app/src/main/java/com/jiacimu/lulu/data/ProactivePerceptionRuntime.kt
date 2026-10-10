@@ -83,6 +83,7 @@ object ProactivePerceptionRuntime {
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
+        PerceptionWakePlanStore.initialize(context.applicationContext)
         createNotificationChannels(context.applicationContext)
     }
 
@@ -90,7 +91,17 @@ object ProactivePerceptionRuntime {
         if (characterId.isBlank()) return
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean("pending_concern_promise_$characterId", true).apply()
+        PerceptionWakePlanStore.invalidate(characterId)
         ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
+    }
+
+    fun wakePlanFor(context: Context, characterId: String, now: Instant = Instant.now()): PerceptionWakePlan? {
+        initialize(context)
+        val policy = ProactivePerceptionPolicyStore.get(characterId)
+        if (!policy.enabled) return null
+        val conversation = latestPrivateConversations().firstOrNull { it.characterId == characterId } ?: return null
+        dueAtFor(context, conversation, policy, context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE), now)
+        return PerceptionWakePlanStore.plans.value[characterId]
     }
 
     fun nextDueAt(context: Context, now: Instant = Instant.now()): Instant? {
@@ -101,7 +112,7 @@ object ProactivePerceptionRuntime {
         return conversations.mapNotNull { conversation ->
             val characterId = conversation.characterId.ifBlank { "lulu" }
             val policy = ProactivePerceptionPolicyStore.get(characterId)
-            if (!policy.enabled) return@mapNotNull null
+            if (!policy.enabled || CompanionPresenceStore.isInCall(characterId)) return@mapNotNull null
             dueAtFor(context, conversation, policy, prefs, now)
         }.minOrNull()
     }
@@ -196,26 +207,35 @@ object ProactivePerceptionRuntime {
         val lastEvaluation = prefs.getLong("last_evaluation_$characterId", 0L)
             .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
         val anchor = listOfNotNull(lastChat, lastEvaluation).maxOrNull() ?: now
-        val timingVariation = if (policy.adaptiveFrequency) {
-            val latestUserAt = messages.asSequence()
-                .filter { it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User }
-                .maxByOrNull(LuluChatMessage::createdAt)?.createdAt
-            val minutesSinceUser = latestUserAt?.let {
-                Duration.between(it, now).toMinutes().coerceAtLeast(0L)
-            }
-            val hasConcern = LuluRepositories.lexicon.snapshot(characterId).any {
-                it.section == LexiconSection.Concern &&
-                    it.status == com.jiacimu.lulu.core.LexiconStatus.Active
-            }
-            adaptivePerceptionMultiplier(
-                jitter = stableTimingVariation(characterId, anchor),
-                unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
-                pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false),
-                hasConcern = hasConcern,
-                minutesSinceUserContact = minutesSinceUser,
-            )
-        } else 1.0
-        return deferPastQuietHours(anchor.plus(Duration.ofMinutes(policy.intervalMinutes(timingVariation))), policy)
+        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}"
+        val plan = PerceptionWakePlanStore.resolve(characterId, anchor, signature) {
+            val timingVariation = if (policy.adaptiveFrequency) {
+                val latestUserAt = messages.asSequence()
+                    .filter { it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User }
+                    .maxByOrNull(LuluChatMessage::createdAt)?.createdAt
+                val minutesSinceUser = latestUserAt?.let {
+                    Duration.between(it, now).toMinutes().coerceAtLeast(0L)
+                }
+                val hasConcern = LuluRepositories.lexicon.snapshot(characterId).any {
+                    it.section == LexiconSection.Concern &&
+                        it.status == com.jiacimu.lulu.core.LexiconStatus.Active
+                }
+                adaptivePerceptionMultiplier(
+                    jitter = stableTimingVariation(characterId, anchor),
+                    unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
+                    pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false),
+                    hasConcern = hasConcern,
+                    minutesSinceUserContact = minutesSinceUser,
+                )
+            } else 1.0
+            val interval = policy.intervalMinutes(timingVariation)
+            PerceptionWakePlan(characterId, anchor,
+                deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy), interval, signature)
+        }
+        if (plan.dueAt <= now && isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) {
+            return PerceptionWakePlanStore.deferUntil(characterId, deferPastQuietHours(now, policy))?.dueAt ?: plan.dueAt
+        }
+        return plan.dueAt
     }
 
     private fun stableTimingVariation(characterId: String, anchor: Instant): Double {

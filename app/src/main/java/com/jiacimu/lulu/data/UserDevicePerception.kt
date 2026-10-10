@@ -33,6 +33,7 @@ internal object UserDevicePerception {
         now: Instant = Instant.now(),
         refreshLocation: Boolean = false,
     ): String = withContext(Dispatchers.IO) { buildString {
+        UserInteractionPresenceStore.initialize(context)
         HealthRolePerception.initialize(context)
         HealthRolePerception.recordLatestSleep(characterId)
         appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
@@ -44,6 +45,7 @@ internal object UserDevicePerception {
         appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
         appendLine("用户学习状态：${studyContext(characterId)}")
+        appendLine(UserInteractionPresenceStore.context(characterId, now))
     }.trim() }
 
     private fun batteryContext(context: Context): String {

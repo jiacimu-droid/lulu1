@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +23,11 @@ import com.jiacimu.lulu.data.CompanionPresenceState
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.ProactivePerceptionScheduler
+import java.time.Instant
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import com.jiacimu.lulu.data.*
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -42,6 +48,19 @@ internal fun CompanionPresenceDialog(
     }
     var historySelected by remember { mutableStateOf(false) }
     var manualCheckRequested by remember { mutableStateOf(false) }
+    val plans by PerceptionWakePlanStore.plans.collectAsState()
+    val schedulingError by PerceptionWakePlanStore.schedulingError.collectAsState()
+    val policies by ProactivePerceptionPolicyStore.policies.collectAsState()
+    val onlineStates by CompanionOnlineStore.states.collectAsState()
+    val policy = policies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
+    var now by remember { mutableStateOf(Instant.now()) }
+    val maxDialogHeight = LocalConfiguration.current.screenHeightDp.dp * 0.88f
+    LaunchedEffect(characterId, policy, state?.lastPerceptionAt, state?.updatedAt) {
+        withContext(Dispatchers.IO) { ProactivePerceptionRuntime.wakePlanFor(context, characterId) }
+    }
+    LaunchedEffect(characterId) {
+        while (true) { delay(15_000L); now = Instant.now() }
+    }
     val past = remember(displayHistory, displayState) {
         displayHistory.filter { it.updatedAt != displayState?.updatedAt }
     }
@@ -55,15 +74,15 @@ internal fun CompanionPresenceDialog(
             modifier = Modifier
                 .padding(horizontal = 22.dp, vertical = 24.dp)
                 .fillMaxWidth()
-                .fillMaxHeight(0.88f),
+                .heightIn(max = maxDialogHeight),
             color = Color.White,
             shape = RoundedCornerShape(28.dp),
             border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
             shadowElevation = 10.dp,
         ) {
-            Box(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxWidth()) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -89,7 +108,7 @@ internal fun CompanionPresenceDialog(
                     if (!historySelected) {
                         item(key = "current") {
                             if (displayState == null) {
-                                Text("这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
+                                Text(if (messageAnchor == null) "还没有留下此刻状态。" else "这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState)
@@ -119,6 +138,17 @@ internal fun CompanionPresenceDialog(
                     }
 
                     if (messageAnchor == null) {
+                        item(key = "awareness") {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                PerceptionStatusPresentation.lines(state, policy, plans[characterId],
+                                    onlineStates[characterId]?.isOnline(now) == true,
+                                    CompanionPresenceStore.isInCall(characterId), now).forEach {
+                                    Text(it, color = Color(0xFF7A7A7E), fontSize = 12.sp)
+                                }
+                                if (schedulingError.isNotBlank()) Text(schedulingError,
+                                    color = Color(0xFFB04C4C), fontSize = 12.sp)
+                            }
+                        }
                         item(key = "manual-check") {
                             OutlinedButton(
                                 onClick = {
@@ -129,7 +159,7 @@ internal fun CompanionPresenceDialog(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(16.dp),
                             ) {
-                                Text(if (manualCheckRequested) "已请求，稍后刷新此刻" else "立即检查感知线路")
+                                Text(if (manualCheckRequested) "已请求唤醒" else "唤醒一下")
                             }
                         }
                     }
@@ -154,7 +184,7 @@ private fun PresenceStateContent(state: CompanionPresenceState) {
         val status = PresencePresentation.status(state)
         if (status.isNotBlank()) PresenceDialogSection("状态", status)
         Text(
-            state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+            "状态记录 · " + state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
             color = Color(0xFF7A7A7E),
             fontSize = 11.sp,
         )

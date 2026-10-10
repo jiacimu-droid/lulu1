@@ -67,12 +67,18 @@ fun CharacterSettingsScreenV2(
     val settings by MigratedDomainStores.characters.settings.collectAsState()
     val identities by CharacterIdentityStore.identities.collectAsState()
     val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
+    val wakePlans by com.jiacimu.lulu.data.PerceptionWakePlanStore.plans.collectAsState()
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val digitalLife = digitalLifeProfiles[characterId] ?: DigitalLifeProfileStore.get(characterId)
     val perceptionPolicy = perceptionPolicies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
+    LaunchedEffect(characterId, perceptionPolicy) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            com.jiacimu.lulu.data.ProactivePerceptionRuntime.wakePlanFor(context, characterId)
+        }
+    }
     val autoPlayVoice = voicePreferences[characterId] == true
     val characterVoiceId = characterVoiceIds[characterId].orEmpty()
     val worldBooks by LuluRepositories.worldBook.observeWorldBooks().collectAsState(initial = emptyList())
@@ -263,6 +269,10 @@ fun CharacterSettingsScreenV2(
                             },
                             onUnitChange = { unit -> ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) } },
                         )
+                    }
+                    if (perceptionPolicy.enabled) wakePlans[characterId]?.let { plan ->
+                        Text("下次预计醒来 · ${plan.dueAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))} · 本轮 ${plan.intervalMinutes} 分钟",
+                            color = LuluColors.Muted, fontSize = 12.sp)
                     }
                     if (perceptionPolicy.enabled && perceptionPolicy.quietHoursEnabled) {
                         CharacterV2TimeRow(label = "勿扰开始", minutesOfDay = perceptionPolicy.quietStartMinutesOfDay) { minutes ->

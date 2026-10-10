@@ -11,6 +11,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.jiacimu.lulu.LuluRepositories
@@ -18,6 +19,14 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.StarWishStores
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -33,6 +42,26 @@ object ProactivePerceptionScheduler {
     private const val WATCHDOG_WORK = "lulu-perception-watchdog-v2"
     private const val NEXT_DUE_WORK = "lulu-perception-next-due-v2"
     private const val ONLINE_WORK = "lulu-perception-online-v1"
+    private const val DUE_TAG = "lulu-perception-due-v3"
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scheduleMutex = Mutex()
+    private var foregroundChecks: Job? = null
+
+    @Synchronized fun startForegroundChecks(context: Context) {
+        if (foregroundChecks?.isActive == true) return
+        val app = context.applicationContext
+        foregroundChecks = scope.launch {
+            while (true) {
+                scheduleNextDue(app)
+                delay(30_000L)
+            }
+        }
+    }
+
+    @Synchronized fun stopForegroundChecks() {
+        foregroundChecks?.cancel()
+        foregroundChecks = null
+    }
 
     fun schedule(context: Context) {
         val appContext = context.applicationContext
@@ -51,19 +80,34 @@ object ProactivePerceptionScheduler {
 
     fun scheduleNextDue(context: Context) {
         val appContext = context.applicationContext
-        val manager = WorkManager.getInstance(appContext)
-        val due = runCatching { ProactivePerceptionRuntime.nextDueAt(appContext) }.getOrNull()
-        if (due == null) {
-            manager.cancelUniqueWork(NEXT_DUE_WORK)
-            return
+        scope.launch {
+            try { scheduleMutex.withLock {
+                // WorkManager queries run off the UI thread. Never replace a running perception.
+                val manager = WorkManager.getInstance(appContext)
+                val due = ProactivePerceptionRuntime.nextDueAt(appContext)
+                val jobs = manager.getWorkInfosByTag(DUE_TAG).get().filterNot { it.state.isFinished }
+                val legacy = manager.getWorkInfosForUniqueWork(NEXT_DUE_WORK).get().filterNot { it.state.isFinished }
+                val dueTag = due?.let { "wake-at-${it.toEpochMilli()}" }
+                (jobs + legacy).filter { it.state != WorkInfo.State.RUNNING &&
+                    (dueTag == null || dueTag !in it.tags) }.forEach { manager.cancelWorkById(it.id) }
+                if (due == null || jobs.any { dueTag != null && dueTag in it.tags }) {
+                    PerceptionWakePlanStore.recordSchedulingError("")
+                    return@withLock
+                }
+                val delayMillis = Duration.between(Instant.now(), due).toMillis().coerceAtLeast(0L)
+                val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+                    .addTag(DUE_TAG).addTag(checkNotNull(dueTag))
+                    .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                    .setInputData(Data.Builder().putString("trigger", "角色时间间隔").build())
+                    .build()
+                manager.enqueueUniqueWork("$NEXT_DUE_WORK-${due.toEpochMilli()}", ExistingWorkPolicy.KEEP, request).result.get()
+                PerceptionWakePlanStore.recordSchedulingError("")
+            } } catch (error: Exception) {
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                PerceptionWakePlanStore.recordSchedulingError("自动唤醒排程未完成：${error.message.orEmpty().take(100)}")
+            }
         }
-        val delayMillis = Duration.between(Instant.now(), due).toMillis().coerceAtLeast(0L)
-        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
-            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
-            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-            .setInputData(Data.Builder().putString("trigger", "角色时间间隔").build())
-            .build()
-        manager.enqueueUniqueWork(NEXT_DUE_WORK, ExistingWorkPolicy.REPLACE, request)
     }
 
     /** Legacy API kept only so old code can compile; it never creates an event-triggered model run. */
@@ -79,7 +123,7 @@ object ProactivePerceptionScheduler {
         CompanionOnlineStore.wakeCharacter(
             characterId = characterId,
             reason = CompanionOnlineReason.BackgroundPerception,
-            trigger = "用户手动检查",
+            trigger = "用户手动唤醒",
         )
     }
 
@@ -261,6 +305,7 @@ internal fun initializeBackgroundRuntime(context: Context) {
     UserDataUpgradeGuard.protectBeforeStoresInitialize(context)
     LuluAppPreferencesStore.initialize(context)
     UserProfileContext.initialize(context)
+    UserInteractionPresenceStore.initialize(context)
     LuluRepositories.initialize(context)
     LuluRepositories.lexicon.initialize(context)
     LuluRepositories.worldBook.initialize(context)

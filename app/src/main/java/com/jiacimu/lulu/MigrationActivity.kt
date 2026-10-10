@@ -43,6 +43,9 @@ import com.jiacimu.lulu.system.LuluDeviceToolBridge
 class MigrationActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
+        com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
+        com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
+        ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
         // Returning from Android's exact-alarm permission screen upgrades pending wake-ups
         // from best-effort to exact without requiring a reboot or changing the original time.
         com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
@@ -54,6 +57,18 @@ class MigrationActivity : ComponentActivity() {
             PomodoroCompanionSessions.handleNaturalCompletion(studyStore, minutes)
         }
         PomodoroCompanionSessions.syncCountUpClock()
+    }
+
+    override fun onPause() {
+        com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(false)
+        ProactivePerceptionScheduler.stopForegroundChecks()
+        super.onPause()
+    }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+        if (event.actionMasked == android.view.MotionEvent.ACTION_DOWN)
+            com.jiacimu.lulu.data.UserInteractionPresenceStore.touch()
+        return super.dispatchTouchEvent(event)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

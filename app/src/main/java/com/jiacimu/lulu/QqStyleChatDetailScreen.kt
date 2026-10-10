@@ -58,9 +58,18 @@ fun QqStyleChatDetailScreen(
 ) {
     val context = LocalContext.current
     DisposableEffect(conversationId, routeVisible) {
-        if (routeVisible) ChatAutoVoicePlayback.setVisibleConversation(conversationId)
-        else ChatAutoVoicePlayback.clearVisibleConversation(conversationId)
-        onDispose { ChatAutoVoicePlayback.clearVisibleConversation(conversationId) }
+        if (routeVisible) {
+            ChatAutoVoicePlayback.setVisibleConversation(conversationId)
+            UserInteractionPresenceStore.setConversation(conversationId)
+        } else {
+            ChatAutoVoicePlayback.clearVisibleConversation(conversationId)
+            UserInteractionPresenceStore.setConversation(null)
+        }
+        onDispose {
+            ChatAutoVoicePlayback.clearVisibleConversation(conversationId)
+            if (UserInteractionPresenceStore.state.value.conversationId == conversationId)
+                UserInteractionPresenceStore.setConversation(null)
+        }
     }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
