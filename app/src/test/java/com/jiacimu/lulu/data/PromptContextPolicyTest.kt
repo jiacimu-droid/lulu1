@@ -34,6 +34,22 @@ class PromptContextPolicyTest {
         assertFalse(b.worldDetails)
     }
 
+    @Test fun longTopMemoryStillGetsPromptSpaceWithoutMutatingOriginal() {
+        val hugeText = "一段确实发生的共同经历".repeat(500)
+        val long = com.jiacimu.lulu.core.MemoryEntry(
+            id = "top", characterId = "role", content = hugeText,
+            kind = com.jiacimu.lulu.core.MemoryKind.Fact, source = "test",
+            occurredAt = null, createdAt = java.time.Instant.EPOCH,
+            strength = 3, pinned = false, canRecallProactively = true,
+        )
+        val short = long.copy(id = "other", content = "另一条应当保留的真实记忆")
+        val result = PromptMemoryRenderer.render(listOf(long, short), 1_400)
+        assertTrue(result.contains("一段确实发生"))
+        assertTrue(result.contains("另一条应当保留"))
+        assertTrue(result.length <= 1_400)
+        assertEquals(hugeText, long.content)
+    }
+
     @Test fun realWorldInteractionAndBackgroundLifeKeepDetails() {
         val meeting = PromptContextPolicy.forRequest("数字世界见面",
             UnifiedMemoryRequest(currentInput = "这个桌子能搬吗"))

@@ -542,13 +542,9 @@ class CompanionModelGateway(
                 appendLine("角色世界书：")
                 roleWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
             }.trim()
-            val memorySection = if (memories.isEmpty()) "" else buildString {
-                appendLine("相关经历摘要（不得当成新的亲历；有原始记录时以原始记录为准）：")
-                memories.forEach { memory ->
-                    val at = memory.occurredAt ?: memory.createdAt
-                    appendLine("- [$at] ${memory.content.trim().replace("\\n", " ")}")
-                }
-            }.trim()
+            val memorySection = com.jiacimu.lulu.data.PromptMemoryRenderer.render(
+                memories, budget.memoryCharacters
+            )
             val memoryEvidenceSection = recalledRawTimeline
             val timelineSection = recentSharedTimeline.takeIf(String::isNotBlank)?.let {
                 "最近共同时间线（按证据类型理解，表达内容不自动等于客观经历）：\n$it"

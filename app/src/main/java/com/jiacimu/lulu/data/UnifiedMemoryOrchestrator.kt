@@ -106,7 +106,7 @@ object UnifiedMemoryOrchestrator {
         val memories = selectMemoryWithinBudget(recalled.filterNot { it.id in coreIds }.filter { memory ->
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
-        }, characterBudget = memoryCharacterBudget, safetyLimit = recallLimit)
+        }, characterBudget = maxOf(memoryCharacterBudget, 9_000), safetyLimit = recallLimit)
         val sourceEvents = (RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
             query = query,
