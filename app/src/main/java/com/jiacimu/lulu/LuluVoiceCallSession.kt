@@ -100,15 +100,20 @@ internal object LuluVoiceCallSession {
     private var lastSilenceReflectionMillis = 0L
     private var silenceFailures = 0
     private var replyIsSilence = false
+    private var silenceAudioPending = false
 
     private fun noteCallUserActivity() {
         lastUserActivityMillis = SystemClock.elapsedRealtime()
         silenceFailures = 0
-        if (replyIsSilence) {
+        if (replyIsSilence || silenceAudioPending) {
             replyGeneration++
             replyJob?.cancel()
             replyIsSilence = false
-            mutableState.update { it.copy(thinking = false) }
+            silenceAudioPending = false
+            autonomousHangup.cancel()
+            subtitleRevealJob?.cancel()
+            speechQueue?.stop()
+            mutableState.update { it.copy(thinking = false, generatedTranscript = "", playingTranscript = "") }
         }
         noteSleepUserReply()
     }
@@ -192,8 +197,8 @@ internal object LuluVoiceCallSession {
                     },
                     onState = { listening, speaking, note ->
                         if (mutableState.value.callExperienceId == sessionId && mutableState.value.connected) {
+                            if (speaking || mutableState.value.speaking) lastCallAudioMillis = SystemClock.elapsedRealtime()
                             if (speaking) {
-                                lastCallAudioMillis = SystemClock.elapsedRealtime()
                                 if (replyIsSilence) {
                                     replyGeneration++; replyJob?.cancel(); replyIsSilence = false
                                     mutableState.update { it.copy(thinking = false) }
@@ -397,6 +402,7 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob = null
         sleepFailures = 0
         replyIsSilence = false
+        silenceAudioPending = false
         subtitleRevealJob?.cancel()
         subtitleRevealJob = null
         lastSleepUserReplyAtMillis = null
@@ -474,6 +480,7 @@ internal object LuluVoiceCallSession {
                 val current = mutableState.value
                 if (!current.connected) return@busyChanged
                 lastCallAudioMillis = SystemClock.elapsedRealtime()
+                if (!busy && speechQueue?.hasPendingAudio != true) silenceAudioPending = false
                 if (busy) audioRoute?.refresh()
                 mutableState.update {
                     it.copy(
@@ -679,6 +686,7 @@ internal object LuluVoiceCallSession {
         val generation = replyGeneration
         replyJob?.cancel()
         replyIsSilence = autonomousSilence
+        silenceAudioPending = false
         if (!autonomousSilence) pauseRecognition()
         if (!opening && !autonomousSleep && !autonomousSilence) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
             "voice-${current.callExperienceId}-user-$generation", spoken, false)
@@ -688,6 +696,7 @@ internal object LuluVoiceCallSession {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
             val archiveId = library.archiveIdFor(ModelUsage.VoiceCall)
+                ?: if (autonomousSilence) library.archiveIdFor(ModelUsage.Chat) else null
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
             if (activeArchive == null) {
                 replyIsSilence = false
@@ -732,6 +741,7 @@ internal object LuluVoiceCallSession {
                         messageId = voiceMessageId,
                         onStarted = {
                             if (sameReply()) {
+                                silenceAudioPending = false
                                 subtitleRevealJob?.cancel()
                                 val lines = PhoneSubtitleLayout.lines(plainSpeech)
                                 if (lines.isNotEmpty()) {
@@ -852,6 +862,7 @@ internal object LuluVoiceCallSession {
                 }
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
+                silenceAudioPending = autonomousSilence && remaining.isNotEmpty()
                 enqueueSpoken(remaining)
                 // During a new call's opening, do not reopen the microphone while
                 // the first sentence is still synthesizing. Speaking becomes true
