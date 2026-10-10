@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`28867f10a87a1a5a42e5414ba402374d9240c5a5`
+- 基准提交：`87da8fc708292d0107658e2acf34a0773eed3294`
 - 分支：`main`
-- 已索引文件：429
-- 已索引代码/文本行：95912
-- 已发现符号：1397
+- 已索引文件：430
+- 已索引代码/文本行：95984
+- 已发现符号：1401
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -133,6 +133,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 488 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 109 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 72 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 42 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 91 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 171 | 11 |

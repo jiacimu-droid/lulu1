@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:15:54.241060+00:00",
-  "commit": "28867f10a87a1a5a42e5414ba402374d9240c5a5",
+  "generatedAt": "2026-10-10T06:27:25.697367+00:00",
+  "commit": "87da8fc708292d0107658e2acf34a0773eed3294",
   "branch": "main",
-  "sourceFingerprint": "afd13b02e497290b26e1b392641d83b70fc418a2f49c4d941e576b090b7c5bb1",
+  "sourceFingerprint": "201d00743fa7b7fad97e313656c9ab532800d2203588ac4542b9932a69682690",
   "summary": {
-    "files": 429,
-    "lines": 95912,
-    "symbols": 1397
+    "files": 430,
+    "lines": 95984,
+    "symbols": 1401
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -112,6 +112,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
         "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
+        "line": 39
       }
     ],
     "preferredMicrophoneType": [
@@ -2444,6 +2448,56 @@
         "line": 97
       }
     ],
+    "extractExplicitAddress": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
+        "line": 20
+      }
+    ],
+    "observeUserMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
+        "line": 29
+      }
+    ],
+    "promptSection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
+        "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
+        "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 165
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
+        "line": 37
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 84
+      }
+    ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
@@ -2586,40 +2640,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
         "line": 99
-      }
-    ],
-    "promptSection": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 14
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
-        "line": 10
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 15
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 165
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 37
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 84
       }
     ],
     "CharacterIdentityStore": [
@@ -9981,6 +10001,29 @@
         {
           "name": "challengeGuidance",
           "line": 97
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
+      "lines": 72,
+      "sha256": "e8ab08ad5e9c1c0238d5fa949fd92f417c9d6aa5e6b3c7c84f73f8722b89cf45",
+      "symbols": [
+        {
+          "name": "extractExplicitAddress",
+          "line": 20
+        },
+        {
+          "name": "observeUserMessage",
+          "line": 29
+        },
+        {
+          "name": "refresh",
+          "line": 39
+        },
+        {
+          "name": "promptSection",
+          "line": 58
         }
       ]
     },
