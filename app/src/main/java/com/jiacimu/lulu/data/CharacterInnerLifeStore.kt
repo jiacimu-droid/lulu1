@@ -472,20 +472,75 @@ object CharacterInnerLifeStore {
         val cleanContent = content.replace(Regex("\\s+"), " ").trim().take(260)
         val propositionId = "p:" + conversationKey.hashCode().toUInt().toString(16) + ":" +
             cleanContent.hashCode().toUInt().toString(16)
-        if ((0 until events.length()).any {
-                val item = events.optJSONObject(it)
-                item?.optString("propositionId") == propositionId &&
-                    item.optString("action") == "candidate" &&
-                    item.optString("evidenceId") == evidenceId
-            }) return
+
+        val latestById = linkedMapOf<String, JSONObject>()
+        for (i in 0 until events.length()) {
+            val item = events.optJSONObject(i) ?: continue
+            if (item.optString("conversationKey") != conversationKey) continue
+            latestById[item.optString("propositionId")] = item
+        }
+        val duplicate = latestById[propositionId]
+        if (duplicate?.optString("action") == "candidate" &&
+            duplicate.optString("evidenceId") == evidenceId) return
+
+        // A new candidate replaces older unconfirmed guesses instead of letting several
+        // incompatible interpretations remain active at the same time.
+        val superseded = latestById.values.filter {
+            it.optString("action") == "candidate" &&
+                it.optString("propositionId") != propositionId
+        }.takeLast(4)
+
         val next = JSONArray().apply {
-            for (i in maxOf(0, events.length() - 29) until events.length()) put(events.opt(i))
+            for (i in maxOf(0, events.length() - 24) until events.length()) put(events.opt(i))
+            superseded.forEach { candidate ->
+                put(JSONObject()
+                    .put("conversationKey", conversationKey.take(120))
+                    .put("propositionId", candidate.optString("propositionId"))
+                    .put("action", "superseded")
+                    .put("content", candidate.optString("content").take(260))
+                    .put("reason", "出现了更新的候选理解")
+                    .put("evidenceId", evidenceId)
+                    .put("at", now.toString()))
+            }
             put(JSONObject()
                 .put("conversationKey", conversationKey.take(120))
                 .put("propositionId", propositionId)
                 .put("action", "candidate")
                 .put("content", cleanContent)
                 .put("confidence", confidence.coerceIn(0.0, 1.0))
+                .put("evidenceId", evidenceId)
+                .put("at", now.toString()))
+        }
+        root.put("groundingEvents", next)
+        save(characterId, root)
+    }
+
+    @Synchronized fun acceptLatestGroundingCandidate(
+        characterId: String,
+        conversationKey: String,
+        evidenceId: String,
+        reason: String = "用户明确确认了上一轮候选理解",
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || conversationKey.isBlank() || evidenceId.isBlank()) return
+        val root = snapshot(characterId)
+        val events = root.optJSONArray("groundingEvents") ?: return
+        val latestById = linkedMapOf<String, JSONObject>()
+        for (i in 0 until events.length()) {
+            val item = events.optJSONObject(i) ?: continue
+            if (item.optString("conversationKey") != conversationKey) continue
+            latestById[item.optString("propositionId")] = item
+        }
+        val candidate = latestById.values.lastOrNull { it.optString("action") == "candidate" } ?: return
+        val next = JSONArray().apply {
+            for (i in maxOf(0, events.length() - 28) until events.length()) put(events.opt(i))
+            put(JSONObject()
+                .put("conversationKey", conversationKey.take(120))
+                .put("propositionId", candidate.optString("propositionId"))
+                .put("action", "grounded")
+                .put("content", candidate.optString("content").take(260))
+                .put("confidence", 1.0)
+                .put("reason", reason.take(180))
                 .put("evidenceId", evidenceId)
                 .put("at", now.toString()))
         }
@@ -512,7 +567,7 @@ object CharacterInnerLifeStore {
         val active = latestById.values.filter { it.optString("action") == "candidate" }
         if (active.isEmpty()) return
         val next = JSONArray().apply {
-            for (i in maxOf(0, events.length() - 29) until events.length()) put(events.opt(i))
+            for (i in maxOf(0, events.length() - 25) until events.length()) put(events.opt(i))
             active.takeLast(4).forEach { candidate ->
                 put(JSONObject()
                     .put("conversationKey", conversationKey.take(120))
@@ -538,9 +593,16 @@ object CharacterInnerLifeStore {
         }
         if (latestById.isEmpty()) return ""
         val active = latestById.values.filter { it.optString("action") == "candidate" }
+        val grounded = latestById.values.filter { it.optString("action") == "grounded" }.takeLast(2)
         val rejected = latestById.values.filter { it.optString("action") == "rejected" }.takeLast(3)
         return buildString {
             appendLine("【程序化共同理解状态】")
+            grounded.forEach { item ->
+                appendLine(
+                    "双方已经明确确认的理解：" + item.optString("content").take(220) +
+                        "。除非后续出现纠正，否则可以把它作为当前共同语境。"
+                )
+            }
             active.takeLast(3).forEach { item ->
                 appendLine(
                     "候选理解（尚未确认，不能当事实）：" + item.optString("content").take(220) +
