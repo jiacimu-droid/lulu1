@@ -4,8 +4,36 @@ import android.content.Context
 import java.time.Duration
 import java.time.Instant
 
-/** Only this character's witnessed events. No omniscient reads of other rooms or private chats. */
+/** One input frame regardless of the presenting scene: chat, voice, meetings or background. */
+internal data class CharacterPerceptionInput(
+    val freshStimuli: List<PerceptionStimulus>,
+    val combined: PerceptionStimulus?,
+)
+
+/** Only this character's witnessed events. No omniscient reads of other rooms or private chats.
+ * Adapters emit facts; this is the single evidence/novelty intake for all LLM paths.
+ */
 internal object CharacterPerceptionContext {
+    fun integrate(
+        context: Context,
+        characterId: String,
+        observed: List<SharedTimelineEvent>,
+        direct: List<PerceptionStimulus> = emptyList(),
+        claimDirect: Boolean = false,
+    ): CharacterPerceptionInput {
+        val sensed = (direct + observed.map(::stimulus))
+            .filter { it.evidenceId.isNotBlank() }
+            .distinctBy { it.evidenceId }
+        val fresh = sensed.filter { stimulus ->
+            if (!claimDirect && direct.any { it.evidenceId == stimulus.evidenceId }) true
+            else PerceptionStimulusLedger.claim(context, characterId, stimulus)
+        }
+        return CharacterPerceptionInput(
+            freshStimuli = fresh,
+            combined = PerceptionStimulusResolver.combine(fresh),
+        )
+    }
+
     fun recent(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> =
         selectRecent(SharedExperienceTimeline.recentEvents(characterId, 80), now)
 
