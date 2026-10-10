@@ -17,5 +17,17 @@ internal object PhoneMicSegmentPolicy {
     fun finishedBySilence(silentFrames: Int, utteranceFrames: Int, configured: Int): Boolean =
         silentFrames >= (silenceMs(utteranceFrames, configured) + 99) / 100
 
+    /** Room-noise-adaptive start and stop levels; no remote VAD model/API. */
+    fun startThreshold(configured: Float, ambientRms: Double): Double =
+        maxOf(configured.toDouble(), ambientRms * 1.65)
+
+    fun quietThreshold(configured: Float, ambientRms: Double, peakRms: Double): Double =
+        maxOf(configured * 0.80, ambientRms * 1.35, peakRms * 0.22)
+
+    /** If the mic keeps reporting flat background noise, submit the utterance
+     * instead of leaving ASR waiting indefinitely for an end-of-turn marker. */
+    fun stationaryNoiseEnded(steadyFrames: Int, utteranceFrames: Int): Boolean =
+        steadyFrames >= 23 && utteranceFrames >= 25
+
     fun uploadChunkFull(bytes: Int): Boolean = bytes >= MAX_UPLOAD_BYTES
 }
