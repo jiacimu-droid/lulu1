@@ -3,19 +3,35 @@ package com.jiacimu.lulu.data
 /** Initial constraints, not generated world facts or a diagnostic personality inventory. */
 internal data class CharacterProfileField(val key: String, val label: String, val hint: String, val group: String)
 internal object CharacterProfileSchema {
+    // Storage keys stay stable for existing characters. Labels/groups are the authoring model:
+    // facts live on the Profile page; this page only describes how the same person tends to
+    // interpret, choose, relate and express. Short-lived feelings/concerns never belong here.
     val fields = listOf(
-        CharacterProfileField("values", "价值与底线", "长期坚持的原则与不可逾越的底线（可留空）", "内在底色"),
-        CharacterProfileField("motives", "长期价值取向", "长期重视什么，不写当前任务、愿望或承诺；这些在「正在牵挂」中依据真实经历变化", "内在底色"),
-        CharacterProfileField("perception", "判断方式", "面对新信息的关注点和推理习惯", "思考与应对"),
-        CharacterProfileField("conflict", "分歧与修复", "遇到误会、拒绝或失败时的惯常处理方式", "思考与应对"),
-        CharacterProfileField("care", "亲近方式", "习惯怎样亲近与照顾关系；不要重复价值底线或当前感受", "相处与表达"),
-        CharacterProfileField("respect", "相处边界", "需要尊重的意愿、边界与不能接受的行为", "相处与表达"),
-        CharacterProfileField("social", "不同场合的表现", "不同人和情境下的行为差异", "相处与表达"),
-        CharacterProfileField("expression", "表达风格底色", "整体语感与情绪表达的范围，不写具体口头禅或聊天记录；个人语言习惯在下一项设置", "相处与表达"),
-        CharacterProfileField("speechHabits", "语言小癖好", "角色自带的表达品味和习惯；例如语气、标点、偶尔倒装、冷笑话或谐音与何时适用。不要填固定台词；新学会的习惯另记成长。", "相处与表达"),
-        CharacterProfileField("interests", "初始兴趣（可选）", "不填写也可从实际经历中逐渐形成新的兴趣", "其他设定"),
-        CharacterProfileField("typing", "人格类型参考（可选）", "可填人格类型，不强制角色按类型模板行事", "其他设定"),
+        CharacterProfileField("values", "核心价值与底线", "长期坚持什么、什么不能接受。写原则，不写当下情绪、任务或口头禅。", "稳定核心"),
+        CharacterProfileField("motives", "长期驱动力", "这个人长期重视、追求或守护什么；不是本周目标、愿望清单或具体承诺。", "稳定核心"),
+        CharacterProfileField("perception", "看待与判断", "面对信息时通常先注意什么、怎样形成判断；允许在不同情境下有不同结论。", "思考与应对"),
+        CharacterProfileField("conflict", "受挫、分歧与修复", "误会、拒绝、失败或冲突发生时通常怎样理解、克制、表达和修复。", "思考与应对"),
+        CharacterProfileField("care", "亲近与照顾方式", "关系里习惯怎样靠近、关心与主动做事；不要写当前牵挂或一次性的甜言蜜语。", "关系与主动性"),
+        CharacterProfileField("respect", "关系边界", "哪些意愿和边界必须尊重，哪些行为即使亲近也不会擅自越过。", "关系与主动性"),
+        CharacterProfileField("social", "情境反应差异", "面对陌生人、熟人、亲密对象或不同压力时，哪些侧面更容易被激活。写倾向，不写“遇到X必须Y”。", "关系与主动性"),
+        CharacterProfileField("expression", "表达气质", "整体语感、节奏、正式程度与情绪表达范围；不要填固定台词，具体语言习惯在下一项。", "表达"),
+        CharacterProfileField("speechHabits", "语言习惯与小癖好", "角色原本就有的措辞、语气、标点、偶尔倒装、冷笑话或谐音，以及何时自然出现。不要写固定台词；后天学会的习惯另记成长。", "表达"),
+        CharacterProfileField("interests", "初始兴趣与偏好（可选）", "创建时就确定的兴趣或审美偏好；后续新的兴趣可以从真实经历中逐渐形成。", "起始偏好"),
+        CharacterProfileField("typing", "人格类型参考（可选）", "只作为理解角度，不用类型标签自动推导恐惧、经历或固定反应。", "起始偏好"),
     )
+    val groupOrder = listOf("稳定核心", "思考与应对", "关系与主动性", "表达", "起始偏好")
+    val groupHints = mapOf(
+        "稳定核心" to "变化最慢：回答“这个人为什么会这样选择”，不是每轮都要说出来。",
+        "思考与应对" to "描述处理事情的倾向，让同一个人在不同情境下仍然有可理解的连续性。",
+        "关系与主动性" to "描述怎样相处、怎样主动和怎样守边界；当前关系状态仍由真实经历决定。",
+        "表达" to "只管“怎么说”，不重复身份、价值或当前心情。",
+        "起始偏好" to "可留空；没有写死的部分允许角色在真实生活中慢慢长出来。",
+    )
+    fun groupedFields(): List<Pair<String, List<CharacterProfileField>>> = groupOrder.mapNotNull { group ->
+        fields.filter { it.group == group }.takeIf(List<CharacterProfileField>::isNotEmpty)?.let { group to it }
+    }
+
+    // Compatibility helpers for old UI/tests; new UI renders groupedFields() directly.
     val featuredFields: List<CharacterProfileField> get() = fields.filter { it.key == "expression" || it.key == "speechHabits" }
     val otherFields: List<CharacterProfileField> get() = fields.filterNot { it.key == "expression" || it.key == "speechHabits" }
     const val jiangDuIdentity = "江渡是用户创造、生活在露露机数字世界的数字生命，没有现实肉身或现实社会身份；通过手机交流，见面时接触的是用户的数字投影。诞生即被赋予恋人身份，但起初没有恋爱经历和共同回忆，感情从实际相处中形成；已经形成的关系与记忆继续承接。"
