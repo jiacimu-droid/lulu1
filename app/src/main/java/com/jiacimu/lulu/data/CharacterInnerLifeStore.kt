@@ -358,7 +358,7 @@ object CharacterInnerLifeStore {
             ?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val recentMinutes = latestAt?.let { runCatching { Duration.between(it, now).toMinutes() }.getOrNull() }
         if (recentMinutes != null && recentMinutes in 0..10 &&
-            sameInnerVoiceMeaning(latest.optString("thought"), clean)) return
+            sameInnerVoiceMeaning(latest?.optString("thought").orEmpty(), clean)) return
         root.put("innerVoices", JSONArray().apply {
             for (i in maxOf(0, old.length() - 5) until old.length()) put(old.opt(i))
             put(JSONObject().put("evidenceId", evidenceId).put("thought", clean)
