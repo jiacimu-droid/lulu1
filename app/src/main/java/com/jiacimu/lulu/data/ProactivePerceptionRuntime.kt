@@ -492,6 +492,9 @@ object ProactivePerceptionRuntime {
                 fallbackDecision.innerThought,
             ))
         CharacterLifeStore.consider(characterId, decision.intention, now)
+        // Capture the private state before this proposal is applied. Delta must compare two moments,
+        // not compare the model proposal against a store we already mutated with that proposal.
+        val privateStateBefore = CharacterInnerLifeStore.snapshot(characterId)
         // The executor, not the model, anchors subjective emotion to a real observed event.
         // Old chat history alone must not create an apparently new emotional stimulus.
         val messageStimulus = PerceptionStimulusResolver.select(
@@ -524,7 +527,7 @@ object ProactivePerceptionRuntime {
         // that reply invalidates the derived self-correction too.
         val revisitingConflict = listOf("争执", "冲突", "歉意", "强烈情绪", "后续整理", "悔恨")
             .any(trigger::contains)
-        val previousFeeling = CharacterInnerLifeStore.snapshot(characterId).optJSONObject("emotion")
+        val previousFeeling = privateStateBefore.optJSONObject("emotion")
         val previousEvidence = if (revisitingConflict || awakeReflection)
             previousFeeling?.optString("evidenceId").orEmpty() else ""
         if (emotionalAnchor.isBlank() && previousEvidence.isNotBlank() && decision.innerLife != null) {
@@ -542,11 +545,19 @@ object ProactivePerceptionRuntime {
         // Heart voice is a sparse projection of a real private-state delta. The model may propose
         // prose, but the program rejects a paraphrase of outward speech and generic waiting scripts
         // when nothing genuinely changed.
+        val privateDelta = PrivateStateDeltaEngine.evaluate(
+            previous = privateStateBefore,
+            proposal = decision.innerLife,
+            appraisal = decision.appraisal,
+            basis = decision.innerThoughtBasis,
+            thought = decision.innerThought,
+        )
         val groundedInnerThought = CharacterHeartVoicePolicy.keepOrBlank(
             thought = decision.innerThought,
             outward = decision.text,
             innerLife = decision.innerLife,
             basis = decision.innerThoughtBasis,
+            delta = privateDelta,
             hasFreshEvidence = freshStimulus || previousEvidence.isNotBlank() ||
                 decision.action != Action.SILENT,
         )
@@ -576,7 +587,7 @@ object ProactivePerceptionRuntime {
             CharacterInnerLifeStore.recordInnerVoice(
                 characterId, if (awakeReflection) awakeObservationId else stimulus?.evidenceId?.let { "perception:$it" }
                     ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
-                groundedInnerThought, now,
+                groundedInnerThought, now, privateDelta.fingerprint,
             )
         }
         // Execute first. Unvalidated model status/gesture must never become a world fact.
@@ -620,6 +631,7 @@ object ProactivePerceptionRuntime {
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
+                innerThoughtFingerprint = privateDelta.fingerprint,
             )
         }
         if (decision.action != Action.SILENT && !execution.success) {
