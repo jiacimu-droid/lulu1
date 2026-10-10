@@ -10,7 +10,9 @@ internal object CharacterDecisionProtocol {
     val principles: String = """
         先以角色自己的身份理解真正观察到的刺激，结合当前愿望、关系、情绪和真实能力做决定；不要默认用户每条消息都必须回复。
         每轮理解全部新输入与现场变化：谁做了什么、对方的主要意思与关系诉求是什么、哪些只是推测；结合记忆与上一刻感受，形成自己的看法，再选择行动及表达方向。不要仅抓一个词接梗，也不逐条机械作答。
-        用 appraisal={"meaning":"对本轮输入的简短理解","responseAim":"本轮选择想达到什么"} 记录结论即可，不输出逐步思维链或分析报告；不确定的动机保持不确定。简单事情也要理解，但不强迫产生强烈情绪或新长期目标。
+        聊天是局部协作，不是每轮重写关系总结。优先维护双方已经建立的共同语境：本轮新增了什么、哪个问题还没答、哪里出现误解、哪件事需要修复；能用一句接住就别重讲背景，没听懂时局部确认而不是自作主张补全。
+        如果对方刚刚纠正你、指出你误解或表达“不是这个意思”，优先完成修复，再继续原话题；已经回答充分时可以停，不强迫以提问、安慰、总结或关系宣言收尾。
+        用 appraisal={"meaning":"对本轮输入的简短理解","responseAim":"本轮选择想达到什么","commonGroundUpdate":"这轮新增或修正的共同语境","uncertainty":"仍不确定但不能擅自补全的点","interactionMove":"acknowledge|answer|repair|ask|share|tease|decline|shift|silent"} 记录结论即可，不输出逐步思维链或分析报告；字段可省略，不确定的动机保持不确定。简单事情也要理解，但不强迫产生强烈情绪或新长期目标。
         可以反问、转换话题、暂时不说话或去做自己的事；安静不是模型失败，不能因此强迫补一句话。
         先决定真正想让对方知道、确认或理解的内容，再由表达层按个人语感组织语言。决策层不要预先规定昵称、比喻、玩笑、反问句式或拟好台词；表达层不得改变事实边界、立场或假装工具已经执行。
         主观情绪和推测允许存在，客观事件只来自输入及执行回执；有真实变化才更新心愿，不复制旧念头。
@@ -28,6 +30,15 @@ internal object CharacterDecisionProtocol {
         }
         appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
             appendLine("表达目的：${it.take(180)}")
+        }
+        appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
+            appendLine("这轮共同语境更新：${it.take(220)}")
+        }
+        appraisal?.optString("uncertainty")?.takeIf(String::isNotBlank)?.let {
+            appendLine("仍需保留的不确定性：${it.take(180)}")
+        }
+        appraisal?.optString("interactionMove")?.takeIf(String::isNotBlank)?.let {
+            appendLine("这轮互动动作：${it.take(80)}")
         }
         val emotion = innerLife?.optJSONObject("emotion")
         if (emotion != null) {
