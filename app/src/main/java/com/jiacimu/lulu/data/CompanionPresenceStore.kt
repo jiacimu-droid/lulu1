@@ -84,6 +84,46 @@ object CompanionPresenceStore {
     }
 
     /**
+     * Gesture is a momentary visible action unless its wording clearly describes an activity/posture
+     * that can still be true on the next observation. This prevents "摇头/失笑/抬眼" from becoming
+     * a permanent pose merely because a later model turn omitted gesture.
+     */
+    internal fun isSustainedGesture(text: String): Boolean {
+        val clean = text.trim()
+        if (clean.isBlank()) return false
+        if (describesOngoingCall(clean)) return true
+        if (Regex("突然|忽然|刚刚|刚才|一下|一瞬|失笑|笑出|摇头|点头|眨眼|挑眉|叹气|抬眼|抬头|皱眉|耸肩|愣住|怔住|抿唇").containsMatchIn(clean)) {
+            return false
+        }
+        return Regex("正在|继续|保持|坐着|躺着|站着|靠着|趴着|抱着|捧着|拿着|阅读|看书|学习|工作|做饭|吃着|喝着|散步|走着|跑着|睡(?:着|觉)?|休息|玩(?:着)?游戏|洗澡|收拾|整理|等着|等待").containsMatchIn(clean)
+    }
+
+    private fun inheritedGesture(previous: CompanionPresenceState?, now: Instant): String {
+        val old = previous ?: return ""
+        val ageMinutes = runCatching { Duration.between(old.updatedAt, now).toMinutes() }.getOrDefault(Long.MAX_VALUE)
+        return old.gesture.takeIf { ageMinutes in 0..(8 * 60) && isSustainedGesture(it) }.orEmpty()
+    }
+
+    private fun normalizedThought(text: String): String = text
+        .lowercase()
+        .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_-]+"), "")
+        .replace(Regex("^(还是|就是|只是|现在|这会儿|此刻|嗯|唔|好吧)+"), "")
+
+    private fun meaningfullyDifferentThought(previous: String, next: String): Boolean {
+        val left = normalizedThought(previous)
+        val right = normalizedThought(next)
+        if (right.isBlank()) return false
+        if (left.isBlank()) return true
+        if (left == right || left.contains(right) || right.contains(left)) return false
+        if (left.length < 4 || right.length < 4) return true
+        val leftPairs = left.windowed(2).toSet()
+        val rightPairs = right.windowed(2).toSet()
+        val denominator = minOf(leftPairs.size, rightPairs.size).coerceAtLeast(1)
+        val overlap = leftPairs.intersect(rightPairs).size.toDouble() / denominator
+        return overlap < 0.68
+    }
+
+    /**
      * Anchors the next presence dialog to the state that existed when this concrete chat message
      * was sent. New chat turns are recorded one-by-one in history, so different message avatars no
      * longer all open the role's newest state. Older messages fall back to the closest saved state
@@ -144,7 +184,7 @@ object CompanionPresenceStore {
             statusText = (statusText.cleanPresence(120) ?: previous?.statusText.orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "通话已结束" else it
             },
-            gesture = (gesture.cleanPresence(500) ?: previous?.gesture.orEmpty()).let {
+            gesture = (if (gesture == null) inheritedGesture(previous, now) else gesture.cleanPresence(500).orEmpty()).let {
                 if (characterId !in activeCalls && describesOngoingCall(it)) "刚放下电话" else it
             },
             innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(1_200).orEmpty(),
@@ -160,18 +200,22 @@ object CompanionPresenceStore {
             return
         }
         mutableStates.value = mutableStates.value + (characterId to next)
-        val contentChanged = previous == null || previous.copy(
-            updatedAt = next.updatedAt,
-            source = next.source,
-            lastPerceptionAt = next.lastPerceptionAt,
-            lastPerceptionNote = next.lastPerceptionNote,
-        ) != next
-        val heartbeatDue = previous == null || Duration.between(previous.updatedAt, now).toMinutes() >= 30
+        val visibleChanged = previous == null ||
+            previous.statusText != next.statusText ||
+            previous.gesture != next.gesture ||
+            previous.mood != next.mood
+        val thoughtChanged = previous == null ||
+            meaningfullyDifferentThought(previous.innerThought, next.innerThought)
         val isChatTurn = source.contains("聊天") || source.contains("群聊")
+        val lastRecordedAt = mutableHistories.value[characterId]?.firstOrNull()?.updatedAt
+        val thoughtHistoryDue = lastRecordedAt == null ||
+            runCatching { Duration.between(lastRecordedAt, now).toMinutes() >= 15 }.getOrDefault(true)
 
-        // Every actual chat turn owns a distinct 'moment', even if two consecutive states happen to
-        // have the same wording. Non-chat background states may still dedupe to avoid noisy history.
-        if (isChatTurn || contentChanged || heartbeatDue) {
+        // A sent chat message owns a concrete moment. Background perception is different: a role can
+        // stay aware without manufacturing a new historical "heart voice" every minute. Visible state
+        // changes are recorded immediately; thought-only background changes are rate-limited and must
+        // contain materially new wording. Exact/near repeats remain current state only.
+        if (isChatTurn || visibleChanged || (thoughtChanged && thoughtHistoryDue)) {
             mutableHistories.value = mutableHistories.value +
                 (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty())
                     .distinctBy { it.updatedAt }
