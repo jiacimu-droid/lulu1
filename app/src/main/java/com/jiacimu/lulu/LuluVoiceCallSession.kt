@@ -92,7 +92,10 @@ internal object LuluVoiceCallSession {
     private var timerJob: Job? = null
     private var dialJob: Job? = null
     private var restartListeningJob: Job? = null
+    private var systemCommitJob: Job? = null
     private var sleepContinuationJob: Job? = null
+    private var systemUtteranceBuffer = ""
+    private var systemPartialCandidate = ""
     private var userSpeechInProgress = false
     private var sleepFailures = 0
     private var lastUserActivityMillis = 0L
@@ -293,6 +296,7 @@ internal object LuluVoiceCallSession {
             // "Muted" is a real capture shutdown, not zeroing input frames
             // while retaining AudioRecord and globally silencing other apps.
             restartListeningJob?.cancel()
+            resetSystemRecognitionTurn()
             providerInput?.pauseCapture()
             pauseRecognition()
             recognizer?.destroy()
@@ -400,6 +404,7 @@ internal object LuluVoiceCallSession {
         LuluCallRingtone.stopAll()
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
+        resetSystemRecognitionTurn()
         sleepFailures = 0
         replyIsSilence = false
         silenceAudioPending = false
@@ -481,7 +486,14 @@ internal object LuluVoiceCallSession {
                 if (!current.connected) return@busyChanged
                 lastCallAudioMillis = SystemClock.elapsedRealtime()
                 if (!busy && speechQueue?.hasPendingAudio != true) silenceAudioPending = false
-                if (busy) audioRoute?.refresh()
+                if (busy) {
+                    // Never let either system/cloud ASR hear the character's own TTS and
+                    // persist it back as a fake user utterance.
+                    resetSystemRecognitionTurn()
+                    providerInput?.pauseCapture()
+                    pauseRecognition()
+                    audioRoute?.refresh()
+                }
                 mutableState.update {
                     it.copy(
                         speaking = busy,
@@ -498,7 +510,11 @@ internal object LuluVoiceCallSession {
                 if (!busy && current.connected) {
                     finishAutonomousHangupIfReady()
                     if (mutableState.value.connected && !mutableState.value.microphoneMuted) {
-                        scheduleListening(220)
+                        if (appContext?.let(CallVoiceConfiguration::sttEngine) == "system") {
+                            scheduleListening(220)
+                        } else {
+                            providerInput?.resumeCapture()
+                        }
                     }
                     scheduleSleepContinuation()
                 }
@@ -527,14 +543,17 @@ internal object LuluVoiceCallSession {
                     mutableState.update {
                         it.copy(
                             listening = true,
-                            partialTranscript = "",
-                            statusMessage = "正在听你说话",
+                            partialTranscript = systemUtteranceBuffer,
+                            statusMessage = if (systemUtteranceBuffer.isBlank()) "正在听你说话" else "听到了，你可以继续说",
                         )
                     }
                 }
 
                 override fun onBeginningOfSpeech() {
                     if (!mutableState.value.connected || mutableState.value.opening) return
+                    systemCommitJob?.cancel()
+                    systemCommitJob = null
+                    systemPartialCandidate = ""
                     userSpeechInProgress = true
                     noteCallUserActivity()
                     sleepContinuationJob?.cancel()
@@ -552,11 +571,25 @@ internal object LuluVoiceCallSession {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = false
                     recognitionActive = false
+                    val hasBufferedSpeech = systemUtteranceBuffer.isNotBlank()
+                    if (hasBufferedSpeech &&
+                        error in setOf(SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
+                        mutableState.update {
+                            it.copy(
+                                listening = false,
+                                partialTranscript = systemUtteranceBuffer,
+                                statusMessage = "听到了，稍等一下…",
+                            )
+                        }
+                        scheduleSystemUtteranceCommit(420)
+                        scheduleListening(160)
+                        return
+                    }
                     scheduleSleepContinuation()
                     mutableState.update { current ->
                         current.copy(
                             listening = false,
-                            partialTranscript = "",
+                            partialTranscript = systemUtteranceBuffer,
                             statusMessage = when (error) {
                                 SpeechRecognizer.ERROR_NETWORK, SpeechRecognizer.ERROR_NETWORK_TIMEOUT ->
                                     "语音识别网络暂时不可用"
@@ -579,17 +612,37 @@ internal object LuluVoiceCallSession {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = false
                     recognitionActive = false
-                    val spoken = results
+                    val finals = results
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        ?.firstOrNull()
-                        ?.trim()
                         .orEmpty()
-                    mutableState.update { it.copy(listening = false, partialTranscript = "") }
+                        .map(String::trim)
+                        .filter(String::isNotBlank)
+                    val primary = finals.firstOrNull().orEmpty()
+                    val partial = systemPartialCandidate.trim()
+                    val spoken = when {
+                        primary.isBlank() -> partial
+                        partial.isBlank() -> primary
+                        normalizeSpeechForComparison(partial).contains(normalizeSpeechForComparison(primary)) &&
+                            partial.length > primary.length -> partial
+                        else -> primary
+                    }
+                    systemPartialCandidate = ""
                     if (spoken.isBlank()) {
-                        scheduleListening(220)
-                        scheduleSleepContinuation()
+                        mutableState.update { it.copy(listening = false, partialTranscript = systemUtteranceBuffer) }
+                        if (systemUtteranceBuffer.isBlank()) scheduleSleepContinuation()
+                        else scheduleSystemUtteranceCommit(520)
+                        scheduleListening(180)
                     } else {
-                        handleUserSpeech(spoken)
+                        systemUtteranceBuffer = PhoneTranscriptAssembler.combine(systemUtteranceBuffer, spoken).trim()
+                        mutableState.update {
+                            it.copy(
+                                listening = false,
+                                partialTranscript = systemUtteranceBuffer,
+                                statusMessage = "听到了，你还可以继续说",
+                            )
+                        }
+                        scheduleSystemUtteranceCommit()
+                        scheduleListening(120)
                     }
                 }
 
@@ -599,7 +652,10 @@ internal object LuluVoiceCallSession {
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         ?.firstOrNull()
                         .orEmpty()
-                    mutableState.update { it.copy(partialTranscript = partial) }
+                    systemPartialCandidate = partial
+                    mutableState.update {
+                        it.copy(partialTranscript = PhoneTranscriptAssembler.combine(systemUtteranceBuffer, partial))
+                    }
                 }
 
                 override fun onEvent(eventType: Int, params: Bundle?) = Unit
@@ -617,7 +673,8 @@ internal object LuluVoiceCallSession {
 
     private fun startListeningIfPossible() {
         val current = mutableState.value
-        if (!current.connected || current.microphoneMuted || current.speaking || current.opening || recognitionActive || realtime != null || providerInput != null) return
+        if (!current.connected || current.microphoneMuted || current.thinking || current.speaking ||
+            current.opening || recognitionActive || realtime != null || providerInput != null) return
         if (!hasMicrophonePermission()) {
             mutableState.update { it.copy(statusMessage = "需要麦克风权限才能继续通话") }
             return
@@ -635,8 +692,9 @@ internal object LuluVoiceCallSession {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
                  putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 850L)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 900L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1_500L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1_050L)
             })
             recognitionActive = true
         }.onFailure {
@@ -651,6 +709,33 @@ internal object LuluVoiceCallSession {
         recognitionActive = false
         runCatching { recognizer?.cancel() }
         mutableState.update { it.copy(listening = false, partialTranscript = "") }
+    }
+
+    private fun normalizeSpeechForComparison(value: String): String =
+        value.lowercase().replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\\"'（）()]+"), "")
+
+    private fun scheduleSystemUtteranceCommit(delayMillis: Long = 1_250L) {
+        systemCommitJob?.cancel()
+        val sessionId = mutableState.value.callExperienceId
+        systemCommitJob = scope.launch {
+            delay(delayMillis)
+            val current = mutableState.value
+            if (!current.connected || current.callExperienceId != sessionId ||
+                current.thinking || current.speaking || current.opening || userSpeechInProgress) return@launch
+            val spoken = systemUtteranceBuffer.trim()
+            if (spoken.isBlank()) return@launch
+            systemUtteranceBuffer = ""
+            systemPartialCandidate = ""
+            systemCommitJob = null
+            handleUserSpeech(spoken)
+        }
+    }
+
+    private fun resetSystemRecognitionTurn() {
+        systemCommitJob?.cancel()
+        systemCommitJob = null
+        systemUtteranceBuffer = ""
+        systemPartialCandidate = ""
     }
 
     private fun startOpening() {
@@ -688,10 +773,12 @@ internal object LuluVoiceCallSession {
         replyIsSilence = autonomousSilence
         silenceAudioPending = false
         if (!autonomousSilence) pauseRecognition()
-        if (!opening && !autonomousSleep && !autonomousSilence) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
-            "voice-${current.callExperienceId}-user-$generation", spoken, false)
+        if (!opening && !autonomousSleep && !autonomousSilence) {
+            resetSystemRecognitionTurn()
+            MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
+                "voice-${current.callExperienceId}-user-$generation", spoken, false)
+        }
         mutableState.update { it.copy(thinking = true, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
-        if (!opening && !autonomousSleep && !autonomousSilence) scheduleListening(200)
         replyJob = scope.launch {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
