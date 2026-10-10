@@ -156,6 +156,10 @@ internal object AutonomousSocialRuntime {
                     triggerExtraction = false,
                 )
             }
+            val sourceId = "meeting-${session.id}-autonomous-turn-${turn.id}-viewer-${draft.speakerId}"
+            CharacterInnerLifeStore.observe(draft.speakerId, sourceId, body, draft.innerLife,
+                participantIds.filterNot { it == draft.speakerId }.toSet(), turnTime)
+            CharacterInnerLifeStore.recordInnerVoice(draft.speakerId, sourceId, draft.innerThought, turnTime)
         }
 
         val finishedAt = now.plusMillis((generated.turns.size + 2L) * 900L)
@@ -249,6 +253,7 @@ internal object AutonomousSocialRuntime {
                 appendLine("【这是一场角色与角色自己的生活，主人不在现场】")
                 appendLine("真实时间：$now")
                 appendLine(authority)
+                appendLine(DigitalWorldEnvironment.snapshot(now).context())
                 if (worldTick != null) {
                     appendLine("【本轮程序权威环境事件｜所有参与者亲眼经历】")
                     appendLine(worldTick.summary)
@@ -261,6 +266,8 @@ internal object AutonomousSocialRuntime {
                     val character = characters.getValue(id)
                     appendLine("- id=$id")
                     appendLine(CharacterRuntime.definition(id).promptSection())
+                    appendLine("此角色的私密持续状态（不可转成同伴已知信息）：")
+                    appendLine(CharacterInnerLifeStore.compactContext(id, now))
                 }
                 appendLine(socialHistory)
                 appendLine(recentLife)
@@ -282,6 +289,8 @@ internal object AutonomousSocialRuntime {
                 7. 如果最近生活里出现阅读、日记、群聊、世界活动等经历，可以在人设合适时自然成为话题；不要机械复述，也不要每次都提。
                 8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不能创造设施或短暂环境现象。蟑螂、小生物、声音、光影、云质变化与故障只有程序事件明确提供时才存在，且不得改写其阶段或解决状态。
                 9. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
+                10. 每个 turn 可选 innerThought（这个 speaker 未说出的念头）与 innerLife={"emotion":{"feeling":"感受","cause":"本轮亲历依据","otherFeeling":"并存感受","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"愿望","why":"缘由","reason":"变化依据"}],"social":{"targetId":"现场其他真实角色ID","interpretation":"主观看法","reason":"亲历依据"}}。只更新发言角色本人，只依据此前实际相处；不把后续尚未发生的发言、他人的私人想法或私聊写成已知事实。没有变化可省略，不能统一成相同情绪。
+                ${CharacterDecisionProtocol.principles}
             """.trimIndent(),
             source = "角色自主相遇",
             title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
@@ -330,6 +339,8 @@ internal object AutonomousSocialRuntime {
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。
                 4. 真想让用户知道才选 private，以角色自己的口吻主动私聊分享；moment 是公开朋友圈，group 是在真实群里找伙伴聊。只是小事且没分享欲望时选 none，不必每次都通知用户。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
+                6. 可选 innerLife={"emotion":{"feeling":"感受","cause":"当前实际事件","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"个人愿望","why":"原因","reason":"变化依据"}]}。这次独处经历可以改变情绪和兴趣，不只是换一句状态；没有变化则省略，不编造与用户或其他人的互动。
+                ${CharacterDecisionProtocol.principles}
             """.trimIndent(),
             source = "数字世界事件反应",
             title = "${character.displayName}在${tick.locationName}",
@@ -346,6 +357,9 @@ internal object AutonomousSocialRuntime {
             return
         }
 
+        val sourceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
+        CharacterInnerLifeStore.observe(characterId, sourceId, tick.summary, reaction.innerLife, emptySet(), now)
+        CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reaction.innerThought, now)
         val provenanceId = "world-incident-reaction-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         CompanionPresenceStore.update(
             characterId = characterId,
@@ -411,6 +425,7 @@ internal object AutonomousSocialRuntime {
             shareChannel = json.optString("shareChannel").trim().lowercase(),
             shareText = json.optString("shareText").trim().take(2_000),
             groupId = json.optString("groupId").trim(),
+            innerLife = json.optJSONObject("innerLife"),
         )
     }.getOrNull()
 
@@ -444,7 +459,8 @@ internal object AutonomousSocialRuntime {
                         add(com.jiacimu.lulu.VoicePerformance.meetingSegment(type, text, segment.optString("speechText")))
                     }
                 }
-                if (segments.isNotEmpty()) add(GeneratedTurn(speakerId, segments))
+                if (segments.isNotEmpty()) add(GeneratedTurn(speakerId, segments,
+                    item.optJSONObject("innerLife"), item.optString("innerThought").trim().take(1_200)))
             }
         }
         GeneratedEncounter(
@@ -473,11 +489,14 @@ internal object AutonomousSocialRuntime {
         val shareChannel: String,
         val shareText: String,
         val groupId: String,
+        val innerLife: JSONObject? = null,
     )
 
     private data class GeneratedTurn(
         val speakerId: String,
         val segments: List<MeetingSegment>,
+        val innerLife: JSONObject? = null,
+        val innerThought: String = "",
     )
 
     private data class GeneratedEncounter(
