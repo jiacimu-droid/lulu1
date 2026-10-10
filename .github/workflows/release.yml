@@ -76,6 +76,53 @@ jobs:
               --notes "$notes"
           fi
 
+      # A passing main build supersedes build-only tickets from older commits.
+      # Do not touch feature/bug issues authored by humans.
+      - name: Close superseded APK failure issues
+        if: success()
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const markerPattern = /<!-- lulu1-ci-failure:[0-9a-f]{40} -->/
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const oldBuildFailures = issues.filter(issue =>
+              !issue.pull_request &&
+              issue.title.startsWith('[CI] APK build failed on ') &&
+              markerPattern.test(issue.body || '')
+            )
+            for (const issue of oldBuildFailures) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: [
+                  '当前 main 的 APK 测试、构建及发布已成功完成，',
+                  '该历史提交的失败不再阻断最新版本；因此关闭这条构建告警。',
+                  '',
+                  '成功运行：' + [
+                    'https://github.com',
+                    context.repo.owner,
+                    context.repo.repo,
+                    'actions/runs',
+                    context.runId
+                  ].join('/')
+                ].join('\n')
+              })
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                state_reason: 'completed'
+              })
+            }
+
       - name: Upload failure logs
         if: failure()
         continue-on-error: true
