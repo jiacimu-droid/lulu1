@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:28:37.963944+00:00",
-  "commit": "e94e2de7aaf8607db995b8679f59133ef83cbb43",
+  "generatedAt": "2026-10-10T06:29:07.218481+00:00",
+  "commit": "7e2631f796b4a3b2a229581ba4f0a78f6d9036c3",
   "branch": "main",
-  "sourceFingerprint": "753f32cc995db5bd2845fefc6afd6e76590f75e8a8d65536080fb028c57c39c2",
+  "sourceFingerprint": "94df912a2fd0ec6851d185d5b11653ed487a760ea891536029b8752dbb2f93ba",
   "summary": {
     "files": 430,
-    "lines": 96027,
+    "lines": 96030,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -10126,8 +10126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 20,
-      "sha256": "464dbaac77e8ef2268ae23eab6648335e00f3a9a8f1145df7eab78009f8f9278",
+      "lines": 22,
+      "sha256": "6f5f89c3a9c0146a1788a14a001f627535c78d7e3cd964a60afacde1e2592f8e",
       "symbols": [
         {
           "name": "promptSection",
@@ -10324,8 +10324,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
-      "lines": 33,
-      "sha256": "37a797325e97752f820013a7766ee1c6df0056fbe2258db04583fec1dac04f68",
+      "lines": 34,
+      "sha256": "3733ae6678fa06c3cbc2c7f0cdd54542e25c57142282ac1c8ffd8a9beec3c6d3",
       "symbols": [
         {
           "name": "promptSection",
