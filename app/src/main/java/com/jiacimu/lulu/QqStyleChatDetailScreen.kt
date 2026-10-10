@@ -544,7 +544,7 @@ fun QqStyleChatDetailScreen(
                                         conversationId,
                                         encodeQqChatImage(
                                             installed.uri,
-                                            imageDescription = installed.name,
+                                            imageDescription = StickerLibraryStore.imageDescription(installed),
                                             sticker = true,
                                         ),
                                     )
