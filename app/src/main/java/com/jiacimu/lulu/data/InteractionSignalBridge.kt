@@ -49,6 +49,9 @@ internal object InteractionSignalBridge {
         microphoneMuted: Boolean,
         now: Instant = Instant.now(),
     ) {
+        // A repeated pulse of the same silent interval is continued reflection,
+        // not another user action or another source of emotional evidence.
+        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(observationId)).isNotEmpty()) return
         SharedExperienceTimeline.record(
             eventId = observationId,
             characterId = characterId,
