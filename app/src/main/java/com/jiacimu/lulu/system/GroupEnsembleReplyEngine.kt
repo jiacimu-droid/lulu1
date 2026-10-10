@@ -449,23 +449,6 @@ internal object GroupEnsembleReplyEngine {
         return result.take(replyLimit)
     }
 
-    private fun fallbackTurn(characterId: String): PlannedTurn = PlannedTurn(
-        characterId = characterId,
-        replyTo = "group",
-        intent = "加入当前话题",
-        bubbles = listOf("我也接一句。"),
-        quoteMessageId = null,
-        favoriteMessageId = null,
-        recallBubbleNumber = null,
-        pokeUser = false,
-        statusText = "正在群里接话",
-        gesture = "看着刚刷新的消息回了一句",
-        innerThought = "",
-        mood = "平静",
-        tool = "",
-        args = JSONObject(),
-    )
-
     private fun resolveSpeakerId(
         raw: String,
         validMembers: List<LuluGroupMember>,
