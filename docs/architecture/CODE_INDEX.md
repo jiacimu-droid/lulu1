@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e77346688fa4adcc62f8307399deac6421b277f4`
+- 基准提交：`4f69c7290038785b7f0e3c902d781215b2aca465`
 - 分支：`main`
-- 已索引文件：477
-- 已索引代码/文本行：103244
+- 已索引文件：478
+- 已索引代码/文本行：103245
 - 已发现符号：1519
 
 | 文件 | 行数 | 符号数 |
@@ -12,6 +12,7 @@
 | `app/src/main/AndroidManifest.xml` | 128 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
+| `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 52 | 0 |
