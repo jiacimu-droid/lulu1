@@ -289,11 +289,14 @@ internal object PrivateStateDeltaEngine {
             normalize(focus) != normalize(previousBasis?.optString("focus").orEmpty())
 
         val previousAppraisal = latestTransition?.optJSONObject("appraisal")
-        val appraisalChanged = appraisal != null && listOf("meaning", "responseAim", "uncertainty", "interactionMove")
-            .any { key ->
-                val next = appraisal.optString(key).trim()
-                next.isNotBlank() && normalize(next) != normalize(previousAppraisal?.optString(key).orEmpty())
-            }
+        val appraisalChanged = appraisal != null && (
+            listOf("meaning", "responseAim", "uncertainty", "interactionMove", "tension")
+                .any { key ->
+                    val next = appraisal.optString(key).trim()
+                    next.isNotBlank() && normalize(next) != normalize(previousAppraisal?.optString(key).orEmpty())
+                } || alternativeInterpretations(appraisal) != "" &&
+                    alternativeInterpretations(appraisal) != alternativeInterpretations(previousAppraisal)
+            )
 
         val interactions = previous.optJSONObject("interactions")
         val interactionStates = interactions?.let { root ->
@@ -313,6 +316,8 @@ internal object PrivateStateDeltaEngine {
         val fingerprintMaterial = buildString {
             append("focus=").append(normalize(focus)).append('|')
             append("meaning=").append(normalize(appraisal?.optString("meaning").orEmpty())).append('|')
+            append("tension=").append(normalize(appraisal?.optString("tension").orEmpty())).append('|')
+            append("possibilities=").append(alternativeInterpretations(appraisal)).append('|')
             append("emotion=").append(normalize(proposedEmotion?.optString("feeling").orEmpty())).append(':')
                 .append(normalize(proposedEmotion?.optString("cause").orEmpty())).append('|')
             append("motive=").append(motiveSignature(proposal?.optJSONArray("motives"))).append('|')
@@ -332,6 +337,13 @@ internal object PrivateStateDeltaEngine {
             privateResidue = privateResidue,
             fingerprint = fingerprint,
         )
+    }
+
+    private fun alternativeInterpretations(appraisal: JSONObject?): String {
+        val readings = appraisal?.optJSONArray("possibleReadings") ?: return ""
+        return (0 until minOf(readings.length(), 3))
+            .map { normalize(readings.optString(it)) }
+            .filter(String::isNotBlank).sorted().joinToString("|")
     }
 
     private fun sameEmotion(previous: JSONObject?, next: JSONObject): Boolean {
