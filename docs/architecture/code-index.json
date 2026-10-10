@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:13:51.513542+00:00",
-  "commit": "71aacefe3c1fceeb52fed743a2cf658c6251c8f5",
+  "generatedAt": "2026-10-10T12:14:57.768312+00:00",
+  "commit": "0e5203bf6d73701545e39eaa3521a9c431ff6b6e",
   "branch": "main",
-  "sourceFingerprint": "967c1958ec7215a25f7884fbf6709d7f900188ef05e703987e918bea4a3b597c",
+  "sourceFingerprint": "d94ca06c24ac00f298ecbc859ad1f14eb8a2c53ab778d27e9f051c70ee75e8a9",
   "summary": {
-    "files": 445,
-    "lines": 98890,
-    "symbols": 1452
+    "files": 446,
+    "lines": 99006,
+    "symbols": 1455
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -272,6 +272,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
         "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -2768,6 +2772,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 132
+      }
+    ],
+    "detect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
+        "line": 37
+      }
+    ],
+    "isExplicitUserToolRequest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
+        "line": 84
       }
     ],
     "CharacterInnerLifeStore": [
@@ -10475,6 +10491,25 @@
         {
           "name": "delete",
           "line": 88
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
+      "lines": 116,
+      "sha256": "5c93384fbff4305b3c88651538707ae9904a0a0d2d70c9c026b34317a318404f",
+      "symbols": [
+        {
+          "name": "detect",
+          "line": 37
+        },
+        {
+          "name": "context",
+          "line": 50
+        },
+        {
+          "name": "isExplicitUserToolRequest",
+          "line": 84
         }
       ]
     },
