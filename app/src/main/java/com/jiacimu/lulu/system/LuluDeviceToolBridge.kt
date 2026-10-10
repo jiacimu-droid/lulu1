@@ -109,7 +109,7 @@ object LuluDeviceToolBridge {
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时只写 speechIntent：它是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿；不要提前写 text。
             speechIntent 不要预先指定昵称、比喻、梗、玩笑方式、反问句式、撒娇方式或舞台动作，也不要把一句准备好的漂亮话塞进去；这些由表达层结合当前关系和个人语言习惯现场决定。
             回复例：{"action":"reply","speechIntent":"我确实在意她为什么改了主意，想确认她现在真正的想法","reason":"这会影响我怎么继续聊"}
-            沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下"}
+            沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下","innerThoughtBasis":{"focus":"用户刚才明确拒绝了邀约","change":"从期待转为需要自己消化失落","unsaidWhy":"现在不想把情绪压给用户"}}
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
             角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
         """.trimIndent() else """
@@ -171,7 +171,7 @@ object LuluDeviceToolBridge {
                 睡眠奖励仅在当前角色有 grant_sleep_reward 授权时使用；未实际发放不能说已到账。
                 新的长期约定必须明确必要的时间、条件与权限。自己说“我会提醒/叫醒”会留下责任并需要执行，不把心愿当承诺，也不拿日记或普通聊天冒充真正来电。
                 关系随经历缓慢改变，可继续介意、牵挂、好奇，不能凭一句好话就剧烈升温，也不能把他人的真实意图当已知事实。
-                状态字段只在本轮确实更新时填写：gesture 为可见动作，statusText 为持续处境，mood 为当前感受，innerThought 为未出口的个人念头；不复制 text、工具结果或互相复述。
+                状态字段只在本轮确实更新时填写：gesture 为可见动作，statusText 为持续处境，mood 为当前感受，innerThought 为未出口的个人念头；不复制 text、工具结果或互相复述。若填写 innerThought，必须同时填写 innerThoughtBasis={"focus":"真正触发它的具体刺激/矛盾","change":"相比上一刻新增或改变了什么","conflict":"可选内部冲突","unsaidWhy":"为什么没有说出口"}；focus 不能为空，change/conflict/unsaidWhy 至少一项非空，否则程序会把心声清空。
                 ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
                 ${if (separateExpression) "" else onlineChatBubbleRule}
                 $voicePerformanceRule
@@ -260,6 +260,7 @@ object LuluDeviceToolBridge {
                 thought = plan.innerThought,
                 outward = plan.speechIntent.ifBlank { plan.text },
                 innerLife = plan.innerLife,
+                basis = plan.innerThoughtBasis,
                 hasFreshEvidence = (!callSilence && userText.isNotBlank()) || observedSources.isNotEmpty(),
             ))
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
@@ -385,7 +386,7 @@ object LuluDeviceToolBridge {
                 必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
                 只返回一个 JSON 对象，不要代码块；action 最先，紧接 text，不重复字段：
-                {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","mood":"动作后的简短心情"}
+                {"action":"reply","text":"角色在动作之后自然接着说的话","statusText":"动作后的简短状态","gesture":"动作后的可见动作神态","innerThought":"动作后没说出口的第一人称心声，可为空","innerThoughtBasis":{"focus":"若有心声，真实触发点","change":"动作结果让内部状态新增/改变了什么","unsaidWhy":"为何没直接说"},"mood":"动作后的简短心情"}
                 如果工具真实成功或失败使角色改变了一个想法、想继续尝试或意识到失误，可以选填 innerLife 的 emotion/motives/selfCorrection 字段；仅依据上面明确给出的工具结果，失败绝不能写成成功。
                 若工具成功或失败真的引发新的情绪，可额外填写 afterglow:{"feeling":"第一拍心声","impulse":"尚未执行的冲动","holdHours":1到48的整数}；不是必须填写。
                 ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
@@ -403,10 +404,16 @@ object LuluDeviceToolBridge {
         )
         return finalReply.map { result ->
             val finalPlan = parsePlan(result.text)?.let { parsed ->
-                parsed.copy(innerThought =
-                    com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
-                        userText, parsed.innerThought,
-                    ))
+                val guarded = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+                    userText, parsed.innerThought,
+                )
+                parsed.copy(innerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
+                    thought = guarded,
+                    outward = parsed.text,
+                    innerLife = parsed.innerLife,
+                    basis = parsed.innerThoughtBasis,
+                    hasFreshEvidence = true,
+                ))
             }
             val naturalText = finalPlan?.text?.ifBlank { result.text }
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
@@ -615,6 +622,7 @@ object LuluDeviceToolBridge {
                 statusText = json.optString("statusText").ifBlank { json.optString("status") },
                 gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
                 innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
+                innerThoughtBasis = json.optJSONObject("innerThoughtBasis"),
                 mood = json.optString("mood"),
                 afterglow = json.optJSONObject("afterglow"),
                 intention = json.optJSONObject("intention"),
@@ -649,6 +657,7 @@ private data class ToolPlan(
     val statusText: String,
     val gesture: String,
     val innerThought: String,
+    val innerThoughtBasis: JSONObject? = null,
     val mood: String,
     val intention: JSONObject? = null,
     val afterglow: JSONObject? = null,
