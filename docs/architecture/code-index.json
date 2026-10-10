@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:25:14.082310+00:00",
-  "commit": "04b454d973235a0bc50720ad5b027287b8697581",
+  "generatedAt": "2026-10-10T12:25:35.113690+00:00",
+  "commit": "898b1a3c2ec0d0623d2ccbf9574d3250b1d74b93",
   "branch": "main",
-  "sourceFingerprint": "976a145583363af280f73deb350d3b7641d65baf8ea2446112aa48d419889582",
+  "sourceFingerprint": "906e4fc7be48b790eaf422ceaffbca8bf6b733a9d6019d2b6752651d29eefe68",
   "summary": {
-    "files": 448,
-    "lines": 99316,
-    "symbols": 1459
+    "files": 449,
+    "lines": 99350,
+    "symbols": 1460
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8074,6 +8074,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
         "line": 98
+      }
+    ],
+    "TransientConversationStyleTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
+        "line": 5
       }
     ],
     "UserInteractionPresenceTest": [
@@ -16819,6 +16825,17 @@
         {
           "name": "propose",
           "line": 58
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
+      "lines": 34,
+      "sha256": "67670a4a98df8de61c9cec996d4e0d3d6bdd14c7eaef74ccc5da9c4dea81eed6",
+      "symbols": [
+        {
+          "name": "TransientConversationStyleTest",
+          "line": 5
         }
       ]
     },
