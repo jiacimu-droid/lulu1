@@ -66,6 +66,24 @@ object LuluDeviceToolBridge {
         val zone = ZoneId.systemDefault()
         val interactionKey = "direct:user"
         val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
+        val groundingEvidenceId = if (callSilence) silenceObservationId else
+            com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
+                .filter {
+                    userText.isNotBlank() &&
+                        it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
+                        it.content.isNotBlank() &&
+                        (userText.contains(it.content.trim().take(60)) ||
+                            it.content.contains(userText.trim().take(60)))
+                }
+                .lastOrNull()?.id.orEmpty()
+        if (groundingEvidenceId.isNotBlank()) {
+            com.jiacimu.lulu.data.ConversationGroundingEngine.beforeTurn(
+                characterId, interactionKey, groundingEvidenceId, userText,
+            )
+        }
+        val groundingContext = com.jiacimu.lulu.data.ConversationGroundingEngine.context(
+            characterId, interactionKey,
+        )
         // Chat does not suspend the digital world. Its persisted hourly slot prevents
         // event rerolls from rapid messages or retries.
         val inWorldMoment = if ((!sceneContext.contains("电话") || callSilence) &&
@@ -134,6 +152,7 @@ object LuluDeviceToolBridge {
                 appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedWorld))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 if (interactionContext.isNotBlank()) appendLine(interactionContext)
+                if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 previousPresence?.let { presence ->
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
@@ -236,6 +255,11 @@ object LuluDeviceToolBridge {
         val dialoguePlan = com.jiacimu.lulu.data.DialogueMoveEngine.resolve(
             plan.dialogueMove ?: plan.appraisal, plan.speechIntent, userText,
         )
+        if (groundingEvidenceId.isNotBlank()) {
+            com.jiacimu.lulu.data.ConversationGroundingEngine.afterDecision(
+                characterId, interactionKey, groundingEvidenceId, dialoguePlan,
+            )
+        }
         val privateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
         val privateDelta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
             previous = privateStateBefore,
