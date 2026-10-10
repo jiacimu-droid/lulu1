@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T10:10:45.153015+00:00",
-  "commit": "55db0e91360886c93554d22eb7050e4f4f49d873",
+  "generatedAt": "2026-10-10T10:14:29.858971+00:00",
+  "commit": "4ac8743f944731ff30afb54b4d65f2de71383d01",
   "branch": "main",
-  "sourceFingerprint": "3a0e97e1edf7350f18dfd05661520addea24efc9e380cf27b2027784b31d1ac7",
+  "sourceFingerprint": "b480c0fae8215fd3808817e55d158372136aaf12c11a0f18cbd2a43ac36f2836",
   "summary": {
     "files": 444,
-    "lines": 97844,
-    "symbols": 1435
+    "lines": 97859,
+    "symbols": 1436
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2918,10 +2918,16 @@
         "line": 57
       }
     ],
-    "developmentContext": [
+    "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
         "line": 66
+      }
+    ],
+    "developmentContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
+        "line": 105
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -9642,7 +9648,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
       "lines": 237,
-      "sha256": "ab84bd2e76ec02bb79fdf98983409320d4302618ffb6e873eac6b779aacd17d3",
+      "sha256": "2f06a5b1a125327679188bb30d549cc7ceeda23d69cec10d911a60c465eaef1d",
       "symbols": [
         {
           "name": "mute",
@@ -10518,8 +10524,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 96,
-      "sha256": "02812f36e006531160d4311a3a2789e6f3b2b1b37fba40024255757e3680c5ba",
+      "lines": 109,
+      "sha256": "00aa7feeddf4ee9b2912b2b3713572cb540289edfe59ff858b44daa0342bb39b",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -10550,8 +10556,12 @@
           "line": 57
         },
         {
-          "name": "developmentContext",
+          "name": "personalityRuntimeContext",
           "line": 66
+        },
+        {
+          "name": "developmentContext",
+          "line": 105
         }
       ]
     },
@@ -15735,8 +15745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 503,
-      "sha256": "7fccbf2d87b1dd8af1a70d91ab5022d4882e7aa23c0c0e5a6a035eacce51602b",
+      "lines": 505,
+      "sha256": "86635d5c3e9b8e6aceaff6eef44eb5bb7803a1b501a9ac966ddd66311951b8f1",
       "symbols": []
     },
     {
