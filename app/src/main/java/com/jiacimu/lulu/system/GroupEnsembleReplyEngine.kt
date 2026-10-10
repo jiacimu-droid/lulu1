@@ -51,6 +51,7 @@ internal object GroupEnsembleReplyEngine {
         val innerLife: JSONObject? = null,
         val appraisal: JSONObject? = null,
         val motiveId: String = "",
+        val concernId: String = "",
     )
 
     private data class CachedPlan(
@@ -258,7 +259,8 @@ internal object GroupEnsembleReplyEngine {
                 16. statusText、gesture、innerThought、mood 属于当前角色本人。内心可以是冲动、慌乱、暗喜、无语、突然冒粗口，也可以平静；外在未必全说出来，不能变成系统分析。若填写 innerThought，必须同步提供 innerThoughtBasis，明确真正触发点以及相比上一刻新增/改变了什么；没有结构化因果依据时程序会丢弃这条心声。若本轮用户真实消息强烈触动了此角色，可选填 afterglow:{"feeling":"第一拍心声","impulse":"尚未实施的冲动","holdHours":1到48的整数}；无强烈刺激不填。
                 16a. 如角色确实从本轮群话语或已发生的同伴发言中产生新情绪、想调整愿望、或改变对真正说过话的同伴的看法，可为该 turns 对象可选 innerLife:{"emotion":{"feeling":"私人感受","cause":"真实缘由","otherFeeling":"并存感受","strength":1到4},"motives":[{"op":"start|revise|pause|resume|release","id":"已有动机ID","aim":"具体愿望","why":"原因","reason":"改变依据"}],"social":{"targetId":"user或本群真实已发言的角色ID","interpretation":"本人的主观理解","reason":"实际对话依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}},"selfCorrection":{"realization":"反省","nextTime":"下次做法"}}，没有新依据可不填。dimensions 只表示这次真实互动带来的方向性信号，不是好感分，单次变化不能定型关系。仅根据自己真实见过的对话，不能把别人的私聊当证据。每个角色内在生活彼此隔离。
                 16a-补充. 遇到真正触动角色的群聊争执、友情变化或困难取舍，可在自己的 innerLife 写 thoughts:[{"thought":"一个未说出口的念头","impulse":"想做什么","hesitation":"顾虑"},{"thought":"可以和前一个矛盾的念头","impulse":"另一种冲动","hesitation":"为什么犹豫"}]，通常2—4条，内容必须依据本人真实目睹的群消息；它们不是已执行的行动，也不能强制所有角色都产生同一种想法。日常简单对话不必硬填。
-                16b. 若执行 tool 真正用于自己既有的一个愿望，可选 motiveId:"已有动机ID"；真实执行结果将归入该愿望，而文字声称成功不算。
+                16b. 若执行 tool 真正用于自己既有的一个愿望，可选 motiveId:"已有动机ID"；若是为已经存在的未解决私人心事行动，可选 concernId:"已有 threadId"。只有工具执行回执才算结果，不能让角色先选好话再编理由。
+                16c. 需要时可以在 appraisal.pendingConcern 新增、修正、了结一件实际尚未解决的私人问题；它只属于对应的角色本人。群聊发生的真实纠正也可以改变心事，但不能以其他人的秘密私聊作为依据。
                 17. 每个角色还可以在自己这一回合自主执行一个真实露露机内动作。尤其用户在群里问“谁想玩”或某个角色想私下找用户时，可以填写 tool=send_game_invite 或 send_private_message；该动作会真实进入这个角色与用户的私聊，不能把私聊内容又写进群气泡。也可按角色意愿发布朋友圈、写日记、读真实正文、跨到另一个所在群聊、在允许时发起来电、邀请进入数字世界或创建家具。没有自然动机时 tool 留空，严禁为了展示功能每轮都调用。用户明确要求某角色立即执行可用动作时，该角色可以按人设拒绝；一旦答应就必须填写对应 tool，不能只在气泡里口头声称成功。
                 18. 群聊不是独立记忆空间。每个角色只有自己的那条原始时间线：私聊、群聊、电话、游戏和共同事件都按真实时间写在其中。群聊局部记录只负责“此刻怎么接话”，不能覆盖或替代个人时间线。
                 19. 如果这个群隔了很久才重新说话，而某个角色在间隔期间和用户发生过新的私聊/电话/游戏经历，那么这些更晚发生的个人经历才是这个角色更近的状态；不能因为重新打开群聊就把很久以前的群话题当作刚刚发生。
@@ -427,10 +429,14 @@ internal object GroupEnsembleReplyEngine {
                 action = served.turn.tool,
                 args = served.turn.args,
             )
+            val receiptId = "group-tool:${planKey}:${served.turn.tool}"
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
                 served.turn.characterId, served.turn.motiveId,
-                "group-tool:${planKey}:${served.turn.tool}",
-                served.turn.tool, toolResult.success, toolResult.summary,
+                receiptId, served.turn.tool, toolResult.success, toolResult.summary,
+            )
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
+                served.turn.characterId, served.turn.concernId,
+                receiptId, served.turn.tool, toolResult.success, toolResult.summary,
             )
         }
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
@@ -509,7 +515,7 @@ internal object GroupEnsembleReplyEngine {
                             mood = item.optString("mood").take(60),
                             tool = item.optString("tool").trim().takeIf { requested ->
                                 requested in setOf(
-                                    "send_private_message", "send_group_message", "send_game_invite",
+                                    "send_private_message", "send_private_sticker", "send_group_message", "send_game_invite",
                                     "send_world_invite", "publish_moment", "write_journal", "read_book",
                                     "start_call", "digital_world_action",
                                 )
@@ -519,6 +525,7 @@ internal object GroupEnsembleReplyEngine {
                             innerLife = item.optJSONObject("innerLife"),
                             appraisal = item.optJSONObject("appraisal"),
                             motiveId = item.optString("motiveId"),
+                            concernId = item.optString("concernId").trim().take(100),
                         ),
                     )
                 }
