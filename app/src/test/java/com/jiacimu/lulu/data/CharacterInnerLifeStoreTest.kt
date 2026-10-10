@@ -182,6 +182,36 @@ class CharacterInnerLifeStoreTest {
         assertFalse(CharacterInnerLifeStore.needsPostOnlineReflection("inside-test-b", now.plusSeconds(300)))
     }
 
+    @Test fun nearDuplicateInnerVoicesWithinTenMinutesDoNotCreateNewMoments() {
+        start()
+        val id = "inside-test-voice-dedupe"
+        CharacterInnerLifeStore.clear(id)
+        val now = Instant.parse("2026-10-10T08:00:00Z")
+        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-1", "还是先等她回消息吧", now)
+        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-2", "还是先等她回消息", now.plusSeconds(120))
+        assertEquals(1, CharacterInnerLifeStore.snapshot(id).getJSONArray("innerVoices").length())
+        CharacterInnerLifeStore.recordInnerVoice(id, "online-awareness-3", "突然想起那本书还没看完", now.plusSeconds(180))
+        assertEquals(2, CharacterInnerLifeStore.snapshot(id).getJSONArray("innerVoices").length())
+        CharacterInnerLifeStore.clear(id)
+    }
+
+    @Test fun emotionContextShowsProgrammaticTimeDecay() {
+        start()
+        val id = "inside-test-emotion-decay"
+        CharacterInnerLifeStore.clear(id)
+        val now = Instant.parse("2026-10-10T08:00:00Z")
+        val proposal = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "有点生气").put("cause", "刚刚发生了争执")
+            .put("strength", 4).put("halfLifeMinutes", 60))
+        CharacterInnerLifeStore.observe(id, "argument-decay", "刚刚发生了争执", proposal, setOf("user"), now)
+        val fresh = CharacterInnerLifeStore.compactContext(id, now)
+        val later = CharacterInnerLifeStore.compactContext(id, now.plusSeconds(2 * 3600))
+        assertTrue(fresh.contains("当前影响=强"))
+        assertTrue(later.contains("当前影响=较弱"))
+        assertTrue(later.contains("旧事被想起不等于重新受刺激"))
+        CharacterInnerLifeStore.clear(id)
+    }
+
     @Test fun unsaidInnerVoiceIsContinuousButDeletedWithSource() {
         start()
         CharacterInnerLifeStore.recordInnerVoice("inside-test-a", "event-true-1", "……好想多问一句")
