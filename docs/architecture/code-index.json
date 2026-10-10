@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:05:42.147556+00:00",
-  "commit": "a7c97ca47bc172773fdd8b40d503b36381a49cab",
+  "generatedAt": "2026-10-10T14:09:32.716105+00:00",
+  "commit": "a1b4b53eaf1632a19f534c42c8fd9689212204f9",
   "branch": "main",
-  "sourceFingerprint": "7618245a27aeb50c93467763107682c10aecb22dc0a3eeaa351f98c6a339f9ed",
+  "sourceFingerprint": "656f74491acea0d5c7950d586015fcea5fd37de8144c24720727448ce40389e5",
   "summary": {
     "files": 452,
     "lines": 99991,
@@ -9194,7 +9194,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1232,
-      "sha256": "311786c5a66cf50642f22bb266670f471f97dac37ee2ea6b99735926f630c8b1",
+      "sha256": "f3de811977260ce6731f29781f721f7f74c5a54f589a8e9883f639e554b5aadf",
       "symbols": [
         {
           "name": "prepare",
