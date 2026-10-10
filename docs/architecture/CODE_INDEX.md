@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0e32a854300eddf87ca81c550f8ef28b22802a86`
+- 基准提交：`9c6e49b0013760eac5ea5c3667c8f63ffb701fc7`
 - 分支：`main`
 - 已索引文件：472
-- 已索引代码/文本行：102536
-- 已发现符号：1512
+- 已索引代码/文本行：102556
+- 已发现符号：1513
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -186,7 +186,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 469 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 396 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 144 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 401 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 420 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 20 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 35 | 5 |
@@ -381,7 +381,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 556 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 336 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 874 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 875 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |

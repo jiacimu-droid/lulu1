@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:00:12.884507+00:00",
-  "commit": "0e32a854300eddf87ca81c550f8ef28b22802a86",
+  "generatedAt": "2026-10-10T18:02:43.985635+00:00",
+  "commit": "9c6e49b0013760eac5ea5c3667c8f63ffb701fc7",
   "branch": "main",
-  "sourceFingerprint": "bc0dfb31e44f03965d4cb644ee22563783ea00ba6117311d8e9f5ef527fa9f0c",
+  "sourceFingerprint": "d2dd5141731d85199066decabfedb95ce4dd2d8a334e4ad925bcbb911f2aff34",
   "summary": {
     "files": 472,
-    "lines": 102536,
-    "symbols": 1512
+    "lines": 102556,
+    "symbols": 1513
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -307,7 +307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 262
+        "line": 281
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -3730,16 +3730,22 @@
         "line": 60
       }
     ],
+    "correctionSuppliesDirection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 69
+      }
+    ],
     "plannerConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 63
+        "line": 75
       }
     ],
     "resolve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 75
+        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
@@ -3749,25 +3755,25 @@
     "expressionConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 140
+        "line": 159
       }
     ],
     "beforeTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 211
+        "line": 230
       }
     ],
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 244
+        "line": 263
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 268
+        "line": 287
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -11830,8 +11836,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 401,
-      "sha256": "5c49b9aff58c29844edb793c63c42fc46f49c5bdab274da633aabde7c16ad1ed",
+      "lines": 420,
+      "sha256": "fb35378344de6011919a78de97002390ecd40d47d56d920e30a6281ebeb1b06f",
       "symbols": [
         {
           "name": "fromWire",
@@ -11842,32 +11848,36 @@
           "line": 60
         },
         {
-          "name": "plannerConstraint",
-          "line": 63
+          "name": "correctionSuppliesDirection",
+          "line": 69
         },
         {
-          "name": "resolve",
+          "name": "plannerConstraint",
           "line": 75
         },
         {
+          "name": "resolve",
+          "line": 94
+        },
+        {
           "name": "expressionConstraint",
-          "line": 140
+          "line": 159
         },
         {
           "name": "beforeTurn",
-          "line": 211
+          "line": 230
         },
         {
           "name": "afterDecision",
-          "line": 244
+          "line": 263
         },
         {
           "name": "context",
-          "line": 262
+          "line": 281
         },
         {
           "name": "evaluate",
-          "line": 268
+          "line": 287
         }
       ]
     },
@@ -16600,8 +16610,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 874,
-      "sha256": "144fb5a3e66d97855287075234417861632e93705d56229e189f472bb8d58777",
+      "lines": 875,
+      "sha256": "3e3cb050c913154d088d4ddee33cd96921499e7e91762e5c2655ce8195aa8bd3",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
