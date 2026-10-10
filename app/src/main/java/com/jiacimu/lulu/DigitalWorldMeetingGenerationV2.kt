@@ -205,6 +205,10 @@ internal suspend fun meetingGenerateReplyV2(
         facts = buildString {
             appendLine(DigitalWorldStore.meetingContext(session, characterId))
             appendLine(sceneBefore.promptSection())
+            val observedInteractions = com.jiacimu.lulu.data.CharacterPerceptionContext.recent(characterId)
+            if (observedInteractions.isNotEmpty()) {
+                appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedInteractions))
+            }
             if (session.reality == MeetingReality.DIGITAL_WORLD) {
                 WorldFirstExplorationMemory.promptSectionIfAvailable("digital-world", limit = 10)
                     .takeIf(String::isNotBlank)
@@ -220,6 +224,7 @@ internal suspend fun meetingGenerateReplyV2(
         },
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。
+            ${com.jiacimu.lulu.data.CharacterDecisionProtocol.principles}
             ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。"}
 
             只返回一个 JSON 对象：
