@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
+import com.jiacimu.lulu.data.CharacterAddressPreference
 import com.jiacimu.lulu.data.CharacterInnerLifeStore
 import com.jiacimu.lulu.data.sameCharacterMotive
 import com.jiacimu.lulu.data.CharacterProfileSchema
@@ -60,6 +61,9 @@ internal fun CharacterLifeSettings(characterId: String) {
     val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
+    var addressEditing by remember { mutableStateOf(false) }
+    var addressDraft by remember { mutableStateOf("") }
+    LaunchedEffect(characterId) { CharacterAddressPreference.refresh(characterId) }
     var draft by remember { mutableStateOf("") }
     var showFixedDefinition by remember(characterId) { mutableStateOf(false) }
     var showPastChoices by remember(characterId) { mutableStateOf(false) }
@@ -376,8 +380,27 @@ internal fun CharacterLifeSettings(characterId: String) {
         }
         }
         HorizontalDivider()
-        Text("角色使用的称呼", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text("关系称呼与社交资料", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         val socialNames = root.optJSONObject("socialNames")
+        val preferredAddress = socialNames?.optString("preferredAddress").orEmpty()
+        val addressManuallySet = socialNames?.optBoolean("preferredAddressManual", false) == true
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("平时怎么称呼你：" + preferredAddress.ifBlank { "尚未确认" },
+                    style = MaterialTheme.typography.bodyMedium)
+                Text(if (addressManuallySet) "你在资料里指定" else "可从你明确说过的称呼偏好中自动学习",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            TextButton(onClick = { addressDraft = preferredAddress; addressEditing = true }) {
+                Text("编辑")
+            }
+        }
+        if (addressManuallySet) TextButton(onClick = {
+            CharacterLifeStore.followObservedPreferredAddress(characterId)
+            CharacterAddressPreference.refresh(characterId)
+        }) { Text("重新从聊天学习称呼") }
         val userRemark = socialNames?.optString("userRemark").orEmpty()
         val selfNickname = socialNames?.optString("selfNickname").orEmpty()
         Text("给你的私人备注：" + userRemark.ifBlank { "还没有设置" }, style = MaterialTheme.typography.bodyMedium)
@@ -386,6 +409,26 @@ internal fun CharacterLifeSettings(characterId: String) {
         if (selfNickname.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "selfNickname", "") }) { Text("恢复原网名") }
 
 
+    }
+    if (addressEditing) {
+        AlertDialog(onDismissRequest = { addressEditing = false },
+            title = { Text("角色平时怎样称呼你") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("例如“宝宝”。这是你希望这个角色长期记住的常用称呼；偶尔可以自然换称呼，不必每句都喊。与联系人备注、角色网名分开保存。",
+                        style = MaterialTheme.typography.bodySmall)
+                    OutlinedTextField(value = addressDraft,
+                        onValueChange = { addressDraft = it.take(24) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("常用称呼") })
+                }
+            },
+            confirmButton = { TextButton(onClick = {
+                CharacterLifeStore.setSocialName(characterId, "preferredAddress", addressDraft)
+                addressEditing = false
+            }) { Text("保存") } },
+            dismissButton = { TextButton(onClick = { addressEditing = false }) { Text("取消") } })
     }
     editing?.let { key ->
         val field = CharacterProfileSchema.fields.first { it.key == key }
