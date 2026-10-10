@@ -20,6 +20,7 @@ data class CompanionPresenceState(
     val lastPerceptionAt: Instant? = null,
     val lastPerceptionNote: String = "",
     val provenanceId: String = "",
+    val showInHistory: Boolean = true,
 )
 
 data class CompanionPresenceMessageAnchor(
@@ -80,7 +81,12 @@ object CompanionPresenceStore {
 
     internal fun describesOngoingCall(text: String): Boolean {
         if (Regex("已结束|挂断|挂了|放下|结束了|想.*电话|准备.*电话").containsMatchIn(text)) return false
-        return Regex("通话中|电话中|正在.*(?:通话|电话)|(?:通话|电话).*正在|接听(?:着)?电话|打着电话|还在.*(?:电话|通话)|拿着.*(?:手机|电话).*(?:听|说)").containsMatchIn(text)
+        return Regex(
+            "通话中|电话中|正在.*(?:通话|电话)|(?:通话|电话).*正在|接听(?:着)?电话|打着电话|还在.*(?:电话|通话)|" +
+                "拿着.*(?:手机|电话).*(?:听|说)|" +
+                "(?:拿|举|握|捧|贴|靠).*(?:手机|电话).*(?:耳边|耳侧|耳旁|耳朵)|" +
+                "(?:手机|电话).*(?:贴|靠|举|拿).*(?:耳边|耳侧|耳旁|耳朵)"
+        ).containsMatchIn(text)
     }
 
     /**
@@ -206,6 +212,12 @@ object CompanionPresenceStore {
             previous.mood != next.mood
         val thoughtChanged = previous == null ||
             meaningfullyDifferentThought(previous.innerThought, next.innerThought)
+        val newHeartVoice = when {
+            innerThought == null -> ""
+            next.innerThought.isBlank() -> ""
+            previous == null || thoughtChanged -> next.innerThought
+            else -> ""
+        }
         val isChatTurn = source.contains("聊天") || source.contains("群聊")
         val lastRecordedAt = mutableHistories.value[characterId]?.firstOrNull()?.updatedAt
         val thoughtHistoryDue = lastRecordedAt == null ||
@@ -216,11 +228,15 @@ object CompanionPresenceStore {
         // changes are recorded immediately; thought-only background changes are rate-limited and must
         // contain materially new wording. Exact/near repeats remain current state only.
         if (isChatTurn || visibleChanged || (thoughtChanged && thoughtHistoryDue)) {
+            val historySnapshot = next.copy(
+                innerThought = newHeartVoice,
+                showInHistory = visibleChanged || newHeartVoice.isNotBlank() || !isChatTurn,
+            )
             mutableHistories.value = mutableHistories.value +
-                (characterId to (listOf(next) + mutableHistories.value[characterId].orEmpty())
+                (characterId to (listOf(historySnapshot) + mutableHistories.value[characterId].orEmpty())
                     .distinctBy { it.updatedAt }
                     .take(100))
-            recordPresenceTimeline(next)
+            if (historySnapshot.showInHistory) recordPresenceTimeline(historySnapshot)
         }
         persist()
     }
@@ -334,6 +350,7 @@ private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("lastPerceptionAt", lastPerceptionAt?.toString().orEmpty())
     put("lastPerceptionNote", lastPerceptionNote)
     put("provenanceId", provenanceId)
+    put("showInHistory", showInHistory)
 }
 
 private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPresenceState? {
@@ -350,6 +367,7 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         lastPerceptionAt = optString("lastPerceptionAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
         lastPerceptionNote = optString("lastPerceptionNote"),
         provenanceId = optString("provenanceId"),
+        showInHistory = optBoolean("showInHistory", true),
     )
 }
 
