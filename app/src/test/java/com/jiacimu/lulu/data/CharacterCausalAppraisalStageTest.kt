@@ -2,6 +2,8 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.json.JSONObject
+import org.json.JSONArray
 import java.time.Instant
 
 class CharacterCausalAppraisalStageTest {
@@ -46,6 +48,20 @@ class CharacterCausalAppraisalStageTest {
         assertEquals(newer.id,
             CharacterCausalAppraisalStage.latestPending(listOf(older, ignored, newer))?.id)
         assertNull(CharacterCausalAppraisalStage.latestPending(listOf(ignored)))
+    }
+
+    @Test fun persistedFeelingAloneDoesNotCountAsCompletedAction() {
+        val evidenceId = "interaction-call-end-abc"
+        val appraisal = JSONArray().put(JSONObject()
+            .put("evidenceId", evidenceId).put("selectedAction", "appraise"))
+        assertTrue(CharacterCausalAppraisalStage.hasAppraisalReceipt(appraisal, evidenceId))
+        assertFalse(CharacterCausalAppraisalStage.hasDecisionReceipt(JSONArray(), evidenceId))
+
+        val completed = JSONArray().put(JSONObject()
+            .put("selected", "silent").put("causalEvidenceId", evidenceId)
+            .put("reason", "今天暂时不打扰"))
+        assertTrue(CharacterCausalAppraisalStage.hasDecisionReceipt(completed, evidenceId))
+        assertFalse(CharacterCausalAppraisalStage.hasDecisionReceipt(completed, "another-call"))
     }
 
     @Test fun modelInstructionRequiresAppraisalBeforeActionWithoutAssumingUserMood() {
