@@ -48,6 +48,12 @@ internal object CompanionActionRuntime {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
+        val stickerChoices = com.jiacimu.lulu.StickerLibraryStore.items.value
+        if (stickerChoices.isNotEmpty()) {
+            appendLine("- send_private_sticker，args={\"stickerId\":\"已列出的准确ID\"}：给用户发一张真正的图片表情，不需要先配一段空泛安慰。")
+            appendLine("- send_group_sticker，args={\"groupId\":\"真实群ID\",\"stickerId\":\"已列出的准确ID\"}：在所在群聊发送图片表情。")
+            appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(context))
+        }
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
         appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：由游戏馆真实规则自动跑完一局并保存准确过程、分数和独自游戏记录；角色不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
@@ -122,6 +128,29 @@ internal object CompanionActionRuntime {
                 require(changed) { "名字没有变化，本轮不产生重复动作" }
                 CompanionActionResult(true, if (key == "userRemark") "已把给用户的私人备注改为「$nickname」"
                     else "已将自己的聊天网名改为「$nickname」")
+            }
+            "send_private_sticker", "send_group_sticker" -> {
+                val stickerId = args.optString("stickerId").trim()
+                val sticker = com.jiacimu.lulu.StickerLibraryStore.byId(context, stickerId)
+                    ?: error("这张表情不在用户已确认的图库中，不能发送")
+                val conversation = if (normalizedAction == "send_private_sticker") {
+                    privateConversation(characterId, character.displayName)
+                } else {
+                    val groupId = args.optString("groupId").trim()
+                    MigratedDomainStores.chat.conversations.value.firstOrNull {
+                        it.id == groupId && it.groupChat?.members
+                            ?.any { member -> member.characterId == characterId } == true
+                    } ?: error("角色不在指定群聊中")
+                }
+                val payload = com.jiacimu.lulu.encodeQqChatImage(
+                    sticker.uri, imageDescription = sticker.name, sticker = true,
+                )
+                ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                    MigratedDomainStores.chat.appendCharacterMessage(
+                        conversation.id, payload, characterId,
+                    )
+                }
+                CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id)
             }
             "send_private_message" -> {
                 val text = args.optString("text").trim().take(2_000)
