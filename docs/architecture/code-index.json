@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:38:55.996261+00:00",
-  "commit": "9cc046c03178beee4296ebaee6a2300c34a486c5",
+  "generatedAt": "2026-10-10T14:39:36.942887+00:00",
+  "commit": "c559c4590b8aa68a9bac0176b7d6b91abcf94f75",
   "branch": "main",
-  "sourceFingerprint": "b369fabf5914e01dca98e7f950f0eb4c07c3555943c48e236e4eda60b5017f02",
+  "sourceFingerprint": "10127544fd7d766c8e4dc5a23203f14f1e1c33aa593c7545f0b116bf3a963944",
   "summary": {
-    "files": 453,
-    "lines": 100248,
-    "symbols": 1470
+    "files": 455,
+    "lines": 100383,
+    "symbols": 1472
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7910,6 +7910,12 @@
         "line": 5
       }
     ],
+    "CharacterContinuityRuntimeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt",
+        "line": 6
+      }
+    ],
     "CharacterDecisionProtocolTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
@@ -8028,6 +8034,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "DialogueMoveEngineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
+        "line": 6
       }
     ],
     "DigitalWorldEnvironmentTest": [
@@ -16603,6 +16615,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt",
+      "lines": 57,
+      "sha256": "3237d73710d2ceede73a525e24ab20a0b6a58701578351eb13208f83d7269f7f",
+      "symbols": [
+        {
+          "name": "CharacterContinuityRuntimeTest",
+          "line": 6
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
       "lines": 105,
       "sha256": "7c49f786333d8d1511642339ed2d43ba679ca68c01e7c8f19a172260967292dc",
@@ -16637,8 +16660,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt",
-      "lines": 28,
-      "sha256": "3975df67f76e48b90ef95052389770979b2e71cf59725faaf81e1ac7547c1287",
+      "lines": 38,
+      "sha256": "82a6e9fce74e3cde0e9ae7c99d262e68a643bbce21b98ce17233b014c99b8804",
       "symbols": [
         {
           "name": "CharacterInitiativeRuntimeTest",
@@ -16757,8 +16780,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
-      "lines": 50,
-      "sha256": "9da9aa858dfd53fbf1d094d4c4c2718aeb6ea211dc8beab7ec4b2abfa073f612",
+      "lines": 69,
+      "sha256": "901d11f0cdd562972c8aa2e7b4906839baf30bf6e43a92029093a5c751299549",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
@@ -16774,6 +16797,17 @@
         {
           "name": "DevelopmentPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
+      "lines": 49,
+      "sha256": "c4a3b45c727d3dcc09730f6ec1d9598d27974fa71bd9dcda49ffb5d6ceafb26d",
+      "symbols": [
+        {
+          "name": "DialogueMoveEngineTest",
+          "line": 6
         }
       ]
     },

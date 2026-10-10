@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9cc046c03178beee4296ebaee6a2300c34a486c5`
+- 基准提交：`c559c4590b8aa68a9bac0176b7d6b91abcf94f75`
 - 分支：`main`
-- 已索引文件：453
-- 已索引代码/文本行：100248
-- 已发现符号：1470
+- 已索引文件：455
+- 已索引代码/文本行：100383
+- 已发现符号：1472
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -413,10 +413,11 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 70 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 90 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 175 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 375 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 320 | 6 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
@@ -424,8 +425,9 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 19 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 50 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
