@@ -148,11 +148,14 @@ internal object CompanionActionRuntime {
                     imageDescription = com.jiacimu.lulu.StickerLibraryStore.imageDescription(sticker),
                     sticker = true,
                 )
-                ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+                val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     MigratedDomainStores.chat.appendCharacterMessage(
                         conversation.id, payload, characterId,
                     )
                 }
+                CharacterInnerLifeStore.recordExpressiveDelivery(
+                    characterId, delivered.id, "图片表情", sticker.name,
+                )
                 CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id)
             }
             "send_private_message" -> {
