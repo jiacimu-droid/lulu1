@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:03:13.582135+00:00",
-  "commit": "1317e1182fb3f230a0d02fbcdf7d7d0f1d577132",
+  "generatedAt": "2026-10-10T14:03:50.114447+00:00",
+  "commit": "33341ea92c5faa1b95dc932554ee879ee9ac89e6",
   "branch": "main",
-  "sourceFingerprint": "fd09dd3af3be0921e7d469128e231e5005fe3fcac8c4312827841c38bc81f3de",
+  "sourceFingerprint": "7e64d70e066b147ab87381ad63ba033ebc4622316071b0f35ba654e22e9034c2",
   "summary": {
     "files": 452,
-    "lines": 99947,
+    "lines": 99960,
     "symbols": 1465
   },
   "symbolIndex": {
@@ -10685,8 +10685,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-      "lines": 121,
-      "sha256": "c9161b402b6cf161d18ac86044e88ab5c57fba4c68c2cac51a3d32e8613ead66",
+      "lines": 134,
+      "sha256": "0d109e50339bf1c56cb63615be502f2f5c34955cf0c9dbafdc9bfb78cba6cc0b",
       "symbols": [
         {
           "name": "promptSection",
@@ -13469,7 +13469,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
       "lines": 18,
-      "sha256": "fca1514a52f14e0d6b36a045764193d0d5ec4df262fa891f9e730a923920156c",
+      "sha256": "7f8cba56c843af1012730efa1f907c6e82e4a224c4a87a332fc186a4414d0a2f",
       "symbols": []
     },
     {
@@ -13512,7 +13512,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
       "lines": 85,
-      "sha256": "fd606be057f56ff0bdd167b479a08a3b814e524dd6d70fe5eeaa771dd1489fd3",
+      "sha256": "535cd7932095e5a59fec4c99fdf175551d4823ef622107e191a91314e1d7ab32",
       "symbols": [
         {
           "name": "analyze",
