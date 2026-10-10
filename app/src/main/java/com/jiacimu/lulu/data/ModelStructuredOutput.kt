@@ -96,8 +96,8 @@ internal object ModelStructuredOutput {
                     }.replace("\r\n", "\n").trim()
                     if (text.isNotBlank()) add(text.take(2_000))
                 }
-            }.take(3)
-            if (values.isNotEmpty()) return stabilizeReplyBubbles(values)
+            }.take(8)
+            if (values.isNotEmpty()) return stabilizeReplyBubbles(values).take(3)
         }
 
         return json.optString("text").replace("\r\n", "\n").trim()
