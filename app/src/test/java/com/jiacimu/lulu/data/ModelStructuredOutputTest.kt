@@ -56,6 +56,22 @@ class ModelStructuredOutputTest {
         assertEquals("啊？我会错意了？\n那你说的超时是指什么？", ModelStructuredOutput.completedReplyText(response))
     }
 
+    @Test fun accidentalShortGrammaticalTailIsNotSentAsItsOwnBubble() {
+        val response = """{"action":"reply","bubbles":[{"text":"原来一直在用功，是我"},{"text":"猜错了"}]}"""
+        assertEquals(
+            listOf("原来一直在用功，是我猜错了"),
+            ModelStructuredOutput.completedReplyBubbles(response),
+        )
+    }
+
+    @Test fun completedInteractionMovesRemainSeparateBubbles() {
+        val response = """{"action":"reply","bubbles":[{"text":"好，我知道了。"},{"text":"你先歇一会儿。"}]}"""
+        assertEquals(
+            listOf("好，我知道了。", "你先歇一会儿。"),
+            ModelStructuredOutput.completedReplyBubbles(response),
+        )
+    }
+
     @Test fun incompleteTextIsNotRecovered() {
         val response = """{"action":"reply","text":"第一句话还没"""
         assertNull(ModelStructuredOutput.completedReplyText(response))
