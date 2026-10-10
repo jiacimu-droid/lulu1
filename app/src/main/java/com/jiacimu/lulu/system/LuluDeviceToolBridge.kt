@@ -467,7 +467,10 @@ object LuluDeviceToolBridge {
                     com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, it)
                 }
                 val useRerender = rerendered != null && !rerenderedBubbles.isNullOrEmpty() &&
-                    repairedNaturalness != null && repairedNaturalness.score < naturalness.score
+                    repairedNaturalness != null && repairedNaturalness.score < naturalness.score &&
+                    com.jiacimu.lulu.data.ConversationNaturalnessGate.preservesSurfaceIntent(
+                        firstBubbles, rerenderedBubbles,
+                    )
                 val chosenResult = if (useRerender) rerendered!! else generated
                 val chosenBubbles = if (useRerender) rerenderedBubbles!! else firstBubbles
                 val spoken = chosenBubbles.take(dialoguePlan.maxBubbles)
