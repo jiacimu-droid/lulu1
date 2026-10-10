@@ -56,14 +56,17 @@ internal object CharacterHeartVoicePolicy {
         outward: String = "",
         innerLife: JSONObject? = null,
         basis: JSONObject? = null,
+        delta: PrivateStateDelta? = null,
         hasFreshEvidence: Boolean,
     ): String {
         val clean = thought.replace(Regex("[ \\t]+"), " ").trim().take(1_200)
         if (clean.isBlank()) return ""
-        val structuredDelta = hasStructuredDelta(innerLife)
+        val structuredDelta = delta?.meaningful ?: hasStructuredDelta(innerLife)
         val causalBasis = hasCausalBasis(basis)
-        // A heart voice must correspond to an actual private-state delta. Fresh input alone is not
-        // enough: without a structured change or a concrete causal basis, prose is discarded.
+        val privateResidue = delta?.privateResidue ?: causalBasis
+        // When a runtime delta is available it is authoritative: repeating the same emotion/social
+        // JSON is not a new mental event. Fresh input alone never authorizes a heart voice.
+        if (delta != null && (!delta.meaningful || !privateResidue)) return ""
         if (!structuredDelta && !causalBasis) return ""
         if (!hasFreshEvidence && !structuredDelta) return ""
         if (outward.isNotBlank() && sameMeaning(clean, outward)) return ""
