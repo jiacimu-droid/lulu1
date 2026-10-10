@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:30:04.500418+00:00",
-  "commit": "f01abe8bd28f95bf7b572d25fa11aa0e1b9e7110",
+  "generatedAt": "2026-10-10T06:30:56.208087+00:00",
+  "commit": "122e6f1182e4b97001b7e63c78718b14a5718e69",
   "branch": "main",
-  "sourceFingerprint": "051d63e738ef1d2c166254c8a1eef6e09277681fcce3fdaffd05b88e6e910dd9",
+  "sourceFingerprint": "75f4ad306e2a2ffdbb19c8faf52173c6ee5d9a174012f268779fdd592188f000",
   "summary": {
     "files": 430,
-    "lines": 96089,
+    "lines": 96097,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -3439,7 +3439,7 @@
     "addIfOld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-        "line": 59
+        "line": 60
       }
     ],
     "CharacterLifeForm": [
@@ -10961,8 +10961,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt",
-      "lines": 85,
-      "sha256": "6ceffe11460f95a9a09bc818f1cff58c0c073fbd28ec4a6736cdbc9236392c0e",
+      "lines": 90,
+      "sha256": "d292781ede34576ba7125829b8acc48d108088f4b689c4ae96cb3af949c53025",
       "symbols": [
         {
           "name": "promptSection",
@@ -10982,7 +10982,7 @@
         },
         {
           "name": "addIfOld",
-          "line": 59
+          "line": 60
         }
       ]
     },
@@ -11916,8 +11916,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt",
-      "lines": 46,
-      "sha256": "a373961dbe50a63648ddd0152c2fa3062fa2d33f9f38c45f7a0117d4eef055c5",
+      "lines": 47,
+      "sha256": "38d7e428896d74fde2b4ebd43b39fd133cf6bc5ffef569e53906c177d2bb0ffd",
       "symbols": []
     },
     {
@@ -12478,8 +12478,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 48,
-      "sha256": "423bee7a6223da3fd66d0fd1101cdbb2fe6de95367d32375ed79fcccb5b7b426",
+      "lines": 49,
+      "sha256": "094c5af7d8d36de21f27eeeb4c5b7d30e1b4304eb0d625a397c24747a1046b11",
       "symbols": []
     },
     {
@@ -15400,8 +15400,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 483,
-      "sha256": "a16a5ff164c5e41956704a9370f259757a6f385682d47da869ca3f222246f5b6",
+      "lines": 484,
+      "sha256": "e41580d7a6fec1a86c62b34f0c800dee048752bd2cb98b9477d35f91b3c37eeb",
       "symbols": []
     },
     {
