@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T19:09:28.594219+00:00",
-  "commit": "a8af8a19f6f3bcebc17b5dd613ce1777433cca41",
+  "generatedAt": "2026-10-10T19:09:46.192206+00:00",
+  "commit": "073c54f1fc46aef8bc2eeecfdebfe7d2bdbfe256",
   "branch": "main",
-  "sourceFingerprint": "c1ed3ae8726d1b46df508137496942a14e3c06eef693f642450ddd4907d39c98",
+  "sourceFingerprint": "2167e16f9b308b6ea00f9eb95dba116a66b2d81e65cbc88af6402f43c4889247",
   "summary": {
-    "files": 483,
-    "lines": 103829,
-    "symbols": 1532
+    "files": 484,
+    "lines": 103882,
+    "symbols": 1533
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8246,6 +8246,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt",
         "line": 14
+      }
+    ],
+    "CharacterExpressionContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt",
+        "line": 13
       }
     ],
     "CharacterExpressionGuideTest": [
@@ -17390,6 +17396,17 @@
         {
           "name": "CharacterDeliberationContextTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt",
+      "lines": 53,
+      "sha256": "7eb948b69f258ff55987b6bf528039373756a5b86e2758f0c097d5ed5ed5540f",
+      "symbols": [
+        {
+          "name": "CharacterExpressionContinuityTest",
+          "line": 13
         }
       ]
     },
