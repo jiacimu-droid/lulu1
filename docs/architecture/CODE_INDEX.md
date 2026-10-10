@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`880951282f7107793faad97b99d52f3f9bc9d3c2`
+- 基准提交：`61a0f4ef10a64039cb71184168a89ba79d88de5a`
 - 分支：`main`
 - 已索引文件：429
-- 已索引代码/文本行：95835
+- 已索引代码/文本行：95847
 - 已发现符号：1395
 
 | 文件 | 行数 | 符号数 |
@@ -125,7 +125,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 163 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 43 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1024 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1020 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
@@ -415,7 +415,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 335 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 47 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 47 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |

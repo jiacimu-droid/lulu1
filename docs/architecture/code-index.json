@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:04:07.220494+00:00",
-  "commit": "880951282f7107793faad97b99d52f3f9bc9d3c2",
+  "generatedAt": "2026-10-10T06:05:00.543197+00:00",
+  "commit": "61a0f4ef10a64039cb71184168a89ba79d88de5a",
   "branch": "main",
-  "sourceFingerprint": "ca659acc3b2d8014fdc028a303ededebda040399a1fbac9a3300d5d32a16a6f4",
+  "sourceFingerprint": "f895180dd4420707b5a15f1448f6dcaebe163e433adc478c2d671ef7af3aca9a",
   "summary": {
     "files": 429,
-    "lines": 95835,
+    "lines": 95847,
     "symbols": 1395
   },
   "symbolIndex": {
@@ -361,7 +361,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1016
+        "line": 1012
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2109,19 +2109,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 863
+        "line": 859
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 875
+        "line": 871
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1006
+        "line": 1002
       }
     ],
     "consume": [
@@ -9621,8 +9621,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1024,
-      "sha256": "ef716d53de81d1486841597bd632eecec4d004e7518c3626996c6a150675064a",
+      "lines": 1020,
+      "sha256": "d830ed15514efc3d2ac55c76a08ef86360316fb5ab50a653f65ef5f74b4ae47a",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -9710,19 +9710,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 863
+          "line": 859
         },
         {
           "name": "consumeEvent",
-          "line": 875
+          "line": 871
         },
         {
           "name": "LuluAiServices",
-          "line": 1006
+          "line": 1002
         },
         {
           "name": "initialize",
-          "line": 1016
+          "line": 1012
         }
       ]
     },
@@ -12859,7 +12859,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
       "lines": 240,
-      "sha256": "c34e02e703a5148504190a78c73e54715d842e42b03f7f65f10f1829fae398aa",
+      "sha256": "bff9a40a1d41adaca1d2e82eef989a916977ae494d0e273e6dcda5474c1bad17",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -16052,8 +16052,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt",
-      "lines": 47,
-      "sha256": "3398a6f85041a9a041119845ef9a29b46825a5e59cd167f10b07af3fadb37edc",
+      "lines": 63,
+      "sha256": "0462bbb7a9badfd08fa9594cfd4caa06da11a80da227be6c7a2002d90c094dca",
       "symbols": [
         {
           "name": "PromptContextPolicyTest",
