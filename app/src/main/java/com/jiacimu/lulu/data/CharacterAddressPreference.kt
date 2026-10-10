@@ -1,7 +1,5 @@
 package com.jiacimu.lulu.data
 
-import com.jiacimu.lulu.core.EventEvidenceKind
-
 /**
  * A spoken form of address is a durable, per-relationship preference, NOT a
  * contact-list remark, an identity trait or a model-invented conversational flourish.
