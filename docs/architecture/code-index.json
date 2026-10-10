@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:14:40.819326+00:00",
-  "commit": "772a97b667c3424fd8d52b1f5c5287dbd143a845",
+  "generatedAt": "2026-10-10T17:15:30.404580+00:00",
+  "commit": "da4a31863519cc52fc295a03acdec61b1f76509f",
   "branch": "main",
-  "sourceFingerprint": "a327d15b3467a26da151c7e188b3fd15ef79c3fbb90ae2ed4b45c8f810c549d6",
+  "sourceFingerprint": "74626c2e7d5382f911c9cd9f5b6850d87a819caa1e36100c4d877cfc16e52685",
   "summary": {
     "files": 464,
-    "lines": 101497,
-    "symbols": 1491
+    "lines": 101525,
+    "symbols": 1492
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5444,28 +5444,34 @@
         "line": 180
       }
     ],
+    "scheduleInteractionReflection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 209
+      }
+    ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 202
+        "line": 230
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 210
+        "line": 238
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 286
+        "line": 314
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 293
+        "line": 321
       }
     ],
     "PromptContextBudget": [
@@ -13464,8 +13470,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 334,
-      "sha256": "51bea31290828d869ed872e32870fa96e941cb782b2dcf2f83a14ef74a230513",
+      "lines": 362,
+      "sha256": "e78a86ffd63efb03fc5f7150acec6c7f9809eecb88ad142dae65499d59175fed",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -13504,20 +13510,24 @@
           "line": 180
         },
         {
+          "name": "scheduleInteractionReflection",
+          "line": 209
+        },
+        {
           "name": "cancelOnline",
-          "line": 202
+          "line": 230
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 210
+          "line": 238
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 286
+          "line": 314
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 293
+          "line": 321
         }
       ]
     },
