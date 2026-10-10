@@ -39,6 +39,25 @@ class ConversationNaturalnessGateTest {
         assertTrue(result.score >= 2)
     }
 
+    @Test fun surfaceRewriteCannotInventQuestionsActionsOrRelationshipEscalation() {
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("嗯，知道了。"),
+            listOf("嗯，知道了。", "那你现在要不要告诉我为什么？"),
+        ))
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("先歇一下。"),
+            listOf("先歇一下。", "我马上帮你处理。"),
+        ))
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("我在。"),
+            listOf("我永远都不会离开你。"),
+        ))
+        assertTrue(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("别硬撑了，先歇会儿。"),
+            listOf("先别硬撑，歇会儿。"),
+        ))
+    }
+
     @Test fun oneOrdinaryOfferDoesNotTriggerByItself() {
         val result = ConversationNaturalnessGate.assess(
             "今天还行",
