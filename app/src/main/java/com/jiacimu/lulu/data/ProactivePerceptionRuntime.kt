@@ -473,7 +473,7 @@ object ProactivePerceptionRuntime {
                     appendLine("【已经由上一阶段保存的个人真实反应｜先有情绪和想法，再选行动】")
                     appendLine("事件ID=${stagedAppraisal.evidenceId}，不能把事件推测成用户确定的动机。")
                     appendLine(CharacterInnerLifeStore.compactContext(characterId, now))
-                    appendLine("本轮只能依据已经保存的情绪、动机和现实条件决定是否联络、继续生活或保持沉默。若无明确理由，选择 silent；不要为将要执行的动作倒填一个假情绪。")
+                    appendLine(CharacterCausalActionPolicy.followThroughInstruction(stagedAppraisal.evidenceId))
                 }
                 appendLine(affordances)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
@@ -572,7 +572,7 @@ object ProactivePerceptionRuntime {
             content = "角色处于在线窗口，本次感知实际读取了当前时间与获准读取的设备状态；新增聊天=${onlineUnread.text.isNotBlank()}；新增场景观察=${observedWorld.size}",
             occurredAt = now, triggerExtraction = false, source = "online-awareness",
             evidenceKind = EventEvidenceKind.Observation)
-        val parsed = parseDecision(result.text) ?: run {
+        val parsed = parseDecision(result.text, actionOnly = stagedAppraisal != null) ?: run {
             // The provider did return bytes, but not a safe executable decision.
             // Never retry endlessly, charge for identical responses, or execute a guessed action.
             CompanionPresenceStore.recordPerceptionAttempt(
@@ -596,7 +596,9 @@ object ProactivePerceptionRuntime {
                     intention = null,
                 )
             }
-        CharacterLifeStore.consider(characterId, decision.intention, now)
+        // In a two-stage cycle the appraisal has already committed any changed
+        // motive. Action planning must not create another speculative motive.
+        if (stagedAppraisal == null) CharacterLifeStore.consider(characterId, decision.intention, now)
         // Capture the private state before this proposal is applied. Delta must compare two moments,
         // not compare the model proposal against a store we already mutated with that proposal.
         val privateStateBefore = CharacterInnerLifeStore.snapshot(characterId)
@@ -914,9 +916,11 @@ object ProactivePerceptionRuntime {
         )
     }
 
-    private fun parseDecision(raw: String): Decision? = runCatching {
+    private fun parseDecision(raw: String, actionOnly: Boolean = false): Decision? = runCatching {
         val parsed = ModelStructuredOutput.objectOrNull(raw) ?: return null
-        val json = AutonomousDecisionRecovery.choose(parsed)
+        val json = CharacterCausalActionPolicy.actionOnly(
+            AutonomousDecisionRecovery.choose(parsed), alreadyAppraised = actionOnly,
+        )
         Decision(
             action = when (json.optString("action").trim().lowercase()) {
                 "message", "消息" -> Action.MESSAGE
