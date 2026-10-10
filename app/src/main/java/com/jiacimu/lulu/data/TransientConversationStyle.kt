@@ -59,9 +59,9 @@ internal object TransientConversationStyle {
     fun context(userText: String, recentHistory: String = ""): String {
         val s = analyze(userText, recentHistory)
         val paceGuide = when (s.pace) {
-            Pace.BRIEF -> "用户这一拍表达很短；若内容本身不复杂，优先用一个局部动作接住，不为了显得贴心自行扩成长回答。"
-            Pace.NORMAL -> "按当前内容需要自然决定长度，不刻意追求短句或长句。"
-            Pace.EXPANSIVE -> "用户这一拍包含较多信息或多个问题；可以完整回应必要内容，但仍按局部互动动作组织，不写成说明书式总结。"
+            Pace.BRIEF -> "用户这一拍表达很短；若内容本身不复杂，优先用一个局部动作接住。意思已经表达清楚就停，不再追加第二遍安慰、解释、表态或关系总结。"
+            Pace.NORMAL -> "按当前内容需要自然决定长度。先完成最重要的一个互动动作；后一句如果只是在换词重复前一句，就不要发送。"
+            Pace.EXPANSIVE -> "用户这一拍包含较多信息或多个问题；可以完整回应必要内容，但仍只展开真正需要展开的部分，不把每个点都补成一段完整总结。"
         }
         val pressureGuide = when (s.tonePressure) {
             TonePressure.REPAIR -> "当前重点是修复共同理解：降低玩笑、暧昧和额外发挥，只处理被指出的误解；有高把握才给一个候选理解，否则做最小澄清。"
