@@ -145,15 +145,53 @@ internal object StickerLibraryStore {
     }
 
     /**
-     * Populate the app's library from vetted CC BY-SA OpenMoji sources exactly
-     * once per ID. The originals are downloaded to app-private PNGs and never
-     * hotlinked in a sent chat message. Failed network fetches retry next time.
+     * Three themed OpenMoji sets are shipped inside the APK as SVG text assets.
+     * No network or image-recognition service is necessary to reconstruct them.
+     * The artwork is rasterized once and cached as private local PNG files.
+     */
+    private fun embeddedSvgArtwork(context: Context): Map<String, String> {
+        val result = LinkedHashMap<String, String>()
+        for (file in listOf("cats.json", "animals.json", "moods.json")) {
+            runCatching {
+                val json = context.assets.open("stickers/$file")
+                    .bufferedReader(Charsets.UTF_8).use { JSONObject(it.readText()) }
+                val entries = json.optJSONArray("items") ?: return@runCatching
+                for (index in 0 until entries.length()) {
+                    val entry = entries.optJSONObject(index) ?: continue
+                    val code = entry.optString("code")
+                    val svg = entry.optString("svg")
+                    if (code.isNotBlank() && svg.startsWith("<svg")) result[code] = svg
+                }
+            }
+        }
+        return result
+    }
+
+    private fun renderSvgToPng(source: String, file: File): Boolean = runCatching {
+        val picture = SVG.getFromString(source).renderToPicture(360, 360)
+        val bitmap = Bitmap.createBitmap(360, 360, Bitmap.Config.ARGB_8888)
+        try {
+            Canvas(bitmap).drawPicture(picture)
+            file.outputStream().use { out ->
+                check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, out))
+            }
+        } finally {
+            bitmap.recycle()
+        }
+        check(file.isFile && file.length() > 0L)
+        true
+    }.getOrDefault(false)
+
+    /**
+     * Import the offline-approved sets once. When an SVG is missing or cannot
+     * render, only that exact allowlisted icon falls back to an HTTPS PNG.
      */
     suspend fun ensureBuiltIns(context: Context): Int = withContext(Dispatchers.IO) {
         initialize(context)
         builtinLock.withLock {
             val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             val completed = prefs.getStringSet(COMPLETED_BUILTINS, emptySet()).orEmpty().toMutableSet()
+            val embedded = embeddedSvgArtwork(context)
             var count = 0
             for (source in BundledCuteStickerCatalog.items) {
                 if (source.id in completed) continue
@@ -167,33 +205,36 @@ internal object StickerLibraryStore {
                     "${source.id}.png",
                 )
                 val worked = runCatching {
-                    val url = URL(source.url)
-                    require(url.protocol == "https" &&
-                        url.host == "raw.githubusercontent.com" &&
-                        url.path.startsWith("/hfg-gmuend/openmoji/master/color/72x72/"))
-                    val connection = url.openConnection() as HttpURLConnection
-                    try {
-                        connection.connectTimeout = 5_000
-                        connection.readTimeout = 6_000
-                        connection.instanceFollowRedirects = false
-                        check(connection.responseCode == 200)
-                        connection.inputStream.use { input ->
-                            file.outputStream().use { output ->
-                                val bytes = ByteArray(8192)
-                                var total = 0
-                                while (true) {
-                                    val read = input.read(bytes)
-                                    if (read < 0) break
-                                    total += read
-                                    check(total in 1..MAX_BYTES)
-                                    output.write(bytes, 0, read)
+                    val rendered = embedded[source.code]?.let { renderSvgToPng(it, file) } == true
+                    if (!rendered) {
+                        val url = URL(source.url)
+                        require(url.protocol == "https" &&
+                            url.host == "raw.githubusercontent.com" &&
+                            url.path.startsWith("/hfg-gmuend/openmoji/master/color/72x72/"))
+                        val connection = url.openConnection() as HttpURLConnection
+                        try {
+                            connection.connectTimeout = 5_000
+                            connection.readTimeout = 6_000
+                            connection.instanceFollowRedirects = false
+                            check(connection.responseCode == 200)
+                            connection.inputStream.use { input ->
+                                file.outputStream().use { output ->
+                                    val bytes = ByteArray(8192)
+                                    var total = 0
+                                    while (true) {
+                                        val read = input.read(bytes)
+                                        if (read < 0) break
+                                        total += read
+                                        check(total in 1..MAX_BYTES)
+                                        output.write(bytes, 0, read)
+                                    }
                                 }
                             }
+                            check(file.isFile && file.length() > 0L &&
+                                BitmapFactory.decodeFile(file.absolutePath) != null)
+                        } finally {
+                            connection.disconnect()
                         }
-                        check(file.isFile && file.length() > 0L &&
-                            BitmapFactory.decodeFile(file.absolutePath) != null)
-                    } finally {
-                        connection.disconnect()
                     }
                     val sticker = LuluSticker(source.id, Uri.fromFile(file).toString(),
                         source.name, pack = source.pack,
