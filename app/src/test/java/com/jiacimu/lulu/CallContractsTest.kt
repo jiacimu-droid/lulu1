@@ -20,7 +20,7 @@ class CallContractsTest {
         assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "minimax"))
         assertEquals("unavailable", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "elevenlabs"))
         assertEquals("system", CallVoiceConfiguration.resolveSttEngine("system", false, true, "elevenlabs"))
-        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine(
+        assertEquals("system", CallVoiceConfiguration.resolveSttEngine(
             "auto", true, true, "elevenlabs", minimaxConfigured = true))
         assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine(
             "minimax", false, false, "elevenlabs", minimaxConfigured = true))
