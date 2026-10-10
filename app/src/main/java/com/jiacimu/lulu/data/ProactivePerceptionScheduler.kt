@@ -200,6 +200,34 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /**
+     * A one-off chance to interpret a recently finished call. It is not an
+     * automatic "why did you hang up?" message: the autonomy model may feel
+     * something privately, choose another activity, contact the user or stay
+     * silent. This must run *after* the call releases ownership of perception.
+     */
+    fun scheduleInteractionReflection(
+        context: Context, characterId: String, evidenceId: String,
+        delayMillis: Long = 20_000L,
+    ) {
+        if (characterId.isBlank() || evidenceId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", "新发生的互动体验：电话已结束。请根据已记录的事实与个人经历自行形成感受，并决定是否沟通、继续生活或安静等待；不预设用户动机。证据ID=$evidenceId")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .build())
+            .build()
+        // Coalesce repeated calls per role, keeping the most recent cue.
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-interaction-reflection-$characterId", ExistingWorkPolicy.REPLACE, request,
+        )
+    }
+
     fun cancelOnline(context: Context, characterId: String) {
         OnlineChatBatchStore.cancel(context, characterId)
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
