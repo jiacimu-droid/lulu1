@@ -20,7 +20,7 @@ object CapabilityRegistry {
         Capability("screen_sequence", "phone", "screen", "bounded fresh observations and expected text per step", false),
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
-    val application = listOf("send_private_message", "send_group_message", "send_game_invite", "play_solo_game",
+    val application = listOf("send_private_message", "send_group_message", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
         "publish_moment", "write_journal", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "grant_sleep_reward")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false) }
     fun find(name: String): Capability? = (device + application).firstOrNull { it.name == name }
