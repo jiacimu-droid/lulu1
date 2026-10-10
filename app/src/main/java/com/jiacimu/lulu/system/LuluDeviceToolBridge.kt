@@ -221,9 +221,15 @@ object LuluDeviceToolBridge {
                 $voicePerformanceRule
                 $characterHangupRule
             """.trimIndent(),
-            source = "聊天工具规划",
+            source = if (sceneContext.contains("电话")) "电话回复" else "聊天工具规划",
             title = title,
-            maxTokens = if (separateExpression) 1_450 else 2_400,
+            // Phone speech should be a natural turn, not an essay. Keep enough
+            // headroom for the JSON state without paying for runaway monologues.
+            maxTokens = when {
+                separateExpression -> 1_450
+                sceneContext.contains("电话") && userText.length < 280 -> 1_500
+                else -> 2_400
+            },
             // A complaint about unfulfilled responsibilities needs a checked complete response,
             // not an irreversible stream of premature accusations.
             streamResponse = !separateExpression && onReplyStream != null && !disputeNeedsReview,
