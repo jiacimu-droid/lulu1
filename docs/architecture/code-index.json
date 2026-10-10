@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:07:10.768123+00:00",
-  "commit": "cdde80f9fbdfcc2408dd6472b2e937dc3121010f",
+  "generatedAt": "2026-10-10T04:08:51.588479+00:00",
+  "commit": "71684c8a597847cbc6bbf079c53ea943e5bbc01d",
   "branch": "main",
-  "sourceFingerprint": "2aff79a86929cf1fc5bcf68bb9dbf5b3b2a69514d24cd52303394cb7999178c2",
+  "sourceFingerprint": "dc9b2bcdab7dab4f6a8333e0bfec34adcf57c7bcad9d1831fbeae9f4eee58276",
   "summary": {
     "files": 419,
-    "lines": 95114,
+    "lines": 95130,
     "symbols": 1373
   },
   "symbolIndex": {
@@ -1697,61 +1697,61 @@
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 142
+        "line": 150
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 154
+        "line": 162
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 160
+        "line": 168
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 167
+        "line": 175
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 171
+        "line": 179
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 189
+        "line": 197
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 202
+        "line": 210
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 210
+        "line": 218
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 229
+        "line": 237
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 307
+        "line": 315
       }
     ],
     "mute": [
@@ -9193,8 +9193,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt",
-      "lines": 651,
-      "sha256": "902e7c8bd3f9776fc812e95a27814223f733f78f2ca4c26e932156bf132f882c",
+      "lines": 659,
+      "sha256": "9d3ced0283d72bb03e327302ff31c734f8f3e9d7eac955c88f6407d5f159227d",
       "symbols": []
     },
     {
@@ -9205,8 +9205,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 749,
-      "sha256": "2b9ce34b0e2b07cc464664a9692358603d8df7d4c83b6d0e36a62ca53dfbe1cb",
+      "lines": 757,
+      "sha256": "ffef7a8cb6e6b2240c5652bd9117d9a1bb43a29687025776854728c7cb6760a8",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -9214,43 +9214,43 @@
         },
         {
           "name": "messageLabel",
-          "line": 142
+          "line": 150
         },
         {
           "name": "repliedPreview",
-          "line": 154
+          "line": 162
         },
         {
           "name": "beginReply",
-          "line": 160
+          "line": 168
         },
         {
           "name": "toggleSelected",
-          "line": 167
+          "line": 175
         },
         {
           "name": "buildForwardPayload",
-          "line": 171
+          "line": 179
         },
         {
           "name": "appendDraft",
-          "line": 189
+          "line": 197
         },
         {
           "name": "stopReceiving",
-          "line": 202
-        },
-        {
-          "name": "wakeOnline",
           "line": 210
         },
         {
+          "name": "wakeOnline",
+          "line": 218
+        },
+        {
           "name": "sendAndReceive",
-          "line": 229
+          "line": 237
         },
         {
           "name": "regenerateLatestReply",
-          "line": 307
+          "line": 315
         }
       ]
     },
