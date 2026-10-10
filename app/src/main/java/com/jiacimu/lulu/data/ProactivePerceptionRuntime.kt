@@ -581,6 +581,11 @@ object ProactivePerceptionRuntime {
                 "模型请求失败 · ${error.message.orEmpty().take(120)}",
                 now,
             )
+            if (stagedAppraisal != null && !trigger.contains("互动事件二次重试")) {
+                ProactivePerceptionScheduler.scheduleInteractionRetry(
+                    appContext, characterId, stagedAppraisal.evidenceId,
+                )
+            }
             throw error
         }
         currentCoroutineContext().ensureActive()
@@ -595,7 +600,13 @@ object ProactivePerceptionRuntime {
             evidenceKind = EventEvidenceKind.Observation)
         val parsed = parseDecision(result.text, actionOnly = stagedAppraisal != null) ?: run {
             // The provider did return bytes, but not a safe executable decision.
-            // Never retry endlessly, charge for identical responses, or execute a guessed action.
+            // A completed emotion stage must remain intact even if the later
+            // action model malformed its reply. Retry only once, separately.
+            if (stagedAppraisal != null && !trigger.contains("互动事件二次重试")) {
+                ProactivePerceptionScheduler.scheduleInteractionRetry(
+                    appContext, characterId, stagedAppraisal.evidenceId,
+                )
+            }
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId, "模型返回的行动格式不完整，本轮没有执行动作", now,
             )
