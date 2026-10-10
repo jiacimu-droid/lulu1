@@ -3,7 +3,12 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterDecisionProtocolTest {
     @Test fun quietDecisionIsValidWithoutSpeech() {
         val quiet = JSONObject("""{"action":"silent","reason":"我现在需要自己想想"}""")
