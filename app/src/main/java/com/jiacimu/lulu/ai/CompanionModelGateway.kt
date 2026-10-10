@@ -89,6 +89,8 @@ data class ModelReply(
     val cachedTokens: Int = 0,
     /** Provider stop reason: length/max_tokens means output was cut off. */
     val finishReason: String? = null,
+    /** An intentional non-spoken decision is not a model failure. */
+    val disposition: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {
