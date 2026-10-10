@@ -71,6 +71,8 @@ internal fun QqStickerShelf(
     }
     var selectedSticker by remember { mutableStateOf<LuluSticker?>(null) }
     var editName by remember { mutableStateOf("") }
+    var editDescription by remember { mutableStateOf("") }
+    var editUsage by remember { mutableStateOf("") }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         if (uris.isEmpty()) return@rememberLauncherForActivityResult
         scope.launch {
@@ -175,6 +177,8 @@ internal fun QqStickerShelf(
                                     onLongClick = {
                                         selectedSticker = sticker
                                         editName = sticker.name
+                                        editDescription = sticker.visualDescription
+                                        editUsage = sticker.usageHint
                                     },
                                 ),
                                 shape = RoundedCornerShape(12.dp),
@@ -217,9 +221,27 @@ internal fun QqStickerShelf(
                     OutlinedTextField(
                         value = editName,
                         onValueChange = { editName = it.take(90) },
-                        label = { Text("表情含义（给角色看的）") },
-                        supportingText = { Text("例如：无语、贴贴、撒娇、笑哭；角色按含义判断何时发送") },
+                        label = { Text("表情名称") },
+                        supportingText = { Text("这张图的简短名字，例如：猫猫亲亲") },
                         singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = editDescription,
+                        onValueChange = { editDescription = it.take(400) },
+                        label = { Text("画面说明 · 角色据此认识图片") },
+                        supportingText = { Text("具体说明图里有什么、表情和姿势怎样；预装表情已自动填好") },
+                        minLines = 2,
+                        maxLines = 4,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = editUsage,
+                        onValueChange = { editUsage = it.take(160) },
+                        label = { Text("可能的语气 / 使用场合") },
+                        supportingText = { Text("比如：撒娇、得意、求夸夸；只是建议，不是图像事实") },
+                        minLines = 1,
+                        maxLines = 2,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -251,7 +273,7 @@ internal fun QqStickerShelf(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    StickerLibraryStore.rename(sticker.id, editName)
+                    StickerLibraryStore.rename(sticker.id, editName, editDescription, editUsage)
                     selectedSticker = null
                 }) { Text("保存名称") }
             },
