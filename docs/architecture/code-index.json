@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:24:35.390619+00:00",
-  "commit": "b2a5bb1f1744dc0fb683be61650fd782326f8ae4",
+  "generatedAt": "2026-10-10T11:25:42.540412+00:00",
+  "commit": "1bfde662729f0f45a2f3bbbb3f3e44a148c4dc78",
   "branch": "main",
-  "sourceFingerprint": "9d937cd75fddec31a832db5675fe956db5d575dca61a08c2f9b334baea368a9d",
+  "sourceFingerprint": "a14c8b141ee9276ed8c34be959380400af5e53bc6021aa039dc7f9f2ac356156",
   "summary": {
     "files": 445,
-    "lines": 98574,
-    "symbols": 1447
+    "lines": 98613,
+    "symbols": 1450
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -284,6 +284,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
         "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 201
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -3526,10 +3530,22 @@
         "line": 128
       }
     ],
-    "evaluate": [
+    "beforeTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
         "line": 168
+      }
+    ],
+    "afterDecision": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 183
+      }
+    ],
+    "evaluate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
+        "line": 207
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -11236,8 +11252,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 288,
-      "sha256": "d1130e9ae6fb8edf7de7d0855988c0019bc786e86480afd15dc403a3b8138083",
+      "lines": 327,
+      "sha256": "4fe75ddac2ad3db84bfa4ea15415385099943beb97d4ba3c41731e6bf402fa29",
       "symbols": [
         {
           "name": "fromWire",
@@ -11260,8 +11276,20 @@
           "line": 128
         },
         {
-          "name": "evaluate",
+          "name": "beforeTurn",
           "line": 168
+        },
+        {
+          "name": "afterDecision",
+          "line": 183
+        },
+        {
+          "name": "context",
+          "line": 201
+        },
+        {
+          "name": "evaluate",
+          "line": 207
         }
       ]
     },
