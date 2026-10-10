@@ -2,6 +2,15 @@ package com.jiacimu.lulu
 
 /** A quiet call still has a living participant; a pulse is not a demand to speak. */
 internal object CallSilencePolicy {
+    /** Distinct observations only when the silence meaningfully extends. */
+    fun observationMilestone(silenceMillis: Long): String = when {
+        silenceMillis < 5 * 60_000L -> "one-minute"
+        silenceMillis < 15 * 60_000L -> "five-minutes"
+        silenceMillis < 30 * 60_000L -> "fifteen-minutes"
+        silenceMillis < 60 * 60_000L -> "half-hour"
+        else -> "hour-${silenceMillis / (60 * 60_000L)}"
+    }
+
     fun shouldReflect(
         connected: Boolean, sleepMode: Boolean, busy: Boolean,
         userSpeaking: Boolean, sinceUserActivityMillis: Long,
