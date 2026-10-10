@@ -142,7 +142,7 @@ object LuluDeviceToolBridge {
             真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
-            想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可以只发表情，但那时也要把 action 选为 reply 并在 speechIntent 中说明这一张表情想表达的感觉。不准猜 ID，也不用每次都配一张。
+            想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
             speechIntent 不要预先指定昵称、比喻、梗、反问句式或完整的表演台词，这些由表达层现场决定。但如果角色已经真心决定尝试一个具体而温和的社交小动作，可单独选填 socialAttempt="这次我打算怎样主动示好/逗她/靠近她"；这里写的是角色自选的行动意图，不是对方下达的任务。表达层应真的用文字、拟声或语言实现虚拟互动，不得虚构现实中已经碰到用户。
             回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
@@ -406,7 +406,10 @@ object LuluDeviceToolBridge {
             )
             // The phone remains single-pass. In text chat, only the expression model
             // renders the planner's intent; it must not re-decide actions.
-            val expressed = if (separateExpression && plan.speechIntent.isNotBlank()) {
+            val imageOnly = !sceneContext.contains("电话") && plan.stickerOnly &&
+                plan.stickerId.isNotBlank() &&
+                com.jiacimu.lulu.StickerLibraryStore.byId(appContext, plan.stickerId) != null
+            val expressed = if (separateExpression && plan.speechIntent.isNotBlank() && !imageOnly) {
                 val generated = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
@@ -518,13 +521,15 @@ object LuluDeviceToolBridge {
                     cachedTokens = generated.cachedTokens + (rerendered?.cachedTokens ?: 0) + plannedReply.cachedTokens,
                 )
             } else plannedReply
-            val naturalText = if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text else checkedText
+            val naturalText = if (imageOnly) "" else if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text else checkedText
             val safeText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText)
             // A sticker exists only if the user has imported and approved that
             // exact ID. Invalid guesses silently yield no image.
             val chosenSticker = if (!sceneContext.contains("电话"))
                 plan.stickerId.takeIf(String::isNotBlank)?.let { com.jiacimu.lulu.StickerLibraryStore.byId(appContext, it) }
             else null
+            if (plan.stickerOnly && !imageOnly) return Result.failure(
+                IllegalStateException("角色选了只发图，但表情包已不存在或场景不支持图片"))
             if (safeText.isBlank() && chosenSticker == null) return Result.failure(
                 IllegalStateException("角色决定回复但没有生成可发送内容"))
             val sendText = if (chosenSticker == null) safeText else listOf(
@@ -850,6 +855,7 @@ object LuluDeviceToolBridge {
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
                 stickerId = json.optString("stickerId").trim().take(90),
+                stickerOnly = json.optBoolean("stickerOnly", false),
                 concernId = json.optString("concernId").trim().take(100),
                 reason = json.optString("reason"),
                 alternatives = json.optJSONArray("alternatives"),
@@ -896,6 +902,7 @@ private data class ToolPlan(
     val speechIntent: String = "",
     val socialAttempt: String = "",
     val stickerId: String = "",
+    val stickerOnly: Boolean = false,
     val concernId: String = "",
     val reason: String = "",
     val appraisal: JSONObject? = null,
