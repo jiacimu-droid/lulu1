@@ -721,6 +721,7 @@ object ProactivePerceptionRuntime {
             innerThought = groundedInnerThought,
             reason = decision.reason,
             now = now,
+            alternatives = decision.alternatives,
         )
         // Being online alone is not evidence of a new thought. Persist a new private voice only when
         // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
