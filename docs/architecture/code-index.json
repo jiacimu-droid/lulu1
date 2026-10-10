@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:48:54.023736+00:00",
-  "commit": "43f586f2cde7335a5f10c153a085f65d4d718ffe",
+  "generatedAt": "2026-10-10T17:56:16.018063+00:00",
+  "commit": "be8209b06608684528c1db9555b89e4705451d26",
   "branch": "main",
-  "sourceFingerprint": "4132d27832e1f9ba8617d7a8f050690b966efd1d7c59dc2bdeb8c540a8e1f60a",
+  "sourceFingerprint": "2aa7b4ca6d51f0bf24814c525e93e3958d8da49ff78ede094d9933142106cd17",
   "summary": {
-    "files": 470,
-    "lines": 102332,
-    "symbols": 1509
+    "files": 471,
+    "lines": 102405,
+    "symbols": 1511
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2788,6 +2788,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
         "line": 77
+      }
+    ],
+    "conciseAppraisal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
+        "line": 14
+      }
+    ],
+    "summary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
+        "line": 34
       }
     ],
     "CharacterDevelopmentRuntime": [
@@ -10837,6 +10849,21 @@
         {
           "name": "speechIntent",
           "line": 77
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
+      "lines": 73,
+      "sha256": "714527badaa9e728a9f026ab0057d1a3f6aa38e5df694879bb603a8e45685a2e",
+      "symbols": [
+        {
+          "name": "conciseAppraisal",
+          "line": 14
+        },
+        {
+          "name": "summary",
+          "line": 34
         }
       ]
     },
