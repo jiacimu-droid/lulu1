@@ -40,7 +40,7 @@ class CharacterExpressionContinuityTest {
         val guide = CharacterExpressionContinuity.guide()
         assertTrue(guide.contains("颜文字"))
         assertTrue(guide.contains("表情"))
-        assertTrue(guide.contains("不强制"))
+        assertTrue(guide.contains("不是强制"))
         assertNotNull(CharacterExpressionContinuity.classifyText("嘿嘿(￣▽￣)"))
         assertNull(CharacterExpressionContinuity.classifyText("今天不想发表情"))
     }
