@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`be8209b06608684528c1db9555b89e4705451d26`
+- 基准提交：`fa75beaa2cf4c406a16d42e65889538eda49c911`
 - 分支：`main`
 - 已索引文件：471
-- 已索引代码/文本行：102405
+- 已索引代码/文本行：102429
 - 已发现符号：1511
 
 | 文件 | 行数 | 符号数 |
@@ -151,7 +151,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 100 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 200 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1105 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1129 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 578 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 65 | 6 |

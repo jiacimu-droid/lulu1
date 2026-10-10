@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:56:16.018063+00:00",
-  "commit": "be8209b06608684528c1db9555b89e4705451d26",
+  "generatedAt": "2026-10-10T17:56:30.363721+00:00",
+  "commit": "fa75beaa2cf4c406a16d42e65889538eda49c911",
   "branch": "main",
-  "sourceFingerprint": "2aa7b4ca6d51f0bf24814c525e93e3958d8da49ff78ede094d9933142106cd17",
+  "sourceFingerprint": "1c8bb059ec4db1182f46a2a298e67f218263523a287ca33fb2f2e66c7367112a",
   "summary": {
     "files": 471,
-    "lines": 102405,
+    "lines": 102429,
     "symbols": 1511
   },
   "symbolIndex": {
@@ -295,7 +295,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 987
+        "line": 1011
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -3041,13 +3041,13 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 895
+        "line": 917
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 912
+        "line": 934
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -11008,8 +11008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1105,
-      "sha256": "f23bb2a4b6c29b0d599059223b7cdc4a8bec4eff1ad7d7acda853f682ac025a6",
+      "lines": 1129,
+      "sha256": "cf3406298cd2d154385ad6bd7f63c072dc30c2028a7d1c16b78a1a67251d957a",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -11033,15 +11033,15 @@
         },
         {
           "name": "normalize",
-          "line": 895
+          "line": 917
         },
         {
           "name": "compactContext",
-          "line": 912
+          "line": 934
         },
         {
           "name": "context",
-          "line": 987
+          "line": 1011
         }
       ]
     },
