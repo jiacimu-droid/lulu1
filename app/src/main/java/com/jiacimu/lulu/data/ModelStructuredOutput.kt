@@ -53,6 +53,9 @@ internal object ModelStructuredOutput {
         val result = mutableListOf<String>()
         val sentenceEnd = Regex("""[。！？!?…~～”"』」）)]$""")
         val standalone = Regex("""^(?:嗯+|啊+|诶+|欸+|哦+|哈哈+|嘿嘿+|好+|行+|等等|等下|真的[？！!?]?|为什么[？！!?]?)$""")
+        val grammarNeedsTail = Regex(
+            """(?:是(?:我|你|他|她|它|我们|你们|他们)|我以为|你以为|还以为|原以为|觉得|感觉|本来|其实|只是|但是|可是|因为|所以|如果|要是|虽然|不过|就是|有点|有些|还没|没有|不会|不该|应该|可能|大概|想|要|让|把|被|跟|和|对|给)$"""
+        )
         cleaned.forEach { current ->
             if (result.isEmpty()) {
                 result += current
@@ -62,7 +65,8 @@ internal object ModelStructuredOutput {
             val compact = current.replace(Regex("\\s+"), "")
             val incompletePrevious = !sentenceEnd.containsMatchIn(previous.trim())
             val shortContinuation = compact.length <= 8 && !standalone.matches(compact)
-            if (incompletePrevious && shortContinuation) {
+            val previousNeedsContinuation = grammarNeedsTail.containsMatchIn(previous.trim())
+            if (incompletePrevious && shortContinuation && previousNeedsContinuation) {
                 val needsSpace = previous.lastOrNull()?.isLetterOrDigit() == true &&
                     current.firstOrNull()?.isLetterOrDigit() == true &&
                     previous.last().code < 128 && current.first().code < 128
