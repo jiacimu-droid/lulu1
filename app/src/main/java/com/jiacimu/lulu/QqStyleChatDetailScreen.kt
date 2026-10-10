@@ -139,6 +139,14 @@ fun QqStyleChatDetailScreen(
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
     var mentionExpanded by remember { mutableStateOf(false) }
+    LaunchedEffect(groupSettingsVisible) {
+        if (groupSettingsVisible) {
+            // Group settings replaces the chat screen within the same route.
+            // The root navigator does not see this sub-page transition.
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
+        }
+    }
 
     fun messageLabel(message: LuluChatMessage): String = when (message.sender) {
         LuluChatMessage.Sender.User -> "我"

@@ -48,6 +48,14 @@ internal fun QqGroupChatSettingsScreen(
     var memberPickerVisible by remember { mutableStateOf(false) }
     var memberManagementVisible by remember { mutableStateOf(false) }
     val memberIds = editing.members.mapTo(mutableSetOf(), LuluGroupMember::characterId)
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    LaunchedEffect(searchVisible, memberPickerVisible, memberManagementVisible) {
+        // Switching between the short group sub-pages must not carry an
+        // existing editor's focus onto a different input field.
+        focusManager.clearFocus(force = true)
+        keyboard?.hide()
+    }
 
     if (searchVisible) {
         GroupChatRecordSearchScreen(
