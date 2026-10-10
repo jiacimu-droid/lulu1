@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +41,49 @@ class CharacterExpressionGuideTest {
         assertTrue(prompt.contains("真有话想抒发时也不必压成刻意简短的句子"))
         assertTrue(prompt.contains("个人语言会成长，但不自我复制"))
         assertFalse(prompt.contains("每条不超过"))
+    }
+
+    @Test fun personalityArchitectureSeparatesStablePersonFromChangingState() {
+        val prompt = CharacterPersonalityArchitecture.promptSection()
+        assertTrue(prompt.contains("稳定核心"))
+        assertTrue(prompt.contains("情境化适应"))
+        assertTrue(prompt.contains("叙事身份"))
+        assertTrue(prompt.contains("即时状态"))
+        assertTrue(prompt.contains("互动状态"))
+        assertTrue(prompt.contains("表达实现"))
+        assertTrue(prompt.contains("长期概率倾向"))
+        assertTrue(CharacterDecisionProtocol.principles.contains("共同语境"))
+        assertTrue(CharacterDecisionProtocol.principles.contains("优先完成修复"))
+    }
+
+    @Test fun heartVoiceRequiresPrivateCausalResidueInsteadOfASecondAnswer() {
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "还是先等她吧，别催了",
+            outward = "",
+            innerLife = null,
+            hasFreshEvidence = true,
+        ))
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "我想先问问你到底怎么想",
+            outward = "我想先问问你到底怎么想。",
+            innerLife = null,
+            hasFreshEvidence = true,
+        ))
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "突然想起那本书还没看完",
+            outward = "",
+            innerLife = null,
+            hasFreshEvidence = false,
+        ))
+        val changed = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "有点失落")
+            .put("cause", "她明确拒绝了邀约"))
+        assertEquals("其实还是有点失落", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "其实还是有点失落",
+            outward = "好，那今天就不去了。",
+            innerLife = changed,
+            hasFreshEvidence = true,
+        ))
     }
 
     @Test fun modelWrittenChatDoesNotBecomeAnUnreviewedStyleExample() {
