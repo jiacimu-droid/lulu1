@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`68b19b7a8d7baba346666d6bcde40f4aef384924`
+- 基准提交：`2affb86b95c0c5223f4baf70223a317f194a5a37`
 - 分支：`main`
 - 已索引文件：444
-- 已索引代码/文本行：97754
+- 已索引代码/文本行：97764
 - 已发现符号：1434
 
 | 文件 | 行数 | 符号数 |
@@ -148,7 +148,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 101 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 51 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 87 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 96 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 34 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
@@ -177,7 +177,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 361 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 20 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 14 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 15 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 242 | 16 |

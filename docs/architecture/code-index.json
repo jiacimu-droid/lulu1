@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T10:08:54.782300+00:00",
-  "commit": "68b19b7a8d7baba346666d6bcde40f4aef384924",
+  "generatedAt": "2026-10-10T10:09:31.219846+00:00",
+  "commit": "2affb86b95c0c5223f4baf70223a317f194a5a37",
   "branch": "main",
-  "sourceFingerprint": "6871179c293bc48bcde800808e19ef82e3956e7fc93625386a7c087024737339",
+  "sourceFingerprint": "9634900d698a76cfb192c434b36695ae1e8e06676cb84d5381553384d2dab6e3",
   "summary": {
     "files": 444,
-    "lines": 97754,
+    "lines": 97764,
     "symbols": 1434
   },
   "symbolIndex": {
@@ -10261,7 +10261,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
       "lines": 91,
-      "sha256": "022f117b6a537e73a0a8b28a84083fd1eadba0e65ecaf543e1aba524678e2e0c",
+      "sha256": "857f584b305d8bb8ca46912cefcab86361de4f32d5585d3a36ad10a13f2fa45b",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
@@ -10284,7 +10284,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
       "lines": 171,
-      "sha256": "17db798a964e5b0fc2bf83d75ed79b909389fee8fbabbd7d6b519ba3f20ff6f9",
+      "sha256": "9b49161f387ed502480890b75e5e7dd3571017c1f0d7510c3e2c259dc473cf07",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -10512,8 +10512,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 87,
-      "sha256": "0f1cda3db622648189c53c827c484f5cd7695b7ecdad643d2e1edfbd869c2bd9",
+      "lines": 96,
+      "sha256": "02812f36e006531160d4311a3a2789e6f3b2b1b37fba40024255757e3680c5ba",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -11173,8 +11173,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt",
-      "lines": 14,
-      "sha256": "a069c88ea638d85bf8c9e94cffb103450ef3a4e549156fc7a3ffaf4724687ff1",
+      "lines": 15,
+      "sha256": "fad82d999ee5ffc40781908dc1be0b4d17b10e5ce624801a09ef4b91d0ef4ce9",
       "symbols": [
         {
           "name": "DevelopmentPolicy",
