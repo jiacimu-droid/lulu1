@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T06:27:45.513146+00:00",
-  "commit": "8622355989b22d0f6ca3826813c5c3effe186e10",
+  "generatedAt": "2026-10-10T06:28:37.963944+00:00",
+  "commit": "e94e2de7aaf8607db995b8679f59133ef83cbb43",
   "branch": "main",
-  "sourceFingerprint": "053f20dfd58dfbac0f3c68cd8e0da5d7c7ad6c6aebc902c4c8492ab1d56a04a9",
+  "sourceFingerprint": "753f32cc995db5bd2845fefc6afd6e76590f75e8a8d65536080fb028c57c39c2",
   "summary": {
     "files": 430,
-    "lines": 95982,
+    "lines": 96027,
     "symbols": 1401
   },
   "symbolIndex": {
@@ -2413,7 +2413,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 389
+        "line": 432
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2735,7 +2735,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 357
+        "line": 397
       }
     ],
     "CharacterLifeStore": [
@@ -2747,13 +2747,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 93
+        "line": 133
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 346
+        "line": 386
       }
     ],
     "CharacterMessageFavorites": [
@@ -10191,8 +10191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 432,
-      "sha256": "5041f40aab9b118f53bffbd50cf5d38b203eea8ece9c3125219c66248c5599bc",
+      "lines": 477,
+      "sha256": "b3edf9c5a252552dadd8a581015e70946afdea45e2ac2fde0d3e820930b7633f",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -10204,19 +10204,19 @@
         },
         {
           "name": "afterglowContext",
-          "line": 93
+          "line": 133
         },
         {
           "name": "profileContext",
-          "line": 346
+          "line": 386
         },
         {
           "name": "compactContext",
-          "line": 357
+          "line": 397
         },
         {
           "name": "context",
-          "line": 389
+          "line": 432
         }
       ]
     },
