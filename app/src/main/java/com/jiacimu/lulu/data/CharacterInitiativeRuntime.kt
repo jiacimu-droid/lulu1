@@ -63,7 +63,7 @@ internal object CharacterInitiativeRuntime {
             NeedKind.CONNECTION -> listOf("陪", "亲近", "聊天", "抱", "哄", "电话", "见面", "一起")
         }
         val ranked = records.map { record ->
-            record to terms.count(record.content::contains)
+            record to terms.count { term -> record.content.contains(term) }
         }.filter { (_, score) -> score > 0 }
             .sortedWith(compareByDescending<Pair<DevelopmentRecord, Int>> { it.second }
                 .thenByDescending { it.first.createdAt })
