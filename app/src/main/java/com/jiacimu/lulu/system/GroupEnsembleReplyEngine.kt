@@ -341,6 +341,16 @@ internal object GroupEnsembleReplyEngine {
             basis = served.turn.innerThoughtBasis,
             hasFreshEvidence = true,
         )
+        com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
+            characterId = served.turn.characterId,
+            evidenceId = evidenceId,
+            appraisal = served.turn.appraisal,
+            innerLife = served.turn.innerLife,
+            innerThoughtBasis = served.turn.innerThoughtBasis,
+            selectedAction = if (served.turn.tool.isBlank()) "group_reply" else "group_reply+${served.turn.tool}",
+            innerThought = groundedInnerThought,
+            reason = served.turn.intent,
+        )
         com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(
             served.turn.characterId, served.emotionalAnchor, served.turn.afterglow)
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInteractionAppraisal(
