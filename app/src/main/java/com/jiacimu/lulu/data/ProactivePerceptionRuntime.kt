@@ -130,6 +130,9 @@ object ProactivePerceptionRuntime {
             var evaluated = 0
             for (conversation in targets) {
                 val characterId = conversation.characterId.ifBlank { "lulu" }
+                // The connected call owns perception and expression, including quiet pulses.
+                // General background decisions must not start a second call or send competing chat.
+                if (CompanionPresenceStore.isInCall(characterId)) continue
                 val policy = ProactivePerceptionPolicyStore.get(characterId)
                 if (!policy.enabled && (!force || preserveOffline)) continue
                 if (!force) {

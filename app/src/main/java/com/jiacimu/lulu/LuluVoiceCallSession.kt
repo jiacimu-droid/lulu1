@@ -95,6 +95,24 @@ internal object LuluVoiceCallSession {
     private var sleepContinuationJob: Job? = null
     private var userSpeechInProgress = false
     private var sleepFailures = 0
+    private var lastUserActivityMillis = 0L
+    private var lastCallAudioMillis = 0L
+    private var lastSilenceReflectionMillis = 0L
+    private var silenceFailures = 0
+    private var replyIsSilence = false
+
+    private fun noteCallUserActivity() {
+        lastUserActivityMillis = SystemClock.elapsedRealtime()
+        silenceFailures = 0
+        if (replyIsSilence) {
+            replyGeneration++
+            replyJob?.cancel()
+            replyIsSilence = false
+            mutableState.update { it.copy(thinking = false) }
+        }
+        noteSleepUserReply()
+    }
+
     /** Monotonic time: the listener's silence is measured even if the call UI is minimized. */
     private var lastSleepUserReplyAtMillis: Long? = null
 
@@ -174,10 +192,18 @@ internal object LuluVoiceCallSession {
                     },
                     onState = { listening, speaking, note ->
                         if (mutableState.value.callExperienceId == sessionId && mutableState.value.connected) {
+                            if (speaking) {
+                                lastCallAudioMillis = SystemClock.elapsedRealtime()
+                                if (replyIsSilence) {
+                                    replyGeneration++; replyJob?.cancel(); replyIsSilence = false
+                                    mutableState.update { it.copy(thinking = false) }
+                                }
+                            }
                             mutableState.update { it.copy(listening = listening, speaking = speaking, opening = it.opening && !listening, statusMessage = note) }
                             AvatarController.listening(current.characterId, listening)
                         }
                     },
+                    onUserSpeech = { if (mutableState.value.callExperienceId == sessionId) noteCallUserActivity() },
                     onCandidate = { text -> if (mutableState.value.callExperienceId == sessionId) mutableState.update { it.copy(generatedTranscript = text) } },
                     onError = { error -> if (mutableState.value.callExperienceId == sessionId) {
                         mutableState.update { it.copy(statusMessage = error) }
@@ -370,6 +396,7 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         sleepFailures = 0
+        replyIsSilence = false
         subtitleRevealJob?.cancel()
         subtitleRevealJob = null
         lastSleepUserReplyAtMillis = null
@@ -446,6 +473,7 @@ internal object LuluVoiceCallSession {
             onBusyChanged = busyChanged@ { busy ->
                 val current = mutableState.value
                 if (!current.connected) return@busyChanged
+                lastCallAudioMillis = SystemClock.elapsedRealtime()
                 if (busy) audioRoute?.refresh()
                 mutableState.update {
                     it.copy(
@@ -501,7 +529,7 @@ internal object LuluVoiceCallSession {
                 override fun onBeginningOfSpeech() {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = true
-                    noteSleepUserReply()
+                    noteCallUserActivity()
                     sleepContinuationJob?.cancel()
                     mutableState.update { it.copy(statusMessage = "听到了，你继续说") }
                 }
@@ -630,16 +658,19 @@ internal object LuluVoiceCallSession {
         opening: Boolean = false,
         allowWhileMuted: Boolean = false,
         autonomousSleep: Boolean = false,
+        autonomousSilence: Boolean = false,
     ) {
         val current = mutableState.value
-        if (!current.connected || realtime != null ||
-            (!opening && !autonomousSleep && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
+        if (!current.connected || (realtime != null && !autonomousSilence) ||
+            (!opening && !autonomousSleep && !autonomousSilence && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
             (autonomousSleep && (!current.sleepMode || userSpeechInProgress || current.thinking ||
                 current.speaking || speechQueue?.hasPendingAudio == true || current.opening))) return
+        if (autonomousSilence && (current.sleepMode || userSpeechInProgress || current.thinking ||
+            current.speaking || speechQueue?.hasPendingAudio == true || current.opening)) return
         sleepContinuationJob?.cancel()
-        if (!autonomousSleep) {
+        if (!autonomousSleep && !autonomousSilence) {
             userSpeechInProgress = false
-            if (spoken.isNotBlank() && !opening) noteSleepUserReply()
+            if (spoken.isNotBlank() && !opening) noteCallUserActivity()
         }
         replyGeneration++
         autonomousHangup.cancel()
@@ -647,17 +678,20 @@ internal object LuluVoiceCallSession {
         speechQueue?.stop()
         val generation = replyGeneration
         replyJob?.cancel()
-        pauseRecognition()
-        if (!opening && !autonomousSleep) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
+        replyIsSilence = autonomousSilence
+        if (!autonomousSilence) pauseRecognition()
+        if (!opening && !autonomousSleep && !autonomousSilence) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
             "voice-${current.callExperienceId}-user-$generation", spoken, false)
-        mutableState.update { it.copy(thinking = true, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = "${current.characterName} 正在想怎么回答") }
-        if (!opening && !autonomousSleep) scheduleListening(200)
+        mutableState.update { it.copy(thinking = true, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
+        if (!opening && !autonomousSleep && !autonomousSilence) scheduleListening(200)
         replyJob = scope.launch {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
             val archiveId = library.archiveIdFor(ModelUsage.VoiceCall)
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
             if (activeArchive == null) {
+                replyIsSilence = false
+                if (autonomousSilence) silenceFailures++
                 mutableState.update { it.copy(thinking = false, opening = false, statusMessage = "电话模型已断开") }
                 scheduleListening(300)
                 return@launch
@@ -733,13 +767,23 @@ internal object LuluVoiceCallSession {
                 latest.sleepFocus, continuing = autonomousSleep,
                 silenceMillis = sleepSilenceMillis(),
             ) else ""
+            val silenceContext = if (autonomousSilence) CallSilencePolicy.context(
+                SystemClock.elapsedRealtime() - lastUserActivityMillis, latest.microphoneMuted) else ""
+            val observationId = if (autonomousSilence) "call-silence-${latest.callExperienceId}-$generation" else ""
+            if (autonomousSilence) com.jiacimu.lulu.data.SharedExperienceTimeline.record(
+                eventId = observationId, characterId = latest.characterId, channel = "电话陪伴",
+                speaker = "通话观察", content = "电话仍接通；本轮没有新增用户发言；距最近用户语音活动约 ${(SystemClock.elapsedRealtime() - lastUserActivityMillis) / 1000} 秒；麦克风${if (latest.microphoneMuted) "静音" else "未静音"}", triggerExtraction = false,
+                sessionId = latest.callExperienceId, source = "call-observation",
+                evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation)
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
-                userText = if (autonomousSleep) "" else spoken,
+                userText = if (autonomousSleep || autonomousSilence) "" else spoken,
                 title = activeLabel,
                 archiveId = archiveId,
+                silenceObservationId = observationId,
                 sceneContext = when {
+                    autonomousSilence -> silenceContext
                     autonomousSleep -> """
                         这是同一通电话的哄睡后续。用户没有新增发言，这只是系统续讲事件，不能当作用户说话或催促。
                         $bedtimeGuide
@@ -750,20 +794,36 @@ internal object LuluVoiceCallSession {
                     latest.sleepMode -> "这是哄睡陪伴电话。用户刚刚说了话，要先认真回应她，再自然选择引导或陪伴方式。用户可以安静只听，别催促答话。\n$bedtimeGuide"
                     else -> "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。先理解用户这段话的重点、情绪和说话是否已经结束，再依角色自己的个性、关系和兴趣自然回应。简单的事可以轻快接话，值得深谈的事可以认真讲清；不要固定每轮几句话，不要机械复述、每句都追问或习惯性附和。角色可以有自己的判断、幽默、沉默与不同意见，但不得编造已经发生的事情。不要朗读说明文字。"
                 },
-                onCharacterHangup = {
+                onCharacterHangup = if (realtime != null) null else ({
                     if (sameReply() && !autonomousSleep) autonomousHangup.request(latest.callExperienceId, generation)
-                },
-                onReplyStream = { envelope -> scope.launch {
+                }),
+                onReplyStream = if (autonomousSilence) null else ({ envelope: String -> scope.launch {
                     if (!sameReply() || stream.isFinished) return@launch
                     val parts = stream.updateForSpeech(envelope, wholeTurnSpeech)
                     CallReplyStream.replyTextPrefix(envelope)?.let { candidate ->
                         mutableState.update { it.copy(generatedTranscript = VoicePerformance.plain(candidate)) }
                     }
                     enqueueSpoken(parts)
-                } },
+                }; Unit }),
             ).onSuccess { reply ->
                 if (generation != replyGeneration || !mutableState.value.connected || mutableState.value.callExperienceId != latest.callExperienceId) return@onSuccess
+                replyIsSilence = false
+                if (autonomousSilence) silenceFailures = 0
+                if (reply.disposition == com.jiacimu.lulu.data.CharacterDecisionProtocol.SILENT) {
+                    stream.cancel()
+                    mutableState.update { it.copy(thinking = false, opening = false,
+                        statusMessage = "${latest.characterName} 正安静陪着你") }
+                    return@onSuccess
+                }
                 val text = reply.text
+                if (autonomousSilence && realtime != null && text.isNotBlank()) {
+                    mutableState.update { it.copy(thinking = false) }
+                    runCatching { realtime?.continueFromSilence(text) }.onFailure { error ->
+                        silenceFailures++
+                        mutableState.update { it.copy(errorMessage = "陪伴发声失败：${error.message.orEmpty().take(100)}") }
+                    }
+                    return@onSuccess
+                }
                 if (text.isBlank()) {
                     stream.cancel()
                     speechQueue?.stop()
@@ -804,6 +864,15 @@ internal object LuluVoiceCallSession {
                 finishAutonomousHangupIfReady()
             }.onFailure { error ->
                 if (generation != replyGeneration || !mutableState.value.connected) return@onFailure
+                replyIsSilence = false
+                if (autonomousSilence) {
+                    silenceFailures++
+                    com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
+                        latest.characterId, "通话沉默感知失败 · ${error.message.orEmpty().take(100)}")
+                    mutableState.update { it.copy(thinking = false,
+                        statusMessage = "通话仍在继续", errorMessage = "陪伴状态更新失败：${error.message.orEmpty().take(100)}") }
+                    return@onFailure
+                }
                 stream.cancel()
                 autonomousHangup.cancel()
                 speechQueue?.stop()
@@ -846,7 +915,7 @@ internal object LuluVoiceCallSession {
             onSpeech = {
                 if (sameSession()) {
                     userSpeechInProgress = true
-                    noteSleepUserReply()
+                    noteCallUserActivity()
                     sleepContinuationJob?.cancel()
                     if (mutableState.value.thinking) { replyGeneration++; replyJob?.cancel() }
                     mutableState.update { it.copy(thinking = false, listening = true, errorMessage = "", partialTranscript = "", statusMessage = "检测到语音，正在收音…") }
@@ -889,6 +958,11 @@ internal object LuluVoiceCallSession {
         com.jiacimu.lulu.data.CompanionPresenceStore.beginCall(mutableState.value.characterId)
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
         val startedAt = SystemClock.elapsedRealtime()
+        lastUserActivityMillis = startedAt
+        lastCallAudioMillis = startedAt
+        // First ordinary-call reflection after one quiet minute, then bounded pulses.
+        lastSilenceReflectionMillis = startedAt - 60_000L
+        silenceFailures = 0
         timerJob = scope.launch {
             while (mutableState.value.connected) {
                 mutableState.update { it.copy(elapsedSeconds = (SystemClock.elapsedRealtime() - startedAt) / 1_000L) }
@@ -905,6 +979,14 @@ internal object LuluVoiceCallSession {
                     )) {
                     endSleepCallOnSilence()
                     break
+                }
+                val clock = SystemClock.elapsedRealtime()
+                if (CallSilencePolicy.shouldReflect(current.connected, current.sleepMode,
+                        current.thinking || current.speaking || current.opening || speechQueue?.hasPendingAudio == true,
+                        userSpeechInProgress, clock - lastUserActivityMillis,
+                        clock - lastCallAudioMillis, clock - lastSilenceReflectionMillis, silenceFailures)) {
+                    lastSilenceReflectionMillis = clock
+                    handleUserSpeech("", autonomousSilence = true)
                 }
                 delay(1_000L)
             }

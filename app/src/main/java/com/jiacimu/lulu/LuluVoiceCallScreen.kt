@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
@@ -54,6 +55,16 @@ fun LuluVoiceCallScreen(
 ) {
     val context = LocalContext.current
     val state by LuluVoiceCallSession.state.collectAsState()
+    var showPresence by remember { mutableStateOf(false) }
+    val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
+    val presenceHistories by com.jiacimu.lulu.data.CompanionPresenceStore.histories.collectAsState()
+    val currentCharacterId = state.characterId.ifBlank { characterId }
+    if (showPresence) CompanionPresenceDialog(
+        characterName = state.characterName.ifBlank { characterName },
+        state = presenceStates[currentCharacterId],
+        history = presenceHistories[currentCharacterId].orEmpty(),
+        onDismiss = { showPresence = false },
+    )
     val library by LuluAiServices.connectionStore.library.collectAsState()
     val activeConversationId = state.conversationId.ifBlank { conversationId }
     val messagesFlow = remember(activeConversationId) { MigratedDomainStores.chat.messages(activeConversationId) }
@@ -134,7 +145,10 @@ fun LuluVoiceCallScreen(
                         shadowElevation = 18.dp,
                     ) {}
                     Surface(
-                        modifier = Modifier.size(120.dp),
+                        modifier = Modifier.size(120.dp).clickable {
+                            com.jiacimu.lulu.data.CompanionPresenceStore.clearMessageAnchor()
+                            showPresence = true
+                        },
                         shape = RoundedCornerShape(34.dp),
                         color = Color.White,
                         border = BorderStroke(4.dp, Color.White),

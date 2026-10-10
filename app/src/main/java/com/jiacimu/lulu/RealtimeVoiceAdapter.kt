@@ -15,6 +15,7 @@ internal class RealtimeVoiceAdapter(
     private val scope: CoroutineScope,
     private val onConnected: () -> Unit,
     private val onState: (listening: Boolean, speaking: Boolean, note: String) -> Unit,
+    private val onUserSpeech: () -> Unit,
     private val onCandidate: (String) -> Unit,
     private val onError: (String) -> Unit,
 ) {
@@ -33,6 +34,8 @@ internal class RealtimeVoiceAdapter(
     private var microphoneMuted = false
     private var openingWaiting = false
     private var openingEventText = ""
+    private val controlEvents = mutableSetOf<String>()
+    private var lastUserActivity = 0L
     private var suppressDelivery = false
     private var deliveryJob: Job? = null
     private var openingJob: Job? = null
@@ -42,6 +45,8 @@ internal class RealtimeVoiceAdapter(
         microphoneMuted = false
         openingWaiting = true
         openingEventText = openingPrompt
+        controlEvents.clear()
+        controlEvents += openingPrompt
         this.characterId = characterId
         this.conversationId = conversationId
         val epoch = ++generation
@@ -83,11 +88,17 @@ internal class RealtimeVoiceAdapter(
                 if (level > 0.01f && volumeEnabled) playedAudio = true
                 AvatarController.audio(characterId, level)
             } },
-            onUserTranscriptEvent = { text, eventId -> if (epoch == generation && text.isNotBlank() && eventId != null && text != openingEventText) {
+            onUserTranscriptEvent = { text, eventId -> if (epoch == generation && text.isNotBlank() && eventId != null && text !in controlEvents) {
+                lastUserActivity++
+                onUserSpeech()
                 MigratedDomainStores.chat.appendVoiceMessage(conversationId, "voice-$providerSessionId-user-$eventId-$characterId", text, false)
                 scope.launch { refreshCore(epoch) }
             } },
-            onTentativeUserTranscriptEvent = { text, _ -> if (epoch == generation) onState(true, speaking, "听到：$text") },
+            onTentativeUserTranscriptEvent = { text, _ -> if (epoch == generation && text.isNotBlank() && text !in controlEvents) {
+                lastUserActivity++
+                onUserSpeech()
+                onState(true, speaking, "听到：$text")
+            } },
             onAgentResponseEvent = { text, eventId -> if (epoch == generation && eventId != null) {
                 if (volumeEnabled && !suppressDelivery) delivery.generated(deliveryEpoch, eventId, text)
                 else delivery.interrupt(deliveryEpoch, eventId)
@@ -145,6 +156,19 @@ internal class RealtimeVoiceAdapter(
         }
     }
 
+    /** This is a system companionship event, never a fabricated user utterance. */
+    suspend fun continueFromSilence(text: String) {
+        val connected = session ?: return
+        val epoch = generation
+        val userActivity = lastUserActivity
+        if (speaking || openingWaiting || text.isBlank()) return
+        refreshCore(epoch)
+        if (epoch != generation || userActivity != lastUserActivity || speaking || openingWaiting) return
+        val event = "[电话安静陪伴事件；用户没有新增发言] 你刚才自主决定表达：$text。只自然说出这份意思，不朗读事件说明，不假装用户刚问了问题。"
+        controlEvents += event
+        connected.sendUserMessage(event)
+    }
+
     fun mute(muted: Boolean) { microphoneMuted = muted; scope.launch { session?.setMicMuted(muted || openingWaiting) } }
     fun speaker(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
         // Speaker toggle chooses the Android audio route (speaker vs receiver/headset),
@@ -196,7 +220,8 @@ internal class RealtimeVoiceAdapter(
         val presence = CompanionPresenceStore.current(id)
         val definition = CharacterRuntime.definition(id)
         val context = listOf(definition.promptSection(),
-            UserProfileContext.promptSection(), "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
+            UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
+            CharacterInnerLifeStore.compactContext(id), "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
             DigitalWorldLifeEventStore.contextFor(id), CharacterRuntime.developmentContext(id),
             memory.compactPromptSection(12_000), "世界书：" + worldBook.joinToString("\n") { "${it.title}：${it.content}" },
             "辞海：" + lexicon.take(24).joinToString("\n") { "${it.title}：${it.content}" }, CapabilityRegistry.context(context = this.context, characterId = id),
