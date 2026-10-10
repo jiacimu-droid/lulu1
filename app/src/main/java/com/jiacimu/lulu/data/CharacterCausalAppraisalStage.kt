@@ -74,10 +74,9 @@ internal object CharacterCausalAppraisalStage {
         val basis = parsed.optJSONObject("innerThoughtBasis")
         // Do not mark an invalid/empty provider response as a successful appraisal.
         if (appraisal == null && innerLife == null && mood.isBlank() && rawThought.isBlank()) return null
-        val verified = CharacterPerceptionContext.integrate(
-            context = context, characterId = characterId,
-            observed = listOf(event),
-        ).combined ?: return null
+        // Do NOT claim the evidence before the private state is durably saved.
+        // If persistence fails, the still-pending event must be recoverable.
+        val verified = CharacterPerceptionContext.stimulus(event)
         val previous = CharacterInnerLifeStore.snapshot(characterId)
         val delta = PrivateStateDeltaEngine.evaluate(
             previous = previous, proposal = innerLife,
@@ -114,6 +113,9 @@ internal object CharacterCausalAppraisalStage {
         }
         CompanionPresenceStore.recordPerceptionAttempt(characterId,
             "已理解互动事件并保存私人状态 · ${event.id.take(45)}", now)
+        // Record that we handled this observation only after its resulting
+        // appraisal and subjective continuity have been committed.
+        if (!PerceptionStimulusLedger.claim(context, characterId, verified)) return null
         return Outcome(verified.evidenceId, verified.description, mood, grounded)
     }
 
