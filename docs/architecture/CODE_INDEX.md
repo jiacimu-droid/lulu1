@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`09bcfde9a89c7834ef0b789451ff7eb214d70f20`
+- 基准提交：`80f4cc021b8db02fc8c57d768410e61e6ca84765`
 - 分支：`main`
 - 已索引文件：478
-- 已索引代码/文本行：103272
+- 已索引代码/文本行：103313
 - 已发现符号：1519
 
 | 文件 | 行数 | 符号数 |
@@ -125,7 +125,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 68 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 258 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 299 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 129 | 0 |
