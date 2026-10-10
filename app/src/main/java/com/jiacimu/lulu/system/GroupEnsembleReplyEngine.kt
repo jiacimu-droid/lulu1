@@ -201,13 +201,14 @@ internal object GroupEnsembleReplyEngine {
                 appendLine("\n【调用来源】这是群聊界面的一轮自然延续。成员是否发言取决于自己是否有话想说；可以一人独说、两人互怼或多人接龙，顺序由内容驱动。")
             },
             instruction = """
-                你是多人群聊的整体编排器。把这一轮写成真正会发生的群聊：首发者说话后，其他成员可以接、插话、沉默；有人有话可以连续发言，没兴趣的人不必为了凑数出声。绝不按名单轮班。
+                你是多人群聊的整体编排器。每个成员有独立立场和意愿，可以接话、插话或保持沉默；绝不按名单轮班。
+                文字群聊如果这一刻所有成员确实都不想说话，可只返回 {"action":"silent","reason":"各人此刻不发言的真实原因","turns":[]}；不要为了填满消息硬编气泡。电话仍需真实可念出的语音回应。
 
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
                 {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","mood":"简短心情"}]}
 
                 规则：
-                1. turns 第一项必须是指定的当前发言者，因为界面已经显示这个人正在输入；这个人不是固定成员，而是每轮动态选出的首发者。
+                1. 当返回有发言的 turns 时，第一项必须是指定的当前发言者，因为界面已经显示这个人在输入；如果她和其他人都不想说话，文字群聊使用明确的 silent 决策，不得补一句虚假的开场白。
                 2. 除首发者外，群成员可按人设和现实关系选择发言或旁听；沉默不是掉线或冷漠。同一个角色有真实动机时可以再次出现。
                 3. 发言顺序不绑定成员列表，不默认 A→B→C。可以 A 一人发几句、A→C→A，或 A→B→C→B；是否插话只由当前话题与人物动机决定。
                 4. 一个人可以在其他人还没发言时补发一句；不必等待其他人表态，也不必替缺席发言者补台词。
@@ -241,6 +242,21 @@ internal object GroupEnsembleReplyEngine {
         )
 
         val baseReply = generated.getOrElse { error -> return Result.success(fallbackReply(currentSpeakerId, memberLabels, error.message)) }
+        if (!isCall && com.jiacimu.lulu.data.CharacterDecisionProtocol.groupIsExplicitlySilent(baseReply.text)) {
+            val decision = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(baseReply.text)
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
+                characterId = currentSpeakerId,
+                decisionId = "group:silent:$planKey",
+                selectedAction = "silent",
+                reason = decision?.optString("reason").orEmpty(),
+                chosenMotiveId = decision?.optString("motiveId").orEmpty(),
+                alternatives = decision?.optJSONArray("alternatives"),
+                outcome = "群聊当前没有人发言，无外部动作",
+                succeeded = false,
+                now = now,
+            )
+            return Result.success(baseReply.copy(text = "", disposition = "silent"))
+        }
         val parsed = parseTurns(
             raw = baseReply.text,
             validMembers = validMembers,
