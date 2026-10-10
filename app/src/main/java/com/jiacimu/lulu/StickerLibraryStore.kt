@@ -85,6 +85,10 @@ internal object StickerLibraryStore {
         }
     }
 
+    fun rename(id: String, name: String) = update { list ->
+        list.map { if (it.id == id) it.copy(name = name.trim().take(90).ifBlank { "自选表情" }) else it }
+    }
+
     fun toggleFavorite(id: String) = update { list ->
         list.map { if (it.id == id) it.copy(favorite = !it.favorite) else it }
     }
