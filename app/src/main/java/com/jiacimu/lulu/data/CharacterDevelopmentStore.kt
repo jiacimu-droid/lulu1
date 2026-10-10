@@ -25,6 +25,7 @@ data class DevelopmentRecord(
     val createdAt: Instant,
     val active: Boolean = true,
     val personaSnapshot: String = "",
+    val maturity: DevelopmentMaturity = DevelopmentMaturity.Emerging,
 )
 
 /** Additive persistence: no mutation of persona, identity, or existing memories. */
@@ -46,7 +47,11 @@ object CharacterDevelopmentStore {
                     DevelopmentKind.valueOf(item.getString("kind")), item.getString("content"), item.getDouble("confidence"),
                     readEvidence(item.getJSONObject("evidence")), readEvidence(item.getJSONObject("counterEvidence")),
                     item.getInt("version"), Instant.parse(item.getString("createdAt")), item.optBoolean("active", true),
-                    item.optString("personaSnapshot"))
+                    item.optString("personaSnapshot"),
+                    runCatching { DevelopmentMaturity.valueOf(item.optString("maturity")) }.getOrElse {
+                        if (item.optDouble("confidence", 0.0) >= 0.75) DevelopmentMaturity.Established
+                        else DevelopmentMaturity.Emerging
+                    })
             }.getOrNull()
         }
     }
@@ -129,7 +134,8 @@ object CharacterDevelopmentStore {
         val next = DevelopmentRecord(UUID.randomUUID().toString(), characterId, slot, kind, content.trim(),
             (0.35 + factual.size * 0.1 - counters.size * 0.05).coerceIn(0.35, 0.9), events.associate { it.id to it.revision },
             counters.associate { it.id to it.revision }, (prior.maxOfOrNull { it.version } ?: 0) + 1,
-            Instant.now(), personaSnapshot = personaSnapshot)
+            Instant.now(), personaSnapshot = personaSnapshot,
+            maturity = DevelopmentPolicy.maturity(kind, factual.size))
         save(records.map { if (it.characterId == characterId && it.slot == slot) it.copy(active = false) else it } + next)
         return true
         }
@@ -138,6 +144,41 @@ object CharacterDevelopmentStore {
     @Synchronized
     fun retire(characterId: String, id: String) {
         save(records.map { if (it.characterId == characterId && it.id == id) it.copy(active = false) else it })
+    }
+
+    /**
+     * A learned tendency may be withdrawn when repeated later events contradict it.
+     * This never edits the user's stable persona; it only retires the derived adaptive layer.
+     */
+    @Synchronized
+    fun retireSlotWithCounterEvidence(
+        characterId: String,
+        slot: String,
+        counterIds: List<String>,
+        personaSnapshot: String,
+    ): Boolean {
+        if (prefs == null || slot.isBlank() || counterIds.isEmpty()) return false
+        if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot) return false
+        val current = records.lastOrNull {
+            it.characterId == characterId && it.slot == slot && it.active &&
+                it.personaSnapshot == personaSnapshot
+        } ?: return false
+        val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds.distinct())
+        if (counters.size != counterIds.distinct().size) return false
+        val factualCounters = counters.filter { it.isDevelopmentExposure() }
+            .distinctBy { event -> event.sessionId.ifBlank { event.id } }
+        if (factualCounters.size < DevelopmentPolicy.counterExamplesToRetire(current.maturity)) return false
+        val mergedCounters = current.counterEvidence + factualCounters.associate { it.id to it.revision }
+        save(records.map { record ->
+            if (record.id == current.id) record.copy(
+                active = false,
+                counterEvidence = mergedCounters,
+                version = record.version + 1,
+                createdAt = Instant.now(),
+                maturity = DevelopmentMaturity.Contested,
+            ) else record
+        })
+        return true
     }
 
     @Synchronized
@@ -160,7 +201,7 @@ object CharacterDevelopmentStore {
                 .put("slot", r.slot).put("kind", r.kind.name).put("content", r.content).put("confidence", r.confidence)
                 .put("evidence", JSONObject(r.evidence)).put("counterEvidence", JSONObject(r.counterEvidence))
                 .put("version", r.version).put("createdAt", r.createdAt.toString()).put("active", r.active)
-                .put("personaSnapshot", r.personaSnapshot)) }
+                .put("personaSnapshot", r.personaSnapshot).put("maturity", r.maturity.name)) }
         }
         check(prefs!!.edit().putString("records", array.toString()).commit()) { "成长记录保存失败" }
         records = next
