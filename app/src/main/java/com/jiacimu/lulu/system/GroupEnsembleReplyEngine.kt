@@ -194,6 +194,11 @@ internal object GroupEnsembleReplyEngine {
                         member.characterId,
                         interactionKey = "group:${conversation.id}",
                     ))
+                    CharacterContinuityRuntime.context(
+                        member.characterId,
+                        currentUserText = latestUserMessage.content,
+                        now = now,
+                    ).takeIf(String::isNotBlank)?.let { appendLine(it) }
                     memoryContext?.compactPromptSection(characterBudget = 4_200)
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
