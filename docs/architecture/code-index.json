@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T19:12:35.567545+00:00",
-  "commit": "54d2069115cd24ae3a05447a81a0aba09ee70cec",
+  "generatedAt": "2026-10-10T19:12:57.053578+00:00",
+  "commit": "aee6486b8ad8a3adc6b85eb51c344cafa02cb064",
   "branch": "main",
-  "sourceFingerprint": "875717819aaabe339906a60e380a45e85036d5b64410c78f61c2770d3752ef1f",
+  "sourceFingerprint": "4013f8103ce6910e186363cfc815e7569db5ea409fa064d2374ae5c27a33223f",
   "summary": {
     "files": 484,
-    "lines": 103915,
+    "lines": 103922,
     "symbols": 1534
   },
   "symbolIndex": {
@@ -17494,8 +17494,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
-      "lines": 82,
-      "sha256": "b8bcbfc31298c44833d7594f08047f1c05924fd7dad617e2397b4fe5ca1e1ee3",
+      "lines": 89,
+      "sha256": "3c243c50b54bb3446f04088e72f713ec2f31520b70f667ec01bddffad8193a7b",
       "symbols": [
         {
           "name": "CharacterOpenConcernRuntimeTest",
