@@ -25,6 +25,15 @@ class QqMessageGroupingTest {
         assertFalse(parsed.content.contains("⟪BUBBLE⟫⟪BUBBLE⟫"))
     }
 
+    @Test fun malformedLegacyBubbleMarkersNeverReachVisibleMessages() {
+        val malformed = "好好好，是我手慢了《BUBB\nLE》那宝宝说"
+        val parsed = parseCharacterReplyPresentation(malformed)
+        val bubbles = semanticReplyBubbles(parsed.content)
+        assertEquals(listOf("好好好，是我手慢了", "那宝宝说"), bubbles)
+        assertTrue(bubbles.none { it.contains("BUBB", ignoreCase = true) })
+        assertEquals("the end 也可以正常说", sanitizePersistedChatText("the end 也可以正常说"))
+    }
+
     @Test fun repeatedNewlinesAndNoSeparatorStayOneBubble() {
         val text = "你还在忙呀？\n\n嗯，没事。\n我等你。"
         val parsed = parseCharacterReplyPresentation(text)
