@@ -18,7 +18,7 @@ internal object CharacterCausalActionPolicy {
     fun actionOnly(proposed: JSONObject, alreadyAppraised: Boolean): JSONObject {
         if (!alreadyAppraised) return proposed
         return JSONObject(proposed.toString()).apply {
-            privateFields.forEach(::remove)
+            privateFields.forEach { remove(it) }
         }
     }
 
