@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:37:20.308094+00:00",
-  "commit": "c72993b87fb58f3341e267c40c051ad9cbf3c4db",
+  "generatedAt": "2026-10-10T17:37:46.473688+00:00",
+  "commit": "9c1aba20a8cab5fedef7a5667fbb15236232308e",
   "branch": "main",
-  "sourceFingerprint": "a6db2f278fc24a36646251b14e5c811ad0154f44d43fa59c41eb75809e186a6e",
+  "sourceFingerprint": "19ae970acda28432daddfcc6fc817fe9a51c38fde31ab62a96c3226e3eb3a60c",
   "summary": {
-    "files": 465,
-    "lines": 101899,
-    "symbols": 1498
+    "files": 466,
+    "lines": 101955,
+    "symbols": 1499
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8046,6 +8046,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
         "line": 5
+      }
+    ],
+    "CharacterCausalAppraisalStageTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt",
+        "line": 6
       }
     ],
     "CharacterContinuityRuntimeTest": [
@@ -16588,8 +16594,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt",
-      "lines": 53,
-      "sha256": "8667b48a2403ee3c974b9415f6cce5704e16a13bab2d87116ab5d7d7af27a6df",
+      "lines": 60,
+      "sha256": "c34cf50c45ead48e90cffe9cd62d1944655d73e108bda74258944489ea80fbde",
       "symbols": [
         {
           "name": "CallSilencePolicyTest",
@@ -16918,6 +16924,17 @@
         {
           "name": "CharacterAccountabilityContextTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt",
+      "lines": 49,
+      "sha256": "5fdb7a11f152f9d4aed8444a73b73a9c7a024688993065500744e863b2932f50",
+      "symbols": [
+        {
+          "name": "CharacterCausalAppraisalStageTest",
+          "line": 6
         }
       ]
     },
