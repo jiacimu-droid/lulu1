@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:02:53.441830+00:00",
-  "commit": "68d1d5894c7e1bdf819d032fb78d2a9dd14ccfd0",
+  "generatedAt": "2026-10-10T18:03:07.690252+00:00",
+  "commit": "0f858443534b2b1fea20483e368103cd2ae60b70",
   "branch": "main",
-  "sourceFingerprint": "d2dd5141731d85199066decabfedb95ce4dd2d8a334e4ad925bcbb911f2aff34",
+  "sourceFingerprint": "f0701b6aa1896a897db59cdcf9157e18003a7faede5d6217e83436e4bb3ec0b1",
   "summary": {
     "files": 472,
-    "lines": 102556,
+    "lines": 102579,
     "symbols": 1513
   },
   "symbolIndex": {
@@ -17317,8 +17317,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt",
-      "lines": 54,
-      "sha256": "782d2cb7a9b865b49c1ed3c6789d9ebb747f9816ef4417f35653d9d3405efb7f",
+      "lines": 77,
+      "sha256": "fa3bd859daee1201ad17d5146b199705df8b84cdfdea871a15fa1091a01e8592",
       "symbols": [
         {
           "name": "DialogueMoveEngineTest",
