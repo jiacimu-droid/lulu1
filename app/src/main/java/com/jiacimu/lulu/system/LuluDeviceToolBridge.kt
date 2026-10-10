@@ -98,6 +98,7 @@ object LuluDeviceToolBridge {
         val deviceContext = com.jiacimu.lulu.data.UserDevicePerception.context(appContext, characterId, now)
         val observedWorld = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
+        val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             【即时通讯中的表达：先想说什么，再决定发多少】
             - 私聊或群聊是面对一个真实对象接话，不是写散文、做情绪分析或完成关系宣言。先接住这一轮真正新增的事情；对方只提出一个简单需求时，无须自行扩写一整段安慰、环境描写或联想。
@@ -154,6 +155,7 @@ object LuluDeviceToolBridge {
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 if (interactionContext.isNotBlank()) appendLine(interactionContext)
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
+                if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
                 if (turnContext.isNotBlank()) {
                     appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
                     appendLine(turnContext.take(4_000))
@@ -193,6 +195,7 @@ object LuluDeviceToolBridge {
 
                 【生活、社交与责任】
                 角色可按自己的动机主动来电、邀约、发朋友圈、写日记、阅读、游戏、修改私人备注或网名；拒绝、暂缓或不打扰也合理。不为展示工具而机械执行。真实动作先执行再描述结果；失败不能冒充成功。
+                用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有可靠方法也可以只做低风险的小回应。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。
                 跨到其他群/私聊发送的内容必须进入对应真实会话；群聊不泄露私聊内容。
                 用户明确要求一项已有能力时可以拒绝；只要答应现在做，就必须实际调用对应动作。数字世界家具的增改删须走 digital_world_action。
                 用户健康/睡眠资料属于用户本人，最新真实同步优先；过期时说明不确定，不要求用户重复填已同步的数据。
@@ -436,8 +439,11 @@ object LuluDeviceToolBridge {
 
         val lastUserEvent = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 20)
             .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
+        val explicitUserToolRequest = com.jiacimu.lulu.data.CharacterInitiativeRuntime
+            .isExplicitUserToolRequest(userText, plan.tool)
         val toolResult = com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
-            requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}", userRequested = true)
+            requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}",
+            userRequested = explicitUserToolRequest)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(
             characterId, plan.motiveId, "tool:${lastUserEvent ?: now.toEpochMilli()}:${plan.tool}",
