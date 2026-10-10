@@ -48,6 +48,7 @@ internal object CompanionActionRuntime {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
+        com.jiacimu.lulu.StickerLibraryStore.initialize(context)
         val stickerChoices = com.jiacimu.lulu.StickerLibraryStore.items.value
         if (stickerChoices.isNotEmpty()) {
             appendLine("- send_private_sticker，args={\"stickerId\":\"已列出的准确ID\"}：给用户发一张真正的图片表情，不需要先配一段空泛安慰。")
