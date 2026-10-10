@@ -46,6 +46,7 @@ object ProactivePerceptionRuntime {
         val statusText: String,
         val gesture: String,
         val innerThought: String,
+        val innerThoughtBasis: JSONObject? = null,
         val mood: String,
         val journalTitle: String,
         val journalContent: String,
@@ -544,6 +545,7 @@ object ProactivePerceptionRuntime {
             thought = decision.innerThought,
             outward = decision.text,
             innerLife = decision.innerLife,
+            basis = decision.innerThoughtBasis,
             hasFreshEvidence = freshStimulus || previousEvidence.isNotBlank() ||
                 decision.action != Action.SILENT,
         )
@@ -745,6 +747,7 @@ object ProactivePerceptionRuntime {
             statusText = json.optString("statusText").ifBlank { json.optString("status") }.trim(),
             gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") }.trim(),
             innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") }.trim(),
+            innerThoughtBasis = json.optJSONObject("innerThoughtBasis"),
             mood = json.optString("mood").trim(),
             journalTitle = json.optString("journalTitle").trim(),
             journalContent = json.optString("journalContent").trim(),
