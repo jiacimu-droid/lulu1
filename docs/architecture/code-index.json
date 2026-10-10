@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:57:25.712400+00:00",
-  "commit": "8b986df713712a27c5f70f6aa5e36858cba75563",
+  "generatedAt": "2026-10-10T17:57:42.453791+00:00",
+  "commit": "3be218b9162e89017f52a2f3e6c265ab971ce967",
   "branch": "main",
-  "sourceFingerprint": "9062cb76a17c769a3e4252b399e99de7ee709fc966ad44ddb3a81c7d6cd834be",
+  "sourceFingerprint": "8cc7ca3f2bbaff1f7afdb92f0960c3f9bf2822399dbdbe0c380d17d1bd5fcf91",
   "summary": {
     "files": 471,
-    "lines": 102439,
+    "lines": 102442,
     "symbols": 1511
   },
   "symbolIndex": {
@@ -1911,7 +1911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 157
+        "line": 158
       }
     ],
     "move": [
@@ -10758,8 +10758,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 169,
-      "sha256": "1ed79874f4ac3116f3886520bece32b88a9e432fa027eda6d1e2bea588f6364e",
+      "lines": 172,
+      "sha256": "42100b4734ac843aa9cbb78d875aabb8e681754c8444fdfa4c919adc1cc183bb",
       "symbols": [
         {
           "name": "eligible",
@@ -10787,7 +10787,7 @@
         },
         {
           "name": "instruction",
-          "line": 157
+          "line": 158
         }
       ]
     },
