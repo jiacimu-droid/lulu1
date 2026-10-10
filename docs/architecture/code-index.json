@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:19:06.584057+00:00",
-  "commit": "1878a2bc2ff7413f3377a4c33cb63e8a871b9223",
+  "generatedAt": "2026-10-10T17:19:30.069653+00:00",
+  "commit": "0d0713f4d19d870b0630a6c05116a8d5c2236513",
   "branch": "main",
-  "sourceFingerprint": "0192aff2077597d38e0713b977e6c5fefe67f7b50fcbed7c45168ca8810498fb",
+  "sourceFingerprint": "26775757d49016bc6f25772ad5a190884c5c6516c967bc34fbbf03421cb5ac6e",
   "summary": {
     "files": 464,
-    "lines": 101583,
+    "lines": 101614,
     "symbols": 1494
   },
   "symbolIndex": {
@@ -8127,7 +8127,7 @@
     "event": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 10
+        "line": 32
       }
     ],
     "CharacterVoicePreferenceStoreTest": [
@@ -16545,8 +16545,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt",
-      "lines": 44,
-      "sha256": "fe69a3bf7255de0aecd86c8d0659504143ce25ea9f6bdddb2d6b467834cba8b7",
+      "lines": 53,
+      "sha256": "8667b48a2403ee3c974b9415f6cce5704e16a13bab2d87116ab5d7d7af27a6df",
       "symbols": [
         {
           "name": "CallSilencePolicyTest",
@@ -17007,8 +17007,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 27,
-      "sha256": "4e0a4729513f6d70ef340576c0fcc484b448233752a44bd246ac5d92af2de2c5",
+      "lines": 49,
+      "sha256": "27238fbfa71e948b0ccd7b2e6c80a5f605b8691ab5d93d5a9a9c0b61ac7b7730",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
@@ -17016,7 +17016,7 @@
         },
         {
           "name": "event",
-          "line": 10
+          "line": 32
         }
       ]
     },
