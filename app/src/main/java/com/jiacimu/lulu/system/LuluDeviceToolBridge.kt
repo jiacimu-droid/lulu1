@@ -387,6 +387,7 @@ object LuluDeviceToolBridge {
                         ))
                         appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now))
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
+                        appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
                         appendLine("角色已决定的内容简报（不能改事实、立场或改作其他行动；不要照抄成台词）：${plan.speechIntent}")
                     },
                     instruction = """
