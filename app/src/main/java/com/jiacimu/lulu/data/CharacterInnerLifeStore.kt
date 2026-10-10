@@ -108,7 +108,7 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices", "thoughts").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
@@ -552,6 +552,99 @@ object CharacterInnerLifeStore {
             for (i in maxOf(0, old.length() - 5) until old.length()) put(old.opt(i))
             put(JSONObject().put("evidenceId", evidenceId).put("thought", clean)
                 .put("occurredAt", now.toString()))
+        })
+        save(characterId, root)
+    }
+
+    /**
+     * Auditable causal bridge from a real source event to the role's private interpretation,
+     * state delta and selected action. This is not extra memory for the model to embellish;
+     * it is a bounded provenance trail used to explain why a heart voice/state change existed.
+     */
+    @Synchronized fun recordCausalTransition(
+        characterId: String,
+        evidenceId: String,
+        appraisal: JSONObject?,
+        innerLife: JSONObject?,
+        innerThoughtBasis: JSONObject?,
+        selectedAction: String,
+        innerThought: String,
+        reason: String,
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
+        val action = selectedAction.trim().lowercase().take(80)
+        val thought = innerThought.replace(Regex("[ \\t]+"), " ").trim().take(500)
+        val focus = innerThoughtBasis?.optString("focus").orEmpty().trim().take(220)
+        val change = innerThoughtBasis?.optString("change").orEmpty().trim().take(220)
+        val conflict = innerThoughtBasis?.optString("conflict").orEmpty().trim().take(220)
+        val unsaidWhy = innerThoughtBasis?.optString("unsaidWhy").orEmpty().trim().take(220)
+        val hasStateDelta = CharacterHeartVoicePolicy.hasStructuredDelta(innerLife)
+        val meaning = appraisal?.optString("meaning").orEmpty().trim().take(240)
+        val responseAim = appraisal?.optString("responseAim").orEmpty().trim().take(180)
+        val move = appraisal?.optString("interactionMove").orEmpty().trim().lowercase().take(80)
+        val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim().take(180)
+
+        if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
+            responseAim.isBlank() && reason.isBlank()) return
+
+        val root = snapshot(characterId)
+        val past = root.optJSONArray("causalTransitions") ?: JSONArray()
+        val id = "$evidenceId:$action"
+        if ((0 until past.length()).any { past.optJSONObject(it)?.optString("id") == id }) return
+
+        val entry = JSONObject()
+            .put("id", id)
+            .put("evidenceId", evidenceId)
+            .put("selectedAction", action)
+            .put("reason", reason.trim().take(240))
+            .put("innerThought", thought)
+            .put("at", now.toString())
+
+        val appraisalTrace = JSONObject()
+        if (meaning.isNotBlank()) appraisalTrace.put("meaning", meaning)
+        if (responseAim.isNotBlank()) appraisalTrace.put("responseAim", responseAim)
+        if (move.isNotBlank()) appraisalTrace.put("interactionMove", move)
+        if (uncertainty.isNotBlank()) appraisalTrace.put("uncertainty", uncertainty)
+        if (appraisalTrace.length() > 0) entry.put("appraisal", appraisalTrace)
+
+        val basis = JSONObject()
+        if (focus.isNotBlank()) basis.put("focus", focus)
+        if (change.isNotBlank()) basis.put("change", change)
+        if (conflict.isNotBlank()) basis.put("conflict", conflict)
+        if (unsaidWhy.isNotBlank()) basis.put("unsaidWhy", unsaidWhy)
+        if (basis.length() > 0) entry.put("innerThoughtBasis", basis)
+
+        val delta = JSONObject()
+        innerLife?.optJSONObject("emotion")?.let { emotion ->
+            val feeling = emotion.optString("feeling").trim().take(120)
+            val cause = emotion.optString("cause").trim().take(180)
+            if (feeling.isNotBlank() || cause.isNotBlank()) {
+                delta.put("emotion", JSONObject().put("feeling", feeling).put("cause", cause))
+            }
+        }
+        val motiveCount = innerLife?.optJSONArray("motives")?.length() ?: 0
+        val thoughtCount = innerLife?.optJSONArray("thoughts")?.length() ?: 0
+        if (motiveCount > 0) delta.put("motiveChanges", motiveCount)
+        if (thoughtCount > 0) delta.put("thoughtChanges", thoughtCount)
+        innerLife?.optJSONObject("social")?.let { social ->
+            val target = social.optString("targetId").trim()
+            val interpretation = social.optString("interpretation").trim().take(180)
+            if (target.isNotBlank() || interpretation.isNotBlank()) {
+                delta.put("social", JSONObject()
+                    .put("targetId", target.take(100))
+                    .put("interpretation", interpretation))
+            }
+        }
+        innerLife?.optJSONObject("selfCorrection")?.let { correction ->
+            val realization = correction.optString("realization").trim().take(180)
+            if (realization.isNotBlank()) delta.put("selfCorrection", realization)
+        }
+        if (delta.length() > 0) entry.put("stateDelta", delta)
+
+        root.put("causalTransitions", JSONArray().apply {
+            for (i in maxOf(0, past.length() - 19) until past.length()) put(past.opt(i))
+            put(entry)
         })
         save(characterId, root)
     }
