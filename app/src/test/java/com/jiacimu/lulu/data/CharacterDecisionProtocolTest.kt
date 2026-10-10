@@ -19,6 +19,12 @@ class CharacterDecisionProtocolTest {
         assertFalse(CharacterDecisionProtocol.usesSeparateExpression("正在电话中"))
     }
 
+    @Test fun aGroupIsQuietOnlyWhenSilenceIsExplicitlyChosen() {
+        assertTrue(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"action":"silent","reason":"大家都在忙","turns":[]}"""))
+        assertFalse(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"turns":[]}"""))
+        assertFalse(CharacterDecisionProtocol.groupIsExplicitlySilent("""{"action":"silent","turns":[{"characterId":"a"}]}"""))
+    }
+
     @Test fun invalidAndUnknownToolsAreNotValidChoices() {
         assertNull(CharacterDecisionProtocol.chatAction(JSONObject("""{"action":"tool","text":"已经完成"}""")))
         assertNull(CharacterDecisionProtocol.chatAction(JSONObject("""{"action":"delete_everything","text":"完成"}""")))
