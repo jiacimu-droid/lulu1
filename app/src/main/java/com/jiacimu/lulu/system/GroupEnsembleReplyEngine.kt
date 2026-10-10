@@ -184,6 +184,7 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("---")
                     appendLine("characterId=${member.characterId}")
                     appendLine("显示名=${character.displayName}；群内称呼=$label")
+                    appendLine(CharacterAddressPreference.promptSection(member.characterId))
                     appendLine(definitions.getValue(member.characterId).promptSection())
                     appendLine(CharacterRuntime.developmentContext(member.characterId))
                     memoryContext?.compactPromptSection(characterBudget = 4_200)
