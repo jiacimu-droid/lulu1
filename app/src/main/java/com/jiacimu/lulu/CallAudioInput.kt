@@ -67,6 +67,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 var ambientRms = threshold.toDouble() * 0.40
                 var peakRms = 0.0
                 var rollingRms = 0.0
+                var rollingVariation = 0.0
                 var steadyFrames = 0
                 // Split uploads into continuous PCM chunks; a chunk boundary is NOT
                 // a silence or a conversational turn boundary.
@@ -91,7 +92,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             }
                         }
                         active = false; silentFrames = 0; loudFrames = 0; utteranceFrames = 0
-                        peakRms = 0.0; rollingRms = 0.0; steadyFrames = 0
+                        peakRms = 0.0; rollingRms = 0.0; rollingVariation = 0.0; steadyFrames = 0
                         buffer.reset(); preRoll.clear()
                         continue
                     }
@@ -108,6 +109,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         utteranceFrames = 0
                         peakRms = rms
                         rollingRms = rms
+                        rollingVariation = 0.0
                         steadyFrames = 0
                         preRoll.forEach { buffer.write(it) }; preRoll.clear()
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
@@ -121,7 +123,12 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     // A constant noise plateau (including gain-controlled mic
                     // noise) is also silence, even if its RMS sits above the
                     // fixed threshold. Natural voiced speech is variable.
-                    val nearlyConstant = abs(rms - rollingRms) <= maxOf(24.0, rollingRms * 0.075)
+                    // The 100 ms RMS reading of real ambient noise fluctuates.
+                    // Smooth variation over time rather than demanding 23
+                    // improbably identical frames in a row.
+                    val variation = abs(rms - rollingRms)
+                    rollingVariation = rollingVariation * 0.85 + variation * 0.15
+                    val nearlyConstant = PhoneMicSegmentPolicy.stableBackgroundNoise(rollingVariation, rollingRms)
                     steadyFrames = if (nearlyConstant) steadyFrames + 1 else 0
                     rollingRms = rollingRms * 0.72 + rms * 0.28
                     val finishedBySilence = PhoneMicSegmentPolicy.finishedBySilence(
@@ -138,6 +145,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             utteranceFrames = 0
                             peakRms = 0.0
                             rollingRms = 0.0
+                            rollingVariation = 0.0
                             steadyFrames = 0
                         }
                         // At max duration preserve VAD state; the next frame
