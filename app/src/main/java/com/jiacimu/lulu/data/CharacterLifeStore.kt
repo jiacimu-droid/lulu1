@@ -387,10 +387,19 @@ object CharacterLifeStore {
 
     fun profileContext(characterId: String): String {
         val profile = state(characterId).optJSONObject("profile") ?: return ""
-        val fields = CharacterProfileSchema.fields.mapNotNull { field ->
-            profile.optString(field.key).takeIf(String::isNotBlank)?.let { "${field.label}：$it" }
+        val sections = CharacterProfileSchema.groupedFields().mapNotNull { (group, fields) ->
+            val values = fields.mapNotNull { field ->
+                profile.optString(field.key).trim().takeIf(String::isNotBlank)
+                    ?.let { "- ${field.label}：$it" }
+            }
+            values.takeIf(List<String>::isNotEmpty)?.let {
+                "【$group】\n" + it.joinToString("\n")
+            }
         }
-        return if (fields.isEmpty()) "" else "【用户当前设定的人格与行为】\n" + fields.joinToString("\n")
+        return if (sections.isEmpty()) "" else buildString {
+            appendLine("【稳定人格设定｜用户明确填写的长期先验，不是当前状态或逐轮台词】")
+            append(sections.joinToString("\n"))
+        }
     }
 
 
