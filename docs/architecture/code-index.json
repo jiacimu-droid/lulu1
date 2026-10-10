@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:38:05.072737+00:00",
-  "commit": "c897d82c7886041117d211a06e21ada111d1fbdf",
+  "generatedAt": "2026-10-10T04:48:16.576488+00:00",
+  "commit": "457da3487f8f52dc868806e8ec637e71447cc625",
   "branch": "main",
-  "sourceFingerprint": "1722d97706a7016f10842b6477e6ffd00ede9d1b67a2ea94c533b6d8f6eaf1c3",
+  "sourceFingerprint": "9fb689ac5976be6e4f27eadaaca7c6d935007edf37aa4fd65bc281acd5ac0e03",
   "summary": {
     "files": 424,
-    "lines": 95339,
+    "lines": 95338,
     "symbols": 1382
   },
   "symbolIndex": {
@@ -7565,7 +7565,7 @@
     "CharacterVoicePreferenceStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
-        "line": 14
+        "line": 13
       }
     ],
     "CommitmentCallRetryPolicyTest": [
@@ -15770,12 +15770,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
-      "lines": 42,
-      "sha256": "8febbb6696de13109e379f1093c3d6a9b0c963d7fcde12b353918d1006cd0ca3",
+      "lines": 41,
+      "sha256": "40475f9df10782068ed6b2391d78fe3718b53a93a44088864cc223a6e2df54e6",
       "symbols": [
         {
           "name": "CharacterVoicePreferenceStoreTest",
-          "line": 14
+          "line": 13
         }
       ]
     },
