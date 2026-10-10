@@ -78,7 +78,10 @@ internal suspend fun extractCommitmentTaskDrafts(
         maxTokens = 1_500,
         usage = ModelUsage.Chat,
     )
-    val drafts = if (result.isSuccess) parseCommitmentTaskDrafts(result.getOrThrow().text) else emptyList()
+    // A transport failure or cancelled request is NOT "no promises found".
+    // Propagate it so the conversation scanner can retry without recording
+    // this turn as already inspected.
+    val drafts = parseCommitmentTaskDrafts(result.getOrThrow().text)
     if (!detectSelfPromisedCall(characterText)) return drafts
     val promisedCall = drafts.filter { it.action == "create" &&
         (it.goal + " " + it.steps.joinToString(" ")).let { goal ->
@@ -137,7 +140,9 @@ private fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> = 
             )
         }
     }
-}.getOrDefault(emptyList())
+}.getOrElse { error ->
+    throw IllegalArgumentException("承诺任务提取结果不是有效的 JSON 数组，保留重试机会", error)
+}
 
 /** Only an affirmative, character-owned future call can create a scheduled action. */
 internal fun detectSelfPromisedCall(text: String): Boolean {

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -633,6 +634,11 @@ class CompanionModelGateway(
             )
             reply
         }.onFailure { error ->
+            // Cancellation is control flow (newer chat turn, screen transition
+            // or an explicit Stop), not an HTTP/model error. Propagating it is
+            // essential: callers must not interpret a cancelled extraction
+            // as a successful empty result and mark that turn processed.
+            if (error is CancellationException) throw error
             LuluRepositories.performance.recordError(
                 source = source,
                 title = attemptedModel?.let { "$title · $it" } ?: title,

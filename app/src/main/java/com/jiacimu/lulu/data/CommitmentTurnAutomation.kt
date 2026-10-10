@@ -1,12 +1,15 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 object CommitmentTurnAutomation {
@@ -19,6 +22,7 @@ object CommitmentTurnAutomation {
     private var prefs: android.content.SharedPreferences? = null
     private var started = false
 
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
     @Synchronized
     fun initialize(context: Context) {
         if (started) return
@@ -35,17 +39,41 @@ object CommitmentTurnAutomation {
                 conversations.forEach { conversation ->
                     if (conversation.id in jobs) return@forEach
                     jobs[conversation.id] = scope.launch {
-                        MigratedDomainStores.chat.messages(conversation.id).collectLatest {
-                            // Cancellation/completion/reschedule of an existing responsibility is an
-                            // urgent state update. Apply it as soon as the user's message arrives so a
-                            // scheduled alarm/call cannot survive merely because the role has not yet
-                            // produced its next chat bubble.
-                            inspectImmediateUserUpdate(conversation)
-                            delay(QUIET_WINDOW_MS)
-                            inspectLatestTurn(conversation)
+                        // The two streams must be independent. Rapidly changing
+                        // chat bubbles must not cancel an in-flight model call
+                        // after that call has started to create/modify a promise.
+                        launch {
+                            MigratedDomainStores.chat.messages(conversation.id).collect {
+                                retryTransientExtraction { inspectImmediateUserUpdate(conversation) }
+                            }
                         }
+                        // Debounce *before* calling the model, then use collect,
+                        // not collectLatest: a reply's next bubble must not
+                        // cancel the prior promise extraction mid-request.
+                        MigratedDomainStores.chat.messages(conversation.id)
+                            .debounce(QUIET_WINDOW_MS)
+                            .collect {
+                                retryTransientExtraction { inspectLatestTurn(conversation) }
+                            }
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun retryTransientExtraction(operation: suspend () -> Unit) {
+        repeat(3) { attempt ->
+            try {
+                operation()
+                return
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                // Model errors were already logged by the gateway. Never
+                // acknowledge a turn on failure; retry a few times, and if
+                // still down, it remains unprocessed on the next observation.
+                if (attempt == 2) return
+                delay(2_000L * (attempt + 1))
             }
         }
     }
