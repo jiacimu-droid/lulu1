@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:06:16.109684+00:00",
-  "commit": "936ed1bb387b7fb6085bf3dc31cab80ee6baf933",
+  "generatedAt": "2026-10-10T04:07:10.768123+00:00",
+  "commit": "cdde80f9fbdfcc2408dd6472b2e937dc3121010f",
   "branch": "main",
-  "sourceFingerprint": "fbc335006e4801bf039e912d8baf246afef1e2bac69e5ee9a1eb5bc9e50cc441",
+  "sourceFingerprint": "2aff79a86929cf1fc5bcf68bb9dbf5b3b2a69514d24cd52303394cb7999178c2",
   "summary": {
     "files": 419,
-    "lines": 95105,
+    "lines": 95114,
     "symbols": 1373
   },
   "symbolIndex": {
@@ -7905,13 +7905,13 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
       "lines": 41,
-      "sha256": "4acb07329a542b3c41391150d8732d0cc4df1688b454f669ed4cac64920b390c",
+      "sha256": "c694b496d5eacdc988e3c43c7682a9a27587c5ef7ea6223bacdd512ae37c6b18",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 411,
-      "sha256": "d23cc9eca051f13ab2d1e7104b48e233a48eb5676bc916b0ca4a2a3e941c9c16",
+      "lines": 414,
+      "sha256": "3fa0041b9174ab9c9f8c917877f09f009cf6600129d69288aa91fb407227146b",
       "symbols": []
     },
     {
@@ -8072,7 +8072,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt",
       "lines": 52,
-      "sha256": "ecb74971a14c49e90fb8207a2c598432fd2d1ce2b3a7064ba0770404fe84de65",
+      "sha256": "e13077251d00bebfb1bf7099326ae3cc4c328b2c1bc1010fc13b27ae7448ce34",
       "symbols": []
     },
     {
@@ -8392,7 +8392,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
       "lines": 583,
-      "sha256": "4e164e4564b434dfed3d38db3aea5f7803027733ede2b55d69a50d9971ec97be",
+      "sha256": "0b28fb24b336176a7a88d6ff833e9d51928ed4a29db0964a18567847c3d96d53",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -8464,7 +8464,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 412,
-      "sha256": "8e74001eaa7afb960ad368b7989d3034fccd86c8de3c76a78f5f249ede3787c0",
+      "sha256": "4d17eeaea9c25a1f29c92d475750c3397f366a97d86eb1686ce6762201bed39c",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -8569,8 +8569,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 174,
-      "sha256": "cb4ecaac88e1af1a835163aa30a9fa3d30ffe15b7f468b93f5cfea4b94d5bb33",
+      "lines": 180,
+      "sha256": "a090a85865b146cb550c8ad77eac7f19eec7aebe3df75e5d5d3a48a0bfede7c2",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
@@ -8581,7 +8581,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt",
       "lines": 336,
-      "sha256": "10121dec5e4ca3b2d3507eee7255382a3957cd14042dc661224eaf887f5268e8",
+      "sha256": "c31da2db3219b8305dfb913457b6df161c5a9831a9f4fc705dfa039605522de4",
       "symbols": [
         {
           "name": "LuluSettingsScreen",
@@ -9194,7 +9194,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt",
       "lines": 651,
-      "sha256": "63c011fd9c56068f498a960c4911e22c688f6fe9e5900f94f6c982b4d90d977b",
+      "sha256": "902e7c8bd3f9776fc812e95a27814223f733f78f2ca4c26e932156bf132f882c",
       "symbols": []
     },
     {
