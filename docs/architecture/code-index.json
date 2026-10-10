@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:36:05.139170+00:00",
-  "commit": "f74b1be1db66e1e96ada93b05a401fe0cfc8c6ad",
+  "generatedAt": "2026-10-10T14:37:29.280676+00:00",
+  "commit": "3db289558be62ab85e4f3020f63774565310957b",
   "branch": "main",
-  "sourceFingerprint": "6b8de11913a10f7526ebede5505fc860d54084b6a105c46c7b481f00f7faf20f",
+  "sourceFingerprint": "685a3268d294245bb9d538442aa8f648a42c75c52d7de55021e933a6e73defe3",
   "summary": {
     "files": 453,
-    "lines": 100204,
+    "lines": 100216,
     "symbols": 1470
   },
   "symbolIndex": {
@@ -295,7 +295,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 219
+        "line": 231
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -3595,25 +3595,25 @@
     "expressionConstraint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 128
+        "line": 140
       }
     ],
     "beforeTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 168
+        "line": 180
       }
     ],
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 201
+        "line": 213
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 225
+        "line": 237
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -11432,8 +11432,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 346,
-      "sha256": "181861d40bebfac43bb9b997c8bdccf065d77146df819ec18b36d035e9dac930",
+      "lines": 358,
+      "sha256": "1d19d76ae4f6fed8479272d4471b39482f1a79d21a4134c91dfc29a0508af5fb",
       "symbols": [
         {
           "name": "fromWire",
@@ -11453,23 +11453,23 @@
         },
         {
           "name": "expressionConstraint",
-          "line": 128
+          "line": 140
         },
         {
           "name": "beforeTurn",
-          "line": 168
+          "line": 180
         },
         {
           "name": "afterDecision",
-          "line": 201
+          "line": 213
         },
         {
           "name": "context",
-          "line": 219
+          "line": 231
         },
         {
           "name": "evaluate",
-          "line": 225
+          "line": 237
         }
       ]
     },
