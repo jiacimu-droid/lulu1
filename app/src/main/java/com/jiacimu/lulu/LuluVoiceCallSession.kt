@@ -474,7 +474,7 @@ internal object LuluVoiceCallSession {
                 // avatar can reveal a real reaction. The queued WorkManager
                 // item is only a durable fallback if Android kills this process.
                 val id = current.characterId
-                scope.launch(Dispatchers.IO) {
+                if (com.jiacimu.lulu.data.ProactivePerceptionPolicyStore.get(id).enabled) scope.launch(Dispatchers.IO) {
                     runCatching {
                         initializeBackgroundRuntime(context)
                         ProactivePerceptionRuntime.runDueCycle(
