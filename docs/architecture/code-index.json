@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:30:04.898742+00:00",
-  "commit": "0c85bf1d3ca47e32eae4c6ce678ff24fd9a98318",
+  "generatedAt": "2026-10-10T12:30:22.978582+00:00",
+  "commit": "166785a16020e2d95606cf23ca04c568006be5fe",
   "branch": "main",
-  "sourceFingerprint": "66d0f4ff2fcdaf7cb4e11be347a0a8bf67c85039566f77876d27d2a16c31c052",
+  "sourceFingerprint": "cc3c1c38834d53597c2a2e203e282bb383e55d1d50e5b9b8603dfff61f243921",
   "summary": {
-    "files": 449,
-    "lines": 99443,
-    "symbols": 1460
+    "files": 450,
+    "lines": 99462,
+    "symbols": 1461
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7967,6 +7967,12 @@
     "CommitmentCallRetryPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
+        "line": 5
+      }
+    ],
+    "ConversationGroundingEngineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
         "line": 5
       }
     ],
@@ -16640,6 +16646,17 @@
       "symbols": [
         {
           "name": "CommitmentCallRetryPolicyTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt",
+      "lines": 19,
+      "sha256": "a2d9d5efe24028851dd55c1344769253dcf10aebe0226f98a0c4d1d28cadb1b6",
+      "symbols": [
+        {
+          "name": "ConversationGroundingEngineTest",
           "line": 5
         }
       ]
