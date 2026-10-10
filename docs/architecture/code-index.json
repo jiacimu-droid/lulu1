@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:16:22.470575+00:00",
-  "commit": "8fd12c9d704cc039089b4e14ce09e655bb49e461",
+  "generatedAt": "2026-10-10T18:16:41.733386+00:00",
+  "commit": "1a09edbbd99dbc1743372a5a6e77dbdba0c4e01d",
   "branch": "main",
-  "sourceFingerprint": "98b0e10c5edd92414a43340814760f9e21a3ffae54d5a57498bd740039153903",
+  "sourceFingerprint": "1c2253d8fc7e56c4f1639134473e8d72cb31db03d5e8f09ae2e2cd1d03161bee",
   "summary": {
     "files": 474,
-    "lines": 103057,
+    "lines": 103058,
     "symbols": 1519
   },
   "symbolIndex": {
@@ -10733,7 +10733,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 41,
-      "sha256": "f88f6d633ed87c0f3172d0f6144cfcd041ecd186d5a00c07f7e463c6dc7611d5",
+      "sha256": "b6d34941a71d5759e0f3a9377c6487d7f573654b0daec18d78af79b9906d8f71",
       "symbols": [
         {
           "name": "Capability",
@@ -11718,8 +11718,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 459,
-      "sha256": "e880bd526468233251252c164cc0d9596a8dd6bc8fdf035f35ecb2e48300d045",
+      "lines": 460,
+      "sha256": "f905fec2e89ed3f5cea9cb94b17a09264c2bb43de06e5c5c460285d75a21ad37",
       "symbols": [
         {
           "name": "asJson",
