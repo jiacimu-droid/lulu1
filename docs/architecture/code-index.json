@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:47:19.142364+00:00",
-  "commit": "ad3bd7092dde6f250531604214d3727e2e569273",
+  "generatedAt": "2026-10-10T17:47:49.598695+00:00",
+  "commit": "35ac9666bd60f8dbd9c82d8a7a567eac9c962ae3",
   "branch": "main",
-  "sourceFingerprint": "168f5b95d163902a4c59f95149db943c45b9f8cc07b6a7fedb3898afe388badc",
+  "sourceFingerprint": "b2c02e99307c8c821bc9d24b193cd82efbee32f9ce9ee642b50054cc5b4cfe9e",
   "summary": {
     "files": 470,
-    "lines": 102302,
-    "symbols": 1507
+    "lines": 102305,
+    "symbols": 1509
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1911,7 +1911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 154
+        "line": 157
       }
     ],
     "move": [
@@ -2669,7 +2669,7 @@
     "eligible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 27
+        "line": 28
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -2679,19 +2679,31 @@
     "latestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "hasCompletedDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 41
+        "line": 42
+      }
+    ],
+    "hasDecisionReceipt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 44
+      }
+    ],
+    "hasAppraisalReceipt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 49
       }
     ],
     "resumeCommitted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 52
+        "line": 60
       }
     ],
     "snapshot": [
@@ -10734,28 +10746,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 166,
-      "sha256": "851ee84edac6e976706c719389d999477a864ada39fd871a5b33a84ebc020d0d",
+      "lines": 169,
+      "sha256": "1ed79874f4ac3116f3886520bece32b88a9e432fa027eda6d1e2bea588f6364e",
       "symbols": [
         {
           "name": "eligible",
-          "line": 27
+          "line": 28
         },
         {
           "name": "latestPending",
-          "line": 36
+          "line": 37
         },
         {
           "name": "hasCompletedDecision",
-          "line": 41
+          "line": 42
+        },
+        {
+          "name": "hasDecisionReceipt",
+          "line": 44
+        },
+        {
+          "name": "hasAppraisalReceipt",
+          "line": 49
         },
         {
           "name": "resumeCommitted",
-          "line": 52
+          "line": 60
         },
         {
           "name": "instruction",
-          "line": 154
+          "line": 157
         }
       ]
     },
