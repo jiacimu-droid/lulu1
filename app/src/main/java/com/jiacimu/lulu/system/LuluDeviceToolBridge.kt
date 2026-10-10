@@ -526,7 +526,7 @@ object LuluDeviceToolBridge {
             val sendText = if (chosenSticker == null) safeText else listOf(
                 safeText, com.jiacimu.lulu.encodeQqChatImage(
                     chosenSticker.uri,
-                    imageDescription = chosenSticker.name,
+                    imageDescription = com.jiacimu.lulu.StickerLibraryStore.imageDescription(chosenSticker),
                     sticker = true,
                 ),
             ).filter(String::isNotBlank).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
