@@ -100,19 +100,31 @@ internal object DialogueMoveEngine {
             )
         }
 
+        val resolvedType = proposed ?: when (raw?.optString("interactionMove").orEmpty().lowercase()) {
+            "acknowledge" -> DialogueMoveType.ACKNOWLEDGE
+            "answer" -> DialogueMoveType.ANSWER
+            "ask" -> DialogueMoveType.ASK
+            "repair" -> DialogueMoveType.SELF_REPAIR
+            "share" -> DialogueMoveType.SHARE
+            "tease" -> DialogueMoveType.TEASE
+            "decline" -> DialogueMoveType.DECLINE
+            "shift" -> DialogueMoveType.TOPIC_SHIFT
+            "silent" -> DialogueMoveType.SILENCE
+            else -> DialogueMoveType.ANSWER
+        }
+        val moveCap = when (resolvedType) {
+            DialogueMoveType.BACKCHANNEL, DialogueMoveType.ACKNOWLEDGE,
+            DialogueMoveType.CLOSE, DialogueMoveType.DEFER, DialogueMoveType.DECLINE,
+            DialogueMoveType.SELF_REPAIR, DialogueMoveType.OTHER_INITIATED_REPAIR,
+            DialogueMoveType.CANDIDATE_UNDERSTANDING -> 1
+            DialogueMoveType.TEASE, DialogueMoveType.DISAGREE, DialogueMoveType.REASSURE,
+            DialogueMoveType.TOPIC_SHIFT, DialogueMoveType.ASK -> 2
+            DialogueMoveType.ANSWER, DialogueMoveType.SHARE -> 3
+            DialogueMoveType.SILENCE -> 1
+        }
+        val requestedBubbles = raw?.optInt("maxBubbles", moveCap)?.coerceIn(1, 3) ?: moveCap
         return DialogueMovePlan(
-            type = proposed ?: when (raw?.optString("interactionMove").orEmpty().lowercase()) {
-                "acknowledge" -> DialogueMoveType.ACKNOWLEDGE
-                "answer" -> DialogueMoveType.ANSWER
-                "ask" -> DialogueMoveType.ASK
-                "repair" -> DialogueMoveType.SELF_REPAIR
-                "share" -> DialogueMoveType.SHARE
-                "tease" -> DialogueMoveType.TEASE
-                "decline" -> DialogueMoveType.DECLINE
-                "shift" -> DialogueMoveType.TOPIC_SHIFT
-                "silent" -> DialogueMoveType.SILENCE
-                else -> DialogueMoveType.ANSWER
-            },
+            type = resolvedType,
             repairFormat = when (raw?.optString("repairFormat").orEmpty().lowercase()) {
                 "open" -> RepairFormat.OPEN
                 "candidate" -> RepairFormat.CANDIDATE
@@ -122,7 +134,7 @@ internal object DialogueMoveEngine {
             candidate = candidate,
             confidence = confidence,
             contentIntent = intent,
-            maxBubbles = raw?.optInt("maxBubbles", 2)?.coerceIn(1, 3) ?: 2,
+            maxBubbles = minOf(requestedBubbles, moveCap),
         )
     }
 
