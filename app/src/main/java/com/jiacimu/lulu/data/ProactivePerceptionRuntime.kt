@@ -577,13 +577,16 @@ object ProactivePerceptionRuntime {
         )
         if (!readingUpdatedPresence && appearanceHasCause) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
+            val hasMeaningfulInnerUpdate = freshStimulus || previousEvidence.isNotBlank() ||
+                decision.action != Action.SILENT || decision.innerLife != null
             CompanionPresenceStore.update(
                 characterId = characterId,
                 statusText = if (execution.success && physicalAction) execution.summary else null,
                 gesture = if (execution.success && physicalAction) execution.summary else null,
-                // Empty is an explicit "no new heart voice" and clears the visible current thought.
-                // Do not turn omission into inheritance of an old sentence forever.
-                innerThought = decision.innerThought,
+                // Online awareness by itself is not a new heart voice. A model may still paraphrase
+                // "keep waiting" every minute; without a real stimulus/action/inner-state change we
+                // explicitly clear it instead of presenting that paraphrase as a new mental moment.
+                innerThought = if (hasMeaningfulInnerUpdate) decision.innerThought else "",
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
