@@ -194,11 +194,11 @@ internal object GroupEnsembleReplyEngine {
                         member.characterId,
                         interactionKey = "group:${conversation.id}",
                     ))
-                    CharacterContinuityRuntime.context(
+                    com.jiacimu.lulu.data.CharacterContinuityRuntime.context(
                         member.characterId,
                         currentUserText = latestUserMessage.content,
                         now = now,
-                    ).takeIf(String::isNotBlank)?.let { appendLine(it) }
+                    ).takeIf(String::isNotBlank)?.let { continuity -> appendLine(continuity) }
                     memoryContext?.compactPromptSection(characterBudget = 4_200)
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
