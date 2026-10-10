@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:13:28.643019+00:00",
-  "commit": "b87fd00e4069073cd458b30f48006b6ffd4f2e23",
+  "generatedAt": "2026-10-10T12:13:41.081989+00:00",
+  "commit": "e842cefe74b4e1005c08b6021fbbedcb982e5361",
   "branch": "main",
-  "sourceFingerprint": "c51610e131e0fbb197ed56ae6cfcd10dcd9408b2d00967ac222f71a945e5c7bd",
+  "sourceFingerprint": "967c1958ec7215a25f7884fbf6709d7f900188ef05e703987e918bea4a3b597c",
   "summary": {
     "files": 445,
-    "lines": 98880,
+    "lines": 98890,
     "symbols": 1452
   },
   "symbolIndex": {
@@ -279,7 +279,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 433
+        "line": 442
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -2813,7 +2813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 398
+        "line": 407
       }
     ],
     "CharacterLifeStore": [
@@ -2943,13 +2943,13 @@
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 66
+        "line": 67
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 107
+        "line": 108
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -10519,8 +10519,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 478,
-      "sha256": "29feb5ee51c65a5a9931d6a8f992b7f896892e01e045b72bdebe1558525c7a4e",
+      "lines": 487,
+      "sha256": "b9ac8e5ce8e2a969034f1b31dc6a8ae74c5d514dc39ef9e1181064c209048305",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -10540,11 +10540,11 @@
         },
         {
           "name": "compactContext",
-          "line": 398
+          "line": 407
         },
         {
           "name": "context",
-          "line": 433
+          "line": 442
         }
       ]
     },
@@ -10629,8 +10629,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 111,
-      "sha256": "74f44f0ba8271ea505095af6dd4aa25569f70e0a5946af720581f7cddb38d1f7",
+      "lines": 112,
+      "sha256": "e4e44d7f759a4a8300f10dcace0165a71136eb976027100d7d78268d5cccb89b",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -10662,11 +10662,11 @@
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 66
+          "line": 67
         },
         {
           "name": "developmentContext",
-          "line": 107
+          "line": 108
         }
       ]
     },
