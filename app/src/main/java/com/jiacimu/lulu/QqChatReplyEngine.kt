@@ -123,6 +123,23 @@ internal suspend fun appendRoleReplyWithPacing(
         val created = MigratedDomainStores.chat.appendCharacterMessage(
             conversationId, visibleBubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
         )
+        // Only actual delivered bubbles influence the character's future
+        // expression style. A mere planner selection is not a real message.
+        if (presentation.recallBubbleNumber != index + 1) {
+            val illustration = decodeQqChatImage(visibleBubble)
+            if (illustration?.sticker == true) {
+                val sticker = StickerLibraryStore.items.value.firstOrNull { it.uri == illustration.imageUri }
+                com.jiacimu.lulu.data.CharacterInnerLifeStore.recordExpressiveDelivery(
+                    characterId, created.id, "图片表情", sticker?.name ?: illustration.imageDescription.take(90),
+                )
+            } else {
+                com.jiacimu.lulu.data.CharacterExpressionContinuity.classifyText(visibleBubble)?.let { detected ->
+                    com.jiacimu.lulu.data.CharacterInnerLifeStore.recordExpressiveDelivery(
+                        characterId, created.id, "颜文字", detected,
+                    )
+                }
+            }
+        }
         if (presentation.recallBubbleNumber == index + 1) {
             delay(roleRecallDelayMillis(characterId))
             if (currentCoroutineContext().isActive) MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)
