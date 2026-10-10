@@ -12,6 +12,14 @@ class PhoneMicSegmentPolicyTest {
         assertTrue(PhoneMicSegmentPolicy.finishedBySilence(17, 140, 650))
     }
 
+    @Test fun elevatedRoomNoiseCanStillEndAnUtterance() {
+        assertTrue(PhoneMicSegmentPolicy.startThreshold(350f, 300.0) > 350)
+        assertTrue(PhoneMicSegmentPolicy.quietThreshold(350f, 440.0, 1800.0) > 440)
+        assertFalse(PhoneMicSegmentPolicy.stationaryNoiseEnded(22, 90))
+        assertFalse(PhoneMicSegmentPolicy.stationaryNoiseEnded(23, 18))
+        assertTrue(PhoneMicSegmentPolicy.stationaryNoiseEnded(23, 90))
+    }
+
     @Test fun aLongNaturalExplanationAllowsBreathingPauses() {
         assertEquals(850, PhoneMicSegmentPolicy.silenceMs(10, 500))
         assertEquals(1200, PhoneMicSegmentPolicy.silenceMs(22, 500))
