@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:18:04.322620+00:00",
-  "commit": "0a47f620a8cc057bca4ab4e3c82d4ee994aceef5",
+  "generatedAt": "2026-10-10T17:19:06.584057+00:00",
+  "commit": "1878a2bc2ff7413f3377a4c33cb63e8a871b9223",
   "branch": "main",
-  "sourceFingerprint": "4ca3a3b64b36908d9801f6c4c6e8c8a28c42c262478c91232a45ef0684c461f9",
+  "sourceFingerprint": "0192aff2077597d38e0713b977e6c5fefe67f7b50fcbed7c45168ca8810498fb",
   "summary": {
     "files": 464,
-    "lines": 101580,
+    "lines": 101583,
     "symbols": 1494
   },
   "symbolIndex": {
@@ -2697,31 +2697,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 23
+        "line": 26
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 53
+        "line": 56
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 55
+        "line": 58
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 69
+        "line": 72
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 74
+        "line": 77
       }
     ],
     "CharacterDevelopmentRuntime": [
@@ -9358,7 +9358,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1289,
-      "sha256": "358dea1d97dcad1b8adbada67ae552af22aef503f54bb14ca77cff004b3c5a3d",
+      "sha256": "b2e8d7d8a6c4dd43ff005598a0f3bdd0ccaf9944d172f815a098ba4fd821d732",
       "symbols": [
         {
           "name": "prepare",
@@ -10666,28 +10666,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 78,
-      "sha256": "24b43a35116aee97c27f4a03b80fa5a40b8ef68f160e6c06ce1e97ae2a4e73f8",
+      "lines": 81,
+      "sha256": "59c1a1ad3cbe28a8283b748d92fe7b50931607be977cc65da8c3e5b8ca33aa75",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 23
+          "line": 26
         },
         {
           "name": "usesSeparateExpression",
-          "line": 53
+          "line": 56
         },
         {
           "name": "chatAction",
-          "line": 55
+          "line": 58
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 69
+          "line": 72
         },
         {
           "name": "speechIntent",
-          "line": 74
+          "line": 77
         }
       ]
     },
