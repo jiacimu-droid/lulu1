@@ -48,12 +48,42 @@ internal object CharacterInitiativeRuntime {
         }
     }
 
+    private fun relevant(
+        records: List<DevelopmentRecord>,
+        cue: Cue,
+        limit: Int,
+        allowFallback: Boolean,
+    ): List<DevelopmentRecord> {
+        if (records.isEmpty()) return emptyList()
+        val terms = when (cue.kind) {
+            NeedKind.FATIGUE -> listOf("累", "疲", "学习", "休息", "放松", "缓", "开心", "陪", "游戏", "转移")
+            NeedKind.DISTRESS -> listOf("难受", "委屈", "安慰", "哄", "陪", "倾听", "抱", "开心", "转移")
+            NeedKind.CELEBRATION -> listOf("开心", "庆祝", "奖励", "分享", "夸", "游戏", "纪念")
+            NeedKind.BOREDOM -> listOf("无聊", "游戏", "玩", "聊天", "分享", "阅读", "出门", "换换")
+            NeedKind.CONNECTION -> listOf("陪", "亲近", "聊天", "抱", "哄", "电话", "见面", "一起")
+        }
+        val ranked = records.map { record ->
+            record to terms.count(record.content::contains)
+        }.filter { (_, score) -> score > 0 }
+            .sortedWith(compareByDescending<Pair<DevelopmentRecord, Int>> { it.second }
+                .thenByDescending { it.first.createdAt })
+            .map { it.first }
+            .take(limit)
+        return if (ranked.isNotEmpty() || !allowFallback) ranked else records.takeLast(minOf(2, limit))
+    }
+
     fun context(characterId: String, userText: String): String {
         val cue = detect(userText) ?: return ""
         val learned = CharacterDevelopmentStore.active(characterId)
-        val verified = learned.filter { it.kind == DevelopmentKind.VerifiedMethod }.takeLast(4)
-        val routines = learned.filter { it.kind == DevelopmentKind.RelationshipRoutine }.takeLast(4)
-        val preferences = learned.filter { it.kind == DevelopmentKind.Preference }.takeLast(4)
+        val verified = relevant(
+            learned.filter { it.kind == DevelopmentKind.VerifiedMethod }, cue, limit = 4, allowFallback = false,
+        )
+        val routines = relevant(
+            learned.filter { it.kind == DevelopmentKind.RelationshipRoutine }, cue, limit = 4, allowFallback = true,
+        )
+        val preferences = relevant(
+            learned.filter { it.kind == DevelopmentKind.Preference }, cue, limit = 4, allowFallback = true,
+        )
         return buildString {
             appendLine("【程序识别到的主动性机会｜不是用户命令】")
             appendLine("可能需要：${cue.kind.label}；置信度=${"%.2f".format(cue.confidence)}；依据仅是本轮原话：${cue.evidence}")
@@ -94,7 +124,7 @@ internal object CharacterInitiativeRuntime {
             "read_recent_notifications" -> Regex("通知|通知栏|最近.*消息").containsMatchIn(text)
             "create_alarm" -> Regex("闹钟|叫我|提醒我|定时").containsMatchIn(text)
             "list_alarms" -> Regex("闹钟|提醒").containsMatchIn(text)
-            "cancel_alarm" -> Regex("取消.*(闹钟|提醒)|删.*(闹钟|提醒)|不要.*(闹钟|提醒)").containsMatchIn(text)
+            "cancel_alarm" -> Regex("取消.*(闹钟|提醒)|(闹钟|提醒).*(取消|删除|删掉)|删.*(闹钟|提醒)|不要.*(闹钟|提醒)").containsMatchIn(text)
             "read_screen" -> Regex("屏幕|屏幕上|看.*页面|读.*页面|看看.*显示").containsMatchIn(text)
             "click_text" -> Regex("点|点击|按.*按钮|帮我选").containsMatchIn(text)
             "screen_action", "screen_sequence" -> Regex("返回|主页|桌面|最近任务|通知栏|快捷设置|点|点击|操作.*屏幕|帮我操作").containsMatchIn(text)
