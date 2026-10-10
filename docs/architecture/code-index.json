@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:33:09.382670+00:00",
-  "commit": "ab1d0f0f0e25e4671db7ac0b59c5a346a8195f40",
+  "generatedAt": "2026-10-10T11:36:06.275160+00:00",
+  "commit": "d73cb19547c003f17ef31ef32530794118f99187",
   "branch": "main",
-  "sourceFingerprint": "336c9c83678f7ff0f2719540fada3f1a5461215b2d66e69b171f768516fc9c1d",
+  "sourceFingerprint": "0be1f6a37d743df69b239afe68f11c2ee499647c78c024b7b6254278df58b9fe",
   "summary": {
     "files": 445,
-    "lines": 98870,
+    "lines": 98879,
     "symbols": 1451
   },
   "symbolIndex": {
@@ -9683,7 +9683,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 776,
-      "sha256": "1f3a207445f6e1aefea7e9636c423272111e762d278790b127645bc306c6bbd1",
+      "sha256": "3871754d9a86e6e0a150ae72d749dc9544b3fdec6d2fc9ad79647b7588765edd",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -15982,8 +15982,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 744,
-      "sha256": "abc127b677621d5385793eadc45b402f2d5ae8c72f10361b879ad3462f25e8b7",
+      "lines": 753,
+      "sha256": "bd24e95b779cd38bd9cb5b7c59b7cfe513857bef2f1bf5468def341e0a30792c",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
