@@ -61,7 +61,7 @@ class ConversationNaturalnessGateTest {
     @Test fun repeatedMeaningAcrossBubblesTriggersRerender() {
         val result = ConversationNaturalnessGate.assess(
             "我有点累",
-            listOf("先歇会儿，别硬撑。", "别再硬撑了，先休息一会儿。"),
+            listOf("先歇一会儿，别再硬撑了。", "别再硬撑了，先歇一会儿吧。"),
         )
         assertTrue(result.needsRerender)
         assertTrue(result.reasons.any { it.contains("换词重复") })
