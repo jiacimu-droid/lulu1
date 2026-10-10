@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:45:45.527060+00:00",
-  "commit": "a6d7244ce46827572fdcad4e790270d59ad8ce3c",
+  "generatedAt": "2026-10-10T17:46:52.070736+00:00",
+  "commit": "65bda212ee0636e82101acbf2ef64fcc8853863b",
   "branch": "main",
-  "sourceFingerprint": "32d3a4043b2ae35b36aaaa8e7c2f377bd9437b215246b0191eed3c7ed3f2cf53",
+  "sourceFingerprint": "e7cda33aef8bcdf8f512e05faba37f704bfd84a436a1d0bde15f52ae087e1cd1",
   "summary": {
     "files": 470,
-    "lines": 102248,
-    "symbols": 1505
+    "lines": 102281,
+    "symbols": 1507
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1911,7 +1911,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 121
+        "line": 154
       }
     ],
     "move": [
@@ -2680,6 +2680,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
         "line": 36
+      }
+    ],
+    "hasCompletedDecision": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 41
+      }
+    ],
+    "resumeCommitted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 52
       }
     ],
     "snapshot": [
@@ -10722,8 +10734,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 133,
-      "sha256": "4a57d75180234a00897a543e017ef0d004b1c80941b42a02e4dd9d60478276b6",
+      "lines": 166,
+      "sha256": "851ee84edac6e976706c719389d999477a864ada39fd871a5b33a84ebc020d0d",
       "symbols": [
         {
           "name": "eligible",
@@ -10734,8 +10746,16 @@
           "line": 36
         },
         {
+          "name": "hasCompletedDecision",
+          "line": 41
+        },
+        {
+          "name": "resumeCommitted",
+          "line": 52
+        },
+        {
           "name": "instruction",
-          "line": 121
+          "line": 154
         }
       ]
     },
