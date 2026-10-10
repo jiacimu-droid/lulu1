@@ -272,7 +272,8 @@ object LuluDeviceToolBridge {
                 userText, parsedPlan.innerThought,
             ))
         val programRepair = separateExpression &&
-            com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText)
+            com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText) &&
+            !com.jiacimu.lulu.data.DialogueMoveEngine.correctionSuppliesDirection(userText)
         if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
             plan = plan.copy(speechIntent = plan.text)
         }
