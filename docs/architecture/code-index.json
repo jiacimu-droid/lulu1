@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:42:17.567508+00:00",
-  "commit": "9f5ce0be0c16257853006dc14c0c4a6feb024488",
+  "generatedAt": "2026-10-10T14:43:20.343281+00:00",
+  "commit": "b06c2690db560730da85bd761223403cf8e0ad5d",
   "branch": "main",
-  "sourceFingerprint": "e2456727b2990e08dc3da3eadf6a7ae42db7d1f600d41cf2ac8374462e07689e",
+  "sourceFingerprint": "abf6d0092056198f12d1d6502ddb22019489c7ca921df493543207e6949ac31f",
   "summary": {
     "files": 455,
-    "lines": 100383,
+    "lines": 100420,
     "symbols": 1472
   },
   "symbolIndex": {
@@ -11425,8 +11425,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-      "lines": 109,
-      "sha256": "b87ca38af19adb3b084967d209e113cd472f8e7b911861ff11708bdb044d0aa7",
+      "lines": 144,
+      "sha256": "fccebbe4c2d855d60ca7d07e4431c2f11b6b777b843506e67059eb72adbf5c04",
       "symbols": [
         {
           "name": "repairInstruction",
@@ -16183,8 +16183,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 846,
-      "sha256": "a237ee41378c5eb30fc647d7ada59e60b2a0eb549c7da53daa8381d5056082fa",
+      "lines": 848,
+      "sha256": "f9f47103373cef1bb107b25b10f3f979e0e17624757851e73da078d8cef9e990",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
