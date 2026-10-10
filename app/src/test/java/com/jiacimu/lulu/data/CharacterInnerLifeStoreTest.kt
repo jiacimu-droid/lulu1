@@ -114,6 +114,61 @@ class CharacterInnerLifeStoreTest {
         assertNull(CharacterInnerLifeStore.snapshot("inside-test-b").optJSONObject("bonds"))
     }
 
+    @Test fun commonGroundIsEvidenceBoundAndRestoresAfterDeletion() {
+        start()
+        val id = "inside-test-common-ground"
+        CharacterInnerLifeStore.clear(id)
+        val first = JSONObject()
+            .put("meaning", "她在纠正我刚才的误解")
+            .put("responseAim", "先修复误解")
+            .put("commonGroundUpdate", "她并不是生气，只是在说明原意")
+            .put("uncertainty", "她现在是否还想继续这个话题")
+            .put("interactionMove", "repair")
+        CharacterInnerLifeStore.recordInteractionAppraisal(id, "direct:user", "msg-ground-1", first)
+        var context = CharacterInnerLifeStore.interactionContext(id, "direct:user")
+        assertTrue(context.contains("修复"))
+        assertTrue(context.contains("她并不是生气"))
+        assertTrue(context.contains("她现在是否还想继续这个话题"))
+
+        val second = JSONObject()
+            .put("meaning", "她明确说想继续聊")
+            .put("commonGroundUpdate", "她想继续这个话题")
+            .put("uncertainty", "")
+            .put("interactionMove", "answer")
+        CharacterInnerLifeStore.recordInteractionAppraisal(id, "direct:user", "msg-ground-2", second)
+        context = CharacterInnerLifeStore.interactionContext(id, "direct:user")
+        assertFalse(context.contains("仍未确认的点：她现在是否还想继续这个话题"))
+        CharacterInnerLifeStore.invalidateEvidence("msg-ground-2")
+        context = CharacterInnerLifeStore.interactionContext(id, "direct:user")
+        assertTrue(context.contains("她现在是否还想继续这个话题"))
+        CharacterInnerLifeStore.clear(id)
+    }
+
+    @Test fun relationshipUsesMultiTurnTrendsInsteadOfSingleGoodwillScore() {
+        start()
+        val id = "inside-test-relation-trend"
+        CharacterInnerLifeStore.clear(id)
+        fun social(reason: String) = JSONObject().put("social", JSONObject()
+            .put("targetId", "user")
+            .put("interpretation", "她在认真听我说")
+            .put("reason", reason)
+            .put("dimensions", JSONObject()
+                .put("trust", "up").put("warmth", "up").put("ease", "up")
+                .put("friction", "down").put("boundarySafety", "up")))
+        CharacterInnerLifeStore.observe(id, "rel-1", "用户认真回应了一次", social("第一次实际回应"), setOf("user"))
+        var compact = CharacterInnerLifeStore.compactContext(id)
+        assertTrue(compact.contains("信任=证据不足"))
+        CharacterInnerLifeStore.observe(id, "rel-2", "用户再次认真回应", social("第二次独立回应"), setOf("user"))
+        compact = CharacterInnerLifeStore.compactContext(id)
+        assertTrue(compact.contains("信任=上升"))
+        assertTrue(compact.contains("亲近/温度=上升"))
+        assertTrue(compact.contains("未解摩擦=下降"))
+        CharacterInnerLifeStore.invalidateEvidence("rel-2")
+        compact = CharacterInnerLifeStore.compactContext(id)
+        assertTrue(compact.contains("信任=证据不足"))
+        CharacterInnerLifeStore.clear(id)
+    }
+
     @Test fun actionProofNeedsMatchingMotiveIdAndReceiptIsIdempotent() {
         start()
         CharacterInnerLifeStore.observe("inside-test-a", "msg", "他很想继续看书",
