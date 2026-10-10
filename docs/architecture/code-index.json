@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T14:43:34.582708+00:00",
-  "commit": "0d3bdf0bc15659a925f85e8fbe02ae06bd7e782d",
+  "generatedAt": "2026-10-10T14:44:22.483756+00:00",
+  "commit": "3ba049cb5fe3bc71b6d3c2b0368ea9bd6847e98b",
   "branch": "main",
-  "sourceFingerprint": "3e225d4433f56c9b70e172cf52a909f445e7bee76fd038e8cfcbfb266d28ca65",
+  "sourceFingerprint": "afcee76dbcb4757fafa505bfebf65c0cbc957a8dd0c59e06f152255259ff5625",
   "summary": {
     "files": 455,
-    "lines": 100439,
+    "lines": 100440,
     "symbols": 1472
   },
   "symbolIndex": {
@@ -9849,8 +9849,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 237,
-      "sha256": "2f06a5b1a125327679188bb30d549cc7ceeda23d69cec10d911a60c465eaef1d",
+      "lines": 238,
+      "sha256": "7621def672b942a4dc214bd3ae7a085375cc0cdb584d54999f685c5e0cf2de9a",
       "symbols": [
         {
           "name": "mute",
