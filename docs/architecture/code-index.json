@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T04:11:15.376526+00:00",
-  "commit": "b132c9986a325898e3d91a60e51bc96ef70f2cdf",
+  "generatedAt": "2026-10-10T04:30:55.408075+00:00",
+  "commit": "ff91af24c4d0d8313d92c7da03e1928239382597",
   "branch": "main",
-  "sourceFingerprint": "a12894d0b9c1489673d6d544ec2ce2aea4b3117c995da2171db561da1597ab50",
+  "sourceFingerprint": "177c14f543965a0bc1be765e619c943927cd3fbbd2bb22736e37a487ff1c6892",
   "summary": {
     "files": 419,
-    "lines": 95142,
+    "lines": 95152,
     "symbols": 1373
   },
   "symbolIndex": {
@@ -8419,7 +8419,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
       "lines": 123,
-      "sha256": "4ffda1004876aebedf367a8e6ffbaafc7a21be514beeef581116f3ec58df1756",
+      "sha256": "37beb920bb4f407f69d16ea4626b9a085f685a41d710e53bbc18e55d244a9fce",
       "symbols": [
         {
           "name": "show",
@@ -9205,8 +9205,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 757,
-      "sha256": "ffef7a8cb6e6b2240c5652bd9117d9a1bb43a29687025776854728c7cb6760a8",
+      "lines": 767,
+      "sha256": "511dd6739f5c33735864caa165b9f2409eb9d30cbc174a285f02e76d23124934",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
