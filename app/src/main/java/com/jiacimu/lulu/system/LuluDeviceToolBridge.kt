@@ -85,8 +85,8 @@ object LuluDeviceToolBridge {
             - 角色可以很健谈，也可以只说一两个字；关键是每段新增内容都有此刻真正想表达的意思。已经回应好、没有新的意图时直接停，别为了显得贴心又重复同一态度、重新总结、填充比喻或凭空扩展场景。
             - 有审美不等于平时说话都像小说。幽默、修辞、暧昧、感叹、停顿都可以自然出现，但应贴合个人口吻与现场；不要突然借用无关的开发者、模型、后台或设备术语来营造奇怪的比喻。真正在讨论这些技术时可以正常提及。
             - 轻松时可以随性、跑题、开玩笑、改口或只回一部分，认真议事时可以充分解释；不按固定字数、气泡数或固定情绪比例表演。别把近期自己生成的长篇文风误认为稳定人格。
-            - text 仅包含真的发给对方看的话；心情、心理活动与动作留在结构化状态里，不写舞台旁白。发送前自然收束：如果下一句只是在修饰上一句而不推进交流，可以不发。
-            - 一个气泡通常只承担一个表达动作。先确定要说的内容，再按真实停顿、转折、补充或追问来划分；不要先写长作文再机械切碎。只有你明确要按下「发送」开下一个气泡时才写 ⟪BUBBLE⟫。普通换行只是气泡内排版，不代表发送。不要解释标记。
+            - bubbles 中只放真的发给对方看的话；心情、心理活动与动作留在结构化状态里，不写舞台旁白。发送前自然收束：如果下一句只是在修饰上一句而不推进交流，可以不发。
+            - 一个气泡通常只承担一个局部互动动作。气泡边界只能通过 JSON 的 bubbles 数组表达，不要在任何正文里输出 BUBBLE、分隔符或解释控制协议。普通换行只是气泡内排版，不代表发送。
             - 若上下文有真实用户消息ID，确实想引用时在 text 开头用 ⟪QUOTE:消息ID⟫；只回应新消息且指代明确时不必引用。只允许引用明确给出的真实ID。
             - 只有本人真的很想长期留住某条用户消息时才在 text 开头用 ⟪FAVORITE:消息ID⟫。收藏不是点赞，不必为了展示能力频繁触发；ID同样必须真实。引用和收藏可以同时出现，也可以都不出现。
         """.trimIndent()
@@ -101,14 +101,17 @@ object LuluDeviceToolBridge {
             不要把“我先挂了”当成完成挂断的证明，必须设置 endCall=true。只有发言才可申请结束，不输出无声终止的空 text。
         """.trimIndent() else ""
         val separateExpression = CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
+        val programDialogueConstraint = if (separateExpression)
+            com.jiacimu.lulu.data.DialogueMoveEngine.plannerConstraint(userText) else ""
         val decisionFormatRule = if (callSilence) """
             这是电话中没有新增用户发言的自主观察，可选择 silent 或 reply；不允许工具动作。
             安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
             真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
         """.trimIndent() else if (separateExpression) """
-            只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时只写 speechIntent：它是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿；不要提前写 text。
+            只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
+            dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
             speechIntent 不要预先指定昵称、比喻、梗、玩笑方式、反问句式、撒娇方式或舞台动作，也不要把一句准备好的漂亮话塞进去；这些由表达层结合当前关系和个人语言习惯现场决定。
-            回复例：{"action":"reply","speechIntent":"我确实在意她为什么改了主意，想确认她现在真正的想法","reason":"这会影响我怎么继续聊"}
+            回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
             沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下","innerThoughtBasis":{"focus":"用户刚才明确拒绝了邀约","change":"从期待转为需要自己消化失落","unsaidWhy":"现在不想把情绪压给用户"}}
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
             角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
@@ -142,6 +145,7 @@ object LuluDeviceToolBridge {
                 你正在以当前角色自己的立场做这轮决定，而不是担任无条件回答问题的助手。
                 ${CharacterDecisionProtocol.principles}
                 $decisionFormatRule
+                $programDialogueConstraint
 
                 【主观生活与取舍】
                 以已有性格、真实经历、关系和未完成愿望判断本轮刺激；可以快乐、好奇、不满、矛盾、犹豫、提出反问，也可以保持安静。不要统一成温柔安慰或每轮自我剖析。
@@ -217,6 +221,29 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        val programRepair = separateExpression &&
+            com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText)
+        if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
+            plan = plan.copy(speechIntent = plan.text)
+        }
+        if (programRepair && plan.action != "reply") {
+            plan = plan.copy(
+                action = "reply",
+                speechIntent = "承认刚才理解有误，进行最小必要修复，让对方继续说明真正意思",
+                reason = "程序识别到用户在纠正上一轮理解，优先恢复共同语境",
+            )
+        }
+        val dialoguePlan = com.jiacimu.lulu.data.DialogueMoveEngine.resolve(
+            plan.dialogueMove ?: plan.appraisal, plan.speechIntent, userText,
+        )
+        val privateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
+        val privateDelta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
+            previous = privateStateBefore,
+            proposal = plan.innerLife,
+            appraisal = plan.appraisal,
+            basis = plan.innerThoughtBasis,
+            thought = plan.innerThought,
+        )
         // Do not treat a decision envelope as spoken content. In particular,
         // a phone model returning only a brief must never read JSON aloud.
         val proposedSpeech = if (plan.action == "reply") plan.text else ""
@@ -261,6 +288,7 @@ object LuluDeviceToolBridge {
                 outward = plan.speechIntent.ifBlank { plan.text },
                 innerLife = plan.innerLife,
                 basis = plan.innerThoughtBasis,
+                delta = privateDelta,
                 hasFreshEvidence = (!callSilence && userText.isNotBlank()) || observedSources.isNotEmpty(),
             ))
             val causalEvidenceId = combined?.evidenceId.orEmpty().ifBlank { interactionEvidenceId }
@@ -282,7 +310,7 @@ object LuluDeviceToolBridge {
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
                 characterId, combined?.evidenceId.orEmpty(),
-                plan.innerThought, now,
+                plan.innerThought, now, privateDelta.fingerprint,
             )
         }
         if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence)) {
@@ -319,13 +347,14 @@ object LuluDeviceToolBridge {
                             com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
                         ))
                         appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now))
+                        appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                         appendLine("角色已决定的内容简报（不能改事实、立场或改作其他行动；不要照抄成台词）：${plan.speechIntent}")
                     },
                     instruction = """
                         你是当前角色的语言表达层，不是新的决策者；只把已经决定的内容变成符合本人性格、关系边界和当前语境的自然聊天。
                         不要展示决策协议、状态标签、内心独白，也不要选择工具或宣称尚未完成的事情已经完成。
-                        只返回完整 JSON：{"action":"reply","text":"真正发送的自然语言或气泡"}。
-                        你可以自主决定这一刻到底用陈述、追问、停顿、玩笑、嘴硬、简短回应还是认真展开，也可以自然选择稳定昵称；不要把内容简报里的抽象词逐字翻译成客服式句子。
+                        只返回完整 JSON：{"action":"reply","bubbles":[{"text":"真正发送的自然语言"}]}。需要第二个局部互动动作时才增加第二项；不要返回任何 BUBBLE/NEXT/END 等控制字符串。
+                        你可以在程序已经确定的 dialogueMove 范围内决定自然措辞、停顿、嘴硬或认真程度，也可以自然选择稳定昵称；不能把一个 repair 扩写成道歉+猜测+撒娇+追问的组合任务，不要把内容简报里的抽象词逐字翻译成客服式句子。
                         先接住用户真正新增的意思，再按这个角色平时会说话的方式说出来。不要为了“有个性”临时发明无关称呼、刑罚/职位/游戏化比喻或夸张设定；除非当前对话和角色既有习惯确实支持。
                         说法可以自然、个性化和口语化，但不能更改想表达的核心意思。
                         $onlineChatBubbleRule
@@ -341,7 +370,9 @@ object LuluDeviceToolBridge {
                         taskIntent = "按已确定的回复意图渲染语言，不再次决策",
                     ),
                 ).getOrElse { return Result.failure(it) }
-                val spoken = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(generated.text)
+                val structuredBubbles = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(generated.text)
+                val spoken = structuredBubbles?.take(dialoguePlan.maxBubbles)
+                    ?.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
                     ?: generated.text.trim().takeIf { it.isNotBlank() &&
                         !it.startsWith("{") && !it.startsWith("```") }
                     ?: return Result.failure(IllegalStateException("表达模型没有返回完整的可发送正文"))
@@ -625,7 +656,10 @@ object LuluDeviceToolBridge {
         return runCatching {
             val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw) ?: return null
             val action = CharacterDecisionProtocol.chatAction(json) ?: return null
-            val spoken = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(raw).orEmpty()
+            val bubbleValues = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(raw)
+            val spoken = if (json.optJSONArray("bubbles") != null && !bubbleValues.isNullOrEmpty())
+                bubbleValues.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
+            else com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(raw).orEmpty()
             ToolPlan(
                 action = action,
                 text = if (action == "reply") spoken else json.optString("text"),
@@ -645,6 +679,7 @@ object LuluDeviceToolBridge {
                 reason = json.optString("reason"),
                 alternatives = json.optJSONArray("alternatives"),
                 appraisal = json.optJSONObject("appraisal"),
+                dialogueMove = json.optJSONObject("dialogueMove"),
             )
         }.getOrNull()
     }
@@ -679,5 +714,6 @@ private data class ToolPlan(
     val speechIntent: String = "",
     val reason: String = "",
     val appraisal: JSONObject? = null,
+    val dialogueMove: JSONObject? = null,
     val alternatives: org.json.JSONArray? = null,
 )
