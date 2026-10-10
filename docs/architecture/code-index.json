@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:03:07.690252+00:00",
-  "commit": "0f858443534b2b1fea20483e368103cd2ae60b70",
+  "generatedAt": "2026-10-10T18:03:47.528173+00:00",
+  "commit": "6ac6d1340a930ed92a58f84c484eef6d9f870c96",
   "branch": "main",
-  "sourceFingerprint": "f0701b6aa1896a897db59cdcf9157e18003a7faede5d6217e83436e4bb3ec0b1",
+  "sourceFingerprint": "e60b600f06240bce78206878566f4ca0751edeccb97b40b7f2a0c260a8e31b1a",
   "summary": {
     "files": 472,
-    "lines": 102579,
+    "lines": 102584,
     "symbols": 1513
   },
   "symbolIndex": {
@@ -8157,7 +8157,7 @@
     "CharacterDeliberationContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "CharacterExpressionGuideTest": [
@@ -17153,12 +17153,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt",
-      "lines": 66,
-      "sha256": "c792c645f61141655818c2e77bd76f8c4a039d4b6c86d4674a385cbaca7a1927",
+      "lines": 71,
+      "sha256": "6aedfb1777f8e2750c45808e5857fb137ac63e9f96f1aebb7f165c5fdb3ad40c",
       "symbols": [
         {
           "name": "CharacterDeliberationContextTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
