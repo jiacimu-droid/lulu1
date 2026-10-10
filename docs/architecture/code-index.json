@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T18:04:59.503149+00:00",
-  "commit": "4d9890240e44274ca1e0c20640142776f7bdaa1e",
+  "generatedAt": "2026-10-10T18:11:57.711579+00:00",
+  "commit": "fb7b0aa65a40e00d6ca8007fec9e3bfe36d5c9c4",
   "branch": "main",
-  "sourceFingerprint": "8c556da148a722b510db0f4cbd520d23887b0ee8d60721ce0a7f5ea99d3d6c14",
+  "sourceFingerprint": "6098ae01f59cc724ecf75355a9da449d2e8834b6532e288b89db44feb2b5dcdd",
   "summary": {
-    "files": 472,
-    "lines": 102584,
-    "symbols": 1513
+    "files": 473,
+    "lines": 102728,
+    "symbols": 1518
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -184,6 +184,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt",
         "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
@@ -714,6 +718,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
         "line": 232
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1914,7 +1922,27 @@
         "line": 158
       }
     ],
+    "byId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 68
+      }
+    ],
+    "toggleFavorite": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 87
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 96
+      }
+    ],
     "move": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 91
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
         "line": 32
@@ -5138,12 +5166,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 95
-      }
-    ],
-    "toggleFavorite": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 96
       }
     ],
     "InMemoryLuluChatStore": [
@@ -10174,6 +10196,33 @@
       "lines": 24,
       "sha256": "8162acd077a55fd347b353df908d56f62e696e40857eebf5d7db3a2c867108a7",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+      "lines": 144,
+      "sha256": "ea5fdaf8dd1019f0792668404d77457dd9f31ea4f4fe76c52dbe8744a9358ea2",
+      "symbols": [
+        {
+          "name": "byId",
+          "line": 68
+        },
+        {
+          "name": "prompt",
+          "line": 73
+        },
+        {
+          "name": "toggleFavorite",
+          "line": 87
+        },
+        {
+          "name": "move",
+          "line": 91
+        },
+        {
+          "name": "remove",
+          "line": 98
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
