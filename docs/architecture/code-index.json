@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:04:39.867041+00:00",
-  "commit": "5180e0e58aa310dde35213f6972ffda2dead301c",
+  "generatedAt": "2026-10-10T17:13:50.988358+00:00",
+  "commit": "45ac5eb57cc72693784c798b95d68e99ccb31890",
   "branch": "main",
-  "sourceFingerprint": "1a1dca77c613ddab8dca35fe7df29e7383b50975f98a158bcb91063736581356",
+  "sourceFingerprint": "67e580d2d2b65045065451bc9a389e16e75f06da54865edf5fbfca0b34f7d5f8",
   "summary": {
-    "files": 463,
-    "lines": 101370,
-    "symbols": 1487
+    "files": 464,
+    "lines": 101463,
+    "symbols": 1491
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4298,6 +4298,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 204
+      }
+    ],
+    "callEndDescription": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 17
+      }
+    ],
+    "callQuietDescription": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 34
+      }
+    ],
+    "recordCallQuiet": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 43
+      }
+    ],
+    "recordCallEnd": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 65
       }
     ],
     "LegacyConversationMigration": [
@@ -12297,6 +12321,29 @@
         {
           "name": "snapshot",
           "line": 241
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+      "lines": 93,
+      "sha256": "19d27751f047b51c56a8612c8083c6bba6fdf657ac5a7a73410a68fb2684877d",
+      "symbols": [
+        {
+          "name": "callEndDescription",
+          "line": 17
+        },
+        {
+          "name": "callQuietDescription",
+          "line": 34
+        },
+        {
+          "name": "recordCallQuiet",
+          "line": 43
+        },
+        {
+          "name": "recordCallEnd",
+          "line": 65
         }
       ]
     },

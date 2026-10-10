@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5180e0e58aa310dde35213f6972ffda2dead301c`
+- 基准提交：`45ac5eb57cc72693784c798b95d68e99ccb31890`
 - 分支：`main`
-- 已索引文件：463
-- 已索引代码/文本行：101370
-- 已发现符号：1487
+- 已索引文件：464
+- 已索引代码/文本行：101463
+- 已发现符号：1491
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -204,6 +204,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 88 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 348 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 93 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
