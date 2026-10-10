@@ -27,6 +27,7 @@ internal fun shouldFlushMemoryTail(lastEventAt: Instant?, now: Instant = Instant
 internal fun requestsImmediateMemory(text: String): Boolean = listOf(
     "记住", "记着", "别忘", "不要忘", "很重要", "以后", "从今", "喜欢", "讨厌", "过敏",
     "不爱吃", "不喜欢", "不要再", "别再", "改成", "改了", "纠正", "其实我是",
+    "叫我", "喊我", "称呼我", "这个称呼", "这种叫法",
 ).any(text::contains)
 
 internal fun SharedTimelineEvent.isUserMemoryStatement(): Boolean =
