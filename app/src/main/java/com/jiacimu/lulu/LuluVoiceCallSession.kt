@@ -24,7 +24,6 @@ import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -895,26 +894,11 @@ internal object LuluVoiceCallSession {
     private fun saveCallExperience(current: LuluVoiceCallState, endedByCharacter: Boolean = false) {
         if (!current.everConnected || current.experienceSaved) return
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(current.characterId)
-        val transcript = actualPhoneCaptions(
-            MigratedDomainStores.chat.messages(current.conversationId).value,
-            current.callStartedAt,
-        ).joinToString("\n") { message ->
-                val speaker = if (message.sender == LuluChatMessage.Sender.User) "你" else current.characterName
-                "$speaker：${message.content.trim()}"
-            }
-        SharedExperienceTimeline.remember(
-            memoryId = "call-${current.callExperienceId}",
-            characterId = current.characterId,
-            label = "共同通话",
-            detail = buildString {
-                append("进行了一次持续约 ${current.elapsedSeconds.coerceAtLeast(1)} 秒的电话。")
-                append(if (endedByCharacter) "这次由${current.characterName}主动结束通话。" else "这次由用户结束通话。")
-                if (transcript.isNotBlank()) append("通话内容：\n$transcript")
-            },
-            occurredAt = current.callStartedAt ?: Instant.now(),
-            strength = 7,
-            source = "voice-call",
-        )
+        // Phone audio/transcripts already live in the conversation's raw history.
+        // Do NOT duplicate an entire call (especially hours of bedtime narration)
+        // as a permanent high-strength shared memory. Normal evidence-backed
+        // extraction may still retain genuinely important facts or relationship
+        // milestones from actual user/character utterances.
         MigratedDomainStores.chat.appendSystemMessage(current.conversationId,
             if (endedByCharacter) "[共同活动] ${current.characterName}主动结束了电话" else "[共同活动] 刚刚打了个电话")
         mutableState.update { it.copy(experienceSaved = true) }
