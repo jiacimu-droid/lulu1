@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T11:26:38.888158+00:00",
-  "commit": "99dbc0d8917f37a3768c85bbbdd21f9e420c94dc",
+  "generatedAt": "2026-10-10T11:27:22.576261+00:00",
+  "commit": "0b136cb0331237fa34c877114df8fbe0a286b284",
   "branch": "main",
-  "sourceFingerprint": "4632f13257b66d1f26c06a9adb840321e7b2be9f0f87637f06182371b14cf611",
+  "sourceFingerprint": "0e9a0d564610f03ac5ab5a635b1c808db2d7c29ddf88087078cc72bd40cb674c",
   "summary": {
     "files": 445,
-    "lines": 98736,
+    "lines": 98754,
     "symbols": 1451
   },
   "symbolIndex": {
@@ -201,7 +201,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 170
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -469,7 +469,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 48
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -2675,7 +2675,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 258
+        "line": 274
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -3439,67 +3439,67 @@
     "CompanionPresenceMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 24
+        "line": 25
       }
     ],
     "CompanionPresenceStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 32
+        "line": 33
       }
     ],
     "current": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 57
+        "line": 58
       }
     ],
     "isInCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 61
+        "line": 62
       }
     ],
     "beginCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 64
+        "line": 65
       }
     ],
     "finishCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 71
+        "line": 72
       }
     ],
     "selectMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 132
+        "line": 138
       }
     ],
     "selectedMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 148
+        "line": 154
       }
     ],
     "clearMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 151
+        "line": 157
       }
     ],
     "recordPerceptionAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 158
+        "line": 164
       }
     ],
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 229
+        "line": 245
       }
     ],
     "fromWire": [
@@ -11195,8 +11195,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 361,
-      "sha256": "6535152d0cdf2dff3ea92aa2226f7ec539afebdb086f33303f14ca0f6eea32f1",
+      "lines": 379,
+      "sha256": "2267494ab29ec7d0140dc37294b08ffb42619ca39fd479ae4f3cff6d65b62f29",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -11204,59 +11204,59 @@
         },
         {
           "name": "CompanionPresenceMessageAnchor",
-          "line": 24
+          "line": 25
         },
         {
           "name": "CompanionPresenceStore",
-          "line": 32
+          "line": 33
         },
         {
           "name": "initialize",
-          "line": 48
+          "line": 49
         },
         {
           "name": "current",
-          "line": 57
+          "line": 58
         },
         {
           "name": "isInCall",
-          "line": 61
+          "line": 62
         },
         {
           "name": "beginCall",
-          "line": 64
+          "line": 65
         },
         {
           "name": "finishCall",
-          "line": 71
+          "line": 72
         },
         {
           "name": "selectMessageAnchor",
-          "line": 132
+          "line": 138
         },
         {
           "name": "selectedMessageAnchor",
-          "line": 148
+          "line": 154
         },
         {
           "name": "clearMessageAnchor",
-          "line": 151
+          "line": 157
         },
         {
           "name": "recordPerceptionAttempt",
-          "line": 158
+          "line": 164
         },
         {
           "name": "update",
-          "line": 170
+          "line": 176
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 229
+          "line": 245
         },
         {
           "name": "clearCharacter",
-          "line": 258
+          "line": 274
         }
       ]
     },
