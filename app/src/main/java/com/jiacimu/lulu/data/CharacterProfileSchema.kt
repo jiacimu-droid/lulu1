@@ -16,7 +16,7 @@ internal object CharacterProfileSchema {
         CharacterProfileField("social", "情境反应差异", "面对陌生人、熟人、亲密对象或不同压力时，哪些侧面更容易被激活。写倾向，不写“遇到X必须Y”。", "关系与主动性"),
         CharacterProfileField("expression", "表达气质", "整体语感、节奏、正式程度与情绪表达范围；不要填固定台词，具体语言习惯在下一项。", "表达"),
         CharacterProfileField("speechHabits", "语言习惯与小癖好", "角色原本就有的措辞、语气、标点、偶尔倒装、冷笑话或谐音，以及何时自然出现。不要写固定台词；后天学会的习惯另记成长。", "表达"),
-        CharacterProfileField("interests", "初始兴趣与偏好（可选）", "创建时就确定的兴趣或审美偏好；后续新的兴趣可以从真实经历中逐渐形成。", "起始偏好"),
+        CharacterProfileField("interests", "初始兴趣与偏好（可选）", "角色一开始真正偏好什么，未知可留空；好奇问题和探索意愿会在生活中形成，不用在此预设每次要做的事。", "起始偏好"),
         CharacterProfileField("typing", "人格类型参考（可选）", "只作为理解角度，不用类型标签自动推导恐惧、经历或固定反应。", "起始偏好"),
     )
     val groupOrder = listOf("稳定核心", "思考与应对", "关系与主动性", "表达", "起始偏好")

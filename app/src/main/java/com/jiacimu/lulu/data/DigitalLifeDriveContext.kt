@@ -80,7 +80,7 @@ internal object DigitalLifeDriveContext {
             appendLine("- 公开表达：朋友圈=${ageLabel(lastMoment)}；私人整理：日记=${ageLabel(lastJournal)}。")
             appendLine("- 主动社交：群聊=${ageLabel(lastGroup)}；私聊用户=${ageLabel(lastPrivate)}；电话=${ageLabel(lastCall)}；角色间见面=${ageLabel(lastCharacterMeeting)}。")
             appendLine("- 自己的生活：数字世界行动=${ageLabel(lastWorldAction)}；阅读=${ageLabel(lastReading)}；独自游戏=${ageLabel(lastGame)}；现实窗口=${ageLabel(lastRealityWindow)}。")
-            appendLine("- 生命不必围着用户转。可以因为无聊、好奇、审美、习惯、关系、刚经历的小事、突然想记录、想找人说话、想换个地方或想看看现实世界而主动行动；也允许因为性格和状态完全不想做某一类事。")
+            appendLine("- 生命不必围着用户转。无聊、好奇、审美、习惯、关系和刚经历的小事，都可能构成真实自主行动的缘由；同样可以因为性格、心情、疲惫或专注选择独处。没有人找自己不等于没有自己的兴趣与事情。")
             if (softSignals.isNotEmpty()) {
                 appendLine("- 当前可能自然冒出来、但完全不强制的生活冲动：")
                 softSignals.take(7).forEach { appendLine("  · $it") }

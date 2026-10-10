@@ -386,6 +386,22 @@ object ProactivePerceptionRuntime {
         val readingBooks = ReadingBackgroundBridge.availableBooks(appContext, characterId)
             .sortedByDescending { book -> book.id == lastReading?.bookId ||
                 (book.seriesId.isNotBlank() && lastReading?.bookTitle?.startsWith("《${book.seriesId}》") == true) }
+        val digital = DigitalLifeProfileStore.isEnabled(characterId)
+        val currentLocation = if (digital) DigitalWorldStore.locationOf(characterId) else ""
+        val activityChoices = if (digital) DigitalWorldActivityCatalog.locationOptions(currentLocation) else emptyList()
+        val itemChoices = if (digital) DigitalWorldStore.itemsAtLocation(characterId).mapNotNull { item ->
+            DigitalWorldActivityCatalog.optionsFor(item).takeIf(List<Pair<String, String>>::isNotEmpty)
+                ?.let { item.id to it }
+        } else emptyList()
+        val affordances = AutonomousAffordanceContext.render(
+            digital = digital,
+            location = currentLocation,
+            books = readingBooks.map { AutonomousAffordanceContext.Book(it.id, it.title) },
+            groups = availableGroups.map { it.id to it.groupChat?.name.orEmpty() },
+            locationActivities = activityChoices,
+            publicPlaces = if (digital) DigitalWorldPublicPlaces.all.map { it.code to it.label } else emptyList(),
+            currentItems = itemChoices,
+        )
 
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -399,6 +415,7 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CharacterPerceptionContext.render(observedWorld))
+                appendLine(affordances)
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
                 if (recentAutonomousActions.isNotEmpty()) {
                     appendLine("最近自主选择（旧→新，仅作为生活历史，不用于惩罚重复）：${recentAutonomousActions.joinToString(" → ")}")
@@ -615,13 +632,22 @@ object ProactivePerceptionRuntime {
                     it.channel != "在线感知"
             }?.id.orEmpty()
         } else ""
+        // A real timeline event ID is mandatory for long-term exploration evidence.
         CharacterCuriosityRuntime.recordOutcome(
             characterId, decision.curiosity, decision.action.name.lowercase(),
-            execution.success, execution.summary,
-            actionEvidenceId.ifBlank {
-                "proactive:" + now.toEpochMilli() + ":" + decision.action.name
-            }, now,
+            execution.success, execution.summary, actionEvidenceId, now,
         )
+        if (decision.action != Action.SILENT && !execution.success) {
+            CharacterCuriosityRuntime.recordFailure(
+                characterId, decision.curiosity, decision.action.name.lowercase(),
+                execution.summary, now,
+            )
+        } else if (decision.action == Action.SILENT && decision.curiosity != null) {
+            val observed = newlyObserved.firstOrNull()
+            if (observed != null) CharacterCuriosityRuntime.recordInquiry(
+                characterId, decision.curiosity, observed.evidenceId, observed.description, now,
+            )
+        }
         if (decision.action != Action.SILENT) {
             // Report the decision's concrete action outcome to only the explicitly selected motive.
             // No text or reasoning can mark an action complete without an executor result.
@@ -783,7 +809,8 @@ object ProactivePerceptionRuntime {
     }
 
     private fun parseDecision(raw: String): Decision? = runCatching {
-        val json = ModelStructuredOutput.objectOrNull(raw) ?: return null
+        val parsed = ModelStructuredOutput.objectOrNull(raw) ?: return null
+        val json = AutonomousDecisionRecovery.choose(parsed)
         Decision(
             action = when (json.optString("action").trim().lowercase()) {
                 "message", "消息" -> Action.MESSAGE

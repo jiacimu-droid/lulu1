@@ -30,6 +30,31 @@ class CharacterCuriosityRuntimeTest {
         assertEquals(0, CharacterCuriosityRuntime.snapshot(id).optJSONArray("threads")?.length() ?: 0)
     }
 
+    @Test fun unansweredQuestionIsNotACompletedExperienceAndCanBeRetracted() {
+        begin()
+        CharacterCuriosityRuntime.recordInquiry(id, proposal(), "source-observation",
+            "真的遇到一个不懂的问题", at)
+        val state = CharacterCuriosityRuntime.snapshot(id)
+        assertEquals(1, state.getJSONArray("questions").length())
+        assertEquals(0, state.optJSONArray("threads")?.length() ?: 0)
+        CharacterCuriosityRuntime.invalidateEvidence("source-observation")
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id).getJSONArray("questions").length())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
+    @Test fun actualFailureIsRememberedButNeverCountsAsSuccess() {
+        begin()
+        CharacterCuriosityRuntime.recordFailure(id, proposal(), "reading", "该书不存在", at)
+        CharacterCuriosityRuntime.recordFailure(id, proposal(), "reading", "该书仍不存在", at.plusSeconds(180))
+        val state = CharacterCuriosityRuntime.snapshot(id)
+        assertEquals(0, state.optJSONArray("threads")?.length() ?: 0)
+        assertEquals(2, state.getJSONArray("failures").getJSONObject(0).getInt("repeats"))
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "成功实际阅读", "real-book-event", at.plusSeconds(3600))
+        assertEquals(0, CharacterCuriosityRuntime.snapshot(id).getJSONArray("failures").length())
+        CharacterCuriosityRuntime.clear(id)
+    }
+
     @Test fun successfulActionPersistsOnceAndDeletionRetractsOnlyItsSource() {
         begin()
         CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true, "真的读了第一章", "s1", at)
