@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T05:44:37.168874+00:00",
-  "commit": "22d1a848e53fac90c4b6407f7ad0dba1da771e0c",
+  "generatedAt": "2026-10-10T05:54:44.003724+00:00",
+  "commit": "927874fd23090de44fc960fd9826bd572a065ea9",
   "branch": "main",
-  "sourceFingerprint": "035eea3af4d4e5c3c37075fd7ff2468bcf922efe8deace65e580fc0862aed817",
+  "sourceFingerprint": "a88eadcfb49f47d63928df1ac670462cd86677f3614f5833e06ba4f7446c8be7",
   "summary": {
-    "files": 426,
-    "lines": 95520,
-    "symbols": 1387
+    "files": 427,
+    "lines": 95595,
+    "symbols": 1389
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5048,6 +5048,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 249
+      }
+    ],
+    "forRequest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
+        "line": 33
+      }
+    ],
+    "compactWorld": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
+        "line": 64
       }
     ],
     "fetchWorldNews": [
@@ -12545,6 +12557,21 @@
         {
           "name": "ProactivePerceptionBootReceiver",
           "line": 249
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
+      "lines": 75,
+      "sha256": "d1793de27e1ed65651ccd228d38c88292bf1ef40f89b3a33aef111fba33c1717",
+      "symbols": [
+        {
+          "name": "forRequest",
+          "line": 33
+        },
+        {
+          "name": "compactWorld",
+          "line": 64
         }
       ]
     },
