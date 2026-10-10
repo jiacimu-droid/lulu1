@@ -208,14 +208,15 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
-        val checkedText = if (plan.action == "reply")
+        // Do not treat a decision envelope as spoken content. In particular,
+        // a phone model returning only a brief must never read JSON aloud.
+        val proposedSpeech = if (plan.action == "reply") plan.text else ""
+        val checkedText = if (proposedSpeech.isNotBlank())
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
-                userText, plan.text.ifBlank { plannedReply.text },
+                userText, proposedSpeech,
             ) else ""
-        // Discard the hostile proposal's private thoughts, emotional state and ongoing goals too.
-        // A corrected visible sentence must not leave an abusive hidden personality memory behind.
-        val invalidBlame = plan.action == "reply" &&
-            checkedText != plan.text.ifBlank { plannedReply.text }
+        // A corrected visible sentence must not leave abusive hidden state behind.
+        val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
         if (!invalidBlame) {
             com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
             val verifiedSourceId = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
@@ -245,6 +246,9 @@ object LuluDeviceToolBridge {
             return Result.success(plannedReply.copy(text = "", disposition = CharacterDecisionProtocol.SILENT))
         }
         if (plan.action == "reply") {
+            if (!separateExpression && plan.text.isBlank()) return Result.failure(
+                IllegalStateException("电话模型没有返回可朗读的正文，不能把决策 JSON 当作语音")
+            )
             // The phone remains single-pass. In text chat, only the expression model
             // renders the planner's intent; it must not re-decide actions.
             val expressed = if (separateExpression && plan.speechIntent.isNotBlank()) {
