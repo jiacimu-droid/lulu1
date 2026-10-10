@@ -42,11 +42,15 @@ internal object CharacterAddressPreference {
             if (characterId in scanned && sourceId.isBlank()) return
             if (sourceId.isNotBlank()) {
                 val original = SharedExperienceTimeline.eventsByIds(characterId, setOf(sourceId))
-                if (original.any { it.id == sourceId }) return
+                if (original.any { it.id == sourceId &&
+                        extractExplicitAddress(it.evidenceContent) == root.optString("preferredAddress") }) return
             }
-            scanned.add(characterId)
-            val last = SharedExperienceTimeline.all(characterId).asReversed().firstNotNullOfOrNull { event ->
-                if (event.channel != "私聊" || event.evidenceKind != EventEvidenceKind.UserStatement) null
+            val history = SharedExperienceTimeline.all(characterId)
+            // Do not lock an empty history as checked before the timeline is initialized.
+            if (history.isNotEmpty()) scanned.add(characterId)
+            val last = history.asReversed().firstNotNullOfOrNull { event ->
+                if ((event.channel != "私聊" && !event.channel.contains("电话")) ||
+                    !event.isUserMemoryStatement()) null
                 else extractExplicitAddress(event.evidenceContent)?.let { it to event.id }
             }
             if (last != null) CharacterLifeStore.observePreferredAddress(characterId, last.first, last.second)
