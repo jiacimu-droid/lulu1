@@ -37,7 +37,7 @@ object ProactivePerceptionRuntime {
     private const val ACTION_HISTORY_SIZE = 10
     private val cycleMutex = Mutex()
 
-    private enum class Action { MESSAGE, GROUP_MESSAGE, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, USER_REMARK, SELF_NICKNAME, TOOL, SILENT }
+    private enum class Action { MESSAGE, GROUP_MESSAGE, STICKER, GROUP_STICKER, KAOMOJI, GROUP_KAOMOJI, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, USER_REMARK, SELF_NICKNAME, TOOL, SILENT }
 
     private data class Decision(
         val action: Action,
@@ -65,6 +65,8 @@ object ProactivePerceptionRuntime {
         val incidentId: String,
         val approach: String,
         val nickname: String = "",
+        val stickerId: String = "",
+        val concernId: String = "",
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
         val intention: JSONObject? = null,
@@ -523,6 +525,7 @@ object ProactivePerceptionRuntime {
                 }
                 appendLine("\n【长期上下文层】")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
+                appendLine(CharacterExpressionContinuity.guide())
                 // The same persistent concerns that private chat and calls use:
                 // a chosen quiet interval must not wipe an unfinished thought.
                 appendLine(CharacterOpenConcernRuntime.context(
@@ -781,6 +784,11 @@ object ProactivePerceptionRuntime {
             )
         }
         if (decision.action != Action.SILENT) {
+            CharacterInnerLifeStore.recordConcernOutcome(
+                characterId, decision.concernId,
+                "proactive:${now.toEpochMilli()}:${decision.action.name}",
+                decision.action.name.lowercase(), execution.success, execution.summary, now,
+            )
             // Report the decision's concrete action outcome to only the explicitly selected motive.
             // No text or reasoning can mark an action complete without an executor result.
             CharacterInnerLifeStore.recordActionResult(
@@ -791,7 +799,7 @@ object ProactivePerceptionRuntime {
             if (emotionalAnchor.isBlank()) CharacterInnerLifeStore.observe(
                 characterId, "action-result:${now.toEpochMilli()}:${decision.action.name}",
                 execution.summary, decision.innerLife,
-                if (decision.action == Action.MESSAGE && execution.success) setOf("user") else emptySet(), now,
+                if (decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER) && execution.success) setOf("user") else emptySet(), now,
             )
         }
         val newReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
@@ -880,8 +888,10 @@ object ProactivePerceptionRuntime {
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         val tool = when (decision.action) {
-            Action.MESSAGE -> "send_private_message"
-            Action.GROUP_MESSAGE -> "send_group_message"
+            Action.MESSAGE, Action.KAOMOJI -> "send_private_message"
+            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI -> "send_group_message"
+            Action.STICKER -> "send_private_sticker"
+            Action.GROUP_STICKER -> "send_group_sticker"
             Action.GAME_INVITE -> "send_game_invite"
             Action.SOLO_GAME -> "play_solo_game"
             Action.WORLD_INVITE -> "send_world_invite"
@@ -897,6 +907,7 @@ object ProactivePerceptionRuntime {
         }
         val args = if (decision.action == Action.TOOL) decision.toolArgs else JSONObject().apply {
             put("text", decision.text)
+            put("stickerId", decision.stickerId)
             put("nickname", decision.nickname)
             put("groupId", decision.groupId)
             put("gameId", decision.gameId)
@@ -922,17 +933,18 @@ object ProactivePerceptionRuntime {
             return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
         }
         when (decision.action) {
-            Action.MESSAGE -> result.conversationId?.let {
-                showMessageNotification(appContext, it, character.displayName, decision.text)
+            Action.MESSAGE, Action.KAOMOJI, Action.STICKER -> result.conversationId?.let {
+                showMessageNotification(appContext, it, character.displayName,
+                    if (decision.action == Action.STICKER) result.summary else decision.text)
             }
-            Action.GROUP_MESSAGE -> {
+            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER -> {
                 val target = availableGroups.firstOrNull { it.id == result.conversationId }
                 result.conversationId?.let {
                     showMessageNotification(
                         appContext,
                         it,
                         "${character.displayName} · ${target?.groupChat?.name.orEmpty()}",
-                        decision.text,
+                        if (decision.action == Action.GROUP_STICKER) result.summary else decision.text,
                     )
                 }
             }
@@ -970,6 +982,10 @@ object ProactivePerceptionRuntime {
             action = when (json.optString("action").trim().lowercase()) {
                 "message", "消息" -> Action.MESSAGE
                 "group_message", "groupmessage", "群聊消息", "群聊发言" -> Action.GROUP_MESSAGE
+                "sticker", "private_sticker" -> Action.STICKER
+                "group_sticker" -> Action.GROUP_STICKER
+                "kaomoji", "private_kaomoji" -> Action.KAOMOJI
+                "group_kaomoji" -> Action.GROUP_KAOMOJI
                 "game_invite", "gameinvite", "游戏邀约", "邀请游戏" -> Action.GAME_INVITE
                 "solo_game", "sologame", "独自游戏" -> Action.SOLO_GAME
                 "world_invite", "worldinvite", "见面邀约", "邀请见面", "邀请进入数字世界" -> Action.WORLD_INVITE
@@ -1007,6 +1023,8 @@ object ProactivePerceptionRuntime {
             incidentId = json.optString("incidentId").trim(),
             approach = json.optString("approach").trim().lowercase(),
             nickname = json.optString("nickname").trim(),
+            stickerId = json.optString("stickerId").trim(),
+            concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
             toolArgs = json.optJSONObject("args") ?: JSONObject(),
             intention = json.optJSONObject("intention"),
