@@ -144,7 +144,9 @@ internal object CompanionActionRuntime {
                     } ?: error("角色不在指定群聊中")
                 }
                 val payload = com.jiacimu.lulu.encodeQqChatImage(
-                    sticker.uri, imageDescription = sticker.name, sticker = true,
+                    sticker.uri,
+                    imageDescription = com.jiacimu.lulu.StickerLibraryStore.imageDescription(sticker),
+                    sticker = true,
                 )
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     MigratedDomainStores.chat.appendCharacterMessage(
