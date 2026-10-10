@@ -37,6 +37,39 @@ internal object CharacterCausalAppraisalStage {
     fun latestPending(events: List<SharedTimelineEvent>): SharedTimelineEvent? =
         events.filter(::eligible).maxByOrNull { it.occurredAt }
 
+    /** A stage-one receipt does not mean a real action decision has completed. */
+    fun hasCompletedDecision(characterId: String, evidenceId: String): Boolean {
+        if (evidenceId.isBlank()) return false
+        val entries = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions") ?: return false
+        return (0 until entries.length()).any { index ->
+            entries.optJSONObject(index)?.optString("causalEvidenceId") == evidenceId
+        }
+    }
+
+    /** Resume the saved inner state if the process died between appraisal and action.
+     * The event does not need to be reinterpreted or charged for a second time.
+     */
+    fun resumeCommitted(characterId: String, evidenceId: String): Outcome? {
+        if (evidenceId.isBlank() || hasCompletedDecision(characterId, evidenceId)) return null
+        val transitions = CharacterInnerLifeStore.snapshot(characterId)
+            .optJSONArray("causalTransitions") ?: return null
+        val committed = (0 until transitions.length()).any { index ->
+            val entry = transitions.optJSONObject(index)
+            entry?.optString("evidenceId") == evidenceId &&
+                entry.optString("selectedAction") == "appraise"
+        }
+        if (!committed) return null
+        val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .firstOrNull() ?: return null
+        val presence = CompanionPresenceStore.current(characterId)
+        return Outcome(
+            evidenceId = evidenceId,
+            evidenceDescription = CharacterPerceptionContext.stimulus(event).description,
+            mood = presence?.mood.orEmpty(),
+            innerThought = presence?.innerThought.orEmpty(),
+        )
+    }
+
     /**
      * produce is the existing model gateway, injected so the stage is
      * testable without an Android or network dependency.
