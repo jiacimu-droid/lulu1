@@ -235,8 +235,9 @@ internal object PrivateStateDeltaEngine {
             }
 
         val interactions = previous.optJSONObject("interactions")
-        val interactionStates = interactions?.keys()?.asSequence()?.toList()
-            ?.mapNotNull { interactions.optJSONObject(it) }.orEmpty()
+        val interactionStates = interactions?.let { root ->
+            root.keys().asSequence().toList().mapNotNull(root::optJSONObject)
+        }.orEmpty()
         val oldInteraction = interactionStates.maxByOrNull { it.optString("updatedAt") }
         val commonGround = appraisal?.optString("commonGroundUpdate").orEmpty().trim()
         val commonGroundChanged = commonGround.isNotBlank() &&
