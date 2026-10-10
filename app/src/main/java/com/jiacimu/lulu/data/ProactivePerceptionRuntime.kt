@@ -368,6 +368,7 @@ object ProactivePerceptionRuntime {
         val commitments = lexicon.filter { it.section == LexiconSection.Promise && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
             .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
+        val continuityContext = CharacterContinuityRuntime.proactiveContext(characterId, now)
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
         val deviceContext = UserDevicePerception.context(appContext, characterId, now, refreshLocation = true)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
@@ -414,6 +415,7 @@ object ProactivePerceptionRuntime {
                     appendLine(onlineUnread.text.takeLast(5_000))
                 }
                 appendLine("\n【长期上下文层】")
+                if (continuityContext.isNotBlank()) appendLine(continuityContext)
                 lastReading?.let { appendLine("最近真正读过《${it.bookTitle}》${it.chapterTitle}，停在字符${it.endOffset}；当时感想：${it.reflection.take(1_200)}。是否继续由此刻愿望决定；尚未读到的情节未知。") }
                 previousPresence?.let {
                     appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
