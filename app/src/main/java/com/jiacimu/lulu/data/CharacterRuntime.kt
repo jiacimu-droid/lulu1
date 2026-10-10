@@ -67,6 +67,7 @@ object CharacterRuntime {
     fun developmentContext(characterId: String, compact: Boolean = false): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         return buildString {
+            appendLine(CharacterPersonalityArchitecture.promptSection(compact))
             appendLine(CompanionContactClock.context(characterId))
             appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
                 CharacterLifeStore.context(characterId, includeProfile = false))
