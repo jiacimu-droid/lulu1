@@ -403,7 +403,7 @@ object ProactivePerceptionRuntime {
         val resumedAppraisal = requiredInteractionEvidenceId?.let {
             CharacterCausalAppraisalStage.resumeCommitted(characterId, it)
         }
-        val stagedAppraisal = if (awaitingCausalAppraisal != null) {
+        val stagedAppraisal = if (resumedAppraisal != null) resumedAppraisal else if (awaitingCausalAppraisal != null) {
             runCatching {
                 CharacterCausalAppraisalStage.reflect(
                     appContext, characterId, observedWorld, now,
@@ -438,7 +438,7 @@ object ProactivePerceptionRuntime {
                 )
                 null
             }
-        } else resumedAppraisal
+        } else null
         // A hanging call must never turn into a speculative outward action if
         // the first-stage interpretation failed or returned invalid JSON.
         if (awaitingCausalAppraisal != null && stagedAppraisal == null) {
