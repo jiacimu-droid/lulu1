@@ -42,6 +42,39 @@ internal object ModelStructuredOutput {
     }
 
     /**
+     * A model may still place a tiny grammatical tail in its own JSON bubble, e.g.
+     * ["原来一直在用功，是我", "猜错了"]. That is not a second interactional move.
+     * Merge only when the previous bubble has no completed sentence boundary and the next part is
+     * a very short continuation. Obvious standalone backchannels stay separate.
+     */
+    fun stabilizeReplyBubbles(values: List<String>): List<String> {
+        val cleaned = values.map { it.replace("\r\n", "\n").trim() }.filter(String::isNotBlank)
+        if (cleaned.size < 2) return cleaned
+        val result = mutableListOf<String>()
+        val sentenceEnd = Regex("""[。！？!?…~～”"』」）)]$""")
+        val standalone = Regex("""^(?:嗯+|啊+|诶+|欸+|哦+|哈哈+|嘿嘿+|好+|行+|等等|等下|真的[？！!?]?|为什么[？！!?]?)$""")
+        cleaned.forEach { current ->
+            if (result.isEmpty()) {
+                result += current
+                return@forEach
+            }
+            val previous = result.last()
+            val compact = current.replace(Regex("\\s+"), "")
+            val incompletePrevious = !sentenceEnd.containsMatchIn(previous.trim())
+            val shortContinuation = compact.length <= 8 && !standalone.matches(compact)
+            if (incompletePrevious && shortContinuation) {
+                val needsSpace = previous.lastOrNull()?.isLetterOrDigit() == true &&
+                    current.firstOrNull()?.isLetterOrDigit() == true &&
+                    previous.last().code < 128 && current.first().code < 128
+                result[result.lastIndex] = previous + if (needsSpace) " " else "" + current
+            } else {
+                result += current
+            }
+        }
+        return result
+    }
+
+    /**
      * Preferred text-chat protocol: bubbles are structural JSON, never magic strings inside text.
      * Supports either ["text"] or [{"text":"..."}] during migration.
      */
@@ -64,7 +97,7 @@ internal object ModelStructuredOutput {
                     if (text.isNotBlank()) add(text.take(2_000))
                 }
             }.take(3)
-            if (values.isNotEmpty()) return values
+            if (values.isNotEmpty()) return stabilizeReplyBubbles(values)
         }
 
         return json.optString("text").replace("\r\n", "\n").trim()
