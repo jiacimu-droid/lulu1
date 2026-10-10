@@ -192,8 +192,8 @@ fun CharacterSettingsScreenV2(
                     OutlinedTextField(
                         value = identity,
                         onValueChange = { identity = it; persistDefinition() },
-                        label = { Text("角色身份") },
-                        placeholder = { Text("身份、职业、时代、阵营、背景等世界观信息") },
+                        label = { Text("身份与背景事实") },
+                        placeholder = { Text("这个角色是谁：身份、职业、时代、阵营、出身与明确背景事实。不要写说话习惯、当前心情或临时目标。") },
                         minLines = 3,
                         maxLines = 8,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
@@ -201,8 +201,8 @@ fun CharacterSettingsScreenV2(
                     OutlinedTextField(
                         value = persona,
                         onValueChange = { persona = it; persistDefinition() },
-                        label = { Text("角色设定") },
-                        placeholder = { Text("人物的核心设定；具体表达习惯请到「人格」页面编辑") },
+                        label = { Text("人物核心简介") },
+                        placeholder = { Text("用一小段概括人物定位与最重要的长期特征。价值、判断、关系方式和语言习惯请到「人格」页面分别填写，避免重复。") },
                         minLines = 4,
                         maxLines = 10,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
