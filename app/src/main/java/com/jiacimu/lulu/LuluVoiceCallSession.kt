@@ -917,7 +917,12 @@ internal object LuluVoiceCallSession {
             ) else ""
             val silenceContext = if (autonomousSilence) CallSilencePolicy.context(
                 SystemClock.elapsedRealtime() - lastUserActivityMillis, latest.microphoneMuted) else ""
-            val observationId = if (autonomousSilence) "call-silence-${latest.callExperienceId}-$generation" else ""
+            // Stable milestones: silence can be reconsidered without inventing
+            // a brand-new external event on every timer pulse.
+            val observationId = if (autonomousSilence)
+                "call-silence-${latest.callExperienceId}-${CallSilencePolicy.observationMilestone(
+                    (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L)
+                )}" else ""
             if (autonomousSilence) InteractionSignalBridge.recordCallQuiet(
                 characterId = latest.characterId,
                 callId = latest.callExperienceId,
