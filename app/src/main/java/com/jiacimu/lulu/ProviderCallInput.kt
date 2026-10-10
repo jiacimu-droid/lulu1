@@ -16,6 +16,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val sttEngine: String,
     private val accept: () -> Boolean, private val onReady: () -> Unit,
     private val onLevel: (Float) -> Unit, private val onSpeech: () -> Unit,
+    private val onCaptureFinished: () -> Unit = {},
     private val onPartial: (String) -> Unit, private val onText: (String) -> Unit,
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
     private val microphone = CallAudioInput(scope)
@@ -134,6 +135,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
             onSegment = { bytes, completed ->
                 capturingVoice = !completed
                 if (epoch == generation) {
+                    // An ended PCM segment means capture has stopped, even if
+                    // cloud recognition still takes time or returns no text.
+                    // Releasing the speaking flag must not wait for valid ASR.
+                    if (completed) onCaptureFinished()
                     onStatus(if (completed) "识别完整语句中…" else "持续收音并分段识别中…")
                     queuedChunks.incrementAndGet()
                     if (!queue.trySend(AudioChunk(bytes, completed)).isSuccess) {
