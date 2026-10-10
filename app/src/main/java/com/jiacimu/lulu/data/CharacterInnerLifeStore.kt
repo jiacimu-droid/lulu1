@@ -353,6 +353,12 @@ object CharacterInnerLifeStore {
         val root = snapshot(characterId)
         val old = root.optJSONArray("innerVoices") ?: JSONArray()
         if ((0 until old.length()).any { old.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
+        val latest = old.optJSONObject(old.length() - 1)
+        val latestAt = latest?.optString("occurredAt")?.takeIf(String::isNotBlank)
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() }
+        val recentMinutes = latestAt?.let { runCatching { Duration.between(it, now).toMinutes() }.getOrNull() }
+        if (recentMinutes != null && recentMinutes in 0..10 &&
+            sameInnerVoiceMeaning(latest.optString("thought"), clean)) return
         root.put("innerVoices", JSONArray().apply {
             for (i in maxOf(0, old.length() - 5) until old.length()) put(old.opt(i))
             put(JSONObject().put("evidenceId", evidenceId).put("thought", clean)
@@ -422,6 +428,21 @@ object CharacterInnerLifeStore {
     }
 
 
+    private fun sameInnerVoiceMeaning(left: String, right: String): Boolean {
+        fun normalize(value: String): String = value.lowercase()
+            .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_-]+"), "")
+            .replace(Regex("^(还是|就是|只是|现在|这会儿|此刻|嗯|唔|好吧)+"), "")
+        val a = normalize(left)
+        val b = normalize(right)
+        if (a.isBlank() || b.isBlank()) return false
+        if (a == b || a.contains(b) || b.contains(a)) return true
+        if (a.length < 4 || b.length < 4) return false
+        val aPairs = a.windowed(2).toSet()
+        val bPairs = b.windowed(2).toSet()
+        val denominator = minOf(aPairs.size, bPairs.size).coerceAtLeast(1)
+        return aPairs.intersect(bPairs).size.toDouble() / denominator >= 0.68
+    }
+
     /** Durable but focused subjective state. Full introspection stays available to
      * background deliberation, world scenes and exact continuity/reconciliation turns.
      */
@@ -441,8 +462,18 @@ object CharacterInnerLifeStore {
             if (emotion != null) {
                 val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
                 val elapsed = started?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
-                if (elapsed <= emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L) {
-                    appendLine("现在感受=${emotion.optString("feeling")}；并存=${emotion.optString("otherFeeling")}；由=${emotion.optString("cause").take(160)}；距今${elapsed}分钟")
+                val halfLife = emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30)
+                val baseStrength = emotion.optInt("strength", 2).coerceIn(1, 4)
+                val influence = if (elapsed == Long.MAX_VALUE) 0.0
+                    else baseStrength * Math.pow(0.5, elapsed.toDouble() / halfLife.toDouble())
+                if (influence >= 0.35 && elapsed <= halfLife * 4L) {
+                    val impact = when {
+                        influence >= 3.0 -> "强"
+                        influence >= 1.5 -> "中等"
+                        influence >= 0.7 -> "较弱"
+                        else -> "很淡"
+                    }
+                    appendLine("现在感受=${emotion.optString("feeling")}；并存=${emotion.optString("otherFeeling")}；由=${emotion.optString("cause").take(160)}；距今${elapsed}分钟；当前影响=$impact（会随时间自然衰减，旧事被想起不等于重新受刺激）")
                     emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("此刻克制：${it.take(130)}") }
                 }
             }
