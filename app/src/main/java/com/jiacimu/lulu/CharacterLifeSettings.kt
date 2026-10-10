@@ -421,16 +421,10 @@ internal fun CharacterLifeSettings(characterId: String) {
             text = {
                 Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (key == "speechHabits") {
-                        Text("描述这个角色自己的表达习惯，不用填固定台词。你主动编辑的内容不会被后天成长覆盖。",
-                            style = MaterialTheme.typography.bodySmall)
-                        if (MigratedDomainStores.characters.get(characterId).displayName in setOf("江渡", "江都")) {
-                            TextButton(onClick = { draft = CharacterProfileSchema.jiangDuSpeechHabits }) {
-                                Text("填入江渡推荐的语言习惯")
-                            }
-                        }
-                    }
-                    OutlinedTextField(draft, { draft = it }, placeholder = { Text(field.hint) },
+                    Text(field.hint,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedTextField(draft, { draft = it }, placeholder = { Text("按这个字段填写；不知道可以留空") },
                         minLines = 4, maxLines = 8, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                 }
             },
