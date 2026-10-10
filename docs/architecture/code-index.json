@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T09:18:50.175263+00:00",
-  "commit": "7b5185dabf461c6c9d3e990ba22abe1542496c9c",
+  "generatedAt": "2026-10-10T09:19:52.757005+00:00",
+  "commit": "6086fec71ffd4cc954d74a90a5702e1b012a8338",
   "branch": "main",
-  "sourceFingerprint": "568fb26dfda24005ae2dc38397072e25b0e409203998daec835f0f5bb61e45d0",
+  "sourceFingerprint": "2ed07c14191b8995583a43d2aeb4c4a204153c3ef968d89971dcfd0c9b9de9ac",
   "summary": {
     "files": 443,
-    "lines": 97255,
-    "symbols": 1430
+    "lines": 97365,
+    "symbols": 1431
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -275,7 +275,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 492
+        "line": 523
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -405,7 +405,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1012
+        "line": 1016
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2175,19 +2175,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 859
+        "line": 863
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 871
+        "line": 875
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1002
+        "line": 1006
       }
     ],
     "consume": [
@@ -2774,10 +2774,16 @@
         "line": 83
       }
     ],
+    "normalize": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 432
+      }
+    ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 428
+        "line": 449
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -9613,8 +9619,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 233,
-      "sha256": "fa4fd651b3c0f2dc9f98830715113559278b9d2c4fceda8dc243da72e3457bca",
+      "lines": 236,
+      "sha256": "b71755efbd1f1aa2d0d3c3a2384336efafd7d021f099c016b534b7ef7aa3f752",
       "symbols": [
         {
           "name": "mute",
@@ -9833,8 +9839,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1020,
-      "sha256": "d830ed15514efc3d2ac55c76a08ef86360316fb5ab50a653f65ef5f74b4ae47a",
+      "lines": 1024,
+      "sha256": "4e7ca616d838538f73246ba6b2b08360bfad34489599ac4d55c40c8babc8f2fb",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -9922,19 +9928,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 859
+          "line": 863
         },
         {
           "name": "consumeEvent",
-          "line": 871
+          "line": 875
         },
         {
           "name": "LuluAiServices",
-          "line": 1002
+          "line": 1006
         },
         {
           "name": "initialize",
-          "line": 1012
+          "line": 1016
         }
       ]
     },
@@ -10350,8 +10356,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 607,
-      "sha256": "6c72e2b1a0877ac13a91dd1cdb3a10a5355759e4e6087403e9c440516a55b7a4",
+      "lines": 638,
+      "sha256": "f82387f24537277208e0494218b0e7ffa941512183491b1ad55c88285a4c50c0",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -10366,12 +10372,16 @@
           "line": 83
         },
         {
+          "name": "normalize",
+          "line": 432
+        },
+        {
           "name": "compactContext",
-          "line": 428
+          "line": 449
         },
         {
           "name": "context",
-          "line": 492
+          "line": 523
         }
       ]
     },
@@ -12734,7 +12744,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 49,
-      "sha256": "094c5af7d8d36de21f27eeeb4c5b7d30e1b4304eb0d625a397c24747a1046b11",
+      "sha256": "fe1197cf09d50764d0456cd15017e0def57e98115ae7aecc5559b0b8ae790d01",
       "symbols": []
     },
     {
@@ -13131,8 +13141,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 17,
-      "sha256": "50a6458267d06b8dd23a05f2e833783ed30eef0d8fbdc40e022f0d7abbe4923c",
+      "lines": 18,
+      "sha256": "fca1514a52f14e0d6b36a045764193d0d5ec4df262fa891f9e730a923920156c",
       "symbols": []
     },
     {
@@ -15768,8 +15778,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 636,
-      "sha256": "4906609a234cbb615b4f691bfdd9541919fc75c0655d54ba87240c17bf7e1f51",
+      "lines": 639,
+      "sha256": "72e70719561489464b8ebefb3523e1acc62e5c47997a0579c1c3dcdbc32e9fbe",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -16223,8 +16233,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 55,
-      "sha256": "babcfc33bd3440debd2b3dc9ae70e9cb9e6e163d2084548ff92defc58dd0dba3",
+      "lines": 68,
+      "sha256": "4a12875190a38a02188b3e23247fffd394fe7befc8c40af3be4862e070d44bff",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -16234,8 +16244,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 229,
-      "sha256": "68fea0a346ca815c3e4fadc12af67edaf29f5e89587072b366660486721c45a8",
+      "lines": 259,
+      "sha256": "d6acd4b2cf5dd09324dff0783cceb5725c14a9e7d29fd0fef4b84b0237e8ca41",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -16523,8 +16533,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-      "lines": 84,
-      "sha256": "28fff8c4ce8e881b512ecbac783bd0c27db3f20d5f664ac14b58d7738b4e1d56",
+      "lines": 109,
+      "sha256": "0018b3916bd8071f56d04c4c2f73991929f614972ad3b6a445500e21daa170d8",
       "symbols": [
         {
           "name": "UserMessageFavoritesTest",
