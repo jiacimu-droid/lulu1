@@ -23,6 +23,8 @@ import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.data.InteractionSignalBridge
+import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.CoroutineScope
@@ -101,6 +103,8 @@ internal object LuluVoiceCallSession {
     private var userSpeechInProgress = false
     private var sleepFailures = 0
     private var lastUserActivityMillis = 0L
+    private var lastConfirmedUserSpeechMillis = 0L
+    private var confirmedUserSpeechCount = 0
     private var lastCallAudioMillis = 0L
     private var lastSilenceReflectionMillis = 0L
     private var silenceFailures = 0
@@ -443,6 +447,24 @@ internal object LuluVoiceCallSession {
         recognitionActive = false
         speechQueue?.stop()
         saveCallExperience(current, endedByCharacter)
+        // The user ending a connected call is a new *observed event*, not a
+        // command to make the character worried or to send a canned message.
+        // Preserve the cue before requesting a separate, deduplicated appraisal.
+        if (current.everConnected && current.callExperienceId.isNotBlank()) {
+            val cueId = InteractionSignalBridge.recordCallEnd(
+                characterId = current.characterId,
+                callId = current.callExperienceId,
+                endedByCharacter = endedByCharacter,
+                elapsedSeconds = current.elapsedSeconds,
+                confirmedUserSpeechCount = confirmedUserSpeechCount,
+                secondsSinceConfirmedSpeech = if (lastConfirmedUserSpeechMillis > 0L)
+                    (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1_000L
+                    else current.elapsedSeconds,
+            )
+            if (!endedByCharacter) appContext?.let { context ->
+                ProactivePerceptionScheduler.scheduleInteractionReflection(context, current.characterId, cueId)
+            }
+        }
         mutableState.update {
             it.copy(
                 phase = CallPhase.Ended,
@@ -787,7 +809,11 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         if (!autonomousSleep && !autonomousSilence) {
             userSpeechInProgress = false
-            if (spoken.isNotBlank() && !opening) noteCallUserActivity()
+            if (spoken.isNotBlank() && !opening) {
+                noteCallUserActivity()
+                lastConfirmedUserSpeechMillis = SystemClock.elapsedRealtime()
+                confirmedUserSpeechCount++
+            }
         }
         replyGeneration++
         autonomousHangup.cancel()
@@ -892,11 +918,13 @@ internal object LuluVoiceCallSession {
             val silenceContext = if (autonomousSilence) CallSilencePolicy.context(
                 SystemClock.elapsedRealtime() - lastUserActivityMillis, latest.microphoneMuted) else ""
             val observationId = if (autonomousSilence) "call-silence-${latest.callExperienceId}-$generation" else ""
-            if (autonomousSilence) com.jiacimu.lulu.data.SharedExperienceTimeline.record(
-                eventId = observationId, characterId = latest.characterId, channel = "电话陪伴",
-                speaker = "通话观察", content = "电话仍接通；本轮没有新增用户发言；距最近用户语音活动约 ${(SystemClock.elapsedRealtime() - lastUserActivityMillis) / 1000} 秒；麦克风${if (latest.microphoneMuted) "静音" else "未静音"}", triggerExtraction = false,
-                sessionId = latest.callExperienceId, source = "call-observation",
-                evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation)
+            if (autonomousSilence) InteractionSignalBridge.recordCallQuiet(
+                characterId = latest.characterId,
+                callId = latest.callExperienceId,
+                observationId = observationId,
+                secondsSinceUserActivity = (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1000L,
+                microphoneMuted = latest.microphoneMuted,
+            )
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
@@ -1090,6 +1118,8 @@ internal object LuluVoiceCallSession {
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
         val startedAt = SystemClock.elapsedRealtime()
         lastUserActivityMillis = startedAt
+        lastConfirmedUserSpeechMillis = startedAt
+        confirmedUserSpeechCount = 0
         lastCallAudioMillis = startedAt
         // First ordinary-call reflection after one quiet minute, then bounded pulses.
         lastSilenceReflectionMillis = startedAt - 60_000L
