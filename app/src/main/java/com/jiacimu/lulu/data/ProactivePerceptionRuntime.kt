@@ -537,6 +537,16 @@ object ProactivePerceptionRuntime {
                 "在线期间基于已知状态的内在变化，没有新增用户发言或虚构外部事件",
                 decision.innerLife, emptySet(), now)
         }
+        // Heart voice is a sparse projection of a real private-state delta. The model may propose
+        // prose, but the program rejects a paraphrase of outward speech and generic waiting scripts
+        // when nothing genuinely changed.
+        val groundedInnerThought = CharacterHeartVoicePolicy.keepOrBlank(
+            thought = decision.innerThought,
+            outward = decision.text,
+            innerLife = decision.innerLife,
+            hasFreshEvidence = freshStimulus || previousEvidence.isNotBlank() ||
+                decision.action != Action.SILENT,
+        )
         // Being online alone is not evidence of a new thought. Persist a new private voice only when
         // there is a real stimulus, deliberate follow-through, an actual action, or the model declares
         // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
@@ -546,7 +556,7 @@ object ProactivePerceptionRuntime {
             CharacterInnerLifeStore.recordInnerVoice(
                 characterId, if (awakeReflection) awakeObservationId else stimulus?.evidenceId?.let { "perception:$it" }
                     ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
-                decision.innerThought, now,
+                groundedInnerThought, now,
             )
         }
         // Execute first. Unvalidated model status/gesture must never become a world fact.
@@ -586,7 +596,7 @@ object ProactivePerceptionRuntime {
                 // Online awareness by itself is not a new heart voice. A model may still paraphrase
                 // "keep waiting" every minute; without a real stimulus/action/inner-state change we
                 // explicitly clear it instead of presenting that paraphrase as a new mental moment.
-                innerThought = if (hasMeaningfulInnerUpdate) decision.innerThought else "",
+                innerThought = if (hasMeaningfulInnerUpdate) groundedInnerThought else "",
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
