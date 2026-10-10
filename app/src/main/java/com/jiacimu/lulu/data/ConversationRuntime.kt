@@ -61,8 +61,27 @@ internal object DialogueMoveEngine {
     fun userInitiatesRepair(userText: String): Boolean =
         repairSignal.containsMatchIn(userText.replace("\n", " ").trim())
 
+    /**
+     * A correction can also contain enough positive direction to continue.
+     * Do not force a second clarification when the user has already explained
+     * what kind of interaction they want instead.
+     */
+    fun correctionSuppliesDirection(userText: String): Boolean {
+        val text = userText.replace("\n", " ").trim()
+        return userInitiatesRepair(text) && text.length >= 12 &&
+            Regex("(我希望|我想|我需要|我要的是|要的是|我说的是|我指的是|你应该|你可以|能不能|不要再|别再|你就|直接|主动)")
+                .containsMatchIn(text)
+    }
+
     fun plannerConstraint(userText: String): String {
         if (!userInitiatesRepair(userText)) return ""
+        if (correctionSuppliesDirection(userText)) return """
+            【用户纠正了你的理解，并给出了希望改变的方向】
+            先承认原来理解哪里偏了，再按用户已给出的意图自主决定一个合适的具体回应或尝试。
+            这不是必须追加一次开放式确认的任务；可以按人格选择 answer、tease、share、
+            acknowledge 或其他合适的互动动作。不要求等用户再次发出指令。
+            如果做法确实需要额外关键事实，才问最小必要问题；不能靠编造用户意图省略事实。
+        """.trimIndent()
         return """
             【程序识别到：用户正在发起理解修复】
             这不是新话题，也不是邀请表演歉意。上一轮你对用户意思的解释应视为 disputed/rejected。
@@ -83,7 +102,7 @@ internal object DialogueMoveEngine {
         val intent = raw?.optString("contentIntent").orEmpty().trim()
             .ifBlank { speechIntent.trim() }.take(500)
 
-        if (userInitiatesRepair(userText)) {
+        if (userInitiatesRepair(userText) && !correctionSuppliesDirection(userText)) {
             val useCandidate = candidate.isNotBlank() && confidence >= 0.72
             return DialogueMovePlan(
                 type = if (useCandidate) DialogueMoveType.CANDIDATE_UNDERSTANDING
