@@ -171,14 +171,32 @@ internal object ConversationGroundingEngine {
         evidenceId: String,
         userText: String,
     ) {
-        if (DialogueMoveEngine.userInitiatesRepair(userText)) {
-            CharacterInnerLifeStore.rejectGroundingCandidates(
-                characterId = characterId,
-                conversationKey = conversationKey,
-                evidenceId = evidenceId,
-                reason = "用户明确否定了上一轮理解",
-            )
+        when {
+            DialogueMoveEngine.userInitiatesRepair(userText) -> {
+                CharacterInnerLifeStore.rejectGroundingCandidates(
+                    characterId = characterId,
+                    conversationKey = conversationKey,
+                    evidenceId = evidenceId,
+                    reason = "用户明确否定了上一轮理解",
+                )
+            }
+            userConfirmsCandidate(userText) -> {
+                CharacterInnerLifeStore.acceptLatestGroundingCandidate(
+                    characterId = characterId,
+                    conversationKey = conversationKey,
+                    evidenceId = evidenceId,
+                )
+            }
         }
+    }
+
+    internal fun userConfirmsCandidate(userText: String): Boolean {
+        val normalized = userText.lowercase()
+            .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\\\"'（）()]+"), "")
+        return normalized in setOf(
+            "对", "对的", "嗯对", "对对对", "是的", "没错",
+            "就是这个意思", "对就是这个意思", "这次对了", "这回对了", "你终于懂了",
+        )
     }
 
     fun afterDecision(
