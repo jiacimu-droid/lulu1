@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`77d39d7985addc16f919a5bf92e8098fe022d40f`
+- 基准提交：`c28eebd4e8a57a9ff36363ea5bbbe8211cd423ec`
 - 分支：`main`
 - 已索引文件：483
-- 已索引代码/文本行：103800
+- 已索引代码/文本行：103812
 - 已发现符号：1532
 
 | 文件 | 行数 | 符号数 |
@@ -386,7 +386,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningTypography.kt` | 27 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterProseRhythm.kt` | 23 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 562 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 574 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 336 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 895 | 2 |
