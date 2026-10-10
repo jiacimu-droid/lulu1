@@ -23,7 +23,11 @@ internal object TransientConversationStyle {
         val nonSpace = clean.count { !it.isWhitespace() }
         val parts = clean.lines().map(String::trim).filter(String::isNotBlank)
         val burstCount = parts.size.coerceAtLeast(1)
-        val repair = Regex("没懂|没get到|没 get 到|你理解错|不是这个意思|会错意|误会|说偏了|我不是说").containsMatchIn(clean)
+        val repair = Regex(
+            "没懂|没\\s*get\\s*到|没有\\s*get\\s*到|你.{0,6}(没|没有).{0,3}(懂|明白|get\\s*到|get)|" +
+                "你理解错|不是这个意思|会错意|误会|说偏了|我不是说",
+            RegexOption.IGNORE_CASE,
+        ).containsMatchIn(clean)
         val serious = repair || Regex(
             "难受|委屈|生气|吵架|失望|伤心|崩溃|严肃|认真说|重要|别开玩笑|不舒服|道歉|对不起"
         ).containsMatchIn(clean)
