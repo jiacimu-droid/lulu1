@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:19:17.315542+00:00",
-  "commit": "42c996237fb1baed05f801a9a8f5aed4c7d808d4",
+  "generatedAt": "2026-10-10T12:20:29.345767+00:00",
+  "commit": "763c7e88824d9fe8f9ca5fe50a79a4e66e895ed5",
   "branch": "main",
-  "sourceFingerprint": "289948ad6de38434c6aa9b99612a523d9f93dbd30e5351c1c129eb1a73a1202b",
+  "sourceFingerprint": "42b4c5f1c059a8ee8906db6518174e7687b69dea6967099a8f9cdaa4f0b6bab6",
   "summary": {
-    "files": 446,
-    "lines": 99138,
-    "symbols": 1456
+    "files": 447,
+    "lines": 99190,
+    "symbols": 1457
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7882,6 +7882,12 @@
         "line": 14
       }
     ],
+    "CharacterInitiativeRuntimeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt",
+        "line": 5
+      }
+    ],
     "CharacterInnerLifeStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
@@ -12251,8 +12257,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-      "lines": 603,
-      "sha256": "4c52844e2193ce746beaa534d60492dafb5d15d85105c174f2d5ad0db33271f1",
+      "lines": 605,
+      "sha256": "f71e0c304bf34e037e0e71bc0839837f7c35d898d07604d833f2c0bcb896d551",
       "symbols": [
         {
           "name": "MeetingProseLength",
@@ -16503,6 +16509,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt",
+      "lines": 28,
+      "sha256": "3975df67f76e48b90ef95052389770979b2e71cf59725faaf81e1ac7547c1287",
+      "symbols": [
+        {
+          "name": "CharacterInitiativeRuntimeTest",
+          "line": 5
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
       "lines": 375,
       "sha256": "1cfd9efb2954a18a5f1bf54a06240382bfcad4d9fb66b27c7e98525b800ae2b0",
@@ -16797,8 +16814,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-      "lines": 128,
-      "sha256": "675e5193ace1f7613a5e79f6b5974c88f1b12a1d13e138435cec87faa0f994c1",
+      "lines": 150,
+      "sha256": "def537ba18d12e099d452eb48564d96bb3c9ae531eb5d7909f7c0d32cf86e26c",
       "symbols": [
         {
           "name": "UserMessageFavoritesTest",
