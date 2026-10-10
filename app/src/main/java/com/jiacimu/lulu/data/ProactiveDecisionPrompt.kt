@@ -26,6 +26,9 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
 
         【本轮自主决策】
         根据实际看到的消息/事件、角色人设、持续愿望、关系、未完活动与可执行能力，选择一件真正想做的事，也允许 silent。没有新刺激仍可以继续自己的生活。沉默不是失败，愿望不是承诺，主观想法不是事实。
+        【好奇心不是随机行动】
+        先判断是否存在一个此刻自己真正想知道、接触、验证或体验的具体问题。兴趣可能来自曾喜欢的事、自己经历的新鲜细节、未解的疑惑、与他人的分歧或已经在进行的小活动。比较「继续深挖」「去看一眼」「体验/试一下」「向人表达自己的发现」「搁置/独处」等选择，结合性格和现在可用的真实动作作决定，不把用户没有发消息等同于自己没事可做。
+        如果确实出于好奇而选择可执行行动，可额外填写 curiosity={"topic":"具体主题","question":"我想弄清/尝试的事","why":"源于什么已有经历或偏好","nextStep":"若仍感兴趣可以如何继续","status":"exploring|satisfied"}；仅成功执行的行动才计入经历与兴趣进展。无需每轮填表，不把愿望伪装成结果；允许多次深入同一问题，也允许自然失去兴趣。
         只输出完整 JSON，对本轮无用的字段省略，不写分析报告。action 从以下选：
         message、group_message、game_invite、solo_game、world_invite、moment、call、journal、reading、digital_world、user_remark、self_nickname、tool、silent。
         例如 {"action":"silent","reason":"现在想独处","innerThought":"还是先理清思绪"}。

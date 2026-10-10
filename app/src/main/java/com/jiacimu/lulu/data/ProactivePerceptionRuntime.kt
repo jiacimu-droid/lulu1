@@ -72,6 +72,7 @@ object ProactivePerceptionRuntime {
         val innerLife: JSONObject? = null,
         val appraisal: JSONObject? = null,
         val motiveId: String = "",
+        val curiosity: JSONObject? = null,
         val alternatives: org.json.JSONArray? = null,
     )
 
@@ -86,6 +87,7 @@ object ProactivePerceptionRuntime {
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
         PerceptionWakePlanStore.initialize(context.applicationContext)
+        CharacterCuriosityRuntime.initialize(context.applicationContext)
         createNotificationChannels(context.applicationContext)
     }
 
@@ -424,6 +426,9 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【长期上下文层】")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
+                appendLine(CharacterCuriosityRuntime.promptSection(
+                    characterId, character.displayName, recentAutonomousActions, now,
+                ))
                 lastReading?.let { appendLine("最近真正读过《${it.bookTitle}》${it.chapterTitle}，停在字符${it.endOffset}；当时感想：${it.reflection.take(1_200)}。是否继续由此刻愿望决定；尚未读到的情节未知。") }
                 previousPresence?.let {
                     appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
@@ -600,9 +605,23 @@ object ProactivePerceptionRuntime {
                 groundedInnerThought, now, privateDelta.fingerprint,
             )
         }
-        // Execute first. Unvalidated model status/gesture must never become a world fact.
+        // Exploration counts only after an executor receipt, never from model prose.
+        val priorEvidence = SharedExperienceTimeline.all(characterId).takeLast(24).map { it.id }.toSet()
         val execution = performAction(appContext, character, decision, availableGroups, now)
         currentCoroutineContext().ensureActive()
+        val actionEvidenceId = if (execution.success) {
+            SharedExperienceTimeline.all(characterId).asReversed().firstOrNull {
+                it.id !in priorEvidence && it.speaker == character.displayName &&
+                    it.channel != "在线感知"
+            }?.id.orEmpty()
+        } else ""
+        CharacterCuriosityRuntime.recordOutcome(
+            characterId, decision.curiosity, decision.action.name.lowercase(),
+            execution.success, execution.summary,
+            actionEvidenceId.ifBlank {
+                "proactive:" + now.toEpochMilli() + ":" + decision.action.name
+            }, now,
+        )
         if (decision.action != Action.SILENT) {
             // Report the decision's concrete action outcome to only the explicitly selected motive.
             // No text or reasoning can mark an action complete without an executor result.
@@ -813,6 +832,7 @@ object ProactivePerceptionRuntime {
             innerLife = json.optJSONObject("innerLife"),
             appraisal = json.optJSONObject("appraisal"),
             motiveId = json.optString("motiveId").trim(),
+            curiosity = json.optJSONObject("curiosity"),
             alternatives = json.optJSONArray("alternatives"),
         )
     }.getOrNull()

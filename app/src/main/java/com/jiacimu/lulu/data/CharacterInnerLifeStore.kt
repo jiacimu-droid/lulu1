@@ -79,6 +79,7 @@ object CharacterInnerLifeStore {
     @Synchronized fun invalidateEvidence(eventId: String) {
         if (eventId.isBlank()) return
         PerceptionStimulusLedger.invalidate(eventId)
+        CharacterCuriosityRuntime.invalidateEvidence(eventId)
         val ids = prefs?.all?.keys.orEmpty()
         fun backedBy(value: String): Boolean =
             value == eventId || value.contains(":$eventId:")
