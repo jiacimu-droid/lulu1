@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T17:43:08.097973+00:00",
-  "commit": "346e4eec7419b669cddf7a7bd5ea269e3ceb1af0",
+  "generatedAt": "2026-10-10T17:43:43.550345+00:00",
+  "commit": "6a3c34a21353dc838e54cfb59a2b47ddcdfb39a9",
   "branch": "main",
-  "sourceFingerprint": "ce2e1bbe8800d22daea91dba9de17a7fd480e7af68659788e1ff0775bcbb4f3a",
+  "sourceFingerprint": "f4e58d76b749cb3f2e1f56de95dcadb7723f52387187bfad8425ca447d522a12",
   "summary": {
-    "files": 469,
-    "lines": 102163,
-    "symbols": 1503
+    "files": 470,
+    "lines": 102210,
+    "symbols": 1504
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8062,6 +8062,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
         "line": 5
+      }
+    ],
+    "CharacterActionFeedbackTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt",
+        "line": 8
       }
     ],
     "CharacterCausalActionPolicyTest": [
@@ -16972,6 +16978,17 @@
         {
           "name": "CharacterAccountabilityContextTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt",
+      "lines": 47,
+      "sha256": "ddd75a365781dbe3401b5cb413f83776fcb3e17689536456be5bfa5f488dc533",
+      "symbols": [
+        {
+          "name": "CharacterActionFeedbackTest",
+          "line": 8
         }
       ]
     },
