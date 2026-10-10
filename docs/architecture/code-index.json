@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:23:37.382612+00:00",
-  "commit": "77d6594278a7633194a2667bd6ac78eeaaae64e8",
+  "generatedAt": "2026-10-10T12:24:21.510663+00:00",
+  "commit": "b88d627f83f5e9f44420b9a084bbadc9dcd6a218",
   "branch": "main",
-  "sourceFingerprint": "f8c3f3c567fead90a4777444b6fb1312336c83fd2329dcec01b699aad1ae33fe",
+  "sourceFingerprint": "dfc3b237210371587a9f942b40003ab8b3b8c3a129ad374b32f2ba901a6490ee",
   "summary": {
-    "files": 447,
-    "lines": 99220,
-    "symbols": 1457
+    "files": 448,
+    "lines": 99302,
+    "symbols": 1459
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -296,6 +296,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
         "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
@@ -5580,6 +5584,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
         "line": 19
+      }
+    ],
+    "analyze": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
+        "line": 20
       }
     ],
     "UnifiedMemoryRequest": [
@@ -13449,6 +13459,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
+      "lines": 81,
+      "sha256": "5f9b63b8d0fbe5d86ad39361f2420e0df18fc62a6669e03c132d640e22bae899",
+      "symbols": [
+        {
+          "name": "analyze",
+          "line": 20
+        },
+        {
+          "name": "context",
+          "line": 54
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
       "lines": 240,
       "sha256": "bff9a40a1d41adaca1d2e82eef989a916977ae494d0e273e6dcda5474c1bad17",
@@ -16044,8 +16069,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 772,
-      "sha256": "ea66af9c318ff2912042e03710df3651daf64659bcb54390d67a6f9ccd347dfa",
+      "lines": 773,
+      "sha256": "4fcfe32b646ab0dc1c46e890979051662c42d1a8275d323536098c2211d9a247",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
