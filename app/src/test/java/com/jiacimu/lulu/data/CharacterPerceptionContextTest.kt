@@ -5,6 +5,28 @@ import org.junit.Test
 import java.time.Instant
 
 class CharacterPerceptionContextTest {
+    @Test fun observedCallEndIsAnEventNotAnInferenceAboutUserEmotion() {
+        val now = Instant.parse("2026-10-11T00:00:00Z")
+        val call = SharedTimelineEvent(
+            "interaction-call-end-123", "role", "电话互动", "通话操作",
+            InteractionSignalBridge.callEndDescription(
+                endedByCharacter = false, elapsedSeconds = 180,
+                confirmedUserSpeechCount = 0, secondsSinceConfirmedSpeech = 180,
+            ),
+            now.minusSeconds(20), source = InteractionSignalBridge.SOURCE,
+            evidenceKind = EventEvidenceKind.Observation,
+        )
+        val assertedEmotion = call.copy(
+            id = "model-made-story", content = "你肯定生气了",
+            evidenceKind = EventEvidenceKind.CharacterStatement,
+        )
+        val actual = CharacterPerceptionContext.selectRecent(listOf(call, assertedEmotion), now)
+        assertEquals(listOf(call.id), actual.map { it.id })
+        assertEquals(setOf("user"), CharacterPerceptionContext.stimulus(call).socialIds)
+        assertTrue(actual.single().content.contains("没有成功收到用户的语音转写"))
+        assertTrue(actual.single().content.contains("不能由挂断单独推断"))
+    }
+
     @Test fun witnessedTouchAndVisitSurviveAlongsideNewChatButStaleAndImaginedEventsDoNot() {
         val now = Instant.parse("2026-10-10T06:00:00Z")
         fun event(id: String, age: Long, kind: EventEvidenceKind) = SharedTimelineEvent(
