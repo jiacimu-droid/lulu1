@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T09:21:30.412551+00:00",
-  "commit": "0b8a7a036cd86ad725f4cb986130ab2368a8dc2c",
+  "generatedAt": "2026-10-10T09:59:46.252668+00:00",
+  "commit": "a768111f9059074618effe0ebfdd5caf2ac841b0",
   "branch": "main",
-  "sourceFingerprint": "f74627f69d3a1d6eedd0481c0df7064e2ffc1abec4f0f15e55e75f01e63cb20e",
+  "sourceFingerprint": "2e18f33a56a48ef485f5598464495b6ef57d5907372c3575e4a139ed50f9eb61",
   "summary": {
-    "files": 443,
-    "lines": 97368,
-    "symbols": 1431
+    "files": 444,
+    "lines": 97469,
+    "symbols": 1433
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2510,6 +2510,10 @@
         "line": 9
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
+        "line": 14
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
         "line": 14
       },
@@ -2858,6 +2862,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
         "line": 9
+      }
+    ],
+    "keepOrBlank": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
+        "line": 51
       }
     ],
     "CharacterRecordReset": [
@@ -10455,6 +10465,21 @@
         {
           "name": "render",
           "line": 29
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
+      "lines": 101,
+      "sha256": "9a01c15d76c7df50229b028fbe87acea195bbf29fb221efef3929ca07fa04109",
+      "symbols": [
+        {
+          "name": "promptSection",
+          "line": 14
+        },
+        {
+          "name": "keepOrBlank",
+          "line": 51
         }
       ]
     },
