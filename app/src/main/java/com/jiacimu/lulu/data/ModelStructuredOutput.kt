@@ -46,7 +46,7 @@ internal object ModelStructuredOutput {
      * Supports either ["text"] or [{"text":"..."}] during migration.
      */
     fun completedReplyBubbles(raw: String): List<String>? {
-        val action = Regex(""""action"\\s*:\\s*"([^"]+)"""").find(raw)
+        val action = Regex(""""action"\s*:\s*"([^"]+)"""").find(raw)
             ?.groupValues?.getOrNull(1)?.lowercase()
         if (action != null && action != "reply") return null
         val json = objectOrNull(raw) ?: return null
@@ -60,14 +60,14 @@ internal object ModelStructuredOutput {
                     val text = when (item) {
                         is JSONObject -> item.optString("text")
                         else -> bubbles.optString(i)
-                    }.replace("\\r\\n", "\\n").trim()
+                    }.replace("\r\n", "\n").trim()
                     if (text.isNotBlank()) add(text.take(2_000))
                 }
             }.take(3)
             if (values.isNotEmpty()) return values
         }
 
-        return json.optString("text").replace("\\r\\n", "\\n").trim()
+        return json.optString("text").replace("\r\n", "\n").trim()
             .takeIf(String::isNotBlank)?.let(::listOf)
     }
 
