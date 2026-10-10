@@ -550,7 +550,9 @@ internal object LuluVoiceCallSession {
                 }
 
                 override fun onBeginningOfSpeech() {
-                    if (!mutableState.value.connected || mutableState.value.opening) return
+                    val call = mutableState.value
+                    if (!call.connected || call.opening || call.thinking || call.speaking ||
+                        speechQueue?.hasPendingAudio == true) return
                     systemCommitJob?.cancel()
                     systemCommitJob = null
                     systemPartialCandidate = ""
@@ -609,7 +611,14 @@ internal object LuluVoiceCallSession {
                 }
 
                 override fun onResults(results: Bundle?) {
-                    if (!mutableState.value.connected || mutableState.value.opening) return
+                    val call = mutableState.value
+                    if (!call.connected || call.opening) return
+                    if (call.thinking || call.speaking || speechQueue?.hasPendingAudio == true) {
+                        userSpeechInProgress = false
+                        recognitionActive = false
+                        resetSystemRecognitionTurn()
+                        return
+                    }
                     userSpeechInProgress = false
                     recognitionActive = false
                     val finals = results
@@ -647,7 +656,9 @@ internal object LuluVoiceCallSession {
                 }
 
                 override fun onPartialResults(partialResults: Bundle?) {
-                    if (!mutableState.value.connected || mutableState.value.opening) return
+                    val call = mutableState.value
+                    if (!call.connected || call.opening || call.thinking || call.speaking ||
+                        speechQueue?.hasPendingAudio == true) return
                     val partial = partialResults
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         ?.firstOrNull()
@@ -714,7 +725,7 @@ internal object LuluVoiceCallSession {
     private fun normalizeSpeechForComparison(value: String): String =
         value.lowercase().replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_\\"'（）()]+"), "")
 
-    private fun scheduleSystemUtteranceCommit(delayMillis: Long = 1_250L) {
+    private fun scheduleSystemUtteranceCommit(delayMillis: Long = 700L) {
         systemCommitJob?.cancel()
         val sessionId = mutableState.value.callExperienceId
         systemCommitJob = scope.launch {
