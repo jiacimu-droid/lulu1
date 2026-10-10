@@ -4,6 +4,7 @@ import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CharacterRuntime
+import com.jiacimu.lulu.data.CharacterAddressPreference
 import com.jiacimu.lulu.data.CharacterDefinitionSnapshot
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.CompanionPresenceStore
