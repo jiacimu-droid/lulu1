@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T12:29:52.245652+00:00",
-  "commit": "0f5c2b752b663fd42c8570191a0885d1aa1be9e2",
+  "generatedAt": "2026-10-10T12:30:04.898742+00:00",
+  "commit": "0c85bf1d3ca47e32eae4c6ce678ff24fd9a98318",
   "branch": "main",
-  "sourceFingerprint": "a69abf1a1d4c6759c93c76db0bfe7d65b61ef0fa71346ddd190116a90753df2f",
+  "sourceFingerprint": "66d0f4ff2fcdaf7cb4e11be347a0a8bf67c85039566f77876d27d2a16c31c052",
   "summary": {
     "files": 449,
-    "lines": 99425,
+    "lines": 99443,
     "symbols": 1460
   },
   "symbolIndex": {
@@ -291,7 +291,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 201
+        "line": 219
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -3571,13 +3571,13 @@
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 183
+        "line": 201
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 207
+        "line": 225
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -11336,8 +11336,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 328,
-      "sha256": "ef19d4c8edeb0df6419ff6be7658b1c6916a9e63f988661453cd70e09dc9a4be",
+      "lines": 346,
+      "sha256": "181861d40bebfac43bb9b997c8bdccf065d77146df819ec18b36d035e9dac930",
       "symbols": [
         {
           "name": "fromWire",
@@ -11365,15 +11365,15 @@
         },
         {
           "name": "afterDecision",
-          "line": 183
-        },
-        {
-          "name": "context",
           "line": 201
         },
         {
+          "name": "context",
+          "line": 219
+        },
+        {
           "name": "evaluate",
-          "line": 207
+          "line": 225
         }
       ]
     },
