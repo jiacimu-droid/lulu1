@@ -492,15 +492,25 @@ object LuluDeviceToolBridge {
             connectionOverride = connection,
         )
         return finalReply.map { result ->
+            val toolResultPrivateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
+            var toolResultPrivateDelta: com.jiacimu.lulu.data.PrivateStateDelta? = null
             val finalPlan = parsePlan(result.text)?.let { parsed ->
                 val guarded = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                     userText, parsed.innerThought,
+                )
+                toolResultPrivateDelta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
+                    previous = toolResultPrivateStateBefore,
+                    proposal = parsed.innerLife,
+                    appraisal = parsed.appraisal,
+                    basis = parsed.innerThoughtBasis,
+                    thought = guarded,
                 )
                 parsed.copy(innerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
                     thought = guarded,
                     outward = parsed.text,
                     innerLife = parsed.innerLife,
                     basis = parsed.innerThoughtBasis,
+                    delta = toolResultPrivateDelta,
                     hasFreshEvidence = true,
                 ))
             }
@@ -510,7 +520,10 @@ object LuluDeviceToolBridge {
                 userText, naturalText,
             )
             if (finalPlan != null && checkedResultText == naturalText) {
-                savePresence(characterId, finalPlan, "聊天·工具")
+                savePresence(
+                    characterId, finalPlan, "聊天·工具",
+                    heartVoiceFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
+                )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow)
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
@@ -520,6 +533,7 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
                     characterId, "tool-result:${now.toEpochMilli()}:${plan.tool}",
                     finalPlan.innerThought,
+                    causeFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
                 )
                 if (finalPlan.endCall && checkedResultText.isNotBlank() && sceneContext.contains("电话"))
                     onCharacterHangup?.invoke()
