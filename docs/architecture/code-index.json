@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:23:32.721172+00:00",
-  "commit": "1693ea657afa3c1aef9bbcb1c30a299645b76651",
+  "generatedAt": "2026-10-11T07:24:41.610630+00:00",
+  "commit": "654e4f96f23e1726a4b208a9acaef4f335c882f6",
   "branch": "main",
-  "sourceFingerprint": "0e5f4af7f59fc12cffe79d23e00bb6aa16f0af2e536f69d25d5a93df5a1b7058",
+  "sourceFingerprint": "e7e1811aba6205c28c81d28027877fdd343732312937bc2a05bdbbb3798c36f4",
   "summary": {
     "files": 500,
-    "lines": 106107,
-    "symbols": 1577
+    "lines": 106119,
+    "symbols": 1578
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4422,10 +4422,16 @@
         "line": 187
       }
     ],
+    "canHandle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
+        "line": 201
+      }
+    ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 197
+        "line": 209
       }
     ],
     "DigitalWorldNavigationStore": [
@@ -12890,8 +12896,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 669,
-      "sha256": "8661a575392294a802f401bc4b4c882e3a455b11b01be50b00124ef7454f0871",
+      "lines": 681,
+      "sha256": "b93e5d46db9c0f822b38894f2e82472f7929e636d8e5e770e7f4f63f6bd7ded3",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -12926,8 +12932,12 @@
           "line": 187
         },
         {
+          "name": "canHandle",
+          "line": 201
+        },
+        {
           "name": "handle",
-          "line": 197
+          "line": 209
         }
       ]
     },
