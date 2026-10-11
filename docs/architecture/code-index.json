@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T13:37:11.109978+00:00",
-  "commit": "5d1c350477d738f0ef833f2acffcb0c46ad41412",
+  "generatedAt": "2026-10-11T13:37:34.058063+00:00",
+  "commit": "bf7188ac9f3df0be114c1fd1db3c841abf8b083d",
   "branch": "main",
-  "sourceFingerprint": "579f45f8bc954f0c35de8b2da5060d7d8fc1562b98bf7ce73b1acd21ee7a91b6",
+  "sourceFingerprint": "8779dc0e64e36ef95da28401dac3f71e3543b2a1e68ba8397345e01eaadebf26",
   "summary": {
-    "files": 511,
-    "lines": 107838,
-    "symbols": 1614
+    "files": 512,
+    "lines": 107862,
+    "symbols": 1615
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8390,6 +8390,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
         "line": 7
+      }
+    ],
+    "CallHangupGracePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt",
+        "line": 5
       }
     ],
     "CallMemoryPolicyTest": [
@@ -17786,6 +17792,17 @@
         {
           "name": "CallContractsTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt",
+      "lines": 24,
+      "sha256": "604b75927b69363cfd9f540e87c9b07fdc4ee2ba9ad9511aedd63c14390fc643",
+      "symbols": [
+        {
+          "name": "CallHangupGracePolicyTest",
+          "line": 5
         }
       ]
     },
