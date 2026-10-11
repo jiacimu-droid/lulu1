@@ -971,7 +971,7 @@ object CharacterInnerLifeStore {
             }
         }
         val updated = JSONArray()
-        for (i in maxOf(0, past.length() - 11) until past.length()) updated.put(past.opt(i))
+        for (i in maxOf(0, past.length() - 59) until past.length()) updated.put(past.opt(i))
         updated.put(JSONObject()
             .put("id", decisionId).put("at", now.toString())
             .put("selected", selectedAction.take(90))
