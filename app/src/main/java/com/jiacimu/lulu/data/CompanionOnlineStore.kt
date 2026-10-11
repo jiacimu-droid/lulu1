@@ -190,6 +190,13 @@ object CompanionOnlineStore {
                     conversation.characterId, message.content, message.id
                 )
             }
+            // A connected call owns text replies to its own private conversation.
+            // Do not start a second asynchronous QQ reply for the same message.
+            if (conversation.groupChat == null &&
+                com.jiacimu.lulu.LuluVoiceCallSession.isActiveForChat(conversation.id)) {
+                recordActivity(conversation.characterId, now)
+                return
+            }
             appContext?.let { context ->
                 readers.distinct().filter(String::isNotBlank).forEach { reader ->
                     OnlineChatBatchStore.onUserBubble(context, reader, atMillis = now.toEpochMilli())
