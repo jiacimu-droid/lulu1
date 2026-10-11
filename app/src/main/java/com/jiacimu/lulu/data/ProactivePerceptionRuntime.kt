@@ -75,6 +75,7 @@ object ProactivePerceptionRuntime {
         val appraisal: JSONObject? = null,
         val motiveId: String = "",
         val curiosity: JSONObject? = null,
+        val relationshipInitiative: JSONObject? = null,
         val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
     )
@@ -91,6 +92,7 @@ object ProactivePerceptionRuntime {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
         PerceptionWakePlanStore.initialize(context.applicationContext)
         CharacterCuriosityRuntime.initialize(context.applicationContext)
+        CharacterRelationalInitiative.initialize(context.applicationContext)
         createNotificationChannels(context.applicationContext)
     }
 
@@ -554,6 +556,7 @@ object ProactivePerceptionRuntime {
                     CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
                 ))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
+                appendLine(CharacterRelationalInitiative.context(characterId, now, proactive = true))
                 appendLine(AutonomousActionTrace.render(
                     CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now,
                 ))
@@ -776,6 +779,10 @@ object ProactivePerceptionRuntime {
                 ?: "proactive-${now.toEpochMilli()}",
         )
         currentCoroutineContext().ensureActive()
+        CharacterRelationalInitiative.recordDecision(
+            characterId, decision.relationshipInitiative, decision.action.name.lowercase(),
+            execution.success, execution.summary, now,
+        )
         val actionEvidenceId = if (execution.success) {
             SharedExperienceTimeline.all(characterId).asReversed().firstOrNull {
                 it.id !in priorEvidence && it.speaker == character.displayName &&
@@ -1102,6 +1109,7 @@ object ProactivePerceptionRuntime {
             appraisal = json.optJSONObject("appraisal"),
             motiveId = json.optString("motiveId").trim(),
             curiosity = json.optJSONObject("curiosity"),
+            relationshipInitiative = json.optJSONObject("relationshipInitiative"),
             experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
         )
