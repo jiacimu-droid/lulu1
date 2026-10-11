@@ -52,10 +52,7 @@ object SharedExperienceTimeline {
                 recordConversationMessage(conversation, message, triggerExtraction = false)
             }
         }
-        // Backfilled evidence precedes this recovery. It does not fabricate any
-        // earlier learning or resend previously spoken words.
-        applicationContext?.let { CharacterEmotionalImprintRuntime.recoverRecent(it) }
-    }
+     }
 
     fun recordConversationMessage(
         conversation: LuluConversation,
