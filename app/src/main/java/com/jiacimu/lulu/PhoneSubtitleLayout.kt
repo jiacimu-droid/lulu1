@@ -60,10 +60,27 @@ internal object PhoneSubtitleLayout {
                 }
             }
             emitGroup()
-            if (grouped.size >= 2 && grouped.last().length < minReadable &&
-                grouped[grouped.lastIndex - 1].length + grouped.last().length <= preferred + 16) {
-                val tail = grouped.removeAt(grouped.lastIndex)
-                grouped[grouped.lastIndex] += tail
+            if (grouped.size >= 2 && grouped.last().length < minReadable) {
+                val lastIndex = grouped.lastIndex
+                val preceding = grouped[lastIndex - 1]
+                val tail = grouped[lastIndex]
+                // Prefer shifting a complete clause from the previous bubble.
+                // Merging everything into one 45-55-character bubble hides the
+                // character's speaking rhythm and makes each subtitle too long.
+                val boundaryChars = "，,。！？!?；;"
+                val cut = preceding.indices.reversed().firstOrNull { index ->
+                    preceding[index] in boundaryChars &&
+                        index + 1 >= minReadable &&
+                        preceding.length - index - 1 + tail.length >= minReadable &&
+                        preceding.length - index - 1 + tail.length <= preferred + 8
+                }
+                if (cut != null) {
+                    grouped[lastIndex - 1] = preceding.substring(0, cut + 1)
+                    grouped[lastIndex] = preceding.substring(cut + 1) + tail
+                } else if (preceding.length + tail.length <= preferred + 4) {
+                    grouped[lastIndex - 1] = preceding + tail
+                    grouped.removeAt(lastIndex)
+                }
             }
             result += grouped.map { it.trim() }.filter { it.isNotBlank() }
         }
