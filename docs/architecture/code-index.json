@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:02:07.464926+00:00",
-  "commit": "4de4a620adf961a1adc8f1ed54e29fe6bcc5efa3",
+  "generatedAt": "2026-10-11T05:23:54.547205+00:00",
+  "commit": "e24318a87c6d58f30b5b439dfca70b10fe5e67b2",
   "branch": "main",
-  "sourceFingerprint": "6f8727fb16837e87d171f8b80b8388f3f1ea9f2b680fb20a9405dee4f4802a90",
+  "sourceFingerprint": "eca73fd9dc48910c8aa92116d04955344e39ceabd9ab05d41267c19defd9a2ae",
   "summary": {
-    "files": 493,
-    "lines": 104650,
-    "symbols": 1553
+    "files": 494,
+    "lines": 104821,
+    "symbols": 1557
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3366,6 +3366,46 @@
         "line": 110
       }
     ],
+    "parse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
+        "line": 17
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+        "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
+        "line": 10
+      }
+    ],
+    "offer": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 78
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
+        "line": 41
+      }
+    ],
+    "latest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 108
+      }
+    ],
+    "CharacterSelfActivityWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 126
+      }
+    ],
     "CharacterSocialRelationshipSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
@@ -5574,12 +5614,6 @@
         "line": 23
       }
     ],
-    "offer": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 41
-      }
-    ],
     "activeFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -5964,20 +5998,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 431
-      }
-    ],
-    "parse": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
-        "line": 17
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
-        "line": 31
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
-        "line": 10
       }
     ],
     "EventEvidenceKind": [
@@ -11621,6 +11641,29 @@
         {
           "name": "developmentContext",
           "line": 110
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+      "lines": 171,
+      "sha256": "abcb599769fd5c74e781e97e48a417aa2d20d910276de021bfaf84bcad3b5a1f",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 34
+        },
+        {
+          "name": "offer",
+          "line": 78
+        },
+        {
+          "name": "latest",
+          "line": 108
+        },
+        {
+          "name": "CharacterSelfActivityWorker",
+          "line": 126
         }
       ]
     },
