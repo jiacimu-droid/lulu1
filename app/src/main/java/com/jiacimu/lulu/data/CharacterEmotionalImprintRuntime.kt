@@ -137,7 +137,11 @@ internal object CharacterEmotionalImprintRuntime {
         val appraisal = parsed.optJSONObject("appraisal")
         val inner = parsed.optJSONObject("innerLife")
         val thought = parsed.optString("innerThought").trim().take(400)
-        val changed = appraisal?.optJSONObject("pendingConcern") != null ||
+        // A model-authored, grounded interpretation is itself a private
+        // reflection even when it did not create an unresolved concern.
+        // Distinguish it in the trace from a stable trait or real action.
+        val changed = appraisal?.optString("meaning").orEmpty().isNotBlank() ||
+            appraisal?.optJSONObject("pendingConcern") != null ||
             inner != null || thought.isNotBlank()
         val now = Instant.now()
         if (changed) {
