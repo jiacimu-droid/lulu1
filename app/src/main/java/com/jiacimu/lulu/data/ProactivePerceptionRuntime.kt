@@ -160,6 +160,10 @@ object ProactivePerceptionRuntime {
                 if (CompanionPresenceStore.isInCall(characterId)) continue
                 val policy = ProactivePerceptionPolicyStore.get(characterId)
                 if (!policy.enabled && (!force || preserveOffline)) continue
+                // A lifestyle-review wake is not permission to disturb quiet
+                // hours just to produce a social post; unresolved cues persist.
+                if (trigger.startsWith("真实生活后续回想") &&
+                    isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                 if (!force) {
                     val due = dueAtFor(appContext, conversation, policy, prefs, now)
                     if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
