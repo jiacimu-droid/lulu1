@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:24:41.610630+00:00",
-  "commit": "654e4f96f23e1726a4b208a9acaef4f335c882f6",
+  "generatedAt": "2026-10-11T07:24:59.255153+00:00",
+  "commit": "319923e4b6e0e791c52c50df225ce35d8cd5c6c3",
   "branch": "main",
-  "sourceFingerprint": "e7e1811aba6205c28c81d28027877fdd343732312937bc2a05bdbbb3798c36f4",
+  "sourceFingerprint": "dc779aa7485d5f29fdf350c1fd52332675b3821c8532a3291a11eaddcc9c3597",
   "summary": {
     "files": 500,
-    "lines": 106119,
+    "lines": 106134,
     "symbols": 1578
   },
   "symbolIndex": {
@@ -3451,7 +3451,7 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 82
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -3461,19 +3461,19 @@
     "latestConsideration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 151
+        "line": 166
       }
     ],
     "latest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 157
+        "line": 172
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 186
+        "line": 201
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -11825,8 +11825,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 246,
-      "sha256": "e03e32571acabfef0f201d9f0bff50ff5cb86ac19873eea9c2f5662b6c1b8476",
+      "lines": 261,
+      "sha256": "44b6e9656005ca7b8b1e55b90f931a9b83129c34176abc3eae69faa42c6859aa",
       "symbols": [
         {
           "name": "parse",
@@ -11834,19 +11834,19 @@
         },
         {
           "name": "offer",
-          "line": 82
+          "line": 91
         },
         {
           "name": "latestConsideration",
-          "line": 151
+          "line": 166
         },
         {
           "name": "latest",
-          "line": 157
+          "line": 172
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 186
+          "line": 201
         }
       ]
     },
