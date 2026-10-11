@@ -251,7 +251,8 @@ object CompanionPresenceStore {
                 else -> ""
             },
         )
-        if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() && next.mood.isBlank()) {
+        if (next.statusText.isBlank() && next.gesture.isBlank() && next.innerThought.isBlank() &&
+            next.mood.isBlank() && next.momentReflection.isBlank()) {
             recordPerceptionAttempt(characterId, "模型返回了空状态", now)
             return
         }
