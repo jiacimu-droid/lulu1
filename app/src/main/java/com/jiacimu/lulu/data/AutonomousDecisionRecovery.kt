@@ -30,7 +30,7 @@ internal object AutonomousDecisionRecovery {
         // Preserve the original inner motive even when the model puts action args in its
         // alternative. Without this, an actual exploration could lose its curiosity thread.
         val choice = JSONObject(alt.toString()).put("reason", alt.optString("whyNow"))
-        listOf("curiosity", "innerLife", "intention", "motiveId").forEach { key ->
+        listOf("curiosity", "relationshipInitiative", "innerLife", "intention", "motiveId").forEach { key ->
             if (!choice.has(key) && json.has(key)) choice.put(key, json.opt(key))
         }
         return choice
