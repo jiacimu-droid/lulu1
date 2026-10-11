@@ -119,6 +119,26 @@ internal fun CompanionPresenceDialog(
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState, latestHeartMoment, latestThinkingMoment)
+                                    if (messageAnchor == null) {
+                                        CharacterSelfActivityRuntime.latest(context, characterId)?.let { activity ->
+                                            val created = activity.optLong("createdAt")
+                                            if (created > 0L && now.toEpochMilli() - created in 0L..(3 * 60 * 60_000L)) {
+                                                val status = when (activity.optString("status")) {
+                                                    "pending" -> "已决定 · 等待执行"
+                                                    "running" -> "正在真实执行"
+                                                    "completed" -> "已执行 · 有回执"
+                                                    "failed" -> "没有完成"
+                                                    else -> "尚未确认"
+                                                }
+                                                val lines = listOf(
+                                                    activity.optString("label"),
+                                                    activity.optString("whyNow").takeIf(String::isNotBlank),
+                                                    activity.optString("result").takeIf(String::isNotBlank),
+                                                ).filterNotNull().joinToString("\n")
+                                                PresenceDialogSection("自己的生活动作 · $status", lines)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
