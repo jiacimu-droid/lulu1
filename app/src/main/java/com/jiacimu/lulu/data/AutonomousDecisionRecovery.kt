@@ -12,6 +12,24 @@ internal object AutonomousDecisionRecovery {
         "没有(新消息|用户新消息|人找|人来找|用户消息|人说话|人联系)|没人(找|说话|联系)|等(她|他|用户|消息)|没(有)?事(情)?(可|要|能)做"
     )
     private val ownLifeActions = setOf("solo_game", "reading", "digital_world", "journal")
+    /** A second *choice*, never a forced action: only recover when silence is
+     * repeatedly justified by the absence of other people, not personal solitude. */
+    fun needsIndependentLifeReview(
+        silent: Boolean,
+        reason: String,
+        recentActions: List<String>,
+        hasPendingUserMessage: Boolean,
+    ): Boolean {
+        if (!silent || hasPendingUserMessage) return false
+        if (recentActions.takeLast(2).count { it.equals("silent", true) } < 2) return false
+        val explanation = reason.trim()
+        if (explanation.isBlank() || !noIncomingMessage.containsMatchIn(explanation)) return false
+        if (Regex("想独处|需要独处|享受安静|专心|想休息|困了|真的不想").containsMatchIn(explanation))
+            return false
+        return true
+    }
+
+
     /** Only salvage a fully closed private text field from truncated optional JSON. */
     fun completedPrivateMessage(raw: String): JSONObject? {
         val clean = raw.substringAfter('{', "").let { "{$it" }.trim()
