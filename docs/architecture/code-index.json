@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:01:20.084808+00:00",
-  "commit": "cd71cd7e856884c7507ceeb26be7ea5466bcec98",
+  "generatedAt": "2026-10-11T08:01:46.697491+00:00",
+  "commit": "6b7d0d2a61a03879edfab34c6f5552179bf77cea",
   "branch": "main",
-  "sourceFingerprint": "b6e2d4a6d8b11d185557ab4504479c9e5c3416527b60b513fc6470a33fd41be7",
+  "sourceFingerprint": "c3694276f2ec22a60f3bd139cc5644c538f408a6c0bd837df67cfb11ccba5333",
   "summary": {
     "files": 500,
-    "lines": 106229,
+    "lines": 106244,
     "symbols": 1580
   },
   "symbolIndex": {
@@ -1915,13 +1915,13 @@
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 246
+        "line": 252
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 324
+        "line": 334
       }
     ],
     "mute": [
@@ -2141,19 +2141,19 @@
     "sleepAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 64
+        "line": 69
       }
     ],
     "meetingSegment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 100
+        "line": 105
       }
     ],
     "slice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 139
+        "line": 144
       }
     ],
     "automaticAllowed": [
@@ -10474,8 +10474,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 796,
-      "sha256": "ec421b998e022edd156c1435cb15b38df2016613c62b127124f50fcb15d7aebd",
+      "lines": 806,
+      "sha256": "dcc0d2c3151db5b727b23cf87a2d844d2c17b5612bb9ec3d75b4121effe30ba3",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -10515,11 +10515,11 @@
         },
         {
           "name": "sendAndReceive",
-          "line": 246
+          "line": 252
         },
         {
           "name": "regenerateLatestReply",
-          "line": 324
+          "line": 334
         }
       ]
     },
@@ -10730,8 +10730,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-      "lines": 163,
-      "sha256": "71457a563329fc95c79d3bcfb687fe900b292b3a0a54709c5fea6ed3bc51b7b7",
+      "lines": 168,
+      "sha256": "c43fc7eb0426578057baae85638a02d892bf2b8fa9c21af7db59c8e6eecad864",
       "symbols": [
         {
           "name": "plain",
@@ -10755,15 +10755,15 @@
         },
         {
           "name": "sleepAudio",
-          "line": 64
+          "line": 69
         },
         {
           "name": "meetingSegment",
-          "line": 100
+          "line": 105
         },
         {
           "name": "slice",
-          "line": 139
+          "line": 144
         }
       ]
     },
