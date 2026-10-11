@@ -111,7 +111,7 @@ object ChatLexiconAutomation {
                 if (isProcessed(signature)) return@forEach
                 val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
                 lock.withLock {
-                    if (isProcessed(signature)) return@withLock
+                    if (isProcessed(signature) || !permitAttempt(signature)) return@withLock
                     val saved = extractAndSave(
                         characterId = characterId,
                         userText = userMessage.content,
@@ -139,7 +139,10 @@ object ChatLexiconAutomation {
             val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
             lock.withLock {
                 val sourceId = if (conversation.groupChat == null) message.id else "${message.id}:group:$characterId"
-                if (extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) markProcessed(signature)
+                if (permitAttempt(signature) &&
+                    extractAndSave(characterId, message.content, "", conversation.groupChat?.name, listOf(sourceId))) {
+                    markProcessed(signature)
+                }
             }
         }
     }
@@ -230,6 +233,18 @@ object ChatLexiconAutomation {
         }
         if (hasConcern) appContext?.let { ProactivePerceptionScheduler.scheduleConcernPromise(it, characterId) }
         return true
+    }
+
+    private fun permitAttempt(signature: String): Boolean {
+        val p = prefs ?: return false
+        val key = "attempt:${signature.hashCode()}"
+        val last = p.getLong("$key:at", 0L)
+        val count = p.getInt("$key:count", 0)
+        val now = System.currentTimeMillis()
+        // At most two attempts for one actual turn, separated by 15 minutes.
+        // Malformed JSON/failed network must not bill the next background tick.
+        if (count >= 2 || (last > 0 && now - last < 15 * 60_000L)) return false
+        return p.edit().putInt("$key:count", count + 1).putLong("$key:at", now).commit()
     }
 
     private fun isProcessed(signature: String): Boolean =
