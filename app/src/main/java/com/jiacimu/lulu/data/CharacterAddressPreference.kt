@@ -14,15 +14,27 @@ internal object CharacterAddressPreference {
         Regex("""(?:以后|今后|平时|日常)(?:你)?(?:就|可以)?(?:叫|喊|称呼)我[“「]?([\p{IsHan}A-Za-z]{1,8})"""),
         Regex("""(?:你)?(?:就|请|可以)?(?:叫|喊)我[“「]?([\p{IsHan}A-Za-z]{1,8})(?:[”」]?就好|[”」]?吧|[”」]?呀|[”」]?哦|[”」]?。|[”」]?$)"""),
     )
-    private val invalid = setOf("什么", "这个", "那个", "名字", "昵称", "称呼", "可以", "怎么", "不要", "不叫")
+    private val invalid = setOf("什么", "这个", "那个", "名字", "昵称", "称呼", "可以", "怎么", "不要", "不叫",
+        "起床", "起来", "醒醒", "醒来", "早起", "睡觉", "休息", "吃饭", "喝水", "学习", "复习", "提醒", "叫醒", "加油", "看看")
+    /** A request for an action ("叫我起床") is not a nickname.
+     * Never promote task verbs, wake calls or imperative utterances into a
+     * durable preferred form of address. The utterance can still create an
+     * alarm / commitment through its normal task parser.
+     */
+    private val actionCommands = Regex(
+        """(?:叫|喊|提醒|催|通知)我(?:起床|起来|醒醒|醒来|早起|睡觉|休息|吃饭|喝水|学习|复习|去|做|别|不要|记得|快|早点)"""
+    )
     fun extractExplicitAddress(message: String): String? {
         val text = message.trim().take(300)
         if (text.isBlank() || listOf("比如", "例如", "假设", "不是说", "开个玩笑", "引号里").any(text::contains)) return null
+        if (actionCommands.containsMatchIn(text)) return null
         if (text.contains("不喜欢") || text.contains("别叫我") || text.contains("不要叫我") ||
             text.contains("不想被叫") || text.contains("讨厌被叫")) return null
         val match = patterns.firstNotNullOfOrNull { it.find(text)?.groupValues?.getOrNull(1) }
             ?.trim()?.trimEnd('吗','呢','啊','了','吧','呀','哦') ?: return null
-        return match.takeIf { it.length in 1..8 && it !in invalid && !it.endsWith("什么") }
+        return match.takeIf { it.length in 1..8 && it !in invalid &&
+            !it.endsWith("什么") &&
+            !listOf("起床", "起来", "叫醒", "提醒", "开始", "以后").any(it::startsWith) }
     }
 
     fun observeUserMessage(characterId: String, message: String, eventId: String) {
