@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:20:04.314821+00:00",
-  "commit": "29e22f3681a0351590bac4a12cda932e92a7ca7b",
+  "generatedAt": "2026-10-11T07:21:10.566240+00:00",
+  "commit": "e589a30faf96019d818aa8cba7bf113fea17657b",
   "branch": "main",
-  "sourceFingerprint": "46849cef181176c6ac884ca127c5fe67f1608753050f29b8939404e42a751cdd",
+  "sourceFingerprint": "8b8cafa19af75fb386f55985c70f456fd4b2d4b208b574ff42aff6f93d0e30b5",
   "summary": {
-    "files": 499,
-    "lines": 105983,
-    "symbols": 1575
+    "files": 500,
+    "lines": 106068,
+    "symbols": 1576
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8502,6 +8502,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
         "line": 252
+      }
+    ],
+    "CharacterLifeFollowThroughStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
+        "line": 15
       }
     ],
     "CharacterLifeStoreTest": [
@@ -17924,6 +17930,17 @@
         {
           "name": "feeling",
           "line": 252
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt",
+      "lines": 85,
+      "sha256": "d537bbfcbe0e8b7302aaadf473253ae6e4f002015286640e5e93d48321634207",
+      "symbols": [
+        {
+          "name": "CharacterLifeFollowThroughStoreTest",
+          "line": 15
         }
       ]
     },
