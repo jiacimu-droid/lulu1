@@ -4,7 +4,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CharacterAccountabilityContextTest {
-    @Test fun jiangDuV6RetainsAllPreviouslyDefinedSemanticPillars() {
+    @Test fun jiangDuRetainsCoreTraitsWithoutHardCodingOldRolePlayNicknames() {
         val whole = buildString {
             appendLine(CharacterProfileSchema.jiangDuIdentity)
             appendLine(CharacterProfileSchema.jiangDuPersona)
@@ -18,10 +18,10 @@ class CharacterAccountabilityContextTest {
             "陌生", "好奇", "责任感", "迟疑", "吸引", "安全感", "真实行动", "可兑现承诺",
             "不自以为看穿", "嘴硬", "管教", "轻蔑", "冷暴力",
             "俏皮", "暧昧", "适度强势", "有城府", "害羞",
-            "主人", "公主殿下", "妻主大人", "冷笑话", "谐音",
+            "昵称", "冷笑话", "谐音",
             "不预设", "兴趣", "核心恐惧", "创伤", "占有欲",
         ).forEach { marker ->
-            assertTrue("江渡 v6 丢失旧设定语义：$marker", whole.contains(marker))
+            assertTrue("江渡丢失核心人格语义：$marker", whole.contains(marker))
         }
     }
 
