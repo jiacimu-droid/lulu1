@@ -251,7 +251,7 @@ private fun PresenceLivingMind(characterId: String) {
         it.takeIf { within && it.optString("feeling").isNotBlank() }
     }
     val thoughts = mind.optJSONArray("thoughts")
-    val recentThoughts = (0 until (thoughts?.length() ?: 0)).mapNotNull(thoughts::optJSONObject)
+    val recentThoughts = (0 until (thoughts?.length() ?: 0)).mapNotNull { thoughts?.optJSONObject(it) }
         .filter {
             val at = runCatching { Instant.parse(it.optString("at")) }.getOrNull()
             at != null && !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(24)
