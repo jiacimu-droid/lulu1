@@ -68,6 +68,9 @@ internal fun CompanionPresenceDialog(
     val latestHeartMoment = PresenceHistoryPresentation.latestVoice(
         displayState, displayHistory, messageAnchored = messageAnchor != null,
     )
+    val latestThinkingMoment = PresenceHistoryPresentation.latestReflection(
+        displayState, displayHistory, messageAnchored = messageAnchor != null,
+    )
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
         onDismiss()
@@ -115,7 +118,7 @@ internal fun CompanionPresenceDialog(
                                 Text(if (messageAnchor == null) "还没有留下此刻状态。" else "这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    PresenceStateContent(displayState, latestHeartMoment)
+                                    PresenceStateContent(displayState, latestHeartMoment, latestThinkingMoment)
                                 }
                             }
                         }
@@ -198,6 +201,7 @@ internal fun CompanionPresenceDialog(
 private fun PresenceStateContent(
     state: CompanionPresenceState,
     heartMoment: CompanionPresenceState?,
+    thoughtMoment: CompanionPresenceState?,
 ) {
     // Keep the active action/status separate from the most recent *authored*
     // inner voice. An old thought may be the latest one, but it must retain its
@@ -213,9 +217,18 @@ private fun PresenceStateContent(
             else "最近一次心声 · $time"
         PresenceDialogSection(label, voice)
     }
-    heartMoment?.momentReflection?.takeIf(String::isNotBlank)?.let {
-        PresenceDialogSection("那一刻的想法与顾虑", it)
+    thoughtMoment?.momentReflection?.takeIf(String::isNotBlank)?.let { detail ->
+        val date = thoughtMoment.updatedAt.atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+        PresenceDialogSection(
+            if (thoughtMoment.updatedAt == state.updatedAt) "此刻的小心思与顾虑"
+            else "最近的小心思与顾虑 · $date",
+            detail,
+        )
     }
+    // A chosen life activity is a real queued executor request, never merely
+    // the model's private prose. Only show its receipt on the live tab, not a
+    // historical message's anchored state.
     if (state.gesture.isBlank() && status.isBlank() && voice.isBlank()) {
         Text("这一刻还没有留下心声或动作。", color = Color(0xFF7A7A7E))
     }
