@@ -20,8 +20,12 @@ internal object EmotionFollowThroughCoordinator {
         "你没", "你没有", "你答应", "失约", "我不想", "你为什么", "我很烦",
         "骗我", "不信任", "为什么这样", "让我失望", "怎么能", "伤害我", "不在乎", "冷暴力", "辜负")
 
+    private val repair = listOf("抱抱", "我在", "我听你说", "听你说完", "陪着你", "别生气",
+        "不想让你难过", "慢慢说", "让我哄", "我会改", "下次我会", "放心", "别哭")
+
     fun qualifies(roleText: String, recentUserText: String): Boolean =
-        remorse.any(roleText::contains) && friction.any(recentUserText::contains)
+        friction.any(recentUserText::contains) &&
+            (remorse.any(roleText::contains) || repair.any(roleText::contains))
 
     fun onActualReply(
         context: Context,
@@ -33,7 +37,7 @@ internal object EmotionFollowThroughCoordinator {
         if (conversation.groupChat != null || reply.sender != LuluChatMessage.Sender.Character ||
             reply.status != LuluChatMessage.Status.Sent) return
         val id = reply.authorCharacterId?.takeIf(String::isNotBlank) ?: conversation.characterId
-        if (id.isBlank() || !ProactivePerceptionPolicyStore.get(id).enabled) return
+        if (id.isBlank()) return
         val recentUser = messages.asReversed().asSequence()
             .filter { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent &&
                 !it.createdAt.isAfter(reply.createdAt) &&
@@ -47,6 +51,13 @@ internal object EmotionFollowThroughCoordinator {
         val previous = prefs.getLong(key, 0L)
         if (previous > 0 && Duration.between(Instant.ofEpochMilli(previous), now).toMinutes() < 30) return
         if (!prefs.edit().putLong(key, now.toEpochMilli()).commit()) return
+
+        // Grounded one-off imprint is separate from the optional online
+        // autonomy switch. A significant argument can leave a private memory
+        // even when the user disabled unsolicited actions.
+        CharacterEmotionalImprintRuntime.request(
+            context.applicationContext, id, reply.id, recentUser.map { it.id },
+        )
 
         // The character has ACTUALLY expressed remorse. Its reply, not an LLM's
         // optional hidden JSON, is the evidence for this modest subjective state.
@@ -68,7 +79,8 @@ internal object EmotionFollowThroughCoordinator {
         }
         // One extra choice during the online window. Silence remains a valid
         // choice, but it must result from an actual model decision.
-        val onlineQueued = CompanionOnlineStore.isOnline(id, now) && runCatching {
+        val onlineQueued = ProactivePerceptionPolicyStore.get(id).enabled &&
+            CompanionOnlineStore.isOnline(id, now) && runCatching {
             ProactivePerceptionScheduler.scheduleOnlineReflection(
                 context.applicationContext, id,
                 "刚经历真实关系冲突并表达歉意：检视持续情绪与真实后果，自主选择修复、日记、动态、继续沟通或暂时独处；不强迫公开道歉。",
@@ -77,7 +89,7 @@ internal object EmotionFollowThroughCoordinator {
         }.isSuccess
         // Independent durable work survives process death and can act after
         // logout. It does not falsely renew the five-minute online window.
-        val offlineQueued = runCatching {
+        val offlineQueued = ProactivePerceptionPolicyStore.get(id).enabled && runCatching {
             ProactivePerceptionScheduler.scheduleEmotionalAftercare(
                 context.applicationContext, id, delayMillis = 420_000L,
             )
