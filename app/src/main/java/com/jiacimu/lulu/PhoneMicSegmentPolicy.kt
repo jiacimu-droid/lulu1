@@ -9,9 +9,9 @@ internal object PhoneMicSegmentPolicy {
     const val MAX_UPLOAD_BYTES = SAMPLE_RATE * 2 * 12
 
     fun silenceMs(utteranceFrames: Int, configured: Int): Int = when {
-        utteranceFrames >= 50 -> configured.coerceIn(1_700, 3_500)
-        utteranceFrames >= 20 -> configured.coerceIn(1_200, 3_500)
-        else -> configured.coerceIn(850, 3_500)
+        utteranceFrames >= 50 -> configured.coerceIn(2_200, 4_500)
+        utteranceFrames >= 20 -> configured.coerceIn(1_900, 4_500)
+        else -> configured.coerceIn(1_450, 4_500)
     }
 
     fun finishedBySilence(silentFrames: Int, utteranceFrames: Int, configured: Int): Boolean =
@@ -19,10 +19,10 @@ internal object PhoneMicSegmentPolicy {
 
     /** Room-noise-adaptive start and stop levels; no remote VAD model/API. */
     fun startThreshold(configured: Float, ambientRms: Double): Double =
-        maxOf(configured.toDouble(), ambientRms * 1.22)
+        maxOf(configured.toDouble(), ambientRms * 1.15)
 
     fun quietThreshold(configured: Float, ambientRms: Double, peakRms: Double): Double =
-        maxOf(configured * 0.80, ambientRms * 1.35, peakRms * 0.22)
+        maxOf(configured * 0.72, ambientRms * 1.28, peakRms * 0.20)
 
     /** If the mic keeps reporting flat background noise, submit the utterance
      * instead of leaving ASR waiting indefinitely for an end-of-turn marker. */
@@ -30,7 +30,11 @@ internal object PhoneMicSegmentPolicy {
         averageRms > 0.0 && variation <= maxOf(30.0, averageRms * 0.14)
 
     fun stationaryNoiseEnded(steadyFrames: Int, utteranceFrames: Int): Boolean =
-        steadyFrames >= 23 && utteranceFrames >= 25
+        steadyFrames >= 36 && utteranceFrames >= 40
+
+    /** A clear but very short whispered name can be a complete valid onset. */
+    fun onsetFrames(rms: Double, threshold: Double): Int =
+        if (rms >= threshold * 1.65) 1 else 2
 
     /** Even an empty PCM buffer needs a final marker when earlier chunks
      * already left the recorder and the user pressed mute.
