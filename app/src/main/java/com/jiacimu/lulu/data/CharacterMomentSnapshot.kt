@@ -58,7 +58,7 @@ internal object CharacterMomentSnapshot {
         if (thoughts != null) for (i in 0 until minOf(thoughts.length(), 3)) {
             val thought = thoughts.optJSONObject(i) ?: continue
             add(thought.optString("thought"), 72)
-            if (ideas.isEmpty()) add(thought.optString("hesitation"), 72)
+            if (ideas.size < 2) add(thought.optString("hesitation"), 72)
         }
         // An actual doubt is valid, but only a fallback. Do not replace two
         // adorable concrete ideas with "I should respect her boundaries".
