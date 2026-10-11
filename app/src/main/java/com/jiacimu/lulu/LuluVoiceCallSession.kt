@@ -289,7 +289,7 @@ internal object LuluVoiceCallSession {
         val nextMuted = !mutableState.value.microphoneMuted
         // A mute click means "I'm done"—freeze the recognizer's last words.
         val pendingSystemSpeech = if (nextMuted && realtime == null && providerInput == null)
-            PhoneTranscriptAssembler.combine(systemUtteranceBuffer, systemPartialCandidate).trim()
+            SystemSpeechTurnPolicy.wordsToSubmitOnMute(systemUtteranceBuffer, systemPartialCandidate)
         else ""
         mutableState.update {
             it.copy(
