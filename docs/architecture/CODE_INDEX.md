@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`eba4428fe35c1e2d1a7de54c00d2f622fa990217`
+- 基准提交：`b4bde62553e3dd15ac38fdaf86571f357d0ea002`
 - 分支：`main`
-- 已索引文件：514
-- 已索引代码/文本行：108294
-- 已发现符号：1619
+- 已索引文件：516
+- 已索引代码/文本行：108353
+- 已发现符号：1621
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -104,6 +104,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 38 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 19 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 47 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 97 | 6 |
@@ -432,6 +433,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 41 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |

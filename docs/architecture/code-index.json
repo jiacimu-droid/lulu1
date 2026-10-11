@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:31:01.252666+00:00",
-  "commit": "eba4428fe35c1e2d1a7de54c00d2f622fa990217",
+  "generatedAt": "2026-10-11T16:31:16.624962+00:00",
+  "commit": "b4bde62553e3dd15ac38fdaf86571f357d0ea002",
   "branch": "main",
-  "sourceFingerprint": "eea36b3b0121b836b10488db08b21420185785728ce5bf345aa91ee2da88246b",
+  "sourceFingerprint": "22d25fe8ea21e43280e2058e3edbd4623afd43adee292b9054ee64ba1782ca82",
   "summary": {
-    "files": 514,
-    "lines": 108294,
-    "symbols": 1619
+    "files": 516,
+    "lines": 108353,
+    "symbols": 1621
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1802,6 +1802,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
         "line": 38
+      }
+    ],
+    "isLikelyPlaybackEcho": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
+        "line": 15
       }
     ],
     "silenceMs": [
@@ -8482,6 +8488,12 @@
         "line": 10
       }
     ],
+    "PhoneBargeInPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt",
+        "line": 5
+      }
+    ],
     "PhoneCallTranscriptFilterTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt",
@@ -10544,6 +10556,17 @@
         {
           "name": "OptimizedPerformanceFeatureScreen",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
+      "lines": 32,
+      "sha256": "d29fb7e3562f8883062373305c01481269cc7c5f3bc04f8d1eafda34d2e7075c",
+      "symbols": [
+        {
+          "name": "isLikelyPlaybackEcho",
+          "line": 15
         }
       ]
     },
@@ -17967,6 +17990,17 @@
         {
           "name": "PerceptionStatusPresentationTest",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt",
+      "lines": 27,
+      "sha256": "9dcb3b53581f90509e8a53db89d35ac3df7ddc7dda67d38e3cd4d8a8d1e04819",
+      "symbols": [
+        {
+          "name": "PhoneBargeInPolicyTest",
+          "line": 5
         }
       ]
     },
