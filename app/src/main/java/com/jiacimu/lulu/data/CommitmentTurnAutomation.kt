@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 object CommitmentTurnAutomation {
     private const val PREFS_NAME = "lulu_commitment_turns"
     private const val KEY_SIGNATURES = "processed_signatures_v1"
-    private const val QUIET_WINDOW_MS = 2_500L
+    private const val QUIET_WINDOW_MS = 5_000L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val jobs = mutableMapOf<String, Job>()
@@ -62,19 +62,13 @@ object CommitmentTurnAutomation {
     }
 
     private suspend fun retryTransientExtraction(operation: suspend () -> Unit) {
-        repeat(3) { attempt ->
-            try {
-                operation()
-                return
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (failure: Exception) {
-                // Model errors were already logged by the gateway. Never
-                // acknowledge a turn on failure; retry a few times, and if
-                // still down, it remains unprocessed on the next observation.
-                if (attempt == 2) return
-                delay(2_000L * (attempt + 1))
-            }
+        try {
+            operation()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // A transient failure is not permission for three back-to-back
+            // expensive calls. The next genuinely new event may retry.
         }
     }
 
@@ -113,6 +107,11 @@ object CommitmentTurnAutomation {
     }
 
     private suspend fun inspectLatestTurn(conversation: LuluConversation) {
+        while (ChatGenerationActivity.isRunning(conversation.id) ||
+            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) {
+            delay(750L)
+        }
+        delay(1_200L)
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         reconcileDeletedSources(conversation.id, messages)
         val userIndex = messages.indexOfLast { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent }
@@ -139,7 +138,7 @@ object CommitmentTurnAutomation {
             val characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim()
             if (!looksLikeTaskTurn(combinedUserText, characterText)) return@forEach
             val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
-            val signature = "$sourceTurnId:${characterText.hashCode()}"
+            val signature = "commitment-turn-v2:$sourceTurnId"
             if (isProcessed(signature)) return@forEach
 
             val active = CommitmentTaskStore.active(characterId)
@@ -187,7 +186,13 @@ object CommitmentTurnAutomation {
 
 private fun looksLikeTaskTurn(userText: String, characterText: String): Boolean {
     val text = "$userText\n$characterText"
-    return commitmentTurnSignals.any { signal -> text.contains(signal, ignoreCase = true) }
+    // Generic chat phrases like "我会" or "等会儿" are not enough
+    // to justify a paid scheduling-model call or a new promise.
+    val broad = setOf("我会", "我来", "记得", "今晚", "明天", "一会儿", "等会儿",
+        "待会儿", "稍后", "说好", "负责")
+    return commitmentTurnSignals.any { signal ->
+        signal !in broad && text.contains(signal, ignoreCase = true)
+    }
 }
 
 private fun looksLikeImmediateTaskUpdate(text: String): Boolean = immediateTaskUpdateSignals.any { signal ->
