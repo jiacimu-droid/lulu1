@@ -10,14 +10,17 @@ internal object CallVoiceConfiguration {
     fun usesAgent(provider: String, mode: String?): Boolean = provider == "elevenlabs" && mode == "agent"
     /** Speech-to-text is independent of the provider that speaks for the character. */
     fun resolveSttEngine(mode: String, androidAvailable: Boolean, groqConfigured: Boolean,
-        ttsProvider: String, minimaxConfigured: Boolean = ttsProvider == "minimax"): String = when (mode) {
+        ttsProvider: String, minimaxConfigured: Boolean = ttsProvider == "minimax",
+        elevenConfigured: Boolean = false): String = when (mode) {
         "system" -> "system"
         "groq" -> "groq"
         "minimax" -> "minimax"
+        "elevenlabs" -> "elevenlabs"
         else -> when {
             androidAvailable -> "system" // free or OS-managed service first
             groqConfigured -> "groq"
             minimaxConfigured -> "minimax"
+            elevenConfigured -> "elevenlabs"
             else -> "unavailable"
         }
     }
@@ -26,12 +29,14 @@ internal object CallVoiceConfiguration {
         val available = SpeechRecognizer.isRecognitionAvailable(context)
         return resolveSttEngine(p.getString("call_stt_mode", "auto").orEmpty(),
             available, p.getString("groq_asr_key", "").orEmpty().isNotBlank(), provider(context),
-            minimaxConfigured = p.getString("minimax_api_key", "").orEmpty().isNotBlank())
+            minimaxConfigured = p.getString("minimax_api_key", "").orEmpty().isNotBlank(),
+            elevenConfigured = p.getString("eleven_api_key", "").orEmpty().isNotBlank())
     }
     fun sttLabel(engine: String): String = when (engine) {
         "groq" -> "Groq Whisper"
         "system" -> "手机系统识别"
         "minimax" -> "MiniMax 识别"
+        "elevenlabs" -> "ElevenLabs Scribe"
         else -> "尚未配置"
     }
     fun label(provider: String): String = when (provider) { "minimax" -> "MiniMax"; "elevenlabs" -> "ElevenLabs"; else -> "系统语音" }
@@ -54,6 +59,8 @@ internal object CallVoiceConfiguration {
                 return "请到语音设置填写 Groq API Key（识别语音，与 ElevenLabs 音色无关）"
             "minimax" -> if (p.getString("minimax_api_key", "").orEmpty().isBlank())
                 return "请配置 MiniMax 识别 API Key，或选择 Groq Whisper"
+            "elevenlabs" -> if (p.getString("eleven_api_key", "").orEmpty().isBlank())
+                return "请在 ElevenLabs 语音服务设置中配置 API Key，Scribe 识别会使用你的积分"
             else -> return "手机未提供系统语音识别；请在语音设置里选择并配置 Groq Whisper"
         }
         val key = p.getString(if (provider == "minimax") "minimax_api_key" else "eleven_api_key", "").orEmpty()
