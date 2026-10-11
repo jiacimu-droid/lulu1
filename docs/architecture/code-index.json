@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:49:51.181960+00:00",
-  "commit": "dd3026458de195397f6de5ced53518704c277501",
+  "generatedAt": "2026-10-11T06:50:26.769452+00:00",
+  "commit": "81ffea2912fba81badc5e5bcfb66f1400474227a",
   "branch": "main",
-  "sourceFingerprint": "51d0ddc31ac5ba5204acb561dc60c0649dd18818fcd25c21c6152d7a1ba10895",
+  "sourceFingerprint": "3440e9177c9811f06bfec72db84b123fb8657658ffc292d4031c6a398336b6ba",
   "summary": {
     "files": 498,
-    "lines": 105687,
+    "lines": 105692,
     "symbols": 1565
   },
   "symbolIndex": {
@@ -3205,13 +3205,13 @@
     "reflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 12
+        "line": 19
       }
     ],
     "add": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 21
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -3225,19 +3225,19 @@
     "latestVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 83
+        "line": 88
       }
     ],
     "latestReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 97
+        "line": 102
       }
     ],
     "entries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 112
+        "line": 117
       }
     ],
     "result": [
@@ -11521,28 +11521,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 127,
-      "sha256": "7a670ead188e39e7cfaa9a8b9608d94244c9c114089233655da82dbffab1a90f",
+      "lines": 132,
+      "sha256": "f663d029210bafd8878a886e0cd9b8dc115e2d2d0a019dce1d2af8a5aedf4137",
       "symbols": [
         {
           "name": "reflection",
-          "line": 12
+          "line": 19
         },
         {
           "name": "add",
-          "line": 21
+          "line": 28
         },
         {
           "name": "latestVoice",
-          "line": 83
+          "line": 88
         },
         {
           "name": "latestReflection",
-          "line": 97
+          "line": 102
         },
         {
           "name": "entries",
-          "line": 112
+          "line": 117
         }
       ]
     },
