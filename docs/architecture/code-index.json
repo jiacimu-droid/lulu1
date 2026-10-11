@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T09:09:23.492835+00:00",
-  "commit": "be1dc853d44977dea66b9fab7203b2b2d2dea5d6",
+  "generatedAt": "2026-10-11T09:09:38.512988+00:00",
+  "commit": "9a77cf763ce90a436f20559fdad245e1c1d25d94",
   "branch": "main",
-  "sourceFingerprint": "a3ed1fb1f4c3d487c3975d102940308b200ea1cd569ff102b5d8d5359fbf4ac6",
+  "sourceFingerprint": "464b781e048e6b9fff04d64ebe4fbd3785d41e1658c4c7d381f47d16f11613fd",
   "summary": {
     "files": 502,
-    "lines": 106647,
-    "symbols": 1589
+    "lines": 106670,
+    "symbols": 1590
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8454,6 +8454,16 @@
         "line": 14
       }
     ],
+    "event": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
+        "line": 38
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
+        "line": 32
+      }
+    ],
     "AutonomousAffordanceContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
@@ -8626,12 +8636,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 6
-      }
-    ],
-    "event": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 32
       }
     ],
     "CharacterRelationalInitiativeTest": [
@@ -17841,12 +17845,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt",
-      "lines": 44,
-      "sha256": "09b0cea86003238d014271babae15905f01b7cc8303ad037fed8b376552e1f85",
+      "lines": 67,
+      "sha256": "373aeb869727fbe864af3392bce689cd85f14fc917cc031e0ef116c6a9e66887",
       "symbols": [
         {
           "name": "AutonomousActionTraceTest",
           "line": 14
+        },
+        {
+          "name": "event",
+          "line": 38
         }
       ]
     },
