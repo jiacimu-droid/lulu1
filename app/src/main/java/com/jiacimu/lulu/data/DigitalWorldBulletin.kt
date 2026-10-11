@@ -43,6 +43,8 @@ internal object DigitalWorldBulletin {
                 event.kind in setOf(
                     "home_created", "build_home_item", "home_item_built",
                     "item_built", "item_created", "item_removed",
+                    "remove_home_item", "visit_received", "visit_character_home",
+                    "handle_incident",
                     "location_discovered", "new_location",
                 ) || event.kind.startsWith("resident_") ||
                     event.kind.startsWith("world_expansion")
