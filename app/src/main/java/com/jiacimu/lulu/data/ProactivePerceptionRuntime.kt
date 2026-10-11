@@ -663,6 +663,12 @@ object ProactivePerceptionRuntime {
                 decision.action != Action.SILENT,
         )
         val causalEvidenceId = when {
+            // The user owns the reply lane. Persist subjective state against the
+            // real input message instead of the synthetic combined world+chat ID.
+            messageStimulus != null &&
+                SharedExperienceTimeline.eventsByIds(characterId, listOf(messageStimulus.evidenceId)).isNotEmpty() ->
+                messageStimulus.evidenceId
+            salientInteraction != null -> salientInteraction.id
             stimulus != null -> stimulus.evidenceId
             previousEvidence.isNotBlank() -> previousEvidence
             awakeReflection -> awakeObservationId
