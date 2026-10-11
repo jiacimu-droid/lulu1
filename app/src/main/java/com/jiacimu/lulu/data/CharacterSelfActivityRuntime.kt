@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit
  */
 internal object CharacterSelfActivityRuntime {
     private const val PREFS = "lulu_own_activity_followthrough_v1"
-    private const val MAX_AGE_MS = 60 * 60_000L
     private const val REPEAT_WINDOW_MS = 10 * 60_000L
 
     internal data class Proposal(val tool: String, val args: JSONObject, val label: String) {
@@ -83,8 +82,15 @@ internal object CharacterSelfActivityRuntime {
     fun offer(context: Context, characterId: String, appraisal: JSONObject?, evidenceId: String = ""): Boolean {
         if (characterId.isBlank()) return false
         val intended = appraisal?.optJSONObject("ownActivity") ?: return false
-        val books = ReadingBackgroundBridge.availableBooks(context, characterId).mapTo(hashSetOf()) { it.id }
-        val selected = parse(intended, books, DigitalLifeProfileStore.isEnabled(characterId)) ?: return false
+        val available = if (intended.optString("action") == "reading")
+            ReadingBackgroundBridge.availableBooks(context, characterId) else emptyList()
+        val books = available.mapTo(hashSetOf()) { it.id }
+        val candidate = parse(intended, books, DigitalLifeProfileStore.isEnabled(characterId)) ?: return false
+        val selected = if (candidate.tool == "read_book") {
+            val title = available.firstOrNull { it.id == intended.optString("readingBookId") }?.title
+                ?: return false
+            candidate.copy(label = "翻开《${title.take(90)}》")
+        } else candidate
         val whyNow = intended.optString("whyNow").trim().take(200)
         if (whyNow.length < 3) return false
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -173,11 +179,17 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
                 outcome.optString("error").ifBlank { "执行器没有确认结果" }
             }
             CharacterSelfActivityRuntime.markResult(applicationContext, characterId, id, success, summary)
-            if (!success) {
-                CompanionPresenceStore.update(
-                    characterId, "想做的事还没完成：${summary.take(110)}", "",
-                    null, null, "自主活动·未完成")
-            }
+            // The factual tool receipt precedes any psychological conclusion.
+            // Decisions remain private, revisable records; only executor proof can
+            // say an action actually took place.
+            CharacterInnerLifeStore.recordDecision(
+                characterId = characterId, decisionId = "self-activity-$id",
+                selectedAction = entry.optString("tool"),
+                reason = entry.optString("whyNow"), chosenMotiveId = "",
+                alternatives = null, outcome = summary, succeeded = success,
+                actionSignature = entry.optString("signature"),
+                causalEvidenceId = entry.optString("evidenceId"),
+            )
             Result.success()
         } catch (error: Exception) {
             if (error is kotlinx.coroutines.CancellationException) throw error
