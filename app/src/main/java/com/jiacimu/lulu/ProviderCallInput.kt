@@ -170,7 +170,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 if (epoch == generation && completed) {
                     onCaptureFinished()
                     recognizer.finishUtterance()
-                    onStatus("Scribe Realtime 正在确认完整语句…")
+                    // Reuse the existing call session's recognition-pending marker:
+                    // the mic turn is finished, but the committed transcript has not arrived.
+                    onStatus("识别完整语句中（Scribe Realtime）…")
                 }
             },
             onError = { message ->
