@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d4198ac58f2a48f261fd7236be01b08e2de84a57`
+- 基准提交：`a41502892c747d36aa764f67de942a8d7b390eed`
 - 分支：`main`
 - 已索引文件：492
-- 已索引代码/文本行：104226
-- 已发现符号：1544
+- 已索引代码/文本行：104380
+- 已发现符号：1549
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -160,10 +160,10 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 100 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 200 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1217 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1233 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 619 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 136 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 234 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 65 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 135 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 87 | 1 |
@@ -455,7 +455,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 375 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 320 | 6 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 89 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 49 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt` | 35 | 1 |
