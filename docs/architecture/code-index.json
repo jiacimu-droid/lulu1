@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:21:26.542662+00:00",
-  "commit": "a73e37dfdbaf01bc87fa41369c42fefb676e21f1",
+  "generatedAt": "2026-10-11T07:22:45.268270+00:00",
+  "commit": "cccca2744bc74959e5f77e7d389dff1b0abea163",
   "branch": "main",
-  "sourceFingerprint": "ba5c45e5ea02e20124121490a945ccf9ae9dd9f60e6254e7ccafc9253d3808a2",
+  "sourceFingerprint": "2da093d3f678734dde89eb99369986e0b76fca2f061020b6a7d656e067926b29",
   "summary": {
     "files": 500,
-    "lines": 106068,
-    "symbols": 1576
+    "lines": 106095,
+    "symbols": 1577
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -311,7 +311,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 92
+        "line": 115
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2989,7 +2989,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 69
+        "line": 91
       }
     ],
     "invalidateEvidenceForAll": [
@@ -3199,25 +3199,31 @@
     "register": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 49
+        "line": 58
+      }
+    ],
+    "markSignificant": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 82
       }
     ],
     "hasOpenOpportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 88
+        "line": 111
       }
     ],
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 121
+        "line": 148
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 135
+        "line": 162
       }
     ],
     "CharacterLifeStore": [
@@ -11543,8 +11549,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 151,
-      "sha256": "f325f1517476cfd2c70b75c5f8bc6cc5e0c59423ff204dba838b5aa62f610b9c",
+      "lines": 178,
+      "sha256": "4cb77a99e2a9d57cc8531851e0dfeed667497a10f813143b83ea912c09b2707b",
       "symbols": [
         {
           "name": "initialize",
@@ -11552,27 +11558,31 @@
         },
         {
           "name": "register",
-          "line": 49
+          "line": 58
+        },
+        {
+          "name": "markSignificant",
+          "line": 82
         },
         {
           "name": "invalidateEvidence",
-          "line": 69
+          "line": 91
         },
         {
           "name": "hasOpenOpportunity",
-          "line": 88
+          "line": 111
         },
         {
           "name": "context",
-          "line": 92
+          "line": 115
         },
         {
           "name": "recordShareWish",
-          "line": 121
+          "line": 148
         },
         {
           "name": "recordAction",
-          "line": 135
+          "line": 162
         }
       ]
     },
