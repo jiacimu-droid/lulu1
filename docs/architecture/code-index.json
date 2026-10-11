@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:14:25.913287+00:00",
-  "commit": "e96369aa26377d15d66de54a6c99bcfc2f454989",
+  "generatedAt": "2026-10-11T12:17:39.876188+00:00",
+  "commit": "fbf840d883ba15b69e9f6e789db96e18ba34b7a3",
   "branch": "main",
-  "sourceFingerprint": "dc5c382eef8ac7a6eacfeab02bdf1474865521470d3edb9dea88ee36b49c2608",
+  "sourceFingerprint": "ada1925e2654ed49e93d13c601a32d264e8f3c4f64c7e2a24a8d075f4c640449",
   "summary": {
     "files": 504,
-    "lines": 107073,
-    "symbols": 1599
+    "lines": 107114,
+    "symbols": 1601
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1102,10 +1102,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
         "line": 802
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 12
       }
     ],
     "forScene": [
@@ -1765,7 +1761,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 8
+        "line": 11
       }
     ],
     "time": [
@@ -1834,16 +1830,34 @@
         "line": 40
       }
     ],
+    "appendParagraph": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 16
+      }
+    ],
+    "emitClause": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 22
+      }
+    ],
+    "emitGroup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 40
+      }
+    ],
     "captionRows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 33
+        "line": 74
       }
     ],
     "format": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 36
+        "line": 77
       }
     ],
     "pauseBeforeNextLine": [
@@ -10452,24 +10466,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-      "lines": 39,
-      "sha256": "cca616afa2dcb3f05a9ec5bf26c011e72dae8fb01c61cbf227bb5e4e51347fd5",
+      "lines": 80,
+      "sha256": "8d7802948b97f9bf7e7c9e20d587f0a519b6963a9eb0b78adfcb5a39f4224a8b",
       "symbols": [
         {
           "name": "lines",
-          "line": 8
+          "line": 11
         },
         {
-          "name": "flush",
-          "line": 12
+          "name": "appendParagraph",
+          "line": 16
+        },
+        {
+          "name": "emitClause",
+          "line": 22
+        },
+        {
+          "name": "emitGroup",
+          "line": 40
         },
         {
           "name": "captionRows",
-          "line": 33
+          "line": 74
         },
         {
           "name": "format",
-          "line": 36
+          "line": 77
         }
       ]
     },
