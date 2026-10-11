@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9f6f70b1b689e99f467261c63ac1780c3949427f`
+- 基准提交：`cb1dfb8ab7a25cbe4e344899f9021cd58a07a997`
 - 分支：`main`
-- 已索引文件：496
-- 已索引代码/文本行：105290
+- 已索引文件：497
+- 已索引代码/文本行：105440
 - 已发现符号：1563
 
 | 文件 | 行数 | 符号数 |
@@ -40,6 +40,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 355 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DesktopWorldBulletinCard.kt` | 150 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureStickerUi.kt` | 881 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt` | 35 | 2 |
