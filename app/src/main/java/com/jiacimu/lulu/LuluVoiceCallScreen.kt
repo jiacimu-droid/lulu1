@@ -395,19 +395,24 @@ fun LuluVoiceCallScreen(
 
 @Composable
 private fun CallCaptionLines(speaker: String, content: String, mine: Boolean, live: Boolean = false) {
-    // LazyItemScope.animateItem() cannot be called inside a standalone composable.
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PhoneSubtitleLayout.lines(content).forEach { line ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                Text(
-                    "$speaker：",
-                    color = if (mine) CallBlue else Color(0xFF9A6BB5),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = if (live) 13.sp else 14.sp,
-                )
+    // One speaker label per actual call message/utterance. Caption wrapping
+    // and playback-progress segments are *not* new turns by the character.
+    val lines = PhoneSubtitleLayout.lines(content)
+    if (lines.isEmpty()) return
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+        Text(
+            "$speaker：",
+            color = if (mine) CallBlue else Color(0xFF9A6BB5),
+            fontWeight = FontWeight.Bold,
+            fontSize = if (live) 13.sp else 14.sp,
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            lines.forEach { line ->
                 Text(
                     line,
-                    modifier = Modifier.weight(1f),
                     color = if (live) CallMuted else CallInk,
                     fontSize = if (live) 14.sp else 15.sp,
                     lineHeight = 23.sp,
