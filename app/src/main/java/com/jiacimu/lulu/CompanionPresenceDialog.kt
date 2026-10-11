@@ -47,7 +47,7 @@ internal fun CompanionPresenceDialog(
     val displayHistory = remember(history, messageAnchor?.messageAt) {
         if (messageAnchor == null) history else history.filter { it.updatedAt <= messageAnchor.messageAt }
     }
-    var historySelected by remember { mutableStateOf(false) }
+    var selectedTab by remember(characterId) { mutableIntStateOf(0) }
     var manualCheckRequested by remember { mutableStateOf(false) }
     val plans by PerceptionWakePlanStore.plans.collectAsState()
     val schedulingError by PerceptionWakePlanStore.schedulingError.collectAsState()
@@ -107,12 +107,13 @@ internal fun CompanionPresenceDialog(
                     }
                     item(key = "tabs") {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(selected = !historySelected, onClick = { historySelected = false }, label = { Text("当前") })
-                            FilterChip(selected = historySelected, onClick = { historySelected = true }, label = { Text("历史") })
+                            FilterChip(selected = selectedTab == 0, onClick = { selectedTab = 0 }, label = { Text("当前") })
+                            FilterChip(selected = selectedTab == 1, onClick = { selectedTab = 1 }, label = { Text("历史") })
+                            FilterChip(selected = selectedTab == 2, onClick = { selectedTab = 2 }, label = { Text("成长轨迹") })
                         }
                     }
 
-                    if (!historySelected) {
+                    if (selectedTab == 0) {
                         item(key = "current") {
                             if (displayState == null) {
                                 Text(if (messageAnchor == null) "还没有留下此刻状态。" else "这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
@@ -142,7 +143,7 @@ internal fun CompanionPresenceDialog(
                                 }
                             }
                         }
-                    } else {
+                    } else if (selectedTab == 1) {
                         if (past.isEmpty()) {
                             item(key = "empty-history") {
                                 Text("还没有留下可查看的历史状态。", color = Color(0xFF7A7A7E))
@@ -176,9 +177,13 @@ internal fun CompanionPresenceDialog(
                         item(key = "mental-archive") {
                             PresenceMentalHistory(characterId, messageAnchor?.messageAt)
                         }
+                    } else {
+                        item(key = "growth-trail") {
+                            PresenceGrowthTrajectory(characterId, messageAnchor?.messageAt ?: now)
+                        }
                     }
 
-                    if (messageAnchor == null) {
+                    if (messageAnchor == null && selectedTab != 2) {
                         item(key = "awareness") {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 PerceptionStatusPresentation.lines(state, policy, plans[characterId],
@@ -257,6 +262,35 @@ private fun PresenceStateContent(
             .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
         color = Color(0xFF7A7A7E), fontSize = 11.sp,
     )
+}
+
+/**
+ * The trace is a projection of real timeline evidence, personal revisions and
+ * the existing growth store. It never fabricates a diary or assumes that a
+ * feedback message means the character has already learned.
+ */
+@Composable
+private fun PresenceGrowthTrajectory(characterId: String, cutoff: Instant) {
+    val personalRevision by CharacterInnerLifeStore.revisions.collectAsState()
+    val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
+    val entries = remember(characterId, cutoff, personalRevision, developmentRevision) {
+        CharacterGrowthTrajectory.entries(characterId, cutoff)
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("成长轨迹", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
+        Text("从真实聊天、私人心理变化、日记及成长记录汇总。收到反馈不等于已经反思，写下决心不等于兑现；尚未发生的行动不会冒充经历。",
+            fontSize = 12.sp, color = Color(0xFF747477))
+        if (entries.isEmpty()) {
+            PresenceDialogSection("暂无可核实的轨迹", "还没有形成可以追溯的反馈、心理转变或成长记录。普通闲聊不必强制产生改变。")
+        } else {
+            entries.forEach { entry ->
+                val time = entry.at.atZone(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+                PresenceDialogSection("${entry.label} · $time",
+                    "${entry.detail}\n来源：${entry.category} · ${entry.evidenceId.take(32)}")
+            }
+        }
+    }
 }
 
 @Composable
