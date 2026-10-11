@@ -99,9 +99,9 @@ class MigrationActivity : ComponentActivity() {
         MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)
-        // Only now have timeline, persona, inner-life and model services all been
-        // initialized. This recovers serious recent feedback from old chats once.
-        com.jiacimu.lulu.data.CharacterEmotionalImprintRuntime.recoverRecent(appContext)
+        // Past genuine feedback remains available in the shared timeline and
+        // growth trail. Do not re-enact old arguments with a fresh API call on
+        // every app start.
         MemoryModelRuntime.initialize(appContext)
         UserDataUpgradeGuard.refreshBackup(appContext)
         com.jiacimu.lulu.data.CloudTaskBridge.initialize(appContext)
