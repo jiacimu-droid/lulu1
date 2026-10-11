@@ -26,6 +26,9 @@ internal object PhoneTranscriptAssembler {
             left.regionMatches(left.length - size, right, 0, size) &&
                 left.takeLast(size).toSet().size >= 3
         } ?: 0
-        return combine(left, right.drop(shared))
+        // Once an audible overlap is proved, the surviving suffix may continue
+        // the same Latin word ("hello wor" + "lo world" => "hello world").
+        // Do not insert combine()'s normal word-boundary space at this point.
+        return if (shared > 0) left + right.drop(shared) else combine(left, right)
     }
 }
