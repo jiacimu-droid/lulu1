@@ -125,7 +125,7 @@ internal object CharacterGrowthTrajectory {
                 tension.takeIf(String::isNotBlank)?.let { "仍在权衡：$it" },
                 interpretation.takeIf(String::isNotBlank)?.let { "关系理解：$it" },
                 own.takeIf(String::isNotBlank)?.let { "没说出口：$it" },
-                considered.takeIf(List<String>::isNotEmpty)?.let { "曾考虑：${it.joinToString("／")}" },
+                considered.takeIf { it.isNotEmpty() }?.let { "曾考虑：${it.joinToString("／")}" },
                 meaning.takeIf { delta != null && it.isNotBlank() }?.let { "如何看待：$it" },
             ).joinToString("\n").take(500)
             if (details.isBlank()) continue
