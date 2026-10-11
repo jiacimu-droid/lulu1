@@ -540,11 +540,14 @@ internal object LuluVoiceCallSession {
                 lastCallAudioMillis = SystemClock.elapsedRealtime()
                 if (!busy && speechQueue?.hasPendingAudio != true) silenceAudioPending = false
                 if (busy) {
-                    // Never let either system/cloud ASR hear the character's own TTS and
-                    // persist it back as a fake user utterance.
-                    resetSystemRecognitionTurn()
+                    // The cloud path remains unchanged. System recognition can
+                    // continue on a private output (headphones / earpiece);
+                    // loudspeaker playback must not be mistaken for user words.
                     providerInput?.pauseCapture()
-                    pauseRecognition()
+                    if (providerInput == null && !privateCallOutput()) {
+                        resetSystemRecognitionTurn()
+                        pauseRecognition()
+                    }
                     audioRoute?.refresh()
                 }
                 mutableState.update {
@@ -565,7 +568,7 @@ internal object LuluVoiceCallSession {
                     finishAutonomousHangupIfReady()
                     if (mutableState.value.connected && !mutableState.value.microphoneMuted) {
                         if (appContext?.let(CallVoiceConfiguration::sttEngine) == "system") {
-                            scheduleListening(220)
+                            if (!recognitionActive) scheduleListening(220)
                         } else {
                             providerInput?.resumeCapture()
                         }
@@ -582,6 +585,44 @@ internal object LuluVoiceCallSession {
             } },
         )
         audioManager = context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    private fun privateCallOutput(): Boolean = when (CallAudioRoute.preferredOutput?.type) {
+        android.media.AudioDeviceInfo.TYPE_BUILTIN_EARPIECE,
+        android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET,
+        android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
+        android.media.AudioDeviceInfo.TYPE_USB_HEADSET,
+        android.media.AudioDeviceInfo.TYPE_BLE_HEADSET,
+        android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
+        android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+        android.media.AudioDeviceInfo.TYPE_HEARING_AID -> true
+        else -> false
+    }
+
+    /** User speech can supersede an unfinished reply; only confirmed mic
+     * callbacks reach here. Already delivered audio stays in the timeline.
+     */
+    private fun interruptSystemReplyForSpeech() {
+        val state = mutableState.value
+        if (!SystemSpeechTurnPolicy.shouldInterrupt(
+                detectedUserSpeech = true,
+                thinking = state.thinking,
+                speakingOrPending = state.speaking || speechQueue?.hasPendingAudio == true,
+                privateAudioOutput = privateCallOutput(),
+            )) return
+        replyGeneration++
+        replyJob?.cancel()
+        replyJob = null
+        subtitleRevealJob?.cancel()
+        autonomousHangup.cancel()
+        speechQueue?.stop()
+        replyIsSilence = false
+        silenceAudioPending = false
+        mutableState.update {
+            it.copy(thinking = false, speaking = false, opening = false,
+                generatedTranscript = "", playingTranscript = "",
+                statusMessage = "听到你继续说话，已经让对方停下")
+        }
     }
 
     private fun ensureRecognizer() {
@@ -605,8 +646,9 @@ internal object LuluVoiceCallSession {
 
                 override fun onBeginningOfSpeech() {
                     val call = mutableState.value
-                    if (!call.connected || call.opening || call.thinking || call.speaking ||
-                        speechQueue?.hasPendingAudio == true) return
+                    if (!call.connected || call.opening) return
+                    if ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput()) return
+                    interruptSystemReplyForSpeech()
                     systemCommitJob?.cancel()
                     systemCommitJob = null
                     systemPartialCandidate = ""
@@ -639,8 +681,8 @@ internal object LuluVoiceCallSession {
                                 statusMessage = "听到了，稍等一下…",
                             )
                         }
-                        scheduleSystemUtteranceCommit(420)
-                        scheduleListening(160)
+                        scheduleSystemUtteranceCommit(SystemSpeechTurnPolicy.continuationMillis(systemUtteranceBuffer))
+                        scheduleListening(240)
                         return
                     }
                     scheduleSleepContinuation()
@@ -669,12 +711,15 @@ internal object LuluVoiceCallSession {
                 override fun onResults(results: Bundle?) {
                     val call = mutableState.value
                     if (!call.connected || call.opening) return
-                    if (call.thinking || call.speaking || speechQueue?.hasPendingAudio == true) {
+                    // The user may have continued talking while the character
+                    // was preparing audio. Do not throw those recognized words away.
+                    if ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput()) {
                         userSpeechInProgress = false
                         recognitionActive = false
-                        resetSystemRecognitionTurn()
+                        scheduleListening(250)
                         return
                     }
+                    interruptSystemReplyForSpeech()
                     userSpeechInProgress = false
                     recognitionActive = false
                     mutableState.update { it.copy(userSpeaking = false) }
@@ -696,8 +741,8 @@ internal object LuluVoiceCallSession {
                     if (spoken.isBlank()) {
                         mutableState.update { it.copy(listening = false, partialTranscript = systemUtteranceBuffer) }
                         if (systemUtteranceBuffer.isBlank()) scheduleSleepContinuation()
-                        else scheduleSystemUtteranceCommit(520)
-                        scheduleListening(180)
+                        else scheduleSystemUtteranceCommit(SystemSpeechTurnPolicy.continuationMillis(systemUtteranceBuffer))
+                        scheduleListening(240)
                     } else {
                         systemUtteranceBuffer = PhoneTranscriptAssembler.combine(systemUtteranceBuffer, spoken).trim()
                         mutableState.update {
@@ -707,15 +752,18 @@ internal object LuluVoiceCallSession {
                                 statusMessage = "听到了，你还可以继续说",
                             )
                         }
-                        scheduleSystemUtteranceCommit()
-                        scheduleListening(120)
+                        scheduleSystemUtteranceCommit(SystemSpeechTurnPolicy.continuationMillis(systemUtteranceBuffer))
+                        // A new recognizer window must open while the previous
+                        // recognized text remains buffered. Otherwise the user
+                        // cannot keep talking after the device's early endpoint.
+                        scheduleListening(240)
                     }
                 }
 
                 override fun onPartialResults(partialResults: Bundle?) {
                     val call = mutableState.value
-                    if (!call.connected || call.opening || call.thinking || call.speaking ||
-                        speechQueue?.hasPendingAudio == true) return
+                    if (!call.connected || call.opening ||
+                        ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput())) return
                     val partial = partialResults
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         ?.firstOrNull()
@@ -741,12 +789,17 @@ internal object LuluVoiceCallSession {
 
     private fun startListeningIfPossible() {
         val current = mutableState.value
-        // Never start a new recognition window while a finalized sentence is
-        // awaiting its turn. A noisy recognizer may immediately call onBeginning,
-        // canceling the commit and trapping a valid reply in the speech buffer.
-        if (!current.connected || current.microphoneMuted || current.thinking || current.speaking ||
-            current.opening || recognitionActive || systemUtteranceBuffer.isNotBlank() ||
-            realtime != null || providerInput != null) return
+        // Android often ends recognition after a short breath. Reopen the mic
+        // even when a previous final transcript is waiting for more words.
+        // Only a new *actual speech onset* cancels the pending commit.
+        if (!SystemSpeechTurnPolicy.canListen(
+                connected = current.connected,
+                muted = current.microphoneMuted,
+                opening = current.opening,
+                thinking = current.thinking,
+                speakingOrPending = current.speaking || speechQueue?.hasPendingAudio == true,
+                privateAudioOutput = privateCallOutput(),
+            ) || recognitionActive || realtime != null || providerInput != null) return
         if (!hasMicrophonePermission()) {
             mutableState.update { it.copy(statusMessage = "需要麦克风权限才能继续通话") }
             return
@@ -764,9 +817,9 @@ internal object LuluVoiceCallSession {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
                  putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 900L)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1_500L)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1_050L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1_400L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2_000L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1_600L)
             })
             recognitionActive = true
         }.onFailure {
@@ -787,14 +840,20 @@ internal object LuluVoiceCallSession {
     private fun normalizeSpeechForComparison(value: String): String =
         value.lowercase().replace(Regex("""[\s，。！？!?、；;：:“”‘’…~～—_"'（）()]+"""), "")
 
-    private fun scheduleSystemUtteranceCommit(delayMillis: Long = 700L) {
+    private fun scheduleSystemUtteranceCommit(
+        delayMillis: Long = SystemSpeechTurnPolicy.continuationMillis(systemUtteranceBuffer),
+    ) {
         systemCommitJob?.cancel()
         val sessionId = mutableState.value.callExperienceId
         systemCommitJob = scope.launch {
             delay(delayMillis)
             val current = mutableState.value
             if (!current.connected || current.callExperienceId != sessionId ||
-                current.thinking || current.speaking || current.opening || userSpeechInProgress) return@launch
+                current.thinking || current.speaking || current.opening || userSpeechInProgress) {
+                // Retain the draft rather than silently losing an already
+                // recognized utterance when another state briefly won the race.
+                return@launch
+            }
             val spoken = systemUtteranceBuffer.trim()
             if (spoken.isBlank()) return@launch
             systemUtteranceBuffer = ""
