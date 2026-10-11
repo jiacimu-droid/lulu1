@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:49:13.409976+00:00",
-  "commit": "f5c6e34f5770b778a95d05235c9b6a720d377929",
+  "generatedAt": "2026-10-11T06:49:38.464466+00:00",
+  "commit": "2e2190a0460f8cf37514f68da6443534e896b8d4",
   "branch": "main",
-  "sourceFingerprint": "7f6c394d2e49e407ff41c4386a025666c4a65fa6079c5398993b2fe7b8addefe",
+  "sourceFingerprint": "46c6a52ff09898533066d8314173bca2f1b9d64cb188b3b5a9cb0ab1bfee1d01",
   "summary": {
     "files": 498,
-    "lines": 105653,
+    "lines": 105667,
     "symbols": 1565
   },
   "symbolIndex": {
@@ -1449,55 +1449,55 @@
     "toggleSpeaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 412
+        "line": 420
       }
     ],
     "reportPermissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 416
+        "line": 424
       }
     ],
     "endCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 420
+        "line": 428
       }
     ],
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 994
+        "line": 1004
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 996
+        "line": 1006
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1001
+        "line": 1011
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1194
+        "line": 1204
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1277
+        "line": 1287
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1406
+        "line": 1420
       }
     ],
     "PendingTouch": [
@@ -9783,8 +9783,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1492,
-      "sha256": "a90c98e029ca4bd62c020a0b74882f5af2cddf990d4e1e7ae4145d45b876400c",
+      "lines": 1506,
+      "sha256": "1bc2b8f0800ad5288ae6c73ad9cb2c62c964bdd89edcb81499b2a8de14d2ad18",
       "symbols": [
         {
           "name": "prepare",
@@ -9812,39 +9812,39 @@
         },
         {
           "name": "toggleSpeaker",
-          "line": 412
-        },
-        {
-          "name": "reportPermissionDenied",
-          "line": 416
-        },
-        {
-          "name": "endCall",
           "line": 420
         },
         {
+          "name": "reportPermissionDenied",
+          "line": 424
+        },
+        {
+          "name": "endCall",
+          "line": 428
+        },
+        {
           "name": "sameReply",
-          "line": 994
+          "line": 1004
         },
         {
           "name": "clearWhenHeard",
-          "line": 996
+          "line": 1006
         },
         {
           "name": "enqueueSpoken",
-          "line": 1001
+          "line": 1011
         },
         {
           "name": "sameSession",
-          "line": 1194
+          "line": 1204
         },
         {
           "name": "retryListening",
-          "line": 1277
+          "line": 1287
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1406
+          "line": 1420
         }
       ]
     },
