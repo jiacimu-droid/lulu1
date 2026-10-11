@@ -51,6 +51,20 @@ class AutonomousDecisionRecoveryTest {
         assertEquals("小说", chosen.getJSONObject("curiosity").getString("topic"))
     }
 
+    @Test fun recoveredIndependentActionPreservesPendingRelationalThought() {
+        val thought = JSONObject().put("status", "considering")
+            .put("aim", "以后找机会给她一个小惊喜").put("why", "我想分享自己真正发现的趣事")
+        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
+            .put("relationshipInitiative", thought)
+            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
+                .put("readingBookId", "book-surprise").put("personallyWanted", true)
+                .put("whyNow", "想先自己读读这本还没看完的书"))
+        val chosen = AutonomousDecisionRecovery.choose(original)
+        assertEquals("reading", chosen.getString("action"))
+        assertEquals("以后找机会给她一个小惊喜",
+            chosen.getJSONObject("relationshipInitiative").getString("aim"))
+    }
+
     @Test fun aNormalChosenActionIsNeverReplaced() {
         val original = JSONObject().put("action", "moment").put("text", "今日小事")
         assertSame(original, AutonomousDecisionRecovery.choose(original))
