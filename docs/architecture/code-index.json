@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:21:09.120847+00:00",
-  "commit": "5b3cf7df69db61ce765e60ad06cf676b1f50e18a",
+  "generatedAt": "2026-10-11T03:21:43.664325+00:00",
+  "commit": "afa7552dce13f2e87c574cca551b8f86549943cd",
   "branch": "main",
-  "sourceFingerprint": "37431850c1aa359602d21c052518a889db3140c328d3bc792b1cf18a19d82621",
+  "sourceFingerprint": "7fc320cc7307adbbc6320d7583c936c9b001c3c241bfc771afcd4dcd230c09c6",
   "summary": {
-    "files": 484,
-    "lines": 103930,
-    "symbols": 1534
+    "files": 485,
+    "lines": 103975,
+    "symbols": 1537
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1970,6 +1970,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
         "line": 32
+      }
+    ],
+    "continuationMillis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 12
+      }
+    ],
+    "canListen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 27
+      }
+    ],
+    "shouldInterrupt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 36
       }
     ],
     "look": [
@@ -10343,6 +10361,25 @@
         {
           "name": "remove",
           "line": 148
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+      "lines": 45,
+      "sha256": "1d1ca9a45bee3e37c4ce8e5972d23f40201343b9bac972be3155750a1fa65bed",
+      "symbols": [
+        {
+          "name": "continuationMillis",
+          "line": 12
+        },
+        {
+          "name": "canListen",
+          "line": 27
+        },
+        {
+          "name": "shouldInterrupt",
+          "line": 36
         }
       ]
     },
