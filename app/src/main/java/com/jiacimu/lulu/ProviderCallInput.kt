@@ -193,8 +193,57 @@ internal class ProviderCallInput(private val context: Context, private val scope
         when (sttEngine) {
             "groq" -> transcribeGroq(pcm)
             "minimax" -> transcribeMiniMax(pcm, onIncremental)
+            "elevenlabs" -> transcribeElevenLabs(pcm)
             else -> error("未配置可用云端语音识别")
         }
+
+    /**
+     * ElevenLabs Scribe V2 batch STT (not ElevenLabs TTS nor its Agent).
+     * Real 16 kHz PCM is encapsulated in a WAV and submitted after the
+     * existing mic endpoint detector finishes an utterance/chunk.
+     */
+    private suspend fun transcribeElevenLabs(pcm: ByteArray): String = withContext(Dispatchers.IO) {
+        val key = context.getSharedPreferences("lulu_advanced_settings", 0)
+            .getString("eleven_api_key", "").orEmpty().trim()
+        require(key.isNotBlank()) { "请先在语音识别设置填写 ElevenLabs API Key" }
+        val boundary = "lulu-${UUID.randomUUID()}"
+        val connection = (URL("https://api.elevenlabs.io/v1/speech-to-text")
+            .openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            doOutput = true
+            connectTimeout = 15_000
+            readTimeout = 45_000
+            setRequestProperty("xi-api-key", key)
+            setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+        }
+        activeConnections.add(connection)
+        try {
+            connection.outputStream.use { output ->
+                fun field(name: String, value: String) {
+                    output.write("--$boundary\r\nContent-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n".toByteArray())
+                }
+                field("model_id", "scribe_v2")
+                field("language_code", "zh")
+                field("diarize", "false")
+                output.write("--$boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"speech.wav\"\r\nContent-Type: audio/wav\r\n\r\n".toByteArray())
+                output.write(pcmWav(pcm))
+                output.write("\r\n--$boundary--\r\n".toByteArray())
+            }
+            val status = connection.responseCode
+            check(status in 200..299) {
+                when (status) {
+                    401, 403 -> "ElevenLabs API Key 无效或没有 Scribe 识别权限（HTTP $status）"
+                    402, 429 -> "ElevenLabs Scribe 积分不足或超过调用限额（HTTP $status）"
+                    else -> "ElevenLabs Scribe 识别请求失败（HTTP $status）"
+                }
+            }
+            JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                .optString("text").trim()
+        } finally {
+            connection.disconnect()
+            activeConnections.remove(connection)
+        }
+    }
 
     private suspend fun transcribeGroq(pcm: ByteArray): String = withContext(Dispatchers.IO) {
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
