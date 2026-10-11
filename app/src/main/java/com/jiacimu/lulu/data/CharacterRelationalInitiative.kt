@@ -51,11 +51,18 @@ internal object CharacterRelationalInitiative {
 
     /** Used by private chat, calls, meetings and background decisions through the same personality runtime. */
     fun context(characterId: String, now: Instant = Instant.now(), proactive: Boolean = false): String {
-        val recent = explicitStatements(SharedExperienceTimeline.recentEvents(characterId, 240), now)
+        val timeline = SharedExperienceTimeline.recentEvents(characterId, 240)
+        val recent = explicitStatements(timeline, now)
         val saved = read(characterId)
         val pending = saved.optJSONObject("pending")
             ?.takeIf { evidenceStillExists(characterId, it.optString("evidenceId")) }
         val last = saved.optJSONObject("lastDelivery")
+        val lastAt = last?.optString("at")?.let { runCatching { Instant.parse(it) }.getOrNull() }
+        val followUp = if (lastAt == null) emptyList() else timeline.filter { event ->
+            event.evidenceKind == EventEvidenceKind.UserStatement &&
+                event.occurredAt.isAfter(lastAt) && !event.occurredAt.isAfter(now) &&
+                Duration.between(lastAt, event.occurredAt).toHours() < 12
+        }.takeLast(3)
         return buildString {
             appendLine("【关系中的自主意愿｜不是任务、表白或行动配额】")
             appendLine("根据自己的稳定人格、真实感情与当下兴趣，决定是否想为对方创造一点体验：有的角色会主动靠近、逗乐、准备小惊喜；有的更克制、好胜、疏离或只愿表达独立见解。不能强制所有人恋爱、讨好或变热情。")
@@ -73,7 +80,13 @@ internal object CharacterRelationalInitiative {
             }
             if (last != null) {
                 appendLine("最近一次相关真实行动：${last.optString("action")}；回执=${last.optString("summary").take(120)}；执行时间=${last.optString("at")}。")
-                appendLine("完成动作不等于用户一定喜欢；需要从之后的真实回应学习，不机械重复。")
+                if (followUp.isNotEmpty()) {
+                    appendLine("动作之后用户真实说过的话（仅是时间上随后，未必在评价这个行动）：")
+                    followUp.forEach { event ->
+                        appendLine("- [${event.occurredAt}] ${event.content.replace(Regex("\\s+"), " ").take(180)}")
+                    }
+                }
+                appendLine("完成动作不等于用户一定喜欢；要辨别后续回应是否真在评价该动作，不机械重复。")
             }
             if (proactive) {
                 appendLine("若本人确实想准备一次惊喜/靠近/挑逗/帮助，不必等用户发起任务：可以先私下想一个能力内的下一步，后续再执行真实动作；若已经适合此刻，可直接选择 action 发消息、邀请、发动态或做数字世界活动。仅说‘以后我要给你惊喜’不是完成。")
