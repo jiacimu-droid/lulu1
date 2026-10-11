@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:32:43.616025+00:00",
-  "commit": "5bd5e59d8aa65347e054707b081ecca9d747e05e",
+  "generatedAt": "2026-10-11T05:33:38.931939+00:00",
+  "commit": "df761172ac13454caa0dbf180e9a37c7ac7e396c",
   "branch": "main",
-  "sourceFingerprint": "7f9203b2f2c802f5416018da4750af20a39ae539db0a2eeea378154bd53cabac",
+  "sourceFingerprint": "3ad6f565bac747dcc3ed8bc03accee53e4a1dfb5f2d2e83fa4f361bf48c4e41b",
   "summary": {
     "files": 495,
-    "lines": 105076,
+    "lines": 105091,
     "symbols": 1560
   },
   "symbolIndex": {
@@ -307,7 +307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1125
+        "line": 1129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -2985,7 +2985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 332
+        "line": 339
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -3155,13 +3155,13 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1025
+        "line": 1029
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1042
+        "line": 1046
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -3943,7 +3943,7 @@
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 303
+        "line": 310
       }
     ],
     "repairInstruction": [
@@ -11398,8 +11398,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1247,
-      "sha256": "40736860dc720f489a3573dff068d6403c23e7e395cef1e9e6b1fbecc82c4c18",
+      "lines": 1251,
+      "sha256": "c5f68ad8f20064adbdd657ada0ec00832684fdec0d4db75e6e64c03957a2a6a2",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -11423,15 +11423,15 @@
         },
         {
           "name": "normalize",
-          "line": 1025
+          "line": 1029
         },
         {
           "name": "compactContext",
-          "line": 1042
+          "line": 1046
         },
         {
           "name": "context",
-          "line": 1125
+          "line": 1129
         }
       ]
     },
@@ -11484,7 +11484,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
       "lines": 116,
-      "sha256": "ecc8dd8749d2353087d7fda6c4d4fa9c5212d656263a92c7656f826574b98288",
+      "sha256": "9cb4294edc0279247958325f9ca35f93d50cd392c7e23069c4bcc17845e41dd2",
       "symbols": [
         {
           "name": "reflection",
@@ -11668,8 +11668,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 208,
-      "sha256": "df5dbc7a73dc0506a23bc4951cdd25ae56fc68d5904d1bae2db8434c8a13e7c7",
+      "lines": 212,
+      "sha256": "e2bbdacd28533ae729692bb4e9b35babdaee0662a5c4dd01b0baf353baa3c09b",
       "symbols": [
         {
           "name": "parse",
@@ -12246,8 +12246,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 459,
-      "sha256": "0583a0b92b49b28603ea6616680b037d2ce3a9c7ef667b128af62116e3a06be8",
+      "lines": 466,
+      "sha256": "9c0d0a64fb73d5f75bc4284cb673610c3979a56dd0fa05dc2b6e148e300daa87",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -12303,11 +12303,11 @@
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 303
+          "line": 310
         },
         {
           "name": "clearCharacter",
-          "line": 332
+          "line": 339
         }
       ]
     },
