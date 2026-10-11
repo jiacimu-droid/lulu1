@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:20:53.669589+00:00",
-  "commit": "0a5d939bbe38a7505dd9f0bc3b85ec87bb0aea29",
+  "generatedAt": "2026-10-11T12:22:14.683907+00:00",
+  "commit": "4f1a9197a66fda00bd1330e2e77ea61d67179094",
   "branch": "main",
-  "sourceFingerprint": "9e8c8810f27c029e82fb239f9bfcd8d1ae41061e454879f7da84385abf1955ee",
+  "sourceFingerprint": "a737d4bf641cc274b55dec4d3db9026c08717c49e872e3466135a82e7bf62f27",
   "summary": {
-    "files": 504,
-    "lines": 107145,
-    "symbols": 1602
+    "files": 505,
+    "lines": 107274,
+    "symbols": 1603
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -152,6 +152,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
         "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
+        "line": 26
       }
     ],
     "cancel": [
@@ -11640,6 +11644,17 @@
         {
           "name": "clearCharacter",
           "line": 228
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
+      "lines": 129,
+      "sha256": "e512f9bc67fc55b879c206ed29167bb930e13eee378df1ec72d5c727bca6fe86",
+      "symbols": [
+        {
+          "name": "request",
+          "line": 26
         }
       ]
     },
