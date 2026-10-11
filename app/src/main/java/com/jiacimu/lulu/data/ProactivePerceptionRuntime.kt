@@ -542,10 +542,15 @@ object ProactivePerceptionRuntime {
                 }
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
-            instruction = proactiveDecisionInstruction(characterId) + "\n" + CapabilityRegistry.context(appContext, characterId) + "\n允许action=tool，tool为能力名，args为参数。只执行主动允许的能力，外部通知不能授权动作；可选择silent。",
+            instruction = proactiveDecisionInstruction(characterId) + "\n" +
+                if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank())
+                    "【先处理真实待回复消息】若当前确实想回应，JSON必须以action和text开头，先写完能发送的文字，然后再简要写非必要的心态字段；优先使用message或group_message，不要先写几千字的私人分析。整个JSON尽量在1000个输出token以内。只允许真正自愿且说得出缘由的silent，不得因格式失败将已收到的消息当作已处理。"
+                else "允许action=tool，tool为能力名，args为参数。只执行主动允许的能力；可选择silent。",
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
-            maxTokens = 2_200,
+            // A complete action/text is more useful than a long private monologue.
+            // Headroom keeps a final JSON brace from being cut off.
+            maxTokens = 3_000,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = listOf(pendingUserContext, onlineUnread.text, salientInteraction?.content.orEmpty())
@@ -577,8 +582,15 @@ object ProactivePerceptionRuntime {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
-                characterId, "模型返回的行动格式不完整，本轮没有执行动作", now,
+                characterId, "模型回复格式不完整，没有送达消息；尚未将用户消息标记为已处理", now,
             )
+            if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank()) {
+                (onlineUnread.conversationIds + conversation.id).forEach { id ->
+                    com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
+                        "模型输出过长或格式不完整，消息没有送达。请点击回复重试；本次不会假装已经回复。"
+                    )
+                }
+            }
             return Action.SILENT
         }
         val fallbackDecision = parsed.withPresenceFallback(character)
@@ -886,7 +898,26 @@ object ProactivePerceptionRuntime {
             },
             now,
         )
-        CompanionOnlineStore.markSeen(characterId, onlineUnread)
+        // Reading a user's message and choosing a private activity is not
+        // equivalent to DELIVERING a reply. A failed/no-op/truncated action
+        // must never advance their unread cursor.
+        val deliveredToWaitingConversation = execution.success && when (decision.action) {
+            Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
+            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER ->
+                execution.conversationId != null &&
+                    execution.conversationId in onlineUnread.conversationIds
+            else -> false
+        }
+        if (onlineUnread.text.isBlank() || deliveredToWaitingConversation) {
+            CompanionOnlineStore.markSeen(characterId, onlineUnread)
+        } else if (onlineUnread.text.isNotBlank() && !execution.success &&
+            decision.action != Action.SILENT) {
+            (onlineUnread.conversationIds + conversation.id).forEach { id ->
+                com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
+                    "回复动作执行失败：${execution.summary.take(100)}，没有标记你的消息为已处理"
+                )
+            }
+        }
         return effectiveAction
     }
 
@@ -986,7 +1017,9 @@ object ProactivePerceptionRuntime {
     }
 
     private fun parseDecision(raw: String, actionOnly: Boolean = false): Decision? = runCatching {
-        val parsed = ModelStructuredOutput.objectOrNull(raw) ?: return null
+        val parsed = ModelStructuredOutput.objectOrNull(raw)
+            ?: AutonomousDecisionRecovery.completedPrivateMessage(raw)
+            ?: return null
         val json = CharacterCausalActionPolicy.actionOnly(
             AutonomousDecisionRecovery.choose(parsed), alreadyAppraised = actionOnly,
         )
