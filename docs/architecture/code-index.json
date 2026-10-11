@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:38:24.665978+00:00",
-  "commit": "54ef1e44528aa9b247309321fe4945cce25cc9b8",
+  "generatedAt": "2026-10-11T08:39:20.488601+00:00",
+  "commit": "7cc6faad7c0992cf187495e81daea2af7ff66848",
   "branch": "main",
-  "sourceFingerprint": "c97f848d04b3a46a10768e6a1b67271869334d7470eecc0f42670f78de1ba519",
+  "sourceFingerprint": "a4c507ea9b868f58f5ba8c6e1da6ddbc3cb4d3c965d86416771c428f147ef504",
   "summary": {
     "files": 501,
-    "lines": 106435,
+    "lines": 106441,
     "symbols": 1585
   },
   "symbolIndex": {
@@ -307,7 +307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1137
+        "line": 1138
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3205,31 +3205,31 @@
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 127
+        "line": 128
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 470
+        "line": 471
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 633
+        "line": 634
       }
     ],
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1037
+        "line": 1038
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1054
+        "line": 1055
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -5839,7 +5839,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1194
+        "line": 1195
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11580,8 +11580,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1259,
-      "sha256": "422fe1212617a57d4547408a2fe8d41561585dd5307bd96da590468e77700219",
+      "lines": 1260,
+      "sha256": "538bf28f5d59ec7448e012030da81d1e5dabddf4f51bd2db4f506fa6d5d258e2",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -11593,27 +11593,27 @@
         },
         {
           "name": "backedBy",
-          "line": 127
+          "line": 128
         },
         {
           "name": "interactionContext",
-          "line": 470
+          "line": 471
         },
         {
           "name": "groundingContext",
-          "line": 633
+          "line": 634
         },
         {
           "name": "normalize",
-          "line": 1037
+          "line": 1038
         },
         {
           "name": "compactContext",
-          "line": 1054
+          "line": 1055
         },
         {
           "name": "context",
-          "line": 1137
+          "line": 1138
         }
       ]
     },
@@ -11835,8 +11835,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 52,
-      "sha256": "13bed977620b5cbf6a97fe939a6ba31a7353462fcb91f651d68a21e51605b34f",
+      "lines": 53,
+      "sha256": "522f9b0793c18fcc8b94e442827e480e9b3ebc9ba4e1908acd2beb32ea3bbace",
       "symbols": [
         {
           "name": "CharacterRecordReset",
@@ -11846,8 +11846,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-      "lines": 132,
-      "sha256": "7d1ec46d1ceef1ccc00804b44c87d50ccfb66ea6d2e0a0a5feb20ae17f4f862e",
+      "lines": 135,
+      "sha256": "07fe132f394649621c98426785f4414956dfe18a4793eed771db18bf5c2a8e5d",
       "symbols": [
         {
           "name": "context",
@@ -14300,7 +14300,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 67,
-      "sha256": "d7b1b53d77aec00c8b9ea6995946e204fe4e9e24a062e8535d48d1042c4351ea",
+      "sha256": "8b053f95e112efe4fc16b5664f24d6695caaf504cd637fe33f85e603a148f5fa",
       "symbols": []
     },
     {
@@ -14398,8 +14398,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1250,
-      "sha256": "47999cd30afa6acc8ffd7ab51bf28f5e85da3071e187d7de7e8980da9bbf6f95",
+      "lines": 1251,
+      "sha256": "0acbaf081bd7556bbef089b315c41668890546c2ae2cb88ea00e4bae350b4890",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -14423,7 +14423,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1194
+          "line": 1195
         }
       ]
     },
