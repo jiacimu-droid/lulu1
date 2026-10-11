@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e5c3b0d0726f3716b99a351b2adbb2cac7402570`
+- 基准提交：`1c56f9b5723e15a50576655e0a2ba00b9f79d4ae`
 - 分支：`main`
 - 已索引文件：484
-- 已索引代码/文本行：104015
-- 已发现符号：1537
+- 已索引代码/文本行：103960
+- 已发现符号：1534
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -16,7 +16,7 @@
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 204 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 194 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 49 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
@@ -101,13 +101,13 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 19 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 58 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 37 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 39 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 194 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 349 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 325 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 259 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 91 | 0 |
