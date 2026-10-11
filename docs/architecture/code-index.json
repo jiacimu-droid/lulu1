@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T09:10:27.300661+00:00",
-  "commit": "e8f9103cde707982e9ef1734bca82fe49b35f66d",
+  "generatedAt": "2026-10-11T09:10:39.696163+00:00",
+  "commit": "f4978f58957b5afcb0f1ce49d7d8d75f5e290907",
   "branch": "main",
-  "sourceFingerprint": "befc8a625f0f12855268c8bb4369949bb02217d9153adecacd2282b3742b6f5b",
+  "sourceFingerprint": "cd759b29c1fbf01cc22482fd98fce2857e6f46e6d843821eec746145c837063b",
   "summary": {
     "files": 502,
-    "lines": 106679,
+    "lines": 106691,
     "symbols": 1590
   },
   "symbolIndex": {
@@ -18153,8 +18153,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt",
-      "lines": 105,
-      "sha256": "c80399b7edcf2b07e7b2d44face11135afdeead301ec3263aba9fc48063d9e00",
+      "lines": 117,
+      "sha256": "d8fbca8fd17d9aace403455004933db0d20d933592275274986e0b447886bc90",
       "symbols": [
         {
           "name": "CharacterRelationalInitiativeTest",
