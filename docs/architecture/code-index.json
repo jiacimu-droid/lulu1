@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:24:26.766496+00:00",
-  "commit": "2b3f75cb49f20800acdf709aceecd7b40a739171",
+  "generatedAt": "2026-10-11T15:25:30.649858+00:00",
+  "commit": "0b695f66dc1ae80c243340c57e49d2198531f4a1",
   "branch": "main",
-  "sourceFingerprint": "2cb7b5b38e81875db69e8c98d83a3575f4d14ff36b9691f2a0234f875772d1e6",
+  "sourceFingerprint": "cc2e90a6c1fef517873718199cb1dfb29a410ef7457647ad13f0dfc9a989b020",
   "summary": {
-    "files": 512,
-    "lines": 108005,
-    "symbols": 1618
+    "files": 511,
+    "lines": 107755,
+    "symbols": 1615
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -158,10 +158,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
         "line": 32
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
-        "line": 55
       }
     ],
     "cancel": [
@@ -3194,12 +3190,6 @@
         "line": 99
       }
     ],
-    "recoverRecent": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
-        "line": 32
-      }
-    ],
     "guide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
@@ -4855,13 +4845,7 @@
     "qualifies": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-        "line": 25
-      }
-    ],
-    "onActualReply": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-        "line": 32
+        "line": 19
       }
     ],
     "ImportantEventBridge": [
@@ -11772,21 +11756,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
-      "lines": 165,
-      "sha256": "8e241309748bb6e6dc0b5540fdd42556a06711571beb01ee100560fb1e49bc35",
-      "symbols": [
-        {
-          "name": "recoverRecent",
-          "line": 32
-        },
-        {
-          "name": "request",
-          "line": 55
-        }
-      ]
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
       "lines": 66,
       "sha256": "cdd26e93024dcd86f2e13f1b703f8fcc5a6b558243ef3d9a123740b1513775b7",
@@ -13541,16 +13510,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-      "lines": 116,
-      "sha256": "8d5ad36529b5e3f4e01e8fd7f2a4bc98c4a4fa1ff5a1042e9cc94e57971d5906",
+      "lines": 31,
+      "sha256": "97c40e67d18bca9d2eb0b91b77deae2333918793610cef47d1d6c5f763ff8644",
       "symbols": [
         {
           "name": "qualifies",
-          "line": 25
-        },
-        {
-          "name": "onActualReply",
-          "line": 32
+          "line": 19
         }
       ]
     },
