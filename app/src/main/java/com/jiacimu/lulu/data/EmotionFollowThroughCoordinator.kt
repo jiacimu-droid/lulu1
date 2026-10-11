@@ -7,7 +7,6 @@ package com.jiacimu.lulu.data
  * The actual character decides whether anything matters in its existing turn.
  */
 internal object EmotionFollowThroughCoordinator {
-    private const val PREFS = "lulu_emotional_followthrough_v1"
     private val remorse = listOf("很后悔", "后悔", "愧疚", "懊悔", "我错了", "是我不对", "对不起",
         "抱歉", "我没做到", "我不该", "是我失约", "让我想想怎么补救")
     private val friction = listOf("吵架", "生气", "伤心", "难过", "委屈", "不高兴", "不舒服",
