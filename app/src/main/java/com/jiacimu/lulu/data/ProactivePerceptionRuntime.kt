@@ -547,15 +547,15 @@ object ProactivePerceptionRuntime {
                     appendLine("incidentId=${it.incidentId}；status=${it.status}；stage=${it.stage}；anchorItemId=${it.anchorItemId}")
                 }
                 if (pendingUserContext.isNotBlank()) {
-                    appendLine("【尚未回复的消息】")
-                    appendLine("以下消息都是用户在你上一次真实聊天回复之后新发来的，当前还没有收到你的回复；这是事实信息，不是系统强制待办。")
+                    appendLine("【历史上还没实际回复的用户消息｜不是每轮的新通知】")
+                    appendLine("以下内容可能早已看过并自主决定暂不答复；它们仍属于历史上的未回复事实，但不是每次在线生活感知都必须优先处理的指令。若有真正的新消息，下面的新消息列表会单独列出。")
                     appendLine(pendingUserContext)
                 }
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
             instruction = proactiveDecisionInstruction(characterId) + "\n" +
-                if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank())
-                    "【先处理真实待回复消息】若当前确实想回应，JSON必须以action和text开头，先写完能发送的文字，然后再简要写非必要的心态字段；优先使用message或group_message，不要先写几千字的私人分析。整个JSON尽量在1000个输出token以内。只允许真正自愿且说得出缘由的silent，不得因格式失败将已收到的消息当作已处理。"
+                if (onlineUnread.text.isNotBlank())
+                    "【先处理本次真正的新消息】若当前确实想回应，JSON必须以action和text开头，先写完能发送的文字，然后再简要写非必要的心态字段；优先使用message或group_message，不要先写几千字的私人分析。整个JSON尽量在1000个输出token以内。只允许真正自愿且说得出缘由的silent，不得因格式失败将已收到的消息当作已处理。"
                 else "允许action=tool，tool为能力名，args为参数。只执行主动允许的能力；可选择silent。",
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
@@ -564,10 +564,10 @@ object ProactivePerceptionRuntime {
             maxTokens = 3_000,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
-                currentInput = listOf(pendingUserContext, onlineUnread.text, salientInteraction?.content.orEmpty())
+                currentInput = listOf(onlineUnread.text, salientInteraction?.content.orEmpty())
                     .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
-                recentContext = listOf(recent, recentLifeContext, concerns, commitments)
+                recentContext = listOf(recent, recentLifeContext, pendingUserContext, concerns, commitments)
                     .filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
@@ -595,7 +595,7 @@ object ProactivePerceptionRuntime {
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId, "模型回复格式不完整，没有送达消息；尚未将用户消息标记为已处理", now,
             )
-            if (onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank()) {
+            if (onlineUnread.text.isNotBlank()) {
                 (onlineUnread.conversationIds + conversation.id).forEach { id ->
                     com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
                         "模型输出过长或格式不完整，消息没有送达。请点击回复重试；本次不会假装已经回复。"
