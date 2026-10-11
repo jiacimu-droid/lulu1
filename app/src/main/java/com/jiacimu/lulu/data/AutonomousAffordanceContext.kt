@@ -15,6 +15,7 @@ internal object AutonomousAffordanceContext {
         locationActivities: List<Pair<String, String>> = emptyList(),
         publicPlaces: List<Pair<String, String>> = emptyList(),
         currentItems: List<Pair<String, List<Pair<String, String>>>> = emptyList(),
+        currentResidents: List<Triple<String, String, String>> = emptyList(),
     ): String = buildString {
         appendLine("【此刻可实际尝试的自主行动｜不是强制任务或固定动作轮换】")
         appendLine("- 想对某件已知小事发表意见：可以自己写日记或发朋友圈；只有真的有话想说时才做。")
@@ -46,6 +47,16 @@ internal object AutonomousAffordanceContext {
                             itemId + "；activityId=" + activityId + "；" + label)
                     }
                 }
+            }
+            if (currentResidents.isNotEmpty()) {
+                appendLine("- 眼前真正存在的居民，可由自己选择是否交流：")
+                currentResidents.take(5).forEach { (id, name, identity) ->
+                    appendLine("  · action=digital_world；worldAction=interact_resident；itemId=" +
+                        id + "；activityId=greet|chat|ask_place|sit_together；居民=" +
+                        name.take(50) + "；身份=" + identity.take(90))
+                }
+            } else {
+                appendLine("- 当前地点没有登记在场的居民；可以去其他真实公共场所看看，但不能虚构碰面或隔空聊天。")
             }
             if (publicPlaces.isNotEmpty()) {
                 appendLine("- 已存在的公共地点，可选择前往探索（不用建家具；worldAction=visit_public_place）：")
