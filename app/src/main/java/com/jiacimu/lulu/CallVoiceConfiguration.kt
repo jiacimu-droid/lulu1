@@ -14,6 +14,13 @@ internal object CallVoiceConfiguration {
         else -> "system"
     }
 
+    const val SCRIBE_V2 = "scribe_v2"
+    const val SCRIBE_V2_REALTIME = "scribe_v2_realtime"
+
+    /** Existing installs keep Scribe v2; invalid/obsolete preferences cannot select arbitrary APIs. */
+    fun elevenSttModel(raw: String?): String =
+        if (raw == SCRIBE_V2_REALTIME) SCRIBE_V2_REALTIME else SCRIBE_V2
+
     /** STT is independent from character TTS. Never silently switch paid ASR providers. */
     fun resolveSttEngine(mode: String): String = normalizeSttMode(mode)
     fun sttEngine(context: Context): String {
