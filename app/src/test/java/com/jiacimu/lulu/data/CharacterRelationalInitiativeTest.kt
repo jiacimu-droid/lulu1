@@ -72,6 +72,18 @@ class CharacterRelationalInitiativeTest {
         assertEquals("消息已经发送", stored.getJSONObject("lastDelivery").getString("summary"))
     }
 
+    @Test fun changingStablePersonaMakesOldRelationalPlanInert() {
+        val context = start()
+        CharacterRelationalInitiative.recordDecision(id, plan(), "silent", false, "", now)
+        val prefs = context.getSharedPreferences("lulu_relational_initiative_v1", 0)
+        val root = JSONObject(prefs.getString(id, "{}"))
+        assertNotNull(root.optJSONObject("pending"))
+        root.getJSONObject("pending").put("personaSignature", "stale-persona")
+        prefs.edit().putString(id, root.toString()).commit()
+        assertFalse(CharacterRelationalInitiative.context(id, now).contains("尚未实行的主意"))
+        assertEquals("", CharacterRelationalInitiative.expressionHandoff(id))
+    }
+
     @Test fun deletionOfSourceRetractsOnlyItsDependentPrivatePlan() {
         val context = start()
         val prefs = context.getSharedPreferences("lulu_relational_initiative_v1", 0)
