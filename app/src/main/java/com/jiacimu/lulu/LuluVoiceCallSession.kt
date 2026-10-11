@@ -1209,6 +1209,13 @@ internal object LuluVoiceCallSession {
                     } else scheduleSleepContinuation()
                     return@onSuccess
                 }
+                // A character who explicitly says "那我挂了" has committed to
+                // an action, even if the planner omitted the JSON endCall flag.
+                // The gate still requires successfully delivered TTS and idle
+                // audio; farewell jokes, quotes and ordinary goodbyes do nothing.
+                if (!autonomousSleep && CallSpokenHangupPolicy.explicitlyEndsOwnCall(finalText.orEmpty())) {
+                    autonomousHangup.request(latest.callExperienceId, generation)
+                }
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 silenceAudioPending = autonomousSilence && remaining.isNotEmpty()
