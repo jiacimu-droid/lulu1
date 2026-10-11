@@ -58,7 +58,7 @@ object CharacterRuntime {
     fun personaConstraintSnapshot(characterId: String): String {
         val persona = MigratedDomainStores.characters.get(characterId).persona
         val profile = CharacterLifeStore.state(characterId).optJSONObject("profile") ?: return persona
-        val constraints = CharacterProfileSchema.fields.mapNotNull { field ->
+        val constraints = CharacterProfileSchema.fields.filterNot { it.key == "typing" }.mapNotNull { field ->
             profile.optString(field.key).trim().takeIf(String::isNotBlank)
                 ?.let { "${field.group}/${field.label}=$it" }
         }.joinToString("\n")
