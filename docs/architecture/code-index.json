@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:57:16.020572+00:00",
-  "commit": "333a00f3eceba04dba7283e1c6a30bee8b54d0f1",
+  "generatedAt": "2026-10-11T12:57:54.888280+00:00",
+  "commit": "9389a47b1034acbe31090f81240523ae82de690b",
   "branch": "main",
-  "sourceFingerprint": "7f3ab13aba92a6fcd24894dc2337ef37c0a433cd4acd7b64f53413ec0e67e4cf",
+  "sourceFingerprint": "6c5c89d5ef84d52167847bd4f293ac37e8d975d4d2b5d91195d2abca62532f93",
   "summary": {
     "files": 507,
-    "lines": 107573,
+    "lines": 107571,
     "symbols": 1609
   },
   "symbolIndex": {
@@ -677,7 +677,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 41
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -3183,7 +3183,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 131
+        "line": 126
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -4943,7 +4943,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 469
+        "line": 464
       }
     ],
     "LegacyLuluImportResult": [
@@ -6167,25 +6167,25 @@
     "backfillChatHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 50
+        "line": 48
       }
     ],
     "recordConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 61
+        "line": 56
       }
     ],
     "recordChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 100
+        "line": 95
       }
     ],
     "all": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 235
+        "line": 230
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -6195,61 +6195,61 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 238
+        "line": 233
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 276
+        "line": 271
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 308
+        "line": 303
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 315
+        "line": 310
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 330
+        "line": 325
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 341
+        "line": 336
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 361
+        "line": 356
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 364
+        "line": 359
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 380
+        "line": 375
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 451
+        "line": 446
       }
     ],
     "EventEvidenceKind": [
@@ -10319,8 +10319,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 163,
-      "sha256": "079b2161048b10005c53df1c4dfed420c5e1b4ee36a04d6b564d2a3e9d52ca9b",
+      "lines": 166,
+      "sha256": "513b2725a8b4249aef5eafae643dc30d75eefe5c91d2ad0d07bac35b2fd7b869",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -14869,8 +14869,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 569,
-      "sha256": "f2900cc74c4ab76bc88ddc83e187670ba3e637b7b8a43e48ae72d376fa9d6f1a",
+      "lines": 564,
+      "sha256": "2b013431e5c8ba195bdfde7fe21a6088d263e753d519a3a9c741a1b495f8c45d",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -14882,71 +14882,71 @@
         },
         {
           "name": "initialize",
-          "line": 41
+          "line": 40
         },
         {
           "name": "backfillChatHistory",
-          "line": 50
+          "line": 48
         },
         {
           "name": "recordConversationMessage",
-          "line": 61
+          "line": 56
         },
         {
           "name": "recordChatMessage",
-          "line": 100
+          "line": 95
         },
         {
           "name": "record",
-          "line": 131
+          "line": 126
         },
         {
           "name": "all",
-          "line": 235
+          "line": 230
         },
         {
           "name": "eventsByIds",
-          "line": 238
+          "line": 233
         },
         {
           "name": "deleteEvent",
-          "line": 276
+          "line": 271
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 308
+          "line": 303
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 315
+          "line": 310
         },
         {
           "name": "deleteConversationMessage",
-          "line": 330
+          "line": 325
         },
         {
           "name": "deleteConversationData",
-          "line": 341
+          "line": 336
         },
         {
           "name": "recentEvents",
-          "line": 361
+          "line": 356
         },
         {
           "name": "recentContext",
-          "line": 364
+          "line": 359
         },
         {
           "name": "remember",
-          "line": 380
+          "line": 375
         },
         {
           "name": "exportBackup",
-          "line": 451
+          "line": 446
         },
         {
           "name": "importBackup",
-          "line": 469
+          "line": 464
         }
       ]
     },

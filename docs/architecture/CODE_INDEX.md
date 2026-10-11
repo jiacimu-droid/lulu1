@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`333a00f3eceba04dba7283e1c6a30bee8b54d0f1`
+- 基准提交：`9389a47b1034acbe31090f81240523ae82de690b`
 - 分支：`main`
 - 已索引文件：507
-- 已索引代码/文本行：107573
+- 已索引代码/文本行：107571
 - 已发现符号：1609
 
 | 文件 | 行数 | 符号数 |
@@ -89,7 +89,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 603 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 780 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 163 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 166 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 446 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 94 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
@@ -270,7 +270,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 569 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 564 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 65 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
