@@ -26,8 +26,7 @@ internal object SleepCallContinuationPolicy {
         sleepMode: Boolean,
         userSpeaking: Boolean,
         audioInProgress: Boolean,
-        autoEndEnabled: Boolean = false,
-    ): Boolean = autoEndEnabled && connected && sleepMode &&
+    ): Boolean = connected && sleepMode &&
         sinceUserReplyMillis >= AUTO_END_AT_MILLIS &&
         !userSpeaking && !audioInProgress
 
