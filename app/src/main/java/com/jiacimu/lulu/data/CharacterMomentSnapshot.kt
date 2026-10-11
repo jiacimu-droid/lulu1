@@ -53,6 +53,20 @@ internal data class PresenceHistoryMoment(
 )
 
 internal object PresenceHistoryPresentation {
+    /** Explicit message anchors may show only their own private moment.
+     * The general "Current" tab instead shows the newest actually authored
+     * voice, labelled with that voice's real time.
+     */
+    fun latestVoice(
+        current: CompanionPresenceState?,
+        history: List<CompanionPresenceState>,
+        messageAnchored: Boolean,
+    ): CompanionPresenceState? =
+        if (messageAnchored) current else history.asSequence()
+            .sortedByDescending { it.updatedAt }
+            .firstOrNull { it.innerThought.isNotBlank() }
+            ?: current?.takeIf { it.innerThought.isNotBlank() }
+
     fun entries(history: List<CompanionPresenceState>): List<PresenceHistoryMoment> {
         val chronological = history.sortedBy { it.updatedAt }
         return chronological.mapIndexedNotNull { index, state ->
