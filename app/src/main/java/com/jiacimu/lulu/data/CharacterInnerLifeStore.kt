@@ -122,6 +122,7 @@ object CharacterInnerLifeStore {
         if (eventId.isBlank()) return
         PerceptionStimulusLedger.invalidate(eventId)
         CharacterCuriosityRuntime.invalidateEvidence(eventId)
+        CharacterLifeFollowThroughStore.invalidateEvidence(eventId)
         val ids = prefs?.all?.keys.orEmpty()
         fun backedBy(value: String): Boolean =
             value == eventId || value.contains(":$eventId:")
@@ -812,7 +813,8 @@ object CharacterInnerLifeStore {
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
             responseAim.isBlank() && reason.isBlank() &&
             appraisal?.optJSONObject("pendingConcern") == null &&
-            appraisal?.optJSONObject("ownActivity") == null) return
+            appraisal?.optJSONObject("ownActivity") == null &&
+            appraisal?.optJSONObject("shareWish") == null) return
 
         val root = snapshot(characterId)
         val past = root.optJSONArray("causalTransitions") ?: JSONArray()
@@ -907,6 +909,11 @@ object CharacterInnerLifeStore {
             ))
         }
         save(characterId, root)
+        // A wish to share later is subjective and revocable. It MUST NOT
+        // deliver a message or publish a moment by itself.
+        CharacterLifeFollowThroughStore.recordShareWish(
+            characterId, appraisal?.optJSONObject("shareWish"),
+        )
         // Unified intention -> execution bridge. This shared recorder receives
         // chat, group, voice and autonomous decisions. A standalone first-stage
         // appraisal or an already-selected physical tool cannot schedule again.
