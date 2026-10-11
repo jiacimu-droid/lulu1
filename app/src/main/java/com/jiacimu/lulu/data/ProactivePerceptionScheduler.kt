@@ -201,6 +201,33 @@ object ProactivePerceptionScheduler {
     }
 
     /**
+     * One bounded follow-through after a VERIFIED voluntary activity. Uses the
+     * very same perception/decision pipeline as chat/world/background life,
+     * never a second ad-hoc "cute thought generator". If automatic perception
+     * is disabled, no extra AI call is made. 30-minute throttle avoids loops.
+     */
+    fun scheduleActionFollowThrough(context: Context, characterId: String, activityId: String) {
+        if (characterId.isBlank() || activityId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val prefs = app.getSharedPreferences("lulu_self_action_reflection_v1", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        if (now - prefs.getLong("scheduled:$characterId", 0L) in 0 until 30 * 60_000L) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(40_000L, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "角色自己刚完成了一次真实自主生活动作，查看已存执行回执和感受；可以继续、改变想法、分享或安静，不得编造新动作。")
+                .putString("characterId", characterId)
+                .putBoolean("force", true).build())
+            .build()
+        prefs.edit().putLong("scheduled:$characterId", now).apply()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-self-action-reflection-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request,
+        )
+    }
+
+    /**
      * A one-off chance to interpret a recently finished call. It is not an
      * automatic "why did you hang up?" message: the autonomy model may feel
      * something privately, choose another activity, contact the user or stay
