@@ -614,7 +614,10 @@ object ProactivePerceptionRuntime {
                 silent = parsed.action == Action.SILENT,
                 reason = parsed.reason,
                 recentActions = recentAutonomousActions,
-                hasPendingUserMessage = onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank(),
+                // Previously seen but unanswered history is STILL a social
+                // consideration, not a brand-new unread message that should
+                // block an independent-life review forever.
+                hasPendingUserMessage = onlineUnread.text.isNotBlank(),
             )
         val independentChoice = if (shouldReview) {
             prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli()).apply()
