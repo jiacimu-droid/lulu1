@@ -408,11 +408,32 @@ object ProactivePerceptionRuntime {
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
         // Only salient witnessed interactions take the two-model-call path.
         // In-call and ordinary chat turns keep their existing one-call latency.
-        val awaitingCausalAppraisal = CharacterCausalAppraisalStage.latestPending(observedWorld)
-        val resumedAppraisal = requiredInteractionEvidenceId?.let {
-            CharacterCausalAppraisalStage.resumeCommitted(characterId, it)
-        }
-        val stagedAppraisal = if (resumedAppraisal != null) resumedAppraisal else if (awaitingCausalAppraisal != null) {
+        // CRITICAL: a fresh user message owns the reply lane. A historical
+        // call-end/world encounter must never run a paid pre-action reflection
+        // ahead of the user's actual unanswered message, or turn its failure
+        // into an empty/SILENT chat response.
+        val userWaitingForReply = onlineUnread.text.isNotBlank() ||
+            pendingUserContext.isNotBlank()
+        val awaitingCausalAppraisal = if (userWaitingForReply) null else
+            CharacterCausalAppraisalStage.latestPending(observedWorld)
+                ?.takeIf { event ->
+                    !CharacterCausalAppraisalStage.hasCompletedDecision(characterId, event.id) &&
+                        !CharacterCausalAppraisalStage.hasExhaustedAttempts(
+                            appContext, characterId, event.id,
+                        )
+                }
+        val resumedAppraisal = if (userWaitingForReply) null else
+            requiredInteractionEvidenceId?.let {
+                CharacterCausalAppraisalStage.resumeCommitted(characterId, it)
+            } ?: awaitingCausalAppraisal?.let {
+                CharacterCausalAppraisalStage.resumeCommitted(characterId, it.id)
+            }
+        val stagedAppraisal = if (resumedAppraisal != null) resumedAppraisal else if (
+            awaitingCausalAppraisal != null &&
+            CharacterCausalAppraisalStage.claimModelAttempt(
+                appContext, characterId, awaitingCausalAppraisal.id,
+            )
+        ) {
             runCatching {
                 CharacterCausalAppraisalStage.reflect(
                     appContext, characterId, observedWorld, now,
