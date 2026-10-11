@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:28:20.131125+00:00",
-  "commit": "8c0ade979a24ad223a9d0490be8210fec036d468",
+  "generatedAt": "2026-10-11T05:29:04.926596+00:00",
+  "commit": "1adac58c2d7084adf945e957a607017389d36873",
   "branch": "main",
-  "sourceFingerprint": "579cb49f5790d5ad74b172d9349389c60503a58bcbb7502a71a7850f158fa640",
+  "sourceFingerprint": "4cc36f35541848b0ef986723063c20fcbdf73286d212c098e9fef2307458b689",
   "summary": {
     "files": 494,
-    "lines": 104906,
+    "lines": 104918,
     "symbols": 1558
   },
   "symbolIndex": {
@@ -3375,7 +3375,7 @@
     "parse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 34
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
@@ -3393,7 +3393,7 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 83
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -3403,13 +3403,13 @@
     "latest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 117
+        "line": 123
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 146
+        "line": 152
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -11656,24 +11656,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 193,
-      "sha256": "010085110f8cc0714f0ebe9d5a31aec1912e8c9270f60b75ee22bdfdcbe74131",
+      "lines": 205,
+      "sha256": "a96e199ca9144c37d652a4e442adf0fb25001d6d6349a9e6f59e285e036633c6",
       "symbols": [
         {
           "name": "parse",
-          "line": 34
+          "line": 33
         },
         {
           "name": "offer",
-          "line": 83
+          "line": 82
         },
         {
           "name": "latest",
-          "line": 117
+          "line": 123
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 146
+          "line": 152
         }
       ]
     },
