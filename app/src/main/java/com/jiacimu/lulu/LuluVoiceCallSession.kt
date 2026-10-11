@@ -373,40 +373,48 @@ internal object LuluVoiceCallSession {
     }
 
     private fun scheduleSleepContinuation() {
-        sleepContinuationJob?.cancel()
+        // Repeated false VAD starts/stops must not keep resetting this timer.
+        if (sleepContinuationJob?.isActive == true) return
         val call = mutableState.value
         if (!call.sleepMode || realtime != null) return
         val sessionId = call.callExperienceId
         sleepContinuationJob = scope.launch {
-            // A small real pause avoids robotic back-to-back speech and gives
-            // the user a chance to begin their own reply.
             delay(SleepCallContinuationPolicy.nextPauseMillis(sleepSilenceMillis()))
-            val now = mutableState.value
-            if (now.callExperienceId != sessionId) return@launch
-            // The call timer also enforces the end; do not generate another
-            // monologue after the unattended-call threshold.
-            if (SleepCallContinuationPolicy.shouldQuietlyEnd(
-                    sinceUserReplyMillis = sleepSilenceMillis(),
-                    connected = now.connected,
-                    sleepMode = now.sleepMode,
-                    userSpeaking = confirmedSpeechInProgress(),
-                    audioInProgress = now.speaking || speechQueue?.hasPendingAudio == true,
-                )) {
-                endSleepCallOnSilence()
-                return@launch
+            while (mutableState.value.connected &&
+                mutableState.value.callExperienceId == sessionId &&
+                mutableState.value.sleepMode && realtime == null) {
+                val now = mutableState.value
+                val busy = now.speaking || speechQueue?.hasPendingAudio == true
+                val optedAutoEnd = appContext?.getSharedPreferences("lulu_advanced_settings", 0)
+                    ?.getBoolean("sleep_auto_end_60m", false) == true
+                if (SleepCallContinuationPolicy.shouldQuietlyEnd(
+                        sleepSilenceMillis(), now.connected, now.sleepMode,
+                        confirmedSpeechInProgress(), busy, optedAutoEnd,
+                    )) {
+                    endSleepCallOnSilence()
+                    return@launch
+                }
+                // Hardware detection without recognized words is unreliable.
+                // Wait a SHORT grace period for a real live utterance, then
+                // let the bedtime monologue continue rather than hanging.
+                val recentlyDetected = userSpeechInProgress &&
+                    !confirmedSpeechInProgress() &&
+                    SystemClock.elapsedRealtime() - providerSpeechStartedMillis in 0L..3_500L
+                if (recentlyDetected) {
+                    delay(600)
+                    continue
+                }
+                if (SleepCallContinuationPolicy.canContinue(
+                        now.connected, now.sleepMode, now.thinking, busy, now.opening,
+                        confirmedSpeechInProgress(), realtime != null,
+                    )) {
+                    handleUserSpeech("", autonomousSleep = true)
+                    return@launch
+                }
+                // Crucial: a busy/thinking/mic transition is temporary, not a
+                // reason to discard the only pending bedtime continuation.
+                delay(700)
             }
-            if (!SleepCallContinuationPolicy.canContinue(
-                    connected = now.connected,
-                    sleepMode = now.sleepMode,
-                    thinking = now.thinking,
-                    speaking = now.speaking || speechQueue?.hasPendingAudio == true,
-                    opening = now.opening,
-                    userSpeaking = confirmedSpeechInProgress(),
-                    realtime = realtime != null,
-                )) return@launch
-            // Empty userText means no user utterance occurred. The next subject
-            // comes from the role's own thoughts and ACTUALLY delivered history.
-            handleUserSpeech("", autonomousSleep = true)
         }
     }
 
@@ -439,6 +447,8 @@ internal object LuluVoiceCallSession {
         subtitleRevealJob = null
         lastSleepUserReplyAtMillis = null
         userSpeechInProgress = false
+        systemSpeechConfirmed = false
+        providerSpeechConfirmed = false
         providerSpeechStartedMillis = 0L
         providerRecognitionPendingUntilMillis = 0L
         autonomousHangup.cancel()
@@ -1294,6 +1304,8 @@ internal object LuluVoiceCallSession {
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
         val startedAt = SystemClock.elapsedRealtime()
         lastUserActivityMillis = startedAt
+        systemSpeechConfirmed = false
+        providerSpeechConfirmed = false
         lastConfirmedUserSpeechMillis = startedAt
         confirmedUserSpeechCount = 0
         providerSpeechStartedMillis = 0L
@@ -1313,8 +1325,10 @@ internal object LuluVoiceCallSession {
                         sinceUserReplyMillis = sleepSilenceMillis(),
                         connected = current.connected,
                         sleepMode = current.sleepMode,
-                        userSpeaking = userSpeechInProgress,
+                        userSpeaking = confirmedSpeechInProgress(),
                         audioInProgress = current.speaking || speechQueue?.hasPendingAudio == true,
+                        autoEndEnabled = appContext?.getSharedPreferences("lulu_advanced_settings", 0)
+                            ?.getBoolean("sleep_auto_end_60m", false) == true,
                     )) {
                     endSleepCallOnSilence()
                     break
