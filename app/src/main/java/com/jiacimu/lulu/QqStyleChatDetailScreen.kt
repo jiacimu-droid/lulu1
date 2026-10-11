@@ -600,7 +600,12 @@ fun QqStyleChatDetailScreen(
                                 userAvatarUri = userAvatarUri,
                                 showAvatar = groupStart,
                                 repliedMessageContent = repliedPreview(message),
-                                onCharacterAvatarClick = { presenceCharacterId = author.characterId },
+                                onCharacterAvatarClick = {
+                                        CompanionPresenceStore.selectMessageAnchor(
+                                            author.characterId, message.createdAt, message.id,
+                                        )
+                                        presenceCharacterId = author.characterId
+                                    },
                                 onLongClick = { if (multiSelectMode) toggleSelected(message.id) else selectedMessage = message },
                             )
                         }
