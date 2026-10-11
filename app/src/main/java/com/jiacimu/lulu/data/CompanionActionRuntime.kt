@@ -445,7 +445,10 @@ internal object CompanionActionRuntime {
         )
         CompanionPresenceStore.update(character.characterId, factualReceipt, null,
             response.optString("innerThought").takeIf(String::isNotBlank),
-            response.optString("mood").takeIf(String::isNotBlank), "阅读后的想法", now)
+            response.optString("mood").takeIf(String::isNotBlank), "阅读后的想法", now,
+            momentReflection = CharacterMomentSnapshot.reflection(
+                response.optJSONObject("innerLife"), innerThought = response.optString("innerThought"),
+            ))
         SharedExperienceTimeline.record(
             eventId = record.id,
             characterId = character.characterId,
