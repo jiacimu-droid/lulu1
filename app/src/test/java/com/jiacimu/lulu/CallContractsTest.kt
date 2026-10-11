@@ -21,6 +21,10 @@ class CallContractsTest {
         assertEquals("system", CallVoiceConfiguration.normalizeSttMode(null))
         assertEquals("system", CallVoiceConfiguration.resolveSttEngine("auto"))
         assertEquals("ElevenLabs Scribe", CallVoiceConfiguration.sttLabel("elevenlabs"))
+        assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel(null))
+        assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("unknown"))
+        assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("scribe_v2"))
+        assertEquals("scribe_v2_realtime", CallVoiceConfiguration.elevenSttModel("scribe_v2_realtime"))
     }
     @Test fun miniAsrKeepsRegionButDoesNotCarryTtsQueryOrPath() {
         assertEquals("https://api.minimaxi.com/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimaxi.com/v1/t2a_v2?GroupId=123"))
