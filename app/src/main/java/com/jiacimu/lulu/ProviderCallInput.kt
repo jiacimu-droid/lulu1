@@ -24,8 +24,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val activeConnections = Collections.synchronizedSet(mutableSetOf<HttpURLConnection>())
     @Volatile private var generation = 0L
     @Volatile private var capturingVoice = false
-    private data class AudioChunk(val pcm: ByteArray, val isFinal: Boolean, val hasOverlap: Boolean = false)
-    private val pcmOverlapBytes = 16_000 // 500ms at 16kHz mono PCM16
+    private data class AudioChunk(val pcm: ByteArray, val isFinal: Boolean)
     private var segments: Channel<AudioChunk>? = null
     @Volatile private var capturePaused = false
     private val queuedChunks = AtomicInteger()
@@ -54,27 +53,15 @@ internal class ProviderCallInput(private val context: Context, private val scope
             val permits = kotlinx.coroutines.sync.Semaphore(2)
             val producer = launch {
                 var nextId = 0L
-                var previousTail = ByteArray(0)
                 try {
                     for (chunk in queue) {
                         permits.acquire()
                         val id = nextId++
-                        // Streaming file-ASR is not live decoding: a hard cut
-                        // through a Chinese syllable can erase it. Repeat only
-                        // the last 500ms at a non-final upload boundary.
-                        val overlaps = previousTail.isNotEmpty() && chunk.pcm.isNotEmpty()
-                        val uploadPcm = if (overlaps) previousTail + chunk.pcm else chunk.pcm
-                        previousTail = if (!chunk.isFinal && chunk.pcm.isNotEmpty()) {
-                            chunk.pcm.copyOfRange(maxOf(0, chunk.pcm.size - pcmOverlapBytes), chunk.pcm.size)
-                        } else ByteArray(0)
-                        val uploaded = chunk.copy(hasOverlap = overlaps)
                         val task = async(Dispatchers.IO) {
                             try {
-                                Result.success(if (uploadPcm.isEmpty()) "" else transcribe(uploadPcm) { partial ->
+                                Result.success(if (chunk.pcm.isEmpty()) "" else transcribe(chunk.pcm) { partial ->
                                     if (epoch == generation && id == presentingChunk.get()) {
-                                        onPartial(if (uploaded.hasOverlap)
-                                            PhoneTranscriptAssembler.combineOverlapped(currentPhrase, partial)
-                                        else PhoneTranscriptAssembler.combine(currentPhrase, partial))
+                                        onPartial(PhoneTranscriptAssembler.combine(currentPhrase, partial))
                                     }
                                 })
                             } catch (cancel: CancellationException) {
@@ -85,7 +72,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                                 permits.release()
                             }
                         }
-                        completed.send(Triple(id, uploaded, task))
+                        completed.send(Triple(id, chunk, task))
                     }
                 } finally {
                     completed.close()
@@ -102,9 +89,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     result.onSuccess { spoken ->
                         if (spoken.isNotBlank() && !failed) {
                             phrase.clear()
-                            phrase.append(if (chunk.hasOverlap)
-                                PhoneTranscriptAssembler.combineOverlapped(currentPhrase, spoken)
-                            else PhoneTranscriptAssembler.combine(currentPhrase, spoken))
+                            phrase.append(PhoneTranscriptAssembler.combine(currentPhrase, spoken))
                             currentPhrase = phrase.toString()
                             onPartial(currentPhrase)
                         }
