@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:22:45.268270+00:00",
-  "commit": "cccca2744bc74959e5f77e7d389dff1b0abea163",
+  "generatedAt": "2026-10-11T07:23:04.416262+00:00",
+  "commit": "0523917c995b04e9ca988eab2c64e220ed12973e",
   "branch": "main",
-  "sourceFingerprint": "2da093d3f678734dde89eb99369986e0b76fca2f061020b6a7d656e067926b29",
+  "sourceFingerprint": "eb957d8b1487577eb129cf8be5868f65137bae632d0f87d9978efea8c4ca6aff",
   "summary": {
     "files": 500,
-    "lines": 106095,
+    "lines": 106103,
     "symbols": 1577
   },
   "symbolIndex": {
@@ -3021,7 +3021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 170
+        "line": 178
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -4289,7 +4289,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 149
+        "line": 157
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -4413,19 +4413,19 @@
     "recordWitness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 135
+        "line": 139
       }
     ],
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 179
+        "line": 187
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 189
+        "line": 197
       }
     ],
     "DigitalWorldNavigationStore": [
@@ -12890,8 +12890,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 661,
-      "sha256": "cc3fe695df9c057c04d7e0b771657fb80e993734adca1bb1fa47f6ffc13eb318",
+      "lines": 669,
+      "sha256": "8661a575392294a802f401bc4b4c882e3a455b11b01be50b00124ef7454f0871",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -12911,23 +12911,23 @@
         },
         {
           "name": "recordWitness",
-          "line": 135
+          "line": 139
         },
         {
           "name": "contextFor",
-          "line": 149
+          "line": 157
         },
         {
           "name": "clearCharacter",
-          "line": 170
+          "line": 178
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 179
+          "line": 187
         },
         {
           "name": "handle",
-          "line": 189
+          "line": 197
         }
       ]
     },
