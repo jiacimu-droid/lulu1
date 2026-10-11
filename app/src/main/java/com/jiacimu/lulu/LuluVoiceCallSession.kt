@@ -543,11 +543,8 @@ internal object LuluVoiceCallSession {
                     // Never let either system/cloud ASR hear the character's own TTS and
                     // persist it back as a fake user utterance.
                     resetSystemRecognitionTurn()
-                    // PCM provider calls monitor the microphone through TTS,
-                    // with a stronger echo-aware VAD; do not discard human
-                    // speech just because the character began speaking.
-                    // Android system SpeechRecognizer cannot safely do this.
-                    if (providerInput == null) pauseRecognition()
+                    providerInput?.pauseCapture()
+                    pauseRecognition()
                     audioRoute?.refresh()
                 }
                 mutableState.update {
@@ -1079,31 +1076,6 @@ internal object LuluVoiceCallSession {
         }
     }
 
-    /** A mic-confirmed interruption overrides an unfinished model/TTS turn.
-     * Any already persisted speech remains historical; an unplayed draft does
-     * not become a real message. The user's PCM continues recording uninterrupted.
-     */
-    private fun interruptForUserSpeech() {
-        val current = mutableState.value
-        if (!current.connected || current.microphoneMuted) return
-        val agentBusy = current.thinking || current.speaking || current.opening ||
-            speechQueue?.hasPendingAudio == true
-        if (!agentBusy) return
-        replyGeneration++
-        replyJob?.cancel()
-        replyJob = null
-        autonomousHangup.cancel()
-        subtitleRevealJob?.cancel()
-        speechQueue?.stop()
-        replyIsSilence = false
-        silenceAudioPending = false
-        mutableState.update {
-            it.copy(thinking = false, speaking = false, opening = false,
-                generatedTranscript = "", playingTranscript = "",
-                statusMessage = "你在说话，已暂停对方发言")
-        }
-    }
-
     private fun startProviderInput() {
         val context = appContext ?: return
         providerInput?.stop()
@@ -1111,9 +1083,7 @@ internal object LuluVoiceCallSession {
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
         providerInput = ProviderCallInput(context, scope,
             sttEngine = CallVoiceConfiguration.sttEngine(context),
-            accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted },
-            playbackActive = { mutableState.value.speaking || speechQueue?.hasPendingAudio == true },
-            onBargeIn = { if (sameSession()) interruptForUserSpeech() },
+            accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted && !s.speaking && !s.opening },
             onReady = {
                 if (sameSession()) {
                     if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
@@ -1131,9 +1101,9 @@ internal object LuluVoiceCallSession {
                     providerSpeechStartedMillis = SystemClock.elapsedRealtime()
                     noteCallUserActivity()
                     sleepContinuationJob?.cancel()
-                    // Playback interruption has already been checked by the
-                    // stronger audio gate. Ordinary capture remains continuous
-                    // while cloud STT and next-turn planning are pending.
+                    // Do not cancel a real in-flight model reply merely because
+                    // room noise tripped VAD. Confirm a new user utterance from
+                    // STT before replacing the previous reply.
                     mutableState.update { it.copy(userSpeaking = true, listening = true, errorMessage = "", partialTranscript = "",
                         statusMessage = "检测到语音，正在收音…") }
                 }
