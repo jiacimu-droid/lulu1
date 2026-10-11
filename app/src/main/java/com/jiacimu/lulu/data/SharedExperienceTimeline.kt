@@ -40,7 +40,6 @@ object SharedExperienceTimeline {
     fun initialize(context: Context) {
         if (helper != null) return
         val application = context.applicationContext
-        applicationContext = application
         helper = TimelineDatabase(application)
         helper?.writableDatabase
         MemoryExtractionJobStore.initialize(application)
