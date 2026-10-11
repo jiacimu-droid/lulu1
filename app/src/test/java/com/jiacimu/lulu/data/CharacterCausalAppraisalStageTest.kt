@@ -55,6 +55,16 @@ class CharacterCausalAppraisalStageTest {
         assertNull(CharacterCausalAppraisalStage.latestPending(listOf(ignored)))
     }
 
+    @Test fun unreadChatAlwaysGetsPriorityOverCostlyBackgroundAppraisal() {
+        assertTrue(CharacterCausalAppraisalStage.canAppraiseBeforeAction("", ""))
+        assertFalse(CharacterCausalAppraisalStage.canAppraiseBeforeAction(
+            "宝宝你在吗？", ""))
+        assertFalse(CharacterCausalAppraisalStage.canAppraiseBeforeAction(
+            "", "待回复｜用户：你在吗"))
+        assertFalse(CharacterCausalAppraisalStage.canAppraiseBeforeAction(
+            "新消息", "待回复的跨场景消息"))
+    }
+
     @Test fun persistedFeelingAloneDoesNotCountAsCompletedAction() {
         val evidenceId = "interaction-call-end-abc"
         val appraisal = JSONArray().put(JSONObject()
