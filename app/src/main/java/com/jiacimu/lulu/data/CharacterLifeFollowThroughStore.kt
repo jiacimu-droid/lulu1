@@ -19,9 +19,11 @@ internal object CharacterLifeFollowThroughStore {
     private const val MAX_EVENTS = 24
     private val lock = Any()
     private var prefs: SharedPreferences? = null
+    private var applicationContext: Context? = null
 
     fun initialize(context: Context) {
         synchronized(lock) {
+            applicationContext = context.applicationContext
             if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         }
     }
@@ -57,6 +59,11 @@ internal object CharacterLifeFollowThroughStore {
             .put("createdAt", Instant.now().toString())
         all += event
         save(characterId, all)
+        // Wake the already existing shared decision pipeline once for an
+        // important verified experience; never auto-post or auto-read here.
+        applicationContext?.let { ctx ->
+            runCatching { ProactivePerceptionScheduler.scheduleLifeFollowThrough(ctx, characterId) }
+        }
         true
     }
 
