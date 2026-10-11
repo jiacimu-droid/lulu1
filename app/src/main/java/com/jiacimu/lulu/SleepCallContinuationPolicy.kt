@@ -13,11 +13,11 @@ internal object SleepCallContinuationPolicy {
     const val AUTO_END_AT_MILLIS = 60 * 60_000L
 
     fun nextPauseMillis(sinceUserReplyMillis: Long): Long = when {
-        sinceUserReplyMillis >= NEAR_SLEEP_AT_MILLIS -> 180_000L
-        sinceUserReplyMillis >= SPARSE_QUIET_AT_MILLIS -> 90_000L
-        sinceUserReplyMillis >= DEEP_QUIET_AT_MILLIS -> 35_000L
-        sinceUserReplyMillis >= FIRST_QUIET_AT_MILLIS -> 12_000L
-        else -> 1_900L
+        sinceUserReplyMillis >= NEAR_SLEEP_AT_MILLIS -> 24_000L
+        sinceUserReplyMillis >= SPARSE_QUIET_AT_MILLIS -> 12_000L
+        sinceUserReplyMillis >= DEEP_QUIET_AT_MILLIS -> 6_000L
+        sinceUserReplyMillis >= FIRST_QUIET_AT_MILLIS -> 3_500L
+        else -> 2_000L
     }
 
     fun shouldQuietlyEnd(
@@ -26,7 +26,8 @@ internal object SleepCallContinuationPolicy {
         sleepMode: Boolean,
         userSpeaking: Boolean,
         audioInProgress: Boolean,
-    ): Boolean = connected && sleepMode &&
+        autoEndEnabled: Boolean = false,
+    ): Boolean = autoEndEnabled && connected && sleepMode &&
         sinceUserReplyMillis >= AUTO_END_AT_MILLIS &&
         !userSpeaking && !audioInProgress
 
