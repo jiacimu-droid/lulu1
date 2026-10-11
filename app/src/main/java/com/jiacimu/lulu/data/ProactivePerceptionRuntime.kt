@@ -499,6 +499,11 @@ object ProactivePerceptionRuntime {
                     appendLine(CharacterCausalActionPolicy.followThroughInstruction(stagedAppraisal.evidenceId))
                 }
                 appendLine(affordances)
+                CharacterSelfActivityRuntime.latestConsideration(appContext, characterId)?.let { idea ->
+                    appendLine("【过去自己想到但还没决定的事｜没有真的做过】")
+                    appendLine("当时考虑：${idea.optString("action")}；当时原因：${idea.optString("whyNow")}")
+                    appendLine("这只是曾经的私人念头，不能当成新世界事件、已经做成、义务或必须执行的命令。若今天仍想做，自己选择本轮真实 action 和有效 ID，走执行回执；也可以放下。")
+                }
                 CharacterSelfActivityRuntime.latest(appContext, characterId)?.let { activity ->
                     val age = System.currentTimeMillis() - activity.optLong("createdAt")
                     if (age in 0..(2 * 60 * 60_000L)) {
