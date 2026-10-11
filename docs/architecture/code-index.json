@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T17:26:46.744669+00:00",
-  "commit": "d1839a913bed8d27596e4f5ba6667fabc3568927",
+  "generatedAt": "2026-10-11T17:27:11.257797+00:00",
+  "commit": "89b000659971161cd26f7b3af5b63dbf31e0cfed",
   "branch": "main",
-  "sourceFingerprint": "fbeaeba3a05b4afea886ff561a55db3cc31ebc998bd4928a5e0b3229c70bb944",
+  "sourceFingerprint": "5b3523811ee40c92d71f0ca7d6305bb52bbfd7bf5755f58a7821c2cb670f36b1",
   "summary": {
     "files": 520,
-    "lines": 108777,
+    "lines": 108797,
     "symbols": 1631
   },
   "symbolIndex": {
@@ -18099,8 +18099,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt",
-      "lines": 27,
-      "sha256": "9dcb3b53581f90509e8a53db89d35ac3df7ddc7dda67d38e3cd4d8a8d1e04819",
+      "lines": 47,
+      "sha256": "3728fe0c3bf66c89acbd2e0913020ae234b6d5531ea7b98c565bb28cd31baa40",
       "symbols": [
         {
           "name": "PhoneBargeInPolicyTest",
