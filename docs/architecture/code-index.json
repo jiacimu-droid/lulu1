@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T19:14:23.198728+00:00",
-  "commit": "fb772baf8798664c5da4ccdac56d5ae2a283e951",
+  "generatedAt": "2026-10-11T03:18:23.790675+00:00",
+  "commit": "7ca5a792c7e80f58ad34b10a7a40f239e574e23b",
   "branch": "main",
-  "sourceFingerprint": "37431850c1aa359602d21c052518a889db3140c328d3bc792b1cf18a19d82621",
+  "sourceFingerprint": "8985be2701e41c0ad2739059aaac10feaf506383115d2fa6dbcf9af8dc3487cc",
   "summary": {
     "files": 484,
-    "lines": 103930,
-    "symbols": 1534
+    "lines": 103951,
+    "symbols": 1537
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1748,10 +1748,28 @@
         "line": 31
       }
     ],
+    "bargeInThreshold": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 40
+      }
+    ],
+    "startFrames": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 43
+      }
+    ],
+    "canEndFromStationaryNoise": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 50
+      }
+    ],
     "uploadChunkFull": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 34
+        "line": 55
       }
     ],
     "captionRows": [
@@ -9988,8 +10006,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-      "lines": 37,
-      "sha256": "0ae2f93279f0fcac90185ed1753502c2f19f132fa92ff1b406cbd04cada7df25",
+      "lines": 58,
+      "sha256": "c7f49e6103d00ab12c4e1055c9e37f4aed49cbf962a4787faf73ecca7d6d2caf",
       "symbols": [
         {
           "name": "silenceMs",
@@ -10016,8 +10034,20 @@
           "line": 31
         },
         {
+          "name": "bargeInThreshold",
+          "line": 40
+        },
+        {
+          "name": "startFrames",
+          "line": 43
+        },
+        {
+          "name": "canEndFromStationaryNoise",
+          "line": 50
+        },
+        {
           "name": "uploadChunkFull",
-          "line": 34
+          "line": 55
         }
       ]
     },
