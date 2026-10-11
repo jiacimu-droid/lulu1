@@ -382,6 +382,7 @@ internal object CompanionActionRuntime {
         now: Instant,
     ): CompanionActionResult = readingLocks.getOrPut(character.characterId) { kotlinx.coroutines.sync.Mutex() }.withLock {
         ReadingReflectionStore.initialize(context)
+        CharacterCuriosityRuntime.initialize(context.applicationContext)
         val readingGeneration = ReadingReflectionStore.generation(character.characterId)
         val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
             ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
