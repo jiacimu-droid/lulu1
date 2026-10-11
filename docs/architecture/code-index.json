@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:29:43.578491+00:00",
-  "commit": "80ef7522104cdb8c52225ad599d4e7c2ee7b7cfe",
+  "generatedAt": "2026-10-11T15:30:32.330592+00:00",
+  "commit": "1e332f6c5608c84bdd464aa5ba9455fa2140aacf",
   "branch": "main",
-  "sourceFingerprint": "803d8568391df78fc507ad583d1668496e0786097e8b3a1a86a875d2311d03e7",
+  "sourceFingerprint": "6f3a9ad418197383b5fcdbdb6553a64e4eea914af3ec3513d03dae1a43305c75",
   "summary": {
     "files": 511,
-    "lines": 107804,
+    "lines": 107816,
     "symbols": 1615
   },
   "symbolIndex": {
@@ -11795,8 +11795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-      "lines": 176,
-      "sha256": "bf9839a9d4cda23d7af3c379fa4bd4a69631eb8106790c601aa2e638fb172fc5",
+      "lines": 188,
+      "sha256": "67fdaccca1989cd8a7d497c77307d3c615ab1df210c4ca623dac29a49cb9f6f5",
       "symbols": [
         {
           "name": "feedbackTopic",
