@@ -37,8 +37,17 @@ internal object CharacterLifeFollowThroughStore {
     }
 
     private fun save(characterId: String, records: List<JSONObject>) {
+        // Preserve a handful of significant unresolved lived experiences even
+        // if many harmless ambient moments arrive later.
+        val protectedIds = records.filter { it.optBoolean("significant") &&
+            (it.optString("shareStatus") !in setOf("shared", "released") ||
+                it.optString("curiosityStatus") !in setOf("explored", "released"))
+        }.takeLast(6).map { it.optString("id") }.toSet()
+        val retained = records.filter { it.optString("id") !in protectedIds }
+            .takeLast(MAX_EVENTS - protectedIds.size) +
+            records.filter { it.optString("id") in protectedIds }
         prefs?.edit()?.putString("character:$characterId", JSONArray().apply {
-            records.takeLast(MAX_EVENTS).forEach(::put)
+            retained.sortedBy { it.optString("occurredAt") }.forEach(::put)
         }.toString())?.apply()
     }
 
@@ -67,6 +76,19 @@ internal object CharacterLifeFollowThroughStore {
         true
     }
 
+    /** An unresolved material incident gets a longer-lived chance to matter.
+     *  It is still a PAST observation, never proof of its current location.
+     */
+    fun markSignificant(characterId: String, evidenceId: String) = synchronized(lock) {
+        if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return@synchronized
+        val all = records(characterId)
+        val item = all.firstOrNull { it.optString("id") == evidenceId } ?: return@synchronized
+        if (!item.optBoolean("significant")) {
+            item.put("significant", true)
+            save(characterId, all)
+        }
+    }
+
     fun invalidateEvidence(evidenceId: String) = synchronized(lock) {
         if (prefs == null || evidenceId.isBlank()) return@synchronized
         prefs?.all?.keys?.filter { it.startsWith("character:") }?.forEach { key ->
@@ -81,7 +103,8 @@ internal object CharacterLifeFollowThroughStore {
         records(characterId).filter { item ->
             val created = runCatching { Instant.parse(item.optString("occurredAt")) }.getOrNull()
             created != null && !created.isAfter(now) &&
-                Duration.between(created, now).toDays() <= 7 &&
+                (Duration.between(created, now).toDays() <= 7 ||
+                    item.optBoolean("significant")) &&
                 (item.optString("shareStatus") !in setOf("shared", "released") ||
                     item.optString("curiosityStatus") !in setOf("explored", "released"))
         }
@@ -91,7 +114,10 @@ internal object CharacterLifeFollowThroughStore {
     }
 
     fun context(characterId: String, now: Instant = Instant.now()): String = synchronized(lock) {
-        val opportunities = recent(characterId, now).takeLast(4).asReversed()
+        val all = recent(characterId, now)
+        val significant = all.filter { it.optBoolean("significant") }.takeLast(2)
+        val opportunities = (all.takeLast(4) + significant)
+            .distinctBy { it.optString("id") }.takeLast(5).asReversed()
         if (opportunities.isEmpty()) return@synchronized ""
         buildString {
             appendLine("【真实经历留下的分享欲与好奇心｜你自己的选择，不是用户下达的任务】")
@@ -112,6 +138,7 @@ internal object CharacterLifeFollowThroughStore {
                     appendLine("  自己曾想分享的原因：${it.take(140)}")
                 }
             }
+            appendLine("以上是曾经真实发生的经历；事件是否仍持续，必须以当前程序世界状态为准。旧的蟑螂可能已被处理，旧阅读也不能算刚读到新章节。")
             appendLine("选择普通私聊、公开朋友圈(moment)和群聊(group_message)是不同社交意图。公开朋友圈不是只供重大通报的稀有动作；生活趣事、吐槽、惊讶、阅读中真正触动的细节都可能值得发。不要每件事必发，也不要仅因没有用户未读消息就放弃本人的分享欲。")
             appendLine("如本次实际行动是在回应其中一段真实经历，填写对应 experienceId；如果暂时想分享但未行动，可以填 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held|released\",\"why\":\"私人理由\"}。念头不是发送回执，只有执行成功才记录已分享。")
         }.trim()
