@@ -51,6 +51,51 @@ class CharacterGrowthTrajectoryLedgerTest {
             .any { it.evidenceId == source })
     }
 
+    @Test fun oneReplyCanCreateAConcernAndLaterActionReceiptsAdvanceThatSameThread() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val role = "in-turn-concern-and-action-role"
+        val evidenceId = "evidence-trust-discussion"
+        val now = Instant.now()
+        SharedExperienceTimeline.record(evidenceId, role, "私聊", "用户",
+            "我不喜欢你轻视我自己的决定。", now, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val appraisal = org.json.JSONObject()
+            .put("meaning", "她需要我尊重她自己作决定的能力")
+            .put("tension", "我想保护她，也不想替她做主")
+            .put("pendingConcern", org.json.JSONObject()
+                .put("status", "open")
+                .put("focus", "怎么让她在分歧时也感到被尊重")
+                .put("whyItMatters", "她明确表示我有时弱化她")
+                .put("possibleNextStep", "有分歧时先听她的选择，不急于替她判断"))
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = role, evidenceId = evidenceId, appraisal = appraisal,
+            innerLife = org.json.JSONObject().put("thoughts", org.json.JSONArray().put(
+                org.json.JSONObject().put("thought", "要不要调整说话时替她做决定的习惯"))),
+            innerThoughtBasis = null, selectedAction = "reply", innerThought = "",
+            reason = "想回应但要保留自己的判断", now = now.plusSeconds(1))
+        val active = CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns")
+        assertEquals(1, active.length())
+        val thread = active.getJSONObject(0).getString("id")
+        val before = CharacterGrowthTrajectory.entries(role, now.plusSeconds(2))
+        assertTrue(before.any { it.category == "心事" && it.detail.contains("尊重") })
+        assertTrue(before.any { it.category == "反思" && it.detail.contains("权衡") })
+        assertFalse(before.any { it.category == "成长" })
+        // This is a real executor receipt, not a second psychological API call.
+        CharacterInnerLifeStore.recordConcernOutcome(
+            role, thread, "delivered-action-receipt", "message",
+            success = true, outcome = "确实发出了经过斟酌的回复",
+            now = now.plusSeconds(5))
+        val after = CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns")
+        assertEquals(thread, after.getJSONObject(0).getString("id"))
+        assertTrue(after.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
+        // One successful message alone is not proof the relationship has healed.
+        assertEquals(1, after.length())
+    }
+
     @Test fun routineConversationalAppraisalIsNotFalselyAdvertisedAsGrowth() {
         val ordinary = org.json.JSONObject().put("selectedAction", "reply")
             .put("appraisal", org.json.JSONObject().put("meaning", "今天只是问候"))
