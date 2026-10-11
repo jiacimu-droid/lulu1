@@ -169,6 +169,14 @@ internal class RealtimeVoiceAdapter(
         connected.sendUserMessage(event)
     }
 
+    /** Text is explicitly typed in the shared private chat; no mic/STT is needed. */
+    suspend fun sendTypedMessage(text: String) {
+        val connected = session ?: error("实时电话已断开")
+        require(text.isNotBlank())
+        controlEvents += text // SDK transcript echo must not create a second user bubble.
+        connected.sendUserMessage(text)
+    }
+
     fun mute(muted: Boolean) { microphoneMuted = muted; scope.launch { session?.setMicMuted(muted || openingWaiting) } }
     fun speaker(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
         // Speaker toggle chooses the Android audio route (speaker vs receiver/headset),
