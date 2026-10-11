@@ -82,6 +82,28 @@ internal object DigitalWorldEvolutionRuntime {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return emptyList()
         scheduleValidatedModelProposal(characterId, now)
         val results = mutableListOf<String>()
+        // A brand-new persistent world with literally ZERO residents has no
+        // possible social encounter. The old 30% daily spawn probability could
+        // leave it empty for days. Bootstrap one real stored local resident;
+        // meeting her still requires the character to walk to her location and
+        // choose an actual interaction through the executor.
+        if (DigitalWorldExpansionStore.residents().isEmpty()) {
+            val initial = residentTemplates.first()
+            val resident = runCatching {
+                DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+                    name = initial.name,
+                    identity = initial.identity,
+                    homeLocationCode = DigitalWorldPublicPlaces.CAFE,
+                    currentLocationCode = DigitalWorldPublicPlaces.CAFE,
+                    createdAt = now,
+                ))
+            }.getOrNull()
+            if (resident != null) {
+                val summary = "数字世界已经登记第一位持久居民“${resident.name}”，她在浮光咖啡角生活与值守。角色可以自行决定要不要去遇见她。"
+                results += summary
+                recordEvolution(characterId, "first-resident-${resident.id}", summary, now)
+            }
+        }
         val daySlot = Math.floorDiv(now.epochSecond, DAY_SECONDS)
 
         val consumedPlaceSlot = p.getLong(KEY_PLACE_SLOT, -1L)
