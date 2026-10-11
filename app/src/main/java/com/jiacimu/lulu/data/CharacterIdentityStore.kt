@@ -29,6 +29,7 @@ object CharacterIdentityStore {
             prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             // Load the character's ongoing curiosity before the first chat/call prompt.
             CharacterCuriosityRuntime.initialize(context.applicationContext)
+            CharacterRelationalInitiative.initialize(context.applicationContext)
             mutable.value = prefs?.all.orEmpty()
                 .mapNotNull { (key, value) ->
                     if (!key.startsWith(KEY_PREFIX)) return@mapNotNull null
