@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:16:46.273488+00:00",
-  "commit": "e6b6cb31a520a7a290ecd9b450199368eac32e92",
+  "generatedAt": "2026-10-11T07:17:02.150974+00:00",
+  "commit": "06378f59e6f6682f11ea8885688a5f251e2db8a9",
   "branch": "main",
-  "sourceFingerprint": "1cd5c13f7cdef09d61ef904a65686a4a615fd14b5428c1e005ed148d8cef749e",
+  "sourceFingerprint": "0a6ec5e26679313afd4064398930c92e76f582a66239438f2c0ddbf83849ee29",
   "summary": {
     "files": 499,
-    "lines": 105928,
+    "lines": 105935,
     "symbols": 1575
   },
   "symbolIndex": {
@@ -307,7 +307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1129
+        "line": 1136
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3165,31 +3165,31 @@
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 126
+        "line": 127
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 469
+        "line": 470
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 632
+        "line": 633
       }
     ],
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1029
+        "line": 1036
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1046
+        "line": 1053
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -11498,8 +11498,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1251,
-      "sha256": "c5f68ad8f20064adbdd657ada0ec00832684fdec0d4db75e6e64c03957a2a6a2",
+      "lines": 1258,
+      "sha256": "51b1f86de319f27e825412ce091ccb1a3d17edca887ce1becb387bf8a8d537e7",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -11511,27 +11511,27 @@
         },
         {
           "name": "backedBy",
-          "line": 126
+          "line": 127
         },
         {
           "name": "interactionContext",
-          "line": 469
+          "line": 470
         },
         {
           "name": "groundingContext",
-          "line": 632
+          "line": 633
         },
         {
           "name": "normalize",
-          "line": 1029
+          "line": 1036
         },
         {
           "name": "compactContext",
-          "line": 1046
+          "line": 1053
         },
         {
           "name": "context",
-          "line": 1129
+          "line": 1136
         }
       ]
     },
