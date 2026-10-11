@@ -187,7 +187,10 @@ internal class ElevenLabsRealtimeStt(
 
     private fun fail(message: String) {
         if (closed.get() || !active() || !reported.compareAndSet(false, true)) return
-        dispatch { onError(message) }
+        // An error must remain visible even though stop() closes the socket.
+        scope.launch(Dispatchers.Main) {
+            if (active()) onError(message)
+        }
         stop()
     }
 
