@@ -177,12 +177,12 @@ object CompanionPresenceStore {
         val elapsed = runCatching { Duration.between(current.updatedAt, at).toMillis() }.getOrNull()
             ?: return
         if (elapsed !in -30_000L..300_000L) return
-        // The history entry records only the genuinely NEW inner voice, unlike
-        // the live state which can retain an earlier voice for continuity.
-        val saved = mutableHistories.value[characterId].orEmpty()
-            .firstOrNull { it.updatedAt == current.updatedAt }
-        val exact = saved ?: current.copy(innerThought = "", momentReflection = "")
-        messageMoments[messageId] = exact
+        // A history entry is a DELTA and deliberately omits unchanged private
+        // state. An avatar is a SNAPSHOT: it must capture what the role really
+        // knew/felt at delivery, not the sparse delta (which can be blank).
+        // Freeze a copy now so later independent inner-life changes cannot
+        // rewrite this message's historical moment.
+        messageMoments[messageId] = current.copy()
         while (messageMoments.size > 500) messageMoments.remove(messageMoments.keys.first())
         persist()
     }
