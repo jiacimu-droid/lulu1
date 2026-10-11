@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:33:34.447743+00:00",
-  "commit": "754502dd4c80774a3ef3856d151941fbc0b9aa91",
+  "generatedAt": "2026-10-11T16:33:58.347591+00:00",
+  "commit": "d841f98431b214db21808078c04404528f5cb6a6",
   "branch": "main",
-  "sourceFingerprint": "4163935d803bc6e84360ee56212539f89a9a6562f3231a5c3fed1c768d6964c1",
+  "sourceFingerprint": "e3ff33602bfe8d72317a41920caf51cfc30457b8c300ca6a328a897be1f6144c",
   "summary": {
-    "files": 516,
-    "lines": 108388,
-    "symbols": 1622
+    "files": 517,
+    "lines": 108508,
+    "symbols": 1623
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5993,7 +5993,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1185
+        "line": 1227
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -7808,6 +7808,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
         "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt",
+        "line": 13
       }
     ],
     "availableBooks": [
@@ -14760,8 +14764,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1241,
-      "sha256": "02732210b543f17a8122663fcef041c9806a2f245d1b070ec2cb7f34c29c470a",
+      "lines": 1283,
+      "sha256": "8adce89cef1ac4a2f5b61800a8685eaff0fc2c01a9c6f3a14669075a48a6d004",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -14785,7 +14789,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1185
+          "line": 1227
         }
       ]
     },
@@ -17042,6 +17046,17 @@
         {
           "name": "migrateLegacyHistory",
           "line": 73
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt",
+      "lines": 78,
+      "sha256": "2a44bcb1171ec2ef996af4a08dc56a2333d8dada3431d6357829b863e23fbca1",
+      "symbols": [
+        {
+          "name": "books",
+          "line": 13
         }
       ]
     },
