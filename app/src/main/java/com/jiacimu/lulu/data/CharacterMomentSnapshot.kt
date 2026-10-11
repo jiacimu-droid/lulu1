@@ -89,7 +89,7 @@ internal object PresenceHistoryPresentation {
             current?.takeIf { it.innerThought.isNotBlank() } ?: history
                 .asSequence().filter { it.innerThought.isNotBlank() && current != null &&
                     !it.updatedAt.isAfter(current.updatedAt) &&
-                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0..5 }
+                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0L..5L }
                 .maxByOrNull { it.updatedAt }
         } else history.asSequence().sortedByDescending { it.updatedAt }
             .firstOrNull { it.innerThought.isNotBlank() }
@@ -104,7 +104,7 @@ internal object PresenceHistoryPresentation {
             current?.takeIf { it.momentReflection.isNotBlank() } ?: history
                 .asSequence().filter { it.momentReflection.isNotBlank() && current != null &&
                     !it.updatedAt.isAfter(current.updatedAt) &&
-                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0..5 }
+                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0L..5L }
                 .maxByOrNull { it.updatedAt }
         } else history.asSequence().sortedByDescending { it.updatedAt }
             .firstOrNull { it.momentReflection.isNotBlank() }
