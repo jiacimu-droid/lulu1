@@ -46,7 +46,8 @@ internal fun VoiceCallSettings(provider: String) {
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf("auto" to "自动", "system" to "手机识别",
-                "groq" to "Groq Whisper", "minimax" to "MiniMax").forEach { (id, title) ->
+                "groq" to "Groq Whisper", "minimax" to "MiniMax",
+                "elevenlabs" to "ElevenLabs Scribe").forEach { (id, title) ->
                 FilterChip(selected = sttMode == id, onClick = {
                     sttMode = id
                     prefs.edit().putString("call_stt_mode", id).apply()
@@ -55,7 +56,8 @@ internal fun VoiceCallSettings(provider: String) {
         }
         val activeEngine = CallVoiceConfiguration.resolveSttEngine(sttMode,
             SpeechRecognizer.isRecognitionAvailable(context), groqKey.isNotBlank(), provider,
-            minimaxConfigured = prefs.getString("minimax_api_key", "").orEmpty().isNotBlank())
+            minimaxConfigured = prefs.getString("minimax_api_key", "").orEmpty().isNotBlank(),
+            elevenConfigured = prefs.getString("eleven_api_key", "").orEmpty().isNotBlank())
         Text("当前识别：${CallVoiceConfiguration.sttLabel(activeEngine)}",
             style = MaterialTheme.typography.bodySmall)
         if (sttMode == "auto" || sttMode == "groq") {
@@ -75,6 +77,21 @@ internal fun VoiceCallSettings(provider: String) {
                 }
             }
             Text("Groq 提供有限免费层；用量超过免费限额后的扣费规则取决于你的账号。只有使用 Groq 时才向它上传录音片段。",
+                style = MaterialTheme.typography.bodySmall)
+        }
+        if (sttMode == "elevenlabs") {
+            Text("使用 ElevenLabs Scribe V2 识别你的话，与角色配音供应商无关。沿用 ElevenLabs 的 API Key（不需要 Voice ID），识别请求可能消耗账号积分。",
+                style = MaterialTheme.typography.bodySmall)
+            var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
+            OutlinedTextField(value = elevenKey, onValueChange = {
+                elevenKey = it
+                prefs.edit().putString("eleven_api_key", it.trim()).apply()
+            }, label = { Text("ElevenLabs API Key（与配音共用）") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true, modifier = Modifier.fillMaxWidth())
+        }
+        if (sttMode == "system") {
+            Text("手机系统识别不单独向露露机收取识别费，但实际识别由手机系统服务提供，可能使用网络与流量，不保证离线或精准。",
                 style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "system" && !SpeechRecognizer.isRecognitionAvailable(context))
