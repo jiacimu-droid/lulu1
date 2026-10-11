@@ -4,7 +4,7 @@ import android.content.Context
 
 /** Durable chat turns wait for the last user bubble without cancelling already-running replies. */
 internal object OnlineChatBatchStore {
-    const val QUIET_MILLIS = 6_000L
+    const val QUIET_MILLIS = 4_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
@@ -20,7 +20,7 @@ internal object OnlineChatBatchStore {
             if (collectMessages && !hasUserBubbles) {
                 // An autonomous background tick may have left an immediate
                 // non-message batch pending. The FIRST chat bubble MUST turn
-                // that into a real six-second waiting window; never reuse the 0ms due.
+                // that into a real four-second waiting window; never reuse the 0ms due.
                 val due = now + QUIET_MILLIS
                 check(p.edit().putLong("due:$characterId", due)
                     .putBoolean("messageWindow:$characterId", true).commit()) { "在线首条消息等待期保存失败" }
@@ -35,7 +35,7 @@ internal object OnlineChatBatchStore {
         return Batch(revision, due)
     }
 
-    /** Extend the pending turn by six seconds from each newly persisted user bubble. */
+    /** Extend the pending turn by four seconds from each newly persisted user bubble. */
     @Synchronized fun onUserBubble(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
     ): Batch {
