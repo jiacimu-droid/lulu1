@@ -780,16 +780,18 @@ object ProactivePerceptionRuntime {
                 ?: "proactive-${now.toEpochMilli()}",
         )
         currentCoroutineContext().ensureActive()
-        CharacterRelationalInitiative.recordDecision(
-            characterId, decision.relationshipInitiative, decision.action.name.lowercase(),
-            execution.success, execution.summary, now,
-        )
         val actionEvidenceId = if (execution.success) {
             SharedExperienceTimeline.all(characterId).asReversed().firstOrNull {
                 it.id !in priorEvidence && it.speaker == character.displayName &&
                     it.channel != "在线感知"
             }?.id.orEmpty()
         } else ""
+        // Relational delivery and exploration use the SAME executor receipt
+        // from the shared raw event timeline, not model-authored success claims.
+        CharacterRelationalInitiative.recordDecision(
+            characterId, decision.relationshipInitiative, decision.action.name.lowercase(),
+            execution.success, execution.summary, now, actionEvidenceId,
+        )
         // A real timeline event ID is mandatory for long-term exploration evidence.
         CharacterCuriosityRuntime.recordOutcome(
             characterId, decision.curiosity, decision.action.name.lowercase(),
