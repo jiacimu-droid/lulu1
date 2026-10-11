@@ -23,7 +23,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
         onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {},
         onSpeechFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray, Boolean) -> Unit,
-        onError: (String) -> Unit, threshold: Float = 350f, endSilenceMs: Int = 500) {
+        onError: (String) -> Unit, threshold: Float = 195f, endSilenceMs: Int = 2_500) {
         stop()
         val epoch = generation
         job = scope.launch(Dispatchers.IO) {
@@ -33,7 +33,10 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
             try {
                 val minimum = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
                 check(minimum > 0) { "手机不支持 16kHz 单声道录音" }
-                audio = AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION, 16000,
+                // VOICE_RECOGNITION is intended for speech capture. On many Android
+                // devices VOICE_COMMUNICATION aggressively gates quiet syllables.
+                // Character playback already pauses microphone recognition.
+                audio = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, 16000,
                     AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(minimum, 6400))
                 check(audio.state == AudioRecord.STATE_INITIALIZED) { "麦克风初始化失败，可能被其他应用占用" }
                 recorder = audio
@@ -103,13 +106,13 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     }
                     if (!active) {
                         preRoll.addLast(frame)
-                        if (preRoll.size > 4) preRoll.removeFirst()
+                        if (preRoll.size > 7) preRoll.removeFirst()
                         // While idle, learn the room's quiet background without
                         // letting an abrupt real voice raise the start threshold.
                         val startGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
                         if (rms < startGate) ambientRms = ambientRms * 0.86 + rms * 0.14
                         loudFrames = if (rms >= startGate) loudFrames + 1 else 0
-                        if (loudFrames < 2) continue
+                        if (loudFrames < PhoneMicSegmentPolicy.onsetFrames(rms, startGate)) continue
                         active = true
                         utteranceFrames = 0
                         peakRms = rms
