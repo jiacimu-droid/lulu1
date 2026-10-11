@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T14:52:24.569310+00:00",
-  "commit": "8b8790e7bc01110146419a9705899db33c9212bf",
+  "generatedAt": "2026-10-11T14:52:42.525130+00:00",
+  "commit": "a9c3089a3147974a0d70ca7ae040eeb77ea7a1bf",
   "branch": "main",
-  "sourceFingerprint": "439febb1c15797743c089a4f585420f2e3e2305452240cc6c03d523f88e52784",
+  "sourceFingerprint": "3820a76423f6eaadb78cec05f1948879d7cb604bdc4cf1ce5ecfaf0efe33e5cb",
   "summary": {
     "files": 512,
-    "lines": 107883,
-    "symbols": 1615
+    "lines": 107910,
+    "symbols": 1617
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2061,7 +2061,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 161
+        "line": 188
       }
     ],
     "byId": [
@@ -2904,10 +2904,22 @@
         "line": 24
       }
     ],
+    "hasExhaustedAttempts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 27
+      }
+    ],
+    "claimModelAttempt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
+        "line": 35
+      }
+    ],
     "eligible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 28
+        "line": 55
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -2917,31 +2929,31 @@
     "latestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 37
+        "line": 64
       }
     ],
     "hasCompletedDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 42
+        "line": 69
       }
     ],
     "hasDecisionReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 44
+        "line": 71
       }
     ],
     "hasAppraisalReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 49
+        "line": 76
       }
     ],
     "resumeCommitted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-        "line": 60
+        "line": 87
       }
     ],
     "snapshot": [
@@ -11543,36 +11555,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
-      "lines": 176,
-      "sha256": "19dbeae03c389fea02ad908bde536e9ad393fc1393dd461c541e10d3af30c628",
+      "lines": 203,
+      "sha256": "bd0f484804c1da4a040463cd88e95f49fa609c7a2b7834a2484079083012516e",
       "symbols": [
         {
+          "name": "hasExhaustedAttempts",
+          "line": 27
+        },
+        {
+          "name": "claimModelAttempt",
+          "line": 35
+        },
+        {
           "name": "eligible",
-          "line": 28
+          "line": 55
         },
         {
           "name": "latestPending",
-          "line": 37
+          "line": 64
         },
         {
           "name": "hasCompletedDecision",
-          "line": 42
+          "line": 69
         },
         {
           "name": "hasDecisionReceipt",
-          "line": 44
+          "line": 71
         },
         {
           "name": "hasAppraisalReceipt",
-          "line": 49
+          "line": 76
         },
         {
           "name": "resumeCommitted",
-          "line": 60
+          "line": 87
         },
         {
           "name": "instruction",
-          "line": 161
+          "line": 188
         }
       ]
     },
