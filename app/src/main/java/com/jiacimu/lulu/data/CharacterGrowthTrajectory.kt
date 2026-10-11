@@ -103,11 +103,18 @@ internal object CharacterGrowthTrajectory {
             // Real replies, voice, meetings and autonomous actions can form
             // a meaningful private change in the SAME decision call. A routine
             // greeting's "meaning" or generic reason is not growth.
-            if (!isSignificantInnerChange(entry)) continue
             val evidence = entry.optString("evidenceId")
             // A composite perception ID is not a raw event. Never show an
             // unverifiable experience as a confirmed personal milestone.
-            if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidence)).isEmpty()) continue
+            val verified = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidence))
+            if (verified.isEmpty()) continue
+            val feedback = verified.any {
+                it.evidenceKind == EventEvidenceKind.UserStatement &&
+                    feedbackTopic(it.content) != null
+            }
+            val emotionalChange = entry.optJSONObject("stateDelta")
+                ?.optJSONObject("emotion")?.optString("feeling").orEmpty().isNotBlank()
+            if (!isSignificantInnerChange(entry) && !(feedback && emotionalChange)) continue
             val time = runCatching { Instant.parse(entry.optString("at")) }.getOrNull() ?: continue
             if (time.isAfter(now)) continue
             val delta = entry.optJSONObject("stateDelta")
@@ -116,6 +123,7 @@ internal object CharacterGrowthTrajectory {
             val tension = appraisal?.optString("tension").orEmpty().take(180)
             val own = entry.optString("innerThought").take(190)
             val interpretation = delta?.optJSONObject("social")?.optString("interpretation").orEmpty().take(180)
+            val emotion = delta?.optJSONObject("emotion")
             val alternatives = entry.optJSONArray("consideredAlternatives")
             val considered = (0 until minOf(alternatives?.length() ?: 0, 2))
                 .mapNotNull { alternatives?.optJSONObject(it)?.optString("idea")?.takeIf(String::isNotBlank) }
@@ -124,6 +132,10 @@ internal object CharacterGrowthTrajectory {
                 correction.takeIf(String::isNotBlank)?.let { "想调整：$it" },
                 tension.takeIf(String::isNotBlank)?.let { "仍在权衡：$it" },
                 interpretation.takeIf(String::isNotBlank)?.let { "关系理解：$it" },
+                emotion?.optString("feeling").orEmpty()
+                    .takeIf(String::isNotBlank)?.let { feeling ->
+                        "当时的感受：$feeling；缘由：${emotion?.optString("cause").orEmpty().take(130)}"
+                    },
                 own.takeIf(String::isNotBlank)?.let { "没说出口：$it" },
                 considered.takeIf { it.isNotEmpty() }?.let { "曾考虑：${it.joinToString("／")}" },
                 meaning.takeIf { delta != null && it.isNotBlank() }?.let { "如何看待：$it" },
