@@ -1,6 +1,6 @@
 package com.jiacimu.lulu.data
 
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import android.content.Context
 import java.time.Instant
 import org.json.JSONObject
@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class CharacterLifeFollowThroughStoreTest {
-    private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val context: Context = RuntimeEnvironment.getApplication()
     private val now = Instant.parse("2026-10-11T12:00:00Z")
 
     @Test fun livedRoachCanRemainBothAnUnfinishedCuriosityAndAnUnpostedStory() {
