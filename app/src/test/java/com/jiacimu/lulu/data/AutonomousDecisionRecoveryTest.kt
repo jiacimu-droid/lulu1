@@ -10,6 +10,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class AutonomousDecisionRecoveryTest {
+    @Test fun cutOffOptionalPsychologyCanPreserveAlreadyCompletedUserFacingMessage() {
+        val truncated = "{\"action\":\"message\",\"text\":\"等等，我在呢。\",\"innerLife\":{\"emotion\":{\"feeling\":\""
+        val recovered = AutonomousDecisionRecovery.completedPrivateMessage(truncated)
+        assertNotNull(recovered)
+        assertEquals("message", recovered!!.getString("action"))
+        assertEquals("等等，我在呢。", recovered.getString("text"))
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            "{\"action\":\"message\",\"text\":\"等等，我还没说"))
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            "{\"action\":\"tool\",\"text\":\"我执行了\",\"args\":{\"tool\":\"send_message"))
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            "{\"action\":\"silent\",\"text\":\"你好\""))
+    }
+
     @Test fun neverOverridesARealWishToBeAlone() {
         val original = JSONObject().put("action", "silent").put("reason", "现在想好好休息")
             .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
