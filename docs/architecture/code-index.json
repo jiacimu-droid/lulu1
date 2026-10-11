@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:38:53.732112+00:00",
-  "commit": "d35ff9da36fad537ecb7610397872a0f4dc5c1bd",
+  "generatedAt": "2026-10-11T03:39:11.754273+00:00",
+  "commit": "9e5e396619c116be319f964d7166fa620e56028c",
   "branch": "main",
-  "sourceFingerprint": "5e8d0809cbf0bbbf9483e112f157aef68b6ea1a9007c81ad0d7fe946461cc0a4",
+  "sourceFingerprint": "2e4593fc29efc83ee158706c500845833ac51a3da3f7b4fd77e76db81afbf2a0",
   "summary": {
     "files": 486,
-    "lines": 103818,
+    "lines": 103838,
     "symbols": 1538
   },
   "symbolIndex": {
@@ -311,7 +311,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 533
+        "line": 553
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -3159,7 +3159,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 498
+        "line": 518
       }
     ],
     "CharacterLifeStore": [
@@ -3177,7 +3177,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 478
+        "line": 498
       }
     ],
     "CharacterMessageFavorites": [
@@ -11300,8 +11300,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 578,
-      "sha256": "f6bfea5962b0dd6b77569fc6f3146f1c95aaa044c5a8f8cc3f9b80ecc40ba33c",
+      "lines": 598,
+      "sha256": "4a671001913f9ee85a452b1943b90afe281c51c9c3606acdb167b67e71dc497e",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -11317,15 +11317,15 @@
         },
         {
           "name": "profileContext",
-          "line": 478
-        },
-        {
-          "name": "compactContext",
           "line": 498
         },
         {
+          "name": "compactContext",
+          "line": 518
+        },
+        {
           "name": "context",
-          "line": 533
+          "line": 553
         }
       ]
     },
