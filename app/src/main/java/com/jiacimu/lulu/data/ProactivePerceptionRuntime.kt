@@ -180,14 +180,6 @@ object ProactivePerceptionRuntime {
                     if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
                     if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                 }
-                // The online-life pulse is a chance to be awake, not a
-                // license to charge a fresh full-context model every 25-55s.
-                // A REAL new user message always bypasses this reflection-only
-                // throttle and still gets its own primary chat batch.
-                if (trigger.contains("在线持续感知") &&
-                    CompanionOnlineStore.unreadChatSnapshot(characterId).text.isBlank() &&
-                    now.toEpochMilli() - prefs.getLong("last_evaluation_$characterId", 0L) < 90_000L
-                ) continue
                 val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
                 val effectiveTrigger = when {
                     trigger.contains("挂心") || trigger.contains("承诺") -> trigger
