@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:37:26.200242+00:00",
-  "commit": "708b888a4ba4f748c057a1e90dcfd3ba79c94ad9",
+  "generatedAt": "2026-10-11T08:38:24.665978+00:00",
+  "commit": "54ef1e44528aa9b247309321fe4945cce25cc9b8",
   "branch": "main",
-  "sourceFingerprint": "d8476d0e21335ca0b251d73afffbc19bfb9a08c3972130c09ae91ab4398162e1",
+  "sourceFingerprint": "c97f848d04b3a46a10768e6a1b67271869334d7470eecc0f42670f78de1ba519",
   "summary": {
     "files": 501,
-    "lines": 106419,
+    "lines": 106435,
     "symbols": 1585
   },
   "symbolIndex": {
@@ -643,7 +643,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 89
+        "line": 90
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -3119,7 +3119,7 @@
     "get": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 47
+        "line": 48
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -3157,13 +3157,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 78
+        "line": 79
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 90
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -3467,7 +3467,7 @@
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 110
+        "line": 113
       }
     ],
     "parse": [
@@ -5821,25 +5821,25 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 96
+        "line": 98
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 104
+        "line": 106
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 113
+        "line": 115
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1186
+        "line": 1194
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11530,8 +11530,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 100,
-      "sha256": "06f9822cf6eec27755b99844343f65c9f919872b36b3675c621774f3a75a8645",
+      "lines": 101,
+      "sha256": "8c9a4cb9233f72d9e6c5b4019e36f20d22c4a3201d66c1cf71f4c26a9f9c5fb8",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -11543,15 +11543,15 @@
         },
         {
           "name": "get",
-          "line": 47
+          "line": 48
         },
         {
           "name": "set",
-          "line": 78
+          "line": 79
         },
         {
           "name": "delete",
-          "line": 90
+          "line": 91
         }
       ]
     },
@@ -11857,8 +11857,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 114,
-      "sha256": "185ee255560d4c1ab041533f0f8b948d7986a7bdebbc159c36d8053315c16a22",
+      "lines": 117,
+      "sha256": "088b51dfc826b62259d9038a502a1419915f2f51a9b39e889ce59ae9273e7884",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -11894,7 +11894,7 @@
         },
         {
           "name": "developmentContext",
-          "line": 110
+          "line": 113
         }
       ]
     },
@@ -14299,8 +14299,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 63,
-      "sha256": "ae582de8d1205f55709ad9870b06a1c73fff70af8c3d6fd322426f59d6a89479",
+      "lines": 67,
+      "sha256": "d7b1b53d77aec00c8b9ea6995946e204fe4e9e24a062e8535d48d1042c4351ea",
       "symbols": []
     },
     {
@@ -14398,8 +14398,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1242,
-      "sha256": "ea925184294e929ee1550a9519057a565c53c0e05dfcb8df72d109b83b3b1ad5",
+      "lines": 1250,
+      "sha256": "47999cd30afa6acc8ffd7ab51bf28f5e85da3071e187d7de7e8980da9bbf6f95",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -14407,23 +14407,23 @@
         },
         {
           "name": "initialize",
-          "line": 89
+          "line": 90
         },
         {
           "name": "markConcernPromisePending",
-          "line": 96
+          "line": 98
         },
         {
           "name": "wakePlanFor",
-          "line": 104
+          "line": 106
         },
         {
           "name": "nextDueAt",
-          "line": 113
+          "line": 115
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1186
+          "line": 1194
         }
       ]
     },
