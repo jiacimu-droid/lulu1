@@ -122,6 +122,7 @@ object CharacterInnerLifeStore {
         if (eventId.isBlank()) return
         PerceptionStimulusLedger.invalidate(eventId)
         CharacterCuriosityRuntime.invalidateEvidence(eventId)
+        CharacterRelationalInitiative.invalidateEvidence(eventId)
         CharacterLifeFollowThroughStore.invalidateEvidence(eventId)
         val ids = prefs?.all?.keys.orEmpty()
         fun backedBy(value: String): Boolean =
