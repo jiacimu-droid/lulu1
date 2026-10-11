@@ -154,7 +154,11 @@ object CharacterLifeStore {
         if (character.displayName !in setOf("江渡", "江都")) return
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
-        if (version >= 6) return
+        if (version >= 7) return
+        if (version == 6) {
+            updateJiangDuV7SpeechHabits(characterId, root)
+            return
+        }
         if (version >= 5) {
             migrateJiangDuUnifiedFramework(characterId, character, root)
             return
@@ -380,6 +384,22 @@ object CharacterLifeStore {
                 .put("jiangDuUnifiedCurrentConstraints", afterConstraints)
             save(characterId, root)
         }
+    }
+
+    /** One-time migration of untouched default wording only. An edited
+     * speech style, even an intentionally blank one, is user-owned and never
+     * overwritten by a preset refresh.
+     */
+    private fun updateJiangDuV7SpeechHabits(characterId: String, root: JSONObject) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        val current = profile.optString("speechHabits")
+        if (current == CharacterProfileSchema.jiangDuPreviousSpeechHabits ||
+            current == CharacterProfileSchema.jiangDuV5SpeechHabits) {
+            profile.put("speechHabits", CharacterProfileSchema.jiangDuV7SpeechHabits)
+        }
+        root.put("profile", profile).put("jiangDuPresetVersion", 7)
+        save(characterId, root)
     }
 
     /** A pending intention survives new rounds; a model cannot silently overwrite it. */
