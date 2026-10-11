@@ -82,6 +82,9 @@ internal object CharacterSelfActivityRuntime {
     fun offer(context: Context, characterId: String, appraisal: JSONObject?, evidenceId: String = ""): Boolean {
         if (characterId.isBlank()) return false
         val intended = appraisal?.optJSONObject("ownActivity") ?: return false
+        if (intended.optString("stage").equals("considering", ignoreCase = true)) {
+            return consider(context, characterId, intended, evidenceId)
+        }
         val available = if (intended.optString("action") == "reading")
             ReadingBackgroundBridge.availableBooks(context, characterId) else emptyList()
         val books = available.mapTo(hashSetOf()) { it.id }
@@ -97,7 +100,8 @@ internal object CharacterSelfActivityRuntime {
         val previous = prefs.getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
         val now = System.currentTimeMillis()
-        if (previous?.optString("status") in setOf("pending", "running")) return false
+        if (previous?.optString("status") in setOf("pending", "running") &&
+            now - previous.optLong("createdAt") in 0L..(60 * 60_000L)) return false
         if (previous?.optString("signature") == selected.signature &&
             now - previous.optLong("createdAt") in 0..REPEAT_WINDOW_MS) return false
         if (evidenceId.isNotBlank() && previous?.optString("evidenceId") == evidenceId) return false
@@ -120,6 +124,36 @@ internal object CharacterSelfActivityRuntime {
             "lulu-self-activity-$characterId-$id", ExistingWorkPolicy.KEEP, work)
         return true
     }
+
+    /**
+     * An unfinished idea is a subjective, revocable option. It may trigger one
+     * future autonomous deliberation, but never executes a tool on its own.
+     */
+    private fun consider(context: Context, characterId: String,
+                         intent: JSONObject, evidenceId: String): Boolean {
+        val action = intent.optString("action").trim().lowercase()
+        val reason = intent.optString("whyNow").trim().take(180)
+        if (action !in setOf("reading", "solo_game", "digital_world") ||
+            reason.length < 3) return false
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val old = prefs.getString("considering:$characterId", null)
+            ?.let { runCatching { JSONObject(it) }.getOrNull() }
+        if (old?.optString("evidenceId") == evidenceId && evidenceId.isNotBlank()) return false
+        val now = System.currentTimeMillis()
+        val record = JSONObject()
+            .put("stage", "considering").put("action", action)
+            .put("whyNow", reason).put("createdAt", now)
+            .put("evidenceId", evidenceId.take(180))
+        if (!prefs.edit().putString("considering:$characterId", record.toString()).commit()) return false
+        ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, characterId)
+        return true
+    }
+
+    fun latestConsideration(context: Context, characterId: String): JSONObject? =
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getString("considering:$characterId", null)
+            ?.let { runCatching { JSONObject(it) }.getOrNull() }
+            ?.takeIf { System.currentTimeMillis() - it.optLong("createdAt") in 0L..(4 * 60 * 60_000L) }
 
     fun latest(context: Context, characterId: String): JSONObject? =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
