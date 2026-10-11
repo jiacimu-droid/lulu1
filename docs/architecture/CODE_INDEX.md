@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`748aba20c23562bab768c09589d0035df3b1b488`
+- 基准提交：`cd71cd7e856884c7507ceeb26be7ea5466bcec98`
 - 分支：`main`
 - 已索引文件：500
-- 已索引代码/文本行：106171
-- 已发现符号：1578
+- 已索引代码/文本行：106229
+- 已发现符号：1580
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -78,7 +78,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 504 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1511 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1551 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
@@ -120,7 +120,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 796 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 238 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 246 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
@@ -199,7 +199,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 212 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 481 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 469 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 476 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 470 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 144 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 420 | 10 |
@@ -247,7 +247,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 187 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 100 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 958 | 47 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 961 | 47 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 134 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 898 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 101 | 3 |
