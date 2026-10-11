@@ -27,9 +27,26 @@ object CharacterLifeStore {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
         mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
+        mutable.value.keys.toList().forEach(::retireDormantGenericIntention)
         // User-requested installation migration, limited to this named companion.
         MigratedDomainStores.characters.settings.value.values.filter { it.displayName in setOf("江渡", "江都") }
             .forEach { applyJiangDuPreset(it.characterId) }
+    }
+
+    /** One-time hygiene, never a destructive deletion of a real action:
+     * the former vague wish stays available as archived history.
+     */
+    @Synchronized private fun retireDormantGenericIntention(characterId: String) {
+        val root = state(characterId)
+        val intention = root.optJSONObject("intention") ?: return
+        if (!CharacterStaleGoalPolicy.shouldRetire(
+                intention.optString("aim"), intention.optString("createdAt"),
+                intention.optString("updatedAt"), intention.optJSONArray("outcomes")?.length() ?: 0,
+            )) return
+        root.put("previousIntention", JSONObject(intention.toString())
+            .put("releaseReason", "长期未推进的泛化初始愿望已自然结束"))
+        root.remove("intention")
+        save(characterId, root)
     }
 
     fun state(characterId: String): JSONObject = runCatching {
@@ -429,7 +446,8 @@ object CharacterLifeStore {
         }
         val aim = proposal.optString("aim").trim().take(300)
         val motive = proposal.optString("motive").trim().take(300)
-        if (aim.isBlank() || motive.isBlank()) return
+        if (aim.isBlank() || motive.isBlank() ||
+            CharacterStaleGoalPolicy.isGenericOrientation(aim)) return
         val innerMotives = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
         if ((0 until (innerMotives?.length() ?: 0)).any { index ->
                 sameCharacterMotive(innerMotives?.optJSONObject(index)?.optString("aim").orEmpty(), aim)
