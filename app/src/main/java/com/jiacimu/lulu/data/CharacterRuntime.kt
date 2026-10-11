@@ -84,6 +84,10 @@ object CharacterRuntime {
                 CharacterInnerLifeStore.interactionContext(characterId, key)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
             }
+            // Verbatim relationship feedback is an immediate lived fact, not a
+            // proposed stable personality mutation and not an assumed apology.
+            CharacterGrowthTrajectory.context(characterId)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(CharacterAccountabilityContext.prompt(characterId))
             CharacterCuriosityRuntime.briefContext(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
