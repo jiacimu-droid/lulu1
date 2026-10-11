@@ -24,6 +24,35 @@ internal object CharacterEmotionalImprintRuntime {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
 
+    /**
+     * Older, already recorded disagreements also deserve a chance to be
+     * reflected on after installing an update. Never invent or replay a chat:
+     * both the feedback and the subsequent reply must be real stored messages.
+     */
+    fun recoverRecent(context: Context, now: Instant = Instant.now()) {
+        MigratedDomainStores.chat.conversations.value
+            .asSequence().filter { it.groupChat == null }
+            .forEach { conversation ->
+                val all = MigratedDomainStores.chat.messages(conversation.id).value
+                    .filter { it.status == LuluChatMessage.Status.Sent }
+                    .sortedBy { it.createdAt }
+                val recentFeedback = all.lastOrNull {
+                    it.sender == LuluChatMessage.Sender.User &&
+                        !it.createdAt.isAfter(now) &&
+                        java.time.Duration.between(it.createdAt, now) <= java.time.Duration.ofHours(72) &&
+                        CharacterGrowthTrajectory.feedbackTopic(it.content) != null
+                } ?: return@forEach
+                val reply = all.lastOrNull {
+                    it.sender == LuluChatMessage.Sender.Character &&
+                        !it.createdAt.isBefore(recentFeedback.createdAt) &&
+                        java.time.Duration.between(recentFeedback.createdAt, it.createdAt) <= java.time.Duration.ofMinutes(90)
+                } ?: return@forEach
+                val role = reply.authorCharacterId?.takeIf(String::isNotBlank)
+                    ?: conversation.characterId
+                request(context, role, reply.id, listOf(recentFeedback.id))
+            }
+    }
+
     fun request(context: Context, characterId: String, replyEventId: String, userEventIds: List<String>) {
         if (characterId.isBlank() || replyEventId.isBlank() || userEventIds.isEmpty()) return
         val app = context.applicationContext
@@ -46,6 +75,9 @@ internal object CharacterEmotionalImprintRuntime {
             .filter { it.evidenceKind == EventEvidenceKind.UserStatement && !it.occurredAt.isAfter(spoken.occurredAt) }
             .sortedBy { it.occurredAt }
         if (heard.isEmpty()) return
+        // The user-reported concern is the controlling evidence. Deleting that
+        // message must retract any psychological interpretation derived from it.
+        val feedbackEvidenceId = heard.last().id
         val originalPersona = CharacterRuntime.personaConstraintSnapshot(characterId)
         val facts = buildString {
             appendLine("真实已发送的角色回复，证据ID=${spoken.id}：${spoken.content.take(450)}")
@@ -110,18 +142,18 @@ internal object CharacterEmotionalImprintRuntime {
         val now = Instant.now()
         if (changed) {
             if (inner != null) CharacterInnerLifeStore.observe(
-                characterId, spoken.id, "真实关系互动：${spoken.content.take(150)}",
+                characterId, feedbackEvidenceId, "真实反馈及随后回应：${spoken.content.take(150)}",
                 inner, now = now,
             )
             CharacterInnerLifeStore.recordCausalTransition(
-                characterId = characterId, evidenceId = spoken.id,
+                characterId = characterId, evidenceId = feedbackEvidenceId,
                 appraisal = appraisal, innerLife = inner, innerThoughtBasis = null,
                 selectedAction = "emotional_imprint",
                 innerThought = thought,
                 reason = appraisal?.optString("meaning").orEmpty().ifBlank { "重新理解自己的刚才那次回应" },
                 now = now,
             )
-            if (thought.isNotBlank()) CharacterInnerLifeStore.recordInnerVoice(characterId, spoken.id, thought, now)
+            if (thought.isNotBlank()) CharacterInnerLifeStore.recordInnerVoice(characterId, feedbackEvidenceId, thought, now)
         }
         prefs.edit().putBoolean(key, true).commit()
     }
