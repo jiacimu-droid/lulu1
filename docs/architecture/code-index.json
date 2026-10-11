@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:56:19.820644+00:00",
-  "commit": "91cddf791578b38687989e9915666f2a904b290d",
+  "generatedAt": "2026-10-11T06:57:33.271704+00:00",
+  "commit": "84b3b9465c26a0cdb1f118255f0f89eff1f5ad91",
   "branch": "main",
-  "sourceFingerprint": "0bb73121fe29b5ca5210b5e55b7bb327737c7c32338df6c1839c07a9871ca23b",
+  "sourceFingerprint": "eb31b8161f44243ce961e8c9f2a4b14a37994f98c22213662b404b0cb25bfd21",
   "summary": {
     "files": 498,
-    "lines": 105713,
+    "lines": 105737,
     "symbols": 1567
   },
   "symbolIndex": {
@@ -1467,37 +1467,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1010
+        "line": 1011
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1012
+        "line": 1013
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1017
+        "line": 1018
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1210
+        "line": 1211
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1293
+        "line": 1294
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1424
+        "line": 1425
       }
     ],
     "PendingTouch": [
@@ -1991,19 +1991,19 @@
     "continuationMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 18
+        "line": 29
       }
     ],
     "canListen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 33
+        "line": 44
       }
     ],
     "shouldInterrupt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 42
+        "line": 53
       }
     ],
     "look": [
@@ -9795,8 +9795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1510,
-      "sha256": "c4a47fabc3178cc5426a9dceb29cbb2efbb83f92239bdab6a5a7abebc66db412",
+      "lines": 1511,
+      "sha256": "15899f0885cdcb13a1b054aff4520efd90eb8698f7125504377751f871b9918c",
       "symbols": [
         {
           "name": "prepare",
@@ -9836,27 +9836,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1010
+          "line": 1011
         },
         {
           "name": "clearWhenHeard",
-          "line": 1012
+          "line": 1013
         },
         {
           "name": "enqueueSpoken",
-          "line": 1017
+          "line": 1018
         },
         {
           "name": "sameSession",
-          "line": 1210
+          "line": 1211
         },
         {
           "name": "retryListening",
-          "line": 1293
+          "line": 1294
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1424
+          "line": 1425
         }
       ]
     },
@@ -10552,8 +10552,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-      "lines": 51,
-      "sha256": "224a9d836edb6cba7f586716a112324f246ade3c443ce1474c9ecec2b8c39160",
+      "lines": 62,
+      "sha256": "8550e2bd319815756009dd9efd07a50d8f43391bdb882aff43c5eaa71764e54b",
       "symbols": [
         {
           "name": "wordsToSubmitOnMute",
@@ -10561,15 +10561,15 @@
         },
         {
           "name": "continuationMillis",
-          "line": 18
+          "line": 29
         },
         {
           "name": "canListen",
-          "line": 33
+          "line": 44
         },
         {
           "name": "shouldInterrupt",
-          "line": 42
+          "line": 53
         }
       ]
     },
@@ -17546,8 +17546,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt",
-      "lines": 29,
-      "sha256": "2f886a3584667f4d08ed23e16002f891710a964613159ceba1ed0f75ef3198d0",
+      "lines": 41,
+      "sha256": "421155735477ac33605509ee6786bf2ae953d62644f8c797149cf1feb3af12ec",
       "symbols": [
         {
           "name": "SystemSpeechTurnPolicyTest",
