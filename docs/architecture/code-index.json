@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:09:47.727165+00:00",
-  "commit": "7bb4a6e19bda18f8fd2a40bf597d2b9dea37173f",
+  "generatedAt": "2026-10-11T12:10:24.146985+00:00",
+  "commit": "300bcc941fe8d19b6a06c9362d1dc9c5dba1095c",
   "branch": "main",
-  "sourceFingerprint": "4719df1034db5f0c2f9bd3181f046cdb16f041b4e02124560ca8435be438c8fa",
+  "sourceFingerprint": "d62471a2dfa77aadced49fd93a07eea39b2649239d8f78eada91562e2a713fde",
   "summary": {
     "files": 503,
-    "lines": 106944,
+    "lines": 107008,
     "symbols": 1598
   },
   "symbolIndex": {
@@ -37,7 +37,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 36
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -65,7 +65,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 193
+        "line": 196
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 353
+        "line": 412
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1179,19 +1179,19 @@
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 208
+        "line": 211
       }
     ],
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 210
+        "line": 213
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 215
+        "line": 218
       }
     ],
     "close": [
@@ -1877,27 +1877,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 166
+        "line": 225
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 179
+        "line": 238
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 222
+        "line": 281
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 267
+        "line": 326
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 309
+        "line": 368
       }
     ],
     "payload": [
@@ -9672,8 +9672,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 218,
-      "sha256": "8545a9f239dcbd222118a490276cec7aa01872f32af526db35548c7070acdec5",
+      "lines": 221,
+      "sha256": "dade49943aaf7216d33b6ac467729fadf18323e905ba799b5d64d7cd4fce3b9e",
       "symbols": [
         {
           "name": "start",
@@ -9689,19 +9689,19 @@
         },
         {
           "name": "stop",
-          "line": 193
+          "line": 196
         },
         {
           "name": "preview",
-          "line": 208
+          "line": 211
         },
         {
           "name": "commit",
-          "line": 210
+          "line": 213
         },
         {
           "name": "takeFinal",
-          "line": 215
+          "line": 218
         }
       ]
     },
@@ -10513,36 +10513,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 374,
-      "sha256": "f0f9cf39b4b6a1c2944385f13bb540b3ec54f15805adc3c4a211ebdff1192082",
+      "lines": 435,
+      "sha256": "30e54025c80dda75b2506af9e800dd88e2a8748d29f63753eaa88a6951130ada",
       "symbols": [
         {
           "name": "start",
-          "line": 36
+          "line": 37
         },
         {
           "name": "pauseCapture",
-          "line": 166
+          "line": 225
         },
         {
           "name": "resumeCapture",
-          "line": 179
+          "line": 238
         },
         {
           "name": "field",
-          "line": 222
+          "line": 281
         },
         {
           "name": "field",
-          "line": 267
+          "line": 326
         },
         {
           "name": "field",
-          "line": 309
+          "line": 368
         },
         {
           "name": "stop",
-          "line": 353
+          "line": 412
         }
       ]
     },
