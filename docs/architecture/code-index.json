@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:16:30.141548+00:00",
-  "commit": "f6f156fc43611df38df570640647094ceb442183",
+  "generatedAt": "2026-10-11T15:18:19.408039+00:00",
+  "commit": "ca395ca61fd2fa42747033404299d22471b5ee52",
   "branch": "main",
-  "sourceFingerprint": "4e5be98930144cec5ef57ecdc5fc1a69c3b4c8170725ad742f11d9205fe25f37",
+  "sourceFingerprint": "18ea3bd40acba020ae9d69ca6094e3b1fefd32d806ecbdd7c10e8bd7ccf96a40",
   "summary": {
     "files": 512,
-    "lines": 107839,
+    "lines": 107875,
     "symbols": 1618
   },
   "symbolIndex": {
@@ -3245,7 +3245,7 @@
     "entries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 66
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
@@ -11826,8 +11826,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-      "lines": 140,
-      "sha256": "0328974e0733354c684fdda4e1589271e826d68af48bb9087582eefddb867e0f",
+      "lines": 176,
+      "sha256": "18466ce0c7d1de704d2b45ca4f833590443842c3d002331777c8b6308e9a3981",
       "symbols": [
         {
           "name": "feedbackTopic",
@@ -11843,7 +11843,7 @@
         },
         {
           "name": "entries",
-          "line": 66
+          "line": 84
         }
       ]
     },
