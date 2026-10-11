@@ -25,12 +25,21 @@ internal object CharacterOpenConcernRuntime {
         // An unresolved question may fall quiet without having been solved. Keep the
         // thread, but stop treating old worries as live impulses after 48 hours.
         val existing = retained(previous).toMutableList()
-        fun result() = JSONArray().apply { existing.takeLast(4).forEach(::put) }
+        fun result() = JSONArray().apply { existing.takeLast(8).forEach(::put) }
         val proposal = appraisal?.optJSONObject("pendingConcern") ?: return result()
         val status = proposal.optString("status", "open").trim().lowercase()
         if (status !in acceptedStatuses || evidenceId.isBlank()) return result()
         val requestedId = proposal.optString("threadId").trim().take(100)
-        val match = existing.indexOfFirst { requestedId.isNotBlank() && it.optString("id") == requestedId }
+        val focusKey = proposal.optString("focus").trim()
+            .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_]+"), "")
+            .lowercase()
+        val match = existing.indexOfFirst { item ->
+            (requestedId.isNotBlank() && item.optString("id") == requestedId) ||
+                (requestedId.isBlank() && status == "open" && focusKey.isNotBlank() &&
+                    item.optString("focus").trim()
+                        .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_]+"), "")
+                        .lowercase() == focusKey)
+        }
         if (status in setOf("settled", "dismissed")) {
             if (match >= 0) existing.removeAt(match)
             return result()
@@ -113,7 +122,7 @@ internal object CharacterOpenConcernRuntime {
         if (previous == null) emptyList() else (0 until previous.length())
             .mapNotNull(previous::optJSONObject)
             .filter { it.optString("id").isNotBlank() && it.optString("focus").isNotBlank() }
-            .takeLast(4)
+            .takeLast(8)
 
     fun recent(previous: JSONArray?, now: Instant = Instant.now()): List<JSONObject> =
         retained(previous).filter { item ->
@@ -220,10 +229,9 @@ internal object CharacterOpenConcernRuntime {
             if (dormant.isNotEmpty()) {
                 appendLine("【暂时搁置的旧心事】共${dormant.size}件，超过48小时无新心理变化。" +
                     "它们不是此刻的情绪、不是人物性格，更不是催促行动的理由。")
-                if (!compact) {
-                    val entry = dormant.last()
+                dormant.takeLast(if (compact) 1 else 2).forEach { entry ->
                     appendLine("· 旧线索 threadId=${entry.optString("id")}：${entry.optString("focus").take(130)}。" +
-                        "只有新事实真的与之相关时才重新判断、修订或放下，不默认它还困扰着自己。")
+                        "仅在新事实真正相关时才恢复关注；不等于旧情绪现在仍强烈，也不等于已解决。")
                 }
             }
         }.trim()
