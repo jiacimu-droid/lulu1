@@ -226,6 +226,12 @@ fun QqStyleChatDetailScreen(
     }
 
     fun wakeOnline(payload: QqComposerPayload? = null): Boolean {
+        // While on a call, typing is the phone input channel. Do not also wake
+        // the independent online text agent, even if the user taps Reply.
+        if (groupChat == null && LuluVoiceCallSession.isActiveForChat(conversationId)) {
+            payload?.let { appendDraft(it) }
+            return true
+        }
         val currentConversation = conversation ?: return false
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先选择聊天模型") }
@@ -245,6 +251,10 @@ fun QqStyleChatDetailScreen(
     }
 
     fun sendAndReceive(includeDraft: Boolean = true) {
+        if (groupChat == null && LuluVoiceCallSession.isActiveForChat(conversationId)) {
+            if (includeDraft && input.isNotBlank()) appendDraft(QqComposerPayload(input))
+            return
+        }
         if (ChatReplyTaskManager.state(conversationId).running || ChatGenerationActivity.isRunning(conversationId)) return
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先选择聊天模型") }
