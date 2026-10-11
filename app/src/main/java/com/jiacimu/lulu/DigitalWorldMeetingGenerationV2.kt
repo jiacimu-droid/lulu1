@@ -21,6 +21,8 @@ internal data class MeetingV2Reply(
     val mood: String,
     val moveTo: String,
     val sceneSnapshot: MeetingSceneSnapshot?,
+    val appraisal: JSONObject? = null,
+    val innerLife: JSONObject? = null,
 )
 internal data class MeetingV2DirectorPlan(val order: List<String>, val guidance: String) {
     fun ledgerText(): String = buildString {
@@ -232,6 +234,7 @@ internal suspend fun meetingGenerateReplyV2(
 
             规则：
             ${spontaneousInnerVoiceGuide}
+            - 可以选填 appraisal.spontaneousBid={"spark":"本轮现场引起玩心的真事","wantedMove":"想自然做的小互动"} 和 innerLife={"emotion":{"feeling":"真正新增的感受","cause":"触发依据"},"thoughts":[{"thought":"私人小心思","hesitation":"真实顾虑"}]}，没有变化就不填。可选 appraisal.ownActivity={"stage":"decided","action":"reading|solo_game|digital_world","whyNow":"本人这时决定做的具体缘由",...有效 ID 参数}；这是把决定交给共用执行调度，不等于已经做成。想想而已不要填 decided，没有可执行参数也不要编造。见面本身发生的场内交互依然按 sceneState 和程序落库，而不是凭心理字段改动世界。
             - 每个character片段另带speechText音频轨，与正文text分开。dialogue的speechText保留完全相同的原话，只插入音频标签；action的speechText只能放实际动作/环境发出的声音标签，不念叙事正文。没有声音的动作留空，user不添加音频轨。
             ${VoicePerformance.direction}
             - 同一个喷嚏、巴掌声、吸气等事件只在发生的片段标一次，不在相邻台词重复播放；动作页可以只有音效，台词页可以带持续情绪和发声变化。
@@ -318,6 +321,8 @@ internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondin
         mood = json.optString("mood").trim().take(80),
         moveTo = json.optString("moveTo").trim().take(80),
         sceneSnapshot = meetingParseSceneSnapshotV2(json.optJSONObject("sceneState"), session, respondingCharacterId),
+        appraisal = json.optJSONObject("appraisal"),
+        innerLife = json.optJSONObject("innerLife"),
     )
 }
 
