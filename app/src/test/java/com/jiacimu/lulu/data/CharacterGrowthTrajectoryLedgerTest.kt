@@ -18,6 +18,48 @@ class CharacterGrowthTrajectoryLedgerTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
 
+    @Test fun sameTurnChatSelfCorrectionAppearsAsGrowthWithoutPostReplyModelCall() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val role = "growth-trail-in-turn-role"
+        val source = "in-turn-user-source"
+        val now = Instant.now()
+        SharedExperienceTimeline.record(source, role, "私聊", "用户",
+            "你这样让我没有安全感。", now, triggerExtraction = false,
+            sessionId = "the-conversation", source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val change = org.json.JSONObject().put("selfCorrection", org.json.JSONObject()
+            .put("realization", "我把帮她判断变成了替她决定")
+            .put("nextTime", "有分歧时也要先理解她自己的决定"))
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = role, evidenceId = source,
+            appraisal = org.json.JSONObject().put("meaning", "她感到被我轻视"),
+            innerLife = change, innerThoughtBasis = null,
+            selectedAction = "reply", innerThought = "",
+            reason = "想认真处理这次分歧", now = now.plusSeconds(1))
+        val entries = CharacterGrowthTrajectory.entries(role, now.plusSeconds(3))
+        assertTrue(entries.any { it.evidenceId == source &&
+            it.label == "当次决定调整做法" && it.detail.contains("替她决定") })
+        // There was a meaningful self-correction, not an automatically
+        // executed apology, diary, or long-term personality mutation.
+        assertFalse(entries.any { it.category == "成长" || it.label == "确实写下日记" })
+        SharedExperienceTimeline.deleteEvent(source)
+        assertFalse(CharacterGrowthTrajectory.entries(role, now.plusSeconds(5))
+            .any { it.evidenceId == source })
+    }
+
+    @Test fun routineConversationalAppraisalIsNotFalselyAdvertisedAsGrowth() {
+        val ordinary = org.json.JSONObject().put("selectedAction", "reply")
+            .put("appraisal", org.json.JSONObject().put("meaning", "今天只是问候"))
+        assertFalse(CharacterGrowthTrajectory.isSignificantInnerChange(ordinary))
+        val changed = org.json.JSONObject().put("selectedAction", "reply")
+            .put("stateDelta", org.json.JSONObject().put("motiveChanges", 1))
+        assertTrue(CharacterGrowthTrajectory.isSignificantInnerChange(changed))
+    }
+
     @Test fun importantFeedbackIsVisibleBeforeAnyApologyAndRetractionHonorsDeletion() {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
