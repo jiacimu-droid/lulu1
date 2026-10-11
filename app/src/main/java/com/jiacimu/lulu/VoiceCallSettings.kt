@@ -25,7 +25,6 @@ internal fun VoiceCallSettings(provider: String) {
     var sttMode by remember { mutableStateOf(prefs.getString("call_stt_mode", "auto").orEmpty()) }
     var groqKey by remember { mutableStateOf(prefs.getString("groq_asr_key", "").orEmpty()) }
     var groqModel by remember { mutableStateOf(prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()) }
-    var sleepAutoEnd by remember { mutableStateOf(prefs.getBoolean("sleep_auto_end_60m", false)) }
 
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("通话声音：${CallVoiceConfiguration.label(provider)}", style = MaterialTheme.typography.titleMedium)
