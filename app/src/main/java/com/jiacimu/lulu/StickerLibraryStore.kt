@@ -113,7 +113,7 @@ internal object StickerLibraryStore {
     fun prompt(context: Context, limit: Int = 40): String {
         initialize(context)
         val available = items.value.take(limit)
-        if (available.isEmpty()) return "当前表情图库为空；不得声称能发送图片表情包。可以自然使用标点、颜文字、幽默和文字。"
+        if (available.isEmpty()) return "角色支持图片表情包（与颜文字是两种不同功能），但本次真实可选图库暂时为空或内置素材仍在加载。此时不要捏造 stickerId、不要尝试发送不存在的图片；也不要说角色永远没有表情包功能。仍可用颜文字、emoji 和正常语言。" 
         return buildString {
             appendLine("【真实可发送的分组表情包｜开源素材已按类别自动标注】")
             appendLine("模型没有看到图片。每条的「实际画面」是已存好的视觉说明，「可能用法」只是社交语气建议。不能把用法误认为画面上真的发生了相应动作。")
