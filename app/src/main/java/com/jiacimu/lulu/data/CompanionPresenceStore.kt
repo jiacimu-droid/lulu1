@@ -38,11 +38,13 @@ object CompanionPresenceStore {
     private const val PREFS_NAME = "lulu_companion_presence"
     private const val KEY_STATES = "states_v1"
     private const val KEY_HISTORY = "history_v1"
+    private const val KEY_MESSAGE_MOMENTS = "message_moments_v1"
     private val mutableStates = MutableStateFlow<Map<String, CompanionPresenceState>>(emptyMap())
     val states: StateFlow<Map<String, CompanionPresenceState>> = mutableStates.asStateFlow()
     private val mutableHistories = MutableStateFlow<Map<String, List<CompanionPresenceState>>>(emptyMap())
     val histories: StateFlow<Map<String, List<CompanionPresenceState>>> = mutableHistories.asStateFlow()
     private var prefs: android.content.SharedPreferences? = null
+    private val messageMoments = linkedMapOf<String, CompanionPresenceState>()
 
     private val activeCalls = mutableSetOf<String>()
 
@@ -55,6 +57,8 @@ object CompanionPresenceStore {
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutableStates.value = decode(prefs?.getString(KEY_STATES, null))
         mutableHistories.value = decodeHistory(prefs?.getString(KEY_HISTORY, null))
+        messageMoments.clear()
+        messageMoments.putAll(decodeMessageMoments(prefs?.getString(KEY_MESSAGE_MOMENTS, null)))
         // Android cannot keep a call alive across a process restart. Repair old current state only;
         // historical message snapshots remain exact records of their original moment.
         mutableStates.value.keys.toList().forEach(::finishCall)
@@ -139,16 +143,17 @@ object CompanionPresenceStore {
      * longer all open the role's newest state. Older messages fall back to the closest saved state
      * at or before their timestamp instead of incorrectly showing a future state.
      */
-    fun selectMessageAnchor(characterId: String, messageAt: Instant) {
+    fun selectMessageAnchor(characterId: String, messageAt: Instant, messageId: String? = null) {
         if (characterId.isBlank()) return
         // A message has its own moment; never attach an hours-old psychological
         // state simply because it happened to be the latest known snapshot.
         // The planner can commit presence just after the message timestamp.
+        val exact = messageId?.let { messageMoments[it] }?.takeIf { it.characterId == characterId }
         val candidates = buildList {
             addAll(mutableHistories.value[characterId].orEmpty())
             mutableStates.value[characterId]?.let(::add)
         }.distinctBy(CompanionPresenceState::updatedAt)
-        val snapshot = candidates.mapNotNull { state ->
+        val inferred = candidates.mapNotNull { state ->
             val gapMs = runCatching { Duration.between(state.updatedAt, messageAt).toMillis() }.getOrNull()
                 ?: return@mapNotNull null
             if (gapMs !in -30_000L..120_000L) null else state to kotlin.math.abs(gapMs)
@@ -156,8 +161,34 @@ object CompanionPresenceStore {
         selectedMessageAnchor = CompanionPresenceMessageAnchor(
             characterId = characterId,
             messageAt = messageAt,
-            state = snapshot,
+            state = exact ?: inferred,
         )
+    }
+
+    /**
+     * Associate an ACTUALLY delivered chat bubble with the already-persisted
+     * psychological snapshot. A newly delivered bubble may have identical
+     * timestamps to another, so approximate time lookup alone is insufficient.
+     * Do not fabricate a thought if the role never produced a nearby snapshot.
+     */
+    @Synchronized fun bindDeliveredMessage(characterId: String, messageId: String, at: Instant) {
+        if (characterId.isBlank() || messageId.isBlank() || messageId in messageMoments) return
+        val current = mutableStates.value[characterId] ?: return
+        val elapsed = runCatching { Duration.between(current.updatedAt, at).toMillis() }.getOrNull()
+            ?: return
+        if (elapsed !in -30_000L..300_000L) return
+        // The history entry records only the genuinely NEW inner voice, unlike
+        // the live state which can retain an earlier voice for continuity.
+        val saved = mutableHistories.value[characterId].orEmpty()
+            .firstOrNull { it.updatedAt == current.updatedAt }
+        val exact = saved ?: current.copy(innerThought = "", momentReflection = "")
+        messageMoments[messageId] = exact
+        while (messageMoments.size > 500) messageMoments.remove(messageMoments.keys.first())
+        persist()
+    }
+
+    @Synchronized fun forgetDeliveredMessage(messageId: String) {
+        if (messageMoments.remove(messageId) != null) persist()
     }
 
     fun selectedMessageAnchor(characterId: String): CompanionPresenceMessageAnchor? =
@@ -302,6 +333,7 @@ object CompanionPresenceStore {
         if (characterId.isBlank()) return
         mutableStates.value = mutableStates.value - characterId
         mutableHistories.value = mutableHistories.value - characterId
+        messageMoments.entries.removeAll { it.value.characterId == characterId }
         if (selectedMessageAnchor?.characterId == characterId) selectedMessageAnchor = null
         persist()
     }
@@ -339,6 +371,11 @@ object CompanionPresenceStore {
             historyRoot.put(characterId, JSONArray().apply { history.forEach { put(it.toJson()) } })
         }
         prefs?.edit()?.putString(KEY_HISTORY, historyRoot.toString())?.apply()
+        val bindings = JSONArray()
+        messageMoments.forEach { (messageId, moment) ->
+            bindings.put(JSONObject().put("messageId", messageId).put("state", moment.toJson()))
+        }
+        prefs?.edit()?.putString(KEY_MESSAGE_MOMENTS, bindings.toString())?.apply()
     }
 
     private fun decode(raw: String?): Map<String, CompanionPresenceState> = runCatching {
@@ -365,6 +402,18 @@ object CompanionPresenceStore {
         }
     }.getOrDefault(emptyMap())
 }
+
+private fun decodeMessageMoments(raw: String?): Map<String, CompanionPresenceState> = runCatching {
+    val array = JSONArray(raw ?: "[]")
+    buildMap {
+        for (i in 0 until array.length()) {
+            val entry = array.optJSONObject(i) ?: continue
+            val id = entry.optString("messageId")
+            val state = entry.optJSONObject("state")?.toPresenceState("")
+            if (id.isNotBlank() && state != null) put(id, state)
+        }
+    }
+}.getOrDefault(emptyMap())
 
 private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("characterId", characterId)
