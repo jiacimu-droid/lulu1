@@ -3,8 +3,13 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterCuriosityEvidenceTest {
     private fun event(id: String, channel: String, kind: EventEvidenceKind) =
         SharedTimelineEvent(id = id, characterId = "test-role", channel = channel,
