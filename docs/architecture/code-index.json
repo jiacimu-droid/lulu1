@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:12:05.432327+00:00",
-  "commit": "cf301307b5200847e86a3c900527409702d7af0f",
+  "generatedAt": "2026-10-11T12:13:37.186344+00:00",
+  "commit": "a29a73ffdde9b954aec558a4f415755e3184dba1",
   "branch": "main",
-  "sourceFingerprint": "56289f14789d0803874908e88e30b183dc47b03817182b42bc349b9e92eabb5f",
+  "sourceFingerprint": "dccd749323918e53b333dc316e183a25c5d4294117d80739c49b79abc500f1ac",
   "summary": {
     "files": 504,
-    "lines": 107057,
+    "lines": 107059,
     "symbols": 1599
   },
   "symbolIndex": {
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 424
+        "line": 426
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1877,27 +1877,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 233
+        "line": 235
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 246
+        "line": 248
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 293
+        "line": 295
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 338
+        "line": 340
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 380
+        "line": 382
       }
     ],
     "payload": [
@@ -10519,8 +10519,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 447,
-      "sha256": "c10dabf086fa67d15950fb912c0bc5e00bb57a65cffc16ed20f031341c2ac854",
+      "lines": 449,
+      "sha256": "3356231bc8dcf2d0b16c02ddbcd7c565722c29b05c8cfc0cd744ec1099d6b599",
       "symbols": [
         {
           "name": "start",
@@ -10528,27 +10528,27 @@
         },
         {
           "name": "pauseCapture",
-          "line": 233
+          "line": 235
         },
         {
           "name": "resumeCapture",
-          "line": 246
+          "line": 248
         },
         {
           "name": "field",
-          "line": 293
+          "line": 295
         },
         {
           "name": "field",
-          "line": 338
+          "line": 340
         },
         {
           "name": "field",
-          "line": 380
+          "line": 382
         },
         {
           "name": "stop",
-          "line": 424
+          "line": 426
         }
       ]
     },
