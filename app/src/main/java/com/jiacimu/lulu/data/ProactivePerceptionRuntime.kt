@@ -162,6 +162,15 @@ object ProactivePerceptionRuntime {
                 if (CompanionPresenceStore.isInCall(characterId)) continue
                 val policy = ProactivePerceptionPolicyStore.get(characterId)
                 if (!policy.enabled && (!force || preserveOffline)) continue
+                // One PRIMARY online chat-batch owner should handle unread
+                // content. Opportunistic world/life/timer ticks are NOT
+                // alternative reply workers. Without this guard they could
+                // all pay for the same 30K-token recall while the user waits.
+                if (onlineRevision == null &&
+                    CompanionOnlineStore.isOnline(characterId, now) &&
+                    CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
+                    continue
+                }
                 // A lifestyle-review wake is not permission to disturb quiet
                 // hours just to produce a social post; unresolved cues persist.
                 if (trigger.startsWith("真实生活后续回想") &&
