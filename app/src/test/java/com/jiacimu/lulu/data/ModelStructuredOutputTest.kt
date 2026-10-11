@@ -86,6 +86,12 @@ class ModelStructuredOutputTest {
         assertTrue(EmotionFollowThroughCoordinator.qualifies("对不起，是我不对", "你让我失望了"))
         assertFalse(EmotionFollowThroughCoordinator.qualifies("对不起，刚刚忘了问你", "今天天气很好"))
         assertFalse(EmotionFollowThroughCoordinator.qualifies("我想一个人静静", "你这样真的伤害我了"))
+        assertTrue(EmotionFollowThroughCoordinator.qualifies(
+            "我在呢，你慢慢说，我听你说完。", "你这样让我很委屈，我真的难过"))
+        assertFalse(EmotionFollowThroughCoordinator.qualifies(
+            "我在呢，你慢慢说。", "我在看一篇挺难的英文阅读"))
+        assertFalse(EmotionFollowThroughCoordinator.qualifies(
+            "你真好玩，哈哈。", "你这样真的伤害我了"))
     }
 
     @Test fun emotionalFollowThroughNeedsBothRegretAndRealConflict() {
