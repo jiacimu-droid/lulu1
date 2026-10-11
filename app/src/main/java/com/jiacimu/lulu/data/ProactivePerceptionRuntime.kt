@@ -499,6 +499,15 @@ object ProactivePerceptionRuntime {
                     appendLine(CharacterCausalActionPolicy.followThroughInstruction(stagedAppraisal.evidenceId))
                 }
                 appendLine(affordances)
+                CharacterSelfActivityRuntime.latest(appContext, characterId)?.let { activity ->
+                    val age = System.currentTimeMillis() - activity.optLong("createdAt")
+                    if (age in 0..(2 * 60 * 60_000L)) {
+                        appendLine("【上次自己决定做的生活小事｜独立执行状态，不是模型口述事实】")
+                        appendLine("想做：${activity.optString("label")}；原因：${activity.optString("whyNow")}")
+                        appendLine("实际状态：${activity.optString("status")}；执行器回执：${activity.optString("result")}")
+                        appendLine("只以 completed 和真实工具回执确认做成；pending/running 不能提前声称做完，failed 不算经历。")
+                    }
+                }
                 appendLine("允许主动来电：${if (character.contactPolicy.proactiveCallsEnabled) "是" else "否"}")
                 if (recentAutonomousActions.isNotEmpty()) {
                     appendLine("最近自主选择（旧→新，仅作为生活历史，不用于惩罚重复）：${recentAutonomousActions.joinToString(" → ")}")
