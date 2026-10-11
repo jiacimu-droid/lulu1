@@ -16,8 +16,6 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val sttEngine: String,
     private val accept: () -> Boolean, private val onReady: () -> Unit,
     private val onLevel: (Float) -> Unit, private val onSpeech: () -> Unit,
-    private val playbackActive: () -> Boolean = { false },
-    private val onBargeIn: () -> Unit = {},
     private val onCaptureFinished: () -> Unit = {},
     private val onPartial: (String) -> Unit, private val onText: (String) -> Unit,
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
@@ -61,7 +59,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                         val id = nextId++
                         val task = async(Dispatchers.IO) {
                             try {
-                                Result.success(transcribeWithRecovery(chunk.pcm) { partial ->
+                                Result.success(transcribe(chunk.pcm) { partial ->
                                     if (epoch == generation && id == presentingChunk.get()) {
                                         onPartial(PhoneTranscriptAssembler.combine(currentPhrase, partial))
                                     }
@@ -131,9 +129,6 @@ internal class ProviderCallInput(private val context: Context, private val scope
             onSpeech = {
                 if (epoch == generation) {
                     capturingVoice = true
-                    // A real mic onset takes priority over queued TTS. This
-                    // callback runs only after the stronger playback-aware VAD.
-                    onBargeIn()
                     onSpeech()
                 }
             },
@@ -159,8 +154,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 }
             },
             threshold = prefs.getFloat("voice_vad_threshold", 350f),
-            endSilenceMs = prefs.getInt("voice_end_silence_ms", 1_250),
-            playbackActive = playbackActive,
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
         )
     }
 
@@ -193,24 +187,6 @@ internal class ProviderCallInput(private val context: Context, private val scope
         // restart cleanly to avoid using a stopped AudioRecord instance.
         microphone.stop()
         startMicrophone(generation, queue, context.getSharedPreferences("lulu_advanced_settings", 0))
-    }
-
-    /** Recover a cut transport stream once without inventing missing words.
-     * Speech is still assembled in original PCM order. Credential/permission
-     * failures deliberately do not retry and are never shown as an empty turn.
-     */
-    private suspend fun transcribeWithRecovery(pcm: ByteArray, onIncremental: (String) -> Unit): String {
-        return try {
-            transcribe(pcm, onIncremental)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Exception) {
-            val retryable = error is java.io.IOException ||
-                error.message.orEmpty().contains("识别流中断")
-            if (!retryable) throw error
-            delay(350L)
-            transcribe(pcm, onIncremental)
-        }
     }
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
