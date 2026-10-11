@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:52:53.771422+00:00",
-  "commit": "49aa3854264a55b9b137b5299fe523a7a7ef257f",
+  "generatedAt": "2026-10-11T05:53:06.630768+00:00",
+  "commit": "9f6f70b1b689e99f467261c63ac1780c3949427f",
   "branch": "main",
-  "sourceFingerprint": "a49ca2c56a0dc19829e3ac943dbb490b78704e1decdfc16684d4320052a3990e",
+  "sourceFingerprint": "70b84674f5ee08517c42cb99a38f9264ab784e5cf4c5349441b49bd35ff4ac9c",
   "summary": {
-    "files": 495,
-    "lines": 105221,
-    "symbols": 1562
+    "files": 496,
+    "lines": 105290,
+    "symbols": 1563
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4258,6 +4258,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
         "line": 221
+      }
+    ],
+    "collect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
+        "line": 17
       }
     ],
     "maybeEvolve": [
@@ -12633,6 +12639,17 @@
         {
           "name": "clearCharacter",
           "line": 258
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
+      "lines": 69,
+      "sha256": "e45da3cc13a3619fa188ee8408a387c8e905486cb481c06eeb8adc74a5e738f6",
+      "symbols": [
+        {
+          "name": "collect",
+          "line": 17
         }
       ]
     },
