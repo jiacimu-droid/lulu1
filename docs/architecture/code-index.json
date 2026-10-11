@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:30:43.224362+00:00",
-  "commit": "0056482dd5f0057de079386ac10f98462e35404c",
+  "generatedAt": "2026-10-11T16:31:01.252666+00:00",
+  "commit": "eba4428fe35c1e2d1a7de54c00d2f622fa990217",
   "branch": "main",
-  "sourceFingerprint": "fc2d23f3261b0d982d1c88be0bef56528bdedaafe926ebd80109d0196c2b084f",
+  "sourceFingerprint": "eea36b3b0121b836b10488db08b21420185785728ce5bf345aa91ee2da88246b",
   "summary": {
-    "files": 513,
-    "lines": 108238,
-    "symbols": 1618
+    "files": 514,
+    "lines": 108294,
+    "symbols": 1619
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8604,6 +8604,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 32
+      }
+    ],
+    "AutonomousActionWireProtocolTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
+        "line": 6
       }
     ],
     "AutonomousAffordanceContextTest": [
@@ -18171,6 +18177,17 @@
         {
           "name": "event",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
+      "lines": 56,
+      "sha256": "983b6f99e976a1c7eeaafb84196cac7141ff9589c3f2def88652f7c8a413fe49",
+      "symbols": [
+        {
+          "name": "AutonomousActionWireProtocolTest",
+          "line": 6
         }
       ]
     },
