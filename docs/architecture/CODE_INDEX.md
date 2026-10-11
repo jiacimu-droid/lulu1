@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1a06193cdb6d21dcf595975a00569e220b4d4ae1`
+- 基准提交：`03881d76f22790e827bd201da7de5f077a94123a`
 - 分支：`main`
 - 已索引文件：498
-- 已索引代码/文本行：105713
-- 已发现符号：1565
+- 已索引代码/文本行：105725
+- 已发现符号：1567
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -102,7 +102,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 19 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 37 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 43 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 39 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
@@ -127,7 +127,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 68 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 313 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 45 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 51 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 166 | 0 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:54:25.027215+00:00",
-  "commit": "1a06193cdb6d21dcf595975a00569e220b4d4ae1",
+  "generatedAt": "2026-10-11T06:55:00.912767+00:00",
+  "commit": "03881d76f22790e827bd201da7de5f077a94123a",
   "branch": "main",
-  "sourceFingerprint": "198cc2e6ed07d1714209a609735dc98dee91348376a69c6e39136aa8dbe9a16a",
+  "sourceFingerprint": "c05a498f0502f29b80aaf857307ca4c73de0fda0ec2b48afded023d48765e082",
   "summary": {
     "files": 498,
-    "lines": 105713,
-    "symbols": 1565
+    "lines": 105725,
+    "symbols": 1567
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1748,10 +1748,16 @@
         "line": 31
       }
     ],
+    "finalizeOnMute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 38
+      }
+    ],
     "uploadChunkFull": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 34
+        "line": 40
       }
     ],
     "captionRows": [
@@ -1976,22 +1982,28 @@
         "line": 32
       }
     ],
-    "continuationMillis": [
+    "wordsToSubmitOnMute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
         "line": 12
       }
     ],
+    "continuationMillis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 18
+      }
+    ],
     "canListen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 27
+        "line": 33
       }
     ],
     "shouldInterrupt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 36
+        "line": 42
       }
     ],
     "look": [
@@ -8810,7 +8822,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
       "lines": 198,
-      "sha256": "869eae23f63067808eef18485a815fb331bc70b17b1e81fad5acc0d5c2c1a650",
+      "sha256": "1b2612689ed43cb53dccdffbd9ec5126730abd6878e66d3d15a2bc7b47d7e036",
       "symbols": [
         {
           "name": "start",
@@ -9784,7 +9796,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1508,
-      "sha256": "78c6c82fd6cee4dacb41e847f7afd653ae36c2111f048f0b0263a01166b1aed0",
+      "sha256": "1c044ed435daf7815b3a9000f7706be2ce79d34424df4e207db4fa4c90c0e362",
       "symbols": [
         {
           "name": "prepare",
@@ -10172,8 +10184,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-      "lines": 37,
-      "sha256": "0ae2f93279f0fcac90185ed1753502c2f19f132fa92ff1b406cbd04cada7df25",
+      "lines": 43,
+      "sha256": "5612b7363c67fc24316094513531921e25b2f96ddf78355433fefe2eceb32db6",
       "symbols": [
         {
           "name": "silenceMs",
@@ -10200,8 +10212,12 @@
           "line": 31
         },
         {
+          "name": "finalizeOnMute",
+          "line": 38
+        },
+        {
           "name": "uploadChunkFull",
-          "line": 34
+          "line": 40
         }
       ]
     },
@@ -10536,20 +10552,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-      "lines": 45,
-      "sha256": "1d1ca9a45bee3e37c4ce8e5972d23f40201343b9bac972be3155750a1fa65bed",
+      "lines": 51,
+      "sha256": "224a9d836edb6cba7f586716a112324f246ade3c443ce1474c9ecec2b8c39160",
       "symbols": [
         {
-          "name": "continuationMillis",
+          "name": "wordsToSubmitOnMute",
           "line": 12
         },
         {
+          "name": "continuationMillis",
+          "line": 18
+        },
+        {
           "name": "canListen",
-          "line": 27
+          "line": 33
         },
         {
           "name": "shouldInterrupt",
-          "line": 36
+          "line": 42
         }
       ]
     },
