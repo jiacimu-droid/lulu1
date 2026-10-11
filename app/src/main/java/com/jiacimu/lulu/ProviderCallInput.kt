@@ -59,7 +59,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                         val id = nextId++
                         val task = async(Dispatchers.IO) {
                             try {
-                                Result.success(transcribe(chunk.pcm) { partial ->
+                                Result.success(if (chunk.pcm.isEmpty()) "" else transcribe(chunk.pcm) { partial ->
                                     if (epoch == generation && id == presentingChunk.get()) {
                                         onPartial(PhoneTranscriptAssembler.combine(currentPhrase, partial))
                                     }
@@ -168,7 +168,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         capturePaused = true
         pauseReleaseJob?.cancel()
         pauseReleaseJob = scope.launch {
-            delay(250)
+            delay(650)
             if (capturePaused) {
                 microphone.stop()
                 capturingVoice = false
