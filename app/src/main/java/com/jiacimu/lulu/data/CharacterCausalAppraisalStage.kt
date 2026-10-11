@@ -146,9 +146,9 @@ internal object CharacterCausalAppraisalStage {
                 mood = mood.takeIf(String::isNotBlank),
                 source = "互动感知·私人反应", now = now,
                 innerThoughtFingerprint = delta.fingerprint,
-                momentReflection = CharacterMomentSnapshot.reflection(
+                momentReflection = if (delta.meaningful) CharacterMomentSnapshot.reflection(
                     innerLife, basis, appraisal, innerThought = grounded,
-                ),
+                ) else "",
             )
         }
         CompanionPresenceStore.recordPerceptionAttempt(characterId,
