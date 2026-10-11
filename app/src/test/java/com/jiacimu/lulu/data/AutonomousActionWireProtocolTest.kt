@@ -9,22 +9,21 @@ class AutonomousActionWireProtocolTest {
         val reading = AutonomousActionWireProtocol.normalize(
             JSONObject().put("action", "read_book")
                 .put("args", JSONObject().put("readingBookId", "book-real")))
-        assertEquals("tool", reading.getString("action"))
-        assertEquals("read_book", reading.getString("tool"))
-        assertEquals("book-real", reading.getJSONObject("args").getString("readingBookId"))
+        assertEquals("reading", reading.getString("action"))
+        assertEquals("book-real", reading.getString("readingBookId"))
 
         val journal = AutonomousActionWireProtocol.normalize(
             JSONObject().put("action", "write_journal")
                 .put("title", "想过的事").put("content", "我真的得重新想一想。"))
-        assertEquals("tool", journal.getString("action"))
-        assertEquals("write_journal", journal.getString("tool"))
-        assertEquals("想过的事", journal.getJSONObject("args").getString("title"))
+        assertEquals("journal", journal.getString("action"))
+        assertEquals("想过的事", journal.getString("journalTitle"))
+        assertEquals("我真的得重新想一想。", journal.getString("journalContent"))
 
         val publicPost = AutonomousActionWireProtocol.normalize(
             JSONObject().put("action", "publish_moment")
                 .put("args", JSONObject().put("text", "刚才散步时遇到了一件好玩的事。")))
-        assertEquals("tool", publicPost.getString("action"))
-        assertEquals("publish_moment", publicPost.getString("tool"))
+        assertEquals("moment", publicPost.getString("action"))
+        assertEquals("刚才散步时遇到了一件好玩的事。", publicPost.getString("text"))
     }
 
     @Test fun bothNamedWorldResidentInteractionAndFriendlyActionCanCarryRealIDs() {
@@ -32,9 +31,8 @@ class AutonomousActionWireProtocolTest {
             JSONObject().put("action", "digital_world_action")
                 .put("args", JSONObject().put("worldAction", "interact_resident")
                     .put("itemId", "resident-1").put("activityId", "greet")))
-        assertEquals("tool", direct.getString("action"))
-        assertEquals("digital_world_action", direct.getString("tool"))
-        assertEquals("resident-1", direct.getJSONObject("args").getString("itemId"))
+        assertEquals("digital_world", direct.getString("action"))
+        assertEquals("resident-1", direct.getString("itemId"))
 
         val friendly = AutonomousActionWireProtocol.normalize(
             JSONObject().put("action", "digital_world")
@@ -43,6 +41,14 @@ class AutonomousActionWireProtocolTest {
         assertEquals("digital_world", friendly.getString("action"))
         assertEquals("resident-2", friendly.getString("itemId"))
         assertEquals("interact_resident", friendly.getString("worldAction"))
+    }
+
+    @Test fun toolFormPrivateReplyStillCountsAsActuallyDeliveringAMessage() {
+        val result = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool").put("tool", "send_private_message")
+                .put("args", JSONObject().put("text", "那我跟你说一件刚发现的趣事")))
+        assertEquals("message", result.getString("action"))
+        assertEquals("那我跟你说一件刚发现的趣事", result.getString("text"))
     }
 
     @Test fun genuineSilenceIsNeverReplacedWithMandatoryAction() {
