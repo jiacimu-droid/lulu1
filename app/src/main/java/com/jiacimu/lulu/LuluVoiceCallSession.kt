@@ -676,7 +676,7 @@ internal object LuluVoiceCallSession {
 
                 override fun onBeginningOfSpeech() {
                     val call = mutableState.value
-                    if (!call.connected || call.opening) return
+                    if (!call.connected || call.opening || call.microphoneMuted) return
                     if ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput()) return
                     // Keep the microphone on the new phrase; defer playback
                     // interruption until an actual partial/final transcript is
@@ -694,7 +694,8 @@ internal object LuluVoiceCallSession {
                 override fun onRmsChanged(rmsdB: Float) = Unit
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
                 override fun onEndOfSpeech() {
-                    if (!mutableState.value.connected || mutableState.value.opening) return
+                    if (!mutableState.value.connected || mutableState.value.opening ||
+                        mutableState.value.microphoneMuted) return
                     userSpeechInProgress = false
                     systemSpeechConfirmed = false
                     mutableState.update { it.copy(userSpeaking = false, listening = false, statusMessage = "正在识别你的语音…") }
@@ -703,7 +704,8 @@ internal object LuluVoiceCallSession {
                 }
 
                 override fun onError(error: Int) {
-                    if (!mutableState.value.connected || mutableState.value.opening) return
+                    if (!mutableState.value.connected || mutableState.value.opening ||
+                        mutableState.value.microphoneMuted) return
                     userSpeechInProgress = false
                     systemSpeechConfirmed = false
                     recognitionActive = false
@@ -755,7 +757,7 @@ internal object LuluVoiceCallSession {
 
                 override fun onResults(results: Bundle?) {
                     val call = mutableState.value
-                    if (!call.connected || call.opening) return
+                    if (!call.connected || call.opening || call.microphoneMuted) return
                     // The user may have continued talking while the character
                     // was preparing audio. Do not throw those recognized words away.
                     if ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput()) {
@@ -808,7 +810,7 @@ internal object LuluVoiceCallSession {
 
                 override fun onPartialResults(partialResults: Bundle?) {
                     val call = mutableState.value
-                    if (!call.connected || call.opening ||
+                    if (!call.connected || call.opening || call.microphoneMuted ||
                         ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput())) return
                     val partial = partialResults
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
@@ -1366,7 +1368,7 @@ internal object LuluVoiceCallSession {
                         current.thinking || current.speaking || current.opening ||
                             speechQueue?.hasPendingAudio == true ||
                             providerRecognitionPendingUntilMillis > clock,
-                        userSpeechInProgress, clock - lastConfirmedUserSpeechMillis,
+                        confirmedSpeechInProgress(), clock - lastConfirmedUserSpeechMillis,
                         clock - lastCallAudioMillis, clock - lastSilenceReflectionMillis, silenceFailures)) {
                     lastSilenceReflectionMillis = clock
                     handleUserSpeech("", autonomousSilence = true)
