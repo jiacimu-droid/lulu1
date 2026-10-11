@@ -89,7 +89,7 @@ object CommitmentTurnAutomation {
             val active = CommitmentTaskStore.active(characterId)
             if (active.isEmpty()) return@forEach
             val signature = "immediate:${conversation.id}:${latest.id}:$characterId"
-            if (isProcessed(signature)) return@forEach
+            if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
             val drafts = extractCommitmentTaskDrafts(
                 characterId = characterId,
                 userText = latest.content,
@@ -139,7 +139,7 @@ object CommitmentTurnAutomation {
             if (!looksLikeTaskTurn(combinedUserText, characterText)) return@forEach
             val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
             val signature = "commitment-turn-v2:$sourceTurnId"
-            if (isProcessed(signature)) return@forEach
+            if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
 
             val active = CommitmentTaskStore.active(characterId)
             val drafts = extractCommitmentTaskDrafts(
@@ -174,6 +174,16 @@ object CommitmentTurnAutomation {
             .forEach { task -> CommitmentTaskStore.cancel(task.id, "来源消息已删除，约定同步取消") }
     }
 
+    private fun permitAttempt(signature: String): Boolean {
+        val p = prefs ?: return false
+        val key = "attempt:${signature.hashCode()}"
+        val last = p.getLong("$key:at", 0L)
+        val count = p.getInt("$key:count", 0)
+        val now = System.currentTimeMillis()
+        if (count >= 2 || (last > 0 && now - last < 15 * 60_000L)) return false
+        return p.edit().putLong("$key:at", now).putInt("$key:count", count + 1).commit()
+    }
+
     private fun isProcessed(signature: String): Boolean =
         signature in prefs?.getStringSet(KEY_SIGNATURES, emptySet()).orEmpty()
 
@@ -184,7 +194,7 @@ object CommitmentTurnAutomation {
     }
 }
 
-private fun looksLikeTaskTurn(userText: String, characterText: String): Boolean {
+internal fun looksLikeTaskTurn(userText: String, characterText: String): Boolean {
     val text = "$userText\n$characterText"
     // Generic chat phrases like "我会" or "等会儿" are not enough
     // to justify a paid scheduling-model call or a new promise.
