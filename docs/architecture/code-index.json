@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:54:21.251779+00:00",
-  "commit": "3facf5d1efdafc033adde77ff84afd0266550983",
+  "generatedAt": "2026-10-11T12:55:36.866436+00:00",
+  "commit": "8beea5cb6369fd54f627f5daa7f5a1e1d49d0ecb",
   "branch": "main",
-  "sourceFingerprint": "317d9a54085546f7b648a191bfd14d4c67324b934a3a9a41af0ddcd78e09e97c",
+  "sourceFingerprint": "0c8ad8a469683a83472b664bf7170280f6681c4cfd9ac63154bc798657fcc956",
   "summary": {
     "files": 507,
-    "lines": 107520,
-    "symbols": 1608
+    "lines": 107552,
+    "symbols": 1609
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -155,7 +155,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
-        "line": 26
+        "line": 55
       }
     ],
     "cancel": [
@@ -3156,6 +3156,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
         "line": 99
+      }
+    ],
+    "recoverRecent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
+        "line": 32
       }
     ],
     "guide": [
@@ -11675,12 +11681,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
-      "lines": 129,
-      "sha256": "e512f9bc67fc55b879c206ed29167bb930e13eee378df1ec72d5c727bca6fe86",
+      "lines": 161,
+      "sha256": "4f9175a45346e9a24f3870749011e571b15c245286f6e4533ff4269417652319",
       "symbols": [
         {
+          "name": "recoverRecent",
+          "line": 32
+        },
+        {
           "name": "request",
-          "line": 26
+          "line": 55
         }
       ]
     },
