@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:40:23.834856+00:00",
-  "commit": "7fe6e4b55ac1a0b388ed33f4048dd60851c8c35c",
+  "generatedAt": "2026-10-11T03:40:46.834132+00:00",
+  "commit": "09c48cdfd6c6ec0bd781c49eb51ca9287a1fa97a",
   "branch": "main",
-  "sourceFingerprint": "80ec9c2370eff7018e3e7cfd53739238ab543797ac2759d0119dee77e67a5220",
+  "sourceFingerprint": "4b85728b5e9265347c64802523bdea64888dcecf51e412c40d44f8f7aac35569",
   "summary": {
-    "files": 487,
-    "lines": 103999,
-    "symbols": 1539
+    "files": 488,
+    "lines": 104030,
+    "symbols": 1541
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3326,6 +3326,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
         "line": 86
+      }
+    ],
+    "isGenericOrientation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt",
+        "line": 15
+      }
+    ],
+    "shouldRetire": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt",
+        "line": 18
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -11527,6 +11539,21 @@
         {
           "name": "promptSection",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt",
+      "lines": 31,
+      "sha256": "884ca00cc56a2cecf98da5ca9845068d7146d1449722acb9797496c4e3f2c47c",
+      "symbols": [
+        {
+          "name": "isGenericOrientation",
+          "line": 15
+        },
+        {
+          "name": "shouldRetire",
+          "line": 18
         }
       ]
     },
