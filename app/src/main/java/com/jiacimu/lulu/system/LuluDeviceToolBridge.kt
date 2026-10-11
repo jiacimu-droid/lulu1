@@ -885,12 +885,24 @@ object LuluDeviceToolBridge {
             mood = plan.mood,
             source = source,
             innerThoughtFingerprint = heartVoiceFingerprint,
-            momentReflection = if (momentChanged) com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
+            momentReflection = if (momentChanged || plan.appraisal?.optJSONObject("spontaneousBid") != null ||
+                plan.appraisal?.optJSONObject("ownActivity") != null)
+                com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
                 plan.innerLife, plan.innerThoughtBasis, plan.appraisal,
                 outward = plan.text.ifBlank { plan.speechIntent },
                 innerThought = plan.innerThought,
             ) else "",
         )
+        // An explicitly chosen independent activity is executed *after* this
+        // conversation planning step. A private thought alone is never a receipt.
+        // The autonomous executor is shared with reading, digital world and games.
+        if (!source.contains("电话") && !source.contains("通话")) {
+            context?.let { app ->
+                com.jiacimu.lulu.data.CharacterSelfActivityRuntime.offer(
+                    app.applicationContext, characterId, plan.appraisal,
+                )
+            }
+        }
     }
 }
 
