@@ -70,12 +70,24 @@ internal object AutonomousActionTrace {
                 .firstOrNull { it.size >= 2 } }?.firstOrNull()
         val failures = recent.filter { !it.optBoolean("succeeded") &&
             it.optString("selected") != "silent" }.takeLast(2)
-        if (last.isEmpty() && failures.isEmpty()) return ""
+        // An all-silent character previously received no feedback at all,
+        // leaving the next autonomous decision blind to its own inactivity.
+        val silenceStreak = recent.asReversed().takeWhile {
+            it.optString("selected").equals("silent", ignoreCase = true)
+        }.size
+        if (last.isEmpty() && failures.isEmpty() && silenceStreak < 2) return ""
         return buildString {
             appendLine("【自己的近期行动过程｜真实执行回执，而非任务配额】")
             last.takeLast(3).forEach {
                 appendLine("- 做过 " + it.optString("signature").take(130) +
                     "；结果：" + it.optString("outcome").take(115))
+            }
+            if (silenceStreak >= 2) {
+                appendLine("- 最近${silenceStreak}次自主感知连续选择了安静，尚无真实执行回执。")
+                appendLine("  安静可以是符合本人的选择，但别因为没有新消息就停止自己的生活。")
+                appendLine("  重新看看已有愿望、真实书籍、可去的地点、眼前居民、日记和分享欲。")
+                appendLine("  如果此刻真想做且执行器有条件，就直接选择具体 action；")
+                appendLine("  如果仍想独处，请给出属于本人的具体理由，而不是套用等待用户的说法。")
             }
             failures.forEach {
                 appendLine("- 上次未成功：" + it.optString("signature").ifBlank {
