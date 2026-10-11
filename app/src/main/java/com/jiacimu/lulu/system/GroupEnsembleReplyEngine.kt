@@ -421,6 +421,11 @@ internal object GroupEnsembleReplyEngine {
             mood = served.turn.mood,
             source = "群聊·全员自然讨论",
             innerThoughtFingerprint = privateDelta.fingerprint,
+            momentReflection = com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
+                served.turn.innerLife, served.turn.innerThoughtBasis, served.turn.appraisal,
+                outward = served.turn.bubbles.joinToString(" "),
+                innerThought = groundedInnerThought,
+            ),
         )
         if (served.turn.tool.isNotBlank()) {
             val toolResult = CompanionActionRuntime.execute(
