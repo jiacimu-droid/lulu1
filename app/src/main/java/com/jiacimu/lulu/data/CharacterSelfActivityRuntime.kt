@@ -190,6 +190,9 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
                 actionSignature = entry.optString("signature"),
                 causalEvidenceId = entry.optString("evidenceId"),
             )
+            if (success) ProactivePerceptionScheduler.scheduleActionFollowThrough(
+                applicationContext, characterId, id,
+            )
             Result.success()
         } catch (error: Exception) {
             if (error is kotlinx.coroutines.CancellationException) throw error
