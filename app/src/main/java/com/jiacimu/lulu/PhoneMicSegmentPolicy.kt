@@ -32,5 +32,11 @@ internal object PhoneMicSegmentPolicy {
     fun stationaryNoiseEnded(steadyFrames: Int, utteranceFrames: Int): Boolean =
         steadyFrames >= 23 && utteranceFrames >= 25
 
+    /** Even an empty PCM buffer needs a final marker when earlier chunks
+     * already left the recorder and the user pressed mute.
+     */
+    fun finalizeOnMute(captureActive: Boolean, bufferedBytes: Int): Boolean =
+        captureActive && bufferedBytes >= 0
+
     fun uploadChunkFull(bytes: Int): Boolean = bytes >= MAX_UPLOAD_BYTES
 }
