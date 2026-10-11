@@ -37,7 +37,7 @@ internal object CharacterMomentSnapshot {
         }
         // Deciding to do something is not evidence that it has been executed.
         appraisal?.optJSONObject("ownActivity")?.takeIf {
-            it.optString("stage") == "decided"
+            it.optString("stage") in setOf("decided", "considering")
         }?.let { intent ->
             val name = when (intent.optString("action")) {
                 "reading" -> "想翻翻书"
