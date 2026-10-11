@@ -320,6 +320,14 @@ internal object AutonomousSocialRuntime {
                 appendLine(tick.summary)
                 appendLine("incidentId=${tick.incidentId}；status=${tick.status}；stage=${tick.stage}；anchorItemId=${tick.anchorItemId}；anchorItemName=${tick.anchorItemName}")
                 appendLine("角色：${character.displayName}")
+                val readable = com.jiacimu.lulu.study.ReadingBackgroundBridge
+                    .availableBooks(context, characterId).take(5)
+                if (readable.isNotEmpty()) {
+                    appendLine("本人真正可读的书（供自己决定是否阅读，正文必须执行后才能知道）：")
+                    readable.forEach { book ->
+                        appendLine("- readingBookId=${book.id}；书名=${book.title}")
+                    }
+                }
                 if (availableGroups.isNotEmpty()) {
                     appendLine("角色所在真实群聊：")
                     availableGroups.forEach { conversation ->
