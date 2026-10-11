@@ -66,7 +66,14 @@ internal object CharacterGrowthTrajectory {
 
     fun entries(characterId: String, now: Instant = Instant.now()): List<CharacterGrowthTrace> {
         val result = mutableListOf<CharacterGrowthTrace>()
-        relevantFeedback(characterId, now).forEach { event ->
+        // The visual trajectory is permanent until the source is deleted:
+        // unlike the prompt's recent 45-day attention window, old meaningful
+        // experience does not disappear merely because time passed.
+        SharedExperienceTimeline.all(characterId).asSequence()
+            .filter { it.evidenceKind == EventEvidenceKind.UserStatement &&
+                (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) &&
+                !it.occurredAt.isAfter(now) && feedbackTopic(it.content) != null }
+            .toList().takeLast(24).forEach { event ->
             result += CharacterGrowthTrace(event.occurredAt, "收到重要关系反馈",
                 "关于${feedbackTopic(event.content)}：${event.content.take(240)}。这是用户实际表达的感受，还不能证明角色已改正。",
                 event.id, "反馈")
@@ -75,6 +82,10 @@ internal object CharacterGrowthTrajectory {
         val transitions = mind.optJSONArray("causalTransitions")
         for (i in 0 until (transitions?.length() ?: 0)) {
             val entry = transitions?.optJSONObject(i) ?: continue
+            // Ordinary internal micro-decisions are not "growth". The trace
+            // shows real exceptional reflections, existing concerns and
+            // verified accumulated changes separately.
+            if (entry.optString("selectedAction") != "emotional_imprint") continue
             val evidence = entry.optString("evidenceId")
             if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidence)).isEmpty()) continue
             val time = runCatching { Instant.parse(entry.optString("at")) }.getOrNull() ?: continue
@@ -112,7 +123,8 @@ internal object CharacterGrowthTrajectory {
             if (growth.createdAt.isAfter(now)) return@forEach
             result += CharacterGrowthTrace(growth.createdAt,
                 if (growth.active && CharacterDevelopmentStore.active(characterId).any { it.id == growth.id })
-                    "形成${growth.kind.label} · ${growth.maturity.name}" else "过往${growth.kind.label} · 已撤回或依据失效",
+                    "形成${growth.kind.label} · ${if (growth.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"}"
+                else "过往${growth.kind.label} · 已撤回或依据失效",
                 growth.content.take(270), evidence, "成长")
         }
         SharedExperienceTimeline.all(characterId).asSequence()
