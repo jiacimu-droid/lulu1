@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:54:28.827620+00:00",
-  "commit": "915b1dfad1412b5d249dbc3cb49066045d0687f7",
+  "generatedAt": "2026-10-11T05:55:24.253737+00:00",
+  "commit": "26b8536fb554efbde72d06fdade6bf97a5611394",
   "branch": "main",
-  "sourceFingerprint": "87d4662e65aa4689ca77ce8ee7a7fe9e5d9ee2b9cbd9aff7da049cec2cad8303",
+  "sourceFingerprint": "cfedbd63bf9720022fd3567106d3e2bc87aa6824feb701d27cdb44dfd72d6257",
   "summary": {
     "files": 497,
-    "lines": 105440,
+    "lines": 105444,
     "symbols": 1563
   },
   "symbolIndex": {
@@ -5735,7 +5735,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1145
+        "line": 1146
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -10488,7 +10488,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
       "lines": 313,
-      "sha256": "984743f54b3727a0b4da2a756acd9faa2113bc6f25609ed4b7bad0baa3b194ac",
+      "sha256": "3afb14dc9cb0ec7984a2e357daebf7399304eec4a162dfa25393b1edaa005cb0",
       "symbols": [
         {
           "name": "byId",
@@ -14186,8 +14186,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1201,
-      "sha256": "278f3930a0eea9fbed199dcc1b790fb4bc6209aa1b35e714fc5570b5302d9e98",
+      "lines": 1202,
+      "sha256": "f712e8af8c78f7ea58978e85d741ff1ee402b75f4027f1ac8152b9b340c2ce1d",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -14211,14 +14211,14 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1145
+          "line": 1146
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 445,
-      "sha256": "10df1b214e98723c1d858362d923d7a333d600805474cb266cc28979ac0a696e",
+      "lines": 448,
+      "sha256": "a6534fb5a1917f4d9eebf654913388ebea57b6b6ba49e1145c1fe7e0beaac57d",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
