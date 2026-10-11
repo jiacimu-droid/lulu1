@@ -892,8 +892,12 @@ object CharacterInnerLifeStore {
         }
         if (delta.length() > 0) entry.put("stateDelta", delta)
 
+        // Keep a bounded but genuinely useful history of authored decisions.
+        // The old last-20 cap could hide a serious relationship turning point
+        // after only a short, busy day. Prompt recall still reads only a small
+        // recent selection, so this does not inflate every later API call.
         root.put("causalTransitions", JSONArray().apply {
-            for (i in maxOf(0, past.length() - 19) until past.length()) put(past.opt(i))
+            for (i in maxOf(0, past.length() - 95) until past.length()) put(past.opt(i))
             put(entry)
         })
         if (appraisal?.optJSONObject("pendingConcern") != null) {
