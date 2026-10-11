@@ -893,16 +893,6 @@ object LuluDeviceToolBridge {
                 innerThought = plan.innerThought,
             ) else "",
         )
-        // An explicitly chosen independent activity is executed *after* this
-        // conversation planning step. A private thought alone is never a receipt.
-        // The autonomous executor is shared with reading, digital world and games.
-        if (!source.contains("电话") && !source.contains("通话")) {
-            context?.let { app ->
-                com.jiacimu.lulu.data.CharacterSelfActivityRuntime.offer(
-                    app.applicationContext, characterId, plan.appraisal,
-                )
-            }
-        }
     }
 }
 
