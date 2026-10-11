@@ -95,6 +95,41 @@ internal object LuluVoiceCallSession {
     private var realtime: RealtimeVoiceAdapter? = null
     private var replyJob: Job? = null
     private var replyGeneration = 0L
+    // Text typed in the private chat during a call is the same conversation,
+    // not a second online-chat request or an invented microphone transcript.
+    private val incomingChatDrafts = mutableListOf<String>()
+    private var incomingChatJob: Job? = null
+
+    fun isActiveForChat(conversationId: String): Boolean {
+        val call = mutableState.value
+        return call.connected && call.conversationId == conversationId
+    }
+
+    fun onTextChatMessage(conversationId: String, content: String): Boolean {
+        if (!isActiveForChat(conversationId) || content.isBlank()) return false
+        val callId = mutableState.value.callExperienceId
+        incomingChatDrafts.add(content.trim())
+        incomingChatJob?.cancel()
+        incomingChatJob = scope.launch {
+            // A cluster of QQ chat bubbles is one human turn, not N rapid phone replies.
+            delay(1_600L)
+            while (isActiveForChat(conversationId) && mutableState.value.callExperienceId == callId &&
+                mutableState.value.opening) delay(250L)
+            if (!isActiveForChat(conversationId) || mutableState.value.callExperienceId != callId) return@launch
+            val typed = incomingChatDrafts.joinToString("\n").trim()
+            incomingChatDrafts.clear()
+            if (typed.isBlank()) return@launch
+            val agent = realtime
+            if (agent != null) {
+                noteCallUserActivity()
+                lastConfirmedUserSpeechMillis = SystemClock.elapsedRealtime()
+                runCatching { agent.sendTypedMessage(typed) }.onFailure { error ->
+                    mutableState.update { it.copy(errorMessage = "电话文字未能送达：${error.message.orEmpty()}") }
+                }
+            } else handleUserSpeech(typed, allowWhileMuted = true, alreadyPersisted = true)
+        }
+        return true
+    }
     private var timerJob: Job? = null
     private var dialJob: Job? = null
     private var restartListeningJob: Job? = null
@@ -444,6 +479,9 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         resetSystemRecognitionTurn()
+        incomingChatJob?.cancel()
+        incomingChatJob = null
+        incomingChatDrafts.clear()
         sleepFailures = 0
         replyIsSilence = false
         silenceAudioPending = false
@@ -943,6 +981,7 @@ internal object LuluVoiceCallSession {
         spoken: String,
         opening: Boolean = false,
         allowWhileMuted: Boolean = false,
+        alreadyPersisted: Boolean = false,
         autonomousSleep: Boolean = false,
         autonomousSilence: Boolean = false,
     ) {
@@ -959,7 +998,7 @@ internal object LuluVoiceCallSession {
             if (spoken.isNotBlank() && !opening) {
                 noteCallUserActivity()
                 lastConfirmedUserSpeechMillis = SystemClock.elapsedRealtime()
-                confirmedUserSpeechCount++
+                if (!alreadyPersisted) confirmedUserSpeechCount++
             }
         }
         replyGeneration++
@@ -973,7 +1012,7 @@ internal object LuluVoiceCallSession {
         if (!autonomousSilence) pauseRecognition()
         if (!opening && !autonomousSleep && !autonomousSilence) {
             resetSystemRecognitionTurn()
-            MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
+            if (!alreadyPersisted) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
                 "voice-${current.callExperienceId}-user-$generation", spoken, false)
         }
         mutableState.update { it.copy(thinking = true, userSpeaking = false, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
@@ -1101,6 +1140,7 @@ internal object LuluVoiceCallSession {
                     opening && latest.sleepMode -> "哄睡电话刚刚接通，用户尚未开口。你先轻声自然开场，不催促她说话，不假装她回答。\n$bedtimeGuide"
                     opening -> "你正在和用户进行一对一实时电话，刚刚接通，用户尚未开口。现在由你按自己的关系、人设和最近上下文先说一两句自然开场。不要把通话事件当作用户说过的话，不要朗读事件说明。"
                     latest.sleepMode -> "这是哄睡陪伴电话。用户刚刚说了话，要先认真回应她，再自然选择引导或陪伴方式。用户可以安静只听，别催促答话。\n$bedtimeGuide"
+                    alreadyPersisted -> "你正在与用户通话，用户此刻没有通过麦克风说这段话，而是在同一个人的私聊窗口打字发给你。你确实能看见这些文字，并且可以在电话里自然开口回应；不要假装从麦克风听见了打字声。始终沿用这个角色的稳定人格、真实经历、关系称呼与连续状态，只根据电话这个媒介调整表达节奏。不要重复发一条独立的私聊回复。"
                     else -> "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然。先理解用户这段话的重点、情绪和说话是否已经结束，再依角色自己的个性、关系和兴趣自然回应。简单的事可以轻快接话，值得深谈的事可以认真讲清；不要固定每轮几句话，不要机械复述、每句都追问或习惯性附和。角色可以有自己的判断、幽默、沉默与不同意见，但不得编造已经发生的事情。不要朗读说明文字。"
                 },
                 onCharacterHangup = if (realtime != null) null else ({
