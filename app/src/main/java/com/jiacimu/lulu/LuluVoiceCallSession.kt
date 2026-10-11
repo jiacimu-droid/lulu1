@@ -391,11 +391,9 @@ internal object LuluVoiceCallSession {
                 mutableState.value.sleepMode && realtime == null) {
                 val now = mutableState.value
                 val busy = now.speaking || speechQueue?.hasPendingAudio == true
-                val optedAutoEnd = appContext?.getSharedPreferences("lulu_advanced_settings", 0)
-                    ?.getBoolean("sleep_auto_end_60m", false) == true
                 if (SleepCallContinuationPolicy.shouldQuietlyEnd(
                         sleepSilenceMillis(), now.connected, now.sleepMode,
-                        confirmedSpeechInProgress(), busy, optedAutoEnd,
+                        confirmedSpeechInProgress(), busy,
                     )) {
                     endSleepCallOnSilence()
                     return@launch
