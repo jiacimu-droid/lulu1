@@ -423,6 +423,9 @@ internal fun initializeBackgroundRuntime(context: Context) {
     DigitalLifeProfileStore.initialize(context)
     SharedExperienceTimeline.initialize(context)
     MigratedDomainStores.initialize(context)
+    // Install the real sticker shelf at app start rather than first model
+    // prompt; the background bundled-image import then has time to finish.
+    com.jiacimu.lulu.StickerLibraryStore.initialize(context)
     CharacterIdentityStore.initialize(context)
     CharacterInnerLifeStore.initialize(context)
     PerceptionStimulusLedger.initialize(context)
