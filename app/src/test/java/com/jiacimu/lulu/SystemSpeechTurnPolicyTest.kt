@@ -25,4 +25,16 @@ class SystemSpeechTurnPolicyTest {
         assertTrue(SystemSpeechTurnPolicy.shouldInterrupt(true, false, true, true))
         assertFalse(SystemSpeechTurnPolicy.shouldInterrupt(true, false, true, false))
     }
+
+    @Test fun mutingFinishesTheAlreadyRecognizedUtteranceExactlyOnce() {
+        assertEquals("前面已经讲的话", SystemSpeechTurnPolicy.wordsToSubmitOnMute(
+            "前面已经讲的话", ""))
+        assertEquals("前面已经讲的话", SystemSpeechTurnPolicy.wordsToSubmitOnMute(
+            "前面已经讲的话", "前面已经讲的话"))
+        assertEquals("我先说这一段再继续", SystemSpeechTurnPolicy.wordsToSubmitOnMute(
+            "我先说这一段", "再继续"))
+        assertEquals("手机又没识别出来吗", SystemSpeechTurnPolicy.wordsToSubmitOnMute(
+            "", "手机又没识别出来吗"))
+        assertEquals("", SystemSpeechTurnPolicy.wordsToSubmitOnMute("", ""))
+    }
 }
