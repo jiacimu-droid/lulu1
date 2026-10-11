@@ -667,10 +667,11 @@ internal object LuluVoiceCallSession {
                 lastCallAudioMillis = SystemClock.elapsedRealtime()
                 if (!busy && speechQueue?.hasPendingAudio != true) silenceAudioPending = false
                 if (busy) {
-                    // The cloud path remains unchanged. System recognition can
-                    // continue on a private output (headphones / earpiece);
-                    // loudspeaker playback must not be mistaken for user words.
-                    providerInput?.pauseCapture()
+                    // Cloud STT has its own PCM recorder and echo processing.
+                    // Do not shut it down whenever TTS starts: that made
+                    // ordinary calls effectively half-duplex (no barge-in).
+                    // Android's provider-owned SpeechRecognizer remains gated
+                    // on loudspeaker, where it cannot reliably isolate the user.
                     if (providerInput == null && !privateCallOutput()) {
                         // Pause capture so loudspeaker TTS isn't mistaken for
                         // the user, but DO NOT throw away verified words still
@@ -737,13 +738,13 @@ internal object LuluVoiceCallSession {
     /** User speech can supersede an unfinished reply; only confirmed mic
      * callbacks reach here. Already delivered audio stays in the timeline.
      */
-    private fun interruptSystemReplyForSpeech() {
+    private fun interruptSystemReplyForSpeech(confirmedCloudSpeech: Boolean = false) {
         val state = mutableState.value
         if (!SystemSpeechTurnPolicy.shouldInterrupt(
                 detectedUserSpeech = true,
                 thinking = state.thinking,
                 speakingOrPending = state.speaking || speechQueue?.hasPendingAudio == true,
-                privateAudioOutput = privateCallOutput(),
+                privateAudioOutput = privateCallOutput() || confirmedCloudSpeech,
             )) return
         replyGeneration++
         replyJob?.cancel()
@@ -1329,7 +1330,9 @@ internal object LuluVoiceCallSession {
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
         providerInput = ProviderCallInput(context, scope,
             sttEngine = CallVoiceConfiguration.sttEngine(context),
-            accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted && !s.speaking && !s.opening },
+            // Keep microphone PCM arriving even during agent speech. Confirm words
+            // through STT before cancelling playback, not merely through VAD.
+            accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted },
             onReady = {
                 if (sameSession()) {
                     if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
@@ -1364,21 +1367,42 @@ internal object LuluVoiceCallSession {
                 }
             },
             onPartial = { text -> if (sameSession()) {
-                if (text.trim().isNotBlank() && !providerSpeechConfirmed) {
-                    providerSpeechConfirmed = true
-                    noteCallUserActivity()
-                    sleepContinuationJob?.cancel()
+                val candidate = text.trim()
+                val state = mutableState.value
+                val isEcho = PhoneBargeInPolicy.isLikelyPlaybackEcho(
+                    candidate, state.generatedTranscript, state.playingTranscript,
+                    state.speaking || speechQueue?.hasPendingAudio == true,
+                )
+                if (candidate.isNotBlank() && !isEcho) {
+                    if (!providerSpeechConfirmed) {
+                        providerSpeechConfirmed = true
+                        noteCallUserActivity()
+                        sleepContinuationJob?.cancel()
+                    }
+                    // A confirmed STT fragment is real user speech, including
+                    // during an opening sentence or while synthesis is pending.
+                    interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
                 }
-                mutableState.update { it.copy(partialTranscript = text, userSpeaking = false) }
+                if (!isEcho) mutableState.update {
+                    it.copy(partialTranscript = text, userSpeaking = candidate.isNotBlank())
+                }
             } },
             onText = { text ->
                 if (sameSession()) {
+                    val state = mutableState.value
+                    val isEcho = PhoneBargeInPolicy.isLikelyPlaybackEcho(
+                        text, state.generatedTranscript, state.playingTranscript,
+                        state.speaking || speechQueue?.hasPendingAudio == true,
+                    )
                     userSpeechInProgress = false
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
                     providerRecognitionPendingUntilMillis = 0L
                     mutableState.update { it.copy(userSpeaking = false) }
-                    if (!mutableState.value.opening) handleUserSpeech(text, allowWhileMuted = true)
+                    if (text.isNotBlank() && !isEcho) {
+                        interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
+                        handleUserSpeech(text, allowWhileMuted = true)
+                    }
                 }
             },
             onStatus = { note -> if (sameSession()) {
