@@ -169,6 +169,10 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
                     false, "行动意向已过时，没有假装执行")
                 return Result.success()
             }
+            // A character may decide to read while still talking on the phone.
+            // Delay the physical action until the call releases ownership;
+            // do not impersonate simultaneous unrelated activities.
+            if (CompanionPresenceStore.isInCall(characterId)) return Result.retry()
             CharacterSelfActivityRuntime.markRunning(applicationContext, characterId, id)
             val raw = ToolRouter.execute(applicationContext, characterId,
                 entry.optString("tool"), entry.optJSONObject("args") ?: JSONObject(),
