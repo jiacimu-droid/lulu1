@@ -13,10 +13,12 @@ import java.util.UUID
  */
 object CharacterInnerLifeStore {
     private var prefs: android.content.SharedPreferences? = null
+    private var dispatchContext: Context? = null
     private val revisionState = kotlinx.coroutines.flow.MutableStateFlow(0L)
     val revisions: kotlinx.coroutines.flow.StateFlow<Long> = revisionState
 
     @Synchronized fun initialize(context: Context) {
+        dispatchContext = context.applicationContext
         if (prefs == null) {
             prefs = context.applicationContext
                 .getSharedPreferences("lulu_inner_life_v1", Context.MODE_PRIVATE)
@@ -809,7 +811,8 @@ object CharacterInnerLifeStore {
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
             responseAim.isBlank() && reason.isBlank() &&
-            appraisal?.optJSONObject("pendingConcern") == null) return
+            appraisal?.optJSONObject("pendingConcern") == null &&
+            appraisal?.optJSONObject("ownActivity") == null) return
 
         val root = snapshot(characterId)
         val past = root.optJSONArray("causalTransitions") ?: JSONArray()
@@ -904,6 +907,17 @@ object CharacterInnerLifeStore {
             ))
         }
         save(characterId, root)
+        // Unified intention -> execution bridge. This shared recorder receives
+        // chat, group, voice and autonomous decisions. A standalone first-stage
+        // appraisal or an already-selected physical tool cannot schedule again.
+        val canDispatchOwnActivity = action in setOf(
+            "reply", "silent", "message", "group_message",
+        ) || action.startsWith("group_reply")
+        if (canDispatchOwnActivity && appraisal?.optJSONObject("ownActivity") != null) {
+            dispatchContext?.let { ctx ->
+                CharacterSelfActivityRuntime.offer(ctx, characterId, appraisal, evidenceId)
+            }
+        }
     }
 
     /**
