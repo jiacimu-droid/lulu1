@@ -421,7 +421,10 @@ internal object GroupEnsembleReplyEngine {
             mood = served.turn.mood,
             source = "群聊·全员自然讨论",
             innerThoughtFingerprint = privateDelta.fingerprint,
-            momentReflection = if (privateDelta.meaningful) com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
+            momentReflection = if (privateDelta.meaningful ||
+                served.turn.appraisal?.optJSONObject("spontaneousBid") != null ||
+                served.turn.appraisal?.optJSONObject("ownActivity") != null)
+                com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
                 served.turn.innerLife, served.turn.innerThoughtBasis, served.turn.appraisal,
                 outward = served.turn.bubbles.joinToString(" "),
                 innerThought = groundedInnerThought,
