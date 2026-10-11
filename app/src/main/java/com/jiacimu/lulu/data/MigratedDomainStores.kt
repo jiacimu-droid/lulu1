@@ -487,6 +487,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
         if (changed && conversation != null) {
             SharedExperienceTimeline.deleteConversationMessage(conversation, messageId)
+            CompanionPresenceStore.forgetDeliveredMessage(messageId)
             com.jiacimu.lulu.ChatAutoVoicePlayback.remove(messageId)
         }
         return changed
