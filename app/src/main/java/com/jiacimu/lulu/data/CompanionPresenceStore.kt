@@ -289,12 +289,13 @@ object CompanionPresenceStore {
         // stay aware without manufacturing a new historical "heart voice" every minute. Visible state
         // changes are recorded immediately; thought-only background changes are rate-limited and must
         // contain materially new wording. Exact/near repeats remain current state only.
-        if (isChatTurn || visibleChanged || next.momentReflection.isNotBlank() ||
+        if (isChatTurn || visibleChanged || reflectionChanged ||
             (heartVoiceEventChanged && thoughtHistoryDue)) {
             val historySnapshot = next.copy(
                 innerThought = newHeartVoice,
+                momentReflection = if (reflectionChanged) next.momentReflection else "",
                 showInHistory = visibleChanged || newHeartVoice.isNotBlank() ||
-                    next.momentReflection.isNotBlank() || !isChatTurn,
+                    reflectionChanged || !isChatTurn,
             )
             mutableHistories.value = mutableHistories.value +
                 (characterId to (listOf(historySnapshot) + mutableHistories.value[characterId].orEmpty())
