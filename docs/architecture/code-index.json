@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:29:25.362980+00:00",
-  "commit": "6569086f547a07b6b2dace2df43302776db02f2d",
+  "generatedAt": "2026-10-11T16:30:27.440202+00:00",
+  "commit": "8bcdd13cd3cad3e7d59246959d649d5c7d6f604c",
   "branch": "main",
-  "sourceFingerprint": "306ad386ae929a8c0b3280395b59c835c16d3eb3482311a95553a80277799627",
+  "sourceFingerprint": "059f1c75a613ea94fc40263318ededcaa755deddb577f907a27eb9773dbb67a1",
   "summary": {
-    "files": 512,
-    "lines": 108156,
-    "symbols": 1617
+    "files": 513,
+    "lines": 108213,
+    "symbols": 1618
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2768,6 +2768,16 @@
         "line": 9
       }
     ],
+    "normalize": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
+        "line": 29
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
+        "line": 1042
+      }
+    ],
     "completedPrivateMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
@@ -3356,12 +3366,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
         "line": 634
-      }
-    ],
-    "normalize": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1042
       }
     ],
     "compactContext": [
@@ -11421,6 +11425,17 @@
         {
           "name": "render",
           "line": 58
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
+      "lines": 57,
+      "sha256": "d710ecd30126cdaf3c3b6a5fb11cb23ef6a17151c22c0f70accbc8a23031781e",
+      "symbols": [
+        {
+          "name": "normalize",
+          "line": 29
         }
       ]
     },
