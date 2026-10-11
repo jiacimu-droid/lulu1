@@ -156,6 +156,11 @@ internal object LuluVoiceCallSession {
     private var silenceAudioPending = false
 
     private fun noteCallUserActivity() {
+        if (pendingCharacterHangupJob?.isActive == true) {
+            // Confirmed new user words or typed input supersede goodbye.
+            cancelPendingCharacterHangup()
+            mutableState.update { it.copy(statusMessage = "听到你还想说话，电话继续") }
+        }
         lastUserActivityMillis = SystemClock.elapsedRealtime()
         silenceFailures = 0
         if (replyIsSilence || silenceAudioPending) {
@@ -298,6 +303,7 @@ internal object LuluVoiceCallSession {
                         if (mutableState.value.callExperienceId == sessionId && mutableState.value.connected) {
                             if (speaking || mutableState.value.speaking) lastCallAudioMillis = SystemClock.elapsedRealtime()
                             if (speaking) {
+                                if (pendingCharacterHangupJob?.isActive == true) cancelPendingCharacterHangup()
                                 if (replyIsSilence) {
                                     replyGeneration++; replyJob?.cancel(); replyIsSilence = false
                                     mutableState.update { it.copy(thinking = false) }
@@ -315,7 +321,8 @@ internal object LuluVoiceCallSession {
                     } },
                     onFarewellDelivered = {
                         if (mutableState.value.callExperienceId == sessionId &&
-                            mutableState.value.connected) endCallByCharacter()
+                            mutableState.value.connected)
+                            startCharacterHangupGrace(sessionId, replyGeneration, agent = true)
                     },
                 )
                 realtime = adapter
