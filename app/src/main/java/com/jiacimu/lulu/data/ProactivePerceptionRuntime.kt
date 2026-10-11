@@ -423,12 +423,15 @@ object ProactivePerceptionRuntime {
                             appContext, characterId, event.id,
                         )
                 }
-        val resumedAppraisal = if (userWaitingForReply) null else
+        val resumedAppraisal = if (userWaitingForReply) {
+            null
+        } else {
             requiredInteractionEvidenceId?.let {
                 CharacterCausalAppraisalStage.resumeCommitted(characterId, it)
             } ?: awaitingCausalAppraisal?.let {
                 CharacterCausalAppraisalStage.resumeCommitted(characterId, it.id)
             }
+        }
         val appraisalAttempted = resumedAppraisal == null &&
             awaitingCausalAppraisal != null &&
             CharacterCausalAppraisalStage.claimModelAttempt(
