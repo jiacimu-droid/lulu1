@@ -65,7 +65,7 @@ internal fun DesktopWorldBulletinCard() {
         shadowElevation = 1.dp,
         onClick = {
             opened = true
-            val updated = (seen + notices.map(DigitalWorldNotice::id)).takeLast(500).toSet()
+            val updated = (seen + notices.map(DigitalWorldNotice::id)).toList().takeLast(500).toSet()
             seen = updated
             prefs.edit().putStringSet("seen", updated).apply()
         },
