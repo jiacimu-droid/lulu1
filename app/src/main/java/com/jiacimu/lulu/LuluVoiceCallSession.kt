@@ -648,7 +648,9 @@ internal object LuluVoiceCallSession {
                     val call = mutableState.value
                     if (!call.connected || call.opening) return
                     if ((call.speaking || speechQueue?.hasPendingAudio == true) && !privateCallOutput()) return
-                    interruptSystemReplyForSpeech()
+                    // Keep the microphone on the new phrase; defer playback
+                    // interruption until an actual partial/final transcript is
+                    // received. A noise-only beginning must not cancel the reply.
                     systemCommitJob?.cancel()
                     systemCommitJob = null
                     systemPartialCandidate = ""
@@ -719,7 +721,6 @@ internal object LuluVoiceCallSession {
                         scheduleListening(250)
                         return
                     }
-                    interruptSystemReplyForSpeech()
                     userSpeechInProgress = false
                     recognitionActive = false
                     mutableState.update { it.copy(userSpeaking = false) }
@@ -738,6 +739,7 @@ internal object LuluVoiceCallSession {
                         else -> primary
                     }
                     systemPartialCandidate = ""
+                    if (spoken.isNotBlank()) interruptSystemReplyForSpeech()
                     if (spoken.isBlank()) {
                         mutableState.update { it.copy(listening = false, partialTranscript = systemUtteranceBuffer) }
                         if (systemUtteranceBuffer.isBlank()) scheduleSleepContinuation()
@@ -769,6 +771,7 @@ internal object LuluVoiceCallSession {
                         ?.firstOrNull()
                         .orEmpty()
                     systemPartialCandidate = partial
+                    if (partial.trim().length >= 2) interruptSystemReplyForSpeech()
                     mutableState.update {
                         it.copy(partialTranscript = PhoneTranscriptAssembler.combine(systemUtteranceBuffer, partial))
                     }
@@ -915,6 +918,13 @@ internal object LuluVoiceCallSession {
                 "voice-${current.callExperienceId}-user-$generation", spoken, false)
         }
         mutableState.update { it.copy(thinking = true, userSpeaking = false, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
+        // Keep a second recognition window alive while the model thinks.
+        // The user may continue or correct what they just said without
+        // waiting for the agent to generate the next line.
+        if (!opening && !autonomousSleep && !autonomousSilence &&
+            !current.microphoneMuted && providerInput == null && realtime == null) {
+            scheduleListening(220L)
+        }
         replyJob = scope.launch {
             val latest = mutableState.value
             val library = LuluAiServices.connectionStore.library.value
