@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`81ffea2912fba81badc5e5bcfb66f1400474227a`
+- 基准提交：`494533f2cd1accfe2e7b380e93b2649f5bb58f04`
 - 分支：`main`
 - 已索引文件：498
-- 已索引代码/文本行：105692
+- 已索引代码/文本行：105698
 - 已发现符号：1565
 
 | 文件 | 行数 | 符号数 |
@@ -266,7 +266,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 529 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 549 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 18 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 24 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 65 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 74 | 2 |

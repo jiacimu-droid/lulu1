@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:50:26.769452+00:00",
-  "commit": "81ffea2912fba81badc5e5bcfb66f1400474227a",
+  "generatedAt": "2026-10-11T06:50:55.684326+00:00",
+  "commit": "494533f2cd1accfe2e7b380e93b2649f5bb58f04",
   "branch": "main",
-  "sourceFingerprint": "3440e9177c9811f06bfec72db84b123fb8657658ffc292d4031c6a398336b6ba",
+  "sourceFingerprint": "f26baa325f4864fd033fba38a0ac59ab24a9df7f9826179b3a9287bb5bce2122",
   "summary": {
     "files": 498,
-    "lines": 105692,
+    "lines": 105698,
     "symbols": 1565
   },
   "symbolIndex": {
@@ -14515,8 +14515,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 18,
-      "sha256": "7f8cba56c843af1012730efa1f907c6e82e4a224c4a87a332fc186a4414d0a2f",
+      "lines": 24,
+      "sha256": "df50c96183c6215f55a3034c902f755365f92a273fe08c51b7238a5622c8b44f",
       "symbols": []
     },
     {
