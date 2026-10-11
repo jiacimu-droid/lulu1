@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:57:38.135691+00:00",
-  "commit": "f154a976a27d7b653ad02c113f4001ce81c785f6",
+  "generatedAt": "2026-10-11T16:58:52.248343+00:00",
+  "commit": "63b9fad0ae924377b8013f0343d206fcb48363da",
   "branch": "main",
-  "sourceFingerprint": "010b4b96b59efe81a4b7b4abde08d465a96215cae3f9e71b42efa17dfb6aa10d",
+  "sourceFingerprint": "38e355684ffab91134874f3c9f2dfb78cc5be3d367463e6e113e2b8ef1b00113",
   "summary": {
     "files": 520,
     "lines": 108720,
@@ -9360,7 +9360,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt",
       "lines": 44,
-      "sha256": "67435c2b3ea0cf0d7aade4763565d152ee5b6f31964c76b736ad8e162cce8da0",
+      "sha256": "10270380ddcf97e029d85e620511bc429f3081219790fff61333a2488551efc0",
       "symbols": [
         {
           "name": "explicitlyEndsOwnCall",
