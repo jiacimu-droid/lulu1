@@ -129,6 +129,11 @@ internal fun CompanionPresenceDialog(
                                 }
                             }
                         }
+                        if (messageAnchor == null) {
+                            item(key = "inner-life") {
+                                PresenceLivingMind(characterId)
+                            }
+                        }
                     } else if (past.isEmpty()) {
                         item(key = "empty-history") {
                             Text("这之前还没有更早的心声与动作。", color = Color(0xFF7A7A7E))
@@ -217,6 +222,131 @@ private fun PresenceDialogSection(title: String, content: String) {
         Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text(title, color = Color(0xFF7A7A7E), fontSize = 11.sp)
             Text(content, color = Color(0xFF1D1D1F), fontSize = 15.sp, lineHeight = 21.sp)
+        }
+    }
+}
+
+/**
+ * "此刻" is the one place for changing, evidence-backed inner life.
+ * It reads the existing canonical stores; no parallel personality state is
+ * invented and nothing disappears from persistence when panels collapse.
+ */
+@Composable
+private fun PresenceLivingMind(characterId: String) {
+    val innerVersion by CharacterInnerLifeStore.revisions.collectAsState()
+    val lifeStates by CharacterLifeStore.states.collectAsState()
+    val growthVersion by CharacterDevelopmentStore.revisions.collectAsState()
+    val tasks by CommitmentTaskStore.tasks.collectAsState()
+    val mind = remember(characterId, innerVersion) { CharacterInnerLifeStore.snapshot(characterId) }
+    val life = remember(characterId, lifeStates) { CharacterLifeStore.state(characterId) }
+    val growth = remember(characterId, growthVersion) { CharacterDevelopmentStore.active(characterId) }
+    val now = Instant.now()
+    val emotion = mind.optJSONObject("emotion")
+    val lastFeeling = emotion?.let {
+        val whenStarted = runCatching { Instant.parse(it.optString("startedAt")) }.getOrNull()
+        val within = whenStarted?.let { at ->
+            !at.isAfter(now) && Duration.between(at, now).toMinutes() <=
+                it.optInt("halfLifeMinutes", 180).coerceIn(30, 1440) * 3L
+        } == true
+        it.takeIf { within && it.optString("feeling").isNotBlank() }
+    }
+    val thoughts = mind.optJSONArray("thoughts")
+    val recentThoughts = (0 until (thoughts?.length() ?: 0)).mapNotNull(thoughts::optJSONObject)
+        .filter {
+            val at = runCatching { Instant.parse(it.optString("at")) }.getOrNull()
+            at != null && !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(24)
+        }.takeLast(3)
+    val openConcerns = com.jiacimu.lulu.data.CharacterOpenConcernRuntime.recent(
+        mind.optJSONArray("openConcerns"), now)
+    val motives = mind.optJSONArray("motives")
+    val livingGoals = (0 until (motives?.length() ?: 0)).mapNotNull(motives::optJSONObject)
+        .filter { it.optString("status", "active") != "released" }
+        .takeLast(5)
+    val legacy = life.optJSONObject("intention")
+    val legacyAim = legacy?.optString("aim").orEmpty()
+    val distinctLegacy = legacyAim.isNotBlank() && livingGoals.none {
+        sameCharacterMotive(it.optString("aim"), legacyAim)
+    }
+    val commitments = tasks.filter { it.characterId == characterId && it.status.isActive() }
+    val choices = mind.optJSONArray("decisions")
+    var showChoices by remember(characterId) { mutableStateOf(false) }
+    var showGrowth by remember(characterId) { mutableStateOf(false) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (lastFeeling != null || recentThoughts.isNotEmpty() || openConcerns.isNotEmpty()) {
+            Text("心里的事", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
+            lastFeeling?.let {
+                PresenceDialogSection("感受",
+                    listOf(it.optString("feeling"), it.optString("cause"))
+                        .filter(String::isNotBlank).joinToString(" · "))
+            }
+            if (recentThoughts.isNotEmpty()) PresenceDialogSection("还在琢磨",
+                recentThoughts.joinToString("\n") { item ->
+                    listOf(item.optString("thought"),
+                        item.optString("hesitation").takeIf(String::isNotBlank)?.let { "顾虑：$it" }.orEmpty())
+                        .filter(String::isNotBlank).joinToString(" · ")
+                })
+            openConcerns.forEach { item ->
+                PresenceDialogSection("还没想通",
+                    listOf(item.optString("focus"), item.optString("whyItMatters"),
+                        item.optJSONObject("lastOutcome")?.optString("summary").orEmpty())
+                        .filter(String::isNotBlank).joinToString(" · "))
+            }
+        }
+        if (livingGoals.isNotEmpty() || distinctLegacy) {
+            Text("正在做的打算", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
+            livingGoals.forEach { goal ->
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(goal.optString("aim"), fontSize = 14.sp, color = Color(0xFF333338))
+                    TextButton(onClick = {
+                        CharacterInnerLifeStore.stopMotive(characterId, goal.optString("id"))
+                    }) { Text("放下") }
+                }
+            }
+            if (distinctLegacy) {
+                Text(legacyAim, fontSize = 14.sp, color = Color(0xFF333338))
+                TextButton(onClick = { CharacterLifeStore.stopIntention(characterId) }) {
+                    Text("放下")
+                }
+            }
+        }
+        if (commitments.isNotEmpty()) {
+            Text("已经约好的事", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
+            commitments.take(6).forEach { task ->
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(task.goal, fontSize = 14.sp, color = Color(0xFF333338))
+                    Text(when (task.status) {
+                        CommitmentTaskStatus.Scheduled -> "已安排"
+                        CommitmentTaskStatus.Running -> "正在执行"
+                        CommitmentTaskStatus.WaitingForFeedback -> "等你回应"
+                        CommitmentTaskStatus.Blocked -> "需要处理"
+                        else -> "待确认"
+                    }, color = Color(0xFF77777C), fontSize = 12.sp)
+                    TextButton(onClick = { CommitmentTaskStore.cancel(task.id, "用户取消了这次约定") }) {
+                        Text("取消约定")
+                    }
+                }
+            }
+        }
+        if (growth.isNotEmpty()) {
+            TextButton(onClick = { showGrowth = !showGrowth }) {
+                Text(if (showGrowth) "收起逐渐形成的习惯" else "逐渐形成 · ${growth.size}")
+            }
+            if (showGrowth) growth.takeLast(6).forEach { item ->
+                PresenceDialogSection(item.kind.label, item.content)
+            }
+        }
+        if (choices != null && choices.length() > 0) {
+            TextButton(onClick = { showChoices = !showChoices }) {
+                Text(if (showChoices) "收起最近选择" else "最近选择")
+            }
+            if (showChoices) for (index in choices.length() - 1 downTo maxOf(0, choices.length() - 4)) {
+                val item = choices.optJSONObject(index) ?: continue
+                val summary = listOf(item.optString("reason"),
+                    item.optString("outcome")).filter(String::isNotBlank).joinToString(" · ")
+                if (summary.isNotBlank()) PresenceDialogSection(
+                    item.optString("selected").ifBlank { "一次选择" }, summary)
+            }
         }
     }
 }
