@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:24:10.739535+00:00",
-  "commit": "462473fbbdff97a5dfcdab623dcf31828d68929c",
+  "generatedAt": "2026-10-11T03:36:49.875096+00:00",
+  "commit": "db1d2fed9d75eb05c9ecd377d7377a60e69b1680",
   "branch": "main",
-  "sourceFingerprint": "23e4a9df7b36640bf7a39d680c8b540acf342dc531eebf0ed16ec8e09504e6f2",
+  "sourceFingerprint": "48ccb236f0fbd68bfc63fc5da9056a0a7d9c20fb6168ea9b8d0e2fa196d1ad3e",
   "summary": {
     "files": 486,
-    "lines": 104086,
+    "lines": 104098,
     "symbols": 1538
   },
   "symbolIndex": {
@@ -115,7 +115,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 37
+        "line": 49
       }
     ],
     "preferredMicrophoneType": [
@@ -2677,19 +2677,19 @@
     "extractExplicitAddress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 18
+        "line": 27
       }
     ],
     "observeUserMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 27
+        "line": 39
       }
     ],
     "promptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-        "line": 60
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
@@ -10946,24 +10946,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
-      "lines": 74,
-      "sha256": "405c879c0e649f7c144a83de79be56a36d21b6c8aac3df0c2ec54a591ed3141d",
+      "lines": 86,
+      "sha256": "f22f2ccc065634cf1f6da66acb71ba22e93c144c259c2fce771552b029936194",
       "symbols": [
         {
           "name": "extractExplicitAddress",
-          "line": 18
-        },
-        {
-          "name": "observeUserMessage",
           "line": 27
         },
         {
+          "name": "observeUserMessage",
+          "line": 39
+        },
+        {
           "name": "refresh",
-          "line": 37
+          "line": 49
         },
         {
           "name": "promptSection",
-          "line": 60
+          "line": 72
         }
       ]
     },
