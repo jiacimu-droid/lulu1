@@ -35,7 +35,6 @@ data class SharedTimelineEvent(
 object SharedExperienceTimeline {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var helper: TimelineDatabase? = null
-    private var applicationContext: Context? = null
 
     @Synchronized
     fun initialize(context: Context) {
