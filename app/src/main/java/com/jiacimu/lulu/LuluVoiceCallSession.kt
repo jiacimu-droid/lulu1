@@ -91,6 +91,24 @@ internal object LuluVoiceCallSession {
     private var recognizer: SpeechRecognizer? = null
     private var providerInput: ProviderCallInput? = null
     private var speechQueue: LuluCallSpeechQueue? = null
+    // A cloud transcript may arrive just AFTER TTS finishes. Keep a short
+    // factual playback reference so its delayed echo does not become "user speech".
+    private var recentlyPlayedAgentText = ""
+    private var recentlyPlayedAgentAtMillis = 0L
+
+    private fun isPlaybackEchoFromCloud(candidate: String): Boolean {
+        val now = SystemClock.elapsedRealtime()
+        val active = mutableState.value.speaking || speechQueue?.hasPendingAudio == true
+        val recentlyPlayed = recentlyPlayedAgentText.isNotBlank() &&
+            now - recentlyPlayedAgentAtMillis in 0L..4_000L
+        return PhoneBargeInPolicy.isLikelyPlaybackEcho(
+            candidate = candidate,
+            generated = mutableState.value.generatedTranscript,
+            playing = listOf(mutableState.value.playingTranscript, recentlyPlayedAgentText)
+                .filter(String::isNotBlank).joinToString(" "),
+            playbackActive = active || recentlyPlayed,
+        )
+    }
     private var subtitleRevealJob: Job? = null
     private var realtime: RealtimeVoiceAdapter? = null
     private var replyJob: Job? = null
@@ -665,7 +683,12 @@ internal object LuluVoiceCallSession {
                 val current = mutableState.value
                 if (!current.connected) return@busyChanged
                 lastCallAudioMillis = SystemClock.elapsedRealtime()
-                if (!busy && speechQueue?.hasPendingAudio != true) silenceAudioPending = false
+                if (!busy && speechQueue?.hasPendingAudio != true) {
+                    silenceAudioPending = false
+                    if (recentlyPlayedAgentText.isNotBlank()) {
+                        recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
+                    }
+                }
                 if (busy) {
                     // Cloud STT has its own PCM recorder and echo processing.
                     // Do not shut it down whenever TTS starts: that made
@@ -1143,6 +1166,8 @@ internal object LuluVoiceCallSession {
                         messageId = voiceMessageId,
                         onStarted = {
                             if (sameReply()) {
+                                recentlyPlayedAgentText = plainSpeech
+                                recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
                                 silenceAudioPending = false
                                 subtitleRevealJob?.cancel()
                                 val lines = PhoneSubtitleLayout.lines(plainSpeech)
@@ -1368,11 +1393,7 @@ internal object LuluVoiceCallSession {
             },
             onPartial = { text -> if (sameSession()) {
                 val candidate = text.trim()
-                val state = mutableState.value
-                val isEcho = PhoneBargeInPolicy.isLikelyPlaybackEcho(
-                    candidate, state.generatedTranscript, state.playingTranscript,
-                    state.speaking || speechQueue?.hasPendingAudio == true,
-                )
+                val isEcho = isPlaybackEchoFromCloud(candidate)
                 if (candidate.isNotBlank() && !isEcho) {
                     if (!providerSpeechConfirmed) {
                         providerSpeechConfirmed = true
@@ -1389,11 +1410,7 @@ internal object LuluVoiceCallSession {
             } },
             onText = { text ->
                 if (sameSession()) {
-                    val state = mutableState.value
-                    val isEcho = PhoneBargeInPolicy.isLikelyPlaybackEcho(
-                        text, state.generatedTranscript, state.playingTranscript,
-                        state.speaking || speechQueue?.hasPendingAudio == true,
-                    )
+                    val isEcho = isPlaybackEchoFromCloud(text)
                     userSpeechInProgress = false
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
@@ -1461,6 +1478,8 @@ internal object LuluVoiceCallSession {
         providerSpeechStartedMillis = 0L
         providerRecognitionPendingUntilMillis = 0L
         lastCallAudioMillis = startedAt
+        recentlyPlayedAgentText = ""
+        recentlyPlayedAgentAtMillis = 0L
         // First ordinary-call reflection after one quiet minute, then bounded pulses.
         lastSilenceReflectionMillis = startedAt - 60_000L
         silenceFailures = 0
