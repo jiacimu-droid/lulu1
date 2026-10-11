@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:33:58.347591+00:00",
-  "commit": "d841f98431b214db21808078c04404528f5cb6a6",
+  "generatedAt": "2026-10-11T16:34:11.493670+00:00",
+  "commit": "9cca35ed5bebc022f7e04ec601e46aa4935452e9",
   "branch": "main",
-  "sourceFingerprint": "e3ff33602bfe8d72317a41920caf51cfc30457b8c300ca6a328a897be1f6144c",
+  "sourceFingerprint": "01448a8924e8c73f67db542906c061e8ff032fb414991153d57df9bd214212b5",
   "summary": {
     "files": 517,
-    "lines": 108508,
+    "lines": 108513,
     "symbols": 1623
   },
   "symbolIndex": {
@@ -3215,7 +3215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 99
+        "line": 104
       }
     ],
     "guide": [
@@ -7817,25 +7817,25 @@
     "availableBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 49
+        "line": 54
       }
     ],
     "progressLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 60
+        "line": 65
       }
     ],
     "nextSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 71
+        "line": 76
       }
     ],
     "commitSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 92
+        "line": 97
       }
     ],
     "ReadingReflectionRecord": [
@@ -16997,8 +16997,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 149,
-      "sha256": "082e47aa304a7993a3f07321e44f3a98d2fb8670277cd2b6d325184f048889b4",
+      "lines": 154,
+      "sha256": "35ea35f2ffc9564da5f7e86f3e8e9f31f4d43d3fc2d6b11eb9ba4032ed261c59",
       "symbols": [
         {
           "name": "books",
@@ -17006,23 +17006,23 @@
         },
         {
           "name": "availableBooks",
-          "line": 49
+          "line": 54
         },
         {
           "name": "progressLabel",
-          "line": 60
+          "line": 65
         },
         {
           "name": "nextSlice",
-          "line": 71
+          "line": 76
         },
         {
           "name": "commitSlice",
-          "line": 92
+          "line": 97
         },
         {
           "name": "clearCharacter",
-          "line": 99
+          "line": 104
         }
       ]
     },
