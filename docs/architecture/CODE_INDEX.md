@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0ee439a9b7956153bd9498ab708f2d26dd524a92`
+- 基准提交：`e2ea2cbd254d211de0c70a7b0c133094f492cf48`
 - 分支：`main`
 - 已索引文件：502
-- 已索引代码/文本行：106583
+- 已索引代码/文本行：106597
 - 已发现符号：1586
 
 | 文件 | 行数 | 符号数 |
@@ -171,7 +171,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 142 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 87 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 53 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 157 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 169 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 117 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 261 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
@@ -259,7 +259,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 125 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1251 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1253 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 474 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 86 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 29 | 1 |
