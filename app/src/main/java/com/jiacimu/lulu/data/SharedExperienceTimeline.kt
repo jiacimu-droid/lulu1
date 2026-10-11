@@ -43,6 +43,7 @@ object SharedExperienceTimeline {
         helper = TimelineDatabase(application)
         helper?.writableDatabase
         MemoryExtractionJobStore.initialize(application)
+        CharacterLifeFollowThroughStore.initialize(application)
     }
 
     fun backfillChatHistory() {
@@ -184,6 +185,20 @@ object SharedExperienceTimeline {
             put("revision", (previous?.revision ?: 0) + 1)
         }
         database.insertWithOnConflict("timeline_events", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        // This is the single canonical gate from REAL timeline events to
+        // the role's possible future sharing and curiosity. Chat claims,
+        // fictional stories, and mere model intentions never enter this queue.
+        val verifiedLifeEvent = source == "digital-world" ||
+            source.startsWith("reading:") ||
+            (channel.startsWith("独自") && source !in setOf("legacy", "message")) ||
+            (channel.startsWith("数字世界") && source !in setOf("legacy", "message"))
+        if (previous == null && triggerExtraction && verifiedLifeEvent &&
+            evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
+                EventEvidenceKind.UserStatement, EventEvidenceKind.Inference)) {
+            CharacterLifeFollowThroughStore.register(
+                characterId, eventId, channel, clean, occurredAt,
+            )
+        }
         if (previous != null) {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
