@@ -21,6 +21,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
     private val microphone = CallAudioInput(scope)
     private var transcription: Job? = null
+    private var realtime: ElevenLabsRealtimeStt? = null
     private val activeConnections = Collections.synchronizedSet(mutableSetOf<HttpURLConnection>())
     @Volatile private var generation = 0L
     @Volatile private var capturingVoice = false
@@ -40,6 +41,13 @@ internal class ProviderCallInput(private val context: Context, private val scope
         presentingChunk.set(-1)
         currentPhrase = ""
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+        if (sttEngine == "elevenlabs" &&
+            CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
+                CallVoiceConfiguration.SCRIBE_V2_REALTIME) {
+            capturePaused = false
+            startRealtime(epoch, prefs)
+            return
+        }
         // A running user monologue can outlast cloud upload latency; never
         // silently drop earlier chunks because an arbitrary six-item queue filled.
         val queue = Channel<AudioChunk>(Channel.UNLIMITED)
@@ -115,6 +123,57 @@ internal class ProviderCallInput(private val context: Context, private val scope
         }
         capturePaused = false
         startMicrophone(epoch, queue, prefs)
+    }
+
+    private fun startRealtime(
+        epoch: Long,
+        prefs: android.content.SharedPreferences,
+    ) {
+        val key = prefs.getString("eleven_api_key", "").orEmpty().trim()
+        if (key.isBlank()) {
+            onError("请先配置 ElevenLabs API Key")
+            return
+        }
+        val recognizer = ElevenLabsRealtimeStt(
+            scope = scope,
+            apiKey = key,
+            active = { epoch == generation },
+            speaking = { capturingVoice },
+            onPartial = { if (epoch == generation) onPartial(it) },
+            onText = { if (epoch == generation) onText(it) },
+            onError = { if (epoch == generation) onError(it) },
+        )
+        realtime = recognizer
+        recognizer.start()
+        onStatus("Scribe v2 Realtime 已选择，正在连接实时识别…")
+        microphone.start(
+            accept = { epoch == generation && !capturePaused && accept() },
+            onReady = { if (epoch == generation) onReady() },
+            onLevel = { if (epoch == generation) onLevel(it) },
+            onSpeech = {
+                if (epoch == generation) {
+                    capturingVoice = true
+                    onSpeech()
+                }
+            },
+            onSpeechFrame = { if (epoch == generation) recognizer.speechFrame(it) },
+            onSegment = { _, completed ->
+                capturingVoice = !completed
+                if (epoch == generation && completed) {
+                    onCaptureFinished()
+                    recognizer.finishUtterance()
+                    onStatus("Scribe Realtime 正在确认完整语句…")
+                }
+            },
+            onError = { message ->
+                if (epoch == generation) {
+                    capturingVoice = false
+                    onError(message)
+                }
+            },
+            threshold = prefs.getFloat("voice_vad_threshold", 350f),
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
+        )
     }
 
     private fun startMicrophone(
@@ -358,6 +417,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
         capturingVoice = false
         capturePaused = false
         microphone.stop()
+        realtime?.stop()
+        realtime = null
         segments?.close()
         segments = null
         transcription?.cancel()
