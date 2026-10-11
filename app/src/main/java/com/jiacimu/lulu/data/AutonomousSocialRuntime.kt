@@ -319,6 +319,7 @@ internal object AutonomousSocialRuntime {
                 appendLine("角色从“$previous”真实移动到了“${tick.locationName}”。")
                 appendLine(tick.summary)
                 appendLine("incidentId=${tick.incidentId}；status=${tick.status}；stage=${tick.stage}；anchorItemId=${tick.anchorItemId}；anchorItemName=${tick.anchorItemName}")
+                if (tick.status == "active") appendLine(DigitalWorldLifeEventStore.contextFor(characterId))
                 appendLine("角色：${character.displayName}")
                 val readable = com.jiacimu.lulu.study.ReadingBackgroundBridge
                     .availableBooks(context, characterId).take(5)
@@ -344,7 +345,7 @@ internal object AutonomousSocialRuntime {
                 规则：
                 1. 主人不在现场，不能让主人说话、行动、被看见或默认参与。
                 2. 只能引用给出的准确地点、事件和真实家具。不得添加其他物品、食物、天气、声响、小生物、故障或后续结果。
-                3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。
+                3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。若角色此刻真正决定自己观察、寻找、避让或处理已存在的事件，可以在 appraisal.ownActivity 填 {"stage":"decided","action":"digital_world","worldAction":"handle_incident","incidentId":"上面的真实ID","approach":"当前权威状态允许的真实操作","whyNow":"角色自己选择这一步的原因"}；程序再次验证事件仍在现场，交给同一个执行器处理，失败也保留。也可以先好奇、害怕、分享或暂时不管，不能强制每次立即处理。
                 4. 角色的分享欲是自己的生活动机，不是只在重大事故时才允许：想单独告诉用户可选 private，想给大家看自己的趣事、得意、感动、吐槽、意外发现可选 moment（公开朋友圈），想和实际群友聊天可选 group。公开朋友圈可以只是随手记录一次真实的小情绪或发现，绝非只能用于大事；也不要机械每个事件必发。没有分享欲选 none，可以让真实经历保留在后续记忆和好奇心中。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
                 对这次亲历如果真的产生了新疑问（例如蟑螂明明没食物怎么进来的，或者想研究阅读馆、角色自己喜欢的书），可以选填 curiosity={"topic":"自己关注的主题","question":"真正好奇的问题","why":"本轮真实事件怎样触发","nextStep":"可实际执行的下一步"}。这只是好奇，不等于已查到答案或已采取行动。若暂时很想分享但没立刻发，可填 appraisal.shareWish={"status":"held","why":"为何想告诉别人"}；程序会与这次真实事件ID绑定，不是发布回执。
