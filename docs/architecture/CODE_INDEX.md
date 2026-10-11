@@ -1,6 +1,6 @@
 # Lulu1 代码索引
 
-- 基准提交：`5d46ad5b8d1d9d19f443a63f55bf96d3020c4dab`
+- 基准提交：`3a87e7ecdd319d1df7ecdda9d3effedeb1cbd6df`
 - 分支：`main`
 - 已索引文件：492
 - 已索引代码/文本行：104458
