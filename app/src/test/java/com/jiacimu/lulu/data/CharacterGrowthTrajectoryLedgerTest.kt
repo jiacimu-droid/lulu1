@@ -96,6 +96,31 @@ class CharacterGrowthTrajectoryLedgerTest {
         assertEquals(1, after.length())
     }
 
+    @Test fun emotionOnlyAfterSignificantFeedbackIsVisibleWithoutPretendingToBeAHabit() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val role = "real-emotion-in-reply-role"
+        val evidenceId = "message-safety-complaint"
+        val now = Instant.now()
+        SharedExperienceTimeline.record(evidenceId, role, "私聊", "用户",
+            "你让我没有安全感，我不想这样继续。", now, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = role, evidenceId = evidenceId, appraisal = null,
+            innerLife = org.json.JSONObject().put("emotion", org.json.JSONObject()
+                .put("feeling", "有些难过，也意识到她是真的不安")
+                .put("cause", "她亲口说自己没有安全感")),
+            innerThoughtBasis = null, selectedAction = "reply", innerThought = "",
+            reason = "还没想好怎么继续谈", now = now.plusSeconds(1))
+        val trace = CharacterGrowthTrajectory.entries(role, now.plusSeconds(3))
+        assertTrue(trace.any { it.evidenceId == evidenceId && it.category == "反思" &&
+            it.detail.contains("难过") })
+        assertFalse(trace.any { it.category == "成长" })
+    }
+
     @Test fun routineConversationalAppraisalIsNotFalselyAdvertisedAsGrowth() {
         val ordinary = org.json.JSONObject().put("selectedAction", "reply")
             .put("appraisal", org.json.JSONObject().put("meaning", "今天只是问候"))
