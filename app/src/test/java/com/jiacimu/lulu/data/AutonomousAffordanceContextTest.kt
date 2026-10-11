@@ -19,6 +19,23 @@ class AutonomousAffordanceContextTest {
         assertFalse(text.contains("book-2"))
     }
 
+    @Test fun aRealColocatedResidentCanBeMetButAnAbsentOneCannotBeInvented() {
+        val nearby = AutonomousAffordanceContext.render(
+            digital = true, location = DigitalWorldPublicPlaces.CAFE,
+            books = emptyList(), groups = emptyList(),
+            currentResidents = listOf(Triple("resident-37", "闻澜", "公共区域维护员")),
+        )
+        assertTrue(nearby.contains("worldAction=interact_resident"))
+        assertTrue(nearby.contains("itemId=resident-37"))
+        assertTrue(nearby.contains("greet|chat|ask_place|sit_together"))
+        val empty = AutonomousAffordanceContext.render(
+            digital = true, location = DigitalWorldPublicPlaces.COURTYARD,
+            books = emptyList(), groups = emptyList(),
+        )
+        assertFalse(empty.contains("worldAction=interact_resident"))
+        assertTrue(empty.contains("没有登记在场的居民"))
+    }
+
     @Test fun nonDigitalCharactersDoNotGetInventedWorldAccess() {
         val text = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
