@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:37:31.997537+00:00",
-  "commit": "097720c95e8ff591826760f15cfdfa8f96795f45",
+  "generatedAt": "2026-10-11T16:38:22.731918+00:00",
+  "commit": "24ef8e28099cf135c289d04e9ebe8bbb278f3cd0",
   "branch": "main",
-  "sourceFingerprint": "ac216ac8feabb52e7f81cb794bb1ee6ab4dc195aa8407b424544bb78cd610b85",
+  "sourceFingerprint": "2abced49f0cb40e7b946d8f5b2f8a553cf2a52a7e4090090a11675c418d00f62",
   "summary": {
     "files": 518,
-    "lines": 108563,
+    "lines": 108582,
     "symbols": 1624
   },
   "symbolIndex": {
@@ -18269,8 +18269,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
-      "lines": 87,
-      "sha256": "75a4c2b2ecdb9d0d7e149e64acf13e9c18352bae571f14fe1a607cde4bc103d2",
+      "lines": 106,
+      "sha256": "6d4c238d8d39186e65e4274b0721f21b4edb86fb27a8c4685578f2e2eae25f25",
       "symbols": [
         {
           "name": "AutonomousDecisionRecoveryTest",
