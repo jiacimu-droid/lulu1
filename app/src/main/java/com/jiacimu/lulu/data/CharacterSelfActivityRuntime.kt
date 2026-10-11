@@ -76,22 +76,31 @@ internal object CharacterSelfActivityRuntime {
         }
     }
 
-    fun offer(context: Context, characterId: String, appraisal: JSONObject?): Boolean {
+    /** Common accepted-decision dispatcher: private chat, group chat, phone and
+     * autonomous loops all enter from CharacterInnerLifeStore, not UI screens.
+     * This registers a choice; execution happens ONLY through ToolRouter.
+     */
+    fun offer(context: Context, characterId: String, appraisal: JSONObject?, evidenceId: String = ""): Boolean {
         if (characterId.isBlank()) return false
         val intended = appraisal?.optJSONObject("ownActivity") ?: return false
         val books = ReadingBackgroundBridge.availableBooks(context, characterId).mapTo(hashSetOf()) { it.id }
         val selected = parse(intended, books, DigitalLifeProfileStore.isEnabled(characterId)) ?: return false
+        val whyNow = intended.optString("whyNow").trim().take(200)
+        if (whyNow.length < 3) return false
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val previous = prefs.getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
         val now = System.currentTimeMillis()
+        if (previous?.optString("status") in setOf("pending", "running")) return false
         if (previous?.optString("signature") == selected.signature &&
             now - previous.optLong("createdAt") in 0..REPEAT_WINDOW_MS) return false
+        if (evidenceId.isNotBlank() && previous?.optString("evidenceId") == evidenceId) return false
 
         val id = UUID.randomUUID().toString()
         val record = JSONObject()
             .put("id", id).put("characterId", characterId)
             .put("signature", selected.signature).put("createdAt", now)
+            .put("whyNow", whyNow).put("evidenceId", evidenceId.take(180))
             .put("label", selected.label).put("tool", selected.tool)
             .put("args", selected.args).put("status", "pending")
         if (!prefs.edit().putString("activity:$characterId", record.toString()).commit()) return false
@@ -110,6 +119,17 @@ internal object CharacterSelfActivityRuntime {
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
+
+    internal fun markRunning(context: Context, characterId: String, id: String) {
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val key = "activity:$characterId"
+        val entry = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
+            ?: return
+        if (entry.optString("id") == id && entry.optString("status") == "pending") {
+            entry.put("status", "running")
+            prefs.edit().putString(key, entry.toString()).commit()
+        }
+    }
 
     internal fun markResult(context: Context, characterId: String, id: String,
                             success: Boolean, summary: String) {
@@ -134,14 +154,16 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
             initializeBackgroundRuntime(applicationContext)
             val entry = CharacterSelfActivityRuntime.latest(applicationContext, characterId)
                 ?: return Result.success()
-            if (entry.optString("id") != id || entry.optString("status") != "pending")
+            if (entry.optString("id") != id ||
+                entry.optString("status") !in setOf("pending", "running"))
                 return Result.success()
             val elapsed = System.currentTimeMillis() - entry.optLong("createdAt")
-            if (elapsed !in 0..(60 * 60_000L)) {
+            if (elapsed !in 0L..(60 * 60_000L)) {
                 CharacterSelfActivityRuntime.markResult(applicationContext, characterId, id,
                     false, "行动意向已过时，没有假装执行")
                 return Result.success()
             }
+            CharacterSelfActivityRuntime.markRunning(applicationContext, characterId, id)
             val raw = ToolRouter.execute(applicationContext, characterId,
                 entry.optString("tool"), entry.optJSONObject("args") ?: JSONObject(),
                 requestId = "self-activity-$id")
