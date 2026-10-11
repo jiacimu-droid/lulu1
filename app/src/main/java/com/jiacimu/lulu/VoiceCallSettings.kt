@@ -25,6 +25,7 @@ internal fun VoiceCallSettings(provider: String) {
     var sttMode by remember { mutableStateOf(prefs.getString("call_stt_mode", "auto").orEmpty()) }
     var groqKey by remember { mutableStateOf(prefs.getString("groq_asr_key", "").orEmpty()) }
     var groqModel by remember { mutableStateOf(prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()) }
+    var sleepAutoEnd by remember { mutableStateOf(prefs.getBoolean("sleep_auto_end_60m", false)) }
 
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("通话声音：${CallVoiceConfiguration.label(provider)}", style = MaterialTheme.typography.titleMedium)
@@ -128,6 +129,25 @@ internal fun VoiceCallSettings(provider: String) {
                 Text("Agent 管理自己的实时收音和识别，独立计费。普通 API 才使用上面的语音识别渠道。",
                     style = MaterialTheme.typography.bodySmall)
             }
+        }
+        HorizontalDivider()
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("哄睡 · 无人回应也继续轻声聊天", style = MaterialTheme.typography.bodyMedium)
+                Text("默认持续讲到你主动结束电话；角色每段声音播完才稍作停顿继续，不再因误识别停住。连续生成语音和模型回复可能消耗 API 积分。",
+                    style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("哄睡 60 分钟后自动结束", style = MaterialTheme.typography.bodyMedium)
+                Text("默认关闭；打开后，持续无回应满一小时才会自动挂断。",
+                    style = MaterialTheme.typography.bodySmall)
+            }
+            Switch(checked = sleepAutoEnd, onCheckedChange = {
+                sleepAutoEnd = it
+                prefs.edit().putBoolean("sleep_auto_end_60m", it).apply()
+            })
         }
         if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
             Text("语句结束停顿：${silence.toInt()} 毫秒（长句会自动延长换气等待）")
