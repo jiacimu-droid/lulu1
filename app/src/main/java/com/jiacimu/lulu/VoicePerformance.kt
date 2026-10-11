@@ -38,13 +38,18 @@ internal object VoicePerformance {
     """.trimIndent()
 
     fun phoneInstruction(context: Context, sleepMode: Boolean = false): String {
+        val facialExpression = """
+            这是同一个角色的连续人格：电话、私聊、见面的关系称呼、稳定喜好、记忆、习惯和价值判断一致；电话只改变交流媒介（听觉、节奏、不能看见用户身体或当面接触），不重置性格。
+            电话台词允许自然、偶尔使用颜文字（如 (´▽｀)），表达角色真实的开心、害羞或无奈；不要固定频率、不要每句硬塞。颜文字是字幕中的可见表达，不是要朗读的词；不要写“左括号”“笑脸”等口头解释，不能用它代替有内容的台词。
+            保持真正人类口语：有时随口接话、改口、停顿、开玩笑、表达自己的判断和好奇心；不要每句像客服回答问题，或写成小说旁白。
+        """.trimIndent()
         val regular = if (supportsTags(context)) """
             电话的 text 是这一整轮角色真实说出口的完整台词，随后会作为一段连贯文本送往语音服务；允许嵌入英文音频标签，这是 text 不放内部指令规则的唯一例外。
             请先确定这一轮完整发言的情绪弧线。不要一句一句独立添加 [angry]、[sad] 等相互冲突的标签，也不要对每个句子重复一个相同标签；声音变化必须跟随角色真实心理转折。
             $direction
             电话只能表现当前通话实际可听见的声音，不编造与用户同处一室或隔着电话触碰用户。
         """.trimIndent() else ""
-        if (!sleepMode) return regular
+        if (!sleepMode) return listOf(facialExpression, regular).filter(String::isNotBlank).joinToString("\n")
         val whisper = if (supportsTags(context)) """
             当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用 [whispers] 气声般地轻轻说话，不能突然切换成高声、兴奋、喊叫或者戏剧化表演；不需要插入 [laughs]、[gasps] 等响亮的声音。可在自然换气处少量加入 [inhales]、[exhales]，在完整意群之间用 [pause] 或 [long pause] 拉开节奏；不要每隔两三个字就喘一次。
             内容仍要真实、有情感和个性，不是单调机械地朗读指令。可以慢一点，给听者留出自然停顿。
@@ -53,7 +58,7 @@ internal object VoicePerformance {
             当前是哄睡通话：用短而自然的口语、放缓叙述和温柔的停顿来营造贴近的轻声陪伴。
             此语音引擎不支持英文表演标签，不要把 [whispers] 之类标记写进真实台词，也不宣称设备音色已经切换成功。
         """.trimIndent()
-        return listOf(regular, whisper).filter(String::isNotBlank).joinToString("\n")
+        return listOf(facialExpression, regular, whisper).filter(String::isNotBlank).joinToString("\n")
     }
 
     /**
