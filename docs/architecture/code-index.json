@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:40:25.376013+00:00",
-  "commit": "5a11fc3bf2ef09fb9bb4e0a482b90b4f29f6592f",
+  "generatedAt": "2026-10-11T08:41:04.888373+00:00",
+  "commit": "2c281eae8881a96b8ea25c1baadcf3ffb0cef04a",
   "branch": "main",
-  "sourceFingerprint": "3007cbde7721737984271783324db911005259c5af709a43b3e6e836f8dc7c7f",
+  "sourceFingerprint": "ba66adbc04e43a303b880122205732b208b74d4579ff481f792dba32bbc41604",
   "summary": {
-    "files": 501,
-    "lines": 106444,
-    "symbols": 1585
+    "files": 502,
+    "lines": 106531,
+    "symbols": 1586
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8614,6 +8614,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 32
+      }
+    ],
+    "CharacterRelationalInitiativeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt",
+        "line": 15
       }
     ],
     "CharacterSelfActivityRuntimeTest": [
@@ -18104,6 +18110,17 @@
         {
           "name": "event",
           "line": 32
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt",
+      "lines": 87,
+      "sha256": "b13e0fcc72171a9a1fcaebc81e6f594a4f227e7ea8cc6779d7ccfcf84e8dfb4d",
+      "symbols": [
+        {
+          "name": "CharacterRelationalInitiativeTest",
+          "line": 15
         }
       ]
     },
