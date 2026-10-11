@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`26f252838958a5e3fa9bb6899687fce5bf02610f`
+- 基准提交：`0a5d939bbe38a7505dd9f0bc3b85ec87bb0aea29`
 - 分支：`main`
 - 已索引文件：504
-- 已索引代码/文本行：107121
+- 已索引代码/文本行：107145
 - 已发现符号：1602
 
 | 文件 | 行数 | 符号数 |
@@ -427,8 +427,8 @@
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 32 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 24 | 1 |

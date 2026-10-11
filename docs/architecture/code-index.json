@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:20:13.063043+00:00",
-  "commit": "26f252838958a5e3fa9bb6899687fce5bf02610f",
+  "generatedAt": "2026-10-11T12:20:53.669589+00:00",
+  "commit": "0a5d939bbe38a7505dd9f0bc3b85ec87bb0aea29",
   "branch": "main",
-  "sourceFingerprint": "1fab4c96bf387cf34c42900d7e6dccb00771497e0b87aea10cf8c1215a32d313",
+  "sourceFingerprint": "9e8c8810f27c029e82fb239f9bfcd8d1ae41061e454879f7da84385abf1955ee",
   "summary": {
     "files": 504,
-    "lines": 107121,
+    "lines": 107145,
     "symbols": 1602
   },
   "symbolIndex": {
@@ -17793,8 +17793,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt",
-      "lines": 32,
-      "sha256": "671698596d425e147e7ec06ac478ac578b712b83ea92d2e45f6c166c91322961",
+      "lines": 36,
+      "sha256": "e06af4f08e8f530361b5131e837afa54772849d62394358562c76d8e8aa4153c",
       "symbols": [
         {
           "name": "PhoneMicSegmentPolicyTest",
@@ -17804,8 +17804,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt",
-      "lines": 40,
-      "sha256": "9ef8c408f8d1a4661bf9af1fa9eb7d08296cf05549c5c4ed397d78abde4793be",
+      "lines": 60,
+      "sha256": "d1d7f36e00b2862303564ab6c3ec80b97139f41c579a9bf74c5dde9391cef9b6",
       "symbols": [
         {
           "name": "PhoneSubtitleLayoutTest",
@@ -17816,7 +17816,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt",
       "lines": 17,
-      "sha256": "16c610a496fb039883d4ca183318a2fa0c467ff44ece51b202ac9d2e911f0833",
+      "sha256": "2ece6baeeea5b993eb70a0486b1887b8facb02dfb3e581ba3d9dcc4ef5ac709d",
       "symbols": [
         {
           "name": "PhoneSubtitleProgressTest",
