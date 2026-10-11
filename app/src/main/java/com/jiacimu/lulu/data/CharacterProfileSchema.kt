@@ -7,26 +7,23 @@ internal object CharacterProfileSchema {
     // facts live on the Profile page; this page only describes how the same person tends to
     // interpret, choose, relate and express. Short-lived feelings/concerns never belong here.
     val fields = listOf(
-        CharacterProfileField("values", "核心价值与底线", "长期坚持什么、什么不能接受。写原则，不写当下情绪、任务或口头禅。", "稳定核心"),
-        CharacterProfileField("motives", "长期驱动力", "这个人长期重视、追求或守护什么；不是本周目标、愿望清单或具体承诺。", "稳定核心"),
-        CharacterProfileField("perception", "看待与判断", "面对信息时通常先注意什么、怎样形成判断；允许在不同情境下有不同结论。", "思考与应对"),
-        CharacterProfileField("conflict", "受挫、分歧与修复", "误会、拒绝、失败或冲突发生时通常怎样理解、克制、表达和修复。", "思考与应对"),
-        CharacterProfileField("care", "亲近与照顾方式", "关系里习惯怎样靠近、关心与主动做事；不要写当前牵挂或一次性的甜言蜜语。", "关系与主动性"),
-        CharacterProfileField("respect", "关系边界", "哪些意愿和边界必须尊重，哪些行为即使亲近也不会擅自越过。", "关系与主动性"),
-        CharacterProfileField("social", "情境反应差异", "面对陌生人、熟人、亲密对象或不同压力时，哪些侧面更容易被激活。写倾向，不写“遇到X必须Y”。", "关系与主动性"),
-        CharacterProfileField("expression", "表达气质", "整体语感、节奏、正式程度与情绪表达范围；不要填固定台词，具体语言习惯在下一项。", "表达"),
-        CharacterProfileField("speechHabits", "语言习惯与小癖好", "角色原本就有的措辞、语气、标点、偶尔倒装、冷笑话或谐音，以及何时自然出现。不要写固定台词；后天学会的习惯另记成长。", "表达"),
-        CharacterProfileField("interests", "初始兴趣与偏好（可选）", "角色一开始真正偏好什么，未知可留空；好奇问题和探索意愿会在生活中形成，不用在此预设每次要做的事。", "起始偏好"),
-        CharacterProfileField("typing", "人格类型参考（可选）", "只作为理解角度，不用类型标签自动推导恐惧、经历或固定反应。", "起始偏好"),
+        CharacterProfileField("values", "价值与底线", "", "稳定核心"),
+        CharacterProfileField("motives", "内在驱动力", "", "稳定核心"),
+        CharacterProfileField("perception", "感知与判断", "", "判断与行动"),
+        CharacterProfileField("conflict", "冲突与修复", "", "判断与行动"),
+        CharacterProfileField("care", "亲近方式", "", "相处与边界"),
+        CharacterProfileField("respect", "相处边界", "", "相处与边界"),
+        CharacterProfileField("social", "社交方式", "", "相处与边界"),
+        CharacterProfileField("expression", "表达气质", "", "兴趣与表达"),
+        CharacterProfileField("speechHabits", "语言习惯与小癖好", "", "兴趣与表达"),
+        CharacterProfileField("interests", "兴趣偏好", "", "兴趣与表达"),
+        // Historical typing labels are accepted for import but not injected as a
+        // second personality rule: their content is already expressed as values
+        // and reasoning style, and MBTI labels must not prescribe behavior.
+        CharacterProfileField("typing", "旧人格类型参考", "", "兼容存档"),
     )
-    val groupOrder = listOf("稳定核心", "思考与应对", "关系与主动性", "表达", "起始偏好")
-    val groupHints = mapOf(
-        "稳定核心" to "变化最慢：回答“这个人为什么会这样选择”，不是每轮都要说出来。",
-        "思考与应对" to "描述处理事情的倾向，让同一个人在不同情境下仍然有可理解的连续性。",
-        "关系与主动性" to "描述怎样相处、怎样主动和怎样守边界；当前关系状态仍由真实经历决定。",
-        "表达" to "只管“怎么说”，不重复身份、价值或当前心情。",
-        "起始偏好" to "可留空；没有写死的部分允许角色在真实生活中慢慢长出来。",
-    )
+    val groupOrder = listOf("兴趣与表达", "相处与边界", "判断与行动", "稳定核心")
+    val groupHints = emptyMap<String, String>()
     fun groupedFields(): List<Pair<String, List<CharacterProfileField>>> = groupOrder.mapNotNull { group ->
         fields.filter { it.group == group }.takeIf { it.isNotEmpty() }?.let { group to it }
     }
