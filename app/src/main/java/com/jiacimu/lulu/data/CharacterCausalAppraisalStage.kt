@@ -42,6 +42,10 @@ internal object CharacterCausalAppraisalStage {
         return store.edit().putInt(key, count + 1).commit()
     }
 
+    /** No extra psychological model call may pre-empt actual unanswered chat. */
+    fun canAppraiseBeforeAction(unreadText: String, awaitingReplyContext: String): Boolean =
+        unreadText.isBlank() && awaitingReplyContext.isBlank()
+
     internal data class Outcome(
         val evidenceId: String,
         val evidenceDescription: String,
