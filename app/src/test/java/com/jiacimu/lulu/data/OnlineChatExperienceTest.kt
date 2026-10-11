@@ -41,7 +41,7 @@ class OnlineChatExperienceTest {
         assertTrue(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 15_300L))
         OnlineChatBatchStore.finish(context, role, fifth.revision)
         // Already online, but a fresh conversation topic still gets its own quiet period.
-        val nextTurn = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 14_000L)
+        val nextTurn = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 18_000L)
         assertEquals(22_000L, nextTurn.dueAtMillis)
         assertFalse(OnlineChatBatchStore.claim(context, role, nextTurn.revision, now = 21_999L))
         OnlineChatBatchStore.cancel(context, role)
