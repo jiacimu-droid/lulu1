@@ -15,6 +15,33 @@ import java.time.Instant
  * down by an extra model call.
  */
 internal object CharacterCausalAppraisalStage {
+    private const val MAX_MODEL_ATTEMPTS_PER_EVENT = 2
+
+    /**
+     * A failing legacy event must never charge the user every time the app
+     * wakes, or block current chat. At most an initial attempt and one retry.
+     * A corrected event revision receives a distinct budget; old receipts
+     * cannot be inflated by re-opening the chat.
+     */
+    @Synchronized
+    fun hasExhaustedAttempts(context: Context, characterId: String, evidenceId: String): Boolean {
+        val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .firstOrNull() ?: return true
+        val store = context.applicationContext.getSharedPreferences("lulu_causal_reflection_budget_v1", Context.MODE_PRIVATE)
+        return store.getInt("$characterId:$evidenceId:${event.revision}", 0) >= MAX_MODEL_ATTEMPTS_PER_EVENT
+    }
+
+    @Synchronized
+    fun claimModelAttempt(context: Context, characterId: String, evidenceId: String): Boolean {
+        val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .firstOrNull() ?: return false
+        val store = context.applicationContext.getSharedPreferences("lulu_causal_reflection_budget_v1", Context.MODE_PRIVATE)
+        val key = "$characterId:$evidenceId:${event.revision}"
+        val count = store.getInt(key, 0)
+        if (count >= MAX_MODEL_ATTEMPTS_PER_EVENT) return false
+        return store.edit().putInt(key, count + 1).commit()
+    }
+
     internal data class Outcome(
         val evidenceId: String,
         val evidenceDescription: String,
