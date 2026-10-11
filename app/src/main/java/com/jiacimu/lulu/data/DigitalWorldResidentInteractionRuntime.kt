@@ -42,6 +42,8 @@ internal object DigitalWorldResidentInteractionRuntime {
             speaker = character.displayName,
             content = summary,
             occurredAt = now,
+            source = "digital-world",
+            evidenceKind = EventEvidenceKind.ToolResult,
         )
         DigitalWorldActionResult(true, summary)
     }.getOrElse { error ->
