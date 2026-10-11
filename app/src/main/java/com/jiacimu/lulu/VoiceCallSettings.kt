@@ -22,7 +22,13 @@ internal fun VoiceCallSettings(provider: String) {
     var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 1700).toFloat().coerceIn(850f, 3200f)) }
     var advanced by remember { mutableStateOf(false) }
     var endpoint by remember { mutableStateOf(prefs.getString("minimax_asr_endpoint", "").orEmpty()) }
-    var sttMode by remember { mutableStateOf(prefs.getString("call_stt_mode", "auto").orEmpty()) }
+    var sttMode by remember { mutableStateOf(CallVoiceConfiguration.normalizeSttMode(prefs.getString("call_stt_mode", "system"))) }
+    LaunchedEffect(Unit) {
+        // Older installs could store "auto"; keep their former phone-first behavior
+        // without surprising switches to billable cloud transcription.
+        if (prefs.getString("call_stt_mode", null) != sttMode)
+            prefs.edit().putString("call_stt_mode", sttMode).apply()
+    }
     var groqKey by remember { mutableStateOf(prefs.getString("groq_asr_key", "").orEmpty()) }
     var groqModel by remember { mutableStateOf(prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()) }
 
@@ -41,26 +47,22 @@ internal fun VoiceCallSettings(provider: String) {
         }
         HorizontalDivider()
         Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
-        Text("单独选择识别渠道，不影响角色的 Voice ID 或语音供应商；自动模式优先使用手机系统识别，不可用时才尝试云端识别。",
+        Text("明确选择识别渠道，不自动切换。ElevenLabs 实时 Agent 使用自己的实时识别；普通电话使用这里选定的渠道。",
             style = MaterialTheme.typography.bodySmall)
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("auto" to "自动", "system" to "手机识别",
-                "groq" to "Groq Whisper", "minimax" to "MiniMax",
-                "elevenlabs" to "ElevenLabs Scribe").forEach { (id, title) ->
+            listOf("elevenlabs" to "ElevenLabs Scribe", "system" to "手机识别",
+                "groq" to "Groq Whisper", "minimax" to "MiniMax").forEach { (id, title) ->
                 FilterChip(selected = sttMode == id, onClick = {
                     sttMode = id
                     prefs.edit().putString("call_stt_mode", id).apply()
                 }, label = { Text(title) })
             }
         }
-        val activeEngine = CallVoiceConfiguration.resolveSttEngine(sttMode,
-            SpeechRecognizer.isRecognitionAvailable(context), groqKey.isNotBlank(), provider,
-            minimaxConfigured = prefs.getString("minimax_api_key", "").orEmpty().isNotBlank(),
-            elevenConfigured = prefs.getString("eleven_api_key", "").orEmpty().isNotBlank())
+        val activeEngine = CallVoiceConfiguration.resolveSttEngine(sttMode)
         Text("当前识别：${CallVoiceConfiguration.sttLabel(activeEngine)}",
             style = MaterialTheme.typography.bodySmall)
-        if (sttMode == "auto" || sttMode == "groq") {
+        if (sttMode == "groq") {
             OutlinedTextField(value = groqKey, onValueChange = {
                 groqKey = it
                 prefs.edit().putString("groq_asr_key", it.trim()).apply()
@@ -91,7 +93,7 @@ internal fun VoiceCallSettings(provider: String) {
                 singleLine = true, modifier = Modifier.fillMaxWidth())
         }
         if (sttMode == "system") {
-            Text("手机系统识别不单独向露露机收取识别费，但实际识别由手机系统服务提供，可能使用网络与流量，不保证离线或精准。",
+            Text("手机系统 SpeechRecognizer 由手机语音服务收音、断句与降噪，可能联网。与 ElevenLabs 完全分离；长句完整率会受手机系统识别引擎限制。",
                 style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "system" && !SpeechRecognizer.isRecognitionAvailable(context))
