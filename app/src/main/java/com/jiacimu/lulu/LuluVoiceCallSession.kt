@@ -667,7 +667,8 @@ internal object LuluVoiceCallSession {
         recognizer = speechRecognizer.also { speechRecognizer ->
             speechRecognizer.setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) {
-                    if (!mutableState.value.connected || mutableState.value.opening) return
+                    if (!mutableState.value.connected || mutableState.value.opening ||
+                        mutableState.value.microphoneMuted) return
                     recognitionActive = true
                     mutableState.update {
                         it.copy(
