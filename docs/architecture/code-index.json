@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T04:57:17.889210+00:00",
-  "commit": "b460a608a6482037e9ed6457c063af26992e7e6b",
+  "generatedAt": "2026-10-11T04:57:51.037254+00:00",
+  "commit": "baf6f79b1c28f9e07e4f8388d355b95257192316",
   "branch": "main",
-  "sourceFingerprint": "0159f8739eb78dd76baac4e555dbf79f13fb43771be50aa818876a1cd5cf7419",
+  "sourceFingerprint": "90194631d9dcc8653e9f50af6babf8aa6f65d7904ec173bc3fcd2e2d843d5827",
   "summary": {
     "files": 493,
-    "lines": 104481,
-    "symbols": 1552
+    "lines": 104496,
+    "symbols": 1553
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3218,10 +3218,16 @@
         "line": 554
       }
     ],
+    "latestVoice": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
+        "line": 60
+      }
+    ],
     "entries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-        "line": 56
+        "line": 69
       }
     ],
     "result": [
@@ -9120,8 +9126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 321,
-      "sha256": "db2a0d49823f0a88baa59f862a8391f10a2ae2b3b86b60ff3ff1a18293fc6929",
+      "lines": 322,
+      "sha256": "7630a670f78875a8a3718ce94d994a613553a38b7dff123ea07ef9dd74eff27d",
       "symbols": []
     },
     {
@@ -11439,8 +11445,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 70,
-      "sha256": "65206c6039867d270e861c545f6e7dcbe93f29a14a99a4d66dbf0ba5b008f958",
+      "lines": 84,
+      "sha256": "bea56871cfb79fe1c5ccddf18a38cff1c422e261dbb751bf4f48f783cddf5d30",
       "symbols": [
         {
           "name": "reflection",
@@ -11451,8 +11457,12 @@
           "line": 21
         },
         {
+          "name": "latestVoice",
+          "line": 60
+        },
+        {
           "name": "entries",
-          "line": 56
+          "line": 69
         }
       ]
     },
