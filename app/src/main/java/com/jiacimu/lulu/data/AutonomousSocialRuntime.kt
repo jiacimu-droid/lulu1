@@ -347,6 +347,7 @@ internal object AutonomousSocialRuntime {
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。
                 4. 角色的分享欲是自己的生活动机，不是只在重大事故时才允许：想单独告诉用户可选 private，想给大家看自己的趣事、得意、感动、吐槽、意外发现可选 moment（公开朋友圈），想和实际群友聊天可选 group。公开朋友圈可以只是随手记录一次真实的小情绪或发现，绝非只能用于大事；也不要机械每个事件必发。没有分享欲选 none，可以让真实经历保留在后续记忆和好奇心中。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
+                对这次亲历如果真的产生了新疑问（例如蟑螂明明没食物怎么进来的，或者想研究阅读馆、角色自己喜欢的书），可以选填 curiosity={"topic":"自己关注的主题","question":"真正好奇的问题","why":"本轮真实事件怎样触发","nextStep":"可实际执行的下一步"}。这只是好奇，不等于已查到答案或已采取行动。若暂时很想分享但没立刻发，可填 appraisal.shareWish={"status":"held","why":"为何想告诉别人"}；程序会与这次真实事件ID绑定，不是发布回执。
                 6. 可选 appraisal.spontaneousBid={"spark":"这次真实现场里突然想到的小趣事","wantedMove":"想和别人发起的一次自然微互动"}；它只是意图，不能改写世界事实。若角色真的决定另做一件有程序执行能力的生活事，可选 appraisal.ownActivity={"stage":"decided","action":"solo_game|reading|digital_world","whyNow":"自己的具体理由",...真实ID参数}。不确定或只是想到时不填 decided；由统一队列等待真实回执。
                 6. 可选 innerLife={"emotion":{"feeling":"感受","cause":"当前实际事件","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"个人愿望","why":"原因","reason":"变化依据"}]}。这次独处经历可以改变情绪和兴趣，不只是换一句状态；没有变化则省略，不编造与用户或其他人的互动。
                 ${CharacterDecisionProtocol.principles}
@@ -367,6 +368,12 @@ internal object AutonomousSocialRuntime {
         }
 
         val sourceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
+        CharacterCuriosityRuntime.recordInquiry(
+            characterId, reaction.curiosity, sourceId, tick.summary, now,
+        )
+        reaction.appraisal?.optJSONObject("shareWish")?.let { wish ->
+            if (wish.optString("experienceId").isBlank()) wish.put("experienceId", sourceId)
+        }
         CharacterInnerLifeStore.observe(characterId, sourceId, tick.summary, reaction.innerLife, emptySet(), now)
         CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reaction.innerThought, now)
         CharacterInnerLifeStore.recordCausalTransition(
@@ -465,6 +472,7 @@ internal object AutonomousSocialRuntime {
             groupId = json.optString("groupId").trim(),
             innerLife = json.optJSONObject("innerLife"),
             appraisal = json.optJSONObject("appraisal"),
+            curiosity = json.optJSONObject("curiosity"),
         )
     }.getOrNull()
 
@@ -530,6 +538,7 @@ internal object AutonomousSocialRuntime {
         val groupId: String,
         val innerLife: JSONObject? = null,
         val appraisal: JSONObject? = null,
+        val curiosity: JSONObject? = null,
     )
 
     private data class GeneratedTurn(
