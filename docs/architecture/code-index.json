@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:51:39.830825+00:00",
-  "commit": "0c2b0b46938da27139343f7f7963a3f35da6dc1d",
+  "generatedAt": "2026-10-11T06:51:53.988367+00:00",
+  "commit": "6f1c7e0f9d4e2674ff2ada89225b78278d09dd1f",
   "branch": "main",
-  "sourceFingerprint": "06caf67ae812c48b0f0626fe9ffd2fcdbd31549c019fbb57057127dfc36de640",
+  "sourceFingerprint": "50c4743941aa2973606ac98dbe9e1bb9aa828d571537f394a8dd1567f76c5a03",
   "summary": {
     "files": 498,
     "lines": 105702,
@@ -10275,7 +10275,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
       "lines": 374,
-      "sha256": "8a93fa10ab559ef2a01a9349678138763b1207d077982f889efd7171a874832c",
+      "sha256": "f0f9cf39b4b6a1c2944385f13bb540b3ec54f15805adc3c4a211ebdff1192082",
       "symbols": [
         {
           "name": "start",
