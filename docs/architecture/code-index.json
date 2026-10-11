@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:52:50.693785+00:00",
-  "commit": "b65ad7c7889ea74759ad9e20392c90d6df0496b7",
+  "generatedAt": "2026-10-11T12:53:57.847571+00:00",
+  "commit": "590b113186d434ac19c405bf7513ca4165250191",
   "branch": "main",
-  "sourceFingerprint": "6d4937db33f418acb723fe647a9752cdb8de622caf692d96e8bab280c51773b8",
+  "sourceFingerprint": "f3073df507658baa766eced58405215c8e9d2038c5b52baaff4c4f683c0ab078",
   "summary": {
     "files": 506,
-    "lines": 107478,
+    "lines": 107495,
     "symbols": 1607
   },
   "symbolIndex": {
@@ -1865,13 +1865,13 @@
     "captionRows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 74
+        "line": 91
       }
     ],
     "format": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 77
+        "line": 94
       }
     ],
     "pauseBeforeNextLine": [
@@ -10500,8 +10500,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-      "lines": 80,
-      "sha256": "a8ecce4884d930a802a932520f148c58c755b8f5d03ab143144d936b35af5c11",
+      "lines": 97,
+      "sha256": "a3cf089ec495559f24ee7bcff538166fb33d9bb9e02c733f988706d87f6fcd0d",
       "symbols": [
         {
           "name": "lines",
@@ -10521,11 +10521,11 @@
         },
         {
           "name": "captionRows",
-          "line": 74
+          "line": 91
         },
         {
           "name": "format",
-          "line": 77
+          "line": 94
         }
       ]
     },
