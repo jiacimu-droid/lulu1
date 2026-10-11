@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`73c5583e7953b0d190f37b4f37778b818480471a`
+- 基准提交：`677ca70976400211d167a424b0d211cccd29ebaa`
 - 分支：`main`
-- 已索引文件：518
-- 已索引代码/文本行：108655
-- 已发现符号：1624
+- 已索引文件：520
+- 已索引代码/文本行：108716
+- 已发现符号：1629
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -127,6 +127,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt` | 257 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 155 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 68 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
@@ -442,6 +443,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 63 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 59 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 61 | 1 |

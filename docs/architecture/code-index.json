@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:54:45.021378+00:00",
-  "commit": "73c5583e7953b0d190f37b4f37778b818480471a",
+  "generatedAt": "2026-10-11T16:55:13.369369+00:00",
+  "commit": "677ca70976400211d167a424b0d211cccd29ebaa",
   "branch": "main",
-  "sourceFingerprint": "364d0011a9c081fdb177a4e0d15176e3e6333c8c3e488087e9881ff385169f7b",
+  "sourceFingerprint": "1e0c5c9ad2a3c80a086426e687240ec0b3ae15f89c3c88680b5093b94c142b7d",
   "summary": {
-    "files": 518,
-    "lines": 108655,
-    "symbols": 1624
+    "files": 520,
+    "lines": 108716,
+    "symbols": 1629
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2036,6 +2036,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
         "line": 31
+      }
+    ],
+    "serverEvent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt",
+        "line": 9
+      }
+    ],
+    "connectionFailure": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt",
+        "line": 26
+      }
+    ],
+    "remoteClose": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt",
+        "line": 34
+      }
+    ],
+    "sendFailure": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt",
+        "line": 37
       }
     ],
     "nextPauseMillis": [
@@ -8546,6 +8570,12 @@
         "line": 7
       }
     ],
+    "ScribeRealtimeFailurePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt",
+        "line": 5
+      }
+    ],
     "ScribeRealtimeTranscriptStateTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt",
@@ -10898,6 +10928,29 @@
         {
           "name": "ScheduleFeatureScreen",
           "line": 31
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt",
+      "lines": 41,
+      "sha256": "4dc227b18a66f5673357ccd4168b64cd78f96ebe12e455f8b08ad5360375d5a2",
+      "symbols": [
+        {
+          "name": "serverEvent",
+          "line": 9
+        },
+        {
+          "name": "connectionFailure",
+          "line": 26
+        },
+        {
+          "name": "remoteClose",
+          "line": 34
+        },
+        {
+          "name": "sendFailure",
+          "line": 37
         }
       ]
     },
@@ -18109,6 +18162,17 @@
         {
           "name": "QqMessageGroupingTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt",
+      "lines": 20,
+      "sha256": "d3c2839f6e3c839bf71b1b6e027eb77fbbe3377b8d376d5910296e3f48457f5a",
+      "symbols": [
+        {
+          "name": "ScribeRealtimeFailurePolicyTest",
+          "line": 5
         }
       ]
     },
