@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:53:57.847571+00:00",
-  "commit": "590b113186d434ac19c405bf7513ca4165250191",
+  "generatedAt": "2026-10-11T12:54:21.251779+00:00",
+  "commit": "3facf5d1efdafc033adde77ff84afd0266550983",
   "branch": "main",
-  "sourceFingerprint": "f3073df507658baa766eced58405215c8e9d2038c5b52baaff4c4f683c0ab078",
+  "sourceFingerprint": "317d9a54085546f7b648a191bfd14d4c67324b934a3a9a41af0ddcd78e09e97c",
   "summary": {
-    "files": 506,
-    "lines": 107495,
-    "symbols": 1607
+    "files": 507,
+    "lines": 107520,
+    "symbols": 1608
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8652,6 +8652,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
         "line": 14
+      }
+    ],
+    "CharacterGrowthTrajectoryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt",
+        "line": 5
       }
     ],
     "CharacterInitiativeRuntimeTest": [
@@ -18229,6 +18235,17 @@
         {
           "name": "CharacterExpressionGuideTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt",
+      "lines": 25,
+      "sha256": "6f5d759156a35b6b6936c86640b135d1624e940e02973b4d437b6ea9b998605f",
+      "symbols": [
+        {
+          "name": "CharacterGrowthTrajectoryTest",
+          "line": 5
         }
       ]
     },
