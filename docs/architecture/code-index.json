@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:10:32.669736+00:00",
-  "commit": "362f72a45bb7ac1b383b0638c60d090d759b0243",
+  "generatedAt": "2026-10-11T16:26:53.322696+00:00",
+  "commit": "0eb977ff228bcb7728725b0ec06775e215bd5dc5",
   "branch": "main",
-  "sourceFingerprint": "ad07b8479675bf74ef411c06715a52a905fcb4d46f2b66a08fb42ece70ca98bc",
+  "sourceFingerprint": "bfe58aff11d682119ea8a7f701a13aca6846ba15f529f223c2eea29635497379",
   "summary": {
     "files": 512,
-    "lines": 108055,
+    "lines": 108071,
     "symbols": 1617
   },
   "symbolIndex": {
@@ -5977,7 +5977,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1190
+        "line": 1192
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11426,8 +11426,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 60,
-      "sha256": "bcfb11d078aa3c404bc5c921f1bc859d56365c505381581b83a327ee0461743f",
+      "lines": 71,
+      "sha256": "f696a69b5b27156dd2859ca7059417f711603a33533c85edad57850c8bfedd65",
       "symbols": [
         {
           "name": "render",
@@ -14607,8 +14607,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 68,
-      "sha256": "f23f5954ca27f2f9ee96b8fe4a4e2c862ee36ac4bd133ffef411ebbed8cd4b80",
+      "lines": 71,
+      "sha256": "c8f67ca5c050a31185466b0f07d9550aead94837348178664da3eb88c3190d7e",
       "symbols": []
     },
     {
@@ -14706,8 +14706,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1246,
-      "sha256": "58c9a8258d97746c8573d23441de951d3bf3baed85144b0d014cb2ae513de937",
+      "lines": 1248,
+      "sha256": "6db9bf65af7dfe56d2f8bd0947632cafc74b33da7d0f169fb87668d0f7b0104a",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -14731,7 +14731,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1190
+          "line": 1192
         }
       ]
     },
