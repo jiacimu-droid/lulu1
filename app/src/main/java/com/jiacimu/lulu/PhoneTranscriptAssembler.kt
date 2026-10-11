@@ -13,4 +13,19 @@ internal object PhoneTranscriptAssembler {
             left.last().code < 128 && right.first().code < 128
         return left + if (needsSpace) " $right" else right
     }
+
+    /** Use ONLY when two PCM uploads intentionally share audio at the boundary.
+     * Require a nontrivial, varied phrase so repeated laughter/stutters survive.
+     */
+    fun combineOverlapped(earlier: String, latest: String): String {
+        val left = earlier.trim()
+        val right = latest.trim()
+        if (left.isBlank() || right.isBlank()) return combine(left, right)
+        val maximum = minOf(48, left.length, right.length)
+        val shared = (maximum downTo 4).firstOrNull { size ->
+            left.regionMatches(left.length - size, right, 0, size) &&
+                left.takeLast(size).toSet().size >= 3
+        } ?: 0
+        return combine(left, right.drop(shared))
+    }
 }
