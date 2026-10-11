@@ -65,11 +65,9 @@ internal fun CompanionPresenceDialog(
     // History contains EVERY saved meaningful moment, including the newest one.
     // "Current" never enumerates the character's accumulated private thought store.
     val past = remember(displayHistory) { PresenceHistoryPresentation.entries(displayHistory) }
-    val latestHeartMoment = if (messageAnchor != null) displayState else {
-        displayHistory.asSequence().sortedByDescending { it.updatedAt }
-            .firstOrNull { it.innerThought.isNotBlank() }
-            ?: displayState?.takeIf { it.innerThought.isNotBlank() }
-    }
+    val latestHeartMoment = PresenceHistoryPresentation.latestVoice(
+        displayState, displayHistory, messageAnchored = messageAnchor != null,
+    )
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
         onDismiss()
@@ -288,7 +286,10 @@ private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
             Text("这里保留过去的想法与变化；它们不代表角色此刻仍在这样想。",
                 fontSize = 11.sp, color = Color(0xFF7A7A7E))
             oldThoughts.forEach { entry ->
-                val time = entry.optString("at").take(16).replace('T', ' ')
+                val time = runCatching {
+                    Instant.parse(entry.optString("at")).atZone(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+                }.getOrDefault("")
                 val details = listOf(
                     entry.optString("thought").takeIf(String::isNotBlank),
                     entry.optString("hesitation").takeIf(String::isNotBlank)?.let { "当时顾虑：$it" },
