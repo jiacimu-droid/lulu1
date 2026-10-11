@@ -876,9 +876,15 @@ object ProactivePerceptionRuntime {
                 .asSequence()
                 .filter { message ->
                     message.sender == LuluChatMessage.Sender.Character &&
-                        message.authorCharacterId == characterId &&
+                        (message.authorCharacterId == characterId ||
+                            (message.authorCharacterId == null &&
+                                MigratedDomainStores.chat.conversations.value.any { conversation ->
+                                    conversation.id == execution.conversationId &&
+                                        conversation.groupChat == null &&
+                                        conversation.characterId == characterId
+                                })) &&
                         !message.createdAt.isBefore(actionStartedAt)
-                }.takeLast(8).forEach { message ->
+                }.toList().takeLast(8).forEach { message ->
                     CompanionPresenceStore.bindDeliveredMessage(
                         characterId, message.id, message.createdAt, refreshAfterDelivery = true,
                     )
