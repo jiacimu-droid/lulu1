@@ -55,6 +55,11 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 check(audio.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "系统未允许录音" }
                 withContext(Dispatchers.Main) { if (epoch == generation) onReady() }
                 val samples = ShortArray(1600)
+                // DC offset / sub-bass motor hum can swamp a phone mic's RMS
+                // even with hardware noise suppression enabled. Preserve speech
+                // frequencies with a gentle ~90Hz first-order high-pass filter.
+                var previousSample = 0.0
+                var previousFiltered = 0.0
                 var buffer = ByteArrayOutputStream()
                 val preRoll = ArrayDeque<ByteArray>()
                 var active = false
@@ -75,11 +80,22 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     bindInput()
                     val count = audio.read(samples, 0, samples.size)
                     check(count > 0) { "麦克风读取失败（$count）" }
-                    val rms = sqrt((0 until count).sumOf { samples[it].toDouble() * samples[it] } / count)
+                    val filtered = ShortArray(count)
+                    var energy = 0.0
+                    for (i in 0 until count) {
+                        val input = samples[i].toDouble()
+                        val output = 0.966 * (previousFiltered + input - previousSample)
+                        previousSample = input
+                        previousFiltered = output
+                        val sample = output.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
+                        filtered[i] = sample
+                        energy += sample.toDouble() * sample.toDouble()
+                    }
+                    val rms = sqrt(energy / count)
                     val allowed = accept()
                     withContext(Dispatchers.Main) { if (epoch == generation) onLevel(if (allowed) (rms / 4000).toFloat().coerceIn(0f, 1f) else 0f) }
                     val frame = ByteBuffer.allocate(count * 2).order(ByteOrder.LITTLE_ENDIAN).apply {
-                        for (i in 0 until count) putShort(if (allowed) samples[i] else 0)
+                        for (i in 0 until count) putShort(if (allowed) filtered[i] else 0)
                     }.array()
                     onFrame(frame)
                     if (!allowed) {
@@ -102,7 +118,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     }
                     if (!active) {
                         preRoll.addLast(frame)
-                        if (preRoll.size > 4) preRoll.removeFirst()
+                        if (preRoll.size > 8) preRoll.removeFirst()
                         // While idle, learn the room's quiet background without
                         // letting an abrupt real voice raise the start threshold.
                         val startGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
