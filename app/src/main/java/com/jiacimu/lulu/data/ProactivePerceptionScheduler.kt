@@ -131,6 +131,9 @@ object ProactivePerceptionScheduler {
         collectMessages: Boolean = false, requiresUnread: Boolean = false,
         delayMillis: Long = 0L) {
         val batch = OnlineChatBatchStore.next(context, characterId, collectMessages)
+        // New bubbles merely extend the four-second quiet deadline. They must
+        // not enqueue a fresh paid model worker for the same batch revision.
+        if (!OnlineChatBatchStore.markEnqueued(context, characterId, batch.revision)) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
@@ -145,8 +148,13 @@ object ProactivePerceptionScheduler {
                     .build(),
             )
             .build()
-        WorkManager.getInstance(context.applicationContext)
-            .enqueueUniqueWork("$ONLINE_WORK-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
+        try {
+            WorkManager.getInstance(context.applicationContext)
+                .enqueueUniqueWork("$ONLINE_WORK-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
+        } catch (error: Exception) {
+            OnlineChatBatchStore.unmarkEnqueued(context, characterId, batch.revision)
+            throw error
+        }
     }
 
     /**
@@ -400,12 +408,21 @@ class ProactivePerceptionWorker(
         // claiming or consuming that batch itself.
         if (requireOnline && characterId != null &&
             inputData.getBoolean("respectMessageBuffer", false)) {
+            // Only the primary chat-batch worker may consume unread messages.
+            // A free-running reflection worker must never trigger another
+            // 30K-token recall for the same still-unanswered user message.
+            if (CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
+                return@runCatching Result.success()
+            }
             while (true) {
                 if (!CompanionOnlineStore.isOnline(characterId)) return@runCatching Result.success()
                 val pending = OnlineChatBatchStore.pendingDueAt(applicationContext, characterId)
                 val busy = MigratedDomainStores.chat.conversations.value.any {
                     it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
                 } || CompanionPresenceStore.isInCall(characterId)
+                if (CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
+                    return@runCatching Result.success()
+                }
                 if (pending == null && !busy) break
                 kotlinx.coroutines.delay(1_000L)
             }
