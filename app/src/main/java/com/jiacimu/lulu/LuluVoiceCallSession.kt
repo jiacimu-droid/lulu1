@@ -100,7 +100,7 @@ internal object LuluVoiceCallSession {
         val now = SystemClock.elapsedRealtime()
         val active = mutableState.value.speaking || speechQueue?.hasPendingAudio == true
         val recentlyPlayed = recentlyPlayedAgentText.isNotBlank() &&
-            now - recentlyPlayedAgentAtMillis in 0L..4_000L
+            now - recentlyPlayedAgentAtMillis in 0L..12_000L
         return PhoneBargeInPolicy.isLikelyPlaybackEcho(
             candidate = candidate,
             generated = mutableState.value.generatedTranscript,
@@ -1169,7 +1169,11 @@ internal object LuluVoiceCallSession {
                         messageId = voiceMessageId,
                         onStarted = {
                             if (sameReply()) {
-                                recentlyPlayedAgentText = plainSpeech
+                                // Retain all audible segments, not only the last bubble.
+                                // STT echo for an earlier sentence can arrive during
+                                // later TTS (or seconds after that TTS ends).
+                                recentlyPlayedAgentText =
+                                    (recentlyPlayedAgentText + " " + plainSpeech).takeLast(700).trim()
                                 recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
                                 silenceAudioPending = false
                                 subtitleRevealJob?.cancel()
@@ -1360,7 +1364,15 @@ internal object LuluVoiceCallSession {
             sttEngine = CallVoiceConfiguration.sttEngine(context),
             // Keep microphone PCM arriving even during agent speech. Confirm words
             // through STT before cancelling playback, not merely through VAD.
-            accept = { val s = mutableState.value; sameSession() && !s.microphoneMuted },
+            accept = {
+                val call = mutableState.value
+                val characterAudio = call.speaking || speechQueue?.hasPendingAudio == true
+                sameSession() && PhoneBargeInPolicy.shouldCapture(
+                    microphoneMuted = call.microphoneMuted,
+                    playbackBusy = characterAudio,
+                    privateOutput = privateCallOutput(),
+                )
+            },
             onReady = {
                 if (sameSession()) {
                     if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
@@ -1397,31 +1409,49 @@ internal object LuluVoiceCallSession {
             onPartial = { text -> if (sameSession()) {
                 val candidate = text.trim()
                 val isEcho = isPlaybackEchoFromCloud(candidate)
-                if (candidate.isNotBlank() && !isEcho) {
+                val call = mutableState.value
+                val characterAudio = call.speaking || speechQueue?.hasPendingAudio == true
+                val safeCapture = PhoneBargeInPolicy.shouldCapture(
+                    call.microphoneMuted, characterAudio, privateCallOutput())
+                // A tentative STT partial is not a human speaker identifier.
+                // Never interrupt loudspeaker output or publish its tentative
+                // words as the user's speech. Headsets can barge in only with
+                // a sufficiently distinct fragment; final text is gated again.
+                if (candidate.isNotBlank() && !isEcho && safeCapture &&
+                    PhoneBargeInPolicy.safePartialBargeIn(
+                        candidate, privateCallOutput(), characterAudio)) {
                     if (!providerSpeechConfirmed) {
                         providerSpeechConfirmed = true
                         noteCallUserActivity()
                         sleepContinuationJob?.cancel()
                     }
-                    // A confirmed STT fragment is real user speech, including
-                    // during an opening sentence or while synthesis is pending.
                     interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
                 }
-                if (!isEcho) mutableState.update {
+                if (!isEcho && safeCapture) mutableState.update {
                     it.copy(partialTranscript = text, userSpeaking = candidate.isNotBlank())
                 }
             } },
             onText = { text ->
                 if (sameSession()) {
                     val isEcho = isPlaybackEchoFromCloud(text)
+                    val call = mutableState.value
+                    val characterAudio = call.speaking || speechQueue?.hasPendingAudio == true
+                    val safeCapture = PhoneBargeInPolicy.shouldCapture(
+                        call.microphoneMuted, characterAudio, privateCallOutput())
                     userSpeechInProgress = false
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
                     providerRecognitionPendingUntilMillis = 0L
                     mutableState.update { it.copy(userSpeaking = false) }
-                    if (text.isNotBlank() && !isEcho) {
+                    // Check BEFORE calling handleUserSpeech: it writes sender=User
+                    // and begins another model reply. Speaker TTS must never
+                    // manufacture one of those turns.
+                    if (text.isNotBlank() && !isEcho && safeCapture) {
                         interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
                         handleUserSpeech(text, allowWhileMuted = true)
+                    }
+                    if (isEcho || !safeCapture) mutableState.update {
+                        it.copy(partialTranscript = "", userSpeaking = false)
                     }
                 }
             },
