@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:56:14.662355+00:00",
-  "commit": "2fca952fa63c101932c83d9dc487ed15b1802926",
+  "generatedAt": "2026-10-11T16:57:38.135691+00:00",
+  "commit": "f154a976a27d7b653ad02c113f4001ce81c785f6",
   "branch": "main",
-  "sourceFingerprint": "766b2e6e3cdf4c1ee9506f0c4329170bd1d5dd0feaf5a35f41bdfd963956589f",
+  "sourceFingerprint": "010b4b96b59efe81a4b7b4abde08d465a96215cae3f9e71b42efa17dfb6aa10d",
   "summary": {
     "files": 520,
-    "lines": 108718,
+    "lines": 108720,
     "symbols": 1629
   },
   "symbolIndex": {
@@ -13493,8 +13493,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
-      "lines": 51,
-      "sha256": "de468981929d421a1b3fe4b639b3e0d13512a9c3740294a0d8da5755576c5881",
+      "lines": 53,
+      "sha256": "e680f1829f4e37c9753df2c53696cdef2b79ddfbd8824072f01e7d10284be47e",
       "symbols": [
         {
           "name": "interact",
@@ -14824,7 +14824,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 1317,
-      "sha256": "84cb756ade6261461a1f44b6e48f9bcde00930cace4b4eaee9abc1188f7654a2",
+      "sha256": "35d17c26f89ec79ea2b1027bdd35055741ef69c3f711049cbca3b48bd6303cdf",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
