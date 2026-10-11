@@ -274,6 +274,12 @@ object CompanionPresenceStore {
             else -> ""
         }
         val heartVoiceEventChanged = newHeartVoice.isNotBlank()
+        val earlierReflection = mutableHistories.value[characterId].orEmpty()
+            .firstOrNull { it.momentReflection.isNotBlank() }?.momentReflection
+            ?: previous?.momentReflection.orEmpty()
+        val reflectionChanged = next.momentReflection.isNotBlank() &&
+            (earlierReflection.isBlank() ||
+                meaningfullyDifferentThought(earlierReflection, next.momentReflection))
         val isChatTurn = source.contains("聊天") || source.contains("群聊")
         val lastRecordedAt = mutableHistories.value[characterId]?.firstOrNull()?.updatedAt
         val thoughtHistoryDue = lastRecordedAt == null ||
