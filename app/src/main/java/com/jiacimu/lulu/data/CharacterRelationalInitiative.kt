@@ -64,6 +64,10 @@ internal object CharacterRelationalInitiative {
         val pending = saved.optJSONObject("pending")
             ?.takeIf { evidenceStillExists(characterId, it.optString("evidenceId")) }
         val last = saved.optJSONObject("lastDelivery")
+            ?.takeIf { delivery ->
+                val receiptId = delivery.optString("evidenceId")
+                receiptId.isBlank() || SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isNotEmpty()
+            }
         val lastAt = last?.optString("at")?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val followUp = if (lastAt == null) emptyList() else timeline.filter { event ->
             event.evidenceKind == EventEvidenceKind.UserStatement &&
@@ -105,6 +109,7 @@ internal object CharacterRelationalInitiative {
     @Synchronized fun recordDecision(
         characterId: String, proposal: JSONObject?, action: String, success: Boolean,
         summary: String, now: Instant = Instant.now(),
+        actionEvidenceId: String = "",
     ) {
         if (prefs == null || proposal == null || characterId.isBlank()) return
         val status = proposal.optString("status").trim().lowercase()
@@ -125,7 +130,8 @@ internal object CharacterRelationalInitiative {
                 root.remove("pending")
                 root.put("lastDelivery", JSONObject()
                     .put("aim", aim).put("action", action.take(45))
-                    .put("summary", summary.take(220)).put("at", now.toString()))
+                    .put("summary", summary.take(220)).put("at", now.toString())
+                    .put("evidenceId", actionEvidenceId))
             } else {
                 root.put("pending", JSONObject().put("aim", aim).put("why", why)
                     .put("approach", proposal.optString("approach").take(180))
@@ -143,10 +149,16 @@ internal object CharacterRelationalInitiative {
         if (eventId.isBlank()) return
         prefs?.all?.keys?.forEach { id ->
             val root = read(id)
+            var changed = false
             if (root.optJSONObject("pending")?.optString("evidenceId") == eventId) {
                 root.remove("pending")
-                prefs?.edit()?.putString(id, root.toString())?.commit()
+                changed = true
             }
+            if (root.optJSONObject("lastDelivery")?.optString("evidenceId") == eventId) {
+                root.remove("lastDelivery")
+                changed = true
+            }
+            if (changed) prefs?.edit()?.putString(id, root.toString())?.commit()
         }
     }
 
