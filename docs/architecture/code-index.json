@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:41:46.736968+00:00",
-  "commit": "6bc5cba69df85bbde040b5ed23f305d91d9cd18e",
+  "generatedAt": "2026-10-11T03:41:59.127101+00:00",
+  "commit": "2b9c7dc099b3c1ece31b68c2990344e9dacc359b",
   "branch": "main",
-  "sourceFingerprint": "20d5b03f8e6124a4b4596716dca547a49a7b31ce9938e1e1d3cd1d8813841515",
+  "sourceFingerprint": "fd577249eea6abd4bd1a02edaa74c6735bdae55bbede6db114f087f81e57e1ff",
   "summary": {
-    "files": 488,
-    "lines": 104035,
-    "symbols": 1541
+    "files": 489,
+    "lines": 104070,
+    "symbols": 1542
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8384,6 +8384,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 32
+      }
+    ],
+    "CharacterStaleGoalPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt",
+        "line": 6
       }
     ],
     "CharacterVoicePreferenceStoreTest": [
@@ -17624,6 +17630,17 @@
         {
           "name": "event",
           "line": 32
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt",
+      "lines": 35,
+      "sha256": "ff91cc47b07444e5bba49f09c2213fc780185f55638125b4514d1d7f5527d930",
+      "symbols": [
+        {
+          "name": "CharacterStaleGoalPolicyTest",
+          "line": 6
         }
       ]
     },
