@@ -17,8 +17,34 @@ object CharacterInnerLifeStore {
     val revisions: kotlinx.coroutines.flow.StateFlow<Long> = revisionState
 
     @Synchronized fun initialize(context: Context) {
-        if (prefs == null) prefs = context.applicationContext
-            .getSharedPreferences("lulu_inner_life_v1", Context.MODE_PRIVATE)
+        if (prefs == null) {
+            prefs = context.applicationContext
+                .getSharedPreferences("lulu_inner_life_v1", Context.MODE_PRIVATE)
+            prefs?.all?.keys?.toList()?.forEach(::retireDormantGenericMotives)
+        }
+    }
+
+    /** A generic orientation is not a never-ending action item.
+     * Keep specific motives and goals that have actual executor receipts.
+     */
+    @Synchronized private fun retireDormantGenericMotives(characterId: String) {
+        val root = snapshot(characterId)
+        val old = root.optJSONArray("motives") ?: return
+        val kept = JSONArray()
+        var removed = false
+        for (i in 0 until old.length()) {
+            val item = old.optJSONObject(i) ?: continue
+            val outdated = CharacterStaleGoalPolicy.shouldRetire(
+                item.optString("aim"), item.optString("createdAt"),
+                item.optString("updatedAt"),
+                item.optJSONArray("outcomes")?.length() ?: 0,
+            )
+            if (outdated) removed = true else kept.put(item)
+        }
+        if (removed) {
+            root.put("motives", kept)
+            save(characterId, root)
+        }
     }
 
     @Synchronized fun snapshot(characterId: String): JSONObject =
@@ -299,7 +325,9 @@ object CharacterInnerLifeStore {
                         val why = change.optString("why").trim().take(160)
                         val legacyAim = CharacterLifeStore.state(characterId)
                             .optJSONObject("intention")?.optString("aim").orEmpty()
-                        if (aim.isBlank() || why.isBlank() || records.size >= 6 ||
+                        if (aim.isBlank() || why.isBlank() ||
+                            CharacterStaleGoalPolicy.isGenericOrientation(aim) ||
+                            records.size >= 6 ||
                             sameCharacterMotive(legacyAim, aim) ||
                             records.any { sameCharacterMotive(it.optString("aim"), aim) }) continue
                         records += JSONObject().put("id", UUID.randomUUID().toString())
