@@ -766,6 +766,22 @@ object ProactivePerceptionRuntime {
         // Exploration counts only after an executor receipt, never from model prose.
         // Snapshot every previously recorded ID, not only the latest 24: otherwise an
         // older event could be mistaken for a fresh executor receipt on a quiet turn.
+        val chosenActionSignature = AutonomousActionTrace.signature(
+            action = decision.action.name.lowercase(),
+            worldAction = decision.worldAction,
+            destination = decision.location,
+            itemId = decision.itemId,
+            activityId = decision.activityId,
+            readingBookId = decision.readingBookId,
+            gameId = decision.gameId,
+            groupId = decision.groupId,
+            tool = decision.tool,
+            text = decision.text,
+        )
+        val executionVariant = listOf(
+            chosenActionSignature, decision.journalTitle, decision.journalContent,
+            decision.toolArgs.toString(),
+        ).joinToString("|").hashCode().toUInt().toString(16)
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
         val actionStartedAt = Instant.now()
         val execution = performAction(
@@ -774,9 +790,9 @@ object ProactivePerceptionRuntime {
                 // A new user message is a NEW decision. Never reuse the older
                 // call-end/world-event request key while the user is waiting.
                 messageStimulus != null ->
-                    "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}"
+                    "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}-$executionVariant"
                 salientInteraction != null ->
-                    "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}"
+                    "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}-$executionVariant"
                 else -> "proactive-${now.toEpochMilli()}"
             },
         )
