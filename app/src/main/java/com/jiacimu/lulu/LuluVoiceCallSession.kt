@@ -355,7 +355,13 @@ internal object LuluVoiceCallSession {
         val enabled = !current.sleepMode
         sleepContinuationJob?.cancel()
         sleepFailures = 0
-        lastSleepUserReplyAtMillis = if (enabled) SystemClock.elapsedRealtime() else null
+        // One hour starts at the LAST confirmed user sentence, not the
+        // moment the listener opened the bedtime surface. If nothing has
+        // ever been said during this call, start from enabling bedtime.
+        lastSleepUserReplyAtMillis = if (enabled)
+            lastConfirmedUserSpeechMillis.takeIf { confirmedUserSpeechCount > 0 }
+                ?: SystemClock.elapsedRealtime()
+        else null
         mutableState.update {
             it.copy(sleepMode = enabled, sleepFocus = SleepGuidanceFocus.Natural,
                 statusMessage = if (enabled) "哄睡陪伴已开启 · 你可以只听，也可以随时说话"
