@@ -195,6 +195,18 @@ internal object DigitalWorldLifeEventStore {
         }?.summary
     }
 
+    /** Validate a proposed voluntary response against the live persisted
+     * scene BEFORE adding work. The executor checks again at execution time.
+     */
+    fun canHandle(characterId: String, incidentId: String, approach: String): Boolean =
+        synchronized(lock) {
+            val event = incidents.firstOrNull {
+                it.id == incidentId && it.status == STATUS_ACTIVE
+            } ?: return@synchronized false
+            event.locationCode == DigitalWorldStore.locationOf(characterId) &&
+                approach in responseOptions(event.kind)
+        }
+
     fun handle(
         characterId: String,
         incidentId: String,
