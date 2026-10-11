@@ -918,7 +918,8 @@ object CharacterInnerLifeStore {
         // chat, group, voice and autonomous decisions. A standalone first-stage
         // appraisal or an already-selected physical tool cannot schedule again.
         val canDispatchOwnActivity = action in setOf(
-            "reply", "silent", "message", "group_message",
+            "reply", "silent", "message", "group_message", "moment",
+            "sticker", "group_sticker", "kaomoji", "group_kaomoji",
         ) || action.startsWith("group_reply")
         if (canDispatchOwnActivity && appraisal?.optJSONObject("ownActivity") != null) {
             dispatchContext?.let { ctx ->
