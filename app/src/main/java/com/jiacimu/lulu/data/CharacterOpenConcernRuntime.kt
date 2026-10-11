@@ -215,7 +215,7 @@ internal object CharacterOpenConcernRuntime {
                         }
                     }
                 }
-                appendLine("可以改变看法、采取行动或放下；不必为了结束心事去打扰用户。")
+                appendLine("这些心事可能已经变化：可以改变看法、采取行动或放下；不必为了结束心事去打扰用户。")
             }
             if (dormant.isNotEmpty()) {
                 appendLine("【暂时搁置的旧心事】共${dormant.size}件，超过48小时无新心理变化。" +
