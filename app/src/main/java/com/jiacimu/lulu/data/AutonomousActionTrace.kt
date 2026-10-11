@@ -9,6 +9,26 @@ import java.time.Instant
  * or extra surveillance. Signatures disambiguate two actions in the same broad category.
  */
 internal object AutonomousActionTrace {
+    /**
+     * The common timeline records private character bubbles with speaker="角色",
+     * while moments and world actions may use the character's display name.
+     * Never mistake a freshly received user statement for a successful action.
+     * The caller independently requires a successful executor receipt.
+     */
+    fun newestExecutedEvidence(
+        events: List<SharedTimelineEvent>,
+        previousIds: Set<String>,
+        displayName: String,
+        conversationId: String? = null,
+    ): String = events.asReversed().firstOrNull { event ->
+        event.id !in previousIds && event.channel != "在线感知" && (
+            event.evidenceKind == EventEvidenceKind.ToolResult ||
+                (event.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                    (event.speaker == displayName || event.speaker == "角色" ||
+                        (conversationId != null && event.sessionId == conversationId)))
+            )
+    }?.id.orEmpty()
+
     fun signature(
         action: String,
         worldAction: String = "",
