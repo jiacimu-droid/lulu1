@@ -781,10 +781,10 @@ object ProactivePerceptionRuntime {
         )
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.success) {
-            SharedExperienceTimeline.all(characterId).asReversed().firstOrNull {
-                it.id !in priorEvidence && it.speaker == character.displayName &&
-                    it.channel != "在线感知"
-            }?.id.orEmpty()
+            AutonomousActionTrace.newestExecutedEvidence(
+                SharedExperienceTimeline.all(characterId), priorEvidence,
+                character.displayName, execution.conversationId,
+            )
         } else ""
         // Relational delivery and exploration use the SAME executor receipt
         // from the shared raw event timeline, not model-authored success claims.
