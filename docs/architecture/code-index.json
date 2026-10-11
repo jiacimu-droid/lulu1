@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:00:10.620329+00:00",
-  "commit": "8ab3ab999c54c946ade9788cdf3afe4ce3e8210b",
+  "generatedAt": "2026-10-11T16:01:37.313664+00:00",
+  "commit": "eac1b6fb66797e6e3644b73a154370a56c0b65a8",
   "branch": "main",
-  "sourceFingerprint": "71ffee2f0f9b02263188e409ea9850093745cf6edbe1da13c8cb457626f4de00",
+  "sourceFingerprint": "3b6445d761ac5b385287cf35a821cf22fd2f24c8061341c1bbfa22e35e48c2c6",
   "summary": {
     "files": 511,
-    "lines": 107943,
+    "lines": 107981,
     "symbols": 1616
   },
   "symbolIndex": {
@@ -18166,8 +18166,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
-      "lines": 73,
-      "sha256": "8dcb4ca4277c98e7ccbcb19b2dc62a14c6418f45f31c937cfc8d87e54363ebf6",
+      "lines": 87,
+      "sha256": "75a4c2b2ecdb9d0d7e149e64acf13e9c18352bae571f14fe1a607cde4bc103d2",
       "symbols": [
         {
           "name": "AutonomousDecisionRecoveryTest",
@@ -18657,8 +18657,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 360,
-      "sha256": "3e65a8bbab03214acb6b54b264ad9dd90079881396739dfd906c0930f9dd961b",
+      "lines": 384,
+      "sha256": "b6e999bcdb62c2e1c798a7217bd47b9ca36cdd111685a600284522b1852dbee2",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
