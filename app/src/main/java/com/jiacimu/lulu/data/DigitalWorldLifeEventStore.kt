@@ -120,8 +120,9 @@ internal object DigitalWorldLifeEventStore {
             pair.second
         } ?: return null
 
+        val experienceId = "world-fact-${result.incidentId}-$characterId-${now.toEpochMilli()}"
         SharedExperienceTimeline.record(
-            eventId = "world-fact-${result.incidentId}-$characterId-${now.toEpochMilli()}",
+            eventId = experienceId,
             characterId = characterId,
             channel = "数字世界事件·${result.locationName}",
             speaker = "数字世界",
@@ -130,13 +131,17 @@ internal object DigitalWorldLifeEventStore {
             source = "digital-world",
             evidenceKind = EventEvidenceKind.Observation,
         )
+        if (result.status == STATUS_ACTIVE && !isAmbientMoment(result)) {
+            CharacterLifeFollowThroughStore.markSignificant(characterId, experienceId)
+        }
         return result
     }
 
     fun recordWitness(characterId: String, tick: DigitalWorldLifeTick, now: Instant = tick.occurredAt) {
         if (characterId.isBlank()) return
+        val evidenceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         SharedExperienceTimeline.record(
-            eventId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}",
+            eventId = evidenceId,
             characterId = characterId,
             channel = "数字世界事件·${tick.locationName}",
             speaker = "数字世界",
@@ -145,6 +150,9 @@ internal object DigitalWorldLifeEventStore {
             source = "digital-world",
             evidenceKind = EventEvidenceKind.Observation,
         )
+        if (tick.status == STATUS_ACTIVE && !isAmbientMoment(tick)) {
+            CharacterLifeFollowThroughStore.markSignificant(characterId, evidenceId)
+        }
     }
 
     fun contextFor(characterId: String): String {
