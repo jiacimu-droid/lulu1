@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:16:00.037276+00:00",
-  "commit": "f59e7856594140327d0f2a536a1cf66e244b7fd8",
+  "generatedAt": "2026-10-11T08:17:25.707678+00:00",
+  "commit": "1f0be945480645a55509e4dced440075446859c3",
   "branch": "main",
-  "sourceFingerprint": "5730ac2f13fcf5f1b6756f66d316adfc1ee01b56e130da2affcd6d9bdca58c19",
+  "sourceFingerprint": "69c801ac3d89bd3336a08c2b69ac719d24efac0b94fa971d3615c8d93f808e68",
   "summary": {
     "files": 500,
-    "lines": 106291,
-    "symbols": 1582
+    "lines": 106327,
+    "symbols": 1585
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2020,22 +2020,40 @@
         "line": 12
       }
     ],
+    "bestPartial": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 31
+      }
+    ],
+    "bestFinal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 40
+      }
+    ],
+    "canKeepPartialOnError": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
+        "line": 59
+      }
+    ],
     "continuationMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 29
+        "line": 65
       }
     ],
     "canListen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 44
+        "line": 80
       }
     ],
     "shouldInterrupt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-        "line": 53
+        "line": 89
       }
     ],
     "look": [
@@ -10652,24 +10670,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt",
-      "lines": 62,
-      "sha256": "8550e2bd319815756009dd9efd07a50d8f43391bdb882aff43c5eaa71764e54b",
+      "lines": 98,
+      "sha256": "8afd33ffd3daa5ecda7101b4eb8fde38cbeb919e716fcc606cc48b5719eae0a6",
       "symbols": [
         {
           "name": "wordsToSubmitOnMute",
           "line": 12
         },
         {
+          "name": "bestPartial",
+          "line": 31
+        },
+        {
+          "name": "bestFinal",
+          "line": 40
+        },
+        {
+          "name": "canKeepPartialOnError",
+          "line": 59
+        },
+        {
           "name": "continuationMillis",
-          "line": 29
+          "line": 65
         },
         {
           "name": "canListen",
-          "line": 44
+          "line": 80
         },
         {
           "name": "shouldInterrupt",
-          "line": 53
+          "line": 89
         }
       ]
     },
