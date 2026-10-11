@@ -604,7 +604,49 @@ object ProactivePerceptionRuntime {
             }
             return Action.SILENT
         }
-        val fallbackDecision = parsed.withPresenceFallback(character)
+        // The main appraisal may repeatedly answer "nobody wrote to me, so nothing to do".
+        // One bounded second look during an online window challenges *that reason*,
+        // not the character's freedom to choose real solitude.
+        val lastAgencyReview = prefs.getLong("last_independent_life_review_$characterId", 0L)
+        val shouldReview = awakeReflection &&
+            now.toEpochMilli() - lastAgencyReview >= 5 * 60_000L &&
+            AutonomousDecisionRecovery.needsIndependentLifeReview(
+                silent = parsed.action == Action.SILENT,
+                reason = parsed.reason,
+                recentActions = recentAutonomousActions,
+                hasPendingUserMessage = onlineUnread.text.isNotBlank() || pendingUserContext.isNotBlank(),
+            )
+        val independentChoice = if (shouldReview) {
+            prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli()).apply()
+            LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = buildString {
+                    appendLine("这是同一次在线感知的独立生活二次考虑，不是又一个用户消息。")
+                    appendLine("上一选择：silent；原理由：${parsed.reason.take(220)}")
+                    appendLine("真实时间：$localTimeText；所在地点：$currentLocation")
+                    appendLine(affordances)
+                    CharacterLifeFollowThroughStore.context(characterId, now)
+                        .takeIf(String::isNotBlank)?.let(::appendLine)
+                    appendLine("近期实际行动：${AutonomousActionTrace.render(CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now)}")
+                },
+                instruction = """
+                    你第一次选择安静的理由主要是没人来找你；但你是有自己生活的人。
+                    请重新从本人性格、兴趣、真实经历和上面列出的执行器能力判断：
+                    现在有没有一件你自己真的想做的事？可以去真实公共区、找在场居民、
+                    读实际可读的书、写私人日记、发表自己想分享的朋友圈或自然联系朋友。
+                    不存在的地点、居民、书籍不能编造；工具成功前不能说已经做过。
+                    如果确实想做，直接给出 action 和合法参数。若真的想休息/独处，
+                    仍选择 silent，并说出自己的具体原因。不是任务考核，不强制行动。
+                    仅输出与原先主动感知兼容的简洁 JSON，优先 action 和参数。
+                """.trimIndent(),
+                source = "在线自主生活再判断",
+                title = "${character.displayName}重新考虑自己的生活",
+                maxTokens = 1_300,
+                connectionOverride = connection,
+            ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
+        } else null
+        val resolved = independentChoice ?: parsed
+        val fallbackDecision = resolved.withPresenceFallback(character)
         val decision = fallbackDecision.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
