@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:44:04.418411+00:00",
-  "commit": "24d9ceb5dfd4bdd9119fecc6b3a12e7ef613ec81",
+  "generatedAt": "2026-10-11T03:44:51.726281+00:00",
+  "commit": "572a5bf18dc36d73b263b52431f4b21373a5456c",
   "branch": "main",
-  "sourceFingerprint": "ca56bbe05922509bc6fb64a88792948d2c334dbd961554ec2e765f1253058f50",
+  "sourceFingerprint": "d529b7278edaebc02ced84442ea638f678d84fc3bb71ea49d2857bcbc2246ef7",
   "summary": {
     "files": 489,
-    "lines": 104085,
+    "lines": 104086,
     "symbols": 1542
   },
   "symbolIndex": {
@@ -10971,7 +10971,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
       "lines": 86,
-      "sha256": "f22f2ccc065634cf1f6da66acb71ba22e93c144c259c2fce771552b029936194",
+      "sha256": "7f9effb5eebeea13932293ec992b6ef8c37c774d868e8aa76459391d16e68123",
       "symbols": [
         {
           "name": "extractExplicitAddress",
@@ -17427,8 +17427,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt",
-      "lines": 31,
-      "sha256": "ef2d1c755ea7e55dedd7a2df9e6e8a863939882c24ac0b8fe8e92de3978d9821",
+      "lines": 32,
+      "sha256": "70b7305802bf2a49e53a45fe9441716e0d6e8b7dadaef1c175a1a31c61f8ff8e",
       "symbols": [
         {
           "name": "CharacterAddressPreferenceTest",
