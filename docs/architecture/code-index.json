@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:18:08.890968+00:00",
-  "commit": "20418e9f979d43aae16e678edcdedbb9eeaf5371",
+  "generatedAt": "2026-10-11T07:19:09.187626+00:00",
+  "commit": "1766e7e9a407c787352b7d47fb528ae382dd0ed4",
   "branch": "main",
-  "sourceFingerprint": "5dfdb652d5a0a49abbe74560cc2ddda074868a9ca5127bb09cbbf3dac04f6bf3",
+  "sourceFingerprint": "be0034b06967383f4fa2eb287ab8d0906490d24460b7a0dc4835cb914b68d78c",
   "summary": {
     "files": 499,
-    "lines": 105961,
+    "lines": 105962,
     "symbols": 1575
   },
   "symbolIndex": {
@@ -3211,13 +3211,13 @@
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 134
+        "line": 135
       }
     ],
     "CharacterLifeStore": [
@@ -11537,8 +11537,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 150,
-      "sha256": "9997d9e6f30cabdf8f440109dd93377001e758e1a080e875f30096321d41e680",
+      "lines": 151,
+      "sha256": "f325f1517476cfd2c70b75c5f8bc6cc5e0c59423ff204dba838b5aa62f610b9c",
       "symbols": [
         {
           "name": "initialize",
@@ -11562,11 +11562,11 @@
         },
         {
           "name": "recordShareWish",
-          "line": 120
+          "line": 121
         },
         {
           "name": "recordAction",
-          "line": 134
+          "line": 135
         }
       ]
     },
