@@ -27,14 +27,14 @@ internal object CharacterAddressPreference {
     fun extractExplicitAddress(message: String): String? {
         val text = message.trim().take(300)
         if (text.isBlank() || listOf("比如", "例如", "假设", "不是说", "开个玩笑", "引号里").any(text::contains)) return null
-        if (actionCommands.containsMatchIn(text)) return null
         if (text.contains("不喜欢") || text.contains("别叫我") || text.contains("不要叫我") ||
             text.contains("不想被叫") || text.contains("讨厌被叫")) return null
         val match = patterns.firstNotNullOfOrNull { it.find(text)?.groupValues?.getOrNull(1) }
             ?.trim()?.trimEnd('吗','呢','啊','了','吧','呀','哦') ?: return null
         return match.takeIf { it.length in 1..8 && it !in invalid &&
             !it.endsWith("什么") &&
-            !listOf("起床", "起来", "叫醒", "提醒", "开始", "以后").any(it::startsWith) }
+            !listOf("起床", "起来", "叫醒", "提醒", "开始", "以后", "去").any(it::startsWith) &&
+            !actionCommands.containsMatchIn("叫我$it") }
     }
 
     fun observeUserMessage(characterId: String, message: String, eventId: String) {
