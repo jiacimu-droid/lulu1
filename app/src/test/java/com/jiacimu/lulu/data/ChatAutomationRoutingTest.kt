@@ -16,6 +16,6 @@ class ChatAutomationRoutingTest {
         assertTrue(looksLikeTaskTurn("明天8点叫我起床", "好，我会叫醒你"))
         assertTrue(looksLikeTaskTurn("你等会儿给我打电话", "好"))
         assertTrue(looksLikeLexiconCandidate("我今天要准备考试"))
-        assertTrue(looksLikeLexiconCandidate("我对这件事有点担心"))
+        assertTrue(looksLikeLexiconCandidate("我担心这件事"))
     }
 }
