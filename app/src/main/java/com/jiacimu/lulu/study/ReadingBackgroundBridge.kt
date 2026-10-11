@@ -43,8 +43,13 @@ internal object ReadingBackgroundBridge {
             }
             .sortedWith(compareBy<Pair<BackgroundReadingBook, Long>> { it.first.seriesId }.thenBy { it.first.chapterNumber })
             .map { (book, _) -> book }
-        return interleave(theaterChapters, uploaded)
+        val personalLibrary = interleave(theaterChapters, uploaded)
             .distinctBy(BackgroundReadingBook::id)
+        // An empty reading library used to make autonomous reading literally
+        // impossible. Keep user-provided content authoritative whenever any
+        // is available; otherwise offer real, finite original text instead of
+        // letting a model pretend it has read a nonexistent book.
+        return if (personalLibrary.isNotEmpty()) personalLibrary else ReadingStarterLibrary.books()
     }
 
     fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
