@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:41:04.888373+00:00",
-  "commit": "2c281eae8881a96b8ea25c1baadcf3ffb0cef04a",
+  "generatedAt": "2026-10-11T08:42:10.741882+00:00",
+  "commit": "7d837dd145b47c56c31f3c210aea8ee11fdf1c84",
   "branch": "main",
-  "sourceFingerprint": "ba66adbc04e43a303b880122205732b208b74d4579ff481f792dba32bbc41604",
+  "sourceFingerprint": "4ec7f23ffbe97241ccf43b1e55818a39fca038040c0d1a34461ef4ecb402857b",
   "summary": {
     "files": 502,
-    "lines": 106531,
+    "lines": 106544,
     "symbols": 1586
   },
   "symbolIndex": {
@@ -11852,8 +11852,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-      "lines": 135,
-      "sha256": "07fe132f394649621c98426785f4414956dfe18a4793eed771db18bf5c2a8e5d",
+      "lines": 148,
+      "sha256": "3b4742d0918dd6ada8a2949ef42000e4ed31868982d58de8ecd29fe9bd00b9a7",
       "symbols": [
         {
           "name": "context",
