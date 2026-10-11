@@ -84,9 +84,9 @@ internal object CharacterGrowthTrajectory {
 
     fun entries(characterId: String, now: Instant = Instant.now()): List<CharacterGrowthTrace> {
         val result = mutableListOf<CharacterGrowthTrace>()
-        // The visual trajectory is permanent until the source is deleted:
-        // unlike the prompt's recent 45-day attention window, old meaningful
-        // experience does not disappear merely because time passed.
+        // Project available persisted sources rather than a speculative
+        // growth summary. The original timeline is authoritative. Oldest
+        // private transitions are bounded by the inner-life retention cap.
         SharedExperienceTimeline.all(characterId).asSequence()
             .filter { it.evidenceKind == EventEvidenceKind.UserStatement &&
                 (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) &&
@@ -182,6 +182,6 @@ internal object CharacterGrowthTrajectory {
                 result += CharacterGrowthTrace(event.occurredAt, "确实写下日记",
                     event.content.take(250), event.id, "行动")
             }
-        return result.sortedWith(compareByDescending<CharacterGrowthTrace> { it.at }.thenBy { it.label }).take(45)
+        return result.sortedWith(compareByDescending<CharacterGrowthTrace> { it.at }.thenBy { it.label }).take(100)
     }
 }
