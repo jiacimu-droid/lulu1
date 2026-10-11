@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:53:42.154669+00:00",
-  "commit": "60f122a48fa4772db0fde85154041c03247f7291",
+  "generatedAt": "2026-10-11T05:54:28.827620+00:00",
+  "commit": "915b1dfad1412b5d249dbc3cb49066045d0687f7",
   "branch": "main",
-  "sourceFingerprint": "ba3b120a73e33002ca1250f933c927728e255011db3d482d48ea6ce02df6d598",
+  "sourceFingerprint": "87d4662e65aa4689ca77ce8ee7a7fe9e5d9ee2b9cbd9aff7da049cec2cad8303",
   "summary": {
     "files": 497,
-    "lines": 105435,
+    "lines": 105440,
     "symbols": 1563
   },
   "symbolIndex": {
@@ -10364,8 +10364,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 791,
-      "sha256": "a8f005c0ba556947592f2345e850b423753aaa691b93699ec239209147ace557",
+      "lines": 796,
+      "sha256": "ec421b998e022edd156c1435cb15b38df2016613c62b127124f50fcb15d7aebd",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -12275,7 +12275,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
       "lines": 467,
-      "sha256": "b0a42b2e780cc79e6a32ff0281c68a16d1ed80928101a9167aeb6fa6052ba4ef",
+      "sha256": "f46ba652983e58021a13cd90dd7f73bb200a610e4255852e7aac60e9aaeae1b9",
       "symbols": [
         {
           "name": "CompanionPresenceState",
