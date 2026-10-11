@@ -9,6 +9,13 @@ import org.json.JSONObject
  * just because the role is still aware of it.
  */
 internal object CharacterMomentSnapshot {
+    /**
+     * Tiny impulses, not a second inner monologue or an explanation of what
+     * the character "should" do. The heart-voice is a separate field.
+     *
+     * Prioritize several chosen, concise wishes. A conflict may remain in the
+     * inner-life store without being promoted into a permanent current worry.
+     */
     fun reflection(
         innerLife: JSONObject?,
         basis: JSONObject? = null,
@@ -16,52 +23,50 @@ internal object CharacterMomentSnapshot {
         outward: String = "",
         innerThought: String = "",
     ): String {
-        val pieces = mutableListOf<String>()
-        val seen = mutableSetOf<String>()
-        fun add(label: String, raw: String, limit: Int = 160) {
-            val clean = raw.replace(Regex("\\s+"), " ").trim().take(limit)
-            if (clean.isBlank() || CharacterHeartVoicePolicy.sameMeaning(clean, outward) ||
-                CharacterHeartVoicePolicy.sameMeaning(clean, innerThought)) return
-            val key = clean.lowercase().filter(Char::isLetterOrDigit)
-            if (key.isNotBlank() && seen.add(key)) pieces += "$label：$clean"
+        val ideas = mutableListOf<String>()
+        val fingerprints = mutableSetOf<String>()
+        fun add(raw: String, limit: Int = 64) {
+            val cleaned = raw.replace(Regex("\\s+"), " ").trim()
+                .removePrefix("我想").let { if (raw.trim().startsWith("我想")) "想$it" else it }
+                .trim(' ', '。', '，', '、', '：', ':')
+                .take(limit)
+                .trimEnd('，', ',', '、', '：', ':')
+            if (cleaned.isBlank() || CharacterHeartVoicePolicy.sameMeaning(cleaned, outward) ||
+                CharacterHeartVoicePolicy.sameMeaning(cleaned, innerThought)) return
+            // Do not repeat near-identical desires under different captions.
+            val key = cleaned.lowercase().filter(Char::isLetterOrDigit)
+            if (key.isNotBlank() && fingerprints.add(key)) ideas += cleaned
         }
-        // A small playful bid is a *private* idea, not a prewritten flirt
-        // line or a completed world action. Its trigger keeps it situational.
+        // Model-facing structured private impulses have priority. A few natural
+        // fragments are preferable to a polished explanation of the relationship.
+        appraisal?.optJSONArray("privateIdeas")?.let { entries ->
+            for (i in 0 until minOf(entries.length(), 4)) add(entries.optString(i), 64)
+        }
         appraisal?.optJSONObject("spontaneousBid")?.let { bid ->
-            val spark = bid.optString("spark").trim()
-            val move = bid.optString("wantedMove").trim()
-            if (spark.isNotBlank() && move.isNotBlank()) {
-                add("忽然想", move, 150)
-                add("想到它是因为", spark, 95)
-            }
+            add(bid.optString("wantedMove"), 64)
         }
-        // Deciding to do something is not evidence that it has been executed.
-        appraisal?.optJSONObject("ownActivity")?.takeIf {
-            it.optString("stage") in setOf("decided", "considering")
-        }?.let { intent ->
+        appraisal?.optJSONObject("ownActivity")?.let { intent ->
             val name = when (intent.optString("action")) {
                 "reading" -> "想翻翻书"
                 "solo_game" -> "想自己玩一局"
-                "digital_world" -> "想去数字世界做点事"
+                "digital_world" -> "想去数字世界转转"
                 else -> ""
             }
-            add(if (intent.optString("stage") == "considering") "正在考虑的小念头"
-                else "自己的小打算（尚未确认执行）", name, 80)
+            if (intent.optString("stage") in setOf("considering", "decided")) add(name)
         }
         val thoughts = innerLife?.optJSONArray("thoughts")
-        if (thoughts != null) for (i in 0 until minOf(thoughts.length(), 2)) {
+        if (thoughts != null) for (i in 0 until minOf(thoughts.length(), 3)) {
             val thought = thoughts.optJSONObject(i) ?: continue
-            add("一闪而过", thought.optString("thought"), 120)
-            add("顾虑", thought.optString("hesitation"), 120)
+            add(thought.optString("thought"), 72)
+            if (ideas.isEmpty()) add(thought.optString("hesitation"), 72)
         }
-        val emotion = innerLife?.optJSONObject("emotion")
-        add("顾虑", basis?.optString("conflict").orEmpty()
-            .ifBlank { emotion?.optString("restraint").orEmpty() }, 135)
-        add("还没说出的缘由", basis?.optString("unsaidWhy").orEmpty(), 130)
-        add("斟酌", appraisal?.optString("tension").orEmpty(), 150)
-        add("暂时拿不准", appraisal?.optString("uncertainty").orEmpty(), 135)
-        // Keep a message's own bounded details, not a sprawling reasoning report.
-        return pieces.take(3).joinToString("\n").take(420)
+        // An actual doubt is valid, but only a fallback. Do not replace two
+        // adorable concrete ideas with "I should respect her boundaries".
+        if (ideas.isEmpty()) {
+            add(basis?.optString("conflict").orEmpty(), 86)
+            add(appraisal?.optString("uncertainty").orEmpty(), 86)
+        }
+        return ideas.take(3).joinToString("\n")
     }
 }
 
