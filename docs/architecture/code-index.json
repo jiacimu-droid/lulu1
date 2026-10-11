@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:40:13.410789+00:00",
-  "commit": "f479aade5a49f842d34dce401ca0de06166d9bb0",
+  "generatedAt": "2026-10-11T03:40:23.834856+00:00",
+  "commit": "7fe6e4b55ac1a0b388ed33f4048dd60851c8c35c",
   "branch": "main",
-  "sourceFingerprint": "5de64f1968848600d6cd67a24580c419dee2b760f9efec38f7f420916cba4ab2",
+  "sourceFingerprint": "80ec9c2370eff7018e3e7cfd53739238ab543797ac2759d0119dee77e67a5220",
   "summary": {
-    "files": 486,
-    "lines": 103968,
-    "symbols": 1538
+    "files": 487,
+    "lines": 103999,
+    "symbols": 1539
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8234,6 +8234,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt",
         "line": 14
+      }
+    ],
+    "CharacterAddressPreferenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt",
+        "line": 5
       }
     ],
     "CharacterCausalActionPolicyTest": [
@@ -17383,6 +17389,17 @@
         {
           "name": "CharacterActionFeedbackTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt",
+      "lines": 31,
+      "sha256": "ef2d1c755ea7e55dedd7a2df9e6e8a863939882c24ac0b8fe8e92de3978d9821",
+      "symbols": [
+        {
+          "name": "CharacterAddressPreferenceTest",
+          "line": 5
         }
       ]
     },
