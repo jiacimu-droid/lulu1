@@ -133,7 +133,7 @@ internal fun VoiceCallSettings(provider: String) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("哄睡 · 无人回应也继续轻声聊天", style = MaterialTheme.typography.bodyMedium)
-                Text("默认持续讲到你主动结束电话；角色每段声音播完才稍作停顿继续，不再因误识别停住。连续生成语音和模型回复可能消耗 API 积分。",
+                Text("角色会主动持续轻声说话；从你最后一句真正说完的话起计时，约一小时后自动结束电话，无需起床挂断。模型和语音生成可能消耗 API 积分。",
                     style = MaterialTheme.typography.bodySmall)
             }
         }
