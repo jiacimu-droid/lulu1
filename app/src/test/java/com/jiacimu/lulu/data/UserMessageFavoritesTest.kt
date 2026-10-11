@@ -146,4 +146,74 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.update(role, "想给她打电话", "准备打电话", null, null, "感知")
         assertEquals("想给她打电话", CompanionPresenceStore.current(role)!!.statusText)
     }
+
+    @Test fun currentShowsLatestHeartWhileHistoricalMomentsIncludeItAndDedupePosture() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "moment-time-scope-test"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-11T04:27:00Z")
+        CompanionPresenceStore.update(
+            role, "坐在藤编椅上", "正在椅子上休息",
+            "她出去了，我也翻几页书", "平静", "聊天", start,
+            momentReflection = "顾虑：还没想好要不要跟她分享",
+        )
+        CompanionPresenceStore.update(
+            role, "坐在藤编椅上", "正在椅子上休息",
+            "", "平静", "聊天", start.plusSeconds(60),
+        )
+        val history = CompanionPresenceStore.histories.value[role].orEmpty()
+        assertEquals(2, history.size)
+        val latest = PresenceHistoryPresentation.latestVoice(
+            CompanionPresenceStore.current(role), history, messageAnchored = false,
+        )
+        assertEquals(start, latest!!.updatedAt)
+        assertEquals("她出去了，我也翻几页书", latest.innerThought)
+        assertEquals("顾虑：还没想好要不要跟她分享", latest.momentReflection)
+        val presented = PresenceHistoryPresentation.entries(history)
+        assertEquals(1, presented.size)
+        assertEquals(start, presented.first().state.updatedAt)
+        assertEquals("正在椅子上休息", presented.first().gesture)
+        val pinned = PresenceHistoryPresentation.latestVoice(
+            history.first(), history, messageAnchored = true,
+        )
+        assertEquals("", pinned!!.innerThought)
+        assertEquals("", pinned.momentReflection)
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
+    @Test fun staleMessageAvatarCannotInheritAnHoursOldPrivateThought() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "moment-anchor-freshness-test"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-11T04:27:00Z")
+        CompanionPresenceStore.update(role, "在休息", "坐着", "刚才有些不自在",
+            "平静", "聊天", start)
+        CompanionPresenceStore.selectMessageAnchor(role, start.plusSeconds(5))
+        assertEquals("刚才有些不自在",
+            CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!.innerThought)
+        CompanionPresenceStore.selectMessageAnchor(role, start.plusSeconds(7200))
+        assertNull(CompanionPresenceStore.selectedMessageAnchor(role)!!.state)
+        CompanionPresenceStore.clearMessageAnchor()
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
+    @Test fun perTurnReflectionsOnlyUseNewModelFieldsRatherThanArchivedThoughts() {
+        val emotion = org.json.JSONObject().put("feeling", "既好笑又有点心虚")
+            .put("cause", "刚刚接了个玩笑")
+        val thoughts = org.json.JSONArray().put(org.json.JSONObject()
+            .put("thought", "我可以把这个梗接下去")
+            .put("hesitation", "但她好像不太想继续"))
+        val fresh = CharacterMomentSnapshot.reflection(
+            org.json.JSONObject().put("emotion", emotion).put("thoughts", thoughts),
+            basis = org.json.JSONObject().put("conflict", "有点犹豫"),
+            outward = "哈哈，你这句话笑到我了",
+            innerThought = "其实想再逗她一下",
+        )
+        assertTrue(fresh.contains("我可以把这个梗接下去"))
+        assertTrue(fresh.contains("她好像不太想继续"))
+        assertFalse(fresh.contains("昨天"))
+        assertEquals("", CharacterMomentSnapshot.reflection(null, null, null))
+    }
 }
