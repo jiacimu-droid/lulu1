@@ -24,8 +24,11 @@ internal object EmotionFollowThroughCoordinator {
         "不想让你难过", "慢慢说", "让我哄", "我会改", "下次我会", "放心", "别哭")
 
     fun qualifies(roleText: String, recentUserText: String): Boolean =
-        friction.any(recentUserText::contains) &&
-            (remorse.any(roleText::contains) || repair.any(roleText::contains))
+        // Important personal boundaries, being diminished and lack of safety
+        // matter even when an AI does not apologize using a specific keyword.
+        CharacterGrowthTrajectory.feedbackTopic(recentUserText) != null ||
+            (friction.any(recentUserText::contains) &&
+                (remorse.any(roleText::contains) || repair.any(roleText::contains)))
 
     fun onActualReply(
         context: Context,
@@ -49,7 +52,11 @@ internal object EmotionFollowThroughCoordinator {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val key = "scheduled:$id"
         val previous = prefs.getLong(key, 0L)
-        if (previous > 0 && Duration.between(Instant.ofEpochMilli(previous), now).toMinutes() < 30) return
+        val significant = CharacterGrowthTrajectory.feedbackTopic(lastUser) != null
+        // Different significant user feedback must not be swallowed by the
+        // original per-role 30-minute cooldown.
+        if (!significant && previous > 0 &&
+            Duration.between(Instant.ofEpochMilli(previous), now).toMinutes() < 30) return
         if (!prefs.edit().putLong(key, now.toEpochMilli()).commit()) return
 
         // Grounded one-off imprint is separate from the optional online
@@ -68,7 +75,8 @@ internal object EmotionFollowThroughCoordinator {
             (current.optInt("strength", 2) >= 3 ||
                 listOf("后悔", "愧疚", "自责", "难过", "委屈", "心疼", "懊悔", "歉疚")
                     .any(current.optString("feeling")::contains))
-        if (!emotionallyRecognized || started == null || Duration.between(started, now).abs().toMinutes() > 10) {
+        if (!significant && (!emotionallyRecognized || started == null ||
+            Duration.between(started, now).abs().toMinutes() > 10)) {
             val proposal = JSONObject().put("emotion", JSONObject()
                 .put("feeling", "对刚才的争执感到歉疚")
                 .put("cause", lastUser.takeLast(170).ifBlank { "刚才的争执" })
@@ -83,7 +91,7 @@ internal object EmotionFollowThroughCoordinator {
             CompanionOnlineStore.isOnline(id, now) && runCatching {
             ProactivePerceptionScheduler.scheduleOnlineReflection(
                 context.applicationContext, id,
-                "刚经历真实关系冲突并表达歉意：检视持续情绪与真实后果，自主选择修复、日记、动态、继续沟通或暂时独处；不强迫公开道歉。",
+                "刚收到用户明确的关系反馈或经历争执：检视真实回应是否让对方感到被弱化、不安全或不被尊重；自主选择反思、日记、继续沟通或给予空间，不假定已修复，不强迫道歉。",
                 delayMillis = 45_000L,
             )
         }.isSuccess
@@ -94,6 +102,6 @@ internal object EmotionFollowThroughCoordinator {
                 context.applicationContext, id, delayMillis = 420_000L,
             )
         }.isSuccess
-        if (!onlineQueued && !offlineQueued) prefs.edit().remove(key).apply()
+        if (!onlineQueued && !offlineQueued && !significant) prefs.edit().remove(key).apply()
     }
 }
