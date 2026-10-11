@@ -201,6 +201,32 @@ object ProactivePerceptionScheduler {
     }
 
     /**
+     * One deferred opportunity for spontaneous reaction to an actual lived
+     * event. A queue can collect multiple events without creating a model call
+     * per ambient sound, and the user is never auto-contacted by this scheduler.
+     */
+    fun scheduleLifeFollowThrough(context: Context, characterId: String) {
+        if (characterId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val prefs = app.getSharedPreferences("lulu_life_review_schedule_v1", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        if (now - prefs.getLong("last:$characterId", 0L) in 0L until (30L * 60_000L))
+            return
+        val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(75_000L, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "角色近期有真正亲历的生活事件，重新想想自己是否有好奇、处理事件、阅读、私聊分享、公开朋友圈或安静的欲望；不强制发消息。")
+                .putString("characterId", characterId)
+                .putBoolean("force", true).build())
+            .build()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-verified-life-review-$characterId", ExistingWorkPolicy.KEEP, work)
+        prefs.edit().putLong("last:$characterId", now).apply()
+    }
+
+    /**
      * A genuine undecided personal idea gets one later autonomous reconsideration,
      * not a forced action. All resulting choices still go through the ordinary
      * ProactivePerceptionRuntime decision and ToolRouter executor.
