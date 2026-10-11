@@ -23,6 +23,8 @@ data class CompanionPresenceState(
     val showInHistory: Boolean = true,
     /** Causal identity of the surfaced heart-voice event; prose may change while cause stays same. */
     val innerThoughtFingerprint: String = "",
+    /** Private appraisal details produced only for this very moment, never inherited. */
+    val momentReflection: String = "",
 )
 
 data class CompanionPresenceMessageAnchor(
@@ -139,14 +141,18 @@ object CompanionPresenceStore {
      */
     fun selectMessageAnchor(characterId: String, messageAt: Instant) {
         if (characterId.isBlank()) return
+        // A message has its own moment; never attach an hours-old psychological
+        // state simply because it happened to be the latest known snapshot.
+        // The planner can commit presence just after the message timestamp.
         val candidates = buildList {
             addAll(mutableHistories.value[characterId].orEmpty())
             mutableStates.value[characterId]?.let(::add)
         }.distinctBy(CompanionPresenceState::updatedAt)
-        val snapshot = candidates
-            .asSequence()
-            .filter { it.updatedAt <= messageAt }
-            .maxByOrNull(CompanionPresenceState::updatedAt)
+        val snapshot = candidates.mapNotNull { state ->
+            val gapMs = runCatching { Duration.between(state.updatedAt, messageAt).toMillis() }.getOrNull()
+                ?: return@mapNotNull null
+            if (gapMs !in -30_000L..120_000L) null else state to kotlin.math.abs(gapMs)
+        }.minByOrNull { it.second }?.first
         selectedMessageAnchor = CompanionPresenceMessageAnchor(
             characterId = characterId,
             messageAt = messageAt,
@@ -185,6 +191,7 @@ object CompanionPresenceStore {
         now: Instant = Instant.now(),
         provenanceId: String = "",
         innerThoughtFingerprint: String? = null,
+        momentReflection: String? = null,
     ) {
         if (characterId.isBlank()) return
         val previous = mutableStates.value[characterId]
@@ -203,6 +210,9 @@ object CompanionPresenceStore {
             lastPerceptionAt = if (source.contains("感知")) now else previous?.lastPerceptionAt,
             lastPerceptionNote = if (source.contains("感知")) "最近已更新" else previous?.lastPerceptionNote.orEmpty(),
             provenanceId = provenanceId,
+            // It is never valid for yesterday's hesitation to become this turn's
+            // private thought just because the newest model omitted the field.
+            momentReflection = momentReflection.cleanPresence(420).orEmpty(),
             innerThoughtFingerprint = when {
                 innerThought == null -> previous?.innerThoughtFingerprint.orEmpty()
                 innerThought.isBlank() -> ""
@@ -242,15 +252,17 @@ object CompanionPresenceStore {
         // stay aware without manufacturing a new historical "heart voice" every minute. Visible state
         // changes are recorded immediately; thought-only background changes are rate-limited and must
         // contain materially new wording. Exact/near repeats remain current state only.
-        if (isChatTurn || visibleChanged || (heartVoiceEventChanged && thoughtHistoryDue)) {
+        if (isChatTurn || visibleChanged || next.momentReflection.isNotBlank() ||
+            (heartVoiceEventChanged && thoughtHistoryDue)) {
             val historySnapshot = next.copy(
                 innerThought = newHeartVoice,
-                showInHistory = visibleChanged || newHeartVoice.isNotBlank() || !isChatTurn,
+                showInHistory = visibleChanged || newHeartVoice.isNotBlank() ||
+                    next.momentReflection.isNotBlank() || !isChatTurn,
             )
             mutableHistories.value = mutableHistories.value +
                 (characterId to (listOf(historySnapshot) + mutableHistories.value[characterId].orEmpty())
                     .distinctBy { it.updatedAt }
-                    .take(100))
+                    .take(500))
             if (historySnapshot.showInHistory) recordPresenceTimeline(historySnapshot)
         }
         persist()
@@ -367,6 +379,7 @@ private fun CompanionPresenceState.toJson(): JSONObject = JSONObject().apply {
     put("provenanceId", provenanceId)
     put("showInHistory", showInHistory)
     put("innerThoughtFingerprint", innerThoughtFingerprint)
+    put("momentReflection", momentReflection)
 }
 
 private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPresenceState? {
@@ -385,6 +398,7 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         provenanceId = optString("provenanceId"),
         showInHistory = optBoolean("showInHistory", true),
         innerThoughtFingerprint = optString("innerThoughtFingerprint"),
+        momentReflection = optString("momentReflection"),
     )
 }
 
