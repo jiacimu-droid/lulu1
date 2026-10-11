@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:54:01.237406+00:00",
-  "commit": "1008d822f5b4853dd2f175371cc2e058c5ce85e4",
+  "generatedAt": "2026-10-11T16:54:45.021378+00:00",
+  "commit": "73c5583e7953b0d190f37b4f37778b818480471a",
   "branch": "main",
-  "sourceFingerprint": "6479846d924726d972ebc5db1a5f5a7f14b7a61e050866093a86d287a6841e23",
+  "sourceFingerprint": "364d0011a9c081fdb177a4e0d15176e3e6333c8c3e488087e9881ff385169f7b",
   "summary": {
     "files": 518,
-    "lines": 108635,
+    "lines": 108655,
     "symbols": 1624
   },
   "symbolIndex": {
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 60
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
@@ -65,7 +65,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 209
+        "line": 229
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -1185,31 +1185,31 @@
     "speechFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 141
+        "line": 161
       }
     ],
     "finishUtterance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 158
+        "line": 178
       }
     ],
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 225
+        "line": 245
       }
     ],
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 227
+        "line": 247
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 232
+        "line": 252
       }
     ],
     "close": [
@@ -9848,36 +9848,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 235,
-      "sha256": "7325a921f8c1a1c0edd9de6d6965c80fb7715666fc9f332b49db3463875f91da",
+      "lines": 255,
+      "sha256": "4e45ca515672af0840d3782e3659798b14d130403138fb402efe406eeffe5750",
       "symbols": [
         {
           "name": "start",
-          "line": 60
+          "line": 63
         },
         {
           "name": "speechFrame",
-          "line": 141
+          "line": 161
         },
         {
           "name": "finishUtterance",
-          "line": 158
+          "line": 178
         },
         {
           "name": "stop",
-          "line": 209
+          "line": 229
         },
         {
           "name": "preview",
-          "line": 225
+          "line": 245
         },
         {
           "name": "commit",
-          "line": 227
+          "line": 247
         },
         {
           "name": "takeFinal",
-          "line": 232
+          "line": 252
         }
       ]
     },
