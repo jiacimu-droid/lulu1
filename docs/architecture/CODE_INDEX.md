@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f619ffb3cdaa81d7be28a914bd591864718e8d6c`
+- 基准提交：`ab3027765bda6b1effefdac5018139ded7820f47`
 - 分支：`main`
 - 已索引文件：510
-- 已索引代码/文本行：107717
-- 已发现符号：1612
+- 已索引代码/文本行：107742
+- 已发现符号：1613
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -18,7 +18,7 @@
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 209 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 49 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 74 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |

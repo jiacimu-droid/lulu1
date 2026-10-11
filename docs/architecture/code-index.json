@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T13:16:52.374702+00:00",
-  "commit": "f619ffb3cdaa81d7be28a914bd591864718e8d6c",
+  "generatedAt": "2026-10-11T13:18:36.174913+00:00",
+  "commit": "ab3027765bda6b1effefdac5018139ded7820f47",
   "branch": "main",
-  "sourceFingerprint": "c576d11472d0d5c899d6f4b4454da3c41b1e22265f1f2e64ee7a048aa189da42",
+  "sourceFingerprint": "68b60c18b2b9d8f93eb57727516fad777f805d140fcb0d58ccde08f02decbf4e",
   "summary": {
     "files": 510,
-    "lines": 107717,
-    "symbols": 1612
+    "lines": 107742,
+    "symbols": 1613
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -138,16 +138,22 @@
         "line": 137
       }
     ],
+    "expectSpoken": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
+        "line": 20
+      }
+    ],
     "markDelivered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 13
+        "line": 25
       }
     ],
     "request": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 18
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -161,7 +167,7 @@
     "cancel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 24
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt",
@@ -179,7 +185,7 @@
     "consumeWhenReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-        "line": 31
+        "line": 50
       }
     ],
     "claim": [
@@ -9127,24 +9133,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
-      "lines": 49,
-      "sha256": "6b3be4e35933c7b2a6dd1895f7cac5ff385d12139a9b4475f5252d26fa26de3c",
+      "lines": 74,
+      "sha256": "29b77508e110cbf51c1a5eb0634a773f20cff087c98506e17297fcffdde38d17",
       "symbols": [
         {
+          "name": "expectSpoken",
+          "line": 20
+        },
+        {
           "name": "markDelivered",
-          "line": 13
+          "line": 25
         },
         {
           "name": "request",
-          "line": 18
+          "line": 34
         },
         {
           "name": "cancel",
-          "line": 24
+          "line": 41
         },
         {
           "name": "consumeWhenReady",
-          "line": 31
+          "line": 50
         }
       ]
     },
