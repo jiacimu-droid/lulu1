@@ -545,7 +545,9 @@ internal object LuluVoiceCallSession {
                     // loudspeaker playback must not be mistaken for user words.
                     providerInput?.pauseCapture()
                     if (providerInput == null && !privateCallOutput()) {
-                        resetSystemRecognitionTurn()
+                        // Pause capture so loudspeaker TTS isn't mistaken for
+                        // the user, but DO NOT throw away verified words still
+                        // waiting for a natural continuation.
                         pauseRecognition()
                     }
                     audioRoute?.refresh()
@@ -568,6 +570,9 @@ internal object LuluVoiceCallSession {
                     finishAutonomousHangupIfReady()
                     if (mutableState.value.connected && !mutableState.value.microphoneMuted) {
                         if (appContext?.let(CallVoiceConfiguration::sttEngine) == "system") {
+                            if (systemUtteranceBuffer.isNotBlank()) {
+                                scheduleSystemUtteranceCommit(SystemSpeechTurnPolicy.continuationMillis(systemUtteranceBuffer))
+                            }
                             if (!recognitionActive) scheduleListening(220)
                         } else {
                             providerInput?.resumeCapture()
