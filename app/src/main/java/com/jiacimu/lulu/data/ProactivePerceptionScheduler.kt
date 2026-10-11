@@ -212,7 +212,7 @@ object ProactivePerceptionScheduler {
         val app = context.applicationContext
         val prefs = app.getSharedPreferences("lulu_self_action_reflection_v1", Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
-        if (now - prefs.getLong("scheduled:$characterId", 0L) in 0 until 30 * 60_000L) return
+        if (now - prefs.getLong("scheduled:$characterId", 0L) in 0L until (30L * 60_000L)) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setInitialDelay(40_000L, TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
