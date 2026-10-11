@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:22:42.508300+00:00",
-  "commit": "7ce1f16a83f31c875d2623b8082aeff2cf8021b2",
+  "generatedAt": "2026-10-11T03:23:06.307040+00:00",
+  "commit": "01252977e04c6a15dcfa815ff5c7cb80e3e81ae1",
   "branch": "main",
-  "sourceFingerprint": "9955a28b3acf5918b635065be292694012c605b0be004255d364347275a294ec",
+  "sourceFingerprint": "3fa5b58c43d15f1f8cef514eb58c426f8f5f5399664caf64b24df1584e421151",
   "summary": {
-    "files": 485,
-    "lines": 104044,
-    "symbols": 1537
+    "files": 486,
+    "lines": 104073,
+    "symbols": 1538
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8155,6 +8155,12 @@
     "SleepGuidanceGuideTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
+        "line": 5
+      }
+    ],
+    "SystemSpeechTurnPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt",
         "line": 5
       }
     ],
@@ -17225,6 +17231,17 @@
       "symbols": [
         {
           "name": "SleepGuidanceGuideTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt",
+      "lines": 29,
+      "sha256": "2f886a3584667f4d08ed23e16002f891710a964613159ceba1ed0f75ef3198d0",
+      "symbols": [
+        {
+          "name": "SystemSpeechTurnPolicyTest",
           "line": 5
         }
       ]
