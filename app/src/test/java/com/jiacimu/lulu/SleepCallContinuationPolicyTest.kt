@@ -11,23 +11,24 @@ class SleepCallContinuationPolicyTest {
     }
 
     @Test fun pausesBecomeLessFrequentAsUnansweredSleepTimeGrows() {
-        assertEquals(1_900L, SleepCallContinuationPolicy.nextPauseMillis(0L))
-        assertEquals(1_900L, SleepCallContinuationPolicy.nextPauseMillis(6 * 60_000L - 1L))
-        assertEquals(12_000L, SleepCallContinuationPolicy.nextPauseMillis(6 * 60_000L))
-        assertEquals(12_000L, SleepCallContinuationPolicy.nextPauseMillis(12 * 60_000L - 1L))
-        assertEquals(35_000L, SleepCallContinuationPolicy.nextPauseMillis(12 * 60_000L))
-        assertEquals(35_000L, SleepCallContinuationPolicy.nextPauseMillis(20 * 60_000L - 1L))
-        assertEquals(90_000L, SleepCallContinuationPolicy.nextPauseMillis(20 * 60_000L))
-        assertEquals(90_000L, SleepCallContinuationPolicy.nextPauseMillis(40 * 60_000L - 1L))
-        assertEquals(180_000L, SleepCallContinuationPolicy.nextPauseMillis(40 * 60_000L))
-        assertEquals(180_000L, SleepCallContinuationPolicy.nextPauseMillis(60 * 60_000L))
+        assertEquals(2_000L, SleepCallContinuationPolicy.nextPauseMillis(0L))
+        assertEquals(2_000L, SleepCallContinuationPolicy.nextPauseMillis(6 * 60_000L - 1L))
+        assertEquals(3_500L, SleepCallContinuationPolicy.nextPauseMillis(6 * 60_000L))
+        assertEquals(3_500L, SleepCallContinuationPolicy.nextPauseMillis(12 * 60_000L - 1L))
+        assertEquals(6_000L, SleepCallContinuationPolicy.nextPauseMillis(12 * 60_000L))
+        assertEquals(6_000L, SleepCallContinuationPolicy.nextPauseMillis(20 * 60_000L - 1L))
+        assertEquals(12_000L, SleepCallContinuationPolicy.nextPauseMillis(20 * 60_000L))
+        assertEquals(12_000L, SleepCallContinuationPolicy.nextPauseMillis(40 * 60_000L - 1L))
+        assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(40 * 60_000L))
+        assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(60 * 60_000L))
     }
 
     @Test fun unattendedSleepCallEndsOnlyAfterDeadlineAndNoAudibleOrUserSpeech() {
         fun canEnd(silence: Long, connected: Boolean = true, enabled: Boolean = true,
-            userSpeaking: Boolean = false, audioBusy: Boolean = false) =
+            userSpeaking: Boolean = false, audioBusy: Boolean = false, autoEnd: Boolean = true) =
             SleepCallContinuationPolicy.shouldQuietlyEnd(silence, connected, enabled,
-                userSpeaking, audioBusy)
+                userSpeaking, audioBusy, autoEnd)
+        assertFalse(canEnd(62 * 60_000L, autoEnd = false))
         assertFalse(canEnd(20 * 60_000L))
         assertFalse(canEnd(40 * 60_000L))
         assertFalse(canEnd(60 * 60_000L - 1L))
