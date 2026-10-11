@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f4adb93c8e1d3712d6c7f06a00282b19cca3e856`
+- 基准提交：`24d9ceb5dfd4bdd9119fecc6b3a12e7ef613ec81`
 - 分支：`main`
 - 已索引文件：489
-- 已索引代码/文本行：104072
+- 已索引代码/文本行：104085
 - 已发现符号：1542
 
 | 文件 | 行数 | 符号数 |
@@ -159,8 +159,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 100 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 200 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1207 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 616 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1217 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 619 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 136 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 65 | 6 |
