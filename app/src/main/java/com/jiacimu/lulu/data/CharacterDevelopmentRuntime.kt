@@ -5,6 +5,8 @@ import com.jiacimu.lulu.ai.CompanionContextMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -21,7 +23,44 @@ object CharacterDevelopmentRuntime {
         prefs = context.applicationContext.getSharedPreferences("lulu_development_reflection", android.content.Context.MODE_PRIVATE)
     }
 
-    fun request(characterId: String) { scope.launch { mutex.withLock { reflect(characterId) } } }
+    // Long-term trait consolidation is NOT the reaction to a single message.
+    // Coalesce the evidence and let the normal in-turn decision handle immediate
+    // remorse, multiple thoughts, wishes and open concerns. These occasional
+    // cross-event summaries must never compete with an active chat or call.
+    private val waitingJobs = mutableMapOf<String, Job>()
+    private val waitingLock = Any()
+
+    fun request(characterId: String) {
+        if (characterId.isBlank()) return
+        synchronized(waitingLock) {
+            if (waitingJobs[characterId]?.isActive == true) return
+            val job = scope.launch {
+                delay(90_000L)
+                // Wait for an actual quiet interval; don't steal the model from
+                // a user while they are typing or speaking. The next experience
+                // will queue another chance if this session never gets quiet.
+                repeat(6) {
+                    val inCall = CompanionPresenceStore.isInCall(characterId)
+                    val inChat = MigratedDomainStores.chat.conversations.value.any { conv ->
+                        (conv.characterId == characterId ||
+                            conv.groupChat?.members?.any { it.characterId == characterId } == true) &&
+                            ChatGenerationActivity.isRunning(conv.id)
+                    }
+                    if (!inCall && !inChat) {
+                        mutex.withLock { reflect(characterId) }
+                        return@launch
+                    }
+                    delay(45_000L)
+                }
+            }
+            waitingJobs[characterId] = job
+            job.invokeOnCompletion {
+                synchronized(waitingLock) {
+                    if (waitingJobs[characterId] === job) waitingJobs.remove(characterId)
+                }
+            }
+        }
+    }
 
     private suspend fun reflect(characterId: String) {
         val p = prefs ?: return
