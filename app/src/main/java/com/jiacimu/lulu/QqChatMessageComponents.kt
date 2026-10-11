@@ -262,7 +262,7 @@ internal fun QqMessageRow(
                         characterAvatarUri,
                         Modifier.combinedClickable(
                             onClick = {
-                                anchorCharacterId?.let { CompanionPresenceStore.selectMessageAnchor(it, message.createdAt) }
+                                anchorCharacterId?.let { CompanionPresenceStore.selectMessageAnchor(it, message.createdAt, message.id) }
                                 onCharacterAvatarClick()
                             },
                             onDoubleClick = {
