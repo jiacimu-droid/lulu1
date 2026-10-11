@@ -149,12 +149,14 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "expressiveDeliveries").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
                     val entry = values.optJSONObject(i) ?: continue
                     val linked = backedBy(entry.optString("evidenceId")) ||
+                        (key in setOf("openConcerns", "closedConcerns") &&
+                            CharacterOpenConcernRuntime.dependsOnEvidence(entry, eventId)) ||
                         (key == "voice" && backedBy(entry.optString("id")))
                     if (linked) changed = true else next.put(entry)
                 }
@@ -889,8 +891,16 @@ object CharacterInnerLifeStore {
             put(entry)
         })
         if (appraisal?.optJSONObject("pendingConcern") != null) {
+            val open = root.optJSONArray("openConcerns")
+            CharacterOpenConcernRuntime.closure(open, appraisal, evidenceId, now)?.let { closed ->
+                val pastClosures = root.optJSONArray("closedConcerns") ?: JSONArray()
+                root.put("closedConcerns", JSONArray().apply {
+                    for (i in maxOf(0, pastClosures.length() - 7) until pastClosures.length()) put(pastClosures.opt(i))
+                    put(closed)
+                })
+            }
             root.put("openConcerns", CharacterOpenConcernRuntime.update(
-                root.optJSONArray("openConcerns"), appraisal, evidenceId, now,
+                open, appraisal, evidenceId, now,
             ))
         }
         save(characterId, root)
@@ -1090,6 +1100,8 @@ object CharacterInnerLifeStore {
                 ?.let(::appendLine)
             CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
+            CharacterOpenConcernRuntime.closureContext(root.optJSONArray("closedConcerns"), now, compact = true)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterExpressionContinuity.context(root.optJSONArray("expressiveDeliveries"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
@@ -1210,6 +1222,10 @@ object CharacterInnerLifeStore {
                     appendLine("· ${voice.optJSONObject(i)?.optString("text")}")
                 }
             }
+            CharacterOpenConcernRuntime.context(root.optJSONArray("openConcerns"), now, compact = false)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
+            CharacterOpenConcernRuntime.closureContext(root.optJSONArray("closedConcerns"), now)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine("愿望可以并存、冲突和暂停。选择前考虑性格、时间、用户边界与执行能力；只从工具回执确认成功，失败后可反省并改法。")
         }.trim()
     }

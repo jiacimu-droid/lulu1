@@ -80,9 +80,49 @@ class CharacterOpenConcernRuntimeTest {
         assertFalse(CharacterOpenConcernRuntime.meritsOneFollowThrough(JSONArray(), now))
     }
 
-    @Test fun oldPrivateWorriesFadeInsteadOfBecomingPermanentPersonalityTraits() {
+    @Test fun oldPrivateWorriesGoDormantWithoutErasingTheUnfinishedJourney() {
         val opened = CharacterOpenConcernRuntime.update(null, first, "silence", now)
-        assertEquals("", CharacterOpenConcernRuntime.context(opened, now.plusSeconds(49L * 3600)))
-        assertEquals(0, CharacterOpenConcernRuntime.update(opened, null, "ambient", now.plusSeconds(49L * 3600)).length())
+        val late = now.plusSeconds(49L * 3600)
+        val context = CharacterOpenConcernRuntime.context(opened, late)
+        assertTrue(context.contains("搁置"))
+        assertFalse(context.contains("自己仍未想通的心事"))
+        assertFalse(CharacterOpenConcernRuntime.meritsOneFollowThrough(opened, late))
+        val retained = CharacterOpenConcernRuntime.update(opened, null, "ambient", late)
+        assertEquals(1, retained.length())
+        assertEquals(opened.getJSONObject(0).getString("id"), retained.getJSONObject(0).getString("id"))
+    }
+
+    @Test fun innerJourneyOnlyAdvancesWhenEvidenceActuallyChangesTheView() {
+        val opened = CharacterOpenConcernRuntime.update(null, first, "call-1", now)
+        val id = opened.getJSONObject(0).getString("id")
+        val repeated = CharacterOpenConcernRuntime.update(opened, JSONObject().put("pendingConcern", JSONObject()
+            .put("threadId", id).put("status", "revise")
+            .put("hesitation", "也许对方现在需要安静")), "call-2", now.plusSeconds(120))
+        assertEquals(opened.getJSONObject(0).getString("updatedAt"), repeated.getJSONObject(0).getString("updatedAt"))
+        val changed = CharacterOpenConcernRuntime.update(repeated, JSONObject().put("pendingConcern", JSONObject()
+            .put("threadId", id).put("status", "revise")
+            .put("hesitation", "后来收到了明确解释，应该不是在生气")), "call-3", now.plusSeconds(240))
+        val journey = changed.getJSONObject(0).getJSONArray("journey")
+        assertEquals(2, journey.length())
+        assertEquals("call-1", journey.getJSONObject(0).getString("evidenceId"))
+        assertEquals("call-3", journey.getJSONObject(1).getString("evidenceId"))
+        assertTrue(CharacterOpenConcernRuntime.context(changed, now.plusSeconds(250), compact = false).contains("心路转变"))
+        assertTrue(CharacterOpenConcernRuntime.dependsOnEvidence(changed.getJSONObject(0), "call-1"))
+        assertTrue(CharacterOpenConcernRuntime.dependsOnEvidence(changed.getJSONObject(0), "call-3"))
+        assertFalse(CharacterOpenConcernRuntime.dependsOnEvidence(changed.getJSONObject(0), "unrelated"))
+    }
+
+    @Test fun resolvedConcernCanBeRememberedAsACompletedPsychologicalTurn() {
+        val opened = CharacterOpenConcernRuntime.update(null, first, "call-1", now)
+        val id = opened.getJSONObject(0).getString("id")
+        val closure = JSONObject().put("pendingConcern", JSONObject()
+            .put("threadId", id).put("status", "settled")
+            .put("resolution", "确认只是通话断线，我不必一直猜测她是不是不高兴"))
+        val closed = CharacterOpenConcernRuntime.closure(opened, closure, "confirmed-signal", now.plusSeconds(360))
+        assertNotNull(closed)
+        assertTrue(CharacterOpenConcernRuntime.closureContext(JSONArray().put(closed), now.plusSeconds(400))
+            .contains("通话断线"))
+        assertEquals(0, CharacterOpenConcernRuntime.update(opened, closure, "confirmed-signal", now.plusSeconds(360)).length())
+        assertTrue(CharacterOpenConcernRuntime.dependsOnEvidence(closed!!, "confirmed-signal"))
     }
 }
