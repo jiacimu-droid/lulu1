@@ -70,6 +70,22 @@ class CharacterRelationalInitiativeTest {
         assertEquals("消息已经发送", stored.getJSONObject("lastDelivery").getString("summary"))
     }
 
+    @Test fun deletionOfSourceRetractsOnlyItsDependentPrivatePlan() {
+        val context = start()
+        val prefs = context.getSharedPreferences("lulu_relational_initiative_v1", 0)
+        val root = JSONObject()
+            .put("pending", JSONObject().put("evidenceId", "deleted-preference")
+                .put("aim", "暂时想试一个小惊喜"))
+            .put("lastDelivery", JSONObject().put("action", "message")
+                .put("summary", "曾经真实发送"))
+        prefs.edit().putString(id, root.toString()).commit()
+        CharacterRelationalInitiative.invalidateEvidence("deleted-preference")
+        val after = JSONObject(prefs.getString(id, "{}"))
+        assertNull(after.optJSONObject("pending"))
+        assertEquals("message", after.getJSONObject("lastDelivery").getString("action"))
+        CharacterRelationalInitiative.clear(id)
+    }
+
     @Test fun canReleaseUndeliveredPlanAndRejectForgedPreferenceSource() {
         val context = start()
         val invalid = plan().put("evidenceId", "nonexistent-user-message")
