@@ -25,6 +25,28 @@ internal object CharacterMomentSnapshot {
             val key = clean.lowercase().filter(Char::isLetterOrDigit)
             if (key.isNotBlank() && seen.add(key)) pieces += "$label：$clean"
         }
+        // A small playful bid is a *private* idea, not a prewritten flirt
+        // line or a completed world action. Its trigger keeps it situational.
+        appraisal?.optJSONObject("spontaneousBid")?.let { bid ->
+            val spark = bid.optString("spark").trim()
+            val move = bid.optString("wantedMove").trim()
+            if (spark.isNotBlank() && move.isNotBlank()) {
+                add("忽然想", move, 150)
+                add("想到它是因为", spark, 95)
+            }
+        }
+        // Deciding to do something is not evidence that it has been executed.
+        appraisal?.optJSONObject("ownActivity")?.takeIf {
+            it.optString("stage") == "decided"
+        }?.let { intent ->
+            val name = when (intent.optString("action")) {
+                "reading" -> "想翻翻书"
+                "solo_game" -> "想自己玩一局"
+                "digital_world" -> "想去数字世界做点事"
+                else -> ""
+            }
+            add("自己的小打算（待执行）", name, 80)
+        }
         val thoughts = innerLife?.optJSONArray("thoughts")
         if (thoughts != null) for (i in 0 until minOf(thoughts.length(), 2)) {
             val thought = thoughts.optJSONObject(i) ?: continue
@@ -66,6 +88,16 @@ internal object PresenceHistoryPresentation {
             .sortedByDescending { it.updatedAt }
             .firstOrNull { it.innerThought.isNotBlank() }
             ?: current?.takeIf { it.innerThought.isNotBlank() }
+
+    fun latestReflection(
+        current: CompanionPresenceState?,
+        history: List<CompanionPresenceState>,
+        messageAnchored: Boolean,
+    ): CompanionPresenceState? =
+        if (messageAnchored) current?.takeIf { it.momentReflection.isNotBlank() }
+        else history.asSequence().sortedByDescending { it.updatedAt }
+            .firstOrNull { it.momentReflection.isNotBlank() }
+            ?: current?.takeIf { it.momentReflection.isNotBlank() }
 
     fun entries(history: List<CompanionPresenceState>): List<PresenceHistoryMoment> {
         val chronological = history.sortedBy { it.updatedAt }
