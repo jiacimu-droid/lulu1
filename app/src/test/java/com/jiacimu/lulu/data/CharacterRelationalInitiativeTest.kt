@@ -51,6 +51,8 @@ class CharacterRelationalInitiativeTest {
         val context = start()
         CharacterRelationalInitiative.recordDecision(id, plan(), "silent", false, "想一想", now)
         assertTrue(CharacterRelationalInitiative.context(id, now).contains("尚未实行的主意"))
+        assertTrue(CharacterRelationalInitiative.expressionHandoff(id).contains("自己此前考虑"))
+        assertFalse(CharacterRelationalInitiative.expressionHandoff(id).contains("用户原话"))
         CharacterRelationalInitiative.recordDecision(id, plan(), "journal", true, "日记写好了", now)
         val state = JSONObject(context.getSharedPreferences("lulu_relational_initiative_v1", 0).getString(id, "{}"))
         assertNotNull(state.optJSONObject("pending"))
