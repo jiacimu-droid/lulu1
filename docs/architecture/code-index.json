@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T13:19:21.973380+00:00",
-  "commit": "ebe289af7667c56f95ee5ee4dd66e655920a87e3",
+  "generatedAt": "2026-10-11T13:35:41.834120+00:00",
+  "commit": "6ae9ef8a6b07706765179284ae8b99bf12301bea",
   "branch": "main",
-  "sourceFingerprint": "db4bba8698d521d266853d1522756c0f3b29362fd0454ec2fb647cdbb071a365",
+  "sourceFingerprint": "16b7157dcf723da7bb20c3af2dc502e5803ef38bf416226919edcdf0b528f14d",
   "summary": {
-    "files": 510,
-    "lines": 107765,
-    "symbols": 1613
+    "files": 511,
+    "lines": 107785,
+    "symbols": 1614
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -186,6 +186,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt",
         "line": 50
+      }
+    ],
+    "shouldWait": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt",
+        "line": 14
       }
     ],
     "claim": [
@@ -9155,6 +9161,17 @@
         {
           "name": "consumeWhenReady",
           "line": 50
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt",
+      "lines": 20,
+      "sha256": "e080f590a1797a3294adf7b90365861a721aeab48a86d6d65723c40896bd667c",
+      "symbols": [
+        {
+          "name": "shouldWait",
+          "line": 14
         }
       ]
     },
