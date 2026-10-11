@@ -14,6 +14,30 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun manyBubblesAndWakeSignalsCannotEnqueueTheSamePaidReplyFourTimes() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val role = "one-paid-worker-per-real-batch"
+        OnlineChatBatchStore.cancel(context, role)
+        val first = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 1_000L)
+        assertTrue(OnlineChatBatchStore.markEnqueued(context, role, first.revision))
+        assertFalse(OnlineChatBatchStore.markEnqueued(context, role, first.revision))
+        val second = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 2_000L)
+        val third = OnlineChatBatchStore.next(context, role, true, now = 2_100L)
+        assertEquals(first.revision, second.revision)
+        assertEquals(first.revision, third.revision)
+        assertFalse(OnlineChatBatchStore.markEnqueued(context, role, third.revision))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 6_000L))
+        // Another user bubble while generation is running gets a new revision.
+        val next = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 7_000L)
+        assertTrue(next.revision > first.revision)
+        assertTrue(OnlineChatBatchStore.markEnqueued(context, role, next.revision))
+        assertFalse(OnlineChatBatchStore.markEnqueued(context, role, next.revision))
+        OnlineChatBatchStore.finish(context, role, first.revision)
+        assertTrue(OnlineChatBatchStore.claim(context, role, next.revision, now = 11_000L))
+        OnlineChatBatchStore.finish(context, role, next.revision)
+        OnlineChatBatchStore.cancel(context, role)
+    }
+
     @Test fun fourSecondsFollowLastBubbleAndEachNewTurnWaitsAgain() {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "four-second-last-bubble"
