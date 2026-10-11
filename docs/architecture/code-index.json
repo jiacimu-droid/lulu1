@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T04:55:13.904398+00:00",
-  "commit": "997b34a5dcb6a99bc016d4012933cd74e1101159",
+  "generatedAt": "2026-10-11T04:56:35.134610+00:00",
+  "commit": "26c6fd6d963e1f47b2c5b6133555e50b21e0180c",
   "branch": "main",
-  "sourceFingerprint": "fdc444185b7f5ea055a5ede9808e2aa4251bdf40b450abfa18de108c9ac4c720",
+  "sourceFingerprint": "35ee6b8156c4e3f7f5d99d98bfb08859a7b7d04eaeb629bd86f2ca3f0ee1b218",
   "summary": {
-    "files": 492,
-    "lines": 104490,
-    "symbols": 1550
+    "files": 493,
+    "lines": 104560,
+    "symbols": 1553
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3202,6 +3202,32 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
         "line": 33
+      }
+    ],
+    "reflection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
+        "line": 12
+      }
+    ],
+    "add": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
+        "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 123
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
+        "line": 554
+      }
+    ],
+    "entries": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
+        "line": 56
       }
     ],
     "result": [
@@ -7664,16 +7690,6 @@
         "line": 121
       }
     ],
-    "add": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 123
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
-        "line": 554
-      }
-    ],
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
@@ -11429,6 +11445,25 @@
         {
           "name": "favorite",
           "line": 33
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
+      "lines": 70,
+      "sha256": "65206c6039867d270e861c545f6e7dcbe93f29a14a99a4d66dbf0ba5b008f958",
+      "symbols": [
+        {
+          "name": "reflection",
+          "line": 12
+        },
+        {
+          "name": "add",
+          "line": 21
+        },
+        {
+          "name": "entries",
+          "line": 56
         }
       ]
     },
