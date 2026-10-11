@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:42:13.148485+00:00",
-  "commit": "42ac5ce87d394ea230f34eabf61236faea9e7541",
+  "generatedAt": "2026-10-11T03:42:49.504015+00:00",
+  "commit": "82db0275b718617c995b523d043f9ce5f2917610",
   "branch": "main",
-  "sourceFingerprint": "fd577249eea6abd4bd1a02edaa74c6735bdae55bbede6db114f087f81e57e1ff",
+  "sourceFingerprint": "2ee4a5b5b54458fd1a3cfce21808f4748dadf351eaeba6bb9fede6d6d2b1034e",
   "summary": {
     "files": 489,
-    "lines": 104070,
+    "lines": 104072,
     "symbols": 1542
   },
   "symbolIndex": {
@@ -11444,7 +11444,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
       "lines": 87,
-      "sha256": "6e57083928908a43660fc97b5ebbaa43bff87a843a15eaa3179df1417ca40746",
+      "sha256": "5d0754d6ad363652501ffe5668712617ce096afd0b3517de2f64c74d6dd1349b",
       "symbols": [
         {
           "name": "groupedFields",
@@ -17405,8 +17405,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 90,
-      "sha256": "57588b1c1707d464d31505f1c4e66127b6188bd40ed0634cd65be7117a038c0f",
+      "lines": 92,
+      "sha256": "95fafcede7b204d6f4702bcf3886aeadf449200895d89217b688aeaf19a95a6c",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
