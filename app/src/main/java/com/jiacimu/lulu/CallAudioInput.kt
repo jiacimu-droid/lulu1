@@ -22,8 +22,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
     @SuppressLint("MissingPermission")
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
         onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray, Boolean) -> Unit,
-        onError: (String) -> Unit, threshold: Float = 350f, endSilenceMs: Int = 500,
-        playbackActive: () -> Boolean = { false }) {
+        onError: (String) -> Unit, threshold: Float = 350f, endSilenceMs: Int = 500) {
         stop()
         val epoch = generation
         job = scope.launch(Dispatchers.IO) {
@@ -99,20 +98,13 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     }
                     if (!active) {
                         preRoll.addLast(frame)
-                        if (preRoll.size > 7) preRoll.removeFirst()
+                        if (preRoll.size > 4) preRoll.removeFirst()
                         // While idle, learn the room's quiet background without
                         // letting an abrupt real voice raise the start threshold.
-                        val whilePlaying = playbackActive()
-                        val normalGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
-                        val speakerOutput = CallAudioRoute.preferredOutput?.type ==
-                            android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER
-                        val startGate = if (whilePlaying)
-                            PhoneMicSegmentPolicy.bargeInThreshold(normalGate, ambientRms, speakerOutput)
-                        else normalGate
-                        if (rms < startGate && !whilePlaying)
-                            ambientRms = ambientRms * 0.86 + rms * 0.14
+                        val startGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
+                        if (rms < startGate) ambientRms = ambientRms * 0.86 + rms * 0.14
                         loudFrames = if (rms >= startGate) loudFrames + 1 else 0
-                        if (loudFrames < PhoneMicSegmentPolicy.startFrames(whilePlaying)) continue
+                        if (loudFrames < 2) continue
                         active = true
                         utteranceFrames = 0
                         peakRms = rms
@@ -139,9 +131,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     val nearlyConstant = PhoneMicSegmentPolicy.stableBackgroundNoise(rollingVariation, rollingRms)
                     steadyFrames = if (nearlyConstant) steadyFrames + 1 else 0
                     rollingRms = rollingRms * 0.72 + rms * 0.28
-                    val endedByStableNoise = PhoneMicSegmentPolicy.canEndFromStationaryNoise(
-                        steadyFrames, utteranceFrames, rms, peakRms,
-                    )
+                    val endedByStableNoise = PhoneMicSegmentPolicy.stationaryNoiseEnded(steadyFrames, utteranceFrames)
                     val finishedBySilence = PhoneMicSegmentPolicy.finishedBySilence(
                         silentFrames, utteranceFrames, endSilenceMs
                     ) || endedByStableNoise
