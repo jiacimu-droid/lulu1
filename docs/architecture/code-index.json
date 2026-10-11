@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:38:06.073244+00:00",
-  "commit": "057c9201dfe965017d59a92cafd72cde3fe14ea2",
+  "generatedAt": "2026-10-11T05:38:23.825493+00:00",
+  "commit": "d806efead67ca69883d873e81f49148acab4f041",
   "branch": "main",
-  "sourceFingerprint": "0f3ca15a2aa75545f5cc2cae55acb8753d7d6606df2fb3d6a4abf32d74f6cb42",
+  "sourceFingerprint": "7bea0455d8ad2cfff7b9ed7e8009207db30473cd55b9e54278463f1ea52716d3",
   "summary": {
     "files": 495,
-    "lines": 105154,
+    "lines": 105155,
     "symbols": 1560
   },
   "symbolIndex": {
@@ -2985,7 +2985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 339
+        "line": 340
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -3943,7 +3943,7 @@
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 310
+        "line": 311
       }
     ],
     "repairInstruction": [
@@ -12246,8 +12246,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 466,
-      "sha256": "9c0d0a64fb73d5f75bc4284cb673610c3979a56dd0fa05dc2b6e148e300daa87",
+      "lines": 467,
+      "sha256": "b0a42b2e780cc79e6a32ff0281c68a16d1ed80928101a9167aeb6fa6052ba4ef",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -12303,11 +12303,11 @@
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 310
+          "line": 311
         },
         {
           "name": "clearCharacter",
-          "line": 339
+          "line": 340
         }
       ]
     },
