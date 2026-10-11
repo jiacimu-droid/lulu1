@@ -345,7 +345,7 @@ internal object AutonomousSocialRuntime {
                 1. 主人不在现场，不能让主人说话、行动、被看见或默认参与。
                 2. 只能引用给出的准确地点、事件和真实家具。不得添加其他物品、食物、天气、声响、小生物、故障或后续结果。
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。
-                4. 真想让用户知道才选 private，以角色自己的口吻主动私聊分享；moment 是公开朋友圈，group 是在真实群里找伙伴聊。只是小事且没分享欲望时选 none，不必每次都通知用户。
+                4. 角色的分享欲是自己的生活动机，不是只在重大事故时才允许：想单独告诉用户可选 private，想给大家看自己的趣事、得意、感动、吐槽、意外发现可选 moment（公开朋友圈），想和实际群友聊天可选 group。公开朋友圈可以只是随手记录一次真实的小情绪或发现，绝非只能用于大事；也不要机械每个事件必发。没有分享欲选 none，可以让真实经历保留在后续记忆和好奇心中。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
                 6. 可选 appraisal.spontaneousBid={"spark":"这次真实现场里突然想到的小趣事","wantedMove":"想和别人发起的一次自然微互动"}；它只是意图，不能改写世界事实。若角色真的决定另做一件有程序执行能力的生活事，可选 appraisal.ownActivity={"stage":"decided","action":"solo_game|reading|digital_world","whyNow":"自己的具体理由",...真实ID参数}。不确定或只是想到时不填 decided；由统一队列等待真实回执。
                 6. 可选 innerLife={"emotion":{"feeling":"感受","cause":"当前实际事件","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"个人愿望","why":"原因","reason":"变化依据"}]}。这次独处经历可以改变情绪和兴趣，不只是换一句状态；没有变化则省略，不编造与用户或其他人的互动。
@@ -419,6 +419,20 @@ internal object AutonomousSocialRuntime {
                 now,
             )
             else -> null
+        }
+        // Immediate impulses use exactly the same receipt-based life queue
+        // as deferred background decisions. No generated post is a real post
+        // until CompanionActionRuntime confirms publication.
+        if (shareResult?.success == true) {
+            CharacterLifeFollowThroughStore.recordAction(
+                characterId, sourceId,
+                when (reaction.shareChannel) {
+                    "moment" -> "moment"
+                    "private" -> "message"
+                    "group" -> "group_message"
+                    else -> "silent"
+                }, true, shareResult.summary,
+            )
         }
         if ((shareResult == null || !shareResult.success) &&
             (!DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
