@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dcf70ce426e7a5d9a7b6525dd0b15d4dc8911041`
+- 基准提交：`f1a25ba72335f642172caa495da187668128fe24`
 - 分支：`main`
-- 已索引文件：509
-- 已索引代码/文本行：107683
-- 已发现符号：1611
+- 已索引文件：510
+- 已索引代码/文本行：107717
+- 已发现符号：1612
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -421,6 +421,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |

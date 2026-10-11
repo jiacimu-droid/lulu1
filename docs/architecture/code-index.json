@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T13:15:23.852080+00:00",
-  "commit": "dcf70ce426e7a5d9a7b6525dd0b15d4dc8911041",
+  "generatedAt": "2026-10-11T13:16:15.855767+00:00",
+  "commit": "f1a25ba72335f642172caa495da187668128fe24",
   "branch": "main",
-  "sourceFingerprint": "996766d0fe9cc30a17054befba45859cd61bac7d16c808b9243badfb82906ccf",
+  "sourceFingerprint": "fddc9cf531b5025cf0bbed263584ac11866e69508d2ecc21da9644851407f611",
   "summary": {
-    "files": 509,
-    "lines": 107683,
-    "symbols": 1611
+    "files": 510,
+    "lines": 107717,
+    "symbols": 1612
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8396,6 +8396,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt",
         "line": 9
+      }
+    ],
+    "CallSpokenHangupPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt",
+        "line": 5
       }
     ],
     "DigitalResidentFurniturePoseTest": [
@@ -17786,6 +17792,17 @@
         {
           "name": "CallSpeechRecordingTest",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt",
+      "lines": 34,
+      "sha256": "9200b54c95dec08d9d4613eeca4e508500c2fd006b31376c261bd71f1de46dcc",
+      "symbols": [
+        {
+          "name": "CallSpokenHangupPolicyTest",
+          "line": 5
         }
       ]
     },
