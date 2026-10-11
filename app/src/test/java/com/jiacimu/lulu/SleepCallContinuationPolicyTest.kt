@@ -25,9 +25,9 @@ class SleepCallContinuationPolicyTest {
 
     @Test fun unattendedSleepCallEndsOnlyAfterDeadlineAndNoAudibleOrUserSpeech() {
         fun canEnd(silence: Long, connected: Boolean = true, enabled: Boolean = true,
-            userSpeaking: Boolean = false, audioBusy: Boolean = false, autoEnd: Boolean = true) =
+            userSpeaking: Boolean = false, audioBusy: Boolean = false) =
             SleepCallContinuationPolicy.shouldQuietlyEnd(silence, connected, enabled,
-                userSpeaking, audioBusy, autoEnd)
+                userSpeaking, audioBusy)
         assertFalse(canEnd(62 * 60_000L, autoEnd = false))
         assertFalse(canEnd(20 * 60_000L))
         assertFalse(canEnd(40 * 60_000L))
