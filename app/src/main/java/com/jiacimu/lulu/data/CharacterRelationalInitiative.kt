@@ -105,6 +105,23 @@ internal object CharacterRelationalInitiative {
         }.trim()
     }
 
+    /**
+     * Short handoff for the second, wording-only step of private chat. It does
+     * not fetch broad memories, rewrite motives, or invent new user preferences.
+     * The primary decision step already chose whether and what to express.
+     */
+    fun expressionHandoff(characterId: String): String {
+        val root = read(characterId)
+        val pending = root.optJSONObject("pending")
+            ?.takeIf { evidenceStillExists(characterId, it.optString("evidenceId")) } ?: return ""
+        return buildString {
+            appendLine("【同一角色尚未实行的私人愿望｜仅用于表达连贯，不是新回复指令】")
+            appendLine("自己此前考虑：${pending.optString("aim").take(130)}")
+            appendLine("缘由：${pending.optString("why").take(150)}")
+            appendLine("这是未执行的想法，不要在回复里伪装已完成，也不要覆盖本轮已确定的言语意图。")
+        }.trim()
+    }
+
     /** Save an optional, bounded intention; success is only taken from the executor. */
     @Synchronized fun recordDecision(
         characterId: String, proposal: JSONObject?, action: String, success: Boolean,
