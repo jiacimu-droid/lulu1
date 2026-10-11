@@ -43,7 +43,10 @@ object CharacterLifeStore {
                 intention.optString("aim"), intention.optString("createdAt"),
                 intention.optString("updatedAt"), intention.optJSONArray("outcomes")?.length() ?: 0,
             )) return
-        root.put("previousIntention", JSONObject(intention.toString())
+        // A dormant generic intention is archived outside the active
+        // prompt-facing previousIntention slot. This stops it from being
+        // mentioned to the model on every later turn.
+        root.put("retiredGenericIntention", JSONObject(intention.toString())
             .put("releaseReason", "长期未推进的泛化初始愿望已自然结束"))
         root.remove("intention")
         save(characterId, root)
