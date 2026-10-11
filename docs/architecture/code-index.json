@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:17:52.552630+00:00",
-  "commit": "ff78384b09f0fad30288fc4352f239cdfe7d6bbb",
+  "generatedAt": "2026-10-11T08:18:10.833125+00:00",
+  "commit": "6efe6e2999e34df22a7b25b38ca700f54bf861cd",
   "branch": "main",
-  "sourceFingerprint": "fcbb1c3f675df5ab5929f3d2d6375cb050b27337d042b3e209234b3e577d0cf8",
+  "sourceFingerprint": "413e6f43d2cd00a78e01cdfc7c486b51a1a147576723d99feedc2287a9f514bb",
   "summary": {
     "files": 500,
-    "lines": 106332,
+    "lines": 106349,
     "symbols": 1585
   },
   "symbolIndex": {
@@ -17723,8 +17723,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt",
-      "lines": 41,
-      "sha256": "421155735477ac33605509ee6786bf2ae953d62644f8c797149cf1feb3af12ec",
+      "lines": 58,
+      "sha256": "cdb529495fbbce129d459fe289562eabc1eea183fd61343ae8254b816dfaaf8b",
       "symbols": [
         {
           "name": "SystemSpeechTurnPolicyTest",
