@@ -339,6 +339,7 @@ internal object AutonomousSocialRuntime {
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。
                 4. 真想让用户知道才选 private，以角色自己的口吻主动私聊分享；moment 是公开朋友圈，group 是在真实群里找伙伴聊。只是小事且没分享欲望时选 none，不必每次都通知用户。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
+                6. 可选 appraisal.spontaneousBid={"spark":"这次真实现场里突然想到的小趣事","wantedMove":"想和别人发起的一次自然微互动"}；它只是意图，不能改写世界事实。若角色真的决定另做一件有程序执行能力的生活事，可选 appraisal.ownActivity={"stage":"decided","action":"solo_game|reading|digital_world","whyNow":"自己的具体理由",...真实ID参数}。不确定或只是想到时不填 decided；由统一队列等待真实回执。
                 6. 可选 innerLife={"emotion":{"feeling":"感受","cause":"当前实际事件","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"个人愿望","why":"原因","reason":"变化依据"}]}。这次独处经历可以改变情绪和兴趣，不只是换一句状态；没有变化则省略，不编造与用户或其他人的互动。
                 ${CharacterDecisionProtocol.principles}
             """.trimIndent(),
@@ -360,6 +361,17 @@ internal object AutonomousSocialRuntime {
         val sourceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         CharacterInnerLifeStore.observe(characterId, sourceId, tick.summary, reaction.innerLife, emptySet(), now)
         CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reaction.innerThought, now)
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = characterId, evidenceId = sourceId,
+            appraisal = reaction.appraisal, innerLife = reaction.innerLife,
+            innerThoughtBasis = null,
+            selectedAction = when (reaction.shareChannel) {
+                "private" -> "message"
+                "group" -> "group_message"
+                else -> "silent"
+            }, innerThought = reaction.innerThought,
+            reason = "自己亲历了数字世界里的真实小事", now = now,
+        )
         val provenanceId = "world-incident-reaction-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         CompanionPresenceStore.update(
             characterId = characterId,
@@ -370,6 +382,10 @@ internal object AutonomousSocialRuntime {
             source = "数字世界事件反应",
             now = now,
             provenanceId = provenanceId,
+            momentReflection = CharacterMomentSnapshot.reflection(
+                reaction.innerLife, appraisal = reaction.appraisal,
+                outward = reaction.shareText, innerThought = reaction.innerThought,
+            ),
         )
 
         val shareResult = when (reaction.shareChannel) {
@@ -426,6 +442,7 @@ internal object AutonomousSocialRuntime {
             shareText = json.optString("shareText").trim().take(2_000),
             groupId = json.optString("groupId").trim(),
             innerLife = json.optJSONObject("innerLife"),
+            appraisal = json.optJSONObject("appraisal"),
         )
     }.getOrNull()
 
@@ -490,6 +507,7 @@ internal object AutonomousSocialRuntime {
         val shareText: String,
         val groupId: String,
         val innerLife: JSONObject? = null,
+        val appraisal: JSONObject? = null,
     )
 
     private data class GeneratedTurn(
