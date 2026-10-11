@@ -114,7 +114,7 @@ class CharacterDecisionProtocolTest {
             commonGroundChanged = false, privateResidue = true, fingerprint = "mixed-1",
         )
         val thought = "我其实很想把这个玩笑接下去，但她刚才那句又让我拿不准。我也不是真的非要逗她笑，只是脑子里突然冒出了一个念头，觉得会很有趣。" +
-            "现在想想，或许先看她还有没有继续聊的兴致会更好。不过这不意味着我真的想把这份好奇压下去，我只是还没决定。"
+            "现在想想，或许先看她还有没有继续聊的兴致会更好。不过这不意味着我真的想把这份好奇压下去，我只是还没决定。其实我也有点不服气，明明是件小事，我为什么非要想那么多？可再往下想，又觉得这种迟疑确实和我们刚才发生的事有关。也许我最后还是会忍不住接那个梗。"
         assertTrue(thought.length > 140)
         val layered = CharacterHeartVoicePolicy.keepOrBlank(
             thought = thought, innerLife = inner, basis = basis, delta = delta, hasFreshEvidence = true)
