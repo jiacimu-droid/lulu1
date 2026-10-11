@@ -412,8 +412,9 @@ object ProactivePerceptionRuntime {
         // call-end/world encounter must never run a paid pre-action reflection
         // ahead of the user's actual unanswered message, or turn its failure
         // into an empty/SILENT chat response.
-        val userWaitingForReply = onlineUnread.text.isNotBlank() ||
-            pendingUserContext.isNotBlank()
+        val userWaitingForReply = !CharacterCausalAppraisalStage.canAppraiseBeforeAction(
+            onlineUnread.text, pendingUserContext,
+        )
         val awaitingCausalAppraisal = if (userWaitingForReply) null else
             CharacterCausalAppraisalStage.latestPending(observedWorld)
                 ?.takeIf { event ->
