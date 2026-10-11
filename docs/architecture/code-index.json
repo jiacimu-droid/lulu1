@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:57:43.785050+00:00",
-  "commit": "86f4e8346d3518c282714542c448c96988470763",
+  "generatedAt": "2026-10-11T07:15:37.657842+00:00",
+  "commit": "15c5aaa5dd413514134d559b7e398a0929e32d85",
   "branch": "main",
-  "sourceFingerprint": "eb31b8161f44243ce961e8c9f2a4b14a37994f98c22213662b404b0cb25bfd21",
+  "sourceFingerprint": "960c6de8e0a47146b1bcebab38261d40f4d9f107b0e39a170885b23558004bfc",
   "summary": {
-    "files": 498,
-    "lines": 105737,
-    "symbols": 1567
+    "files": 499,
+    "lines": 105880,
+    "symbols": 1574
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -310,6 +310,10 @@
         "line": 1129
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 85
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
         "line": 574
       },
@@ -466,6 +470,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt",
@@ -2978,6 +2986,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
         "line": 218
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 62
       }
     ],
     "invalidateEvidenceForAll": [
@@ -3182,6 +3194,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
         "line": 539
+      }
+    ],
+    "register": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 47
+      }
+    ],
+    "hasOpenOpportunity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 81
+      }
+    ],
+    "recordShareWish": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 113
+      }
+    ],
+    "recordAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 127
       }
     ],
     "CharacterLifeStore": [
@@ -11490,6 +11526,41 @@
         {
           "name": "context",
           "line": 1129
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+      "lines": 143,
+      "sha256": "21d7a08b91e77828173d34f83ae48240aeffa7e2447e53b17426f8eb7954e1c7",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 22
+        },
+        {
+          "name": "register",
+          "line": 47
+        },
+        {
+          "name": "invalidateEvidence",
+          "line": 62
+        },
+        {
+          "name": "hasOpenOpportunity",
+          "line": 81
+        },
+        {
+          "name": "context",
+          "line": 85
+        },
+        {
+          "name": "recordShareWish",
+          "line": 113
+        },
+        {
+          "name": "recordAction",
+          "line": 127
         }
       ]
     },
