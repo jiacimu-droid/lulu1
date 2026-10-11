@@ -102,7 +102,12 @@ internal object LuluVoiceCallSession {
     private var sleepContinuationJob: Job? = null
     private var systemUtteranceBuffer = ""
     private var systemPartialCandidate = ""
+    // VAD's onset is untrusted; text makes a user utterance real.
+    private var systemSpeechConfirmed = false
+    private var providerSpeechConfirmed = false
     private var userSpeechInProgress = false
+    private fun confirmedSpeechInProgress() = userSpeechInProgress &&
+        (systemSpeechConfirmed || providerSpeechConfirmed)
     private var providerSpeechStartedMillis = 0L
     private var providerRecognitionPendingUntilMillis = 0L
     private var sleepFailures = 0
@@ -282,13 +287,18 @@ internal object LuluVoiceCallSession {
 
     fun toggleMicrophone() {
         val nextMuted = !mutableState.value.microphoneMuted
+        // A mute click means "I'm done"—freeze the recognizer's last words.
+        val pendingSystemSpeech = if (nextMuted && realtime == null && providerInput == null)
+            PhoneTranscriptAssembler.combine(systemUtteranceBuffer, systemPartialCandidate).trim()
+        else ""
         mutableState.update {
             it.copy(
                 microphoneMuted = nextMuted,
                 userSpeaking = if (nextMuted) false else it.userSpeaking,
                 listening = if (nextMuted) false else it.listening,
                 inputLevel = if (nextMuted) 0f else it.inputLevel,
-                partialTranscript = if (nextMuted) "" else it.partialTranscript,
+                partialTranscript = if (nextMuted && providerInput == null &&
+                    pendingSystemSpeech.isBlank()) "" else it.partialTranscript,
                 statusMessage = when {
                     nextMuted && realtime != null -> "实时线路已静音；麦克风是否释放取决于 ElevenLabs SDK"
                     nextMuted -> "麦克风已释放，可在其他应用语音输入"
@@ -305,6 +315,8 @@ internal object LuluVoiceCallSession {
         }
         if (nextMuted) {
             userSpeechInProgress = false
+            systemSpeechConfirmed = false
+            providerSpeechConfirmed = false
             // "Muted" is a real capture shutdown, not zeroing input frames
             // while retaining AudioRecord and globally silencing other apps.
             restartListeningJob?.cancel()
@@ -314,6 +326,9 @@ internal object LuluVoiceCallSession {
             recognizer?.destroy()
             recognizer = null
             audioRoute?.stop()
+            if (pendingSystemSpeech.isNotBlank()) {
+                handleUserSpeech(pendingSystemSpeech, allowWhileMuted = true)
+            } else if (mutableState.value.sleepMode) scheduleSleepContinuation()
         } else {
             audioRoute?.start()
             audioRoute?.refresh()
@@ -374,7 +389,7 @@ internal object LuluVoiceCallSession {
                     sinceUserReplyMillis = sleepSilenceMillis(),
                     connected = now.connected,
                     sleepMode = now.sleepMode,
-                    userSpeaking = userSpeechInProgress,
+                    userSpeaking = confirmedSpeechInProgress(),
                     audioInProgress = now.speaking || speechQueue?.hasPendingAudio == true,
                 )) {
                 endSleepCallOnSilence()
@@ -386,7 +401,7 @@ internal object LuluVoiceCallSession {
                     thinking = now.thinking,
                     speaking = now.speaking || speechQueue?.hasPendingAudio == true,
                     opening = now.opening,
-                    userSpeaking = userSpeechInProgress,
+                    userSpeaking = confirmedSpeechInProgress(),
                     realtime = realtime != null,
                 )) return@launch
             // Empty userText means no user utterance occurred. The next subject
@@ -659,10 +674,11 @@ internal object LuluVoiceCallSession {
                     systemCommitJob?.cancel()
                     systemCommitJob = null
                     systemPartialCandidate = ""
+                    systemSpeechConfirmed = false
                     userSpeechInProgress = true
-                    noteCallUserActivity()
-                    sleepContinuationJob?.cancel()
-                    mutableState.update { it.copy(userSpeaking = true, statusMessage = "听到了，你继续说") }
+                    // A fan can trip Android's onBeginningOfSpeech. Do not
+                    // block sleep-mode or interrupt TTS before actual words.
+                    mutableState.update { it.copy(userSpeaking = false, statusMessage = "收音中，等待确认语音…") }
                 }
 
                 override fun onRmsChanged(rmsdB: Float) = Unit
@@ -670,12 +686,16 @@ internal object LuluVoiceCallSession {
                 override fun onEndOfSpeech() {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = false
+                    systemSpeechConfirmed = false
                     mutableState.update { it.copy(userSpeaking = false, listening = false, statusMessage = "正在识别你的语音…") }
+                    if (systemUtteranceBuffer.isBlank() && systemPartialCandidate.isBlank())
+                        scheduleSleepContinuation()
                 }
 
                 override fun onError(error: Int) {
                     if (!mutableState.value.connected || mutableState.value.opening) return
                     userSpeechInProgress = false
+                    systemSpeechConfirmed = false
                     recognitionActive = false
                     mutableState.update { it.copy(userSpeaking = false) }
                     // An Android recognizer can error at a short pause even
@@ -735,6 +755,7 @@ internal object LuluVoiceCallSession {
                         return
                     }
                     userSpeechInProgress = false
+                    systemSpeechConfirmed = false
                     recognitionActive = false
                     mutableState.update { it.copy(userSpeaking = false) }
                     val finals = results
@@ -784,7 +805,14 @@ internal object LuluVoiceCallSession {
                         ?.firstOrNull()
                         .orEmpty()
                     systemPartialCandidate = partial
-                    if (partial.trim().length >= 2) interruptSystemReplyForSpeech()
+                    if (partial.trim().length >= 2) {
+                        if (!systemSpeechConfirmed) {
+                            systemSpeechConfirmed = true
+                            noteCallUserActivity()
+                            sleepContinuationJob?.cancel()
+                        }
+                        interruptSystemReplyForSpeech()
+                    }
                     mutableState.update {
                         it.copy(partialTranscript = PhoneTranscriptAssembler.combine(systemUtteranceBuffer, partial))
                     }
@@ -865,7 +893,7 @@ internal object LuluVoiceCallSession {
             delay(delayMillis)
             val current = mutableState.value
             if (!current.connected || current.callExperienceId != sessionId ||
-                current.thinking || current.speaking || current.opening || userSpeechInProgress) {
+                current.thinking || current.speaking || current.opening || confirmedSpeechInProgress()) {
                 // Retain the draft rather than silently losing an already
                 // recognized utterance when another state briefly won the race.
                 return@launch
@@ -884,6 +912,7 @@ internal object LuluVoiceCallSession {
         systemCommitJob = null
         systemUtteranceBuffer = ""
         systemPartialCandidate = ""
+        systemSpeechConfirmed = false
     }
 
     private fun startOpening() {
@@ -903,7 +932,7 @@ internal object LuluVoiceCallSession {
         val current = mutableState.value
         if (!current.connected || (realtime != null && !autonomousSilence) ||
             (!opening && !autonomousSleep && !autonomousSilence && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
-            (autonomousSleep && (!current.sleepMode || userSpeechInProgress || current.thinking ||
+            (autonomousSleep && (!current.sleepMode || confirmedSpeechInProgress() || current.thinking ||
                 current.speaking || speechQueue?.hasPendingAudio == true || current.opening))) return
         if (autonomousSilence && (current.sleepMode || userSpeechInProgress || current.thinking ||
             current.speaking || speechQueue?.hasPendingAudio == true || current.opening)) return
@@ -1180,14 +1209,14 @@ internal object LuluVoiceCallSession {
             onSpeech = {
                 if (sameSession()) {
                     userSpeechInProgress = true
+                    providerSpeechConfirmed = false
                     providerSpeechStartedMillis = SystemClock.elapsedRealtime()
-                    noteCallUserActivity()
-                    sleepContinuationJob?.cancel()
+                    // VAD alone may be static/noise; wait for real STT text.
                     // Do not cancel a real in-flight model reply merely because
                     // room noise tripped VAD. Confirm a new user utterance from
                     // STT before replacing the previous reply.
-                    mutableState.update { it.copy(userSpeaking = true, listening = true, errorMessage = "", partialTranscript = "",
-                        statusMessage = "检测到语音，正在收音…") }
+                    mutableState.update { it.copy(userSpeaking = false, listening = true, errorMessage = "", partialTranscript = "",
+                        statusMessage = "收音中，正在确认是否有人声…") }
                 }
             },
             onCaptureFinished = {
@@ -1199,10 +1228,18 @@ internal object LuluVoiceCallSession {
                     mutableState.update { it.copy(userSpeaking = false) }
                 }
             },
-            onPartial = { text -> if (sameSession()) mutableState.update { it.copy(partialTranscript = text) } },
+            onPartial = { text -> if (sameSession()) {
+                if (text.trim().isNotBlank() && !providerSpeechConfirmed) {
+                    providerSpeechConfirmed = true
+                    noteCallUserActivity()
+                    sleepContinuationJob?.cancel()
+                }
+                mutableState.update { it.copy(partialTranscript = text, userSpeaking = false) }
+            } },
             onText = { text ->
                 if (sameSession()) {
                     userSpeechInProgress = false
+                    providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
                     providerRecognitionPendingUntilMillis = 0L
                     mutableState.update { it.copy(userSpeaking = false) }
@@ -1226,6 +1263,7 @@ internal object LuluVoiceCallSession {
             } },
             onError = { error -> if (sameSession()) {
                 userSpeechInProgress = false
+                providerSpeechConfirmed = false
                 providerSpeechStartedMillis = 0L
                 providerRecognitionPendingUntilMillis = 0L
                 scheduleSleepContinuation()
