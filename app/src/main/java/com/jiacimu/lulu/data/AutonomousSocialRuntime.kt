@@ -383,6 +383,7 @@ internal object AutonomousSocialRuntime {
             innerThoughtBasis = null,
             selectedAction = when (reaction.shareChannel) {
                 "private" -> "message"
+                "moment" -> "moment"
                 "group" -> "group_message"
                 else -> "silent"
             }, innerThought = reaction.innerThought,
@@ -431,6 +432,21 @@ internal object AutonomousSocialRuntime {
         // Immediate impulses use exactly the same receipt-based life queue
         // as deferred background decisions. No generated post is a real post
         // until CompanionActionRuntime confirms publication.
+        if (shareResult != null) {
+            CharacterInnerLifeStore.recordDecision(
+                characterId = characterId,
+                decisionId = "world-sharing:$sourceId:${reaction.shareChannel}",
+                selectedAction = when (reaction.shareChannel) {
+                    "private" -> "message"
+                    "group" -> "group_message"
+                    else -> "moment"
+                },
+                reason = "自己亲历了这件事，并选择是否把它分享出去",
+                chosenMotiveId = "", alternatives = null,
+                outcome = shareResult.summary, succeeded = shareResult.success,
+                now = now, causalEvidenceId = sourceId,
+            )
+        }
         if (shareResult?.success == true) {
             CharacterLifeFollowThroughStore.recordAction(
                 characterId, sourceId,
