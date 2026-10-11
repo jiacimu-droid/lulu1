@@ -64,6 +64,24 @@ internal object CharacterGrowthTrajectory {
         }.trim()
     }
 
+    /** Only substantive decisions, not each conversational appraisal, count as
+     * a traceable turning point. The proposal is the model's own stated view,
+     * not an exposure of any hidden model reasoning.
+     */
+    internal fun isSignificantInnerChange(entry: org.json.JSONObject): Boolean {
+        if (entry.optString("selectedAction") == "emotional_imprint") return true
+        val delta = entry.optJSONObject("stateDelta")
+        val correction = delta?.optString("selfCorrection").orEmpty()
+        val social = delta?.optJSONObject("social")?.optString("interpretation").orEmpty()
+        val motives = delta?.optInt("motiveChanges", 0) ?: 0
+        val thoughts = delta?.optInt("thoughtChanges", 0) ?: 0
+        val appraisal = entry.optJSONObject("appraisal")
+        val alternatives = entry.optJSONArray("consideredAlternatives")
+        return correction.isNotBlank() || social.isNotBlank() || motives > 0 ||
+            thoughts > 0 || appraisal?.optString("tension").orEmpty().isNotBlank() ||
+            (alternatives?.length() ?: 0) > 0
+    }
+
     fun entries(characterId: String, now: Instant = Instant.now()): List<CharacterGrowthTrace> {
         val result = mutableListOf<CharacterGrowthTrace>()
         // The visual trajectory is permanent until the source is deleted:
@@ -82,22 +100,40 @@ internal object CharacterGrowthTrajectory {
         val transitions = mind.optJSONArray("causalTransitions")
         for (i in 0 until (transitions?.length() ?: 0)) {
             val entry = transitions?.optJSONObject(i) ?: continue
-            // Ordinary internal micro-decisions are not "growth". The trace
-            // shows real exceptional reflections, existing concerns and
-            // verified accumulated changes separately.
-            if (entry.optString("selectedAction") != "emotional_imprint") continue
+            // Real replies, voice, meetings and autonomous actions can form
+            // a meaningful private change in the SAME decision call. A routine
+            // greeting's "meaning" or generic reason is not growth.
+            if (!isSignificantInnerChange(entry)) continue
             val evidence = entry.optString("evidenceId")
+            // A composite perception ID is not a raw event. Never show an
+            // unverifiable experience as a confirmed personal milestone.
             if (SharedExperienceTimeline.eventsByIds(characterId, listOf(evidence)).isEmpty()) continue
             val time = runCatching { Instant.parse(entry.optString("at")) }.getOrNull() ?: continue
             if (time.isAfter(now)) continue
-            val reason = entry.optString("reason").take(230)
-            val own = entry.optString("innerThought").take(210)
-            if (reason.isBlank() && own.isBlank()) continue
+            val delta = entry.optJSONObject("stateDelta")
+            val appraisal = entry.optJSONObject("appraisal")
+            val correction = delta?.optString("selfCorrection").orEmpty().take(190)
+            val tension = appraisal?.optString("tension").orEmpty().take(180)
+            val own = entry.optString("innerThought").take(190)
+            val interpretation = delta?.optJSONObject("social")?.optString("interpretation").orEmpty().take(180)
+            val alternatives = entry.optJSONArray("consideredAlternatives")
+            val considered = (0 until minOf(alternatives?.length() ?: 0, 2))
+                .mapNotNull { alternatives?.optJSONObject(it)?.optString("idea")?.takeIf(String::isNotBlank) }
+            val meaning = appraisal?.optString("meaning").orEmpty().take(200)
+            val details = listOfNotNull(
+                correction.takeIf(String::isNotBlank)?.let { "想调整：$it" },
+                tension.takeIf(String::isNotBlank)?.let { "仍在权衡：$it" },
+                interpretation.takeIf(String::isNotBlank)?.let { "关系理解：$it" },
+                own.takeIf(String::isNotBlank)?.let { "没说出口：$it" },
+                considered.takeIf(List<String>::isNotEmpty)?.let { "曾考虑：${it.joinToString("／")}" },
+                meaning.takeIf { delta != null && it.isNotBlank() }?.let { "如何看待：$it" },
+            ).joinToString("\n").take(500)
+            if (details.isBlank()) continue
             result += CharacterGrowthTrace(time,
-                if (entry.optString("selectedAction") == "emotional_imprint") "私人经历回望" else "一次真实心理转变",
-                listOf(reason, own.takeIf(String::isNotBlank)?.let { "没说出口：$it" })
-                    .filterNotNull().filter(String::isNotBlank).joinToString("\n"),
-                evidence, "反思")
+                if (correction.isNotBlank()) "当次决定调整做法"
+                else if (entry.optString("selectedAction") == "emotional_imprint") "旧版事后反思"
+                else "当次形成的私人想法",
+                details, evidence, "反思")
         }
         for (kind in listOf("openConcerns", "closedConcerns")) {
             val arr = mind.optJSONArray(kind)
