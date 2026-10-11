@@ -41,6 +41,7 @@ object CharacterRecordReset {
         CharacterDevelopmentStore.clearCharacter(cleanId)
         CharacterLifeStore.clearHistory(cleanId)
         CharacterCuriosityRuntime.clear(cleanId)
+        CharacterRelationalInitiative.clear(cleanId)
         CharacterInnerLifeStore.clear(cleanId)
         PerceptionStimulusLedger.clear(cleanId)
         CompanionPresenceStore.clearCharacter(cleanId)
