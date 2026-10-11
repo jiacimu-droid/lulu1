@@ -35,11 +35,13 @@ data class SharedTimelineEvent(
 object SharedExperienceTimeline {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var helper: TimelineDatabase? = null
+    private var applicationContext: Context? = null
 
     @Synchronized
     fun initialize(context: Context) {
         if (helper != null) return
         val application = context.applicationContext
+        applicationContext = application
         helper = TimelineDatabase(application)
         helper?.writableDatabase
         MemoryExtractionJobStore.initialize(application)
@@ -52,6 +54,9 @@ object SharedExperienceTimeline {
                 recordConversationMessage(conversation, message, triggerExtraction = false)
             }
         }
+        // Backfilled evidence precedes this recovery. It does not fabricate any
+        // earlier learning or resend previously spoken words.
+        applicationContext?.let(CharacterEmotionalImprintRuntime::recoverRecent)
     }
 
     fun recordConversationMessage(
