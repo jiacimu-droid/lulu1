@@ -973,9 +973,10 @@ object ProactivePerceptionRuntime {
             },
             now,
         )
-        // Reading a user's message and choosing a private activity is not
-        // equivalent to DELIVERING a reply. A failed/no-op/truncated action
-        // must never advance their unread cursor.
+        // Perceiving a message is NOT the same as delivering a reply.
+        // A consciously quiet character has still *seen* the words; leaving
+        // these eternally unread caused the online-life worker to abort every
+        // follow-up pulse. Parsing failure and executor failure remain unread.
         val deliveredToWaitingConversation = execution.success && when (decision.action) {
             Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER ->
@@ -983,7 +984,15 @@ object ProactivePerceptionRuntime {
                     execution.conversationId in onlineUnread.conversationIds
             else -> false
         }
-        if (onlineUnread.text.isBlank() || deliveredToWaitingConversation) {
+        val choseOtherLifeAction = execution.success && decision.action !in setOf(
+            Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
+            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
+        )
+        val deliberatelyQuiet = decision.action == Action.SILENT
+        if (onlineUnread.text.isBlank() || deliveredToWaitingConversation ||
+            choseOtherLifeAction || deliberatelyQuiet) {
+            // Retain unanswered actual user speech in the raw timeline and
+            // next turn's "待回复" context. Do not fabricate a sent message.
             CompanionOnlineStore.markSeen(characterId, onlineUnread)
         } else if (onlineUnread.text.isNotBlank() && !execution.success &&
             decision.action != Action.SILENT) {
