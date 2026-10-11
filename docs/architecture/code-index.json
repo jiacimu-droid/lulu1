@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:07:48.249279+00:00",
-  "commit": "c62c305d6a3c5237959aa0e43b04b2a9619ad693",
+  "generatedAt": "2026-10-11T16:08:11.774389+00:00",
+  "commit": "2ec6daac948e5e107d93325afcccebbed9853b7b",
   "branch": "main",
-  "sourceFingerprint": "8e99bd5b43a4f873638cb93f49b6f9795bfb24000c2ee6a2c42a8de447a0a80a",
+  "sourceFingerprint": "eeb787e88616bb1c13a6d4b30016f947938f7ca7eb11e567db3b8af56fe5bd52",
   "summary": {
-    "files": 511,
-    "lines": 108024,
-    "symbols": 1616
+    "files": 512,
+    "lines": 108046,
+    "symbols": 1617
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8810,6 +8810,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
         "line": 13
+      }
+    ],
+    "ChatAutomationRoutingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
+        "line": 5
       }
     ],
     "CommitmentCallRetryPolicyTest": [
@@ -18509,6 +18515,17 @@
         {
           "name": "CharacterVoicePreferenceStoreTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
+      "lines": 22,
+      "sha256": "0fa7244589472e7ce1fdc701ddd7486b9ebfa9099e6d4d6d8efcab6d77a35baa",
+      "symbols": [
+        {
+          "name": "ChatAutomationRoutingTest",
+          "line": 5
         }
       ]
     },
