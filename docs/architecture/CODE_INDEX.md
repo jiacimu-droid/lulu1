@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2940788e9e1b0081dacf79318c6f03aaa7b9a10a`
+- 基准提交：`f37ee4004879c3ef3788ea103cbb7348d36547f3`
 - 分支：`main`
 - 已索引文件：502
-- 已索引代码/文本行：106627
-- 已发现符号：1588
+- 已索引代码/文本行：106647
+- 已发现符号：1589
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -140,7 +140,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 188 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 146 | 30 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 72 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 92 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 60 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 574 | 0 |

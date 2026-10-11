@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T09:06:47.013167+00:00",
-  "commit": "2940788e9e1b0081dacf79318c6f03aaa7b9a10a",
+  "generatedAt": "2026-10-11T09:09:11.753489+00:00",
+  "commit": "f37ee4004879c3ef3788ea103cbb7348d36547f3",
   "branch": "main",
-  "sourceFingerprint": "a2627b0d1875c89f6cd7fddee6f7f6574f9d21783896e7ddac5e998ff9f22bd4",
+  "sourceFingerprint": "a3ed1fb1f4c3d487c3975d102940308b200ea1cd569ff102b5d8d5359fbf4ac6",
   "summary": {
     "files": 502,
-    "lines": 106627,
-    "symbols": 1588
+    "lines": 106647,
+    "symbols": 1589
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2634,16 +2634,22 @@
         "line": 142
       }
     ],
+    "newestExecutedEvidence": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 18
+      }
+    ],
     "signature": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 12
+        "line": 31
       }
     ],
     "clean": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 25
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
@@ -2653,7 +2659,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 38
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
@@ -11160,20 +11166,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-      "lines": 72,
-      "sha256": "c247a15fe1cd879012e4262c3dbc1d2d8dbfdb3570c0af1b970be943ef81620a",
+      "lines": 92,
+      "sha256": "5014e64a622a762188fedefdb18b1b14e4df40e49fe2ef367f6314299d1fbc23",
       "symbols": [
         {
+          "name": "newestExecutedEvidence",
+          "line": 18
+        },
+        {
           "name": "signature",
-          "line": 12
+          "line": 31
         },
         {
           "name": "clean",
-          "line": 25
+          "line": 45
         },
         {
           "name": "render",
-          "line": 38
+          "line": 58
         }
       ]
     },
@@ -14425,7 +14435,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 1253,
-      "sha256": "2671d5f060af476be3834eabe29e145410f5ed79352f0408080bf99ea4469122",
+      "sha256": "418000934c2ab3d0cece1ecaa089156a53a5662016107c59ae23427d4328646b",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
