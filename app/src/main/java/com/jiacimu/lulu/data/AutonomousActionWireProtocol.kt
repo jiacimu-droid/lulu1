@@ -3,53 +3,61 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 
 /**
- * Bridge one autonomous choice to the names accepted by ToolRouter.
- * The model can use the friendly action enum OR an actual registered tool
- * name. A real tool choice must never degrade into a fake 'silent' action.
- *
- * Parsing never executes a tool. ToolRouter still verifies permissions, IDs
- * and real-world preconditions before recording success.
+ * Keep friendly autonomous action names and registered app-tool names on the
+ * SAME receipt path. A 'send_private_message' must still count as a MESSAGE,
+ * so unread cursors, notifications, delivery links and growth all recognize
+ * real execution rather than recording it as an opaque generic tool.
  */
 internal object AutonomousActionWireProtocol {
-    private val toolNames = setOf(
-        "send_private_message", "send_group_message",
-        "send_private_sticker", "send_group_sticker",
-        "send_game_invite", "play_solo_game",
-        "send_world_invite", "publish_moment", "start_call",
-        "write_journal", "read_book", "digital_world_action",
-        "set_user_remark", "set_self_nickname",
+    private val friendlyActionForTool = mapOf(
+        "send_private_message" to "message",
+        "send_group_message" to "group_message",
+        "send_private_sticker" to "sticker",
+        "send_group_sticker" to "group_sticker",
+        "send_game_invite" to "game_invite",
+        "play_solo_game" to "solo_game",
+        "send_world_invite" to "world_invite",
+        "publish_moment" to "moment",
+        "start_call" to "call",
+        "write_journal" to "journal",
+        "read_book" to "reading",
+        "digital_world_action" to "digital_world",
+        "set_user_remark" to "user_remark",
+        "set_self_nickname" to "self_nickname",
     )
-    private val topLevelArguments = setOf(
-        "text", "groupId", "stickerId", "gameId", "location",
+    private val argumentKeys = setOf(
+        "text", "groupId", "stickerId", "gameId", "location", "locationCode",
         "readingBookId", "worldAction", "itemId", "activityId",
         "incidentId", "approach", "targetCharacterId",
         "title", "content", "nickname", "name", "appearance",
-        "position", "itemType",
+        "position", "itemType", "journalTitle", "journalContent",
     )
 
     fun normalize(original: JSONObject): JSONObject {
         val result = JSONObject(original.toString())
-        val action = result.optString("action").trim().lowercase()
+        val specified = result.optString("action").trim().lowercase()
+        val toolName = if (specified == "tool")
+            result.optString("tool").trim().lowercase() else specified
+        val friendly = friendlyActionForTool[toolName]
+        if (friendly != null) result.put("action", friendly)
         val nested = result.optJSONObject("args")
-        if (action in toolNames) {
-            val args = JSONObject()
-            topLevelArguments.forEach { key ->
-                if (nested?.has(key) == true) args.put(key, nested.opt(key))
-                else if (result.has(key)) args.put(key, result.opt(key))
-            }
-            result.put("action", "tool")
-                .put("tool", action)
-                .put("args", args)
-        } else if (nested != null) {
-            // 'reading' and 'journal' use the human-friendly action names,
-            // but JSON clients sometimes place parameters inside args.
-            topLevelArguments.forEach { key ->
-                if (!result.has(key) && nested.has(key)) result.put(key, nested.opt(key))
+        if (nested != null) {
+            argumentKeys.forEach { key ->
+                if ((!result.has(key) || result.optString(key).isBlank()) && nested.has(key)) {
+                    result.put(key, nested.opt(key))
+                }
             }
         }
+        // Two wire spellings for public-place destination.
+        if (result.optString("action").equals("digital_world", true) &&
+            result.optString("location").isBlank() && result.optString("locationCode").isNotBlank()) {
+            result.put("location", result.optString("locationCode"))
+        }
         if (result.optString("action").equals("journal", true)) {
-            if (!result.has("journalTitle")) result.put("journalTitle", result.optString("title"))
-            if (!result.has("journalContent")) result.put("journalContent", result.optString("content"))
+            if (result.optString("journalTitle").isBlank())
+                result.put("journalTitle", result.optString("title"))
+            if (result.optString("journalContent").isBlank())
+                result.put("journalContent", result.optString("content"))
         }
         return result
     }
