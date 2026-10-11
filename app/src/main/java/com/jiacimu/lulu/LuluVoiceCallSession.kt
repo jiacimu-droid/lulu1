@@ -744,7 +744,9 @@ internal object LuluVoiceCallSession {
                     if (!mutableState.value.connected || mutableState.value.opening ||
                         mutableState.value.microphoneMuted) return
                     userSpeechInProgress = false
-                    systemSpeechConfirmed = false
+                    // Keep confirmation until onResults/onError: Android emits
+                    // onEndOfSpeech BEFORE its final result and sometimes errors
+                    // instead. Clearing it here discarded valid partial words.
                     mutableState.update { it.copy(userSpeaking = false, listening = false, statusMessage = "正在识别你的语音…") }
                     if (systemUtteranceBuffer.isBlank() && systemPartialCandidate.isBlank())
                         scheduleSleepContinuation()
