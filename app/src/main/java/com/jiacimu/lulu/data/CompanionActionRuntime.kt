@@ -407,7 +407,8 @@ internal object CompanionActionRuntime {
                 可选 innerLife:{"emotion":{"feeling":"真实情绪","cause":"实际读到的具体内容","strength":2},"thoughts":[{"thought":"自己的一个想法","impulse":"读后可能想做什么","hesitation":"不这样做的顾虑"}]}；只在真实触动时填，允许相反的想法共存，不必硬凑。
                 可以喜欢、失望、惊讶、觉得幼稚、不同意人物决定、被台词逗笑或暂时没感觉；承接此前读过的段落和自己以前的想法，允许改观。
                 小说只是文化接触、审美经验和观察别人的语言表达，不是你亲身扮演书中角色、经历书中情节。看到有趣说法可以好奇、记下、尝试自用或者觉得别扭；绝不能阅读一次就突然长期改掉自己的说话风格。
-                反应不是必须写给用户的报告。若读后真实想继续、写日记、与熟人聊天、在朋友圈谈到某个感受或暂时独处，可以形成后续愿望；必须以后有实际执行才算做过。
+                读完书的角色也有独立的分享欲：因为书里某个真读过的片段觉得好玩、感动、好奇、想吐槽时，可以自然想告诉用户，或想发一条公开朋友圈让熟人都看到，也可能不想说。这不是必须写给用户的报告，也不是每读一段必须发圈。若本轮确实想晚些分享，可选 shareWish={"status":"held","why":"自己具体想分享的原因"}；只是未实行的内心决定，程序随后会提供一次独立选择 private/moment/group 的机会，不会直接发布。
+                真实读到具体内容后若有新的好奇，可选 curiosity={"topic":"想弄清楚的主题","question":"下一步想知道什么","why":"刚才真实读到的段落为什么引起好奇","nextStep":"能实际做什么"}。有书可继续读、也可以暂停和放下；没采取行动不声称读完或研究过。反应不是必须写给用户的报告。
                 如果因此产生或改变了持续愿望，intention 可使用当前角色上下文给出的动机格式；已有愿望的更新必须含 disposition=update、准确 id、aim、motive、reason，放下用 release。
                 不需要每次形成新愿望，不把书中故事当亲历。只返回 JSON，不要代码块。
             """.trimIndent(),
@@ -458,6 +459,17 @@ internal object CompanionActionRuntime {
             occurredAt = now,
             source = "reading:${slice.book.id}",
             sessionId = record.id,
+        )
+        // This is a lived reading RECEIPT, unlike thinking about a book.
+        // Carry a possible share desire and curiosity into the same cross-scene
+        // follow-through store used for digital-world incidents.
+        response.optJSONObject("shareWish")?.let { wish ->
+            val anchored = JSONObject(wish.toString()).put("experienceId", record.id)
+            CharacterLifeFollowThroughStore.recordShareWish(character.characterId, anchored)
+        }
+        CharacterCuriosityRuntime.recordInquiry(
+            character.characterId, response.optJSONObject("curiosity"),
+            record.id, factualReceipt, now,
         )
         MigratedDomainStores.chat.appendPrivateActivityNotice(character.characterId,
             "[阅读记录|${record.id}]刚刚读了《${slice.book.title}》 · ${record.chapterTitle}")
