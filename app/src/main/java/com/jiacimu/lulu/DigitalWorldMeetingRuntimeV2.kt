@@ -7,6 +7,31 @@ import java.util.UUID
 internal const val MEETING_INVITED_OPENING_PREFIX_V2 = "__meeting_invited_opening__:"
 internal const val MEETING_LIVING_MOMENT_PREFIX_V2 = "__meeting_living_moment__:"
 
+/**
+ * All meeting-private ideas use the same inner-life/decision records as calls,
+ * chat, background perception and lived world reactions. A scene line alone
+ * may not claim an independent reading/game action happened.
+ */
+private fun commitMeetingDecision(
+    characterId: String, reply: MeetingV2Reply, sourceId: String, at: Instant,
+) {
+    if (reply.appraisal == null && reply.innerLife == null && reply.innerThought.isBlank()) return
+    CharacterInnerLifeStore.observe(
+        characterId, sourceId, "这次见面中已经落库的真实现场互动",
+        reply.innerLife, emptySet(), at,
+    )
+    CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reply.innerThought, at)
+    CharacterInnerLifeStore.recordCausalTransition(
+        characterId = characterId, evidenceId = sourceId,
+        appraisal = reply.appraisal, innerLife = reply.innerLife,
+        innerThoughtBasis = null,
+        selectedAction = if (reply.segments.isEmpty()) "silent" else "reply",
+        innerThought = reply.innerThought,
+        reason = "在同一场数字世界见面中独立作出的选择", now = at,
+    )
+}
+
+
 internal suspend fun meetingRunInvitedOpeningV2(sessionId: String, inviterId: String, exchangeId: String) {
     var session = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
         ?: error("见面记录不存在")
@@ -42,6 +67,7 @@ internal suspend fun meetingRunInvitedOpeningV2(sessionId: String, inviterId: St
             false,
         )
     }
+    commitMeetingDecision(inviterId, reply, "meeting-arrival:$sessionId:$exchangeId:$inviterId", now)
     CompanionPresenceStore.update(
         characterId = inviterId,
         statusText = reply.statusText,
@@ -51,6 +77,10 @@ internal suspend fun meetingRunInvitedOpeningV2(sessionId: String, inviterId: St
         source = "见面·迎接",
         now = now,
         provenanceId = "meeting-$sessionId-$exchangeId",
+        momentReflection = CharacterMomentSnapshot.reflection(
+            reply.innerLife, appraisal = reply.appraisal,
+            outward = reply.dialogue, innerThought = reply.innerThought,
+        ),
     )
     MeetingExperienceStore.completeExchange(
         exchangeId = exchangeId,
@@ -142,6 +172,9 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
             it.isNotBlank() && it != session.location && it in DigitalWorldStore.meetingLocationOptions(session)
         }?.let { destination -> session = DigitalWorldStore.moveMeeting(session.id, destination, exchangeId) }
     }
+    val firstAt = Instant.now()
+    commitMeetingDecision(firstCharacterId, firstReply,
+        "meeting-turn:$sessionId:$exchangeId:$firstCharacterId", firstAt)
     CompanionPresenceStore.update(
         characterId = firstCharacterId,
         statusText = firstReply.statusText,
@@ -149,8 +182,12 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
         innerThought = firstReply.innerThought,
         mood = firstReply.mood,
         source = "见面",
-        now = Instant.now(),
+        now = firstAt,
         provenanceId = "meeting-$sessionId-$exchangeId",
+        momentReflection = CharacterMomentSnapshot.reflection(
+            firstReply.innerLife, appraisal = firstReply.appraisal,
+            outward = firstReply.dialogue, innerThought = firstReply.innerThought,
+        ),
     )
     var afterScene = meetingAuthoritativeSceneV2(session, firstReply.sceneSnapshot, Instant.now())
     MeetingExperienceStore.checkpointExchange(
@@ -201,6 +238,8 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
                 additionalIndex == participantOrder.drop(1).lastIndex,
             )
         }
+        commitMeetingDecision(characterId, reply,
+            "meeting-turn:$sessionId:$exchangeId:$characterId", replyAt)
         CompanionPresenceStore.update(
             characterId = characterId,
             statusText = reply.statusText,
@@ -210,6 +249,10 @@ internal suspend fun meetingRunTurnV2(sessionId: String, userText: String, excha
             source = "见面",
             now = replyAt,
             provenanceId = "meeting-$sessionId-$exchangeId",
+            momentReflection = CharacterMomentSnapshot.reflection(
+                reply.innerLife, appraisal = reply.appraisal,
+                outward = reply.dialogue, innerThought = reply.innerThought,
+            ),
         )
         afterScene = meetingAuthoritativeSceneV2(session, reply.sceneSnapshot, replyAt)
         MeetingExperienceStore.checkpointExchange(
@@ -323,8 +366,11 @@ internal suspend fun meetingRunLivingMomentV2(
     }
     // Existing presence/personality store is the sole owner of inner thoughts,
     // mood, visible gesture and commitments, including spontaneous moments.
+    commitMeetingDecision(characterId, reply,
+        "meeting-living:$sessionId:$exchangeId:$characterId", now)
     if (reply.innerThought.isNotBlank() || reply.mood.isNotBlank() ||
-        reply.gesture.isNotBlank() || reply.statusText.isNotBlank()) {
+        reply.gesture.isNotBlank() || reply.statusText.isNotBlank() ||
+        reply.appraisal != null || reply.innerLife != null) {
         CompanionPresenceStore.update(
             characterId = characterId,
             statusText = reply.statusText.takeIf(String::isNotBlank),
@@ -334,6 +380,10 @@ internal suspend fun meetingRunLivingMomentV2(
             source = if (spontaneous) "见面·自主感知" else "见面·身体互动",
             now = now,
             provenanceId = "meeting-$sessionId-$exchangeId",
+            momentReflection = CharacterMomentSnapshot.reflection(
+                reply.innerLife, appraisal = reply.appraisal,
+                outward = reply.dialogue, innerThought = reply.innerThought,
+            ),
         )
     }
     // Do not update physical positions for a purely silent cognitive thought:
