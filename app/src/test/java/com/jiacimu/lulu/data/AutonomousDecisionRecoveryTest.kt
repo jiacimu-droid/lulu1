@@ -79,6 +79,25 @@ class AutonomousDecisionRecoveryTest {
             chosen.getJSONObject("relationshipInitiative").getString("aim"))
     }
 
+    @Test fun repeatedWaitingIsReviewedButRealSolitudeIsRespected() {
+        val history = listOf("MESSAGE", "SILENT", "SILENT")
+        assertTrue(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = true, reason = "没有用户新消息，没事做",
+            recentActions = history, hasPendingUserMessage = false))
+        assertFalse(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = true, reason = "现在想独处，安静一会",
+            recentActions = history, hasPendingUserMessage = false))
+        assertFalse(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = true, reason = "没人找我",
+            recentActions = history, hasPendingUserMessage = true))
+        assertFalse(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = false, reason = "没人找我",
+            recentActions = history, hasPendingUserMessage = false))
+        assertFalse(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = true, reason = "没人找我",
+            recentActions = listOf("MESSAGE", "SILENT"), hasPendingUserMessage = false))
+    }
+
     @Test fun aNormalChosenActionIsNeverReplaced() {
         val original = JSONObject().put("action", "moment").put("text", "今日小事")
         assertSame(original, AutonomousDecisionRecovery.choose(original))
