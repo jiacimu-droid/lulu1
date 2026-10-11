@@ -15,13 +15,13 @@ internal object AutonomousDecisionRecovery {
     /** Only salvage a fully closed private text field from truncated optional JSON. */
     fun completedPrivateMessage(raw: String): JSONObject? {
         val clean = raw.substringAfter('{', "").let { "{$it" }.trim()
-        val action = Regex("""^\{\s*"action"\s*:\s*"(message|kaomoji)"\s*,""")
+        val action = Regex("""^\{\s*"action"\s*:\s*"(message|kaomoji|reply|private_message)"\s*,""")
             .find(clean)?.groupValues?.getOrNull(1) ?: return null
         val found = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""")
             .find(clean) ?: return null
         if (found.range.first > 8_000) return null
         val prefix = clean.substring(0, found.range.first)
-        if (listOf("innerLife", "appraisal", "alternatives", "args", "tool")
+        if (listOf("innerLife", "appraisal", "alternatives", "args", "tool", "bubbles")
             .any { prefix.contains("\"$it\"") }) return null
         val text = runCatching { JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}")
             .optString("text").trim() }.getOrNull().orEmpty()
