@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:30:32.330592+00:00",
-  "commit": "1e332f6c5608c84bdd464aa5ba9455fa2140aacf",
+  "generatedAt": "2026-10-11T15:32:56.793402+00:00",
+  "commit": "f662c88653ffb00231f87d8c5395eb48b3aa1367",
   "branch": "main",
-  "sourceFingerprint": "6f3a9ad418197383b5fcdbdb6553a64e4eea914af3ec3513d03dae1a43305c75",
+  "sourceFingerprint": "3d2d14ae59c77dbfc5f8ebf9d718f388e326a4d2bac8786e75ea5f1ff7b42fad",
   "summary": {
     "files": 511,
-    "lines": 107816,
+    "lines": 107840,
     "symbols": 1615
   },
   "symbolIndex": {
@@ -4845,7 +4845,7 @@
     "qualifies": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-        "line": 19
+        "line": 18
       }
     ],
     "ImportantEventBridge": [
@@ -11796,7 +11796,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
       "lines": 188,
-      "sha256": "67fdaccca1989cd8a7d497c77307d3c615ab1df210c4ca623dac29a49cb9f6f5",
+      "sha256": "b5cd40f30268c37180e67065fdbd617cd1893ab94d7b8502482bad76f8fbbee8",
       "symbols": [
         {
           "name": "feedbackTopic",
@@ -13510,12 +13510,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-      "lines": 31,
-      "sha256": "97c40e67d18bca9d2eb0b91b77deae2333918793610cef47d1d6c5f763ff8644",
+      "lines": 30,
+      "sha256": "568b37f80da6aa303733b6189ae7a0567aa4a69556ff884405369c0d0fce4a8a",
       "symbols": [
         {
           "name": "qualifies",
-          "line": 19
+          "line": 18
         }
       ]
     },
@@ -18329,8 +18329,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt",
-      "lines": 133,
-      "sha256": "012606831e55ca9fd08b23b76ecdfcd12dad0558c290f4e00202dfe6fc876333",
+      "lines": 158,
+      "sha256": "7395453572405238062f9cf897f193f803fd673c043d86d5ddaebe64cfaa42dc",
       "symbols": [
         {
           "name": "CharacterGrowthTrajectoryLedgerTest",
