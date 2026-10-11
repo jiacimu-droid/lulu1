@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T04:27:31.756885+00:00",
-  "commit": "93eb0b329d0099763feb98bcb1dce70009cb9fe1",
+  "generatedAt": "2026-10-11T04:28:03.531794+00:00",
+  "commit": "f1144bb45bdc885e490740cc3d6169b649fc695c",
   "branch": "main",
-  "sourceFingerprint": "2a7524bdc29f4e0f7e49ee4c989085b31b36dae6c682421bbf3b2b1fc946f9db",
+  "sourceFingerprint": "d0a6e44b5b7f4272907ccc9569dcc3a0150d53b7468cf2fdea306635635cb158",
   "summary": {
     "files": 492,
     "lines": 104427,
@@ -11435,7 +11435,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
       "lines": 234,
-      "sha256": "75355e2faa65a5341c4473cee2ea5898919853afedb0f5fae0c0efc519350992",
+      "sha256": "6bf1be2eaabbcfb1d56cf9e5e7b57919264b7a5accffd0f09c1f69f1f18d6b71",
       "symbols": [
         {
           "name": "update",
