@@ -15,6 +15,7 @@ import java.time.Instant
 internal object CharacterRelationalInitiative {
     private const val PREFS = "lulu_relational_initiative_v1"
     private var prefs: SharedPreferences? = null
+    private var boundApplication: Context? = null
     private val preferenceSignal = Regex(
         "(我(很|特别|真的|更|最|就)?(喜欢|不喜欢|讨厌|偏爱|希望|想要|不想|受不了|不接受|害怕)|" +
             "(叫我|别叫我|不要叫我|以后(可以|不要|别)|你(可以|能不能|不要|别)(再|总是)?))"
@@ -22,7 +23,13 @@ internal object CharacterRelationalInitiative {
     private val rejectionSignal = Regex("不喜欢|讨厌|不想|受不了|不接受|害怕|别叫|不要叫|不要|拒绝|不舒服")
 
     @Synchronized fun initialize(context: Context) {
-        if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val application = context.applicationContext
+        // In Android the application is process-wide. Robolectric swaps it between
+        // tests without unloading Kotlin objects; keeping an old prefs handle
+        // silently sends writes to the previous test's dead application.
+        if (prefs != null && boundApplication === application) return
+        boundApplication = application
+        prefs = application.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
 
     /** This is evidence selection, NOT a classifier that announces an inferred preference. */
@@ -127,7 +134,9 @@ internal object CharacterRelationalInitiative {
                     .put("updatedAt", now.toString()))
             }
         }
-        prefs?.edit()?.putString(characterId, root.toString())?.apply()
+        check(prefs?.edit()?.putString(characterId, root.toString())?.commit() == true) {
+            "角色的关系行动计划未能持久化"
+        }
     }
 
     @Synchronized fun invalidateEvidence(eventId: String) {
@@ -136,12 +145,12 @@ internal object CharacterRelationalInitiative {
             val root = read(id)
             if (root.optJSONObject("pending")?.optString("evidenceId") == eventId) {
                 root.remove("pending")
-                prefs?.edit()?.putString(id, root.toString())?.apply()
+                prefs?.edit()?.putString(id, root.toString())?.commit()
             }
         }
     }
 
     @Synchronized fun clear(characterId: String) {
-        prefs?.edit()?.remove(characterId)?.apply()
+        prefs?.edit()?.remove(characterId)?.commit()
     }
 }
