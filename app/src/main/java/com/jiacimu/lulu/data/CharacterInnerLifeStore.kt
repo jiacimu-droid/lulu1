@@ -915,7 +915,11 @@ object CharacterInnerLifeStore {
         ) || action.startsWith("group_reply")
         if (canDispatchOwnActivity && appraisal?.optJSONObject("ownActivity") != null) {
             dispatchContext?.let { ctx ->
-                CharacterSelfActivityRuntime.offer(ctx, characterId, appraisal, evidenceId)
+                // Failure to enqueue a personal-life task must never erase the
+                // conversation or its already-committed psychological record.
+                runCatching {
+                    CharacterSelfActivityRuntime.offer(ctx, characterId, appraisal, evidenceId)
+                }
             }
         }
     }
