@@ -3,7 +3,6 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,58 +15,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
 import com.jiacimu.lulu.data.CharacterAddressPreference
-import com.jiacimu.lulu.data.CharacterInnerLifeStore
-import com.jiacimu.lulu.data.sameCharacterMotive
 import com.jiacimu.lulu.data.CharacterProfileSchema
-import com.jiacimu.lulu.data.MigratedDomainStores
-import com.jiacimu.lulu.data.CommitmentTaskStore
-import com.jiacimu.lulu.data.CommitmentTaskStatus
-import com.jiacimu.lulu.data.isActive
-import com.jiacimu.lulu.system.LuluAlarmSystem
-import androidx.compose.ui.platform.LocalContext
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import android.os.Build
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 
 
 @Composable
 internal fun CharacterLifeSettings(characterId: String) {
     val states by CharacterLifeStore.states.collectAsState()
-    val innerRevision by CharacterInnerLifeStore.revisions.collectAsState()
-    val context = LocalContext.current
-    val commitments by CommitmentTaskStore.tasks.collectAsState()
-    val activeCommitments = commitments.filter { it.characterId == characterId && it.status.isActive() }
-    var permissionsRefresh by remember { mutableIntStateOf(0) }
-    val notificationPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { permissionsRefresh += 1 }
-    val exactClockAllowed = remember(permissionsRefresh) { LuluAlarmSystem.canScheduleExact() }
-    val notificationsAllowed = remember(permissionsRefresh) {
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-    }
-
-    val innerRoot = remember(characterId, innerRevision) { CharacterInnerLifeStore.snapshot(characterId) }
-    val onlineStates by com.jiacimu.lulu.data.CompanionOnlineStore.states.collectAsState()
-    val online = onlineStates[characterId]
-    val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
-    val presence = presenceStates[characterId]
-    val growthRevision by com.jiacimu.lulu.data.CharacterDevelopmentStore.revisions.collectAsState()
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
     var addressEditing by remember { mutableStateOf(false) }
     var addressDraft by remember { mutableStateOf("") }
     LaunchedEffect(characterId) { CharacterAddressPreference.refresh(characterId) }
     var draft by remember { mutableStateOf("") }
-    var showPastChoices by remember(characterId) { mutableStateOf(false) }
-    var showInnerDetails by remember(characterId) { mutableStateOf(false) }
-    var showAllGrowth by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("人物人格", style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold)
