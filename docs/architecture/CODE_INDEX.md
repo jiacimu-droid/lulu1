@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3661b32763466ca73e55ccf7acbd9c1a9e8f34c8`
+- 基准提交：`b4ef0bb68854a083501d128d286dd2e4ffa9f2e7`
 - 分支：`main`
 - 已索引文件：512
-- 已索引代码/文本行：107894
+- 已索引代码/文本行：107897
 - 已发现符号：1618
 
 | 文件 | 行数 | 符号数 |
@@ -156,7 +156,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 134 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 325 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 105 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 107 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 246 | 12 |
@@ -260,7 +260,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 58 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 67 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 68 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 125 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
