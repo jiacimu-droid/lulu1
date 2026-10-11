@@ -85,7 +85,11 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     if (!allowed) {
                         // Caller is temporarily playing audio. Do not lose an
                         // already captured user's phrase without signalling its end.
-                        if (active && buffer.size() > 0) {
+                        if (active) {
+                            // An upload may have emptied the local PCM buffer
+                            // just before mute. Send an EMPTY final marker in
+                            // that case: earlier real chunks still need to be
+                            // committed as one transcript, not lost.
                             val completed = buffer.toByteArray()
                             withContext(Dispatchers.Main) {
                                 if (epoch == generation) onSegment(completed, true)
