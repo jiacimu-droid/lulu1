@@ -705,8 +705,15 @@ object ProactivePerceptionRuntime {
         val actionStartedAt = Instant.now()
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
-            requestId = salientInteraction?.id?.let { "proactive-evidence-${it.hashCode().toUInt().toString(16)}" }
-                ?: "proactive-${now.toEpochMilli()}",
+            requestId = when {
+                // A new user message is a NEW decision. Never reuse the older
+                // call-end/world-event request key while the user is waiting.
+                messageStimulus != null ->
+                    "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}"
+                salientInteraction != null ->
+                    "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}"
+                else -> "proactive-${now.toEpochMilli()}"
+            },
         )
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.success) {
