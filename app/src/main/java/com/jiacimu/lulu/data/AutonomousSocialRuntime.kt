@@ -369,6 +369,7 @@ internal object AutonomousSocialRuntime {
         }
 
         val sourceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
+        CharacterCuriosityRuntime.initialize(context.applicationContext)
         CharacterCuriosityRuntime.recordInquiry(
             characterId, reaction.curiosity, sourceId, tick.summary, now,
         )
