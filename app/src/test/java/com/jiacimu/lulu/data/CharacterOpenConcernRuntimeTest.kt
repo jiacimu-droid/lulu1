@@ -66,6 +66,26 @@ class CharacterOpenConcernRuntimeTest {
         assertFalse(revised.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
     }
 
+    @Test fun reopeningTheSamePersonalProblemUpdatesOneThreadInsteadOfManufacturingThreeTasks() {
+        val firstConcern = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "open")
+            .put("focus", "不想再次弱化对方的判断")
+            .put("whyItMatters", "她明确说这样缺乏安全感")
+            .put("possibleNextStep", "听完她的意见，不替她做主"))
+        val original = CharacterOpenConcernRuntime.update(null, firstConcern, "user-feedback-1", now)
+        val firstId = original.getJSONObject(0).getString("id")
+        val later = JSONObject().put("pendingConcern", JSONObject()
+            .put("status", "open")
+            .put("focus", "不想再次弱化对方的判断。")
+            .put("whyItMatters", "她明确说这样缺乏安全感")
+            .put("possibleNextStep", "有分歧时先听完再表达自己的判断"))
+        val updated = CharacterOpenConcernRuntime.update(original, later, "user-feedback-2", now.plusSeconds(120))
+        assertEquals(1, updated.length())
+        assertEquals(firstId, updated.getJSONObject(0).getString("id"))
+        assertEquals(2, updated.getJSONObject(0).getJSONArray("journey").length())
+        assertTrue(CharacterOpenConcernRuntime.context(updated, now.plusSeconds(130)).contains(firstId))
+    }
+
     @Test fun casualEmotionCannotManufactureAContinuingConcern() {
         val incomplete = JSONObject().put("pendingConcern", JSONObject()
             .put("status", "open").put("focus", "有点高兴"))
