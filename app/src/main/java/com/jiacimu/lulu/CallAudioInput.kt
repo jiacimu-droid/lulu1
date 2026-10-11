@@ -85,7 +85,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     if (!allowed) {
                         // Caller is temporarily playing audio. Do not lose an
                         // already captured user's phrase without signalling its end.
-                        if (active) {
+                        if (PhoneMicSegmentPolicy.finalizeOnMute(active, buffer.size())) {
                             // An upload may have emptied the local PCM buffer
                             // just before mute. Send an EMPTY final marker in
                             // that case: earlier real chunks still need to be
