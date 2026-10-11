@@ -389,7 +389,10 @@ class InMemoryLuluChatStore : LuluChatStore {
                 authorCharacterId = authorCharacterId,
                 replyToMessageId = effectiveReplyId.takeIf { index == 0 },
                 replyBatchId = effectiveBatchId,
-            ).also { message -> append(conversationId, message, incrementUnread = false) }
+            ).also { message ->
+                append(conversationId, message, incrementUnread = false)
+                CompanionPresenceStore.bindDeliveredMessage(effectiveAuthorId, message.id, message.createdAt)
+            }
         }
         favoriteTarget?.let { target ->
             CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
