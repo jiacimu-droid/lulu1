@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T09:09:38.512988+00:00",
-  "commit": "9a77cf763ce90a436f20559fdad245e1c1d25d94",
+  "generatedAt": "2026-10-11T09:10:27.300661+00:00",
+  "commit": "e8f9103cde707982e9ef1734bca82fe49b35f66d",
   "branch": "main",
-  "sourceFingerprint": "464b781e048e6b9fff04d64ebe4fbd3785d41e1658c4c7d381f47d16f11613fd",
+  "sourceFingerprint": "befc8a625f0f12855268c8bb4369949bb02217d9153adecacd2282b3742b6f5b",
   "summary": {
     "files": 502,
-    "lines": 106670,
+    "lines": 106679,
     "symbols": 1590
   },
   "symbolIndex": {
@@ -323,7 +323,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-        "line": 60
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -3431,7 +3431,7 @@
     "expressionHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-        "line": 113
+        "line": 122
       }
     ],
     "CharacterDefinitionSnapshot": [
@@ -11878,16 +11878,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-      "lines": 186,
-      "sha256": "7f30dd27c7687c70516cb05f10f4468a06bf48d85097a43b10ca9893b0f55544",
+      "lines": 195,
+      "sha256": "80ed59db9f71e9818e20a88a7f90b78298c09fd6adab128aa6d9c78e9f79cb94",
       "symbols": [
         {
           "name": "context",
-          "line": 60
+          "line": 70
         },
         {
           "name": "expressionHandoff",
-          "line": 113
+          "line": 122
         }
       ]
     },
