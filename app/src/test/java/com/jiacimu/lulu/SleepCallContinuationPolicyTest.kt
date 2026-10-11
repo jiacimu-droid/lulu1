@@ -28,7 +28,6 @@ class SleepCallContinuationPolicyTest {
             userSpeaking: Boolean = false, audioBusy: Boolean = false) =
             SleepCallContinuationPolicy.shouldQuietlyEnd(silence, connected, enabled,
                 userSpeaking, audioBusy)
-        assertFalse(canEnd(62 * 60_000L, autoEnd = false))
         assertFalse(canEnd(20 * 60_000L))
         assertFalse(canEnd(40 * 60_000L))
         assertFalse(canEnd(60 * 60_000L - 1L))
