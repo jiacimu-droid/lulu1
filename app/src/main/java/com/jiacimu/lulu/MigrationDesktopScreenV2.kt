@@ -166,12 +166,7 @@ internal fun MigrationHomeV2(
             )
 
             Spacer(Modifier.height(10.dp))
-            DesktopMomentCard(
-                characterName = currentCharacter.displayName,
-                dateLabel = today.format(DateTimeFormatter.ofPattern("MM / dd")),
-                photoUri = momentPhotoUri,
-                onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            )
+            DesktopWorldBulletinCard()
 
             Spacer(Modifier.height(14.dp))
             Row(
