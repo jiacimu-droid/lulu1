@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:38:23.825493+00:00",
-  "commit": "d806efead67ca69883d873e81f49148acab4f041",
+  "generatedAt": "2026-10-11T05:38:54.848409+00:00",
+  "commit": "045e98de21d0bdf2e3d7e9ce8d83203921aae520",
   "branch": "main",
-  "sourceFingerprint": "7bea0455d8ad2cfff7b9ed7e8009207db30473cd55b9e54278463f1ea52716d3",
+  "sourceFingerprint": "6b8c56e58f18ba45b6e9a21a7074f24af949ae3aafd5611e65e57cc8f038311b",
   "summary": {
     "files": 495,
-    "lines": 105155,
-    "symbols": 1560
+    "lines": 105189,
+    "symbols": 1561
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3400,16 +3400,22 @@
         "line": 41
       }
     ],
+    "latestConsideration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 151
+      }
+    ],
     "latest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 123
+        "line": 157
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 152
+        "line": 186
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -11668,8 +11674,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 212,
-      "sha256": "e2bbdacd28533ae729692bb4e9b35babdaee0662a5c4dd01b0baf353baa3c09b",
+      "lines": 246,
+      "sha256": "edf83a2e521fee85272366c764265360988355a02bf3513be70845c874edbdb8",
       "symbols": [
         {
           "name": "parse",
@@ -11680,12 +11686,16 @@
           "line": 82
         },
         {
+          "name": "latestConsideration",
+          "line": 151
+        },
+        {
           "name": "latest",
-          "line": 123
+          "line": 157
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 152
+          "line": 186
         }
       ]
     },
