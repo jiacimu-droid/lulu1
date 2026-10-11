@@ -33,6 +33,29 @@ class AutonomousActionTraceTest {
         assertTrue(rendered.contains("可以继续"))
     }
 
+    @Test fun sharedReceiptsRecognizePrivateCharacterVoiceButNeverUserStatements() {
+        val at = Instant.parse("2026-10-11T09:00:00Z")
+        fun event(id: String, speaker: String, kind: EventEvidenceKind, session: String = "") =
+            SharedTimelineEvent(id, "role-a", "私聊", speaker, "事件", at,
+                sessionId = session, evidenceKind = kind)
+        val events = listOf(
+            event("old", "角色", EventEvidenceKind.CharacterStatement),
+            event("private", "角色", EventEvidenceKind.CharacterStatement, "chat-a"),
+            event("user-new", "用户", EventEvidenceKind.UserStatement, "chat-a"))
+        assertEquals("private", AutonomousActionTrace.newestExecutedEvidence(
+            events, setOf("old"), "江渡", "chat-a"))
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            events, setOf("old", "private"), "江渡", "chat-a"))
+        val nicknameEvent = event("group", "群里昵称", EventEvidenceKind.CharacterStatement, "group-b")
+        assertEquals("group", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(nicknameEvent), emptySet(), "江渡", "group-b"))
+        assertEquals("", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(nicknameEvent), emptySet(), "江渡", "other-group"))
+        val receipt = event("tool-result", "执行器", EventEvidenceKind.ToolResult)
+        assertEquals("tool-result", AutonomousActionTrace.newestExecutedEvidence(
+            listOf(receipt), emptySet(), "江渡"))
+    }
+
     @Test fun oldHistoryDoesNotCreateArtificialPressureToAct() {
         val history = JSONArray().put(JSONObject().put("at", "2026-09-01T00:00:00Z")
             .put("selected", "reading").put("signature", "reading/book-1")
