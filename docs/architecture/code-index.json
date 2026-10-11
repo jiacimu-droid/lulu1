@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:19:58.718267+00:00",
-  "commit": "07dc2d345bdc7a6bfc831f1abcd90f9ee7a8e124",
+  "generatedAt": "2026-10-11T12:20:13.063043+00:00",
+  "commit": "26f252838958a5e3fa9bb6899687fce5bf02610f",
   "branch": "main",
-  "sourceFingerprint": "afb11ea2a635cfc9a3fd2bb71213b22e752079f53b5950b78e1ae0eab36b05b2",
+  "sourceFingerprint": "1fab4c96bf387cf34c42900d7e6dccb00771497e0b87aea10cf8c1215a32d313",
   "summary": {
     "files": 504,
     "lines": 107121,
@@ -10477,7 +10477,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
       "lines": 80,
-      "sha256": "8d7802948b97f9bf7e7c9e20d587f0a519b6963a9eb0b78adfcb5a39f4224a8b",
+      "sha256": "8b1ed4bb44be417c44ad3ccce674bd7c1fd2bde4bf52d03d0230ad2a9a48d8b1",
       "symbols": [
         {
           "name": "lines",
