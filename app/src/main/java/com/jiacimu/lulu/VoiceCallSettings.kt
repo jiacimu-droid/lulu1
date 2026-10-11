@@ -31,6 +31,9 @@ internal fun VoiceCallSettings(provider: String) {
     }
     var groqKey by remember { mutableStateOf(prefs.getString("groq_asr_key", "").orEmpty()) }
     var groqModel by remember { mutableStateOf(prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()) }
+    var elevenSttModel by remember {
+        mutableStateOf(CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)))
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("通话声音：${CallVoiceConfiguration.label(provider)}", style = MaterialTheme.typography.titleMedium)
@@ -82,7 +85,24 @@ internal fun VoiceCallSettings(provider: String) {
                 style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "elevenlabs") {
-            Text("使用 ElevenLabs Scribe V2 识别你的话，与角色配音供应商无关。沿用 ElevenLabs 的 API Key（不需要 Voice ID），识别请求可能消耗账号积分。",
+            Text("ElevenLabs 识别模型", style = MaterialTheme.typography.titleSmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(
+                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 准确优先",
+                    CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 边说边转",
+                ).forEach { (id, label) ->
+                    FilterChip(selected = elevenSttModel == id, onClick = {
+                        elevenSttModel = id
+                        prefs.edit().putString("eleven_asr_model", id).apply()
+                    }, label = { Text(label) })
+                }
+            }
+            Text(
+                if (elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
+                    "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
+                else "普通版保留现有 Scribe v2：录音分段后上传识别，适合优先对比完整度。",
+                style = MaterialTheme.typography.bodySmall)
+            Text("两种模型共用你的 ElevenLabs API Key（不需要 Voice ID）；均可能消耗识别积分。仅影响普通 API 电话，新选择从下一通电话生效。实时 Agent 的识别由 Agent 单独配置。",
                 style = MaterialTheme.typography.bodySmall)
             var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
             OutlinedTextField(value = elevenKey, onValueChange = {
