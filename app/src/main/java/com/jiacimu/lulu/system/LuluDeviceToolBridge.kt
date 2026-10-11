@@ -881,6 +881,11 @@ object LuluDeviceToolBridge {
             mood = plan.mood,
             source = source,
             innerThoughtFingerprint = heartVoiceFingerprint,
+            momentReflection = com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
+                plan.innerLife, plan.innerThoughtBasis, plan.appraisal,
+                outward = plan.text.ifBlank { plan.speechIntent },
+                innerThought = plan.innerThought,
+            ),
         )
     }
 }
