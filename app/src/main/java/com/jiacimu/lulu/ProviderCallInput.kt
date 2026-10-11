@@ -181,8 +181,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     onError(message)
                 }
             },
-            threshold = prefs.getFloat("voice_vad_threshold", 350f),
-            endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
+            threshold = prefs.getFloat("voice_vad_threshold", 195f),
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 2_500),
         )
     }
 
@@ -222,8 +222,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     onError(message)
                 }
             },
-            threshold = prefs.getFloat("voice_vad_threshold", 350f),
-            endSilenceMs = prefs.getInt("voice_end_silence_ms", 650),
+            threshold = prefs.getFloat("voice_vad_threshold", 195f),
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 2_500),
         )
     }
 
