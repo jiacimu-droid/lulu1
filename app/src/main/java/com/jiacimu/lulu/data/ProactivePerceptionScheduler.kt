@@ -217,7 +217,7 @@ object ProactivePerceptionScheduler {
             .setInitialDelay(75_000L, TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
-                .putString("trigger", "角色近期有真正亲历的生活事件，重新想想自己是否有好奇、处理事件、阅读、私聊分享、公开朋友圈或安静的欲望；不强制发消息。")
+                .putString("trigger", "真实生活后续回想：角色近期亲历事件，自己判断是否观察、阅读、私聊分享、发朋友圈或保持安静；不强制发消息。")
                 .putString("characterId", characterId)
                 .putBoolean("force", true).build())
             .build()
