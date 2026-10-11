@@ -68,9 +68,11 @@ class CharacterAccountabilityContextTest {
     @Test fun languageQuirksHaveTheirOwnPerRolePersonaSlotNotGlobalWorldbook() {
         val field = CharacterProfileSchema.fields.single { it.key == "speechHabits" }
         assertEquals("语言习惯与小癖好", field.label)
-        assertEquals("表达", field.group)
-        assertTrue(field.hint.contains("倒装"))
-        assertTrue(field.hint.contains("标点"))
+        assertEquals("兴趣与表达", field.group)
+        assertTrue(CharacterProfileSchema.groupedFields()
+            .flatMap { it.second }.any { it.key == "speechHabits" })
+        assertTrue(CharacterProfileSchema.groupedFields()
+            .flatMap { it.second }.none { it.key == "typing" })
         assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, CharacterProfileSchema.jiangDu["speechHabits"])
         assertEquals(listOf("expression", "speechHabits"), CharacterProfileSchema.featuredFields.map { it.key })
         assertEquals(CharacterProfileSchema.fields.size, CharacterProfileSchema.featuredFields.size + CharacterProfileSchema.otherFields.size)
