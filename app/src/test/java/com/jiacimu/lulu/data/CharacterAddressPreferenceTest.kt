@@ -15,6 +15,7 @@ class CharacterAddressPreferenceTest {
         assertEquals("宝宝", CharacterAddressPreference.extractExplicitAddress("我更喜欢你叫我宝宝"))
         assertEquals("宝宝", CharacterAddressPreference.extractExplicitAddress("以后就叫我宝宝吧"))
         assertEquals("宝宝", CharacterAddressPreference.extractExplicitAddress("我比较喜欢宝宝这个称呼"))
+        assertEquals("宝宝", CharacterAddressPreference.extractExplicitAddress("记得叫我起床，我更喜欢你叫我宝宝"))
     }
 
     @Test fun quotedExamplesAndNegationsAreNotBindingPreferences() {
