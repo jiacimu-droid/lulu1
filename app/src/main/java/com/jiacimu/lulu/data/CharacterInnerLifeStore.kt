@@ -39,7 +39,17 @@ object CharacterInnerLifeStore {
                 item.optString("updatedAt"),
                 item.optJSONArray("outcomes")?.length() ?: 0,
             )
-            if (outdated) removed = true else kept.put(item)
+            if (outdated) {
+                removed = true
+                val archived = root.optJSONArray("retiredGenericMotives") ?: JSONArray()
+                if ((0 until archived.length()).none {
+                        archived.optJSONObject(it)?.optString("id") == item.optString("id")
+                    }) {
+                    archived.put(JSONObject(item.toString())
+                        .put("retiredBecause", "长期未推进的泛化初始愿望已自然结束"))
+                }
+                root.put("retiredGenericMotives", archived)
+            } else kept.put(item)
         }
         if (removed) {
             root.put("motives", kept)
