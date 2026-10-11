@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:10:59.451401+00:00",
-  "commit": "7d0d87788746802927b4fca542f911c4f9316f72",
+  "generatedAt": "2026-10-11T12:12:05.432327+00:00",
+  "commit": "cf301307b5200847e86a3c900527409702d7af0f",
   "branch": "main",
-  "sourceFingerprint": "765a26b571afeaccf44ac2d74f79d47304def332dd49c1f9a3c22602cfee3972",
+  "sourceFingerprint": "56289f14789d0803874908e88e30b183dc47b03817182b42bc349b9e92eabb5f",
   "summary": {
-    "files": 503,
-    "lines": 107020,
-    "symbols": 1598
+    "files": 504,
+    "lines": 107057,
+    "symbols": 1599
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8432,6 +8432,12 @@
         "line": 7
       }
     ],
+    "ScribeRealtimeTranscriptStateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt",
+        "line": 5
+      }
+    ],
     "SleepCallContinuationPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -10852,8 +10858,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
-      "lines": 176,
-      "sha256": "4a4f34383e147cc8eca970aac2cdd4ef705292879a6d0d77b409479fd079a35e",
+      "lines": 179,
+      "sha256": "6ce1820b62a6de882cb615f9af9a1efedc356d5294e2ea7b24ece8d1a98ef65a",
       "symbols": []
     },
     {
@@ -17612,8 +17618,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 176,
-      "sha256": "c61a8183ae2e7021b61c233216ff86ece51943975ac8c9328ae6e43466502948",
+      "lines": 180,
+      "sha256": "04ac55ad30434be3606dc44320eb3668aee47ed08677af21c508862d3e1ef8cd",
       "symbols": [
         {
           "name": "CallContractsTest",
@@ -17816,6 +17822,17 @@
         {
           "name": "QqMessageGroupingTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt",
+      "lines": 30,
+      "sha256": "1e1cbf552a6a18e87d594ecdde27a71c07b125273269cad28a7b88090beebf38",
+      "symbols": [
+        {
+          "name": "ScribeRealtimeTranscriptStateTest",
+          "line": 5
         }
       ]
     },
