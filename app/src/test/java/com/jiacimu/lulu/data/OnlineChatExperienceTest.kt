@@ -68,12 +68,15 @@ class OnlineChatExperienceTest {
         val wake = OnlineChatBatchStore.next(context, role, true, now = 1_300L)
         val secondBubble = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 1_500L)
         val unrelated = OnlineChatBatchStore.next(context, role, false, now = 1_900L)
-        assertEquals(7_000L, first.dueAtMillis)
+        // The wake itself must not consume or shorten the last-bubble window.
+        assertEquals(1_000L + OnlineChatBatchStore.QUIET_MILLIS, first.dueAtMillis)
         assertEquals(first.dueAtMillis, wake.dueAtMillis)
-        assertEquals(7_500L, secondBubble.dueAtMillis)
-        assertEquals(7_500L, unrelated.dueAtMillis)
-        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_499L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_500L))
+        assertEquals(1_500L + OnlineChatBatchStore.QUIET_MILLIS, secondBubble.dueAtMillis)
+        assertEquals(secondBubble.dueAtMillis, unrelated.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision,
+            now = secondBubble.dueAtMillis - 1L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision,
+            now = secondBubble.dueAtMillis))
         OnlineChatBatchStore.cancel(context, role)
     }
 
@@ -107,11 +110,13 @@ class OnlineChatExperienceTest {
         assertEquals(1_000L, background.dueAtMillis)
         val firstBubble = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 1_100L)
         val wake = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 1_500L)
-        assertEquals(7_100L, firstBubble.dueAtMillis)
+        assertEquals(1_100L + OnlineChatBatchStore.QUIET_MILLIS, firstBubble.dueAtMillis)
         assertEquals(firstBubble.dueAtMillis, wake.dueAtMillis)
         assertFalse(OnlineChatBatchStore.claim(context, role, background.revision, now = 1_100L))
-        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_099L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision, now = 7_100L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, wake.revision,
+            now = firstBubble.dueAtMillis - 1L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, wake.revision,
+            now = firstBubble.dueAtMillis))
         OnlineChatBatchStore.finish(context, role, wake.revision)
         assertNull(OnlineChatBatchStore.dueAt(context, role, wake.revision))
         OnlineChatBatchStore.cancel(context, role)
@@ -132,12 +137,17 @@ class OnlineChatExperienceTest {
         val first = OnlineChatBatchStore.next(context, role, true, now = 100L)
         assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
         OnlineChatBatchStore.finish(context, role, first.revision, completed = false)
-        assertEquals(6_100L, OnlineChatBatchStore.dueAt(context, role, first.revision))
+        assertEquals(100L + OnlineChatBatchStore.QUIET_MILLIS,
+            OnlineChatBatchStore.dueAt(context, role, first.revision))
         assertTrue(OnlineChatBatchStore.claim(context, role, first.revision))
         val next = OnlineChatBatchStore.next(context, role, true, now = 4_000L)
         OnlineChatBatchStore.finish(context, role, first.revision)
-        assertEquals(10_000L, OnlineChatBatchStore.dueAt(context, role, next.revision))
-        assertTrue(OnlineChatBatchStore.claim(context, role, next.revision))
+        assertEquals(4_000L + OnlineChatBatchStore.QUIET_MILLIS,
+            OnlineChatBatchStore.dueAt(context, role, next.revision))
+        assertFalse(OnlineChatBatchStore.claim(context, role, next.revision,
+            now = 4_000L + OnlineChatBatchStore.QUIET_MILLIS - 1L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, next.revision,
+            now = 4_000L + OnlineChatBatchStore.QUIET_MILLIS))
         OnlineChatBatchStore.finish(context, role, next.revision)
         assertNull(OnlineChatBatchStore.dueAt(context, role, next.revision))
     }
