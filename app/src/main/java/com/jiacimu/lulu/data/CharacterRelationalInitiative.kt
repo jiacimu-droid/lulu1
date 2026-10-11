@@ -56,13 +56,22 @@ internal object CharacterRelationalInitiative {
         evidenceId.isBlank() || SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .any { it.evidenceKind == EventEvidenceKind.UserStatement }
 
+    /** Stable persona is the authority: a changed role is not bound by yesterday's plan. */
+    private fun personaSignature(characterId: String): String =
+        CharacterRuntime.personaConstraintSnapshot(characterId).hashCode().toString()
+
+    private fun compatiblePending(characterId: String, root: JSONObject): JSONObject? =
+        root.optJSONObject("pending")?.takeIf { pending ->
+            evidenceStillExists(characterId, pending.optString("evidenceId")) &&
+                pending.optString("personaSignature") == personaSignature(characterId)
+        }
+
     /** Used by private chat, calls, meetings and background decisions through the same personality runtime. */
     fun context(characterId: String, now: Instant = Instant.now(), proactive: Boolean = false): String {
         val timeline = SharedExperienceTimeline.recentEvents(characterId, 240)
         val recent = explicitStatements(timeline, now)
         val saved = read(characterId)
-        val pending = saved.optJSONObject("pending")
-            ?.takeIf { evidenceStillExists(characterId, it.optString("evidenceId")) }
+        val pending = compatiblePending(characterId, saved)
         val last = saved.optJSONObject("lastDelivery")
             ?.takeIf { delivery ->
                 val receiptId = delivery.optString("evidenceId")
@@ -112,8 +121,7 @@ internal object CharacterRelationalInitiative {
      */
     fun expressionHandoff(characterId: String): String {
         val root = read(characterId)
-        val pending = root.optJSONObject("pending")
-            ?.takeIf { evidenceStillExists(characterId, it.optString("evidenceId")) } ?: return ""
+        val pending = compatiblePending(characterId, root) ?: return ""
         return buildString {
             appendLine("【同一角色尚未实行的私人愿望｜仅用于表达连贯，不是新回复指令】")
             appendLine("自己此前考虑：${pending.optString("aim").take(130)}")
@@ -153,6 +161,7 @@ internal object CharacterRelationalInitiative {
                 root.put("pending", JSONObject().put("aim", aim).put("why", why)
                     .put("approach", proposal.optString("approach").take(180))
                     .put("evidenceId", evidenceId).put("status", status)
+                    .put("personaSignature", personaSignature(characterId))
                     .put("failure", if (isDelivery && !success) summary.take(180) else "")
                     .put("updatedAt", now.toString()))
             }
