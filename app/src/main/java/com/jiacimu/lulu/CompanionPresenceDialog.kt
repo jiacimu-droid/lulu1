@@ -44,16 +44,6 @@ internal fun CompanionPresenceDialog(
         .firstOrNull { it.displayName == characterName }?.characterId ?: "lulu"
     val messageAnchor = CompanionPresenceStore.selectedMessageAnchor(characterId)
     val displayState = if (messageAnchor != null) messageAnchor.state else state
-    // Timeline facts are shown separately from subjective feelings. Seeing that
-    // a call ended is not the same thing as knowing *why* the user hung up.
-    val recentInteraction = remember(characterId, state?.updatedAt, messageAnchor) {
-        if (messageAnchor != null) null else CharacterPerceptionContext.recent(characterId)
-            .lastOrNull { event ->
-                event.source == InteractionSignalBridge.SOURCE &&
-                    !event.occurredAt.isAfter(Instant.now()) &&
-                    Duration.between(event.occurredAt, Instant.now()) <= Duration.ofHours(3)
-            }
-    }
     val displayHistory = remember(history, messageAnchor?.messageAt) {
         if (messageAnchor == null) history else history.filter { it.updatedAt <= messageAnchor.messageAt }
     }
@@ -72,8 +62,13 @@ internal fun CompanionPresenceDialog(
     LaunchedEffect(characterId) {
         while (true) { delay(15_000L); now = Instant.now() }
     }
-    val past = remember(displayHistory, displayState) {
-        displayHistory.filter { it.updatedAt != displayState?.updatedAt && it.showInHistory }
+    // History contains EVERY saved meaningful moment, including the newest one.
+    // "Current" never enumerates the character's accumulated private thought store.
+    val past = remember(displayHistory) { PresenceHistoryPresentation.entries(displayHistory) }
+    val latestHeartMoment = if (messageAnchor != null) displayState else {
+        displayHistory.asSequence().sortedByDescending { it.updatedAt }
+            .firstOrNull { it.innerThought.isNotBlank() }
+            ?: displayState?.takeIf { it.innerThought.isNotBlank() }
     }
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
@@ -122,37 +117,43 @@ internal fun CompanionPresenceDialog(
                                 Text(if (messageAnchor == null) "还没有留下此刻状态。" else "这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    PresenceStateContent(displayState)
-                                    recentInteraction?.let { observed ->
-                                        PresenceDialogSection("最近发生的互动", observed.content.take(240))
+                                    PresenceStateContent(displayState, latestHeartMoment)
+                                }
+                            }
+                        }
+                    } else {
+                        if (past.isEmpty()) {
+                            item(key = "empty-history") {
+                                Text("还没有留下可查看的历史状态。", color = Color(0xFF7A7A7E))
+                            }
+                        } else {
+                            items(past, key = { it.state.updatedAt.toEpochMilli() }) { entry ->
+                                val item = entry.state
+                                Surface(
+                                    color = Color(0xFFF7F7F7),
+                                    shape = RoundedCornerShape(18.dp),
+                                    border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
+                                ) {
+                                    Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text(item.updatedAt.atZone(ZoneId.systemDefault())
+                                            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+                                            color = Color(0xFF7A7A7E), fontSize = 11.sp)
+                                        if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}",
+                                            color = Color(0xFF1D1D1F), fontSize = 14.sp)
+                                        if (item.momentReflection.isNotBlank()) Text(item.momentReflection,
+                                            color = Color(0xFF5F5F63), fontSize = 13.sp)
+                                        if (entry.gesture.isNotBlank()) Text("动作 · ${entry.gesture}",
+                                            color = Color(0xFF5F5F63), fontSize = 13.sp)
+                                        if (entry.status.isNotBlank()) Text("状态 · ${entry.status}",
+                                            color = Color(0xFF7A7A7E), fontSize = 12.sp)
+                                        if (entry.mood.isNotBlank()) Text("心情 · ${entry.mood}",
+                                            color = Color(0xFF7A7A7E), fontSize = 12.sp)
                                     }
                                 }
                             }
                         }
-                        if (messageAnchor == null) {
-                            item(key = "inner-life") {
-                                PresenceLivingMind(characterId)
-                            }
-                        }
-                    } else if (past.isEmpty()) {
-                        item(key = "empty-history") {
-                            Text("这之前还没有更早的心声与动作。", color = Color(0xFF7A7A7E))
-                        }
-                    } else {
-                        items(past, key = { it.updatedAt.toEpochMilli() }) { item ->
-                            Surface(
-                                color = Color(0xFFF7F7F7),
-                                shape = RoundedCornerShape(18.dp),
-                                border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
-                            ) {
-                                Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text(item.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")), color = Color(0xFF7A7A7E), fontSize = 11.sp)
-                                    if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}", color = Color(0xFF1D1D1F), fontSize = 14.sp)
-                                    if (item.gesture.isNotBlank()) Text("动作 · ${item.gesture}", color = Color(0xFF5F5F63), fontSize = 13.sp)
-                                    val status = PresencePresentation.status(item)
-                                    if (status.isNotBlank()) Text(status, color = Color(0xFF7A7A7E), fontSize = 12.sp)
-                                }
-                            }
+                        item(key = "mental-archive") {
+                            PresenceMentalHistory(characterId, messageAnchor?.messageAt)
                         }
                     }
 
@@ -196,19 +197,35 @@ internal fun CompanionPresenceDialog(
 }
 
 @Composable
-private fun PresenceStateContent(state: CompanionPresenceState) {
-    if (state.statusText.isNotBlank() || state.gesture.isNotBlank() || state.innerThought.isNotBlank() || state.mood.isNotBlank()) {
-        PresenceDialogSection("此刻动作", state.gesture.ifBlank { "此刻没有留下明确的动作或神态。" })
-        if (state.innerThought.isNotBlank()) PresenceDialogSection("心声", state.innerThought)
-        val status = PresencePresentation.status(state)
-        if (status.isNotBlank()) PresenceDialogSection("状态", status)
-        Text(
-            "状态记录 · " + state.updatedAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-            color = Color(0xFF7A7A7E),
-            fontSize = 11.sp,
-        )
+private fun PresenceStateContent(
+    state: CompanionPresenceState,
+    heartMoment: CompanionPresenceState?,
+) {
+    // Keep the active action/status separate from the most recent *authored*
+    // inner voice. An old thought may be the latest one, but it must retain its
+    // original time, never be falsely attributed to today's state update.
+    if (state.gesture.isNotBlank()) PresenceDialogSection("当前动作", state.gesture)
+    val status = PresencePresentation.status(state)
+    if (status.isNotBlank()) PresenceDialogSection("状态", status)
+    val voice = heartMoment?.innerThought.orEmpty()
+    if (voice.isNotBlank()) {
+        val time = heartMoment!!.updatedAt.atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+        val label = if (heartMoment.updatedAt == state.updatedAt) "这一刻的心声"
+            else "最近一次心声 · $time"
+        PresenceDialogSection(label, voice)
     }
-    // Keep technical perception timestamps out of the character's inner voice.
+    heartMoment?.momentReflection?.takeIf(String::isNotBlank)?.let {
+        PresenceDialogSection("那一刻的想法与顾虑", it)
+    }
+    if (state.gesture.isBlank() && status.isBlank() && voice.isBlank()) {
+        Text("这一刻还没有留下心声或动作。", color = Color(0xFF7A7A7E))
+    }
+    Text(
+        "状态记录 · " + state.updatedAt.atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+        color = Color(0xFF7A7A7E), fontSize = 11.sp,
+    )
 }
 
 @Composable
@@ -227,172 +244,76 @@ private fun PresenceDialogSection(title: String, content: String) {
 }
 
 /**
- * "此刻" is the one place for changing, evidence-backed inner life.
- * It reads the existing canonical stores; no parallel personality state is
- * invented and nothing disappears from persistence when panels collapse.
+ * History is the only surface for older thoughts, unsettled questions and
+ * earlier psychological changes. These live records must never be merged
+ * into the latest presence snapshot or into a specific message's heart voice.
  */
 @Composable
-private fun PresenceLivingMind(characterId: String) {
-    val innerVersion by CharacterInnerLifeStore.revisions.collectAsState()
-    val lifeStates by CharacterLifeStore.states.collectAsState()
-    val growthVersion by CharacterDevelopmentStore.revisions.collectAsState()
-    val tasks by CommitmentTaskStore.tasks.collectAsState()
-    val mind = remember(characterId, innerVersion) { CharacterInnerLifeStore.snapshot(characterId) }
-    val life = remember(characterId, lifeStates) { CharacterLifeStore.state(characterId) }
-    val growth = remember(characterId, growthVersion) { CharacterDevelopmentStore.active(characterId) }
-    val now = Instant.now()
-    val emotion = mind.optJSONObject("emotion")
-    val lastFeeling = emotion?.let {
-        val whenStarted = runCatching { Instant.parse(it.optString("startedAt")) }.getOrNull()
-        val within = whenStarted?.let { at ->
-            !at.isAfter(now) && Duration.between(at, now).toMinutes() <=
-                it.optInt("halfLifeMinutes", 180).coerceIn(30, 1440) * 3L
-        } == true
-        it.takeIf { within && it.optString("feeling").isNotBlank() }
-    }
+private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
+    val revision by CharacterInnerLifeStore.revisions.collectAsState()
+    val mind = remember(characterId, revision) { CharacterInnerLifeStore.snapshot(characterId) }
     val thoughts = mind.optJSONArray("thoughts")
-    val recentThoughts = (0 until (thoughts?.length() ?: 0)).mapNotNull { thoughts?.optJSONObject(it) }
-        .filter {
-            val at = runCatching { Instant.parse(it.optString("at")) }.getOrNull()
-            at != null && !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(24)
-        }.takeLast(3)
-    val allConcerns = mind.optJSONArray("openConcerns")
-    val openConcerns = CharacterOpenConcernRuntime.recent(allConcerns, now)
-    // Short-lived feelings stay above; older, evidence-linked psychological
-    // changes appear only when explicitly expanded, never on the stable persona page.
-    val journeyThreads = (0 until (allConcerns?.length() ?: 0))
-        .mapNotNull { allConcerns?.optJSONObject(it) }
-        .filter { (it.optJSONArray("journey")?.length() ?: 0) >= 2 }.takeLast(2)
+    val oldThoughts = (0 until (thoughts?.length() ?: 0))
+        .mapNotNull { thoughts?.optJSONObject(it) }
+        .filter { entry ->
+            val time = runCatching { Instant.parse(entry.optString("at")) }.getOrNull()
+            time != null && (cutoff == null || !time.isAfter(cutoff))
+        }.takeLast(10).asReversed()
+    val emotions = mind.optJSONArray("emotionHistory")
+    val priorEmotions = (0 until (emotions?.length() ?: 0))
+        .mapNotNull { emotions?.optJSONObject(it) }
+        .filter { entry ->
+            val time = runCatching { Instant.parse(entry.optString("startedAt")) }.getOrNull()
+            time != null && (cutoff == null || !time.isAfter(cutoff))
+        }.takeLast(3).asReversed()
+    val concerns = mind.optJSONArray("openConcerns")
+    val olderConcerns = (0 until (concerns?.length() ?: 0))
+        .mapNotNull { concerns?.optJSONObject(it) }
+        .filter { entry ->
+            val time = runCatching { Instant.parse(entry.optString("createdAt")) }.getOrNull()
+            time != null && (cutoff == null || !time.isAfter(cutoff))
+        }.takeLast(4).asReversed()
     val closed = mind.optJSONArray("closedConcerns")
-    val resolvedJourneys = (0 until (closed?.length() ?: 0))
-        .mapNotNull { closed?.optJSONObject(it) }.takeLast(3)
-    val motives = mind.optJSONArray("motives")
-    val livingGoals = (0 until (motives?.length() ?: 0)).mapNotNull { motives?.optJSONObject(it) }
-        .filter { it.optString("status", "active") != "released" }
-        .takeLast(5)
-    val legacy = life.optJSONObject("intention")
-    val legacyAim = legacy?.optString("aim").orEmpty()
-    val distinctLegacy = legacyAim.isNotBlank() && livingGoals.none {
-        sameCharacterMotive(it.optString("aim"), legacyAim)
-    }
-    val commitments = tasks.filter { it.characterId == characterId && it.status.isActive() }
-    val choices = mind.optJSONArray("decisions")
-    var showChoices by remember(characterId) { mutableStateOf(false) }
-    var showGrowth by remember(characterId) { mutableStateOf(false) }
-    var showJourney by remember(characterId) { mutableStateOf(false) }
+    val ended = (0 until (closed?.length() ?: 0))
+        .mapNotNull { closed?.optJSONObject(it) }
+        .filter { entry ->
+            val time = runCatching { Instant.parse(entry.optString("closedAt")) }.getOrNull()
+            time != null && (cutoff == null || !time.isAfter(cutoff))
+        }.takeLast(5).asReversed()
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (lastFeeling != null || recentThoughts.isNotEmpty() || openConcerns.isNotEmpty()) {
-            Text("心里的事", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
-            lastFeeling?.let {
-                PresenceDialogSection("感受",
-                    listOf(it.optString("feeling"), it.optString("cause"))
-                        .filter(String::isNotBlank).joinToString(" · "))
+    if (oldThoughts.isNotEmpty() || priorEmotions.isNotEmpty() ||
+        olderConcerns.isNotEmpty() || ended.isNotEmpty()) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("过去的心路", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
+            Text("这里保留过去的想法与变化；它们不代表角色此刻仍在这样想。",
+                fontSize = 11.sp, color = Color(0xFF7A7A7E))
+            oldThoughts.forEach { entry ->
+                val time = entry.optString("at").take(16).replace('T', ' ')
+                val details = listOf(
+                    entry.optString("thought").takeIf(String::isNotBlank),
+                    entry.optString("hesitation").takeIf(String::isNotBlank)?.let { "当时顾虑：$it" },
+                ).filterNotNull().joinToString("\n")
+                if (details.isNotBlank()) PresenceDialogSection("曾经的念头 · $time", details)
             }
-            if (recentThoughts.isNotEmpty()) PresenceDialogSection("还在琢磨",
-                recentThoughts.joinToString("\n") { item ->
-                    listOf(item.optString("thought"),
-                        item.optString("hesitation").takeIf(String::isNotBlank)?.let { "顾虑：$it" }.orEmpty())
-                        .filter(String::isNotBlank).joinToString(" · ")
-                })
-            openConcerns.forEach { item ->
-                PresenceDialogSection("还没想通",
-                    listOf(item.optString("focus"), item.optString("whyItMatters"),
-                        item.optJSONObject("lastOutcome")?.optString("summary").orEmpty())
-                        .filter(String::isNotBlank).joinToString(" · "))
+            priorEmotions.forEach { entry ->
+                val detail = listOf(entry.optString("feeling"), entry.optString("cause"))
+                    .filter(String::isNotBlank).joinToString(" · ")
+                if (detail.isNotBlank()) PresenceDialogSection("曾经的感受", detail)
             }
-        }
-        if (journeyThreads.isNotEmpty() || resolvedJourneys.isNotEmpty()) {
-            TextButton(onClick = { showJourney = !showJourney }) {
-                Text(if (showJourney) "收起心路历程" else "心路历程 · ${journeyThreads.size + resolvedJourneys.size}")
-            }
-            if (showJourney) {
-                fun journeyLines(item: org.json.JSONObject): String {
-                    val steps = item.optJSONArray("journey") ?: return item.optString("focus")
-                    return (maxOf(0, steps.length() - 4) until steps.length()).mapNotNull { index ->
-                        val step = steps.optJSONObject(index) ?: return@mapNotNull null
-                        val at = runCatching {
-                            Instant.parse(step.optString("at")).atZone(ZoneId.systemDefault())
-                                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
-                        }.getOrDefault("")
-                        val change = step.optString("phase").ifBlank { "想到" }
-                        val focus = step.optString("focus").take(130)
-                        val hesitation = step.optString("hesitation").take(100)
-                        listOf("$at · $change：$focus",
-                            hesitation.takeIf(String::isNotBlank)?.let { "心里的顾虑：$it" }.orEmpty())
-                            .filter(String::isNotBlank).joinToString("；")
-                    }.joinToString("\n")
-                }
-                journeyThreads.forEach { item ->
-                    val at = runCatching { Instant.parse(item.optString("updatedAt")) }.getOrNull()
-                    val dormant = at == null || Duration.between(at, now) > Duration.ofHours(48)
-                    PresenceDialogSection(
-                        if (dormant) "已经搁置的想法" else "还在变化的想法",
-                        journeyLines(item) +
-                            if (dormant) "\n（暂时搁置，不代表现在还在纠结）" else ""
-                    )
-                }
-                resolvedJourneys.forEach { item ->
-                    val ending = if (item.optString("closedAs") == "settled") "后来想通了" else "后来放下了"
-                    PresenceDialogSection("已经走过的心路",
-                        journeyLines(item) + "\n$ending：" +
-                            item.optString("resolution").ifBlank { "当时没有写下更多解释" }.take(180))
-                }
-            }
-        }
-        if (livingGoals.isNotEmpty() || distinctLegacy) {
-            Text("正在做的打算", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
-            livingGoals.forEach { goal ->
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(goal.optString("aim"), fontSize = 14.sp, color = Color(0xFF333338))
-                    TextButton(onClick = {
-                        CharacterInnerLifeStore.stopMotive(characterId, goal.optString("id"))
-                    }) { Text("放下") }
-                }
-            }
-            if (distinctLegacy) {
-                Text(legacyAim, fontSize = 14.sp, color = Color(0xFF333338))
-                TextButton(onClick = { CharacterLifeStore.stopIntention(characterId) }) {
-                    Text("放下")
-                }
-            }
-        }
-        if (commitments.isNotEmpty()) {
-            Text("已经约好的事", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
-            commitments.take(6).forEach { task ->
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(task.goal, fontSize = 14.sp, color = Color(0xFF333338))
-                    Text(when (task.status) {
-                        CommitmentTaskStatus.Scheduled -> "已安排"
-                        CommitmentTaskStatus.Running -> "正在执行"
-                        CommitmentTaskStatus.WaitingForFeedback -> "等你回应"
-                        CommitmentTaskStatus.Blocked -> "需要处理"
-                        else -> "待确认"
-                    }, color = Color(0xFF77777C), fontSize = 12.sp)
-                    TextButton(onClick = { CommitmentTaskStore.cancel(task.id, "用户取消了这次约定") }) {
-                        Text("取消约定")
+            olderConcerns.forEach { entry ->
+                val journey = entry.optJSONArray("journey")
+                val developments = (0 until (journey?.length() ?: 0))
+                    .mapNotNull { journey?.optJSONObject(it) }.takeLast(3)
+                    .joinToString("\n") {
+                        listOf(it.optString("phase"), it.optString("focus"),
+                            it.optString("hesitation")).filter(String::isNotBlank).joinToString(" · ")
                     }
-                }
+                val detail = developments.ifBlank { entry.optString("focus") }
+                if (detail.isNotBlank()) PresenceDialogSection("曾经挂心的事", detail)
             }
-        }
-        if (growth.isNotEmpty()) {
-            TextButton(onClick = { showGrowth = !showGrowth }) {
-                Text(if (showGrowth) "收起逐渐形成的习惯" else "逐渐形成 · ${growth.size}")
-            }
-            if (showGrowth) growth.takeLast(6).forEach { item ->
-                PresenceDialogSection(item.kind.label, item.content)
-            }
-        }
-        if (choices != null && choices.length() > 0) {
-            TextButton(onClick = { showChoices = !showChoices }) {
-                Text(if (showChoices) "收起最近选择" else "最近选择")
-            }
-            if (showChoices) for (index in choices.length() - 1 downTo maxOf(0, choices.length() - 4)) {
-                val item = choices.optJSONObject(index) ?: continue
-                val summary = listOf(item.optString("reason"),
-                    item.optString("outcome")).filter(String::isNotBlank).joinToString(" · ")
-                if (summary.isNotBlank()) PresenceDialogSection(
-                    item.optString("selected").ifBlank { "一次选择" }, summary)
+            ended.forEach { entry ->
+                val result = entry.optString("resolution").ifBlank { "后来放下了" }
+                PresenceDialogSection("一段心事的结束", entry.optString("focus") + "\n" + result)
             }
         }
     }
