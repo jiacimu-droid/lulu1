@@ -16,6 +16,7 @@ import java.time.Instant
  */
 internal object CharacterCausalAppraisalStage {
     private const val MAX_MODEL_ATTEMPTS_PER_EVENT = 2
+    private const val MIN_INTERVAL_BETWEEN_BACKGROUND_APPRAISALS_MS = 5 * 60_000L
 
     /**
      * A failing legacy event must never charge the user every time the app
@@ -39,7 +40,14 @@ internal object CharacterCausalAppraisalStage {
         val key = "$characterId:$evidenceId:${event.revision}"
         val count = store.getInt(key, 0)
         if (count >= MAX_MODEL_ATTEMPTS_PER_EVENT) return false
-        return store.edit().putInt(key, count + 1).commit()
+        // Separate NEW events must not launch several expensive reflection
+        // models back-to-back while the companion is actively chatting.
+        val now = System.currentTimeMillis()
+        val recent = store.getLong("latest_model_attempt:$characterId", 0L)
+        if (recent > 0L && now >= recent &&
+            now - recent < MIN_INTERVAL_BETWEEN_BACKGROUND_APPRAISALS_MS) return false
+        return store.edit().putInt(key, count + 1)
+            .putLong("latest_model_attempt:$characterId", now).commit()
     }
 
     /** No extra psychological model call may pre-empt actual unanswered chat. */
