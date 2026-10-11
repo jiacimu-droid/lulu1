@@ -158,6 +158,10 @@ internal object LuluVoiceCallSession {
     // VAD's onset is untrusted; text makes a user utterance real.
     private var systemSpeechConfirmed = false
     private var providerSpeechConfirmed = false
+    // Only STT utterances whose VAD actually started in an eligible mic
+    // window may reach the user-message pipeline. Cloud callbacks can arrive
+    // well after the character began loudspeaker playback.
+    private var cloudCaptureTurnAllowed = false
     private var userSpeechInProgress = false
     private fun confirmedSpeechInProgress() = userSpeechInProgress &&
         (systemSpeechConfirmed || providerSpeechConfirmed)
@@ -690,6 +694,7 @@ internal object LuluVoiceCallSession {
                     }
                 }
                 if (busy) {
+                    if (!privateCallOutput()) cloudCaptureTurnAllowed = false
                     // Cloud STT has its own PCM recorder and echo processing.
                     // Do not shut it down whenever TTS starts: that made
                     // ordinary calls effectively half-duplex (no barge-in).
@@ -1358,6 +1363,7 @@ internal object LuluVoiceCallSession {
     private fun startProviderInput() {
         val context = appContext ?: return
         providerInput?.stop()
+        cloudCaptureTurnAllowed = false
         val id = mutableState.value.callExperienceId
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
         providerInput = ProviderCallInput(context, scope,
@@ -1387,6 +1393,11 @@ internal object LuluVoiceCallSession {
             onSpeech = {
                 if (sameSession()) {
                     userSpeechInProgress = true
+                    cloudCaptureTurnAllowed = PhoneBargeInPolicy.shouldCapture(
+                        mutableState.value.microphoneMuted,
+                        mutableState.value.speaking || speechQueue?.hasPendingAudio == true,
+                        privateCallOutput(),
+                    )
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = SystemClock.elapsedRealtime()
                     // VAD alone may be static/noise; wait for real STT text.
@@ -1411,8 +1422,9 @@ internal object LuluVoiceCallSession {
                 val isEcho = isPlaybackEchoFromCloud(candidate)
                 val call = mutableState.value
                 val characterAudio = call.speaking || speechQueue?.hasPendingAudio == true
-                val safeCapture = PhoneBargeInPolicy.shouldCapture(
-                    call.microphoneMuted, characterAudio, privateCallOutput())
+                val safeCapture = cloudCaptureTurnAllowed &&
+                    PhoneBargeInPolicy.shouldCapture(
+                        call.microphoneMuted, characterAudio, privateCallOutput())
                 // A tentative STT partial is not a human speaker identifier.
                 // Never interrupt loudspeaker output or publish its tentative
                 // words as the user's speech. Headsets can barge in only with
@@ -1436,8 +1448,10 @@ internal object LuluVoiceCallSession {
                     val isEcho = isPlaybackEchoFromCloud(text)
                     val call = mutableState.value
                     val characterAudio = call.speaking || speechQueue?.hasPendingAudio == true
-                    val safeCapture = PhoneBargeInPolicy.shouldCapture(
-                        call.microphoneMuted, characterAudio, privateCallOutput())
+                    val safeCapture = cloudCaptureTurnAllowed &&
+                        PhoneBargeInPolicy.shouldCapture(
+                            call.microphoneMuted, characterAudio, privateCallOutput())
+                    cloudCaptureTurnAllowed = false
                     userSpeechInProgress = false
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
@@ -1472,6 +1486,7 @@ internal object LuluVoiceCallSession {
             } },
             onError = { error -> if (sameSession()) {
                 userSpeechInProgress = false
+                cloudCaptureTurnAllowed = false
                 providerSpeechConfirmed = false
                 providerSpeechStartedMillis = 0L
                 providerRecognitionPendingUntilMillis = 0L
