@@ -12,6 +12,23 @@ internal object AutonomousDecisionRecovery {
         "没有(新消息|用户新消息|人找|人来找|用户消息|人说话|人联系)|没人(找|说话|联系)|等(她|他|用户|消息)|没(有)?事(情)?(可|要|能)做"
     )
     private val ownLifeActions = setOf("solo_game", "reading", "digital_world", "journal")
+    /** Only salvage a fully closed private text field from truncated optional JSON. */
+    fun completedPrivateMessage(raw: String): JSONObject? {
+        val clean = raw.substringAfter('{', "").let { "{$it" }.trim()
+        val action = Regex("""^\{\s*"action"\s*:\s*"(message|kaomoji)"\s*,""")
+            .find(clean)?.groupValues?.getOrNull(1) ?: return null
+        val found = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""")
+            .find(clean) ?: return null
+        if (found.range.first > 8_000) return null
+        val prefix = clean.substring(0, found.range.first)
+        if (listOf("innerLife", "appraisal", "alternatives", "args", "tool")
+            .any { prefix.contains("\"$it\"") }) return null
+        val text = runCatching { JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}")
+            .optString("text").trim() }.getOrNull().orEmpty()
+        if (text.isBlank()) return null
+        return JSONObject().put("action", action).put("text", text.take(1_500))
+            .put("reason", "保留已经完整生成的回复文字，不执行未完成的额外字段")
+    }
     fun choose(json: JSONObject): JSONObject {
         if (!json.optString("action").equals("silent", true)) return json
         if (!noIncomingMessage.containsMatchIn(json.optString("reason"))) return json
