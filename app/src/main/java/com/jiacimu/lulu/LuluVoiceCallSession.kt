@@ -1333,8 +1333,6 @@ internal object LuluVoiceCallSession {
                         sleepMode = current.sleepMode,
                         userSpeaking = confirmedSpeechInProgress(),
                         audioInProgress = current.speaking || speechQueue?.hasPendingAudio == true,
-                        autoEndEnabled = appContext?.getSharedPreferences("lulu_advanced_settings", 0)
-                            ?.getBoolean("sleep_auto_end_60m", false) == true,
                     )) {
                     endSleepCallOnSilence()
                     break
