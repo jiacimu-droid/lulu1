@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`816febee45ed67ddf88984c61a232ea7f0351794`
+- 基准提交：`e06a180cc220f3236b6dfe6cff7444ebe70e27c6`
 - 分支：`main`
 - 已索引文件：494
-- 已索引代码/文本行：104880
+- 已索引代码/文本行：104902
 - 已发现符号：1558
 
 | 文件 | 行数 | 符号数 |
@@ -170,7 +170,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 87 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 114 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 171 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 193 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 34 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:25:19.300814+00:00",
-  "commit": "816febee45ed67ddf88984c61a232ea7f0351794",
+  "generatedAt": "2026-10-11T05:27:12.375383+00:00",
+  "commit": "e06a180cc220f3236b6dfe6cff7444ebe70e27c6",
   "branch": "main",
-  "sourceFingerprint": "5adafaa312ab61f773abd744ec143ceacc7fc6f30c4f735208cf412346642443",
+  "sourceFingerprint": "50bbbd8e8d2dcdf832e25ac3240207ef9c2016c1fb6d8804997b15f6d3d3ae04",
   "summary": {
     "files": 494,
-    "lines": 104880,
+    "lines": 104902,
     "symbols": 1558
   },
   "symbolIndex": {
@@ -3393,7 +3393,7 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 78
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -3403,13 +3403,13 @@
     "latest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 108
+        "line": 117
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 126
+        "line": 146
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -11656,8 +11656,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 171,
-      "sha256": "abcb599769fd5c74e781e97e48a417aa2d20d910276de021bfaf84bcad3b5a1f",
+      "lines": 193,
+      "sha256": "010085110f8cc0714f0ebe9d5a31aec1912e8c9270f60b75ee22bdfdcbe74131",
       "symbols": [
         {
           "name": "parse",
@@ -11665,15 +11665,15 @@
         },
         {
           "name": "offer",
-          "line": 78
+          "line": 83
         },
         {
           "name": "latest",
-          "line": 108
+          "line": 117
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 126
+          "line": 146
         }
       ]
     },
