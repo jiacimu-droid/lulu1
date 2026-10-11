@@ -256,8 +256,16 @@ private fun PresenceLivingMind(characterId: String) {
             val at = runCatching { Instant.parse(it.optString("at")) }.getOrNull()
             at != null && !at.isAfter(now) && Duration.between(at, now) <= Duration.ofHours(24)
         }.takeLast(3)
-    val openConcerns = com.jiacimu.lulu.data.CharacterOpenConcernRuntime.recent(
-        mind.optJSONArray("openConcerns"), now)
+    val allConcerns = mind.optJSONArray("openConcerns")
+    val openConcerns = CharacterOpenConcernRuntime.recent(allConcerns, now)
+    // Short-lived feelings stay above; older, evidence-linked psychological
+    // changes appear only when explicitly expanded, never on the stable persona page.
+    val journeyThreads = (0 until (allConcerns?.length() ?: 0))
+        .mapNotNull { allConcerns?.optJSONObject(it) }
+        .filter { (it.optJSONArray("journey")?.length() ?: 0) >= 2 }.takeLast(2)
+    val closed = mind.optJSONArray("closedConcerns")
+    val resolvedJourneys = (0 until (closed?.length() ?: 0))
+        .mapNotNull { closed?.optJSONObject(it) }.takeLast(3)
     val motives = mind.optJSONArray("motives")
     val livingGoals = (0 until (motives?.length() ?: 0)).mapNotNull { motives?.optJSONObject(it) }
         .filter { it.optString("status", "active") != "released" }
@@ -271,6 +279,7 @@ private fun PresenceLivingMind(characterId: String) {
     val choices = mind.optJSONArray("decisions")
     var showChoices by remember(characterId) { mutableStateOf(false) }
     var showGrowth by remember(characterId) { mutableStateOf(false) }
+    var showJourney by remember(characterId) { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (lastFeeling != null || recentThoughts.isNotEmpty() || openConcerns.isNotEmpty()) {
@@ -291,6 +300,44 @@ private fun PresenceLivingMind(characterId: String) {
                     listOf(item.optString("focus"), item.optString("whyItMatters"),
                         item.optJSONObject("lastOutcome")?.optString("summary").orEmpty())
                         .filter(String::isNotBlank).joinToString(" · "))
+            }
+        }
+        if (journeyThreads.isNotEmpty() || resolvedJourneys.isNotEmpty()) {
+            TextButton(onClick = { showJourney = !showJourney }) {
+                Text(if (showJourney) "收起心路历程" else "心路历程 · ${journeyThreads.size + resolvedJourneys.size}")
+            }
+            if (showJourney) {
+                fun journeyLines(item: org.json.JSONObject): String {
+                    val steps = item.optJSONArray("journey") ?: return item.optString("focus")
+                    return (maxOf(0, steps.length() - 4) until steps.length()).mapNotNull { index ->
+                        val step = steps.optJSONObject(index) ?: return@mapNotNull null
+                        val at = runCatching {
+                            Instant.parse(step.optString("at")).atZone(ZoneId.systemDefault())
+                                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+                        }.getOrDefault("")
+                        val change = step.optString("phase").ifBlank { "想到" }
+                        val focus = step.optString("focus").take(130)
+                        val hesitation = step.optString("hesitation").take(100)
+                        listOf("$at · $change：$focus",
+                            hesitation.takeIf(String::isNotBlank)?.let { "心里的顾虑：$it" }.orEmpty())
+                            .filter(String::isNotBlank).joinToString("；")
+                    }.joinToString("\n")
+                }
+                journeyThreads.forEach { item ->
+                    val at = runCatching { Instant.parse(item.optString("updatedAt")) }.getOrNull()
+                    val dormant = at == null || Duration.between(at, now) > Duration.ofHours(48)
+                    PresenceDialogSection(
+                        if (dormant) "已经搁置的想法" else "还在变化的想法",
+                        journeyLines(item) +
+                            if (dormant) "\n（暂时搁置，不代表现在还在纠结）" else ""
+                    )
+                }
+                resolvedJourneys.forEach { item ->
+                    val ending = if (item.optString("closedAs") == "settled") "后来想通了" else "后来放下了"
+                    PresenceDialogSection("已经走过的心路",
+                        journeyLines(item) + "\n$ending：" +
+                            item.optString("resolution").ifBlank { "当时没有写下更多解释" }.take(180))
+                }
             }
         }
         if (livingGoals.isNotEmpty() || distinctLegacy) {
