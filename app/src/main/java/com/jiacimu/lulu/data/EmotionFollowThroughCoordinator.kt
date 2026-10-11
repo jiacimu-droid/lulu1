@@ -52,12 +52,20 @@ internal object EmotionFollowThroughCoordinator {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val key = "scheduled:$id"
         val previous = prefs.getLong(key, 0L)
-        val significant = CharacterGrowthTrajectory.feedbackTopic(lastUser) != null
-        // Different significant user feedback must not be swallowed by the
-        // original per-role 30-minute cooldown.
+        val salientMessages = recentUser.filter {
+            CharacterGrowthTrajectory.feedbackTopic(it.content) != null
+        }
+        val significant = salientMessages.isNotEmpty()
+        val feedbackKey = "feedback_covered:$id"
+        val feedbackId = salientMessages.firstOrNull()?.id.orEmpty()
+        // Several bubbles after ONE argument are one episode, not many imprints.
+        // But a NEW serious complaint gets through even inside 30 minutes.
+        if (significant && feedbackId == prefs.getString(feedbackKey, "")) return
         if (!significant && previous > 0 &&
             Duration.between(Instant.ofEpochMilli(previous), now).toMinutes() < 30) return
-        if (!prefs.edit().putLong(key, now.toEpochMilli()).commit()) return
+        val edit = prefs.edit().putLong(key, now.toEpochMilli())
+        if (significant) edit.putString(feedbackKey, feedbackId)
+        if (!edit.commit()) return
 
         // Grounded one-off imprint is separate from the optional online
         // autonomy switch. A significant argument can leave a private memory
