@@ -448,6 +448,8 @@ object ProactivePerceptionRuntime {
             locationActivities = activityChoices,
             publicPlaces = if (digital) DigitalWorldPublicPlaces.all.map { it.code to it.label } else emptyList(),
             currentItems = itemChoices,
+            currentResidents = if (digital) DigitalWorldExpansionStore.residentsAt(currentLocation)
+                .map { Triple(it.id, it.name, it.identity) } else emptyList(),
         )
 
         val result = LuluAiServices.gateway.generate(
