@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:31:13.403262+00:00",
-  "commit": "6209e81926041ba7c7fe5b5d298f305f1eac0798",
+  "generatedAt": "2026-10-11T05:31:39.178959+00:00",
+  "commit": "306f5d5e7e5752ff00ae122d4d5bc56967e5f206",
   "branch": "main",
-  "sourceFingerprint": "5c2e03f7b2863f899df58d9a79611e81db380048863b498d0915f5ea7f1d3a13",
+  "sourceFingerprint": "06e57bd865181a0f43ff303cc6c0c02a918ed4e80c2a5bd74cd1d257279ae107",
   "summary": {
-    "files": 494,
-    "lines": 104985,
-    "symbols": 1559
+    "files": 495,
+    "lines": 105058,
+    "symbols": 1560
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8480,6 +8480,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 32
+      }
+    ],
+    "CharacterSelfActivityRuntimeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
+        "line": 12
       }
     ],
     "CharacterStaleGoalPolicyTest": [
@@ -17828,6 +17834,17 @@
         {
           "name": "event",
           "line": 32
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
+      "lines": 73,
+      "sha256": "fe3e4d8ef4d84ca8c5b0b958c35911a60208482b861fe5b5cafa51a9301fad77",
+      "symbols": [
+        {
+          "name": "CharacterSelfActivityRuntimeTest",
+          "line": 12
         }
       ]
     },
