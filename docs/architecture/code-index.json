@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:17:39.876188+00:00",
-  "commit": "fbf840d883ba15b69e9f6e789db96e18ba34b7a3",
+  "generatedAt": "2026-10-11T12:19:58.718267+00:00",
+  "commit": "07dc2d345bdc7a6bfc831f1abcd90f9ee7a8e124",
   "branch": "main",
-  "sourceFingerprint": "ada1925e2654ed49e93d13c601a32d264e8f3c4f64c7e2a24a8d075f4c640449",
+  "sourceFingerprint": "afb11ea2a635cfc9a3fd2bb71213b22e752079f53b5950b78e1ae0eab36b05b2",
   "summary": {
     "files": 504,
-    "lines": 107114,
-    "symbols": 1601
+    "lines": 107121,
+    "symbols": 1602
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -47,13 +47,13 @@
     "bindInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 45
+        "line": 48
       }
     ],
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 186
+        "line": 189
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
@@ -1818,16 +1818,22 @@
         "line": 31
       }
     ],
+    "onsetFrames": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 36
+      }
+    ],
     "finalizeOnMute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 38
+        "line": 42
       }
     ],
     "uploadChunkFull": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 40
+        "line": 44
       }
     ],
     "appendParagraph": [
@@ -9013,8 +9019,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-      "lines": 206,
-      "sha256": "ffefccb969653446b61404ee159a07b0657119a16f2dea18b254ad51c642428f",
+      "lines": 209,
+      "sha256": "f2546fb77dc5d96ca08039992d30799d5036a6580e278d98b55cec069287039e",
       "symbols": [
         {
           "name": "start",
@@ -9022,11 +9028,11 @@
         },
         {
           "name": "bindInput",
-          "line": 45
+          "line": 48
         },
         {
           "name": "stop",
-          "line": 186
+          "line": 189
         }
       ]
     },
@@ -10427,8 +10433,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-      "lines": 43,
-      "sha256": "5612b7363c67fc24316094513531921e25b2f96ddf78355433fefe2eceb32db6",
+      "lines": 47,
+      "sha256": "a34e6213ce8d9d1779c5a350ae5467312aa9a485ceef3097f3c4cea591c39cb1",
       "symbols": [
         {
           "name": "silenceMs",
@@ -10455,12 +10461,16 @@
           "line": 31
         },
         {
+          "name": "onsetFrames",
+          "line": 36
+        },
+        {
           "name": "finalizeOnMute",
-          "line": 38
+          "line": 42
         },
         {
           "name": "uploadChunkFull",
-          "line": 40
+          "line": 44
         }
       ]
     },
@@ -10542,7 +10552,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
       "lines": 449,
-      "sha256": "3356231bc8dcf2d0b16c02ddbcd7c565722c29b05c8cfc0cd744ec1099d6b599",
+      "sha256": "337ab4e71014f195f4660f4b0b5eea583a0d6a8025ebefb2d12b45cef5c67090",
       "symbols": [
         {
           "name": "start",
@@ -10881,7 +10891,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
       "lines": 179,
-      "sha256": "6ce1820b62a6de882cb615f9af9a1efedc356d5294e2ea7b24ece8d1a98ef65a",
+      "sha256": "0fadd1b7496da7429af821376ebae5b99c90cda1a046fcc39fa8c53ca42b086b",
       "symbols": []
     },
     {
