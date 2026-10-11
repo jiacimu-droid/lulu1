@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:59:21.154710+00:00",
-  "commit": "a2f2d556a864be377103938ec50658041eeb32bc",
+  "generatedAt": "2026-10-11T13:13:56.519078+00:00",
+  "commit": "ffc03d98b7f93b0ab969c266476b6803d2961554",
   "branch": "main",
-  "sourceFingerprint": "8c601657e6432c65ae1a8c4e21ccd33494f3d58051979b23467d46ef3fb9e099",
+  "sourceFingerprint": "775d9b823a49389156fec5de05a8c1442c53fa0919f6f4a8e616aea238a4636a",
   "summary": {
-    "files": 508,
-    "lines": 107617,
-    "symbols": 1610
+    "files": 509,
+    "lines": 107661,
+    "symbols": 1611
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -370,6 +370,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
         "line": 25
+      }
+    ],
+    "explicitlyEndsOwnCall": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt",
+        "line": 27
       }
     ],
     "provider": [
@@ -9227,6 +9233,17 @@
         {
           "name": "finish",
           "line": 36
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt",
+      "lines": 44,
+      "sha256": "e82ac71cf081284d939de92eb29caefd0594664fb66a37a7f991e9c3b9e9d9a0",
+      "symbols": [
+        {
+          "name": "explicitlyEndsOwnCall",
+          "line": 27
         }
       ]
     },
