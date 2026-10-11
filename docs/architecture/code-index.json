@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T04:28:03.531794+00:00",
-  "commit": "f1144bb45bdc885e490740cc3d6169b649fc695c",
+  "generatedAt": "2026-10-11T04:29:29.423368+00:00",
+  "commit": "5d46ad5b8d1d9d19f443a63f55bf96d3020c4dab",
   "branch": "main",
-  "sourceFingerprint": "d0a6e44b5b7f4272907ccc9569dcc3a0150d53b7468cf2fdea306635635cb158",
+  "sourceFingerprint": "b19979ad71b76dcfa5272b5c9fd0f998e76ef38e1d4c9d1609ce3c1150b26d2c",
   "summary": {
     "files": 492,
-    "lines": 104427,
+    "lines": 104458,
     "symbols": 1550
   },
   "symbolIndex": {
@@ -11512,8 +11512,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-      "lines": 135,
-      "sha256": "67ba8539b3911e53f0273ba15f133bbcc324a11adf4bcb940c0b6d5211e9e6d9",
+      "lines": 142,
+      "sha256": "e6d4c8f5014565cca10b5f39e566d7c539bac499625233c9c67043caff3c85f2",
       "symbols": [
         {
           "name": "promptSection",
@@ -17583,8 +17583,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 105,
-      "sha256": "7c49f786333d8d1511642339ed2d43ba679ca68c01e7c8f19a172260967292dc",
+      "lines": 129,
+      "sha256": "ed6f23e25f66a4fb16db70efcac4eded73530f9d953cabcbcaad096943a0e469",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",

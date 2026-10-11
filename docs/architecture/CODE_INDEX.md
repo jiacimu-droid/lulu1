@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f1144bb45bdc885e490740cc3d6169b649fc695c`
+- 基准提交：`5d46ad5b8d1d9d19f443a63f55bf96d3020c4dab`
 - 分支：`main`
 - 已索引文件：492
-- 已索引代码/文本行：104427
+- 已索引代码/文本行：104458
 - 已发现符号：1550
 
 | 文件 | 行数 | 符号数 |
@@ -165,7 +165,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 234 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 65 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 135 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 142 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 87 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 114 | 9 |
@@ -447,7 +447,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 99 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 105 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 53 | 1 |
