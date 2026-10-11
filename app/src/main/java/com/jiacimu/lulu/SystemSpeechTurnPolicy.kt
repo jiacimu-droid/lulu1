@@ -6,6 +6,12 @@ package com.jiacimu.lulu
  * and delay committing it just enough for natural breathing gaps.
  */
 internal object SystemSpeechTurnPolicy {
+    /** A microphone mute is an explicit end-of-turn signal. Keep every real
+     * recognized word before cancelling Android SpeechRecognizer.
+     */
+    fun wordsToSubmitOnMute(committed: String, inFlightPartial: String): String =
+        PhoneTranscriptAssembler.combine(committed, inFlightPartial).trim()
+
     /** Natural long explanations need more breathing space than one-word replies.
      * This is measured after a final transcript, NOT after each partial callback.
      */
