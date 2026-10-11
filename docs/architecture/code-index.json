@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:55:24.253737+00:00",
-  "commit": "26b8536fb554efbde72d06fdade6bf97a5611394",
+  "generatedAt": "2026-10-11T05:56:22.383620+00:00",
+  "commit": "fd4b6466dbc389169c57bc5664a52d7a036e69ce",
   "branch": "main",
-  "sourceFingerprint": "cfedbd63bf9720022fd3567106d3e2bc87aa6824feb701d27cdb44dfd72d6257",
+  "sourceFingerprint": "6e7e349f923ad6cca11e171ae92e41c25a412a0bf140278e44b2365266fbafec",
   "summary": {
     "files": 497,
-    "lines": 105444,
+    "lines": 105447,
     "symbols": 1563
   },
   "symbolIndex": {
@@ -209,7 +209,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 215
+        "line": 218
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -2985,7 +2985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 340
+        "line": 343
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -3931,25 +3931,25 @@
     "selectedMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 193
+        "line": 196
       }
     ],
     "clearMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 196
+        "line": 199
       }
     ],
     "recordPerceptionAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 203
+        "line": 206
       }
     ],
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 311
+        "line": 314
       }
     ],
     "repairInstruction": [
@@ -12274,8 +12274,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 467,
-      "sha256": "f46ba652983e58021a13cd90dd7f73bb200a610e4255852e7aac60e9aaeae1b9",
+      "lines": 470,
+      "sha256": "ca0ecc5b25179207a02e6a35ad0da266c4a7a95893dec2bf7718ae8948f947ee",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -12315,27 +12315,27 @@
         },
         {
           "name": "selectedMessageAnchor",
-          "line": 193
-        },
-        {
-          "name": "clearMessageAnchor",
           "line": 196
         },
         {
+          "name": "clearMessageAnchor",
+          "line": 199
+        },
+        {
           "name": "recordPerceptionAttempt",
-          "line": 203
+          "line": 206
         },
         {
           "name": "update",
-          "line": 215
+          "line": 218
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 311
+          "line": 314
         },
         {
           "name": "clearCharacter",
-          "line": 340
+          "line": 343
         }
       ]
     },
