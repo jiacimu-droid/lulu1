@@ -656,6 +656,9 @@ internal object LuluVoiceCallSession {
                 }
             },
             onError = { error -> if (mutableState.value.connected) {
+                // The character's farewell is not complete when TTS fails.
+                // Never execute a structured or spoken hangup after failed audio.
+                autonomousHangup.cancel()
                 mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") }
                 if (mutableState.value.sleepMode && ++sleepFailures >= 3) {
                     sleepContinuationJob?.cancel()
@@ -1110,7 +1113,7 @@ internal object LuluVoiceCallSession {
                                 sleepFailures = 0
                                 MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
                                     voiceMessageId, plainSpeech, true)
-                                autonomousHangup.markDelivered(latest.callExperienceId, generation)
+                                autonomousHangup.markDelivered(latest.callExperienceId, generation, plainSpeech)
                             }
                             clearWhenHeard()
                             mutableState.update { it.copy(playingTranscript = "") }
@@ -1220,6 +1223,7 @@ internal object LuluVoiceCallSession {
                 if (!autonomousSleep && CallSpokenHangupPolicy.explicitlyEndsOwnCall(finalText.orEmpty())) {
                     autonomousHangup.request(latest.callExperienceId, generation)
                 }
+                autonomousHangup.expectSpoken(latest.callExperienceId, generation, finalText.orEmpty())
                 mutableState.update { it.copy(thinking = false, generatedTranscript = VoicePerformance.plain(text),
                     statusMessage = if (it.speaking) "${latest.characterName} 正在说话" else "回复正在准备发声") }
                 silenceAudioPending = autonomousSilence && remaining.isNotEmpty()
@@ -1358,6 +1362,7 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         userSpeechInProgress = false
         replyGeneration++; replyJob?.cancel()
+        autonomousHangup.cancel()
         subtitleRevealJob?.cancel(); speechQueue?.stop()
         mutableState.update { it.copy(speaking = false, thinking = false, userSpeaking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
