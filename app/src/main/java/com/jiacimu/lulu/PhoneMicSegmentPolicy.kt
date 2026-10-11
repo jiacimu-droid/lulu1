@@ -6,9 +6,7 @@ package com.jiacimu.lulu
  */
 internal object PhoneMicSegmentPolicy {
     const val SAMPLE_RATE = 16_000
-    // Longer chunks reduce words cut across batch-ASR boundaries; 18 s stays
-    // safely within MiniMax / Groq / Scribe upload limits.
-    const val MAX_UPLOAD_BYTES = SAMPLE_RATE * 2 * 18
+    const val MAX_UPLOAD_BYTES = SAMPLE_RATE * 2 * 12
 
     fun silenceMs(utteranceFrames: Int, configured: Int): Int = when {
         utteranceFrames >= 50 -> configured.coerceIn(1_700, 3_500)
