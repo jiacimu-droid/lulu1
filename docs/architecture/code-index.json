@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T08:19:29.254936+00:00",
-  "commit": "f441e8a2038f8bd4da50b2620aa543077c558a9c",
+  "generatedAt": "2026-10-11T08:37:26.200242+00:00",
+  "commit": "708b888a4ba4f748c057a1e90dcfd3ba79c94ad9",
   "branch": "main",
-  "sourceFingerprint": "6ba7480ae70acc328bc9e249587b28c893f8ccf8867685e8c84ef0ffd4fc48e7",
+  "sourceFingerprint": "d8476d0e21335ca0b251d73afffbc19bfb9a08c3972130c09ae91ab4398162e1",
   "summary": {
-    "files": 500,
-    "lines": 106287,
-    "symbols": 1584
+    "files": 501,
+    "lines": 106419,
+    "symbols": 1585
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -320,6 +320,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
         "line": 184
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
+        "line": 53
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -11837,6 +11841,17 @@
         {
           "name": "CharacterRecordReset",
           "line": 10
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
+      "lines": 132,
+      "sha256": "7d1ec46d1ceef1ccc00804b44c87d50ccfb66ea6d2e0a0a5feb20ae17f4f862e",
+      "symbols": [
+        {
+          "name": "context",
+          "line": 53
         }
       ]
     },
