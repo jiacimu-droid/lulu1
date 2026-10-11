@@ -840,7 +840,7 @@ object ProactivePerceptionRuntime {
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
                 now = now,
                 innerThoughtFingerprint = privateDelta.fingerprint,
-                momentReflection = if (hasMeaningfulInnerUpdate)
+                momentReflection = if (hasMeaningfulInnerUpdate && privateDelta.meaningful)
                     CharacterMomentSnapshot.reflection(
                         decision.innerLife, decision.innerThoughtBasis, decision.appraisal,
                         innerThought = groundedInnerThought,
