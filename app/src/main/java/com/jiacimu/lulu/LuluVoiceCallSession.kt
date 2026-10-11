@@ -163,7 +163,7 @@ internal object LuluVoiceCallSession {
             replyJob?.cancel()
             replyIsSilence = false
             silenceAudioPending = false
-            autonomousHangup.cancel()
+            cancelPendingCharacterHangup()
             subtitleRevealJob?.cancel()
             speechQueue?.stop()
             mutableState.update { it.copy(thinking = false, generatedTranscript = "", playingTranscript = "") }
@@ -188,12 +188,58 @@ internal object LuluVoiceCallSession {
     private var audioRoute: CallAudioRoute? = null
     private val openingTurn = CallOpeningTurn()
     private val autonomousHangup = CallAutonomousHangupGate()
+    private var pendingCharacterHangupJob: Job? = null
+
+    /** A real user response can change the farewell decision at any time
+     * before the disconnect, including while speech recognition is pending.
+     */
+    private fun cancelPendingCharacterHangup() {
+        pendingCharacterHangupJob?.cancel()
+        pendingCharacterHangupJob = null
+        autonomousHangup.cancel()
+    }
+
+    private fun startCharacterHangupGrace(callId: String, generation: Long, agent: Boolean) {
+        if (pendingCharacterHangupJob?.isActive == true) return
+        val initial = mutableState.value
+        if (!initial.connected || initial.callExperienceId != callId) return
+        val began = SystemClock.elapsedRealtime()
+        pendingCharacterHangupJob = scope.launch {
+            while (true) {
+                val call = mutableState.value
+                if (!call.connected || call.callExperienceId != callId ||
+                    (agent && realtime == null) || (!agent && generation != replyGeneration)) return@launch
+                // A newer utterance by the character means the old farewell is
+                // no longer the final spoken decision.
+                if (call.thinking || call.speaking || speechQueue?.hasPendingAudio == true) return@launch
+                val clock = SystemClock.elapsedRealtime()
+                val elapsed = clock - began
+                val inputStillResolving = !call.microphoneMuted &&
+                    (confirmedSpeechInProgress() || userSpeechInProgress ||
+                        systemPartialCandidate.isNotBlank() ||
+                        providerRecognitionPendingUntilMillis > clock)
+                if (!CallHangupGracePolicy.shouldWait(elapsed, inputStillResolving)) {
+                    endCallByCharacter()
+                    return@launch
+                }
+                val remaining = ((CallHangupGracePolicy.RESPONSE_WINDOW_MS - elapsed)
+                    .coerceAtLeast(0L) + 999L) / 1_000L
+                val status = if (remaining > 0)
+                    "准备挂断 · 还可以叫住对方（${remaining}秒）"
+                else "听你是不是还想说话，暂不挂断"
+                if (call.statusMessage != status) {
+                    mutableState.update { it.copy(statusMessage = status) }
+                }
+                delay(250L)
+            }
+        }
+    }
 
     private fun finishAutonomousHangupIfReady() {
         val call = mutableState.value
         if (autonomousHangup.consumeWhenReady(call.callExperienceId, replyGeneration,
                 call.connected, call.thinking, call.speaking)) {
-            endCallByCharacter()
+            startCharacterHangupGrace(call.callExperienceId, replyGeneration, agent = false)
         }
     }
 
@@ -201,7 +247,7 @@ internal object LuluVoiceCallSession {
         initialize(context)
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) {
-            autonomousHangup.cancel()
+            cancelPendingCharacterHangup()
             mutableState.value = LuluVoiceCallState(
                 conversationId = conversationId,
                 characterId = characterId,
@@ -500,7 +546,7 @@ internal object LuluVoiceCallSession {
         providerSpeechConfirmed = false
         providerSpeechStartedMillis = 0L
         providerRecognitionPendingUntilMillis = 0L
-        autonomousHangup.cancel()
+        cancelPendingCharacterHangup()
         val endStatus = if (sleepAutoEnded) "哄睡陪伴已安静结束" else
             if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
@@ -658,7 +704,7 @@ internal object LuluVoiceCallSession {
             onError = { error -> if (mutableState.value.connected) {
                 // The character's farewell is not complete when TTS fails.
                 // Never execute a structured or spoken hangup after failed audio.
-                autonomousHangup.cancel()
+                cancelPendingCharacterHangup()
                 mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") }
                 if (mutableState.value.sleepMode && ++sleepFailures >= 3) {
                     sleepContinuationJob?.cancel()
@@ -696,7 +742,7 @@ internal object LuluVoiceCallSession {
         replyJob?.cancel()
         replyJob = null
         subtitleRevealJob?.cancel()
-        autonomousHangup.cancel()
+        cancelPendingCharacterHangup()
         speechQueue?.stop()
         replyIsSilence = false
         silenceAudioPending = false
@@ -1019,7 +1065,7 @@ internal object LuluVoiceCallSession {
             }
         }
         replyGeneration++
-        autonomousHangup.cancel()
+        cancelPendingCharacterHangup()
         subtitleRevealJob?.cancel()
         speechQueue?.stop()
         val generation = replyGeneration
@@ -1249,7 +1295,7 @@ internal object LuluVoiceCallSession {
                     return@onFailure
                 }
                 stream.cancel()
-                autonomousHangup.cancel()
+                cancelPendingCharacterHangup()
                 speechQueue?.stop()
                 mutableState.update {
                     it.copy(
@@ -1362,7 +1408,7 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         userSpeechInProgress = false
         replyGeneration++; replyJob?.cancel()
-        autonomousHangup.cancel()
+        cancelPendingCharacterHangup()
         subtitleRevealJob?.cancel(); speechQueue?.stop()
         mutableState.update { it.copy(speaking = false, thinking = false, userSpeaking = false, opening = false, microphoneMuted = false, errorMessage = "", generatedTranscript = "", playingTranscript = "") }
         audioRoute?.microphone(false)
