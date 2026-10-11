@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a41502892c747d36aa764f67de942a8d7b390eed`
+- 基准提交：`93eb0b329d0099763feb98bcb1dce70009cb9fe1`
 - 分支：`main`
 - 已索引文件：492
-- 已索引代码/文本行：104380
-- 已发现符号：1549
+- 已索引代码/文本行：104427
+- 已发现符号：1550
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -37,7 +37,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt` | 52 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 353 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 400 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalFurnitureDialogs.kt` | 193 | 0 |
