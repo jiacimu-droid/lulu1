@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:36:49.875096+00:00",
-  "commit": "db1d2fed9d75eb05c9ecd377d7377a60e69b1680",
+  "generatedAt": "2026-10-11T03:37:14.116481+00:00",
+  "commit": "6369c010b8c94d6b4f52206d0e09929b0fcedc03",
   "branch": "main",
-  "sourceFingerprint": "48ccb236f0fbd68bfc63fc5da9056a0a7d9c20fb6168ea9b8d0e2fa196d1ad3e",
+  "sourceFingerprint": "8eb5f710901c406cca30b1a977922710ce551137a923b1ae5a140b6d89cf3ee8",
   "summary": {
     "files": 486,
-    "lines": 104098,
+    "lines": 104095,
     "symbols": 1538
   },
   "symbolIndex": {
@@ -3241,7 +3241,7 @@
     "groupedFields": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-        "line": 30
+        "line": 27
       }
     ],
     "CharacterRecordReset": [
@@ -11419,12 +11419,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 87,
-      "sha256": "0acaca9101f61388f0b2d93e979ea6a4221d82d1879b86965b7da2d4d262e5cb",
+      "lines": 84,
+      "sha256": "ac14469f64074d1d4ef8c6ebe4b250557f445d628d19cea7d4858659e08109fc",
       "symbols": [
         {
           "name": "groupedFields",
-          "line": 30
+          "line": 27
         }
       ]
     },
