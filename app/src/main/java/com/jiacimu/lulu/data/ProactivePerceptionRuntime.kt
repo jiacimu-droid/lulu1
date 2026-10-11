@@ -406,90 +406,9 @@ object ProactivePerceptionRuntime {
             now = now,
         )
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
-        // Only salient witnessed interactions take the two-model-call path.
-        // In-call and ordinary chat turns keep their existing one-call latency.
-        // CRITICAL: a fresh user message owns the reply lane. A historical
-        // call-end/world encounter must never run a paid pre-action reflection
-        // ahead of the user's actual unanswered message, or turn its failure
-        // into an empty/SILENT chat response.
-        val userWaitingForReply = !CharacterCausalAppraisalStage.canAppraiseBeforeAction(
-            onlineUnread.text, pendingUserContext,
-        )
-        val awaitingCausalAppraisal = if (userWaitingForReply) null else
-            CharacterCausalAppraisalStage.latestPending(observedWorld)
-                ?.takeIf { event ->
-                    !CharacterCausalAppraisalStage.hasCompletedDecision(characterId, event.id) &&
-                        !CharacterCausalAppraisalStage.hasExhaustedAttempts(
-                            appContext, characterId, event.id,
-                        )
-                }
-        val resumedAppraisal = if (userWaitingForReply) {
-            null
-        } else {
-            requiredInteractionEvidenceId?.let {
-                CharacterCausalAppraisalStage.resumeCommitted(characterId, it)
-            } ?: awaitingCausalAppraisal?.let {
-                CharacterCausalAppraisalStage.resumeCommitted(characterId, it.id)
-            }
-        }
-        val appraisalAttempted = resumedAppraisal == null &&
-            awaitingCausalAppraisal != null &&
-            CharacterCausalAppraisalStage.claimModelAttempt(
-                appContext, characterId, awaitingCausalAppraisal.id,
-            )
-        val stagedAppraisal = if (resumedAppraisal != null) resumedAppraisal else if (appraisalAttempted) {
-            runCatching {
-                CharacterCausalAppraisalStage.reflect(
-                    appContext, characterId, observedWorld, now,
-                ) { observed ->
-                    LuluAiServices.gateway.generate(
-                        characterId = characterId,
-                        facts = buildString {
-                            appendLine("当前日期时间：$now")
-                            appendLine("确定观察到的互动：evidenceId=${observed.id}；${observed.content}")
-                            appendLine("你上一刻的内在状态（可能没有变化）：")
-                            appendLine(CharacterInnerLifeStore.compactContext(characterId, now))
-                            appendLine("最近真实聊天片段，仅用于了解关系背景：")
-                            appendLine(recent.takeLast(2_400))
-                        },
-                        instruction = CharacterCausalAppraisalStage.instruction(),
-                        source = "角色互动感知",
-                        title = "${character.displayName}对真实互动的个人理解",
-                        maxTokens = 800,
-                        connectionOverride = connection,
-                        memoryRequest = UnifiedMemoryRequest(
-                            currentInput = observed.content,
-                            sceneContext = "互动事件的先行主观评估；证据ID=${observed.id}",
-                            recentContext = recent.takeLast(2_400),
-                            taskIntent = "只保存私人感受与动机，不决定和执行外部行为",
-                        ),
-                    ).getOrThrow().text
-                }
-            }.getOrElse { error ->
-                if (error is kotlinx.coroutines.CancellationException) throw error
-                CompanionPresenceStore.recordPerceptionAttempt(
-                    characterId, "互动解读暂未完成：${error.message.orEmpty().take(90)}", now,
-                )
-                null
-            }
-        } else null
-        // A hanging call must never turn into a speculative outward action if
-        // the first-stage interpretation failed or returned invalid JSON.
-        if (appraisalAttempted && stagedAppraisal == null) {
-            // A malformed appraisal or network error must not silently erase
-            // an event-triggered opportunity. One delayed retry, no endless loop.
-            if (!trigger.contains("互动事件二次重试")) {
-                awaitingCausalAppraisal?.let { event ->
-                    ProactivePerceptionScheduler.scheduleInteractionRetry(
-                        appContext, characterId, event.id,
-                    )
-                }
-            }
-            CompanionPresenceStore.recordPerceptionAttempt(
-                characterId, "互动尚未解读，保留事件并等待一次重试", now,
-            )
-            return Action.SILENT
-        }
+        // Consequential world and call events use this SAME autonomous action
+        // decision as unread messages, not an extra paid pre-action appraisal.
+        val salientInteraction = CharacterCausalAppraisalStage.latestPending(observedWorld)
         val deviceContext = UserDevicePerception.context(appContext, characterId, now, refreshLocation = true)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
@@ -526,11 +445,11 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CharacterPerceptionContext.render(observedWorld))
-                if (stagedAppraisal != null) {
-                    appendLine("【已经由上一阶段保存的个人真实反应｜先有情绪和想法，再选行动】")
-                    appendLine("事件ID=${stagedAppraisal.evidenceId}，不能把事件推测成用户确定的动机。")
-                    appendLine(CharacterInnerLifeStore.compactContext(characterId, now))
-                    appendLine(CharacterCausalActionPolicy.followThroughInstruction(stagedAppraisal.evidenceId))
+                salientInteraction?.let { event ->
+                    appendLine("【本轮真实互动的同次理解与抉择】")
+                    appendLine("真实证据ID=${event.id}；记录=${event.content.take(260)}")
+                    appendLine("在本轮行动决策中自行判断有无情绪、挂心、愿望与后续行为，不需要再开一次模型。")
+                    appendLine("不要猜用户尚未表达的心思，也不必每次强行反省或采取行动。")
                 }
                 appendLine(affordances)
                 CharacterLifeFollowThroughStore.context(characterId, now)
@@ -629,7 +548,7 @@ object ProactivePerceptionRuntime {
             maxTokens = 2_200,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
-                currentInput = listOf(pendingUserContext, onlineUnread.text, stagedAppraisal?.evidenceDescription.orEmpty())
+                currentInput = listOf(pendingUserContext, onlineUnread.text, salientInteraction?.content.orEmpty())
                     .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
                 recentContext = listOf(recent, recentLifeContext, concerns, commitments)
@@ -642,11 +561,6 @@ object ProactivePerceptionRuntime {
                 "模型请求失败 · ${error.message.orEmpty().take(120)}",
                 now,
             )
-            if (stagedAppraisal != null && !trigger.contains("互动事件二次重试")) {
-                ProactivePerceptionScheduler.scheduleInteractionRetry(
-                    appContext, characterId, stagedAppraisal.evidenceId,
-                )
-            }
             throw error
         }
         currentCoroutineContext().ensureActive()
@@ -659,15 +573,9 @@ object ProactivePerceptionRuntime {
             content = "角色处于在线窗口，本次感知实际读取了当前时间与获准读取的设备状态；新增聊天=${onlineUnread.text.isNotBlank()}；新增场景观察=${observedWorld.size}",
             occurredAt = now, triggerExtraction = false, source = "online-awareness",
             evidenceKind = EventEvidenceKind.Observation)
-        val parsed = parseDecision(result.text, actionOnly = stagedAppraisal != null) ?: run {
-            // The provider did return bytes, but not a safe executable decision.
-            // A completed emotion stage must remain intact even if the later
-            // action model malformed its reply. Retry only once, separately.
-            if (stagedAppraisal != null && !trigger.contains("互动事件二次重试")) {
-                ProactivePerceptionScheduler.scheduleInteractionRetry(
-                    appContext, characterId, stagedAppraisal.evidenceId,
-                )
-            }
+        val parsed = parseDecision(result.text, actionOnly = false) ?: run {
+            // Invalid action output cannot execute, but never triggers a second
+            // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId, "模型返回的行动格式不完整，本轮没有执行动作", now,
             )
@@ -678,20 +586,9 @@ object ProactivePerceptionRuntime {
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
                 fallbackDecision.innerThought,
-            )).let { proposed ->
-                if (stagedAppraisal == null) proposed else proposed.copy(
-                    // The separate action model cannot rewrite the same event's
-                    // already-committed private feelings to justify its own choice.
-                    // A later genuinely new event may of course change them.
-                    innerLife = null, afterglow = null,
-                    innerThought = "", innerThoughtBasis = null,
-                    mood = stagedAppraisal.mood.ifBlank { proposed.mood },
-                    intention = null,
-                )
-            }
-        // In a two-stage cycle the appraisal has already committed any changed
-        // motive. Action planning must not create another speculative motive.
-        if (stagedAppraisal == null) CharacterLifeStore.consider(characterId, decision.intention, now)
+            ))
+        // Emotion and intent are decided together in this same action call.
+        CharacterLifeStore.consider(characterId, decision.intention, now)
         // Capture the private state before this proposal is applied. Delta must compare two moments,
         // not compare the model proposal against a store we already mutated with that proposal.
         val privateStateBefore = CharacterInnerLifeStore.snapshot(characterId)
@@ -766,7 +663,6 @@ object ProactivePerceptionRuntime {
                 decision.action != Action.SILENT,
         )
         val causalEvidenceId = when {
-            stagedAppraisal != null -> stagedAppraisal.evidenceId
             stimulus != null -> stimulus.evidenceId
             previousEvidence.isNotBlank() -> previousEvidence
             awakeReflection -> awakeObservationId
@@ -803,7 +699,7 @@ object ProactivePerceptionRuntime {
         val actionStartedAt = Instant.now()
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
-            requestId = stagedAppraisal?.evidenceId?.let { "proactive-evidence-${it.hashCode().toUInt().toString(16)}" }
+            requestId = salientInteraction?.id?.let { "proactive-evidence-${it.hashCode().toUInt().toString(16)}" }
                 ?: "proactive-${now.toEpochMilli()}",
         )
         currentCoroutineContext().ensureActive()
@@ -892,7 +788,6 @@ object ProactivePerceptionRuntime {
                 // explicitly clear it instead of presenting that paraphrase as a new mental moment.
                 innerThought = when {
                     groundedInnerThought.isNotBlank() -> groundedInnerThought
-                    stagedAppraisal != null -> null // Preserve the earlier committed inner voice.
                     hasMeaningfulInnerUpdate -> ""
                     else -> null
                 },
@@ -942,9 +837,7 @@ object ProactivePerceptionRuntime {
             characterId = characterId,
             decisionId = "perception:${now.toEpochMilli()}:${trigger.take(30)}",
             selectedAction = decision.action.name.lowercase(),
-            reason = decision.reason.ifBlank {
-                if (stagedAppraisal != null) "基于已保存的私人状态，这次选择不进一步表达或行动" else ""
-            },
+            reason = decision.reason,
             chosenMotiveId = decision.motiveId,
             alternatives = decision.alternatives,
             outcome = execution.summary,
