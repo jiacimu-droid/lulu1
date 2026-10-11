@@ -32,7 +32,7 @@ import java.util.UUID
 object ChatLexiconAutomation {
     private const val PREFS_NAME = "lulu_chat_lexicon_automation"
     private const val KEY_PROCESSED_SIGNATURES = "processed_signatures_v3"
-    private const val QUIET_WINDOW_MS = 2_500L
+    private const val QUIET_WINDOW_MS = 5_000L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val conversationJobs = mutableMapOf<String, Job>()
@@ -77,6 +77,13 @@ object ChatLexiconAutomation {
     }
 
     private suspend fun inspectLatestTurn(conversation: LuluConversation) {
+        // Character messages arrive in paced bubbles. Starting extraction
+        // during delivery caused a fresh charge for every interim bubble.
+        while (ChatGenerationActivity.isRunning(conversation.id) ||
+            com.jiacimu.lulu.ChatReplyTaskManager.state(conversation.id).running) {
+            delay(750L)
+        }
+        delay(1_200L)
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val userIndex = messages.indexOfLast {
             it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
@@ -93,13 +100,14 @@ object ChatLexiconAutomation {
                 if (characterId.isBlank()) return@forEach
                 val characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim()
                 val fullTurn = "${userMessage.content}\n$characterText"
-                if (!looksLikeLexiconCandidate(fullTurn) && LuluRepositories.lexicon.snapshot(characterId).none {
-                    it.status == LexiconStatus.Active && it.section in setOf(LexiconSection.Life, LexiconSection.Concern)
-                }) return@forEach
+                // Existing concerns are NOT a reason to charge a new model
+                // request on every unrelated ordinary greeting.
+                if (!looksLikeLexiconCandidate(fullTurn)) return@forEach
 
                 val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
-                val signature = "$sourceTurnId:${roleReplies.joinToString("|") { it.id }.hashCode()}:$characterText"
-                    .hashCode().toString()
+                // Stable across additional bubbles of the SAME actual turn.
+                // Multiple model calls must not be triggered by partial replies.
+                val signature = "lexicon-turn-v4:$sourceTurnId"
                 if (isProcessed(signature)) return@forEach
                 val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
                 lock.withLock {
@@ -243,7 +251,9 @@ internal fun looksLikeCommitmentRequest(text: String): Boolean {
 internal fun looksLikeLexiconCandidate(text: String): Boolean {
     val clean = text.trim()
     if (clean.isBlank()) return false
-    return (CommitmentSignals + LifeSignals + ConcernSignals).any { signal -> clean.contains(signal, ignoreCase = true) }
+    // This extractor only owns LIFE/CONCERN. Generic "我会"/"以后"
+    // belongs to commitment handling and is not a reason to bill lexicon AI.
+    return (LifeSignals + ConcernSignals).any { signal -> clean.contains(signal, ignoreCase = true) }
 }
 
 internal fun parseCommitmentEntries(raw: String, characterId: String): List<LexiconEntry> {
