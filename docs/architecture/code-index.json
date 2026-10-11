@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:58:52.248343+00:00",
-  "commit": "63b9fad0ae924377b8013f0343d206fcb48363da",
+  "generatedAt": "2026-10-11T17:25:58.025264+00:00",
+  "commit": "50487d5800f9d14eb5d68dd66cd8fb90a584b46e",
   "branch": "main",
-  "sourceFingerprint": "38e355684ffab91134874f3c9f2dfb78cc5be3d367463e6e113e2b8ef1b00113",
+  "sourceFingerprint": "a0f613ad9c8367956911143e7d0c52b15df9a21356ada56e3343a865661aa4d0",
   "summary": {
     "files": 520,
-    "lines": 108720,
-    "symbols": 1629
+    "lines": 108747,
+    "symbols": 1631
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1804,10 +1804,22 @@
         "line": 38
       }
     ],
+    "shouldCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
+        "line": 16
+      }
+    ],
     "isLikelyPlaybackEcho": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
-        "line": 15
+        "line": 26
+      }
+    ],
+    "safePartialBargeIn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
+        "line": 55
       }
     ],
     "silenceMs": [
@@ -10607,12 +10619,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
-      "lines": 32,
-      "sha256": "d29fb7e3562f8883062373305c01481269cc7c5f3bc04f8d1eafda34d2e7075c",
+      "lines": 59,
+      "sha256": "85c4b39f617bcb26aed5fe463675334e3f43873d1c46ded7b93a6cc08f2fa688",
       "symbols": [
         {
+          "name": "shouldCapture",
+          "line": 16
+        },
+        {
           "name": "isLikelyPlaybackEcho",
-          "line": 15
+          "line": 26
+        },
+        {
+          "name": "safePartialBargeIn",
+          "line": 55
         }
       ]
     },
