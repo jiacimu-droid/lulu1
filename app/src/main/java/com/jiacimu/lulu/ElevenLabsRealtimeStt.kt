@@ -54,6 +54,8 @@ internal class ElevenLabsRealtimeStt(
     private var framesSinceCommit = 0
     private var worker: Job? = null
     private var turnDelay: Job? = null
+    private var commitTimeout: Job? = null
+    private var awaitingFinalTurns = 0
     private var socket: WebSocket? = null
 
     fun start() {
@@ -85,6 +87,8 @@ internal class ElevenLabsRealtimeStt(
                         val rendered: String
                         synchronized(lock) {
                             finishedTurn = if (expectedCommits.isEmpty()) false else expectedCommits.removeFirst()
+                            if (finishedTurn) awaitingFinalTurns = (awaitingFinalTurns - 1).coerceAtLeast(0)
+                            if (awaitingFinalTurns == 0) commitTimeout?.cancel()
                             rendered = transcript.commit(event.optString("text"))
                         }
                         if (rendered.isNotBlank()) dispatch { onPartial(rendered) }
@@ -158,8 +162,17 @@ internal class ElevenLabsRealtimeStt(
             // boundary, 100ms silence can delimit the new final commit.
             val tail = lastFrame ?: ByteArray(3_200)
             enqueue(Packet(tail, commit = true, endTurn = true))
+            awaitingFinalTurns++
             lastFrame = null
             framesSinceCommit = 0
+            commitTimeout?.cancel()
+            commitTimeout = scope.launch(Dispatchers.Main) {
+                delay(25_000)
+                val waiting = synchronized(lock) { awaitingFinalTurns > 0 }
+                if (waiting && !closed.get() && active()) {
+                    fail("Scribe Realtime 最终识别超时；这段话没有交给角色，请重试")
+                }
+            }
         }
     }
 
@@ -197,6 +210,7 @@ internal class ElevenLabsRealtimeStt(
     fun stop() {
         if (!closed.compareAndSet(false, true)) return
         turnDelay?.cancel()
+        commitTimeout?.cancel()
         outgoing.close()
         worker?.cancel()
         socket?.close(1000, "call finished")
