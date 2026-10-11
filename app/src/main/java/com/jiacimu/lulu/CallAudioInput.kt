@@ -21,7 +21,8 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
 
     @SuppressLint("MissingPermission")
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
-        onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray, Boolean) -> Unit,
+        onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {},
+        onSpeechFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray, Boolean) -> Unit,
         onError: (String) -> Unit, threshold: Float = 350f, endSilenceMs: Int = 500) {
         stop()
         val epoch = generation
@@ -115,9 +116,16 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         rollingRms = rms
                         rollingVariation = 0.0
                         steadyFrames = 0
-                        preRoll.forEach { buffer.write(it) }; preRoll.clear()
+                        preRoll.forEach {
+                            buffer.write(it)
+                            onSpeechFrame(it)
+                        }
+                        preRoll.clear()
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
-                    } else buffer.write(frame)
+                    } else {
+                        buffer.write(frame)
+                        onSpeechFrame(frame)
+                    }
                     utteranceFrames++
                     peakRms = maxOf(rms, peakRms * 0.997)
                     // Comparing only against the static settings threshold makes
