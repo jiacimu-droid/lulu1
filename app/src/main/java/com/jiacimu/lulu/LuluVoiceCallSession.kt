@@ -678,18 +678,26 @@ internal object LuluVoiceCallSession {
                     userSpeechInProgress = false
                     recognitionActive = false
                     mutableState.update { it.copy(userSpeaking = false) }
-                    val hasBufferedSpeech = systemUtteranceBuffer.isNotBlank()
-                    if (hasBufferedSpeech &&
+                    // An Android recognizer can error at a short pause even
+                    // after it has already provided words. Retain those words
+                    // and reopen the mic instead of silently throwing them away.
+                    val partialCandidate = systemPartialCandidate.trim()
+                    if (systemUtteranceBuffer.isBlank() && partialCandidate.isNotBlank() &&
                         error in setOf(SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
+                        systemUtteranceBuffer = partialCandidate
+                    }
+                    val hasBufferedSpeech = systemUtteranceBuffer.isNotBlank()
+                    if (hasBufferedSpeech && error != SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+                        systemPartialCandidate = ""
                         mutableState.update {
                             it.copy(
                                 listening = false,
                                 partialTranscript = systemUtteranceBuffer,
-                                statusMessage = "听到了，稍等一下…",
+                                statusMessage = "已经记下前面的话，你可以接着说…",
                             )
                         }
                         scheduleSystemUtteranceCommit(SystemSpeechTurnPolicy.continuationMillis(systemUtteranceBuffer))
-                        scheduleListening(240)
+                        scheduleListening(if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY) 650 else 240)
                         return
                     }
                     scheduleSleepContinuation()
