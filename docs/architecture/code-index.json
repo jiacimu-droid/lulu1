@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:58:39.578919+00:00",
-  "commit": "03e7ce5b84e33b2934abc21c49ca4c578416ccb7",
+  "generatedAt": "2026-10-11T05:58:51.901841+00:00",
+  "commit": "c46384b49a4719c5fb04c87968a23143028b1054",
   "branch": "main",
-  "sourceFingerprint": "114ee94cf7728cfc948b5bc8750e0d04b4a0f93f5145fe2e5384417b5d32464b",
+  "sourceFingerprint": "c6824a80a833c95b53708f2db6f46721f3990baf7618f27ef3eebb986888ff77",
   "summary": {
     "files": 498,
     "lines": 105525,
@@ -11514,7 +11514,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
       "lines": 127,
-      "sha256": "0e1d29a21c151deed2d67f040380e0eeb48405c4ed10eee1ca15215194816324",
+      "sha256": "7a670ead188e39e7cfaa9a8b9608d94244c9c114089233655da82dbffab1a90f",
       "symbols": [
         {
           "name": "reflection",
