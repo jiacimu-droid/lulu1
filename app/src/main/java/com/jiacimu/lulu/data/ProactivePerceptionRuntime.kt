@@ -1032,7 +1032,8 @@ object ProactivePerceptionRuntime {
             ?: AutonomousDecisionRecovery.completedPrivateMessage(raw)
             ?: return null
         val json = CharacterCausalActionPolicy.actionOnly(
-            AutonomousDecisionRecovery.choose(parsed), alreadyAppraised = actionOnly,
+            AutonomousActionWireProtocol.normalize(AutonomousDecisionRecovery.choose(parsed)),
+            alreadyAppraised = actionOnly,
         )
         Decision(
             action = when (json.optString("action").trim().lowercase()) {
@@ -1053,7 +1054,7 @@ object ProactivePerceptionRuntime {
                 "user_remark", "set_user_remark", "用户备注" -> Action.USER_REMARK
                 "self_nickname", "set_self_nickname", "我的网名" -> Action.SELF_NICKNAME
                 "tool" -> Action.TOOL
-                else -> Action.SILENT
+                else -> error("模型选择了未知 action，不得伪装成 silent")
             },
             // The shared personality protocol can reply with normal chat
             // bubbles even when invoked by the online perception executor.
