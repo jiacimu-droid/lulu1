@@ -31,7 +31,10 @@ internal object CharacterSelfActivityRuntime {
         val signature: String get() = "$tool:${args.toString()}"
     }
 
-    fun parse(proposal: JSONObject?, realBookIds: Set<String>, digitalLife: Boolean): Proposal? {
+    fun parse(
+        proposal: JSONObject?, realBookIds: Set<String>, digitalLife: Boolean,
+        validIncident: (String, String) -> Boolean = { _, _ -> false },
+    ): Proposal? {
         val input = proposal ?: return null
         if (input.optString("stage").lowercase() != "decided") return null
         return when (input.optString("action").lowercase()) {
@@ -48,8 +51,14 @@ internal object CharacterSelfActivityRuntime {
                 if (!digitalLife) return null
                 val action = input.optString("worldAction").trim()
                 if (action !in setOf("go_home", "visit_cloud_meadow", "visit_public_place",
-                    "use_home_item", "use_location")) return null
+                    "use_home_item", "use_location", "handle_incident")) return null
                 val args = JSONObject().put("worldAction", action)
+                if (action == "handle_incident") {
+                    val incidentId = input.optString("incidentId").trim()
+                    val approach = input.optString("approach").trim().lowercase()
+                    if (incidentId.isBlank() || !validIncident(incidentId, approach)) return null
+                    args.put("incidentId", incidentId).put("approach", approach)
+                }
                 if (action == "visit_public_place") {
                     val location = input.optString("location").trim()
                     if (location.isBlank()) return null
@@ -88,11 +97,17 @@ internal object CharacterSelfActivityRuntime {
         val available = if (intended.optString("action") == "reading")
             ReadingBackgroundBridge.availableBooks(context, characterId) else emptyList()
         val books = available.mapTo(hashSetOf()) { it.id }
-        val candidate = parse(intended, books, DigitalLifeProfileStore.isEnabled(characterId)) ?: return false
+        val candidate = parse(
+            intended, books, DigitalLifeProfileStore.isEnabled(characterId),
+        ) { incidentId, approach ->
+            DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach)
+        } ?: return false
         val selected = if (candidate.tool == "read_book") {
             val title = available.firstOrNull { it.id == intended.optString("readingBookId") }?.title
                 ?: return false
             candidate.copy(label = "翻开《${title.take(90)}》")
+        } else if (candidate.args.optString("worldAction") == "handle_incident") {
+            candidate.copy(label = "尝试处理数字世界里尚未解决的生活事件")
         } else candidate
         val whyNow = intended.optString("whyNow").trim().take(200)
         if (whyNow.length < 3) return false
