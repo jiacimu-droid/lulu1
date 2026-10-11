@@ -86,7 +86,10 @@ internal fun VoiceCallSettings(provider: String) {
         }
         if (sttMode == "elevenlabs") {
             Text("ElevenLabs 识别模型", style = MaterialTheme.typography.titleSmall)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 listOf(
                     CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 准确优先",
                     CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 边说边转",
