@@ -87,6 +87,9 @@ object CharacterRuntime {
             appendLine(CharacterAccountabilityContext.prompt(characterId))
             CharacterCuriosityRuntime.briefContext(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
+            // One evidence-backed relational will follows the same identity and
+            // private life across chat, phone and digital-world meetings.
+            appendLine(CharacterRelationalInitiative.context(characterId))
             if (narrative.isNotEmpty()) {
                 appendLine("【叙事身份｜多次真实经历形成的主观意义，不是新增事实】")
                 narrative.takeLast(if (compact) 3 else 8).forEach { record ->
