@@ -259,7 +259,7 @@ private fun PresenceLivingMind(characterId: String) {
     val openConcerns = com.jiacimu.lulu.data.CharacterOpenConcernRuntime.recent(
         mind.optJSONArray("openConcerns"), now)
     val motives = mind.optJSONArray("motives")
-    val livingGoals = (0 until (motives?.length() ?: 0)).mapNotNull(motives::optJSONObject)
+    val livingGoals = (0 until (motives?.length() ?: 0)).mapNotNull { motives?.optJSONObject(it) }
         .filter { it.optString("status", "active") != "released" }
         .takeLast(5)
     val legacy = life.optJSONObject("intention")
