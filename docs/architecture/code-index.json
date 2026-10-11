@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:21:19.218070+00:00",
-  "commit": "b4ef0bb68854a083501d128d286dd2e4ffa9f2e7",
+  "generatedAt": "2026-10-11T15:22:28.150754+00:00",
+  "commit": "2890b79351662aebc3b71d44647656f36c0f6804",
   "branch": "main",
-  "sourceFingerprint": "e96f956e54c03f47b3780c607002b5cb4fcefece055958f9f8f1c230ec867af3",
+  "sourceFingerprint": "daaba999bb2ed6c2a81e9c59bccad46efe3425a19a8a117e4c9abbffaad08632",
   "summary": {
     "files": 512,
-    "lines": 107897,
+    "lines": 107959,
     "symbols": 1618
   },
   "symbolIndex": {
@@ -18364,8 +18364,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt",
-      "lines": 46,
-      "sha256": "70ea0057b7b36ac62a36c8470a481c9826bd751e90f66cc202b86ba806223b98",
+      "lines": 88,
+      "sha256": "e56cea6523b02272cc4f88a1f63a5174cd77362c6b8e07ab5b635946bd27e503",
       "symbols": [
         {
           "name": "CharacterGrowthTrajectoryLedgerTest",
@@ -18458,8 +18458,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
-      "lines": 129,
-      "sha256": "3d8dc836c029fc1ac47fdfeca3961d02d93a1dc1f0580872a45671c7243f0ab7",
+      "lines": 149,
+      "sha256": "33aa65120de563f6d2be9d7779d7719701955e3d4ef37d1c243d455fe827c9a6",
       "symbols": [
         {
           "name": "CharacterOpenConcernRuntimeTest",
