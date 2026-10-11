@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T04:03:34.891502+00:00",
-  "commit": "58f210154414ae6f76c5379f81545f1078b2c550",
+  "generatedAt": "2026-10-11T04:14:17.219404+00:00",
+  "commit": "d4198ac58f2a48f261fd7236be01b08e2de84a57",
   "branch": "main",
-  "sourceFingerprint": "cfa50e53cf1d26cb7c236cd2e7326f9beee5cbb05f6d95fe5b169ccf4c6bfbda",
+  "sourceFingerprint": "cff6e9fbb01f55e622bce9087ba24b983c2d7c73b680e7ad134646f5f48e6765",
   "summary": {
     "files": 492,
-    "lines": 104221,
+    "lines": 104226,
     "symbols": 1544
   },
   "symbolIndex": {
@@ -8281,7 +8281,7 @@
     "CharacterCuriosityEvidenceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "CharacterCuriosityRuntimeTest": [
@@ -17500,12 +17500,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt",
-      "lines": 36,
-      "sha256": "8f0b70992bcfdd803cac718e1a0773f32e06efaf500662adfbae6aa5d16e8f0d",
+      "lines": 41,
+      "sha256": "e11bacfec0de0f78c9b5dc40c685e3cc18da8e4f2a07bc675de9550805f4346b",
       "symbols": [
         {
           "name": "CharacterCuriosityEvidenceTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
