@@ -45,7 +45,8 @@ internal object CharacterMomentSnapshot {
                 "digital_world" -> "想去数字世界做点事"
                 else -> ""
             }
-            add("自己的小打算（尚未确认执行）", name, 80)
+            add(if (intent.optString("stage") == "considering") "正在考虑的小念头"
+                else "自己的小打算（尚未确认执行）", name, 80)
         }
         val thoughts = innerLife?.optJSONArray("thoughts")
         if (thoughts != null) for (i in 0 until minOf(thoughts.length(), 2)) {
