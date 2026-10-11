@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:56:32.615957+00:00",
-  "commit": "c6ef75ff8a69e75935918b503a6c3aafa0595cbf",
+  "generatedAt": "2026-10-11T15:57:51.288056+00:00",
+  "commit": "cf56e3f13022a2bfeaed5256719b9675c9ac9648",
   "branch": "main",
-  "sourceFingerprint": "7866a1599240102e407f96bf913af0e5186e4efcd072cb4efd0b682fc4244e16",
+  "sourceFingerprint": "3fe8258d1a52ffab66fd82f433d44e4215e8cd20d1fc13ee74805974abdecf14",
   "summary": {
     "files": 511,
-    "lines": 107878,
-    "symbols": 1615
+    "lines": 107895,
+    "symbols": 1616
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2768,10 +2768,16 @@
         "line": 9
       }
     ],
+    "completedPrivateMessage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
+        "line": 16
+      }
+    ],
     "choose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-        "line": 15
+        "line": 32
       }
     ],
     "Capability": [
@@ -11425,12 +11431,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-      "lines": 39,
-      "sha256": "d6f6150c1fdc6d005c33943349433d7cce9aeae4776e27a1380b6e5ccd17c1e8",
+      "lines": 56,
+      "sha256": "77dd33828c35fa74b70a4be3e690c3610885d972cb965e03616ed54619a42cb4",
       "symbols": [
         {
+          "name": "completedPrivateMessage",
+          "line": 16
+        },
+        {
           "name": "choose",
-          "line": 15
+          "line": 32
         }
       ]
     },
