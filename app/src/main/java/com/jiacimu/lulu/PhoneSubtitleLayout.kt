@@ -65,7 +65,7 @@ internal object PhoneSubtitleLayout {
                 val tail = grouped.removeAt(grouped.lastIndex)
                 grouped[grouped.lastIndex] += tail
             }
-            result += grouped.map(String::trim).filter(String::isNotBlank)
+            result += grouped.map { it.trim() }.filter { it.isNotBlank() }
         }
 
         raw.split('\n').forEach(::appendParagraph)
