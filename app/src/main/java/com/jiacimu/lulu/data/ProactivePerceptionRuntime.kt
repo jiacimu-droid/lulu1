@@ -476,9 +476,11 @@ object ProactivePerceptionRuntime {
             // A malformed appraisal or network error must not silently erase
             // an event-triggered opportunity. One delayed retry, no endless loop.
             if (!trigger.contains("互动事件二次重试")) {
-                ProactivePerceptionScheduler.scheduleInteractionRetry(
-                    appContext, characterId, awaitingCausalAppraisal.id,
-                )
+                awaitingCausalAppraisal?.let { event ->
+                    ProactivePerceptionScheduler.scheduleInteractionRetry(
+                        appContext, characterId, event.id,
+                    )
+                }
             }
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId, "互动尚未解读，保留事件并等待一次重试", now,
