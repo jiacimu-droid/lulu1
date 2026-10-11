@@ -32,26 +32,5 @@ internal object PhoneMicSegmentPolicy {
     fun stationaryNoiseEnded(steadyFrames: Int, utteranceFrames: Int): Boolean =
         steadyFrames >= 23 && utteranceFrames >= 25
 
-    /** Barge-in must be harder to trigger than normal speech, particularly
-     * with the handset speaker where uncancelled TTS may leak into the mic.
-     * The recorder is allowed to monitor playback, but audio is not submitted
-     * as a user utterance until this independent gate is met.
-     */
-    fun bargeInThreshold(normal: Double, ambientRms: Double, externalSpeaker: Boolean): Double =
-        maxOf(normal * if (externalSpeaker) 2.1 else 1.35,
-            ambientRms * if (externalSpeaker) 2.6 else 1.55)
-
-    fun startFrames(playbackActive: Boolean): Int = if (playbackActive) 4 else 2
-
-    /** A relatively flat voice is not proof of silence.
-     * End-by-stationary-noise is allowed only if energy has actually fallen
-     * substantially relative to the phrase's observed peak.
-     */
-    fun canEndFromStationaryNoise(
-        steadyFrames: Int, utteranceFrames: Int,
-        currentRms: Double, peakRms: Double,
-    ): Boolean = stationaryNoiseEnded(steadyFrames, utteranceFrames) &&
-        peakRms > 0.0 && currentRms < peakRms * 0.55
-
     fun uploadChunkFull(bytes: Int): Boolean = bytes >= MAX_UPLOAD_BYTES
 }
