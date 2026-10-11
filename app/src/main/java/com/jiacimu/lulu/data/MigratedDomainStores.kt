@@ -346,7 +346,10 @@ class InMemoryLuluChatStore : LuluChatStore {
             sender = LuluChatMessage.Sender.User,
             content = clean,
             replyToMessageId = replyToMessageId,
-        ).also { message -> append(conversationId, message, incrementUnread = false) }
+        ).also { message ->
+            append(conversationId, message, incrementUnread = false)
+            com.jiacimu.lulu.LuluVoiceCallSession.onTextChatMessage(conversationId, message.content)
+        }
     }
 
     override fun appendCharacterMessage(
