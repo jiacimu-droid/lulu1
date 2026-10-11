@@ -12,24 +12,14 @@ class CallContractsTest {
         assertFalse(CallVoiceConfiguration.usesAgent("elevenlabs", null))
         assertTrue(CallVoiceConfiguration.usesAgent("elevenlabs", "agent"))
     }
-    @Test fun speechRecognitionCanBeDifferentFromCharacterVoiceProvider() {
-        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("groq", false, true, "elevenlabs"))
-        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("groq", false, true, "minimax"))
-        assertEquals("system", CallVoiceConfiguration.resolveSttEngine("auto", true, true, "elevenlabs"))
-        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("auto", false, true, "elevenlabs"))
-        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "minimax"))
-        assertEquals("unavailable", CallVoiceConfiguration.resolveSttEngine("auto", false, false, "elevenlabs"))
-        assertEquals("system", CallVoiceConfiguration.resolveSttEngine("system", false, true, "elevenlabs"))
-        assertEquals("system", CallVoiceConfiguration.resolveSttEngine(
-            "auto", true, true, "elevenlabs", minimaxConfigured = true))
-        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine(
-            "minimax", false, false, "elevenlabs", minimaxConfigured = true))
-        assertEquals("elevenlabs", CallVoiceConfiguration.resolveSttEngine(
-            "elevenlabs", true, false, "system", elevenConfigured = true))
-        assertEquals("elevenlabs", CallVoiceConfiguration.resolveSttEngine(
-            "auto", false, false, "system", elevenConfigured = true))
-        assertEquals("system", CallVoiceConfiguration.resolveSttEngine(
-            "auto", true, false, "elevenlabs", elevenConfigured = true))
+    @Test fun speechRecognitionOnlyUsesExplicitChoiceAndLegacyAutoMeansPhoneSystem() {
+        assertEquals("elevenlabs", CallVoiceConfiguration.resolveSttEngine("elevenlabs"))
+        assertEquals("system", CallVoiceConfiguration.resolveSttEngine("system"))
+        assertEquals("groq", CallVoiceConfiguration.resolveSttEngine("groq"))
+        assertEquals("minimax", CallVoiceConfiguration.resolveSttEngine("minimax"))
+        assertEquals("system", CallVoiceConfiguration.normalizeSttMode("auto"))
+        assertEquals("system", CallVoiceConfiguration.normalizeSttMode(null))
+        assertEquals("system", CallVoiceConfiguration.resolveSttEngine("auto"))
         assertEquals("ElevenLabs Scribe", CallVoiceConfiguration.sttLabel("elevenlabs"))
     }
     @Test fun miniAsrKeepsRegionButDoesNotCarryTtsQueryOrPath() {
