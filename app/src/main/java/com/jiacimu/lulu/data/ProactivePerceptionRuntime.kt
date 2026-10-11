@@ -84,7 +84,7 @@ object ProactivePerceptionRuntime {
         val awaitingReply: Boolean,
     )
 
-    private data class ActionExecution(val success: Boolean, val summary: String)
+    private data class ActionExecution(val success: Boolean, val summary: String, val conversationId: String? = null)
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -762,6 +762,7 @@ object ProactivePerceptionRuntime {
         // Snapshot every previously recorded ID, not only the latest 24: otherwise an
         // older event could be mistaken for a fresh executor receipt on a quiet turn.
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
+        val actionStartedAt = Instant.now()
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
             requestId = stagedAppraisal?.evidenceId?.let { "proactive-evidence-${it.hashCode().toUInt().toString(16)}" }
@@ -853,7 +854,7 @@ object ProactivePerceptionRuntime {
                 },
                 mood = decision.mood.takeIf(String::isNotBlank),
                 source = if (awakeReflection) "在线持续感知" else "后台主动感知",
-                now = now,
+                now = Instant.now(),
                 innerThoughtFingerprint = privateDelta.fingerprint,
                 momentReflection = if ((hasMeaningfulInnerUpdate && privateDelta.meaningful) ||
                     decision.appraisal?.optJSONObject("spontaneousBid") != null ||
@@ -863,6 +864,25 @@ object ProactivePerceptionRuntime {
                         innerThought = groundedInnerThought,
                     ) else "",
             )
+        }
+        // Proactive messages are delivered *inside* the action executor, before
+        // the post-action private presence is saved. Rebind only bubbles
+        // actually delivered by THIS execution to the finalized mind snapshot.
+        if (execution.success && execution.conversationId != null && decision.action in setOf(
+                Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
+                Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
+            )) {
+            MigratedDomainStores.chat.messages(execution.conversationId).value
+                .asSequence()
+                .filter { message ->
+                    message.sender == LuluChatMessage.Sender.Character &&
+                        message.authorCharacterId == characterId &&
+                        !message.createdAt.isBefore(actionStartedAt)
+                }.takeLast(8).forEach { message ->
+                    CompanionPresenceStore.bindDeliveredMessage(
+                        characterId, message.id, message.createdAt, refreshAfterDelivery = true,
+                    )
+                }
         }
         if (decision.action != Action.SILENT && !execution.success) {
             // Keep the previous factual presence intact. Failure details belong to perception history.
@@ -986,7 +1006,7 @@ object ProactivePerceptionRuntime {
             }
             else -> Unit
         }
-        return ActionExecution(true, result.summary)
+        return ActionExecution(true, result.summary, result.conversationId)
     }
 
     private fun Decision.withPresenceFallback(character: CharacterSettings): Decision {
