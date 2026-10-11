@@ -103,7 +103,7 @@ internal object CharacterSelfActivityRuntime {
         if (previous?.optString("status") in setOf("pending", "running") &&
             now - (previous?.optLong("createdAt") ?: 0L) in 0L..(60 * 60_000L)) return false
         if (previous?.optString("signature") == selected.signature &&
-            now - previous.optLong("createdAt") in 0..REPEAT_WINDOW_MS) return false
+            now - (previous?.optLong("createdAt") ?: 0L) in 0L..REPEAT_WINDOW_MS) return false
         if (evidenceId.isNotBlank() && previous?.optString("evidenceId") == evidenceId) return false
 
         val id = UUID.randomUUID().toString()
