@@ -55,6 +55,23 @@ class CharacterSelfActivityRuntimeTest {
         assertEquals("cloud_meadow", world.args.getString("location"))
     }
 
+    @Test fun actualPersistentIncidentNeedsLiveIdLocationAndAllowedApproach() {
+        val idea = JSONObject().put("stage", "decided")
+            .put("action", "digital_world").put("worldAction", "handle_incident")
+            .put("incidentId", "persisted-roach-id").put("approach", "search")
+        // The model cannot invent that an incident still exists.
+        assertNull(CharacterSelfActivityRuntime.parse(idea, emptySet(), true))
+        assertNull(CharacterSelfActivityRuntime.parse(idea, emptySet(), true) { id, approach ->
+            id == "persisted-roach-id" && approach == "drive_out"
+        })
+        val validated = CharacterSelfActivityRuntime.parse(idea, emptySet(), true) { id, approach ->
+            id == "persisted-roach-id" && approach == "search"
+        }
+        assertEquals("digital_world_action", validated?.tool)
+        assertEquals("persisted-roach-id", validated?.args?.optString("incidentId"))
+        assertEquals("search", validated?.args?.optString("approach"))
+    }
+
     @Test fun situationalPlayfulnessAndUnexecutedIntentionStaySeparateFromReceipts() {
         val appraisal = JSONObject()
             .put("spontaneousBid", JSONObject()
