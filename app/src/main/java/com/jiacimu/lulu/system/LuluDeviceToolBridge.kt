@@ -398,6 +398,7 @@ object LuluDeviceToolBridge {
             savePresence(
                 characterId, plan, if (callSilence) "通话沉默感知" else "聊天沉默",
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
+                momentChanged = privateDelta.meaningful,
             )
             return Result.success(plannedReply.copy(text = "", disposition = CharacterDecisionProtocol.SILENT))
         }
@@ -544,6 +545,7 @@ object LuluDeviceToolBridge {
                 savePresence(
                     characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
                     heartVoiceFingerprint = privateDelta.fingerprint,
+                    momentChanged = privateDelta.meaningful,
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
@@ -641,6 +643,7 @@ object LuluDeviceToolBridge {
                 savePresence(
                     characterId, finalPlan, "聊天·工具",
                     heartVoiceFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
+                    momentChanged = toolResultPrivateDelta?.meaningful == true,
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow)
@@ -872,6 +875,7 @@ object LuluDeviceToolBridge {
         source: String,
         preserveQuietThought: Boolean = false,
         heartVoiceFingerprint: String = "",
+        momentChanged: Boolean = true,
     ) {
         CompanionPresenceStore.update(
             characterId = characterId,
@@ -881,11 +885,11 @@ object LuluDeviceToolBridge {
             mood = plan.mood,
             source = source,
             innerThoughtFingerprint = heartVoiceFingerprint,
-            momentReflection = com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
+            momentReflection = if (momentChanged) com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
                 plan.innerLife, plan.innerThoughtBasis, plan.appraisal,
                 outward = plan.text.ifBlank { plan.speechIntent },
                 innerThought = plan.innerThought,
-            ),
+            ) else "",
         )
     }
 }
