@@ -8,29 +8,17 @@ import java.net.URI
 internal object CallVoiceConfiguration {
     fun provider(context: Context): String = context.getSharedPreferences("lulu_advanced_settings", 0).getString("tts_provider", "system").orEmpty()
     fun usesAgent(provider: String, mode: String?): Boolean = provider == "elevenlabs" && mode == "agent"
-    /** Speech-to-text is independent of the provider that speaks for the character. */
-    fun resolveSttEngine(mode: String, androidAvailable: Boolean, groqConfigured: Boolean,
-        ttsProvider: String, minimaxConfigured: Boolean = ttsProvider == "minimax",
-        elevenConfigured: Boolean = false): String = when (mode) {
-        "system" -> "system"
-        "groq" -> "groq"
-        "minimax" -> "minimax"
-        "elevenlabs" -> "elevenlabs"
-        else -> when {
-            androidAvailable -> "system" // free or OS-managed service first
-            groqConfigured -> "groq"
-            minimaxConfigured -> "minimax"
-            elevenConfigured -> "elevenlabs"
-            else -> "unavailable"
-        }
+    /** No automatic provider switching. Migrate old "auto" explicitly to phone STT. */
+    fun normalizeSttMode(mode: String?): String = when (mode) {
+        "system", "groq", "minimax", "elevenlabs" -> mode
+        else -> "system"
     }
+
+    /** STT is independent from character TTS. Never silently switch paid ASR providers. */
+    fun resolveSttEngine(mode: String): String = normalizeSttMode(mode)
     fun sttEngine(context: Context): String {
         val p = context.getSharedPreferences("lulu_advanced_settings", 0)
-        val available = SpeechRecognizer.isRecognitionAvailable(context)
-        return resolveSttEngine(p.getString("call_stt_mode", "auto").orEmpty(),
-            available, p.getString("groq_asr_key", "").orEmpty().isNotBlank(), provider(context),
-            minimaxConfigured = p.getString("minimax_api_key", "").orEmpty().isNotBlank(),
-            elevenConfigured = p.getString("eleven_api_key", "").orEmpty().isNotBlank())
+        return resolveSttEngine(p.getString("call_stt_mode", "system").orEmpty())
     }
     fun sttLabel(engine: String): String = when (engine) {
         "groq" -> "Groq Whisper"
