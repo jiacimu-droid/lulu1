@@ -60,7 +60,14 @@ internal object CharacterHeartVoicePolicy {
         delta: PrivateStateDelta? = null,
         hasFreshEvidence: Boolean,
     ): String {
-        val clean = compactThought(thought)
+        // A routine fleeting thought stays short. A genuine, newly relevant
+        // inner conflict may need more room than the old hard 140-character cap;
+        // this is not a license to write a second, narrated assistant reply.
+        val layeredConflict = basis?.optString("conflict")?.isNotBlank() == true &&
+            (delta?.conflictChanged == true ||
+                (innerLife?.optJSONArray("thoughts")?.length() ?: 0) >= 2 ||
+                innerLife?.optJSONObject("emotion")?.optString("otherFeeling")?.isNotBlank() == true)
+        val clean = compactThought(thought, if (layeredConflict) 320 else 140)
         if (clean.isBlank()) return ""
         val structuredDelta = delta?.meaningful ?: hasStructuredDelta(innerLife)
         val causalBasis = hasCausalBasis(basis)
@@ -115,16 +122,16 @@ internal object CharacterHeartVoicePolicy {
         return aPairs.intersect(bPairs).size.toDouble() / denominator >= 0.60
     }
 
-    private fun compactThought(value: String): String {
+    private fun compactThought(value: String, maxCharacters: Int): String {
         val clean = value.replace("\r\n", "\n")
             .replace(Regex("[ \\t]+"), " ")
             .replace(Regex("\\n+"), " ")
             .trim()
-        if (clean.length <= 140) return clean
-        val head = clean.take(140)
+        if (clean.length <= maxCharacters) return clean
+        val head = clean.take(maxCharacters)
         val boundary = listOf('。', '！', '？', '!', '?', '；', ';')
             .map(head::lastIndexOf).maxOrNull() ?: -1
-        return if (boundary >= 48) head.substring(0, boundary + 1).trim()
+        return if (boundary >= if (maxCharacters > 140) maxCharacters / 2 else 48) head.substring(0, boundary + 1).trim()
         else head.trimEnd('，', ',', '、', '：', ':') + "…"
     }
 
