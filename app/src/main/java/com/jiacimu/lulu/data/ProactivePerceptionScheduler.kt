@@ -365,6 +365,15 @@ class ProactivePerceptionWorker(
             ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
             return@runCatching Result.success()
         }
+        // A queued call-end/world-interaction reflection is background work,
+        // never a substitute for answering a fresh message. Drop this wake
+        // when the user has spoken since it was queued; the original timeline
+        // event remains available to future low-priority perception.
+        val interactionId = inputData.getString("interactionEvidenceId").orEmpty()
+        if (characterId != null && interactionId.isNotBlank() &&
+            CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
+            return@runCatching Result.success()
+        }
         val onlineRevision = inputData.getLong("onlineRevision", -1L).takeIf { requireOnline && it >= 0L }
         if (requireOnline && characterId != null && onlineRevision != null &&
             !OnlineChatBatchStore.isCurrent(applicationContext, characterId, onlineRevision)) {
