@@ -216,4 +216,31 @@ class UserMessageFavoritesTest {
         assertFalse(fresh.contains("昨天"))
         assertEquals("", CharacterMomentSnapshot.reflection(null, null, null))
     }
+
+    @Test fun deliveredBubbleIdWinsOverNearbyButDifferentPsychologicalState() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "exact-message-heart-test"
+        CompanionPresenceStore.clearCharacter(role)
+        val start = Instant.parse("2026-10-11T04:45:00Z")
+        CompanionPresenceStore.update(role, "正在聊天", "笑了", "第一轮真想说的话",
+            "好笑", "聊天", start, momentReflection = "顾虑：第一轮的小犹豫")
+        CompanionPresenceStore.bindDeliveredMessage(role, "message-one", start.plusSeconds(8))
+        CompanionPresenceStore.update(role, "正在聊天", "挑眉", "第二轮自己改变了想法",
+            "疑惑", "聊天", start.plusSeconds(15), momentReflection = "顾虑：第二轮的新问题")
+        CompanionPresenceStore.bindDeliveredMessage(role, "message-two", start.plusSeconds(22))
+        // Both clicks could occur at the same approximate minute. IDs still
+        // point to different frozen moments instead of whichever was newest.
+        CompanionPresenceStore.selectMessageAnchor(role, start.plusSeconds(22), "message-one")
+        val first = CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!
+        assertEquals("第一轮真想说的话", first.innerThought)
+        assertEquals("顾虑：第一轮的小犹豫", first.momentReflection)
+        CompanionPresenceStore.selectMessageAnchor(role, start.plusSeconds(22), "message-two")
+        val second = CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!
+        assertEquals("第二轮自己改变了想法", second.innerThought)
+        assertEquals("顾虑：第二轮的新问题", second.momentReflection)
+        CompanionPresenceStore.forgetDeliveredMessage("message-one")
+        CompanionPresenceStore.clearCharacter(role)
+        CompanionPresenceStore.clearMessageAnchor()
+    }
 }
