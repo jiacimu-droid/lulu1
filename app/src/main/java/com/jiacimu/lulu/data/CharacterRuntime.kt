@@ -109,6 +109,10 @@ object CharacterRuntime {
         }.trim()
     }
 
+    /** Only the already-decided private wish crosses lean decision→expression. */
+    fun leanExpressionContext(characterId: String): String =
+        CharacterRelationalInitiative.expressionHandoff(characterId)
+
     /** Backward-compatible entry for callers that do not have a live conversation key. */
     fun developmentContext(characterId: String, compact: Boolean = false): String =
         personalityRuntimeContext(characterId, compact = compact)
