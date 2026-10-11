@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7829c13b3b417e2fdaf8ded8a1f48909f6b6da70`
+- 基准提交：`3a93ca51c82947753bc60ee691cb408aef7a2eed`
 - 分支：`main`
 - 已索引文件：498
-- 已索引代码/文本行：105548
+- 已索引代码/文本行：105565
 - 已发现符号：1564
 
 | 文件 | 行数 | 符号数 |
@@ -130,7 +130,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 129 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 146 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 163 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
