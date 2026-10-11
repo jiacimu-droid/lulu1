@@ -9,6 +9,8 @@ class CallSpokenHangupPolicyTest {
             "那我挂了", "那我挂了。", "我先挂了，宝宝晚安！",
             "好，那我挂了。", "我现在挂电话了。", "我先把电话挂了。",
             "那我挂了。明天见。", "[softly] 那我先挂啦！",
+            "好的，我去挂电话了。", "好，那我这就去挂电话了。",
+            "嗯嗯，我马上去挂电话了，宝宝晚安！",
         ).forEach { text ->
             assertTrue("Should end after audible delivery: $text",
                 CallSpokenHangupPolicy.explicitlyEndsOwnCall(text))
