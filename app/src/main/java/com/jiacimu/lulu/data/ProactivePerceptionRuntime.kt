@@ -373,17 +373,17 @@ object ProactivePerceptionRuntime {
             }
             "${message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))} $speaker：${qqForwardContextText(message.content).take(500)}"
         }
-        val recentLifeContext = SharedExperienceTimeline.all(characterId)
+        val recentLifeEvents = SharedExperienceTimeline.all(characterId)
             .filter { event ->
-                event.channel.startsWith("数字世界事件") ||
-                    event.channel.startsWith("数字世界·生活片段") ||
+                event.channel.startsWith("数字世界") ||
                     event.channel.startsWith("独自阅读") ||
-                    event.channel.startsWith("独自游戏")
+                    event.channel.startsWith("独自游戏") ||
+                    event.channel.startsWith("现实世界窗口")
             }
             .takeLast(12)
-            .joinToString("\n") { event ->
-                "- [${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
-            }
+        val recentLifeContext = recentLifeEvents.joinToString("\n") { event ->
+            "- [evidenceId=${event.id}；${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
+        }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
         val concerns = lexicon.filter { it.section == LexiconSection.Concern && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
             .joinToString("\n") { "- ${it.title}：${it.content.take(400)}；最近回访=${it.lastFollowUpAt}" }
@@ -776,12 +776,20 @@ object ProactivePerceptionRuntime {
         } else if (decision.curiosity != null &&
             (decision.action == Action.SILENT || !execution.success ||
                 actionEvidenceId.isBlank())) {
-            // A failed/unverified attempt leaves an unanswered question rather than falsely
-            // completing exploration. Only real new stimuli can anchor that question.
-            val observed = newlyObserved.firstOrNull()
-            if (observed != null) CharacterCuriosityRuntime.recordInquiry(
-                characterId, decision.curiosity, observed.evidenceId, observed.description, now,
-            )
+            // A failed/unverified attempt leaves an unanswered question, not a fake
+            // completed experience. A quiet-day curiosity may originate in older,
+            // still-retained lived evidence, not only a brand-new notification.
+            val original = CharacterCuriosityEvidence.findOriginal(decision.curiosity, recentLifeEvents)
+            if (original != null) {
+                CharacterCuriosityRuntime.recordInquiry(
+                    characterId, decision.curiosity, original.id, original.evidenceContent, now,
+                )
+            } else if (decision.curiosity?.optString("sourceEvidenceId").isNullOrBlank()) {
+                val observed = newlyObserved.firstOrNull()
+                if (observed != null) CharacterCuriosityRuntime.recordInquiry(
+                    characterId, decision.curiosity, observed.evidenceId, observed.description, now,
+                )
+            }
         }
         if (decision.action != Action.SILENT) {
             CharacterInnerLifeStore.recordConcernOutcome(

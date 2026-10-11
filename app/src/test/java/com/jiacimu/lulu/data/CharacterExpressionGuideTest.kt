@@ -43,6 +43,26 @@ class CharacterExpressionGuideTest {
         assertFalse(prompt.contains("每条不超过"))
     }
 
+    @Test fun situationalPlayfulnessIsAChoiceNotAFlirtingTemplate() {
+        val expression = CharacterExpressionGuide.promptSection()
+        val initiative = proactiveDecisionInstruction("ordinary-role-without-life")
+        assertTrue(expression.contains("临场生动感"))
+        assertTrue(expression.contains("不强行搞气氛"))
+        assertTrue(initiative.contains("本人自发的小冲动"))
+        assertTrue(initiative.contains("优先选择对应的真实 action"))
+        assertTrue(CharacterDecisionProtocol.principles.contains("spontaneousBid"))
+        val appraisal = JSONObject().put("spontaneousBid", JSONObject()
+            .put("spark", "刚才两个人都看见猫把杯子推下桌")
+            .put("wantedMove", "顺口吐槽小猫把物理课当实验课"))
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            appraisal = appraisal, innerLife = null, mood = "",
+            continuousState = "", relationshipState = "",
+        )
+        assertTrue(handoff.contains("顺口吐槽小猫把物理课当实验课"))
+        assertTrue(handoff.contains("可收住的意图"))
+        assertFalse(handoff.contains("必须复述的台词。\n这轮"))
+    }
+
     @Test fun personalityArchitectureSeparatesStablePersonFromChangingState() {
         val prompt = CharacterPersonalityArchitecture.promptSection()
         assertTrue(prompt.contains("稳定核心"))

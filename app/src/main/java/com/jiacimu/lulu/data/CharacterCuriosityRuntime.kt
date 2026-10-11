@@ -61,6 +61,13 @@ internal object CharacterCuriosityRuntime {
                     progress.optJSONObject(it)?.optString("status") == "exploring"
             }) return
         val old = root.optJSONArray("questions") ?: JSONArray()
+        val existing = (0 until old.length()).mapNotNull(old::optJSONObject).firstOrNull {
+            normalized(it.optString("topic")) == normalized(fields[0])
+        }
+        // A silent repeat of the same unresolved question is not a fresh thought.
+        if (existing?.optString("observedId") == observedId &&
+            existing.optString("question") == fields[1] &&
+            existing.optString("nextStep") == fields[3]) return
         val retained = (0 until old.length()).mapNotNull(old::optJSONObject).filterNot {
             normalized(it.optString("topic")) == normalized(fields[0])
         }.takeLast(MAX_QUESTIONS - 1)
