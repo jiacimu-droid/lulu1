@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:50:17.477918+00:00",
-  "commit": "c8bf2ac7403682d4ddb3e1d224792d692859636e",
+  "generatedAt": "2026-10-11T12:50:54.037947+00:00",
+  "commit": "1a7ed53f534fe6caab2d7c860a6e413270cae95a",
   "branch": "main",
-  "sourceFingerprint": "01ca27aced6c92793bc4c2693032127ded006db8b1b934aea652ea6f80ac4e6c",
+  "sourceFingerprint": "202e5e840f04a8c2bcd7b95668487b7e398e8e08ff1aaa1d2274855e28c3973d",
   "summary": {
     "files": 506,
-    "lines": 107424,
+    "lines": 107436,
     "symbols": 1607
   },
   "symbolIndex": {
@@ -3567,13 +3567,13 @@
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 113
+        "line": 117
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 117
+        "line": 121
       }
     ],
     "parse": [
@@ -4819,7 +4819,7 @@
     "onActualReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-        "line": 29
+        "line": 32
       }
     ],
     "ImportantEventBridge": [
@@ -12072,8 +12072,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 121,
-      "sha256": "7137cd4f6ba8b25b9c0b34d6134395b8e7a17942cb10b00a6635cdeb720df28d",
+      "lines": 125,
+      "sha256": "39ba0f8cc52cf36f9d1ee2c372a4c7a3337eaded44922d2a311a1a4feae58eac",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -12109,11 +12109,11 @@
         },
         {
           "name": "leanExpressionContext",
-          "line": 113
+          "line": 117
         },
         {
           "name": "developmentContext",
-          "line": 117
+          "line": 121
         }
       ]
     },
@@ -13433,8 +13433,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-      "lines": 100,
-      "sha256": "6e0b45ab4f65ebaddbc0e6f4b5a9559bfc5ea1f9c654269d1f6cdecb61540b7f",
+      "lines": 108,
+      "sha256": "fe66eeec26eff1803f7cd8d1e3db48d51af4255a1b6753812f6082c82d04698b",
       "symbols": [
         {
           "name": "qualifies",
@@ -13442,7 +13442,7 @@
         },
         {
           "name": "onActualReply",
-          "line": 29
+          "line": 32
         }
       ]
     },

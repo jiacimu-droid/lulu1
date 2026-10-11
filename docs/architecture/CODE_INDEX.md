@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c8bf2ac7403682d4ddb3e1d224792d692859636e`
+- 基准提交：`1a7ed53f534fe6caab2d7c860a6e413270cae95a`
 - 分支：`main`
 - 已索引文件：506
-- 已索引代码/文本行：107424
+- 已索引代码/文本行：107436
 - 已发现符号：1607
 
 | 文件 | 行数 | 符号数 |
@@ -175,7 +175,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt` | 87 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 195 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 121 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 125 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 261 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 109 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 34 | 1 |
@@ -226,7 +226,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1012 | 33 |
-| `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 100 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 108 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 348 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 96 | 4 |
