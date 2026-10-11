@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:01:35.535643+00:00",
-  "commit": "46763faf10a9d5533f94c18c4b25d064b2b4ab28",
+  "generatedAt": "2026-10-11T05:02:07.464926+00:00",
+  "commit": "4de4a620adf961a1adc8f1ed54e29fe6bcc5efa3",
   "branch": "main",
-  "sourceFingerprint": "ec1359482c3b6e7f824182750103149f36e443386dd27171bd78191f172216e8",
+  "sourceFingerprint": "6f8727fb16837e87d171f8b80b8388f3f1ea9f2b680fb20a9405dee4f4802a90",
   "summary": {
     "files": 493,
     "lines": 104650,
@@ -11073,7 +11073,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
       "lines": 176,
-      "sha256": "d9c35bceba3e24452e9475e27d44e6b64be81f200120cb723343f51f05d5d7d6",
+      "sha256": "19dbeae03c389fea02ad908bde536e9ad393fc1393dd461c541e10d3af30c628",
       "symbols": [
         {
           "name": "eligible",
@@ -14083,7 +14083,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 1185,
-      "sha256": "dcfbbd04d34d5b8f6e49df32124bf4b5bb637f805516aa6225e0d08532bdf515",
+      "sha256": "1f30364acf5ab37a8abbdccd157457b3170c2a916c98e12bbbbc40d9ec9823bd",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -16958,7 +16958,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
       "lines": 586,
-      "sha256": "d9242d46ad253bbe28201be425904cdd6e8991a07791789a96010c838af146ac",
+      "sha256": "5f06e96e1775210b9d24aa96f4c3d0391018e3728b50c36a28b23cc731ece91e",
       "symbols": []
     },
     {
