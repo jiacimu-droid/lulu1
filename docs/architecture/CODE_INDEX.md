@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d80e20af620e85536db7974b62cfa8d7fe9581c2`
+- 基准提交：`45c6db65a6564c658b71d44b1d839bc9f383832d`
 - 分支：`main`
 - 已索引文件：498
-- 已索引代码/文本行：105703
+- 已索引代码/文本行：105704
 - 已发现符号：1565
 
 | 文件 | 行数 | 符号数 |
@@ -462,7 +462,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 49 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 73 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 30 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:52:51.657210+00:00",
-  "commit": "d80e20af620e85536db7974b62cfa8d7fe9581c2",
+  "generatedAt": "2026-10-11T06:53:33.735799+00:00",
+  "commit": "45c6db65a6564c658b71d44b1d839bc9f383832d",
   "branch": "main",
-  "sourceFingerprint": "bef37457bd081619e2b095c33d74f10935554aac23d7338ec31c6dce0067334a",
+  "sourceFingerprint": "29541425260cd6bedc0f0e8d664bd832d8c1215cb412b731f24bd1479403e1c6",
   "summary": {
     "files": 498,
-    "lines": 105703,
+    "lines": 105704,
     "symbols": 1565
   },
   "symbolIndex": {
@@ -11522,7 +11522,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
       "lines": 132,
-      "sha256": "f663d029210bafd8878a886e0cd9b8dc115e2d2d0a019dce1d2af8a5aedf4137",
+      "sha256": "5b1fe2002fde5b804626ac5df2ab817c052577b67764a8dbf291c479fc014f69",
       "symbols": [
         {
           "name": "reflection",
@@ -17896,8 +17896,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 73,
-      "sha256": "fe3e4d8ef4d84ca8c5b0b958c35911a60208482b861fe5b5cafa51a9301fad77",
+      "lines": 74,
+      "sha256": "43264bc96adc7264adc6c804d145aea7bce657d67e89372d2adbf2ebfc645eb7",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
