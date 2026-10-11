@@ -47,7 +47,7 @@ internal object CharacterGrowthTrajectory {
             .filter { !it.occurredAt.isAfter(now) &&
                 Duration.between(it.occurredAt, now) <= Duration.ofDays(45) }
             .filter { feedbackTopic(it.content) != null }
-            .takeLast(8).toList()
+            .toList().takeLast(8)
 
     /** Sent unchanged to chat, phone, meeting and autonomous personas. */
     fun context(characterId: String, now: Instant = Instant.now()): String {
@@ -118,7 +118,7 @@ internal object CharacterGrowthTrajectory {
         SharedExperienceTimeline.all(characterId).asSequence()
             .filter { it.source == "journal:own" }
             .filter { !it.occurredAt.isAfter(now) }
-            .takeLast(8).forEach { event ->
+            .toList().takeLast(8).forEach { event ->
                 result += CharacterGrowthTrace(event.occurredAt, "确实写下日记",
                     event.content.take(250), event.id, "行动")
             }
