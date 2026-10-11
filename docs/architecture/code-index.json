@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T15:22:28.150754+00:00",
-  "commit": "2890b79351662aebc3b71d44647656f36c0f6804",
+  "generatedAt": "2026-10-11T15:23:21.022196+00:00",
+  "commit": "7f34b3076d4b5c3ac69354b022c06424bfb775f9",
   "branch": "main",
-  "sourceFingerprint": "daaba999bb2ed6c2a81e9c59bccad46efe3425a19a8a117e4c9abbffaad08632",
+  "sourceFingerprint": "5511806827cbb542b6d16ed9cb3ae9431d566b339279b0e861b5df6465fec63f",
   "summary": {
     "files": 512,
-    "lines": 107959,
+    "lines": 107998,
     "symbols": 1618
   },
   "symbolIndex": {
@@ -157,7 +157,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 23
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
@@ -511,7 +511,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 19
+        "line": 21
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -3067,13 +3067,13 @@
     "CharacterDevelopmentRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 80
+        "line": 119
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -11695,24 +11695,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 100,
-      "sha256": "5ce26fc803e5a5a61e7d94c63586369b7c4660db7ffe200ed6441a4199399a2b",
+      "lines": 139,
+      "sha256": "e9c18d5ac0fef4c685f91bb2500a7f9745a0b8ae3fda160d1bada892fa6dd6e6",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
-          "line": 15
+          "line": 17
         },
         {
           "name": "initialize",
-          "line": 19
+          "line": 21
         },
         {
           "name": "request",
-          "line": 23
+          "line": 32
         },
         {
           "name": "ids",
-          "line": 80
+          "line": 119
         }
       ]
     },
