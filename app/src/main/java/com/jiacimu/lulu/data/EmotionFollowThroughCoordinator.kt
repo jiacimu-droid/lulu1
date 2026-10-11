@@ -1,16 +1,10 @@
 package com.jiacimu.lulu.data
 
-import android.content.Context
-import java.time.Duration
-import java.time.Instant
-import org.json.JSONObject
 
 /**
- * A single opportunistic follow-through, not an automatic public apology or forced diary.
- *
- * A real sent reply showing strong remorse after a witnessed disagreement can merit one more
- * personal decision while the five-minute online window is still open. The model may journal,
- * try a verifiable repair, ask for space, or do nothing. No fake action receipts.
+ * Pure recognition of a meaningful relational disagreement. It never changes
+ * emotion, schedules a second action or sends an extra model request.
+ * The actual character decides whether anything matters in its existing turn.
  */
 internal object EmotionFollowThroughCoordinator {
     private const val PREFS = "lulu_emotional_followthrough_v1"
@@ -30,86 +24,7 @@ internal object EmotionFollowThroughCoordinator {
             (friction.any(recentUserText::contains) &&
                 (remorse.any(roleText::contains) || repair.any(roleText::contains)))
 
-    fun onActualReply(
-        context: Context,
-        conversation: LuluConversation,
-        messages: List<LuluChatMessage>,
-        reply: LuluChatMessage,
-        now: Instant = Instant.now(),
-    ) {
-        if (conversation.groupChat != null || reply.sender != LuluChatMessage.Sender.Character ||
-            reply.status != LuluChatMessage.Status.Sent) return
-        val id = reply.authorCharacterId?.takeIf(String::isNotBlank) ?: conversation.characterId
-        if (id.isBlank()) return
-        val recentUser = messages.asReversed().asSequence()
-            .filter { it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent &&
-                !it.createdAt.isAfter(reply.createdAt) &&
-                Duration.between(it.createdAt, reply.createdAt).toMinutes() in 0..90 }
-            .take(12).toList()
-        val lastUser = recentUser.joinToString(" ") { it.content.take(150) }
-        // Never manufacture a conflict from the model's text alone.
-        if (!qualifies(reply.content, lastUser)) return
-        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val key = "scheduled:$id"
-        val previous = prefs.getLong(key, 0L)
-        val salientMessages = recentUser.filter {
-            CharacterGrowthTrajectory.feedbackTopic(it.content) != null
-        }
-        val significant = salientMessages.isNotEmpty()
-        val feedbackKey = "feedback_covered:$id"
-        val feedbackId = salientMessages.firstOrNull()?.id.orEmpty()
-        // Several bubbles after ONE argument are one episode, not many imprints.
-        // But a NEW serious complaint gets through even inside 30 minutes.
-        if (significant && feedbackId == prefs.getString(feedbackKey, "")) return
-        if (!significant && previous > 0 &&
-            Duration.between(Instant.ofEpochMilli(previous), now).toMinutes() < 30) return
-        val edit = prefs.edit().putLong(key, now.toEpochMilli())
-        if (significant) edit.putString(feedbackKey, feedbackId)
-        if (!edit.commit()) return
-
-        // Grounded one-off imprint is separate from the optional online
-        // autonomy switch. A significant argument can leave a private memory
-        // even when the user disabled unsolicited actions.
-        CharacterEmotionalImprintRuntime.request(
-            context.applicationContext, id, reply.id, recentUser.map { it.id },
-        )
-
-        // The character has ACTUALLY expressed remorse. Its reply, not an LLM's
-        // optional hidden JSON, is the evidence for this modest subjective state.
-        // A richer emotion already recorded from the reply takes precedence.
-        val current = CharacterInnerLifeStore.snapshot(id).optJSONObject("emotion")
-        val started = current?.optString("startedAt")?.let { runCatching { Instant.parse(it) }.getOrNull() }
-        val emotionallyRecognized = current != null &&
-            (current.optInt("strength", 2) >= 3 ||
-                listOf("后悔", "愧疚", "自责", "难过", "委屈", "心疼", "懊悔", "歉疚")
-                    .any(current.optString("feeling")::contains))
-        if (!significant && (!emotionallyRecognized || started == null ||
-            Duration.between(started, now).abs().toMinutes() > 10)) {
-            val proposal = JSONObject().put("emotion", JSONObject()
-                .put("feeling", "对刚才的争执感到歉疚")
-                .put("cause", lastUser.takeLast(170).ifBlank { "刚才的争执" })
-                .put("strength", 3)
-                .put("halfLifeMinutes", 360))
-            CharacterInnerLifeStore.observe(id, reply.id,
-                "刚才真实发出了道歉：${reply.content.take(180)}", proposal, setOf("user"), now)
-        }
-        // One extra choice during the online window. Silence remains a valid
-        // choice, but it must result from an actual model decision.
-        val onlineQueued = ProactivePerceptionPolicyStore.get(id).enabled &&
-            CompanionOnlineStore.isOnline(id, now) && runCatching {
-            ProactivePerceptionScheduler.scheduleOnlineReflection(
-                context.applicationContext, id,
-                "刚收到用户明确的关系反馈或经历争执：检视真实回应是否让对方感到被弱化、不安全或不被尊重；自主选择反思、日记、继续沟通或给予空间，不假定已修复，不强迫道歉。",
-                delayMillis = 45_000L,
-            )
-        }.isSuccess
-        // Independent durable work survives process death and can act after
-        // logout. It does not falsely renew the five-minute online window.
-        val offlineQueued = ProactivePerceptionPolicyStore.get(id).enabled && runCatching {
-            ProactivePerceptionScheduler.scheduleEmotionalAftercare(
-                context.applicationContext, id, delayMillis = 420_000L,
-            )
-        }.isSuccess
-        if (!onlineQueued && !offlineQueued && !significant) prefs.edit().remove(key).apply()
-    }
+    // This is only a classification helper. Actual deliberation belongs to
+    // the original chat/phone/meeting decision. There is deliberately no
+    // post-reply reflection request, no forced mood and no extra online wake.
 }
