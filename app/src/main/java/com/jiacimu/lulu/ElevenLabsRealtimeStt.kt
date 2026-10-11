@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.util.Base64
+import android.os.SystemClock
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Phone-specific Scribe v2 Realtime transport. It is NOT an ElevenLabs Agent,
@@ -57,13 +59,14 @@ internal class ElevenLabsRealtimeStt(
     private var commitTimeout: Job? = null
     private var awaitingFinalTurns = 0
     private var socket: WebSocket? = null
+    private val lastWireSendAt = AtomicLong(SystemClock.elapsedRealtime())
 
     fun start() {
         check(apiKey.isNotBlank()) { "请先配置 ElevenLabs API Key" }
         val request = Request.Builder()
             .url("wss://api.elevenlabs.io/v1/speech-to-text/realtime" +
                 "?model_id=scribe_v2_realtime&audio_format=pcm_16000" +
-                "&language_code=zh&commit_strategy=manual")
+                "&language_code=zh&commit_strategy=manual&keepalive_interval_ms=3000")
             .header("xi-api-key", apiKey)
             .build()
         socket = client.newWebSocket(request, object : WebSocketListener() {
@@ -94,45 +97,62 @@ internal class ElevenLabsRealtimeStt(
                         if (rendered.isNotBlank()) dispatch { onPartial(rendered) }
                         if (finishedTurn) completeAfterBreath()
                     }
-                    "auth_error", "scribe_auth_error" -> fail("ElevenLabs Realtime 验证失败，请检查 API Key 和权限")
-                    "quota_exceeded", "scribe_quota_exceeded_error", "rate_limited", "throttled" ->
-                        fail("ElevenLabs Realtime 识别额度或频率受限")
-                    "error", "scribe_error", "queue_overflow" ->
-                        fail("ElevenLabs Realtime 识别服务返回错误，请检查网络和识别权限")
+                    "auth_error", "scribe_auth_error", "quota_exceeded", "scribe_quota_exceeded_error",
+                    "rate_limited", "throttled", "error", "scribe_error", "queue_overflow",
+                    "invalid_request", "transcriber_error", "input_error", "commit_throttled",
+                    "unaccepted_terms", "resource_exhausted", "session_time_limit_exceeded",
+                    "chunk_size_exceeded", "insufficient_audio_activity" -> {
+                        fail(ScribeRealtimeFailurePolicy.serverEvent(event.optString("message_type")))
+                    }
                 }
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 if (!ready.isCompleted) ready.completeExceptionally(IOException("实时识别连接失败"))
-                fail(if (response?.code == 401 || response?.code == 403)
-                    "ElevenLabs Realtime 权限不足或 API Key 无效"
-                else "ElevenLabs Realtime 识别连接断开，请检查网络")
+                fail(ScribeRealtimeFailurePolicy.connectionFailure(response?.code, t.javaClass.simpleName))
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                if (!closed.get()) fail("ElevenLabs Realtime 识别连接中断")
+                if (!closed.get()) fail(ScribeRealtimeFailurePolicy.remoteClose(code))
             }
         })
         worker = scope.launch(Dispatchers.IO) {
             try {
                 val webSocket = withTimeout(18_000) { ready.await() }
-                for (packet in outgoing) {
-                    if (closed.get() || !active()) break
-                    val body = JSONObject()
-                        .put("message_type", "input_audio_chunk")
-                        .put("audio_base_64", Base64.encodeToString(packet.pcm, Base64.NO_WRAP))
-                        .put("sample_rate", 16_000)
-                    if (packet.commit) body.put("commit", true)
-                    // Put the expected response in the same order as actual socket writes.
-                    if (packet.commit) synchronized(lock) {
-                        expectedCommits.addLast(packet.endTurn)
+                // ElevenLabs closes a Scribe socket after 15 seconds WITHOUT
+                // any client messages. Voice-only VAD used to stop sending
+                // all PCM when the companion spoke or both sides were silent.
+                // Keep the same session alive with a small real silent PCM
+                // chunk, without fabricating user speech or a commit.
+                val keepalive = launch {
+                    while (!closed.get() && active()) {
+                        delay(4_000L)
+                        if (SystemClock.elapsedRealtime() - lastWireSendAt.get() >= 3_500L) {
+                            outgoing.trySend(Packet(ByteArray(3_200)))
+                        }
                     }
-                    check(webSocket.send(body.toString())) { "识别连接无法发送音频" }
+                }
+                try {
+                    for (packet in outgoing) {
+                        if (closed.get() || !active()) break
+                        val body = JSONObject()
+                            .put("message_type", "input_audio_chunk")
+                            .put("audio_base_64", Base64.encodeToString(packet.pcm, Base64.NO_WRAP))
+                            .put("sample_rate", 16_000)
+                        if (packet.commit) body.put("commit", true)
+                        if (packet.commit) synchronized(lock) {
+                            expectedCommits.addLast(packet.endTurn)
+                        }
+                        check(webSocket.send(body.toString())) { "识别连接无法发送音频" }
+                        lastWireSendAt.set(SystemClock.elapsedRealtime())
+                    }
+                } finally {
+                    keepalive.cancel()
                 }
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (error: Exception) {
-                fail("ElevenLabs Realtime 音频传输失败，请稍后重试")
+                fail(ScribeRealtimeFailurePolicy.sendFailure(error.javaClass.simpleName))
             }
         }
     }
