@@ -137,17 +137,6 @@ internal fun VoiceCallSettings(provider: String) {
                     style = MaterialTheme.typography.bodySmall)
             }
         }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("哄睡 60 分钟后自动结束", style = MaterialTheme.typography.bodyMedium)
-                Text("默认关闭；打开后，持续无回应满一小时才会自动挂断。",
-                    style = MaterialTheme.typography.bodySmall)
-            }
-            Switch(checked = sleepAutoEnd, onCheckedChange = {
-                sleepAutoEnd = it
-                prefs.edit().putBoolean("sleep_auto_end_60m", it).apply()
-            })
-        }
         if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
             Text("语句结束停顿：${silence.toInt()} 毫秒（长句会自动延长换气等待）")
             Slider(value = silence, onValueChange = { silence = it },
