@@ -727,8 +727,9 @@ internal object LuluVoiceCallSession {
                     // Keep the microphone on the new phrase; defer playback
                     // interruption until an actual partial/final transcript is
                     // received. A noise-only beginning must not cancel the reply.
-                    systemCommitJob?.cancel()
-                    systemCommitJob = null
+                    // Noise can trigger onBeginningOfSpeech. Do not discard
+                    // recognized text or its pending commit until real words
+                    // appear in a partial/final transcript.
                     systemPartialCandidate = ""
                     systemSpeechConfirmed = false
                     userSpeechInProgress = true
@@ -752,6 +753,7 @@ internal object LuluVoiceCallSession {
                 override fun onError(error: Int) {
                     if (!mutableState.value.connected || mutableState.value.opening ||
                         mutableState.value.microphoneMuted) return
+                    val confirmedBeforeError = systemSpeechConfirmed
                     userSpeechInProgress = false
                     systemSpeechConfirmed = false
                     recognitionActive = false
@@ -760,8 +762,10 @@ internal object LuluVoiceCallSession {
                     // after it has already provided words. Retain those words
                     // and reopen the mic instead of silently throwing them away.
                     val partialCandidate = systemPartialCandidate.trim()
-                    if (systemUtteranceBuffer.isBlank() && partialCandidate.isNotBlank() &&
-                        error in setOf(SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
+                    if (systemUtteranceBuffer.isBlank() &&
+                        SystemSpeechTurnPolicy.canKeepPartialOnError(confirmedBeforeError, partialCandidate) &&
+                        error !in setOf(SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS,
+                            SpeechRecognizer.ERROR_CLIENT)) {
                         systemUtteranceBuffer = partialCandidate
                     }
                     val hasBufferedSpeech = systemUtteranceBuffer.isNotBlank()
@@ -823,13 +827,7 @@ internal object LuluVoiceCallSession {
                         .filter(String::isNotBlank)
                     val primary = finals.firstOrNull().orEmpty()
                     val partial = systemPartialCandidate.trim()
-                    val spoken = when {
-                        primary.isBlank() -> partial
-                        partial.isBlank() -> primary
-                        normalizeSpeechForComparison(partial).contains(normalizeSpeechForComparison(primary)) &&
-                            partial.length > primary.length -> partial
-                        else -> primary
-                    }
+                    val spoken = SystemSpeechTurnPolicy.bestFinal(partial, primary)
                     systemPartialCandidate = ""
                     if (spoken.isNotBlank()) interruptSystemReplyForSpeech()
                     if (spoken.isBlank()) {
@@ -862,8 +860,12 @@ internal object LuluVoiceCallSession {
                         ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         ?.firstOrNull()
                         .orEmpty()
-                    systemPartialCandidate = partial
-                    if (partial.trim().length >= 2) {
+                    systemPartialCandidate = SystemSpeechTurnPolicy.bestPartial(systemPartialCandidate, partial)
+                    if (systemPartialCandidate.length >= 2) {
+                        // Keep earlier recognized bubbles available until an
+                        // actual new phrase is confirmed, not merely room noise.
+                        systemCommitJob?.cancel()
+                        systemCommitJob = null
                         if (!systemSpeechConfirmed) {
                             systemSpeechConfirmed = true
                             noteCallUserActivity()
@@ -872,7 +874,8 @@ internal object LuluVoiceCallSession {
                         interruptSystemReplyForSpeech()
                     }
                     mutableState.update {
-                        it.copy(partialTranscript = PhoneTranscriptAssembler.combine(systemUtteranceBuffer, partial))
+                        it.copy(partialTranscript = PhoneTranscriptAssembler.combine(
+                            systemUtteranceBuffer, systemPartialCandidate))
                     }
                 }
 
@@ -920,8 +923,10 @@ internal object LuluVoiceCallSession {
                  putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
                 putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1_400L)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2_000L)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1_600L)
+                // These are hints to the installed Android recognizer service,
+                // not guarantees. Longer windows reduce cuts at natural breaths.
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 3_200L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2_600L)
             })
             recognitionActive = true
         }.onFailure {
