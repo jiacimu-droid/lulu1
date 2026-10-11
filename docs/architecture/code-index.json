@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T09:05:30.144934+00:00",
-  "commit": "e2ea2cbd254d211de0c70a7b0c133094f492cf48",
+  "generatedAt": "2026-10-11T09:06:34.669950+00:00",
+  "commit": "bb451d67b325aa1e6dc2926f3bed091915980009",
   "branch": "main",
-  "sourceFingerprint": "8ebf80acc3ca4739e06c9a8f1be49146366e0dc3cd576346ea80e1f3fbc1d213",
+  "sourceFingerprint": "a2627b0d1875c89f6cd7fddee6f7f6574f9d21783896e7ddac5e998ff9f22bd4",
   "summary": {
     "files": 502,
-    "lines": 106597,
-    "symbols": 1586
+    "lines": 106627,
+    "symbols": 1588
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -463,7 +463,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1019
+        "line": 1026
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2377,19 +2377,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 866
+        "line": 873
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 878
+        "line": 885
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1009
+        "line": 1016
       }
     ],
     "consume": [
@@ -3422,6 +3422,12 @@
         "line": 10
       }
     ],
+    "expressionHandoff": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
+        "line": 113
+      }
+    ],
     "CharacterDefinitionSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
@@ -3464,10 +3470,16 @@
         "line": 67
       }
     ],
-    "developmentContext": [
+    "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
         "line": 113
+      }
+    ],
+    "developmentContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
+        "line": 117
       }
     ],
     "parse": [
@@ -10853,8 +10865,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1027,
-      "sha256": "6b67d3f23ca0fd00257ad8c22a8a4b8d40af3ca352062197d991e51fc7a9f872",
+      "lines": 1034,
+      "sha256": "368f6dbe311eb26cec05c71cb92477e6bdab70330f5bc0f7c26e1496e8d64d3a",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -10942,19 +10954,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 866
+          "line": 873
         },
         {
           "name": "consumeEvent",
-          "line": 878
+          "line": 885
         },
         {
           "name": "LuluAiServices",
-          "line": 1009
+          "line": 1016
         },
         {
           "name": "initialize",
-          "line": 1019
+          "line": 1026
         }
       ]
     },
@@ -11852,19 +11864,23 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-      "lines": 169,
-      "sha256": "f598021ef7ca6dfaf8aaaa7891869e4ef979fe087b994e4d9e8bfdceb364aa26",
+      "lines": 186,
+      "sha256": "7f30dd27c7687c70516cb05f10f4468a06bf48d85097a43b10ca9893b0f55544",
       "symbols": [
         {
           "name": "context",
           "line": 60
+        },
+        {
+          "name": "expressionHandoff",
+          "line": 113
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 117,
-      "sha256": "088b51dfc826b62259d9038a502a1419915f2f51a9b39e889ce59ae9273e7884",
+      "lines": 121,
+      "sha256": "7137cd4f6ba8b25b9c0b34d6134395b8e7a17942cb10b00a6635cdeb720df28d",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -11899,8 +11915,12 @@
           "line": 67
         },
         {
-          "name": "developmentContext",
+          "name": "leanExpressionContext",
           "line": 113
+        },
+        {
+          "name": "developmentContext",
+          "line": 117
         }
       ]
     },
@@ -18115,8 +18135,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt",
-      "lines": 103,
-      "sha256": "6a75e6ac82b293f11eed342dfb5f61e995f5aa6b9ff33a4bd8f205ce14e54812",
+      "lines": 105,
+      "sha256": "c80399b7edcf2b07e7b2d44face11135afdeead301ec3263aba9fc48063d9e00",
       "symbols": [
         {
           "name": "CharacterRelationalInitiativeTest",
