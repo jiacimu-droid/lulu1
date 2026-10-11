@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T03:46:49.159761+00:00",
-  "commit": "bef7227ac1062a864804d71f2b543b2e66ddaf80",
+  "generatedAt": "2026-10-11T04:03:34.891502+00:00",
+  "commit": "58f210154414ae6f76c5379f81545f1078b2c550",
   "branch": "main",
-  "sourceFingerprint": "e467cfb93ef33c1cd670de01acadf31743997bd00926a48929e9315df45a67f8",
+  "sourceFingerprint": "cfa50e53cf1d26cb7c236cd2e7326f9beee5cbb05f6d95fe5b169ccf4c6bfbda",
   "summary": {
-    "files": 489,
-    "lines": 104086,
-    "symbols": 1542
+    "files": 492,
+    "lines": 104221,
+    "symbols": 1544
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2693,7 +2693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 250
+        "line": 257
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -2832,40 +2832,46 @@
         "line": 127
       }
     ],
+    "findOriginal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt",
+        "line": 11
+      }
+    ],
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 224
+        "line": 231
       }
     ],
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 66
+        "line": 74
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 68
+        "line": 76
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 82
+        "line": 90
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 87
+        "line": 95
       }
     ],
     "conciseAppraisal": [
@@ -5615,7 +5621,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1116
+        "line": 1124
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -8270,6 +8276,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt",
         "line": 6
+      }
+    ],
+    "CharacterCuriosityEvidenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt",
+        "line": 7
       }
     ],
     "CharacterCuriosityRuntimeTest": [
@@ -11061,44 +11073,55 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt",
+      "lines": 32,
+      "sha256": "a0f8b5395b316e8ebec302da5ae390dca654b18d185fa1f1d99d9bcaafb4eb67",
+      "symbols": [
+        {
+          "name": "findOriginal",
+          "line": 11
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 318,
-      "sha256": "7761e6b6c7df6bbdc46373687a4ad4cca5a8fe53e6924c96d5ea9b79e48a6b92",
+      "lines": 325,
+      "sha256": "416ae08a41f2ea88a2842aa6cacc076c87d761c6507c84883721ab25333eaa11",
       "symbols": [
         {
           "name": "briefContext",
-          "line": 224
+          "line": 231
         },
         {
           "name": "promptSection",
-          "line": 250
+          "line": 257
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 91,
-      "sha256": "570d3834ddb6547db7ed784036e9ef09e3357bdc60bd1724d8d8659b0ee861a5",
+      "lines": 99,
+      "sha256": "8f296e8c49a82f6fbd46eaa17fa54d2a20632019052a57467eca7bd62aae3083",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 33
+          "line": 34
         },
         {
           "name": "usesSeparateExpression",
-          "line": 66
+          "line": 74
         },
         {
           "name": "chatAction",
-          "line": 68
+          "line": 76
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 82
+          "line": 90
         },
         {
           "name": "speechIntent",
-          "line": 87
+          "line": 95
         }
       ]
     },
@@ -11225,7 +11248,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 24,
-      "sha256": "9480251400ee7f65b7632c3eac814f3bef32098e9a188cbc51087474dcb63913",
+      "sha256": "a4af8c968898adeecba221b3b9f85a32c2d1770bfec04ebe80c3c0661a24b440",
       "symbols": [
         {
           "name": "promptSection",
@@ -11547,6 +11570,12 @@
           "line": 10
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt",
+      "lines": 23,
+      "sha256": "56b80bb77afb7c6813ccb1ea5c89ca577a827ea1ac77355e3a6627ad77362fe8",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt",
@@ -13859,8 +13888,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 60,
-      "sha256": "631831325eedd0664036ec2081065bbfbf0f6bd73a1078d48e8ba5820aada4ff",
+      "lines": 61,
+      "sha256": "6b611029e86ba95def92e5042c237d4b0bcb83c51cb186caf00c598450813082",
       "symbols": []
     },
     {
@@ -13958,8 +13987,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1172,
-      "sha256": "97ed528b31fc391f2528edd323615755e647ef8dc10e8b8bfaa51faacf075394",
+      "lines": 1180,
+      "sha256": "96ce21de857b388c71d1eba845b00518b711d85979ce9d48c6ccb28aa4e53770",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -13983,7 +14012,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1116
+          "line": 1124
         }
       ]
     },
@@ -17470,6 +17499,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt",
+      "lines": 36,
+      "sha256": "8f0b70992bcfdd803cac718e1a0773f32e06efaf500662adfbae6aa5d16e8f0d",
+      "symbols": [
+        {
+          "name": "CharacterCuriosityEvidenceTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt",
       "lines": 99,
       "sha256": "7e2e5f7c6069672e5817968a321db47c2e32dec71650a20c60739272da219c90",
@@ -17526,8 +17566,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 175,
-      "sha256": "d8a5c084796c3f7351c3d2d415c1aad93b6ac808ebcc750a4486817b45ddc074",
+      "lines": 195,
+      "sha256": "b8a6c6a73969351b1b20013dfb00a9dd3bf21ed557712a57cebf0d680443e17d",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
