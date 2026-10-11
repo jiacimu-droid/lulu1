@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T14:55:45.010579+00:00",
-  "commit": "197de154e0246201c6c99ddb3694286a6182b916",
+  "generatedAt": "2026-10-11T14:55:57.425156+00:00",
+  "commit": "7518540dc543153653b22d16e5c46d705ce61b00",
   "branch": "main",
-  "sourceFingerprint": "f502e8d16e4856e022be3ec07fc20a5487152dc4198c4ce1d7cb34e1e1e00c93",
+  "sourceFingerprint": "9141b59ea10d648e06ab45ab47668334d9eb6e05d4444f961172ac0267965fe5",
   "summary": {
     "files": 512,
-    "lines": 107915,
+    "lines": 107925,
     "symbols": 1618
   },
   "symbolIndex": {
@@ -18265,8 +18265,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt",
-      "lines": 79,
-      "sha256": "9feef1c9377094ddd40dafc3c32cbbc865021ec1b90095853d14453f3932a09f",
+      "lines": 89,
+      "sha256": "d738a40ca6d17f07ebf1422182e2a32a1c58de6ebf251c71638340bd7b7692b8",
       "symbols": [
         {
           "name": "CharacterCausalAppraisalStageTest",
