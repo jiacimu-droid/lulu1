@@ -146,6 +146,14 @@ internal class ProviderCallInput(private val context: Context, private val scope
         realtime = recognizer
         recognizer.start()
         onStatus("Scribe v2 Realtime 已选择，正在连接实时识别…")
+        startRealtimeMicrophone(epoch, prefs, recognizer)
+    }
+
+    private fun startRealtimeMicrophone(
+        epoch: Long,
+        prefs: android.content.SharedPreferences,
+        recognizer: ElevenLabsRealtimeStt,
+    ) {
         microphone.start(
             accept = { epoch == generation && !capturePaused && accept() },
             onReady = { if (epoch == generation) onReady() },
@@ -238,14 +246,18 @@ internal class ProviderCallInput(private val context: Context, private val scope
 
     fun resumeCapture() {
         if (!capturePaused) return
-        val queue = segments ?: return
+        val queue = segments
+        val stream = realtime
+        if (queue == null && stream == null) return
         pauseReleaseJob?.cancel()
         pauseReleaseJob = null
         capturePaused = false
-        // The old recorder may still be alive during the short drain window;
-        // restart cleanly to avoid using a stopped AudioRecord instance.
+        // Release the old recorder first; reuse the SAME Scribe websocket
+        // instead of accidentally switching to the batch queue after unmuting.
         microphone.stop()
-        startMicrophone(generation, queue, context.getSharedPreferences("lulu_advanced_settings", 0))
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+        if (stream != null) startRealtimeMicrophone(generation, prefs, stream)
+        else if (queue != null) startMicrophone(generation, queue, prefs)
     }
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
