@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:30:23.802321+00:00",
-  "commit": "6cad66bada168d3bf8f685375d83fb5b033d57ce",
+  "generatedAt": "2026-10-11T05:30:47.501725+00:00",
+  "commit": "9f319ca668b7cf6913d962bc1915d645be11661f",
   "branch": "main",
-  "sourceFingerprint": "c46d3d2cb9a0586832b4a3bffd6ca7ddd17438ebb407c75e8ae9b9466d36f8a8",
+  "sourceFingerprint": "f4258c0328ba4c973a2a7f307c312736264f4f1f531ba516a43b9ea8035d9531",
   "summary": {
     "files": 494,
-    "lines": 104965,
+    "lines": 104977,
     "symbols": 1559
   },
   "symbolIndex": {
@@ -5723,7 +5723,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1129
+        "line": 1138
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11662,8 +11662,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 205,
-      "sha256": "a96e199ca9144c37d652a4e442adf0fb25001d6d6349a9e6f59e285e036633c6",
+      "lines": 208,
+      "sha256": "df5dbc7a73dc0506a23bc4951cdd25ae56fc68d5904d1bae2db8434c8a13e7c7",
       "symbols": [
         {
           "name": "parse",
@@ -14141,8 +14141,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1185,
-      "sha256": "1f30364acf5ab37a8abbdccd157457b3170c2a916c98e12bbbbc40d9ec9823bd",
+      "lines": 1194,
+      "sha256": "e065a41958d45f617ec4e73c1f59606abf7f5521400be1591d7fbe393e64d9cf",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -14166,14 +14166,14 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1129
+          "line": 1138
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
       "lines": 420,
-      "sha256": "e983307ead924acf12797387925f8855bee44b486434fa4a39196893f4e693bc",
+      "sha256": "2061a470d173c53d677725b3108281c6cec11661e234d6f061ce76623e77c1b3",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
