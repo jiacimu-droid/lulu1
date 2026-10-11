@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:25:18.148411+00:00",
-  "commit": "0ce1507f907a68d678089c686e89af8f344b16a4",
+  "generatedAt": "2026-10-11T07:25:40.132370+00:00",
+  "commit": "d80a8a51e227ef2d76654af202ddf65a2378309e",
   "branch": "main",
-  "sourceFingerprint": "6a72f182f0ebb5c57f6ad7bfaeb757ffe5968ee9b8070c122addb9728b3e84a3",
+  "sourceFingerprint": "adeab7dcace74e9ec5a03989d4d0d7f76392d4a6f076395dd17450c5b5ef5278",
   "summary": {
     "files": 500,
-    "lines": 106135,
+    "lines": 106152,
     "symbols": 1578
   },
   "symbolIndex": {
@@ -18034,8 +18034,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 74,
-      "sha256": "43264bc96adc7264adc6c804d145aea7bce657d67e89372d2adbf2ebfc645eb7",
+      "lines": 91,
+      "sha256": "72481aaf0a5a8716318a48dadc3a2488af0ddc87ed6da6bb91edf6b09e3743c4",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
