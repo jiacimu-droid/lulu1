@@ -305,6 +305,9 @@ private fun PresenceGrowthTrajectory(characterId: String, cutoff: Instant) {
 
 @Composable
 private fun PresenceAutonomousDecisions(characterId: String, cutoff: Instant) {
+    val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val latest = presenceStates[characterId]
+    val lastAttemptAt = latest?.lastPerceptionAt
     val revision by CharacterInnerLifeStore.revisions.collectAsState()
     val mind = remember(characterId, revision) { CharacterInnerLifeStore.snapshot(characterId) }
     val items = mind.optJSONArray("decisions")
@@ -320,6 +323,12 @@ private fun PresenceAutonomousDecisions(characterId: String, cutoff: Instant) {
             fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
         Text("每次真实的自主决策：选择了什么、为什么、最终是否执行成功。安静不是错误，失败也不会假装成完成。这里只展示已保存的决策，不是新的模型调用。",
             color = Color(0xFF747477), fontSize = 12.sp)
+        if (lastAttemptAt != null && !lastAttemptAt.isAfter(cutoff) &&
+            !latest.lastPerceptionNote.isBlank()) {
+            val time = lastAttemptAt.atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"))
+            PresenceDialogSection("最近一次感知 · $time", latest.lastPerceptionNote)
+        }
         if (entries.isEmpty()) {
             PresenceDialogSection("暂无保存的自主决策", "角色可能尚未在线感知，或以前的决策尚未记录在这份轨迹中。")
         } else {
