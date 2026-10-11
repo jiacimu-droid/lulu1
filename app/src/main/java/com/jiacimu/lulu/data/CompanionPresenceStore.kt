@@ -171,8 +171,11 @@ object CompanionPresenceStore {
      * timestamps to another, so approximate time lookup alone is insufficient.
      * Do not fabricate a thought if the role never produced a nearby snapshot.
      */
-    @Synchronized fun bindDeliveredMessage(characterId: String, messageId: String, at: Instant) {
-        if (characterId.isBlank() || messageId.isBlank() || messageId in messageMoments) return
+    @Synchronized fun bindDeliveredMessage(
+        characterId: String, messageId: String, at: Instant, refreshAfterDelivery: Boolean = false,
+    ) {
+        if (characterId.isBlank() || messageId.isBlank() ||
+            (!refreshAfterDelivery && messageId in messageMoments)) return
         val current = mutableStates.value[characterId] ?: return
         val elapsed = runCatching { Duration.between(current.updatedAt, at).toMillis() }.getOrNull()
             ?: return
