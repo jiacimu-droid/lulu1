@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T12:56:46.195401+00:00",
-  "commit": "f8fb6ac2b044e06943a87c8ba7789a5eac5731d1",
+  "generatedAt": "2026-10-11T12:57:16.020572+00:00",
+  "commit": "333a00f3eceba04dba7283e1c6a30bee8b54d0f1",
   "branch": "main",
-  "sourceFingerprint": "d246d604278e8fc69e7be5ca3f0ddd546b9bdb4108da4f323cf94fc89f5bbd86",
+  "sourceFingerprint": "7f3ab13aba92a6fcd24894dc2337ef37c0a433cd4acd7b64f53413ec0e67e4cf",
   "summary": {
     "files": 507,
-    "lines": 107569,
+    "lines": 107573,
     "symbols": 1609
   },
   "symbolIndex": {
@@ -11681,8 +11681,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEmotionalImprintRuntime.kt",
-      "lines": 161,
-      "sha256": "4f9175a45346e9a24f3870749011e571b15c245286f6e4533ff4269417652319",
+      "lines": 165,
+      "sha256": "8e241309748bb6e6dc0b5540fdd42556a06711571beb01ee100560fb1e49bc35",
       "symbols": [
         {
           "name": "recoverRecent",
