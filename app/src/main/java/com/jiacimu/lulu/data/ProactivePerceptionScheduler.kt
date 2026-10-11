@@ -201,6 +201,31 @@ object ProactivePerceptionScheduler {
     }
 
     /**
+     * A genuine undecided personal idea gets one later autonomous reconsideration,
+     * not a forced action. All resulting choices still go through the ordinary
+     * ProactivePerceptionRuntime decision and ToolRouter executor.
+     */
+    fun scheduleOwnIdeaFollowThrough(context: Context, characterId: String) {
+        if (characterId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val prefs = app.getSharedPreferences("lulu_own_idea_review_v1", Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        if (now - prefs.getLong("scheduled:$characterId", 0L) in 0L until (60L * 60_000L)) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(90_000L, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "角色自己先前有过一种尚未决定的生活念头，重新看看此刻还想不想做；可以执行真实动作、换想法或放下，不要机械照旧做。")
+                .putString("characterId", characterId).putBoolean("force", true).build())
+            .build()
+        prefs.edit().putLong("scheduled:$characterId", now).apply()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-own-idea-review-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request,
+        )
+    }
+
+    /**
      * One bounded follow-through after a VERIFIED voluntary activity. Uses the
      * very same perception/decision pipeline as chat/world/background life,
      * never a second ad-hoc "cute thought generator". If automatic perception
