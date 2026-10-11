@@ -931,7 +931,13 @@ object ProactivePerceptionRuntime {
             characterId = characterId,
             decisionId = "perception:${now.toEpochMilli()}:${trigger.take(30)}",
             selectedAction = decision.action.name.lowercase(),
-            reason = decision.reason,
+            // A blank model reason must remain visible as a missing reason,
+            // rather than disappearing from the audit as if no call happened.
+            reason = decision.reason.ifBlank {
+                if (decision.action == Action.SILENT)
+                    "未提供具体的沉默理由；本次没有执行外部行动"
+                else "本次模型未说明选择这项行动的原因"
+            },
             chosenMotiveId = decision.motiveId,
             alternatives = decision.alternatives,
             outcome = execution.summary,
