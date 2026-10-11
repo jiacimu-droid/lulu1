@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:46:43.153373+00:00",
-  "commit": "3a93ca51c82947753bc60ee691cb408aef7a2eed",
+  "generatedAt": "2026-10-11T06:46:58.573922+00:00",
+  "commit": "afbd75788a3bd46ddcf04fee5f99c6c0876c795b",
   "branch": "main",
-  "sourceFingerprint": "b1f03b7c30bf6f79fc298e692b4e6e8c6b0f36c63776eb1ab5221eb04dc5ec24",
+  "sourceFingerprint": "3d3e0f8b9010aa9f89ef88e453363721a025a4f0b2cd1e3e99a80d01e93fafe7",
   "summary": {
     "files": 498,
-    "lines": 105565,
-    "symbols": 1564
+    "lines": 105614,
+    "symbols": 1565
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 304
+        "line": 353
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1809,11 +1809,15 @@
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 218
+        "line": 222
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 260
+        "line": 267
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
+        "line": 309
       }
     ],
     "payload": [
@@ -10270,8 +10274,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 325,
-      "sha256": "b626fcae13c2ab27fecd1b16bc23c109e9e1c4d1c9c9bfde9642a623400c4238",
+      "lines": 374,
+      "sha256": "8a93fa10ab559ef2a01a9349678138763b1207d077982f889efd7171a874832c",
       "symbols": [
         {
           "name": "start",
@@ -10287,15 +10291,19 @@
         },
         {
           "name": "field",
-          "line": 218
+          "line": 222
         },
         {
           "name": "field",
-          "line": 260
+          "line": 267
+        },
+        {
+          "name": "field",
+          "line": 309
         },
         {
           "name": "stop",
-          "line": 304
+          "line": 353
         }
       ]
     },
