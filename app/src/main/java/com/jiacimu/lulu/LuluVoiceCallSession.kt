@@ -345,7 +345,9 @@ internal object LuluVoiceCallSession {
             // An Agent SDK owns its own microphone; keep explicit mute, but
             // do not set system-wide AudioManager.isMicrophoneMute.
             realtime?.mute(nextMuted)
-            if (nextMuted) audioRoute?.stop() else audioRoute?.start()
+            // Muting microphone must not tear down speaker/headset output.
+            // WebRTC owns the realtime mic, not the Android audio route.
+            if (!nextMuted) audioRoute?.refresh()
             return
         }
         if (nextMuted) {
@@ -360,7 +362,8 @@ internal object LuluVoiceCallSession {
             pauseRecognition()
             recognizer?.destroy()
             recognizer = null
-            audioRoute?.stop()
+            // Preserve the current headphones / earpiece during a text-only call.
+            // Input capture is already released above.
             if (pendingSystemSpeech.isNotBlank()) {
                 handleUserSpeech(pendingSystemSpeech, allowWhileMuted = true)
             } else if (mutableState.value.sleepMode) scheduleSleepContinuation()
