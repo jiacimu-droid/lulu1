@@ -499,6 +499,7 @@ object ProactivePerceptionRuntime {
                     appendLine(CharacterCausalActionPolicy.followThroughInstruction(stagedAppraisal.evidenceId))
                 }
                 appendLine(affordances)
+                appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, 24))
                 CharacterSelfActivityRuntime.latestConsideration(appContext, characterId)?.let { idea ->
                     appendLine("【过去自己想到但还没决定的事｜没有真的做过】")
                     appendLine("当时考虑：${idea.optString("action")}；当时原因：${idea.optString("whyNow")}")
