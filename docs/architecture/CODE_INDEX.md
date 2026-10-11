@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a140545c24cee26b7091c4141b826d3d21a9d6ac`
+- 基准提交：`fbc58105aee61c3e83d0baeab997e0be80de6632`
 - 分支：`main`
-- 已索引文件：497
-- 已索引代码/文本行：105475
-- 已发现符号：1563
+- 已索引文件：498
+- 已索引代码/文本行：105515
+- 已发现符号：1564
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -470,6 +470,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 77 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
