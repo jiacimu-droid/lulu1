@@ -65,7 +65,8 @@ class CharacterSelfActivityRuntimeTest {
                 .put("readingBookId", "real-book-7"))
         val present = CharacterMomentSnapshot.reflection(null, appraisal = appraisal)
         assertTrue(present.contains("想给她起个临时小绰号"))
-        assertTrue(present.contains("听见她突然哼歌"))
+        // The UI shows her spontaneous desire, not a narrated reason why.
+        assertFalse(present.contains("听见她突然哼歌"))
         assertTrue(present.contains("想翻翻书"))
         assertFalse(present.contains("已经读完"))
     }
