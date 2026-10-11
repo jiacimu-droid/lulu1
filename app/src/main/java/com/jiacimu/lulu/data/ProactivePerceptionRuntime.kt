@@ -1025,7 +1025,7 @@ object ProactivePerceptionRuntime {
         )
         Decision(
             action = when (json.optString("action").trim().lowercase()) {
-                "message", "消息" -> Action.MESSAGE
+                "message", "消息", "reply", "回复", "private_message", "send_private_message", "chat" -> Action.MESSAGE
                 "group_message", "groupmessage", "群聊消息", "群聊发言" -> Action.GROUP_MESSAGE
                 "sticker", "private_sticker" -> Action.STICKER
                 "group_sticker" -> Action.GROUP_STICKER
@@ -1044,7 +1044,17 @@ object ProactivePerceptionRuntime {
                 "tool" -> Action.TOOL
                 else -> Action.SILENT
             },
-            text = json.optString("text").trim(),
+            // The shared personality protocol can reply with normal chat
+            // bubbles even when invoked by the online perception executor.
+            // Treat those as actual user-visible content, not Action.SILENT.
+            text = json.optString("text").trim().ifBlank {
+                json.optJSONArray("bubbles")?.let { bubbles ->
+                    (0 until minOf(bubbles.length(), 5)).mapNotNull { i ->
+                        (bubbles.optJSONObject(i)?.optString("text")
+                            ?: bubbles.optString(i)).trim().takeIf(String::isNotBlank)
+                    }.joinToString("\n")
+                }.orEmpty()
+            },
             reason = json.optString("reason").trim(),
             statusText = json.optString("statusText").ifBlank { json.optString("status") }.trim(),
             gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") }.trim(),
