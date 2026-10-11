@@ -100,6 +100,7 @@ internal object CharacterLifeFollowThroughStore {
                 val sharing = when (item.optString("shareStatus")) {
                     "held" -> "之前想分享但还没发出去，可重新决定告诉用户、发公开朋友圈或放下"
                     "shared" -> "已分享，勿重复"
+                    "released" -> "已经决定不分享，除非之后有确切的新想法，否则不要重新催促"
                     else -> "可以自己决定是否想分享给用户/公开朋友圈/群友，亦可不分享"
                 }
                 appendLine("  分享：$sharing；好奇探索：${when (item.optString("curiosityStatus")) {
