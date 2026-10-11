@@ -556,7 +556,8 @@ object ProactivePerceptionRuntime {
                     CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
                 ))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
-                appendLine(CharacterRelationalInitiative.context(characterId, now, proactive = true))
+                // The gateway already includes the shared personality runtime,
+                // including relational initiatives; avoid inserting the same evidence twice.
                 appendLine(AutonomousActionTrace.render(
                     CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now,
                 ))
