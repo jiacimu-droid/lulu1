@@ -56,6 +56,26 @@ internal object OnlineChatBatchStore {
         return next(context, characterId, collectMessages = true, now = atMillis)
     }
 
+    /**
+     * A single burst of bubbles has ONE queued network worker, not one worker
+     * per new bubble. The due timestamp can still extend while it is waiting.
+     * A new revision after an actual claim may enqueue its own work.
+     */
+    @Synchronized fun markEnqueued(context: Context, characterId: String, revision: Long): Boolean {
+        val p = prefs(context)
+        if (!isCurrent(context, characterId, revision)) return false
+        if (!p.contains("due:$characterId")) return false
+        if (p.getLong("enqueued:$characterId", -1L) == revision) return false
+        return p.edit().putLong("enqueued:$characterId", revision).commit()
+    }
+
+    @Synchronized fun unmarkEnqueued(context: Context, characterId: String, revision: Long) {
+        val p = prefs(context)
+        if (p.getLong("enqueued:$characterId", -1L) == revision) {
+            p.edit().remove("enqueued:$characterId").commit()
+        }
+    }
+
     /** Claim under the perception mutex; pending messages during this reply open the next window. */
     @Synchronized fun claim(
         context: Context,
@@ -76,7 +96,7 @@ internal object OnlineChatBatchStore {
         reading.remove(characterId to revision)
         if (completed && isCurrent(context, characterId, revision)) {
             check(prefs(context).edit().remove("due:$characterId")
-                .remove("messageWindow:$characterId").commit()) { "在线消息读取状态保存失败" }
+                .remove("messageWindow:$characterId").remove("enqueued:$characterId").commit()) { "在线消息读取状态保存失败" }
         }
     }
 
@@ -95,6 +115,7 @@ internal object OnlineChatBatchStore {
         val p = prefs(context)
         reading.removeAll { it.first == characterId }
         check(p.edit().putLong("revision:$characterId", p.getLong("revision:$characterId", 0) + 1)
-            .remove("due:$characterId").remove("messageWindow:$characterId").commit()) { "取消在线消息失败" }
+            .remove("due:$characterId").remove("messageWindow:$characterId")
+            .remove("enqueued:$characterId").commit()) { "取消在线消息失败" }
     }
 }
