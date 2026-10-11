@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T13:15:09.556303+00:00",
-  "commit": "887f4106d776f470455678038197f5dd088546af",
+  "generatedAt": "2026-10-11T13:15:23.852080+00:00",
+  "commit": "dcf70ce426e7a5d9a7b6525dd0b15d4dc8911041",
   "branch": "main",
-  "sourceFingerprint": "7cb99191b88899189b11ee37d3b1205dfd577e50a66a4769712d511554a6dbb6",
+  "sourceFingerprint": "996766d0fe9cc30a17054befba45859cd61bac7d16c808b9243badfb82906ccf",
   "summary": {
     "files": 509,
-    "lines": 107679,
+    "lines": 107683,
     "symbols": 1611
   },
   "symbolIndex": {
@@ -1509,79 +1509,79 @@
     "cancelDial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 318
+        "line": 322
       }
     ],
     "toggleMicrophone": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 322
+        "line": 326
       }
     ],
     "toggleSleepMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 386
+        "line": 390
       }
     ],
     "selectSleepFocus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 410
+        "line": 414
       }
     ],
     "toggleSpeaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 462
+        "line": 466
       }
     ],
     "reportPermissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 466
+        "line": 470
       }
     ],
     "endCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 470
+        "line": 474
       }
     ],
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1060
+        "line": 1064
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1062
+        "line": 1066
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1067
+        "line": 1071
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1268
+        "line": 1272
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1351
+        "line": 1355
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1482
+        "line": 1486
       }
     ],
     "PendingTouch": [
@@ -10095,8 +10095,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1568,
-      "sha256": "e38a24fc3d0197483d73c3dbb9ed82d09acdf39f0c8adae0643386931f48b3d9",
+      "lines": 1572,
+      "sha256": "34a4006123d433066e61256a17645d3a5ef3fc82066c55798aa3748d939a25d8",
       "symbols": [
         {
           "name": "isActiveForChat",
@@ -10116,55 +10116,55 @@
         },
         {
           "name": "cancelDial",
-          "line": 318
-        },
-        {
-          "name": "toggleMicrophone",
           "line": 322
         },
         {
+          "name": "toggleMicrophone",
+          "line": 326
+        },
+        {
           "name": "toggleSleepMode",
-          "line": 386
+          "line": 390
         },
         {
           "name": "selectSleepFocus",
-          "line": 410
+          "line": 414
         },
         {
           "name": "toggleSpeaker",
-          "line": 462
-        },
-        {
-          "name": "reportPermissionDenied",
           "line": 466
         },
         {
-          "name": "endCall",
+          "name": "reportPermissionDenied",
           "line": 470
         },
         {
+          "name": "endCall",
+          "line": 474
+        },
+        {
           "name": "sameReply",
-          "line": 1060
+          "line": 1064
         },
         {
           "name": "clearWhenHeard",
-          "line": 1062
+          "line": 1066
         },
         {
           "name": "enqueueSpoken",
-          "line": 1067
+          "line": 1071
         },
         {
           "name": "sameSession",
-          "line": 1268
+          "line": 1272
         },
         {
           "name": "retryListening",
-          "line": 1351
+          "line": 1355
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1482
+          "line": 1486
         }
       ]
     },
