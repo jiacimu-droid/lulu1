@@ -150,6 +150,24 @@ class CallContractsTest {
         assertFalse(gate.consumeWhenReady("call-a", 4L, true, false, false)) // consumed once
     }
 
+    @Test fun autoHangupRequiresEverySpeechSegmentAndNeverSucceedsAfterMissingFinalLine() {
+        val gate = CallAutonomousHangupGate()
+        gate.request("call-a", 3L)
+        gate.expectSpoken("call-a", 3L, "我听你说完了。那我挂了。")
+        gate.markDelivered("call-a", 3L, "我听你说完了。")
+        assertFalse(gate.consumeWhenReady("call-a", 3L, true, false, true))
+        // First bubble was delivered but the intended farewell never played.
+        assertFalse(gate.consumeWhenReady("call-a", 3L, true, false, false))
+
+        val complete = CallAutonomousHangupGate()
+        complete.request("call-b", 8L)
+        complete.expectSpoken("call-b", 8L, "我听你说完了。那我挂了。")
+        complete.markDelivered("call-b", 8L, "我听你说完了。")
+        complete.markDelivered("call-b", 8L, "那我挂了。")
+        assertTrue(complete.consumeWhenReady("call-b", 8L, true, false, false))
+        assertFalse(complete.consumeWhenReady("call-b", 8L, true, false, false))
+    }
+
     @Test fun interruptedOrEndedCallCannotCarryPendingHangupIntoNextCall() {
         val gate = CallAutonomousHangupGate()
         gate.request("first", 1L)
