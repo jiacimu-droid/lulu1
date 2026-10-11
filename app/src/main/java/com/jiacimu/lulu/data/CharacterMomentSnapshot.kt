@@ -85,8 +85,13 @@ internal object PresenceHistoryPresentation {
         history: List<CompanionPresenceState>,
         messageAnchored: Boolean,
     ): CompanionPresenceState? =
-        if (messageAnchored) current else history.asSequence()
-            .sortedByDescending { it.updatedAt }
+        if (messageAnchored) {
+            current?.takeIf { it.innerThought.isNotBlank() } ?: history
+                .asSequence().filter { it.innerThought.isNotBlank() && current != null &&
+                    !it.updatedAt.isAfter(current.updatedAt) &&
+                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0..5 }
+                .maxByOrNull { it.updatedAt }
+        } else history.asSequence().sortedByDescending { it.updatedAt }
             .firstOrNull { it.innerThought.isNotBlank() }
             ?: current?.takeIf { it.innerThought.isNotBlank() }
 
@@ -95,8 +100,13 @@ internal object PresenceHistoryPresentation {
         history: List<CompanionPresenceState>,
         messageAnchored: Boolean,
     ): CompanionPresenceState? =
-        if (messageAnchored) current?.takeIf { it.momentReflection.isNotBlank() }
-        else history.asSequence().sortedByDescending { it.updatedAt }
+        if (messageAnchored) {
+            current?.takeIf { it.momentReflection.isNotBlank() } ?: history
+                .asSequence().filter { it.momentReflection.isNotBlank() && current != null &&
+                    !it.updatedAt.isAfter(current.updatedAt) &&
+                    java.time.Duration.between(it.updatedAt, current.updatedAt).toMinutes() in 0..5 }
+                .maxByOrNull { it.updatedAt }
+        } else history.asSequence().sortedByDescending { it.updatedAt }
             .firstOrNull { it.momentReflection.isNotBlank() }
             ?: current?.takeIf { it.momentReflection.isNotBlank() }
 
