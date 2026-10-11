@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:26:30.708444+00:00",
-  "commit": "93cb1698281cea68b5dfd72360e5bd4b14099f26",
+  "generatedAt": "2026-10-11T07:28:20.505844+00:00",
+  "commit": "07ebbd9113d2f8c4528a102476d9e599caf62585",
   "branch": "main",
-  "sourceFingerprint": "a5f269e76cc53cbb0373677f6599ac317077d2ec40b9d33cf685b4dcff16005a",
+  "sourceFingerprint": "af326ac39a6990c9a5329752f03240fa5e6f1101c3a5c01b1b4891f94f333d0f",
   "summary": {
     "files": 500,
-    "lines": 106168,
+    "lines": 106169,
     "symbols": 1578
   },
   "symbolIndex": {
@@ -307,7 +307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1136
+        "line": 1137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3183,13 +3183,13 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1036
+        "line": 1037
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1053
+        "line": 1054
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -11516,8 +11516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1258,
-      "sha256": "51b1f86de319f27e825412ce091ccb1a3d17edca887ce1becb387bf8a8d537e7",
+      "lines": 1259,
+      "sha256": "422fe1212617a57d4547408a2fe8d41561585dd5307bd96da590468e77700219",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -11541,15 +11541,15 @@
         },
         {
           "name": "normalize",
-          "line": 1036
+          "line": 1037
         },
         {
           "name": "compactContext",
-          "line": 1053
+          "line": 1054
         },
         {
           "name": "context",
-          "line": 1136
+          "line": 1137
         }
       ]
     },
