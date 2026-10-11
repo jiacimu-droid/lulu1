@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T07:16:13.880538+00:00",
-  "commit": "13abfe8a514e5445a587be1390ab3e82645f2adb",
+  "generatedAt": "2026-10-11T07:16:31.121202+00:00",
+  "commit": "24b1e709ad220a8bad3a8268b45748f32c4b5954",
   "branch": "main",
-  "sourceFingerprint": "ca3789ffb5f1ae46485e7060cdce0dda5826b16b3832a23df6b5a10169322c16",
+  "sourceFingerprint": "0504b0c3241250c380b4f07ac58a01c8ba0f0d3cea0be399fdfa9d47ae799a80",
   "summary": {
     "files": 499,
-    "lines": 105887,
-    "symbols": 1574
+    "lines": 105913,
+    "symbols": 1575
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5838,52 +5838,58 @@
         "line": 180
       }
     ],
-    "scheduleOwnIdeaFollowThrough": [
+    "scheduleLifeFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 208
       }
     ],
-    "scheduleActionFollowThrough": [
+    "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 234
       }
     ],
+    "scheduleActionFollowThrough": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 260
+      }
+    ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 261
+        "line": 287
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 289
+        "line": 315
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 307
+        "line": 333
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 315
+        "line": 341
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 397
+        "line": 423
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 404
+        "line": 430
       }
     ],
     "PromptContextBudget": [
@@ -14322,8 +14328,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 448,
-      "sha256": "a6534fb5a1917f4d9eebf654913388ebea57b6b6ba49e1145c1fe7e0beaac57d",
+      "lines": 474,
+      "sha256": "fa2eae1b16dd1134624a5718d78e228dff39bbca5f3b3aa88e53949f6101bf8f",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -14362,36 +14368,40 @@
           "line": 180
         },
         {
-          "name": "scheduleOwnIdeaFollowThrough",
+          "name": "scheduleLifeFollowThrough",
           "line": 208
         },
         {
-          "name": "scheduleActionFollowThrough",
+          "name": "scheduleOwnIdeaFollowThrough",
           "line": 234
         },
         {
+          "name": "scheduleActionFollowThrough",
+          "line": 260
+        },
+        {
           "name": "scheduleInteractionReflection",
-          "line": 261
+          "line": 287
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 289
-        },
-        {
-          "name": "cancelOnline",
-          "line": 307
-        },
-        {
-          "name": "ProactivePerceptionWorker",
           "line": 315
         },
         {
+          "name": "cancelOnline",
+          "line": 333
+        },
+        {
+          "name": "ProactivePerceptionWorker",
+          "line": 341
+        },
+        {
           "name": "ProactivePerceptionReceiver",
-          "line": 397
+          "line": 423
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 404
+          "line": 430
         }
       ]
     },
