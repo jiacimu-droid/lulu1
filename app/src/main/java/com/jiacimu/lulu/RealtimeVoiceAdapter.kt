@@ -18,6 +18,7 @@ internal class RealtimeVoiceAdapter(
     private val onUserSpeech: () -> Unit,
     private val onCandidate: (String) -> Unit,
     private val onError: (String) -> Unit,
+    private val onFarewellDelivered: () -> Unit = {},
 ) {
     private var session: ConversationSession? = null
     private var definitionJob: Job? = null
@@ -74,12 +75,22 @@ internal class RealtimeVoiceAdapter(
                 else if (playedAudio && volumeEnabled) {
                     // Allow correction/interruption events to arrive before committing completed speech.
                     deliveryJob?.cancel()
+                    val lastActivity = lastUserActivity
                     deliveryJob = scope.launch {
                         delay(600)
-                        if (epoch == generation && !speaking) {
-                            delivery.played(deliveryEpoch).forEach { (id, text) -> persistAgent(id, text) }
+                        if (epoch == generation && !speaking && lastUserActivity == lastActivity) {
+                            val delivered = delivery.played(deliveryEpoch)
+                            delivered.forEach { (id, text) -> persistAgent(id, text) }
                             onCandidate("")
-                            refreshCore(epoch)
+                            // Only words actually delivered by the provider's
+                            // audio-mode transition may carry this commitment.
+                            // It must not fire on a generated-only candidate or
+                            // on user interruption of the agent's last sentence.
+                            if (delivered.values.any(CallSpokenHangupPolicy::explicitlyEndsOwnCall)) {
+                                onFarewellDelivered()
+                            } else {
+                                refreshCore(epoch)
+                            }
                         }
                     }
                 }
