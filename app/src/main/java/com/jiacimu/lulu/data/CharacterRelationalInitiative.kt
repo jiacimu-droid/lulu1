@@ -97,7 +97,10 @@ internal object CharacterRelationalInitiative {
             val why = proposal.optString("why").trim().take(220)
             val evidenceId = proposal.optString("evidenceId").trim().take(180)
             if (aim.isBlank() || why.isBlank() || !evidenceStillExists(characterId, evidenceId)) return
-            val isDelivery = action != "silent"
+            // An unrelated successful activity must not fulfill a surprise.
+            // The proposal has to explicitly link this exact action to the aim.
+            val isDelivery = action != "silent" &&
+                proposal.optString("deliveryAction").trim().lowercase() == action
             if (isDelivery && success) {
                 root.remove("pending")
                 root.put("lastDelivery", JSONObject()
