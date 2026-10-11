@@ -29,7 +29,7 @@ internal object PhoneSubtitleLayout {
                 piece.append(ch)
                 val boundary = ch in "。！？!?；;，,"
                 val next = paragraph.getOrNull(index + 1)
-                if (boundary && next !in closers) emitClause()
+                if (boundary && (next == null || !closers.contains(next))) emitClause()
                 else if (ch in closers && index > 0 && paragraph[index - 1] in "。！？!?；;，,") emitClause()
             }
             emitClause()
@@ -49,8 +49,8 @@ internal object PhoneSubtitleLayout {
                 if (current.length >= minReadable && current.length + clause.length > preferred + 8) emitGroup()
                 current.append(clause)
                 val last = current.lastOrNull()
-                val strong = last in "。！？!?；;”’\"'）)】]"
-                val soft = last in "，,"
+                val strong = last != null && last in "。！？!?；;”’\"'）)】]"
+                val soft = last != null && last in "，,"
                 val more = index < clauses.lastIndex
                 if (more && current.length >= minReadable &&
                     (current.length >= preferred ||
