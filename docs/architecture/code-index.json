@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T04:56:35.134610+00:00",
-  "commit": "26c6fd6d963e1f47b2c5b6133555e50b21e0180c",
+  "generatedAt": "2026-10-11T04:57:17.889210+00:00",
+  "commit": "b460a608a6482037e9ed6457c063af26992e7e6b",
   "branch": "main",
-  "sourceFingerprint": "35ee6b8156c4e3f7f5d99d98bfb08859a7b7d04eaeb629bd86f2ca3f0ee1b218",
+  "sourceFingerprint": "0159f8739eb78dd76baac4e555dbf79f13fb43771be50aa818876a1cd5cf7419",
   "summary": {
     "files": 493,
-    "lines": 104560,
-    "symbols": 1553
+    "lines": 104481,
+    "symbols": 1552
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -840,12 +840,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt",
         "line": 71
-      }
-    ],
-    "journeyLines": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-        "line": 310
       }
     ],
     "forActivity": [
@@ -9126,14 +9120,9 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 400,
-      "sha256": "d5a0a0735d88074c2832e908499d08a35aa2932196c9d70c3cf4f8b77314d2e0",
-      "symbols": [
-        {
-          "name": "journeyLines",
-          "line": 310
-        }
-      ]
+      "lines": 321,
+      "sha256": "db2a0d49823f0a88baa59f862a8391f10a2ae2b3b86b60ff3ff1a18293fc6929",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt",
