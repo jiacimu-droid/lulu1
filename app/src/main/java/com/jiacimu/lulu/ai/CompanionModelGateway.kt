@@ -584,9 +584,16 @@ class CompanionModelGateway(
                     DigitalWorldLifeEventStore.contextFor(characterId)
                 else com.jiacimu.lulu.data.PromptContextPolicy.compactWorld(characterId)
             } else ""
-            val developmentSection = if (fullContext)
-                com.jiacimu.lulu.data.CharacterRuntime.developmentContext(characterId, compact = !budget.richInnerLife)
-                else ""
+            val developmentSection = when {
+                fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
+                    characterId, compact = !budget.richInnerLife)
+                // Private chat's second model pass renders text only. It still
+                // receives the same character's unfinished intention, but no
+                // broad timeline or new decision-making authority.
+                leanExpression && contextMode == CompanionContextMode.Full ->
+                    com.jiacimu.lulu.data.CharacterRuntime.leanExpressionContext(characterId)
+                else -> ""
+            }
             val systemPrompt = listOf(
                 baseRules,
                 identitySection,
