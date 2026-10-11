@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`20862b84ed649ae3c4df53abdd851637125267fc`
+- 基准提交：`38a9ba1de88d81a4b9eee9a31637188b304b8b1f`
 - 分支：`main`
 - 已索引文件：500
-- 已索引代码/文本行：106311
-- 已发现符号：1581
+- 已索引代码/文本行：106301
+- 已发现符号：1582
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -24,7 +24,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 54 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 73 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 61 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 521 | 3 |
@@ -130,7 +130,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 62 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 154 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 168 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 39 | 4 |
