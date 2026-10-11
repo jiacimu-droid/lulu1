@@ -177,8 +177,14 @@ class UserMessageFavoritesTest {
         val pinned = PresenceHistoryPresentation.latestVoice(
             history.first(), history, messageAnchored = true,
         )
-        assertEquals("", pinned!!.innerThought)
-        assertEquals("", pinned.momentReflection)
+        // The most recent real heart voice remains visible for this nearby
+        // chat moment, with its ORIGINAL time rather than a fabricated new one.
+        assertEquals("她出去了，我也翻几页书", pinned!!.innerThought)
+        assertEquals(start, pinned.updatedAt)
+        val priorThought = PresenceHistoryPresentation.latestReflection(
+            history.first(), history, messageAnchored = true,
+        )
+        assertEquals("顾虑：还没想好要不要跟她分享", priorThought?.momentReflection)
         CompanionPresenceStore.clearCharacter(role)
     }
 
