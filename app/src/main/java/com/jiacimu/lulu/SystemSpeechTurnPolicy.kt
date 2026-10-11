@@ -9,8 +9,19 @@ internal object SystemSpeechTurnPolicy {
     /** A microphone mute is an explicit end-of-turn signal. Keep every real
      * recognized word before cancelling Android SpeechRecognizer.
      */
-    fun wordsToSubmitOnMute(committed: String, inFlightPartial: String): String =
-        PhoneTranscriptAssembler.combine(committed, inFlightPartial).trim()
+    fun wordsToSubmitOnMute(committed: String, inFlightPartial: String): String {
+        val earlier = committed.trim()
+        val partial = inFlightPartial.trim()
+        // Android may repeat the same recognized phrase in a final result
+        // and the pending interim callback. It is ONE audio phrase, unlike
+        // adjacent independent PCM chunks where identical words can be real.
+        return when {
+            earlier.isBlank() -> partial
+            partial.isBlank() || earlier == partial || earlier.endsWith(partial) -> earlier
+            partial.startsWith(earlier) -> partial
+            else -> PhoneTranscriptAssembler.combine(earlier, partial)
+        }
+    }
 
     /** Natural long explanations need more breathing space than one-word replies.
      * This is measured after a final transcript, NOT after each partial callback.
