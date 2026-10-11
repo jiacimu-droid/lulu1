@@ -261,7 +261,7 @@ internal object LuluVoiceCallSession {
     private fun finishAutonomousHangupIfReady() {
         val call = mutableState.value
         if (autonomousHangup.consumeWhenReady(call.callExperienceId, replyGeneration,
-                call.connected, call.thinking, call.speaking)) {
+                call.connected, call.thinking, call.speaking || speechQueue?.hasPendingAudio == true)) {
             startCharacterHangupGrace(call.callExperienceId, replyGeneration, agent = false)
         }
     }
@@ -718,6 +718,9 @@ internal object LuluVoiceCallSession {
                     )
                 }
                 if (!busy && current.connected) {
+                    // The gate must observe speaking=false AFTER the state update above.
+                    // Previously it ran while call.speaking still held true, and
+                    // nothing checked again after the last speech segment finished.
                     finishAutonomousHangupIfReady()
                     if (mutableState.value.connected && !mutableState.value.microphoneMuted) {
                         if (appContext?.let(CallVoiceConfiguration::sttEngine) == "system") {
