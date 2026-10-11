@@ -75,6 +75,7 @@ object ProactivePerceptionRuntime {
         val appraisal: JSONObject? = null,
         val motiveId: String = "",
         val curiosity: JSONObject? = null,
+        val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
     )
 
@@ -499,6 +500,8 @@ object ProactivePerceptionRuntime {
                     appendLine(CharacterCausalActionPolicy.followThroughInstruction(stagedAppraisal.evidenceId))
                 }
                 appendLine(affordances)
+                CharacterLifeFollowThroughStore.context(characterId, now)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, 24))
                 CharacterSelfActivityRuntime.latestConsideration(appContext, characterId)?.let { idea ->
                     appendLine("【过去自己想到但还没决定的事｜没有真的做过】")
@@ -920,6 +923,12 @@ object ProactivePerceptionRuntime {
                 text = decision.text,
             ),
         )
+        // An intention is not a world fact; advance a stored desire ONLY after
+        // the existing real executor has returned success for its chosen action.
+        CharacterLifeFollowThroughStore.recordAction(
+            characterId, decision.experienceId, decision.action.name,
+            execution.success, execution.summary,
+        )
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
@@ -1089,6 +1098,7 @@ object ProactivePerceptionRuntime {
             appraisal = json.optJSONObject("appraisal"),
             motiveId = json.optString("motiveId").trim(),
             curiosity = json.optJSONObject("curiosity"),
+            experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
         )
     }.getOrNull()
