@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T06:14:25.167279+00:00",
-  "commit": "b144b82def61cc8a66260417126abef9f3d3eb2c",
+  "generatedAt": "2026-10-11T06:46:27.511453+00:00",
+  "commit": "7829c13b3b417e2fdaf8ded8a1f48909f6b6da70",
   "branch": "main",
-  "sourceFingerprint": "7453e11757623208b69ca7ecd79157818b6299abc0a578bc7f09d5289fdcf20e",
+  "sourceFingerprint": "6852ba11695620078de41558fa349a04215e58704444e72312b0eebbe2709c48",
   "summary": {
     "files": 498,
-    "lines": 105541,
+    "lines": 105548,
     "symbols": 1564
   },
   "symbolIndex": {
@@ -369,19 +369,19 @@
     "sttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 24
+        "line": 27
       }
     ],
     "sttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 31
+        "line": 35
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 37
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -395,13 +395,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 38
+        "line": 43
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 43
+        "line": 48
       }
     ],
     "CharacterSettingsScreenV2": [
@@ -8976,8 +8976,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 66,
-      "sha256": "59cddb82883174fd89afe63d9e6c0973877886f0078b1a31c5167eb412aec640",
+      "lines": 73,
+      "sha256": "5c22c0b50f8fe0730b78885fa8774bcbb7751fbaa11a05427c792f2f49593acc",
       "symbols": [
         {
           "name": "provider",
@@ -8993,23 +8993,23 @@
         },
         {
           "name": "sttEngine",
-          "line": 24
+          "line": 27
         },
         {
           "name": "sttLabel",
-          "line": 31
+          "line": 35
         },
         {
           "name": "label",
-          "line": 37
+          "line": 42
         },
         {
           "name": "miniAsrEndpoint",
-          "line": 38
+          "line": 43
         },
         {
           "name": "preflight",
-          "line": 43
+          "line": 48
         }
       ]
     },
