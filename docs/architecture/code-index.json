@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T16:28:33.453442+00:00",
-  "commit": "77f43257ed770c56d65a753c166065d4fd32134e",
+  "generatedAt": "2026-10-11T16:29:10.706949+00:00",
+  "commit": "9052016f6937f8b530d55be3ce4d235c74c77394",
   "branch": "main",
-  "sourceFingerprint": "9d1bd491e45ed87c93d9db8a3e3925ad4bd8589c8f270c999ec92f72db474d28",
+  "sourceFingerprint": "1b6e8fa4a56747c26f00de2e9f984aaef22a65adfd793011966fea68004bebf3",
   "summary": {
     "files": 512,
-    "lines": 108122,
+    "lines": 108144,
     "symbols": 1617
   },
   "symbolIndex": {
@@ -13206,8 +13206,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-      "lines": 233,
-      "sha256": "909a073ca2dc761ab69335836497fe0f30395659fa11ce79e8238e73399fc201",
+      "lines": 255,
+      "sha256": "d12745a9fa730758c261d3ef667ccb332681c9d537e22b5404319d26a799203c",
       "symbols": [
         {
           "name": "initialize",
