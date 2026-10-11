@@ -360,7 +360,12 @@ object LuluDeviceToolBridge {
                 delta = privateDelta,
                 hasFreshEvidence = (!callSilence && userText.isNotBlank()) || observedSources.isNotEmpty(),
             ))
-            val causalEvidenceId = combined?.evidenceId.orEmpty().ifBlank { interactionEvidenceId }
+            // The combined perception token is a *synthetic* multi-source ID.
+            // Anchor enduring psychological changes to a REAL deletable user
+            // message so the growth timeline can verify and retract them.
+            val causalEvidenceId = interactionEvidenceId.ifBlank {
+                combined?.evidenceId.orEmpty()
+            }
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
                 characterId = characterId,
                 evidenceId = causalEvidenceId,
@@ -374,12 +379,12 @@ object LuluDeviceToolBridge {
                 alternatives = plan.alternatives,
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-                characterId, combined?.evidenceId.orEmpty(), combined?.description.orEmpty(),
+                characterId, causalEvidenceId, combined?.description.orEmpty(),
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, if (callSilence) sceneContext else userText),
                 combined?.socialIds.orEmpty(), now,
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
-                characterId, combined?.evidenceId.orEmpty(),
+                characterId, causalEvidenceId,
                 plan.innerThought, now, privateDelta.fingerprint,
             )
         }
