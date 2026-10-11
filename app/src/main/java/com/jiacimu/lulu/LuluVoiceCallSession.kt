@@ -267,6 +267,10 @@ internal object LuluVoiceCallSession {
                         mutableState.update { it.copy(statusMessage = error) }
                         if (error == "实时通话已断开") endCall()
                     } },
+                    onFarewellDelivered = {
+                        if (mutableState.value.callExperienceId == sessionId &&
+                            mutableState.value.connected) endCallByCharacter()
+                    },
                 )
                 realtime = adapter
                 runCatching { adapter.start(current.characterId, current.conversationId, CallOpeningTurn.prompt(current.incomingReason)) }.onFailure { error ->
