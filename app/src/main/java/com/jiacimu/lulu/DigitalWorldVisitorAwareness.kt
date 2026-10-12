@@ -93,7 +93,7 @@ internal object DigitalWorldVisitorAwareness {
         if (sceneCode.startsWith("preview:")) return
         val localIds = localResidents.filter(String::isNotBlank).toSet()
         val linkedIds = MigratedDomainStores.chat.conversations.value.asSequence()
-            .filter { it.groupChat == null && it.parentConversationId == null }
+            .filter { it.groupChat == null && it.characterId.isNotBlank() }
             .map(LuluConversation::characterId)
             .filter { DigitalLifeProfileStore.isEnabled(it) }
             .toSet()
