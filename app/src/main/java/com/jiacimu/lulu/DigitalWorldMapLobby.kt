@@ -91,6 +91,7 @@ internal fun DigitalWorldMapLobby(
         if (code == DigitalWorldStore.CLOUD_MEADOW) return "云眠原"
         DigitalWorldPublicPlaces.label(code)?.let { return it }
         DigitalWorldExpansionStore.residenceLabel(code)?.let { return it }
+        DigitalWorldExpansionStore.places().firstOrNull { it.code == code }?.let { return it.label }
         if (code.startsWith("home:")) {
             val id = code.removePrefix("home:")
             return world.homes[id]?.name ?: "${MigratedDomainStores.characters.get(id).displayName}的家"
@@ -259,6 +260,7 @@ private fun DigitalWorldRouteDock(
         buildList {
             add(DigitalWorldStore.CLOUD_MEADOW)
             addAll(DigitalWorldPublicPlaces.all.map { it.code })
+            addAll(DigitalWorldExpansionStore.places().map { it.code })
             characters
                 .filter { (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled }
                 .forEach { character -> add(DigitalWorldStore.homeLocation(character.characterId)) }
@@ -357,6 +359,7 @@ private fun DigitalWorldMapPage(
     val outdoor = places.filter { it.code == DigitalWorldPublicPlaces.COURTYARD }
     val facilities = places.filter { it.code == DigitalWorldPublicPlaces.CAFE || it.code == DigitalWorldPublicPlaces.GAME_HALL }
     val discovered = places.filter { it.code !in setOf(DigitalWorldPublicPlaces.COURTYARD, DigitalWorldPublicPlaces.CAFE, DigitalWorldPublicPlaces.GAME_HALL) }
+    val savedDiscoveries = DigitalWorldExpansionStore.places()
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
@@ -397,8 +400,8 @@ private fun DigitalWorldMapPage(
                 }
             }
         }
-        if (discovered.isNotEmpty()) {
-            item { WorldMapSectionHeading("探索发现", "世界中逐渐形成的真实地点", Icons.Outlined.Explore) }
+        if (discovered.isNotEmpty() || savedDiscoveries.isNotEmpty()) {
+            item { WorldMapSectionHeading("探索发现", "有记录、有地址，可反复进入", Icons.Outlined.Explore) }
             discovered.chunked(2).forEach { rowPlaces ->
                 item(key = rowPlaces.joinToString("|") { it.code }) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -409,6 +412,21 @@ private fun DigitalWorldMapPage(
                                 DigitalWorldExpansionStore.residentsAt(place.code).size)
                         }
                         if (rowPlaces.size == 1) Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+            savedDiscoveries.chunked(2).forEach { savedRow ->
+                item(key = savedRow.joinToString("|") { it.code }) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        savedRow.forEach { place ->
+                            MapPlaceCard(
+                                Modifier.weight(1f), place.label, place.subtitle.ifBlank { place.purpose },
+                                Icons.Outlined.Explore, residentsAt(world, place.code, characters),
+                                { onOpenScene(place.code) }, place.code,
+                                DigitalWorldExpansionStore.residentsAt(place.code).size,
+                            )
+                        }
+                        if (savedRow.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
             }

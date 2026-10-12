@@ -58,6 +58,19 @@ internal object DigitalWorldExplorationSpots {
             DigitalWorldExplorationSpot("home-entry", "家门附近", WorldVector(800f, 850f),
                 "这是屋内的出入区域，停下来可以看看房间目前的布局。"),
         )
+        sceneCode.startsWith("shared:discovered:") -> {
+            val place = com.jiacimu.lulu.data.DigitalWorldExpansionStore.places()
+                .firstOrNull { it.code == sceneCode }
+            listOf(
+                DigitalWorldExplorationSpot("discovered-feature", "探查地点",
+                    WorldVector(760f, 530f),
+                    if (place != null) "这里是已有记录的${place.label}；它的用途是${place.purpose}。"
+                    else "观察这个已抵达地点的地形与空间。"),
+                DigitalWorldExplorationSpot("discovered-entry", "回望来路",
+                    WorldVector(800f, 855f),
+                    "记住来到这里的路线与所见，不凭空添加新的地点。"),
+            )
+        }
         sceneCode == DigitalWorldStore.ARRIVAL -> listOf(
             DigitalWorldExplorationSpot("arrival-view", "四周景象", WorldVector(800f, 535f),
                 "这是保留给旧记录的过渡位置，不再作为大世界的独立地图入口。"),

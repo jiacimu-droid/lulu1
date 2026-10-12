@@ -158,6 +158,9 @@ internal fun DigitalWorldGameScene(
         }
     }
     val nativeHome = DigitalWorldExpansionStore.residentHome(sceneCode)
+    val discoveredPlace = remember(sceneCode) {
+        DigitalWorldExpansionStore.places().firstOrNull { it.code == sceneCode }
+    }
     val roomItems = remember(world.items, homeCharacterId) {
         homeCharacterId?.let { owner -> world.items.filter { it.ownerCharacterId == owner } }.orEmpty()
     }
@@ -198,6 +201,7 @@ internal fun DigitalWorldGameScene(
     val placeLabel = remember(sceneCode, homeCharacterId, world.homes) {
         homeCharacterId?.let { world.homes[it]?.name }
             ?: DigitalWorldExpansionStore.residenceLabel(sceneCode)
+            ?: discoveredPlace?.label
             ?: when (sceneCode) {
                 DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
                 DigitalWorldStore.ARRIVAL -> "世界入口"
@@ -700,6 +704,8 @@ internal fun DigitalWorldGameScene(
             }) {
                 if (homeCharacterId != null || nativeHome != null) {
                     drawDigitalHomeWorld(if (nativeHome != null) nativeHomeProps else props, lightPhase)
+                } else if (discoveredPlace != null) {
+                    drawDigitalDiscoveredWorld(discoveredPlace, lightPhase)
                 } else if (!drawDigitalPublicPlaceWorld(sceneCode, lightPhase)) {
                     drawDigitalSharedWorld(sceneCode, lightPhase)
                 }
