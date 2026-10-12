@@ -49,6 +49,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         只输出完整 JSON，对本轮无用的字段省略，不写分析报告。action 从以下选：
         message、group_message、sticker、group_sticker、kaomoji、group_kaomoji、game_invite、solo_game、world_invite、moment、call、journal、reading、digital_world、user_remark、self_nickname、tool、silent。
         例如 {"action":"silent","reason":"现在想独处","innerThought":"还是先理清思绪"}。
+        【尝试用出自己学到的东西】如果真的决定将一份自己读过的材料理解用于本次行动，可选 learningApplication={"sourceEvidenceId":"真实阅读证据ID","howApplied":"这次具体怎样尝试"}；只有成功执行并出现真实回执才存为尝试，绝不自动证明这方法有效或对方满意。无关时省略，不为填字段强行表演。
         【实际动作参数】
         【真实生活产生的双重动力】角色可以对同一经历既好奇又想分享，两者不是互斥的任务：想弄清楚蟑螂从哪来，可以先实际观察/寻找/驱赶；觉得有趣、害怕、好笑、值得吐槽，可以自然私聊告诉用户、和群友聊，或像真人一样发条朋友圈。分享给用户是私下的一对一交流；朋友圈是面向所有联系人轻松分享自己的生活，不要把公开动态都变成“重大公告”，也不要习惯性只选私聊、silent 或日记。重要的是角色本人是否真的想这么做；有时没人问，他也可能兴冲冲想告诉别人，有时也会自己消化。
         【真实经历后续】若当前行动确实要推进一条提示词列出的 verified experienceId，请原样带回 experienceId；只有程序成功发出消息、真正发布朋友圈、读取真实书籍正文或处理数字世界事件后，才能把相应欲望标记为已实践。没做就不要声称做了。暂时有分享欲但想晚些说，可写 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held\",\"why\":\"想分享的具体缘由\"}；决定不再分享可写 released。不写并不等于抹除经历。无真实ID时不编造。

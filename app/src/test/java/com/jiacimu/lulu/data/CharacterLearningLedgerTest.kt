@@ -1,0 +1,82 @@
+package com.jiacimu.lulu.data
+
+import android.content.Context
+import com.jiacimu.lulu.LuluRepositories
+import org.json.JSONObject
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import java.time.Instant
+
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
+class CharacterLearningLedgerTest {
+    private val character = "learning-ledger-test"
+    private val now = Instant.parse("2026-10-10T10:00:00Z")
+    @Before fun start() {
+        MemoryTestEnvironment.release()
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLearningLedger.initialize(context)
+        CharacterLearningLedger.clearCharacter(character)
+    }
+    @After fun finish() {
+        CharacterLearningLedger.clearCharacter(character)
+        MemoryTestEnvironment.release()
+    }
+    private fun note(value: String) = JSONObject().put("topic", "人物动机")
+        .put("understanding", value).put("question", "还有别的解释吗")
+    private fun reading(id: String, seconds: Long) {
+        SharedExperienceTimeline.record(id, character, "独自阅读《故事》", "角色", "确实读过一段",
+            now.plusSeconds(seconds), triggerExtraction = false, source = "reading:story",
+            evidenceKind = EventEvidenceKind.Observation)
+    }
+    @Test fun learnedIdeaRequiresRealReadingNotUserClaim() {
+        assertFalse(CharacterLearningLedger.recordReading(character, "imagined", note("动机未必单一")))
+        SharedExperienceTimeline.record("user-said", character, "私聊", "用户", "读过书",
+            now, triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertFalse(CharacterLearningLedger.recordReading(character, "user-said", note("动机未必单一")))
+        reading("read-one", 1)
+        assertTrue(CharacterLearningLedger.recordReading(character, "read-one", note("动机未必单一")))
+        assertFalse(CharacterLearningLedger.recordReading(character, "read-one", note("第二遍相同总结")))
+        assertTrue(CharacterLearningLedger.context(character, "故事人物动机").contains("动机未必单一"))
+    }
+    @Test fun revisionNeedsOlderValidMaterialAndDeletionRestoresEarlierView() {
+        reading("read-two", 2)
+        reading("read-three", 3)
+        assertTrue(CharacterLearningLedger.recordReading(character, "read-two", note("最初以为是逃跑")))
+        assertFalse(CharacterLearningLedger.recordReading(character, "read-three",
+            note("或许也为了保护").put("revisesEvidenceId", "fake")))
+        assertTrue(CharacterLearningLedger.recordReading(character, "read-three",
+            note("或许也为了保护").put("revisesEvidenceId", "read-two")))
+        assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("最初以为是逃跑"))
+        SharedExperienceTimeline.deleteEvent("read-three")
+        assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("最初以为是逃跑"))
+        SharedExperienceTimeline.deleteEvent("read-two")
+        assertEquals("", CharacterLearningLedger.context(character, "人物动机"))
+    }
+    @Test fun actualExecutionIsAnAttemptNotAutomaticExpertise() {
+        reading("read-four", 4)
+        CharacterLearningLedger.recordReading(character, "read-four", note("先听对方说完"))
+        val application = JSONObject().put("sourceEvidenceId", "read-four")
+            .put("howApplied", "尝试先听完再回应")
+        assertFalse(CharacterLearningLedger.recordApplication(character, application,
+            "no-result", "message", true, "已经成功"))
+        SharedExperienceTimeline.record("real-result", character, "角色日程", "角色", "真的发出回复",
+            now.plusSeconds(8), triggerExtraction = false, source = "action-result",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        assertFalse(CharacterLearningLedger.recordApplication(character, application,
+            "real-result", "message", false, "失败"))
+        assertTrue(CharacterLearningLedger.recordApplication(character, application,
+            "real-result", "message", true, "真的发出回复"))
+        assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("已尝试实践"))
+        SharedExperienceTimeline.deleteEvent("real-result")
+        assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("已尝试实践"))
+    }
+}

@@ -597,6 +597,10 @@ class CompanionModelGateway(
                     com.jiacimu.lulu.data.CharacterRuntime.leanExpressionContext(characterId)
                 else -> ""
             }
+            val learningSection = if (fullContext)
+                com.jiacimu.lulu.data.CharacterRuntime.learningContext(
+                    characterId, request.retrievalQuery(), compact = !budget.precise)
+            else ""
             val systemPrompt = listOf(
                 baseRules,
                 identitySection,
@@ -606,6 +610,7 @@ class CompanionModelGateway(
                 roleWorldBookSection,
                 presenceSection,
                 developmentSection,
+                learningSection,
                 currentWorld,
                 timelineSection,
                 unifiedMemory.coreMemorySection,
@@ -627,6 +632,7 @@ class CompanionModelGateway(
                 "角色世界书/设计书" to roleWorldBookSection,
                 "当前状态" to presenceSection,
                 "成长与持续动机" to developmentSection,
+                "已读材料与可修订的理解" to learningSection,
                 "数字世界权威状态" to currentWorld,
                 "近期时间线/未完成责任" to timelineSection,
                 "核心记忆" to unifiedMemory.coreMemorySection,

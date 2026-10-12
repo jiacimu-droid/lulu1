@@ -400,6 +400,8 @@ internal object CompanionActionRuntime {
                 appendLine("程序已经让你读取阅读 App 中《${slice.book.title}》的下一段。")
                 appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。")
                 appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
+                CharacterLearningLedger.context(character.characterId, slice.book.title)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (earlierReading.isNotEmpty()) {
                     appendLine("这个角色先前真正读过此书、留下的感想（只能当其个人理解，不是故事事实）：")
                     earlierReading.forEach { appendLine("- ${it.chapterTitle}：${it.reflection.take(300)}") }
@@ -413,6 +415,7 @@ internal object CompanionActionRuntime {
                 可以喜欢、失望、惊讶、觉得幼稚、不同意人物决定、被台词逗笑或暂时没感觉；承接此前读过的段落和自己以前的想法，允许改观。
                 小说只是文化接触、审美经验和观察别人的语言表达，不是你亲身扮演书中角色、经历书中情节。看到有趣说法可以好奇、记下、尝试自用或者觉得别扭；绝不能阅读一次就突然长期改掉自己的说话风格。
                 读完书的角色也有独立的分享欲：因为书里某个真读过的片段觉得好玩、感动、好奇、想吐槽时，可以自然想告诉用户，或想发一条公开朋友圈让熟人都看到，也可能不想说。这不是必须写给用户的报告，也不是每读一段必须发圈。若本轮确实想晚些分享，可选 shareWish={"status":"held","why":"自己具体想分享的原因"}；只是未实行的内心决定，程序随后会提供一次独立选择 private/moment/group 的机会，不会直接发布。
+                如果本段确实形成可延续的认识，可选 learning={"topic":"具体主题","understanding":"基于实际原文形成的暂定理解","uncertainty":"尚未确认什么","question":"还想弄清什么","applicableWhen":"以后哪些场景可能有用","revisesEvidenceId":"如明确修订同主题旧理解，填写上下文给出的旧阅读证据ID"}。没有新理解就不填；不得声称阅读一次便已学会方法。
                 真实读到具体内容后若有新的好奇，可选 curiosity={"topic":"想弄清楚的主题","question":"下一步想知道什么","why":"刚才真实读到的段落为什么引起好奇","nextStep":"能实际做什么"}。有书可继续读、也可以暂停和放下；没采取行动不声称读完或研究过。反应不是必须写给用户的报告。
                 如果因此产生或改变了持续愿望，intention 可使用当前角色上下文给出的动机格式；已有愿望的更新必须含 disposition=update、准确 id、aim、motive、reason，放下用 release。
                 不需要每次形成新愿望，不把书中故事当亲历。只返回 JSON，不要代码块。
@@ -472,6 +475,8 @@ internal object CompanionActionRuntime {
             val anchored = JSONObject(wish.toString()).put("experienceId", record.id)
             CharacterLifeFollowThroughStore.recordShareWish(character.characterId, anchored)
         }
+        CharacterLearningLedger.recordReading(character.characterId, record.id,
+            response.optJSONObject("learning"), now)
         CharacterCuriosityRuntime.recordInquiry(
             character.characterId, response.optJSONObject("curiosity"),
             record.id, factualReceipt, now,

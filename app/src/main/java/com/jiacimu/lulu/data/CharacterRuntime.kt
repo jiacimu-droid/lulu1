@@ -113,6 +113,10 @@ object CharacterRuntime {
         }.trim()
     }
 
+    /** Learning remains tied to reading sources and never overwrites persona. */
+    fun learningContext(characterId: String, query: String, compact: Boolean = true): String =
+        CharacterLearningLedger.context(characterId, query, compact)
+
     /** Only the already-decided private wish crosses lean decision→expression. */
     fun leanExpressionContext(characterId: String): String =
         CharacterRelationalInitiative.expressionHandoff(characterId)

@@ -44,6 +44,7 @@ object SharedExperienceTimeline {
         helper?.writableDatabase
         MemoryExtractionJobStore.initialize(application)
         CharacterLifeFollowThroughStore.initialize(application)
+        CharacterLearningLedger.initialize(application)
     }
 
     fun backfillChatHistory() {
@@ -201,6 +202,7 @@ object SharedExperienceTimeline {
         }
         if (previous != null) {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
+            CharacterLearningLedger.invalidateEvidence(eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
         CharacterInnerLifeStore.invalidateEvidence(eventId)
             if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
@@ -291,6 +293,7 @@ object SharedExperienceTimeline {
         // and derived memory/vector lifecycle. Late model responses are additionally checked by the
         // repository integrity guard before they can survive in recall.
         CharacterDevelopmentStore.invalidateEvidenceForAll(eventId)
+        CharacterLearningLedger.invalidateEvidence(eventId)
         CharacterLifeStore.invalidateReceipt(eventId)
         CharacterInnerLifeStore.invalidateEvidence(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)

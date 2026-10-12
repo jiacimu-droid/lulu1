@@ -76,6 +76,7 @@ object ProactivePerceptionRuntime {
         val motiveId: String = "",
         val curiosity: JSONObject? = null,
         val relationshipInitiative: JSONObject? = null,
+        val learningApplication: JSONObject? = null,
         val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
     )
@@ -851,6 +852,8 @@ object ProactivePerceptionRuntime {
                 character.displayName, execution.conversationId,
             )
         } else ""
+        CharacterLearningLedger.recordApplication(characterId, decision.learningApplication,
+            actionEvidenceId, decision.action.name.lowercase(), execution.success, execution.summary)
         // Relational delivery and exploration use the SAME executor receipt
         // from the shared raw event timeline, not model-authored success claims.
         CharacterRelationalInitiative.recordDecision(
@@ -1225,6 +1228,7 @@ object ProactivePerceptionRuntime {
             motiveId = json.optString("motiveId").trim(),
             curiosity = json.optJSONObject("curiosity"),
             relationshipInitiative = json.optJSONObject("relationshipInitiative"),
+            learningApplication = json.optJSONObject("learningApplication"),
             experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
         )
