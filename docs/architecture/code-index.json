@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T18:19:36.390770+00:00",
-  "commit": "0e423172cc43bd1341c6b1c9fa8b5e84f8da9305",
+  "generatedAt": "2026-10-12T18:29:17.685647+00:00",
+  "commit": "1dc48c7b9890a21b88ed768c25b0917d5467b2d3",
   "branch": "main",
-  "sourceFingerprint": "9e2bc0686a8ee3ff43d75f55c5298c5d85e203b1e270aa0d4530313426d4dd88",
+  "sourceFingerprint": "b5350ce590c274b35290aac25799c84544cbdb6b7598127b99f298ea6405d6bd",
   "summary": {
     "files": 581,
-    "lines": 116018,
+    "lines": 116065,
     "symbols": 1756
   },
   "symbolIndex": {
@@ -325,7 +325,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt",
-        "line": 81
+        "line": 84
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
@@ -1641,43 +1641,43 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1173
+        "line": 1174
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1175
+        "line": 1176
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1191
+        "line": 1192
       }
     ],
     "submitRecordedSpeech": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1403
+        "line": 1405
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1420
+        "line": 1422
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1562
+        "line": 1564
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1696
+        "line": 1698
       }
     ],
     "PendingTouch": [
@@ -4399,7 +4399,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 618
+        "line": 620
       }
     ],
     "describe": [
@@ -10137,8 +10137,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 110,
-      "sha256": "f43083b4e7c67ac4f36c0d510dbe8727748fa84a7e2c7cdc659d2ba0d23a3d50",
+      "lines": 119,
+      "sha256": "61f11b72165b443daade15786c308ac3d578333d30fc029d16bb0ac90c45a081",
       "symbols": []
     },
     {
@@ -10155,8 +10155,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 530,
-      "sha256": "44576a8949161a15bb3d482747012b832be3c2df87960b21030f4f56b89f2676",
+      "lines": 535,
+      "sha256": "02c796324549cb2361b39f1a6d740f42d4dce25abec660d2722091a15e7b4a86",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -11021,8 +11021,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1782,
-      "sha256": "9cc0288e0466bd759edd072ced48ccffc1d271d65bdc1d5071d15f0b4868feea",
+      "lines": 1784,
+      "sha256": "02cad57cfdce81fe0611bf093846303015584d6a401d766305aead9f9f237ba4",
       "symbols": [
         {
           "name": "isActiveForChat",
@@ -11070,31 +11070,31 @@
         },
         {
           "name": "sameReply",
-          "line": 1173
+          "line": 1174
         },
         {
           "name": "clearWhenHeard",
-          "line": 1175
+          "line": 1176
         },
         {
           "name": "enqueueSpoken",
-          "line": 1191
+          "line": 1192
         },
         {
           "name": "submitRecordedSpeech",
-          "line": 1403
+          "line": 1405
         },
         {
           "name": "sameSession",
-          "line": 1420
+          "line": 1422
         },
         {
           "name": "retryListening",
-          "line": 1562
+          "line": 1564
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1696
+          "line": 1698
         }
       ]
     },
@@ -11645,8 +11645,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 817,
-      "sha256": "020b5bdeb786739052b52fa04a4528e2938995ea9cf55bf3d7e4c0a166a186d3",
+      "lines": 827,
+      "sha256": "e0a327b21cfb6bb05d05c91134ea5ff64ff2a2ab3da9f00078dc06d8458856fb",
       "symbols": []
     },
     {
@@ -11816,8 +11816,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-      "lines": 86,
-      "sha256": "86a0b362ea40993bddd210257078834d0a588ea84b5a44bf1b4e18d9d00aa412",
+      "lines": 88,
+      "sha256": "a313c32df7440819e63c1e487366af9e98a64f8580f5b876ebf081e05322efd8",
       "symbols": [
         {
           "name": "requestedFocus",
@@ -11831,12 +11831,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt",
-      "lines": 87,
-      "sha256": "3b3497df22f5656e611c1da689ee46b506982786bacf28dec089555335f6b680",
+      "lines": 90,
+      "sha256": "a9756af7fe4b9f55cda9463901305489693a4171656daef48c332da237b0ba11",
       "symbols": [
         {
           "name": "context",
-          "line": 81
+          "line": 84
         }
       ]
     },
@@ -13856,8 +13856,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 636,
-      "sha256": "2882734b117b6b4f52b73ef7cb423e99fb74ebef2d2be41be668180ed7a07de8",
+      "lines": 638,
+      "sha256": "613f7e0f1e44ddb1038f2715edf4b2ae039f651078ae36a82f91a498ad38cef6",
       "symbols": [
         {
           "name": "asJson",
@@ -13869,7 +13869,7 @@
         },
         {
           "name": "world",
-          "line": 618
+          "line": 620
         }
       ]
     },
@@ -19126,8 +19126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 993,
-      "sha256": "787313f204d8d7be60ea3f5eceef77aa4f73cf9999db535bf924dda6e2f5c70c",
+      "lines": 1007,
+      "sha256": "131628c1eb8e9d828d502c0de2bfd3738dc332ada40eaaa2cac78cbb4f1cf148",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
