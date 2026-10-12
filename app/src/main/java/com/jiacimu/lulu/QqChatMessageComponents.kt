@@ -534,6 +534,15 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
         val start = compact.indexOf(targetName)
         return SystemActivityNotice(compact, SystemActivityLink(SystemActivityType.DigitalHome, targetId), start, compact.length)
     }
+    // Old builds pasted full reading reflections in the chat timeline.
+    Regex("""(?:读了|阅读了)《+([^》\\n]+)》""").find(rawVisible)?.let { matched ->
+        val title = matched.groupValues[1].trim().take(36)
+        val chapter = Regex("""第[0-9一二三四五六七八九十百]+章""").find(rawVisible)?.value.orEmpty()
+        val compact = "读了《$title》" + (if (chapter.isNotBlank()) " · $chapter" else "") + " · 查看感想"
+        val start = compact.indexOf("查看感想")
+        return SystemActivityNotice(compact,
+            SystemActivityLink(SystemActivityType.Reading, title), start, compact.length)
+    }
     if (rawVisible.startsWith("阅读未完成") || rawVisible.startsWith("阅读暂未完成")) {
         val compact = "阅读暂未完成 · 查看书架"
         val start = compact.indexOf("查看书架")

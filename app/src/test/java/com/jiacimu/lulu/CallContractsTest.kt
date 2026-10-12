@@ -26,6 +26,14 @@ class CallContractsTest {
         assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("scribe_v2"))
         assertEquals("scribe_v2_realtime", CallVoiceConfiguration.elevenSttModel("scribe_v2_realtime"))
     }
+    @Test fun elevenLabsBatchAndRealtimeNeverShareAnInputPath() {
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.RECORD_AND_SEND,
+            CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2"))
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME,
+            CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2_realtime"))
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.OTHER,
+            CallVoiceConfiguration.elevenInputPath("groq", "scribe_v2"))
+    }
     @Test fun miniAsrKeepsRegionButDoesNotCarryTtsQueryOrPath() {
         assertEquals("https://api.minimaxi.com/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimaxi.com/v1/t2a_v2?GroupId=123"))
         assertEquals("https://api.minimax.io/v1/speech_to_text", CallVoiceConfiguration.miniAsrEndpoint("https://api.minimax.io/v1/t2a_v2"))

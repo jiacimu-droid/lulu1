@@ -55,16 +55,19 @@ internal class ProviderCallInput(private val context: Context, private val scope
         presentingChunk.set(-1)
         currentPhrase = ""
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
-        if (sttEngine == "elevenlabs") {
-            capturePaused = false
-            if (CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
-                CallVoiceConfiguration.SCRIBE_V2_REALTIME) {
+        when (CallVoiceConfiguration.elevenInputPath(sttEngine, prefs.getString("eleven_asr_model", null))) {
+            CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME -> {
+                capturePaused = false
                 startRealtime(epoch, prefs)
-            } else {
+                return
+            }
+            CallVoiceConfiguration.ElevenInputPath.RECORD_AND_SEND -> {
+                capturePaused = false
                 batchMode = true
                 startBatchMicrophone(epoch, prefs)
+                return
             }
-            return
+            CallVoiceConfiguration.ElevenInputPath.OTHER -> Unit
         }
         // A running user monologue can outlast cloud upload latency; never
         // silently drop earlier chunks because an arbitrary six-item queue filled.

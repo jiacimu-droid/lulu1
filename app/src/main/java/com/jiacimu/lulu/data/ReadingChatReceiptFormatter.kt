@@ -29,7 +29,7 @@ internal object ReadingChatReceiptFormatter {
     ): String {
         val cleanTitle = bookTitle.trim().removePrefix("《").removeSuffix("》").take(54)
         val cleanChapter = chapter.find(chapterTitle)?.value.orEmpty()
-        val note = reflection.replace(Regex("""\s+"""), " ").trim().take(90)
+        val note = reflection.replace(Regex("""\s+"""), " ").trim().take(36)
         val prefix = if (consecutiveReads > 1) "连续阅读 ${consecutiveReads.coerceAtMost(30)} 段 · " else ""
         return buildString {
             append("[阅读记录|").append(recordId).append("]")
@@ -53,13 +53,13 @@ internal object ReadingChatReceiptFormatter {
             .substringBefore("点开查看")
             .substringBefore(openLabel)
             .replace(Regex("""\s+"""), " ")
-            .trim().take(52)
+            .trim().take(32)
         val compact = buildString {
             if (count > 1) append("连读${count}段 · ")
             else append("读了 ")
             append("《").append(bookName).append("》")
             if (chapterName.isNotEmpty()) append(" · ").append(chapterName)
-            if (summary.isNotBlank()) append("\n").append(summary).append(if (summary.length == 52) "…" else "")
+            if (summary.isNotBlank()) append("\n").append(summary).append(if (summary.length == 32) "…" else "")
             append("\n").append(openLabel)
         }
         val start = compact.lastIndexOf(openLabel)

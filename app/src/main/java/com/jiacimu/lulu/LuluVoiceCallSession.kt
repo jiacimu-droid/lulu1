@@ -1345,7 +1345,8 @@ internal object LuluVoiceCallSession {
                     stream.cancel()
                     speechQueue?.stop()
                     mutableState.update { it.copy(thinking = false, opening = false, speaking = false, generatedTranscript = "", playingTranscript = "",
-                        statusMessage = "回复未完整生成，可以继续说话", errorMessage = error.message.orEmpty()) }
+                        statusMessage = "回复未完整生成，可以继续说话",
+                        errorMessage = "回复没生成完整，继续说话或重试即可") }
                     scheduleListening(300)
                     if (autonomousSleep && ++sleepFailures >= 3) {
                         mutableState.update { it.copy(sleepMode = false, statusMessage = "哄睡续讲解析连续失败，已暂停") }
@@ -1380,8 +1381,10 @@ internal object LuluVoiceCallSession {
                     silenceFailures++
                     com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
                         latest.characterId, "通话沉默感知失败 · ${error.message.orEmpty().take(100)}")
+                    // Silent reflection can fail without the actual call failing.
+                    // Keep diagnostics in presence history, not a red error banner.
                     mutableState.update { it.copy(thinking = false,
-                        statusMessage = "通话仍在继续", errorMessage = "陪伴状态更新失败：${error.message.orEmpty().take(100)}") }
+                        statusMessage = "仍在通话中", errorMessage = "") }
                     return@onFailure
                 }
                 stream.cancel()
