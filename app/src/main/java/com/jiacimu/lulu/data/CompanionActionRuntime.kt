@@ -415,7 +415,7 @@ internal object CompanionActionRuntime {
         if (error is kotlinx.coroutines.CancellationException) throw error
         if (action.trim().equals("read_book", ignoreCase = true)) runCatching {
             MigratedDomainStores.chat.appendPrivateActivityNotice(characterId,
-                "阅读未完成：${error.message.orEmpty().ifBlank { "本次没有取得阅读执行结果" }.take(150)}。请检查书籍或模型连接，再尝试继续阅读。")
+                "阅读暂未完成")
         }
         CompanionActionResult(false, error.message ?: error::class.java.simpleName)
     }
@@ -483,8 +483,10 @@ internal object CompanionActionRuntime {
             title = "${character.displayName}继续读《${slice.book.title}》",
             maxTokens = 1_000,
         ).getOrThrow().text.trim()
-        val response = ReadingReactionPolicy.responseObject(readingResponse)
-            ?: error("阅读响应未完成，进度保留")
+        // The source text really reached the role. Optional malformed reflection
+        // metadata must not rewind a read or flood chat with failure notices.
+        // No parsed reaction => no invented opinion/knowledge/learning goals.
+        val response = ReadingReactionPolicy.responseObject(readingResponse) ?: JSONObject()
         val reaction = ReadingReactionPolicy.parse(response, slice.text, slice.startOffset)
         val reflection = reaction.reflection
         val record = ReadingReflectionRecord(characterId = character.characterId, bookId = slice.book.id,

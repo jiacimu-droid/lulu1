@@ -251,6 +251,11 @@ fun CharacterSettingsScreenV2(
             if (section == 2) {
             item {
                 CharacterV2Card {
+                    CharacterLearningSettings(characterId)
+                }
+            }
+            item {
+                CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch(title = "允许主动感知", checked = perceptionPolicy.enabled) { setPerceptionEnabled(it) }
                     CharacterV2Switch(

@@ -190,7 +190,21 @@ object LuluDeviceToolBridge {
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.prompt(characterId, now))
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
-            instruction = """
+            instruction = if (sceneContext.contains("哄睡")) """
+                【通话哄睡：单次完整长篇语音】你是当前角色，不是朗读系统或睡眠客服。
+                严格基于本次对话、上一段真实已播的哄睡内容和今晚的偏好，
+                写一段完整连贯、适合慢慢朗读的自然口语。不要复述刚才讲过的
+                意象、许诺、句式、故事开头或同一个部位；故事推进新事件，
+                身体/呼吸引导推进未做过的下一小步。
+                以场景里给出的字数范围为主，不截成两三句就结束。
+                轻柔而有个人性格，减少问句、催促、机械称呼和空泛保证；
+                不需要对方回答，不假设她睡着了，不能把虚构故事当共同回忆。
+                只输出一个紧凑 JSON：
+                {"action":"reply","text":"可直接朗读的完整长段"}
+                可选 sleepContinuation 只记录本段真的讲到的进展；
+                如果附加字段影响正文完整性，优先只返回 action 和 text。
+                禁止工具动作、隐藏心声、章节总结和解释性代码块。
+            """.trimIndent() else """
                 你正在以当前角色自己的立场做这轮决定，而不是担任无条件回答问题的助手。
                 ${CharacterDecisionProtocol.principles}
                 ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
@@ -243,8 +257,8 @@ object LuluDeviceToolBridge {
             // Phone speech should be a natural turn, not an essay. Keep enough
             // headroom for the JSON state without paying for runaway monologues.
             maxTokens = when {
-                sceneContext.contains("哄睡") && sceneContext.contains("长故事优先") -> 4_000
-                sceneContext.contains("哄睡") -> 2_600
+                sceneContext.contains("哄睡") && sceneContext.contains("长故事优先") -> 5_000
+                sceneContext.contains("哄睡") -> 3_800
                 separateExpression -> 1_450
                 sceneContext.contains("电话") && userText.length < 280 -> 1_500
                 else -> 2_400

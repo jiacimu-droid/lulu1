@@ -153,7 +153,7 @@ internal fun QqMessageRow(
                                         SpanStyle(
                                             color = Color(0xFF437965),
                                             fontWeight = FontWeight.SemiBold,
-                                            textDecoration = TextDecoration.None,
+                                            textDecoration = TextDecoration.Underline,
                                         ),
                                         notice.linkStart,
                                         notice.linkEnd.coerceAtMost(length),
@@ -534,6 +534,12 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
         val start = compact.indexOf(targetName)
         return SystemActivityNotice(compact, SystemActivityLink(SystemActivityType.DigitalHome, targetId), start, compact.length)
     }
+    if (rawVisible.startsWith("阅读未完成") || rawVisible.startsWith("阅读暂未完成")) {
+        val compact = "阅读暂未完成 · 查看书架"
+        val start = compact.indexOf("查看书架")
+        return SystemActivityNotice(compact,
+            SystemActivityLink(SystemActivityType.Reading, ""), start, compact.length)
+    }
     if (rawVisible.contains("共享区域云眠原")) {
         return SystemActivityNotice("去了云眠原")
     }
@@ -566,7 +572,11 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
             end,
         )
     }
-    return SystemActivityNotice(visible)
+    // Activity receipts are never a second transcript or a pasted executor log.
+    // Keep historical raw messages intact; limit only their chat presentation.
+    val succinct = visible.replace(Regex("\\s+"), " ").trim()
+    return SystemActivityNotice(succinct.take(75) +
+        if (succinct.length > 75) "…" else "")
 }
 
 private fun openSystemActivity(context: Context, message: LuluChatMessage, link: SystemActivityLink) {

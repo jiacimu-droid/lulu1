@@ -27,6 +27,15 @@ internal fun CharacterExecutionSettings(characterId: String) {
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+    }
+}
+
+/** Character growth and self-learning belong to companionship, not device permission management. */
+@Composable
+internal fun CharacterLearningSettings(characterId: String) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("网络搜索（所有角色共用）", style = MaterialTheme.typography.titleMedium)
         var searchKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
         var searchStatus by remember { mutableStateOf("") }

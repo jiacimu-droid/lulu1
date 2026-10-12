@@ -52,13 +52,16 @@ internal object SleepNarrativeStore {
         val root = read(callId)
         return buildString {
             appendLine("【本次哄睡实际播送的连续内容｜故事是虚构，不能算共同经历】")
-            root.optString("opening").takeIf(String::isNotBlank)?.let { appendLine("本次最初的铺陈：$it") }
+            // The opening is already present in the played excerpt; avoid
+            // repeatedly priming the model to re-say its first sentence.
+            if ((root.optJSONArray("played")?.length() ?: 0) == 0)
+                root.optString("opening").takeIf(String::isNotBlank)?.let { appendLine("本次最初的铺陈：$it") }
             root.optJSONObject("story")?.let { story ->
                 appendLine("已讲故事的延续摘要：${story}。人物、场景和未完成的小线索要承接；不要另起开头。")
             }
             val played = root.optJSONArray("played") ?: JSONArray()
             val words = (0 until played.length()).mapNotNull { played.optJSONObject(it)?.optString("words") }.joinToString("\n")
-            if (words.isNotBlank()) appendLine("最近真正播完的正文（含被打断的上一轮已播部分）：${words.takeLast(6_000)}")
+            if (words.isNotBlank()) appendLine("最近真正播完的正文（含被打断的上一轮已播部分）：${words.takeLast(5_000)}")
             if (focus == SleepGuidanceFocus.Body) appendLine(BodyRelaxationPath.context(root.optInt("bodyStage")))
             appendLine("睡眠进度只表示已经讲过哪些引导，不能证明用户做了、放松了或睡着了。没有新发言也可能一直在认真听。")
             appendLine("可以在 text 后选填 sleepContinuation={kind:story,title:故事名,cast:已出现人物,summary:本次已经说出的剧情摘要,lastScene:刚讲到的场景,openThread:仍未完的小线索}。只摘要本轮确实说出的事，不能预支下一段剧情。身体引导则填 sleepContinuation={kind:body,nextBodyStage:本轮讲完后下一阶段的序号}。程序只有在整段语音实际播放完后才更新摘要/阶段；被打断时只保留确实播完的正文。")

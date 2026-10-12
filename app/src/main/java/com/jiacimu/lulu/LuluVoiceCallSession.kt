@@ -1163,7 +1163,8 @@ internal object LuluVoiceCallSession {
             val stream = CallReplyStream()
             // Expressive ElevenLabs voices interpret emotion over surrounding sentences.
             // Keep the live subtitle preview, but synthesize the completed turn once.
-            val wholeTurnSpeech = appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true ||
+            val wholeTurnSpeech = latest.sleepMode ||
+                appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true ||
                 com.jiacimu.lulu.data.RelationshipExpressionGuard.requiresBufferedSpeech(latest.characterId)
             val heard = StringBuilder()
             var finalText: String? = null
@@ -1277,6 +1278,7 @@ internal object LuluVoiceCallSession {
                 sceneContext = when {
                     autonomousSilence -> silenceContext
                     autonomousSleep -> """
+                        【哄睡长段续讲】一次输出完整连续的一段，不要分多次重复开头或总结。
                         这是同一通电话的哄睡后续。用户没有新增发言，这只是系统续讲事件，不能当作用户说话或催促。
                         $bedtimeGuide
                         自然接着上次真正说过的内容继续，不断切换技巧或从头开场都没有必要。说完这一段让电话程序安排后续；不要反复索要回应或制造新的世界事件。
