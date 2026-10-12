@@ -15,7 +15,7 @@ class ReadingChatReceiptFormatterTest {
         assertEquals("read-001", preview.recordId)
         assertTrue(preview.text.contains("《春天在屋顶上》"))
         assertTrue(preview.text.contains("第4章"))
-        assertFalse(preview.text.contains("\\n第二段很有趣。"))
+        assertTrue(preview.text.contains("第二段很有趣。"))
         assertEquals("查看感想", preview.text.substring(preview.linkStart, preview.linkEnd))
         assertTrue(preview.linkStart > 0)
         assertEquals(1, ReadingChatReceiptFormatter.consecutiveCount(raw))
