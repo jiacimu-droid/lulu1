@@ -205,7 +205,7 @@ internal object DigitalWorldActivityStateStore {
             else -> "实际阅读场所"
         }
         apply(characterId, shelf, "reading_session",
-            "正在$place阅读《${title.take(90)}》，本段结果尚未提交", now)
+            "正在${place}阅读《${title.take(90)}》，本段结果尚未提交", now)
     }
 
     @Synchronized
