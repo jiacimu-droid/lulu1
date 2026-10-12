@@ -65,7 +65,13 @@ internal object LearningMaterialSource {
     fun retrieve(query: String, suppliedUrl: String, context: Context? = null): LearningMaterial {
         if (suppliedUrl.isNotBlank()) {
             val url = validateUrl(suppliedUrl).toString()
-            val raw = get(url)
+            val raw = runCatching { get(url) }.getOrElse { error ->
+                if (context != null && WebSearchProvider.isConfigured(context)) {
+                    return LearningMaterial("网页正文：" + url, url,
+                        WebSearchProvider.extract(context, url), "Tavily网页正文提取节选，来源待核实")
+                }
+                throw error
+            }
             val title = Regex("(?is)<title[^>]*>(.*?)</title>").find(raw)?.groupValues?.get(1)
                 ?.let { Html.fromHtml(it, Html.FROM_HTML_MODE_LEGACY).toString().trim() }
                 ?.take(180) ?: url
@@ -79,9 +85,9 @@ internal object LearningMaterialSource {
         // A result snippet NEVER counts as reading: fetch an actual public page.
         if (context != null && WebSearchProvider.isConfigured(context)) {
             val hits = WebSearchProvider.search(context, query)
-            val actual = hits.take(4).firstNotNullOfOrNull { hit ->
+            val actual = LearningResearchPolicy.diverseCandidates(hits).take(4).firstNotNullOfOrNull { hit ->
                 runCatching {
-                    retrieve(query, hit.url, null).copy(kind = "通用搜索命中的网页正文节选，需核实")
+                    retrieve(query, hit.url, context).copy(kind = "通用搜索实际提取的网页正文节选，需核实")
                 }.getOrNull()
             }
             if (actual != null) return actual

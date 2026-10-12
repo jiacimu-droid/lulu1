@@ -135,6 +135,7 @@ internal object CharacterLearningAgenda {
                     goal.remove("materialRevision")
                     if (goal.optString("status") !in setOf("paused", "dropped")) goal.put("status", "planned")
                 }
+                if (goal.optString("lastSearchId") == id) goal.remove("lastSearchId")
                 if (goal.optString("lastReceiptId") == id) {
                     goal.remove("lastReceiptId"); goal.remove("nextStep"); goal.remove("reviewAt")
                     goal.put("reviews", 0)

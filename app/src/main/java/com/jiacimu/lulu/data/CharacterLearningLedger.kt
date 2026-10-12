@@ -441,6 +441,34 @@ internal object CharacterLearningLedger {
                 val unhelpful = evaluated.count { it.optString("evaluation") == "unhelpful" }
                 if (evaluated.isNotEmpty()) appendLine("  真实不同反馈：认可=$helped，不适合=$unhelpful；" +
                     "可以据情境保留或调整做法，负面和混合反馈不能被旧好评覆盖，不自动改变核心人格")
+                val verifiedActions = (0 until used.length()).mapNotNull(used::optJSONObject)
+                    .filter { attempt ->
+                        source(characterId, attempt.optString("evidenceId"))?.revision ==
+                            attempt.optLong("revision", -1L)
+                    }.distinctBy { it.optString("evidenceId") }
+                fun matchingActionFeedback(action: JSONObject, label: String): Boolean {
+                    val entries = action.optJSONArray("feedback") ?: JSONArray()
+                    return (0 until entries.length()).mapNotNull(entries::optJSONObject).any { f ->
+                        f.optString("evaluation") == label &&
+                            source(characterId, f.optString("evidenceId"))?.revision ==
+                                f.optLong("revision", -1L)
+                    }
+                }
+                val practiceCount = (0 until exercises.length()).mapNotNull(exercises::optJSONObject)
+                    .count { source(characterId, it.optString("evidenceId"))?.revision ==
+                        it.optLong("revision", -1L) }
+                val learningStage = LearningCompetencyPolicy.stage(
+                    practiceCount, verifiedActions.size,
+                    verifiedActions.count { matchingActionFeedback(it, "helped") },
+                    verifiedActions.count { matchingActionFeedback(it, "unhelpful") ||
+                        matchingActionFeedback(it, "mixed") })
+                appendLine("  能力证据阶段=" + when (learningStage) {
+                    LearningEvidenceStage.READING_ONLY -> "仅形成理解"
+                    LearningEvidenceStage.PRACTICED -> "已私人练习，未验证"
+                    LearningEvidenceStage.APPLIED_UNVERIFIED -> "已尝试实际应用，效果未知"
+                    LearningEvidenceStage.POSITIVE_FEEDBACK -> "有真实正面反馈，仍需看情境"
+                    LearningEvidenceStage.REPEATEDLY_SUPPORTED -> "多个独立行动获正面反馈，非永久掌握"
+                })
                 val last = (0 until used.length()).mapNotNull(used::optJSONObject).lastOrNull {
                     source(characterId, it.optString("evidenceId"))?.revision ==
                         it.optLong("revision", -1L)

@@ -21,6 +21,46 @@ internal object WebSearchProvider {
             .putString(KEY, cleaned).commit()
     }
 
+    /** Provider-side article extraction is a fallback when websites block direct Android readers. */
+    fun extract(context: Context, articleUrl: String): String {
+        LearningMaterialSource.validateUrl(articleUrl)
+        val key = savedKey(context)
+        require(key.isNotBlank()) { "尚未配置 Tavily Search API Key" }
+        val connection = URL("https://api.tavily.com/extract").openConnection() as HttpURLConnection
+        try {
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 12_000
+            connection.readTimeout = 20_000
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            connection.setRequestProperty("Authorization", "Bearer " + key)
+            val urls = org.json.JSONArray().put(articleUrl)
+            val payload = JSONObject().put("urls", urls).put("extract_depth", "basic")
+            connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
+            require(connection.responseCode in 200..299) {
+                "网页正文提取失败：HTTP " + connection.responseCode
+            }
+            val raw = connection.inputStream.use { input ->
+                val output = java.io.ByteArrayOutputStream()
+                val bytes = ByteArray(8192)
+                while (output.size() < 120_000) {
+                    val n = input.read(bytes, 0, minOf(bytes.size, 120_000 - output.size()))
+                    if (n < 0) break
+                    output.write(bytes, 0, n)
+                }
+                output.toString("UTF-8")
+            }
+            val results = JSONObject(raw).optJSONArray("results") ?: error("提取服务没有返回正文")
+            val match = (0 until results.length()).mapNotNull(results::optJSONObject)
+                .firstOrNull { it.optString("url") == articleUrl } ?: error("提取结果未匹配原网址")
+            val text = match.optString("raw_content").trim().take(8_000)
+            require(text.length >= 120) { "网页正文不足，不把摘要视为全文" }
+            return text
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     fun search(context: Context, query: String): List<WebSearchHit> {
         val key = savedKey(context)
         require(key.isNotBlank()) { "尚未配置 Tavily Search API Key" }
