@@ -65,6 +65,7 @@ internal object AutonomousAffordanceContext {
                 }
             }
         }
+        appendLine("若准备现在做一件事，直接选择对应 action 和参数；心声中想做不算执行。若暂缓，请说具体原因；自己的愿望不需要等用户询问才行动。")
         appendLine("先看本人此刻真正想做什么，再从真实能力选择；没有可执行内容可保持安静。")
     }
 }

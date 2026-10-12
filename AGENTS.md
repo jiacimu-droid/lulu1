@@ -69,6 +69,8 @@
 
 详细规范见 `docs/DESIGN_SYSTEM.md`。
 
+涉及人格、成长、感知、主动行为、表达、私聊或电话时，必须先读用户已确认的 `docs/architecture/COMPANION_GROWTH_FRAMEWORK.md`，依照统一因果循环实现；文档目标不得冒充已完成能力。
+
 ## 8. 验收与汇报
 
 - 静态代码检查不能冒充 APK 构建或真机验收。

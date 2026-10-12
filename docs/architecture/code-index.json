@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T02:33:27.348151+00:00",
-  "commit": "129dba1ef243b17b8078cc134b04474d225d7414",
-  "branch": "main",
-  "sourceFingerprint": "364d4ec0de92046aa74a0018369f0f28da28d10bea37527770e803fb0f97b2d1",
+  "generatedAt": "2026-10-12T03:26:18.201619+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "fe163f1c1623f0d658c7440a98ccd80f578b8c223ec2a66f80db9891cb6e6b55",
   "summary": {
-    "files": 532,
-    "lines": 109715,
-    "symbols": 1652
+    "files": 535,
+    "lines": 109894,
+    "symbols": 1657
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 63
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
@@ -47,13 +47,13 @@
     "bindInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 48
+        "line": 49
       }
     ],
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 189
+        "line": 193
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
@@ -65,7 +65,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 229
+        "line": 195
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 426
+        "line": 425
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -1196,34 +1196,34 @@
         "line": 23
       }
     ],
-    "speechFrame": [
+    "audioFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 161
+        "line": 160
       }
     ],
-    "finishUtterance": [
+    "acceptPartial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 178
+        "line": 211
       }
     ],
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 245
+        "line": 217
       }
     ],
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 247
+        "line": 219
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 252
+        "line": 225
       }
     ],
     "close": [
@@ -1577,37 +1577,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1162
+        "line": 1166
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1164
+        "line": 1168
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1180
+        "line": 1184
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1396
+        "line": 1400
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1529
+        "line": 1532
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1663
+        "line": 1666
       }
     ],
     "PendingTouch": [
@@ -1828,16 +1828,22 @@
         "line": 16
       }
     ],
+    "shouldSupersedeUnplayedReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
+        "line": 21
+      }
+    ],
     "isLikelyPlaybackEcho": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
-        "line": 26
+        "line": 30
       }
     ],
     "safePartialBargeIn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
-        "line": 55
+        "line": 59
       }
     ],
     "silenceMs": [
@@ -1955,27 +1961,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 235
+        "line": 234
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 248
+        "line": 247
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 295
+        "line": 294
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 340
+        "line": 339
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 382
+        "line": 381
       }
     ],
     "payload": [
@@ -2928,6 +2934,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
         "line": 97
+      }
+    ],
+    "pendingChoices": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
+        "line": 7
+      }
+    ],
+    "shouldReview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
+        "line": 34
       }
     ],
     "extractExplicitAddress": [
@@ -6105,7 +6123,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1262
+        "line": 1293
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -8676,6 +8694,12 @@
         "line": 5
       }
     ],
+    "ScribeRealtimeTransportTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
+        "line": 23
+      }
+    ],
     "SleepCallContinuationPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
@@ -8804,6 +8828,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt",
         "line": 14
+      }
+    ],
+    "CharacterActionFollowThroughPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt",
+        "line": 12
       }
     ],
     "CharacterAddressPreferenceTest": [
@@ -9303,8 +9333,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-      "lines": 209,
-      "sha256": "f2546fb77dc5d96ca08039992d30799d5036a6580e278d98b55cec069287039e",
+      "lines": 213,
+      "sha256": "924adb1104c1a86a2a98815f1d7c6569dbb52b6b2e7833c54da1ad1765fb1bdf",
       "symbols": [
         {
           "name": "start",
@@ -9312,11 +9342,11 @@
         },
         {
           "name": "bindInput",
-          "line": 48
+          "line": 49
         },
         {
           "name": "stop",
-          "line": 189
+          "line": 193
         }
       ]
     },
@@ -10012,36 +10042,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 255,
-      "sha256": "4e45ca515672af0840d3782e3659798b14d130403138fb402efe406eeffe5750",
+      "lines": 228,
+      "sha256": "e56043466cdb7358afb9b49a6b33997a15c1d75439cc4f8131904453f8bf4c58",
       "symbols": [
         {
           "name": "start",
-          "line": 63
+          "line": 60
         },
         {
-          "name": "speechFrame",
-          "line": 161
-        },
-        {
-          "name": "finishUtterance",
-          "line": 178
+          "name": "audioFrame",
+          "line": 160
         },
         {
           "name": "stop",
-          "line": 229
+          "line": 195
+        },
+        {
+          "name": "acceptPartial",
+          "line": 211
         },
         {
           "name": "preview",
-          "line": 245
+          "line": 217
         },
         {
           "name": "commit",
-          "line": 247
+          "line": 219
         },
         {
           "name": "takeFinal",
-          "line": 252
+          "line": 225
         }
       ]
     },
@@ -10350,8 +10380,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1749,
-      "sha256": "da56f66a559943ea6d1109dfb86bc7f59cab37eca58471e252649aac3a6acec4",
+      "lines": 1752,
+      "sha256": "5ebb6960ff62ee3d021ff0f841a4ecae829d2461fe6f6f190d1f34b8e1485f07",
       "symbols": [
         {
           "name": "isActiveForChat",
@@ -10399,27 +10429,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1162
+          "line": 1166
         },
         {
           "name": "clearWhenHeard",
-          "line": 1164
+          "line": 1168
         },
         {
           "name": "enqueueSpoken",
-          "line": 1180
+          "line": 1184
         },
         {
           "name": "sameSession",
-          "line": 1396
+          "line": 1400
         },
         {
           "name": "retryListening",
-          "line": 1529
+          "line": 1532
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1663
+          "line": 1666
         }
       ]
     },
@@ -10741,20 +10771,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
-      "lines": 59,
-      "sha256": "85c4b39f617bcb26aed5fe463675334e3f43873d1c46ded7b93a6cc08f2fa688",
+      "lines": 63,
+      "sha256": "4146cd1ba99a1a4c70b3e6077597746982ab167bc0752c7a71a07d8ef9e46ba9",
       "symbols": [
         {
           "name": "shouldCapture",
           "line": 16
         },
         {
+          "name": "shouldSupersedeUnplayedReply",
+          "line": 21
+        },
+        {
           "name": "isLikelyPlaybackEcho",
-          "line": 26
+          "line": 30
         },
         {
           "name": "safePartialBargeIn",
-          "line": 55
+          "line": 59
         }
       ]
     },
@@ -10884,8 +10918,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 449,
-      "sha256": "337ab4e71014f195f4660f4b0b5eea583a0d6a8025ebefb2d12b45cef5c67090",
+      "lines": 448,
+      "sha256": "0f82643f7703291ce07555a56d21b4c2ec58bd70a04d3ab331d113e2954abdd4",
       "symbols": [
         {
           "name": "start",
@@ -10893,27 +10927,27 @@
         },
         {
           "name": "pauseCapture",
-          "line": 235
+          "line": 234
         },
         {
           "name": "resumeCapture",
-          "line": 248
+          "line": 247
         },
         {
           "name": "field",
-          "line": 295
+          "line": 294
         },
         {
           "name": "field",
-          "line": 340
+          "line": 339
         },
         {
           "name": "field",
-          "line": 382
+          "line": 381
         },
         {
           "name": "stop",
-          "line": 426
+          "line": 425
         }
       ]
     },
@@ -11722,8 +11756,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 71,
-      "sha256": "f696a69b5b27156dd2859ca7059417f711603a33533c85edad57850c8bfedd65",
+      "lines": 72,
+      "sha256": "e7c356fb030660dff8f9b7c8679b30d75493b003dcd43497801a44fae4dce1f7",
       "symbols": [
         {
           "name": "render",
@@ -11734,7 +11768,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
       "lines": 74,
-      "sha256": "51332955edc797a74ddd19cfcd41012f5c18c274c0e2fd861545f82809eacea4",
+      "sha256": "371adcd54ad1f01e6bd397365b958e3112b267b67b8d86e80cd52193d28d898e",
       "symbols": [
         {
           "name": "needsIndependentLifeReview",
@@ -11818,6 +11852,21 @@
         {
           "name": "recent",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
+      "lines": 40,
+      "sha256": "e4c5672031d7612a96df38f78a845a44f09d2c7e3f97636b9d475fa4447f280d",
+      "symbols": [
+        {
+          "name": "pendingChoices",
+          "line": 7
+        },
+        {
+          "name": "shouldReview",
+          "line": 34
         }
       ]
     },
@@ -15052,8 +15101,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1318,
-      "sha256": "b0b65e68a5131371ad58de8e24620b5c32b30b6950cf5b83f42340c5428ca74d",
+      "lines": 1349,
+      "sha256": "53147eb2bd7c70825187a261083a500df904507e02c1d4c178d19d15aea8a8e9",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -15077,7 +15126,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1262
+          "line": 1293
         }
       ]
     },
@@ -18319,8 +18368,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt",
-      "lines": 47,
-      "sha256": "3728fe0c3bf66c89acbd2e0913020ae234b6d5531ea7b98c565bb28cd31baa40",
+      "lines": 54,
+      "sha256": "a9c524868f31b2496dd23a0bcd6e6b7573e4a7e68aaf5bfa29fcab27e6e9a5d4",
       "symbols": [
         {
           "name": "PhoneBargeInPolicyTest",
@@ -18424,6 +18473,17 @@
         {
           "name": "ScribeRealtimeTranscriptStateTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
+      "lines": 78,
+      "sha256": "e118d73a030c52bb19239999d999774a4f3726b8de12bec9436349c262f71c90",
+      "symbols": [
+        {
+          "name": "ScribeRealtimeTransportTest",
+          "line": 23
         }
       ]
     },
@@ -18606,8 +18666,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt",
-      "lines": 106,
-      "sha256": "6d4c238d8d39186e65e4274b0721f21b4edb86fb27a8c4685578f2e2eae25f25",
+      "lines": 114,
+      "sha256": "1578aeae5a60d8c5cba36c87d9037c9f074203144ce205bbbb5d85d3c49efcfa",
       "symbols": [
         {
           "name": "AutonomousDecisionRecoveryTest",
@@ -18653,6 +18713,17 @@
         {
           "name": "CharacterActionFeedbackTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt",
+      "lines": 31,
+      "sha256": "9fecda178b6c36a23b383769b9e17a5ada181ac072ee2e088a127516cea2479d",
+      "symbols": [
+        {
+          "name": "CharacterActionFollowThroughPolicyTest",
+          "line": 12
         }
       ]
     },

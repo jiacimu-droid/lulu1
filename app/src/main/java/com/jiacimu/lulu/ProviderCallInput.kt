@@ -138,7 +138,19 @@ internal class ProviderCallInput(private val context: Context, private val scope
             scope = scope,
             apiKey = key,
             active = { epoch == generation },
-            speaking = { capturingVoice },
+            onSpeech = {
+                if (epoch == generation) {
+                    capturingVoice = true
+                    onSpeech()
+                }
+            },
+            onCaptureFinished = {
+                if (epoch == generation) {
+                    capturingVoice = false
+                    onCaptureFinished()
+                }
+            },
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 2_500),
             onPartial = { if (epoch == generation) onPartial(it) },
             onText = { if (epoch == generation) onText(it) },
             onError = { if (epoch == generation) onError(it) },
@@ -158,23 +170,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
             accept = { epoch == generation && !capturePaused && accept() },
             onReady = { if (epoch == generation) onReady() },
             onLevel = { if (epoch == generation) onLevel(it) },
-            onSpeech = {
-                if (epoch == generation) {
-                    capturingVoice = true
-                    onSpeech()
-                }
-            },
-            onSpeechFrame = { if (epoch == generation) recognizer.speechFrame(it) },
-            onSegment = { _, completed ->
-                capturingVoice = !completed
-                if (epoch == generation && completed) {
-                    onCaptureFinished()
-                    recognizer.finishUtterance()
-                    // Reuse the existing call session's recognition-pending marker:
-                    // the mic turn is finished, but the committed transcript has not arrived.
-                    onStatus("识别完整语句中（Scribe Realtime）…")
-                }
-            },
+            onSpeech = {}, // Scribe transcript events own speech onset/end.
+            onFrame = { if (epoch == generation) recognizer.audioFrame(it) },
+            onSegment = { _, _ -> },
+            continuousFrames = true,
             onError = { message ->
                 if (epoch == generation) {
                     capturingVoice = false

@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PhoneBargeInPolicyTest {
+    @Test fun preparationCanBeReplacedButAudibleAudioKeepsItsTurn() {
+        assertTrue(PhoneBargeInPolicy.shouldSupersedeUnplayedReply(true, false, false))
+        assertTrue(PhoneBargeInPolicy.shouldSupersedeUnplayedReply(false, false, true))
+        assertFalse(PhoneBargeInPolicy.shouldSupersedeUnplayedReply(true, true, true))
+        assertFalse(PhoneBargeInPolicy.shouldSupersedeUnplayedReply(false, false, false))
+    }
+
     @Test fun actualSpeakerPlaybackNeverFeedsCloudRecognition() {
         assertFalse(PhoneBargeInPolicy.shouldCapture(false, true, false))
         assertFalse(PhoneBargeInPolicy.shouldCapture(true, false, true))

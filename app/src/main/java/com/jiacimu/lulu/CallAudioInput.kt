@@ -23,7 +23,8 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
         onSpeech: () -> Unit, onFrame: (ByteArray) -> Unit = {},
         onSpeechFrame: (ByteArray) -> Unit = {}, onSegment: (ByteArray, Boolean) -> Unit,
-        onError: (String) -> Unit, threshold: Float = 195f, endSilenceMs: Int = 2_500) {
+        onError: (String) -> Unit, threshold: Float = 195f, endSilenceMs: Int = 2_500,
+        continuousFrames: Boolean = false) {
         stop()
         val epoch = generation
         job = scope.launch(Dispatchers.IO) {
@@ -54,7 +55,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 }
                 bindInput()
                 if (AcousticEchoCanceler.isAvailable()) echo = AcousticEchoCanceler.create(audio.audioSessionId)?.apply { enabled = true }
-                if (NoiseSuppressor.isAvailable()) noise = NoiseSuppressor.create(audio.audioSessionId)?.apply { enabled = true }
+                if (!continuousFrames && NoiseSuppressor.isAvailable()) noise = NoiseSuppressor.create(audio.audioSessionId)?.apply { enabled = true }
                 audio.startRecording()
                 check(audio.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "系统未允许录音" }
                 withContext(Dispatchers.Main) { if (epoch == generation) onReady() }
@@ -86,6 +87,9 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         for (i in 0 until count) putShort(if (allowed) samples[i] else 0)
                     }.array()
                     onFrame(frame)
+                    // Scribe owns VAD. Do not apply a second amplitude detector
+                    // or retain/upload duplicate PCM when continuously streaming.
+                    if (continuousFrames) continue
                     if (!allowed) {
                         // Caller is temporarily playing audio. Do not lose an
                         // already captured user's phrase without signalling its end.

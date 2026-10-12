@@ -49,7 +49,7 @@ internal object AutonomousDecisionRecovery {
     }
     fun choose(json: JSONObject): JSONObject {
         if (!json.optString("action").equals("silent", true)) return json
-        if (!noIncomingMessage.containsMatchIn(json.optString("reason"))) return json
+        if (Regex("想独处|需要独处|想休息|好好休息|困了|真的不想").containsMatchIn(json.optString("reason"))) return json
         val alt = json.optJSONObject("selfInitiatedAlternative") ?: return json
         if (!alt.optBoolean("personallyWanted") || alt.optString("whyNow").trim().length < 5) return json
         val action = alt.optString("action").lowercase()

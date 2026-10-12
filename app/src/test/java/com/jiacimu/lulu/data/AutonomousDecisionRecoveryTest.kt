@@ -24,6 +24,14 @@ class AutonomousDecisionRecoveryTest {
             "{\"action\":\"silent\",\"text\":\"你好\""))
     }
 
+    @Test fun aConcreteChosenAlternativeDoesNotRequireNoMessagesExcuse() {
+        val original = JSONObject().put("action", "silent").put("reason", "我还想看看书里那条线索")
+            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
+                .put("readingBookId", "book-1").put("personallyWanted", true)
+                .put("whyNow", "想弄清上一段没有解开的疑问"))
+        assertEquals("reading", AutonomousDecisionRecovery.choose(original).getString("action"))
+    }
+
     @Test fun neverOverridesARealWishToBeAlone() {
         val original = JSONObject().put("action", "silent").put("reason", "现在想好好休息")
             .put("selfInitiatedAlternative", JSONObject().put("action", "reading")

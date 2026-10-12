@@ -609,23 +609,40 @@ object ProactivePerceptionRuntime {
         // One bounded second look during an online window challenges *that reason*,
         // not the character's freedom to choose real solitude.
         val lastAgencyReview = prefs.getLong("last_independent_life_review_$characterId", 0L)
-        val shouldReview = awakeReflection &&
+        val pendingChoices = CharacterActionFollowThroughPolicy.pendingChoices(
+            parsed.innerLife, parsed.intention, parsed.afterglow, parsed.innerThought,
+        ).ifEmpty {
+            CharacterActionFollowThroughPolicy.pendingChoices(
+                CharacterInnerLifeStore.snapshot(characterId),
+                CharacterLifeStore.state(characterId).optJSONObject("intention"),
+                null, "",
+            )
+        }
+        val followThroughKey = pendingChoices.joinToString("|").hashCode().toString()
+        val followThroughReview = CharacterActionFollowThroughPolicy.shouldReview(
+            silent = parsed.action == Action.SILENT, choices = pendingChoices,
+            key = followThroughKey, previousKey = prefs.getString("last_impulse_review_key_$characterId", "").orEmpty(),
+            nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
+        )
+        val shouldReview = followThroughReview || (awakeReflection &&
             now.toEpochMilli() - lastAgencyReview >= 5 * 60_000L &&
             AutonomousDecisionRecovery.needsIndependentLifeReview(
                 silent = parsed.action == Action.SILENT,
                 reason = parsed.reason,
                 recentActions = recentAutonomousActions,
-                // Previously seen but unanswered history is STILL a social
-                // consideration, not a brand-new unread message that should
-                // block an independent-life review forever.
                 hasPendingUserMessage = onlineUnread.text.isNotBlank(),
-            )
+            ))
         val independentChoice = if (shouldReview) {
-            prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli()).apply()
+            prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli())
+                .putString("last_impulse_review_key_$characterId", followThroughKey)
+                .putLong("last_impulse_review_at_$characterId", now.toEpochMilli()).apply()
             LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
-                    appendLine("这是同一次在线感知的独立生活二次考虑，不是又一个用户消息。")
+                    appendLine("这是同一次感知中尚未行动的愿望的后续选择，不是又一个用户消息。")
+                    appendLine("尚未取得行动回执的私人想法：${pendingChoices.joinToString("；")}")
+                    appendLine("原先完整选择理由：${parsed.reason}")
+                    appendLine("需要回应的用户消息：${onlineUnread.text.take(800)}")
                     appendLine("上一选择：silent；原理由：${parsed.reason.take(220)}")
                     appendLine("真实时间：$localTimeText；所在地点：$currentLocation")
                     appendLine(affordances)
@@ -634,14 +651,18 @@ object ProactivePerceptionRuntime {
                     appendLine("近期实际行动：${AutonomousActionTrace.render(CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions"), now)}")
                 },
                 instruction = """
-                    你第一次选择安静的理由主要是没人来找你；但你是有自己生活的人。
-                    请重新从本人性格、兴趣、真实经历和上面列出的执行器能力判断：
+                    你先前产生了想法却没有选择行动，或者因没人来找你而把自己的生活搁置。
+                    现在只为这些已有愿望作一个具体决定，不重新编造感受或事后倒写动机。
+                    请从本人性格、兴趣、真实经历和上面列出的执行器能力判断：
                     现在有没有一件你自己真的想做的事？可以去真实公共区、找在场居民、
                     读实际可读的书、写私人日记、发表自己想分享的朋友圈或自然联系朋友。
                     不存在的地点、居民、书籍不能编造；工具成功前不能说已经做过。
                     如果确实想做，直接给出 action 和合法参数。若真的想休息/独处，
-                    仍选择 silent，并说出自己的具体原因。不是任务考核，不强制行动。
-                    仅输出与原先主动感知兼容的简洁 JSON，优先 action 和参数。
+                    仍选择 silent，并说出暂缓/放下这个愿望的具体原因；不是任务考核，不强制行动。
+                    若想继续阅读，请从书目中选真实 readingBookId 并给 action=reading；
+                    不要用心声、动作描写或“我去读了”替代工具执行。
+                    仅输出兼容的简洁 JSON：action、reason 和动作参数，可保留真实 motiveId、experienceId。
+                    不输出 innerLife、innerThought、mood、intention；已有私人感受由原先阶段保存。
                 """.trimIndent(),
                 source = "在线自主生活再判断",
                 title = "${character.displayName}重新考虑自己的生活",
@@ -649,7 +670,17 @@ object ProactivePerceptionRuntime {
                 connectionOverride = connection,
             ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
         } else null
-        val resolved = independentChoice ?: parsed
+        // The review owns ONLY the action. Preserve the original appraisal,
+        // heart voice and motive proposal instead of silently discarding them.
+        val resolved = independentChoice?.copy(
+            innerThought = parsed.innerThought, innerThoughtBasis = parsed.innerThoughtBasis,
+            innerLife = parsed.innerLife, appraisal = parsed.appraisal,
+            intention = parsed.intention, afterglow = parsed.afterglow,
+            mood = parsed.mood, curiosity = independentChoice.curiosity ?: parsed.curiosity,
+            motiveId = independentChoice.motiveId.ifBlank { parsed.motiveId },
+            experienceId = independentChoice.experienceId.ifBlank { parsed.experienceId },
+            relationshipInitiative = parsed.relationshipInitiative,
+        ) ?: parsed
         val fallbackDecision = resolved.withPresenceFallback(character)
         val decision = fallbackDecision.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(

@@ -17,6 +17,10 @@ internal object PhoneBargeInPolicy {
     fun shouldCapture(microphoneMuted: Boolean, playbackBusy: Boolean, privateOutput: Boolean): Boolean =
         !microphoneMuted && (!playbackBusy || privateOutput)
 
+    /** TTS synthesis is interruptible; once audio is audible, keep its turn. */
+    fun shouldSupersedeUnplayedReply(thinking: Boolean, playing: Boolean, pendingAudio: Boolean): Boolean =
+        !playing && (thinking || pendingAudio)
+
     /**
      * This must be called BEFORE cancelling agent speech or saving a message.
      * Match short verbatim fragments too, and tolerate dropped/misheard syllables
