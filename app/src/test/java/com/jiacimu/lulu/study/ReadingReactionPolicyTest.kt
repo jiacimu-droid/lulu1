@@ -4,7 +4,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class ReadingReactionPolicyTest {
     @Test fun shortExclamationAndNoFeelingAreBothValid() {
         assertEquals("卧槽。神了！", ReadingReactionPolicy.parse(
