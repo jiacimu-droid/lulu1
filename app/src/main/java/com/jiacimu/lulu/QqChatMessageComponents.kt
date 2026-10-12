@@ -50,6 +50,7 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.LuluGroupChat
+import com.jiacimu.lulu.data.ReadingChatReceiptFormatter
 import com.jiacimu.lulu.data.MeetingExperienceStore
 import com.jiacimu.lulu.data.MeetingInvitationStatus
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -150,9 +151,9 @@ internal fun QqMessageRow(
                                 if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
                                     addStyle(
                                         SpanStyle(
-                                            color = Color(0xFF151515),
+                                            color = Color(0xFF437965),
                                             fontWeight = FontWeight.SemiBold,
-                                            textDecoration = TextDecoration.Underline,
+                                            textDecoration = TextDecoration.None,
                                         ),
                                         notice.linkStart,
                                         notice.linkEnd.coerceAtMost(length),
@@ -462,10 +463,20 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
         .removePrefix("[撤回]")
         .trim()
 
-    Regex("^\\[阅读记录\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL).find(rawVisible)?.let { match ->
-        val visible = match.groupValues[2].trim()
-        return SystemActivityNotice(visible, SystemActivityLink(SystemActivityType.Reading,
-            "reading-record:${match.groupValues[1]}"), 0, visible.length)
+    ReadingChatReceiptFormatter.preview(rawVisible)?.let { preview ->
+        return SystemActivityNotice(
+            visibleText = preview.text,
+            link = SystemActivityLink(SystemActivityType.Reading, "reading-record:${preview.recordId}"),
+            linkStart = preview.linkStart,
+            linkEnd = preview.linkEnd,
+        )
+    }
+    // Older versions posted a separate uncommitted "approached the shelf" bubble for
+    // every chapter. Preserve those messages but avoid showing their internal action trace.
+    if (rawVisible.contains("尚未读取正文") || rawVisible.contains("正在阅读正文，尚无读后感")) {
+        if (rawVisible.contains("书架") && rawVisible.contains("阅读")) {
+            return SystemActivityNotice("在书架旁挑选读物")
+        }
     }
 
     Regex("^\\[角色见面\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL)
