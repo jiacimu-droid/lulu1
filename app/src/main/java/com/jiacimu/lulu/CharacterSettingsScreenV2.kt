@@ -210,6 +210,9 @@ fun CharacterSettingsScreenV2(
                 }
             }
             item {
+                CharacterV2Card { CharacterSocialNamesSettings(characterId) }
+            }
+            item {
                 CharacterV2Card {
                     Text("生命形态", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     if (!digitalLife.isResolved) {

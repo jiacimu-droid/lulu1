@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private const val LEXICON_PAGE_SIZE = 40
+private const val LIFE_AUDIT_INDEX = 5
 private const val FAVORITE_REASON_SEPARATOR = "\n\n收藏理由："
 
 private val LexiconV2Sections = listOf(
@@ -85,7 +87,8 @@ fun LexiconFeatureScreenV2(
         LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0)
     }
     val requestedSectionIndex = remember(initialSectionName) {
-        LexiconV2Sections.indexOfFirst { (section, _) ->
+        if (initialSectionName in listOf("足迹", "audit", "life-audit")) LIFE_AUDIT_INDEX
+        else LexiconV2Sections.indexOfFirst { (section, _) ->
             section.name.equals(initialSectionName.orEmpty(), ignoreCase = true)
         }.takeIf { it >= 0 } ?: 0
     }
@@ -99,7 +102,8 @@ fun LexiconFeatureScreenV2(
         sectionIndex = if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex
     }
 
-    val section = LexiconV2Sections[sectionIndex].first
+    val isLifeAudit = sectionIndex == LIFE_AUDIT_INDEX
+    val section = LexiconV2Sections.getOrNull(sectionIndex)?.first ?: LexiconSection.Life
     val entries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
         .collectAsState(initial = emptyList())
@@ -111,8 +115,8 @@ fun LexiconFeatureScreenV2(
     var creating by remember { mutableStateOf(false) }
     var characterMenuExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(section) {
-        if (section == LexiconSection.Favorite) {
+    LaunchedEffect(sectionIndex) {
+        if (isLifeAudit || section == LexiconSection.Favorite) {
             creating = false
             editing = null
         }
@@ -163,7 +167,7 @@ fun LexiconFeatureScreenV2(
                             }
                         }
                     }
-                    if (section != LexiconSection.Favorite) {
+                    if (!isLifeAudit && section != LexiconSection.Favorite) {
                         IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
                     }
                 },
@@ -181,10 +185,15 @@ fun LexiconFeatureScreenV2(
                     border = BorderStroke(1.dp, LuluColors.Border),
                     shape = RoundedCornerShape(15.dp),
                 ) {
-                    Row(Modifier.padding(3.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        LexiconV2Sections.forEachIndexed { index, (_, label) ->
+                    Row(Modifier.padding(3.dp).horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        (LexiconV2Sections.map { it.second } + "足迹").forEachIndexed { index, label ->
                             TextButton(
-                                onClick = { sectionIndex = index },
+                                onClick = {
+                                    sectionIndex = index
+                                    editing = null
+                                    creating = false
+                                },
                                 modifier = Modifier.width(54.dp).height(34.dp),
                                 contentPadding = PaddingValues(0.dp),
                                 colors = ButtonDefaults.textButtonColors(
@@ -203,7 +212,9 @@ fun LexiconFeatureScreenV2(
                 }
             }
 
-            LazyColumn(
+            if (isLifeAudit) {
+                CharacterLifeAuditScreen(selectedCharacterId, Modifier.weight(1f))
+            } else LazyColumn(
                 state = listState,
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp),
@@ -301,7 +312,7 @@ fun LexiconFeatureScreenV2(
         promiseKind = if (section == LexiconSection.Promise) PromiseKind.Promise else null,
         createdAt = Instant.now(),
         updatedAt = Instant.now(),
-    ).takeIf { creating && section != LexiconSection.Favorite }
+    ).takeIf { creating && !isLifeAudit && section != LexiconSection.Favorite }
 
     dialogEntry?.let { entry ->
         LexiconEditorDialogV2(

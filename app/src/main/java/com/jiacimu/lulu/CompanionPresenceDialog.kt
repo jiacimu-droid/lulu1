@@ -113,9 +113,7 @@ internal fun CompanionPresenceDialog(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             FilterChip(selected = selectedTab == 0, onClick = { selectedTab = 0 }, label = { Text("当前") })
-                            FilterChip(selected = selectedTab == 1, onClick = { selectedTab = 1 }, label = { Text("历史") })
-                            FilterChip(selected = selectedTab == 2, onClick = { selectedTab = 2 }, label = { Text("成长轨迹") })
-                            FilterChip(selected = selectedTab == 3, onClick = { selectedTab = 3 }, label = { Text("自主行动") })
+                            FilterChip(selected = selectedTab == 1, onClick = { selectedTab = 1 }, label = { Text("心声历史") })
                         }
                     }
 
@@ -127,6 +125,9 @@ internal fun CompanionPresenceDialog(
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState, latestHeartMoment, latestThinkingMoment)
                                     if (messageAnchor == null) {
+                                        CharacterLifeVisibility.current(characterId, now).forEach { entry ->
+                                            PresenceDialogSection(entry.title, entry.detail)
+                                        }
                                         CharacterSelfActivityRuntime.latest(context, characterId)?.let { activity ->
                                             val created = activity.optLong("createdAt")
                                             if (created > 0L && now.toEpochMilli() - created in 0L..(3 * 60 * 60_000L)) {
@@ -182,14 +183,6 @@ internal fun CompanionPresenceDialog(
                         }
                         item(key = "mental-archive") {
                             PresenceMentalHistory(characterId, messageAnchor?.messageAt)
-                        }
-                    } else if (selectedTab == 2) {
-                        item(key = "growth-trail") {
-                            PresenceGrowthTrajectory(characterId, messageAnchor?.messageAt ?: now)
-                        }
-                    } else {
-                        item(key = "autonomous-decisions") {
-                            PresenceAutonomousDecisions(characterId, messageAnchor?.messageAt ?: now)
                         }
                     }
 
@@ -279,88 +272,6 @@ private fun PresenceStateContent(
  * the existing growth store. It never fabricates a diary or assumes that a
  * feedback message means the character has already learned.
  */
-@Composable
-private fun PresenceGrowthTrajectory(characterId: String, cutoff: Instant) {
-    val personalRevision by CharacterInnerLifeStore.revisions.collectAsState()
-    val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
-    val entries = remember(characterId, cutoff, personalRevision, developmentRevision) {
-        CharacterGrowthTrajectory.entries(characterId, cutoff)
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("成长轨迹", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
-        Text("从真实聊天、私人心理变化、日记及成长记录汇总。收到反馈不等于已经反思，写下决心不等于兑现；尚未发生的行动不会冒充经历。",
-            fontSize = 12.sp, color = Color(0xFF747477))
-        if (entries.isEmpty()) {
-            PresenceDialogSection("暂无可核实的轨迹", "还没有形成可以追溯的反馈、心理转变或成长记录。普通闲聊不必强制产生改变。")
-        } else {
-            entries.forEach { entry ->
-                val time = entry.at.atZone(ZoneId.systemDefault())
-                    .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
-                PresenceDialogSection("${entry.label} · $time",
-                    "${entry.detail}\n来源：${entry.category} · ${entry.evidenceId.take(32)}")
-            }
-        }
-    }
-}
-
-@Composable
-private fun PresenceAutonomousDecisions(characterId: String, cutoff: Instant) {
-    val presenceStates by CompanionPresenceStore.states.collectAsState()
-    val latest = presenceStates[characterId]
-    val lastAttemptAt = latest?.lastPerceptionAt
-    val revision by CharacterInnerLifeStore.revisions.collectAsState()
-    val mind = remember(characterId, revision) { CharacterInnerLifeStore.snapshot(characterId) }
-    val items = mind.optJSONArray("decisions")
-    val entries = (0 until (items?.length() ?: 0))
-        .mapNotNull { items?.optJSONObject(it) }
-        .filter { entry ->
-            val time = runCatching { Instant.parse(entry.optString("at")) }.getOrNull()
-            entry.optString("id").startsWith("perception:") &&
-                time != null && !time.isAfter(cutoff)
-        }.takeLast(24).asReversed()
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("自主行动记录", fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
-        Text("每次真实的自主决策：选择了什么、为什么、最终是否执行成功。安静不是错误，失败也不会假装成完成。这里只展示已保存的决策，不是新的模型调用。",
-            color = Color(0xFF747477), fontSize = 12.sp)
-        if (lastAttemptAt != null && !lastAttemptAt.isAfter(cutoff) &&
-            latest?.lastPerceptionNote.orEmpty().isNotBlank()) {
-            val time = lastAttemptAt.atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"))
-            PresenceDialogSection("最近一次感知 · $time", latest?.lastPerceptionNote.orEmpty())
-        }
-        if (entries.isEmpty()) {
-            PresenceDialogSection("暂无保存的自主决策", "角色可能尚未在线感知，或以前的决策尚未记录在这份轨迹中。")
-        } else {
-            entries.forEach { entry ->
-                val at = runCatching {
-                    Instant.parse(entry.optString("at"))
-                        .atZone(ZoneId.systemDefault())
-                        .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"))
-                }.getOrDefault("")
-                val action = entry.optString("selected")
-                val silent = action == "silent"
-                val succeeded = entry.optBoolean("succeeded")
-                val status = when {
-                    silent -> "自行选择安静"
-                    succeeded -> "有执行回执"
-                    else -> "尝试失败"
-                }
-                val detail = buildString {
-                    appendLine("选择：$action")
-                    val reason = entry.optString("reason").trim()
-                    appendLine("理由：${reason.ifBlank { "没有给出具体理由" }}")
-                    appendLine("结果：${entry.optString("outcome").ifBlank { "未取得可验证的执行结果" }}")
-                    if (entry.optString("causalEvidenceId").isNotBlank()) {
-                        appendLine("依据：${entry.optString("causalEvidenceId").take(80)}")
-                    }
-                }.trim()
-                PresenceDialogSection("$at · $status", detail)
-            }
-        }
-    }
-}
-
 @Composable
 private fun PresenceDialogSection(title: String, content: String) {
     Surface(

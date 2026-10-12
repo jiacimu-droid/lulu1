@@ -139,6 +139,13 @@ internal object CharacterLifeFollowThroughStore {
             }
         }
 
+    /** Existing recorded life only; do not create another copy for the UI. */
+    fun auditSnapshot(characterId: String): List<JSONObject> = synchronized(lock) {
+        records(characterId).filter {
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(it.optString("id"))).isNotEmpty()
+        }.map { JSONObject(it.toString()) }
+    }
+
     fun hasOpenOpportunity(characterId: String, evidenceId: String): Boolean = synchronized(lock) {
         records(characterId).any { it.optString("id") == evidenceId }
     }
