@@ -12,6 +12,7 @@ data class DigitalWorldResident(
     val identity: String,
     val homeLocationCode: String,
     val currentLocationCode: String = homeLocationCode,
+    val neighborhoodCode: String = DigitalWorldPublicPlaces.COURTYARD,
     val createdAt: Instant = Instant.now(),
     val lastInteractionAt: Instant? = null,
 )
@@ -47,7 +48,12 @@ internal object DigitalWorldExpansionStore {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         places = decodePlaces(prefs?.getString(KEY_PLACES, null))
-        residents = decodeResidents(prefs?.getString(KEY_RESIDENTS, null))
+        val storedResidents = prefs?.getString(KEY_RESIDENTS, null)
+        residents = decodeResidents(storedResidents)
+        // Legacy residents used public squares as a 'home'. Give each one a private address once.
+        if (storedResidents != null && residents.any { resident ->
+            !storedResidents.contains("\\\"homeLocationCode\\\":\\\"${resident.homeLocationCode}\\\"")
+        }) persist()
     }
 
     @Synchronized
@@ -60,6 +66,17 @@ internal object DigitalWorldExpansionStore {
     fun residentsAt(locationCode: String): List<DigitalWorldResident> = residents
         .filter { it.currentLocationCode == locationCode }
         .sortedBy(DigitalWorldResident::name)
+
+    fun residentHomeLocation(residentId: String): String = "resident-home:$residentId"
+
+    @Synchronized
+    fun residentHome(code: String): DigitalWorldResident? = residents.firstOrNull { it.homeLocationCode == code }
+
+    @Synchronized
+    fun residenceLabel(code: String): String? = residentHome(code)?.let { "${it.name}的家" }
+
+    private fun isNeighborhood(code: String): Boolean = code == DigitalWorldStore.ARRIVAL ||
+        code == DigitalWorldStore.CLOUD_MEADOW || DigitalWorldPublicPlaces.contains(code)
 
     @Synchronized
     fun registerPlace(place: DigitalWorldDiscoveredPlace): DigitalWorldDiscoveredPlace {
@@ -79,12 +96,17 @@ internal object DigitalWorldExpansionStore {
     fun registerResident(resident: DigitalWorldResident): DigitalWorldResident {
         checkNotNull(prefs) { "数字世界扩展状态尚未初始化" }
         require(resident.name.isNotBlank() && resident.identity.isNotBlank()) { "新居民必须有稳定姓名和身份" }
-        require(isExistingLocation(resident.homeLocationCode)) { "新居民必须有真实存在的住处或公共归属地点" }
         require(residents.none { it.id == resident.id || it.name == resident.name }) { "这个居民已经存在" }
         require(residents.size < MAX_RESIDENTS) { "动态居民数量已达到上限" }
-        residents = residents + resident
+        val neighborhood = resident.neighborhoodCode.takeIf(::isNeighborhood)
+            ?: resident.homeLocationCode.takeIf(::isNeighborhood)
+            ?: DigitalWorldPublicPlaces.COURTYARD
+        val address = residentHomeLocation(resident.id)
+        val settled = resident.copy(homeLocationCode = address, currentLocationCode = address,
+            neighborhoodCode = neighborhood)
+        residents = residents + settled
         persist()
-        return resident
+        return settled
     }
 
     @Synchronized
@@ -103,7 +125,9 @@ internal object DigitalWorldExpansionStore {
 
     @Synchronized
     fun contextFor(locationCode: String? = null): String {
-        val relevantResidents = if (locationCode == null) residents else residents.filter { it.currentLocationCode == locationCode }
+        val relevantResidents = if (locationCode == null) residents else residents.filter {
+            it.currentLocationCode == locationCode || it.homeLocationCode == locationCode
+        }
         val relevantPlaces = if (locationCode == null) places else places.filter { it.code == locationCode || locationCode in it.connectedTo }
         if (relevantPlaces.isEmpty() && relevantResidents.isEmpty()) return ""
         return buildString {
@@ -112,7 +136,7 @@ internal object DigitalWorldExpansionStore {
                 appendLine("- 地点 id=${place.code}；${place.label}；用途=${place.purpose}；连接=${place.connectedTo.joinToString("/")}")
             }
             relevantResidents.forEach { resident ->
-                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；住处=${resident.homeLocationCode}；当前位置=${resident.currentLocationCode}")
+                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}")
             }
             append("未列出的新地点、新居民都不存在；模型不能只靠叙述把它们变成世界事实。")
         }
@@ -122,9 +146,9 @@ internal object DigitalWorldExpansionStore {
     fun isExistingLocation(code: String): Boolean = when {
         code == DigitalWorldStore.CLOUD_MEADOW || code == DigitalWorldStore.ARRIVAL -> true
         code.startsWith("home:") -> true
+        code.startsWith("resident-home:") -> residents.any { it.homeLocationCode == code }
         code in setOf(
             DigitalWorldPublicPlaces.GAME_HALL,
-            DigitalWorldPublicPlaces.READING_LOUNGE,
             DigitalWorldPublicPlaces.CAFE,
             DigitalWorldPublicPlaces.COURTYARD,
         ) -> true
@@ -153,6 +177,7 @@ internal object DigitalWorldExpansionStore {
                     .put("identity", resident.identity)
                     .put("homeLocationCode", resident.homeLocationCode)
                     .put("currentLocationCode", resident.currentLocationCode)
+                    .put("neighborhoodCode", resident.neighborhoodCode)
                     .put("createdAt", resident.createdAt.toString())
                     .put("lastInteractionAt", resident.lastInteractionAt?.toString() ?: JSONObject.NULL))
             }
@@ -195,14 +220,21 @@ internal object DigitalWorldExpansionStore {
                 for (index in 0 until array.length()) {
                     val item = array.optJSONObject(index) ?: continue
                     val name = item.optString("name").trim()
-                    val home = item.optString("homeLocationCode").trim()
-                    if (name.isBlank() || home.isBlank()) continue
+                    val originalHome = item.optString("homeLocationCode").trim()
+                    if (name.isBlank() || originalHome.isBlank()) continue
+                    val residentId = item.optString("id").ifBlank { UUID.randomUUID().toString() }
+                    val realHome = residentHomeLocation(residentId)
+                    val earlierLocation = item.optString("currentLocationCode").ifBlank { originalHome }
+                    val neighborhood = item.optString("neighborhoodCode").takeIf(::isNeighborhood)
+                        ?: originalHome.takeIf(::isNeighborhood)
+                        ?: DigitalWorldPublicPlaces.COURTYARD
                     add(DigitalWorldResident(
-                        id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
+                        id = residentId,
                         name = name,
                         identity = item.optString("identity").ifBlank { "数字世界居民" },
-                        homeLocationCode = home,
-                        currentLocationCode = item.optString("currentLocationCode").ifBlank { home },
+                        homeLocationCode = realHome,
+                        currentLocationCode = if (earlierLocation == originalHome || earlierLocation == DigitalWorldPublicPlaces.READING_LOUNGE) realHome else earlierLocation,
+                        neighborhoodCode = neighborhood,
                         createdAt = item.optString("createdAt").expansionInstant(),
                         lastInteractionAt = item.optString("lastInteractionAt").takeUnless { it.isBlank() || it.equals("null", true) }
                             ?.let { runCatching { Instant.parse(it) }.getOrNull() },

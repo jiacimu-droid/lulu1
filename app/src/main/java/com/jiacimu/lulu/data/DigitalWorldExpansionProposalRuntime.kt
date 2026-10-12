@@ -93,10 +93,10 @@ internal object DigitalWorldExpansionProposalRuntime {
                 只输出 JSON，不要代码块：
                 1) 不新增：{"action":"none"}
                 2) 新地点：{"action":"place","label":"中文短名称","subtitle":"2~3个真实可做的日常活动，用·分隔","purpose":"这个地点长期存在的明确用途","connectedTo":["现有地点ID"]}
-                3) 新居民：{"action":"resident","name":"固定中文姓名","identity":"稳定且普通的数字世界身份","homeLocationCode":"现有地点ID"}
+                3) 新居民：{"action":"resident","name":"固定中文姓名","identity":"稳定且普通的数字世界身份","neighborhoodCode":"现有公共地点ID"}
 
                 硬规则：
-                - connectedTo/homeLocationCode 只能逐字使用上面列出的真实地点 ID；不得创造 ID。
+                - connectedTo/neighborhoodCode 只能逐字使用上面列出的真实公共地点 ID；不得创造 ID。居民住宅由程序建立独立地址，不能把公共场所当成家。
                 - 不得新增神、管理员级万能角色、现实人类、用户本人替身、危险组织或会强制改变其他角色设定的实体。
                 - 地点必须能长期支持具体日常活动，不要只写一次性剧情布景，不要复制现有地点用途。
                 - 居民必须是可以长期重复遇见的普通数字居民，不得冒充现有角色，也不要使用已有居民姓名。
@@ -160,16 +160,19 @@ internal object DigitalWorldExpansionProposalRuntime {
         if (DigitalWorldExpansionStore.residents().size >= 12) return null
         val name = proposal.optString("name").trim().take(MAX_NAME_LENGTH)
         val identity = proposal.optString("identity").trim().take(MAX_IDENTITY_LENGTH)
-        val home = proposal.optString("homeLocationCode").trim()
-        if (name.length !in 2..MAX_NAME_LENGTH || identity.length < 4 || home !in availableLocations) return null
+        val neighborhood = proposal.optString("neighborhoodCode").ifBlank {
+            proposal.optString("homeLocationCode") // Accept proposals from older prompts.
+        }.trim()
+        if (name.length !in 2..MAX_NAME_LENGTH || identity.length < 4 || neighborhood !in availableLocations) return null
         if (DigitalWorldExpansionStore.residents().any { it.name == name }) return null
         val resident = runCatching {
             DigitalWorldExpansionStore.registerResident(
                 DigitalWorldResident(
                     name = name,
                     identity = identity,
-                    homeLocationCode = home,
-                    currentLocationCode = home,
+                    homeLocationCode = neighborhood,
+                    neighborhoodCode = neighborhood,
+                    currentLocationCode = neighborhood,
                     createdAt = now,
                 ),
             )

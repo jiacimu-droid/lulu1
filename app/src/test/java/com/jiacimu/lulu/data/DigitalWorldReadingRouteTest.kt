@@ -17,16 +17,16 @@ class DigitalWorldReadingRouteTest {
         assertEquals("shelf-1", plan.shelfId)
     }
 
-    @Test fun aReaderAlreadyAtTheLibraryDoesNotTeleportHome() {
+    @Test fun legacyReadingHallReturnsToPrivateHomeShelf() {
         val plan = DigitalWorldReadingRoute.choose(DigitalWorldPublicPlaces.READING_LOUNGE,
             "home:reader", "shelf-1")
-        assertNull(plan.travelAction)
-        assertNull(plan.shelfId)
+        assertEquals("go_home", plan.travelAction)
+        assertEquals("shelf-1", plan.shelfId)
     }
 
-    @Test fun deletingTheOnlyShelfKeepsItDeletedAndUsesPublicLibrary() {
+    @Test fun deletingTheOnlyShelfKeepsItDeletedWithoutImaginaryLibrary() {
         val plan = DigitalWorldReadingRoute.choose("home:reader", "home:reader", null)
-        assertEquals("visit_public_place", plan.travelAction)
+        assertNull(plan.travelAction)
         assertNull(plan.shelfId)
     }
 }

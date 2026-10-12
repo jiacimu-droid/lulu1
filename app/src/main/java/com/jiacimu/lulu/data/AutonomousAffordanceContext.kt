@@ -34,7 +34,7 @@ internal object AutonomousAffordanceContext {
         }
         if (digital) {
             appendLine("- 当前已经位于：" + location + "。数字世界行动必须使用真实地点/活动 ID。")
-            appendLine("- 选择 reading + 有效 readingBookId 后，执行器会沿真实世界状态进入家中阅读角书架（或阅读馆），无需先拆成几次模型调用；只有读完提交后才出阅读回执。")
+            appendLine("- 选择 reading + 有效 readingBookId 后，执行器会沿真实世界状态进入家中阅读角书架，无需先拆成几次模型调用；只有读完提交后才出阅读回执。")
             if (locationActivities.isNotEmpty()) {
                 appendLine("- 此地确实可执行（action=digital_world；worldAction=use_location）：")
                 locationActivities.take(5).forEach { (id, label) ->
@@ -58,7 +58,7 @@ internal object AutonomousAffordanceContext {
                         name.take(50) + "；身份=" + identity.take(90))
                 }
             } else {
-                appendLine("- 当前地点没有登记在场的居民；可以去其他真实公共场所看看，但不能虚构碰面或隔空聊天。")
+                appendLine("- 当前地点没有登记在场的居民；可以去其他已登记的地点看看，但不能虚构碰面或隔空聊天。")
             }
             if (publicPlaces.isNotEmpty()) {
                 appendLine("- 已存在的公共地点，可选择前往探索（不用建家具；worldAction=visit_public_place）：")

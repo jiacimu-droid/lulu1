@@ -910,7 +910,11 @@ object DigitalWorldStore {
         }.filter { it.id.isNotBlank() && it.ownerCharacterId.isNotBlank() }
         val locations = buildMap {
             val source = root.optJSONObject("locations") ?: JSONObject()
-            source.keys().forEach { key -> put(key, source.optString(key)) }
+            source.keys().forEach { key ->
+                val saved = source.optString(key)
+                // The removed public reading hall may remain in legacy save files.
+                put(key, if (saved == DigitalWorldPublicPlaces.READING_LOUNGE) homeLocation(key) else saved)
+            }
         }
         val events = buildList {
             root.optJSONArray("events")?.forEachObject { item ->

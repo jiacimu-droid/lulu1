@@ -5,12 +5,11 @@ internal data class DigitalWorldReadingPlan(val travelAction: String?, val shelf
 
 internal object DigitalWorldReadingRoute {
     fun choose(currentLocation: String, homeLocation: String, homeShelfId: String?): DigitalWorldReadingPlan {
-        // Visiting a real library does not require returning to one's own home.
-        if (currentLocation == DigitalWorldPublicPlaces.READING_LOUNGE)
-            return DigitalWorldReadingPlan(null, null)
-        if (!homeShelfId.isNullOrBlank())
-            return DigitalWorldReadingPlan(if (currentLocation == homeLocation) null else "go_home", homeShelfId)
-        // A removed bookshelf must remain removed; the library is the fallback.
-        return DigitalWorldReadingPlan("visit_public_place", null)
+        // A person's own bookshelf is the only physical reading station.
+        // Never resurrect a shelf deliberately removed by the user.
+        return DigitalWorldReadingPlan(
+            if (homeShelfId != null && currentLocation != homeLocation) "go_home" else null,
+            homeShelfId,
+        )
     }
 }

@@ -13,6 +13,7 @@ internal data class DigitalWorldPublicPlace(
  */
 internal object DigitalWorldPublicPlaces {
     const val GAME_HALL = "shared:game_hall"
+    /** Retained only to recognize and migrate old saved locations; no longer a destination. */
     const val READING_LOUNGE = "shared:reading_lounge"
     const val CAFE = "shared:cafe"
     const val COURTYARD = "shared:courtyard"
@@ -23,12 +24,6 @@ internal object DigitalWorldPublicPlaces {
             "游戏馆",
             "一起玩 · 围观 · 休息",
             "承接露露机里真实存在的小游戏，让相约玩游戏变成世界中的共同活动。",
-        ),
-        DigitalWorldPublicPlace(
-            READING_LOUNGE,
-            "阅读馆",
-            "阅读 · 窗边 · 安静陪伴",
-            "承接阅读 App 和小剧场，让角色可以真的在这里读过同一段内容。",
         ),
         DigitalWorldPublicPlace(
             CAFE,

@@ -66,7 +66,7 @@ internal object CompanionActionRuntime {
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
-        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命会先真实走到家中已登记的书架旁（没有书架则前往阅读馆）并留下“准备阅读”的状态，再读取阅读 App 的真实正文。只有进度、读后感和原始证据全部保存成功才发完整阅读回执；阅读中、失败不能算读过。")
+        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命会先真实走到家中已登记的书架旁（没有书架则停止，不虚构读书地点）并留下“准备阅读”的状态，再读取阅读 App 的真实正文。只有进度、读后感和原始证据全部保存成功才发完整阅读回执；阅读中、失败不能算读过。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
@@ -577,6 +577,7 @@ internal object CompanionActionRuntime {
             DigitalWorldStore.locationOf(role), DigitalWorldStore.homeLocation(role),
             DigitalWorldStore.readingShelf(role)?.id,
         )
+        check(plan.shelfId != null) { "家里的书架已被移除，请先放置一座真正的书架才能阅读。" }
         fun world(action: String, params: JSONObject): DigitalWorldActionResult {
             val result = DigitalWorldStore.performAction(role, action, params, now)
             check(result.success && result.evidenceId.isNotBlank()) {
@@ -584,12 +585,9 @@ internal object CompanionActionRuntime {
             }
             return result
         }
-        if (plan.travelAction != null) world(plan.travelAction,
-            JSONObject().apply { if (plan.travelAction == "visit_public_place")
-                put("locationCode", DigitalWorldPublicPlaces.READING_LOUNGE) })
-        val arriving = if (plan.shelfId != null) world("use_home_item",
+        if (plan.travelAction != null) world(plan.travelAction, JSONObject())
+        val arriving = world("use_home_item",
             JSONObject().put("itemId", plan.shelfId).put("activityId", "approach_bookshelf"))
-        else world("use_location", JSONObject().put("activityId", "browse_reading"))
         val shelf = plan.shelfId?.let { id ->
             DigitalWorldStore.itemsAtLocation(role).firstOrNull { it.id == id }
         }

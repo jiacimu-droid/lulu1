@@ -41,7 +41,7 @@ internal object DigitalWorldEvolutionRuntime {
     private val placeTemplates = listOf(
         PlaceTemplate("雾灯长廊", "慢走 · 看灯 · 偶遇", "一条连接共享区域的安静步行长廊，适合散步、短暂停留与偶遇。"),
         PlaceTemplate("星砂小站", "歇脚 · 看路 · 等人", "数字世界里的小型中转站，提供明确的休息与会合空间，不承担凭空传送。"),
-        PlaceTemplate("浮页台地", "阅读 · 眺望 · 整理思绪", "一片适合安静阅读和整理想法的开放台地，与阅读馆功能互补但不替代真实书目。"),
+        PlaceTemplate("浮页台地", "阅读 · 眺望 · 整理思绪", "一片适合安静阅读和整理想法的开放台地，适合户外交流读后感，实际读书需要回家使用书架。"),
         PlaceTemplate("风铃步桥", "过桥 · 听风 · 停留", "跨越云层间隙的步行桥，承担真实移动、远眺和短时间停留。"),
         PlaceTemplate("微光广场", "散步 · 会合 · 看人来往", "规模不大的共享广场，为角色提供自然会合、经过和公共停留空间。"),
         PlaceTemplate("月影回廊", "散步 · 独处 · 偶遇", "较安静的环形回廊，适合角色独处、慢走以及低压力的偶遇。"),
@@ -99,7 +99,7 @@ internal object DigitalWorldEvolutionRuntime {
                 ))
             }.getOrNull()
             if (resident != null) {
-                val summary = "数字世界已经登记第一位持久居民“${resident.name}”，她在浮光咖啡角生活与值守。角色可以自行决定要不要去遇见她。"
+                val summary = "数字世界已经登记第一位持久居民“${resident.name}”，她在浮光咖啡角附近拥有自己的家，并在那里值守。角色可以自行决定要不要去遇见她。"
                 results += summary
                 recordEvolution(characterId, "first-resident-${resident.id}", summary, now)
             }
@@ -120,7 +120,6 @@ internal object DigitalWorldEvolutionRuntime {
                     add(DigitalWorldStore.CLOUD_MEADOW)
                     add(DigitalWorldPublicPlaces.COURTYARD)
                     add(DigitalWorldPublicPlaces.CAFE)
-                    add(DigitalWorldPublicPlaces.READING_LOUNGE)
                     addAll(existingPlaces.map(DigitalWorldDiscoveredPlace::code))
                 }.distinct()
                 val firstAnchor = anchors[roll("place-anchor:$daySlot", anchors.size)]
@@ -162,17 +161,17 @@ internal object DigitalWorldEvolutionRuntime {
                     addAll(discovered.map(DigitalWorldDiscoveredPlace::code))
                     add(DigitalWorldPublicPlaces.COURTYARD)
                     add(DigitalWorldPublicPlaces.CAFE)
-                    add(DigitalWorldPublicPlaces.READING_LOUNGE)
                     add(DigitalWorldStore.CLOUD_MEADOW)
                 }.distinct()
-                val home = homes[roll("resident-home:$daySlot", homes.size)]
+                val neighborhood = homes[roll("resident-home:$daySlot", homes.size)]
                 val registered = runCatching {
                     DigitalWorldExpansionStore.registerResident(
                         DigitalWorldResident(
                             name = template.name,
                             identity = template.identity,
-                            homeLocationCode = home,
-                            currentLocationCode = home,
+                            homeLocationCode = neighborhood,
+                            neighborhoodCode = neighborhood,
+                            currentLocationCode = neighborhood,
                             createdAt = now,
                         ),
                     )
@@ -197,6 +196,7 @@ internal object DigitalWorldEvolutionRuntime {
                 DigitalWorldExpansionStore.moveResident(resident.id, destination, now)?.let { moved ->
                     val label = DigitalWorldPublicPlaces.label(destination)
                         ?: DigitalWorldExpansionStore.places().firstOrNull { it.code == destination }?.label
+                        ?: DigitalWorldExpansionStore.residenceLabel(destination)
                         ?: if (destination == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else destination
                     val summary = "居民“${moved.name}”真实移动到了“$label”。"
                     results += summary
@@ -231,7 +231,6 @@ internal object DigitalWorldEvolutionRuntime {
             addAll(linkedFromOthers)
             add(DigitalWorldPublicPlaces.COURTYARD)
             add(DigitalWorldPublicPlaces.CAFE)
-            add(DigitalWorldPublicPlaces.READING_LOUNGE)
             add(DigitalWorldStore.CLOUD_MEADOW)
         }.filter(DigitalWorldExpansionStore::isExistingLocation).distinct()
     }
