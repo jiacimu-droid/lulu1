@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T12:18:42.563797+00:00",
-  "commit": "30c0d6506384aadb8d8c2a423dfdd03cc163ef78",
+  "generatedAt": "2026-10-12T12:20:14.334019+00:00",
+  "commit": "6fb1239c79d551063e2e68d6ae91b8abed2eb759",
   "branch": "main",
-  "sourceFingerprint": "9d03b975f2b6dd93abb5dcb5bc0c7f79c258ed32c16a50c97778ebfb031aaaa0",
+  "sourceFingerprint": "9defe20c450c6af3b7548a0c28b9e0bc927fe2494140282c3a219f3bf995aa91",
   "summary": {
-    "files": 550,
-    "lines": 112555,
+    "files": 551,
+    "lines": 112598,
     "symbols": 1684
   },
   "symbolIndex": {
@@ -949,13 +949,13 @@
     "furniturePoseFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 162
+        "line": 165
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1123
+        "line": 1126
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -965,37 +965,37 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1132
+        "line": 1135
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1134
+        "line": 1137
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1136
+        "line": 1139
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1139
+        "line": 1142
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1142
+        "line": 1145
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1150
+        "line": 1153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -3359,7 +3359,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 775
+        "line": 785
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -5029,61 +5029,61 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 477
+        "line": 482
       }
     ],
     "invitationLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 470
+        "line": 475
       }
     ],
     "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 480
+        "line": 485
       }
     ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 536
+        "line": 541
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 561
+        "line": 566
       }
     ],
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 588
+        "line": 593
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 621
+        "line": 626
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 675
+        "line": 680
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 682
+        "line": 687
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 711
+        "line": 716
       }
     ],
     "qualifies": [
@@ -9986,8 +9986,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1155,
-      "sha256": "204cd28567c583b5836748fda52dacf4151b56d163bb938ce69b246078388630",
+      "lines": 1158,
+      "sha256": "5d0427a3d753ba54743caf4604b44bb8d6a102dfc048a3bc0949be30709924d2",
       "symbols": [
         {
           "name": "Resident",
@@ -10003,35 +10003,35 @@
         },
         {
           "name": "furniturePoseFor",
-          "line": 162
+          "line": 165
         },
         {
           "name": "loadPosition",
-          "line": 1123
+          "line": 1126
         },
         {
           "name": "loadQuest",
-          "line": 1132
+          "line": 1135
         },
         {
           "name": "loadHandHoldingId",
-          "line": 1134
+          "line": 1137
         },
         {
           "name": "loadFollowerIds",
-          "line": 1136
-        },
-        {
-          "name": "loadSuspendedFollowers",
           "line": 1139
         },
         {
-          "name": "saveCompanionship",
+          "name": "loadSuspendedFollowers",
           "line": 1142
         },
         {
+          "name": "saveCompanionship",
+          "line": 1145
+        },
+        {
           "name": "save",
-          "line": 1150
+          "line": 1153
         }
       ]
     },
@@ -10127,6 +10127,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt",
       "lines": 457,
       "sha256": "2634a4cc00fc41e72d8371ac1c1f6709d98fcc9eb03b7e2163d996c45a16afb3",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeHomeFixtures.kt",
+      "lines": 26,
+      "sha256": "2fd22eea8b52ff60bef63bfb623434173f122adec2cd4c6e91411a36d828accf",
       "symbols": []
     },
     {
@@ -14057,8 +14063,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1052,
-      "sha256": "f782e5ea4131e3118ce378ac14e612d8ea4afafe1e40e4ed7c40e5385cae875d",
+      "lines": 1065,
+      "sha256": "9d766a0348e26196250b7b9aac7ff698bc0590aea56183875d8612981647c2fa",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -14154,47 +14160,47 @@
         },
         {
           "name": "invitationLocationOptions",
-          "line": 470
+          "line": 475
         },
         {
           "name": "meetingLocationOptions",
-          "line": 477
+          "line": 482
         },
         {
           "name": "moveMeeting",
-          "line": 480
+          "line": 485
         },
         {
           "name": "endMeeting",
-          "line": 536
+          "line": 541
         },
         {
           "name": "deleteMeeting",
-          "line": 561
+          "line": 566
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 588
+          "line": 593
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 621
+          "line": 626
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 675
+          "line": 680
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 682
+          "line": 687
         },
         {
           "name": "meetingContext",
-          "line": 711
+          "line": 716
         },
         {
           "name": "clearCharacter",
-          "line": 775
+          "line": 785
         }
       ]
     },
@@ -19507,8 +19513,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt",
-      "lines": 30,
-      "sha256": "2abc6c17a7f452a9e13c1b304420ed8de1bb1c6dd8c69daf283bb429662db741",
+      "lines": 31,
+      "sha256": "aac53483a23cf07de1ec45615e817c446cf5ffb3fe6e69ddd3eda82d1cf2f078",
       "symbols": [
         {
           "name": "MeetingLocationRenderingTest",
