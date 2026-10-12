@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`26137c277f97b25ae6a53f4e5f1ee1ccf1181aa5`
+- 基准提交：`91e1ce8f611b98e32bc174bbd33ea0fda16afb09`
 - 分支：`main`
-- 已索引文件：542
-- 已索引代码/文本行：111698
-- 已发现符号：1670
+- 已索引文件：544
+- 已索引代码/文本行：111848
+- 已发现符号：1675
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -151,7 +151,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 65 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 73 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 574 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
@@ -214,7 +214,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 182 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 227 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 554 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 602 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 476 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 470 | 15 |
@@ -226,8 +226,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 242 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 271 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 267 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 273 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 281 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
@@ -238,8 +238,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 86 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 61 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 53 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1013 | 33 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1048 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 348 | 9 |
@@ -514,6 +515,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt` | 47 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 47 | 1 |
