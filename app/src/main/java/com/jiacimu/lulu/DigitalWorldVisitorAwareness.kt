@@ -90,7 +90,8 @@ internal object DigitalWorldVisitorAwareness {
      */
     fun locationArrival(context: Context, sceneCode: String, sceneLabel: String,
         localResidents: List<String>, entering: Boolean, includeLocals: Boolean = true) {
-        if (sceneCode.startsWith("preview:")) return
+        if (sceneCode.startsWith("preview:") || sceneCode.startsWith("resident-home:")) return
+        // A native resident's house is private. Do not broadcast entry to unrelated contacts.
         val localIds = localResidents.filter(String::isNotBlank).toSet()
         val linkedIds = MigratedDomainStores.chat.conversations.value.asSequence()
             .filter { it.groupChat == null && it.characterId.isNotBlank() }
