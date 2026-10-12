@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T05:33:24.977619+00:00",
-  "commit": "5fa7d9d2cfeb91ab7349465ec74f7448e693fbbd",
+  "generatedAt": "2026-10-12T05:36:12.354139+00:00",
+  "commit": "b459f3b3a7fb9b9b8a852965868451e097a79c5c",
   "branch": "main",
-  "sourceFingerprint": "f72f5fd4c0a258497626dce0c0a8986c5f1c0d1df9e3e28331f6446955901a17",
+  "sourceFingerprint": "ad62dd3b88e25ad2e54302d13c73dbd4a4411db746c9bc760469152b4e9ba79b",
   "summary": {
     "files": 538,
-    "lines": 110985,
+    "lines": 111017,
     "symbols": 1665
   },
   "symbolIndex": {
@@ -327,7 +327,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 58
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -2991,7 +2991,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 291
+        "line": 293
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -3169,7 +3169,7 @@
     "pendingDecisionCues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 200
+        "line": 202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3179,7 +3179,7 @@
     "briefContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-        "line": 265
+        "line": 267
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3397,19 +3397,19 @@
     "feedbackTopic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 24
+        "line": 23
       }
     ],
     "relevantFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 47
+        "line": 46
       }
     ],
     "entries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 90
+        "line": 95
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
@@ -11115,8 +11115,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 259,
-      "sha256": "6d1c424e7553dcb92628bc825ee8f63d2ed6ff7aff6dcb87647939e48b5e4af5",
+      "lines": 260,
+      "sha256": "dd3ab118f68651c032260b451cdc55c7c32b5752829b533c50a6847a40522b11",
       "symbols": [
         {
           "name": "mute",
@@ -12059,20 +12059,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 359,
-      "sha256": "6a7baf620c6da2e4f1a54274c684e4eff3ccd87b6098dd71f8758bb898ff4bad",
+      "lines": 361,
+      "sha256": "79200a12391745eef13357a53fe3e18a568620a2c965daf9ba64e8db2846b5b3",
       "symbols": [
         {
           "name": "pendingDecisionCues",
-          "line": 200
+          "line": 202
         },
         {
           "name": "briefContext",
-          "line": 265
+          "line": 267
         },
         {
           "name": "promptSection",
-          "line": 291
+          "line": 293
         }
       ]
     },
@@ -12240,24 +12240,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-      "lines": 195,
-      "sha256": "782543f131edf8d8573465603eb086d0aede8609146eca5014864d62efa1ff9f",
+      "lines": 200,
+      "sha256": "5ec4575a36bec6db4932f101b394ffddef874b3fbc937ff6fc19d55ba8f3f820",
       "symbols": [
         {
           "name": "feedbackTopic",
-          "line": 24
+          "line": 23
         },
         {
           "name": "relevantFeedback",
-          "line": 47
+          "line": 46
         },
         {
           "name": "context",
-          "line": 58
+          "line": 63
         },
         {
           "name": "entries",
-          "line": 90
+          "line": 95
         }
       ]
     },
@@ -18945,8 +18945,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt",
-      "lines": 158,
-      "sha256": "7395453572405238062f9cf897f193f803fd673c043d86d5ddaebe64cfaa42dc",
+      "lines": 182,
+      "sha256": "c3a82daf5e1ae4abf03711bd072f81ae57427a87da3067506064f906a96a7286",
       "symbols": [
         {
           "name": "CharacterGrowthTrajectoryLedgerTest",
