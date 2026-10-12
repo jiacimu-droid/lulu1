@@ -41,6 +41,7 @@ internal class ElevenLabsRealtimeStt(
     private val onText: (String) -> Unit,
     private val onError: (String) -> Unit,
     private val endpoint: String = "wss://api.elevenlabs.io/v1/speech-to-text/realtime",
+    private val socketFactory: WebSocket.Factory? = null,
 ) {
     private data class Packet(val pcm: ByteArray)
     private val client = OkHttpClient.Builder()
@@ -68,7 +69,7 @@ internal class ElevenLabsRealtimeStt(
                 "&min_speech_duration_ms=100&min_silence_duration_ms=100")
             .header("xi-api-key", apiKey)
             .build()
-        socket = client.newWebSocket(request, object : WebSocketListener() {
+        socket = (socketFactory ?: client).newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 if (closed.get()) webSocket.close(1000, "ended")
                 else ready.complete(webSocket)

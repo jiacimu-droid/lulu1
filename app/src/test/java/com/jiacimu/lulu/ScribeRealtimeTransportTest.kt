@@ -3,11 +3,12 @@ package com.jiacimu.lulu
 import android.os.Looper
 import android.util.Base64
 import kotlinx.coroutines.*
+import okhttp3.Protocol
+import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import okio.ByteString
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -22,21 +23,9 @@ import java.util.concurrent.TimeUnit
 @Config(manifest = Config.NONE, sdk = [28])
 class ScribeRealtimeTransportTest {
     @Test fun quietPcmReachesScribeAndOnlyCommittedSpeechCreatesATurn() {
-        val packets = LinkedBlockingQueue<String>()
-        val sockets = LinkedBlockingQueue<WebSocket>()
-        val peer = java.util.concurrent.atomic.AtomicReference<WebSocket>()
-        val server = MockWebServer()
-        server.enqueue(MockResponse().withWebSocketUpgrade(object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
-                peer.set(webSocket)
-                sockets.offer(webSocket)
-            }
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                webSocket.close(code, reason)
-            }
-            override fun onMessage(webSocket: WebSocket, text: String) { packets.offer(text) }
-        }))
-        server.start()
+        // Isolate the external socket, not the transport, PCM or transcript logic.
+        // No native server reader can mask a failing protocol assertion during teardown.
+        val wire = FakeWire()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         val partials = mutableListOf<String>()
         val finals = mutableListOf<String>()
@@ -44,37 +33,57 @@ class ScribeRealtimeTransportTest {
         var starts = 0
         val recognizer = ElevenLabsRealtimeStt(scope, "test-key", { true }, { starts++ }, {},
             onPartial = { partials += it }, onText = { finals += it }, onError = { errors += it },
-            endpoint = server.url("/realtime").toString())
+            socketFactory = wire)
         try {
             recognizer.start()
             // RMS=19, far below the old phone-side 195 gate.
             val quiet = ByteArray(3200) { if (it % 2 == 0) 19 else 0 }
             recognizer.audioFrame(quiet)
-            val request = server.takeRequest(5, TimeUnit.SECONDS)!!
-            assertEquals("vad", request.requestUrl!!.queryParameter("commit_strategy"))
-            val packet = JSONObject(packets.poll(5, TimeUnit.SECONDS)!!)
+            assertEquals("vad", wire.request.url.queryParameter("commit_strategy"))
+            val packet = JSONObject(wire.packets.poll(5, TimeUnit.SECONDS)!!)
             assertArrayEquals(quiet, Base64.decode(packet.getString("audio_base_64"), Base64.NO_WRAP))
             assertFalse(packet.has("commit"))
-            val socket = sockets.poll(5, TimeUnit.SECONDS)!!
-            socket.send("""{"message_type":"partial_transcript","text":"我还有句话"}""")
+            wire.receive("partial_transcript", "我还有句话")
             pumpUntil { partials.isNotEmpty() }
             assertEquals(1, starts)
             assertTrue(finals.isEmpty())
-            socket.send("""{"message_type":"partial_transcript","text":""}""")
-            socket.send("""{"message_type":"partial_transcript","text":"我还有句话"}""")
-            socket.send("""{"message_type":"committed_transcript","text":"我还有句话"}""")
+            wire.receive("partial_transcript", "")
+            wire.receive("partial_transcript", "我还有句话")
+            wire.receive("committed_transcript", "我还有句话")
             pumpUntil { finals.isNotEmpty() }
             assertEquals(listOf("我还有句话"), finals)
             assertEquals(2, starts) // No onset from repeated/empty keepalives.
             assertTrue(errors.isEmpty())
+            recognizer.stop()
+            assertTrue(wire.closed)
+            wire.receive("committed_transcript", "已经结束通话后的旧事件")
+            shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+            assertEquals(listOf("我还有句话"), finals)
         } finally {
             recognizer.stop()
             scope.cancel()
-            // MockWebServer's default listener does not acknowledge close frames.
-            // Abort any remaining reader before shutting down its worker queue.
-            peer.get()?.cancel()
-            server.shutdown()
         }
+    }
+    private class FakeWire : WebSocket.Factory, WebSocket {
+        lateinit var request: Request
+        lateinit var listener: WebSocketListener
+        val packets = LinkedBlockingQueue<String>()
+        var closed = false
+        override fun newWebSocket(request: Request, listener: WebSocketListener): WebSocket {
+            this.request = request
+            this.listener = listener
+            listener.onOpen(this, Response.Builder().request(request).protocol(Protocol.HTTP_1_1)
+                .code(101).message("Switching Protocols").build())
+            return this
+        }
+        fun receive(kind: String, text: String) = listener.onMessage(this,
+            JSONObject().put("message_type", kind).put("text", text).toString())
+        override fun request(): Request = request
+        override fun queueSize(): Long = 0L
+        override fun send(text: String): Boolean = !closed && packets.offer(text)
+        override fun send(bytes: ByteString): Boolean = false
+        override fun close(code: Int, reason: String?): Boolean { closed = true; return true }
+        override fun cancel() { closed = true }
     }
     private fun pumpUntil(condition: () -> Boolean) {
         val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
