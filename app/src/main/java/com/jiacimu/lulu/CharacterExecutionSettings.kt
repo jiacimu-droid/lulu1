@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterDevelopmentStore
+import com.jiacimu.lulu.data.WebSearchProvider
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
 internal fun CharacterExecutionSettings(characterId: String) {
@@ -25,6 +27,27 @@ internal fun CharacterExecutionSettings(characterId: String) {
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+        Text("网络搜索（所有角色共用）", style = MaterialTheme.typography.titleMedium)
+        var searchKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
+        var searchStatus by remember { mutableStateOf("") }
+        OutlinedTextField(
+            value = searchKey,
+            onValueChange = { searchKey = it.take(256); searchStatus = "" },
+            label = { Text("Tavily Search API Key") },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible()
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(if (WebSearchProvider.isConfigured(context)) "已配置通用网页搜索" else "未配置：仍可使用百科搜索",
+                style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = {
+                searchStatus = if (WebSearchProvider.saveKey(context, searchKey)) "已保存（仅本机）" else "保存失败"
+            }) { Text("保存／清除") }
+        }
+        if (searchStatus.isNotBlank()) Text(searchStatus, style = MaterialTheme.typography.bodySmall)
+        Text("搜索只发送角色自己决定的查询词。密钥保存在本机应用私有设置，不会上传到 GitHub；公开发布时建议改用服务端代理。",
+            style = MaterialTheme.typography.bodySmall)
         Text("自主学习", style = MaterialTheme.typography.titleMedium)
         com.jiacimu.lulu.data.CharacterLearningAgenda.initialize(context)
         var learningLimit by remember(characterId) {
@@ -49,7 +72,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
         learningGoals.forEach { goal ->
             val stage = when (goal.optString("status")) {
                 "planned" -> "尚未接触材料"; "running" -> "正在学习"; "failed" -> "待调整"
-                "paused" -> "暂缓"; else -> "待实践／复习"
+                "paused" -> "暂缓"; "research" -> "已读，待进一步核实"; else -> "待实践／复习"
             }
             Text("${goal.optString("topic")} · $stage")
             goal.optString("error").takeIf(String::isNotBlank)?.let {

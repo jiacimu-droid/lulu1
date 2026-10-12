@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.text.Html
+import android.content.Context
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URI
@@ -61,7 +62,7 @@ internal object LearningMaterialSource {
         }
         error("材料跳转次数过多")
     }
-    fun retrieve(query: String, suppliedUrl: String): LearningMaterial {
+    fun retrieve(query: String, suppliedUrl: String, context: Context? = null): LearningMaterial {
         if (suppliedUrl.isNotBlank()) {
             val url = validateUrl(suppliedUrl).toString()
             val raw = get(url)
@@ -74,7 +75,19 @@ internal object LearningMaterialSource {
             require(text.length >= 120) { "网页没有可读取的正文，可能需要登录或动态加载" }
             return LearningMaterial(title, url, text, "外部网页节选，来源观点待核实")
         }
-        // A concrete searchable encyclopedia source, not a fictitious general web-search API.
+        // Prefer real general search when the user has configured Tavily.
+        // A result snippet NEVER counts as reading: fetch an actual public page.
+        if (context != null && WebSearchProvider.isConfigured(context)) {
+            val hits = WebSearchProvider.search(context, query)
+            val actual = hits.take(4).firstNotNullOfOrNull { hit ->
+                runCatching {
+                    retrieve(query, hit.url, null).copy(kind = "通用搜索命中的网页正文节选，需核实")
+                }.getOrNull()
+            }
+            if (actual != null) return actual
+            error("通用搜索已有结果，但网页正文均无法实际读取；请换关键词或提供可访问的网址")
+        }
+        // Without a configured provider, use a concrete encyclopedia rather than pretend search.
         require(query.trim().length >= 2) { "需要具体搜索词或真实材料网址" }
         val base = "https://zh.wikipedia.org/w/api.php"
         val search = JSONObject(get("$base?action=query&list=search&srsearch=${encoded(query.take(120))}&srlimit=3&format=json"))

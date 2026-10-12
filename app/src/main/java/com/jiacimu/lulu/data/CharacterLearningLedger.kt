@@ -9,7 +9,7 @@ import java.time.Instant
 /** Evidence-linked material insights, exercises and actual feedback. */
 internal object CharacterLearningLedger {
     private var prefs: SharedPreferences? = null
-    private const val CAP = 80
+    private const val CAP = 320
 
     @Synchronized fun initialize(context: Context) {
         if (prefs == null) prefs = context.applicationContext

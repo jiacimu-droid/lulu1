@@ -14,14 +14,14 @@ internal object AutonomousLearningRuntime {
         val budget = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
             .getInt("$role:learning_daily_limit", 2).coerceIn(0, 10)
         return """- learn_topic：按本人问题真实学习，不训练底座权重。args={"op":"start","topic":"具体主题","question":"想改善/弄清什么","why":"本人动机","sourceEvidenceId":"真实观察/用户原话ID"}先保存意向。
-            后续 args={"op":"study|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体百科搜索词","url":"可选公开HTTPS网页"}。study 提供网页或真实百科正文检索，暂不支持PDF/登录网页；搜索标题不算已读。practice保存私人练习，review回看材料；每天最多${budget}次材料理解/练习/复习调用，失败也计入预算。
+            后续 args={"op":"search|study|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"}。search列出真实搜索结果而不冒充已读；study再读取网页正文并形成暂定理解。无搜索API时使用百科；不支持登录网页。每天最多${budget}次学习/搜索步骤，失败也计入预算。
             可用 op=attach、goalId、sourceEvidenceId 把本人已存在的reading:阅读理解接入目标，未读书籍仍须read_book执行。学习成果可以在后续互动里自选learningApplication，真实用户反馈才是对用户效果的证据。
             ${CharacterLearningAgenda.prompt(role)}
         """.trimIndent()
     }
     suspend fun execute(
         context: Context, role: String, args: JSONObject,
-        materialLoader: (String, String) -> LearningMaterial = LearningMaterialSource::retrieve,
+        materialLoader: (String, String) -> LearningMaterial = { query, url -> LearningMaterialSource.retrieve(query, url, context) },
         understand: suspend (String, String) -> String = { facts, instruction ->
             LuluAiServices.gateway.generate(characterId = role, facts = facts,
                 instruction = instruction, source = "角色自主学习", title = "自主学习",
@@ -56,6 +56,36 @@ internal object AutonomousLearningRuntime {
                     if (it.optString("materialId").isBlank()) "planned" else "practice" })
             }
             return CompanionActionResult(true, "已${when(op) { "pause" -> "暂缓"; "resume" -> "恢复"; else -> "放下" }}学习意向，保留真实经历")
+        }
+        if (op == "search") {
+            CharacterLearningAgenda.begin(context, role, id, now)
+            return try {
+                val hits = withContext(Dispatchers.IO) {
+                    WebSearchProvider.search(context, args.optString("query").ifBlank { goal.optString("topic") })
+                }
+                val evidence = "learning-search-" + UUID.randomUUID()
+                val resultJson = org.json.JSONArray()
+                hits.forEach { hit ->
+                    resultJson.put(JSONObject().put("title", hit.title).put("url", hit.url)
+                        .put("preview", hit.preview))
+                }
+                SharedExperienceTimeline.record(evidence, role, "自主学习·搜索发现", "执行器",
+                    JSONObject().put("query", args.optString("query")).put("results", resultJson).toString(),
+                    source = "learning-search:$id", occurredAt = Instant.now(),
+                    triggerExtraction = false, evidenceKind = EventEvidenceKind.Observation)
+                CharacterLearningAgenda.update(role, id) {
+                    it.put("status", if (it.optString("materialId").isBlank()) "planned" else "practice")
+                        .put("lastSearchId", evidence).put("failures", 0)
+                    it.remove("retryAt"); it.remove("error")
+                }
+                CompanionActionResult(true, "搜索到真实候选（仅标题和摘要，尚未读过正文）：\n" +
+                    hits.joinToString("\n") { hit -> hit.title + "：" + hit.url + "（" + hit.preview.take(85) + "）" } +
+                    "\n可选其中网址再调用study，或直接study自动搜索并读取。goalId=" + id,
+                    evidenceId = evidence)
+            } catch (error: Exception) {
+                runCatching { CharacterLearningAgenda.failed(role, id, error.message.orEmpty(), Instant.now()) }
+                CompanionActionResult(false, error.message ?: "搜索失败")
+            }
         }
         require(op in setOf("study", "practice", "review")) { "未知学习步骤" }
         CharacterLearningAgenda.begin(context, role, id, now)
@@ -116,7 +146,18 @@ internal object AutonomousLearningRuntime {
             val finished = Instant.now()
             var receiptId = material.id
             if (op == "study") {
-                val note = response.optJSONObject("learning") ?: error("材料实际已读，但未形成可用理解；可换资料再试")
+                val note = response.optJSONObject("learning")
+                if (note == null) {
+                    CharacterLearningAgenda.update(role, id) {
+                        it.put("status", "research").put("lastReceiptId", material.id)
+                            .put("nextStep", response.optString("nextStep").take(220))
+                            .put("failures", 0)
+                        it.remove("retryAt"); it.remove("error")
+                    }
+                    return CompanionActionResult(true,
+                        "确实阅读了材料，但尚未形成可信理解；可换资料继续研究。证据=" + material.id +
+                            "；goalId=" + id, evidenceId = material.id)
+                }
                 note.let {
                     note.put("topic", goal.optString("topic"))
                     require(CharacterLearningLedger.recordReading(role, material.id, note, finished)) {
