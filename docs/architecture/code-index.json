@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T15:15:47.676652+00:00",
-  "commit": "47ec50ac7db6aaa60f032b2fb48c2b153ac6c60f",
+  "generatedAt": "2026-10-12T15:17:00.715742+00:00",
+  "commit": "6ba9084397880bee302f7b1fce5e5cd79071d2d6",
   "branch": "main",
-  "sourceFingerprint": "b3c70f6b9dec48902590ef566333ade7bfd1a671349d8ae6350059f3f024dab0",
+  "sourceFingerprint": "8ebd983a6f2c2c4fc80e9615fe607d1ab8ba38ed0b8369c5bd6faf6c3a7fb511",
   "summary": {
-    "files": 555,
-    "lines": 113312,
-    "symbols": 1696
+    "files": 556,
+    "lines": 113371,
+    "symbols": 1697
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9366,6 +9366,12 @@
         "line": 12
       }
     ],
+    "ReadingChatReceiptFormatterTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt",
+        "line": 5
+      }
+    ],
     "ReplyReplacementTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt",
@@ -11279,8 +11285,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 806,
-      "sha256": "2d9042438cc48bc79f29cd288cce927922abc2eda15286ca244a248b7101a0e1",
+      "lines": 817,
+      "sha256": "020b5bdeb786739052b52fa04a4528e2938995ea9cf55bf3d7e4c0a166a186d3",
       "symbols": []
     },
     {
@@ -19769,6 +19775,17 @@
         {
           "name": "PromptContextRegressionTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt",
+      "lines": 48,
+      "sha256": "4defaeb9418650fafff3dc1006b3736be665b2564385651e40c759f0dce247f8",
+      "symbols": [
+        {
+          "name": "ReadingChatReceiptFormatterTest",
+          "line": 5
         }
       ]
     },
