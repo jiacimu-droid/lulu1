@@ -29,7 +29,7 @@ internal object AutonomousActionWireProtocol {
         "text", "groupId", "stickerId", "gameId", "location", "locationCode",
         "readingBookId", "worldAction", "itemId", "activityId",
         "incidentId", "approach", "targetCharacterId",
-        "title", "content", "nickname", "name", "appearance",
+        "title", "content", "nickname", "messageId", "reason", "name", "appearance",
         "position", "itemType", "journalTitle", "journalContent",
     )
 

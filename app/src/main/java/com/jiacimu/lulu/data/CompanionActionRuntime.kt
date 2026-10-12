@@ -62,6 +62,7 @@ internal object CompanionActionRuntime {
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色私下整理自己、消化情绪、保存想法与经历的地方，不是绕路给用户传话。")
         appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
+        appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到辞海，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
@@ -123,6 +124,36 @@ internal object CompanionActionRuntime {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
         val result = when (normalizedAction) {
+            "favorite_user_message" -> {
+                val messageId = args.optString("messageId").trim()
+                val reason = args.optString("reason").trim().take(180)
+                require(messageId.isNotBlank() && reason.length >= 4) {
+                    "收藏必须选择一条真实的用户消息，并说明自己的理由"
+                }
+                val target = MigratedDomainStores.chat.conversations.value.asSequence()
+                    .filter { conversation ->
+                        (conversation.groupChat == null && conversation.characterId == characterId) ||
+                            conversation.groupChat?.members?.any { it.characterId == characterId } == true
+                    }
+                    .mapNotNull { conversation ->
+                        MigratedDomainStores.chat.messages(conversation.id).value
+                            .firstOrNull { message ->
+                                message.id == messageId &&
+                                    message.sender == LuluChatMessage.Sender.User &&
+                                    message.status == LuluChatMessage.Status.Sent
+                            }?.let { message -> conversation.id to message }
+                    }.firstOrNull() ?: error("找不到本人实际收到的那条用户消息")
+                val sourceIds = listOf(messageId, "$messageId:group:$characterId")
+                require(SharedExperienceTimeline.eventsByIds(characterId, sourceIds)
+                    .any { it.evidenceKind == EventEvidenceKind.UserStatement }) {
+                    "收藏的用户原话已被删除或尚未写入原始时间线"
+                }
+                val saved = CharacterMessageFavorites.favoriteExplicit(
+                    characterId, target.second, reason
+                ) ?: error("这句话已经收藏过了，或保存失败")
+                CompanionActionResult(true, "已在辞海收藏这条真实消息",
+                    evidenceId = saved)
+            }
             "set_user_remark", "set_self_nickname" -> {
                 val key = if (normalizedAction == "set_user_remark") "userRemark" else "selfNickname"
                 val nickname = args.optString("nickname").trim().replace(Regex("[\r\n\t]+"), " ").take(24)

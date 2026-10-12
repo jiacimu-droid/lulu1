@@ -383,7 +383,7 @@ object ProactivePerceptionRuntime {
         val pendingUserContext = userActivities.filter(UserActivity::awaitingReply)
             .take(12).joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
         val recentUserActivityContext = userActivities.take(12)
-            .take(12).joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
+            .joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
         val recent = messages.filterNot { it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动]") }.takeLast(20).joinToString("\n") { message ->
             val speaker = when (message.sender) {
                 LuluChatMessage.Sender.User -> "用户"
@@ -501,7 +501,7 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 if (recentUserActivityContext.isNotBlank()) {
-                    appendLine("【用户跨场景最新动态｜新→旧】")
+                    appendLine("【用户跨场景最新动态｜新→旧；收藏仅能引用这些真实用户消息ID】")
                     appendLine(recentUserActivityContext)
                 }
                 if (onlineUnread.text.isNotBlank()) {
@@ -560,7 +560,7 @@ object ProactivePerceptionRuntime {
             instruction = proactiveDecisionInstruction(characterId) + "\n" +
                 if (onlineUnread.text.isNotBlank())
                     "【先处理本次真正的新消息】若当前确实想回应，JSON必须以action和text开头，先写完能发送的文字，然后再简要写非必要的心态字段；优先使用message或group_message，不要先写几千字的私人分析。整个JSON尽量在1000个输出token以内。只允许真正自愿且说得出缘由的silent，不得因格式失败将已收到的消息当作已处理。"
-                else "允许action=tool，tool为能力名，args为参数。只执行主动允许的能力；可选择silent。",
+                else """【此时没有新消息】你不是聊天待命机器人：先判断自己正在好奇的事情、真正可去的地点、可读的书或可做的小活动，选择一件感兴趣的实际生活行动；只有此刻确实不想做，才选 silent。不要为追求活跃而机械轮换。动作请直接写在 JSON 第一项 action，不要只在 statusText 或 innerThought 里写“我出去走走”。也可 action=tool，通过真实执行器收藏用户确实说过的一句话。""",
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
             // A complete action/text is more useful than a long private monologue.
@@ -640,7 +640,7 @@ object ProactivePerceptionRuntime {
             nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
         )
         val shouldReview = followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
-            now.toEpochMilli() - lastAgencyReview >= 5 * 60_000L &&
+            now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
             AutonomousDecisionRecovery.needsIndependentLifeReview(
                 silent = parsed.action == Action.SILENT,
                 reason = parsed.reason,
@@ -659,6 +659,7 @@ object ProactivePerceptionRuntime {
                     appendLine("原先完整选择理由：${parsed.reason}")
                     appendLine("需要回应的用户消息：${onlineUnread.text.take(800)}")
                     appendLine("上一选择：silent；原理由：${parsed.reason.take(220)}")
+                    appendLine("此次仅判断是否有自己真正感兴趣的可执行生活行为；并非要求必须和用户聊天或制造一条朋友圈。")
                     appendLine("真实时间：$localTimeText；所在地点：$currentLocation")
                     appendLine(affordances)
                     CharacterLifeFollowThroughStore.context(characterId, now)
@@ -1277,7 +1278,7 @@ object ProactivePerceptionRuntime {
         val timestamp = activity.message.createdAt.atZone(zoneId)
             .format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
         val scene = activity.conversation.groupChat?.name?.let { "群聊《$it》" } ?: "私聊"
-        return "- $timestamp｜$scene｜${if (activity.awaitingReply) "待回复" else "已看见/已回应"}｜${qqForwardContextText(activity.message.content).take(500)}"
+        return "- $timestamp｜$scene｜用户真实消息ID=${activity.message.id}｜${if (activity.awaitingReply) "待回复" else "已看见/已回应"}｜${qqForwardContextText(activity.message.content).take(500)}"
     }
 
     private fun createNotificationChannels(context: Context) {

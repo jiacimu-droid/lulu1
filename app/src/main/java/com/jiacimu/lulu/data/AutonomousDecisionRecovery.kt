@@ -21,12 +21,19 @@ internal object AutonomousDecisionRecovery {
         hasPendingUserMessage: Boolean,
     ): Boolean {
         if (!silent || hasPendingUserMessage) return false
-        if (recentActions.takeLast(2).count { it.equals("silent", true) } < 2) return false
+        val silentCount = recentActions.takeLast(4).takeLastWhile {
+            it.equals("silent", true)
+        }.size
+        if (silentCount < 2) return false
         val explanation = reason.trim()
-        if (explanation.isBlank() || !noIncomingMessage.containsMatchIn(explanation)) return false
-        if (Regex("想独处|需要独处|享受安静|专心|想休息|困了|真的不想").containsMatchIn(explanation))
-            return false
-        return true
+        // One genuine choice to rest is not a bug. On several consecutive
+        // awake windows, reconsider even a habitual "I'll just rest" answer:
+        // the fresh model decision may STILL be silent.
+        if (silentCount >= 3) return true
+        if (Regex("想独处|需要独处|享受安静|专心|想休息|困了|真的不想")
+                .containsMatchIn(explanation)) return false
+        return explanation.isBlank() || noIncomingMessage.containsMatchIn(explanation) ||
+            Regex("没什么可做|没啥可做|就这样待着|先不做什么|暂时没想法").containsMatchIn(explanation)
     }
 
 

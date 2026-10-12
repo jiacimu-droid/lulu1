@@ -31,6 +31,33 @@ object CharacterMessageFavorites {
     private val acceptedAt = mutableMapOf<String, Instant>()
     private val favoriteQuietWindow: Duration = Duration.ofMinutes(20)
 
+    /** A model voluntarily selects the exact user quote and explains why.
+     * Persistence and source validation are completed before success is returned.
+     * This path reuses the existing lexicon entry; no duplicate personality store.
+     */
+    suspend fun favoriteExplicit(characterId: String, message: LuluChatMessage,
+                                 reason: String): String? {
+        if (characterId.isBlank() || message.sender != LuluChatMessage.Sender.User ||
+            reason.isBlank()) return null
+        val id = "message-${message.id}"
+        val existing = LuluRepositories.lexicon.snapshot(characterId)
+        if (existing.any { it.section == LexiconSection.Favorite && it.id == id }) return null
+        val now = Instant.now()
+        val character = MigratedDomainStores.characters.get(characterId)
+        val title = "收藏 · ${message.createdAt.atZone(ZoneId.systemDefault()).format(titleTime)}"
+        val content = message.content.trim().take(2_400) + "\n\n收藏理由：" + reason.take(180)
+        LuluRepositories.lexicon.save(LexiconEntry(id = id, characterId = characterId,
+            section = LexiconSection.Favorite, title = title, content = content,
+            createdAt = now, updatedAt = now))
+        val evidenceId = "lexicon-favorite-$id"
+        SharedExperienceTimeline.record(eventId = evidenceId,
+            characterId = characterId, channel = "收藏", speaker = character.displayName,
+            content = "收藏了用户真实发出的消息：${message.content.take(600)}；原因：${reason.take(180)}",
+            occurredAt = now, triggerExtraction = false, source = "favorite:own",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        return evidenceId
+    }
+
     fun favorite(
         characterId: String,
         conversationId: String,
