@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T06:23:09.913052+00:00",
-  "commit": "782181a4c0ae5a8c42f65ebaf7a4ac1943326e50",
+  "generatedAt": "2026-10-12T06:25:18.249822+00:00",
+  "commit": "a263c668bfe945899027d759599a97d8a474fcdb",
   "branch": "main",
-  "sourceFingerprint": "8deefc0c2efb16bce5e18fca6f5a1e04ba030d378ae9cfa88889cf88931be6b7",
+  "sourceFingerprint": "db1c63a7ffb2e54aae1b2fb671436f48b47efbd4b1b7fc2b1d5dc744fe3e8d31",
   "summary": {
-    "files": 541,
-    "lines": 111340,
-    "symbols": 1669
+    "files": 542,
+    "lines": 111450,
+    "symbols": 1670
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9044,6 +9044,12 @@
         "line": 313
       }
     ],
+    "CharacterLifeVisibilityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
+        "line": 18
+      }
+    ],
     "CharacterOpenConcernRuntimeTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt",
@@ -9820,8 +9826,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 368,
-      "sha256": "31339ab4e66a093e69fa243bdfef305d6017eead2d8fb5d8b8a34dd7c6b7459c",
+      "lines": 376,
+      "sha256": "bc52d4200bf3ab7db2a42952e5375088318389039f28821ccce1cad3be9ba338",
       "symbols": []
     },
     {
@@ -12473,8 +12479,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 197,
-      "sha256": "94ab23131e81077be773e130d84957d38f24c823b7d7997b367def1ce7926f1e",
+      "lines": 201,
+      "sha256": "990f9eb13ebb432dd602bb24315857e470c751579ab5fd558966f04907703456",
       "symbols": [
         {
           "name": "current",
@@ -19103,6 +19109,17 @@
         {
           "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
           "line": 313
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
+      "lines": 98,
+      "sha256": "928c8e41f1b093f313f8dbe67da03062c42b6fbe97c3702006a6c30a2c139f6a",
+      "symbols": [
+        {
+          "name": "CharacterLifeVisibilityTest",
+          "line": 18
         }
       ]
     },

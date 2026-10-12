@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`782181a4c0ae5a8c42f65ebaf7a4ac1943326e50`
+- 基准提交：`a263c668bfe945899027d759599a97d8a474fcdb`
 - 分支：`main`
-- 已索引文件：541
-- 已索引代码/文本行：111340
-- 已发现符号：1669
+- 已索引文件：542
+- 已索引代码/文本行：111450
+- 已发现符号：1670
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -40,7 +40,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ChatUnreadVisibilityEffect.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatV2InterpolationCompat.kt` | 5 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CloudConnectionSettings.kt` | 52 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 368 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt` | 376 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeFoundationCompat.kt` | 9 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ComposeSaveableCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DesktopWorldBulletinCard.kt` | 150 | 0 |
@@ -179,7 +179,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 391 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 248 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 674 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 197 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 201 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 132 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 242 | 10 |
@@ -497,6 +497,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 158 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 364 | 6 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 149 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 49 | 2 |
