@@ -52,20 +52,25 @@ internal object CharacterConversationAgency {
         if (source.isNotBlank() && SharedExperienceTimeline.eventsByIds(characterId, listOf(source)).isEmpty()) return
         val prior = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("decisions")
         if ((0 until (prior?.length() ?: 0)).any { prior?.optJSONObject(it)?.optString("id") == id }) return
+        // Group history stores one role-specific evidence row per participant.
+        // Use the event's actual ID for every derived state so removing a group
+        // message removes its psychological effects too.
+        val deliveredEvidenceId = SharedExperienceTimeline.eventsByIds(characterId,
+            listOf(messageId, "$messageId:group:$characterId")).firstOrNull()?.id ?: messageId
         val action = if (phone) "phone_reply" else "message"
         val summary = if (phone) "这段口语已实际播放完毕：${text.take(180)}" else "文字已实际送达：${text.take(180)}"
         CharacterInnerLifeStore.recordDecision(characterId, id, action, metadata.optString("reason"),
-            metadata.optString("motiveId"), null, summary, true, actionSignature = messageId, causalEvidenceId = source)
-        CharacterInnerLifeStore.recordActionResult(characterId, metadata.optString("motiveId"), messageId, action, true, summary)
-        CharacterInnerLifeStore.recordConcernOutcome(characterId, metadata.optString("concernId"), messageId, action, true, summary)
+            metadata.optString("motiveId"), null, summary, true, actionSignature = deliveredEvidenceId, causalEvidenceId = source)
+        CharacterInnerLifeStore.recordActionResult(characterId, metadata.optString("motiveId"), deliveredEvidenceId, action, true, summary)
+        CharacterInnerLifeStore.recordConcernOutcome(characterId, metadata.optString("concernId"), deliveredEvidenceId, action, true, summary)
         CharacterLifeFollowThroughStore.recordAction(characterId, metadata.optString("experienceId"),
-            "message", true, summary, messageId)
+            "message", true, summary, deliveredEvidenceId)
         CharacterLearningLedger.recordApplication(
-            characterId, metadata.optJSONObject("learningApplication"), messageId,
+            characterId, metadata.optJSONObject("learningApplication"), deliveredEvidenceId,
             action, true, summary,
         )
         val inquiry = metadata.optJSONObject("curiosity")?.takeUnless { it.optString("status") == "dropped" }
             ?.let { JSONObject(it.toString()).put("status", "exploring").put("sourceEvidenceId", source) }
-        CharacterCuriosityRuntime.recordOutcome(characterId, inquiry, action, true, summary, messageId)
+        CharacterCuriosityRuntime.recordOutcome(characterId, inquiry, action, true, summary, deliveredEvidenceId)
     }
 }

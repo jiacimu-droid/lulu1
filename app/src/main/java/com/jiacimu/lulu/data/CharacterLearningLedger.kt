@@ -34,7 +34,9 @@ internal object CharacterLearningLedger {
     }
 
     private fun source(characterId: String, id: String): SharedTimelineEvent? =
-        SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).singleOrNull()
+        if (id.isBlank()) null else SharedExperienceTimeline.eventsByIds(
+            characterId, listOf(id, "$id:group:$characterId"),
+        ).firstOrNull()
 
     private fun valid(
         characterId: String, item: JSONObject, all: List<JSONObject> = records(characterId),

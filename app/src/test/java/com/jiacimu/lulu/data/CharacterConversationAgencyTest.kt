@@ -31,6 +31,24 @@ class CharacterConversationAgencyTest {
         CharacterInnerLifeStore.clear(role)
     }
 
+    @Test fun groupMessageUsesMemberSpecificEvidenceForDeliveredEffects() {
+        val context = RuntimeEnvironment.getApplication()
+        val role = "agency-group-evidence-test"
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        CharacterInnerLifeStore.clear(role)
+        SharedExperienceTimeline.record("group-msg-1:group:$role", role, "群聊·朋友",
+            "角色", "发现一个有趣的想法", triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        val receipt = CharacterConversationAgency.receipt("", "想和大家分享", "", "", null, "")
+        CharacterConversationAgency.delivered(role, receipt, "group-msg-1", "发现一个有趣的想法")
+        val trace = CharacterInnerLifeStore.snapshot(role).optJSONArray("decisions")
+        assertEquals(1, trace?.length())
+        assertEquals("group-msg-1:group:$role", trace?.getJSONObject(0)?.optString("signature"))
+        SharedExperienceTimeline.deleteEvent("group-msg-1:group:$role")
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun choiceMetadataIsSeparateFromSpeakableText() {
         val receipt = JSONObject(CharacterConversationAgency.receipt("user-original", "好奇她的想法", "motive-real", "", null, ""))
         assertEquals("user-original", receipt.getString("evidenceId"))
