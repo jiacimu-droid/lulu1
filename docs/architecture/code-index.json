@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T12:11:31.910191+00:00",
-  "commit": "fc191387a14e708ac31174859fe66bd0bae7f6b8",
+  "generatedAt": "2026-10-12T12:13:49.697564+00:00",
+  "commit": "c98e5cd9d68378086626ed4f946699f0ded041ee",
   "branch": "main",
-  "sourceFingerprint": "ff667229c08a2828733fb11807b005b9bd7dd4186eeeaa1bb26789cbb41b4cec",
+  "sourceFingerprint": "fefdfca2cb851f09c2d1f172c06feeaa9467449bc7df2c98d36f0430fb64bdcf",
   "summary": {
-    "files": 547,
-    "lines": 112255,
+    "files": 549,
+    "lines": 112461,
     "symbols": 1684
   },
   "symbolIndex": {
@@ -10036,6 +10036,12 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt",
+      "lines": 157,
+      "sha256": "254fff56060dd8111a91c2a004b1576a657abd92738b581e0986f9d9608fc9ca",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
       "lines": 725,
       "sha256": "7372a7487d4ec6fdd9ca6ea9ced8a6893238b129a96f4fc3ef22a333d9b0b974",
@@ -10121,6 +10127,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt",
       "lines": 457,
       "sha256": "2634a4cc00fc41e72d8371ac1c1f6709d98fcc9eb03b7e2163d996c45a16afb3",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt",
+      "lines": 49,
+      "sha256": "635f716394ffbf83d1113c9102cdc0a72a66bf989958366e534839ad53e4b624",
       "symbols": []
     },
     {
