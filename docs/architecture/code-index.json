@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T09:06:59.435734+00:00",
-  "commit": "b3c93de8dd7badec485e93ea2e668acb7d65576b",
+  "generatedAt": "2026-10-12T12:08:28.318490+00:00",
+  "commit": "547ad70a8313318a19921af24ec8fadcca7717da",
   "branch": "main",
-  "sourceFingerprint": "3105b372992f5502a51e6925cca3277f0b62c2a6665ac024165c97ce64e329a6",
+  "sourceFingerprint": "e288d9db7b3dcb76da522e7dc23c9735ca8c113d9165f0d4a5018e6f08f66171",
   "summary": {
     "files": 547,
-    "lines": 112151,
-    "symbols": 1681
+    "lines": 112181,
+    "symbols": 1684
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -443,7 +443,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
-        "line": 56
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
@@ -595,7 +595,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 46
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -4239,7 +4239,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 580
+        "line": 581
       }
     ],
     "describe": [
@@ -4665,7 +4665,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 105
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -4731,49 +4731,67 @@
     "DigitalWorldDiscoveredPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "places": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 54
+        "line": 60
       }
     ],
     "residents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 57
+        "line": 63
       }
     ],
     "residentsAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 60
+        "line": 66
+      }
+    ],
+    "residentHomeLocation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 69
+      }
+    ],
+    "residentHome": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 73
+      }
+    ],
+    "residenceLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 76
       }
     ],
     "registerPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 65
+        "line": 82
       }
     ],
     "registerResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 79
+        "line": 96
       }
     ],
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 91
+        "line": 113
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 122
+        "line": 146
       }
     ],
     "isAmbientMoment": [
@@ -4865,7 +4883,7 @@
     "contains": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
-        "line": 58
+        "line": 53
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -4875,7 +4893,7 @@
     "isBuiltIn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
-        "line": 59
+        "line": 54
       }
     ],
     "interact": [
@@ -11905,7 +11923,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 74,
-      "sha256": "3e6abacdc5038a349827d27674908867b7c50b72f8af276d8b18f7909c5cede6",
+      "sha256": "b46cb5b98c5b0a8047e74e349333ea7bd48e1e9de74772379b391e24df1a5970",
       "symbols": [
         {
           "name": "render",
@@ -13274,8 +13292,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 603,
-      "sha256": "f87d5a7f4650bf92b25dec09bb310440d102e64ad8de876842597838a4e41996",
+      "lines": 601,
+      "sha256": "cc09924901233723b27509d7e451323bc659948d20ad679f589db2c5991fe267",
       "symbols": [
         {
           "name": "asJson",
@@ -13287,7 +13305,7 @@
         },
         {
           "name": "world",
-          "line": 580
+          "line": 581
         }
       ]
     },
@@ -13802,8 +13820,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-      "lines": 255,
-      "sha256": "d12745a9fa730758c261d3ef667ccb332681c9d537e22b5404319d26a799203c",
+      "lines": 254,
+      "sha256": "09cec9161e9d2617e28e8b9001d3397fdb67efc2ac3d995d7e2628f3cb2d5368",
       "symbols": [
         {
           "name": "initialize",
@@ -13817,8 +13835,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
-      "lines": 209,
-      "sha256": "01615783c3d1a1052fe9d164aa1e23bf57dad1fa745a010dbd99294d1ec5545b",
+      "lines": 212,
+      "sha256": "bd8fc1874ec946267d5bd2a33bfe12e882005c47a5473cc96d127a7ad84ca028",
       "symbols": [
         {
           "name": "initialize",
@@ -13828,8 +13846,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 222,
-      "sha256": "818dc58c837a1a2b5b4eeea110a3dbbf762bab8998bd391c7496b02645669c5f",
+      "lines": 254,
+      "sha256": "5efb1e430ade448190cd93ede4da57cc94ec98107a6e7494616b4521f82bd548",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -13837,43 +13855,55 @@
         },
         {
           "name": "DigitalWorldDiscoveredPlace",
-          "line": 18
+          "line": 19
         },
         {
           "name": "initialize",
-          "line": 46
+          "line": 47
         },
         {
           "name": "places",
-          "line": 54
-        },
-        {
-          "name": "residents",
-          "line": 57
-        },
-        {
-          "name": "residentsAt",
           "line": 60
         },
         {
+          "name": "residents",
+          "line": 63
+        },
+        {
+          "name": "residentsAt",
+          "line": 66
+        },
+        {
+          "name": "residentHomeLocation",
+          "line": 69
+        },
+        {
+          "name": "residentHome",
+          "line": 73
+        },
+        {
+          "name": "residenceLabel",
+          "line": 76
+        },
+        {
           "name": "registerPlace",
-          "line": 65
+          "line": 82
         },
         {
           "name": "registerResident",
-          "line": 79
+          "line": 96
         },
         {
           "name": "moveResident",
-          "line": 91
+          "line": 113
         },
         {
           "name": "contextFor",
-          "line": 105
+          "line": 127
         },
         {
           "name": "isExistingLocation",
-          "line": 122
+          "line": 146
         }
       ]
     },
@@ -13968,27 +13998,27 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
-      "lines": 61,
-      "sha256": "a52ce1e70e4f847f523f29bb9e9fad276c625d232c8e42b270ceb19a474b44ea",
+      "lines": 56,
+      "sha256": "21844e1019e189645921d792271b623bdfff958ef8373219f221cadc7d1fdcf5",
       "symbols": [
         {
           "name": "label",
-          "line": 56
+          "line": 51
         },
         {
           "name": "contains",
-          "line": 58
+          "line": 53
         },
         {
           "name": "isBuiltIn",
-          "line": 59
+          "line": 54
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt",
-      "lines": 17,
-      "sha256": "7c36c52fdbba3bed0dbf4599c07d9fa80767a3f7e4f7ccd6b0dfe72c65d3da8f",
+      "lines": 16,
+      "sha256": "d5ccf1393012d886917c0232ed9f3408e3a13941749b2432e323e4389216c11c",
       "symbols": [
         {
           "name": "choose",
@@ -14009,8 +14039,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1048,
-      "sha256": "6d5c53407ea8d26ca17548cb7d3c05230eb0357c306da509202ff373c702404c",
+      "lines": 1052,
+      "sha256": "f782e5ea4131e3118ce378ac14e612d8ea4afafe1e40e4ed7c40e5385cae875d",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -19438,7 +19468,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt",
       "lines": 33,
-      "sha256": "9596a79e5c0b87674b3ab3173ba8a2a6f6b68f59ce7480f35803eb566aeae0e0",
+      "sha256": "01b115c330e4078252a6baa91a62afb91d9ed5dc2e133350730d30a6dbb12f76",
       "symbols": [
         {
           "name": "DigitalWorldReadingRouteTest",
@@ -19460,7 +19490,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt",
       "lines": 30,
-      "sha256": "44059ae23e746ecda785bb1754d9a99eca47b3a1b078638246c0a64db78927a8",
+      "sha256": "2abc6c17a7f452a9e13c1b304420ed8de1bb1c6dd8c69daf283bb429662db741",
       "symbols": [
         {
           "name": "MeetingLocationRenderingTest",
