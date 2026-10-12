@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T12:17:21.301661+00:00",
-  "commit": "b074910afa209915d688f191e11e707852107cad",
+  "generatedAt": "2026-10-12T12:18:42.563797+00:00",
+  "commit": "30c0d6506384aadb8d8c2a423dfdd03cc163ef78",
   "branch": "main",
-  "sourceFingerprint": "9603b24873c55d5bc8b6519951c09904676ad9520b7a1d9cff3894d0df8c0318",
+  "sourceFingerprint": "9d03b975f2b6dd93abb5dcb5bc0c7f79c258ed32c16a50c97778ebfb031aaaa0",
   "summary": {
-    "files": 549,
-    "lines": 112462,
+    "files": 550,
+    "lines": 112555,
     "symbols": 1684
   },
   "symbolIndex": {
@@ -9980,8 +9980,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt",
-      "lines": 653,
-      "sha256": "8e6b47ab13e6cbb9bd17321188b716314d4d7559226509cc7081db551d516e56",
+      "lines": 657,
+      "sha256": "8bc0df50b3c97d771ce0e563e4577e6f30dc427a1431db48def20dc5e09fc6f7",
       "symbols": []
     },
     {
@@ -10145,6 +10145,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
       "lines": 199,
       "sha256": "2d2eaf36dcbab2ccb71be6c04bb85269bedf3cb25ec2156541b03941003d4e57",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt",
+      "lines": 89,
+      "sha256": "15b0fd5e5d72739f2866174b16040c4c95c188d916eb575daed94eef53cc8a23",
       "symbols": []
     },
     {

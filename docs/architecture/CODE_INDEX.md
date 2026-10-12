@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b074910afa209915d688f191e11e707852107cad`
+- 基准提交：`30c0d6506384aadb8d8c2a423dfdd03cc163ef78`
 - 分支：`main`
-- 已索引文件：549
-- 已索引代码/文本行：112462
+- 已索引文件：550
+- 已索引代码/文本行：112555
 - 已发现符号：1684
 
 | 文件 | 行数 | 符号数 |
@@ -49,7 +49,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt` | 338 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 86 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 653 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 657 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1155 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 157 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 725 | 4 |
@@ -61,6 +61,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 199 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
