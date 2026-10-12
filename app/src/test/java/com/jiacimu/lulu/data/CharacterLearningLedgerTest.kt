@@ -61,6 +61,49 @@ class CharacterLearningLedgerTest {
         SharedExperienceTimeline.deleteEvent("read-two")
         assertEquals("", CharacterLearningLedger.context(character, "人物动机"))
     }
+    @Test fun userFeedbackReferencesRealAttemptAndCanBeRetracted() {
+        reading("read-feedback", 10)
+        CharacterLearningLedger.recordReading(character, "read-feedback", note("说话不必长篇大论"))
+        val proposal = JSONObject().put("sourceEvidenceId", "read-feedback")
+            .put("howApplied", "尝试用更短的回复")
+        SharedExperienceTimeline.record("delivered-message", character, "私聊", "角色",
+            "其实没必要解释这么多。", now.plusSeconds(20), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertTrue(CharacterLearningLedger.recordApplication(character, proposal,
+            "delivered-message", "message", true, "已实际送达"))
+        SharedExperienceTimeline.record("user-feedback", character, "私聊", "用户",
+            "我喜欢你这样说话，更自然了。", now.plusSeconds(30), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val feedback = JSONObject().put("sourceEvidenceId", "read-feedback")
+            .put("actionEvidenceId", "delivered-message").put("evaluation", "helped")
+        assertTrue(CharacterLearningLedger.recordFeedback(character, feedback, "user-feedback"))
+        assertFalse(CharacterLearningLedger.recordFeedback(character, feedback, "user-feedback"))
+        assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("用户真实反馈"))
+        SharedExperienceTimeline.deleteEvent("user-feedback")
+        assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("用户真实反馈"))
+        SharedExperienceTimeline.record("user-negative", character, "私聊", "用户",
+            "别这么说了，我不喜欢这种表达。", now.plusSeconds(40), triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertFalse(CharacterLearningLedger.recordFeedback(character,
+            feedback, "user-negative"))
+        assertTrue(CharacterLearningLedger.recordFeedback(character,
+            JSONObject(feedback.toString()).put("evaluation", "unhelpful"), "user-negative"))
+        assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("不适合"))
+    }
+
+    @Test fun changingOldReadingRevisionWithdrawsDependentInterpretation() {
+        reading("read-older", 11)
+        reading("read-newer", 12)
+        assertTrue(CharacterLearningLedger.recordReading(character, "read-older", note("先这样理解")))
+        assertTrue(CharacterLearningLedger.recordReading(character, "read-newer",
+            note("后来有了新看法").put("revisesEvidenceId", "read-older")))
+        // Editing the source in place revokes the previous source revision.
+        SharedExperienceTimeline.record("read-older", character, "独自阅读《故事》", "角色",
+            "重新修订了原始文本的证据", now.plusSeconds(11),
+            triggerExtraction = false, source = "reading:story")
+        assertEquals("", CharacterLearningLedger.context(character, "人物动机"))
+    }
+
     @Test fun actualExecutionIsAnAttemptNotAutomaticExpertise() {
         reading("read-four", 4)
         CharacterLearningLedger.recordReading(character, "read-four", note("先听对方说完"))

@@ -355,6 +355,11 @@ object LuluDeviceToolBridge {
                 verifiedSources.isNotEmpty() -> verifiedSources.last().id
                 else -> ""
             }
+            if (!callSilence && reconsiderationEvidenceId.isBlank()) {
+                com.jiacimu.lulu.data.CharacterLearningLedger.recordFeedback(
+                    characterId, plan.learningFeedback, interactionEvidenceId,
+                )
+            }
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInteractionAppraisal(
                 characterId = characterId,
                 conversationKey = interactionKey,
@@ -579,6 +584,7 @@ object LuluDeviceToolBridge {
                 interactionReceipt = if (invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
+                    plan.learningApplication,
                 )))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
@@ -909,6 +915,8 @@ object LuluDeviceToolBridge {
                 dialogueMove = json.optJSONObject("dialogueMove"),
                 sleepContinuation = json.optJSONObject("sleepContinuation"),
                 curiosity = json.optJSONObject("curiosity"),
+                learningApplication = json.optJSONObject("learningApplication"),
+                learningFeedback = json.optJSONObject("learningFeedback"),
                 experienceId = json.optString("experienceId").trim().take(180),
             )
         }.getOrNull()
@@ -965,6 +973,8 @@ private data class ToolPlan(
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
     val curiosity: JSONObject? = null,
+    val learningApplication: JSONObject? = null,
+    val learningFeedback: JSONObject? = null,
     val sleepContinuation: JSONObject? = null,
     val experienceId: String = "",
     val alternatives: org.json.JSONArray? = null,

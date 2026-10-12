@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CharacterGrowthTrajectoryTest {
+    @Test fun styleFeedbackIsRecognizedWithoutPretendingToBeSolved() {
+        assertEquals("交流方式与表达反馈",
+            CharacterGrowthTrajectory.feedbackTopic("你说话太官方了，别像客服"))
+        assertNull(CharacterGrowthTrajectory.feedbackTopic("我今天读了一本小说"))
+    }
+
     @Test fun explicitDiminishmentAndSafetyComplaintsAreImportantEvenWithoutApology() {
         assertEquals("被轻视或弱化", CharacterGrowthTrajectory.feedbackTopic("你总是把我弱化，我不想再被这样对待。"))
         assertEquals("被轻视或弱化", CharacterGrowthTrajectory.feedbackTopic("你总是在弱化我。"))

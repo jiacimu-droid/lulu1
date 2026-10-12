@@ -36,12 +36,24 @@ internal object CharacterLearningLedger {
     private fun source(characterId: String, id: String): SharedTimelineEvent? =
         SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).singleOrNull()
 
-    private fun valid(characterId: String, item: JSONObject): Boolean {
-        val event = source(characterId, item.optString("sourceEvidenceId")) ?: return false
+    private fun valid(
+        characterId: String, item: JSONObject, all: List<JSONObject> = records(characterId),
+        visited: Set<String> = emptySet(),
+    ): Boolean {
+        val id = item.optString("sourceEvidenceId")
+        if (id.isBlank() || id in visited) return false
+        val event = source(characterId, id) ?: return false
         if (!event.source.startsWith("reading:") ||
             event.revision != item.optLong("sourceRevision", -1L)) return false
         val previousId = item.optString("revisesEvidenceId")
-        return previousId.isBlank() || source(characterId, previousId)?.source?.startsWith("reading:") == true
+        if (previousId.isBlank()) return true
+        val previous = all.firstOrNull {
+            it.optString("sourceEvidenceId") == previousId &&
+                it.optString("topic").equals(item.optString("topic"), ignoreCase = true)
+        } ?: return false
+        val previousEvent = source(characterId, previousId) ?: return false
+        return previousEvent.occurredAt.isBefore(event.occurredAt) &&
+            valid(characterId, previous, all, visited + id)
     }
 
     /** Only an actual completed reading and committed timeline source may create insight. */
@@ -61,7 +73,7 @@ internal object CharacterLearningLedger {
         if (previousId.isNotBlank()) {
             val previous = items.find {
                 it.optString("sourceEvidenceId") == previousId &&
-                    it.optString("topic").equals(topic, true) && valid(characterId, it)
+                    it.optString("topic").equals(topic, true) && valid(characterId, it, items)
             } ?: return false
             if (!source(characterId, previousId)!!.occurredAt.isBefore(event.occurredAt)) return false
             if (previous.optString("sourceEvidenceId") == evidenceId) return false
@@ -91,15 +103,68 @@ internal object CharacterLearningLedger {
         val how = proposal.optString("howApplied").trim().take(180)
         if (learnedFrom == actionEvidenceId || how.length < 5) return false
         val items = records(characterId)
-        val learned = items.find { it.optString("sourceEvidenceId") == learnedFrom && valid(characterId, it) }
+        val learned = items.find { it.optString("sourceEvidenceId") == learnedFrom && valid(characterId, it, items) }
             ?: return false
         if (actual.occurredAt.isBefore(source(characterId, learnedFrom)!!.occurredAt)) return false
         val uses = learned.optJSONArray("applications") ?: JSONArray()
         if ((0 until uses.length()).any { uses.optJSONObject(it)?.optString("evidenceId") == actionEvidenceId })
             return false
         uses.put(JSONObject().put("evidenceId", actionEvidenceId).put("revision", actual.revision)
-            .put("how", how).put("action", action.take(40)).put("receipt", receipt.take(180)))
+            .put("how", how).put("action", action.take(40))
+            .put("receipt", receipt.take(180)).put("feedback", JSONArray()))
         learned.put("applications", uses)
+        save(characterId, items)
+        return true
+    }
+
+
+    /**
+     * A user statement is feedback only when the same turn's model identifies
+     * an actual preceding application. The quote stays attributable to the
+     * user; positive/negative is an interpretation and never a mastery score.
+     */
+    @Synchronized fun recordFeedback(
+        characterId: String, proposal: JSONObject?, userEvidenceId: String,
+    ): Boolean {
+        if (prefs == null || proposal == null || userEvidenceId.isBlank()) return false
+        val feedback = source(characterId, userEvidenceId)
+            ?.takeIf {
+                it.evidenceKind == EventEvidenceKind.UserStatement &&
+                    (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面"))
+            } ?: return false
+        val evaluation = proposal.optString("evaluation").trim().lowercase()
+        if (evaluation !in setOf("helped", "unhelpful", "mixed")) return false
+        val negative = Regex("不喜欢|没用|没有用|无效|不行|不好|不舒服|别|不要|讨厌|反感|更烦|不对|别扭|尴尬|不希望|不合适")
+            .containsMatchIn(feedback.content)
+        val positive = Regex("喜欢|有用|有效|不错|挺好|很好|更好|好多了|舒服|开心|满意|合适|可以|很棒|这次对了")
+            .containsMatchIn(feedback.content)
+        // Reject a model's unsupported claim of endorsement or objection.
+        if (evaluation == "helped" && (!positive || negative) ||
+            evaluation == "unhelpful" && !negative ||
+            evaluation == "mixed" && !(positive && negative)) return false
+        val from = proposal.optString("sourceEvidenceId").trim()
+        val applied = proposal.optString("actionEvidenceId").trim()
+        val items = records(characterId)
+        val idea = items.firstOrNull { it.optString("sourceEvidenceId") == from && valid(characterId, it, items) }
+            ?: return false
+        val applications = idea.optJSONArray("applications") ?: return false
+        val attempt = (0 until applications.length()).mapNotNull(applications::optJSONObject)
+            .firstOrNull { it.optString("evidenceId") == applied } ?: return false
+        val realAction = source(characterId, applied) ?: return false
+        if (realAction.revision != attempt.optLong("revision", -1L) ||
+            !realAction.occurredAt.isBefore(feedback.occurredAt)) return false
+        val before = attempt.optJSONArray("feedback") ?: JSONArray()
+        if ((0 until before.length()).any {
+            before.optJSONObject(it)?.optString("evidenceId") == userEvidenceId
+        }) return false
+        val after = JSONArray()
+        for (i in maxOf(0, before.length() - 5) until before.length()) after.put(before.opt(i))
+        after.put(JSONObject().put("evidenceId", feedback.id)
+            .put("revision", feedback.revision).put("evaluation", evaluation)
+            .put("userQuote", feedback.content.take(240))
+            .put("interpretation", proposal.optString("why").trim().take(180)))
+        attempt.put("feedback", after)
+        idea.put("applications", applications)
         save(characterId, items)
         return true
     }
@@ -127,20 +192,27 @@ internal object CharacterLearningLedger {
                 val next = JSONArray()
                 for (i in 0 until old.length()) {
                     val application = old.optJSONObject(i) ?: continue
-                    if (application.optString("evidenceId") != eventId) next.put(application)
+                    if (application.optString("evidenceId") != eventId) {
+                        val feedback = application.optJSONArray("feedback") ?: JSONArray()
+                        val kept = JSONArray()
+                        for (index in 0 until feedback.length()) {
+                            val item = feedback.optJSONObject(index) ?: continue
+                            if (item.optString("evidenceId") != eventId) kept.put(item)
+                        }
+                        next.put(JSONObject(application.toString()).put("feedback", kept))
+                    }
                 }
                 JSONObject(item.toString()).put("applications", next)
             }
-            if (remaining.size != original.size || remaining.indices.any { i ->
-                    remaining[i].optJSONArray("applications")?.length() !=
-                        original.getOrNull(i)?.optJSONArray("applications")?.length()
-                }) save(characterId, remaining)
+            if (remaining.map(JSONObject::toString) != original.map(JSONObject::toString))
+                save(characterId, remaining)
         }
     }
 
     /** All Full-context routes use this bounded topical recall; old relevant evidence can win. */
     @Synchronized fun context(characterId: String, query: String, compact: Boolean = true): String {
-        val validItems = records(characterId).filter { valid(characterId, it) }
+        val stored = records(characterId)
+        val validItems = stored.filter { valid(characterId, it, stored) }
         val active = validItems.filter { old ->
             validItems.none { it.optString("revisesEvidenceId") == old.optString("sourceEvidenceId") }
         }
@@ -176,9 +248,28 @@ internal object CharacterLearningLedger {
                     source(characterId, it.optString("evidenceId"))?.revision ==
                         it.optLong("revision", -1L)
                 }
-                if (last != null) appendLine("  已尝试实践=" + last.optString("how") +
-                    "；实际执行回执=" + last.optString("receipt") +
-                    "；效果仍须用户反馈或后续证据验证")
+                if (last != null) {
+                    appendLine("  应用证据ID=" + last.optString("evidenceId") +
+                        "；已尝试实践=" + last.optString("how") +
+                        "；实际执行回执=" + last.optString("receipt"))
+                    val feedbacks = last.optJSONArray("feedback") ?: JSONArray()
+                    val confirmed = (0 until feedbacks.length()).mapNotNull(feedbacks::optJSONObject)
+                        .filter { candidate ->
+                            val statement = source(characterId, candidate.optString("evidenceId"))
+                            statement?.revision == candidate.optLong("revision", -1L) &&
+                                statement.evidenceKind == EventEvidenceKind.UserStatement
+                        }.takeLast(2)
+                    confirmed.forEach { feedback ->
+                        val meaning = when (feedback.optString("evaluation")) {
+                            "helped" -> "角色理解为认可（不能单凭一次反馈认定习惯已成熟）"
+                            "unhelpful" -> "角色理解为不适合/不喜欢（下次需调整或放下）"
+                            else -> "好坏并存，仍需重新理解"
+                        }
+                        appendLine("  用户真实反馈ID=" + feedback.optString("evidenceId") +
+                            "；原话=" + feedback.optString("userQuote") + "；评价=" + meaning)
+                    }
+                    if (confirmed.isEmpty()) appendLine("  是否有效仍未知；执行成功不是对方满意")
+                }
             }
             append("只在相关话题自然使用；小说人物经历不是自己的过去，已读不等于掌握，想做不等于做成。")
         }.trim()

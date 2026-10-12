@@ -33,6 +33,11 @@ internal object CharacterGrowthTrajectory {
             listOf("没有安全感", "没安全感", "缺乏安全感", "让我不安",
                 "让我不放心", "让我没有安全感", "不敢信任你", "不信任你",
                 "不敢相信你", "不被珍惜", "不被重视").any(s::contains) -> "关系中的安全感和信任"
+            listOf("别总是道歉", "不要总是道歉", "别像客服", "别说教", "聊天像客服",
+                "说话太官方", "说话太正式", "太人机", "太机械", "文绉绉",
+                "说话自然点", "聊天自然点", "少点套话", "别老反问",
+                "别总问我", "不要一直问我", "我喜欢这样聊天", "我不喜欢这种说话",
+                "多主动一点", "没有分享欲", "不主动分享").any(s::contains) -> "交流方式与表达反馈"
             listOf("别控制我", "不要控制我", "尊重我的决定", "尊重我的选择",
                 "别替我决定", "不要替我决定", "忽视我的感受", "不听我说",
                 "没认真听我", "边界感", "越界了").any(s::contains) -> "尊重与相处边界"
@@ -45,7 +50,7 @@ internal object CharacterGrowthTrajectory {
             .filter { it.evidenceKind == EventEvidenceKind.UserStatement &&
                 (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) }
             .filter { !it.occurredAt.isAfter(now) &&
-                Duration.between(it.occurredAt, now) <= Duration.ofDays(45) }
+                Duration.between(it.occurredAt, now) <= Duration.ofDays(180) }
             .filter { feedbackTopic(it.content) != null }
             .toList().takeLast(8)
 
@@ -60,6 +65,7 @@ internal object CharacterGrowthTrajectory {
             }
             appendLine("这些是真实反馈，尤其要严肃看待被弱化、不受尊重、缺少安全感等感受；不要把用户说自己不舒服重述为用户软弱或需要你替她做主。")
             appendLine("不要宣称已经理解、改正、兑现承诺或对方原谅了自己。按自己的稳定人格真实理解与回应；如果当时仍有分歧，可以诚实表达，不得把未完成的修复当作成功。")
+            appendLine("涉及交流方式的直接反馈要在下一次自然聊天与电话表达中尝试体现，但不是固定改写角色性格；用户拒绝的说法先收住，角色可保留自己的立场。")
             appendLine("后续实质变化应通过真实行为、反馈及有来源的内心修订体现，不靠一次道歉自动改写稳定人格。")
         }.trim()
     }
