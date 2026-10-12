@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T05:38:58.105950+00:00",
-  "commit": "170df90f0e33288659cb13a5eca50636b4896853",
+  "generatedAt": "2026-10-12T05:42:57.923937+00:00",
+  "commit": "a4e74d512fa1487be3a8d0996f651e8b56be4e28",
   "branch": "main",
-  "sourceFingerprint": "18c9e727ce6bed41285922a7440eafd1a159fa010525251f60d4245724f619e6",
+  "sourceFingerprint": "d017349dd5d52ef24a9a9eea9a8b147aa87557f001f1734be05eb89fb6140595",
   "summary": {
-    "files": 538,
-    "lines": 111037,
-    "symbols": 1665
+    "files": 539,
+    "lines": 111088,
+    "symbols": 1666
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6153,7 +6153,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1322
+        "line": 1329
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -8858,6 +8858,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
         "line": 5
+      }
+    ],
+    "CharacterActionEvidenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt",
+        "line": 16
       }
     ],
     "CharacterActionFeedbackTest": [
@@ -13149,8 +13155,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 500,
-      "sha256": "649d6f8a25d0796f77cbca8dc79c7424d32a8c9605f2502364555561b3730bd0",
+      "lines": 501,
+      "sha256": "8326e7f09e516c0af89f9d538fc231da90d73ce98cf38a2ea05670a646313132",
       "symbols": [
         {
           "name": "asJson",
@@ -15181,8 +15187,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1378,
-      "sha256": "7d5a12bd850805be39ba6c7682e9cb3601accd7a81708c485dd289cee36343cf",
+      "lines": 1385,
+      "sha256": "a73b5b4c6b7406bd87f562778657f7bbf3a232c7822491ea1ca2cae73b71c312",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -15206,7 +15212,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1322
+          "line": 1329
         }
       ]
     },
@@ -18786,6 +18792,17 @@
         {
           "name": "CharacterAccountabilityContextTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt",
+      "lines": 43,
+      "sha256": "31fdbefdaaa91f12e22622cbf689d24c10d6b865437df52c199c948aa677b4a0",
+      "symbols": [
+        {
+          "name": "CharacterActionEvidenceTest",
+          "line": 16
         }
       ]
     },
