@@ -624,6 +624,7 @@ object LuluDeviceToolBridge {
         }
         if (lifeAction.isNotBlank()) com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.recordAction(
             characterId, plan.experienceId, lifeAction, executedSuccess, executedSummary,
+            actual?.optString("evidenceId").orEmpty(),
         )
         if (!executedSuccess) com.jiacimu.lulu.data.CharacterCuriosityRuntime.recordFailure(
             characterId, plan.curiosity, plan.tool, executedSummary,

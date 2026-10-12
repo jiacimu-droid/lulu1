@@ -19,11 +19,13 @@ internal data class CompanionActionResult(
     val success: Boolean,
     val summary: String,
     val conversationId: String? = null,
+    val evidenceId: String = "",
 ) {
     fun asJson(): String = JSONObject()
         .put("success", success)
         .put("summary", summary)
         .put("conversationId", conversationId.orEmpty())
+        .put("evidenceId", evidenceId)
         .toString()
 }
 
@@ -156,17 +158,20 @@ internal object CompanionActionRuntime {
                 CharacterInnerLifeStore.recordExpressiveDelivery(
                     characterId, delivered.id, "图片表情", sticker.name,
                 )
-                CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id)
+                CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id, delivered.id)
             }
             "send_private_message" -> {
                 val text = args.optString("text").trim().take(2_000)
                 require(text.isNotBlank()) { "私聊内容不能为空" }
                 val conversation = privateConversation(characterId, character.displayName)
+                val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
                         com.jiacimu.lulu.parseCharacterReplyPresentation(text))
                 }
-                CompanionActionResult(true, "已在私聊中发送消息", conversation.id)
+                val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
+                    .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
+                CompanionActionResult(true, "已在私聊中发送消息", conversation.id, deliveredId)
             }
             "send_group_message" -> {
                 val groupId = args.optString("groupId").trim()
@@ -175,11 +180,14 @@ internal object CompanionActionRuntime {
                     candidate.id == groupId && candidate.groupChat?.members?.any { it.characterId == characterId } == true
                 } ?: error("角色不在指定群聊中")
                 require(text.isNotBlank()) { "群聊内容不能为空" }
+                val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
                         com.jiacimu.lulu.parseCharacterReplyPresentation(text))
                 }
-                CompanionActionResult(true, "已在群聊《${conversation.groupChat?.name}》发言", conversation.id)
+                val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
+                    .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
+                CompanionActionResult(true, "已在群聊《${conversation.groupChat?.name}》发言", conversation.id, deliveredId)
             }
             "send_game_invite" -> {
                 val gameId = args.optString("gameId").trim()
@@ -228,9 +236,10 @@ internal object CompanionActionRuntime {
             "publish_moment" -> {
                 val text = args.optString("text").trim().take(2_000)
                 require(text.isNotBlank()) { "朋友圈正文不能为空" }
-                require(MomentsStore.publishCharacter(characterId, text) != null) { "朋友圈发布失败" }
+                val post = MomentsStore.publishCharacter(characterId, text)
+                    ?: error("朋友圈发布失败")
                 MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚发了一条朋友圈。")
-                CompanionActionResult(true, "已发布朋友圈")
+                CompanionActionResult(true, "已发布朋友圈", evidenceId = "moment-${post.id}-$characterId")
             }
             "write_journal" -> {
                 val content = args.optString("content").trim().take(2_000)

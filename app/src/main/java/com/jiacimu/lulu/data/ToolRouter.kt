@@ -50,18 +50,25 @@ object ToolRouter {
                     LuluDeviceToolBridge.executeRegistered(context, characterId, name, args, requestId)
                 } else CompanionActionRuntime.execute(context, characterId, name, args).asJson()
             }.getOrElse { failure(it.message.orEmpty()) }
-            val parsed = runCatching { JSONObject(result) }.getOrDefault(JSONObject())
+            val parsed = runCatching { JSONObject(result) }.getOrElse {
+                JSONObject().put("success", false).put("error", result.take(400))
+            }
+            val receiptId = "tool-$characterId-$requestId"
+            // Prefer the actual outbound message/post. All other operations use
+            // the authoritative tool receipt rather than a model description.
+            if (parsed.optString("evidenceId").isBlank()) parsed.put("evidenceId", receiptId)
+            val confirmedResult = parsed.toString()
             execution.put("status", parsed.optString("status").ifBlank { if (parsed.optBoolean("success")) "succeeded" else "failed" })
-                .put("result", result).put("finishedAt", Instant.now().toString())
+                .put("result", confirmedResult).put("finishedAt", Instant.now().toString())
             check(prefs.edit().putString(key, execution.toString()).commit())
             SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
-            val outcome = runCatching { JSONObject(result) }.getOrDefault(JSONObject())
+            val outcome = parsed
             if (outcome.optBoolean("success")) CompanionOnlineStore.recordActivity(characterId)
             CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, goalReceiptId, name,
                 outcome.optBoolean("success"),
                 outcome.optString("summary").ifBlank { outcome.optString("error").ifBlank { result } })
-            result
+            confirmedResult
         }
     }
 

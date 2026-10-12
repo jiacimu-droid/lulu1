@@ -58,7 +58,8 @@ internal object CharacterConversationAgency {
             metadata.optString("motiveId"), null, summary, true, actionSignature = messageId, causalEvidenceId = source)
         CharacterInnerLifeStore.recordActionResult(characterId, metadata.optString("motiveId"), messageId, action, true, summary)
         CharacterInnerLifeStore.recordConcernOutcome(characterId, metadata.optString("concernId"), messageId, action, true, summary)
-        CharacterLifeFollowThroughStore.recordAction(characterId, metadata.optString("experienceId"), "message", true, summary)
+        CharacterLifeFollowThroughStore.recordAction(characterId, metadata.optString("experienceId"),
+            "message", true, summary, messageId)
         CharacterLearningLedger.recordApplication(
             characterId, metadata.optJSONObject("learningApplication"), messageId,
             action, true, summary,

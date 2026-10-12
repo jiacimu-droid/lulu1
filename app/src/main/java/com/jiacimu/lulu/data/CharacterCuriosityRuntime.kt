@@ -187,6 +187,29 @@ internal object CharacterCuriosityRuntime {
         save(characterId, root)
     }
 
+    /** The character may choose a concrete next attempt or abandon the topic. */
+    fun pendingDecisionCues(characterId: String): List<String> {
+        val state = snapshot(characterId)
+        val unanswered = state.optJSONArray("questions") ?: JSONArray()
+        val threads = state.optJSONArray("threads") ?: JSONArray()
+        val questions = (0 until unanswered.length()).mapNotNull(unanswered::optJSONObject)
+            .filter { q -> SharedExperienceTimeline.eventsByIds(characterId,
+                listOf(q.optString("observedId"))).isNotEmpty() }
+            .takeLast(2).map { q ->
+                "自己仍好奇：" + q.optString("topic").take(60) +
+                    "；真正的问题：" + q.optString("question").take(130) +
+                    "；可以自选是否实践：" + q.optString("nextStep").take(110)
+            }
+        val ongoing = (0 until threads.length()).mapNotNull(threads::optJSONObject)
+            .filter { it.optString("status") == "exploring" }.takeLast(1)
+            .map { t ->
+                "曾尝试的兴趣：" + t.optString("topic").take(60) +
+                    "；仍想知道：" + t.optString("question").take(110) +
+                    "；可以选择继续/换办法/放下"
+            }
+        return (questions + ongoing).distinct().take(3)
+    }
+
     /** Retract dependent subjective questions and objectively confirmed steps together. */
     @Synchronized fun invalidateEvidence(eventId: String) {
         if (eventId.isBlank()) return

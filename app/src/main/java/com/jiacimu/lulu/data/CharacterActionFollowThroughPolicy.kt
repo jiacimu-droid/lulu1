@@ -21,7 +21,8 @@ internal object CharacterActionFollowThroughPolicy {
                     (item.optJSONArray("outcomes")?.length() ?: 0) == 0) choices += item.optString("aim")
             }
         }
-        if (intention?.optString("disposition") !in setOf("release", "pause"))
+        if (intention?.optString("disposition") !in setOf("release", "pause") &&
+            intention?.optString("stage") !in setOf("paused", "released", "executing"))
             choices += intention?.optString("aim").orEmpty()
         choices += afterglow?.optString("impulse").orEmpty()
         if (ownActivity?.optString("stage") in setOf("considering", "decided")) {

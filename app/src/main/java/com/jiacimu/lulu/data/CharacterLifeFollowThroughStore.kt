@@ -94,8 +94,20 @@ internal object CharacterLifeFollowThroughStore {
         prefs?.all?.keys?.filter { it.startsWith("character:") }?.forEach { key ->
             val role = key.removePrefix("character:")
             val old = records(role)
-            val remaining = old.filterNot { it.optString("id") == evidenceId }
-            if (old.size != remaining.size) save(role, remaining)
+            val remaining = old.filterNot { it.optString("id") == evidenceId }.map { item ->
+                val restored = JSONObject(item.toString())
+                if (restored.optString("shareReceiptId") == evidenceId) {
+                    restored.put("shareStatus", if (restored.optString("shareWhy").isNotBlank())
+                        "held" else "open")
+                    restored.remove("shareReceiptId")
+                }
+                if (restored.optString("curiosityReceiptId") == evidenceId) {
+                    restored.put("curiosityStatus", "open")
+                    restored.remove("curiosityReceiptId")
+                }
+                restored
+            }
+            if (old.map(JSONObject::toString) != remaining.map(JSONObject::toString)) save(role, remaining)
         }
     }
 
@@ -107,6 +119,24 @@ internal object CharacterLifeFollowThroughStore {
                     item.optBoolean("significant")) &&
                 (item.optString("shareStatus") !in setOf("shared", "released") ||
                     item.optString("curiosityStatus") !in setOf("explored", "released"))
+        }
+
+    /** Real unresolved options; these only invite one more voluntary choice, never execute it. */
+    fun pendingDecisionCues(characterId: String, now: Instant = Instant.now()): List<String> =
+        synchronized(lock) {
+            recent(characterId, now).asReversed().filter { item ->
+                (item.optString("shareStatus") == "held" ||
+                    item.optBoolean("significant") &&
+                    item.optString("shareStatus") == "open") ||
+                    (item.optBoolean("significant") && item.optString("curiosityStatus") == "open")
+            }.take(2).map { item ->
+                val id = item.optString("id")
+                val share = item.optString("shareStatus")
+                val wanted = item.optString("shareWhy")
+                "真实生活经历 $id：" + item.optString("fact").take(115) + "；" +
+                    (if (share == "held") "自己之前想分享：" + wanted.take(90) else "仍有分享/探究的选择余地") +
+                    "；现在可重新决定是否分享或探索，也可克制；尚未执行"
+            }
         }
 
     fun hasOpenOpportunity(characterId: String, evidenceId: String): Boolean = synchronized(lock) {
@@ -171,19 +201,44 @@ internal object CharacterLifeFollowThroughStore {
         save(characterId, all)
     }
 
-    /** Only a verified executor outcome can settle either axis of an intention. */
+    /**
+     * One real sender or executor receipt is required. Planning, status text and
+     * model-authored "I posted" are insufficient. The exact evidence ID lets
+     * deletion of a bubble/post retract the share result without erasing the experience.
+     */
     fun recordAction(characterId: String, experienceId: String, action: String,
-                     succeeded: Boolean, result: String) = synchronized(lock) {
-        if (prefs == null || !succeeded || experienceId.isBlank()) return@synchronized
+                     succeeded: Boolean, result: String,
+                     actionEvidenceId: String = "") = synchronized(lock) {
+        if (prefs == null || !succeeded || experienceId.isBlank() ||
+            actionEvidenceId.isBlank()) return@synchronized
+        val normalized = action.lowercase()
+        val share = normalized in setOf("message", "group_message", "moment", "sticker",
+            "group_sticker", "kaomoji", "group_kaomoji")
+        val explore = normalized in setOf("reading", "solo_game", "digital_world")
+        if (!share && !explore) return@synchronized
+        val receipt = SharedExperienceTimeline.eventsByIds(characterId, listOf(actionEvidenceId))
+            .firstOrNull() ?: return@synchronized
+        if (receipt.evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
+                EventEvidenceKind.ToolResult, EventEvidenceKind.Observation)) return@synchronized
+        if (share && receipt.evidenceKind != EventEvidenceKind.CharacterStatement) return@synchronized
+        if (normalized == "moment" && receipt.source != "moment:self") return@synchronized
+        if (explore && receipt.evidenceKind != EventEvidenceKind.ToolResult &&
+            !receipt.source.startsWith("reading:") &&
+            !receipt.channel.startsWith("独自") &&
+            !receipt.channel.startsWith("数字世界")) return@synchronized
         val all = records(characterId)
         val item = all.firstOrNull { it.optString("id") == experienceId } ?: return@synchronized
-        when (action.lowercase()) {
-            "message", "group_message", "moment", "sticker", "group_sticker",
-            "kaomoji", "group_kaomoji" -> item.put("shareStatus", "shared")
-            "reading", "solo_game", "digital_world" -> item.put("curiosityStatus", "explored")
-            else -> return@synchronized
+        val occurred = runCatching { Instant.parse(item.optString("occurredAt")) }.getOrNull()
+            ?: return@synchronized
+        if (receipt.occurredAt.isBefore(occurred)) return@synchronized
+        if (share) {
+            if (item.optString("shareStatus") in setOf("shared", "released")) return@synchronized
+            item.put("shareStatus", "shared").put("shareReceiptId", receipt.id)
+        } else {
+            if (item.optString("curiosityStatus") in setOf("explored", "released")) return@synchronized
+            item.put("curiosityStatus", "explored").put("curiosityReceiptId", receipt.id)
         }
-        item.put("lastAction", action.lowercase()).put("lastReceipt", result.take(200))
+        item.put("lastAction", normalized).put("lastReceipt", result.take(200))
             .put("actedAt", Instant.now().toString())
         save(characterId, all)
     }

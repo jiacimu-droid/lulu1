@@ -204,7 +204,15 @@ object SharedExperienceTimeline {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLearningLedger.invalidateEvidence(eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
-        CharacterInnerLifeStore.invalidateEvidence(eventId)
+            CharacterInnerLifeStore.invalidateEvidence(eventId)
+            // Recreate an opportunity only from the freshly edited factual event.
+            if (triggerExtraction && verifiedLifeEvent &&
+                evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
+                    EventEvidenceKind.UserStatement, EventEvidenceKind.Inference)) {
+                CharacterLifeFollowThroughStore.register(
+                    characterId, eventId, channel, clean, occurredAt,
+                )
+            }
             if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
         }
         if (triggerExtraction && SharedTimelineEvent(eventId, characterId, channel, speaker, clean, occurredAt,

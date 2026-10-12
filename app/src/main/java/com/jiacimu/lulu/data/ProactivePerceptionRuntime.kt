@@ -88,7 +88,8 @@ object ProactivePerceptionRuntime {
         val awaitingReply: Boolean,
     )
 
-    private data class ActionExecution(val success: Boolean, val summary: String, val conversationId: String? = null)
+    private data class ActionExecution(val success: Boolean, val summary: String,
+        val conversationId: String? = null, val evidenceId: String = "")
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -611,17 +612,21 @@ object ProactivePerceptionRuntime {
         // One bounded second look during an online window challenges *that reason*,
         // not the character's freedom to choose real solitude.
         val lastAgencyReview = prefs.getLong("last_independent_life_review_$characterId", 0L)
-        val pendingChoices = CharacterActionFollowThroughPolicy.pendingChoices(
+        val immediateChoices = CharacterActionFollowThroughPolicy.pendingChoices(
             parsed.innerLife, parsed.intention, parsed.afterglow, parsed.innerThought,
             parsed.appraisal?.optJSONObject("ownActivity") ?:
                 CharacterSelfActivityRuntime.latestConsideration(appContext, characterId),
-        ).ifEmpty {
-            CharacterActionFollowThroughPolicy.pendingChoices(
-                CharacterInnerLifeStore.snapshot(characterId),
-                CharacterLifeStore.state(characterId).optJSONObject("intention"),
-                null, "",
-            )
-        }
+        )
+        val rememberedChoices = CharacterActionFollowThroughPolicy.pendingChoices(
+            CharacterInnerLifeStore.snapshot(characterId),
+            CharacterLifeStore.state(characterId).optJSONObject("intention"), null, "",
+        )
+        // The character's own real but unresolved life remains a candidate even
+        // if this model response said silent. A second look still may freely say no.
+        val pendingChoices = (immediateChoices + rememberedChoices +
+            CharacterLifeFollowThroughStore.pendingDecisionCues(characterId, now) +
+            CharacterCuriosityRuntime.pendingDecisionCues(characterId))
+            .distinct().take(6)
         val ownActivityAlreadyExecutable = CharacterSelfActivityRuntime.parse(
             parsed.appraisal?.optJSONObject("ownActivity"), readingBooks.mapTo(hashSetOf()) { it.id }, digital,
         ) { incidentId, approach -> DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach) } != null
@@ -693,6 +698,7 @@ object ProactivePerceptionRuntime {
             intention = parsed.intention, afterglow = parsed.afterglow,
             mood = parsed.mood, curiosity = independentChoice.curiosity ?: parsed.curiosity,
             motiveId = independentChoice.motiveId.ifBlank { parsed.motiveId },
+            intentionId = independentChoice.intentionId.ifBlank { parsed.intentionId },
             experienceId = independentChoice.experienceId.ifBlank { parsed.experienceId },
             relationshipInitiative = parsed.relationshipInitiative,
         ) ?: parsed
@@ -1016,7 +1022,7 @@ object ProactivePerceptionRuntime {
         // the existing real executor has returned success for its chosen action.
         CharacterLifeFollowThroughStore.recordAction(
             characterId, decision.experienceId, decision.action.name,
-            execution.success, execution.summary,
+            execution.success, execution.summary, execution.evidenceId,
         )
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
         CompanionPresenceStore.recordPerceptionAttempt(
@@ -1138,7 +1144,8 @@ object ProactivePerceptionRuntime {
             }
             else -> Unit
         }
-        return ActionExecution(true, result.summary, result.conversationId)
+        return ActionExecution(true, result.summary, result.conversationId,
+            resultJson.optString("evidenceId"))
     }
 
     private fun Decision.withPresenceFallback(character: CharacterSettings): Decision {

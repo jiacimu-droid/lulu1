@@ -16,6 +16,42 @@ class CharacterLifeFollowThroughStoreTest {
     private val context: Context = RuntimeEnvironment.getApplication()
     private val now = Instant.parse("2026-10-11T12:00:00Z")
 
+    @Test fun verifiedShareAndReadingReceiptsRollBackWhenDeleted() {
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "real-share-rollback"
+        val source = "world-event-for-share-rollback"
+        val sent = "actual-post-for-share-rollback"
+        SharedExperienceTimeline.record(source, role, "数字世界", "事件",
+            "家里突然出现一个意外的小事件", now, triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        assertTrue(CharacterLifeFollowThroughStore.register(role, source,
+            "数字世界", "家里的小事件", now))
+        SharedExperienceTimeline.record(sent, role, "朋友圈", "角色",
+            "刚才家里发生一件趣事", now.plusSeconds(12), triggerExtraction = false,
+            source = "moment:self", evidenceKind = EventEvidenceKind.CharacterStatement)
+        CharacterLifeFollowThroughStore.recordAction(role, source, "moment", true, "已发动态", sent)
+        assertTrue(CharacterLifeFollowThroughStore.context(role, now.plusSeconds(20)).contains("已分享"))
+        SharedExperienceTimeline.deleteEvent(sent)
+        assertFalse(CharacterLifeFollowThroughStore.context(role, now.plusSeconds(20)).contains("已分享，勿重复"))
+        val cue = CharacterLifeFollowThroughStore.pendingDecisionCues(role, now.plusSeconds(20))
+        assertTrue(cue.isEmpty() || cue.all { !it.contains("已发动态") })
+        SharedExperienceTimeline.deleteEvent(source)
+        assertFalse(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, source))
+    }
+
+    @Test fun aModelCannotMarkAnExperienceSharedWithoutAnActualPostReceipt() {
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "fake-post-prevented"
+        val source = "fake-post-source"
+        CharacterLifeFollowThroughStore.invalidateEvidence(source)
+        CharacterLifeFollowThroughStore.register(role, source, "独自阅读", "读完了一段文字", now)
+        CharacterLifeFollowThroughStore.recordAction(role, source, "moment", true, "模型说已发布", "")
+        assertFalse(CharacterLifeFollowThroughStore.context(role, now).contains("已分享，勿重复"))
+        CharacterLifeFollowThroughStore.invalidateEvidence(source)
+    }
+
     @Test fun livedRoachCanRemainBothAnUnfinishedCuriosityAndAnUnpostedStory() {
         CharacterLifeFollowThroughStore.initialize(context)
         val role = "roach-story-thread"
@@ -39,7 +75,12 @@ class CharacterLifeFollowThroughStoreTest {
         assertTrue(wished.contains("有点被吓到"))
         CharacterLifeFollowThroughStore.recordAction(role, id, "moment", false, "发布失败")
         assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("还没发出去"))
-        CharacterLifeFollowThroughStore.recordAction(role, id, "moment", true, "已发布朋友圈")
+        SharedExperienceTimeline.initialize(context)
+        SharedExperienceTimeline.record("roach-test-post", role, "朋友圈", "角色", "吓了一跳",
+            now.plusSeconds(30), triggerExtraction = false, source = "moment:self",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
+        CharacterLifeFollowThroughStore.recordAction(role, id, "moment", true, "已发布朋友圈",
+            "roach-test-post")
         val shared = CharacterLifeFollowThroughStore.context(role, now)
         assertTrue(shared.contains("已分享"))
         assertTrue(shared.contains("探索"))
@@ -58,7 +99,12 @@ class CharacterLifeFollowThroughStoreTest {
             "程序确认已读到书里一段对话", now)
         CharacterLifeFollowThroughStore.recordAction(role, id, "reading", false, "没有找到正文")
         assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("可以"))
-        CharacterLifeFollowThroughStore.recordAction(role, id, "reading", true, "正文阅读进度已保存")
+        SharedExperienceTimeline.initialize(context)
+        SharedExperienceTimeline.record("reader-test-receipt", role, "实际工具执行", "执行器",
+            "已读下一段", now.plusSeconds(35), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        CharacterLifeFollowThroughStore.recordAction(role, id, "reading", true,
+            "正文阅读进度已保存", "reader-test-receipt")
         val after = CharacterLifeFollowThroughStore.context(role, now)
         assertTrue(after.contains("已有真实行动回执"))
         assertTrue(after.contains("分享"))

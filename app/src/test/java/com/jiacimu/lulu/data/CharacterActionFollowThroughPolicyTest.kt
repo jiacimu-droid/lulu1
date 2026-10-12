@@ -31,6 +31,13 @@ class CharacterActionFollowThroughPolicyTest {
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, "", idea).isEmpty())
     }
 
+    @Test fun pausedDesireMustNotBeAutoReconsideredAsUnfinishedWork() {
+        val goal = JSONObject().put("aim", "想把书读完").put("stage", "paused")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, goal, null, "").isEmpty())
+        goal.put("stage", "blocked")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, goal, null, "").isNotEmpty())
+    }
+
     @Test fun identicalUnresolvedWishDoesNotCreateARetryLoop() {
         val choices = listOf("去看看书中那条线索")
         assertFalse(CharacterActionFollowThroughPolicy.shouldReview(true, choices, "same", "same", 299999, 0))

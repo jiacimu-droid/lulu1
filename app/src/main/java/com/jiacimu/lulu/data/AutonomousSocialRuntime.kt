@@ -456,7 +456,7 @@ internal object AutonomousSocialRuntime {
                     "private" -> "message"
                     "group" -> "group_message"
                     else -> "silent"
-                }, true, shareResult.summary,
+                }, true, shareResult.summary, shareResult.evidenceId,
             )
         }
         if ((shareResult == null || !shareResult.success) &&
