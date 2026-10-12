@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T13:39:59.994395+00:00",
-  "commit": "529b68a6e8b81bc1c4c8b245a3962fd6af8c7e23",
+  "generatedAt": "2026-10-12T13:42:57.669855+00:00",
+  "commit": "343c17c3616a9bd423c0cbb6c74959552006ed4c",
   "branch": "main",
-  "sourceFingerprint": "89f55415721c9fc2bccc65b886750e6c7fd507f1aa9a8aca83f7f5acfd875efe",
+  "sourceFingerprint": "657ca801ac3714368f4de4ca5311427a8ed907a3d84e7a9a7f970c39adc085cd",
   "summary": {
-    "files": 552,
-    "lines": 112711,
-    "symbols": 1684
+    "files": 553,
+    "lines": 112851,
+    "symbols": 1685
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -928,6 +928,16 @@
         "line": 321
       }
     ],
+    "forScene": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt",
+        "line": 24
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
+        "line": 21
+      }
+    ],
     "Resident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
@@ -1132,12 +1142,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt",
         "line": 802
-      }
-    ],
-    "forScene": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
-        "line": 21
       }
     ],
     "anchorForActivity": [
@@ -9985,6 +9989,17 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt",
+      "lines": 92,
+      "sha256": "fa4509eb0a63c09128ae1b477bc6a46f94ca6c9bd9c1a32d8fb9d4d84a281115",
+      "symbols": [
+        {
+          "name": "forScene",
+          "line": 24
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt",
       "lines": 670,
       "sha256": "51a3b86b041a09e60d86b0574756e617a8fae4cd9aa20e88bc4476f629d2c9ee",
@@ -10143,8 +10158,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt",
-      "lines": 49,
-      "sha256": "635f716394ffbf83d1113c9102cdc0a72a66bf989958366e534839ad53e4b624",
+      "lines": 97,
+      "sha256": "127f5018d75345cfcae92e9e37ceda7cdfa492a16d603de9c678eb77da461473",
       "symbols": []
     },
     {
