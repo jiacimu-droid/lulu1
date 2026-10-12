@@ -56,7 +56,7 @@ internal object CharacterContinuityRuntime {
             minutesSinceInteraction = minutes,
             lastUserStatement = interactions.lastOrNull { it.evidenceKind == EventEvidenceKind.UserStatement },
             lastCharacterStatement = interactions.lastOrNull { it.evidenceKind == EventEvidenceKind.CharacterStatement },
-            preferredAddress = social.optString("preferredAddress").trim(),
+            preferredAddress = CharacterAddressPreference.currentAddress(characterId),
             addressIsManual = social.optBoolean("preferredAddressManual", false),
             activeMotiveAims = aims,
         )

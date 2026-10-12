@@ -42,6 +42,7 @@ object SharedExperienceTimeline {
         val application = context.applicationContext
         helper = TimelineDatabase(application)
         helper?.writableDatabase
+        CharacterRelationshipPreferences.invalidate()
         MemoryExtractionJobStore.initialize(application)
         CharacterLifeFollowThroughStore.initialize(application)
         CharacterLearningLedger.initialize(application)
@@ -169,7 +170,10 @@ object SharedExperienceTimeline {
                 metadata.put("source", source)
             }
             if (previous.channel == "私聊" && channel.contains("电话")) metadata.put("channel", channel)
-            if (metadata.size() > 0) database.update("timeline_events", metadata, "id = ? AND character_id = ?", arrayOf(eventId, characterId))
+            if (metadata.size() > 0) {
+                database.update("timeline_events", metadata, "id = ? AND character_id = ?", arrayOf(eventId, characterId))
+                CharacterRelationshipPreferences.invalidate()
+            }
             return
         }
         val values = ContentValues().apply {
@@ -186,6 +190,8 @@ object SharedExperienceTimeline {
             put("revision", (previous?.revision ?: 0) + 1)
         }
         database.insertWithOnConflict("timeline_events", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        if (evidenceKind == EventEvidenceKind.UserStatement || previous?.isUserMemoryStatement() == true ||
+            evidenceKind == EventEvidenceKind.Legacy) CharacterRelationshipPreferences.invalidate()
         // This is the single canonical gate from REAL timeline events to
         // the role's possible future sharing and curiosity. Chat claims,
         // fictional stories, and mere model intentions never enter this queue.
@@ -297,6 +303,7 @@ object SharedExperienceTimeline {
         } finally {
             database.endTransaction()
         }
+        CharacterRelationshipPreferences.invalidate()
         // Deletion invalidates every downstream owner immediately: retry job, executable promise
         // and derived memory/vector lifecycle. Late model responses are additionally checked by the
         // repository integrity guard before they can survive in recall.
@@ -517,6 +524,7 @@ object SharedExperienceTimeline {
             }
             db.setTransactionSuccessful()
         } finally { db.endTransaction() }
+        CharacterRelationshipPreferences.invalidate()
         for (i in 0 until deleted.length()) {
             val id = deleted.getJSONObject(i).getString("event_id")
             CharacterDevelopmentStore.invalidateEvidenceForAll(id)

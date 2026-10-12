@@ -364,7 +364,11 @@ class InMemoryLuluChatStore : LuluChatStore {
         val favoriteRegex = Regex("⟪FAVORITE\\s*:\\s*([^⟫]+)⟫", RegexOption.IGNORE_CASE)
         val markerQuoteId = quoteRegex.find(content)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
         val markerFavoriteId = favoriteRegex.find(content)?.groupValues?.getOrNull(1)?.trim()?.takeIf(String::isNotBlank)
-        val clean = content.replace(quoteRegex, "").replace(favoriteRegex, "").trim()
+        val rawClean = content.replace(quoteRegex, "").replace(favoriteRegex, "").trim()
+        val conversation = conversationState.value.firstOrNull { it.id == conversationId }
+        val actualAuthor = authorCharacterId ?: conversation?.characterId ?: "lulu"
+        val directedAtUser = conversation?.groupChat == null || replyToMessageId != null || markerQuoteId != null
+        val clean = if (directedAtUser) RelationshipExpressionGuard.apply(actualAuthor, rawClean) else rawClean
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
         val originalMessages = messageStates[conversationId]?.value.orEmpty()
         val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->

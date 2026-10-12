@@ -169,6 +169,27 @@ internal fun CharacterSocialNamesSettings(characterId: String) {
             CharacterLifeStore.followObservedPreferredAddress(characterId)
             CharacterAddressPreference.refresh(characterId)
         }) { Text("恢复自动学习") }
+        val relationship = com.jiacimu.lulu.data.CharacterRelationshipPreferences.snapshot(characterId)
+        if (relationship.rejectedAddresses.isNotEmpty()) Text(
+            "避免这样称呼你：" + relationship.rejectedAddresses.joinToString("、"),
+            style = MaterialTheme.typography.bodyMedium)
+        if (relationship.preferences.isNotEmpty()) {
+            var showingAgreements by remember(characterId) { mutableStateOf(false) }
+            TextButton(onClick = { showingAgreements = true }) { Text("相处约定 · ${relationship.preferences.size}") }
+            if (showingAgreements) AlertDialog(onDismissRequest = { showingAgreements = false },
+                title = { Text("持续记住的相处约定") },
+                text = { Column(Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    relationship.preferences.forEach { preference ->
+                        Text(preference.quote, style = MaterialTheme.typography.bodyMedium)
+                        Text(java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm")
+                            .withZone(java.time.ZoneId.systemDefault()).format(preference.occurredAt),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                } },
+                confirmButton = { TextButton(onClick = { showingAgreements = false }) { Text("关闭") } })
+        }
         val userRemark = socialNames?.optString("userRemark").orEmpty()
         val selfNickname = socialNames?.optString("selfNickname").orEmpty()
         Text("给你的私人备注：" + userRemark.ifBlank { "还没有设置" }, style = MaterialTheme.typography.bodyMedium)

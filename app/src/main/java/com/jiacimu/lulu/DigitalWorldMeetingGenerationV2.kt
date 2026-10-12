@@ -276,7 +276,35 @@ internal suspend fun meetingGenerateReplyV2(
             },
         ),
     ).getOrThrow()
-    meetingParseReplyV2(result.text, session, characterId)
+    meetingGuardRelationshipV2(meetingParseReplyV2(result.text, session, characterId), characterId)
+}
+
+/** Keep visible dialogue and the audio track consistent before either is delivered. */
+internal fun meetingGuardRelationshipV2(reply: MeetingV2Reply, characterId: String): MeetingV2Reply {
+    val sequence = reply.sequence.flatMap { item ->
+        if (item.actor != MeetingV2Actor.CHARACTER) return@flatMap listOf(item)
+        val segment = item.segment
+        val repaired = RelationshipExpressionGuard.apply(characterId, segment.text,
+            allowNames = segment.type == MeetingSegmentType.DIALOGUE)
+        if (repaired == segment.text) return@flatMap listOf(item)
+        if (segment.type == MeetingSegmentType.DIALOGUE) {
+            listOf(item.copy(segment = segment.copy(text = repaired, speechText = repaired)))
+        } else {
+            // Literal completion is spoken; do not make TTS read a narrative action paragraph.
+            val addition = CharacterRelationshipPreferences.snapshot(characterId).preferences
+                .flatMap { it.requiredForms }.distinct()
+                .filter { repaired.contains(it, ignoreCase = true) && !segment.text.contains(it, ignoreCase = true) }
+                .joinToString(" ")
+            if (addition.isBlank()) listOf(item) else listOf(item,
+                MeetingV2ExchangeSegment(MeetingV2Actor.CHARACTER,
+                    MeetingSegment(MeetingSegmentType.DIALOGUE, addition, addition)))
+        }
+    }
+    val role = sequence.filter { it.actor == MeetingV2Actor.CHARACTER }.map { it.segment }
+    return reply.copy(sequence = sequence,
+        segments = role,
+        sceneText = role.filter { it.type == MeetingSegmentType.ACTION }.joinToString("\n") { it.text },
+        dialogue = role.filter { it.type == MeetingSegmentType.DIALOGUE }.joinToString("\n") { it.text })
 }
 
 internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondingCharacterId: String? = session.participantIds.singleOrNull()): MeetingV2Reply {

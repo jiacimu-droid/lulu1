@@ -555,7 +555,8 @@ object LuluDeviceToolBridge {
                 )
             } else plannedReply
             val naturalText = if (imageOnly) "" else if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text else checkedText
-            val safeText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText)
+            val safeText = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(characterId,
+                com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText))
             // A sticker exists only if the user has imported and approved that
             // exact ID. Invalid guesses silently yield no image.
             val chosenSticker = if (!sceneContext.contains("电话"))

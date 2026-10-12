@@ -1158,7 +1158,8 @@ internal object LuluVoiceCallSession {
             val stream = CallReplyStream()
             // Expressive ElevenLabs voices interpret emotion over surrounding sentences.
             // Keep the live subtitle preview, but synthesize the completed turn once.
-            val wholeTurnSpeech = appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true
+            val wholeTurnSpeech = appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true ||
+                com.jiacimu.lulu.data.RelationshipExpressionGuard.requiresBufferedSpeech(latest.characterId)
             val heard = StringBuilder()
             var finalText: String? = null
             var interactionReceipt: String? = null
@@ -1302,7 +1303,7 @@ internal object LuluVoiceCallSession {
                         statusMessage = "${latest.characterName} 正安静陪着你") }
                     return@onSuccess
                 }
-                val text = reply.text
+                val text = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(latest.characterId, reply.text)
                 if (autonomousSilence && realtime != null && text.isNotBlank()) {
                     mutableState.update { it.copy(thinking = false) }
                     runCatching { realtime?.continueFromSilence(text) }.onFailure { error ->

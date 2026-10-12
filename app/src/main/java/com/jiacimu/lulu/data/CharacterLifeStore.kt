@@ -603,7 +603,7 @@ object CharacterLifeStore {
                 names.optString("selfNickname").takeIf(String::isNotBlank)?.let {
                     appendLine("自己使用的网名：$it")
                 }
-                names.optString("preferredAddress").takeIf(String::isNotBlank)?.let {
+                CharacterAddressPreference.currentAddress(characterId).takeIf(String::isNotBlank)?.let {
                     appendLine("用户明确喜欢的日常称呼：$it（自然使用，可偶尔变换）")
                 }
             }
@@ -633,7 +633,7 @@ object CharacterLifeStore {
             root.optJSONObject("socialNames")?.let { names ->
                 val remark = names.optString("userRemark")
                 val nickname = names.optString("selfNickname")
-                val address = names.optString("preferredAddress")
+                val address = CharacterAddressPreference.currentAddress(characterId)
                 if (remark.isNotBlank() || nickname.isNotBlank() || address.isNotBlank()) {
                     appendLine("【角色亲自设置的社交称呼｜已存储的状态，不改变现实姓名与用户资料】")
                     if (remark.isNotBlank()) appendLine("角色给用户的私人备注：$remark（不强迫每句都这样称呼）")
