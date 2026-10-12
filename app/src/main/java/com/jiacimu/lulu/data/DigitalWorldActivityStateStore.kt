@@ -201,7 +201,6 @@ internal object DigitalWorldActivityStateStore {
         val location = DigitalWorldStore.locationOf(characterId)
         val place = when {
             shelf != null -> "家中的“${shelf.name}”旁"
-            location == DigitalWorldPublicPlaces.READING_LOUNGE -> "阅读馆的书架旁"
             else -> "实际阅读场所"
         }
         apply(characterId, shelf, "reading_session",

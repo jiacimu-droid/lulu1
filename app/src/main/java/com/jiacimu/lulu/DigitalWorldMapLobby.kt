@@ -90,6 +90,7 @@ internal fun DigitalWorldMapLobby(
         if (code == DigitalWorldStore.ARRIVAL) return "世界入口"
         if (code == DigitalWorldStore.CLOUD_MEADOW) return "云眠原"
         DigitalWorldPublicPlaces.label(code)?.let { return it }
+        DigitalWorldExpansionStore.residenceLabel(code)?.let { return it }
         if (code.startsWith("home:")) {
             val id = code.removePrefix("home:")
             return world.homes[id]?.name ?: "${MigratedDomainStores.characters.get(id).displayName}的家"
@@ -254,7 +255,7 @@ private fun DigitalWorldRouteDock(
     onOpenScene: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val stops = remember(characters, profiles, world.homes) {
+    val stops = remember(characters, profiles, world.homes, activeSceneCode) {
         buildList {
             add(DigitalWorldStore.ARRIVAL)
             add(DigitalWorldStore.CLOUD_MEADOW)
@@ -262,6 +263,8 @@ private fun DigitalWorldRouteDock(
             characters
                 .filter { (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled }
                 .forEach { character -> add(DigitalWorldStore.homeLocation(character.characterId)) }
+            // Residents own addresses too; keep them navigable from inside a scene.
+            DigitalWorldExpansionStore.residents().forEach { add(it.homeLocationCode) }
         }.distinct()
     }
     Surface(
@@ -301,7 +304,6 @@ private fun routeIcon(code: String): androidx.compose.ui.graphics.vector.ImageVe
     DigitalWorldStore.ARRIVAL -> Icons.Outlined.AutoAwesome
     DigitalWorldStore.CLOUD_MEADOW -> Icons.Outlined.Cloud
     DigitalWorldPublicPlaces.GAME_HALL -> Icons.Outlined.SportsEsports
-    DigitalWorldPublicPlaces.READING_LOUNGE -> Icons.Outlined.MenuBook
     DigitalWorldPublicPlaces.CAFE -> Icons.Outlined.LocalCafe
     DigitalWorldPublicPlaces.COURTYARD -> Icons.Outlined.Park
     else -> Icons.Outlined.Home
@@ -351,98 +353,163 @@ private fun DigitalWorldMapPage(
     val digitalCharacters = characters.filter {
         (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled
     }
+    val localResidents = DigitalWorldExpansionStore.residents()
+    val places = DigitalWorldPublicPlaces.all
+    val outdoor = places.filter { it.code == DigitalWorldPublicPlaces.COURTYARD }
+    val facilities = places.filter { it.code == DigitalWorldPublicPlaces.CAFE || it.code == DigitalWorldPublicPlaces.GAME_HALL }
+    val discovered = places.filter { it.code !in setOf(DigitalWorldPublicPlaces.COURTYARD, DigitalWorldPublicPlaces.CAFE, DigitalWorldPublicPlaces.GAME_HALL) }
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 9.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
             DigitalWorldLiveHeader(
                 homeCount = digitalCharacters.size,
-                residentCount = world.characterLocations.values.count { it.isNotBlank() },
+                npcHomeCount = localResidents.size,
+                residentCount = world.characterLocations.values.count { it.isNotBlank() } + localResidents.size,
                 itemCount = world.items.size,
             )
         }
+        item { WorldMapSectionHeading("云境与户外", "真正可以抵达的开放空间", Icons.Outlined.Landscape) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MapPlaceCard(
-                    modifier = Modifier.weight(1f),
-                    title = "世界入口",
-                    subtitle = "抵达 · 离开 · 等待",
-                    icon = Icons.Outlined.AutoAwesome,
-                    residents = residentsAt(world, DigitalWorldStore.ARRIVAL, characters),
-                    onClick = { onOpenScene(DigitalWorldStore.ARRIVAL) },
-                )
-                MapPlaceCard(
-                    modifier = Modifier.weight(1f),
-                    title = "云眠原",
-                    subtitle = "散步 · 躺卧 · 约会",
-                    icon = Icons.Outlined.Cloud,
-                    residents = residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters),
-                    onClick = { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
-                )
+                MapPlaceCard(Modifier.weight(1f), "世界入口", "抵达 · 等候", Icons.Outlined.AutoAwesome,
+                    residentsAt(world, DigitalWorldStore.ARRIVAL, characters), { onOpenScene(DigitalWorldStore.ARRIVAL) },
+                    DigitalWorldStore.ARRIVAL)
+                MapPlaceCard(Modifier.weight(1f), "云眠原", "云海 · 漫步", Icons.Outlined.Cloud,
+                    residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters), { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
+                    DigitalWorldStore.CLOUD_MEADOW)
             }
         }
-        item {
-            MapPlaceCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = "3D 体验间",
-                subtitle = "三维房间 · 拖动观察 · 角色低模技术预览",
-                icon = Icons.Outlined.ViewInAr,
-                residents = emptyList(),
-                onClick = { onOpenScene("preview:3d-room") },
-            )
+        outdoor.forEach { place ->
+            item(key = place.code) {
+                MapPlaceCard(Modifier.fillMaxWidth(), place.label, place.subtitle,
+                    routeIcon(place.code), residentsAt(world, place.code, characters),
+                    { onOpenScene(place.code) }, place.code,
+                    DigitalWorldExpansionStore.residentsAt(place.code).size)
+            }
         }
-        item {
-            Text("公共生活区", color = Color(0xFF575A57), fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
-        }
-        DigitalWorldPublicPlaces.all.chunked(2).forEach { rowPlaces ->
-            item(key = rowPlaces.joinToString("|") { it.code }) {
+        if (facilities.isNotEmpty()) {
+            item { WorldMapSectionHeading("公共设施", "相遇、游玩与休息", Icons.Outlined.Storefront) }
+            item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    rowPlaces.forEach { place ->
-                        MapPlaceCard(
-                            modifier = Modifier.weight(1f),
-                            title = place.label,
-                            subtitle = place.subtitle,
-                            icon = routeIcon(place.code),
-                            residents = residentsAt(world, place.code, characters),
-                            onClick = { onOpenScene(place.code) },
-                        )
+                    facilities.forEach { place ->
+                        MapPlaceCard(Modifier.weight(1f), place.label, place.subtitle, routeIcon(place.code),
+                            residentsAt(world, place.code, characters), { onOpenScene(place.code) }, place.code,
+                            DigitalWorldExpansionStore.residentsAt(place.code).size)
                     }
-                    if (rowPlaces.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+        if (discovered.isNotEmpty()) {
+            item { WorldMapSectionHeading("探索发现", "世界中逐渐形成的真实地点", Icons.Outlined.Explore) }
+            discovered.chunked(2).forEach { rowPlaces ->
+                item(key = rowPlaces.joinToString("|") { it.code }) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        rowPlaces.forEach { place ->
+                            MapPlaceCard(Modifier.weight(1f), place.label, place.subtitle,
+                                routeIcon(place.code), residentsAt(world, place.code, characters),
+                                { onOpenScene(place.code) }, place.code,
+                                DigitalWorldExpansionStore.residentsAt(place.code).size)
+                        }
+                        if (rowPlaces.size == 1) Spacer(Modifier.weight(1f))
+                    }
                 }
             }
         }
         if (digitalCharacters.isNotEmpty()) {
-            item {
-                Text("他们的家", color = Color(0xFF575A57), fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp, start = 2.dp))
-            }
-        }
-        digitalCharacters.chunked(2).forEach { rowCharacters ->
-            item(key = rowCharacters.joinToString("|") { it.characterId }) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    rowCharacters.forEach { character ->
-                        val homeCode = DigitalWorldStore.homeLocation(character.characterId)
-                        val itemCount = world.items.count { it.ownerCharacterId == character.characterId }
-                        MapHomeCard(
-                            modifier = Modifier.weight(1f),
-                            character = character,
-                            itemCount = itemCount,
-                            residents = residentsAt(world, homeCode, characters),
-                            onClick = { onOpenScene(homeCode) },
-                        )
+            item { WorldMapSectionHeading("角色家园", "他们各自生活的私人空间", Icons.Outlined.Home) }
+            digitalCharacters.chunked(2).forEach { rowCharacters ->
+                item(key = rowCharacters.joinToString("|") { it.characterId }) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        rowCharacters.forEach { character ->
+                            val code = DigitalWorldStore.homeLocation(character.characterId)
+                            MapHomeCard(Modifier.weight(1f), character,
+                                world.items.count { it.ownerCharacterId == character.characterId },
+                                residentsAt(world, code, characters), { onOpenScene(code) })
+                        }
+                        if (rowCharacters.size == 1) Spacer(Modifier.weight(1f))
                     }
-                    if (rowCharacters.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
         }
-        item { Spacer(Modifier.navigationBarsPadding().height(8.dp)) }
+        if (localResidents.isNotEmpty()) {
+            item { WorldMapSectionHeading("原住民街区", "每位 NPC 都有固定的家", Icons.Outlined.HolidayVillage) }
+            localResidents.chunked(2).forEach { rowResidents ->
+                item(key = rowResidents.joinToString("|") { it.id }) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        rowResidents.forEach { resident ->
+                            MapNativeHomeCard(Modifier.weight(1f), resident,
+                                onClick = { onOpenScene(resident.homeLocationCode) })
+                        }
+                        if (rowResidents.size == 1) Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+        item { WorldMapSectionHeading("实验区域", "独立预览，不占用正式世界", Icons.Outlined.ViewInAr) }
+        item {
+            MapPlaceCard(Modifier.fillMaxWidth(), "3D 体验间", "独立空间效果预览", Icons.Outlined.ViewInAr,
+                emptyList(), { onOpenScene("preview:3d-room") }, "preview:3d-room")
+        }
+        item { Spacer(Modifier.navigationBarsPadding().height(12.dp)) }
+    }
+}
+
+@Composable
+private fun WorldMapSectionHeading(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 2.dp, top = 5.dp, bottom = 1.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(icon, null, tint = Color(0xFF506960), modifier = Modifier.size(21.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, color = Color(0xFF252F2A), fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(subtitle, color = Color(0xFF7D8981), fontSize = 10.sp)
+        }
+    }
+}
+
+@Composable
+private fun MapNativeHomeCard(
+    modifier: Modifier,
+    resident: DigitalWorldResident,
+    onClick: () -> Unit,
+) {
+    val atHome = resident.currentLocationCode == resident.homeLocationCode
+    val neighborhood = DigitalWorldPublicPlaces.label(resident.neighborhoodCode)
+        ?: if (resident.neighborhoodCode == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else "世界入口"
+    Surface(
+        modifier = modifier.height(174.dp).clickable(onClick = onClick),
+        shape = RoundedCornerShape(23.dp),
+        color = Color(0xFFFBFCFA),
+        border = BorderStroke(1.dp, Color(0xFFDCE6DF)),
+        shadowElevation = 2.dp,
+    ) {
+        Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.SpaceBetween) {
+            WorldMapIllustration(resident.homeLocationCode, Modifier.fillMaxWidth().height(76.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text("${resident.name}的家", color = Color(0xFF26352D), fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(resident.identity, color = Color(0xFF7B8980), fontSize = 9.5.sp,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("${neighborhood}附近 · ${if (atHome) "在家" else "出门了"}",
+                    color = if (atHome) Color(0xFF517869) else Color(0xFF8E7F6A), fontSize = 9.5.sp)
+            }
+        }
     }
 }
 
 @Composable
 private fun DigitalWorldLiveHeader(
     homeCount: Int,
+    npcHomeCount: Int,
     residentCount: Int,
     itemCount: Int,
 ) {
@@ -488,7 +555,7 @@ private fun DigitalWorldLiveHeader(
                 }
                 Text("去他们真正生活的地方", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Black)
                 Text(
-                    "$homeCount 座家 · ${DigitalWorldPublicPlaces.all.size + 2} 个公共地点 · $residentCount 位角色在活动 · $itemCount 件真实陈设",
+                    "${homeCount + npcHomeCount} 座家 · ${DigitalWorldPublicPlaces.all.size + 2} 个公共地点 · $residentCount 位居民 · $itemCount 件陈设",
                     color = Color(0xFFB9C8C0),
                     fontSize = 10.5.sp,
                 )
@@ -505,18 +572,21 @@ private fun MapPlaceCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     residents: List<CharacterSettings>,
     onClick: () -> Unit,
+    sceneCode: String = "",
+    nativeResidentCount: Int = 0,
 ) {
     Surface(
-        modifier = modifier.height(142.dp).clickable(onClick = onClick),
+        modifier = modifier.height(172.dp).clickable(onClick = onClick),
         color = Color(0xFFFCFCFB),
         shape = RoundedCornerShape(22.dp),
-        border = BorderStroke(1.dp, Color(0xFF34322F)),
-        shadowElevation = 1.dp,
+        border = BorderStroke(1.dp, Color(0xFFDDE5DF)),
+        shadowElevation = 2.dp,
     ) {
         Column(
-            Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 13.dp),
+            Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
+            WorldMapIllustration(sceneCode, Modifier.fillMaxWidth().height(77.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = RoundedCornerShape(13.dp),
@@ -534,9 +604,9 @@ private fun MapPlaceCard(
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF202020), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(subtitle, color = Color(0xFF777570), fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                if (residents.isNotEmpty()) {
+                if (residents.isNotEmpty() || nativeResidentCount > 0) {
                     Text(
-                        residents.joinToString("、") { it.displayName },
+                        (residents.joinToString("、") { it.displayName } + if (nativeResidentCount > 0) " · ${nativeResidentCount}位原住民" else "").trimStart(),
                         color = Color(0xFF777570),
                         fontSize = 9.5.sp,
                         maxLines = 1,
@@ -557,7 +627,7 @@ private fun MapHomeCard(
     onClick: () -> Unit,
 ) {
     Surface(
-        modifier = modifier.height(154.dp).clickable(onClick = onClick),
+        modifier = modifier.height(174.dp).clickable(onClick = onClick),
         color = Color(0xFFFCFCFB),
         shape = RoundedCornerShape(22.dp),
         border = BorderStroke(1.dp, Color(0xFF34322F)),
@@ -581,6 +651,7 @@ private fun MapHomeCard(
                 Spacer(Modifier.weight(1f))
                 ResidentAvatarStrip(residents)
             }
+            WorldMapIllustration(DigitalWorldStore.homeLocation(character.characterId), Modifier.fillMaxWidth().height(49.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 34)
                 Spacer(Modifier.width(8.dp))

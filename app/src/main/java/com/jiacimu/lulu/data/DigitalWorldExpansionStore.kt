@@ -52,7 +52,7 @@ internal object DigitalWorldExpansionStore {
         residents = decodeResidents(storedResidents)
         // Legacy residents used public squares as a 'home'. Give each one a private address once.
         if (storedResidents != null && residents.any { resident ->
-            !storedResidents.contains("\\\"homeLocationCode\\\":\\\"${resident.homeLocationCode}\\\"")
+            !storedResidents.contains("\"homeLocationCode\":\"${resident.homeLocationCode}\"")
         }) persist()
     }
 
@@ -98,8 +98,8 @@ internal object DigitalWorldExpansionStore {
         require(resident.name.isNotBlank() && resident.identity.isNotBlank()) { "新居民必须有稳定姓名和身份" }
         require(residents.none { it.id == resident.id || it.name == resident.name }) { "这个居民已经存在" }
         require(residents.size < MAX_RESIDENTS) { "动态居民数量已达到上限" }
-        val neighborhood = resident.neighborhoodCode.takeIf(::isNeighborhood)
-            ?: resident.homeLocationCode.takeIf(::isNeighborhood)
+        val neighborhood = resident.homeLocationCode.takeIf(::isNeighborhood)
+            ?: resident.neighborhoodCode.takeIf(::isNeighborhood)
             ?: DigitalWorldPublicPlaces.COURTYARD
         val address = residentHomeLocation(resident.id)
         val settled = resident.copy(homeLocationCode = address, currentLocationCode = address,
