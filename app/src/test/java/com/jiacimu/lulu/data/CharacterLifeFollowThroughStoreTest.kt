@@ -100,8 +100,21 @@ class CharacterLifeFollowThroughStoreTest {
         CharacterLifeFollowThroughStore.recordAction(role, id, "reading", false, "没有找到正文")
         assertTrue(CharacterLifeFollowThroughStore.context(role, now).contains("可以"))
         SharedExperienceTimeline.initialize(context)
+        // A ToolResult must contain a real, successful executor envelope.
+        // Free-form text such as "已读下一段" is not proof that the book was read.
+        SharedExperienceTimeline.record("reader-unverified-result", role, "实际工具执行", "执行器",
+            "已读下一段", now.plusSeconds(20), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        CharacterLifeFollowThroughStore.recordAction(role, id, "reading", true,
+            "仅仅声称阅读成功", "reader-unverified-result")
+        assertFalse(CharacterLifeFollowThroughStore.context(role, now).contains("已有真实行动回执"))
+
+        val executed = JSONObject().put("characterId", role)
+            .put("tool", "read_book").put("status", "succeeded")
+            .put("result", JSONObject().put("success", true)
+                .put("summary", "阅读进度已提交").toString())
         SharedExperienceTimeline.record("reader-test-receipt", role, "实际工具执行", "执行器",
-            "已读下一段", now.plusSeconds(35), triggerExtraction = false,
+            executed.toString(), now.plusSeconds(35), triggerExtraction = false,
             source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
         CharacterLifeFollowThroughStore.recordAction(role, id, "reading", true,
             "正文阅读进度已保存", "reader-test-receipt")
