@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6fb1239c79d551063e2e68d6ae91b8abed2eb759`
+- 基准提交：`0ad931fe0ee6864a86cf7530e2cd6c4d22c264ab`
 - 分支：`main`
 - 已索引文件：551
-- 已索引代码/文本行：112598
+- 已索引代码/文本行：112552
 - 已发现符号：1684
 
 | 文件 | 行数 | 符号数 |
@@ -60,10 +60,10 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingUiV2.kt` | 457 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeHomeFixtures.kt` | 26 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt` | 49 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 355 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 354 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 199 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 144 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
@@ -230,7 +230,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 242 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 273 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 260 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 280 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudience.kt` | 14 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 71 | 1 |
@@ -239,7 +239,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 254 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 254 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 681 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 677 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt` | 45 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt` | 56 | 3 |

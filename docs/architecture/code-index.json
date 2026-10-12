@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T12:20:14.334019+00:00",
-  "commit": "6fb1239c79d551063e2e68d6ae91b8abed2eb759",
+  "generatedAt": "2026-10-12T12:23:46.748352+00:00",
+  "commit": "0ad931fe0ee6864a86cf7530e2cd6c4d22c264ab",
   "branch": "main",
-  "sourceFingerprint": "9defe20c450c6af3b7548a0c28b9e0bc927fe2494140282c3a219f3bf995aa91",
+  "sourceFingerprint": "7af6e3e9aaa9c1755def856b5fcfce6eada2f2f87b57b76210aeff9ba0892ed2",
   "summary": {
     "files": 551,
-    "lines": 112598,
+    "lines": 112552,
     "symbols": 1684
   },
   "symbolIndex": {
@@ -1143,7 +1143,7 @@
     "anchorForActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
-        "line": 140
+        "line": 112
       }
     ],
     "observeAction": [
@@ -4649,7 +4649,7 @@
     "locationActivitySummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 214
+        "line": 207
       }
     ],
     "briefContextFor": [
@@ -10143,8 +10143,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt",
-      "lines": 355,
-      "sha256": "28bbe7cd63f57ddee8493342bad17fea119ee6fc35a6acfaa0dd78018d6d96ad",
+      "lines": 354,
+      "sha256": "9b62d708c1c86b92e99f8367c27998978a9b9baed0c877168fa0787450b72a17",
       "symbols": []
     },
     {
@@ -10161,8 +10161,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt",
-      "lines": 144,
-      "sha256": "130e783d0c885be9f6dd5763b13eca9633f21bbd5e6f363bd946e6eabf372718",
+      "lines": 116,
+      "sha256": "0cf536886214a5488d9fd1e794ac805dbb2663618f7b820fe76aee687bc24014",
       "symbols": [
         {
           "name": "forScene",
@@ -10170,7 +10170,7 @@
         },
         {
           "name": "anchorForActivity",
-          "line": 140
+          "line": 112
         }
       ]
     },
@@ -11977,7 +11977,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 574,
-      "sha256": "346cc0b0147a17a07af8697eaae3c2771a1c6e8776b67ff67b2f24c68a044524",
+      "sha256": "93b07861cbc2707c29d37dfc67005e1ebc63d9861e98e5cd4cf4fabe67b73d47",
       "symbols": []
     },
     {
@@ -13727,8 +13727,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 273,
-      "sha256": "a4f5c19efddef8727c63f50e515fe7b296bf45355ea85ba1b3438521a78ef559",
+      "lines": 260,
+      "sha256": "bb2739f60aa6f237f186376b905e0e5f2c73f6ced6b3b855297afa5221a1a9e0",
       "symbols": [
         {
           "name": "optionsFor",
@@ -13748,7 +13748,7 @@
         },
         {
           "name": "locationActivitySummary",
-          "line": 214
+          "line": 207
         }
       ]
     },
@@ -13933,8 +13933,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 681,
-      "sha256": "b93e5d46db9c0f822b38894f2e82472f7929e636d8e5e770e7f4f63f6bd7ded3",
+      "lines": 677,
+      "sha256": "9f7ed0d6e1c706e2ffac0f3991f295fe386bcb1f93e8144930e1b3430829d9c7",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -15296,7 +15296,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 80,
-      "sha256": "e624047c0999234cf2c3bad6b542bc3bdbb76d55833f9070c2484a0642de5565",
+      "sha256": "20e9814fbfe857e0a2dcef7d58445f4b46c5192a9b857366c186100d48480808",
       "symbols": []
     },
     {
@@ -15509,7 +15509,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
       "lines": 87,
-      "sha256": "c2244f412f47d484b213d3be8a87f1062c106bd2e918c32ae23435c3de97d652",
+      "sha256": "82336ce9143d215a557699f8d0851e3ad884b6fd55f82ed4f864905eed45e0f0",
       "symbols": [
         {
           "name": "PromptContextBudget",
