@@ -678,6 +678,11 @@ object ProactivePerceptionRuntime {
                 connectionOverride = connection,
             ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
         } else null
+        currentCoroutineContext().ensureActive()
+        // A phone call or expired online window may take ownership while the
+        // optional follow-through model is in flight. Never execute its stale choice.
+        if (CompanionPresenceStore.isInCall(characterId) ||
+            (awakeReflection && !CompanionOnlineStore.isOnline(characterId))) return Action.SILENT
         // The review owns ONLY the action. Preserve the original appraisal,
         // heart voice and motive proposal instead of silently discarding them.
         val resolved = independentChoice?.copy(

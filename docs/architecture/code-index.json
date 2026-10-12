@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T03:31:59.698122+00:00",
-  "commit": "588c3fb95b440eb02970446d1927834110a723ed",
-  "branch": "main",
-  "sourceFingerprint": "2a6bfcbfda4a9081d6bde32b76dff39665e8a2b4f434c500384e3d90dfd18dd7",
+  "generatedAt": "2026-10-12T03:43:10.117641+00:00",
+  "commit": "88908a14e0efb6db5741681f68f99a1dc3df9291",
+  "branch": "local",
+  "sourceFingerprint": "450ab7c2dc5f608344fe9c5a46461f01927dbbd62cdd89163a98efec9c4a2502",
   "summary": {
     "files": 535,
-    "lines": 109952,
+    "lines": 109968,
     "symbols": 1657
   },
   "symbolIndex": {
@@ -1577,37 +1577,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1166
+        "line": 1167
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1168
+        "line": 1169
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1184
+        "line": 1185
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1400
+        "line": 1401
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1536
+        "line": 1537
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1670
+        "line": 1671
       }
     ],
     "PendingTouch": [
@@ -6123,7 +6123,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1304
+        "line": 1309
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -10380,8 +10380,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1756,
-      "sha256": "52018fdf0416d1991a18268df49d51042f8c2a8f9b9f02d51a9d77e98078acb1",
+      "lines": 1757,
+      "sha256": "c6c3e7f403124b8a4fea5fafb8addcc659d8daab890bde281749d9717aeb1947",
       "symbols": [
         {
           "name": "isActiveForChat",
@@ -10429,27 +10429,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1166
+          "line": 1167
         },
         {
           "name": "clearWhenHeard",
-          "line": 1168
+          "line": 1169
         },
         {
           "name": "enqueueSpoken",
-          "line": 1184
+          "line": 1185
         },
         {
           "name": "sameSession",
-          "line": 1400
+          "line": 1401
         },
         {
           "name": "retryListening",
-          "line": 1536
+          "line": 1537
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1670
+          "line": 1671
         }
       ]
     },
@@ -15101,8 +15101,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1360,
-      "sha256": "6f4ac40e70e17019157c8d9f3a184ed2c0fe503dd9b1ee88fcafe4b293cb3e78",
+      "lines": 1365,
+      "sha256": "c2118094613f40fdf8f077fc5be54d414e131551d3c2e04aa495f63e2c862e57",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -15126,7 +15126,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1304
+          "line": 1309
         }
       ]
     },
@@ -18478,8 +18478,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
-      "lines": 78,
-      "sha256": "e118d73a030c52bb19239999d999774a4f3726b8de12bec9436349c262f71c90",
+      "lines": 88,
+      "sha256": "48b751201da7e6d72038e737261d7329a5d9d98823287d030662f73ebb93460a",
       "symbols": [
         {
           "name": "ScribeRealtimeTransportTest",

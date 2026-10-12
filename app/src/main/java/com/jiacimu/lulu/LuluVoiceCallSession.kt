@@ -690,7 +690,8 @@ internal object LuluVoiceCallSession {
                 lastCallAudioMillis = SystemClock.elapsedRealtime()
                 if (!busy && speechQueue?.hasPendingAudio != true) {
                     silenceAudioPending = false
-                    if (recentlyPlayedAgentText.isNotBlank()) {
+                    if (current.speaking && recentlyPlayedAgentText.isNotBlank()) {
+                        // Cancelling unplayed synthesis is not a new acoustic echo.
                         recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
                     }
                 }

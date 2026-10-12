@@ -24,9 +24,16 @@ class ScribeRealtimeTransportTest {
     @Test fun quietPcmReachesScribeAndOnlyCommittedSpeechCreatesATurn() {
         val packets = LinkedBlockingQueue<String>()
         val sockets = LinkedBlockingQueue<WebSocket>()
+        val peer = java.util.concurrent.atomic.AtomicReference<WebSocket>()
         val server = MockWebServer()
         server.enqueue(MockResponse().withWebSocketUpgrade(object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) { sockets.offer(webSocket) }
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                peer.set(webSocket)
+                sockets.offer(webSocket)
+            }
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(code, reason)
+            }
             override fun onMessage(webSocket: WebSocket, text: String) { packets.offer(text) }
         }))
         server.start()
@@ -63,6 +70,9 @@ class ScribeRealtimeTransportTest {
         } finally {
             recognizer.stop()
             scope.cancel()
+            // MockWebServer's default listener does not acknowledge close frames.
+            // Abort any remaining reader before shutting down its worker queue.
+            peer.get()?.cancel()
             server.shutdown()
         }
     }
