@@ -753,9 +753,9 @@ internal fun DigitalWorldGameScene(
                                 }
                                 "offer_hug" -> {
                                     interactionMessage = "你同意了角色主动提出的拥抱。"
-                                    if (onWorldAction != null)
-                                        onWorldAction("$name 自己走到我面前，提出想抱抱我；我同意了。请从这个已发生的现场互动继续发展剧情，不替我添加新台词。")
-                                    else onCharacterClick(proposal.characterId)
+                                    // A role-initiated, accepted hug starts a
+                                    // character-owned meeting turn, not a user command.
+                                    onCharacterClick(proposal.characterId)
                                 }
                             }
                             stateStore.saveCompanionship(handHoldingId, requestedFollowers,
