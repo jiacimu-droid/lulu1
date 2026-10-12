@@ -1105,6 +1105,11 @@ internal object LuluVoiceCallSession {
                 if (!alreadyPersisted) confirmedUserSpeechCount++
             }
         }
+        if (current.sleepMode && !opening && !autonomousSleep && !autonomousSilence) {
+            SleepGuidanceGuide.requestedFocus(spoken)?.let { focus ->
+                mutableState.update { it.copy(sleepFocus = focus) }
+            }
+        }
         replyGeneration++
         cancelPendingCharacterHangup()
         subtitleRevealJob?.cancel()

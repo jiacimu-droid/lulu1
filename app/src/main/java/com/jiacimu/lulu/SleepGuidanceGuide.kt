@@ -16,6 +16,20 @@ internal enum class SleepGuidanceFocus(val label: String, val emphasis: String) 
 }
 
 internal object SleepGuidanceGuide {
+    /** Explicit spoken preferences update the same control as the bedtime focus chips. */
+    fun requestedFocus(text: String): SleepGuidanceFocus? {
+        val compact = text.replace(Regex("\\s+"), "")
+        val wantsStory = Regex("(讲|听|继续).{0,12}故事").containsMatchIn(compact)
+        val refusesStory = Regex("(不要|不想|别|不听|不用).{0,8}(讲|听)?故事").containsMatchIn(compact)
+        val storyRequest = Regex("我想|想听|想要|给我|帮我|能不能|可以|继续|我要|^讲|^听").containsMatchIn(compact)
+        if (wantsStory && storyRequest && !refusesStory) return SleepGuidanceFocus.Story
+        val body = Regex("放松身体|身体放松|身体扫描|放松.{0,3}(肩|腿|手臂|下颌|额头)").containsMatchIn(compact)
+        val request = Regex("帮我|带我|想|能不能|可以|开始|继续|先").containsMatchIn(compact) ||
+            compact in setOf("放松身体", "身体放松", "身体扫描")
+        val refusal = Regex("(不要|不想|不用|别).{0,5}(放松身体|身体放松|身体扫描)").containsMatchIn(compact)
+        return if (body && request && !refusal) SleepGuidanceFocus.Body else null
+    }
+
     /**
      * Companion techniques are options the character can choose at a natural
      * transition; they are NOT an enforced alternation schedule.

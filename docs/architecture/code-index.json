@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T02:30:32.078696+00:00",
-  "commit": "6d733c15435ae70167df66efb8f2a95fb1309ca5",
-  "branch": "main",
-  "sourceFingerprint": "79d1103c720344a9e0945531b95ca6ced1263513ceffbea3b5058c5050cd05f8",
+  "generatedAt": "2026-10-12T02:32:40.422987+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "364d4ec0de92046aa74a0018369f0f28da28d10bea37527770e803fb0f97b2d1",
   "summary": {
     "files": 532,
-    "lines": 109690,
-    "symbols": 1651
+    "lines": 109715,
+    "symbols": 1652
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1577,37 +1577,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1157
+        "line": 1162
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1159
+        "line": 1164
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1175
+        "line": 1180
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1391
+        "line": 1396
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1524
+        "line": 1529
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1658
+        "line": 1663
       }
     ],
     "PendingTouch": [
@@ -2110,10 +2110,16 @@
         "line": 32
       }
     ],
+    "requestedFocus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
+        "line": 20
+      }
+    ],
     "instruction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-        "line": 50
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
@@ -10344,8 +10350,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1744,
-      "sha256": "d342a3aa299c1e9059cc2d4e262e0179beeab01db70d8c847ff04a0a588b02f0",
+      "lines": 1749,
+      "sha256": "da56f66a559943ea6d1109dfb86bc7f59cab37eca58471e252649aac3a6acec4",
       "symbols": [
         {
           "name": "isActiveForChat",
@@ -10393,27 +10399,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1157
+          "line": 1162
         },
         {
           "name": "clearWhenHeard",
-          "line": 1159
+          "line": 1164
         },
         {
           "name": "enqueueSpoken",
-          "line": 1175
+          "line": 1180
         },
         {
           "name": "sameSession",
-          "line": 1391
+          "line": 1396
         },
         {
           "name": "retryListening",
-          "line": 1524
+          "line": 1529
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1658
+          "line": 1663
         }
       ]
     },
@@ -10983,7 +10989,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
       "lines": 846,
-      "sha256": "19f3d5da291f42631299c7ce3d27beef8f421ec9386a27ea4d06fa2f2018713e",
+      "sha256": "620f69b669782c584f56af113b559c73dda9b7b4f63afc6d4df8b1c16324ca2a",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -11111,12 +11117,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-      "lines": 72,
-      "sha256": "bf83cb5d8a74d05c06cb3ca39df3c7f16381a1ab842c5838d9e36a2ed8b3d85f",
+      "lines": 86,
+      "sha256": "86a0b362ea40993bddd210257078834d0a588ea84b5a44bf1b4e18d9d00aa412",
       "symbols": [
         {
+          "name": "requestedFocus",
+          "line": 20
+        },
+        {
           "name": "instruction",
-          "line": 50
+          "line": 64
         }
       ]
     },
@@ -18449,8 +18459,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt",
-      "lines": 44,
-      "sha256": "60235d56296c81d59e7fe444522a6322ee513173577c71cc53bb9a49fb4db572",
+      "lines": 50,
+      "sha256": "8b211084146a81b727a5ff062d0a74e1926e73f33937afc2035acfd8cd39b5e9",
       "symbols": [
         {
           "name": "SleepNarrativeStoreTest",

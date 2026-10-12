@@ -360,7 +360,7 @@ fun QqStyleChatDetailScreen(
             characters.mapValues { it.value.displayName })
         val observationId = "interaction-reanswer-${java.util.UUID.randomUUID()}"
         com.jiacimu.lulu.data.SharedExperienceTimeline.record(
-            eventId = observationId, characterId = roleId, channel = "私聊交互", speaker = "界面操作",
+            eventId = observationId, characterId = roleId, channel = if (groupChat == null) "私聊交互" else "群聊交互", speaker = "界面操作",
             content = "用户要求角色重新考虑刚才这一轮自己的表达；没有新增聊天正文。",
             source = com.jiacimu.lulu.data.InteractionSignalBridge.SOURCE,
             evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation, triggerExtraction = false,
@@ -372,7 +372,7 @@ fun QqStyleChatDetailScreen(
                 characterId = roleId, history = history, userText = "", title = activeLabel,
                 archiveId = chatArchiveId, reconsiderationEvidenceId = observationId,
                 sceneContext = if (groupChat == null) "重新考虑自己刚才发出的私聊消息，包括主动分享或自主联系。"
-                    else "重新考虑自己刚才在群聊中的这一次发言，只代表自己，不让其他成员再次发言。",
+                    else "重新考虑自己刚才在群聊中的这一次发言，只代表自己，不让其他成员再次发言。所有成员可见，不能泄露其他私聊中的内容。",
                 turnContext = "这轮要重新考虑的原表达（角色自己说的，不是用户的话）：\n" +
                     originals.joinToString("\n") { qqForwardContextText(it.content) } +
                     "\n依据之前实际发生的事情重新想一想，再自然表达；用户不喜欢工作报告式解释。有时一个表情或短促反应就够。旧工具回执和其他聊天记录保留，不重复执行旧动作。",

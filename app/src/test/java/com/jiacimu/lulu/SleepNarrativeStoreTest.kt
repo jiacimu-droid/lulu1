@@ -40,4 +40,10 @@ class SleepNarrativeStoreTest {
         assertEquals(2_500L, SleepCallContinuationPolicy.nextPauseMillis(45 * 60_000L, story = true))
         SleepNarrativeStore.clear(id)
     }
+    @Test fun explicitSpokenStoryPreferenceWinsWithoutTreatingRefusalAsARequest() {
+        assertEquals(SleepGuidanceFocus.Story, SleepGuidanceGuide.requestedFocus("我想听一个长故事"))
+        assertEquals(SleepGuidanceFocus.Body, SleepGuidanceGuide.requestedFocus("帮我放松身体吧"))
+        assertNull(SleepGuidanceGuide.requestedFocus("我不想听故事"))
+        assertNull(SleepGuidanceGuide.requestedFocus("她昨天讲了一个故事"))
+    }
 }
