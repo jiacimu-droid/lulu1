@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T13:57:49.026458+00:00",
-  "commit": "64566b3fd6239cc819d554d96daa0181d41bb91f",
+  "generatedAt": "2026-10-12T15:14:43.728082+00:00",
+  "commit": "d10c4d76ffe6b7996ded381063e18a69ebfd0241",
   "branch": "main",
-  "sourceFingerprint": "78420c17ab68fb2e4b1e1de4d0355a596585a6e0587860d4f6a45aa5b2579614",
+  "sourceFingerprint": "64c94e36fcd24984a5a58bea18e9181de40168e40dec8208ee0a62b88b636fc8",
   "summary": {
-    "files": 554,
-    "lines": 113230,
-    "symbols": 1691
+    "files": 555,
+    "lines": 113302,
+    "symbols": 1696
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1258,6 +1258,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
         "line": 218
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+        "line": 42
       }
     ],
     "commit": [
@@ -2574,6 +2578,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 843
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -6394,6 +6402,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
         "line": 64
+      }
+    ],
+    "Preview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+        "line": 14
+      }
+    ],
+    "isReadingNotice": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+        "line": 16
+      }
+    ],
+    "consecutiveCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+        "line": 19
       }
     ],
     "fetchWorldNews": [
@@ -15620,6 +15646,33 @@
         {
           "name": "render",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+      "lines": 72,
+      "sha256": "a2af3daee14aadcf49ee55ca3b3d27fc048a5fcd6872be40fd5af408725de817",
+      "symbols": [
+        {
+          "name": "Preview",
+          "line": 14
+        },
+        {
+          "name": "isReadingNotice",
+          "line": 16
+        },
+        {
+          "name": "consecutiveCount",
+          "line": 19
+        },
+        {
+          "name": "create",
+          "line": 22
+        },
+        {
+          "name": "preview",
+          "line": 42
         }
       ]
     },
