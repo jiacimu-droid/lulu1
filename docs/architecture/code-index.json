@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T15:14:43.728082+00:00",
-  "commit": "d10c4d76ffe6b7996ded381063e18a69ebfd0241",
+  "generatedAt": "2026-10-12T15:15:47.676652+00:00",
+  "commit": "47ec50ac7db6aaa60f032b2fb48c2b153ac6c60f",
   "branch": "main",
-  "sourceFingerprint": "64c94e36fcd24984a5a58bea18e9181de40168e40dec8208ee0a62b88b636fc8",
+  "sourceFingerprint": "b3c70f6b9dec48902590ef566333ade7bfd1a671349d8ae6350059f3f024dab0",
   "summary": {
     "files": 555,
-    "lines": 113302,
+    "lines": 113312,
     "symbols": 1696
   },
   "symbolIndex": {
@@ -4287,7 +4287,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 581
+        "line": 593
       }
     ],
     "describe": [
@@ -13429,8 +13429,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 601,
-      "sha256": "cc09924901233723b27509d7e451323bc659948d20ad679f589db2c5991fe267",
+      "lines": 611,
+      "sha256": "cc4b0d56d2bfd55f645c4f9d2a9a059ad772a55a235abfad9b0b74416b126c77",
       "symbols": [
         {
           "name": "asJson",
@@ -13442,7 +13442,7 @@
         },
         {
           "name": "world",
-          "line": 581
+          "line": 593
         }
       ]
     },
