@@ -35,7 +35,7 @@ internal object ReadingChatReceiptFormatter {
             append("[阅读记录|").append(recordId).append("]")
             append(prefix).append("《").append(cleanTitle).append("》")
             if (cleanChapter.isNotEmpty()) append(" · ").append(cleanChapter)
-            if (note.isNotBlank()) append("\n读后感：").append(note)
+            if (note.isNotBlank()) append("\n当时：").append(note)
             append("\n").append(openLabel)
         }
     }
@@ -47,7 +47,7 @@ internal object ReadingChatReceiptFormatter {
         val bookName = Regex("""《([^》]+)》""").find(raw)?.groupValues?.get(1).orEmpty()
             .ifBlank { "阅读记录" }.take(35)
         val chapterName = chapter.find(raw)?.value.orEmpty()
-        val summary = raw.substringAfter("读后感：", "")
+        val summary = (if (raw.contains("当时：")) raw.substringAfter("当时：", "") else raw.substringAfter("读后感：", ""))
             .substringBefore("\n点开查看")
             .substringBefore("\n查看")
             .substringBefore("点开查看")

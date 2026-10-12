@@ -35,6 +35,7 @@ data class SharedTimelineEvent(
 object SharedExperienceTimeline {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var helper: TimelineDatabase? = null
+    internal fun isInitialized(): Boolean = helper != null
 
     @Synchronized
     fun initialize(context: Context) {
@@ -47,6 +48,7 @@ object SharedExperienceTimeline {
         CharacterLifeFollowThroughStore.initialize(application)
         CharacterLearningLedger.initialize(application)
         CharacterLearningAgenda.initialize(application)
+        com.jiacimu.lulu.study.ReadingReflectionStore.initialize(application)
     }
 
     fun backfillChatHistory() {
@@ -211,6 +213,7 @@ object SharedExperienceTimeline {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLearningLedger.invalidateEvidence(eventId)
             CharacterLearningAgenda.invalidateEvidence(eventId)
+            com.jiacimu.lulu.study.ReadingReflectionStore.invalidateEvidence(eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
             CharacterInnerLifeStore.invalidateEvidence(eventId)
             // Recreate an opportunity only from the freshly edited factual event.
@@ -312,6 +315,7 @@ object SharedExperienceTimeline {
         CharacterDevelopmentStore.invalidateEvidenceForAll(eventId)
         CharacterLearningLedger.invalidateEvidence(eventId)
         CharacterLearningAgenda.invalidateEvidence(eventId)
+        com.jiacimu.lulu.study.ReadingReflectionStore.invalidateEvidence(eventId)
         CharacterLifeStore.invalidateReceipt(eventId)
         CharacterInnerLifeStore.invalidateEvidence(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)
@@ -493,6 +497,7 @@ object SharedExperienceTimeline {
             item.getLong("occurred_at")
             item
         }
+        val changedSources = mutableSetOf<String>()
         db.beginTransaction()
         try {
             for (i in 0 until deleted.length()) {
@@ -513,6 +518,7 @@ object SharedExperienceTimeline {
                 }
                 val incomingRevision = item.optLong("revision", 1)
                 if (existing != null && (existing.first != item.getString("character_id") || existing.second >= incomingRevision)) return@forEach
+                if (existing != null) changedSources.add(id)
                 db.insertWithOnConflict("timeline_events", null, ContentValues().apply {
                     EVENT_COLUMNS.forEach { key ->
                         when (key) {
@@ -528,9 +534,13 @@ object SharedExperienceTimeline {
             db.setTransactionSuccessful()
         } finally { db.endTransaction() }
         CharacterRelationshipPreferences.invalidate()
-        for (i in 0 until deleted.length()) {
-            val id = deleted.getJSONObject(i).getString("event_id")
+        val invalidated = changedSources + (0 until deleted.length()).map { deleted.getJSONObject(it).getString("event_id") }
+        for (id in invalidated) {
             CharacterDevelopmentStore.invalidateEvidenceForAll(id)
+            CharacterLearningLedger.invalidateEvidence(id)
+            CharacterLearningAgenda.invalidateEvidence(id)
+            com.jiacimu.lulu.study.ReadingReflectionStore.invalidateEvidence(id)
+            CharacterInnerLifeStore.invalidateEvidence(id)
             CharacterLifeStore.invalidateReceipt(id)
             MemoryExtractionJobStore.removeBySourceEvent(id)
             CommitmentTaskStore.removeBySourceEvent(id)

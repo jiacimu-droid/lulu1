@@ -14,6 +14,9 @@ data class ReadingReflectionRecord(
     val id: String = UUID.randomUUID().toString(), val characterId: String, val bookId: String,
     val bookTitle: String, val chapterTitle: String, val revision: String,
     val startOffset: Int, val endOffset: Int, val reflection: String, val occurredAt: Instant,
+    val moments: List<ReadingMoment> = emptyList(), val sourceText: String = "",
+    val mood: String = "", val innerThought: String = "",
+    val sourceRevision: Long = 1,
 )
 
 /** Chapter-adjacent reflections are durable app data, not text squeezed into a chat receipt. */
@@ -29,18 +32,49 @@ object ReadingReflectionStore {
         application = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences("lulu_reading_reflections", Context.MODE_PRIVATE)
         val array = runCatching { JSONArray(prefs?.getString("records", "[]")) }.getOrDefault(JSONArray())
-        mutable.value = (0 until array.length()).mapNotNull { index -> runCatching {
+        val loaded = (0 until array.length()).mapNotNull { index -> runCatching {
             val o = array.getJSONObject(index)
             ReadingReflectionRecord(o.getString("id"), o.getString("characterId"), o.getString("bookId"),
                 o.getString("bookTitle"), o.getString("chapterTitle"), o.getString("revision"),
-                o.getInt("startOffset"), o.getInt("endOffset"), o.getString("reflection"), Instant.parse(o.getString("occurredAt")))
+                o.getInt("startOffset"), o.getInt("endOffset"), o.optString("reflection"), Instant.parse(o.getString("occurredAt")),
+                ReadingReactionPolicy.decodeMoments(o.optJSONArray("moments")), o.optString("sourceText"),
+                o.optString("mood"), o.optString("innerThought"), o.optLong("sourceRevision", 1))
         }.getOrNull() }
+        mutable.value = loaded
+        if (SharedExperienceTimeline.isInitialized()) {
+            val invalid = loaded.filter { record ->
+                SharedExperienceTimeline.eventsByIds(record.characterId, listOf(record.id))
+                    .firstOrNull()?.revision != record.sourceRevision
+            }
+            invalid.forEach { invalidateEvidence(it.id) }
+        }
     }
+    @Synchronized internal fun reload(context: Context) { prefs = null; initialize(context) }
     @Synchronized fun save(record: ReadingReflectionRecord) {
         check(prefs != null) { "阅读存档尚未初始化" }
         persist(mutable.value.filterNot { it.id == record.id } + record)
     }
     fun get(id: String) = mutable.value.firstOrNull { it.id == id }
+    /** A removed/edited raw reading cannot remain visible as a personal feeling or source snapshot. */
+    @Synchronized fun invalidateEvidence(id: String) {
+        if (prefs == null) return
+        val removed = mutable.value.filter { it.id == id }
+        if (removed.isEmpty()) return
+        removed.forEach { record ->
+            generations[record.characterId] = generation(record.characterId) + 1
+            application?.let { ReadingBackgroundBridge.rewindDeletedRead(it, record) }
+        }
+        persist(mutable.value.filterNot { it.id == id })
+        removed.forEach { record ->
+            com.jiacimu.lulu.data.CompanionPresenceStore.rollbackMeetingProvenance(setOf(record.id), emptyMap())
+            // A linked system notice must not keep the deleted feeling in recent chat context.
+            MigratedDomainStores.chat.conversations.value.filter { it.characterId == record.characterId }
+                .flatMap { MigratedDomainStores.chat.messages(it.id).value }
+                .filter { it.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.System &&
+                    it.content.contains("[阅读记录|${record.id}]") }
+                .map { it.id }.forEach(MigratedDomainStores.chat::deleteMessage)
+        }
+    }
     @Synchronized fun clearCharacter(characterId: String) {
         generations[characterId] = generation(characterId) + 1
         persist(mutable.value.filterNot { it.characterId == characterId })
@@ -54,18 +88,27 @@ object ReadingReflectionStore {
             "阅读原文已变化，请重新读取"
         }
         save(record)
-        if (!ReadingBackgroundBridge.commitSlice(context, record.characterId, slice)) {
+        try {
+            // The raw source must exist before a cursor can report completed reading.
+            afterSave()
+            check(generation(record.characterId) == expectedGeneration) { "阅读依据已撤回，本次结果取消" }
+            check(ReadingBackgroundBridge.commitSlice(context, record.characterId, slice)) {
+                "阅读进度已变化，请重新读取"
+            }
+        } catch (error: Exception) {
             persist(mutable.value.filterNot { it.id == record.id })
-            error("阅读进度已变化，请重新读取")
+            SharedExperienceTimeline.deleteEvent(record.id)
+            throw error
         }
-        afterSave()
     }
     private fun persist(records: List<ReadingReflectionRecord>) {
         val array = JSONArray()
         records.forEach { r -> array.put(JSONObject().put("id", r.id).put("characterId", r.characterId)
             .put("bookId", r.bookId).put("bookTitle", r.bookTitle).put("chapterTitle", r.chapterTitle)
             .put("revision", r.revision).put("startOffset", r.startOffset).put("endOffset", r.endOffset)
-            .put("reflection", r.reflection).put("occurredAt", r.occurredAt.toString())) }
+            .put("reflection", r.reflection).put("occurredAt", r.occurredAt.toString())
+            .put("moments", ReadingReactionPolicy.encodeMoments(r.moments)).put("sourceText", r.sourceText)
+            .put("mood", r.mood).put("innerThought", r.innerThought).put("sourceRevision", r.sourceRevision)) }
         check(prefs?.edit()?.putString("records", array.toString())?.commit() != false) { "阅读感想保存失败" }
         mutable.value = records
     }
@@ -86,7 +129,7 @@ object ReadingReflectionStore {
                     val end = offsets?.groupValues?.get(2)?.toIntOrNull() ?: book.content.length
                     save(ReadingReflectionRecord(event.id, characterId, book.id, title,
                         readingSections(book).firstOrNull { start in it.start until it.end }?.title ?: title,
-                        readingRevision(book), start, end, reflection, event.occurredAt))
+                        readingRevision(book), start, end, reflection, event.occurredAt, sourceRevision = event.revision))
                 }
         }
     }

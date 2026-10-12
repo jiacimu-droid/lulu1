@@ -109,6 +109,16 @@ internal object ReadingBackgroundBridge {
         editor.commit()
     }
 
+    internal fun rewindDeletedRead(context: Context, record: ReadingReflectionRecord) {
+        val book = runCatching { books(context).firstOrNull {
+            it.id == record.bookId && readingRevision(it) == record.revision
+        } }.getOrNull() ?: return
+        val prefs = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
+        val key = progressKey(record.characterId, book)
+        if (prefs.getInt(key, 0) >= record.endOffset)
+            check(prefs.edit().putInt(key, record.startOffset).commit()) { "撤回阅读进度失败" }
+    }
+
     private fun progress(context: Context, characterId: String, book: BackgroundReadingBook): Int {
         val value = context.applicationContext.getSharedPreferences(PROGRESS_PREFS, Context.MODE_PRIVATE)
             .getInt(progressKey(characterId, book), 0)

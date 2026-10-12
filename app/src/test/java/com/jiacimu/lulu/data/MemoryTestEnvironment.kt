@@ -18,6 +18,7 @@ internal object MemoryTestEnvironment {
         clear(MemoryExtractionJobStore, "prefs")
         clear(CharacterLearningAgenda, "prefs")
         clear(CharacterLearningLedger, "prefs")
+        clear(com.jiacimu.lulu.study.ReadingReflectionStore, "prefs", "application")
         clear(LuluAiServices, "connectionStoreInternal", "gatewayInternal")
     }
 

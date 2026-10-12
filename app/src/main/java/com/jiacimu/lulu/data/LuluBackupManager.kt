@@ -85,6 +85,8 @@ object LuluBackupManager {
             check(editor.commit()) { "恢复 $name 失败" }
             storeCount += 1
         }
+        // Restored projections cannot resurrect a tombstoned raw reading source.
+        com.jiacimu.lulu.study.ReadingReflectionStore.reload(appContext)
         return BackupImportResult(storeCount, valueCount)
     }
 

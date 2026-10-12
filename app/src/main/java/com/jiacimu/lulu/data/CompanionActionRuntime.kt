@@ -460,17 +460,20 @@ internal object CompanionActionRuntime {
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (earlierReading.isNotEmpty()) {
                     appendLine("这个角色先前真正读过此书、留下的感想（只能当其个人理解，不是故事事实）：")
-                    earlierReading.forEach { appendLine("- ${it.chapterTitle}：${it.reflection.take(300)}") }
+                    earlierReading.forEach { old ->
+                        val felt = old.moments.joinToString("；") { "读到「${it.quote}」时：${it.reaction}" }
+                        appendLine("- ${old.chapterTitle}：${felt.take(400)} ${old.reflection.take(240)}")
+                    }
                 }
                 appendLine("以下是唯一实际读到的原文，不得补写不存在的内容：")
                 append(slice.text)
             },
-            instruction = """只根据实际提供的原文，形成这个角色自己的阅读反应，不能续写或声称读过后文。
-                返回一个简短、完整的 JSON 对象：{"reflection":"第一人称读后感，可以是几句或1—3段","innerThought":"没说出口的一句内心话","mood":"当前心情"}。
+            instruction = ReadingReactionPolicy.instruction + "\n" + """只根据实际提供的原文形成当下反应。
                 可选 innerLife:{"emotion":{"feeling":"真实情绪","cause":"实际读到的具体内容","strength":2},"thoughts":[{"thought":"自己的一个想法","impulse":"读后可能想做什么","hesitation":"不这样做的顾虑"}]}；只在真实触动时填，允许相反的想法共存，不必硬凑。
                 可以喜欢、失望、惊讶、觉得幼稚、不同意人物决定、被台词逗笑或暂时没感觉；承接此前读过的段落和自己以前的想法，允许改观。
                 小说只是文化接触、审美经验和观察别人的语言表达，不是你亲身扮演书中角色、经历书中情节。看到有趣说法可以好奇、记下、尝试自用或者觉得别扭；绝不能阅读一次就突然长期改掉自己的说话风格。
                 读完书的角色也有独立的分享欲：因为书里某个真读过的片段觉得好玩、感动、好奇、想吐槽时，可以自然想告诉用户，或想发一条公开朋友圈让熟人都看到，也可能不想说。这不是必须写给用户的报告，也不是每读一段必须发圈。若本轮确实想晚些分享，可选 shareWish={"status":"held","why":"自己具体想分享的原因"}；只是未实行的内心决定，程序随后会提供一次独立选择 private/moment/group 的机会，不会直接发布。
+                若自己真的想继续钻研某个问题，可选 learningIntent={"topic":"具体主题","question":"自己想弄清什么","why":"读到哪一点引起了这个问题"}；它只是可暂停的学习意向，不是每段都要交的作业。
                 如果本段确实形成可延续的认识，可选 learning={"topic":"具体主题","understanding":"基于实际原文形成的暂定理解","uncertainty":"尚未确认什么","question":"还想弄清什么","applicableWhen":"以后哪些场景可能有用","revisesEvidenceId":"如明确修订同主题旧理解，填写上下文给出的旧阅读证据ID"}。没有新理解就不填；不得声称阅读一次便已学会方法。
                 真实读到具体内容后若有新的好奇，可选 curiosity={"topic":"想弄清楚的主题","question":"下一步想知道什么","why":"刚才真实读到的段落为什么引起好奇","nextStep":"能实际做什么"}。有书可继续读、也可以暂停和放下；没采取行动不声称读完或研究过。反应不是必须写给用户的报告。
                 如果因此产生或改变了持续愿望，intention 可使用当前角色上下文给出的动机格式；已有愿望的更新必须含 disposition=update、准确 id、aim、motive、reason，放下用 release。
@@ -480,15 +483,16 @@ internal object CompanionActionRuntime {
             title = "${character.displayName}继续读《${slice.book.title}》",
             maxTokens = 1_000,
         ).getOrThrow().text.trim()
-        val response = ModelStructuredOutput.objectOrNull(readingResponse)
-            ?: error("阅读感想格式不完整，尚未推进阅读进度")
-        val reflection = response.optString("reflection").trim()
-        require(reflection.isNotBlank()) { "阅读感想未生成，阅读进度保留" }
+        val response = ReadingReactionPolicy.responseObject(readingResponse)
+            ?: error("阅读响应未完成，进度保留")
+        val reaction = ReadingReactionPolicy.parse(response, slice.text, slice.startOffset)
+        val reflection = reaction.reflection
         val record = ReadingReflectionRecord(characterId = character.characterId, bookId = slice.book.id,
             bookTitle = slice.book.title, chapterTitle = readingSections(slice.book).firstOrNull {
                 slice.startOffset in it.start until it.end }?.title ?: slice.book.title,
             revision = readingRevision(slice.book), startOffset = slice.startOffset, endOffset = slice.endOffset,
-            reflection = reflection, occurredAt = now)
+            reflection = reflection, occurredAt = now, moments = reaction.moments, sourceText = slice.text,
+            mood = reaction.mood, innerThought = reaction.innerThought)
         val factualReceipt = "阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"
         val anchoredReceipt = if (station != null)
             "$factualReceipt\n阅读地点：${station.summary}（地点证据ID=${station.evidenceId}）"
@@ -497,8 +501,13 @@ internal object CompanionActionRuntime {
             appendLine(anchoredReceipt)
             if (reflection.isNotBlank()) {
                 append("阅读感想：")
-                append(reflection.take(2_000))
+                appendLine(reflection.take(1_200))
             }
+            reaction.moments.forEach { moment ->
+                appendLine("读到字符 ${moment.startOffset}—${moment.endOffset} 的原文「${moment.quote}」时：${moment.reaction}")
+            }
+            appendLine("本次实际提供的原文节选（书中内容，不是本人生活经历）：")
+            append(slice.text)
         }.trim()
         ReadingReflectionStore.completeRead(record, slice, readingGeneration) {
             // Preserve the factual source before optional personality and UI updates.
@@ -514,6 +523,9 @@ internal object CompanionActionRuntime {
                 evidenceKind = EventEvidenceKind.Observation,
                 sessionId = record.id,
             )
+            check(SharedExperienceTimeline.eventsByIds(character.characterId, listOf(record.id)).isNotEmpty()) {
+                "阅读原始记录未能保存，进度保留"
+            }
         }
         // The committed reflection and source event are authoritative.
         // All following personal interpretation and notifications are optional.
@@ -524,13 +536,13 @@ internal object CompanionActionRuntime {
             response.optJSONObject("innerLife"), emptySet(), now,
         )
         CharacterInnerLifeStore.recordInnerVoice(
-            character.characterId, record.id, response.optString("innerThought"), now,
+            character.characterId, record.id, reaction.innerThought, now,
         )
         CompanionPresenceStore.update(character.characterId, factualReceipt, null,
-            response.optString("innerThought").takeIf(String::isNotBlank),
-            response.optString("mood").takeIf(String::isNotBlank), "阅读后的想法", now,
+            reaction.innerThought.takeIf(String::isNotBlank),
+            reaction.mood.takeIf(String::isNotBlank), "阅读后的想法", now, provenanceId = record.id,
             momentReflection = CharacterMomentSnapshot.reflection(
-                response.optJSONObject("innerLife"), innerThought = response.optString("innerThought"),
+                response.optJSONObject("innerLife"), innerThought = reaction.innerThought,
             ))
         // This is a lived reading RECEIPT, unlike thinking about a book.
         // Carry a possible share desire and curiosity into the same cross-scene
@@ -541,6 +553,16 @@ internal object CompanionActionRuntime {
         }
         CharacterLearningLedger.recordReading(character.characterId, record.id,
             response.optJSONObject("learning"), now)
+        response.optJSONObject("learningIntent")?.let { intent ->
+            val goal = CharacterLearningAgenda.start(character.characterId,
+                JSONObject(intent.toString()).put("sourceEvidenceId", record.id), now)
+            if (goal.optString("status") !in setOf("paused", "dropped", "running") &&
+                CharacterLearningLedger.hasInsight(character.characterId, record.id))
+                CharacterLearningAgenda.update(character.characterId, goal.optString("id")) {
+                    it.put("materialId", record.id).put("materialRevision", 1L).put("status", "practice")
+                        .put("reviewAt", LearningCyclePolicy.reviewAt(now, 0).toString())
+                }
+        }
         CharacterCuriosityRuntime.recordInquiry(
             character.characterId, response.optJSONObject("curiosity"),
             record.id, factualReceipt, now,
@@ -568,7 +590,7 @@ internal object CompanionActionRuntime {
                 last.content.contains("《$title》") &&
                 java.time.Duration.between(last.createdAt, Instant.now()).toMillis() in 0L..180_000L
             val count = if (recentSameBook) ReadingChatReceiptFormatter.consecutiveCount(last!!.content) + 1 else 1
-            val receipt = ReadingChatReceiptFormatter.create(record.id, title, chapter, reflection, count)
+            val receipt = ReadingChatReceiptFormatter.create(record.id, title, chapter, reaction.brief(), count)
             val updated = recentSameBook && chat.editMessage(last!!.id, "[共同活动] $receipt")
             if (!updated) chat.appendPrivateActivityNotice(character.characterId, receipt)
         }.onFailure { error ->

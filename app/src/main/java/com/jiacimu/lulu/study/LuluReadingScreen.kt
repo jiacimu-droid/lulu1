@@ -83,6 +83,10 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
         LazyColumn(Modifier.fillMaxSize().padding(padding), state = listState, contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (selected == null) {
+                if (target != null && books.none { it.id == target.bookId }) item {
+                    Text(target.bookTitle, fontWeight = FontWeight.SemiBold)
+                    ReadingReactionView(target)
+                }
                 item { Button(onClick = { importer.launch(arrayOf("text/plain", "text/markdown")) }) {
                     Icon(Icons.Outlined.UploadFile, null); Text("上传书籍")
                 } }
@@ -107,7 +111,7 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                     }
                     Text(ReadingBackgroundBridge.progressLabel(context, characterId, selected), style = MaterialTheme.typography.bodySmall)
                     if (bookRecords.isEmpty()) {
-                        Text("这位角色尚未完成并保存本书的任何阅读；能看到书名或正文，不代表已经阅读。",
+                        Text("还没有读到这里。",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
@@ -115,13 +119,12 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                         Surface(color = StudyDesign.card) {
                             Column(Modifier.fillMaxWidth().padding(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("最近一次实际阅读 · 已保存回执", fontWeight = FontWeight.SemiBold)
+                                Text("刚读到这里", fontWeight = FontWeight.SemiBold)
                                 Text("${last.chapterTitle} · 字符 ${last.startOffset}—${last.endOffset}",
                                     style = MaterialTheme.typography.bodySmall)
-                                Text("读后感：${last.reflection.take(220)}",
+                                val brief = last.moments.firstOrNull()?.reaction ?: last.reflection
+                                Text(brief.take(220).ifBlank { "读完这段，暂时没留下感想。" },
                                     style = MaterialTheme.typography.bodyMedium)
-                                Text("以下对应章节保留完整感想；删除原始阅读证据后不再计为成长依据。",
-                                    style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -132,14 +135,14 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                             reading = true
                             scope.launch {
                                 val result = CompanionActionRuntime.execute(context, characterId, "read_book", JSONObject().put("readingBookId", selected.id))
-                                notice = if (result.success) "已保存阅读感想" else result.summary
+                                notice = if (result.success) "已读到下一段" else result.summary
                                 reading = false
                             }
                         }) { Text(if (reading) "正在阅读…" else "让角色继续阅读") }
                 }
                 if (target?.bookId == selected.id && target.revision != revision) item {
-                    Text("原文已更新 · 原版本阅读感想", fontWeight = FontWeight.Bold)
-                    Text(target.reflection)
+                    Text("当时读到的版本", fontWeight = FontWeight.Bold)
+                    ReadingReactionView(target)
                 }
                 items(readingSections(selected), key = { "${selected.id}:${it.start}" }) { section ->
                     var expanded by remember(selected.id, section.start) { mutableStateOf(false) }
@@ -154,14 +157,40 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                                 Text("${characters[note.characterId]?.displayName ?: "角色"}的感想 · ${note.startOffset}—${note.endOffset}",
                                     fontWeight = FontWeight.Medium)
                                 if (note.id == target?.id) Text("本次阅读", style = MaterialTheme.typography.labelSmall)
-                                Text(note.reflection)
+                                ReadingReactionView(note)
                             }
-                            if (notes.isEmpty()) Text("尚无阅读感想", style = MaterialTheme.typography.bodySmall)
+                            if (notes.isEmpty()) Text("还没有留下阅读记录", style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
             }
             if (selected == null && notice.isNotBlank()) item { Text(notice) }
+        }
+    }
+}
+
+
+@Composable
+private fun ReadingReactionView(record: ReadingReflectionRecord) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        record.moments.forEach { moment ->
+            Text("“${moment.quote}”", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(moment.reaction, style = MaterialTheme.typography.bodyLarge)
+            if (moment.feeling.isNotBlank()) Text(moment.feeling,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (record.reflection.isNotBlank()) Text(record.reflection)
+        if (record.moments.isEmpty() && record.reflection.isBlank()) Text("暂时没留下感想。",
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (record.innerThought.isNotBlank()) Text("当时没说出口：${record.innerThought}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (record.sourceText.isNotBlank()) {
+            var showSource by remember(record.id) { mutableStateOf(false) }
+            TextButton(onClick = { showSource = !showSource }) { Text(if (showSource) "收起当时原文" else "看当时原文") }
+            if (showSource) Text(record.sourceText, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
