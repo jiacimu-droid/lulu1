@@ -184,7 +184,7 @@ fun CharacterSettingsScreenV2(
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
 
-                    CharacterLifeSettings(characterId)
+                    CharacterLifeSettings(characterId, seedPersona = persona, seedIdentity = identity)
                 }
             }
             if (section == 0) {

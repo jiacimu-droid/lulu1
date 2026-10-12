@@ -87,6 +87,16 @@ class AutonomousDecisionRecoveryTest {
             chosen.getJSONObject("relationshipInitiative").getString("aim"))
     }
 
+    @Test fun aStreakOfThreeSilentDecisionsGetsOneNewChanceToChooseLife() {
+        val history = listOf("MESSAGE", "SILENT", "SILENT", "SILENT")
+        assertTrue(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = true, reason = "现在想独处，安静一会儿",
+            recentActions = history, hasPendingUserMessage = false))
+        assertFalse(AutonomousDecisionRecovery.needsIndependentLifeReview(
+            silent = true, reason = "没有新消息",
+            recentActions = history, hasPendingUserMessage = true))
+    }
+
     @Test fun repeatedWaitingIsReviewedButRealSolitudeIsRespected() {
         val history = listOf("MESSAGE", "SILENT", "SILENT")
         assertTrue(AutonomousDecisionRecovery.needsIndependentLifeReview(
