@@ -19,7 +19,6 @@ import com.jiacimu.lulu.games.WorldVector
  */
 internal fun DrawScope.drawDigitalPublicPlaceWorld(sceneCode: String, lightPhase: Float): Boolean = when (sceneCode) {
     DigitalWorldPublicPlaces.GAME_HALL -> { drawGameHallWorld(lightPhase); true }
-    DigitalWorldPublicPlaces.READING_LOUNGE -> { drawReadingLoungeWorld(lightPhase); true }
     DigitalWorldPublicPlaces.CAFE -> { drawCafeWorld(lightPhase); true }
     DigitalWorldPublicPlaces.COURTYARD -> { drawCourtyardWorld(lightPhase); true }
     else -> false

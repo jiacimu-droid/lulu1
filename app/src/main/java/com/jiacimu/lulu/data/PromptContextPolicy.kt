@@ -23,7 +23,7 @@ internal object PromptContextPolicy {
     )
     private val worldSignals = listOf(
         "数字世界", "见面", "家里", "你家", "我家", "房间", "家具", "物品",
-        "串门", "公共区", "云眠原", "阅读馆", "咖啡角", "庭院", "蟑螂",
+        "串门", "公共区", "云眠原", "咖啡角", "庭院", "蟑螂",
         "世界事件", "摆放", "装修", "散步", "去哪里", "在哪儿",
     )
     private val liveSignals = listOf(

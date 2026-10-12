@@ -13,9 +13,9 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         digital_world 只允许权威状态列出的 worldAction 与对应 ID；world_invite 仅邀请用户，不等于角色自己移动。
         go_home/visit_public_place/visit_cloud_meadow 等移动、相遇和随机事件由程序执行；到达某地之后可以连续生活，不要每轮往返。
         interact_resident 需要该地点现场真正登记的居民 itemId（即居民ID）和 activityId=greet/chat/ask_place/sit_together；不在现场的居民不能隔空对话。
-        use_home_item 必须有当前位置真实 itemId 与允许的 activityId；use_location 使用当前地点真实 activityId。公共区包含云眠原、游戏馆、阅读馆、咖啡角、庭院；现实窗口 reality_* 是系统能力，不需要搬家。
+        use_home_item 必须有当前位置真实 itemId 与允许的 activityId；use_location 使用当前地点真实 activityId。公共区包含云眠原、游戏馆、咖啡角、庭院（也可能有已经登记的新地点），阅读馆已经撤销；现实窗口 reality_* 是系统能力，不需要搬家。
         持续事件以现场 active incidentId 为准，可观察、避让或 handle_incident(incidentId, approach)；没处理成功就仍存在，不能靠独白和状态文字清除。
-        阅读必须有真实 readingBookId，进度与正文由程序保存；决定 reading 后执行器会先按当前真实地点靠近已持久化的家中书架，或去阅读馆书架前挑书，再真实读正文和生成读后感。没有阅读回执前只算“准备/阅读中”，不可声称读完；不需要先让模型重复调用 go_home/use_home_item。选择桌前/阅读馆的阅读活动时同样必须提供，不能提前声称读到后面的情节。
+        阅读必须有真实 readingBookId，进度与正文由程序保存；决定 reading 后执行器会先回到自己家中靠近已持久化的真实书架；如果家中书架已被移走，则不能开始阅读，再真实读正文和生成读后感。没有阅读回执前只算“准备/阅读中”，不可声称读完；不需要先让模型重复调用 go_home/use_home_item。选择阅读活动时同样必须提供，不能提前声称读到后面的情节。
         建设家具要在自己家，build_home_item 一次一件、明确材质外形及真实摆放位置；不在家时先回家。移动或使用物品也必须提供已存在 ID。
         ${if (atHome) "家具城规格（可自由选择，不需每次建设）：${DigitalFurnitureCatalog.promptOptions()}" else "未在自己家时无需家具城清单，返回家中后才可建设。"}
         新出现的真实环境瞬间可欣赏、忽略、分享或独处；不要自动变成必须完成的任务。人物可以自己选择生活、阅读、玩耍、交友而不向用户汇报。

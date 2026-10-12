@@ -47,34 +47,6 @@ internal object DigitalWorldVenueAnchors {
                 radius = 145f,
             ),
         )
-        DigitalWorldPublicPlaces.READING_LOUNGE -> listOf(
-            DigitalVenueAnchor(
-                id = "reading-left-shelf",
-                label = "西侧阅读架",
-                position = WorldVector(330f, 505f),
-                activityIds = listOf("browse_reading", "reading_wander"),
-            ),
-            DigitalVenueAnchor(
-                id = "reading-window",
-                label = "窗边阅读位",
-                position = WorldVector(1_125f, 455f),
-                activityIds = listOf("window_read", "quiet_read"),
-                radius = 135f,
-            ),
-            DigitalVenueAnchor(
-                id = "reading-center",
-                label = "中央阅读岛",
-                position = WorldVector(800f, 670f),
-                activityIds = listOf("quiet_read"),
-                radius = 145f,
-            ),
-            DigitalVenueAnchor(
-                id = "reading-soft-seat",
-                label = "软座区",
-                position = WorldVector(1_080f, 845f),
-                activityIds = listOf("reading_rest"),
-            ),
-        )
         DigitalWorldPublicPlaces.CAFE -> listOf(
             DigitalVenueAnchor(
                 id = "cafe-counter",

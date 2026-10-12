@@ -170,13 +170,6 @@ internal object DigitalWorldActivityCatalog {
             "sit_arcade" to "去休息区坐坐",
             "arcade_linger" to "在灯光和音效里待一会儿",
         )
-        DigitalWorldPublicPlaces.READING_LOUNGE -> listOf(
-            "browse_reading" to "慢慢翻阅读架",
-            "quiet_read" to "找安静位置阅读",
-            "window_read" to "坐到窗边阅读",
-            "reading_wander" to "在书架间随便逛逛",
-            "reading_rest" to "在软座上安静坐会儿",
-        )
         DigitalWorldPublicPlaces.CAFE -> listOf(
             "order_drink" to "领取一杯温水",
             "order_snack" to "领取一份原味饼干",
@@ -239,12 +232,6 @@ internal object DigitalWorldActivityCatalog {
             "check_scoreboard" -> "走到游戏馆的成绩榜前看了一会儿今天的记录"
             "sit_arcade" -> "在游戏馆休息区坐了一会儿"
             "arcade_linger" -> "没急着开始游戏，只是在游戏馆的灯光和音效里待了一会儿"
-            "browse_reading" -> "走到阅读馆的书架前，准备查看实际书目"
-            "quiet_read" -> "在阅读馆找了个安静的位置坐下阅读"
-            "window_read" -> "在阅读馆靠窗的位置坐下读了一会儿"
-            "reading_notes" -> "在阅读馆停下来整理了一下刚才读到的内容和自己的想法"
-            "reading_wander" -> "沿着阅读馆的书架开始慢慢走动"
-            "reading_rest" -> "在阅读馆的软座上坐了一会儿，让自己安静下来"
             "order_drink" -> "在浮光咖啡角领取了一杯温水"
             "order_snack" -> "在浮光咖啡角领取了一份原味饼干"
             "cafe_sit" -> "在浮光咖啡角找了个舒服的位置坐下"

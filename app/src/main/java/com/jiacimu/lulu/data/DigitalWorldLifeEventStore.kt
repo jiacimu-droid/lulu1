@@ -293,10 +293,6 @@ internal object DigitalWorldLifeEventStore {
                 "game_preview_shuffle", "scoreboard_glow", "arcade_chime", "challenge_ribbon",
                 "game_preview_shuffle", "scoreboard_glow", "arcade_chime",
             )
-            locationCode == DigitalWorldPublicPlaces.READING_LOUNGE -> listOf(
-                "reading_index_refresh", "page_light", "reading_chime", "text_motes",
-                "reading_index_refresh", "page_light", "text_motes",
-            )
             locationCode == DigitalWorldPublicPlaces.CAFE -> listOf(
                 "counter_glow", "warm_mist", "seat_light", "snack_sign",
                 "counter_glow", "seat_light", "warm_mist",
