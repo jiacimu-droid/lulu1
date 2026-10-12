@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T07:45:10.161120+00:00",
-  "commit": "8f5772a286871f2d550e4f4a7983c058517aa96a",
+  "generatedAt": "2026-10-12T08:01:40.110693+00:00",
+  "commit": "26137c277f97b25ae6a53f4e5f1ee1ccf1181aa5",
   "branch": "main",
-  "sourceFingerprint": "89afdf0e254701f6d55a73feb8d2263bd3e650619bcc6387bf0806508fcef007",
+  "sourceFingerprint": "839ab1f0e6747cde04e4bf0b4d3403fb1a77e6b29a1be7b076c03797b3a3e950",
   "summary": {
     "files": 542,
-    "lines": 111621,
+    "lines": 111698,
     "symbols": 1670
   },
   "symbolIndex": {
@@ -12479,8 +12479,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 201,
-      "sha256": "990f9eb13ebb432dd602bb24315857e470c751579ab5fd558966f04907703456",
+      "lines": 216,
+      "sha256": "d7c41f4fc3fa90d91d588f546091e12f2065ebf5f3e76e304b6a2c98fb7e86b7",
       "symbols": [
         {
           "name": "current",
@@ -13202,8 +13202,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 532,
-      "sha256": "96f92be5174d4be538ea4063efcd7c6b2cef08e02a431d8aeeee46a9d3fae736",
+      "lines": 554,
+      "sha256": "b4ef39ae63fa61e519e089c69ae5d81f356124609d3aec24f4ab70b4def8fb4b",
       "symbols": [
         {
           "name": "asJson",
@@ -17157,8 +17157,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-      "lines": 145,
-      "sha256": "f57f654d313da67f17eec8a4b16858cfa7892106617ce91a3fcf0a83a960caac",
+      "lines": 168,
+      "sha256": "26dac489f8f9d38ace60ea2fd37f907880e7547ac2cd722e003a895512ff2f73",
       "symbols": [
         {
           "name": "LuluReadingScreen",
@@ -19114,8 +19114,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-      "lines": 98,
-      "sha256": "928c8e41f1b093f313f8dbe67da03062c42b6fbe97c3702006a6c30a2c139f6a",
+      "lines": 115,
+      "sha256": "0d38fcce0ea171d4432324d5de79f34fd6e8cdf206a0c9d5e78327b8ac1f23ee",
       "symbols": [
         {
           "name": "CharacterLifeVisibilityTest",
