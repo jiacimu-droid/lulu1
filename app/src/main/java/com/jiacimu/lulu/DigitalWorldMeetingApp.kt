@@ -182,6 +182,9 @@ fun DigitalWorldMeetingApp(
             browsingMap = false
             input = ""
             errorText = ""
+            if (DigitalWorldLiveScene.consumeAcceptedHug(characterId, location)) {
+                launchLivingMoment(session, characterId, "角色主动提出拥抱且用户已接受，接续现场互动。")
+            }
         }.onFailure { error ->
             errorText = error.message ?: "无法进入这个场景"
         }
