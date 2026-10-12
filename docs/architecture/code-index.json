@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T09:04:30.248256+00:00",
-  "commit": "1c50d4c48ec3e5a58e79f1603d00cae5ed652cdb",
+  "generatedAt": "2026-10-12T09:05:21.247355+00:00",
+  "commit": "e2d017b56c00dca7fb2e20fdf5204c0df8771e40",
   "branch": "main",
-  "sourceFingerprint": "4beeca07d19b4d9380d60812a855eeec353fe29738b21ab948ac98a1b270db05",
+  "sourceFingerprint": "b6cdb8f9f4362cdaaf8c0bf6e44a123a224f42061e52d9cdc912b9967334aa67",
   "summary": {
     "files": 547,
-    "lines": 112141,
+    "lines": 112142,
     "symbols": 1681
   },
   "symbolIndex": {
@@ -931,31 +931,31 @@
     "Resident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 87
+        "line": 88
       }
     ],
     "Prop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 89
+        "line": 90
       }
     ],
     "Venue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 90
+        "line": 91
       }
     ],
     "furniturePoseFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 158
+        "line": 159
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1117
+        "line": 1118
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -965,37 +965,37 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1126
+        "line": 1127
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1128
+        "line": 1129
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1130
+        "line": 1131
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1133
+        "line": 1134
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1136
+        "line": 1137
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1144
+        "line": 1145
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -9968,52 +9968,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1149,
-      "sha256": "1f8ad37616e628a5ba81a9aed5b2add0d123ca469431f12295125af14b16bc2a",
+      "lines": 1150,
+      "sha256": "fb4d146458acb6c7ec05fea70c750d1cd98546209885ee2ecbc951c52bd580d2",
       "symbols": [
         {
           "name": "Resident",
-          "line": 87
+          "line": 88
         },
         {
           "name": "Prop",
-          "line": 89
-        },
-        {
-          "name": "Venue",
           "line": 90
         },
         {
+          "name": "Venue",
+          "line": 91
+        },
+        {
           "name": "furniturePoseFor",
-          "line": 158
+          "line": 159
         },
         {
           "name": "loadPosition",
-          "line": 1117
+          "line": 1118
         },
         {
           "name": "loadQuest",
-          "line": 1126
+          "line": 1127
         },
         {
           "name": "loadHandHoldingId",
-          "line": 1128
+          "line": 1129
         },
         {
           "name": "loadFollowerIds",
-          "line": 1130
+          "line": 1131
         },
         {
           "name": "loadSuspendedFollowers",
-          "line": 1133
+          "line": 1134
         },
         {
           "name": "saveCompanionship",
-          "line": 1136
+          "line": 1137
         },
         {
           "name": "save",
-          "line": 1144
+          "line": 1145
         }
       ]
     },
