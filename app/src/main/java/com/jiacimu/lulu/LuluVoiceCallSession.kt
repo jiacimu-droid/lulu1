@@ -64,6 +64,8 @@ internal data class LuluVoiceCallState(
     val partialTranscript: String = "",
     val inputLevel: Float = 0f,
     val inputMeterAvailable: Boolean = false,
+    val batchRecording: Boolean = false,
+    val batchUploading: Boolean = false,
     val errorMessage: String = "",
     val provider: String = "",
     val generatedTranscript: String = "",
@@ -411,6 +413,7 @@ internal object LuluVoiceCallSession {
                 userSpeaking = if (nextMuted) false else it.userSpeaking,
                 listening = if (nextMuted) false else it.listening,
                 inputLevel = if (nextMuted) 0f else it.inputLevel,
+                batchRecording = if (nextMuted) false else it.batchRecording,
                 partialTranscript = if (nextMuted && providerInput == null &&
                     pendingSystemSpeech.isBlank()) "" else it.partialTranscript,
                 statusMessage = when {
@@ -508,10 +511,11 @@ internal object LuluVoiceCallSession {
                 mutableState.value.callExperienceId == sessionId &&
                 mutableState.value.sleepMode && realtime == null) {
                 val now = mutableState.value
-                val busy = now.speaking || speechQueue?.hasPendingAudio == true
+                val busy = now.speaking || now.batchRecording || now.batchUploading ||
+                    speechQueue?.hasPendingAudio == true
                 if (SleepCallContinuationPolicy.shouldQuietlyEnd(
                         sleepSilenceMillis(), now.connected, now.sleepMode,
-                        confirmedSpeechInProgress(), busy,
+                        confirmedSpeechInProgress() || now.batchRecording || now.batchUploading, busy,
                     )) {
                     endSleepCallOnSilence()
                     return@launch
@@ -1401,7 +1405,18 @@ internal object LuluVoiceCallSession {
         }
     }
 
-    /** Visible manual safety valve for batch Scribe v2 (not the realtime API). */
+    /** V2 and Realtime are separate input paths: only batch Scribe has a record button. */
+    fun beginRecordedSpeech() {
+        val call = mutableState.value
+        if (!call.connected || call.microphoneMuted || call.batchRecording ||
+            call.batchUploading || call.opening || (call.speaking && !privateCallOutput())) return
+        if (providerInput?.beginRecording() == true) mutableState.update {
+            it.copy(batchRecording = true, statusMessage = "正在录音 · 结束并发送后才扣转写用量",
+                errorMessage = "", listening = true)
+        }
+    }
+
+    /** End recording and explicitly submit only the PCM recorded since Start. */
     fun submitRecordedSpeech() {
         val ctx = appContext ?: return
         if (!mutableState.value.connected || mutableState.value.microphoneMuted ||
@@ -1409,9 +1424,12 @@ internal object LuluVoiceCallSession {
             CallVoiceConfiguration.elevenSttModel(ctx.getSharedPreferences(
                 "lulu_advanced_settings", 0).getString("eleven_asr_model", null)) !=
                 CallVoiceConfiguration.SCRIBE_V2) return
+        if (!mutableState.value.batchRecording) return
         val accepted = providerInput?.finishCurrentPhrase() == true
-        mutableState.update { it.copy(statusMessage = if (accepted)
-            "正在提交已录到的语音（V2 分段识别）" else "麦克风还没准备好，请重新收音") }
+        mutableState.update { it.copy(
+            batchRecording = false, batchUploading = accepted,
+            statusMessage = if (accepted) "录音已发送 · 正在转写" else "录音过短，请重新开始录音",
+            listening = false) }
     }
 
     private fun startProviderInput() {
@@ -1441,8 +1459,11 @@ internal object LuluVoiceCallSession {
                     if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
                     val wasConnected = mutableState.value.connected
                     mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = it.callStartedAt ?: Instant.now(), everConnected = true,
-                        listening = !it.speaking && !it.microphoneMuted, inputMeterAvailable = true,
-                        errorMessage = "", statusMessage = if (it.thinking) it.statusMessage else "麦克风收音已启动，直接说话；停顿后识别并回复") }
+                        listening = !it.speaking && !it.microphoneMuted && !providerInput!!.isManualBatch,
+                        inputMeterAvailable = true,
+                        errorMessage = "", statusMessage = if (it.thinking) it.statusMessage
+                            else if (providerInput!!.isManualBatch) "V2 已就绪 · 点开始录音，录完点结束并发送"
+                            else "实时麦克风已就绪，可以直接说话") }
                     if (!wasConnected) { startTimer(); startOpening() }
                 }
             },
@@ -1519,7 +1540,7 @@ internal object LuluVoiceCallSession {
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
                     providerRecognitionPendingUntilMillis = 0L
-                    mutableState.update { it.copy(userSpeaking = false) }
+                    mutableState.update { it.copy(userSpeaking = false, batchUploading = false) }
                     // Check BEFORE calling handleUserSpeech: it writes sender=User
                     // and begins another model reply. Speaker TTS must never
                     // manufacture one of those turns.
@@ -1556,6 +1577,7 @@ internal object LuluVoiceCallSession {
                 scheduleSleepContinuation()
                 val dialing = mutableState.value.phase == CallPhase.Dialing
                 mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false, userSpeaking = false, inputLevel = 0f,
+                    batchRecording = false, batchUploading = false,
                     errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
                 if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
             } },
@@ -1605,7 +1627,8 @@ internal object LuluVoiceCallSession {
                         sinceUserReplyMillis = sleepSilenceMillis(),
                         connected = current.connected,
                         sleepMode = current.sleepMode,
-                        userSpeaking = confirmedSpeechInProgress(),
+                        userSpeaking = confirmedSpeechInProgress() || current.batchRecording ||
+                            current.batchUploading,
                         audioInProgress = current.speaking || speechQueue?.hasPendingAudio == true,
                     )) {
                     endSleepCallOnSilence()
@@ -1613,7 +1636,8 @@ internal object LuluVoiceCallSession {
                 }
                 val clock = SystemClock.elapsedRealtime()
                 if (CallSilencePolicy.shouldRecoverStuckCapture(
-                        providerActive = providerInput?.usesServerVad == false && !current.microphoneMuted,
+                        providerActive = providerInput?.usesServerVad == false &&
+                            providerInput?.isManualBatch != true && !current.microphoneMuted,
                         userSpeechInProgress = userSpeechInProgress,
                         sinceSpeechStartedMillis = clock - providerSpeechStartedMillis,
                     )) {
@@ -1644,7 +1668,8 @@ internal object LuluVoiceCallSession {
                         current.thinking || current.speaking || current.opening ||
                             speechQueue?.hasPendingAudio == true ||
                             providerRecognitionPendingUntilMillis > clock,
-                        confirmedSpeechInProgress(), clock - lastConfirmedUserSpeechMillis,
+                        confirmedSpeechInProgress() || current.batchRecording || current.batchUploading,
+                        clock - lastConfirmedUserSpeechMillis,
                         clock - lastCallAudioMillis, clock - lastSilenceReflectionMillis, silenceFailures)) {
                     lastSilenceReflectionMillis = clock
                     handleUserSpeech("", autonomousSilence = true)

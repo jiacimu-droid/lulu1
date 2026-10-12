@@ -8,6 +8,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
 import java.util.Collections
+import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
@@ -32,6 +33,17 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val presentingChunk = AtomicLong(-1L)
     @Volatile private var currentPhrase = ""
     private var pauseReleaseJob: Job? = null
+    /** Batch Scribe has a separate, explicit record -> stop -> upload lifecycle.
+     * It never uses device VAD or continuously uploads audio to a paid API. */
+    private val batchLock = Any()
+    private var batchMode = false
+    @Volatile private var batchRecording = false
+    @Volatile private var batchUploading = false
+    private var batchPcm = ByteArrayOutputStream()
+    val isManualBatch: Boolean get() = batchMode
+    val isRecording: Boolean get() = batchRecording
+    val isUploading: Boolean get() = batchUploading
+    private val batchLimitBytes = 16_000 * 2 * 90
 
     val usesServerVad: Boolean get() = realtime != null
 
@@ -43,11 +55,15 @@ internal class ProviderCallInput(private val context: Context, private val scope
         presentingChunk.set(-1)
         currentPhrase = ""
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
-        if (sttEngine == "elevenlabs" &&
-            CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
-                CallVoiceConfiguration.SCRIBE_V2_REALTIME) {
+        if (sttEngine == "elevenlabs") {
             capturePaused = false
-            startRealtime(epoch, prefs)
+            if (CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
+                CallVoiceConfiguration.SCRIBE_V2_REALTIME) {
+                startRealtime(epoch, prefs)
+            } else {
+                batchMode = true
+                startBatchMicrophone(epoch, prefs)
+            }
             return
         }
         // A running user monologue can outlast cloud upload latency; never
@@ -125,6 +141,72 @@ internal class ProviderCallInput(private val context: Context, private val scope
         }
         capturePaused = false
         startMicrophone(epoch, queue, prefs)
+    }
+
+    /** No segmentation gate: record only after the human explicitly starts it. */
+    private fun startBatchMicrophone(epoch: Long, prefs: android.content.SharedPreferences) {
+        microphone.start(
+            accept = { epoch == generation && !capturePaused && accept() },
+            onReady = { if (epoch == generation) onReady() },
+            onLevel = { if (epoch == generation) onLevel(it) },
+            onSpeech = {},
+            onFrame = { frame ->
+                if (epoch == generation && batchRecording && accept()) synchronized(batchLock) {
+                    if (batchRecording && batchPcm.size() < batchLimitBytes) {
+                        batchPcm.write(frame, 0, minOf(frame.size, batchLimitBytes - batchPcm.size()))
+                    }
+                }
+            },
+            onSegment = { _, _ -> },
+            onError = { error -> if (epoch == generation) onError(error) },
+            continuousFrames = true,
+            threshold = prefs.getFloat("voice_vad_threshold", 195f),
+            endSilenceMs = prefs.getInt("voice_end_silence_ms", 2_500),
+        )
+    }
+
+    fun beginRecording(): Boolean {
+        if (!batchMode || capturePaused || batchUploading || batchRecording) return false
+        synchronized(batchLock) {
+            batchPcm.reset()
+            batchRecording = true
+        }
+        capturingVoice = true
+        onSpeech()
+        onStatus("V2 正在录音 · 结束后才上传")
+        return true
+    }
+
+    private fun submitBatch(): Boolean {
+        if (!batchMode || !batchRecording || batchUploading) return false
+        val recorded = synchronized(batchLock) {
+            batchRecording = false
+            batchPcm.toByteArray().also { batchPcm.reset() }
+        }
+        capturingVoice = false
+        if (recorded.size < 16_000) {
+            onCaptureFinished()
+            onStatus("录音太短，至少说半秒后再发送")
+            return false
+        }
+        batchUploading = true
+        onCaptureFinished()
+        onStatus("识别完整语句中…")
+        val epoch = generation
+        transcription = scope.launch {
+            try {
+                val text = transcribeElevenLabs(recorded)
+                if (epoch == generation && text.isNotBlank()) onText(text)
+                else if (epoch == generation) onError("V2 未识别出文字，可以重新录音")
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (epoch == generation) onError(error.message ?: "V2 转写失败")
+            } finally {
+                if (epoch == generation) batchUploading = false
+            }
+        }
+        return true
     }
 
     private fun startRealtime(
@@ -233,15 +315,22 @@ internal class ProviderCallInput(private val context: Context, private val scope
      * loop sees accept=false on its next ~100ms frame and emits the final PCM
      * buffer; cancellation a fraction of a second later frees AudioRecord.
      */
-    /** The cheaper batch Scribe route can explicitly finish a real PCM segment. */
+    /** Only the V2 batch route is explicitly stopped/uploaded. Other ASR engines retain VAD. */
     fun finishCurrentPhrase(): Boolean {
-        if (capturePaused || realtime != null || segments == null) return false
+        if (capturePaused) return false
+        if (batchMode) return submitBatch()
+        if (realtime != null || segments == null) return false
         microphone.finishCurrentPhrase()
         return true
     }
 
     fun pauseCapture() {
         if (capturePaused) return
+        if (batchMode) synchronized(batchLock) {
+            batchRecording = false
+            batchPcm.reset()
+            capturingVoice = false
+        }
         capturePaused = true
         pauseReleaseJob?.cancel()
         pauseReleaseJob = scope.launch {
@@ -258,7 +347,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         if (!capturePaused) return
         val queue = segments
         val stream = realtime
-        if (queue == null && stream == null) return
+        if (queue == null && stream == null && !batchMode) return
         pauseReleaseJob?.cancel()
         pauseReleaseJob = null
         capturePaused = false
@@ -267,6 +356,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         microphone.stop()
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
         if (stream != null) startRealtimeMicrophone(generation, prefs, stream)
+        else if (batchMode) startBatchMicrophone(generation, prefs)
         else if (queue != null) startMicrophone(generation, queue, prefs)
     }
 
@@ -438,6 +528,12 @@ internal class ProviderCallInput(private val context: Context, private val scope
         generation++
         capturingVoice = false
         capturePaused = false
+        synchronized(batchLock) {
+            batchRecording = false
+            batchPcm.reset()
+        }
+        batchUploading = false
+        batchMode = false
         microphone.stop()
         realtime?.stop()
         realtime = null

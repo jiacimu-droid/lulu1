@@ -91,7 +91,7 @@ internal fun VoiceCallSettings(provider: String) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 分段上传",
+                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 录完发送",
                     CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 实时转写",
                 ).forEach { (id, label) ->
                     FilterChip(selected = elevenSttModel == id, onClick = {
@@ -103,7 +103,7 @@ internal fun VoiceCallSettings(provider: String) {
             Text(
                 if (elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
                     "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
-                else "普通 V2：由手机实际收音并判断停顿，分段上传后才出现字幕。若手机迟迟不断句，通话中可点「识别这段话」手动提交已录音频。",
+                else "普通 V2：单独的录音路径。点击「开始录音」后收集原声，点击「结束并发送录音」才上传；不用本地 VAD 断句，上传前不请求 ElevenLabs 转写。",
                 style = MaterialTheme.typography.bodySmall)
             Text("两条识别线路互不混用，均使用 ElevenLabs API Key（不需要 Voice ID），计费以 ElevenLabs 账户为准。普通电话中央新增真实麦克风电平条：有声波不代表云端已经转出文字。选项从下一通电话生效；Agent 模式另行配置。",
                 style = MaterialTheme.typography.bodySmall)
@@ -163,16 +163,20 @@ internal fun VoiceCallSettings(provider: String) {
             }
         }
         if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
+            if (sttMode != "elevenlabs" || elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
             Text("思考停顿宽容：${silence.toInt()} 毫秒（说话断续时可调高，停下后的回复也会稍晚）")
+            if (sttMode != "elevenlabs" || elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
             Slider(value = silence, onValueChange = { silence = it },
                 onValueChangeFinished = {
                     prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
                 }, valueRange = 1_450f..4_500f)
+            if (sttMode != "elevenlabs") {
             Text("轻声识别灵敏度（越低越容易捕获轻声，也可能听到环境声）")
             Slider(value = threshold, onValueChange = { threshold = it },
                 onValueChangeFinished = {
                     prefs.edit().putFloat("voice_vad_threshold", threshold).apply()
                 }, valueRange = 80f..1200f)
+            }
         }
     }
 }

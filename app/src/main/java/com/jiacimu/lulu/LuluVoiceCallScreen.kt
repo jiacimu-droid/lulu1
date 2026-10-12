@@ -227,8 +227,16 @@ fun LuluVoiceCallScreen(
                             CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
                                 CallVoiceConfiguration.SCRIBE_V2
                         if (batchEleven && !state.microphoneMuted) {
-                            TextButton(onClick = LuluVoiceCallSession::submitRecordedSpeech) {
-                                Text("识别这段话", fontSize = 12.sp)
+                            TextButton(
+                                enabled = !state.batchUploading &&
+                                    (!state.opening || state.batchRecording),
+                                onClick = {
+                                    if (state.batchRecording) LuluVoiceCallSession.submitRecordedSpeech()
+                                    else LuluVoiceCallSession.beginRecordedSpeech()
+                                }) {
+                                Text(if (state.batchUploading) "正在转写…"
+                                    else if (state.batchRecording) "结束并发送录音"
+                                    else "开始录音", fontSize = 12.sp)
                             }
                         }
                         TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
@@ -357,7 +365,7 @@ fun LuluVoiceCallScreen(
                             }
                             Text(
                                 if (scribeChoice == CallVoiceConfiguration.SCRIBE_V2)
-                                    "省费用的分段上传线路；接通后可看麦克风音量条，必要时点「识别这段话」。"
+                                    "录音完成后才上传到 V2。接通后点「开始录音」，说完点「结束并发送录音」。"
                                 else "实时 WebSocket 线路，边说边出字幕；费用取决于 ElevenLabs 计费。",
                                 color = CallMuted, fontSize = 11.sp, textAlign = TextAlign.Center,
                             )
@@ -493,6 +501,8 @@ private fun CallMicrophoneMeter(state: LuluVoiceCallState) {
         Text(
             when {
                 state.microphoneMuted -> "麦克风已关闭"
+                state.batchRecording -> "正在录音 · 音量条显示真实收音"
+                state.batchUploading -> "录音已发送 · 等待 ElevenLabs 转写"
                 state.speaking && level == 0f -> "对方播放中 · 扬声器可能暂停收音"
                 level > .18f -> "麦克风收到声音 · 等待转成文字"
                 else -> "真实麦克风电平 · 对着手机说话，竖条会随音量变化"
