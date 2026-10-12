@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`69cafa10c420c3c32ccc946f85a3e5caabff41c4`
+- 基准提交：`78edcc441ab1748c6f8e3a715e2ade070684c71b`
 - 分支：`main`
 - 已索引文件：542
-- 已索引代码/文本行：111596
+- 已索引代码/文本行：111608
 - 已发现符号：1670
 
 | 文件 | 行数 | 符号数 |
@@ -276,7 +276,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 125 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 131 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1386 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1398 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 500 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 29 | 1 |
