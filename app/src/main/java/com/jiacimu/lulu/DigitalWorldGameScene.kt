@@ -180,6 +180,18 @@ internal fun DigitalWorldGameScene(
     var questStage by remember(sceneKey) { mutableIntStateOf(stateStore.loadQuest()) }
     var arcadeGameId by rememberSaveable(sceneKey) { mutableStateOf<String?>(null) }
     var interactionMessage by remember(sceneKey) { mutableStateOf("") }
+    var roleOffer by remember(sceneKey) {
+        mutableStateOf<com.jiacimu.lulu.data.DigitalWorldLiveScene.Offer?>(null)
+    }
+    LaunchedEffect(sceneKey, controlsEnabled, residents.map { it.characterId }) {
+        while (controlsEnabled) {
+            roleOffer = residents.asSequence()
+                .mapNotNull { com.jiacimu.lulu.data.DigitalWorldLiveScene.offer(it.characterId) }
+                .firstOrNull()
+            kotlinx.coroutines.delay(600L)
+        }
+        roleOffer = null
+    }
     var menuTargetKey by remember(sceneKey) { mutableStateOf<String?>(null) }
     var queuedActions by remember(sceneKey) { mutableStateOf<List<DigitalQueuedAction>>(emptyList()) }
     var activeActionLabel by remember(sceneKey) { mutableStateOf("") }
@@ -383,7 +395,8 @@ internal fun DigitalWorldGameScene(
                     // Animation reflects confirmed activity; it never executes random world actions.
                     val characterId = motion.character.characterId
                     val sceneGoal = com.jiacimu.lulu.data.DigitalWorldLiveScene.goal(characterId)
-                    val approaching = sceneGoal?.action == "approach_user"
+                    val approaching = sceneGoal?.action in setOf(
+                        "approach_user", "offer_hand", "offer_hug", "offer_follow")
                     val following = characterId in activeFollowerIds || approaching
                     val handHolding = characterId == effectiveHoldingId
                     val occupiedFurniture = if (!following && sceneGoal == null) furniturePoseFor(characterId) else null
@@ -701,6 +714,63 @@ internal fun DigitalWorldGameScene(
             Surface(color = Color(0xE3152420), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Color(0xFFB7FFE8).copy(alpha = .26f)), shadowElevation = 7.dp) {
                 Text(interactionMessage, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp))
             }
+        }
+
+        if (controlsEnabled && roleOffer != null) {
+            val proposal = roleOffer!!
+            val name = residents.firstOrNull { it.characterId == proposal.characterId }
+                ?.displayName ?: "角色"
+            val offerText = when (proposal.action) {
+                "offer_hand" -> "$name 走近你，主动伸手问你要不要牵手。"
+                "offer_hug" -> "$name 走近你，问可不可以抱一下。"
+                else -> "$name 走过来，想约你一起逛逛。"
+            }
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = {
+                    com.jiacimu.lulu.data.DigitalWorldLiveScene.replyToOffer(
+                        proposal.characterId, proposal.id, false)
+                    roleOffer = null
+                },
+                title = { Text("角色主动邀请") },
+                text = { Text(offerText) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val agreed = com.jiacimu.lulu.data.DigitalWorldLiveScene.replyToOffer(
+                            proposal.characterId, proposal.id, true)
+                        roleOffer = null
+                        if (agreed != null) {
+                            when (proposal.action) {
+                                "offer_hand" -> {
+                                    handHoldingId = proposal.characterId
+                                    requestedFollowers = requestedFollowers + proposal.characterId
+                                    suspendedFollowers = suspendedFollowers - proposal.characterId
+                                    interactionMessage = "你同意了牵手，之后可以继续一起走。"
+                                }
+                                "offer_follow" -> {
+                                    requestedFollowers = requestedFollowers + proposal.characterId
+                                    suspendedFollowers = suspendedFollowers - proposal.characterId
+                                    interactionMessage = "你同意了结伴探索，之后可以自由走动。"
+                                }
+                                "offer_hug" -> {
+                                    interactionMessage = "你同意了角色主动提出的拥抱。"
+                                    if (onWorldAction != null)
+                                        onWorldAction("$name 自己走到我面前，提出想抱抱我；我同意了。请从这个已发生的现场互动继续发展剧情，不替我添加新台词。")
+                                    else onCharacterClick(proposal.characterId)
+                                }
+                            }
+                            stateStore.saveCompanionship(handHoldingId, requestedFollowers,
+                                suspendedFollowers)
+                        }
+                    }) { Text("接受") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        com.jiacimu.lulu.data.DigitalWorldLiveScene.replyToOffer(
+                            proposal.characterId, proposal.id, false)
+                        roleOffer = null
+                    }) { Text("暂不") }
+                },
+            )
         }
 
         if (controlsEnabled && queuedActions.isNotEmpty()) {
