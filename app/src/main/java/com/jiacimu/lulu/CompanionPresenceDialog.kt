@@ -120,7 +120,15 @@ internal fun CompanionPresenceDialog(
                     if (selectedTab == 0) {
                         item(key = "current") {
                             if (displayState == null) {
-                                Text(if (messageAnchor == null) "还没有留下此刻状态。" else "这条消息之前还没有形成可查看的此刻状态。", color = Color(0xFF7A7A7E))
+                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Text(if (messageAnchor == null) "还没有留下心情或心声。" else "这条消息之前还没有形成可查看的此刻状态。",
+                                        color = Color(0xFF7A7A7E))
+                                    if (messageAnchor == null) {
+                                        CharacterLifeVisibility.current(characterId, now).forEach { entry ->
+                                            PresenceDialogSection(entry.title, entry.detail)
+                                        }
+                                    }
+                                }
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState, latestHeartMoment, latestThinkingMoment)

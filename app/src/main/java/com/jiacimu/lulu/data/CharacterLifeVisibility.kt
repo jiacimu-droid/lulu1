@@ -160,14 +160,18 @@ internal object CharacterLifeVisibility {
             val curiosityStatus = if (explored) "有真实探索回执"
                 else if (experience.optString("curiosityStatus") == "released") "已放下"
                 else "尚未有探索回执"
+            val trace = buildString {
+                append("原始经历：" + experience.optString("fact").take(180))
+                append("\n分享：" + shareStatus)
+                append("\n探索：" + curiosityStatus)
+                experience.optString("shareWhy").takeIf(String::isNotBlank)?.let {
+                    append("\n当时想法：" + it.take(140))
+                }
+                if (shared) append("\n分享回执：" + shareId)
+                if (explored) append("\n探索回执：" + exploreId)
+            }
             items += CharacterLifeVisible(t, "探索", "真实经历的后续变化",
-                "原始经历：" + experience.optString("fact").take(180) +
-                    "\n分享：" + shareStatus + "\n探索：" + curiosityStatus +
-                    if (experience.optString("shareWhy").isNotBlank())
-                        "\n当时想法：" + experience.optString("shareWhy").take(140) else "" +
-                    if (shared) "\n分享回执：" + shareId else "" +
-                    if (explored) "\n探索回执：" + exploreId else "",
-                experience.optString("id"))
+                trace, experience.optString("id"))
         }
         val curiosity = CharacterCuriosityRuntime.snapshot(role)
         jsonEntries(curiosity.optJSONArray("questions")).forEach { q ->
