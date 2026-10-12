@@ -49,6 +49,7 @@ import com.jiacimu.lulu.data.DigitalFurnitureKind
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldActivityCatalog
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
+import com.jiacimu.lulu.data.DigitalWorldResident
 import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
 import com.jiacimu.lulu.data.DigitalWorldState
 import com.jiacimu.lulu.data.DigitalWorldStore
@@ -84,11 +85,21 @@ private data class DigitalNpcMotion(
     val pose: ResidentPose = ResidentPose.STAND,
 )
 
+private data class DigitalNativeMotion(
+    val resident: DigitalWorldResident,
+    val position: WorldVector,
+    val target: WorldVector,
+    val nextDecisionAt: Long,
+    val facingX: Float = 1f,
+)
+
 private sealed interface DigitalNearbyTarget {
     val distance: Float
 
     data class Resident(val motion: DigitalNpcMotion, override val distance: Float) : DigitalNearbyTarget
     data class Prop(val prop: DigitalRoomProp, override val distance: Float) : DigitalNearbyTarget
+    data class NativeResident(val motion: DigitalNativeMotion, override val distance: Float) : DigitalNearbyTarget
+    data class Discovery(val spot: DigitalWorldExplorationSpot, override val distance: Float) : DigitalNearbyTarget
     data class Venue(val anchor: DigitalVenueAnchor, override val distance: Float) : DigitalNearbyTarget
 }
 
@@ -108,6 +119,8 @@ private data class DigitalInteractionChoice(
     val dialogueCharacterId: String? = null,
     val gameId: String? = null,
     val movement: ResidentMovementChoice? = null,
+    val nativeAction: String? = null,
+    val discoveryId: String? = null,
 )
 
 @Composable
@@ -142,10 +155,12 @@ internal fun DigitalWorldGameScene(
     val props = remember(roomItems) { buildDigitalRoomProps(roomItems) }
     val nativeHomeProps = remember(nativeHome) { nativeHome?.let(::nativeResidentHomeProps).orEmpty() }
     val venueAnchors = remember(sceneCode) { DigitalWorldVenueAnchors.forScene(sceneCode) }
+    val discoverySpots = remember(sceneCode) { DigitalWorldExplorationSpots.forScene(sceneCode) }
     val obstacles = remember(props, nativeHomeProps) {
         (props + nativeHomeProps).mapNotNull(DigitalRoomProp::obstacle)
     }
     val stateStore = remember(context, sceneKey) { DigitalWorldPlayState(context, sceneKey) }
+    var discoveredSpots by remember(sceneKey) { mutableStateOf(stateStore.loadDiscoveries()) }
     val restored = remember(stateStore) { stateStore.loadPosition() }
     val safeStart = remember(restored, obstacles) { digitalSafeStart(restored, obstacles) }
     // The actual activity ledger survives closing the scene. A portrait alone
@@ -224,6 +239,18 @@ internal fun DigitalWorldGameScene(
         )
     }
 
+    // Native residents have actual scene-space positions and gentle local wandering.
+    // A different scene can show them only after their persisted currentLocationCode changes.
+    var nativeMotions by remember(sceneKey, nativeResidents.map { it.id }) {
+        mutableStateOf(nativeResidents.mapIndexed { index, resident ->
+            val base = if (sceneCode == resident.homeLocationCode) WorldVector(960f, 630f)
+                else residentStart(index + residents.size, resident.id, venueAnchors)
+            val safe = digitalSafeStart(base, obstacles)
+            DigitalNativeMotion(resident, safe, safe,
+                System.currentTimeMillis() + 3_400L + index * 1_000L)
+        })
+    }
+
     val ambience = rememberInfiniteTransition(label = "digital-world-light")
     val lightPhase by ambience.animateFloat(
         initialValue = 0f,
@@ -259,12 +286,15 @@ internal fun DigitalWorldGameScene(
         while (isActive) {
             val near = npcMotions.minByOrNull { it.position.distanceTo(playerPosition) }
                 ?.takeIf { it.position.distanceTo(playerPosition) < 180f }
+            val nearNative = nativeMotions.minByOrNull { it.position.distanceTo(playerPosition) }
+                ?.takeIf { it.position.distanceTo(playerPosition) < 180f }
             val anchor = venueAnchors.minByOrNull { it.position.distanceTo(playerPosition) }
                 ?.takeIf { it.position.distanceTo(playerPosition) < 180f }
             val prop = props.minByOrNull { it.bounds.center.distanceTo(playerPosition) }
                 ?.takeIf { it.bounds.center.distanceTo(playerPosition) < 160f }
             val detail = when {
                 near != null -> "在${near.character.displayName}附近"
+                nearNative != null -> "在原住民${nearNative.resident.name}附近"
                 prop != null -> "在${prop.item.name}附近"
                 anchor != null -> "在${anchor.label}附近"
                 else -> "在场景${if (playerPosition.x < 800f) "左" else "右"}侧${if (playerPosition.y < 650f) "上" else "下"}方"
@@ -336,7 +366,7 @@ internal fun DigitalWorldGameScene(
         if (activeActionLabel == queued.label) activeActionLabel = ""
     }
 
-    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, controlsEnabled, props, venueAnchors, activeFollowerIds, residentActivities) {
+    LaunchedEffect(sceneKey, obstacles, viewportSize, residents.map { it.characterId }, nativeResidents.map { it.id }, controlsEnabled, props, venueAnchors, activeFollowerIds, residentActivities) {
         var previousFrame = withFrameNanos { it }
         var lastCollisionSound = 0L
         while (isActive) {
@@ -505,6 +535,28 @@ internal fun DigitalWorldGameScene(
                         pose = ResidentPose.STAND,
                     )
                 }
+                nativeMotions = nativeMotions.mapIndexed { index, motion ->
+                    var target = motion.target
+                    var nextDecision = motion.nextDecisionAt
+                    if (now >= nextDecision) {
+                        val epoch = now / 12_000L
+                        val hash = (motion.resident.id.hashCode().toLong() * 37L + epoch * 157L + index * 71L) and Long.MAX_VALUE
+                        val proposal = if (sceneCode == motion.resident.homeLocationCode) {
+                            val corners = listOf(WorldVector(970f, 640f), WorldVector(620f, 755f),
+                                WorldVector(1_080f, 790f), WorldVector(720f, 510f))
+                            corners[(hash % corners.size).toInt()]
+                        } else residentWanderTarget(motion.resident.id, now, index, venueAnchors)
+                        target = digitalSafeStart(proposal, obstacles)
+                        nextDecision = now + 7_000L + (hash % 3_000L)
+                    }
+                    val movement = target - motion.position
+                    val moved = if (movement.length > 18f) moveInWorld(
+                        motion.position, movement, speed = 52f, deltaSeconds = delta,
+                        radius = 28f, bounds = DIGITAL_WORLD_BOUNDS, obstacles = obstacles,
+                    ).position else motion.position
+                    motion.copy(position = moved, target = target, nextDecisionAt = nextDecision,
+                        facingX = movement.x.takeIf { kotlin.math.abs(it) > 3f } ?: motion.facingX)
+                }
             }
         }
     }
@@ -512,22 +564,30 @@ internal fun DigitalWorldGameScene(
     val nearestNpc = npcMotions.minByOrNull { playerPosition.distanceTo(it.position) }?.let { motion ->
         DigitalNearbyTarget.Resident(motion, playerPosition.distanceTo(motion.position))
     }
+    val nearestNative = nativeMotions.minByOrNull { playerPosition.distanceTo(it.position) }?.let { motion ->
+        DigitalNearbyTarget.NativeResident(motion, playerPosition.distanceTo(motion.position))
+    }
+    val nearestDiscovery = discoverySpots.minByOrNull { playerPosition.distanceTo(it.position) }?.let { spot ->
+        DigitalNearbyTarget.Discovery(spot, playerPosition.distanceTo(spot.position))
+    }
     val nearestProp = props.minByOrNull { playerPosition.distanceTo(it.bounds.center) }?.let { prop ->
         DigitalNearbyTarget.Prop(prop, playerPosition.distanceTo(prop.bounds.center))
     }
     val nearestVenue = venueAnchors.minByOrNull { playerPosition.distanceTo(it.position) }?.let { anchor ->
         DigitalNearbyTarget.Venue(anchor, playerPosition.distanceTo(anchor.position))
     }?.takeIf { it.distance <= it.anchor.radius }
-    val nearby = listOfNotNull(nearestNpc, nearestProp, nearestVenue)
+    val nearby = listOfNotNull(nearestNpc, nearestNative, nearestProp, nearestVenue, nearestDiscovery)
         .minByOrNull(DigitalNearbyTarget::distance)
         ?.takeIf { target ->
             when (target) {
                 is DigitalNearbyTarget.Venue -> target.distance <= target.anchor.radius
+                is DigitalNearbyTarget.Discovery -> target.distance <= target.spot.radius
                 else -> target.distance <= 142f
             }
         }
     val actionLabel = when (nearby) {
         is DigitalNearbyTarget.Venue -> "使用"
+        is DigitalNearbyTarget.Discovery -> "探索"
         null -> "靠近"
         else -> "互动"
     }
@@ -537,6 +597,18 @@ internal fun DigitalWorldGameScene(
             val id = menuTargetKey!!.removePrefix("npc:")
             npcMotions.firstOrNull { it.character.characterId == id }?.let {
                 DigitalNearbyTarget.Resident(it, playerPosition.distanceTo(it.position))
+            }
+        }
+        menuTargetKey?.startsWith("native:") == true -> {
+            val id = menuTargetKey!!.removePrefix("native:")
+            nativeMotions.firstOrNull { it.resident.id == id }?.let {
+                DigitalNearbyTarget.NativeResident(it, playerPosition.distanceTo(it.position))
+            }
+        }
+        menuTargetKey?.startsWith("discovery:") == true -> {
+            val id = menuTargetKey!!.removePrefix("discovery:")
+            discoverySpots.firstOrNull { it.id == id }?.let {
+                DigitalNearbyTarget.Discovery(it, playerPosition.distanceTo(it.position))
             }
         }
         menuTargetKey?.startsWith("prop:") == true -> {
@@ -555,6 +627,7 @@ internal fun DigitalWorldGameScene(
     }?.takeIf { target ->
         when (target) {
             is DigitalNearbyTarget.Venue -> target.distance <= target.anchor.radius + 45f
+            is DigitalNearbyTarget.Discovery -> target.distance <= target.spot.radius + 45f
             else -> target.distance <= 190f
         }
     }
@@ -563,8 +636,8 @@ internal fun DigitalWorldGameScene(
         if (selectedTarget == null || !controlsEnabled) menuTargetKey = null
     }
 
-    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds) {
-        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds)
+    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds, discoveredSpots) {
+        buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds, discoveredSpots)
     }
 
     Box(
@@ -573,8 +646,35 @@ internal fun DigitalWorldGameScene(
         val moveInputModifier = if (controlsEnabled && selectedTarget == null) {
             Modifier.pointerInput(sceneKey, viewportSize) {
                 detectTapGestures { tap ->
-                    tapTarget = WorldVector(tap.x / worldScale + camera.x, tap.y / worldScale + camera.y)
-                    GameSoundEffects.play(GameSoundEffect.Move)
+                    val point = WorldVector(tap.x / worldScale + camera.x, tap.y / worldScale + camera.y)
+                    val native = nativeMotions.firstOrNull { motion ->
+                        kotlin.math.abs(motion.position.x - point.x) < 50f &&
+                            point.y >= motion.position.y - 190f && point.y <= motion.position.y + 24f
+                    }
+                    val discovery = discoverySpots.minByOrNull { it.position.distanceTo(point) }
+                        ?.takeIf { it.position.distanceTo(point) < 48f }
+                    when {
+                        native != null -> {
+                            if (playerPosition.distanceTo(native.position) <= 175f) {
+                                menuTargetKey = "native:${native.resident.id}"
+                            } else {
+                                tapTarget = native.position
+                                interactionMessage = "走近${native.resident.name}再打个招呼"
+                            }
+                        }
+                        discovery != null -> {
+                            if (playerPosition.distanceTo(discovery.position) <= discovery.radius + 40f) {
+                                menuTargetKey = "discovery:${discovery.id}"
+                            } else {
+                                tapTarget = discovery.position
+                                interactionMessage = "走近${discovery.label}再探索"
+                            }
+                        }
+                        else -> {
+                            tapTarget = point
+                            GameSoundEffects.play(GameSoundEffect.Move)
+                        }
+                    }
                 }
             }
         } else Modifier
@@ -589,12 +689,18 @@ internal fun DigitalWorldGameScene(
                 } else if (!drawDigitalPublicPlaceWorld(sceneCode, lightPhase)) {
                     drawDigitalSharedWorld(sceneCode, lightPhase)
                 }
-                drawNativeWorldResidents(nativeResidents, sceneCode)
+                drawDigitalExplorationMarkers(discoverySpots, discoveredSpots, lightPhase)
+                drawNativeWorldResidents(nativeMotions.map { motion ->
+                    DigitalNativeResidentPose(motion.resident, motion.position,
+                        motion.position.distanceTo(motion.target) > 18f, motion.facingX)
+                }, lightPhase)
             }
 
             val focus = if (showExplorationHud && controlsEnabled) {
                 when (val target = selectedTarget ?: nearby) {
                     is DigitalNearbyTarget.Resident -> target.motion.position
+                    is DigitalNearbyTarget.NativeResident -> target.motion.position
+                    is DigitalNearbyTarget.Discovery -> target.spot.position
                     is DigitalNearbyTarget.Prop -> target.prop.bounds.center
                     is DigitalNearbyTarget.Venue -> target.anchor.position
                     null -> null
@@ -684,6 +790,22 @@ internal fun DigitalWorldGameScene(
             }
         }
 
+        // Labels track the real moving residents; these are not static map annotations.
+        if (showExplorationHud) nativeMotions.forEach { motion ->
+            val x = (motion.position.x - camera.x) * worldScale
+            val y = (motion.position.y - 188f - camera.y) * worldScale
+            Surface(
+                modifier = Modifier.offset {
+                    IntOffset((x - with(density) { 34.dp.toPx() }).roundToInt(), y.roundToInt())
+                }.zIndex(motion.position.y + 2f),
+                color = Color(0xD7182D26),
+                shape = RoundedCornerShape(99.dp),
+            ) {
+                Text(motion.resident.name, color = Color(0xFFF1F8F3), fontSize = 9.sp,
+                    maxLines = 1, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+            }
+        }
+
         val playerScreenX = (playerPosition.x - camera.x) * worldScale
         val playerScreenY = (playerPosition.y - camera.y) * worldScale
         GameCharacterPawn(
@@ -699,16 +821,17 @@ internal fun DigitalWorldGameScene(
         if (showExplorationHud) {
             DigitalWorldAmbientHud(
                 place = placeLabel,
-                people = residents.size,
-                objects = props.size + venueAnchors.size,
+                people = residents.size + nativeMotions.size,
+                objects = props.size + venueAnchors.size + discoverySpots.size,
                 modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
             )
             if (homeCharacterId == null) {
                 DigitalWorldMiniMap(
                     player = playerPosition,
-                    residents = npcMotions.map(DigitalNpcMotion::position),
+                    residents = npcMotions.map(DigitalNpcMotion::position) + nativeMotions.map(DigitalNativeMotion::position),
                     props = props,
                     anchors = venueAnchors,
+                    discoveries = discoverySpots.map(DigitalWorldExplorationSpot::position),
                     modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
                 )
             }
@@ -812,6 +935,8 @@ internal fun DigitalWorldGameScene(
                     tapTarget = null
                     menuTargetKey = when (target) {
                         is DigitalNearbyTarget.Resident -> "npc:${target.motion.character.characterId}"
+                        is DigitalNearbyTarget.NativeResident -> "native:${target.motion.resident.id}"
+                        is DigitalNearbyTarget.Discovery -> "discovery:${target.spot.id}"
                         is DigitalNearbyTarget.Prop -> "prop:${target.prop.item.id}"
                         is DigitalNearbyTarget.Venue -> "venue:${target.anchor.id}"
                     }
@@ -866,6 +991,43 @@ internal fun DigitalWorldGameScene(
                                     locationLabel = placeLabel, action = interactionMessage)
                             }
                         }
+                        choice.nativeAction != null -> {
+                            val resident = (selectedTarget as? DigitalNearbyTarget.NativeResident)?.motion?.resident
+                            if (resident == null || DigitalWorldExpansionStore.residentsAt(sceneCode)
+                                .none { it.id == resident.id }) {
+                                interactionMessage = "原住民已经离开这里"
+                            } else {
+                                val summary = when (choice.nativeAction) {
+                                    "greet" -> "我在${placeLabel}向原住民${resident.name}打了招呼。"
+                                    "identity" -> "我在${placeLabel}认识了${resident.name}，${resident.identity}；对方的家位于这个数字世界。"
+                                    else -> "我在${placeLabel}观察到原住民${resident.name}正在这里活动。"
+                                }
+                                if (choice.nativeAction != "observe") {
+                                    val persisted = DigitalWorldExpansionStore.moveResident(resident.id, sceneCode)
+                                    if (persisted == null) {
+                                        interactionMessage = "互动保存失败"
+                                    } else {
+                                        queuedActions = (queuedActions + DigitalQueuedAction(label = choice.label, summary = summary)).takeLast(4)
+                                    }
+                                } else {
+                                    queuedActions = (queuedActions + DigitalQueuedAction(label = choice.label, summary = summary)).takeLast(4)
+                                }
+                            }
+                        }
+                        choice.discoveryId != null -> {
+                            val spot = discoverySpots.firstOrNull { it.id == choice.discoveryId }
+                            if (spot != null) {
+                                val seen = spot.id in discoveredSpots
+                                val updated = discoveredSpots + spot.id
+                                if (seen || stateStore.saveDiscoveries(updated)) {
+                                    discoveredSpots = updated
+                                    queuedActions = (queuedActions + DigitalQueuedAction(
+                                        label = if (seen) "再次观察" else "发现 ${spot.label}",
+                                        summary = "我在${placeLabel}探查了${spot.label}。${spot.description}",
+                                    )).takeLast(4)
+                                } else interactionMessage = "探索记录保存失败"
+                            }
+                        }
                         choice.gameId != null -> {
                             latestObservedBehavior?.invoke("打开游戏馆游戏，开始游玩")
                             arcadeGameId = choice.gameId
@@ -899,6 +1061,7 @@ private fun buildInteractionChoices(
     placeLabel: String,
     handHoldingId: String?,
     activeFollowers: Set<String>,
+    discoveredSpots: Set<String>,
 ): List<DigitalInteractionChoice> = when (target) {
     is DigitalNearbyTarget.Resident -> {
         val name = target.motion.character.displayName
@@ -920,6 +1083,21 @@ private fun buildInteractionChoices(
             DigitalInteractionChoice("一起玩（剧情）", "开始共同活动对话", storyPrompt = "我问${name}想不想和我一起玩点什么，由我们现在所在的数字世界决定具体活动。"),
             DigitalInteractionChoice("去别处（剧情）", "协商新的目的地", storyPrompt = "我问${name}想不想和我一起换个地方，并准备从真实存在的地点里选一个。"),
         )
+    }
+    is DigitalNearbyTarget.NativeResident -> {
+        val resident = target.motion.resident
+        listOf(
+            DigitalInteractionChoice("打招呼", "记录这次真实的相遇", nativeAction = "greet"),
+            DigitalInteractionChoice("了解身份", resident.identity, nativeAction = "identity"),
+            DigitalInteractionChoice("观察", "看看对方正在什么地方", nativeAction = "observe"),
+        )
+    }
+    is DigitalNearbyTarget.Discovery -> {
+        listOf(DigitalInteractionChoice(
+            if (target.spot.id in discoveredSpots) "再次观察" else "探索发现",
+            target.spot.description,
+            discoveryId = target.spot.id,
+        ))
     }
     is DigitalNearbyTarget.Prop -> {
         val item = target.prop.item
@@ -987,11 +1165,15 @@ private fun DigitalInteractionMenu(
 ) {
     val title = when (target) {
         is DigitalNearbyTarget.Resident -> target.motion.character.displayName
+        is DigitalNearbyTarget.NativeResident -> target.motion.resident.name
+        is DigitalNearbyTarget.Discovery -> target.spot.label
         is DigitalNearbyTarget.Prop -> target.prop.item.name
         is DigitalNearbyTarget.Venue -> target.anchor.label
     }
     val subtitle = when (target) {
         is DigitalNearbyTarget.Resident -> target.motion.activityLabel.ifBlank { "想怎么和对方相处？" }
+        is DigitalNearbyTarget.NativeResident -> target.motion.resident.identity
+        is DigitalNearbyTarget.Discovery -> target.spot.description
         is DigitalNearbyTarget.Prop -> "这件东西有真实的不同用法"
         is DigitalNearbyTarget.Venue -> "你已经走到了这个活动区域"
     }
@@ -1064,6 +1246,7 @@ private fun DigitalWorldMiniMap(
     residents: List<WorldVector>,
     props: List<DigitalRoomProp>,
     anchors: List<DigitalVenueAnchor>,
+    discoveries: List<WorldVector>,
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier = modifier.size(62.dp), color = Color(0xB90B1715), shape = RoundedCornerShape(17.dp), border = BorderStroke(1.dp, Color.White.copy(alpha = .13f))) {
@@ -1075,6 +1258,11 @@ private fun DigitalWorldMiniMap(
             anchors.forEach { anchor ->
                 val p = Offset(anchor.position.x / DIGITAL_WORLD_WIDTH * size.width, anchor.position.y / DIGITAL_WORLD_HEIGHT * size.height)
                 drawCircle(Color(0xFFB7FFE8).copy(alpha = .34f), 2.1.dp.toPx(), p, style = androidx.compose.ui.graphics.drawscope.Stroke(.7.dp.toPx()))
+            }
+            discoveries.forEach { discovery ->
+                drawCircle(Color(0xFFF5DFAB).copy(alpha = .72f), 1.5.dp.toPx(),
+                    Offset(discovery.x / DIGITAL_WORLD_WIDTH * size.width,
+                        discovery.y / DIGITAL_WORLD_HEIGHT * size.height))
             }
             residents.forEach { resident ->
                 drawCircle(Color(0xFFFFD89C), 2.0.dp.toPx(), Offset(resident.x / DIGITAL_WORLD_WIDTH * size.width, resident.y / DIGITAL_WORLD_HEIGHT * size.height))
@@ -1134,6 +1322,11 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     }
 
     fun loadQuest(): Int = prefs.getInt("quest_$suffix", 0).coerceIn(0, 2)
+
+    fun loadDiscoveries(): Set<String> = prefs.getStringSet("discoveries_$suffix", null).orEmpty().toSet()
+
+    fun saveDiscoveries(ids: Set<String>): Boolean =
+        prefs.edit().putStringSet("discoveries_$suffix", ids.toSet()).commit()
 
     fun loadHandHoldingId(): String? = prefs.getString("hold_$suffix", null)?.takeIf(String::isNotBlank)
 
