@@ -53,6 +53,33 @@ class CharacterLifeStoreTest {
         assertFalse(sameCharacterMotive("", "完成今天的英语复习计划"))
     }
 
+    @Test fun linkedWishRequiresMatchingExecutedAction() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "wish-action-source-test"
+        CharacterLifeStore.clearHistory(role)
+        CharacterLifeStore.consider(role, JSONObject().put("aim", "读完一部小说")
+            .put("motive", "想知道人物的选择"))
+        val id = CharacterLifeStore.state(role).getJSONObject("intention").getString("createdAt")
+        assertEquals("considering", CharacterLifeStore.state(role).getJSONObject("intention").getString("stage"))
+        assertFalse(CharacterLifeStore.markExecuting(role, "unrelated", "random-call", "call"))
+        CharacterLifeStore.consider(role, JSONObject().put("id", id)
+            .put("disposition", "decide").put("reason", "当前很想阅读"))
+        assertEquals("decided", CharacterLifeStore.state(role).getJSONObject("intention").getString("stage"))
+        assertTrue(CharacterLifeStore.markExecuting(role, id, "reading-receipt", "reading"))
+        assertFalse(CharacterLifeStore.recordLinkedOutcome(role, id, "wrong-receipt", "reading", true, "已读"))
+        assertTrue(CharacterLifeStore.recordLinkedOutcome(role, id, "reading-receipt", "reading", true, "只读了第一段"))
+        assertEquals("following_up", CharacterLifeStore.state(role).getJSONObject("intention").getString("stage"))
+        assertEquals(1, CharacterLifeStore.state(role).getJSONObject("intention").getJSONArray("outcomes").length())
+        CharacterLifeStore.consider(role, JSONObject().put("id", id)
+            .put("disposition", "pause").put("reason", "想休息一会"))
+        assertFalse(CharacterLifeStore.markExecuting(role, id, "blocked-receipt", "reading"))
+        CharacterLifeStore.consider(role, JSONObject().put("id", id)
+            .put("disposition", "resume").put("reason", "又想继续"))
+        assertEquals("considering", CharacterLifeStore.state(role).getJSONObject("intention").getString("stage"))
+        CharacterLifeStore.clearHistory(role)
+    }
+
     @Test fun newFeedbackCanAdjustAnIntentionWithoutLosingItsIdentityOrReceipts() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)

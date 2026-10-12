@@ -15,9 +15,10 @@ object ToolRouter {
     private val mutex = Mutex()
 
     suspend fun execute(context: Context, characterId: String, name: String, args: JSONObject,
-        requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false): String = mutex.withLock {
+        requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false,
+        intentionId: String = ""): String = mutex.withLock {
         fun rejected(message: String, status: String = "failed"): String {
-            CharacterLifeStore.recordOutcome(characterId, "denied-$characterId-$requestId", name, false, message)
+            // A rejected command did not run; do not mark any unrelated desire complete.
             return failure(message, status)
         }
         val cap = CapabilityRegistry.find(name) ?: return@withLock rejected("未知能力：$name")
@@ -32,6 +33,8 @@ object ToolRouter {
                 return@withLock old.optString("result").ifBlank { failure("上次执行中断，结果未知；为避免重复动作，需要核实", "waiting_user") }
             }
         }
+        val goalReceiptId = "tool-$characterId-$requestId"
+        CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
         val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
             .put("tool", name).put("fingerprint", fingerprint).put("status", "running").put("startedAt", Instant.now().toString())
         check(prefs.edit().putString(key, execution.toString()).commit())
@@ -55,7 +58,8 @@ object ToolRouter {
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
             val outcome = runCatching { JSONObject(result) }.getOrDefault(JSONObject())
             if (outcome.optBoolean("success")) CompanionOnlineStore.recordActivity(characterId)
-            CharacterLifeStore.recordOutcome(characterId, "tool-$characterId-$requestId", name, outcome.optBoolean("success"),
+            CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, goalReceiptId, name,
+                outcome.optBoolean("success"),
                 outcome.optString("summary").ifBlank { outcome.optString("error").ifBlank { result } })
             result
         }

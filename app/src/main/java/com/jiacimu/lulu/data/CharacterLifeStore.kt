@@ -430,9 +430,23 @@ object CharacterLifeStore {
         if (existing != null) {
             if (proposal.optString("disposition") == "release" &&
                 proposal.optString("id") == existing.optString("createdAt") && proposal.optString("reason").isNotBlank()) {
+                existing.put("stage", "released").put("endedAt", now.toString())
                 existing.put("releaseReason", proposal.optString("reason").take(300))
                 root.put("previousIntention", existing)
                 root.remove("intention")
+                save(characterId, root)
+            }
+            val transition = proposal.optString("disposition")
+            if (transition in setOf("decide", "pause", "resume") &&
+                proposal.optString("id") == existing.optString("createdAt") &&
+                proposal.optString("reason").isNotBlank() &&
+                !(existing.optString("stage") == "executing" && transition != "pause")) {
+                existing.put("stage", when (transition) {
+                    "decide" -> "decided"
+                    "pause" -> "paused"
+                    else -> "considering"
+                }).put("stageReason", proposal.optString("reason").take(220))
+                    .put("updatedAt", now.toString())
                 save(characterId, root)
             }
             if (proposal.optString("disposition") == "update" &&
@@ -457,7 +471,7 @@ object CharacterLifeStore {
             }) return
         if (root.optJSONObject("previousIntention")?.let { it.optString("aim") == aim && it.optString("releaseReason") == "用户结束这件事" } == true) return
         root.put("intention", JSONObject().put("aim", aim).put("motive", motive)
-            .put("createdAt", now.toString()).put("outcomes", JSONArray()))
+            .put("createdAt", now.toString()).put("stage", "considering").put("outcomes", JSONArray()))
         save(characterId, root)
     }
 
@@ -477,9 +491,41 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    /** Only this desired action's actual executor receipt can advance this same active wish. */
+    @Synchronized fun markExecuting(characterId: String, intentionId: String,
+        receiptId: String, action: String, now: Instant = Instant.now()): Boolean {
+        if (intentionId.isBlank() || receiptId.isBlank() || action.isBlank()) return false
+        val root = state(characterId)
+        val goal = root.optJSONObject("intention") ?: return false
+        if (goal.optString("createdAt") != intentionId || goal.optString("stage") == "paused") return false
+        if (goal.optString("stage") == "executing" &&
+            goal.optString("actionAttemptId") != receiptId) return false
+        goal.put("stage", "executing").put("actionAttemptId", receiptId)
+            .put("lastSelectedAction", action.take(80)).put("updatedAt", now.toString())
+        save(characterId, root)
+        return true
+    }
+
+    /** A real action can succeed without completing the longer-term goal. */
+    @Synchronized fun recordLinkedOutcome(characterId: String, intentionId: String,
+        receiptId: String, action: String, success: Boolean, summary: String,
+        now: Instant = Instant.now()): Boolean {
+        if (intentionId.isBlank() || receiptId.isBlank()) return false
+        val goal = state(characterId).optJSONObject("intention") ?: return false
+        if (goal.optString("createdAt") != intentionId ||
+            goal.optString("actionAttemptId") != receiptId || goal.optString("stage") != "executing") return false
+        recordOutcome(characterId, receiptId, action, success, summary, now)
+        val root = state(characterId)
+        val updated = root.optJSONObject("intention") ?: return false
+        updated.put("stage", if (success) "following_up" else "blocked")
+            .put("lastActionSuccess", success).put("updatedAt", now.toString())
+        save(characterId, root)
+        return true
+    }
+
     @Synchronized fun stopIntention(characterId: String) {
         val root = state(characterId)
-        root.optJSONObject("intention")?.let { root.put("previousIntention", it.put("releaseReason", "用户结束这件事")) }
+        root.optJSONObject("intention")?.let { root.put("previousIntention", it.put("stage", "released").put("releaseReason", "用户结束这件事")) }
         root.remove("intention")
         // Keep completed executor receipts in the raw timeline, not as fabricated life memories.
         save(characterId, root)
@@ -512,6 +558,12 @@ object CharacterLifeStore {
                     if (receipt.optString("id") == eventId) changed = true else next.put(receipt)
                 }
                 intention.put("outcomes", next)
+                if (intention.optString("actionAttemptId") == eventId) {
+                    intention.remove("actionAttemptId")
+                    intention.remove("lastActionSuccess")
+                    intention.put("stage", "considering")
+                    changed = true
+                }
             }
             if (changed) save(characterId, root)
         }
@@ -561,7 +613,7 @@ object CharacterLifeStore {
             root.optJSONObject("intention")
                 ?.takeUnless { goal -> innerAims.any { sameCharacterMotive(goal.optString("aim"), it) } }
                 ?.let { goal ->
-                    appendLine("仍在意：${goal.optString("aim")}；原因：${goal.optString("motive")}；id=${goal.optString("createdAt")}")
+                    appendLine("仍在意：${goal.optString("aim")}；原因：${goal.optString("motive")}；id=${goal.optString("createdAt")}；阶段=${goal.optString("stage", "considering")}")
                     val outcomes = goal.optJSONArray("outcomes")
                     if (outcomes != null && outcomes.length() > 0) {
                         val last = outcomes.optJSONObject(outcomes.length() - 1)
@@ -597,9 +649,10 @@ object CharacterLifeStore {
                 ?.takeUnless { intention -> innerAims.any { aim -> sameCharacterMotive(intention.optString("aim"), aim) } }
                 ?.let { intention ->
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
-                appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}")
+                appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}；阶段=${intention.optString("stage", "considering")}")
                 appendLine("最近调整：${intention.optString("updatedAt", intention.optString("createdAt"))}；依据：${intention.optString("changeReason")}。")
                 appendLine("动机ID=${intention.optString("createdAt")}。近期实际动作回执（不自动认定每个动作都推进这个愿望）：${intention.optJSONArray("outcomes") ?: JSONArray()}")
+                appendLine("愿望阶段：considering=考虑中；decided=本人已决定；executing=工具执行中/重启待核对；blocked=行动失败待调整；following_up=动作成功但目标未必达成；paused=暂缓。真实回执才代表动作结果。")
                 appendLine("结合真实结果决定接着做、换办法、等待或保持安静。成功回执只证明该动作，不证明长期愿望已经实现；发送关心不等于用户接受，日记不等于现实经历。")
             }
             appendLine("人格组织规则：原人设、核心价值与动机约束选择；结合当前真实情境和关系理解信息，再选择回应与可执行行为。外在表现可随情境变化，不能把不同侧面当成轮换人格。人格类型词只是描述参考，不自动推导完整性格、恐惧或经历。")

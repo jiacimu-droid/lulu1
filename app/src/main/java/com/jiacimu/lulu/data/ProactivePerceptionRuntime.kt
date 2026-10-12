@@ -74,6 +74,7 @@ object ProactivePerceptionRuntime {
         val innerLife: JSONObject? = null,
         val appraisal: JSONObject? = null,
         val motiveId: String = "",
+        val intentionId: String = "",
         val curiosity: JSONObject? = null,
         val relationshipInitiative: JSONObject? = null,
         val learningApplication: JSONObject? = null,
@@ -1108,7 +1109,7 @@ object ProactivePerceptionRuntime {
             put("approach", decision.approach)
         }
         val resultJson = JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
-            requestId = requestId))
+            requestId = requestId, intentionId = decision.intentionId))
         val result = CompanionActionResult(resultJson.optBoolean("success"), resultJson.optString("summary").ifBlank { resultJson.optString("error") }, resultJson.optString("conversationId").takeIf(String::isNotBlank))
         if (!result.success) {
             return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
@@ -1226,6 +1227,7 @@ object ProactivePerceptionRuntime {
             innerLife = json.optJSONObject("innerLife"),
             appraisal = json.optJSONObject("appraisal"),
             motiveId = json.optString("motiveId").trim(),
+            intentionId = json.optString("intentionId").trim().take(70),
             curiosity = json.optJSONObject("curiosity"),
             relationshipInitiative = json.optJSONObject("relationshipInitiative"),
             learningApplication = json.optJSONObject("learningApplication"),

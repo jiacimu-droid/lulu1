@@ -68,7 +68,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         motives[{op:start|revise|pause|resume|release,id,aim,why,priority,reason}]；
         social{targetId,interpretation,reason,dimensions{trust:up|down|same,warmth:up|down|same,ease:up|down|same,friction:up|down|same,boundarySafety:up|down|same}}；selfCorrection{realization,nextTime}；\n        social.dimensions 只描述这一次真实互动给关系带来的方向性信号，不是好感度；没有明确依据就省略，单次变化不得定型关系。
         thoughts[{thought,impulse,hesitation}]。字段可缺省，不为填表每轮重复旧想法；若纯粹的新心声确实值得留下、但没有情绪/动机变化，可把它作为 thoughts 的新条目，使“新内容”有明确的状态变化信号。
-        可选 afterglow{feeling,impulse,holdHours}、alternatives[{idea,whyNot}]（最多3项）、motiveId（必须已存在）、intention{aim,motive}；
+        可选 afterglow{feeling,impulse,holdHours}、alternatives[{idea,whyNot}]（最多3项）、motiveId（必须已存在）、intention{aim,motive}；旧愿望可以按现有ID和理由决定、暂缓、恢复、调整或放下，disposition=decide|pause|resume|update|release。真正执行与它有关的工具时，填意图对象自己的 intentionId；不要混淆内在 motiveId。无真实回执不算做过。
         【主动行动承接过去自己的决定】优先阅读真实存在的挂心与其 possibleNextStep，结合新的关系反馈和真实记忆，重新判断自己还想不想做那件事。以前想过给对方惊喜、再沟通或尝试不同相处方式，不意味着现在必须执行；必须符合当下边界和可用工具。选择行动时只在确实推进了那一件心事时填写 concernId，后续由真实执行结果回填；关系修复不以发出表情、日记或单次道歉自动完成。
         如果这次实际行动是为了推进上下文中尚未解决的一件私人心事，可选 concernId=对应真实 threadId。程序会把真实执行结果记在那份心事上，失败不伪装成功；不要为了填字段硬关联不相干的行动。继续考虑、修正、消化或放下心事可用 appraisal.pendingConcern，不必一定联系用户。调整/放下持续意图使用已存在 id、disposition、reason。
         外部动作只能由执行器回执确认成功或失败；失败后可以换办法/暂停/求助，不按机械配额轮换行动。特别注意同一个地点、同一家具、同一种活动的短时间重复：若已有真实进展可继续；若只是在原地做相同无效操作，应基于兴趣另找内容，或承认暂时无事可做。
