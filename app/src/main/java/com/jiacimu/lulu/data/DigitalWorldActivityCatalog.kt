@@ -39,6 +39,7 @@ internal object DigitalWorldActivityCatalog {
                 "organize_surface" to "整理桌面",
             )
             DigitalFurnitureKind.SHELF -> listOf(
+                "approach_bookshelf" to "走到书架旁准备挑书（尚未读正文）",
                 "inspect_shelf" to "看看架上的陈设",
                 "browse_shelf" to "随手翻翻架上的东西",
                 "dust_item" to "清理表面",
@@ -120,6 +121,7 @@ internal object DigitalWorldActivityCatalog {
             "have_snack" -> "在“${item.name}”旁吃了点东西"
             "play_table_game" -> "在“${item.name}”上摆开了一局桌面游戏"
             "organize_surface" -> "整理了“${item.name}”的表面"
+            "approach_bookshelf" -> "走到了“${item.name}”旁，在${item.position}准备挑选一本真实可读的书（尚未读取正文）"
             "inspect_shelf" -> "查看了“${item.name}”上的现有陈设"
             "browse_shelf" -> "查看了“${item.name}”，没有凭空增加架上的物品"
             "dust_item" -> "清理了“${item.name}”的表面"

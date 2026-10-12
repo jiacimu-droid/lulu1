@@ -75,7 +75,7 @@ data class DigitalWorldState(
     val meetings: List<MeetingSession> = emptyList(),
 )
 
-data class DigitalWorldActionResult(val success: Boolean, val summary: String)
+data class DigitalWorldActionResult(val success: Boolean, val summary: String, val evidenceId: String = "")
 
 /**
  * Authoritative state for the persistent digital world. Model prose never mutates this state:
@@ -87,6 +87,7 @@ object DigitalWorldStore {
     private const val PREFS_NAME = "lulu_digital_world"
     private const val KEY_STATE = "world_v1"
     private const val MAX_HOME_ITEMS = 80
+    private const val STARTER_SHELF_MARKER = "starter_shelf_provisioned_v1:"
 
     private val mutable = MutableStateFlow(DigitalWorldState())
     val state: StateFlow<DigitalWorldState> = mutable.asStateFlow()
@@ -108,12 +109,14 @@ object DigitalWorldStore {
         require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命拥有数字世界原生家园" }
         synchronized(lock) {
             mutable.value.homes[characterId]?.let { existing ->
-                if (mutable.value.characterLocations[characterId].isNullOrBlank()) {
+                val missingLocation = mutable.value.characterLocations[characterId].isNullOrBlank()
+                if (missingLocation) {
                     mutable.value = mutable.value.copy(
                         characterLocations = mutable.value.characterLocations + (characterId to homeLocation(characterId)),
                     )
-                    persistLocked()
                 }
+                val provisioned = ensureStarterShelfLocked(characterId, now)
+                if (missingLocation || provisioned) persistLocked()
                 return existing
             }
             val home = DigitalHome(characterId, "${displayName.ifBlank { "角色" }}的家", now)
@@ -121,11 +124,40 @@ object DigitalWorldStore {
                 homes = mutable.value.homes + (characterId to home),
                 characterLocations = mutable.value.characterLocations + (characterId to homeLocation(characterId)),
             )
-            appendEventLocked(characterId, "home_created", "${home.name}在数字世界中形成了。这里最初是完全空白的。", now)
+            appendEventLocked(characterId, "home_created",
+                "${home.name}在数字世界中形成了，室内有一组可交互的基础书架，其他家具可由角色自行布置。", now)
+            ensureStarterShelfLocked(characterId, now)
             persistLocked()
             return home
         }
     }
+
+    /** Upgrade legacy homes once, without re-creating a shelf the user deliberately removed. */
+    private fun ensureStarterShelfLocked(characterId: String, now: Instant): Boolean {
+        val key = STARTER_SHELF_MARKER + characterId
+        if (prefs?.getBoolean(key, false) == true) return false
+        val items = mutable.value.items.filter { it.ownerCharacterId == characterId }
+        val hasShelf = items.any { DigitalFurnitureCatalog.resolve(it).kind == DigitalFurnitureKind.SHELF }
+        if (!hasShelf && items.size >= MAX_HOME_ITEMS) return false
+        if (!hasShelf) {
+            val shelf = DigitalWorldItem(
+                id = "home-reading-shelf-$characterId", ownerCharacterId = characterId,
+                type = "shelf", name = "原木书架",
+                appearance = "沿墙摆放的原木书架，连接露露机实际可读的书目；书架装饰不代表已读过任何作品",
+                position = "房间左侧靠墙的阅读角", createdAt = now, updatedAt = now,
+            )
+            mutable.value = mutable.value.copy(items = mutable.value.items + shelf)
+            appendEventLocked(characterId, "starter_bookshelf",
+                "家中的阅读角有一组可交互的原木书架；这只是书架存在的事实，尚未阅读书籍。", now)
+        }
+        prefs?.edit()?.putBoolean(key, true)?.commit()
+        return !hasShelf
+    }
+
+    fun readingShelf(characterId: String): DigitalWorldItem? =
+        itemsAtHome(characterId).firstOrNull {
+            DigitalFurnitureCatalog.resolve(it).kind == DigitalFurnitureKind.SHELF
+        }
 
     fun itemsAtHome(characterId: String): List<DigitalWorldItem> =
         mutable.value.items.filter { it.ownerCharacterId == characterId }.sortedBy(DigitalWorldItem::createdAt)
@@ -321,15 +353,18 @@ object DigitalWorldStore {
             appendEventLocked(characterId, action, summary, now)
             persistLocked()
         }
+        val evidenceId = if (action == "handle_incident")
+            "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}"
+        else "world-fact-${UUID.randomUUID()}"
         SharedExperienceTimeline.record(
-            eventId = if (action == "handle_incident") "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}" else "world-fact-${UUID.randomUUID()}",
+            eventId = evidenceId,
             characterId = characterId,
             channel = "数字世界",
             speaker = character.displayName,
             content = summary,
             occurredAt = now,
         )
-        DigitalWorldActionResult(true, summary)
+        DigitalWorldActionResult(true, summary, evidenceId)
     }.getOrElse { DigitalWorldActionResult(false, it.message ?: it::class.java.simpleName) }
 
     fun startMeeting(

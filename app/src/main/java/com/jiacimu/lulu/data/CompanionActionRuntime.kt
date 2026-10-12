@@ -66,7 +66,7 @@ internal object CompanionActionRuntime {
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
-        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：真正读取阅读 App 里的上传正文或小剧场章节，并留下角色自己的感想；这会成为角色之后可以自然想起、聊起的真实生活经历。")
+        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命会先真实走到家中已登记的书架旁（没有书架则前往阅读馆）并留下“准备阅读”的状态，再读取阅读 App 的真实正文。只有进度、读后感和原始证据全部保存成功才发完整阅读回执；阅读中、失败不能算读过。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
@@ -441,14 +441,21 @@ internal object CompanionActionRuntime {
         val readingGeneration = ReadingReflectionStore.generation(character.characterId)
         val slice = ReadingBackgroundBridge.nextSlice(context, character.characterId, readingBookId)
             ?: return CompanionActionResult(false, "没有找到指定阅读内容，或者这份内容已经读完")
-        DigitalWorldActivityStateStore.endActivity(character.characterId)
+        val digitalReader = DigitalLifeProfileStore.isEnabled(character.characterId)
+        val station = if (digitalReader) prepareReadingStation(character, slice.book.title, now) else null
+        if (digitalReader) {
+            DigitalWorldActivityStateStore.beginReading(character.characterId,
+                station?.shelf, slice.book.title, Instant.now())
+        }
+        try {
         val earlierReading = ReadingReflectionStore.records.value
             .filter { it.characterId == character.characterId && it.bookId == slice.book.id }
             .takeLast(3)
         val readingResponse = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
-                appendLine("程序已经让你读取阅读 App 中《${slice.book.title}》的下一段。")
+                appendLine("程序实际提供阅读 App 中《${slice.book.title}》的下一段，尚未提交阅读结果。")
+                if (station != null) appendLine("真实世界阅读地点：${station.summary}；地点依据ID=${station.evidenceId}。")
                 appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。")
                 appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
                 CharacterLearningLedger.context(character.characterId, slice.book.title)
@@ -485,8 +492,11 @@ internal object CompanionActionRuntime {
             revision = readingRevision(slice.book), startOffset = slice.startOffset, endOffset = slice.endOffset,
             reflection = reflection, occurredAt = now)
         val factualReceipt = "阅读《${slice.book.title}》字符 ${slice.startOffset}—${slice.endOffset}/${slice.totalLength}${if (slice.completed) "，已读完" else "，下次从 ${slice.endOffset} 继续"}"
+        val anchoredReceipt = if (station != null)
+            "$factualReceipt\n阅读地点：${station.summary}（地点证据ID=${station.evidenceId}）"
+        else factualReceipt
         val timelineContent = buildString {
-            appendLine(factualReceipt)
+            appendLine(anchoredReceipt)
             if (reflection.isNotBlank()) {
                 append("阅读感想：")
                 append(reflection.take(2_000))
@@ -544,10 +554,48 @@ internal object CompanionActionRuntime {
         val brief = reflection.replace(Regex("\\s+"), " ").take(115)
         runCatching {
             MigratedDomainStores.chat.appendPrivateActivityNotice(character.characterId,
-                "[阅读记录|${record.id}]已读《${slice.book.title}》 · ${record.chapterTitle}（${slice.endOffset}/${slice.totalLength}）\n读后感：$brief${if (reflection.length > 115) "…" else ""}\n点开查看完整感想和正文")
+                "[阅读记录|${record.id}]已读《${slice.book.title}》 · ${record.chapterTitle}（${slice.endOffset}/${slice.totalLength}）\n${station?.summary?.let { "$it\n" }.orEmpty()}读后感：$brief${if (reflection.length > 115) "…" else ""}\n点开查看完整感想和正文")
         }.onFailure { error ->
             android.util.Log.w("LuluReading", "Reading saved, chat activity notice not delivered", error)
         }
         return CompanionActionResult(true, factualReceipt, evidenceId = record.id)
+        } finally {
+            if (digitalReader) DigitalWorldActivityStateStore.endActivity(character.characterId)
+        }
+    }
+
+    private data class ReadingStation(val shelf: DigitalWorldItem?, val summary: String,
+        val evidenceId: String)
+
+    /** Select a real route and commit the physical approach BEFORE any LLM reading request. */
+    private fun prepareReadingStation(character: CharacterSettings, title: String,
+                                      now: Instant): ReadingStation {
+        val role = character.characterId
+        DigitalWorldStore.ensureHome(role, character.displayName, now)
+        val plan = DigitalWorldReadingRoute.choose(
+            DigitalWorldStore.locationOf(role), DigitalWorldStore.homeLocation(role),
+            DigitalWorldStore.readingShelf(role)?.id,
+        )
+        fun world(action: String, params: JSONObject): DigitalWorldActionResult {
+            val result = DigitalWorldStore.performAction(role, action, params, now)
+            check(result.success && result.evidenceId.isNotBlank()) {
+                "尚未到达真实阅读地点：${result.summary}"
+            }
+            return result
+        }
+        if (plan.travelAction != null) world(plan.travelAction,
+            JSONObject().apply { if (plan.travelAction == "visit_public_place")
+                put("locationCode", DigitalWorldPublicPlaces.READING_LOUNGE) })
+        val arriving = if (plan.shelfId != null) world("use_home_item",
+            JSONObject().put("itemId", plan.shelfId).put("activityId", "approach_bookshelf"))
+        else world("use_location", JSONObject().put("activityId", "browse_reading"))
+        val shelf = plan.shelfId?.let { id ->
+            DigitalWorldStore.itemsAtLocation(role).firstOrNull { it.id == id }
+        }
+        runCatching {
+            MigratedDomainStores.chat.appendPrivateActivityNotice(role,
+                "${arriving.summary}，挑中了《${title.take(90)}》。正在阅读正文，尚无读后感或完成回执。")
+        }
+        return ReadingStation(shelf, arriving.summary, arriving.evidenceId)
     }
 }

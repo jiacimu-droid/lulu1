@@ -13,7 +13,7 @@ internal object DigitalWorldActivityStateStore {
     private val ongoingActivityIds = setOf(
         "sit", "sit_on_bed", "lie_down", "rest", "nap", "sleep", "curl_up", "sit_at_desk",
         "sit_by_table", "sit_on_rug", "lie_on_rug", "hug_cushion", "cloud_sit", "cloud_rest",
-        "reading_rest", "cafe_sit", "window_cafe", "courtyard_sit", "sit_arcade", "home_quiet_rest",
+        "reading_session", "reading_rest", "cafe_sit", "window_cafe", "courtyard_sit", "sit_arcade", "home_quiet_rest",
     )
 
     @Synchronized
@@ -192,6 +192,20 @@ internal object DigitalWorldActivityStateStore {
         )
         check(editor.commit()) { "活动状态保存失败" }
         return result
+    }
+
+    /** Real reading keeps a live world activity tied to a specific existing shelf. */
+    @Synchronized
+    fun beginReading(characterId: String, shelf: DigitalWorldItem?, title: String,
+        now: Instant = Instant.now()) {
+        val location = DigitalWorldStore.locationOf(characterId)
+        val place = when {
+            shelf != null -> "家中的“${shelf.name}”旁"
+            location == DigitalWorldPublicPlaces.READING_LOUNGE -> "阅读馆的书架旁"
+            else -> "实际阅读场所"
+        }
+        apply(characterId, shelf, "reading_session",
+            "正在$place阅读《${title.take(90)}》，本段结果尚未提交", now)
     }
 
     @Synchronized
