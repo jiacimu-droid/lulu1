@@ -181,6 +181,7 @@ internal object CharacterGrowthTrajectory {
                 else "过往${growth.kind.label} · 已撤回或依据失效",
                 growth.content.take(270), evidence, "成长")
         }
+        result += CharacterLearningLedger.growthTrace(characterId, now)
         SharedExperienceTimeline.all(characterId).asSequence()
             .filter { it.source == "journal:own" }
             .filter { !it.occurredAt.isAfter(now) }

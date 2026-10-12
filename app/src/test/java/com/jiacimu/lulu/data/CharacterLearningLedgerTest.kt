@@ -104,6 +104,26 @@ class CharacterLearningLedgerTest {
         assertEquals("", CharacterLearningLedger.context(character, "人物动机"))
     }
 
+    @Test fun groundedUserCounterEvidenceRemainsUncertainAndSurvivesRestarts() {
+        reading("read-challenged", 50)
+        CharacterLearningLedger.recordReading(character, "read-challenged",
+            note("这位人物好像总是在回避冲突"))
+        SharedExperienceTimeline.record("counter-user", character, "私聊", "用户",
+            "不对，我认为他其实是想保护别人。", now.plusSeconds(60),
+            triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val challenge = JSONObject().put("sourceEvidenceId", "read-challenged")
+            .put("issue", "可能误把保护他人理解成回避冲突")
+        assertTrue(CharacterLearningLedger.recordChallenge(character, challenge, "counter-user"))
+        assertFalse(CharacterLearningLedger.recordChallenge(character, challenge, "counter-user"))
+        assertTrue(CharacterLearningLedger.context(character, "人物动机").contains("待核对的争议"))
+        assertTrue(CharacterLearningLedger.growthTrace(character).any {
+            it.label == "理解受到新的质疑" && it.evidenceId == "counter-user"
+        })
+        SharedExperienceTimeline.deleteEvent("counter-user")
+        assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("待核对的争议"))
+    }
+
     @Test fun actualExecutionIsAnAttemptNotAutomaticExpertise() {
         reading("read-four", 4)
         CharacterLearningLedger.recordReading(character, "read-four", note("先听对方说完"))

@@ -85,7 +85,8 @@ internal object CharacterLearningLedger {
             .put("question", proposal.optString("question").trim().take(220))
             .put("applicableWhen", proposal.optString("applicableWhen").trim().take(180))
             .put("revisesEvidenceId", previousId)
-            .put("at", now.toString()).put("applications", JSONArray()))
+            .put("at", now.toString()).put("applications", JSONArray())
+            .put("challenges", JSONArray()))
         save(characterId, items)
         return true
     }
@@ -169,6 +170,97 @@ internal object CharacterLearningLedger {
         return true
     }
 
+
+    /**
+     * A user can contest a character's provisional understanding without
+     * magically changing the factual source or proving either speaker correct.
+     * The read note is annotated until later evidence supports revision.
+     */
+    @Synchronized fun recordChallenge(
+        characterId: String, proposal: JSONObject?, userEvidenceId: String,
+    ): Boolean {
+        if (prefs == null || proposal == null || userEvidenceId.isBlank()) return false
+        val userEvent = source(characterId, userEvidenceId)
+            ?.takeIf {
+                it.evidenceKind == EventEvidenceKind.UserStatement &&
+                    (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面"))
+            } ?: return false
+        // A model-invented contradiction without any correction in the user's
+        // own current utterance cannot create a durable disagreement.
+        if (!Regex("不是|不对|不准确|弄错|错了|其实|纠正|不同意|反例|误解|应该|但不是|并非")
+                .containsMatchIn(userEvent.content)) return false
+        val readingId = proposal.optString("sourceEvidenceId").trim()
+        val issue = proposal.optString("issue").trim().take(220)
+        if (issue.length < 5) return false
+        val items = records(characterId)
+        val record = items.firstOrNull {
+            it.optString("sourceEvidenceId") == readingId && valid(characterId, it, items)
+        } ?: return false
+        if (!source(characterId, readingId)!!.occurredAt.isBefore(userEvent.occurredAt))
+            return false
+        val challenges = record.optJSONArray("challenges") ?: JSONArray()
+        if ((0 until challenges.length()).any {
+            challenges.optJSONObject(it)?.optString("evidenceId") == userEvidenceId
+        }) return false
+        val next = JSONArray()
+        for (i in maxOf(0, challenges.length() - 5) until challenges.length()) next.put(challenges.opt(i))
+        next.put(JSONObject().put("evidenceId", userEvent.id)
+            .put("revision", userEvent.revision).put("userQuote", userEvent.content.take(240))
+            .put("issue", issue))
+        record.put("challenges", next)
+        save(characterId, items)
+        return true
+    }
+
+    /** Read-only audit projection. Never award mastery for an unverified idea. */
+    @Synchronized fun growthTrace(characterId: String, now: Instant = Instant.now()): List<CharacterGrowthTrace> {
+        val items = records(characterId)
+        return buildList {
+            items.filter { valid(characterId, it, items) }.takeLast(28).forEach { record ->
+                val read = source(characterId, record.optString("sourceEvidenceId")) ?: return@forEach
+                if (read.occurredAt.isAfter(now)) return@forEach
+                add(CharacterGrowthTrace(read.occurredAt, "读后形成暂定理解",
+                    "阅读主题：" + record.optString("topic") + "；当时理解：" +
+                        record.optString("understanding").take(180) +
+                        "。尚未证明方法有效，也不是本人亲历小说情节。",
+                    read.id, "学习"))
+                val challenges = record.optJSONArray("challenges") ?: JSONArray()
+                for (i in 0 until challenges.length()) {
+                    val item = challenges.optJSONObject(i) ?: continue
+                    val event = source(characterId, item.optString("evidenceId")) ?: continue
+                    if (event.revision != item.optLong("revision", -1L) ||
+                        event.occurredAt.isAfter(now)) continue
+                    add(CharacterGrowthTrace(event.occurredAt, "理解受到新的质疑",
+                        "用户原话：" + item.optString("userQuote").take(170) +
+                            "；争议：" + item.optString("issue").take(160) +
+                            "。尚未判定哪种理解正确。",
+                        event.id, "学习"))
+                }
+                val applications = record.optJSONArray("applications") ?: JSONArray()
+                for (i in 0 until applications.length()) {
+                    val application = applications.optJSONObject(i) ?: continue
+                    val action = source(characterId, application.optString("evidenceId")) ?: continue
+                    if (action.revision != application.optLong("revision", -1L) ||
+                        action.occurredAt.isAfter(now)) continue
+                    add(CharacterGrowthTrace(action.occurredAt, "实际尝试运用所学",
+                        application.optString("how").take(180) +
+                            "；执行回执：" + application.optString("receipt").take(150) +
+                            "。是否有效仍待检验。", action.id, "学习"))
+                    val feedback = application.optJSONArray("feedback") ?: JSONArray()
+                    for (j in 0 until feedback.length()) {
+                        val f = feedback.optJSONObject(j) ?: continue
+                        val user = source(characterId, f.optString("evidenceId")) ?: continue
+                        if (user.revision != f.optLong("revision", -1L) || user.occurredAt.isAfter(now)) continue
+                        add(CharacterGrowthTrace(user.occurredAt, "收到真实应用反馈",
+                            "用户原话：" + f.optString("userQuote").take(210) +
+                                "。这是对一次做法的反馈，并非稳定习惯已经形成。",
+                            user.id, "学习"))
+                    }
+                }
+            }
+        }
+    }
+
     /** Retract a deleted source and all dependent revisions; remove deleted application receipts. */
     @Synchronized fun invalidateEvidence(eventId: String) {
         if (prefs == null || eventId.isBlank()) return
@@ -202,7 +294,14 @@ internal object CharacterLearningLedger {
                         next.put(JSONObject(application.toString()).put("feedback", kept))
                     }
                 }
+                val challenges = item.optJSONArray("challenges") ?: JSONArray()
+                val keptChallenges = JSONArray()
+                for (j in 0 until challenges.length()) {
+                    val issue = challenges.optJSONObject(j) ?: continue
+                    if (issue.optString("evidenceId") != eventId) keptChallenges.put(issue)
+                }
                 JSONObject(item.toString()).put("applications", next)
+                    .put("challenges", keptChallenges)
             }
             if (remaining.map(JSONObject::toString) != original.map(JSONObject::toString))
                 save(characterId, remaining)
@@ -237,6 +336,19 @@ internal object CharacterLearningLedger {
                 appendLine("- 真实阅读证据=" + item.optString("sourceEvidenceId") +
                     "；主题=" + item.optString("topic") +
                     "；当时理解=" + item.optString("understanding"))
+                val challenges = item.optJSONArray("challenges") ?: JSONArray()
+                val open = (0 until challenges.length()).mapNotNull(challenges::optJSONObject)
+                    .filter { issue ->
+                        val event = source(characterId, issue.optString("evidenceId"))
+                        event?.revision == issue.optLong("revision", -1L) &&
+                            event.evidenceKind == EventEvidenceKind.UserStatement
+                    }.takeLast(2)
+                open.forEach { issue ->
+                    appendLine("  用户提出的反证ID=" + issue.optString("evidenceId") +
+                        "；原话=" + issue.optString("userQuote") +
+                        "；待核对的争议=" + issue.optString("issue") +
+                        "。并非一方的说法已经被证明。")
+                }
                 for (field in listOf("uncertainty" to "仍不确定", "question" to "仍想弄清",
                     "applicableWhen" to "可能适用（未验证）")) {
                     item.optString(field.first).takeIf(String::isNotBlank)?.let {

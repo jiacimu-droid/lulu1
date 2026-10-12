@@ -359,6 +359,9 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterLearningLedger.recordFeedback(
                     characterId, plan.learningFeedback, interactionEvidenceId,
                 )
+                com.jiacimu.lulu.data.CharacterLearningLedger.recordChallenge(
+                    characterId, plan.learningChallenge, interactionEvidenceId,
+                )
             }
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInteractionAppraisal(
                 characterId = characterId,
@@ -917,6 +920,7 @@ object LuluDeviceToolBridge {
                 curiosity = json.optJSONObject("curiosity"),
                 learningApplication = json.optJSONObject("learningApplication"),
                 learningFeedback = json.optJSONObject("learningFeedback"),
+                learningChallenge = json.optJSONObject("learningChallenge"),
                 experienceId = json.optString("experienceId").trim().take(180),
             )
         }.getOrNull()
@@ -975,6 +979,7 @@ private data class ToolPlan(
     val curiosity: JSONObject? = null,
     val learningApplication: JSONObject? = null,
     val learningFeedback: JSONObject? = null,
+    val learningChallenge: JSONObject? = null,
     val sleepContinuation: JSONObject? = null,
     val experienceId: String = "",
     val alternatives: org.json.JSONArray? = null,
