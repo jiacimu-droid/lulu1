@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import com.jiacimu.lulu.data.DigitalWorldResident
 import com.jiacimu.lulu.games.WorldVector
 
@@ -29,6 +30,9 @@ internal fun DrawScope.drawNativeWorldResidents(poses: List<DigitalNativeResiden
         val seed = resident.id.hashCode() and Int.MAX_VALUE
         val x = pose.position.x
         val y = pose.position.y
+        // Match the physical height of the 92dp playable character pawn.
+        // Scale around the feet so gameplay position, shadow and contact agree.
+        withTransform({ scale(.60f, .60f, pivot = Offset(x, y)) }) {
         val swing = if (pose.moving) (lightPhase - .5f) * 17f else 0f
         val coat = when (seed % 5) {
             0 -> Color(0xFF75A59B)
@@ -92,5 +96,6 @@ internal fun DrawScope.drawNativeWorldResidents(poses: List<DigitalNativeResiden
         }
         drawCircle(Color(0xFFF3FCF5).copy(alpha = .35f), 36f,
             Offset(x, y - 104f), style = Stroke(1.5f))
+          }
     }
 }

@@ -666,8 +666,8 @@ internal fun DigitalWorldGameScene(
                 detectTapGestures { tap ->
                     val point = WorldVector(tap.x / worldScale + camera.x, tap.y / worldScale + camera.y)
                     val native = nativeMotions.firstOrNull { motion ->
-                        kotlin.math.abs(motion.position.x - point.x) < 50f &&
-                            point.y >= motion.position.y - 190f && point.y <= motion.position.y + 24f
+                        kotlin.math.abs(motion.position.x - point.x) < 45f &&
+                            point.y >= motion.position.y - 118f && point.y <= motion.position.y + 20f
                     }
                     val discovery = discoverySpots.minByOrNull { it.position.distanceTo(point) }
                         ?.takeIf { it.position.distanceTo(point) < 48f }
@@ -813,7 +813,7 @@ internal fun DigitalWorldGameScene(
         // Labels track the real moving residents; these are not static map annotations.
         if (showExplorationHud) nativeMotions.forEach { motion ->
             val x = (motion.position.x - camera.x) * worldScale
-            val y = (motion.position.y - 188f - camera.y) * worldScale
+            val y = (motion.position.y - 118f - camera.y) * worldScale
             Surface(
                 modifier = Modifier.offset {
                     IntOffset((x - with(density) { 34.dp.toPx() }).roundToInt(), y.roundToInt())
