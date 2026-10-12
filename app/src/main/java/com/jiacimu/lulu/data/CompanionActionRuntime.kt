@@ -66,7 +66,7 @@ internal object CompanionActionRuntime {
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
-        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命会先真实走到家中已登记的书架旁（没有书架则停止，不虚构读书地点）并留下“准备阅读”的状态，再读取阅读 App 的真实正文。只有进度、读后感和原始证据全部保存成功才发完整阅读回执；阅读中、失败不能算读过。")
+        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取阅读 App 的真实正文。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。完整感想在阅读页，角色若想分享须另外选择并发送自然消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
@@ -303,12 +303,6 @@ internal object CompanionActionRuntime {
                     evidenceId = "lexicon-diary-$diaryId")
             }
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
-                .also { attempt ->
-                    if (!attempt.success) runCatching {
-                        MigratedDomainStores.chat.appendPrivateActivityNotice(characterId,
-                            "阅读未完成：${attempt.summary}。本次没有新增读后感或进度回执。")
-                    }
-                }
             "play_solo_game" -> {
                 val gameId = args.optString("gameId").trim().lowercase()
                 require(gameId == "memory_match") { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
@@ -551,11 +545,29 @@ internal object CompanionActionRuntime {
         }.onFailure { error ->
             android.util.Log.w("LuluReading", "Reading committed, post-read reflection side effect failed", error)
         }
-        // Reading is already committed even if a later social/inner-life projection fails.
-        val brief = reflection.replace(Regex("\\s+"), " ").take(115)
+        // Full text/progress/reflection are already saved in the reading record and timeline.
+        // Keep chat a light activity feed, not a second verbose reading report.
+        // Merge adjacent chapters read in quick succession, without erasing any actual chapter records.
         runCatching {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(character.characterId,
-                "[阅读记录|${record.id}]已读《${slice.book.title}》 · ${record.chapterTitle}（${slice.endOffset}/${slice.totalLength}）\n${station?.summary?.let { "$it\n" }.orEmpty()}读后感：$brief${if (reflection.length > 115) "…" else ""}\n点开查看完整感想和正文")
+            val chat = MigratedDomainStores.chat
+            val title = slice.book.seriesId.ifBlank { slice.book.title }
+                .trim().removePrefix("《").removeSuffix("》").take(54)
+            val chapter = if (slice.book.chapterNumber > 0) "第${slice.book.chapterNumber}章"
+                else record.chapterTitle
+            val conversation = chat.conversations.value
+                .filter { it.characterId == character.characterId && it.groupChat == null }
+                .maxByOrNull(LuluConversation::updatedAt)
+            val last = conversation?.let { chat.messages(it.id).value.lastOrNull() }
+            val recentSameBook = last != null &&
+                last.sender == LuluChatMessage.Sender.System &&
+                !last.favorite &&
+                ReadingChatReceiptFormatter.isReadingNotice(last.content) &&
+                last.content.contains("《$title》") &&
+                java.time.Duration.between(last.createdAt, Instant.now()).toMillis() in 0L..180_000L
+            val count = if (recentSameBook) ReadingChatReceiptFormatter.consecutiveCount(last!!.content) + 1 else 1
+            val receipt = ReadingChatReceiptFormatter.create(record.id, title, chapter, reflection, count)
+            val updated = recentSameBook && chat.editMessage(last!!.id, "[共同活动] $receipt")
+            if (!updated) chat.appendPrivateActivityNotice(character.characterId, receipt)
         }.onFailure { error ->
             android.util.Log.w("LuluReading", "Reading saved, chat activity notice not delivered", error)
         }
@@ -591,10 +603,8 @@ internal object CompanionActionRuntime {
         val shelf = plan.shelfId?.let { id ->
             DigitalWorldStore.itemsAtLocation(role).firstOrNull { it.id == id }
         }
-        runCatching {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(role,
-                "${arriving.summary}，挑中了《${title.take(90)}》。正在阅读正文，尚无读后感或完成回执。")
-        }
+        // The physical approach has its own persistent world evidence; posting a preliminary
+        // chat bubble for every chapter creates duplicate notices and can outlive a failed read.
         return ReadingStation(shelf, arriving.summary, arriving.evidenceId)
     }
 }
