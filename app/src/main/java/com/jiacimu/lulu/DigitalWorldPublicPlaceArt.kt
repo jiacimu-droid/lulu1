@@ -162,10 +162,20 @@ private fun DrawScope.drawCourtyardWorld(lightPhase: Float) {
 private fun DrawScope.drawVenueShell(base: Color, line: Color, warm: Boolean) {
     drawRoundRect(Color.Black.copy(alpha = .30f), Offset(35f, 58f), Size(1_530f, 960f), CornerRadius(34f))
     drawRect(Brush.verticalGradient(listOf(base.lighten(if (warm) .18f else .10f), base)), Offset(45f, 220f), Size(1_510f, 790f))
-    val vanish = Offset(800f, 220f)
-    for (x in 95..1_505 step 155) drawLine(line.copy(alpha = .17f), vanish, Offset(x.toFloat(), 1_010f), 2f)
-    for (y in 355..980 step 125) drawLine(line.copy(alpha = .11f), Offset(52f, y.toFloat()), Offset(1_548f, y.toFloat() + 4f), 2f)
+    // Repeatable orthographic paving. Parallel joints never converge to a false vanishing point.
+    for (row in 0..5) {
+        val y = 323f + row * 129f
+        drawLine(line.copy(alpha = .085f), Offset(52f, y), Offset(1_548f, y), 2f)
+        val start = if (row % 2 == 0) 70f else 250f
+        for (col in 0..4) {
+            val x = start + col * 365f
+            if (x < 1_535f) drawLine(line.copy(alpha = .065f),
+                Offset(x, y + 2f), Offset(x, (y + 126f).coerceAtMost(1_006f)), 2f)
+        }
+    }
     drawLine(Color.White.copy(alpha = .12f), Offset(50f, 224f), Offset(1_550f, 224f), 2f)
+    drawRect(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .18f), Color.Transparent)),
+        Offset(54f, 228f), Size(1_492f, 110f))
 }
 
 private fun DrawScope.drawVenueAnchorGlows(sceneCode: String, lightPhase: Float, accent: Color) {

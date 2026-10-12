@@ -244,14 +244,27 @@ internal fun DrawScope.drawDigitalHomeWorld(props: List<DigitalRoomProp>, lightP
     drawRect(Color(0xFF6B594B), Offset(54f, 218f), Size(1_492f, 16f))
     drawLine(Color.White.copy(alpha = .24f), Offset(60f, 219f), Offset(1_540f, 219f), 2f)
 
-    val vanish = Offset(800f, 226f)
-    for (x in 110..1_490 step 170) {
-        drawLine(Color(0xFF221C18).copy(alpha = .15f), vanish, Offset(x.toFloat(), 1_000f), 2f)
+    // Orthographic, staggered plank seams: the room is viewed from above,
+    // not through a one-point-perspective tunnel. Keep grain quiet under furniture.
+    for (row in 0..8) {
+        val y = 274f + row * 87f
+        drawLine(Color(0xFF261E19).copy(alpha = .12f), Offset(56f, y), Offset(1_544f, y), 2.3f)
+        drawLine(Color(0xFFFFECDD).copy(alpha = .075f), Offset(56f, y + 3f), Offset(1_544f, y + 3f), 1.6f)
+        val stagger = if (row % 2 == 0) 80f else 260f
+        for (column in 0..4) {
+            val x = stagger + column * 365f
+            if (x in 60f..1540f) {
+                drawLine(Color(0xFF261E19).copy(alpha = .10f),
+                    Offset(x, y + 5f), Offset(x, (y + 82f).coerceAtMost(998f)), 2f)
+            }
+        }
     }
-    for (y in 360..960 step 122) {
-        val alpha = .10f + ((y - 360f) / 600f) * .05f
-        drawLine(Color(0xFF211B17).copy(alpha = alpha), Offset(58f, y.toFloat()), Offset(1_542f, y.toFloat() + 5f), 2f)
-        drawLine(Color.White.copy(alpha = .035f), Offset(58f, y + 3f), Offset(1_542f, y + 8f), 1f)
+    // Irregular low-opacity wood grain makes the material feel organic.
+    repeat(30) { i ->
+        val x = 88f + ((i * 179) % 1_395)
+        val y = 294f + ((i * 113) % 675)
+        drawLine(Color(0xFFFFE8D4).copy(alpha = .035f),
+            Offset(x, y), Offset((x + 76f).coerceAtMost(1_536f), y), 1.3f)
     }
 
     // Architectural details: one low storage wall, one large window, one entrance. These are stable

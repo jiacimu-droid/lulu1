@@ -190,7 +190,7 @@ internal fun DigitalWorldMapLobby(
                     )
                 }
             },
-            windowInsets = WindowInsets(0, 0, 0, 0),
+            windowInsets = WindowInsets.statusBars,
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
 
@@ -215,7 +215,7 @@ internal fun DigitalWorldMapLobby(
                     homeCharacterId = activeHomeId,
                     characters = characters,
                     world = world,
-                    onCharacterClick = { talkTo(it, activeSceneLabel ?: "世界入口") },
+                    onCharacterClick = { talkTo(it, activeSceneLabel ?: "数字世界") },
                     controlsBottomPadding = 92.dp,
                 )
                 DigitalWorldRouteDock(
@@ -257,7 +257,6 @@ private fun DigitalWorldRouteDock(
 ) {
     val stops = remember(characters, profiles, world.homes, activeSceneCode) {
         buildList {
-            add(DigitalWorldStore.ARRIVAL)
             add(DigitalWorldStore.CLOUD_MEADOW)
             addAll(DigitalWorldPublicPlaces.all.map { it.code })
             characters
@@ -373,14 +372,9 @@ private fun DigitalWorldMapPage(
         }
         item { WorldMapSectionHeading("云境与户外", "真正可以抵达的开放空间", Icons.Outlined.Landscape) }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MapPlaceCard(Modifier.weight(1f), "世界入口", "抵达 · 等候", Icons.Outlined.AutoAwesome,
-                    residentsAt(world, DigitalWorldStore.ARRIVAL, characters), { onOpenScene(DigitalWorldStore.ARRIVAL) },
-                    DigitalWorldStore.ARRIVAL)
-                MapPlaceCard(Modifier.weight(1f), "云眠原", "云海 · 漫步", Icons.Outlined.Cloud,
-                    residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters), { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
-                    DigitalWorldStore.CLOUD_MEADOW)
-            }
+            MapPlaceCard(Modifier.fillMaxWidth(), "云眠原", "云海 · 漫步", Icons.Outlined.Cloud,
+                residentsAt(world, DigitalWorldStore.CLOUD_MEADOW, characters), { onOpenScene(DigitalWorldStore.CLOUD_MEADOW) },
+                DigitalWorldStore.CLOUD_MEADOW)
         }
         outdoor.forEach { place ->
             item(key = place.code) {
@@ -484,7 +478,7 @@ private fun MapNativeHomeCard(
 ) {
     val atHome = resident.currentLocationCode == resident.homeLocationCode
     val neighborhood = DigitalWorldPublicPlaces.label(resident.neighborhoodCode)
-        ?: if (resident.neighborhoodCode == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else "世界入口"
+        ?: if (resident.neighborhoodCode == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else "街区"
     Surface(
         modifier = modifier.height(174.dp).clickable(onClick = onClick),
         shape = RoundedCornerShape(23.dp),
@@ -555,7 +549,7 @@ private fun DigitalWorldLiveHeader(
                 }
                 Text("去他们真正生活的地方", color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.Black)
                 Text(
-                    "${homeCount + npcHomeCount} 座家 · ${DigitalWorldPublicPlaces.all.size + 2} 个公共地点 · $residentCount 位居民 · $itemCount 件陈设",
+                    "${homeCount + npcHomeCount} 座家 · ${DigitalWorldPublicPlaces.all.size + 1} 个公共地点 · $residentCount 位居民 · $itemCount 件陈设",
                     color = Color(0xFFB9C8C0),
                     fontSize = 10.5.sp,
                 )
