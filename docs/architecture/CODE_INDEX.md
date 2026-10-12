@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7d6115653a831c56714a2f8a37693a23c3a5e00d`
+- 基准提交：`9aa859789e26bc9e5ddefbed89f436e0df581fa8`
 - 分支：`main`
-- 已索引文件：578
-- 已索引代码/文本行：115613
-- 已发现符号：1744
+- 已索引文件：580
+- 已索引代码/文本行：115719
+- 已发现符号：1748
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -184,8 +184,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 101 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 200 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1272 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 157 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 475 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 158 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 503 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 248 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 674 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 216 | 2 |
@@ -258,7 +258,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 106 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt` | 21 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt` | 107 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt` | 113 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/LearningResearchPolicy.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
@@ -316,7 +317,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 70 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
@@ -542,6 +543,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCompetencyPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |

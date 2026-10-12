@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T17:43:36.242476+00:00",
-  "commit": "7d6115653a831c56714a2f8a37693a23c3a5e00d",
+  "generatedAt": "2026-10-12T17:46:00.778376+00:00",
+  "commit": "9aa859789e26bc9e5ddefbed89f436e0df581fa8",
   "branch": "main",
-  "sourceFingerprint": "133c05b41f982e47777ed2eabc6a7e47aadaa9e9db3065eec51adf08ab3cbc5f",
+  "sourceFingerprint": "cd78082126305efd737768796d2ddd1a61a7c48b9caf0f9272a4b8b35faa3e68",
   "summary": {
-    "files": 578,
-    "lines": 115613,
-    "symbols": 1744
+    "files": 580,
+    "lines": 115719,
+    "symbols": 1748
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3658,6 +3658,12 @@
         "line": 125
       }
     ],
+    "matchingActionFeedback": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
+        "line": 449
+      }
+    ],
     "register": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -5320,6 +5326,12 @@
         "line": 65
       }
     ],
+    "diverseCandidates": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningResearchPolicy.kt",
+        "line": 7
+      }
+    ],
     "LegacyConversationMigration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
@@ -6902,10 +6914,16 @@
         "line": 17
       }
     ],
+    "extract": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
+        "line": 25
+      }
+    ],
     "search": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 23
+        "line": 63
       }
     ],
     "WorldFirstExplorationMemory": [
@@ -9512,6 +9530,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt",
         "line": 7
+      }
+    ],
+    "LearningResearchPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt",
+        "line": 5
       }
     ],
     "MeetingLocationRenderingTest": [
@@ -12900,8 +12924,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-      "lines": 157,
-      "sha256": "08c6ed283e3e37865b5ff8958b9711a99907ddb0e176c67142fdc6454649e0fa",
+      "lines": 158,
+      "sha256": "b529771aab6db16c67120439048186e9bcda1075c441ac733e3a3fd57cb6ce13",
       "symbols": [
         {
           "name": "failed",
@@ -12919,12 +12943,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 475,
-      "sha256": "4a317b5c3135982b8945433c2c9b47599168673cb9351d216be8251c2a0bf9bb",
+      "lines": 503,
+      "sha256": "5707c7fd655847f2388f3841c08f06a61b46bf12214b3de432b0bd3af012a578",
       "symbols": [
         {
           "name": "score",
           "line": 378
+        },
+        {
+          "name": "matchingActionFeedback",
+          "line": 449
         }
       ]
     },
@@ -14778,8 +14806,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt",
-      "lines": 107,
-      "sha256": "8b066b3ce22391709e1ad1b4790c96b2d030fcb88c21cfb799a80b425a5377f1",
+      "lines": 113,
+      "sha256": "5cd4516ab2a3f497d1a67c53ca2b98f5e5b0e4f997c83ec99728ba57ec7cd55e",
       "symbols": [
         {
           "name": "validateUrl",
@@ -14788,6 +14816,17 @@
         {
           "name": "retrieve",
           "line": 65
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LearningResearchPolicy.kt",
+      "lines": 13,
+      "sha256": "4ded095622054b25edeb286b006c703b073a970f32ddb6ac961d774dbf7204b9",
+      "symbols": [
+        {
+          "name": "diverseCandidates",
+          "line": 7
         }
       ]
     },
@@ -16510,8 +16549,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-      "lines": 70,
-      "sha256": "ff669239b47a6adda5e792d7737a752bb36e775ef9b7f3ddfb56d45066e6479e",
+      "lines": 110,
+      "sha256": "dfeb366a81377fae409f5278d07267fe2c8d0deda403d9226699e6bb274225d1",
       "symbols": [
         {
           "name": "savedKey",
@@ -16526,8 +16565,12 @@
           "line": 17
         },
         {
+          "name": "extract",
+          "line": 25
+        },
+        {
           "name": "search",
-          "line": 23
+          "line": 63
         }
       ]
     },
@@ -20170,6 +20213,17 @@
         {
           "name": "LearningCyclePolicyTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt",
+      "lines": 18,
+      "sha256": "da8f807a68f0ab1790528af1383dd1cfb5d8442e5324a70f2ea4687ee38f8323",
+      "symbols": [
+        {
+          "name": "LearningResearchPolicyTest",
+          "line": 5
         }
       ]
     },
