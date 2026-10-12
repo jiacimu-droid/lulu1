@@ -854,10 +854,17 @@ object ProactivePerceptionRuntime {
         )
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.success) {
-            AutonomousActionTrace.newestExecutedEvidence(
+            // ToolRouter provides the exact authored bubble/post/diary ID where
+            // possible. Its separate ToolResult is newer but cannot substitute
+            // for the message that was actually delivered to the user.
+            val fallback = AutonomousActionTrace.newestExecutedEvidence(
                 SharedExperienceTimeline.all(characterId), priorEvidence,
                 character.displayName, execution.conversationId,
             )
+            sequenceOf(execution.evidenceId, fallback).filter(String::isNotBlank)
+                .mapNotNull { CharacterActionEvidence.resolve(characterId, it) }
+                .firstOrNull { CharacterActionEvidence.supports(it, decision.action.name.lowercase()) }
+                ?.id.orEmpty()
         } else ""
         CharacterLearningLedger.recordApplication(characterId, decision.learningApplication,
             actionEvidenceId, decision.action.name.lowercase(), execution.success, execution.summary)

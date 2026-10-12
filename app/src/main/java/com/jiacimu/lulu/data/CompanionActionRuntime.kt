@@ -268,7 +268,8 @@ internal object CompanionActionRuntime {
                     evidenceKind = EventEvidenceKind.CharacterStatement,
                 )
                 MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚写了一篇日记《$title》。")
-                CompanionActionResult(true, "已写入日记《$title》")
+                CompanionActionResult(true, "已写入日记《$title》",
+                    evidenceId = "lexicon-diary-$diaryId")
             }
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
             "play_solo_game" -> {
