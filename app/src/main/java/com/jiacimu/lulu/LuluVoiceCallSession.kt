@@ -696,7 +696,12 @@ internal object LuluVoiceCallSession {
                     }
                 }
                 if (busy) {
-                    if (!privateCallOutput()) cloudCaptureTurnAllowed = false
+                    // Keep a previously captured V2 utterance eligible while its
+                    // upload is pending; model/TTS playback must not erase user
+                    // words already recorded. New loudspeaker audio remains gated.
+                    if (!privateCallOutput() && !userSpeechInProgress &&
+                        providerRecognitionPendingUntilMillis <= SystemClock.elapsedRealtime())
+                        cloudCaptureTurnAllowed = false
                     // Cloud STT has its own PCM recorder and echo processing.
                     // Do not shut it down whenever TTS starts: that made
                     // ordinary calls effectively half-duplex (no barge-in).
@@ -1394,6 +1399,19 @@ internal object LuluVoiceCallSession {
         }
     }
 
+    /** Visible manual safety valve for batch Scribe v2 (not the realtime API). */
+    fun submitRecordedSpeech() {
+        val ctx = appContext ?: return
+        if (!mutableState.value.connected || mutableState.value.microphoneMuted ||
+            CallVoiceConfiguration.sttEngine(ctx) != "elevenlabs" ||
+            CallVoiceConfiguration.elevenSttModel(ctx.getSharedPreferences(
+                "lulu_advanced_settings", 0).getString("eleven_asr_model", null)) !=
+                CallVoiceConfiguration.SCRIBE_V2) return
+        val accepted = providerInput?.finishCurrentPhrase() == true
+        mutableState.update { it.copy(statusMessage = if (accepted)
+            "正在提交已录到的语音（V2 分段识别）" else "麦克风还没准备好，请重新收音") }
+    }
+
     private fun startProviderInput() {
         val context = appContext ?: return
         providerInput?.stop()
@@ -1413,7 +1431,7 @@ internal object LuluVoiceCallSession {
                 sameSession() && PhoneBargeInPolicy.shouldCapture(
                     microphoneMuted = call.microphoneMuted,
                     playbackBusy = characterAudio,
-                    privateOutput = false,
+                    privateOutput = privateCallOutput(),
                 )
             },
             onReady = {
@@ -1433,7 +1451,7 @@ internal object LuluVoiceCallSession {
                     cloudCaptureTurnAllowed = PhoneBargeInPolicy.shouldCapture(
                         mutableState.value.microphoneMuted,
                         mutableState.value.speaking,
-                        false,
+                        privateCallOutput(),
                     )
                     if (!providerSpeechConfirmed) providerSpeechStartedMillis = SystemClock.elapsedRealtime()
                     // VAD alone may be static/noise; wait for real STT text.
@@ -1459,16 +1477,19 @@ internal object LuluVoiceCallSession {
                 val isEcho = isPlaybackEchoFromCloud(candidate)
                 val call = mutableState.value
                 val characterAudio = call.speaking
-                val safeCapture = cloudCaptureTurnAllowed &&
-                    PhoneBargeInPolicy.shouldCapture(
-                        call.microphoneMuted, characterAudio, false)
+                val previouslyCapturedBatch = !scribeRealtime &&
+                    !userSpeechInProgress &&
+                    providerRecognitionPendingUntilMillis > SystemClock.elapsedRealtime()
+                val safeCapture = cloudCaptureTurnAllowed && !call.microphoneMuted &&
+                    (PhoneBargeInPolicy.shouldCapture(false, characterAudio, privateCallOutput()) ||
+                        previouslyCapturedBatch)
                 // A tentative STT partial is not a human speaker identifier.
                 // Never interrupt loudspeaker output or publish its tentative
                 // words as the user's speech. Pending synthesis is interruptible;
                 // already audible speech is not. Final text is gated again.
                 if (candidate.isNotBlank() && !isEcho && safeCapture &&
                     PhoneBargeInPolicy.safePartialBargeIn(
-                        candidate, false, characterAudio)) {
+                        candidate, privateCallOutput(), characterAudio)) {
                     if (!providerSpeechConfirmed) {
                         providerSpeechConfirmed = true
                         noteCallUserActivity()
@@ -1485,9 +1506,12 @@ internal object LuluVoiceCallSession {
                     val isEcho = isPlaybackEchoFromCloud(text)
                     val call = mutableState.value
                     val characterAudio = call.speaking
-                    val safeCapture = cloudCaptureTurnAllowed &&
-                        PhoneBargeInPolicy.shouldCapture(
-                            call.microphoneMuted, characterAudio, false)
+                    val previouslyCapturedBatch = !scribeRealtime &&
+                        !userSpeechInProgress &&
+                        providerRecognitionPendingUntilMillis > SystemClock.elapsedRealtime()
+                    val safeCapture = cloudCaptureTurnAllowed && !call.microphoneMuted &&
+                        (PhoneBargeInPolicy.shouldCapture(false, characterAudio, privateCallOutput()) ||
+                            previouslyCapturedBatch)
                     cloudCaptureTurnAllowed = false
                     userSpeechInProgress = false
                     providerSpeechConfirmed = false

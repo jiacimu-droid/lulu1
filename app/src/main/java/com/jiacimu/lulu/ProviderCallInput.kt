@@ -233,6 +233,13 @@ internal class ProviderCallInput(private val context: Context, private val scope
      * loop sees accept=false on its next ~100ms frame and emits the final PCM
      * buffer; cancellation a fraction of a second later frees AudioRecord.
      */
+    /** The cheaper batch Scribe route can explicitly finish a real PCM segment. */
+    fun finishCurrentPhrase(): Boolean {
+        if (capturePaused || realtime != null || segments == null) return false
+        microphone.finishCurrentPhrase()
+        return true
+    }
+
     fun pauseCapture() {
         if (capturePaused) return
         capturePaused = true

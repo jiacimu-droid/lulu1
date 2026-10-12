@@ -38,6 +38,7 @@ import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 
 private val CallInk = Color(0xFF243047)
 private val CallMuted = Color(0xFF6F7890)
@@ -207,12 +208,24 @@ fun LuluVoiceCallScreen(
                     }
                 }
                 Spacer(Modifier.height(7.dp))
+                if (state.connected && state.inputMeterAvailable) {
+                    CallMicrophoneMeter(state)
+                }
 
                 if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
                 if (state.connected) {
                     Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                         if (state.errorMessage.isNotBlank()) TextButton(onClick = LuluVoiceCallSession::retryListening) {
                             Text("重新收音", fontSize = 12.sp)
+                        }
+                        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+                        val batchEleven = CallVoiceConfiguration.sttEngine(context) == "elevenlabs" &&
+                            CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
+                                CallVoiceConfiguration.SCRIBE_V2
+                        if (batchEleven && !state.microphoneMuted) {
+                            TextButton(onClick = LuluVoiceCallSession::submitRecordedSpeech) {
+                                Text("识别这段话", fontSize = 12.sp)
+                            }
                         }
                         TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
                             Icon(Icons.Outlined.NightsStay, contentDescription = null,
@@ -418,6 +431,42 @@ private fun CallCaptionLines(speaker: String, content: String, mine: Boolean, li
                 )
             }
         }
+    }
+}
+
+/** The bars represent measured input PCM, NOT a decorative listening animation. */
+@Composable
+private fun CallMicrophoneMeter(state: LuluVoiceCallState) {
+    val level = if (state.microphoneMuted) 0f else state.inputLevel.coerceIn(0f, 1f)
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        Row(
+            modifier = Modifier.height(39.dp),
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            repeat(23) { index ->
+                val contour = (1f - abs(index - 11) / 15f).coerceIn(0.25f, 1f)
+                val measuredHeight = 4f + 34f * level * contour
+                Box(Modifier.width(5.dp).height(measuredHeight.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(if (state.microphoneMuted) CallMuted.copy(alpha = .2f)
+                        else if (level > .18f) CallBlue else CallMuted.copy(alpha = .48f)))
+            }
+        }
+        Text(
+            when {
+                state.microphoneMuted -> "麦克风已关闭"
+                state.speaking && level == 0f -> "对方播放中 · 扬声器可能暂停收音"
+                level > .18f -> "麦克风收到声音 · 等待转成文字"
+                else -> "真实麦克风电平 · 对着手机说话，竖条会随音量变化"
+            },
+            style = MaterialTheme.typography.bodySmall, color = CallMuted,
+            textAlign = TextAlign.Center, maxLines = 2,
+        )
     }
 }
 

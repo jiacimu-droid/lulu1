@@ -21,6 +21,25 @@ internal object PhoneMicSegmentPolicy {
     fun startThreshold(configured: Float, ambientRms: Double): Double =
         maxOf(configured.toDouble(), ambientRms * 1.15)
 
+    /**
+     * Quiet handset/headset mics can stay below a fixed 195-RMS threshold.
+     * The secondary gate follows the *observed* room floor while keeping
+     * a minimum delta from ambient. It is not a transcript or a speaker ID.
+     */
+    fun softSpeechThreshold(configured: Float, ambientRms: Double): Double =
+        maxOf(55.0, minOf(configured * 0.82, ambientRms * 1.55 + 38.0))
+
+    fun softSpeechOnset(rms: Double, previousRms: Double, ambientRms: Double,
+        threshold: Float, changingFrames: Int): Boolean =
+        rms >= softSpeechThreshold(threshold, ambientRms) &&
+            rms >= ambientRms + 38.0 && changingFrames >= 2 &&
+            kotlin.math.abs(rms - previousRms) >= 0.0
+
+    /** A logarithmic *real PCM* level used only for the visible mic meter. */
+    fun displayLevel(rms: Double): Float = if (rms < 12.0) 0f else
+        (kotlin.math.ln(1.0 + rms / 70.0) / kotlin.math.ln(1.0 + 4_000.0 / 70.0))
+            .toFloat().coerceIn(0f, 1f)
+
     fun quietThreshold(configured: Float, ambientRms: Double, peakRms: Double): Double =
         maxOf(configured * 0.72, ambientRms * 1.28, peakRms * 0.20)
 

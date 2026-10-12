@@ -91,8 +91,8 @@ internal fun VoiceCallSettings(provider: String) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 准确优先",
-                    CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 边说边转",
+                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 分段上传",
+                    CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 实时转写",
                 ).forEach { (id, label) ->
                     FilterChip(selected = elevenSttModel == id, onClick = {
                         elevenSttModel = id
@@ -103,9 +103,9 @@ internal fun VoiceCallSettings(provider: String) {
             Text(
                 if (elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
                     "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
-                else "普通版保留现有 Scribe v2：录音分段后上传识别，适合优先对比完整度。",
+                else "普通 V2：由手机实际收音并判断停顿，分段上传后才出现字幕。若手机迟迟不断句，通话中可点「识别这段话」手动提交已录音频。",
                 style = MaterialTheme.typography.bodySmall)
-            Text("两种模型共用你的 ElevenLabs API Key（不需要 Voice ID）；均可能消耗识别积分。仅影响普通 API 电话，新选择从下一通电话生效。实时 Agent 的识别由 Agent 单独配置。",
+            Text("两条识别线路互不混用，均使用 ElevenLabs API Key（不需要 Voice ID），计费以 ElevenLabs 账户为准。普通电话中央新增真实麦克风电平条：有声波不代表云端已经转出文字。选项从下一通电话生效；Agent 模式另行配置。",
                 style = MaterialTheme.typography.bodySmall)
             var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
             OutlinedTextField(value = elevenKey, onValueChange = {

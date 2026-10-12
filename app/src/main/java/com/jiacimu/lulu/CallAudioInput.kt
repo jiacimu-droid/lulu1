@@ -12,12 +12,17 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.abs
 import kotlin.math.sqrt
+import java.util.concurrent.atomic.AtomicBoolean
 
 /** Captures real PCM. Meter is measured input, never a simulated listening animation. */
 internal class CallAudioInput(private val scope: CoroutineScope) {
     private var job: Job? = null
     @Volatile private var recorder: AudioRecord? = null
     @Volatile private var generation = 0L
+    private val manualFinish = AtomicBoolean(false)
+
+    /** Explicit V2 fallback: submit real recorded PCM even when device VAD missed an onset. */
+    fun finishCurrentPhrase() { manualFinish.set(true) }
 
     @SuppressLint("MissingPermission")
     fun start(accept: () -> Boolean, onReady: () -> Unit, onLevel: (Float) -> Unit,
@@ -62,6 +67,11 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 val samples = ShortArray(1600)
                 var buffer = ByteArrayOutputStream()
                 val preRoll = ArrayDeque<ByteArray>()
+                // Only bounded real audio while listening, for an explicit V2 submit.
+                // Never keep the spoken buffer after an automatic successful end.
+                val manualRoll = ArrayDeque<ByteArray>()
+                var previousRms = 0.0
+                var changingFrames = 0
                 var active = false
                 var silentFrames = 0
                 var loudFrames = 0
@@ -82,7 +92,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     check(count > 0) { "麦克风读取失败（$count）" }
                     val rms = sqrt((0 until count).sumOf { samples[it].toDouble() * samples[it] } / count)
                     val allowed = accept()
-                    withContext(Dispatchers.Main) { if (epoch == generation) onLevel(if (allowed) (rms / 4000).toFloat().coerceIn(0f, 1f) else 0f) }
+                    withContext(Dispatchers.Main) { if (epoch == generation) onLevel(if (allowed) PhoneMicSegmentPolicy.displayLevel(rms) else 0f) }
                     val frame = ByteBuffer.allocate(count * 2).order(ByteOrder.LITTLE_ENDIAN).apply {
                         for (i in 0 until count) putShort(if (allowed) samples[i] else 0)
                     }.array()
@@ -90,6 +100,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     // Scribe owns VAD. Do not apply a second amplitude detector
                     // or retain/upload duplicate PCM when continuously streaming.
                     if (continuousFrames) continue
+                    val forced = manualFinish.getAndSet(false)
                     if (!allowed) {
                         // Caller is temporarily playing audio. Do not lose an
                         // already captured user's phrase without signalling its end.
@@ -105,7 +116,32 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         }
                         active = false; silentFrames = 0; loudFrames = 0; utteranceFrames = 0
                         peakRms = 0.0; rollingRms = 0.0; rollingVariation = 0.0; steadyFrames = 0
-                        buffer.reset(); preRoll.clear()
+                        buffer.reset(); preRoll.clear(); manualRoll.clear()
+                        continue
+                    }
+                    if (!active) {
+                        manualRoll.addLast(frame)
+                        if (manualRoll.size > 120) manualRoll.removeFirst()
+                    }
+                    if (forced) {
+                        val captured = if (active) {
+                            buffer.write(frame)
+                            buffer.toByteArray()
+                        } else ByteArrayOutputStream().apply {
+                            manualRoll.forEach { write(it) }
+                        }.toByteArray()
+                        withContext(Dispatchers.Main) {
+                            if (epoch == generation) {
+                                if (captured.size >= 16_000) {
+                                    if (!active) onSpeech()
+                                    onSegment(captured, true)
+                                } else onError("还没收到足够录音，请说话后再提交")
+                            }
+                        }
+                        active = false; loudFrames = 0; silentFrames = 0; utteranceFrames = 0
+                        rollingRms = 0.0; rollingVariation = 0.0; steadyFrames = 0; peakRms = 0.0
+                        previousRms = 0.0; changingFrames = 0
+                        buffer.reset(); preRoll.clear(); manualRoll.clear()
                         continue
                     }
                     if (!active) {
@@ -115,7 +151,13 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         // letting an abrupt real voice raise the start threshold.
                         val startGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
                         if (rms < startGate) ambientRms = ambientRms * 0.86 + rms * 0.14
-                        loudFrames = if (rms >= startGate) loudFrames + 1 else 0
+                        val variation = abs(rms - previousRms)
+                        changingFrames = if (variation >= maxOf(12.0, ambientRms * 0.12)) changingFrames + 1
+                            else (changingFrames - 1).coerceAtLeast(0)
+                        val softOnset = PhoneMicSegmentPolicy.softSpeechOnset(
+                            rms, previousRms, ambientRms, threshold, changingFrames)
+                        previousRms = rms
+                        loudFrames = if (rms >= startGate || softOnset) loudFrames + 1 else 0
                         if (loudFrames < PhoneMicSegmentPolicy.onsetFrames(rms, startGate)) continue
                         active = true
                         utteranceFrames = 0
@@ -127,7 +169,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             buffer.write(it)
                             onSpeechFrame(it)
                         }
-                        preRoll.clear()
+                        preRoll.clear(); manualRoll.clear()
                         withContext(Dispatchers.Main) { if (epoch == generation) onSpeech() }
                     } else {
                         buffer.write(frame)
@@ -171,6 +213,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             rollingRms = 0.0
                             rollingVariation = 0.0
                             steadyFrames = 0
+                            manualRoll.clear()
                         }
                         // At max duration preserve VAD state; the next frame
                         // belongs to the same utterance, without a lost pre-roll.
@@ -193,6 +236,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
 
     fun stop() {
         generation++
+        manualFinish.set(false)
         job?.cancel()
         job = null
         // Relinquish the privacy-sensitive AudioRecord immediately on mute.
