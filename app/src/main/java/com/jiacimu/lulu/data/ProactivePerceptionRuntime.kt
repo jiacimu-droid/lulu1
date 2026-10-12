@@ -901,10 +901,22 @@ object ProactivePerceptionRuntime {
                     characterId, decision.curiosity, original.id, original.evidenceContent, now,
                 )
             } else if (decision.curiosity?.optString("sourceEvidenceId").isNullOrBlank()) {
-                val observed = newlyObserved.firstOrNull()
+                // A personal unanswered question can arise on a quiet afternoon
+                // without a new outside notification. Anchor it to the ACTUAL
+                // awake observation, not an invented witnessed world incident.
+                val observed = newlyObserved.firstOrNull { candidate ->
+                    SharedExperienceTimeline.eventsByIds(characterId,
+                        listOf(candidate.evidenceId)).isNotEmpty()
+                }
                 if (observed != null) CharacterCuriosityRuntime.recordInquiry(
                     characterId, decision.curiosity, observed.evidenceId, observed.description, now,
-                )
+                ) else if (awakeReflection &&
+                    SharedExperienceTimeline.eventsByIds(characterId, listOf(awakeObservationId)).isNotEmpty()) {
+                    CharacterCuriosityRuntime.recordInquiry(
+                        characterId, decision.curiosity, awakeObservationId,
+                        "在线期间自己产生了一个想探索的问题；尚未观察到新的外部事实", now,
+                    )
+                }
             }
         }
         if (execution.success) CharacterSelfActivityRuntime.resolveConsideration(
