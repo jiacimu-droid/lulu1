@@ -23,7 +23,10 @@ internal object CharacterGrowthTrajectory {
     fun feedbackTopic(text: String): String? {
         val s = text.trim()
         if (s.isBlank() || s.length > 1600) return null
-        val addressed = listOf("你", "你们", "别", "不要", "能不能", "希望你", "请你").any(s::contains)
+        val addressed = listOf("你", "你们", "别", "不要", "能不能", "希望你", "请你").any(s::contains) ||
+            // An explicitly expressed preference can be about the shared
+            // conversation even when the user does not repeat the word "你".
+            listOf("我喜欢这样聊天", "我不喜欢这种说话", "我不喜欢这样聊天").any(s::contains)
         if (!addressed) return null
         return when {
             listOf("弱化我", "弱化了我", "把我弱化", "看低我", "贬低我", "小看我",
