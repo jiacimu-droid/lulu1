@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9aa859789e26bc9e5ddefbed89f436e0df581fa8`
+- 基准提交：`ff6dbd8897cec66c06fe0c89d181312dfe4b28c4`
 - 分支：`main`
 - 已索引文件：580
-- 已索引代码/文本行：115719
+- 已索引代码/文本行：115753
 - 已发现符号：1748
 
 | 文件 | 行数 | 符号数 |
@@ -27,7 +27,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 68 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 108 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 110 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 220 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 530 | 3 |
@@ -160,7 +160,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 65 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 81 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 207 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 213 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 574 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 110 | 5 |
@@ -495,7 +495,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 124 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 127 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 153 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 70 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 43 | 1 |

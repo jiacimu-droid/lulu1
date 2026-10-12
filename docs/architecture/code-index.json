@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T17:46:00.778376+00:00",
-  "commit": "9aa859789e26bc9e5ddefbed89f436e0df581fa8",
+  "generatedAt": "2026-10-12T17:48:16.957752+00:00",
+  "commit": "ff6dbd8897cec66c06fe0c89d181312dfe4b28c4",
   "branch": "main",
-  "sourceFingerprint": "cd78082126305efd737768796d2ddd1a61a7c48b9caf0f9272a4b8b35faa3e68",
+  "sourceFingerprint": "cbe225edc9e3f5d4e551265c1c5a49d615e61c42bc2d73cacf6fc796dd331d00",
   "summary": {
     "files": 580,
-    "lines": 115719,
+    "lines": 115753,
     "symbols": 1748
   },
   "symbolIndex": {
@@ -10087,8 +10087,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 108,
-      "sha256": "126cc58063e40d009c53c97c5ea48891f051ab32064e764ab011ae680e75b750",
+      "lines": 110,
+      "sha256": "f43083b4e7c67ac4f36c0d510dbe8727748fa84a7e2c7cdc659d2ba0d23a3d50",
       "symbols": []
     },
     {
@@ -12381,8 +12381,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt",
-      "lines": 207,
-      "sha256": "ef9bd6c780e833bbfc553a80b9e74dfb82ee3c11028787e0a59685a30f958d3c",
+      "lines": 213,
+      "sha256": "4c97d8f53249ed44d0b4403aaeb002cc39d609456df36c1cb777591cd581c179",
       "symbols": [
         {
           "name": "capabilityContext",
@@ -19650,8 +19650,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
-      "lines": 127,
-      "sha256": "e5083d903802736656a2cf2dc39fa6f8226bca6093c0b8f0bab5c73d0c2b061c",
+      "lines": 153,
+      "sha256": "bffded979d06ed4af3f4d087a4f2c760aa9cb3768c33166ce2c579d796c71ee4",
       "symbols": [
         {
           "name": "AutonomousLearningRuntimeTest",
