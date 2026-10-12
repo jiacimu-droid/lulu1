@@ -43,4 +43,21 @@ class MemoryContextPolicyTest {
         assertEquals(Instant.parse("2026-11-30T16:00:00Z"), range.first)
         assertEquals(Instant.parse("2026-12-31T16:00:00Z"), range.second)
     }
+
+    @Test fun currentTimeQuestionWinsOverAnOlderDateInChatHistory() {
+        val now = Instant.parse("2026-10-12T12:00:00Z")
+        val range = memoryTimeRange("近期上下文：上个月聊过考试\n当前输入：昨天我们聊了什么", now, ZoneId.of("Asia/Shanghai"))!!
+        assertEquals(Instant.parse("2026-10-10T16:00:00Z"), range.first)
+        val lastWeek = memoryTimeRange("上周", now, ZoneId.of("Asia/Shanghai"))!!
+        assertEquals(Instant.parse("2026-10-04T16:00:00Z"), lastWeek.first)
+        assertEquals(Instant.parse("2026-10-11T16:00:00Z"), lastWeek.second)
+    }
+
+    @Test fun anActionCueSurvivesGenericInstructionsAndLongHistory() {
+        val query = RelevantMemoryRecall.focusQuery("当前输入：有点累\n拟采取行动：讲笑话逗她开心\n任务意图：" + "通用规则".repeat(500))
+        assertTrue(query.contains("讲笑话逗她开心"))
+        assertTrue(query.contains("有点累"))
+        assertFalse(query.contains("通用规则"))
+        assertEquals(setOf("橘猫"), memorySearchTerms("当前输入：橘猫"))
+    }
 }

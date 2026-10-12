@@ -6,10 +6,14 @@ import com.jiacimu.lulu.core.MemoryEntry
  * A long highest-ranked record must not silently evict every smaller relevant memory.
  */
 internal object PromptMemoryRenderer {
-    fun render(memories: List<MemoryEntry>, characterBudget: Int): String {
-        if (memories.isEmpty() || characterBudget < 140) return ""
+    fun render(memories: List<MemoryEntry>, characterBudget: Int): String = renderWithTrace(memories, characterBudget).text
+
+    fun renderWithTrace(memories: List<MemoryEntry>, characterBudget: Int): RenderedMemorySection {
+        if (memories.isEmpty() || characterBudget < 140) return RenderedMemorySection()
         val header = "相关经历摘要（仅供联想；时间、原话与结果以权威记录为准）："
         val lines = mutableListOf(header)
+        val ids = mutableListOf<String>()
+        val truncated = mutableListOf<String>()
         var remaining = characterBudget - header.length - 1
         val perEntry = if (characterBudget >= 6_000) 1_500 else 850
         for (memory in memories) {
@@ -21,8 +25,10 @@ internal object PromptMemoryRenderer {
             val allowance = minOf(space, perEntry)
             val shown = if (clean.length <= allowance) clean else clean.take(allowance - 1) + "…"
             lines += prefix + shown
+            ids += memory.id
+            if (shown.length < clean.length) truncated += memory.id
             remaining -= prefix.length + shown.length + 1
         }
-        return if (lines.size <= 1) "" else lines.joinToString("\n")
+        return if (lines.size <= 1) RenderedMemorySection() else RenderedMemorySection(lines.joinToString("\n"), ids, truncated)
     }
 }

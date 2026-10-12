@@ -8,12 +8,14 @@ data class UnifiedMemoryRequest(
     val sceneContext: String = "",
     val recentContext: String = "",
     val taskIntent: String = "",
+    val actionContext: String = "",
 ) {
     fun retrievalQuery(): String = buildString {
         if (currentInput.isNotBlank()) appendLine("当前输入：${currentInput.trim()}")
         if (sceneContext.isNotBlank()) appendLine("当前场景：${sceneContext.trim()}")
         if (recentContext.isNotBlank()) appendLine("近期上下文：${recentContext.trim()}")
         if (taskIntent.isNotBlank()) appendLine("任务意图：${taskIntent.trim()}")
+        if (actionContext.isNotBlank()) appendLine("拟采取行动：${actionContext.trim().take(320)}")
     }.trim()
 
     companion object {
@@ -32,6 +34,8 @@ data class UnifiedMemoryContext(
     val activeTaskContext: String = "",
     private val evidenceCharacterBudget: Int = 9_000,
     private val recentCharacterBudget: Int = 7_000,
+    val characterId: String = "",
+    val inspectionId: String = "",
 ) {
     val coreMemorySection: String
         get() = if (coreMemories.isEmpty()) "" else buildString {
@@ -40,19 +44,32 @@ data class UnifiedMemoryContext(
             coreMemories.forEach { appendLine("- ${it.content.trim().replace("\n", " ")}") }
         }.trim()
 
-    val sourceEvidence: String
-        get() = renderEventSection(
-            "召回记忆对应的原始时间线证据：",
-            "事实、措辞和时间以这些原始记录为准；摘要只用于检索。",
-            sourceEvents,
-            evidenceCharacterBudget,
-        )
+    private fun evidenceRendered(budget: Int = evidenceCharacterBudget): RenderedMemorySection {
+        val header = "召回记忆对应的原始时间线证据：\n事实、措辞和时间以这些原始记录为准；摘要只用于检索。\n"
+        val rendered = MemoryEvidenceSelection.render(sourceEvents, (budget - header.length).coerceAtLeast(0))
+        return if (rendered.text.isBlank()) rendered else rendered.copy(text = header + rendered.text)
+    }
 
-    val recentTimeline: String
-        get() = listOf(
-            activeTaskContext,
-            renderEventLines(recentEvents, recentCharacterBudget).joinToString("\n"),
-        ).filter(String::isNotBlank).joinToString("\n")
+    private fun recentRendered(budget: Int = recentCharacterBudget): RenderedMemorySection =
+        MemoryEvidenceSelection.render(recentEvents.asReversed(), budget)
+
+    val sourceEvidence: String get() = evidenceRendered().text
+    val recentTimeline: String get() = listOf(activeTaskContext, recentRendered().text)
+        .filter(String::isNotBlank).joinToString("\n")
+
+    internal fun recordActualPrompt(summary: RenderedMemorySection, evidenceBudget: Int = evidenceCharacterBudget,
+                           recentBudget: Int = recentCharacterBudget) {
+        val evidence = evidenceRendered(evidenceBudget)
+        val recent = recentRendered(recentBudget)
+        val omitted = linkedMapOf<String, String>()
+        memories.filterNot { it.id in summary.ids }.forEach { omitted[it.id] = "摘要上下文字数预算" }
+        sourceEvents.filterNot { it.id in evidence.ids }.forEach { omitted["event:${it.id}"] = "原始证据上下文字数预算" }
+        recentEvents.filterNot { it.id in recent.ids }.forEach { omitted["recent:${it.id}"] = "近期原始窗口字数预算" }
+        MemoryInspectionStore.recordInjection(characterId, inspectionId,
+            coreMemories.map { "core:${it.id}" } + summary.ids.map { "memory:$it" } +
+                evidence.ids.map { "event:$it" } + recent.ids.map { "recent:$it" }, omitted,
+            summary.truncatedIds + evidence.truncatedIds + recent.truncatedIds)
+    }
 
     fun compactPromptSection(characterBudget: Int = 4_800): String {
         if (coreMemories.isEmpty() && memories.isEmpty() && sourceEvents.isEmpty() && recentEvents.isEmpty() && activeTaskContext.isBlank()) return ""
@@ -60,17 +77,11 @@ data class UnifiedMemoryContext(
         val recentBudget = (safeBudget * 0.42).toInt()
         val evidenceBudget = (safeBudget * 0.36).toInt()
         val summaryBudget = (safeBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
-        return listOf(
-            coreMemorySection,
-            activeTaskContext,
-            renderEventSection("这个角色最近亲历的原始时间线：", "", recentEvents, recentBudget),
-            renderEventSection(
-                "与当前内容语义相关、从记忆指针回溯出的原始记录：",
-                "已经与近期窗口按事件 ID 去重；事实以原始记录为准。",
-                sourceEvents,
-                evidenceBudget,
-            ),
-            renderMemorySummaries(memories, summaryBudget),
+        val summary = PromptMemoryRenderer.renderWithTrace(memories, summaryBudget)
+        recordActualPrompt(summary, evidenceBudget, recentBudget)
+        return listOf(coreMemorySection, activeTaskContext,
+            recentRendered(recentBudget).text.takeIf(String::isNotBlank)?.let { "这个角色最近亲历的原始时间线：\n$it" }.orEmpty(),
+            evidenceRendered(evidenceBudget).text, summary.text,
         ).filter(String::isNotBlank).joinToString("\n")
     }
 }
@@ -86,16 +97,18 @@ object UnifiedMemoryOrchestrator {
         evidenceCharacterBudget: Int = 9_000,
         recentCharacterBudget: Int = 7_000,
         memoryCharacterBudget: Int = 9_000,
+        localOnly: Boolean = false,
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
-        val recentEvents = LuluRepositories.memory.contextTimelineEvents(characterId)
+        val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory.contextTimelineEvents(characterId)
         val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
         val query = request.retrievalQuery()
         val core = LuluRepositories.memory.snapshot(characterId).filter {
             it.isCoreMemory() && MemoryValidityStore.isActive(it.id) && memoryHasLiveSources(it, characterId)
         }
         val coreIds = core.mapTo(mutableSetOf(), MemoryEntry::id)
-        val recalled = RelevantMemoryRecall.recall(characterId, query, recallLimit)
+        val recall = RelevantMemoryRecall.recallDetailed(characterId, query, recallLimit, localOnly = localOnly)
+        val recalled = recall.memories
             .filter { memory -> MemoryValidityStore.isActive(memory.id) }
             .filter { memory ->
                 val sourceIds = memory.sourceEventIds()
@@ -106,16 +119,27 @@ object UnifiedMemoryOrchestrator {
         val memories = selectMemoryWithinBudget(recalled.filterNot { it.id in coreIds }.filter { memory ->
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
-        }, characterBudget = maxOf(memoryCharacterBudget, 9_000), safetyLimit = recallLimit)
-        val sourceEvents = (RelevantMemoryRecall.sourceEvidenceEvents(
+        }, characterBudget = memoryCharacterBudget.coerceAtLeast(0), safetyLimit = recallLimit)
+        val directSourceEvents = (RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
             query = query,
             memories = memories,
             limit = evidenceLimit,
         ) + RawTimelineMemoryRecall.find(characterId, query, limit = 16))
             .distinctBy(SharedTimelineEvent::id).filterNot { event -> event.id in recentIds }
-        val activeTasks = renderActiveCommitmentTasks(characterId)
-        MemoryInspectionStore.recordRecall(characterId, query, memories, sourceEvents)
+        val liveEvents = SharedExperienceTimeline.all(characterId).filter { LuluRepositories.memory.allowsRawRecall(it) }
+        val sourceEvents = MemoryEvidenceSelection.expand(directSourceEvents, liveEvents, evidenceLimit)
+            .filterNot { it.id in recentIds }
+        val activeTasks = if (localOnly) "" else renderActiveCommitmentTasks(characterId)
+        val retained = memories.mapTo(mutableSetOf(), MemoryEntry::id)
+        val eligibleIds = recalled.mapTo(mutableSetOf(), MemoryEntry::id)
+        val omissions = recall.excluded + recall.candidates.filterNot { it.id in retained }.associate { memory -> memory.id to when {
+            memory.id !in eligibleIds -> "来源无效/召回名额上限"
+            memory.sourceIds().isNotEmpty() && memory.sourceIds().all { it in recentIds } -> "原话已在近期窗口，不重复注入摘要"
+            else -> "摘要字数预算"
+        } }
+        val inspectionId = MemoryInspectionStore.recordRecall(characterId, query, memories, sourceEvents,
+            recall.candidates, recall.reasons, omissions, recall.notes)
         // The chat window already contains these exact words. Preserve the originals
         // in the authoritative timeline; only remove this duplicate prompt copy.
         val seenInChat = request.recentContext
@@ -131,6 +155,8 @@ object UnifiedMemoryOrchestrator {
             activeTaskContext = activeTasks,
             evidenceCharacterBudget = evidenceCharacterBudget,
             recentCharacterBudget = recentCharacterBudget,
+            characterId = characterId,
+            inspectionId = inspectionId,
         )
     }
 

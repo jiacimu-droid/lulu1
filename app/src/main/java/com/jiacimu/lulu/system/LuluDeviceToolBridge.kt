@@ -485,6 +485,7 @@ object LuluDeviceToolBridge {
                         sceneContext = sceneContext,
                         recentContext = history,
                         taskIntent = "按已确定的回复意图渲染语言，不再次决策",
+                        actionContext = plan.speechIntent.take(220) + " " + plan.socialAttempt.take(100),
                     ),
                 ).getOrElse { return Result.failure(it) }
                 val structuredBubbles = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(generated.text)

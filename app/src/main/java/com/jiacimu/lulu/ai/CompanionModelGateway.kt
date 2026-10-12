@@ -484,6 +484,8 @@ class CompanionModelGateway(
             val presence = CompanionPresenceStore.current(characterId).takeIf { fullContext }
             val unifiedMemory = if (fullContext) {
                 com.jiacimu.lulu.data.CharacterRuntime.memory(characterId, request, budget)
+            } else if (leanExpression && request.actionContext.isNotBlank() && contextMode == CompanionContextMode.Full) {
+                com.jiacimu.lulu.data.CharacterRuntime.actionMemory(characterId, request)
             } else {
                 UnifiedMemoryOrchestrator.empty()
             }
@@ -532,7 +534,7 @@ class CompanionModelGateway(
                         includeConfigured = !fullContext,
                         includeRelationship = effectiveMode == CompanionContextMode.Full ||
                             effectiveMode == CompanionContextMode.CharacterAndScenario,
-                        includeCore = effectiveMode == CompanionContextMode.CharacterAndScenario,
+                        includeCore = effectiveMode == CompanionContextMode.CharacterAndScenario && unifiedMemory.coreMemories.isEmpty(),
                     ))
                     appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
@@ -555,9 +557,10 @@ class CompanionModelGateway(
                 appendLine("角色世界书：")
                 roleWorldBooks.forEach { entry -> appendLine("- ${entry.title}：${entry.content}") }
             }.trim()
-            val memorySection = com.jiacimu.lulu.data.PromptMemoryRenderer.render(
-                memories, budget.memoryCharacters
+            val renderedMemories = com.jiacimu.lulu.data.PromptMemoryRenderer.renderWithTrace(
+                memories, if (leanExpression) 1_600 else budget.memoryCharacters
             )
+            val memorySection = renderedMemories.text
             val memoryEvidenceSection = recalledRawTimeline
             val timelineSection = recentSharedTimeline.takeIf(String::isNotBlank)?.let {
                 "最近共同时间线（按证据类型理解，表达内容不自动等于客观经历）：\n$it"
@@ -621,6 +624,7 @@ class CompanionModelGateway(
                 memoryEvidenceSection,
                 lexiconSection,
             ).filter(String::isNotBlank).joinToString("\n\n")
+            unifiedMemory.recordActualPrompt(renderedMemories)
             val userPrompt = if (effectiveMode == CompanionContextMode.Isolated) {
                 "本次独立任务素材：\n${facts.trim()}"
             } else {

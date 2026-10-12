@@ -55,6 +55,12 @@ object CharacterRuntime {
         )
     }
 
+    /** Action-specific handoff uses local evidence only; no second embedding/rerank/model request. */
+    suspend fun actionMemory(characterId: String, request: UnifiedMemoryRequest): UnifiedMemoryContext =
+        UnifiedMemoryOrchestrator.assemble(characterId, request, recallLimit = 8, evidenceLimit = 8,
+            evidenceCharacterBudget = 1_400, recentCharacterBudget = 0,
+            memoryCharacterBudget = 1_600, localOnly = true)
+
     fun personaConstraintSnapshot(characterId: String): String {
         val persona = MigratedDomainStores.characters.get(characterId).persona
         val profile = CharacterLifeStore.state(characterId).optJSONObject("profile") ?: return persona

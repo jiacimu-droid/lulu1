@@ -16,10 +16,19 @@ import kotlin.math.ln
  * candidates. Rerank only reorders already-relevant candidates; it never forces unrelated memory
  * into context. Returning zero memories is an intentional valid result.
  */
+data class MemoryRecallResult(
+    val memories: List<MemoryEntry> = emptyList(),
+    val candidates: List<MemoryEntry> = emptyList(),
+    val reasons: Map<String, String> = emptyMap(),
+    val notes: List<String> = emptyList(),
+    val excluded: Map<String, String> = emptyMap(),
+)
+
 object RelevantMemoryRecall {
     private data class EmbeddingRankResult(
         val ranked: List<MemoryEntry> = emptyList(),
         val similarities: Map<String, Double> = emptyMap(),
+        val notes: List<String> = emptyList(),
     )
 
     private val embeddingCache = object : LinkedHashMap<String, FloatArray>(128, 0.75f, true) {
@@ -32,13 +41,30 @@ object RelevantMemoryRecall {
         query: String,
         limit: Int = 96,
         now: Instant = Instant.now(),
-    ): List<MemoryEntry> {
+    ): List<MemoryEntry> = recallDetailed(characterId, query, limit, now).memories
+
+    suspend fun recallDetailed(
+        characterId: String, query: String, limit: Int = 96,
+        now: Instant = Instant.now(), localOnly: Boolean = false,
+    ): MemoryRecallResult {
         val cleanQuery = focusQuery(query)
-        if (cleanQuery.isBlank()) return emptyList()
+        if (cleanQuery.isBlank()) return MemoryRecallResult()
         val queryTerms = terms(cleanQuery)
-        val memories = LuluRepositories.memory.snapshot(characterId)
+        val allMemories = LuluRepositories.memory.snapshot(characterId)
+        val excluded = allMemories.mapNotNull { memory ->
+            val reason = when {
+                memory.isCoreMemory() -> null // Core goes through its independent always-on channel.
+                !memory.canRecallProactively -> "已关闭普通召回"
+                !MemoryValidityStore.isActive(memory.id) -> "已被新事实替代/失效"
+                !memoryHasLiveSources(memory, characterId) -> "原始来源已删除"
+                !DigitalLifeProfileStore.allowsTimestamp(characterId, memory.occurredAt ?: memory.createdAt) -> "角色经历时间边界之外"
+                else -> null
+            }
+            reason?.let { memory.id to it }
+        }.toMap()
+        val memories = allMemories
             .asSequence()
-            .filter { memory -> MemoryValidityStore.isActive(memory.id) && !memory.isCoreMemory() && memoryHasLiveSources(memory, characterId) }
+            .filter { memory -> MemoryValidityStore.isActive(memory.id) && memory.canRecallProactively && !memory.isCoreMemory() && memoryHasLiveSources(memory, characterId) }
             .filter { memory ->
                 DigitalLifeProfileStore.allowsTimestamp(
                     characterId,
@@ -46,7 +72,7 @@ object RelevantMemoryRecall {
                 )
             }
             .toList()
-        if (memories.isEmpty()) return emptyList()
+        if (memories.isEmpty()) return MemoryRecallResult(excluded = excluded)
 
         val lexicalScores = memories.associate { memory ->
             memory.id to score(memory, queryTerms, cleanQuery, now)
@@ -73,12 +99,14 @@ object RelevantMemoryRecall {
             .map(MemoryEntry::id)
             .toSet()
 
-        val embeddingResult = if (MemoryModelRuntime.vectorEnabled()) {
+        val notes = mutableListOf<String>()
+        val embeddingResult = if (!localOnly && MemoryModelRuntime.vectorEnabled()) {
             val connection = MemoryModelRuntime.embeddingConnection()
-            if (connection == null) EmbeddingRankResult() else {
+            if (connection == null) EmbeddingRankResult(notes = listOf("向量召回未配置连接，已使用本地检索")) else {
                 rankByEmbedding(characterId, connection, cleanQuery, memories, lexicalPositiveIds)
             }
         } else EmbeddingRankResult()
+        notes += embeddingResult.notes
         val vectorRanked = embeddingResult.ranked
         val pinnedRanked = memories.filter(MemoryEntry::pinned)
             .sortedByDescending { it.occurredAt ?: it.createdAt }
@@ -102,14 +130,15 @@ object RelevantMemoryRecall {
                 pinnedRanked to 5.0,
             ),
         ).take(RERANK_POOL)
-        if (candidates.isEmpty()) return emptyList()
+        if (candidates.isEmpty()) return MemoryRecallResult(notes = notes, excluded = excluded)
 
-        if (MemoryModelRuntime.rerankEnabled() && candidates.size > 1) {
+        if (!localOnly && MemoryModelRuntime.rerankEnabled() && candidates.size > 1) {
             val connection = MemoryModelRuntime.rerankConnection()
             if (connection != null) {
-                val order = com.jiacimu.lulu.ai.LuluAiServices.gateway
+                val rerankResult = com.jiacimu.lulu.ai.LuluAiServices.gateway
                     .rerank(connection, cleanQuery, candidates.map { it.content })
-                    .getOrNull()
+                if (rerankResult.isFailure) notes += "重排失败，保留联合召回顺序：" + rerankResult.exceptionOrNull()?.message.orEmpty().take(160)
+                val order = rerankResult.getOrNull()
                 if (!order.isNullOrEmpty()) {
                     val reranked = order.mapNotNull { index -> candidates.getOrNull(index) }
                         .distinctBy(MemoryEntry::id)
@@ -126,9 +155,24 @@ object RelevantMemoryRecall {
             }
         }
 
-        return candidates
-            .distinctBy(MemoryEntry::id)
-            .take(limit.coerceIn(1, 128))
+        val graph = MemoryAssociationPolicy.expand(memories, candidates, limit = 24)
+        val directRanks = candidates.withIndex().associate { it.value.id to it.index }
+        val graphById = graph.associateBy { it.memory.id }
+        val ranked = (candidates + graph.map { it.memory }).distinctBy(MemoryEntry::id)
+            .sortedByDescending { memory ->
+                val directRank = directRanks[memory.id]
+                val hit = graphById[memory.id]
+                MemoryAssociationPolicy.priority(memory,
+                    if (directRank != null) 1.0 / (1.0 + directRank * 0.12) else 0.12,
+                    if (hit != null) 0.6 / hit.depth else 0.0, now)
+            }
+        val reasons = ranked.associate { memory -> memory.id to buildString {
+            if (memory.id in lexicalPositiveIds) append("关键词/情境相关；")
+            if (vectorRanked.any { it.id == memory.id }) append("语义相关；")
+            graphById[memory.id]?.let { append("关联自=${it.viaId}，${it.reason}，${it.depth}跳；") }
+            append("重要性=${memory.strength}；发生时间=${memory.occurredAt ?: memory.createdAt}")
+        } }
+        return MemoryRecallResult(ranked.take(limit.coerceIn(1, 128)), ranked, reasons, notes, excluded)
     }
 
     /**
@@ -168,7 +212,6 @@ object RelevantMemoryRecall {
             .sortedWith(compareByDescending<Pair<SharedTimelineEvent, Double>> { it.second }.thenByDescending { it.first.occurredAt })
             .take(limit.coerceIn(1, 64))
             .map(Pair<SharedTimelineEvent, Double>::first)
-            .sortedBy(SharedTimelineEvent::occurredAt)
     }
 
     fun sourceEvidenceForPrompt(
@@ -226,11 +269,10 @@ object RelevantMemoryRecall {
         lexicalPositiveIds: Set<String>,
     ): EmbeddingRankResult {
         if (cleanQuery.isBlank() || memories.isEmpty()) return EmbeddingRankResult()
-        val queryVector = com.jiacimu.lulu.ai.LuluAiServices.gateway
-            .embed(connection, listOf(cleanQuery))
-            .getOrNull()
+        val queryResult = com.jiacimu.lulu.ai.LuluAiServices.gateway.embed(connection, listOf(cleanQuery))
+        val queryVector = queryResult.getOrNull()
             ?.singleOrNull()
-            ?: return EmbeddingRankResult()
+            ?: return EmbeddingRankResult(notes = listOf("查询向量获取失败，保留关键词与原始证据回退：" + queryResult.exceptionOrNull()?.message.orEmpty().take(160)))
 
         val vectors = arrayOfNulls<FloatArray>(memories.size)
         val missingIndices = mutableListOf<Int>()
@@ -248,13 +290,14 @@ object RelevantMemoryRecall {
 
         // Lifecycle indexing normally fills these ahead of time. This bounded fallback keeps recall
         // functional after model-setting changes or a transient pre-index failure.
+        val notes = mutableListOf<String>()
         missingIndices.chunked(EMBEDDING_BATCH_SIZE).forEach { batch ->
             val inputs = batch.map { memoryIndex -> memories[memoryIndex].content }
             val embedded = com.jiacimu.lulu.ai.LuluAiServices.gateway
                 .embed(connection, inputs)
                 .getOrNull()
                 ?.takeIf { result -> result.size == inputs.size }
-                ?: return@forEach
+                ?: run { notes += "部分记忆向量未取得，仍保留本地/已有向量检索"; return@forEach }
             batch.forEachIndexed { position, memoryIndex ->
                 val vector = embedded[position]
                 val memory = memories[memoryIndex]
@@ -280,7 +323,7 @@ object RelevantMemoryRecall {
         val vectorOnly = memories.filter { it.id !in lexicalPositiveIds }
             .filter { (similarities[it.id] ?: -1.0) >= (queryFloor ?: relativeFloor ?: 0.0) }
             .sortedByDescending { similarities[it.id] ?: -1.0 }.take(16)
-        val verified = verifyVectorCandidates(characterId, cleanQuery, vectorOnly)
+        val verified = verifyVectorCandidates(characterId, cleanQuery, vectorOnly, notes)
 
         val ranked = memories
             .asSequence()
@@ -297,10 +340,10 @@ object RelevantMemoryRecall {
             )
             .take(VECTOR_CANDIDATES)
             .toList()
-        return EmbeddingRankResult(ranked, similarities)
+        return EmbeddingRankResult(ranked, similarities, notes)
     }
 
-    private suspend fun verifyVectorCandidates(characterId: String, query: String, candidates: List<MemoryEntry>): Set<String> {
+    private suspend fun verifyVectorCandidates(characterId: String, query: String, candidates: List<MemoryEntry>, notes: MutableList<String>): Set<String> {
         if (candidates.isEmpty()) return emptySet()
         val result = com.jiacimu.lulu.ai.LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -313,13 +356,13 @@ object RelevantMemoryRecall {
             source = "记忆", title = "语义召回核验", maxTokens = 500,
             contextMode = CompanionContextMode.Isolated,
             connectionOverride = MemoryModelRuntime.extractionConnection(),
-        ).getOrNull() ?: return emptySet()
+        ).getOrNull() ?: run { notes += "语义候选核验失败，未把未核验候选当作相关记忆"; return emptySet() }
         return runCatching {
             val clean = result.text.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
             val ids = JSONObject(clean).getJSONArray("relevantIds")
             val allowed = candidates.mapTo(mutableSetOf(), MemoryEntry::id)
             (0 until ids.length()).map { ids.optString(it) }.filter(allowed::contains).toSet()
-        }.getOrDefault(emptySet())
+        }.onFailure { notes += "语义核验返回格式无效，保留本地召回" }.getOrDefault(emptySet())
     }
 
     /**
@@ -437,7 +480,8 @@ object RelevantMemoryRecall {
             val context = lines.filter { it.startsWith("当前场景") || it.startsWith("近期上下文") }.takeLast(2).map { it.take(400) }
             val previous = userLines.filterNot { it in currentLines }.takeLast(4).map { it.takeLast(200) }
             // Keep the actual input last so the hard query budget trims context before the question.
-            context + previous + currentLines.takeLast(2).map { it.takeLast(800) }
+            val action = lines.filter { it.startsWith("拟采取行动") }.takeLast(1).map { it.take(320) }
+            context + previous + action + currentLines.takeLast(2).map { it.takeLast(800) }
         } else {
             lines.filterNot(::looksLikeInstructionLine).takeLast(12)
         }
@@ -478,7 +522,7 @@ object RelevantMemoryRecall {
             normalized.startsWith("instruction", ignoreCase = true)
     }
 
-    private fun hasTemporalIntent(text: String): Boolean = TEMPORAL_WORDS.any(text::contains)
+    private fun hasTemporalIntent(text: String): Boolean = TEMPORAL_WORDS.any(memoryTemporalQuery(text)::contains)
 
     private fun cosine(left: FloatArray, right: FloatArray): Double {
         if (left.size != right.size || left.isEmpty()) return -1.0
@@ -495,24 +539,10 @@ object RelevantMemoryRecall {
         }
     }
 
-    private fun terms(text: String): Set<String> {
-        val normalized = text.lowercase()
-            .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
-            .trim()
-        if (normalized.isBlank()) return emptySet()
-        val result = mutableSetOf<String>()
-        normalized.split(Regex("\\s+")).forEach { token ->
-            if (token.length >= 2) result += token
-            if (token.any { it.code > 127 }) {
-                token.windowed(size = 2, step = 1, partialWindows = false).forEach(result::add)
-                token.windowed(size = 3, step = 1, partialWindows = false).forEach(result::add)
-            }
-        }
-        return result
-    }
+    private fun terms(text: String): Set<String> = memorySearchTerms(text)
 
     private val TEMPORAL_WORDS = listOf(
-        "上个月", "本月", "这个月", "上周", "一个月前", "今天", "昨天", "前天", "昨晚", "昨夜", "今早", "刚才", "刚刚", "之前", "最近", "那天", "上次",
+        "上个月", "本月", "这个月", "上周", "这周", "本周", "上星期", "一个月前", "今天", "昨天", "前天", "昨晚", "昨夜", "今早", "刚才", "刚刚", "之前", "最近", "那天", "上次",
     )
 
     private const val LEXICAL_CANDIDATES = 128

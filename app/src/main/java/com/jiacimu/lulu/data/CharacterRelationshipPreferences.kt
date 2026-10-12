@@ -52,7 +52,7 @@ internal object CharacterRelationshipPreferences {
         val rejected = linkedSetOf<String>()
         val enduring = linkedMapOf<String, RelationshipPreference>()
         events.filter(::eligible).sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }).forEach { event ->
-            val text = event.evidenceContent
+            val text = event.content
             CharacterAddressPreference.extractRejectedAddresses(text).forEach {
                 rejected.add(it)
                 if (preferred?.first == it) preferred = null
