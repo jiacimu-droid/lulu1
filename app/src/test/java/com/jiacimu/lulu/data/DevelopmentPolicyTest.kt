@@ -26,7 +26,7 @@ class DevelopmentPolicyTest {
     @Test fun interestCanEmergeAfterTwoIndependentExposuresWithoutBecomingPermanent() {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 1, false, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 2, false, 0))
-        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 2, false, 1))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 2, false, 1)) // Revision with older counterevidence is permitted; store checks chronology.
         assertEquals(DevelopmentMaturity.Emerging,
             DevelopmentPolicy.maturity(DevelopmentKind.Interest, 2))
         assertEquals(DevelopmentMaturity.Established,

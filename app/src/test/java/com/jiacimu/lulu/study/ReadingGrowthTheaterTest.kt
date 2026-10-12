@@ -98,11 +98,12 @@ class ReadingGrowthTheaterTest {
         fun propose(evidence: List<String>, content: String = "喜欢安静的诗歌", counter: List<String> = emptyList()) =
             CharacterDevelopmentStore.applyProposal(role.characterId, "poetry", DevelopmentKind.Interest,
                 content, evidence, counter, persona)
-        assertFalse(propose(ids.take(2)))
+        // Two distinct real exposures can form an emerging, revisable interest.
+        assertTrue(propose(ids.take(2)))
         assertTrue(propose(ids))
         assertEquals("喜欢安静的诗歌", CharacterDevelopmentStore.active(role.characterId).single().content)
         assertTrue(propose(ids.drop(1) + ids.first(), "从喜欢意境转向关注节奏", listOf(ids.first())))
-        assertEquals(2, CharacterDevelopmentStore.active(role.characterId).single().version)
+        assertEquals(3, CharacterDevelopmentStore.active(role.characterId).single().version)
         SharedExperienceTimeline.record("later-counter", role.characterId, "私聊", role.displayName,
             "现在并不喜欢诗歌", now.plusSeconds(30), false, evidenceKind = EventEvidenceKind.CharacterStatement)
         assertFalse(propose(ids, "突然更喜欢诗歌", listOf("later-counter")))
