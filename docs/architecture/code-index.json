@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T08:59:06.246526+00:00",
-  "commit": "568dce333e812ae30a725ce78686f0667756534f",
+  "generatedAt": "2026-10-12T09:03:38.972747+00:00",
+  "commit": "9247269b402b1c1d820ca4d9521d972d18273dd1",
   "branch": "main",
-  "sourceFingerprint": "4eedf7d9c16c944d968da86ee12caed516da9305c77a487a0be25c403abaee40",
+  "sourceFingerprint": "b9ae3f8a341b8a107e41caf528a235c29cc3c120489bd46b7ad9a8ec4899a042",
   "summary": {
     "files": 547,
-    "lines": 112120,
+    "lines": 112138,
     "symbols": 1681
   },
   "symbolIndex": {
@@ -13926,8 +13926,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt",
-      "lines": 139,
-      "sha256": "5bbbf0722b784bb3f439eb02b64d354cd77f6dbb20ecb9758d7a647ac35603c2",
+      "lines": 157,
+      "sha256": "d6bbce6a49c14d96d31360863cad173bbc7250543f18fa6069d85e91b63c45de",
       "symbols": [
         {
           "name": "witnessed",
