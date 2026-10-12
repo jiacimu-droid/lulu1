@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T06:02:56.672690+00:00",
-  "commit": "11733e6d462d5f2a79f3b9154bf95ade4e19e451",
+  "generatedAt": "2026-10-12T06:21:42.185515+00:00",
+  "commit": "986c8e0856f75c836b16eeeb5709a4b982e3fe37",
   "branch": "main",
-  "sourceFingerprint": "159309d3bbd6215c72ed4d9c55a162a86b30d06affffbff89465226c4fdd32db",
+  "sourceFingerprint": "5a897b713ba02bd4f1600a0168eb569869e4db64269124c03042d5d98b4617cb",
   "summary": {
     "files": 539,
-    "lines": 111101,
-    "symbols": 1666
+    "lines": 111056,
+    "symbols": 1667
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -339,7 +339,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 158
+        "line": 165
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -1235,7 +1235,7 @@
     "LexiconFeatureScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-        "line": 59
+        "line": 61
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -3183,7 +3183,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 145
+        "line": 152
       }
     ],
     "expressionContext": [
@@ -3548,22 +3548,28 @@
         "line": 82
       }
     ],
+    "auditSnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
+        "line": 143
+      }
+    ],
     "hasOpenOpportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 141
+        "line": 148
       }
     ],
     "recordShareWish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 191
+        "line": 198
       }
     ],
     "recordAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-        "line": 209
+        "line": 216
       }
     ],
     "CharacterLifeStore": [
@@ -9631,14 +9637,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 115,
-      "sha256": "370e2c58d2ae2c2e5e0346b7afd8694417937936fc26bac6709eb0fe53efe462",
+      "lines": 138,
+      "sha256": "0b37914e98af3b33fe0f6a4ea8655ae5d627dae8984ffb9da3ccd19276f40c9f",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 521,
-      "sha256": "67fe80206d67d5fc54df57355c435b73985748f57d40d9b30e84407cff0a7971",
+      "lines": 524,
+      "sha256": "09f8903681aae212ba265deea6d6d61386d385f08ed143a643cbeb0d56380991",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -9798,8 +9804,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 457,
-      "sha256": "e31e308c93cd179920100f4d35bd8102f9b0fefa97ef2441c0decef12306bc10",
+      "lines": 368,
+      "sha256": "31339ab4e66a093e69fa243bdfef305d6017eead2d8fb5d8b8a34dd7c6b7459c",
       "symbols": []
     },
     {
@@ -10146,12 +10152,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 532,
-      "sha256": "0ad96e4f1dd0a44a5e404dd11970421ff4da1c544208a769d00bf03fa5ed9a82",
+      "lines": 543,
+      "sha256": "e53f87221ec6923fccaf9855bfe383912423a7f42f6e09bfd9bf3197c787e570",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
-          "line": 59
+          "line": 61
         }
       ]
     },
@@ -12369,8 +12375,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
-      "lines": 241,
-      "sha256": "2ee07ba6571ede1e9acb7f924002369634e085fec8df4eaf7398b9a204709f2f",
+      "lines": 248,
+      "sha256": "d13153bca3c6be804b2f54d5c38b7e3cb5f9b913ec7978d1764d2557bc7a64c7",
       "symbols": [
         {
           "name": "initialize",
@@ -12393,24 +12399,28 @@
           "line": 125
         },
         {
+          "name": "auditSnapshot",
+          "line": 143
+        },
+        {
           "name": "hasOpenOpportunity",
-          "line": 141
+          "line": 148
         },
         {
           "name": "briefContext",
-          "line": 145
+          "line": 152
         },
         {
           "name": "context",
-          "line": 158
+          "line": 165
         },
         {
           "name": "recordShareWish",
-          "line": 191
+          "line": 198
         },
         {
           "name": "recordAction",
-          "line": 209
+          "line": 216
         }
       ]
     },
