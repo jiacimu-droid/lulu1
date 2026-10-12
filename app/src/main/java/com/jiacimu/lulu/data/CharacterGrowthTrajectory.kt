@@ -1,6 +1,5 @@
 package com.jiacimu.lulu.data
 
-import java.time.Duration
 import java.time.Instant
 
 /** One item in the user's read-only audit of the character's actual growth trail. */
@@ -45,18 +44,24 @@ internal object CharacterGrowthTrajectory {
         }
     }
 
-    fun relevantFeedback(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> =
-        SharedExperienceTimeline.all(characterId).asSequence()
+    fun relevantFeedback(characterId: String, now: Instant = Instant.now()): List<SharedTimelineEvent> {
+        val grounded = SharedExperienceTimeline.all(characterId).asSequence()
             .filter { it.evidenceKind == EventEvidenceKind.UserStatement &&
                 (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) }
-            .filter { !it.occurredAt.isAfter(now) &&
-                Duration.between(it.occurredAt, now) <= Duration.ofDays(180) }
-            .filter { feedbackTopic(it.content) != null }
-            .toList().takeLast(8)
+            .filter { !it.occurredAt.isAfter(now) && feedbackTopic(it.content) != null }
+            .toList()
+        // A directly expressed boundary or preferred communication style does
+        // not expire because the user hasn't complained again in six months.
+        // Only the latest statement per category is carried forward, and the
+        // original erasable message remains the sole authority.
+        return grounded.groupBy { feedbackTopic(it.content).orEmpty() }.values
+            .mapNotNull { items -> items.maxByOrNull(SharedTimelineEvent::occurredAt) }
+            .sortedBy(SharedTimelineEvent::occurredAt)
+    }
 
     /** Sent unchanged to chat, phone, meeting and autonomous personas. */
     fun context(characterId: String, now: Instant = Instant.now()): String {
-        val recent = relevantFeedback(characterId, now).takeLast(3)
+        val recent = relevantFeedback(characterId, now).takeLast(4)
         if (recent.isEmpty()) return ""
         return buildString {
             appendLine("【来自用户、已真实说出口的重要关系反馈｜不等于你已改变】")

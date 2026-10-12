@@ -94,7 +94,9 @@ internal object CharacterCuriosityRuntime {
             receipt.isBlank() || evidenceId.isBlank() || prefs == null) return
         val verified = CharacterActionEvidence.resolve(characterId, evidenceId) ?: return
         if (!CharacterActionEvidence.supports(verified, action)) return
-        if (verified.occurredAt.isAfter(now.plusSeconds(60))) return
+        // A slow model or a long-running real-world action may finish well
+        // after the perception cycle started; only distant future IDs are suspect.
+        if (verified.occurredAt.isAfter(now.plusSeconds(3600))) return
         val origin = proposal?.optString("sourceEvidenceId").orEmpty()
         if (origin.isNotBlank() &&
             SharedExperienceTimeline.eventsByIds(characterId, listOf(origin)).isEmpty()) return

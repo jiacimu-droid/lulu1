@@ -130,6 +130,30 @@ class CharacterGrowthTrajectoryLedgerTest {
         assertTrue(CharacterGrowthTrajectory.isSignificantInnerChange(changed))
     }
 
+    @Test fun explicitLongTermPreferenceDoesNotExpireAfterSixMonthsAndIsRevisable() {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        val role = "old-but-live-relationship-preference"
+        val past = Instant.parse("2025-11-01T12:00:00Z")
+        SharedExperienceTimeline.record("old-style-feedback", role, "私聊", "用户",
+            "你说话太官方了，请自然一点。", past, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        assertTrue(CharacterGrowthTrajectory.context(role, past.plusSeconds(220L * 86400))
+            .contains("说话太官方"))
+        SharedExperienceTimeline.record("new-style-feedback", role, "私聊", "用户",
+            "我喜欢这样聊天，以后也可以这样说话。", past.plusSeconds(221L * 86400),
+            triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val current = CharacterGrowthTrajectory.context(role, past.plusSeconds(222L * 86400))
+        assertTrue(current.contains("我喜欢这样聊天"))
+        assertFalse(current.contains("说话太官方"))
+        SharedExperienceTimeline.deleteEvent("new-style-feedback")
+        assertTrue(CharacterGrowthTrajectory.context(role, past.plusSeconds(222L * 86400))
+            .contains("说话太官方"))
+        SharedExperienceTimeline.deleteEvent("old-style-feedback")
+    }
+
     @Test fun importantFeedbackIsVisibleBeforeAnyApologyAndRetractionHonorsDeletion() {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
