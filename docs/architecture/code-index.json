@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T18:14:13.941542+00:00",
-  "commit": "e772a4ae229c4a8a32a5334177c68e3731ef27c6",
+  "generatedAt": "2026-10-12T18:18:35.051446+00:00",
+  "commit": "0c4a1320cc07f69020774c33637f6690b0b30798",
   "branch": "main",
-  "sourceFingerprint": "9b8d86e506bea478c3c020dbe08eabb60a7312c496b1b757abad6d0603920bb7",
+  "sourceFingerprint": "e7490c8f54e3a106f4dd8267ede5f718550e873d7e838822dcaf337b1c53110a",
   "summary": {
-    "files": 580,
-    "lines": 115925,
-    "symbols": 1754
+    "files": 581,
+    "lines": 115985,
+    "symbols": 1756
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -63,7 +63,7 @@
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 236
+        "line": 246
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
@@ -1950,46 +1950,52 @@
         "line": 31
       }
     ],
-    "displayLevel": [
+    "softVoiceQuietThreshold": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
         "line": 39
       }
     ],
+    "displayLevel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
+        "line": 43
+      }
+    ],
     "quietThreshold": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 42
+        "line": 46
       }
     ],
     "stableBackgroundNoise": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 48
+        "line": 52
       }
     ],
     "stationaryNoiseEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 50
+        "line": 54
       }
     ],
     "onsetFrames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 55
+        "line": 59
       }
     ],
     "finalizeOnMute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 61
+        "line": 65
       }
     ],
     "uploadChunkFull": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-        "line": 63
+        "line": 67
       }
     ],
     "appendParagraph": [
@@ -6451,7 +6457,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1345
+        "line": 1349
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -9644,6 +9650,12 @@
         "line": 16
       }
     ],
+    "ProactiveQuietDecisionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
+        "line": 12
+      }
+    ],
     "PromptContextPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt",
@@ -9877,8 +9889,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-      "lines": 257,
-      "sha256": "b7d287194666d21c52fb00717120a548f3ae3aadc9ab8b9206e46e7b04d9c7c5",
+      "lines": 267,
+      "sha256": "9c045a7ee99969d433c25ecab64e537b24d90b9874ae63d923ca919c9353f84a",
       "symbols": [
         {
           "name": "finishCurrentPhrase",
@@ -9894,7 +9906,7 @@
         },
         {
           "name": "stop",
-          "line": 236
+          "line": 246
         }
       ]
     },
@@ -11010,7 +11022,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1782,
-      "sha256": "e667756bb09ac8800fbea498a4cca4f3a9590d68db376193ee8281a214128df4",
+      "sha256": "9cc0288e0466bd759edd072ced48ccffc1d271d65bdc1d5071d15f0b4868feea",
       "symbols": [
         {
           "name": "isActiveForChat",
@@ -11433,8 +11445,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
-      "lines": 66,
-      "sha256": "587eff250132ad95356a8a618e820ab31f4908ad824a51c56924da1a7ac30b42",
+      "lines": 70,
+      "sha256": "c199c20f3a8f0d564b467589239168ecd4398e9deb712386403edecaf2f3ea91",
       "symbols": [
         {
           "name": "silenceMs",
@@ -11457,32 +11469,36 @@
           "line": 31
         },
         {
-          "name": "displayLevel",
+          "name": "softVoiceQuietThreshold",
           "line": 39
         },
         {
+          "name": "displayLevel",
+          "line": 43
+        },
+        {
           "name": "quietThreshold",
-          "line": 42
+          "line": 46
         },
         {
           "name": "stableBackgroundNoise",
-          "line": 48
+          "line": 52
         },
         {
           "name": "stationaryNoiseEnded",
-          "line": 50
+          "line": 54
         },
         {
           "name": "onsetFrames",
-          "line": 55
+          "line": 59
         },
         {
           "name": "finalizeOnMute",
-          "line": 61
+          "line": 65
         },
         {
           "name": "uploadChunkFull",
-          "line": 63
+          "line": 67
         }
       ]
     },
@@ -15917,8 +15933,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 81,
-      "sha256": "7024d7ddacf4560389afb9a1d0aab46391d0ef73a8212825b4e6b337255f1538",
+      "lines": 82,
+      "sha256": "a3322af5d73e353640eb4614faf9625720ffa6cd78c38c4094126299a22b02a0",
       "symbols": []
     },
     {
@@ -16016,8 +16032,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1401,
-      "sha256": "ab308110e7e170e70a6a6d381d05ae26b3c0493a2cca979106d3b0c18b985a8d",
+      "lines": 1405,
+      "sha256": "456d23f3feb52bd822324ea0a5adf3ea8c94c5c47d6214aa6dcb00471c465ef6",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -16041,7 +16057,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1345
+          "line": 1349
         }
       ]
     },
@@ -19110,8 +19126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 992,
-      "sha256": "812f4db72fa68c8e24d6fc0bf2b1e92cf4e42dc51972690b7ba3f46ef7f6dfdf",
+      "lines": 993,
+      "sha256": "787313f204d8d7be60ea3f5eceef77aa4f73cf9999db535bf924dda6e2f5c70c",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -19417,8 +19433,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt",
-      "lines": 46,
-      "sha256": "00d39b150b94d0a33f5c1ee9c5fbbf115cb11a109a098926aa275cdda97f9271",
+      "lines": 47,
+      "sha256": "41a8d3a87d00068a0b5a073fc4612c77cbc724420752225e4f66e7dd2d20ec95",
       "symbols": [
         {
           "name": "PhoneMicSegmentPolicyTest",
@@ -20414,6 +20430,17 @@
         {
           "name": "PerceptionWakePlanStoreTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
+      "lines": 39,
+      "sha256": "0e0d644793b7a43e7940dd41b4824611164aa108e28b366c13f5f27498740cd0",
+      "symbols": [
+        {
+          "name": "ProactiveQuietDecisionTest",
+          "line": 12
         }
       ]
     },
