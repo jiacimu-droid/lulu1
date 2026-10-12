@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`78edcc441ab1748c6f8e3a715e2ade070684c71b`
+- 基准提交：`e0fcc405c1bc9d413e8947f9383ca1e2b3de88d4`
 - 分支：`main`
 - 已索引文件：542
-- 已索引代码/文本行：111608
+- 已索引代码/文本行：111620
 - 已发现符号：1670
 
 | 文件 | 行数 | 符号数 |
@@ -222,7 +222,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 420 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 20 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 35 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 37 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 242 | 16 |
@@ -509,7 +509,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 88 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldEnvironmentTest.kt` | 30 | 1 |
