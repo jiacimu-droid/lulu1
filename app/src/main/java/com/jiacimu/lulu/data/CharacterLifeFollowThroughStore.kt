@@ -216,8 +216,12 @@ internal object CharacterLifeFollowThroughStore {
             "group_sticker", "kaomoji", "group_kaomoji")
         val explore = normalized in setOf("reading", "solo_game", "digital_world")
         if (!share && !explore) return@synchronized
-        val receipt = SharedExperienceTimeline.eventsByIds(characterId, listOf(actionEvidenceId))
-            .firstOrNull() ?: return@synchronized
+        // Group chat mirrors a real message once per member with a namespaced
+        // timeline ID. Resolve to this role's own receipt so deletion can retract
+        // the share outcome even when the original sender returned a bare ID.
+        val receipt = SharedExperienceTimeline.eventsByIds(
+            characterId, listOf(actionEvidenceId, "$actionEvidenceId:group:$characterId"),
+        ).firstOrNull() ?: return@synchronized
         if (receipt.evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
                 EventEvidenceKind.ToolResult, EventEvidenceKind.Observation)) return@synchronized
         if (share && receipt.evidenceKind != EventEvidenceKind.CharacterStatement) return@synchronized
