@@ -100,6 +100,21 @@ internal object CharacterLifeVisibility {
     /** Long-term history belongs to the read-only 足迹 in 辞海. */
     fun archive(role: String, now: Instant = Instant.now()): List<CharacterLifeVisible> {
         val items = mutableListOf<CharacterLifeVisible>()
+        SharedExperienceTimeline.all(role).asSequence()
+            .filter { it.source.startsWith("reading:") &&
+                it.channel.startsWith("独自阅读《") &&
+                it.evidenceKind == EventEvidenceKind.Observation &&
+                !it.occurredAt.isAfter(now) }
+            .toList().takeLast(36).forEach { event ->
+                val original = event.content
+                val factual = original.substringBefore("阅读感想：").trim().take(230)
+                val subjective = original.substringAfter("阅读感想：", "").trim().take(340)
+                items += CharacterLifeVisible(event.occurredAt, "探索",
+                    "确实读过一段 · ${event.channel.removePrefix("独自阅读")}",
+                    factual + if (subjective.isNotBlank()) "\n个人感想：" + subjective
+                        else "\n旧阅读记录没有保存感想",
+                    event.id)
+            }
         CharacterGrowthTrajectory.entries(role, now).forEach { trace ->
             items += CharacterLifeVisible(trace.at,
                 if (trace.category == "学习") "探索" else if (trace.category == "行动") "行动" else "成长",

@@ -96,12 +96,37 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                     }
                 }
             } else {
+                val revision = readingRevision(selected)
+                val bookRecords = reflections.filter {
+                    it.bookId == selected.id && it.characterId == characterId && it.revision == revision
+                }
                 item {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         characters.values.forEach { character -> FilterChip(selected = characterId == character.characterId,
                             onClick = { characterId = character.characterId }, label = { Text(character.displayName) }) }
                     }
                     Text(ReadingBackgroundBridge.progressLabel(context, characterId, selected), style = MaterialTheme.typography.bodySmall)
+                    if (bookRecords.isEmpty()) {
+                        Text("这位角色尚未完成并保存本书的任何阅读；能看到书名或正文，不代表已经阅读。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        val last = bookRecords.maxByOrNull { it.occurredAt }!!
+                        Surface(color = StudyDesign.card) {
+                            Column(Modifier.fillMaxWidth().padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text("最近一次实际阅读 · 已保存回执", fontWeight = FontWeight.SemiBold)
+                                Text("${last.chapterTitle} · 字符 ${last.startOffset}—${last.endOffset}",
+                                    style = MaterialTheme.typography.bodySmall)
+                                Text("读后感：${last.reflection.take(220)}",
+                                    style = MaterialTheme.typography.bodyMedium)
+                                Text("以下对应章节保留完整感想；删除原始阅读证据后不再计为成长依据。",
+                                    style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                    if (notice.isNotBlank()) Text(notice,
+                        color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
                     Button(enabled = !reading && characterId in characters && ReadingBackgroundBridge.nextSlice(context, characterId, selected.id) != null,
                         onClick = {
                             reading = true
@@ -112,12 +137,10 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                             }
                         }) { Text(if (reading) "正在阅读…" else "让角色继续阅读") }
                 }
-                val revision = readingRevision(selected)
                 if (target?.bookId == selected.id && target.revision != revision) item {
                     Text("原文已更新 · 原版本阅读感想", fontWeight = FontWeight.Bold)
                     Text(target.reflection)
                 }
-                val bookRecords = reflections.filter { it.bookId == selected.id && it.characterId == characterId && it.revision == revision }
                 items(readingSections(selected), key = { "${selected.id}:${it.start}" }) { section ->
                     var expanded by remember(selected.id, section.start) { mutableStateOf(false) }
                     val notes = bookRecords.filter { it.startOffset in section.start until section.end }
@@ -138,7 +161,7 @@ fun LuluReadingScreen(onBack: () -> Unit, initialBookTitle: String? = null) {
                     }
                 }
             }
-            if (notice.isNotBlank()) item { Text(notice) }
+            if (selected == null && notice.isNotBlank()) item { Text(notice) }
         }
     }
 }

@@ -60,6 +60,23 @@ class CharacterLifeVisibilityTest {
         CharacterCuriosityRuntime.clear(role)
     }
 
+    @Test fun aReadingClaimWithoutCommittedTimelineCannotShowAReadingReceipt() {
+        val role = "reading-visibility-proof-test"
+        val sourceId = "actual-reading-source-test"
+        assertFalse(CharacterLifeVisibility.archive(role).any { it.evidenceId == sourceId })
+        SharedExperienceTimeline.record(sourceId, role, "独自阅读《测试书》", "角色",
+            "阅读《测试书》字符 0—300/900，下次从300继续\n阅读感想：这段开头有点意思。",
+            Instant.now(), triggerExtraction = false, source = "reading:test-book",
+            evidenceKind = EventEvidenceKind.Observation)
+        val entry = CharacterLifeVisibility.archive(role)
+            .first { it.evidenceId == sourceId && it.title.contains("确实读过") }
+        assertTrue(entry.detail.contains("这段开头有点意思"))
+        SharedExperienceTimeline.deleteEvent(sourceId)
+        assertFalse(CharacterLifeVisibility.archive(role).any {
+            it.evidenceId == sourceId && it.title.contains("确实读过")
+        })
+    }
+
     @Test fun unverifiedSharingIsNotReportedAsAnActualPublishedPost() {
         val role = "visibility-share-proof-test"
         val origin = "visibility-reading-experience"

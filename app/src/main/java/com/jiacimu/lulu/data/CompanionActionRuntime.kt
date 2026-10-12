@@ -303,6 +303,12 @@ internal object CompanionActionRuntime {
                     evidenceId = "lexicon-diary-$diaryId")
             }
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
+                .also { attempt ->
+                    if (!attempt.success) runCatching {
+                        MigratedDomainStores.chat.appendPrivateActivityNotice(characterId,
+                            "阅读未完成：${attempt.summary}。本次没有新增读后感或进度回执。")
+                    }
+                }
             "play_solo_game" -> {
                 val gameId = args.optString("gameId").trim().lowercase()
                 require(gameId == "memory_match") { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
@@ -409,6 +415,10 @@ internal object CompanionActionRuntime {
         result
     }.getOrElse { error ->
         if (error is kotlinx.coroutines.CancellationException) throw error
+        if (action.trim().equals("read_book", ignoreCase = true)) runCatching {
+            MigratedDomainStores.chat.appendPrivateActivityNotice(characterId,
+                "阅读未完成：${error.message.orEmpty().ifBlank { "本次没有取得阅读执行结果" }.take(150)}。请检查书籍或模型连接，再尝试继续阅读。")
+        }
         CompanionActionResult(false, error.message ?: error::class.java.simpleName)
     }
 
@@ -483,9 +493,24 @@ internal object CompanionActionRuntime {
             }
         }.trim()
         ReadingReflectionStore.completeRead(record, slice, readingGeneration) {
+            // Preserve the factual source before optional personality and UI updates.
+            // A later failure must not cause "the read failed" after the cursor advanced.
+            SharedExperienceTimeline.record(
+                eventId = record.id,
+                characterId = character.characterId,
+                channel = "独自阅读《${slice.book.title}》",
+                speaker = character.displayName,
+                content = timelineContent,
+                occurredAt = now,
+                source = "reading:${slice.book.id}",
+                evidenceKind = EventEvidenceKind.Observation,
+                sessionId = record.id,
+            )
+        }
+        // The committed reflection and source event are authoritative.
+        // All following personal interpretation and notifications are optional.
+        runCatching {
         CharacterLifeStore.consider(character.characterId, response.optJSONObject("intention"), now)
-        // The read cursor and reflection are committed BEFORE this subjective
-        // development. Its source ID is the real read receipt, not a new fiction.
         CharacterInnerLifeStore.observe(
             character.characterId, record.id, factualReceipt,
             response.optJSONObject("innerLife"), emptySet(), now,
@@ -499,17 +524,6 @@ internal object CompanionActionRuntime {
             momentReflection = CharacterMomentSnapshot.reflection(
                 response.optJSONObject("innerLife"), innerThought = response.optString("innerThought"),
             ))
-        SharedExperienceTimeline.record(
-            eventId = record.id,
-            characterId = character.characterId,
-            channel = "独自阅读《${slice.book.title}》",
-            speaker = character.displayName,
-            content = timelineContent,
-            occurredAt = now,
-            source = "reading:${slice.book.id}",
-            evidenceKind = EventEvidenceKind.Observation,
-            sessionId = record.id,
-        )
         // This is a lived reading RECEIPT, unlike thinking about a book.
         // Carry a possible share desire and curiosity into the same cross-scene
         // follow-through store used for digital-world incidents.
@@ -523,9 +537,17 @@ internal object CompanionActionRuntime {
             character.characterId, response.optJSONObject("curiosity"),
             record.id, factualReceipt, now,
         )
-        MigratedDomainStores.chat.appendPrivateActivityNotice(character.characterId,
-            "[阅读记录|${record.id}]刚刚读了《${slice.book.title}》 · ${record.chapterTitle}")
+        }.onFailure { error ->
+            android.util.Log.w("LuluReading", "Reading committed, post-read reflection side effect failed", error)
         }
-        return CompanionActionResult(true, factualReceipt)
+        // Reading is already committed even if a later social/inner-life projection fails.
+        val brief = reflection.replace(Regex("\\s+"), " ").take(115)
+        runCatching {
+            MigratedDomainStores.chat.appendPrivateActivityNotice(character.characterId,
+                "[阅读记录|${record.id}]已读《${slice.book.title}》 · ${record.chapterTitle}（${slice.endOffset}/${slice.totalLength}）\n读后感：$brief${if (reflection.length > 115) "…" else ""}\n点开查看完整感想和正文")
+        }.onFailure { error ->
+            android.util.Log.w("LuluReading", "Reading saved, chat activity notice not delivered", error)
+        }
+        return CompanionActionResult(true, factualReceipt, evidenceId = record.id)
     }
 }
