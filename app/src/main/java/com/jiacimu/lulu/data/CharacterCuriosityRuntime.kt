@@ -53,6 +53,9 @@ internal object CharacterCuriosityRuntime {
     ) {
         if (prefs == null || characterId.isBlank() || observedId.isBlank() ||
             observedText.isBlank()) return
+        val observed = SharedExperienceTimeline.eventsByIds(characterId, listOf(observedId)).firstOrNull() ?: return
+        if (observed.evidenceKind !in setOf(EventEvidenceKind.UserStatement,
+                EventEvidenceKind.Observation, EventEvidenceKind.ToolResult)) return
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
         val progress = root.optJSONArray("threads") ?: JSONArray()
@@ -89,6 +92,12 @@ internal object CharacterCuriosityRuntime {
     ) {
         if (!succeeded || action == "silent" || characterId.isBlank() ||
             receipt.isBlank() || evidenceId.isBlank() || prefs == null) return
+        val verified = CharacterActionEvidence.resolve(characterId, evidenceId) ?: return
+        if (!CharacterActionEvidence.supports(verified, action)) return
+        if (verified.occurredAt.isAfter(now.plusSeconds(60))) return
+        val origin = proposal?.optString("sourceEvidenceId").orEmpty()
+        if (origin.isNotBlank() &&
+            SharedExperienceTimeline.eventsByIds(characterId, listOf(origin)).isEmpty()) return
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
         val old = root.optJSONArray("threads") ?: JSONArray()

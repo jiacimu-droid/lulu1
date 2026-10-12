@@ -219,17 +219,8 @@ internal object CharacterLifeFollowThroughStore {
         // Group chat mirrors a real message once per member with a namespaced
         // timeline ID. Resolve to this role's own receipt so deletion can retract
         // the share outcome even when the original sender returned a bare ID.
-        val receipt = SharedExperienceTimeline.eventsByIds(
-            characterId, listOf(actionEvidenceId, "$actionEvidenceId:group:$characterId"),
-        ).firstOrNull() ?: return@synchronized
-        if (receipt.evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
-                EventEvidenceKind.ToolResult, EventEvidenceKind.Observation)) return@synchronized
-        if (share && receipt.evidenceKind != EventEvidenceKind.CharacterStatement) return@synchronized
-        if (normalized == "moment" && receipt.source != "moment:self") return@synchronized
-        if (explore && receipt.evidenceKind != EventEvidenceKind.ToolResult &&
-            !receipt.source.startsWith("reading:") &&
-            !receipt.channel.startsWith("独自") &&
-            !receipt.channel.startsWith("数字世界")) return@synchronized
+        val receipt = CharacterActionEvidence.resolve(characterId, actionEvidenceId)
+            ?.takeIf { CharacterActionEvidence.supports(it, normalized) } ?: return@synchronized
         val all = records(characterId)
         val item = all.firstOrNull { it.optString("id") == experienceId } ?: return@synchronized
         val occurred = runCatching { Instant.parse(item.optString("occurredAt")) }.getOrNull()

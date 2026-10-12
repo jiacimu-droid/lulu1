@@ -16,6 +16,10 @@ class CharacterConversationAgencyTest {
         val role = "agency-delivery-test"
         CharacterInnerLifeStore.initialize(context)
         CharacterInnerLifeStore.clear(role)
+        SharedExperienceTimeline.initialize(context)
+        SharedExperienceTimeline.record("voice-real-1", role, "电话", "角色", "我倒觉得挺有意思的。",
+            triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
         val receipt = CharacterConversationAgency.receipt("", "想分享自己的看法", "", "", null, "")
         assertNull(CharacterInnerLifeStore.snapshot(role).optJSONArray("decisions"))
         CharacterConversationAgency.delivered(role, receipt, "", "")

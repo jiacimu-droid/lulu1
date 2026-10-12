@@ -99,9 +99,8 @@ internal object CharacterLearningLedger {
         action: String, success: Boolean, receipt: String,
     ): Boolean {
         if (!success || proposal == null || prefs == null || actionEvidenceId.isBlank()) return false
-        val actual = source(characterId, actionEvidenceId)
-            ?.takeUnless { it.evidenceKind in setOf(EventEvidenceKind.Inference, EventEvidenceKind.UserStatement) }
-            ?: return false
+        val actual = CharacterActionEvidence.resolve(characterId, actionEvidenceId)
+            ?.takeIf { CharacterActionEvidence.supports(it, action) } ?: return false
         val learnedFrom = proposal.optString("sourceEvidenceId").trim()
         val how = proposal.optString("howApplied").trim().take(180)
         if (learnedFrom == actionEvidenceId || how.length < 5) return false

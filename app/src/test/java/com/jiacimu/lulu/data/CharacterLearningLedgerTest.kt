@@ -124,6 +124,18 @@ class CharacterLearningLedgerTest {
         assertFalse(CharacterLearningLedger.context(character, "人物动机").contains("待核对的争议"))
     }
 
+    @Test fun passiveObservationIsNotAnAppliedSkill() {
+        reading("read-observation", 40)
+        CharacterLearningLedger.recordReading(character, "read-observation", note("先听完再回复"))
+        SharedExperienceTimeline.record("observation-only", character, "在线感知", "系统",
+            "只感知到手机在线", now.plusSeconds(50), triggerExtraction = false,
+            source = "online-awareness", evidenceKind = EventEvidenceKind.Observation)
+        assertFalse(CharacterLearningLedger.recordApplication(character,
+            JSONObject().put("sourceEvidenceId", "read-observation")
+                .put("howApplied", "尝试将这个办法用在回应中"),
+            "observation-only", "message", true, "模型说成功"))
+    }
+
     @Test fun actualExecutionIsAnAttemptNotAutomaticExpertise() {
         reading("read-four", 4)
         CharacterLearningLedger.recordReading(character, "read-four", note("先听对方说完"))
@@ -131,9 +143,9 @@ class CharacterLearningLedgerTest {
             .put("howApplied", "尝试先听完再回应")
         assertFalse(CharacterLearningLedger.recordApplication(character, application,
             "no-result", "message", true, "已经成功"))
-        SharedExperienceTimeline.record("real-result", character, "角色日程", "角色", "真的发出回复",
-            now.plusSeconds(8), triggerExtraction = false, source = "action-result",
-            evidenceKind = EventEvidenceKind.ToolResult)
+        SharedExperienceTimeline.record("real-result", character, "私聊", "角色", "真的发出回复",
+            now.plusSeconds(8), triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.CharacterStatement)
         assertFalse(CharacterLearningLedger.recordApplication(character, application,
             "real-result", "message", false, "失败"))
         assertTrue(CharacterLearningLedger.recordApplication(character, application,

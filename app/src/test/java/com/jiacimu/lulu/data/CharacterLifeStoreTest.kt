@@ -53,6 +53,23 @@ class CharacterLifeStoreTest {
         assertFalse(sameCharacterMotive("", "完成今天的英语复习计划"))
     }
 
+    @Test fun pauseDuringToolExecutionPreservesTruthAndThePause() {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(ctx)
+        val role = "pause-while-executing"
+        CharacterLifeStore.clearHistory(role)
+        CharacterLifeStore.consider(role, JSONObject().put("aim", "继续阅读小说")
+            .put("motive", "想知道人物命运"))
+        val id = CharacterLifeStore.state(role).getJSONObject("intention").getString("createdAt")
+        assertTrue(CharacterLifeStore.markExecuting(role, id, "paused-read-receipt", "read_book"))
+        CharacterLifeStore.consider(role, JSONObject().put("id", id).put("disposition", "pause")
+            .put("reason", "现在想休息"))
+        assertTrue(CharacterLifeStore.recordLinkedOutcome(role, id,
+            "paused-read-receipt", "read_book", true, "阅读任务刚刚结束"))
+        assertEquals("paused", CharacterLifeStore.state(role).getJSONObject("intention").getString("stage"))
+        assertEquals(1, CharacterLifeStore.state(role).getJSONObject("intention").getJSONArray("outcomes").length())
+    }
+
     @Test fun linkedWishRequiresMatchingExecutedAction() {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(context)

@@ -30,7 +30,28 @@ object ToolRouter {
         if (old != null) {
             if (old.optString("fingerprint") != fingerprint) return@withLock failure("同一执行ID的参数发生变化，请重新确认", "waiting_user")
             if (old.optString("status") != "running" || !cap.retrySafe) {
-                return@withLock old.optString("result").ifBlank { failure("上次执行中断，结果未知；为避免重复动作，需要核实", "waiting_user") }
+                val saved = old.optString("result")
+                val receiptId = "tool-$characterId-$requestId"
+                if (old.optString("status") != "running" && saved.isNotBlank()) {
+                    // A crash after effect persistence must not erase the receipt
+                    // or cause a repeated side-effect when this request is retried.
+                    if (SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isEmpty()) {
+                        SharedExperienceTimeline.record(receiptId, characterId,
+                            "实际工具执行", "执行器", old.toString(),
+                            triggerExtraction = false, source = "tool-router", taskId = requestId,
+                            evidenceKind = EventEvidenceKind.ToolResult)
+                    }
+                    if (SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isNotEmpty()) {
+                        runCatching { JSONObject(saved) }.getOrNull()?.let { result ->
+                            CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, receiptId,
+                                name, result.optBoolean("success"),
+                                result.optString("summary").ifBlank { result.optString("error") })
+                        }
+                    }
+                }
+                return@withLock saved.ifBlank {
+                    failure("上次执行中断，结果未知；为避免重复动作，需要核实", "waiting_user")
+                }
             }
         }
         val goalReceiptId = "tool-$characterId-$requestId"

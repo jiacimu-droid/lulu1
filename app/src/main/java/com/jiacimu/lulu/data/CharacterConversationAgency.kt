@@ -55,9 +55,9 @@ internal object CharacterConversationAgency {
         // Group history stores one role-specific evidence row per participant.
         // Use the event's actual ID for every derived state so removing a group
         // message removes its psychological effects too.
-        val deliveredEvidenceId = SharedExperienceTimeline.eventsByIds(characterId,
-            listOf(messageId, "$messageId:group:$characterId")).firstOrNull()?.id ?: messageId
         val action = if (phone) "phone_reply" else "message"
+        val deliveredEvidenceId = CharacterActionEvidence.resolve(characterId, messageId)
+            ?.takeIf { CharacterActionEvidence.supports(it, action) }?.id ?: return
         val summary = if (phone) "这段口语已实际播放完毕：${text.take(180)}" else "文字已实际送达：${text.take(180)}"
         CharacterInnerLifeStore.recordDecision(characterId, id, action, metadata.optString("reason"),
             metadata.optString("motiveId"), null, summary, true, actionSignature = deliveredEvidenceId, causalEvidenceId = source)

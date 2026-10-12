@@ -513,11 +513,13 @@ object CharacterLifeStore {
         if (intentionId.isBlank() || receiptId.isBlank()) return false
         val goal = state(characterId).optJSONObject("intention") ?: return false
         if (goal.optString("createdAt") != intentionId ||
-            goal.optString("actionAttemptId") != receiptId || goal.optString("stage") != "executing") return false
+            goal.optString("actionAttemptId") != receiptId ||
+            goal.optString("stage") !in setOf("executing", "paused")) return false
+        val paused = goal.optString("stage") == "paused"
         recordOutcome(characterId, receiptId, action, success, summary, now)
         val root = state(characterId)
         val updated = root.optJSONObject("intention") ?: return false
-        updated.put("stage", if (success) "following_up" else "blocked")
+        updated.put("stage", if (paused) "paused" else if (success) "following_up" else "blocked")
             .put("lastActionSuccess", success).put("updatedAt", now.toString())
         save(characterId, root)
         return true
