@@ -140,8 +140,11 @@ internal fun DigitalWorldGameScene(
         homeCharacterId?.let { owner -> world.items.filter { it.ownerCharacterId == owner } }.orEmpty()
     }
     val props = remember(roomItems) { buildDigitalRoomProps(roomItems) }
+    val nativeHomeProps = remember(nativeHome) { nativeHome?.let(::nativeResidentHomeProps).orEmpty() }
     val venueAnchors = remember(sceneCode) { DigitalWorldVenueAnchors.forScene(sceneCode) }
-    val obstacles = remember(props) { props.mapNotNull(DigitalRoomProp::obstacle) }
+    val obstacles = remember(props, nativeHomeProps) {
+        (props + nativeHomeProps).mapNotNull(DigitalRoomProp::obstacle)
+    }
     val stateStore = remember(context, sceneKey) { DigitalWorldPlayState(context, sceneKey) }
     val restored = remember(stateStore) { stateStore.loadPosition() }
     val safeStart = remember(restored, obstacles) { digitalSafeStart(restored, obstacles) }
@@ -582,7 +585,7 @@ internal fun DigitalWorldGameScene(
                 scale(worldScale, worldScale, pivot = Offset.Zero)
             }) {
                 if (homeCharacterId != null || nativeHome != null) {
-                    drawDigitalHomeWorld(props, lightPhase)
+                    drawDigitalHomeWorld(if (nativeHome != null) nativeHomeProps else props, lightPhase)
                 } else if (!drawDigitalPublicPlaceWorld(sceneCode, lightPhase)) {
                     drawDigitalSharedWorld(sceneCode, lightPhase)
                 }

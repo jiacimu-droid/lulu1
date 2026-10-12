@@ -23,6 +23,7 @@ class MeetingLocationRenderingTest {
         val home = DigitalHome("owner", "江渡的家", Instant.EPOCH)
         val world = DigitalWorldState(homes = mapOf(home.characterId to home))
         assertEquals("home:owner", DigitalWorldStore.meetingLocationCode(home.name, world))
+        assertEquals("resident-home:npc1", DigitalWorldExpansionStore.residentHomeLocation("npc1"))
         assertEquals(DigitalWorldStore.CLOUD_MEADOW, DigitalWorldStore.meetingLocationCode("云眠原", world))
         assertEquals(DigitalWorldStore.ARRIVAL, DigitalWorldStore.meetingLocationCode("已删除的地点", world))
     }

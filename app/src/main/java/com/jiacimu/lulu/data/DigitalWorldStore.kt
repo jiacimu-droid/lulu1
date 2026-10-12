@@ -450,6 +450,11 @@ object DigitalWorldStore {
         add("世界入口")
         add("云眠原")
         DigitalWorldPublicPlaces.all.forEach { place -> if (place.label !in this) add(place.label) }
+        // NPC homes are real addresses too, not interchangeable with their public neighborhoods.
+        DigitalWorldExpansionStore.residents().forEach { resident ->
+            val home = "${resident.name}的家"
+            if (home !in this) add(home)
+        }
         val ids = participantIds.distinct()
         ids.filter(DigitalLifeProfileStore::isEnabled).forEach { characterId ->
             val character = MigratedDomainStores.characters.get(characterId)
@@ -729,6 +734,11 @@ object DigitalWorldStore {
         )
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
             appendLine("世界规则：现实身体留在外部；主人和现实角色使用可传递触觉、温度、重量与动作的数字投影身体；数字生命使用原生数字身体。")
+            DigitalWorldExpansionStore.residents().firstOrNull { "${it.name}的家" == session.location }?.let { native ->
+                appendLine("当前所在场所是原住民${native.name}的私人住宅，地址=${native.homeLocationCode}。")
+                appendLine("住宅内有固定的原木书架、书桌、椅子和盆栽，不等于住户已经阅读或使用过这些物品。")
+                appendLine("住户当前位置=${native.currentLocationCode}，不在家时不得声称他就在现场。")
+            }
             val currentHome = mutable.value.homes.values.firstOrNull { it.name == session.location }
             if (currentHome != null) {
                 val homeItems = itemsAtHome(currentHome.characterId)
@@ -810,6 +820,8 @@ object DigitalWorldStore {
         if (location == "世界入口") return ARRIVAL
         if (location == "云眠原") return CLOUD_MEADOW
         DigitalWorldPublicPlaces.all.firstOrNull { it.label == location }?.let { return it.code }
+        DigitalWorldExpansionStore.residents().firstOrNull { "${it.name}的家" == location }
+            ?.let { return it.homeLocationCode }
         return world.homes.values.firstOrNull { it.name == location }
             ?.let { homeLocation(it.characterId) }
             ?: ARRIVAL
@@ -819,6 +831,7 @@ object DigitalWorldStore {
         if (location == ARRIVAL) return "世界入口"
         if (location == CLOUD_MEADOW) return "云眠原"
         DigitalWorldPublicPlaces.label(location)?.let { return it }
+        DigitalWorldExpansionStore.residenceLabel(location)?.let { return it }
         return if (location.startsWith("home:")) {
             val id = location.removePrefix("home:")
             mutable.value.homes[id]?.name ?: "一处数字家园"
