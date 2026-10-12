@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`986c8e0856f75c836b16eeeb5709a4b982e3fe37`
+- 基准提交：`782181a4c0ae5a8c42f65ebaf7a4ac1943326e50`
 - 分支：`main`
-- 已索引文件：539
-- 已索引代码/文本行：111056
-- 已发现符号：1667
+- 已索引文件：541
+- 已索引代码/文本行：111340
+- 已发现符号：1669
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -28,6 +28,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 68 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 41 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 138 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 524 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 242 | 1 |
@@ -178,6 +179,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 391 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 248 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 674 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 197 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 132 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 242 | 10 |

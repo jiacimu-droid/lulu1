@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T06:21:42.185515+00:00",
-  "commit": "986c8e0856f75c836b16eeeb5709a4b982e3fe37",
+  "generatedAt": "2026-10-12T06:23:09.913052+00:00",
+  "commit": "782181a4c0ae5a8c42f65ebaf7a4ac1943326e50",
   "branch": "main",
-  "sourceFingerprint": "5a897b713ba02bd4f1600a0168eb569869e4db64269124c03042d5d98b4617cb",
+  "sourceFingerprint": "8deefc0c2efb16bce5e18fca6f5a1e04ba030d378ae9cfa88889cf88931be6b7",
   "summary": {
-    "files": 539,
-    "lines": 111056,
-    "symbols": 1667
+    "files": 541,
+    "lines": 111340,
+    "symbols": 1669
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3590,6 +3590,22 @@
         "line": 573
       }
     ],
+    "current": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+        "line": 33
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 66
+      }
+    ],
+    "archive": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+        "line": 101
+      }
+    ],
     "CharacterMessageFavorites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
@@ -4312,12 +4328,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 37
-      }
-    ],
-    "current": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 66
       }
     ],
     "isInCall": [
@@ -9636,6 +9646,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt",
+      "lines": 87,
+      "sha256": "dea5b72ce7f72054ad8becc86afffe7107ed8bae3cc1796651acf15665e6e3c3",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
       "lines": 138,
       "sha256": "0b37914e98af3b33fe0f6a4ea8655ae5d627dae8984ffb9da3ccd19276f40c9f",
@@ -12452,6 +12468,21 @@
         {
           "name": "context",
           "line": 628
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
+      "lines": 197,
+      "sha256": "94ab23131e81077be773e130d84957d38f24c823b7d7997b367def1ce7926f1e",
+      "symbols": [
+        {
+          "name": "current",
+          "line": 33
+        },
+        {
+          "name": "archive",
+          "line": 101
         }
       ]
     },
