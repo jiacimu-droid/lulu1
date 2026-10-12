@@ -95,6 +95,10 @@ internal fun DigitalWorldScenePage(
                 characters = characters,
                 world = world,
                 onCharacterClick = onCharacterClick,
+                onObservedBehavior = { action ->
+                    DigitalWorldVisitorAwareness.observeAction(context, sceneLabel,
+                        observedResidents.toList(), action)
+                },
                 onPhysicalInteraction = { characterId, action ->
                     DigitalWorldVisitorAwareness.observePhysicalInteraction(
                         context, sceneLabel, characterId, action,
@@ -154,6 +158,7 @@ internal fun DigitalWorldSceneCanvas(
     onCharacterClick: (String) -> Unit,
     onWorldAction: ((String) -> Unit)? = null,
     onPhysicalInteraction: ((String, String) -> Unit)? = null,
+    onObservedBehavior: ((String) -> Unit)? = null,
     controlsBottomPadding: androidx.compose.ui.unit.Dp = 18.dp,
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
@@ -169,6 +174,7 @@ internal fun DigitalWorldSceneCanvas(
         onCharacterClick = onCharacterClick,
         onWorldAction = onWorldAction,
         onPhysicalInteraction = onPhysicalInteraction,
+        onObservedBehavior = onObservedBehavior,
         controlsBottomPadding = controlsBottomPadding,
         controlsEnabled = controlsEnabled,
         showExplorationHud = showExplorationHud,

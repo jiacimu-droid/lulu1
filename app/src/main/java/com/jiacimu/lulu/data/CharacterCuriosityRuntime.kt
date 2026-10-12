@@ -101,7 +101,9 @@ internal object CharacterCuriosityRuntime {
         val kept = JSONArray()
         for (i in maxOf(0, steps.length() - MAX_STEPS + 1) until steps.length()) kept.put(steps.opt(i))
         val status = if (proposal?.optString("status") == "satisfied") "satisfied" else "exploring"
-        kept.put(JSONObject().put("evidenceId", evidenceId).put("at", now.toString())
+        kept.put(JSONObject().put("evidenceId", evidenceId)
+            .put("sourceEvidenceId", proposal?.optString("sourceEvidenceId").orEmpty().take(180))
+            .put("at", now.toString())
             .put("action", action.take(60)).put("receipt", receipt.take(240))
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status))
@@ -200,7 +202,7 @@ internal object CharacterCuriosityRuntime {
                 val kept = JSONArray()
                 for (j in 0 until steps.length()) {
                     val step = steps.optJSONObject(j) ?: continue
-                    if (step.optString("evidenceId") == eventId) changed = true
+                    if (step.optString("evidenceId") == eventId || step.optString("sourceEvidenceId") == eventId) changed = true
                     else kept.put(step)
                 }
                 if (kept.length() == 0) continue

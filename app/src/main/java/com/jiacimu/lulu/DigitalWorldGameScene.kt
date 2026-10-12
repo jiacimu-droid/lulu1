@@ -119,6 +119,7 @@ internal fun DigitalWorldGameScene(
     onWorldAction: ((String) -> Unit)? = null,
     /** Triggered only by a committed in-scene physical action, not by a narrative prompt. */
     onPhysicalInteraction: ((String, String) -> Unit)? = null,
+    onObservedBehavior: ((String) -> Unit)? = null,
     controlsBottomPadding: Dp = 18.dp,
     controlsEnabled: Boolean = true,
     showExplorationHud: Boolean = true,
@@ -221,6 +222,48 @@ internal fun DigitalWorldGameScene(
     val viewportWorldWidth = viewportSize.width.toFloat() / worldScale
     val viewportWorldHeight = viewportSize.height.toFloat() / worldScale
 
+    val latestObservedBehavior by rememberUpdatedState(onObservedBehavior)
+    val latestResidents by rememberUpdatedState(residents)
+    var liveToken by remember(sceneKey) { mutableStateOf("") }
+    DisposableEffect(sceneKey, controlsEnabled) {
+        val token = if (controlsEnabled) com.jiacimu.lulu.data.DigitalWorldLiveScene.begin(context, sceneCode, placeLabel) else ""
+        liveToken = token
+        onDispose { com.jiacimu.lulu.data.DigitalWorldLiveScene.end(token) }
+    }
+    LaunchedEffect(sceneKey, liveToken, controlsEnabled) {
+        if (!controlsEnabled || liveToken.isBlank()) return@LaunchedEffect
+        var lastDetail = ""
+        var lastPosition = playerPosition
+        var lastObservationAt = 0L
+        var lastMoving = false
+        while (isActive) {
+            val near = npcMotions.minByOrNull { it.position.distanceTo(playerPosition) }
+                ?.takeIf { it.position.distanceTo(playerPosition) < 180f }
+            val anchor = venueAnchors.minByOrNull { it.position.distanceTo(playerPosition) }
+                ?.takeIf { it.position.distanceTo(playerPosition) < 180f }
+            val prop = props.minByOrNull { it.bounds.center.distanceTo(playerPosition) }
+                ?.takeIf { it.bounds.center.distanceTo(playerPosition) < 160f }
+            val detail = when {
+                near != null -> "在${near.character.displayName}附近"
+                prop != null -> "在${prop.item.name}附近"
+                anchor != null -> "在${anchor.label}附近"
+                else -> "在场景${if (playerPosition.x < 800f) "左" else "右"}侧${if (playerPosition.y < 650f) "上" else "下"}方"
+            }
+            val moving = playerPosition.distanceTo(lastPosition) > 35f
+            com.jiacimu.lulu.data.DigitalWorldLiveScene.update(liveToken, playerPosition.x, playerPosition.y,
+                latestResidents.map { it.characterId }.toSet(), "$detail，${if (moving) "正在走动" else "暂时停留"}")
+            val now = System.currentTimeMillis()
+            if ((detail != lastDetail || (lastMoving && !moving)) && now - lastObservationAt >= 6_000L) {
+                latestObservedBehavior?.invoke("$detail，${if (moving) "正在走动" else "停下来暂时停留"}")
+                lastDetail = detail
+                lastObservationAt = now
+            }
+            lastPosition = playerPosition
+            lastMoving = moving
+            delay(1_600L)
+        }
+    }
+
     val latestPosition by rememberUpdatedState(playerPosition)
     val latestQuest by rememberUpdatedState(questStage)
     DisposableEffect(sceneKey, stateStore) {
@@ -267,6 +310,7 @@ internal fun DigitalWorldGameScene(
             locationLabel = placeLabel,
             action = queued.summary,
         )
+        latestObservedBehavior?.invoke(queued.summary)
         queuedActions = queuedActions.drop(1)
         delay(800)
         if (activeActionLabel == queued.label) activeActionLabel = ""
@@ -338,9 +382,11 @@ internal fun DigitalWorldGameScene(
 
                     // Animation reflects confirmed activity; it never executes random world actions.
                     val characterId = motion.character.characterId
-                    val following = characterId in activeFollowerIds
+                    val sceneGoal = com.jiacimu.lulu.data.DigitalWorldLiveScene.goal(characterId)
+                    val approaching = sceneGoal?.action == "approach_user"
+                    val following = characterId in activeFollowerIds || approaching
                     val handHolding = characterId == effectiveHoldingId
-                    val occupiedFurniture = if (!following) furniturePoseFor(characterId) else null
+                    val occupiedFurniture = if (!following && sceneGoal == null) furniturePoseFor(characterId) else null
                     if (occupiedFurniture != null) {
                         // A verified resting activity is an occupied furniture
                         // slot. Do not pathfind into the furniture's collision
@@ -354,7 +400,7 @@ internal fun DigitalWorldGameScene(
                                     .firstOrNull { it.first == id }?.second }
                             }.orEmpty())
                     }
-                    var followPath = if (following) motion.followPath else emptyList()
+                    var followPath = if (following || sceneGoal != null) motion.followPath else emptyList()
                     var target = motion.target
                     var nextDecision = motion.nextDecisionAt
                     val pendingItemId: String? = null
@@ -379,7 +425,27 @@ internal fun DigitalWorldGameScene(
                             }
                             target = followPath.firstOrNull() ?: motion.position
                         }
-                        activityLabel = if (handHolding) "牵着手同行" else "跟随你"
+                        activityLabel = if (handHolding) "牵着手同行" else if (approaching) "走近你" else "跟随你"
+                        if (approaching && motion.position.distanceTo(playerPosition) < 90f) {
+                            com.jiacimu.lulu.data.DigitalWorldLiveScene.arrived(characterId, sceneGoal!!.id)
+                            activityLabel = "来到你身边"
+                        }
+                    } else if (sceneGoal?.action == "wait_at_entrance") {
+                        val entrance = digitalSafeStart(WorldVector(800f, 820f), obstacles)
+                        if (now >= nextDecision || followPath.isEmpty()) {
+                            followPath = com.jiacimu.lulu.games.worldFollowPath(motion.position, entrance,
+                                DIGITAL_WORLD_BOUNDS, obstacles, 28f)
+                            nextDecision = now + 750L
+                        }
+                        while (followPath.isNotEmpty() && motion.position.distanceTo(followPath.first()) < 14f)
+                            followPath = followPath.drop(1)
+                        target = followPath.firstOrNull() ?: motion.position
+                        activityLabel = "走向入口"
+                        if (motion.position.distanceTo(entrance) < 65f) {
+                            com.jiacimu.lulu.data.DigitalWorldLiveScene.arrived(characterId, sceneGoal.id)
+                            target = motion.position
+                            activityLabel = "在入口等候"
+                        }
                     } else if (now >= nextDecision) {
                         val activity = com.jiacimu.lulu.data.DigitalWorldActivityStateStore.ongoingActivity(motion.character.characterId)
                         val item = props.firstOrNull { it.item.id == activity?.first }
@@ -721,9 +787,13 @@ internal fun DigitalWorldGameScene(
                                     locationLabel = placeLabel, action = interactionMessage)
                             }
                         }
-                        choice.gameId != null -> arcadeGameId = choice.gameId
+                        choice.gameId != null -> {
+                            latestObservedBehavior?.invoke("打开游戏馆游戏，开始游玩")
+                            arcadeGameId = choice.gameId
+                        }
                         choice.dialogueCharacterId != null -> {
                             questStage = questStage.coerceAtLeast(1)
+                            latestObservedBehavior?.invoke("主动找${com.jiacimu.lulu.data.MigratedDomainStores.characters.get(choice.dialogueCharacterId).displayName}开始交流")
                             onCharacterClick(choice.dialogueCharacterId)
                         }
                         choice.quickSummary != null -> {

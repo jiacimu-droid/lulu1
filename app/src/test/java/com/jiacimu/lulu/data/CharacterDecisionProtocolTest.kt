@@ -125,4 +125,10 @@ class CharacterDecisionProtocolTest {
             delta = delta, hasFreshEvidence = true)
         assertTrue(quick.length <= 141)
     }
+    @Test fun imageOnlyReplyIsAValidDecisionButStillNeedsARealStickerId() {
+        assertEquals("reply", CharacterDecisionProtocol.chatAction(JSONObject()
+            .put("action", "reply").put("stickerOnly", true).put("stickerId", "actual-shelf-id")))
+        assertNull(CharacterDecisionProtocol.chatAction(JSONObject()
+            .put("action", "reply").put("stickerOnly", true)))
+    }
 }

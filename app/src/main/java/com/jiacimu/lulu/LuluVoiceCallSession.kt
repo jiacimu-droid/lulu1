@@ -1076,7 +1076,8 @@ internal object LuluVoiceCallSession {
         val current = mutableState.value
         if (!current.connected || !openingTurn.claim(current.callExperienceId)) return
         mutableState.update { it.copy(opening = true, listening = false, statusMessage = "${it.characterName} 正要开口") }
-        handleUserSpeech(CallOpeningTurn.prompt(current.incomingReason), opening = true)
+        InteractionSignalBridge.recordCallStart(current.characterId, current.callExperienceId, current.incomingReason)
+        handleUserSpeech("", opening = true)
     }
 
     private fun handleUserSpeech(
@@ -1149,12 +1150,17 @@ internal object LuluVoiceCallSession {
             val wholeTurnSpeech = appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true
             val heard = StringBuilder()
             var finalText: String? = null
+            var interactionReceipt: String? = null
+            var lastDeliveredMessageId = ""
             fun sameReply() = generation == replyGeneration && mutableState.value.connected &&
                 mutableState.value.callExperienceId == latest.callExperienceId
             fun clearWhenHeard() {
                 val complete = finalText ?: return
-                if (heard.toString().filterNot(Char::isWhitespace) == complete.filterNot(Char::isWhitespace))
+                if (heard.toString().filterNot(Char::isWhitespace) == complete.filterNot(Char::isWhitespace)) {
+                    com.jiacimu.lulu.data.CharacterConversationAgency.delivered(latest.characterId,
+                        interactionReceipt, lastDeliveredMessageId, heard.toString(), phone = true)
                     mutableState.update { it.copy(generatedTranscript = "", playingTranscript = "") }
+                }
             }
             fun enqueueSpoken(parts: List<String>) {
                 parts.forEach { part ->
@@ -1205,6 +1211,7 @@ internal object LuluVoiceCallSession {
                                 MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
                                     voiceMessageId, plainSpeech, true)
                                 autonomousHangup.markDelivered(latest.callExperienceId, generation, plainSpeech)
+                                lastDeliveredMessageId = voiceMessageId
                             }
                             clearWhenHeard()
                             mutableState.update { it.copy(playingTranscript = "") }
@@ -1234,10 +1241,11 @@ internal object LuluVoiceCallSession {
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
-                userText = if (autonomousSleep || autonomousSilence) "" else spoken,
+                userText = if (opening || autonomousSleep || autonomousSilence) "" else spoken,
                 title = activeLabel,
                 archiveId = archiveId,
                 silenceObservationId = observationId,
+                turnContext = if (opening) "真实事件：本通电话刚接通；来电缘由=${latest.incomingReason}。这不是用户说的话。" else "",
                 sceneContext = when {
                     autonomousSilence -> silenceContext
                     autonomousSleep -> """
@@ -1291,7 +1299,9 @@ internal object LuluVoiceCallSession {
                     } else scheduleSleepContinuation()
                     return@onSuccess
                 }
+                interactionReceipt = reply.interactionReceipt
                 finalText = VoicePerformance.plain(text)
+                clearWhenHeard()
                 val remaining = runCatching {
                     // Validate the final speakable text without sending internal JSON to TTS.
                     // Dialogue-capable voices get one request for the entire emotional arc.

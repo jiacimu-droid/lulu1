@@ -245,6 +245,8 @@ internal class RealtimeVoiceAdapter(
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
             CharacterRuntime.personalityRuntimeContext(id, compact = true, interactionKey = "direct:user"),
             com.jiacimu.lulu.data.CharacterContinuityRuntime.context(id),
+            CharacterLifeFollowThroughStore.briefContext(id),
+            "你可以真心好奇对方具体说过的细节，也可以自然分享自己真实经历的事；不每轮追问，不等对方安排话题。先接住她正在说的重点，再按自己的感受、关系和兴趣接话，之后根据真实反馈调整。心声和状态不等于已经表达；不要朗读任何内部记录或 JSON 字段。",
             "当前状态（主观）：$presence", DigitalWorldStore.contextFor(id),
             DigitalWorldLifeEventStore.contextFor(id),
             memory.compactPromptSection(12_000), "世界书：" + worldBook.joinToString("\n") { "${it.title}：${it.content}" },

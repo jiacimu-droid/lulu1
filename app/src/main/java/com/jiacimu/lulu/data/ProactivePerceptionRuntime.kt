@@ -456,11 +456,12 @@ object ProactivePerceptionRuntime {
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
                 appendLine(CharacterPerceptionContext.render(observedWorld))
+                appendLine(DigitalWorldLiveScene.context(characterId))
                 salientInteraction?.let { event ->
                     appendLine("【本轮真实互动的同次理解与抉择】")
                     appendLine("真实证据ID=${event.id}；记录=${event.content.take(260)}")
                     appendLine("在本轮行动决策中自行判断有无情绪、挂心、愿望与后续行为，不需要再开一次模型。")
-                    appendLine("不要猜用户尚未表达的心思，也不必每次强行反省或采取行动。")
+                    appendLine("先理解可见细节如何改变自己的注意、情绪和愿望，再选行动。可以疑惑、期待、好奇她在做什么或想分享，但这些是自己的私人解释，不能断言用户尚未表达的心思；也不必每次强行反省或采取行动。")
                 }
                 appendLine(affordances)
                 CharacterLifeFollowThroughStore.context(characterId, now)

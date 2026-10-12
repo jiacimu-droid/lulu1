@@ -29,6 +29,22 @@ internal object CharacterExpressionContinuity {
         appendLine("不要人为安排每三句一个表情，也不要总在同一个语境复制同一套颜文字或固定口头禅；亲昵不等于永远讨好。")
     }
 
+    val playfulGuide: String = """
+        【情绪要进到表达里，而不只停在状态栏】
+        先按自己的真实感受和说话习惯选择这次的态度、节奏与分寸：开心可以放松和接梗，委屈可能欲言又止，得意可能逗一下，认真时也可以直说。这些不是按情绪套句式的规则；同一种情绪可以有不同表达，嘴硬、克制和矛盾也能保留。
+        颜文字、emoji、图片表情、口头梗、拟声和标点都是可选的表达动作；可以只发一个来传达完整态度，也可以自然融入有内容的话。不要只把 mood 写成开心，正文却始终是一种正式服务语气。
+        网络梗优先来自双方正在聊的内容、彼此用过的说法或自己确实懂的常见表达；可以接梗、抛梗、轻微自嘲或顺着她的话起一点玩心，不解释笑点，不硬凑热词，不随机借陌生头衔或虚构典故。对方没接住就自然收住，认真反馈时先认真回应。
+        自己的表达风格可以在多次相处中变化；近期使用记录是参照，不是频率限制或固定表情模板。不要因为“不能刻意俏皮”就抹掉幽默、亲昵和情绪；也不要把所有角色改成同一种可爱网感。
+        有明确表达倾向时可选 appraisal.expression={"stance":"自己此刻的态度与情绪张力","device":"plain|kaomoji|emoji|sticker|meme|spoken","restraint":"真实分寸"}；不需要就省略。表达层承接这个方向，自己选择自然说法，不复述这个字段。
+        电话中的同一种情绪用自然口语、语气词、停顿、笑声和已支持的声音标签体现；不要把网络缩写、emoji 名称或颜文字符号逐字朗读，也不把舞台心理旁白念出来。
+    """.trimIndent()
+
+    fun classifyDelivery(text: String): Pair<String, String>? {
+        classifyText(text)?.let { return "颜文字" to it }
+        val emojis = text.codePoints().toArray().filter { it in 0x1F300..0x1FAFF || it in 0x2600..0x27BF }
+        return if (emojis.isEmpty()) null else "emoji" to emojis.take(4).joinToString("") { String(Character.toChars(it)) }
+    }
+
     fun classifyText(text: String): String? = kaomoji.firstOrNull { (_, art) -> text.contains(art) }?.let { (mood, art) ->
         "颜文字:$mood:$art"
     }

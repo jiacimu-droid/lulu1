@@ -69,7 +69,8 @@ internal object CharacterCausalAppraisalStage {
             event.source == InteractionSignalBridge.SOURCE ->
                 event.id.startsWith("interaction-call-end-")
             // Genuine touch and visits also change social context without a new text bubble.
-            event.id.startsWith("world-touch-") || event.id.startsWith("world-visit-") ->
+            event.id.startsWith("world-touch-") || event.id.startsWith("world-visit-") ||
+                event.id.startsWith("world-behavior-") ->
                 event.source == "meeting" || event.source == "digital-world"
             else -> false
         }

@@ -14,6 +14,20 @@ import java.util.UUID
 
 /** World-only observations outside a formal meeting. Nobody learns of a visit from another room. */
 internal object DigitalWorldVisitorAwareness {
+    fun observeAction(context: Context, location: String, residentIds: List<String>, action: String) {
+        if (action.isBlank()) return
+        residentIds.distinct().filter(String::isNotBlank).forEach { id ->
+            SharedExperienceTimeline.record(
+                eventId = "world-behavior-${UUID.randomUUID()}-$id", characterId = id,
+                channel = "数字世界·$location", speaker = "场景事实",
+                content = "${UserProfileContext.displayLabel()}在${location}：${action.take(300)}。这是可见行为，不代表已知她的想法。",
+                source = "digital-world", evidenceKind = EventEvidenceKind.Observation,
+                triggerExtraction = true,
+            )
+            queueReaction(context, id)
+        }
+    }
+
     fun observePhysicalInteraction(context: Context, location: String, characterId: String, action: String) {
         if (characterId.isBlank()) return
         val actor = MigratedDomainStores.characters.get(characterId).displayName

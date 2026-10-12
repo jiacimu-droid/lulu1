@@ -153,7 +153,7 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries").forEach { key ->
+            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries", "decisions").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
@@ -161,7 +161,9 @@ object CharacterInnerLifeStore {
                     val linked = backedBy(entry.optString("evidenceId")) ||
                         (key in setOf("openConcerns", "closedConcerns") &&
                             CharacterOpenConcernRuntime.dependsOnEvidence(entry, eventId)) ||
-                        (key == "voice" && backedBy(entry.optString("id")))
+                        (key in setOf("voice", "expressiveDeliveries") && backedBy(entry.optString("id"))) ||
+                        (key == "decisions" && (backedBy(entry.optString("causalEvidenceId")) ||
+                            backedBy(entry.optString("signature")) || backedBy(entry.optString("id"))))
                     if (linked) changed = true else next.put(entry)
                 }
                 root.put(key, next)
@@ -831,6 +833,12 @@ object CharacterInnerLifeStore {
             .put("at", now.toString())
 
         val appraisalTrace = JSONObject()
+        appraisal?.optJSONObject("expression")?.let { expression ->
+            appraisalTrace.put("expression", JSONObject()
+                .put("stance", expression.optString("stance").take(160))
+                .put("device", expression.optString("device").take(60))
+                .put("restraint", expression.optString("restraint").take(160)))
+        }
         if (meaning.isNotBlank()) appraisalTrace.put("meaning", meaning)
         if (responseAim.isNotBlank()) appraisalTrace.put("responseAim", responseAim)
         if (move.isNotBlank()) appraisalTrace.put("interactionMove", move)

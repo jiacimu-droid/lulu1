@@ -113,6 +113,19 @@ internal object CharacterLifeFollowThroughStore {
         records(characterId).any { it.optString("id") == evidenceId }
     }
 
+    fun briefContext(characterId: String, now: Instant = Instant.now()): String = synchronized(lock) {
+        val pending = recent(characterId, now).filter { it.optString("shareStatus") !in setOf("shared", "released") }.takeLast(2)
+        if (pending.isEmpty()) return@synchronized ""
+        buildString {
+            appendLine("【自己真实经历过、还未分享的生活｜有兴趣才自然带入当前话题】")
+            pending.forEach { item ->
+                appendLine("- experienceId=${item.optString("id")}；[${item.optString("occurredAt")}] ${item.optString("fact").take(200)}")
+                item.optString("shareWhy").takeIf(String::isNotBlank)?.let { appendLine("  当时想分享的理由：${it.take(100)}") }
+            }
+            append("这是过去经历，不是现在又发生；不要为了说点自己的事打断对方，也不必等她主动问。")
+        }.trim()
+    }
+
     fun context(characterId: String, now: Instant = Instant.now()): String = synchronized(lock) {
         val all = recent(characterId, now)
         val significant = all.filter { it.optBoolean("significant") }.takeLast(2)

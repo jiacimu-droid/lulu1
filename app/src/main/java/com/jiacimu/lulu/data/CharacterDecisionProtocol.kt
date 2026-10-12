@@ -43,6 +43,7 @@ internal object CharacterDecisionProtocol {
         appraisal: JSONObject?, innerLife: JSONObject?, mood: String,
         continuousState: String, relationshipState: String,
     ): String = buildString {
+        appendLine(CharacterExpressionContinuity.playfulGuide)
         appendLine("【决策层传给表达层的当下状态｜只影响说法，不逐项复述】")
         appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
             appendLine("对这轮输入的理解：${it.take(240)}")
@@ -69,6 +70,9 @@ internal object CharacterDecisionProtocol {
                 appendLine("角色临场真正想发起的一次小互动：${wanted.take(160)}；眼前缘由=${spark.take(130)}。这是可收住的意图，不是必须复述的台词或已执行的动作。")
             }
         }
+        appraisal?.optJSONObject("expression")?.let { expression ->
+            appendLine("自己选的表达倾向：${expression.optString("stance").take(130)}；方式=${expression.optString("device").take(60)}；分寸=${expression.optString("restraint").take(130)}。只影响措辞，不照抄成标签。")
+        }
         val emotion = innerLife?.optJSONObject("emotion")
         if (emotion != null) {
             appendLine("本轮感受：${emotion.optString("feeling").take(120)}；缘由=${emotion.optString("cause").take(180)}")
@@ -85,7 +89,8 @@ internal object CharacterDecisionProtocol {
     fun chatAction(json: JSONObject): String? {
         val action = json.optString("action").trim().lowercase()
         return when (action) {
-            "reply" -> if (speechIntent(json).isNotBlank() || json.optString("text").isNotBlank() ||
+            "reply" -> if ((json.optBoolean("stickerOnly") && json.optString("stickerId").isNotBlank()) ||
+                speechIntent(json).isNotBlank() || json.optString("text").isNotBlank() ||
                 (json.optJSONArray("bubbles")?.length() ?: 0) > 0) "reply" else null
             "tool" -> if (json.optString("tool").isNotBlank()) "tool" else null
             SILENT -> SILENT

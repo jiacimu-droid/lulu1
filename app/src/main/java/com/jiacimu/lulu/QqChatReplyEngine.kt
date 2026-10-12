@@ -106,6 +106,7 @@ internal suspend fun appendRoleReplyWithPacing(
     characterLabel: String,
     presentation: CharacterReplyPresentation,
     actionableUserMessageIds: Set<String>? = null,
+    interactionReceipt: String? = null,
 ): String {
     val bubbles = semanticReplyBubbles(presentation.content)
     if (bubbles.isEmpty()) return ""
@@ -133,9 +134,9 @@ internal suspend fun appendRoleReplyWithPacing(
                     characterId, created.id, "图片表情", sticker?.name ?: illustration.imageDescription.take(90),
                 )
             } else {
-                com.jiacimu.lulu.data.CharacterExpressionContinuity.classifyText(visibleBubble)?.let { detected ->
+                com.jiacimu.lulu.data.CharacterExpressionContinuity.classifyDelivery(visibleBubble)?.let { detected ->
                     com.jiacimu.lulu.data.CharacterInnerLifeStore.recordExpressiveDelivery(
-                        characterId, created.id, "颜文字", detected,
+                        characterId, created.id, detected.first, detected.second,
                     )
                 }
             }
@@ -145,6 +146,10 @@ internal suspend fun appendRoleReplyWithPacing(
             if (currentCoroutineContext().isActive) MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)
         } else spoken += created
         if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, visibleBubble, index))
+    }
+    if (spoken.size == bubbles.size) spoken.lastOrNull()?.let { last ->
+        com.jiacimu.lulu.data.CharacterConversationAgency.delivered(characterId, interactionReceipt,
+            last.id, spoken.joinToString("\n", transform = LuluChatMessage::content))
     }
     favoriteTarget?.let { CharacterMessageFavorites.favorite(characterId, conversationId, it) }
     if (presentation.pokeUser && currentCoroutineContext().isActive) {
@@ -254,6 +259,7 @@ internal suspend fun runGroupReplies(
                     conversationId, member.characterId, label,
                     CharacterReplyPresentation(visibleContent, flow.quoteMessageId?.takeIf { it in pendingUserIds }, flow.favoriteMessageId, flow.recallBubbleNumber, flow.pokeUser),
                     pendingUserIds,
+                    interactionReceipt = reply.interactionReceipt,
                 )
                 if (shown.isNotBlank() || phonePerformance && flow.content.isNotBlank())
                     afterReply(member.characterId, if (phonePerformance) flow.content.replace(SemanticBubbleSeparator, "\n") else shown)

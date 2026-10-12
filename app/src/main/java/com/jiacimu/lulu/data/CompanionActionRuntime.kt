@@ -67,7 +67,7 @@ internal object CompanionActionRuntime {
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
-            appendLine("- digital_world_action，args={\"worldAction\":\"go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home|interact_resident\",\"location\":\"visit_public_place 时填写公共地点准确代码；world_invite 时填写地点名\",\"itemId\":\"家具ID；interact_resident 时填写居民ID\",\"activityId\":\"家具/地点活动ID；interact_resident 时只能填 greet/chat/ask_place/sit_together\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。与持久居民互动时必须使用当前地点实际列出的居民ID，不能隔空聊天，也不能凭空新增居民经历。")
+            appendLine("- digital_world_action，args={\"worldAction\":\"approach_user|wait_at_entrance|go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home|interact_resident\",\"location\":\"visit_public_place 时填写公共地点准确代码；world_invite 时填写地点名\",\"itemId\":\"家具ID；interact_resident 时填写居民ID\",\"activityId\":\"家具/地点活动ID；interact_resident 时只能填 greet/chat/ask_place/sit_together\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。与持久居民互动时必须使用当前地点实际列出的居民ID，不能隔空聊天，也不能凭空新增居民经历。")
             appendLine("【可自主前往的公共地点】")
             DigitalWorldPublicPlaces.all.forEach { place ->
                 appendLine("- location=${place.code}；${place.label}；${place.subtitle}；用途=${place.purpose}")
@@ -291,6 +291,10 @@ internal object CompanionActionRuntime {
                 val worldAction = args.optString("worldAction").trim().lowercase()
                 if (worldAction == "visit_public_place" && args.optString("locationCode").isBlank()) {
                     args.put("locationCode", args.optString("location").trim())
+                }
+                if (worldAction in setOf("approach_user", "wait_at_entrance")) {
+                    require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命可以执行现场移动" }
+                    return@runCatching CompanionActionResult(true, DigitalWorldLiveScene.request(characterId, worldAction, now))
                 }
                 val activityId = args.optString("activityId").trim().lowercase()
                 if (worldAction == "interact_resident") {

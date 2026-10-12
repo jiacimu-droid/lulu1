@@ -110,9 +110,9 @@ internal object StickerLibraryStore {
         }
     }
 
-    fun prompt(context: Context, limit: Int = 40): String {
+    fun prompt(context: Context, limit: Int = 40, cues: String = ""): String {
         initialize(context)
-        val available = items.value.take(limit)
+        val available = selectPromptStickers(items.value, limit, cues)
         if (available.isEmpty()) return "角色支持图片表情包（与颜文字是两种不同功能），但本次真实可选图库暂时为空或内置素材仍在加载。此时不要捏造 stickerId、不要尝试发送不存在的图片；也不要说角色永远没有表情包功能。仍可用颜文字、emoji 和正常语言。" 
         return buildString {
             appendLine("【真实可发送的分组表情包｜开源素材已按类别自动标注】")

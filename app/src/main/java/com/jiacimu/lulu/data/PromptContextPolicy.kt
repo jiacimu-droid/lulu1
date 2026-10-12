@@ -79,6 +79,7 @@ internal object PromptContextPolicy {
             append("要移动/布置/使用物品时，先取得该地点完整权威清单与真实ID，不编造物品。")
             DigitalWorldActivityStateStore.briefContextFor(characterId)
                 .takeIf(String::isNotBlank)?.let { append("\n").append(it) }
+            DigitalWorldLiveScene.context(characterId).takeIf(String::isNotBlank)?.let { append("\n").append(it) }
             if (activeEvents.isNotBlank()) append("\n").append(activeEvents)
         }
     }

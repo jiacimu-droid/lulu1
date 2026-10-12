@@ -313,6 +313,7 @@ fun QqStyleChatDetailScreen(
                             characterLabel = character.displayName,
                             presentation = presentation,
                             actionableUserMessageIds = actionable.mapTo(mutableSetOf(), LuluChatMessage::id),
+                            interactionReceipt = reply.interactionReceipt,
                         )
                     } else if (reply.disposition != "silent") reportError("对方刚才没有说清，再点一次试试")
                 }.onFailure { reportError(it.message ?: "回复失败") }

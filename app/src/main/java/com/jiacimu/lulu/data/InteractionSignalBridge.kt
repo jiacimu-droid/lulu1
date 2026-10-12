@@ -41,6 +41,16 @@ internal object InteractionSignalBridge {
         append(" 此为设备观察，不证明用户真的沉默或发生了任何心理变化。")
     }
 
+    fun recordCallStart(characterId: String, callId: String, incomingReason: String, now: Instant = Instant.now()) {
+        val id = "interaction-call-start-$callId"
+        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) return
+        SharedExperienceTimeline.record(eventId = id, characterId = characterId, channel = "电话互动",
+            speaker = "通话操作", content = "电话刚刚真实接通，用户尚未新增发言。" +
+                incomingReason.takeIf(String::isNotBlank)?.let { "角色的来电缘由：${it.take(200)}。" }.orEmpty(),
+            occurredAt = now, triggerExtraction = false, sessionId = callId, source = SOURCE,
+            evidenceKind = EventEvidenceKind.Observation)
+    }
+
     fun recordCallQuiet(
         characterId: String,
         callId: String,

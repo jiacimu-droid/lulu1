@@ -52,8 +52,8 @@ internal object CharacterPerceptionContext {
     fun stimulus(event: SharedTimelineEvent): PerceptionStimulus = PerceptionStimulus(
         event.id, "[${event.occurredAt}] ${event.content.take(260)}",
         if (event.source == "meeting" || event.id.startsWith("world-touch-") ||
-            event.id.startsWith("world-visit-") ||
-            (event.source == InteractionSignalBridge.SOURCE && event.content.contains("由用户点击挂断"))) setOf("user") else emptySet(),
+            event.id.startsWith("world-visit-") || event.id.startsWith("world-behavior-") ||
+            event.source == InteractionSignalBridge.SOURCE) setOf("user") else emptySet(),
     )
 
     fun render(events: List<SharedTimelineEvent>): String = if (events.isEmpty()) "" else buildString {

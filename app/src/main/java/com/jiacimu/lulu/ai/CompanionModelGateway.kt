@@ -91,6 +91,8 @@ data class ModelReply(
     val finishReason: String? = null,
     /** An intentional non-spoken decision is not a model failure. */
     val disposition: String? = null,
+    /** Private choice metadata; acknowledged by the sender/TTS, never shown or spoken. */
+    val interactionReceipt: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {

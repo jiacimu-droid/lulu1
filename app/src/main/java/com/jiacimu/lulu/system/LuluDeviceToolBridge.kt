@@ -167,6 +167,7 @@ object LuluDeviceToolBridge {
                 }
                 appendLine("【用户现实设备与状态｜属于用户，缺失数据不得猜测】\n$deviceContext")
                 appendLine(com.jiacimu.lulu.data.CharacterPerceptionContext.render(observedWorld))
+                appendLine(com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.briefContext(characterId, now))
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
                 if (interactionContext.isNotBlank()) appendLine(interactionContext)
@@ -175,7 +176,7 @@ object LuluDeviceToolBridge {
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
                 if (!sceneContext.contains("电话"))
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
-                if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext))
+                if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, cues = userText + " " + previousPresence?.mood.orEmpty()))
                 if (turnContext.isNotBlank()) {
                     appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
                     appendLine(turnContext.take(4_000))
@@ -190,6 +191,8 @@ object LuluDeviceToolBridge {
             instruction = """
                 你正在以当前角色自己的立场做这轮决定，而不是担任无条件回答问题的助手。
                 ${CharacterDecisionProtocol.principles}
+                ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
+                ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
                 $decisionFormatRule
                 $programDialogueConstraint
                 $phoneConversationConstraint
@@ -325,7 +328,7 @@ object LuluDeviceToolBridge {
             val userSources = if (callSilence) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 silenceObservationId, "电话持续接通；本轮没有新增用户发言", setOf("user"))) else verifiedSources.map {
                 com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"))
-            }.ifEmpty { listOf(com.jiacimu.lulu.data.PerceptionStimulus(
+            }.ifEmpty { if (userText.isBlank()) emptyList() else listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }
             val perceptionInput = com.jiacimu.lulu.data.CharacterPerceptionContext.integrate(
                 context = appContext,
@@ -364,8 +367,12 @@ object LuluDeviceToolBridge {
             // Anchor enduring psychological changes to a REAL deletable user
             // message so the growth timeline can verify and retract them.
             val causalEvidenceId = interactionEvidenceId.ifBlank {
-                combined?.evidenceId.orEmpty()
+                observedSources.lastOrNull()?.evidenceId.orEmpty()
+                    .ifBlank { userSources.lastOrNull()?.evidenceId.orEmpty() }
             }
+            com.jiacimu.lulu.data.CharacterConversationAgency.rememberInquiry(
+                appContext, characterId, plan.curiosity, causalEvidenceId, now,
+            )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
                 characterId = characterId,
                 evidenceId = causalEvidenceId,
@@ -490,6 +497,8 @@ object LuluDeviceToolBridge {
                         instruction = """
                             你仍然只是当前角色的语言表达层，不重新决策。
                             ${naturalness.repairInstruction()}
+                            ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
+                            已有的幽默、态度、颜文字或 emoji 如果仍贴合语境就保留，不要把消除客服腔误做成删掉全部情绪。
                             保持这个角色自己的词汇、节奏、幽默感、关系称呼与分寸；不要把“自然”理解成统一的短句网感，也不要故意加口头禅。
                             只返回完整 JSON：{"action":"reply","bubbles":[{"text":"重写后的自然聊天"}]}。
                             每个气泡必须对应一个完整局部互动动作，语法没结束的尾巴不能单独成气泡；最多 ${dialoguePlan.maxBubbles} 个气泡。
@@ -556,7 +565,11 @@ object LuluDeviceToolBridge {
             }
             if (!invalidBlame && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
-            return Result.success(expressed.copy(text = sendText))
+            return Result.success(expressed.copy(text = sendText,
+                interactionReceipt = if (invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
+                    groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
+                    plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
+                )))
         }
         if (plan.action == "tool" && plan.tool.isNotBlank()) {
             com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, "本轮用户消息：$userText", plan.afterglow)
@@ -581,6 +594,20 @@ object LuluDeviceToolBridge {
         )
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
             characterId, plan.concernId, actionReceipt, plan.tool, executedSuccess, executedSummary,
+        )
+        val lifeAction = when (plan.tool) {
+            "publish_moment" -> "moment"
+            "send_private_message", "send_group_message" -> "message"
+            "read_book" -> "reading"
+            "play_solo_game" -> "solo_game"
+            "digital_world_action" -> "digital_world"
+            else -> ""
+        }
+        if (lifeAction.isNotBlank()) com.jiacimu.lulu.data.CharacterLifeFollowThroughStore.recordAction(
+            characterId, plan.experienceId, lifeAction, executedSuccess, executedSummary,
+        )
+        if (!executedSuccess) com.jiacimu.lulu.data.CharacterCuriosityRuntime.recordFailure(
+            characterId, plan.curiosity, plan.tool, executedSummary,
         )
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
@@ -870,6 +897,8 @@ object LuluDeviceToolBridge {
                 alternatives = json.optJSONArray("alternatives"),
                 appraisal = json.optJSONObject("appraisal"),
                 dialogueMove = json.optJSONObject("dialogueMove"),
+                curiosity = json.optJSONObject("curiosity"),
+                experienceId = json.optString("experienceId").trim().take(180),
             )
         }.getOrNull()
     }
@@ -924,5 +953,7 @@ private data class ToolPlan(
     val reason: String = "",
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
+    val curiosity: JSONObject? = null,
+    val experienceId: String = "",
     val alternatives: org.json.JSONArray? = null,
 )

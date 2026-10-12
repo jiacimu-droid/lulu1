@@ -49,4 +49,9 @@ class CharacterExpressionContinuityTest {
         val history = CharacterExpressionContinuity.record(null, "old", "颜文字", "很久以前的表情", at)
         assertEquals("", CharacterExpressionContinuity.context(history, at.plusSeconds(4L * 86400)))
     }
+    @Test fun emojiDeliveryIsRememberedAsEmojiRatherThanForcedIntoKaomoji() {
+        assertEquals("emoji", CharacterExpressionContinuity.classifyDelivery("哈哈😂")?.first)
+        assertEquals("颜文字", CharacterExpressionContinuity.classifyDelivery("嘿嘿(￣▽￣)")?.first)
+        assertNull(CharacterExpressionContinuity.classifyDelivery("今天认真聊聊"))
+    }
 }
