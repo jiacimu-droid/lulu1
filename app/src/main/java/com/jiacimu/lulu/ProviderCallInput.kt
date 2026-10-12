@@ -33,6 +33,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
     @Volatile private var currentPhrase = ""
     private var pauseReleaseJob: Job? = null
 
+    val usesServerVad: Boolean get() = realtime != null
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun start() {
         stop()

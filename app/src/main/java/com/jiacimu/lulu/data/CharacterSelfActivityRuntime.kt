@@ -170,6 +170,20 @@ internal object CharacterSelfActivityRuntime {
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
             ?.takeIf { System.currentTimeMillis() - it.optLong("createdAt") in 0L..(4 * 60 * 60_000L) }
 
+    /** A successful physical receipt consumes its old consideration. */
+    internal fun resolveConsideration(context: Context, characterId: String, action: String) {
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val key = "considering:$characterId"
+        val idea = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() } ?: return
+        val actual = when (action) {
+            "read_book" -> "reading"
+            "play_solo_game" -> "solo_game"
+            "digital_world_action" -> "digital_world"
+            else -> action
+        }
+        if (actual == idea.optString("action")) prefs.edit().remove(key).commit()
+    }
+
     fun latest(context: Context, characterId: String): JSONObject? =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString("activity:$characterId", null)
@@ -196,6 +210,7 @@ internal object CharacterSelfActivityRuntime {
         prior.put("status", if (success) "completed" else "failed")
             .put("result", summary.take(240)).put("finishedAt", Instant.now().toString())
         prefs.edit().putString(key, prior.toString()).commit()
+        if (success) resolveConsideration(context, characterId, prior.optString("tool"))
     }
 }
 

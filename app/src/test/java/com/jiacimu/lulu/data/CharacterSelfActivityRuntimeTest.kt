@@ -12,6 +12,18 @@ import org.robolectric.annotation.Config
 class CharacterSelfActivityRuntimeTest {
     private val available = setOf("real-book-7")
 
+    @Test fun realReceiptConsumesOnlyTheMatchingConsideration() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
+        val idea = JSONObject().put("stage", "considering").put("action", "reading")
+            .put("whyNow", "想看下一章节").put("createdAt", System.currentTimeMillis())
+        prefs.edit().putString("considering:receipt-role", idea.toString()).commit()
+        CharacterSelfActivityRuntime.resolveConsideration(context, "receipt-role", "play_solo_game")
+        assertNotNull(CharacterSelfActivityRuntime.latestConsideration(context, "receipt-role"))
+        CharacterSelfActivityRuntime.resolveConsideration(context, "receipt-role", "read_book")
+        assertNull(CharacterSelfActivityRuntime.latestConsideration(context, "receipt-role"))
+    }
+
     @Test fun mereHeartVoiceAndUnchosenIdeasNeverExecuteAnything() {
         assertNull(CharacterSelfActivityRuntime.parse(null, available, digitalLife = true))
         assertNull(CharacterSelfActivityRuntime.parse(JSONObject()

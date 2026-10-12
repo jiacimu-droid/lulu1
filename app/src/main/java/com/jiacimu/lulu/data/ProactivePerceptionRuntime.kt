@@ -611,6 +611,8 @@ object ProactivePerceptionRuntime {
         val lastAgencyReview = prefs.getLong("last_independent_life_review_$characterId", 0L)
         val pendingChoices = CharacterActionFollowThroughPolicy.pendingChoices(
             parsed.innerLife, parsed.intention, parsed.afterglow, parsed.innerThought,
+            parsed.appraisal?.optJSONObject("ownActivity") ?:
+                CharacterSelfActivityRuntime.latestConsideration(appContext, characterId),
         ).ifEmpty {
             CharacterActionFollowThroughPolicy.pendingChoices(
                 CharacterInnerLifeStore.snapshot(characterId),
@@ -618,13 +620,19 @@ object ProactivePerceptionRuntime {
                 null, "",
             )
         }
+        val ownActivityAlreadyExecutable = CharacterSelfActivityRuntime.parse(
+            parsed.appraisal?.optJSONObject("ownActivity"), readingBooks.mapTo(hashSetOf()) { it.id }, digital,
+        ) { incidentId, approach -> DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach) } != null
+        val scheduledActivity = CharacterSelfActivityRuntime.latest(appContext, characterId)
+        val activityInFlight = scheduledActivity?.optString("status") in setOf("pending", "running") &&
+            now.toEpochMilli() - (scheduledActivity?.optLong("createdAt") ?: 0L) in 0L..(60 * 60_000L)
         val followThroughKey = pendingChoices.joinToString("|").hashCode().toString()
         val followThroughReview = CharacterActionFollowThroughPolicy.shouldReview(
-            silent = parsed.action == Action.SILENT, choices = pendingChoices,
+            silent = parsed.action == Action.SILENT && !ownActivityAlreadyExecutable && !activityInFlight, choices = pendingChoices,
             key = followThroughKey, previousKey = prefs.getString("last_impulse_review_key_$characterId", "").orEmpty(),
             nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
         )
-        val shouldReview = followThroughReview || (awakeReflection &&
+        val shouldReview = followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
             now.toEpochMilli() - lastAgencyReview >= 5 * 60_000L &&
             AutonomousDecisionRecovery.needsIndependentLifeReview(
                 silent = parsed.action == Action.SILENT,
@@ -876,6 +884,9 @@ object ProactivePerceptionRuntime {
                 )
             }
         }
+        if (execution.success) CharacterSelfActivityRuntime.resolveConsideration(
+            appContext, characterId, decision.action.name.lowercase(),
+        )
         if (decision.action != Action.SILENT) {
             CharacterInnerLifeStore.recordConcernOutcome(
                 characterId, decision.concernId,

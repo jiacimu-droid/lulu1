@@ -1398,6 +1398,9 @@ internal object LuluVoiceCallSession {
         cloudCaptureTurnAllowed = false
         val id = mutableState.value.callExperienceId
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
+        val scribeRealtime = CallVoiceConfiguration.sttEngine(context) == "elevenlabs" &&
+            CallVoiceConfiguration.elevenSttModel(context.getSharedPreferences("lulu_advanced_settings", 0)
+                .getString("eleven_asr_model", null)) == CallVoiceConfiguration.SCRIBE_V2_REALTIME
         providerInput = ProviderCallInput(context, scope,
             sttEngine = CallVoiceConfiguration.sttEngine(context),
             // Listen throughout model/TTS preparation. Audible playback owns
@@ -1445,6 +1448,7 @@ internal object LuluVoiceCallSession {
                     // recognition fails to return usable words afterward.
                     userSpeechInProgress = false
                     providerSpeechStartedMillis = 0L
+                    if (scribeRealtime) providerRecognitionPendingUntilMillis = SystemClock.elapsedRealtime() + 5_000L
                     mutableState.update { it.copy(userSpeaking = false) }
                 }
             },
@@ -1581,7 +1585,7 @@ internal object LuluVoiceCallSession {
                 }
                 val clock = SystemClock.elapsedRealtime()
                 if (CallSilencePolicy.shouldRecoverStuckCapture(
-                        providerActive = providerInput != null && !current.microphoneMuted,
+                        providerActive = providerInput?.usesServerVad == false && !current.microphoneMuted,
                         userSpeechInProgress = userSpeechInProgress,
                         sinceSpeechStartedMillis = clock - providerSpeechStartedMillis,
                     )) {

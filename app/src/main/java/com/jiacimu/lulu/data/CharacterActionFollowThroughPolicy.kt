@@ -5,7 +5,7 @@ import org.json.JSONObject
 /** A desire earns a concrete decision, never an automatically inferred tool call. */
 internal object CharacterActionFollowThroughPolicy {
     fun pendingChoices(innerLife: JSONObject?, intention: JSONObject?, afterglow: JSONObject?,
-                       thought: String): List<String> {
+                       thought: String, ownActivity: JSONObject? = null): List<String> {
         val choices = mutableListOf<String>()
         innerLife?.optJSONArray("thoughts")?.let { items ->
             for (i in 0 until items.length()) {
@@ -24,6 +24,11 @@ internal object CharacterActionFollowThroughPolicy {
         if (intention?.optString("disposition") !in setOf("release", "pause"))
             choices += intention?.optString("aim").orEmpty()
         choices += afterglow?.optString("impulse").orEmpty()
+        if (ownActivity?.optString("stage") in setOf("considering", "decided")) {
+            val action = ownActivity?.optString("action").orEmpty()
+            val why = ownActivity?.optString("whyNow").orEmpty()
+            if (action.isNotBlank() && why.isNotBlank()) choices += "想做=$action；缘由=$why"
+        }
         // Legacy heart voices are a cue for a model review, never a regex→action mapping.
         if (Regex("想|打算|准备|要去|希望|不如|试试").containsMatchIn(thought)) choices += thought
         return choices.map(String::trim).filter {

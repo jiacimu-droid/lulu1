@@ -22,6 +22,15 @@ class CharacterActionFollowThroughPolicyTest {
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "").isEmpty())
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, "继续等她回复").isEmpty())
     }
+    @Test fun chatAndPhoneStructuredConsiderationsEnterTheSameReview() {
+        val idea = JSONObject().put("stage", "considering").put("action", "reading")
+            .put("whyNow", "想看看昨天那章的后续")
+        val choices = CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, "", idea)
+        assertTrue(choices.single().contains("reading"))
+        idea.put("stage", "released")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, null, null, "", idea).isEmpty())
+    }
+
     @Test fun identicalUnresolvedWishDoesNotCreateARetryLoop() {
         val choices = listOf("去看看书中那条线索")
         assertFalse(CharacterActionFollowThroughPolicy.shouldReview(true, choices, "same", "same", 299999, 0))
