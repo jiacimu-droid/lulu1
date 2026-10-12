@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T07:10:08.163697+00:00",
-  "commit": "e0fcc405c1bc9d413e8947f9383ca1e2b3de88d4",
+  "generatedAt": "2026-10-12T07:45:10.161120+00:00",
+  "commit": "8f5772a286871f2d550e4f4a7983c058517aa96a",
   "branch": "main",
-  "sourceFingerprint": "2a3dab63c2c2c0dc4f34abc9c691c65814b2a34eee559310ad8c838b0a30f47e",
+  "sourceFingerprint": "89afdf0e254701f6d55a73feb8d2263bd3e650619bcc6387bf0806508fcef007",
   "summary": {
     "files": 542,
-    "lines": 111620,
+    "lines": 111621,
     "symbols": 1670
   },
   "symbolIndex": {
@@ -13454,7 +13454,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt",
       "lines": 37,
-      "sha256": "07e16d48c6484357e3458efb5b1e80559e1145792312d88472b411a0d8caa89c",
+      "sha256": "867aa173b6478dda21659cbdc331e0e86377bca66d2a3816c67bda89b043a343",
       "symbols": [
         {
           "name": "DevelopmentMaturity",
@@ -19251,7 +19251,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
       "lines": 50,
-      "sha256": "23c866bf943bbf4a2a5ae92c8e32280417a3d8c3e46b4240e35ece83cefa8930",
+      "sha256": "594d577019c469ef1245e6866ec1bdd46a97e9eb7663273638a3282b62429e59",
       "symbols": [
         {
           "name": "DevelopmentPolicyTest",
@@ -19526,8 +19526,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-      "lines": 147,
-      "sha256": "711ac7c309a805a801447985ab015eb0dfbd23ad558ba42841dcfb62f1a82f33",
+      "lines": 148,
+      "sha256": "48aa3b944fc5f3cebf4d768c783885f139eb9d399f210e08544fb37a082ba0c9",
       "symbols": [
         {
           "name": "ReadingGrowthTheaterTest",
