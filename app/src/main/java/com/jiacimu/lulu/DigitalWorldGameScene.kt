@@ -147,13 +147,24 @@ internal fun DigitalWorldGameScene(
     val residents = remember(characters, world.characterLocations, sceneCode) {
         characters.filter { world.characterLocations[it.characterId] == sceneCode }
     }
-    val nativeResidents = DigitalWorldExpansionStore.residentsAt(sceneCode)
+    var nativeResidents by remember(sceneCode) {
+        mutableStateOf(DigitalWorldExpansionStore.residentsAt(sceneCode))
+    }
+    LaunchedEffect(sceneCode) {
+        while (isActive) {
+            val updated = DigitalWorldExpansionStore.residentsAt(sceneCode)
+            if (updated != nativeResidents) nativeResidents = updated
+            delay(2_500L)
+        }
+    }
     val nativeHome = DigitalWorldExpansionStore.residentHome(sceneCode)
     val roomItems = remember(world.items, homeCharacterId) {
         homeCharacterId?.let { owner -> world.items.filter { it.ownerCharacterId == owner } }.orEmpty()
     }
     val props = remember(roomItems) { buildDigitalRoomProps(roomItems) }
     val nativeHomeProps = remember(nativeHome) { nativeHome?.let(::nativeResidentHomeProps).orEmpty() }
+    // NPC furniture is physically present and can be inspected, but isn't user-editable inventory.
+    val interactiveProps = if (nativeHome != null) nativeHomeProps else props
     val venueAnchors = remember(sceneCode) { DigitalWorldVenueAnchors.forScene(sceneCode) }
     val discoverySpots = remember(sceneCode) { DigitalWorldExplorationSpots.forScene(sceneCode) }
     val obstacles = remember(props, nativeHomeProps) {
@@ -245,7 +256,7 @@ internal fun DigitalWorldGameScene(
         mutableStateOf(nativeResidents.mapIndexed { index, resident ->
             val base = if (sceneCode == resident.homeLocationCode) WorldVector(960f, 630f)
                 else residentStart(index + residents.size, resident.id, venueAnchors)
-            val safe = digitalSafeStart(base, obstacles)
+            val safe = digitalSafeStart(stateStore.loadNativePosition(resident.id, base), obstacles)
             DigitalNativeMotion(resident, safe, safe,
                 System.currentTimeMillis() + 3_400L + index * 1_000L)
         })
@@ -315,10 +326,12 @@ internal fun DigitalWorldGameScene(
     }
 
     val latestPosition by rememberUpdatedState(playerPosition)
+    val latestNativeMotions by rememberUpdatedState(nativeMotions)
     val latestQuest by rememberUpdatedState(questStage)
     DisposableEffect(sceneKey, stateStore) {
         onDispose {
             stateStore.save(latestPosition, latestQuest)
+            stateStore.saveNativePositions(latestNativeMotions)
             // A hand hold cannot remain physically attached after the player
             // exits this scene. The persisted relationship is in the ledger,
             // not a ghost finger connection when they next enter.
@@ -329,6 +342,7 @@ internal fun DigitalWorldGameScene(
         while (isActive) {
             delay(1_600)
             stateStore.save(playerPosition, questStage)
+            stateStore.saveNativePositions(nativeMotions)
         }
     }
 
@@ -570,7 +584,7 @@ internal fun DigitalWorldGameScene(
     val nearestDiscovery = discoverySpots.minByOrNull { playerPosition.distanceTo(it.position) }?.let { spot ->
         DigitalNearbyTarget.Discovery(spot, playerPosition.distanceTo(spot.position))
     }
-    val nearestProp = props.minByOrNull { playerPosition.distanceTo(it.bounds.center) }?.let { prop ->
+    val nearestProp = interactiveProps.minByOrNull { playerPosition.distanceTo(it.bounds.center) }?.let { prop ->
         DigitalNearbyTarget.Prop(prop, playerPosition.distanceTo(prop.bounds.center))
     }
     val nearestVenue = venueAnchors.minByOrNull { playerPosition.distanceTo(it.position) }?.let { anchor ->
@@ -613,7 +627,7 @@ internal fun DigitalWorldGameScene(
         }
         menuTargetKey?.startsWith("prop:") == true -> {
             val id = menuTargetKey!!.removePrefix("prop:")
-            props.firstOrNull { it.item.id == id }?.let {
+            interactiveProps.firstOrNull { it.item.id == id }?.let {
                 DigitalNearbyTarget.Prop(it, playerPosition.distanceTo(it.bounds.center))
             }
         }
@@ -636,7 +650,7 @@ internal fun DigitalWorldGameScene(
         if (selectedTarget == null || !controlsEnabled) menuTargetKey = null
     }
 
-    val interactionChoices = remember(selectedTarget, residents, props, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds, discoveredSpots) {
+    val interactionChoices = remember(selectedTarget, residents, interactiveProps, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds, discoveredSpots) {
         buildInteractionChoices(selectedTarget, residents, sceneCode, placeLabel, effectiveHoldingId, activeFollowerIds, discoveredSpots)
     }
 
@@ -822,14 +836,14 @@ internal fun DigitalWorldGameScene(
             DigitalWorldAmbientHud(
                 place = placeLabel,
                 people = residents.size + nativeMotions.size,
-                objects = props.size + venueAnchors.size + discoverySpots.size,
+                objects = interactiveProps.size + venueAnchors.size + discoverySpots.size,
                 modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
             )
             if (homeCharacterId == null) {
                 DigitalWorldMiniMap(
                     player = playerPosition,
                     residents = npcMotions.map(DigitalNpcMotion::position) + nativeMotions.map(DigitalNativeMotion::position),
-                    props = props,
+                    props = interactiveProps,
                     anchors = venueAnchors,
                     discoveries = discoverySpots.map(DigitalWorldExplorationSpot::position),
                     modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
@@ -1101,7 +1115,13 @@ private fun buildInteractionChoices(
     }
     is DigitalNearbyTarget.Prop -> {
         val item = target.prop.item
-        val quick = DigitalWorldActivityCatalog.optionsFor(item).take(6).map { (activityId, label) ->
+        val quick = if (item.ownerCharacterId.startsWith("npc:")) {
+            listOf(DigitalInteractionChoice(
+                label = "观察陈设",
+                detail = "看看这件固定家具",
+                quickSummary = "我在${placeLabel}仔细看了原住民家中的${item.name}；它是这户住宅实际存在的陈设。",
+            ))
+        } else DigitalWorldActivityCatalog.optionsFor(item).take(6).map { (activityId, label) ->
             DigitalInteractionChoice(
                 label = label,
                 detail = "就在这里执行",
@@ -1324,6 +1344,24 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     fun loadQuest(): Int = prefs.getInt("quest_$suffix", 0).coerceIn(0, 2)
 
     fun loadDiscoveries(): Set<String> = prefs.getStringSet("discoveries_$suffix", null).orEmpty().toSet()
+
+    fun loadNativePosition(residentId: String, fallback: WorldVector): WorldVector {
+        val id = (residentId.hashCode() and Int.MAX_VALUE).toString(36)
+        return WorldVector(
+            prefs.getFloat("npc_x_${suffix}_$id", fallback.x),
+            prefs.getFloat("npc_y_${suffix}_$id", fallback.y),
+        )
+    }
+
+    fun saveNativePositions(motions: List<DigitalNativeMotion>) {
+        val editor = prefs.edit()
+        motions.forEach { motion ->
+            val id = (motion.resident.id.hashCode() and Int.MAX_VALUE).toString(36)
+            editor.putFloat("npc_x_${suffix}_$id", motion.position.x)
+                .putFloat("npc_y_${suffix}_$id", motion.position.y)
+        }
+        editor.apply()
+    }
 
     fun saveDiscoveries(ids: Set<String>): Boolean =
         prefs.edit().putStringSet("discoveries_$suffix", ids.toSet()).commit()
