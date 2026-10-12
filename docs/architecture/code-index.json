@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T05:36:12.354139+00:00",
-  "commit": "b459f3b3a7fb9b9b8a852965868451e097a79c5c",
+  "generatedAt": "2026-10-12T05:36:46.632088+00:00",
+  "commit": "74763d907e95ce555b9c26d8f7d648a71204835e",
   "branch": "main",
-  "sourceFingerprint": "ad62dd3b88e25ad2e54302d13c73dbd4a4411db746c9bc760469152b4e9ba79b",
+  "sourceFingerprint": "d801707427c95e25ed0daab53d16f458e89f02bf2d7187162597b0539d70fbb5",
   "summary": {
     "files": 538,
-    "lines": 111017,
+    "lines": 111020,
     "symbols": 1665
   },
   "symbolIndex": {
@@ -327,7 +327,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 63
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -3403,13 +3403,13 @@
     "relevantFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 46
+        "line": 49
       }
     ],
     "entries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 95
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
@@ -12240,8 +12240,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-      "lines": 200,
-      "sha256": "5ec4575a36bec6db4932f101b394ffddef874b3fbc937ff6fc19d55ba8f3f820",
+      "lines": 203,
+      "sha256": "b40e66d1fe04b948982cd8ae8d2cf1eb888c1aa10bfaa53bb93d05d8fa577e25",
       "symbols": [
         {
           "name": "feedbackTopic",
@@ -12249,15 +12249,15 @@
         },
         {
           "name": "relevantFeedback",
-          "line": 46
+          "line": 49
         },
         {
           "name": "context",
-          "line": 63
+          "line": 66
         },
         {
           "name": "entries",
-          "line": 95
+          "line": 98
         }
       ]
     },
