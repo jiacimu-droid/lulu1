@@ -22,6 +22,7 @@ internal object AutonomousLearningRuntime {
     suspend fun execute(
         context: Context, role: String, args: JSONObject,
         materialLoader: (String, String) -> LearningMaterial = { query, url -> LearningMaterialSource.retrieve(query, url, context) },
+        searchWeb: (Context, String) -> List<WebSearchHit> = WebSearchProvider::search,
         understand: suspend (String, String) -> String = { facts, instruction ->
             LuluAiServices.gateway.generate(characterId = role, facts = facts,
                 instruction = instruction, source = "角色自主学习", title = "自主学习",
@@ -53,7 +54,9 @@ internal object AutonomousLearningRuntime {
             require(goal.optString("status") != "running") { "学习正在执行，完成后再改变意向" }
             CharacterLearningAgenda.update(role, id) {
                 it.put("status", when (op) { "pause" -> "paused"; "drop" -> "dropped"; else ->
-                    if (it.optString("materialId").isBlank()) "planned" else "practice" })
+                    if (it.optString("materialId").isBlank()) "planned"
+                    else if (!CharacterLearningLedger.hasInsight(role, it.optString("materialId"))) "research"
+                    else "practice" })
             }
             return CompanionActionResult(true, "已${when(op) { "pause" -> "暂缓"; "resume" -> "恢复"; else -> "放下" }}学习意向，保留真实经历")
         }
@@ -61,7 +64,7 @@ internal object AutonomousLearningRuntime {
             CharacterLearningAgenda.begin(context, role, id, now)
             return try {
                 val hits = withContext(Dispatchers.IO) {
-                    WebSearchProvider.search(context, args.optString("query").ifBlank { goal.optString("topic") })
+                    searchWeb(context, args.optString("query").ifBlank { goal.optString("topic") })
                 }
                 val evidence = "learning-search-" + UUID.randomUUID()
                 val resultJson = org.json.JSONArray()
@@ -74,7 +77,9 @@ internal object AutonomousLearningRuntime {
                     source = "learning-search:$id", occurredAt = Instant.now(),
                     triggerExtraction = false, evidenceKind = EventEvidenceKind.Observation)
                 CharacterLearningAgenda.update(role, id) {
-                    it.put("status", if (it.optString("materialId").isBlank()) "planned" else "practice")
+                    it.put("status", if (it.optString("materialId").isBlank()) "planned"
+                        else if (!CharacterLearningLedger.hasInsight(role, it.optString("materialId"))) "research"
+                        else "practice")
                         .put("lastSearchId", evidence).put("failures", 0)
                     it.remove("retryAt"); it.remove("error")
                 }
@@ -125,6 +130,7 @@ internal object AutonomousLearningRuntime {
             }
             val instruction = when (op) {
                 "study" -> """围绕本人问题，理解实际读到的材料，允许觉得无关、没用或尚未理解。
+                    如上下文已有同主题旧材料，请比较来源是否独立、具体观点是否一致，区分补充、冲突或更正；仅有搜索摘要不能算独立证据。
                     返回JSON：{"learning":{"topic":"${goal.optString("topic")}","understanding":"来源支持的暂定理解","uncertainty":"局限/未核实处","question":"仍想弄清什么","applicableWhen":"适用条件"},"nextStep":"具体可练习/核对的一小步"}。
                     若新材料确实修订了上下文中同主题的旧理解，可在learning里填写revisesEvidenceId=准确的旧材料证据ID；没有新证据支持修订就保留分歧，不编造ID。
                     没有有用理解可省略learning。不能把网页观点当成事实或声称掌握技能；不要给用户写报告。
@@ -133,7 +139,7 @@ internal object AutonomousLearningRuntime {
                     返回JSON：{"artifact":"实际练习稿/解答","selfAssessment":"你自己发现的问题和优点","nextStep":"下次具体改哪一点"}。
                     这是练习，尚未发给用户。自评不是用户满意、权威批改或已掌握，不编造好评；保持本人风格和真实边界。
                 """.trimIndent()
-                else -> """回看原始材料、自己的理解和真实练习/应用反馈，辨认哪些记得、哪些仍不确定。
+                else -> """回看原始材料、自己的理解和真实练习/应用反馈，辨认哪些记得、哪些仍不确定。若存在多份不同来源的真实已读材料，请明确哪些结论相互支持、哪些冲突，不能为了得到漂亮结论而强行统一。
                     返回JSON：{"artifact":"尝试用自己的话复述方法或解决一个小例子","selfAssessment":"哪些理解仍存疑、需要修订或验证","nextStep":"可选的后续验证"}。
                     这是有原文可看的复习，不是闭卷测验。不得伪造测试成绩、用户反馈或新来源；不因复习成功宣称成熟技能。
                 """.trimIndent()

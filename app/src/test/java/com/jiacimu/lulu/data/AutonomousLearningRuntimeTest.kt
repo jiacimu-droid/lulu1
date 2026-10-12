@@ -63,6 +63,32 @@ class AutonomousLearningRuntimeTest {
         assertNull(CharacterLearningAgenda.get(role, id))
         assertEquals("", CharacterLearningLedger.context(role, "幽默"))
     }
+    @Test fun webSearchOnlyDiscoversLinksWithoutCreatingKnowledge() = runBlocking {
+        val id = goal().getString("id")
+        val result = AutonomousLearningRuntime.execute(context, role,
+            args(id, "search").put("query", "如何自然聊天"),
+            searchWeb = { _, query ->
+                assertEquals("如何自然聊天", query)
+                listOf(WebSearchHit("实际来源标题", "https://example.org/page", "这只是摘要"))
+            },
+            understand = { _, _ -> error("搜索不应触发学习模型") })
+        assertTrue(result.summary, result.success)
+        assertTrue(result.summary.contains("尚未读过正文"))
+        assertFalse(CharacterLearningLedger.hasInsight(role,
+            CharacterLearningAgenda.get(role, id)!!.optString("lastSearchId")))
+        assertEquals("planned", CharacterLearningAgenda.get(role, id)!!.optString("status"))
+    }
+    @Test fun usefulEmptyUnderstandingKeepsReadReceiptWithoutFalseSkill() = runBlocking {
+        val id = goal().getString("id")
+        val result = AutonomousLearningRuntime.execute(context, role, args(id, "study"),
+            materialLoader = { _, _ -> material() }, understand = { _, _ ->
+                """{"nextStep":"暂未看懂，试试换一份材料"}"""
+            })
+        assertTrue(result.summary, result.success)
+        assertEquals("research", CharacterLearningAgenda.get(role, id)!!.optString("status"))
+        assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(result.evidenceId)).isNotEmpty())
+        assertFalse(CharacterLearningLedger.hasInsight(role, result.evidenceId))
+    }
     @Test fun noMaterialAndNoModelResponseCannotCreateKnowledge() = runBlocking {
         val id = goal().getString("id")
         var calls = 0

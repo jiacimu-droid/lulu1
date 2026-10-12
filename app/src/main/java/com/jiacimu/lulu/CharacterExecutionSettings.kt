@@ -82,7 +82,9 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 TextButton(enabled = goal.optString("status") != "running", onClick = {
                     com.jiacimu.lulu.data.CharacterLearningAgenda.update(characterId, goal.optString("id")) {
                         it.put("status", if (it.optString("status") == "paused")
-                            if (it.optString("materialId").isBlank()) "planned" else "practice" else "paused")
+                            if (it.optString("materialId").isBlank()) "planned"
+                            else if (!com.jiacimu.lulu.data.CharacterLearningLedger.hasInsight(characterId, it.optString("materialId"))) "research"
+                            else "practice" else "paused")
                     }
                 }) { Text(if (goal.optString("status") == "paused") "恢复" else "暂缓") }
                 TextButton(enabled = goal.optString("status") != "running", onClick = {
