@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`74763d907e95ce555b9c26d8f7d648a71204835e`
+- 基准提交：`170df90f0e33288659cb13a5eca50636b4896853`
 - 分支：`main`
 - 已索引文件：538
-- 已索引代码/文本行：111020
+- 已索引代码/文本行：111037
 - 已发现符号：1665
 
 | 文件 | 行数 | 符号数 |
@@ -155,7 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 574 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 41 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 110 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 41 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 42 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt` | 46 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 86 | 4 |
@@ -164,7 +164,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 134 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 77 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 361 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 363 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 112 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 139 | 4 |
@@ -212,7 +212,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 182 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 227 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 499 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 500 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 476 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 470 | 15 |
@@ -481,7 +481,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 131 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 135 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDefinitionTest.kt` | 65 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt` | 71 | 1 |
