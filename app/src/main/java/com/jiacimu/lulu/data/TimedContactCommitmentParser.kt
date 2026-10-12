@@ -10,7 +10,6 @@ import java.time.ZoneId
  * delivery actions. A date-less "8点" must be clarified, not invented.
  */
 internal object TimedContactCommitmentParser {
-    private val clock = Regex("""(?:([01]?\d|2[0-3]))\s*[点时](?:钟)?(?:\s*([0-5]?\d)\s*分?)?""")
     private val signals = listOf("来找我", "找我一下", "联系我", "给我发消息", "发消息给我",
         "给我打电话", "打个电话给我", "打电话给我", "电话联系我")
     private val rejected = listOf("不行", "做不到", "不能", "不会", "不答应", "无法保证", "拒绝")
@@ -24,9 +23,9 @@ internal object TimedContactCommitmentParser {
             answer.endsWith("?") || answer.endsWith("？")) return null
         if (listOf("好", "行", "可以", "没问题", "我会", "我来", "我找你",
                 "到时候", "当然", "约好了", "记住了").none(answer::contains)) return null
-        val found = clock.find(text) ?: return null
-        var hour = found.groupValues[1].toIntOrNull() ?: return null
-        val minute = found.groupValues[2].toIntOrNull() ?: 0
+        val found = AppointmentClock.read(text) ?: return null
+        var hour = found.hour
+        val minute = found.minute
         val around = text.substring(0, found.range.first).takeLast(18) +
             text.substring(found.range.last + 1).take(8)
         if (listOf("晚上", "下午", "傍晚").any(around::contains) && hour in 1..11) hour += 12

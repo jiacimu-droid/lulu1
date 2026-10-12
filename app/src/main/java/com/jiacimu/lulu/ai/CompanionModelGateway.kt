@@ -93,6 +93,7 @@ data class ModelReply(
     val disposition: String? = null,
     /** Private choice metadata; acknowledged by the sender/TTS, never shown or spoken. */
     val interactionReceipt: String? = null,
+    val bedtimeContinuation: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {

@@ -93,6 +93,7 @@ interface LuluChatStore {
     fun markConversationRead(conversationId: String)
     fun editMessage(messageId: String, content: String): Boolean
     fun deleteMessage(messageId: String): Boolean
+    fun replaceCharacterReply(conversationId: String, originalIds: List<String>, contents: List<String>): List<LuluChatMessage>?
     fun toggleFavorite(messageId: String): Boolean
 }
 
@@ -479,6 +480,38 @@ class InMemoryLuluChatStore : LuluChatStore {
             }
         }
         return changed
+    }
+
+    override fun replaceCharacterReply(conversationId: String, originalIds: List<String>, contents: List<String>): List<LuluChatMessage>? = synchronized(lock) {
+        val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return@synchronized null
+        val state = messageStates[conversationId] ?: return@synchronized null
+        val ids = originalIds.toSet()
+        val originals = state.value.filter { it.id in ids }
+        val clean = contents.map(String::trim).filter(String::isNotBlank)
+        if (ids.isEmpty() || originals.size != ids.size || clean.isEmpty() ||
+            originals.any { it.sender != LuluChatMessage.Sender.Character }) return@synchronized null
+        val insertion = state.value.indexOfFirst { it.id in ids }
+        // A newly received message means this result was generated against stale history.
+        val last = state.value.indexOfLast { it.id in ids }
+        if (state.value.drop(last + 1).any { it.sender != LuluChatMessage.Sender.System }) return@synchronized null
+        val batch = java.util.UUID.randomUUID().toString()
+        val replacements = clean.map { content -> originals.first().copy(
+            id = java.util.UUID.randomUUID().toString(), content = content,
+            replyBatchId = batch, favorite = false, status = LuluChatMessage.Status.Sent,
+        ) }
+        val next = state.value.filterNot { it.id in ids }.toMutableList()
+        next.addAll(insertion, replacements)
+        state.value = next
+        refreshConversationLocked(conversationId)
+        persistLocked()
+        CommitmentTaskStore.rebindReplySources(ids, replacements.first().id)
+        originals.forEach { old ->
+            SharedExperienceTimeline.deleteConversationMessage(conversation, old.id)
+            CompanionPresenceStore.forgetDeliveredMessage(old.id)
+            com.jiacimu.lulu.ChatAutoVoicePlayback.remove(old.id)
+        }
+        replacements.forEach { SharedExperienceTimeline.recordConversationMessage(conversation, it) }
+        replacements
     }
 
     override fun deleteMessage(messageId: String): Boolean {

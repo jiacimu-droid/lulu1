@@ -315,7 +315,15 @@ class LuluAlarmReceiver : BroadcastReceiver() {
             val appContext = context.applicationContext
             alarmExecutionScope.launch {
                 try {
+                    // Load persisted roles after goAsync; a cold process has no Activity bootstrap.
+                    com.jiacimu.lulu.data.MigratedDomainStores.initialize(appContext)
+                    com.jiacimu.lulu.data.SharedExperienceTimeline.initialize(appContext)
                     CommitmentExecutor.onAlarm(appContext, task, characterName, notificationShown = shown)
+                } catch (error: Exception) {
+                    CommitmentTaskStore.update(task.id) { old -> old.copy(
+                        status = com.jiacimu.lulu.data.CommitmentTaskStatus.Blocked,
+                        lastActionResult = "到点任务执行失败：${error.message.orEmpty().take(160)}",
+                    ) }
                 } finally {
                     pendingResult.finish()
                 }

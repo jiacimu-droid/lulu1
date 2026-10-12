@@ -148,6 +148,17 @@ object CommitmentTaskStore {
         }
     }
 
+    /** Rephrasing an already-delivered promise does not undo its real alarm or call plan. */
+    @Synchronized fun rebindReplySources(oldIds: Set<String>, newId: String) {
+        if (newId.isBlank()) return
+        val next = mutableTasks.value.map { task ->
+            if (task.sourceEventIds.none(oldIds::contains)) task else task.copy(
+                sourceEventIds = (task.sourceEventIds.filterNot(oldIds::contains) + newId).distinct(),
+            )
+        }
+        persist(next)
+    }
+
     @Synchronized
     fun removeBySourceEvent(eventId: String) {
         val affected = mutableTasks.value.filter { eventId in it.sourceEventIds }

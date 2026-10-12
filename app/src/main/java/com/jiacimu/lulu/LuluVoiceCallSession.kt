@@ -469,6 +469,7 @@ internal object LuluVoiceCallSession {
             mutableState.update { it.copy(statusMessage = "实时 Agent 线路暂不支持无人发言时自动续讲，请选普通电话模式") }
             return
         }
+        appContext?.let(SleepNarrativeStore::initialize)
         val enabled = !current.sleepMode
         sleepContinuationJob?.cancel()
         sleepFailures = 0
@@ -502,7 +503,7 @@ internal object LuluVoiceCallSession {
         if (!call.sleepMode || realtime != null) return
         val sessionId = call.callExperienceId
         sleepContinuationJob = scope.launch {
-            delay(SleepCallContinuationPolicy.nextPauseMillis(sleepSilenceMillis()))
+            delay(SleepCallContinuationPolicy.nextPauseMillis(sleepSilenceMillis(), mutableState.value.sleepFocus == SleepGuidanceFocus.Story))
             while (mutableState.value.connected &&
                 mutableState.value.callExperienceId == sessionId &&
                 mutableState.value.sleepMode && realtime == null) {
@@ -1151,6 +1152,7 @@ internal object LuluVoiceCallSession {
             val heard = StringBuilder()
             var finalText: String? = null
             var interactionReceipt: String? = null
+            var bedtimeContinuation: String? = null
             var lastDeliveredMessageId = ""
             fun sameReply() = generation == replyGeneration && mutableState.value.connected &&
                 mutableState.value.callExperienceId == latest.callExperienceId
@@ -1159,6 +1161,14 @@ internal object LuluVoiceCallSession {
                 if (heard.toString().filterNot(Char::isWhitespace) == complete.filterNot(Char::isWhitespace)) {
                     com.jiacimu.lulu.data.CharacterConversationAgency.delivered(latest.characterId,
                         interactionReceipt, lastDeliveredMessageId, heard.toString(), phone = true)
+                    if (latest.sleepMode) {
+                        SleepNarrativeStore.accept(latest.callExperienceId, lastDeliveredMessageId, bedtimeContinuation)
+                        val kind = bedtimeContinuation?.let { runCatching { org.json.JSONObject(it).optString("kind") }.getOrNull() }
+                        if (mutableState.value.sleepFocus == SleepGuidanceFocus.Natural) {
+                            if (kind == "story") mutableState.update { it.copy(sleepFocus = SleepGuidanceFocus.Story) }
+                            else if (kind == "body") mutableState.update { it.copy(sleepFocus = SleepGuidanceFocus.Body) }
+                        }
+                    }
                     mutableState.update { it.copy(generatedTranscript = "", playingTranscript = "") }
                 }
             }
@@ -1212,6 +1222,8 @@ internal object LuluVoiceCallSession {
                                     voiceMessageId, plainSpeech, true)
                                 autonomousHangup.markDelivered(latest.callExperienceId, generation, plainSpeech)
                                 lastDeliveredMessageId = voiceMessageId
+                                if (latest.sleepMode) SleepNarrativeStore.recordPlayed(latest.callExperienceId,
+                                    voiceMessageId, plainSpeech)
                             }
                             clearWhenHeard()
                             mutableState.update { it.copy(playingTranscript = "") }
@@ -1222,7 +1234,7 @@ internal object LuluVoiceCallSession {
             val bedtimeGuide = if (latest.sleepMode) SleepGuidanceGuide.instruction(
                 latest.sleepFocus, continuing = autonomousSleep,
                 silenceMillis = sleepSilenceMillis(),
-            ) else ""
+            ) + "\n" + SleepNarrativeStore.context(latest.callExperienceId, latest.sleepFocus) else ""
             val silenceContext = if (autonomousSilence) CallSilencePolicy.context(
                 SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis, latest.microphoneMuted) else ""
             // Stable milestones: silence can be reconsidered without inventing
@@ -1300,6 +1312,7 @@ internal object LuluVoiceCallSession {
                     return@onSuccess
                 }
                 interactionReceipt = reply.interactionReceipt
+                bedtimeContinuation = reply.bedtimeContinuation
                 finalText = VoicePerformance.plain(text)
                 clearWhenHeard()
                 val remaining = runCatching {

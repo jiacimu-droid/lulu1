@@ -84,6 +84,12 @@ internal object ConversationNaturalnessGate {
             score += 3
             reasons += "用户已暴露需要线索，却把“该做什么”原样甩回给用户"
         }
+        val asksTechnicalCause = Regex("为什么|为啥|怎么回事|什么原因|排查|修复|代码|日志|权限").containsMatchIn(userText)
+        val reportTerms = Regex("执行回执|任务状态|触发链路|调度机制|故障原因|整改|后续措施|经核实|未能触发|执行结果")
+        if (!asksTechnicalCause && reportTerms.findAll(reply).count() >= 2) {
+            score += 2
+            reasons += "把普通关系交流写成任务故障或整改报告"
+        }
         val serviceCount = servicePhrases.findAll(reply).count()
         if (serviceCount >= 2) {
             score += 2

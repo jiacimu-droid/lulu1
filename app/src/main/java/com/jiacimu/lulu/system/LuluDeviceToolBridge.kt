@@ -46,10 +46,11 @@ object LuluDeviceToolBridge {
         onCharacterHangup: (() -> Unit)? = null,
         silenceObservationId: String = "",
         turnContext: String = "",
+        reconsiderationEvidenceId: String = "",
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
-        GroupEnsembleReplyEngine.respondIfApplicable(
+        if (reconsiderationEvidenceId.isBlank()) GroupEnsembleReplyEngine.respondIfApplicable(
             context = appContext,
             characterId = characterId,
             history = history,
@@ -67,7 +68,7 @@ object LuluDeviceToolBridge {
         val zone = ZoneId.systemDefault()
         val interactionKey = "direct:user"
         val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
-        val groundingEvidenceId = if (callSilence) silenceObservationId else
+        val groundingEvidenceId = if (reconsiderationEvidenceId.isNotBlank()) reconsiderationEvidenceId else if (callSilence) silenceObservationId else
             com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
                 .filter {
                     userText.isNotBlank() &&
@@ -194,6 +195,7 @@ object LuluDeviceToolBridge {
                 ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
                 ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
                 $decisionFormatRule
+                ${if (reconsiderationEvidenceId.isNotBlank()) "这是用户要求重新考虑角色刚才那一轮表达，用户没有新增聊天正文。可选 reply 或 silent；不得重做旧工具、发起电话、发圈或另行调度活动。只重新判断该怎样表达自己刚才想说的意思，不回答旧消息，不捏造新的用户请求。" else ""}
                 $programDialogueConstraint
                 $phoneConversationConstraint
 
@@ -240,6 +242,8 @@ object LuluDeviceToolBridge {
             // Phone speech should be a natural turn, not an essay. Keep enough
             // headroom for the JSON state without paying for runaway monologues.
             maxTokens = when {
+                sceneContext.contains("哄睡") && sceneContext.contains("长故事优先") -> 4_000
+                sceneContext.contains("哄睡") -> 2_600
                 separateExpression -> 1_450
                 sceneContext.contains("电话") && userText.length < 280 -> 1_500
                 else -> 2_400
@@ -281,6 +285,10 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        if (reconsiderationEvidenceId.isNotBlank()) {
+            if (plan.action == "tool") return Result.failure(IllegalStateException("重新回复只重做表达，没有再次执行工具"))
+            plan.appraisal?.remove("ownActivity")
+        }
         val programRepair = separateExpression &&
             com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText) &&
             !com.jiacimu.lulu.data.DialogueMoveEngine.correctionSuppliesDirection(userText)
@@ -342,6 +350,7 @@ object LuluDeviceToolBridge {
             }
             val combined = perceptionInput.combined
             val interactionEvidenceId = when {
+                reconsiderationEvidenceId.isNotBlank() -> reconsiderationEvidenceId
                 callSilence -> silenceObservationId
                 verifiedSources.isNotEmpty() -> verifiedSources.last().id
                 else -> ""
@@ -566,6 +575,7 @@ object LuluDeviceToolBridge {
             if (!invalidBlame && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
             return Result.success(expressed.copy(text = sendText,
+                bedtimeContinuation = plan.sleepContinuation?.toString(),
                 interactionReceipt = if (invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
@@ -897,6 +907,7 @@ object LuluDeviceToolBridge {
                 alternatives = json.optJSONArray("alternatives"),
                 appraisal = json.optJSONObject("appraisal"),
                 dialogueMove = json.optJSONObject("dialogueMove"),
+                sleepContinuation = json.optJSONObject("sleepContinuation"),
                 curiosity = json.optJSONObject("curiosity"),
                 experienceId = json.optString("experienceId").trim().take(180),
             )
@@ -954,6 +965,7 @@ private data class ToolPlan(
     val appraisal: JSONObject? = null,
     val dialogueMove: JSONObject? = null,
     val curiosity: JSONObject? = null,
+    val sleepContinuation: JSONObject? = null,
     val experienceId: String = "",
     val alternatives: org.json.JSONArray? = null,
 )
