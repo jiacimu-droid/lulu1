@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`547ad70a8313318a19921af24ec8fadcca7717da`
+- 基准提交：`fc191387a14e708ac31174859fe66bd0bae7f6b8`
 - 分支：`main`
 - 已索引文件：547
-- 已索引代码/文本行：112181
+- 已索引代码/文本行：112255
 - 已发现符号：1684
 
 | 文件 | 行数 | 符号数 |
@@ -50,8 +50,8 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt` | 338 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 86 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 653 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1150 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 654 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1154 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 725 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 640 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 378 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 402 | 0 |
@@ -227,7 +227,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 242 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt` | 273 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 281 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt` | 280 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudience.kt` | 14 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
