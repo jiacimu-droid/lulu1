@@ -43,9 +43,13 @@ internal fun DigitalWorldScenePage(
         characters.filter { world.characterLocations[it.characterId] == sceneCode }
             .map(CharacterSettings::characterId).distinct()
     }
+    val witnessedResidents = if (homeCharacterId == null) visibleResidents
+        else visibleResidents.filter { it == homeCharacterId }
     val observedResidents = remember(sceneCode) { mutableSetOf<String>() }
-    LaunchedEffect(sceneCode, sceneLabel, visibleResidents) {
-        val current = visibleResidents.toSet()
+    var transitioningToMeeting by remember(sceneCode) { mutableStateOf(false) }
+    val latestTransition by rememberUpdatedState(transitioningToMeeting)
+    LaunchedEffect(sceneCode, sceneLabel, witnessedResidents) {
+        val current = witnessedResidents.toSet()
         DigitalWorldVisitorAwareness.observe(context, sceneLabel,
             (current - observedResidents).toList(), entering = true)
         observedResidents.clear()
@@ -53,12 +57,14 @@ internal fun DigitalWorldScenePage(
     }
     DisposableEffect(sceneCode, sceneLabel) {
         DigitalWorldVisitorAwareness.locationArrival(context, sceneCode, sceneLabel,
-            visibleResidents, entering = true, includeLocals = false)
+            witnessedResidents, entering = true, includeLocals = false)
         onDispose {
-            DigitalWorldVisitorAwareness.locationArrival(context, sceneCode, sceneLabel,
-                observedResidents.toList(), entering = false, includeLocals = false)
-            DigitalWorldVisitorAwareness.observe(context, sceneLabel,
-                observedResidents.toList(), entering = false)
+            if (!latestTransition) {
+                DigitalWorldVisitorAwareness.locationArrival(context, sceneCode, sceneLabel,
+                    observedResidents.toList(), entering = false, includeLocals = false)
+                DigitalWorldVisitorAwareness.observe(context, sceneLabel,
+                    observedResidents.toList(), entering = false)
+            }
         }
     }
     var rememberedAction by remember(sceneCode) { mutableStateOf("") }
@@ -99,7 +105,10 @@ internal fun DigitalWorldScenePage(
                 homeCharacterId = homeCharacterId,
                 characters = characters,
                 world = world,
-                onCharacterClick = onCharacterClick,
+                onCharacterClick = { id ->
+                    transitioningToMeeting = true
+                    onCharacterClick(id)
+                },
                 onObservedBehavior = { action ->
                     DigitalWorldVisitorAwareness.observeAction(context, sceneLabel,
                         observedResidents.toList(), action)
