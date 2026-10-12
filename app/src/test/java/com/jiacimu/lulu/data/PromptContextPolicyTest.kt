@@ -9,10 +9,11 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class PromptContextPolicyTest {
-    @Test fun normalChatSkipsRawEvidenceButKeepsMemoryAndTimeline() {
+    @Test fun normalChatKeepsASmallBoundedEvidenceWindowWithoutBecomingHeavyweight() {
         val b = PromptContextPolicy.forRequest("聊天工具规划",
             UnifiedMemoryRequest(currentInput = "今天看见小猫啦", sceneContext = "私聊"))
-        assertEquals(0, b.evidenceCharacters)
+        assertEquals(1_200, b.evidenceCharacters)
+        assertTrue(b.evidenceCharacters < b.memoryCharacters)
         assertTrue(b.memoryCharacters > 0)
         assertTrue(b.recentCharacters > 0)
         assertFalse(b.worldDetails)
