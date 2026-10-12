@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T08:55:10.830451+00:00",
-  "commit": "b5d78076a17595d22bde2a3e8ff5356ec0f372d2",
+  "generatedAt": "2026-10-12T08:57:36.827784+00:00",
+  "commit": "7796066b9e203bbc74c8c88edcde596134a63d0d",
   "branch": "main",
-  "sourceFingerprint": "6a3a585df2baa7aeb1bdac41c6403f10172009705d7af37ce072730f17a387da",
+  "sourceFingerprint": "55a8822583d48a629fd0f00549d0f8b3480ad0b0008d8257640874d313d7b816",
   "summary": {
-    "files": 546,
-    "lines": 111981,
-    "symbols": 1680
+    "files": 547,
+    "lines": 112120,
+    "symbols": 1681
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -367,7 +367,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt",
-        "line": 36
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -955,7 +955,7 @@
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1047
+        "line": 1117
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -965,37 +965,37 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1056
+        "line": 1126
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1058
+        "line": 1128
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1060
+        "line": 1130
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1063
+        "line": 1133
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1066
+        "line": 1136
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1074
+        "line": 1144
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -4239,7 +4239,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 579
+        "line": 580
       }
     ],
     "describe": [
@@ -4829,7 +4829,7 @@
     "witnessed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt",
-        "line": 31
+        "line": 38
       }
     ],
     "DigitalWorldNavigationStore": [
@@ -9192,6 +9192,12 @@
         "line": 6
       }
     ],
+    "DigitalWorldLiveSceneOfferPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneOfferPolicyTest.kt",
+        "line": 5
+      }
+    ],
     "DigitalWorldLiveSceneTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt",
@@ -9962,8 +9968,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1079,
-      "sha256": "db77616e112ca7296f5d96b7d6804d8ccd2ac8fb7cadf1f7ac01660e4dbabd9b",
+      "lines": 1149,
+      "sha256": "e67b307a9fbc7bf5524d1005e2c2b6a04cd8dfd65fa88c8b61811620571335d0",
       "symbols": [
         {
           "name": "Resident",
@@ -9983,31 +9989,31 @@
         },
         {
           "name": "loadPosition",
-          "line": 1047
+          "line": 1117
         },
         {
           "name": "loadQuest",
-          "line": 1056
+          "line": 1126
         },
         {
           "name": "loadHandHoldingId",
-          "line": 1058
+          "line": 1128
         },
         {
           "name": "loadFollowerIds",
-          "line": 1060
+          "line": 1130
         },
         {
           "name": "loadSuspendedFollowers",
-          "line": 1063
+          "line": 1133
         },
         {
           "name": "saveCompanionship",
-          "line": 1066
+          "line": 1136
         },
         {
           "name": "save",
-          "line": 1074
+          "line": 1144
         }
       ]
     },
@@ -13268,8 +13274,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 602,
-      "sha256": "4041c8a504571a281052c2ebd7a5e04b32dec552c4eac772ad1778cf30ab0009",
+      "lines": 603,
+      "sha256": "f87d5a7f4650bf92b25dec09bb310440d102e64ad8de876842597838a4e41996",
       "symbols": [
         {
           "name": "asJson",
@@ -13281,7 +13287,7 @@
         },
         {
           "name": "world",
-          "line": 579
+          "line": 580
         }
       ]
     },
@@ -13920,16 +13926,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt",
-      "lines": 86,
-      "sha256": "b2f4f1faccfbbea6dd21a1d7acf3e1baead0366fce959331aaf45930658221e5",
+      "lines": 139,
+      "sha256": "5bbbf0722b784bb3f439eb02b64d354cd77f6dbb20ecb9758d7a647ac35603c2",
       "symbols": [
         {
           "name": "witnessed",
-          "line": 31
+          "line": 38
         },
         {
           "name": "context",
-          "line": 36
+          "line": 43
         }
       ]
     },
@@ -15236,7 +15242,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 80,
-      "sha256": "e351fe16fc73ad1863cc4877da270d133033aff0553ec52b7232f84b54d7c34c",
+      "sha256": "e624047c0999234cf2c3bad6b542bc3bdbb76d55833f9070c2484a0642de5565",
       "symbols": []
     },
     {
@@ -19404,6 +19410,17 @@
         {
           "name": "DigitalWorldEnvironmentTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneOfferPolicyTest.kt",
+      "lines": 15,
+      "sha256": "a62084c480e6f58dc5205100f3a4bde9f8252268ba640ee0f1d93ebf725e4c4b",
+      "symbols": [
+        {
+          "name": "DigitalWorldLiveSceneOfferPolicyTest",
+          "line": 5
         }
       ]
     },
