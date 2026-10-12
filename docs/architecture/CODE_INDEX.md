@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6f29db42d2b87d83a82790b78c37be481696e70f`
+- 基准提交：`69cafa10c420c3c32ccc946f85a3e5caabff41c4`
 - 分支：`main`
 - 已索引文件：542
-- 已索引代码/文本行：111525
+- 已索引代码/文本行：111596
 - 已发现符号：1670
 
 | 文件 | 行数 | 符号数 |
@@ -29,7 +29,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 68 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 87 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 138 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 199 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 530 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 242 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 283 | 8 |
@@ -472,7 +472,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 67 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 48 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 124 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 70 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 43 | 1 |
