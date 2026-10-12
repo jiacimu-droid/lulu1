@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T17:49:11.822974+00:00",
-  "commit": "cf2c8a42b110ade5669c78f8969685f5a5f4f7c3",
+  "generatedAt": "2026-10-12T17:55:15.634764+00:00",
+  "commit": "0462e61e8e6a6081fa9e5f778eb74b52a17b231c",
   "branch": "main",
-  "sourceFingerprint": "b04eb339dfaf740e23e3bcff951e3580290f992ae4b7590d0b083a263e338767",
+  "sourceFingerprint": "bdf345792601daed0fbaaf435b95d8fd96bd322902a798050ac6b7e312ce5a71",
   "summary": {
     "files": 580,
-    "lines": 115767,
+    "lines": 115772,
     "symbols": 1748
   },
   "symbolIndex": {
@@ -9719,7 +9719,7 @@
     "ReadingReactionPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "ReadingStarterLibraryTest": [
@@ -20546,12 +20546,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt",
-      "lines": 41,
-      "sha256": "807d84b479d8bcef8fd44ea28783f19af910a801754880d73ce876c9df7343d7",
+      "lines": 46,
+      "sha256": "0e41be2dd9a6630ae02fede656a68b5a48009c00d97bcbeb719101e2016931b6",
       "symbols": [
         {
           "name": "ReadingReactionPolicyTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
