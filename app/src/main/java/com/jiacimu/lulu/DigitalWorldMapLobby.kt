@@ -363,11 +363,12 @@ private fun DigitalWorldMapPage(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            DigitalWorldLiveHeader(
-                homeCount = digitalCharacters.size,
-                npcHomeCount = localResidents.size,
-                residentCount = world.characterLocations.values.count { it.isNotBlank() } + localResidents.size,
-                itemCount = world.items.size,
+            DigitalWorldAtlas(
+                characters = digitalCharacters,
+                nativeResidents = localResidents,
+                world = world,
+                onOpenScene = onOpenScene,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         item { WorldMapSectionHeading("云境与户外", "真正可以抵达的开放空间", Icons.Outlined.Landscape) }
