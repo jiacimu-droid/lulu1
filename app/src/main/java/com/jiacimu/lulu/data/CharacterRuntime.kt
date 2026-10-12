@@ -121,7 +121,8 @@ object CharacterRuntime {
 
     /** Learning remains tied to reading sources and never overwrites persona. */
     fun learningContext(characterId: String, query: String, compact: Boolean = true): String =
-        CharacterLearningLedger.context(characterId, query, compact)
+        listOf(CharacterLearningLedger.context(characterId, query, compact),
+            CharacterLearningAgenda.prompt(characterId)).filter(String::isNotBlank).joinToString("\n")
 
     /** Only the already-decided private wish crosses lean decision→expression. */
     fun leanExpressionContext(characterId: String): String =

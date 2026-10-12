@@ -16,6 +16,8 @@ internal object MemoryTestEnvironment {
         clear(LuluRepositories.memory, "prefs", "advancedPrefs")
         clear(LuluRepositories.lexicon, "prefs")
         clear(MemoryExtractionJobStore, "prefs")
+        clear(CharacterLearningAgenda, "prefs")
+        clear(CharacterLearningLedger, "prefs")
         clear(LuluAiServices, "connectionStoreInternal", "gatewayInternal")
     }
 

@@ -47,6 +47,8 @@ internal object CompanionActionRuntime {
         allowSleepReward: Boolean = true,
         includeWorldContext: Boolean = true,
     ): String = buildString {
+        CharacterLearningAgenda.initialize(context)
+        appendLine(AutonomousLearningRuntime.capabilityContext(context, characterId))
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
@@ -124,6 +126,7 @@ internal object CompanionActionRuntime {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
         val result = when (normalizedAction) {
+            "learn_topic" -> AutonomousLearningRuntime.execute(context, characterId, args)
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
                 val reason = args.optString("reason").trim().take(180)

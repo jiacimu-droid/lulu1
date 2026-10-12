@@ -25,6 +25,50 @@ internal fun CharacterExecutionSettings(characterId: String) {
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+        Text("自主学习", style = MaterialTheme.typography.titleMedium)
+        com.jiacimu.lulu.data.CharacterLearningAgenda.initialize(context)
+        var learningLimit by remember(characterId) {
+            mutableStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10))
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("每天学习步骤：$learningLimit")
+            Row {
+                TextButton(enabled = learningLimit > 0, onClick = {
+                    learningLimit--; prefs.edit().putInt("$characterId:learning_daily_limit", learningLimit).commit()
+                }) { Text("减少") }
+                TextButton(enabled = learningLimit < 10, onClick = {
+                    learningLimit++; prefs.edit().putInt("$characterId:learning_daily_limit", learningLimit).commit()
+                }) { Text("增加") }
+            }
+        }
+        val learningRevision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
+        val learningGoals = remember(characterId, learningRevision) {
+            com.jiacimu.lulu.data.CharacterLearningAgenda.goals(characterId)
+                .filter { it.optString("status") != "dropped" }
+        }
+        learningGoals.forEach { goal ->
+            val stage = when (goal.optString("status")) {
+                "planned" -> "尚未接触材料"; "running" -> "正在学习"; "failed" -> "待调整"
+                "paused" -> "暂缓"; else -> "待实践／复习"
+            }
+            Text("${goal.optString("topic")} · $stage")
+            goal.optString("error").takeIf(String::isNotBlank)?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall)
+            }
+            Row {
+                TextButton(enabled = goal.optString("status") != "running", onClick = {
+                    com.jiacimu.lulu.data.CharacterLearningAgenda.update(characterId, goal.optString("id")) {
+                        it.put("status", if (it.optString("status") == "paused")
+                            if (it.optString("materialId").isBlank()) "planned" else "practice" else "paused")
+                    }
+                }) { Text(if (goal.optString("status") == "paused") "恢复" else "暂缓") }
+                TextButton(enabled = goal.optString("status") != "running", onClick = {
+                    com.jiacimu.lulu.data.CharacterLearningAgenda.update(characterId, goal.optString("id")) {
+                        it.put("status", "dropped")
+                    }
+                }) { Text("放下") }
+            }
+        }
         Text("可追溯成长", style = MaterialTheme.typography.titleMedium)
         val revision by CharacterDevelopmentStore.revisions.collectAsState()
         val records = remember(characterId, revision) { CharacterDevelopmentStore.active(characterId) }

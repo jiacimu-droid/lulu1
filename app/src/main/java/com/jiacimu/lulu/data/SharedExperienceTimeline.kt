@@ -46,6 +46,7 @@ object SharedExperienceTimeline {
         MemoryExtractionJobStore.initialize(application)
         CharacterLifeFollowThroughStore.initialize(application)
         CharacterLearningLedger.initialize(application)
+        CharacterLearningAgenda.initialize(application)
     }
 
     fun backfillChatHistory() {
@@ -209,6 +210,7 @@ object SharedExperienceTimeline {
         if (previous != null) {
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLearningLedger.invalidateEvidence(eventId)
+            CharacterLearningAgenda.invalidateEvidence(eventId)
             CharacterLifeStore.invalidateReceipt(eventId)
             CharacterInnerLifeStore.invalidateEvidence(eventId)
             // Recreate an opportunity only from the freshly edited factual event.
@@ -309,6 +311,7 @@ object SharedExperienceTimeline {
         // repository integrity guard before they can survive in recall.
         CharacterDevelopmentStore.invalidateEvidenceForAll(eventId)
         CharacterLearningLedger.invalidateEvidence(eventId)
+        CharacterLearningAgenda.invalidateEvidence(eventId)
         CharacterLifeStore.invalidateReceipt(eventId)
         CharacterInnerLifeStore.invalidateEvidence(eventId)
         MemoryExtractionJobStore.removeBySourceEvent(eventId)

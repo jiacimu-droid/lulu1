@@ -606,6 +606,8 @@ class CompanionModelGateway(
             val learningSection = if (fullContext)
                 com.jiacimu.lulu.data.CharacterRuntime.learningContext(
                     characterId, request.retrievalQuery(), compact = !budget.precise)
+            else if (leanExpression && contextMode == CompanionContextMode.Full && request.actionContext.isNotBlank())
+                com.jiacimu.lulu.data.CharacterLearningLedger.context(characterId, request.actionContext, compact = true)
             else ""
             val systemPrompt = listOf(
                 baseRules,

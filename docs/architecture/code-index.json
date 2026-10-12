@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T16:24:59.925979+00:00",
-  "commit": "e9e47d960cb4fc7a1cd50e8a5954a19f5c6a1697",
-  "branch": "main",
-  "sourceFingerprint": "09fa7e4f9c134e5aaf85936a7f23218192cb805bc0c886d333f12d27cf4be007",
+  "generatedAt": "2026-10-12T16:53:22.715728+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "a2e479e3ef050e42504c6f8417bd841d08d6204880098e1b53560d6cb863496d",
   "summary": {
-    "files": 566,
-    "lines": 114329,
-    "symbols": 1718
+    "files": 572,
+    "lines": 115083,
+    "symbols": 1730
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -212,6 +212,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
         "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
+        "line": 112
       }
     ],
     "update": [
@@ -507,7 +511,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1042
+        "line": 1044
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2231,7 +2235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 321
+        "line": 378
       }
     ],
     "wordsToSubmitOnMute": [
@@ -2609,19 +2613,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 889
+        "line": 891
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 901
+        "line": 903
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1032
+        "line": 1034
       }
     ],
     "consume": [
@@ -2956,6 +2960,16 @@
         "line": 7
       }
     ],
+    "capabilityContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
+        "line": 43
+      }
+    ],
     "Capability": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
@@ -3029,7 +3043,7 @@
     "supports": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt",
-        "line": 19
+        "line": 24
       }
     ],
     "pendingChoices": [
@@ -3475,7 +3489,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 128
+        "line": 129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -3626,6 +3640,22 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
         "line": 593
+      }
+    ],
+    "failed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
+        "line": 105
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 51
+      }
+    ],
+    "goals": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
+        "line": 125
       }
     ],
     "register": [
@@ -3893,13 +3923,13 @@
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 127
+        "line": 128
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 131
+        "line": 132
       }
     ],
     "parse": [
@@ -4312,16 +4342,10 @@
         "line": 24
       }
     ],
-    "capabilityContext": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 43
-      }
-    ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 593
+        "line": 596
       }
     ],
     "describe": [
@@ -5246,6 +5270,42 @@
         "line": 78
       }
     ],
+    "retryAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
+        "line": 8
+      }
+    ],
+    "reviewAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
+        "line": 10
+      }
+    ],
+    "available": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
+        "line": 13
+      }
+    ],
+    "stale": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
+        "line": 17
+      }
+    ],
+    "validateUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt",
+        "line": 14
+      }
+    ],
+    "retrieve": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt",
+        "line": 64
+      }
+    ],
     "LegacyConversationMigration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt",
@@ -5295,7 +5355,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 482
+        "line": 485
       }
     ],
     "LegacyLuluImportResult": [
@@ -5728,12 +5788,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
         "line": 7
-      }
-    ],
-    "failed": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 51
       }
     ],
     "complete": [
@@ -6337,7 +6391,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1342
+        "line": 1345
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -6595,25 +6649,25 @@
     "backfillChatHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "recordConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "recordChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "all": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 246
+        "line": 248
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -6623,61 +6677,61 @@
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 249
+        "line": 251
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 287
+        "line": 289
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 321
+        "line": 324
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 328
+        "line": 331
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 343
+        "line": 346
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 354
+        "line": 357
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 374
+        "line": 377
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 377
+        "line": 380
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 393
+        "line": 396
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 464
+        "line": 467
       }
     ],
     "EventEvidenceKind": [
@@ -9074,6 +9128,12 @@
         "line": 12
       }
     ],
+    "AutonomousLearningRuntimeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
+        "line": 19
+      }
+    ],
     "AutonomyCallAndReceiptTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
@@ -9378,6 +9438,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
         "line": 24
+      }
+    ],
+    "LearningCyclePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt",
+        "line": 7
       }
     ],
     "MeetingLocationRenderingTest": [
@@ -9917,8 +9983,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 41,
-      "sha256": "c694b496d5eacdc988e3c43c7682a9a27587c5ef7ea6223bacdd512ae37c6b18",
+      "lines": 85,
+      "sha256": "92ccbe00c6c0023aa1d81dc7acffc16cdf17624b326c2011f93401ab1fdf3d91",
       "symbols": []
     },
     {
@@ -11837,8 +11903,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1050,
-      "sha256": "bd0258632e84d87470842a102617321f8b00289da2fd8e9482a8161a5723437b",
+      "lines": 1052,
+      "sha256": "a9bfa496d40e605562e06c9d7c2440cdf9ad150282859d62ea4ed365a62eb357",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -11926,19 +11992,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 889
+          "line": 891
         },
         {
           "name": "consumeEvent",
-          "line": 901
+          "line": 903
         },
         {
           "name": "LuluAiServices",
-          "line": 1032
+          "line": 1034
         },
         {
           "name": "initialize",
-          "line": 1042
+          "line": 1044
         }
       ]
     },
@@ -12210,6 +12276,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt",
+      "lines": 166,
+      "sha256": "a5b506b61b536956a4b4c2ebd2ce61f9b9af35464fba78dfcfb8a3fab0f5979c",
+      "symbols": [
+        {
+          "name": "capabilityContext",
+          "line": 13
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt",
       "lines": 574,
       "sha256": "93b07861cbc2707c29d37dfc67005e1ebc63d9861e98e5cd4cf4fabe67b73d47",
@@ -12218,7 +12295,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 41,
-      "sha256": "ed4005c39db3d58218f060d6995d7dac420d0f2f33be66da6e3b874192cce455",
+      "sha256": "67749631dc861e91d7860dca89c64b24702e68b5944e7fdc099f3976573a5c6a",
       "symbols": [
         {
           "name": "Capability",
@@ -12271,8 +12348,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt",
-      "lines": 42,
-      "sha256": "d54c98d51ffd7a3eb70901685ecf494b0c48732af0223f86748f3a1099530f45",
+      "lines": 51,
+      "sha256": "5269d3b692bf32f5a8a0032962aaabbad9a18700034e917828d7fee86b1d3dd1",
       "symbols": [
         {
           "name": "resolve",
@@ -12280,7 +12357,7 @@
         },
         {
           "name": "supports",
-          "line": 19
+          "line": 24
         }
       ]
     },
@@ -12425,7 +12502,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt",
       "lines": 77,
-      "sha256": "6f677416e7eaf2f02df06262b71f67d29e5bc84444511594c28a307871498c6b",
+      "sha256": "cfe0c64472d2e54e2e1383cbd6f48e6586c34d8705c7fd4c3bb2dd463752abb5",
       "symbols": [
         {
           "name": "rememberInquiry",
@@ -12742,13 +12819,32 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
+      "lines": 157,
+      "sha256": "08c6ed283e3e37865b5ff8958b9711a99907ddb0e176c67142fdc6454649e0fa",
+      "symbols": [
+        {
+          "name": "failed",
+          "line": 105
+        },
+        {
+          "name": "prompt",
+          "line": 112
+        },
+        {
+          "name": "goals",
+          "line": 125
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 391,
-      "sha256": "326665a6bc7acbf9ed4739b9627c64233b57eabd56cf8089c540bef6c6916c73",
+      "lines": 475,
+      "sha256": "ce145489ff89f266c3253fcb734591bc37aa74b1bc623281f75f8369453ea7dc",
       "symbols": [
         {
           "name": "score",
-          "line": 321
+          "line": 378
         }
       ]
     },
@@ -12997,8 +13093,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt",
-      "lines": 54,
-      "sha256": "dea7129615d085d10349dd7f8cc659ced4b2068dd3a9a0b2e197e1a2be708b92",
+      "lines": 55,
+      "sha256": "17c495611c6a6995e08ba0b68f5709d0acd082a213cf05ba96906c56e392a768",
       "symbols": [
         {
           "name": "CharacterRecordReset",
@@ -13042,8 +13138,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 135,
-      "sha256": "45c9979deffe508fa853e52b243b907bdd07683115db78f731359082e1ef662e",
+      "lines": 136,
+      "sha256": "98847a7cc99b14519b77e0b766881e1d30fdd849bd3fe51b65d09dcd8e6243e7",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -13083,11 +13179,11 @@
         },
         {
           "name": "leanExpressionContext",
-          "line": 127
+          "line": 128
         },
         {
           "name": "developmentContext",
-          "line": 131
+          "line": 132
         }
       ]
     },
@@ -13578,8 +13674,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 611,
-      "sha256": "cc4b0d56d2bfd55f645c4f9d2a9a059ad772a55a235abfad9b0b74416b126c77",
+      "lines": 614,
+      "sha256": "02acbd146151da5de88736c2ced69785b040499a1178b4f8e9226797b40921bb",
       "symbols": [
         {
           "name": "asJson",
@@ -13591,7 +13687,7 @@
         },
         {
           "name": "world",
-          "line": 593
+          "line": 596
         }
       ]
     },
@@ -14563,6 +14659,44 @@
         {
           "name": "recordCallEnd",
           "line": 78
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt",
+      "lines": 21,
+      "sha256": "c07804444509f2386d62b3f4c6ee1877740d0223a3003133a04f6afb048b1889",
+      "symbols": [
+        {
+          "name": "retryAt",
+          "line": 8
+        },
+        {
+          "name": "reviewAt",
+          "line": 10
+        },
+        {
+          "name": "available",
+          "line": 13
+        },
+        {
+          "name": "stale",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt",
+      "lines": 94,
+      "sha256": "5140d2a6a4e70036bc2ec080f675486bbd313a160be4ea6af3ffb812b0886682",
+      "symbols": [
+        {
+          "name": "validateUrl",
+          "line": 14
+        },
+        {
+          "name": "retrieve",
+          "line": 64
         }
       ]
     },
@@ -15595,8 +15729,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 80,
-      "sha256": "20e9814fbfe857e0a2dcef7d58445f4b46c5192a9b857366c186100d48480808",
+      "lines": 81,
+      "sha256": "37568e586f22f931ac8d96798a5d3aa4e144111e5cba482ab8456d15f79dee64",
       "symbols": []
     },
     {
@@ -15694,8 +15828,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1398,
-      "sha256": "5b78911088ffc5c27d6e1f952073075bf1983b421a9ae21fb3414f3be5a1fa7c",
+      "lines": 1401,
+      "sha256": "ab308110e7e170e70a6a6d381d05ae26b3c0493a2cca979106d3b0c18b985a8d",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -15719,7 +15853,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1342
+          "line": 1345
         }
       ]
     },
@@ -15984,8 +16118,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 583,
-      "sha256": "c2eac360da844a2c2a815ccac01d88ad906e5694024f14a180d11adefba4b008",
+      "lines": 586,
+      "sha256": "6a4c48ea9476e870ec179379a8b47581ae48d2d420159cc7374b2e0f82ef9074",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -16001,67 +16135,67 @@
         },
         {
           "name": "backfillChatHistory",
-          "line": 50
+          "line": 51
         },
         {
           "name": "recordConversationMessage",
-          "line": 58
+          "line": 59
         },
         {
           "name": "recordChatMessage",
-          "line": 97
+          "line": 98
         },
         {
           "name": "record",
-          "line": 128
+          "line": 129
         },
         {
           "name": "all",
-          "line": 246
+          "line": 248
         },
         {
           "name": "eventsByIds",
-          "line": 249
+          "line": 251
         },
         {
           "name": "deleteEvent",
-          "line": 287
+          "line": 289
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 321
+          "line": 324
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 328
+          "line": 331
         },
         {
           "name": "deleteConversationMessage",
-          "line": 343
+          "line": 346
         },
         {
           "name": "deleteConversationData",
-          "line": 354
+          "line": 357
         },
         {
           "name": "recentEvents",
-          "line": 374
-        },
-        {
-          "name": "recentContext",
           "line": 377
         },
         {
+          "name": "recentContext",
+          "line": 380
+        },
+        {
           "name": "remember",
-          "line": 393
+          "line": 396
         },
         {
           "name": "exportBackup",
-          "line": 464
+          "line": 467
         },
         {
           "name": "importBackup",
-          "line": 482
+          "line": 485
         }
       ]
     },
@@ -19327,6 +19461,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
+      "lines": 127,
+      "sha256": "e5083d903802736656a2cf2dc39fa6f8226bca6093c0b8f0bab5c73d0c2b061c",
+      "symbols": [
+        {
+          "name": "AutonomousLearningRuntimeTest",
+          "line": 19
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
       "lines": 70,
       "sha256": "c35306845d1c3e7ded029336eb7a5c495bd9c6755490801759c8daaaa981d843",
@@ -19862,6 +20007,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt",
+      "lines": 36,
+      "sha256": "3aec12d7ce311f7c7ed2078a1fa1ffbf59a9860a5c435e92993b466f0380516b",
+      "symbols": [
+        {
+          "name": "LearningCyclePolicyTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt",
       "lines": 31,
       "sha256": "aac53483a23cf07de1ec45615e817c446cf5ffb3fe6e69ddd3eda82d1cf2f078",
@@ -19929,8 +20085,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt",
-      "lines": 26,
-      "sha256": "34f16f46f7e32901e9cfcad3f47246fc80452abfb2faf575abfdf66c05611ba5",
+      "lines": 28,
+      "sha256": "ff6d64d412916f3200af6173ebab84003dbc9ec2b2a78ced36cbd31d9cb436b7",
       "symbols": [
         {
           "name": "release",

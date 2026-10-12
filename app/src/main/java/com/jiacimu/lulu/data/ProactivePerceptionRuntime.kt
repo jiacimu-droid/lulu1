@@ -467,6 +467,8 @@ object ProactivePerceptionRuntime {
                     appendLine("先理解可见细节如何改变自己的注意、情绪和愿望，再选行动。可以疑惑、期待、好奇她在做什么或想分享，但这些是自己的私人解释，不能断言用户尚未表达的心思；也不必每次强行反省或采取行动。")
                 }
                 appendLine(affordances)
+                appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                if (awakeReflection) appendLine("本轮在线观察证据ID=$awakeObservationId；仅证明本轮读取时间与获准设备状态，可作为私人学习兴趣的起因，不是材料已读或技能掌握。")
                 CharacterLifeFollowThroughStore.context(characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, 24))
@@ -625,7 +627,8 @@ object ProactivePerceptionRuntime {
         // if this model response said silent. A second look still may freely say no.
         val pendingChoices = (immediateChoices + rememberedChoices +
             CharacterLifeFollowThroughStore.pendingDecisionCues(characterId, now) +
-            CharacterCuriosityRuntime.pendingDecisionCues(characterId))
+            CharacterCuriosityRuntime.pendingDecisionCues(characterId) +
+            listOf(CharacterLearningAgenda.prompt(characterId, now)).filter(String::isNotBlank))
             .distinct().take(6)
         val ownActivityAlreadyExecutable = CharacterSelfActivityRuntime.parse(
             parsed.appraisal?.optJSONObject("ownActivity"), readingBooks.mapTo(hashSetOf()) { it.id }, digital,

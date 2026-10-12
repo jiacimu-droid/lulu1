@@ -6,7 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 
-/** Evidence-linked reading insights, NOT a second persona, or a claim of proven expertise. */
+/** Evidence-linked material insights, exercises and actual feedback. */
 internal object CharacterLearningLedger {
     private var prefs: SharedPreferences? = null
     private const val CAP = 80
@@ -29,7 +29,7 @@ internal object CharacterLearningLedger {
         val value = JSONArray()
         items.takeLast(CAP).forEach(value::put)
         check(prefs!!.edit().putString(characterId, value.toString()).commit()) {
-            "阅读学习记录未能保存"
+            "学习记录未能保存"
         }
     }
 
@@ -38,6 +38,16 @@ internal object CharacterLearningLedger {
             characterId, listOf(id, "$id:group:$characterId"),
         ).firstOrNull()
 
+    private fun materialSource(role: String, event: SharedTimelineEvent): Boolean {
+        if (event.source.startsWith("reading:")) return true // Existing authoritative reading compatibility.
+        if (!event.source.startsWith("learning-material:") ||
+            event.evidenceKind != EventEvidenceKind.Observation) return false
+        val payload = runCatching { JSONObject(event.content) }.getOrNull() ?: return false
+        val origin = source(role, payload.optString("originId")) ?: return false
+        return origin.revision == payload.optLong("originRevision", -1) &&
+            payload.optString("text").length >= 120 && payload.optString("url").startsWith("https://")
+    }
+
     private fun valid(
         characterId: String, item: JSONObject, all: List<JSONObject> = records(characterId),
         visited: Set<String> = emptySet(),
@@ -45,7 +55,7 @@ internal object CharacterLearningLedger {
         val id = item.optString("sourceEvidenceId")
         if (id.isBlank() || id in visited) return false
         val event = source(characterId, id) ?: return false
-        if (!event.source.startsWith("reading:") ||
+        if (!materialSource(characterId, event) ||
             event.revision != item.optLong("sourceRevision", -1L)) return false
         val previousId = item.optString("revisesEvidenceId")
         if (previousId.isBlank()) return true
@@ -58,6 +68,11 @@ internal object CharacterLearningLedger {
             valid(characterId, previous, all, visited + id)
     }
 
+    @Synchronized fun hasInsight(role: String, id: String): Boolean {
+        val all = records(role)
+        return all.any { it.optString("sourceEvidenceId") == id && valid(role, it, all) }
+    }
+
     /** Only an actual completed reading and committed timeline source may create insight. */
     @Synchronized fun recordReading(
         characterId: String, evidenceId: String, proposal: JSONObject?,
@@ -65,7 +80,7 @@ internal object CharacterLearningLedger {
     ): Boolean {
         if (prefs == null || proposal == null) return false
         val event = source(characterId, evidenceId)
-            ?.takeIf { it.source.startsWith("reading:") } ?: return false
+            ?.takeIf { materialSource(characterId, it) } ?: return false
         val topic = proposal.optString("topic").trim().take(90)
         val understanding = proposal.optString("understanding").trim().take(400)
         if (topic.length < 2 || understanding.length < 5) return false
@@ -82,6 +97,8 @@ internal object CharacterLearningLedger {
         }
         items.add(JSONObject()
             .put("sourceEvidenceId", event.id).put("sourceRevision", event.revision)
+            .put("originId", if (event.source.startsWith("learning-material:"))
+                runCatching { JSONObject(event.content).optString("originId") }.getOrDefault("") else "")
             .put("topic", topic).put("understanding", understanding)
             .put("uncertainty", proposal.optString("uncertainty").trim().take(220))
             .put("question", proposal.optString("question").trim().take(220))
@@ -90,6 +107,27 @@ internal object CharacterLearningLedger {
             .put("at", now.toString()).put("applications", JSONArray())
             .put("challenges", JSONArray()))
         save(characterId, items)
+        return true
+    }
+
+    /** Private drafts are exercises, never delivered actions or user endorsements. */
+    @Synchronized fun recordExercise(role: String, materialId: String, receiptId: String, kind: String): Boolean {
+        if (prefs == null || kind !in setOf("practice", "review")) return false
+        val event = source(role, receiptId)?.takeIf {
+            it.source.startsWith("learning-$kind:") && it.evidenceKind == EventEvidenceKind.CharacterStatement
+        } ?: return false
+        val payload = runCatching { JSONObject(event.content) }.getOrNull() ?: return false
+        if (payload.optString("sourceEvidenceId") != materialId || payload.optString("artifact").length < 5) return false
+        val items = records(role)
+        val idea = items.firstOrNull { it.optString("sourceEvidenceId") == materialId && valid(role, it, items) }
+            ?: return false
+        val exercises = idea.optJSONArray("exercises") ?: JSONArray()
+        if ((0 until exercises.length()).any { exercises.optJSONObject(it)?.optString("evidenceId") == receiptId }) return false
+        exercises.put(JSONObject().put("evidenceId", receiptId).put("revision", event.revision).put("kind", kind))
+        idea.put("exercises", JSONArray().apply {
+            for (i in maxOf(0, exercises.length() - 6) until exercises.length()) put(exercises.opt(i))
+        })
+        save(role, items)
         return true
     }
 
@@ -221,10 +259,21 @@ internal object CharacterLearningLedger {
                 val read = source(characterId, record.optString("sourceEvidenceId")) ?: return@forEach
                 if (read.occurredAt.isAfter(now)) return@forEach
                 add(CharacterGrowthTrace(read.occurredAt, "读后形成暂定理解",
-                    "阅读主题：" + record.optString("topic") + "；当时理解：" +
+                    "材料主题：" + record.optString("topic") + "；当时理解：" +
                         record.optString("understanding").take(180) +
                         "。尚未证明方法有效，也不是本人亲历小说情节。",
                     read.id, "学习"))
+                val exercises = record.optJSONArray("exercises") ?: JSONArray()
+                for (i in 0 until exercises.length()) {
+                    val exercise = exercises.optJSONObject(i) ?: continue
+                    val event = source(characterId, exercise.optString("evidenceId")) ?: continue
+                    if (event.revision != exercise.optLong("revision", -1) || event.occurredAt.isAfter(now)) continue
+                    val payload = runCatching { JSONObject(event.content) }.getOrNull() ?: continue
+                    add(CharacterGrowthTrace(event.occurredAt,
+                        if (exercise.optString("kind") == "review") "实际回看与复习" else "私人练习",
+                        payload.optString("artifact").take(240) + "；本人自评：" +
+                            payload.optString("selfAssessment").take(180) + "。没有用户评价，不算已验证。", event.id, "学习"))
+                }
                 val challenges = record.optJSONArray("challenges") ?: JSONArray()
                 for (i in 0 until challenges.length()) {
                     val item = challenges.optJSONObject(i) ?: continue
@@ -273,7 +322,8 @@ internal object CharacterLearningLedger {
             do {
                 val next = current.filterNot {
                     val id = it.optString("sourceEvidenceId")
-                    val invalid = id in removed || it.optString("revisesEvidenceId") in removed
+                    val invalid = id in removed || it.optString("revisesEvidenceId") in removed ||
+                        it.optString("originId") in removed
                     if (invalid) removed.add(id)
                     invalid
                 }
@@ -301,7 +351,14 @@ internal object CharacterLearningLedger {
                     val issue = challenges.optJSONObject(j) ?: continue
                     if (issue.optString("evidenceId") != eventId) keptChallenges.put(issue)
                 }
-                JSONObject(item.toString()).put("applications", next)
+                val exercises = item.optJSONArray("exercises") ?: JSONArray()
+                val keptExercises = JSONArray().apply {
+                    for (i in 0 until exercises.length()) {
+                        val exercise = exercises.optJSONObject(i) ?: continue
+                        if (exercise.optString("evidenceId") != eventId) put(exercise)
+                    }
+                }
+                JSONObject(item.toString()).put("applications", next).put("exercises", keptExercises)
                     .put("challenges", keptChallenges)
             }
             if (remaining.map(JSONObject::toString) != original.map(JSONObject::toString))
@@ -320,7 +377,7 @@ internal object CharacterLearningLedger {
         val text = query.lowercase().take(2500)
         fun score(item: JSONObject): Int {
             val topic = item.optString("topic").lowercase()
-            val chunks = (topic + item.optString("question").lowercase())
+            val chunks = (topic + item.optString("question").lowercase() + item.optString("applicableWhen").lowercase())
                 .windowed(2).distinct().take(70)
             return (if (topic.length > 2 && text.contains(topic)) 30 else 0) +
                 chunks.count(text::contains).coerceAtMost(12)
@@ -334,9 +391,24 @@ internal object CharacterLearningLedger {
             appendLine("【本人读过材料后形成的理解｜不代表材料必然正确或方法已验证】")
             selected.forEach { indexed ->
                 val item = indexed.value
-                appendLine("- 真实阅读证据=" + item.optString("sourceEvidenceId") +
+                appendLine("- 真实材料证据=" + item.optString("sourceEvidenceId") +
                     "；主题=" + item.optString("topic") +
                     "；当时理解=" + item.optString("understanding"))
+                val material = source(characterId, item.optString("sourceEvidenceId"))
+                if (material?.source?.startsWith("learning-material:") == true) {
+                    val payload = runCatching { JSONObject(material.content) }.getOrNull()
+                    appendLine("  实际来源=${payload?.optString("url")}；来源类型=${payload?.optString("kind")}；只读了节选")
+                }
+                val exercises = item.optJSONArray("exercises") ?: JSONArray()
+                val exercise = (0 until exercises.length()).mapNotNull(exercises::optJSONObject).lastOrNull {
+                    source(characterId, it.optString("evidenceId"))?.revision == it.optLong("revision", -1)
+                }
+                exercise?.let {
+                    val event = source(characterId, it.optString("evidenceId"))
+                    val payload = event?.let { e -> runCatching { JSONObject(e.content) }.getOrNull() }
+                    appendLine("  私人练习/复习证据=${event?.id}；本人练习稿=${payload?.optString("artifact")?.take(260)}；" +
+                        "自评=${payload?.optString("selfAssessment")?.take(160)}。不是已发给用户或用户好评")
+                }
                 val challenges = item.optJSONArray("challenges") ?: JSONArray()
                 val open = (0 until challenges.length()).mapNotNull(challenges::optJSONObject)
                     .filter { issue ->
@@ -357,6 +429,18 @@ internal object CharacterLearningLedger {
                     }
                 }
                 val used = item.optJSONArray("applications") ?: JSONArray()
+                val evaluated = (0 until used.length()).mapNotNull(used::optJSONObject).flatMap { attempt ->
+                    val action = source(characterId, attempt.optString("evidenceId"))
+                    if (action?.revision != attempt.optLong("revision", -1)) return@flatMap emptyList()
+                    val feedback = attempt.optJSONArray("feedback") ?: JSONArray()
+                    (0 until feedback.length()).mapNotNull(feedback::optJSONObject).filter { f ->
+                        source(characterId, f.optString("evidenceId"))?.revision == f.optLong("revision", -1)
+                    }
+                }.distinctBy { it.optString("evidenceId") }
+                val helped = evaluated.count { it.optString("evaluation") == "helped" }
+                val unhelpful = evaluated.count { it.optString("evaluation") == "unhelpful" }
+                if (evaluated.isNotEmpty()) appendLine("  真实不同反馈：认可=$helped，不适合=$unhelpful；" +
+                    "可以据情境保留或调整做法，负面和混合反馈不能被旧好评覆盖，不自动改变核心人格")
                 val last = (0 until used.length()).mapNotNull(used::optJSONObject).lastOrNull {
                     source(characterId, it.optString("evidenceId"))?.revision ==
                         it.optLong("revision", -1L)
