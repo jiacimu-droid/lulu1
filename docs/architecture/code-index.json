@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T12:25:25.328398+00:00",
-  "commit": "c1ed3fcf4a903627e48fbcf0de47acc238cfb3a5",
+  "generatedAt": "2026-10-12T13:38:00.179506+00:00",
+  "commit": "0bcf335027f04f3ae6dd75cf156ae50de8786ca4",
   "branch": "main",
-  "sourceFingerprint": "5c1217e17a79efabb26f3e10d6f649b0dd94f10801c2b2fc8fbc140715f72a5f",
+  "sourceFingerprint": "cde8d3cf8e485074bd36ebe19d99a218a2d7a36ef5b018ee787e5f3a666b29f6",
   "summary": {
     "files": 551,
-    "lines": 112553,
+    "lines": 112570,
     "symbols": 1684
   },
   "symbolIndex": {
@@ -9980,8 +9980,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt",
-      "lines": 657,
-      "sha256": "8bc0df50b3c97d771ce0e563e4577e6f30dc427a1431db48def20dc5e09fc6f7",
+      "lines": 670,
+      "sha256": "51a3b86b041a09e60d86b0574756e617a8fae4cd9aa20e88bc4476f629d2c9ee",
       "symbols": []
     },
     {
@@ -10043,8 +10043,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 725,
-      "sha256": "07203bd1f9c9f842b7df50d37c79df75691aebbe7d38e7dc5d188ed879255c0d",
+      "lines": 719,
+      "sha256": "c32f0eccf41a544db6e5693cdba90c88403d811bf8e274b0ca490a297e0cd6a4",
       "symbols": [
         {
           "name": "sceneLabel",
@@ -10143,8 +10143,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt",
-      "lines": 354,
-      "sha256": "9b62d708c1c86b92e99f8367c27998978a9b9baed0c877168fa0787450b72a17",
+      "lines": 364,
+      "sha256": "a7d1ce27a67692f29da2ade5a9bf31f85097569af99e5048bbc731113b64feb3",
       "symbols": []
     },
     {
