@@ -72,6 +72,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 val manualRoll = ArrayDeque<ByteArray>()
                 var previousRms = 0.0
                 var changingFrames = 0
+                var quietVoice = false
                 var active = false
                 var silentFrames = 0
                 var loudFrames = 0
@@ -79,7 +80,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                 // The mic's real noise floor can be higher than the user-configured
                 // threshold (headset hiss, fan, Android VOICE_COMMUNICATION AGC).
                 // Do not treat that steady level as somebody speaking forever.
-                var ambientRms = threshold.toDouble() * 0.40
+                var ambientRms = threshold.toDouble() * 0.20
                 var peakRms = 0.0
                 var rollingRms = 0.0
                 var rollingVariation = 0.0
@@ -140,7 +141,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         }
                         active = false; loudFrames = 0; silentFrames = 0; utteranceFrames = 0
                         rollingRms = 0.0; rollingVariation = 0.0; steadyFrames = 0; peakRms = 0.0
-                        previousRms = 0.0; changingFrames = 0
+                        previousRms = 0.0; changingFrames = 0; quietVoice = false
                         buffer.reset(); preRoll.clear(); manualRoll.clear()
                         continue
                     }
@@ -150,16 +151,22 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                         // While idle, learn the room's quiet background without
                         // letting an abrupt real voice raise the start threshold.
                         val startGate = PhoneMicSegmentPolicy.startThreshold(threshold, ambientRms)
-                        if (rms < startGate) ambientRms = ambientRms * 0.86 + rms * 0.14
+                        // Freeze the ambient baseline when speech first rises.
+                        // Otherwise a whispered syllable is immediately learned
+                        // as "background" and no utterance is ever sent to V2.
+                        if (rms < PhoneMicSegmentPolicy.softSpeechThreshold(threshold, ambientRms))
+                            ambientRms = ambientRms * 0.86 + rms * 0.14
                         val variation = abs(rms - previousRms)
-                        changingFrames = if (variation >= maxOf(12.0, ambientRms * 0.12)) changingFrames + 1
-                            else (changingFrames - 1).coerceAtLeast(0)
+                        changingFrames = if (variation >= maxOf(12.0, ambientRms * 0.12))
+                            (changingFrames + 2).coerceAtMost(6)
+                        else (changingFrames - 1).coerceAtLeast(0)
                         val softOnset = PhoneMicSegmentPolicy.softSpeechOnset(
-                            rms, previousRms, ambientRms, threshold, changingFrames)
+                            rms, ambientRms, threshold, changingFrames)
                         previousRms = rms
                         loudFrames = if (rms >= startGate || softOnset) loudFrames + 1 else 0
                         if (loudFrames < PhoneMicSegmentPolicy.onsetFrames(rms, startGate)) continue
                         active = true
+                        quietVoice = rms < startGate
                         utteranceFrames = 0
                         peakRms = rms
                         rollingRms = rms
@@ -179,7 +186,9 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                     peakRms = maxOf(rms, peakRms * 0.997)
                     // Comparing only against the static settings threshold makes
                     // elevated background noise look like unending speech.
-                    val quietGate = PhoneMicSegmentPolicy.quietThreshold(threshold, ambientRms, peakRms)
+                    val quietGate = if (quietVoice)
+                        PhoneMicSegmentPolicy.softVoiceQuietThreshold(ambientRms, peakRms)
+                    else PhoneMicSegmentPolicy.quietThreshold(threshold, ambientRms, peakRms)
                     silentFrames = if (rms < quietGate) silentFrames + 1 else 0
                     // A constant noise plateau (including gain-controlled mic
                     // noise) is also silence, even if its RMS sits above the
@@ -214,6 +223,7 @@ internal class CallAudioInput(private val scope: CoroutineScope) {
                             rollingVariation = 0.0
                             steadyFrames = 0
                             manualRoll.clear()
+                            quietVoice = false
                         }
                         // At max duration preserve VAD state; the next frame
                         // belongs to the same utterance, without a lost pre-roll.

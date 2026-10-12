@@ -28,11 +28,12 @@ class PhoneMicSegmentPolicyTest {
     @Test fun lowGainSpeechHasAnAdaptiveSecondaryGateAndMeterIsReal() {
         val soft = PhoneMicSegmentPolicy.softSpeechThreshold(195f, 30.0)
         assertTrue(soft < 195.0)
-        assertTrue(PhoneMicSegmentPolicy.softSpeechOnset(115.0, 90.0, 30.0, 195f, 3))
-        assertFalse(PhoneMicSegmentPolicy.softSpeechOnset(60.0, 57.0, 45.0, 195f, 3))
-        assertFalse(PhoneMicSegmentPolicy.softSpeechOnset(115.0, 90.0, 30.0, 195f, 1))
+        assertTrue(PhoneMicSegmentPolicy.softSpeechOnset(115.0, 30.0, 195f, 3))
+        assertFalse(PhoneMicSegmentPolicy.softSpeechOnset(60.0, 45.0, 195f, 3))
+        assertFalse(PhoneMicSegmentPolicy.softSpeechOnset(115.0, 30.0, 195f, 0))
         assertEquals(0f, PhoneMicSegmentPolicy.displayLevel(0.0))
         assertTrue(PhoneMicSegmentPolicy.displayLevel(650.0) > PhoneMicSegmentPolicy.displayLevel(120.0))
+        assertTrue(PhoneMicSegmentPolicy.softVoiceQuietThreshold(30.0, 115.0) < 80.0)
     }
 
     @Test fun aLongNaturalExplanationAllowsBreathingPauses() {

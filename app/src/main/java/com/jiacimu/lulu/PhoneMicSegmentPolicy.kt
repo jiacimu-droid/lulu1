@@ -27,13 +27,17 @@ internal object PhoneMicSegmentPolicy {
      * a minimum delta from ambient. It is not a transcript or a speaker ID.
      */
     fun softSpeechThreshold(configured: Float, ambientRms: Double): Double =
-        maxOf(55.0, minOf(configured * 0.82, ambientRms * 1.55 + 38.0))
+        maxOf(55.0, minOf(configured * 0.70, ambientRms * 1.30 + 20.0))
 
-    fun softSpeechOnset(rms: Double, previousRms: Double, ambientRms: Double,
+    fun softSpeechOnset(rms: Double, ambientRms: Double,
         threshold: Float, changingFrames: Int): Boolean =
         rms >= softSpeechThreshold(threshold, ambientRms) &&
-            rms >= ambientRms + 38.0 && changingFrames >= 2 &&
-            kotlin.math.abs(rms - previousRms) >= 0.0
+            rms >= ambientRms + 24.0 && changingFrames >= 1
+
+    /** Once a very quiet voice is acquired, the high fixed threshold must not
+     * be reused to treat every one of its syllables as silence. */
+    fun softVoiceQuietThreshold(ambientRms: Double, peakRms: Double): Double =
+        maxOf(26.0, ambientRms * 1.32, peakRms * 0.40)
 
     /** A logarithmic *real PCM* level used only for the visible mic meter. */
     fun displayLevel(rms: Double): Float = if (rms < 12.0) 0f else
