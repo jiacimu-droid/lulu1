@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`80056a055fe236561f2f20f3b0c3826d5e0c659e`
+- 基准提交：`97118d78107b21981097bf172d686a08f2a78704`
 - 分支：`main`
 - 已索引文件：537
-- 已索引代码/文本行：110832
+- 已索引代码/文本行：110857
 - 已发现符号：1663
 
 | 文件 | 行数 | 符号数 |
@@ -161,7 +161,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 216 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 134 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 72 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 77 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 350 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 112 | 5 |
@@ -174,7 +174,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 101 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 200 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1272 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 390 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 392 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 250 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 672 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 156 | 2 |
@@ -478,7 +478,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 41 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityEvidenceTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCuriosityRuntimeTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt` | 135 | 1 |

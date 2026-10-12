@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T05:16:24.137846+00:00",
-  "commit": "80056a055fe236561f2f20f3b0c3826d5e0c659e",
+  "generatedAt": "2026-10-12T05:18:06.061325+00:00",
+  "commit": "97118d78107b21981097bf172d686a08f2a78704",
   "branch": "main",
-  "sourceFingerprint": "54dda48991250857fb5374cc1e1850188e0aae1073d57637ae57a7f4eca7dc21",
+  "sourceFingerprint": "6e1aac87e7c8262f67455a02325beffff96df5186c201204d5d6eedc8ea51c20",
   "summary": {
     "files": 537,
-    "lines": 110832,
+    "lines": 110857,
     "symbols": 1663
   },
   "symbolIndex": {
@@ -2177,7 +2177,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 320
+        "line": 322
       }
     ],
     "wordsToSubmitOnMute": [
@@ -12008,8 +12008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt",
-      "lines": 72,
-      "sha256": "655b80007660f06b1fe1d45f48d5a7ac95dd1075c971134403bc28de54d7e6e8",
+      "lines": 77,
+      "sha256": "1bf58f408c74715d7a1d055e3d7b22e7a9965fd0b012a11a58be3fa7f5993bec",
       "symbols": [
         {
           "name": "rememberInquiry",
@@ -12327,12 +12327,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 390,
-      "sha256": "e806c8665a33bf383f05fec44953c7cbd4b4b3caf7378b9c6360c508d6fb7530",
+      "lines": 392,
+      "sha256": "64f3a0b977b90c6880e88352a2fa197964da84c36f5fad95e1f12cc34a618bf8",
       "symbols": [
         {
           "name": "score",
-          "line": 320
+          "line": 322
         }
       ]
     },
@@ -18832,8 +18832,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterConversationAgencyTest.kt",
-      "lines": 41,
-      "sha256": "09e924e0ea935e3352307b4a5766ff1e2ff0c91f922533bd139634fc8021a3b0",
+      "lines": 59,
+      "sha256": "f3d90d9b23a5dc52f6f4b747d670c11cffce0fa95e407b5c80b606a07711c006",
       "symbols": [
         {
           "name": "CharacterConversationAgencyTest",
