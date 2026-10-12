@@ -388,6 +388,10 @@ private fun DrawScope.drawDigitalProp(prop: DigitalRoomProp, lightPhase: Float) 
         DigitalFurnitureKind.CUSHION -> { drawSoftCushion(b, color); return }
         DigitalFurnitureKind.BASKET -> { drawBasket(b); return }
         DigitalFurnitureKind.DECOR -> { drawDecor(b, color); return }
+        DigitalFurnitureKind.SHELF, DigitalFurnitureKind.CABINET -> {
+            drawDigitalUprightFurniture(b, color, kind == DigitalFurnitureKind.SHELF, pattern)
+            return
+        }
         else -> Unit
     }
 
