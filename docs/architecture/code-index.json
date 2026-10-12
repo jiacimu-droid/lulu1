@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T17:48:16.957752+00:00",
-  "commit": "ff6dbd8897cec66c06fe0c89d181312dfe4b28c4",
+  "generatedAt": "2026-10-12T17:49:11.822974+00:00",
+  "commit": "cf2c8a42b110ade5669c78f8969685f5a5f4f7c3",
   "branch": "main",
-  "sourceFingerprint": "cbe225edc9e3f5d4e551265c1c5a49d615e61c42bc2d73cacf6fc796dd331d00",
+  "sourceFingerprint": "b04eb339dfaf740e23e3bcff951e3580290f992ae4b7590d0b083a263e338767",
   "summary": {
     "files": 580,
-    "lines": 115753,
+    "lines": 115767,
     "symbols": 1748
   },
   "symbolIndex": {
@@ -3655,7 +3655,7 @@
     "goals": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-        "line": 125
+        "line": 126
       }
     ],
     "matchingActionFeedback": [
@@ -12381,8 +12381,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt",
-      "lines": 213,
-      "sha256": "4c97d8f53249ed44d0b4403aaeb002cc39d609456df36c1cb777591cd581c179",
+      "lines": 217,
+      "sha256": "08b2267b43b24a90eb2aa2010739674e5a8cc79a7bd19d9f820f3dd65aac5fd7",
       "symbols": [
         {
           "name": "capabilityContext",
@@ -12924,8 +12924,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-      "lines": 158,
-      "sha256": "b529771aab6db16c67120439048186e9bcda1075c441ac733e3a3fd57cb6ce13",
+      "lines": 168,
+      "sha256": "ce15f38b4426337375886b4d986c3076f78484d4a9beb8af243d2c3429a6ea62",
       "symbols": [
         {
           "name": "failed",
@@ -12937,7 +12937,7 @@
         },
         {
           "name": "goals",
-          "line": 125
+          "line": 126
         }
       ]
     },
@@ -15860,7 +15860,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 81,
-      "sha256": "37568e586f22f931ac8d96798a5d3aa4e144111e5cba482ab8456d15f79dee64",
+      "sha256": "7024d7ddacf4560389afb9a1d0aab46391d0ef73a8212825b4e6b337255f1538",
       "symbols": []
     },
     {
