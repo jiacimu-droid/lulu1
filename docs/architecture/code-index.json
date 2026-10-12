@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T08:22:40.181802+00:00",
-  "commit": "72eb28cfedb9c7f3784d9d8554b09b12e89c7505",
+  "generatedAt": "2026-10-12T08:55:10.830451+00:00",
+  "commit": "b5d78076a17595d22bde2a3e8ff5356ec0f372d2",
   "branch": "main",
-  "sourceFingerprint": "0ddd43ed08dc7c8dd2af96738d6705685c189015b7ad02f8fe018a1ced5f9e03",
+  "sourceFingerprint": "6a3a585df2baa7aeb1bdac41c6403f10172009705d7af37ce072730f17a387da",
   "summary": {
-    "files": 544,
-    "lines": 111848,
-    "symbols": 1675
+    "files": 546,
+    "lines": 111981,
+    "symbols": 1680
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1149,19 +1149,19 @@
     "observeAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
-        "line": 17
+        "line": 21
       }
     ],
     "observePhysicalInteraction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
-        "line": 30
+        "line": 34
       }
     ],
     "observe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
-        "line": 51
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -1170,6 +1170,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
         "line": 46
+      }
+    ],
+    "locationArrival": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
+        "line": 91
       }
     ],
     "websocket": [
@@ -2364,10 +2370,16 @@
         "line": 25
       }
     ],
+    "meetingPlayable": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 39
+      }
+    ],
     "chatAutomaticAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
-        "line": 35
+        "line": 49
       }
     ],
     "recent": [
@@ -4692,6 +4704,12 @@
         "line": 235
       }
     ],
+    "recipients": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudience.kt",
+        "line": 5
+      }
+    ],
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -6206,94 +6224,100 @@
         "line": 80
       }
     ],
-    "scheduleSoon": [
+    "scheduleWorldArrival": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
         "line": 114
       }
     ],
+    "scheduleSoon": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 131
+      }
+    ],
     "scheduleConcernPromise": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 117
+        "line": 134
       }
     ],
     "scheduleManual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 121
+        "line": 138
       }
     ],
     "scheduleOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 129
+        "line": 146
       }
     ],
     "scheduleOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 164
+        "line": 181
       }
     ],
     "scheduleEmotionalAftercare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 188
+        "line": 205
       }
     ],
     "scheduleLifeFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 216
+        "line": 233
       }
     ],
     "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 242
+        "line": 259
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 268
+        "line": 285
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 295
+        "line": 312
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 323
+        "line": 340
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 341
+        "line": 358
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 349
+        "line": 366
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 449
+        "line": 466
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 456
+        "line": 473
       }
     ],
     "PromptContextBudget": [
@@ -9150,6 +9174,12 @@
         "line": 12
       }
     ],
+    "DigitalWorldArrivalAudienceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt",
+        "line": 5
+      }
+    ],
     "DigitalWorldBulletinTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldBulletinTest.kt",
@@ -9983,8 +10013,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 638,
-      "sha256": "530c7c5ed67728be3e6721c8582970da692b4d1d809ef22239d1853140fcbd9b",
+      "lines": 654,
+      "sha256": "327b4cfb4614ee1a63cffb7e758e5ce889d5b3af5ed789306816717a5fd05d8d",
       "symbols": [
         {
           "name": "sceneLabel",
@@ -10033,8 +10063,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 377,
-      "sha256": "9c52bdaa1a2215c1f72b3f35fe98a5bde4e9a53bc8e5106d1afc15c2acaa85e6",
+      "lines": 378,
+      "sha256": "ee598762ef0ca47f902541a4afdc492dc6885a2cd04dd7d7676261d4287b0318",
       "symbols": [
         {
           "name": "ledgerText",
@@ -10077,8 +10107,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
-      "lines": 185,
-      "sha256": "3a7e713568c100d983aa269736892985e425ba55b8c1ef17d882114e52d278c9",
+      "lines": 190,
+      "sha256": "6c38a249555429f8969cbbd6b3a6305a6e60a06103c798f39c41daf58c892664",
       "symbols": []
     },
     {
@@ -10098,20 +10128,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
-      "lines": 89,
-      "sha256": "432b4581092e0f38804699f8f6e513f21c422fa8b0982a22afa3118ad06c5562",
+      "lines": 135,
+      "sha256": "7c84a3710809a49c3098a3f0a6f39e26782ff753dc7bb7e94209619acace597d",
       "symbols": [
         {
           "name": "observeAction",
-          "line": 17
+          "line": 21
         },
         {
           "name": "observePhysicalInteraction",
-          "line": 30
+          "line": 34
         },
         {
           "name": "observe",
-          "line": 51
+          "line": 55
+        },
+        {
+          "name": "locationArrival",
+          "line": 91
         }
       ]
     },
@@ -10643,7 +10677,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt",
       "lines": 198,
-      "sha256": "96c2a67b5f579bcad1dc04a0c872ab2c8d7dfcfd60e631ba0b7d24ba5b9ae5dd",
+      "sha256": "3989d9c97859529adb5790b02d4baab846b9e120ccb6d1f3f7054808e6e768f8",
       "symbols": [
         {
           "name": "MeetingVoicePace",
@@ -11482,8 +11516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
-      "lines": 39,
-      "sha256": "672e5d4073bb1cddc7c9ff18c069b8019e76a822381526926aa9d184d340dbe4",
+      "lines": 53,
+      "sha256": "a7bc2a055c522238e82c5fcb5f682844c1ab023472fabf41de749db0b4dba2b0",
       "symbols": [
         {
           "name": "enabled",
@@ -11498,8 +11532,12 @@
           "line": 25
         },
         {
+          "name": "meetingPlayable",
+          "line": 39
+        },
+        {
           "name": "chatAutomaticAllowed",
-          "line": 35
+          "line": 49
         }
       ]
     },
@@ -13710,6 +13748,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudience.kt",
+      "lines": 14,
+      "sha256": "d1003efb1be1301d3efc7eaf0c392d7df5586d56c17999c41a15f7ba2facad2b",
+      "symbols": [
+        {
+          "name": "recipients",
+          "line": 5
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
       "lines": 71,
       "sha256": "8abb44f25f80b3c11711aef4a263f98589d0f3412489ed79a0eb1d29b8744f9c",
@@ -15316,8 +15365,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 500,
-      "sha256": "b1d97b1b415092ed8b1aebf183470dcdc6d06322d5282ed56c3005b803a3a39e",
+      "lines": 517,
+      "sha256": "c95904573e0d397503dcba6a20339acc635f404c741654df0bf3a0058b48ac94",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -15332,64 +15381,68 @@
           "line": 80
         },
         {
-          "name": "scheduleSoon",
+          "name": "scheduleWorldArrival",
           "line": 114
         },
         {
+          "name": "scheduleSoon",
+          "line": 131
+        },
+        {
           "name": "scheduleConcernPromise",
-          "line": 117
+          "line": 134
         },
         {
           "name": "scheduleManual",
-          "line": 121
+          "line": 138
         },
         {
           "name": "scheduleOnline",
-          "line": 129
+          "line": 146
         },
         {
           "name": "scheduleOnlineReflection",
-          "line": 164
+          "line": 181
         },
         {
           "name": "scheduleEmotionalAftercare",
-          "line": 188
+          "line": 205
         },
         {
           "name": "scheduleLifeFollowThrough",
-          "line": 216
+          "line": 233
         },
         {
           "name": "scheduleOwnIdeaFollowThrough",
-          "line": 242
+          "line": 259
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 268
+          "line": 285
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 295
+          "line": 312
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 323
+          "line": 340
         },
         {
           "name": "cancelOnline",
-          "line": 341
+          "line": 358
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 349
+          "line": 366
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 449
+          "line": 466
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 456
+          "line": 473
         }
       ]
     },
@@ -19318,6 +19371,17 @@
         {
           "name": "DialogueMoveEngineTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldArrivalAudienceTest.kt",
+      "lines": 20,
+      "sha256": "39760456d92bab0f75e7ffcb32481a7f6a46639284a332ff950cd3bfe302750a",
+      "symbols": [
+        {
+          "name": "DigitalWorldArrivalAudienceTest",
+          "line": 5
         }
       ]
     },
