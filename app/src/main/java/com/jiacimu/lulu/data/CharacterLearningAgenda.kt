@@ -117,6 +117,7 @@ internal object CharacterLearningAgenda {
             val due = instant(g, "reviewAt")?.let { !it.isAfter(now) } == true
             "- goalId=${g.optString("id")}；${g.optString("topic")}：${g.optString("question")}；" +
                 "阶段=${g.optString("status")}；材料证据=${g.optString("materialId")}；" +
+                "同一课题真实材料数=${g.optJSONArray("sourceIds")?.length() ?: 0}；" +
                 (if (due) "可自选复习；" else "") +
                 "下一步=${g.optString("nextStep").take(150)}；" +
                 g.optString("error").take(100) + "；可继续/练习/暂停/放下，不必向用户交日报"
@@ -130,6 +131,15 @@ internal object CharacterLearningAgenda {
             val all = items(role)
             val before = all.map(JSONObject::toString)
             val retained = all.filterNot { it.optString("originId") == id }.map { goal ->
+                val sources = goal.optJSONArray("sourceIds")
+                if (sources != null) {
+                    val retainedSources = org.json.JSONArray()
+                    for (index in 0 until sources.length()) {
+                        val sourceId = sources.optString(index)
+                        if (sourceId.isNotBlank() && sourceId != id) retainedSources.put(sourceId)
+                    }
+                    goal.put("sourceIds", retainedSources)
+                }
                 if (goal.optString("materialId") == id) {
                     goal.remove("materialId"); goal.remove("reviewAt")
                     goal.remove("materialRevision")

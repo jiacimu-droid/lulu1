@@ -112,6 +112,10 @@ internal object AutonomousLearningRuntime {
                     ?: error("材料未能写入时间线")
                 CharacterLearningAgenda.update(role, id) {
                     it.put("materialId", evidence).put("materialRevision", stored.revision)
+                    val old = it.optJSONArray("sourceIds") ?: org.json.JSONArray()
+                    val ids = (0 until old.length()).mapNotNull(old::optString)
+                        .filter(String::isNotBlank).filter { sourceId -> sourceId != evidence } + evidence
+                    it.put("sourceIds", org.json.JSONArray().apply { ids.takeLast(8).forEach(::put) })
                 }
                 stored
             } else {
