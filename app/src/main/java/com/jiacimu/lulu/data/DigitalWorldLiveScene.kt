@@ -119,11 +119,29 @@ internal object DigitalWorldLiveScene {
                                    accept: Boolean): String? {
         val pending = offer(characterId)?.takeIf { it.id == offerId } ?: return null
         check(prefs?.edit()?.remove("offer:$characterId")?.commit() == true)
+        if (accept && pending.action == "offer_hug") {
+            val accepted = JSONObject().put("characterId", characterId)
+                .put("locationLabel", witnessed(characterId)?.label.orEmpty())
+                .put("at", System.currentTimeMillis()).put("id", pending.id)
+            check(prefs?.edit()?.putString("accepted-hug:$characterId",
+                accepted.toString())?.commit() == true)
+        }
         val response = if (accept) "用户明确接受了角色的${offerLabel(pending.action)}邀请。"
             else "用户拒绝或暂不接受角色的${offerLabel(pending.action)}邀请，没有接触。"
         receipt(characterId, "$offerId-response", response)
         return response
     }
+    /** One-shot, consent-backed transition to autonomous meeting narration. */
+    @Synchronized fun consumeAcceptedHug(characterId: String, locationLabel: String): Boolean {
+        val key = "accepted-hug:$characterId"
+        val saved = prefs?.getString(key, null) ?: return false
+        prefs?.edit()?.remove(key)?.commit()
+        val accepted = runCatching { JSONObject(saved) }.getOrNull() ?: return false
+        return System.currentTimeMillis() - accepted.optLong("at") in 0L..30_000L &&
+            accepted.optString("characterId") == characterId &&
+            accepted.optString("locationLabel") == locationLabel
+    }
+
     private fun cancel(characterId: String, reason: String) {
         val raw = prefs?.getString(characterId, null) ?: return
         val id = runCatching { JSONObject(raw).optString("id") }.getOrDefault("")
