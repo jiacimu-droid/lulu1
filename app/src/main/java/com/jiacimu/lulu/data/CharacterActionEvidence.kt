@@ -28,7 +28,8 @@ internal object CharacterActionEvidence {
             "journal", "write_journal" -> e.evidenceKind == EventEvidenceKind.CharacterStatement && e.source == "journal:own"
             "reading", "read_book" -> tool == "read_book" ||
                 (e.source.startsWith("reading:") &&
-                    e.evidenceKind in setOf(EventEvidenceKind.Observation, EventEvidenceKind.ToolResult))
+                    e.evidenceKind in setOf(EventEvidenceKind.Observation, EventEvidenceKind.ToolResult,
+                        EventEvidenceKind.Legacy))
             "solo_game", "play_solo_game" -> tool == "play_solo_game" ||
                 (e.channel.startsWith("独自游戏") && e.evidenceKind == EventEvidenceKind.Observation)
             "digital_world", "digital_world_action" -> tool == "digital_world_action" ||

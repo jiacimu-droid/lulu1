@@ -475,6 +475,7 @@ internal object CompanionActionRuntime {
             content = timelineContent,
             occurredAt = now,
             source = "reading:${slice.book.id}",
+            evidenceKind = EventEvidenceKind.Observation,
             sessionId = record.id,
         )
         // This is a lived reading RECEIPT, unlike thinking about a book.

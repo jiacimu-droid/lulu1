@@ -49,6 +49,19 @@ class CharacterCuriosityRuntimeTest {
         CharacterCuriosityRuntime.clear(id)
     }
 
+    @Test fun pastLegacyReadingStillCountsAsActuallyReadWithoutDataLoss() {
+        begin()
+        SharedExperienceTimeline.record("legacy-read", id, "独自阅读《旧书》", "角色",
+            "历史上确实已经完成阅读的正文区间", at, triggerExtraction = false,
+            source = "reading:old-book", evidenceKind = EventEvidenceKind.Legacy)
+        CharacterCuriosityRuntime.recordInquiry(id, proposal(), "legacy-read",
+            "旧版阅读保存的实际记录", at)
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(id).getJSONArray("questions").length())
+        CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,
+            "已阅读下一段", "legacy-read", at)
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(id).getJSONArray("threads").length())
+    }
+
     @Test fun observationOrInventedIdDoesNotCompleteExploration() {
         begin()
         CharacterCuriosityRuntime.recordOutcome(id, proposal(), "reading", true,

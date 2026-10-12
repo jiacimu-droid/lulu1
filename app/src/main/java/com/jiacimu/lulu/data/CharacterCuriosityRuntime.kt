@@ -55,7 +55,9 @@ internal object CharacterCuriosityRuntime {
             observedText.isBlank()) return
         val observed = SharedExperienceTimeline.eventsByIds(characterId, listOf(observedId)).firstOrNull() ?: return
         if (observed.evidenceKind !in setOf(EventEvidenceKind.UserStatement,
-                EventEvidenceKind.Observation, EventEvidenceKind.ToolResult)) return
+                EventEvidenceKind.Observation, EventEvidenceKind.ToolResult) &&
+            !(observed.evidenceKind == EventEvidenceKind.Legacy &&
+                observed.source.startsWith("reading:"))) return
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
         val progress = root.optJSONArray("threads") ?: JSONArray()
