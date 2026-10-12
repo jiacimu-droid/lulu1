@@ -118,6 +118,22 @@ internal fun DigitalWorldMapLobby(
 
     val activeSceneCode = openSceneCode
     val activeSceneLabel = activeSceneCode?.let(::sceneLabel)
+    val sceneResidents = activeSceneCode?.let { scene ->
+        characters.filter { world.characterLocations[it.characterId] == scene }
+            .map { it.characterId }
+    }.orEmpty()
+    DisposableEffect(activeSceneCode) {
+        val code = activeSceneCode
+        if (code != null && !code.startsWith("preview:")) {
+            val label = sceneLabel(code)
+            DigitalWorldVisitorAwareness.locationArrival(context, code, label,
+                sceneResidents, entering = true)
+            onDispose {
+                DigitalWorldVisitorAwareness.locationArrival(context, code, label,
+                    sceneResidents, entering = false)
+            }
+        } else onDispose { }
+    }
     val activeHomeId = activeSceneCode
         ?.takeIf { it.startsWith("home:") }
         ?.removePrefix("home:")

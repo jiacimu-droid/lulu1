@@ -9,6 +9,10 @@ import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.DigitalWorldArrivalAudience
+import com.jiacimu.lulu.data.DigitalLifeProfileStore
+import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
+import com.jiacimu.lulu.data.LuluConversation
 import java.time.Instant
 import java.util.UUID
 
@@ -75,6 +79,48 @@ internal object DigitalWorldVisitorAwareness {
                 source = "数字世界·到访感知",
                 now = seenAt,
             )
+        }
+    }
+
+
+    /**
+     * Arrival notifications are delivered to established contacts in public spaces.
+     * Private homes deliver only to the home's owner, even when the owner is away.
+     * Remote contacts learn about the arrival as a notification, NOT as an eyewitness.
+     */
+    fun locationArrival(context: Context, sceneCode: String, sceneLabel: String,
+        localResidents: List<String>, entering: Boolean, includeLocals: Boolean = true) {
+        if (sceneCode.startsWith("preview:")) return
+        val localIds = localResidents.filter(String::isNotBlank).toSet()
+        val linkedIds = MigratedDomainStores.chat.conversations.value.asSequence()
+            .filter { it.groupChat == null && it.parentConversationId == null }
+            .map(LuluConversation::characterId)
+            .filter { DigitalLifeProfileStore.isEnabled(it) }
+            .toSet()
+        val owner = sceneCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
+        val recipients = DigitalWorldArrivalAudience.recipients(sceneCode, linkedIds,
+            owner, localIds)
+        val now = Instant.now()
+        recipients.filter { includeLocals || it !in localIds }.forEach { id ->
+            val isLocal = id in localIds
+            val text = when {
+                !entering && isLocal -> "${UserProfileContext.displayLabel()}刚离开了你所在的${sceneLabel}；你能注意到离场。"
+                !entering -> "地点到访通知：${UserProfileContext.displayLabel()}离开了${sceneLabel}；这不表示你当时在场或亲眼看见。"
+                isLocal -> "${UserProfileContext.displayLabel()}来到${sceneLabel}，你们现在同在现场，可以实际看见彼此。"
+                owner != null -> "家园到访通知：${UserProfileContext.displayLabel()}来到你自己的家“${sceneLabel}”；只通知房主，不能据此假定你已在家里看见对方。"
+                else -> "公共地点到访通知：与你建立过联系的${UserProfileContext.displayLabel()}来到${sceneLabel}；这是通知，不代表你在场或已看见。"
+            }
+            val evidenceId = "world-arrival-${UUID.randomUUID()}-$id"
+            SharedExperienceTimeline.record(eventId = evidenceId, characterId = id,
+                channel = "数字世界·到访通知", speaker = "地图事件",
+                content = text, occurredAt = now, source = "digital-world-arrival",
+                evidenceKind = EventEvidenceKind.Observation, triggerExtraction = true)
+            CompanionPresenceStore.recordPerceptionAttempt(id, "地图通知 · ${if (entering) "到访" else "离场"} · $sceneLabel", now)
+            if (CompanionOnlineStore.isOnline(id)) {
+                queueReaction(context, id)
+            } else if (entering && ProactivePerceptionPolicyStore.get(id).enabled) {
+                ProactivePerceptionScheduler.scheduleWorldArrival(context, id, evidenceId)
+            }
         }
     }
 

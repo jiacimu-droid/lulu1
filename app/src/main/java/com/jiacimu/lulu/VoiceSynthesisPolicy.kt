@@ -31,6 +31,20 @@ internal object VoiceSynthesisPolicy {
         return manager == null || manager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) > 0
     }
 
+    /**
+     * Meeting has its own explicit voice switch. Turning off automatic CHAT reading
+     * must not silently disable a voice-enabled story page. The main TTS switch
+     * and actual device audio volume still apply.
+     */
+    fun meetingPlayable(context: Context): Boolean {
+        if (!enabled(context)) return false
+        val prefs = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
+        if (prefs.getString("tts_provider", "system") !in setOf("elevenlabs", "minimax"))
+            return true
+        val audio = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
+        return audio == null || audio.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) > 0
+    }
+
     /** The global switch and individual role switch must both permit an audible automatic voice. */
     fun chatAutomaticAllowed(context: Context, characterId: String): Boolean =
         automaticPlayable(context) &&

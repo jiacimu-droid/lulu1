@@ -52,8 +52,13 @@ internal fun DigitalWorldScenePage(
         observedResidents.addAll(current)
     }
     DisposableEffect(sceneCode, sceneLabel) {
+        DigitalWorldVisitorAwareness.locationArrival(context, sceneCode, sceneLabel,
+            visibleResidents, entering = true, includeLocals = false)
         onDispose {
-            DigitalWorldVisitorAwareness.observe(context, sceneLabel, observedResidents.toList(), entering = false)
+            DigitalWorldVisitorAwareness.locationArrival(context, sceneCode, sceneLabel,
+                observedResidents.toList(), entering = false, includeLocals = false)
+            DigitalWorldVisitorAwareness.observe(context, sceneLabel,
+                observedResidents.toList(), entering = false)
         }
     }
     var rememberedAction by remember(sceneCode) { mutableStateOf("") }

@@ -110,6 +110,23 @@ object ProactivePerceptionScheduler {
         }
     }
 
+    /** One location arrival -> one targeted assessment, without requiring prior online status. */
+    fun scheduleWorldArrival(context: Context, characterId: String, evidenceId: String) {
+        if (characterId.isBlank() || evidenceId.isBlank()) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(3_000L, TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", "数字世界真实地图到访通知：可自主选择回应、前往、继续活动或安静")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putString("interactionEvidenceId", evidenceId)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-arrival-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
+    }
+
     /** Legacy API kept only so old code can compile; it never creates an event-triggered model run. */
     fun scheduleSoon(context: Context, trigger: String) {
         scheduleNextDue(context.applicationContext)
