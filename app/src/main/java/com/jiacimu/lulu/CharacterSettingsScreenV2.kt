@@ -171,7 +171,22 @@ fun CharacterSettingsScreenV2(
                     }
                 }
             }
-            if (section == 1) item { CharacterV2Card { CharacterLifeSettings(characterId) } }
+            if (section == 1) item {
+                CharacterV2Card {
+                    Text("人格与表达", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    OutlinedTextField(
+                        value = persona,
+                        onValueChange = { persona = it; persistDefinition() },
+                        label = { Text("人物核心简介") },
+                        placeholder = { Text("用一小段概括人物定位与最重要的长期特征。价值、判断、关系方式和语言习惯请到「人格」页面分别填写，避免重复。") },
+                        minLines = 4,
+                        maxLines = 10,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+
+                    CharacterLifeSettings(characterId)
+                }
+            }
             if (section == 0) {
             item {
                 CharacterV2Card {
@@ -196,15 +211,6 @@ fun CharacterSettingsScreenV2(
                         placeholder = { Text("这个角色是谁：身份、职业、时代、阵营、出身与明确背景事实。不要写说话习惯、当前心情或临时目标。") },
                         minLines = 3,
                         maxLines = 8,
-                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                    )
-                    OutlinedTextField(
-                        value = persona,
-                        onValueChange = { persona = it; persistDefinition() },
-                        label = { Text("人物核心简介") },
-                        placeholder = { Text("用一小段概括人物定位与最重要的长期特征。价值、判断、关系方式和语言习惯请到「人格」页面分别填写，避免重复。") },
-                        minLines = 4,
-                        maxLines = 10,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
                 }
