@@ -23,6 +23,16 @@ class DevelopmentPolicyTest {
     @Test fun counterEvidenceBlocksConflictingChange() {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Judgment, 6, true, 1))
     }
+    @Test fun interestCanEmergeAfterTwoIndependentExposuresWithoutBecomingPermanent() {
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 1, false, 0))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 2, false, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Interest, 2, false, 1))
+        assertEquals(DevelopmentMaturity.Emerging,
+            DevelopmentPolicy.maturity(DevelopmentKind.Interest, 2))
+        assertEquals(DevelopmentMaturity.Established,
+            DevelopmentPolicy.maturity(DevelopmentKind.Interest, 5))
+    }
+
     @Test fun verifiedMethodCannotComeFromOneSuccessfulResult() {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 1, true, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 3, false, 0))
