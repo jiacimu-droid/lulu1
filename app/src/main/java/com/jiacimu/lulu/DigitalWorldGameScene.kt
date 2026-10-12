@@ -48,6 +48,7 @@ import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.DigitalFurnitureKind
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.DigitalWorldActivityCatalog
+import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
 import com.jiacimu.lulu.data.DigitalWorldState
 import com.jiacimu.lulu.data.DigitalWorldStore

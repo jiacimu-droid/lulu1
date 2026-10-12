@@ -586,7 +586,7 @@ private fun MapPlaceCard(
             Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            WorldMapIllustration(sceneCode, Modifier.fillMaxWidth().height(77.dp))
+            WorldMapIllustration(sceneCode, Modifier.fillMaxWidth().height(60.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = RoundedCornerShape(13.dp),
