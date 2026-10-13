@@ -40,6 +40,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var browser by remember { mutableStateOf<WebView?>(null) }
     var status by remember { mutableStateOf("准备打开小红书网页…") }
+    var progress by remember { mutableIntStateOf(0) }
+    var resourceFailures by remember { mutableIntStateOf(0) }
     var desktopMode by remember { mutableStateOf(false) }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
@@ -67,44 +69,59 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxSize().padding(padding),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
+            // Keep the browser viewport as tall as possible on a phone.
             Text(
-                "这是网页兼容性测试，不会把网页、Cookie 或账号信息交给角色。"
-                    + " 这里的登录状态目前不会同步给 Termux MCP。",
-                style = MaterialTheme.typography.bodySmall,
+                "仅验证网页显示；Cookie 不共享给角色或 Termux。",
+                modifier = Modifier.padding(horizontal = 12.dp),
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                OutlinedButton(onClick = { browser?.loadUrl(XHS_PROBE_URL) }) { Text("小红书") }
-                OutlinedButton(onClick = {
+                TextButton(onClick = { browser?.loadUrl(XHS_PROBE_URL) }) { Text("小红书") }
+                TextButton(onClick = {
                     desktopMode = !desktopMode
                     browser?.let { view ->
                         view.settings.userAgentString = if (desktopMode) desktopAgent else mobileAgent
                         view.settings.useWideViewPort = desktopMode
                         view.settings.loadWithOverviewMode = desktopMode
-                        status = if (desktopMode) "正在测试桌面网页版（不保证网站提供完整功能）…" else "正在恢复手机版网页…"
+                        view.setInitialScale(0)
+                        status = if (desktopMode) "切换桌面网页版中…" else "切换手机版中…"
                         view.loadUrl(XHS_PROBE_URL)
                     }
-                }) { Text(if (desktopMode) "切回手机版" else "试桌面网页版") }
-                OutlinedButton(onClick = { browser?.loadUrl(GENERAL_PROBE_URL) }) { Text("普通网页对照") }
-                OutlinedButton(onClick = { browser?.reload() }) { Text("刷新") }
-                OutlinedButton(onClick = {
+                }) { Text(if (desktopMode) "切回手机版" else "桌面网页版") }
+                TextButton(onClick = { browser?.zoomOut() }) { Text("缩小 −") }
+                TextButton(onClick = { browser?.zoomIn() }) { Text("放大 +") }
+                TextButton(onClick = {
+                    browser?.let { it.setInitialScale(0); it.reload() }
+                }) { Text("重载适配") }
+                TextButton(onClick = { browser?.loadUrl(GENERAL_PROBE_URL) }) { Text("对照网页") }
+                TextButton(onClick = {
                     runCatching {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(XHS_PROBE_URL)))
                     }.onFailure { status = "无法打开系统浏览器：" + it.message.orEmpty().take(80) }
-                }) { Text("外部浏览器") }
+                }) { Text("外部打开") }
             }
             Text(
-                (if (desktopMode) "桌面模式 · " else "手机版 · ") + status,
-                style = MaterialTheme.typography.bodySmall,
+                (if (desktopMode) "桌面 · " else "手机 · ") + status,
+                modifier = Modifier.padding(horizontal = 12.dp),
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            HorizontalDivider()
+            if (progress in 1..99) {
+                LinearProgressIndicator(
+                    progress = { progress / 100f },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                HorizontalDivider()
+            }
             AndroidView(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 factory = { ctx ->
@@ -117,9 +134,20 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         settings.allowUniversalAccessFromFileURLs = false
                         settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                         settings.mediaPlaybackRequiresUserGesture = true
+                        settings.setSupportZoom(true)
+                        settings.builtInZoomControls = true
+                        settings.displayZoomControls = false
+                        settings.useWideViewPort = false
+                        settings.loadWithOverviewMode = false
+                        settings.textZoom = 100
+                        setInitialScale(0)
                         CookieManager.getInstance().setAcceptCookie(true)
                         CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
-                        webChromeClient = WebChromeClient()
+                        webChromeClient = object : WebChromeClient() {
+                            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                                progress = newProgress.coerceIn(0, 100)
+                            }
+                        }
                         webViewClient = object : WebViewClient() {
                             override fun shouldOverrideUrlLoading(
                                 view: WebView?,
@@ -155,6 +183,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 url: String?,
                                 favicon: android.graphics.Bitmap?,
                             ) {
+                                resourceFailures = 0
+                                progress = 0
                                 status = "正在加载网页…"
                             }
 
@@ -166,7 +196,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                     "小红书限制了这个浏览器会话（错误码 $riskCode）。请勿反复尝试登录。"
                                 } else if (!status.startsWith("网页加载失败") &&
                                     !status.startsWith("网页返回 HTTP")) {
-                                    "网页加载结束。请检查是否显示正常内容或登录界面。"
+                                    if (resourceFailures > 0)
+                                        "网页主文档已加载，部分资源失败（$resourceFailures 项）；可关闭 VPN 后重载适配。"
+                                    else
+                                        "主文档已加载；笔记列表等动态内容可能仍在加载。"
                                 } else status
                             }
 
@@ -177,6 +210,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             ) {
                                 if (request?.isForMainFrame == true) {
                                     status = "网页加载失败：" + error?.description?.toString().orEmpty().take(100)
+                                } else if (request?.url?.host.orEmpty().endsWith("xiaohongshu.com")) {
+                                    // Count failures only. Never log request URLs, cookies or page content.
+                                    resourceFailures = (resourceFailures + 1).coerceAtMost(999)
                                 }
                             }
 
