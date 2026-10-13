@@ -33,16 +33,18 @@ internal object DigitalWorldResidentInteractionRuntime {
                 characterId = characterId,
                 facts = "地点ID=$location\n现场居民ID=resident:$residentId，姓名=${resident.name}，身份=${resident.identity}。\n" +
                     "住宅=${resident.homeLocationCode}。本次意愿=$normalized。用户不参与本次台词。\n" +
-                    "此前双方真正说过的话：\n${history.take(2400)}",
+                    "此前双方真正说过的话：\n${history.take(2400)}\n" +
+                    "角色此前对这位居民的私人印象（居民本人不知道角色的心声）：\n" +
+                    CharacterSocialRelationship.perspectivesFor(characterId, listOf("resident:$residentId")),
                 instruction = """
                     将角色自主选择的这次数字世界相处展开成真正的双向交谈，输出一个 JSON：
                     {"turns":[{"speakerId":"$characterId 或 resident:$residentId","reason":"此刻本人想说这句话的简短缘由","text":"实际说出口的台词"}],
-                    "appraisal":{"meaning":"这次相处的个人理解"},"innerLife":{"emotion":{"feeling":"相处后的感受","cause":"对方实际说的话"}}}
+                    "appraisal":{"meaning":"这次相处的个人理解"},"innerLife":{"emotion":{"feeling":"相处后的感受","cause":"对方实际说的话"},"social":{"targetId":"resident:$residentId","interpretation":"对这位居民此刻具体的主观看法","reason":"这次真实相处中看见或听见的内容","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}
                     greet 可为两三句；chat/ask_place/sit_together 为四至八轮，有具体内容、回应和自然收尾。
                     ${character.displayName}沿用自己的完整人格、经历和当下意愿；${resident.name}按自己的已登记身份说话，保持双方独立，不模仿用户，不替用户讲话。
                     每个 turn 都要有本人当时的 reason，不机械一问一答，不把双方写成客服；可以分享看法、请教、玩笑、不同意见或安静相处。
                     只使用登记地点、现场物品与双方实际记录。NPC不知角色的私人心声与用户私聊；不得让NPC凭空拥有工具执行权限、额外物品、作品原文或权威知识。
-                    不以一句“他们聊了一会儿”替代台词；不要编造已读书、已完成任务或用户在场。相处后的感受只属于当前角色，不输出 social，不保证已学会任何技能。
+                    不以一句“他们聊了一会儿”替代台词；不要编造已读书、已完成任务或用户在场。相处后的感受只属于当前角色；如果这次真实台词改变了其对居民的印象，可选 innerLife.social，targetId 必须为上面的 resident:ID。没有真实依据就省略，不保证已学会任何技能。
                 """.trimIndent(),
                 source = "数字世界居民交流", title = "与${resident.name}相处", maxTokens = 2000,
             ).getOrThrow()
@@ -72,9 +74,9 @@ internal object DigitalWorldResidentInteractionRuntime {
             // Optional psychology cannot turn an already saved conversation into a false failure.
             runCatching {
                 val lastNative = turns.indexOfLast { it.speakerId == "resident:$residentId" }
-                val state = json.optJSONObject("innerLife")?.let { JSONObject(it.toString()).apply { remove("social") } }
+                val state = json.optJSONObject("innerLife")
                 CharacterInnerLifeStore.observe(characterId, evidenceIds[lastNative], turns[lastNative].dialogue,
-                    state, emptySet(), now)
+                    state, setOf("resident:$residentId"), now)
                 state?.optJSONObject("emotion")?.optString("feeling")?.takeIf(String::isNotBlank)?.let { feeling ->
                     CompanionPresenceStore.update(characterId, statusText = null, gesture = null,
                         innerThought = null, mood = feeling, source = "数字世界·居民相处",
