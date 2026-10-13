@@ -34,7 +34,7 @@ class XhsBrowserSessionTest {
         var destroyed = false
         override fun getUrl(): String = "https://www.xiaohongshu.com/explore"
         override fun loadUrl(url: String) { navigations++ }
-        override fun setWebViewClient(client: WebViewClient?) { clientChanges++; super.setWebViewClient(client) }
+        override fun setWebViewClient(client: WebViewClient) { clientChanges++; super.setWebViewClient(client) }
         override fun destroy() { destroyed = true; super.destroy() }
         override fun evaluateJavascript(script: String, resultCallback: ValueCallback<String>?) {
             if (script.contains("const reader = window.__luluXhsReader;")) {
