@@ -20,6 +20,66 @@ class CharacterOpenConcernRuntimeTest {
         .put("hesitation", "也许对方现在需要安静")
         .put("possibleNextStep", "过一会儿温和地确认一下"))
 
+    @Test fun oneMeaningfulArgumentCanCreateSeveralIndependentConcerns() {
+        val proposal = JSONObject().put("pendingConcerns", JSONArray()
+            .put(JSONObject().put("status", "open")
+                .put("focus", "想弄清这次争吵究竟伤到了哪里")
+                .put("whyItMatters", "对方明确说自己很生气")
+                .put("priority", 3).put("topicKey", "repair_conflict"))
+            .put(JSONObject().put("status", "open")
+                .put("focus", "之后怎样改变自己的沟通习惯")
+                .put("whyItMatters", "不希望相同的态度再次伤害对方")
+                .put("priority", 2).put("topicKey", "communication_habit"))
+            .put(JSONObject().put("status", "open")
+                .put("focus", "我是不是也有需要好好表达的委屈")
+                .put("whyItMatters", "想认真表达分歧而不是压抑或讨好")
+                .put("priority", 1).put("topicKey", "own_boundary")))
+        val opened = CharacterOpenConcernRuntime.update(null, proposal, "same-argument", now)
+        assertEquals(3, opened.length())
+        val ids = (0 until opened.length()).map { opened.getJSONObject(it).getString("id") }
+        assertEquals(3, ids.toSet().size)
+        assertTrue(CharacterOpenConcernRuntime.context(opened, now.plusSeconds(300))
+            .contains("想弄清这次争吵"))
+        assertEquals(3, CharacterOpenConcernRuntime.update(opened, null, "idle", now.plusSeconds(300)).length())
+        assertEquals(0, CharacterOpenConcernRuntime.update(null, null, "only-a-hello", now).length())
+    }
+
+    @Test fun concernBatchSupportsIndependentClosureAndContinuationAndKeepsReceipts() {
+        val source = JSONObject().put("pendingConcerns", JSONArray()
+            .put(JSONObject().put("status", "open").put("topicKey", "relationship_repair")
+                .put("focus", "怎样修复交流造成的伤害").put("whyItMatters", "用户明确不高兴"))
+            .put(JSONObject().put("status", "open").put("topicKey", "self_growth")
+                .put("focus", "怎么学习更尊重对方边界").put("whyItMatters", "想改善自己的习惯")))
+        val opened = CharacterOpenConcernRuntime.update(null, source, "argument-source", now)
+        val firstId = opened.getJSONObject(0).getString("id")
+        val secondId = opened.getJSONObject(1).getString("id")
+        val attempted = CharacterOpenConcernRuntime.recordOutcome(opened, firstId,
+            "real-message", "message", true, "真实发出道歉但没有确认对方已释怀", now.plusSeconds(30))
+        val change = JSONObject().put("pendingConcerns", JSONArray()
+            .put(JSONObject().put("status", "revise").put("threadId", firstId)
+                .put("possibleNextStep", "不催促，之后根据对方的真实反馈判断"))
+            .put(JSONObject().put("status", "settled").put("threadId", secondId)
+                .put("resolution", "已经想明白一种更合适的说法")))
+        assertEquals(1, CharacterOpenConcernRuntime.closures(attempted, change, "changed-view", now.plusSeconds(60)).size)
+        val remaining = CharacterOpenConcernRuntime.update(attempted, change, "changed-view", now.plusSeconds(60))
+        assertEquals(1, remaining.length())
+        assertEquals(firstId, remaining.getJSONObject(0).getString("id"))
+        assertTrue(remaining.getJSONObject(0).getJSONObject("lastOutcome").getBoolean("success"))
+    }
+
+    @Test fun concernsWithIdenticalTopicKeyDoNotMultiplyOnAnotherModelTurn() {
+        val idea = JSONObject().put("pendingConcerns", JSONArray()
+            .put(JSONObject().put("status", "open").put("topicKey", "repair")
+                .put("focus", "处理这次争吵").put("whyItMatters", "对方很生气"))
+            .put(JSONObject().put("status", "open").put("topicKey", "repair")
+                .put("focus", "弄清如何和好").put("whyItMatters", "争吵尚未解决")))
+        val one = CharacterOpenConcernRuntime.update(null, idea, "one-event", now)
+        assertEquals(1, one.length())
+        val again = CharacterOpenConcernRuntime.update(one, idea, "one-event", now.plusSeconds(1))
+        assertEquals(1, again.length())
+        assertEquals(one.getJSONObject(0).getString("id"), again.getJSONObject(0).getString("id"))
+    }
+
     @Test fun aSuspendedConcernSurvivesAnotherQuietTurn() {
         val opened = CharacterOpenConcernRuntime.update(null, first, "call-silence-1", now)
         assertEquals(1, opened.length())
