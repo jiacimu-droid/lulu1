@@ -2,12 +2,22 @@
 // cookie access, login automation, or native command bridge.
 (() => {
   if (window.__luluXhsReader) return;
+  // XHS desktop builds on Vue 3 reactive Proxy/ref state. Reading plain
+  // `value` alone misses __v_raw/__v_isRef, yielding an empty list despite
+  // cards being visible in the browser. Only unwrap the requested subtree.
   const unwrap = value => {
-    for (let i = 0; i < 5 && value && typeof value === 'object'; i++) {
-      if ('_rawValue' in value) value = value._rawValue;
-      else if ('_value' in value) value = value._value;
-      else if ('value' in value && !Array.isArray(value)) value = value.value;
-      else break;
+    for (let i = 0; i < 8 && value && typeof value === 'object'; i++) {
+      try {
+        if (value.__v_isRef) { value = value.value; continue; }
+        if (value.__v_raw) { value = value.__v_raw; continue; }
+        if ('_rawValue' in value) { value = value._rawValue; continue; }
+        if ('_value' in value) { value = value._value; continue; }
+        if ('value' in value && !Array.isArray(value) &&
+            !('noteCard' in value) && !('id' in value)) {
+          value = value.value; continue;
+        }
+      } catch (_) {}
+      break;
     }
     return value;
   };
@@ -19,14 +29,14 @@
     if (!Array.isArray(rows)) return [];
     const cards = new Map();
     for (const raw of rows.slice(0, 80)) {
-      const row = unwrap(raw), card = unwrap(row?.noteCard ?? row?.note_card);
+      const row = unwrap(raw), card = unwrap(row?.noteCard ?? row?.note_card ?? row);
       if (!card || (row.modelType && row.modelType !== 'note')) continue;
       const id = clean(row.id ?? card.noteId ?? card.note_id, 40);
       if (!validId(id)) continue;
       const token = clean(row.xsecToken ?? row.xsec_token ?? card.xsecToken ?? card.xsec_token, 512);
       const next = {id, token, source,
         title: clean(card.displayTitle ?? card.display_title ?? card.title, 200) || '未命名笔记',
-        author: clean(card.user?.nickname ?? card.user?.nickName, 120)};
+        author: clean(card.authorName ?? card.user?.nickname ?? card.user?.nickName, 120)};
       if (!cards.has(id) || (!cards.get(id).token && token)) cards.set(id, next);
     }
     return [...cards.values()].slice(0, 35);
@@ -183,10 +193,74 @@
   window.__luluXhsReader = {diagnostics, beginSearch, startSearch, pendingSearch: keyword => received.searchPending === keyword, snapshot(kind, id, keyword) {
     const url = new URL(location.href), path = url.pathname;
     const searchResponse = kind === 'search' && !!keyword && received.searchKeyword === keyword;
-    const searchPage = ['/search_result','/search','/search/result'].includes(path) && url.searchParams.get('keyword') === keyword;
-    const pendingSearch = kind === 'search' && received.searchPending === keyword;
-    const onPage = kind === 'search' ? searchResponse || (searchPage && !pendingSearch)
-      : kind === 'note' ? new RegExp('^/(explore|discovery/item)/' + id + '/?$').test(path)
+    const searchPage = kind === 'search' &&
+      ['/search_result','/search','/search/result'].includes(path) &&
+      url.searchParams.get('keyword') === keyword;
+    // A native/website search may remain marked pending forever when the site
+    // changes its request transport. The real search_result URL and its own
+    // state/DOM must remain readable independently of fetch/XHR interception.
+    const onPage = kind === 'search' ? searchResponse || searchPage
+      : kind === 'note' ? new RegExp('^/(explore|discovery/item)/' + id + '/?
+    const visibleText = [...document.querySelectorAll('.access-wrapper,.error-wrapper,.not-found-wrapper,.blocked-wrapper,[role="dialog"]')]
+      .filter(el => el.getBoundingClientRect().height > 0).map(el => el.innerText || '').join(' ').slice(0, 6000);
+    const bodyText = (document.body?.innerText || '').slice(0, 6000);
+    const restricted = /website-login\/error/.test(path) || /IP at risk|300012|300017|安全验证|滑块验证|访问异常|当前笔记暂时无法浏览|笔记详情获取失败/.test(visibleText);
+    if (restricted || received.failures[kind] === 'restricted') return JSON.stringify({error: 'restricted', diagnostics: diagnostics()});
+    const state = unwrap(window.__INITIAL_STATE__) || {};
+    let items = [], detail = null;
+    if (onPage) {
+      if (kind === 'note') {
+        const map = unwrap(unwrap(state.note)?.noteDetailMap) || {};
+        const entry = unwrap(map[id]);
+        detail = note(unwrap(entry?.note ?? entry?.data?.note), id) ?? received.notes.get(id) ?? null;
+        if (!detail || !detail.images?.length) {
+          // Read only the current note's own carousel; never avatars or recommendation images.
+          const scope = document.querySelector('.note-scroller');
+          const container = scope?.closest?.('#noteContainer,.note-container') || scope;
+          const elements = [...(container?.querySelectorAll?.('.swiper-slide img,.carousel-image img,.note-slider img,.note-image img,.media-container img') || [])];
+          const indexed = elements.map((el, position) => {
+            const index = el.closest?.('[data-swiper-slide-index]')?.getAttribute?.('data-swiper-slide-index');
+            return {el, index: index == null ? position : Number(index)};
+          }).sort((a, b) => a.index - b.index);
+          const photos = images({imageList: indexed.map(({el}) => ({
+            urlDefault: el.currentSrc, urlPre: el.getAttribute?.('data-src'), url: el.src,
+            width: el.naturalWidth || 0, height: el.naturalHeight || 0
+          }))});
+          if (detail) detail = {...detail, images: photos};
+          else {
+            const body = clean(scope?.querySelector('#detail-desc,.desc')?.innerText, 8000);
+            if (body || photos.length) detail = {id, body, images: photos,
+              title: clean(scope?.querySelector('#detail-title,.title')?.innerText, 200),
+              author: clean(document.querySelector('.author-wrapper .username')?.innerText, 120)};
+          }
+        }
+      } else {
+        const section = unwrap(kind === 'search' ? state.search : state.feed ?? state.homeFeed);
+        items = searchResponse && received.search.length ? received.search :
+          list(section?.feeds, kind === 'search' ? 'pc_search' : 'pc_feed');
+        if (!items.length && kind !== 'search') items = received[kind];
+        // Actual note links retain the site's token/source; avoid generic links in menus.
+        if (!items.length && (kind !== 'search' || searchPage)) for (const card of document.querySelectorAll('section.note-item,.note-item')) {
+          const a = card.querySelector('a[href*="/explore/"],a[href*="/discovery/item/"]');
+          if (!a) continue;
+          try {
+            const u = new URL(a.href, location.href), match = u.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})$/i);
+            if (!['www.xiaohongshu.com','xiaohongshu.com'].includes(u.hostname) || !match) continue;
+            items.push({id: match[1], token: u.searchParams.get('xsec_token') || '',
+              source: u.searchParams.get('xsec_source') || (kind === 'search' ? 'pc_search' : 'pc_feed'),
+              title: clean(card.querySelector('.title')?.innerText, 200) || '未命名笔记',
+              author: clean(card.querySelector('.author .name,.username')?.innerText, 120)});
+          } catch (_) {}
+        }
+        items = [...new Map(items.map(item => [item.id, item])).values()].slice(0, 35);
+      }
+    }
+    const login = /website-login/.test(path) || (!items.length && !detail && /扫码登录|请先登录|登录后查看/.test(bodyText));
+    return JSON.stringify({items, note: detail, onPage, diagnostics: diagnostics(), error: login ? 'login' : received.failures[kind] || '',
+      empty: (searchResponse && received.searchEmpty) || (onPage && /没有找到相关|暂无搜索结果|无相关结果/.test(bodyText))});
+  }};
+})();
+).test(path)
       : path === '/' || path === '/explore';
     const visibleText = [...document.querySelectorAll('.access-wrapper,.error-wrapper,.not-found-wrapper,.blocked-wrapper,[role="dialog"]')]
       .filter(el => el.getBoundingClientRect().height > 0).map(el => el.innerText || '').join(' ').slice(0, 6000);
