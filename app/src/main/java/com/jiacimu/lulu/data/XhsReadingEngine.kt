@@ -384,19 +384,14 @@ internal object XhsReadingEngine {
                                 } else stage("等待网页搜索框")
                             }
                             if (kind == "search" && searchSubmitted && !navigatedToSearchPage &&
-                                System.currentTimeMillis() - searchStartedAt > 4_500L) {
-                                // A synthetic Enter/click may be ignored by
-                                // the site. Give the real page one chance,
-                                // then load the official search route.
-                                val current = Uri.parse(view.url.orEmpty())
-                                val sameQuery = current.path in setOf(
-                                    "/search_result", "/search", "/search/result",
-                                ) && current.getQueryParameter("keyword") == keyword
-                                if (!sameQuery) {
-                                    navigatedToSearchPage = true
-                                    stage("切换到网页搜索结果")
-                                    view.loadUrl(url)
-                                }
+                                System.currentTimeMillis() - searchStartedAt > 7_000L) {
+                                // If a synthetic click opened a stuck SPA
+                                // search screen, force ONE official full page
+                                // navigation. New document starts with fresh
+                                // Vue state and the same logged-in cookies.
+                                navigatedToSearchPage = true
+                                stage("直接读取网页搜索结果")
+                                view.loadUrl(url)
                             }
                         }
                         @Suppress("UNREACHABLE_CODE") JSONObject()
