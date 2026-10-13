@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`04e95ef09ad1a684ce23b8cfa41ab622ad34ea3a`
+- 基准提交：`d485694222d361c4e6e9b32e43e13c32c5e5e3b1`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：123083
+- 已索引代码/文本行：123082
 - 已发现符号：1843
 
 | 文件 | 行数 | 符号数 |
@@ -338,7 +338,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 89 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 501 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 482 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
@@ -619,7 +619,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 351 | 1 |
+| `scripts/test_xhs_reader.js` | 369 | 1 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |
