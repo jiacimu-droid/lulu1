@@ -134,11 +134,30 @@ internal object LuluExternalMcp {
         withContext(Dispatchers.IO) {
             require(XhsReadingEngine.available(context)) { "本机阅读需露露机保持打开，后台阅读可配置 MCP" }
             val keyword = args.optString("keyword").trim().take(64)
-            val candidates = XhsReadingEngine.list(context, keyword).filter { it.token.isNotBlank() }
-            require(candidates.isNotEmpty()) { "没有可访问的真实笔记，未标记为已读" }
+            val candidates = try {
+                XhsReadingEngine.list(context, keyword).filter { it.token.isNotBlank() }.also {
+                    if (it.isEmpty()) XhsReadingEngine.recordToolStage(context, "笔记列表",
+                        "没有可使用的详情令牌或实际笔记；尚未打开正文")
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                XhsReadingEngine.recordToolStage(context, "笔记列表",
+                    error.message.orEmpty().ifBlank { "列表读取失败" })
+                throw error
+            }
+            require(candidates.isNotEmpty()) { "列表没有可打开的真实笔记，尚未读取正文" }
             val history = prefs(context).getString("xiaohongshu:seen:$characterId", "").orEmpty().split(",").toSet()
             val chosen = candidates.firstOrNull { it.id !in history } ?: candidates.first()
-            val article = XhsReadingEngine.read(context, chosen)
+            val article = try {
+                XhsReadingEngine.read(context, chosen)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                XhsReadingEngine.recordToolStage(context, "笔记正文",
+                    error.message.orEmpty().ifBlank { "正文读取失败" })
+                throw error
+            }
             val feedId = article.id
             val title = article.title
             val link = article.sourceUrl
@@ -193,6 +212,7 @@ internal object LuluExternalMcp {
                 runCatching { CharacterLearningLedger.recordReading(characterId, event, personalThought?.optJSONObject("learning")) }
             prefs(context).edit().putString("xiaohongshu:seen:$characterId",
                 ((history - "" + feedId).toList().takeLast(40)).joinToString(",")).apply()
+            XhsReadingEngine.recordToolStage(context, "笔记图文已核验")
             CompanionActionResult(true, "确实读到小红书《$title》；链接=$link；正文摘录：${body.take(1000)}；图片状态：$visualStatus。" +
                 (if (thought.isBlank()) "没有生成额外感想。" else "真实读后感：$thought。") +
                 "外部作者的经历不等于你的亲历。分享给用户需要另行决定和真正发送。", evidenceId = event)
