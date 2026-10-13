@@ -15,7 +15,8 @@ permissions:
 
 concurrency:
   group: lulu-apk-${{ github.ref }}
-  cancel-in-progress: true
+  # Complete one tested APK while subsequent main updates wait in the same group.
+  cancel-in-progress: false
 
 jobs:
   build:
