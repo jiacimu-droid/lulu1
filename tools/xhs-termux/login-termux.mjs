@@ -28,6 +28,18 @@ const selectors = [
 ].join(", ");
 const saved = name => path.join(outDir, name);
 
+// Platform-side access restrictions are not a broken QR selector.
+// Surface the real cause immediately instead of waiting for a non-existent QR.
+function xhsAccessError(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    if (!url.pathname.includes("/website-login/error")) return "";
+    const code = url.searchParams.get("error_code") || "unknown";
+    const message = url.searchParams.get("error_msg") || "Xiaohongshu declined this browser session";
+    return `小红书网页拒绝访问（错误码 ${code}）：${message}。请检查当前网络、VPN/代理设置；如持续出现，请稍后使用正常浏览器验证或联系平台支持。`;
+  } catch { return ""; }
+}
+
 async function visible(handle) {
   if (!handle) return false;
   const box = await handle.boundingBox().catch(() => null);
@@ -125,6 +137,12 @@ try {
   await loadCookies(page);
   await page.reload({waitUntil:"domcontentloaded",timeout:60000});
   await delay(2000);
+  const accessError = xhsAccessError(page.url());
+  if (accessError) {
+    const screenshot = saved("lulu-xhs-access-error.png");
+    await page.screenshot({path:screenshot,type:"png"}).catch(() => {});
+    throw new Error(accessError + "。诊断截图：" + screenshot);
+  }
   if (await page.$(loginMarker)) {
     await saveCookies(page);
     console.log("✅ 已登录，Cookie 已保存，露露机现在可以读取小红书。");
@@ -143,6 +161,8 @@ try {
       }
       await delay(1000);
     }
+    const delayedError = xhsAccessError(page.url());
+    if (delayedError) throw new Error(delayedError);
     const imagePath = saved(qr ? "lulu-xhs-login-qr.png" : "lulu-xhs-login-page.png");
     if (qr) {
       await qr.screenshot({path:imagePath,type:"png"});
@@ -152,8 +172,14 @@ try {
       console.log("⚠ 没找到可识别的二维码，已将整个登录网页截图保存至：" + imagePath);
       console.log("请先在相册查看：网页是否显示登录弹窗、验证码或访问限制。");
       console.log("当前网页地址：" + page.url());
+      console.log("当前没有可扫码的二维码：不必等待或按回车，可 Ctrl+C 退出并检查网页。");
+      process.exitCode = 1;
     }
-    console.log("用小红书 App 的扫一扫 → 从相册选择截图进行扫码。");
+    if (qr) console.log("用小红书 App 的扫一扫 → 从相册选择截图进行扫码。");
+    if (!qr) {
+      // No code means no login session to confirm.
+      // Keep diagnostic screenshot but do not fake a success or wait for input.
+    } else {
     console.log("请保持此 Termux 命令运行；完成扫码后回到此处按回车。");
     const rl = readline.createInterface({input:process.stdin,output:process.stdout});
     await rl.question("扫码后按回车检查并保存 Cookie（Ctrl+C 可退出）> ");
@@ -168,6 +194,7 @@ try {
       console.log("尚未检测到登录成功；先不覆盖原来的 Cookie。");
       console.log("如果网页确实扫码成功但判定不准，请把相册截图（遮盖私人信息）发来。");
       process.exitCode=1;
+    }
     }
   }
 } catch(e) {
