@@ -9,13 +9,15 @@ if [ "$(uname -m)" != "aarch64" ]; then
   echo "目前仅整理了 aarch64 手机安装路径，检测到：$(uname -m)"; exit 1
 fi
 echo "[1/5] 检查基础依赖"
-if ! command -v curl >/dev/null 2>&1; then pkg install -y curl; fi
-if ! command -v node >/dev/null 2>&1; then pkg install -y nodejs-lts; fi
-if ! command -v npm >/dev/null 2>&1; then pkg install -y npm; fi
+if ! command -v curl >/dev/null 2>&1; then apt install -y curl; fi
+if ! command -v node >/dev/null 2>&1; then apt install -y nodejs-lts; fi
+if ! command -v npm >/dev/null 2>&1; then apt install -y npm; fi
 if ! command -v chromium-browser >/dev/null 2>&1 && ! command -v chromium >/dev/null 2>&1; then
   echo "未检测到 Chromium，安装 Termux 官方 X11 仓库软件包（可能下载数百 MB）"
-  pkg install -y x11-repo
-  pkg install -y chromium
+  if ! dpkg-query -W -f='${Status}' x11-repo 2>/dev/null | grep -q 'install ok installed'; then
+    apt install -y x11-repo
+  fi
+  apt install -y chromium
 fi
 BROWSER="$(command -v chromium-browser || command -v chromium || true)"
 if [ -z "$BROWSER" ]; then
