@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`37558db831d12d78ceaac3d77443dcb2ad26bc1f`
+- 基准提交：`02b0f2f081cad5691c5cd35bb098c1ba5ed85676`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：122737
+- 已索引代码/文本行：122764
 - 已发现符号：1837
 
 | 文件 | 行数 | 符号数 |
@@ -13,7 +13,7 @@
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
-| `app/src/main/assets/xhs-browser-route.js` | 56 | 0 |
+| `app/src/main/assets/xhs-browser-route.js` | 83 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 278 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |

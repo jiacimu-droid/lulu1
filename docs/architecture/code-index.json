@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T22:46:28.647626+00:00",
-  "commit": "37558db831d12d78ceaac3d77443dcb2ad26bc1f",
+  "generatedAt": "2026-10-13T22:46:48.007440+00:00",
+  "commit": "02b0f2f081cad5691c5cd35bb098c1ba5ed85676",
   "branch": "main",
-  "sourceFingerprint": "0d1e3bb725eb50c971a1a809ab436467faec60e049c1303dc830849090a2adcb",
+  "sourceFingerprint": "ff966e722ad1995818ce11cb81b61a066c15fb774748cc477547a0a20121b7b2",
   "summary": {
     "files": 615,
-    "lines": 122737,
+    "lines": 122764,
     "symbols": 1837
   },
   "symbolIndex": {
@@ -10326,8 +10326,8 @@
     },
     {
       "path": "app/src/main/assets/xhs-browser-route.js",
-      "lines": 56,
-      "sha256": "e3ab3d741743c042b2d927db55afbd5b72bf3c4bebea7343bb949be1f166ea91",
+      "lines": 83,
+      "sha256": "a036ab836727c7e29dafcf0d6bcbfc74b21492d6e12e0bcf0d085e3428f61e6e",
       "symbols": []
     },
     {
