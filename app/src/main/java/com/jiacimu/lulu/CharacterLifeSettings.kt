@@ -157,10 +157,12 @@ internal fun CharacterSocialNamesSettings(characterId: String) {
     val states by CharacterLifeStore.states.collectAsState()
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var addressEditing by remember { mutableStateOf(false) }
+    var showRelationships by remember { mutableStateOf(false) }
     var addressDraft by remember { mutableStateOf("") }
     LaunchedEffect(characterId) { CharacterAddressPreference.refresh(characterId) }
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("称呼与社交资料", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        TextButton(onClick = { showRelationships = true }) { Text("查看人物关系网络 →") }
         val socialNames = root.optJSONObject("socialNames")
         val preferredAddress = socialNames?.optString("preferredAddress").orEmpty()
         val addressManuallySet = socialNames?.optBoolean("preferredAddressManual", false) == true
@@ -207,6 +209,7 @@ internal fun CharacterSocialNamesSettings(characterId: String) {
         Text("自己的聊天网名：" + selfNickname.ifBlank { "沿用角色原名" }, style = MaterialTheme.typography.bodyMedium)
         if (selfNickname.isNotBlank()) TextButton(onClick = { CharacterLifeStore.setSocialName(characterId, "selfNickname", "") }) { Text("恢复原网名") }
     }
+    if (showRelationships) DigitalWorldSocialGraphDialog(initialCharacterId = characterId, onDismiss = { showRelationships = false })
     if (addressEditing) {
         AlertDialog(onDismissRequest = { addressEditing = false },
             title = { Text("角色平时怎样称呼你") },
