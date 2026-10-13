@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T20:35:23.371747+00:00",
-  "commit": "1c958e59975d3caa900df25de90780ddcf8f2240",
+  "generatedAt": "2026-10-13T20:35:39.378007+00:00",
+  "commit": "a9e13546ceb94fbbc3cdac3e9af5355d4fb106d0",
   "branch": "main",
-  "sourceFingerprint": "fbcef51264799d2845e18c48dfdd3753309926208bc8b02510c56f0e5b93ae1c",
+  "sourceFingerprint": "0a08f16c7ac59284b45d30331fc65e212bdfde9a73aa07cef9e11ed4d9324b60",
   "summary": {
     "files": 615,
-    "lines": 122006,
+    "lines": 122041,
     "symbols": 1833
   },
   "symbolIndex": {
@@ -21447,8 +21447,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt",
-      "lines": 36,
-      "sha256": "c9a3cf77fc7e6e458a7f0e6a78044521f1a50a6b248a11669148985ef5a92235",
+      "lines": 71,
+      "sha256": "55670bb3a28ac083a920ef5badc000f27cf161cdeee1d45541328a663828dd74",
       "symbols": [
         {
           "name": "ReplyReplacementTest",

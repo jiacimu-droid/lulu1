@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1c958e59975d3caa900df25de90780ddcf8f2240`
+- 基准提交：`a9e13546ceb94fbbc3cdac3e9af5355d4fb106d0`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：122006
+- 已索引代码/文本行：122041
 - 已发现符号：1833
 
 | 文件 | 行数 | 符号数 |
@@ -593,7 +593,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 119 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 34 | 1 |
