@@ -44,6 +44,17 @@ class QqMessageGroupingTest {
         assertEquals("the end 也可以正常说", sanitizePersistedChatText("the end 也可以正常说"))
     }
 
+    @Test fun aLegacyBoundaryCannotCutTheMiddleOfAChinesePhrase() {
+        val raw = "肯赏脸说⟪BUBBLE⟫句可以，我悬着的心总算放下来了。" +
+            "⟪BUBBLE⟫那再给你揉⟪BUBBLE⟫揉耳朵。"
+        assertEquals(
+            listOf("肯赏脸说句可以，我悬着的心总算放下来了。", "那再给你揉揉耳朵。"),
+            semanticReplyBubbles(parseCharacterReplyPresentation(raw).content),
+        )
+        assertEquals(listOf("嗯～", "你先睡吧。"),
+            semanticReplyBubbles("嗯～⟪BUBBLE⟫你先睡吧。"))
+    }
+
     @Test fun repeatedNewlinesAndNoSeparatorStayOneBubble() {
         val text = "你还在忙呀？\n\n嗯，没事。\n我等你。"
         val parsed = parseCharacterReplyPresentation(text)
