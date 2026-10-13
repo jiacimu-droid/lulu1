@@ -98,11 +98,15 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
 
     fun backWithinReader() {
         if (page == XhsReaderPage.Note) {
-            navigate(
-                if (keyword.isBlank()) XHS_HOME
-                else "https://www.xiaohongshu.com/search_result?keyword=" + Uri.encode(keyword) + "&source=web_explore_feed",
-                if (keyword.isBlank()) XhsReaderPage.Feed else XhsReaderPage.Search,
-            )
+            // Reuse the already-read list: a second network request on Back
+            // increases failures and needlessly destroys scroll/results.
+            sequence += 1
+            web?.stopLoading()
+            page = if (keyword.isBlank()) XhsReaderPage.Feed else XhsReaderPage.Search
+            selected = null
+            noteBody = ""
+            loading = false
+            message = if (cards.isNotEmpty()) "已返回之前读取的列表。" else "尚无可用列表，点搜索重新获取。"
         } else onBack()
     }
 
@@ -202,6 +206,14 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
 
     fun inspect(loaded: WebView, expectedPage: XhsReaderPage, seq: Int, attempt: Int) {
         if (sequence != seq || web !== loaded || page != expectedPage || !loading) return
+        val path = runCatching { Uri.parse(loaded.url.orEmpty()).path.orEmpty() }.getOrDefault("")
+        if ((expectedPage == XhsReaderPage.Search && !path.contains("search")) ||
+            (expectedPage == XhsReaderPage.Note && !path.contains(selected?.id.orEmpty()))) {
+            if (attempt < 11) {
+                loaded.postDelayed({ inspect(loaded, expectedPage, seq, attempt + 1) }, 1500L)
+            }
+            return
+        }
         val script = if (expectedPage == XhsReaderPage.Note) {
             noteScript(selected?.id.orEmpty())
         } else listScript
