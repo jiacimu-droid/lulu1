@@ -160,6 +160,7 @@ internal object XhsReadingEngine {
         require(Regex("[a-zA-Z0-9]{12,40}").matches(target.id) && target.token.isNotBlank()) {
             "笔记缺少有效 ID 或详情令牌，未标记为已读"
         }
+        var actualProvider = target.provider
         val note = if (target.provider == "webview") {
             require(localEnabled(context)) { "本机阅读已关闭" }
             try {
@@ -170,7 +171,7 @@ internal object XhsReadingEngine {
             } catch (error: Exception) {
                 if (!LuluExternalMcp.configured(context, "xiaohongshu")) throw error
                 onProgress("网页笔记读取失败，正在尝试备用 MCP")
-                try { readMcpNote(context, target) }
+                try { readMcpNote(context, target).also { actualProvider = "mcp" } }
                 catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
                 catch (secondary: Exception) {
                     throw IllegalStateException("网页笔记读取失败：${error.message.orEmpty().take(110)}；" +
@@ -189,7 +190,7 @@ internal object XhsReadingEngine {
         }.distinctBy { it.url }
         require(body.isNotBlank() || images.isNotEmpty()) { "实际笔记没有正文或图片，未标记为已读" }
         return XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
-            note.optString("author").ifBlank { target.author }, target.provider, images)
+            note.optString("author").ifBlank { target.author }, actualProvider, images)
     }
 
     private suspend fun readMcpNote(context: Context, target: XhsCard): JSONObject {
@@ -211,7 +212,7 @@ internal object XhsReadingEngine {
                     .ifBlank { image.optString("url_default") }.ifBlank { full }.ifBlank { image.optString("urlPre") }.ifBlank { image.optString("url") })
                     .put("width", image.optInt("width")).put("height", image.optInt("height")))
             }
-            JSONObject().put("images", pictures).put("title", raw.optString("title")).put("body", raw.optString("desc"))
+            return JSONObject().put("images", pictures).put("title", raw.optString("title")).put("body", raw.optString("desc"))
                 .put("author", raw.optJSONObject("user")?.optString("nickname").orEmpty())
     }
 
