@@ -27,18 +27,10 @@ internal object WakeMusicCoordinator {
             it.characterId == characterId && it.isWakeResponsibility() &&
                 it.status == CommitmentTaskStatus.WaitingForFeedback
         } ?: return
-        val policy = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-        if (!policy.getBoolean("$characterId:wake_music_enabled", false) ||
-            !policy.getBoolean("$characterId:media", false)) return
-        val played = context.getSharedPreferences("lulu_wake_music_actions", Context.MODE_PRIVATE)
-        if (played.getBoolean(task.id, false)) return
-        if (!played.edit().putBoolean(task.id, true).commit()) return
-        val call = LuluVoiceCallSession.state.value
-        if (call.connected && call.characterId == characterId) {
-            deferredCharacter = characterId
-        } else {
-            LuluMediaPlayback.control(context, "play")
-        }
+        // An explicit acknowledgement can retry an unavailable music player,
+        // but is no longer a prerequisite for wake music.
+        onScheduledWake(context, characterId, task.id,
+            defer = LuluVoiceCallSession.state.value.connected)
     }
 
     /** An opted-in song may be the alarm itself; no awake acknowledgement is required. */
