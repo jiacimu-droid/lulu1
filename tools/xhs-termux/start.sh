@@ -19,6 +19,15 @@ elif command -v chromium >/dev/null 2>&1; then
 else
   echo "缺少 Chromium，请先 pkg install chromium"; exit 1
 fi
+# /health only means Node is listening. Check the actual Chromium ELF before
+# starting, so missing C++ runtime symbols are reported immediately.
+if ! "$PUPPETEER_EXECUTABLE_PATH" --version >"$ROOT/chromium-check.log" 2>&1; then
+  echo "Chromium 无法启动；常见原因是 Termux libc++ 等依赖版本不匹配："
+  head -n 15 "$ROOT/chromium-check.log"
+  echo "先执行：apt install -y libc++"
+  echo "再执行：$PUPPETEER_EXECUTABLE_PATH --version"
+  exit 1
+fi
 export XHS_HEADLESS=true
 export XHS_COOKIES_PATH="$HOME/.lulu/xhs-termux/cookies.json"
 export LULU_XHS_PORT=18060
