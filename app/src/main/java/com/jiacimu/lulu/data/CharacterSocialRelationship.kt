@@ -33,6 +33,17 @@ data class CharacterSocialRelationshipSnapshot(
  * numeric familiarity ladder. A common group already means the characters know each other;
  * completed meetings are factual shared experience, but the count never auto-upgrades intimacy.
  */
+data class SocialPerspective(
+    val fromId: String,
+    val towardId: String,
+    val impression: String,
+    val reason: String,
+    val priorImpression: String,
+    val trend: String,
+    val evidenceId: String,
+    val updatedAt: String,
+)
+
 object CharacterSocialRelationship {
     fun snapshot(firstCharacterId: String, secondCharacterId: String): CharacterSocialRelationshipSnapshot {
         val first = firstCharacterId.trim()
@@ -81,6 +92,50 @@ object CharacterSocialRelationship {
         )
     }
 
+    /**
+     * A -> B is a PRIVATE, evidence-backed view, never a shared affection value.
+     * Each direction comes from its own character's inner-life bond ledger.
+     */
+    fun perspective(fromId: String, towardId: String): SocialPerspective? {
+        val bond = CharacterInnerLifeStore.snapshot(fromId).optJSONObject("bonds")
+            ?.optJSONObject(towardId) ?: return null
+        val opinion = bond.optString("interpretation").trim()
+        if (opinion.isBlank()) return null
+        return SocialPerspective(
+            fromId = fromId,
+            towardId = towardId,
+            impression = opinion.take(180),
+            reason = bond.optString("reason").take(180),
+            priorImpression = bond.optString("priorThought").take(120),
+            trend = bond.optJSONObject("trends")?.let { trends ->
+                listOf("trust" to "信任", "warmth" to "亲近", "ease" to "自在",
+                    "friction" to "摩擦", "boundarySafety" to "边界感")
+                    .mapNotNull { (key, title) ->
+                        val value = trends.optString(key)
+                        if (value.isBlank() || value == "same") null else "$title：$value"
+                    }.joinToString("；")
+            }.orEmpty(),
+            evidenceId = bond.optString("evidenceId"),
+            updatedAt = bond.optString("updatedAt"),
+        )
+    }
+
+    fun perspectivesFor(characterId: String, otherIds: Collection<String>): String =
+        otherIds.asSequence().filter { it != characterId }.distinct().take(12)
+            .mapNotNull { target ->
+                perspective(characterId, target)?.let { view ->
+                    val name = when {
+                        target == "user" -> "用户"
+                        target.startsWith("resident:") ->
+                            DigitalWorldExpansionStore.residents()
+                                .firstOrNull { "resident:${it.id}" == target }?.name ?: "原住民"
+                        else -> runCatching { MigratedDomainStores.characters.get(target).displayName }
+                            .getOrDefault("另一位角色")
+                    }
+                    "- 我对$name：${view.impression}；依据=${view.reason}；${view.trend}"
+                }
+            }.joinToString("\n")
+
     fun knowsEachOther(firstCharacterId: String, secondCharacterId: String): Boolean =
         snapshot(firstCharacterId, secondCharacterId).knowsEachOther
 
@@ -96,6 +151,12 @@ object CharacterSocialRelationship {
                     val firstName = runCatching { MigratedDomainStores.characters.get(first).displayName }.getOrDefault(first)
                     val secondName = runCatching { MigratedDomainStores.characters.get(second).displayName }.getOrDefault(second)
                     add("- $firstName ↔ $secondName：${relation.shortContext()}")
+                    perspective(first, second)?.let { view ->
+                        add("  $firstName 对 $secondName 的看法：${view.impression}；根据=${view.reason}")
+                    }
+                    perspective(second, first)?.let { view ->
+                        add("  $secondName 对 $firstName 的看法：${view.impression}；根据=${view.reason}")
+                    }
                 }
             }
         }
