@@ -62,6 +62,35 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$chromeVersion Safari/537.36"
     }
 
+    fun openOriginalNote() {
+        val active = browser ?: return
+        // User-triggered only: the complete note URL is passed directly to Android
+        // ACTION_VIEW, never to the model, logs, analytics, or our MCP service.
+        active.evaluateJavascript(
+            """(() => window.__luluLastNoteUrl || (
+                /^\\/(explore|discovery\\/item)\\//.test(location.pathname)
+                ? location.href : ""))()""".trimIndent(),
+        ) { encoded ->
+            val candidate = runCatching {
+                JSONTokener(encoded).nextValue() as String
+            }.getOrNull().orEmpty()
+            val target = runCatching { Uri.parse(candidate) }.getOrNull()
+            val host = target?.host.orEmpty().lowercase()
+            val notePath = target?.path.orEmpty()
+            if (target?.scheme != "https" ||
+                host !in setOf("xiaohongshu.com", "www.xiaohongshu.com") ||
+                !(notePath.startsWith("/explore/") || notePath.startsWith("/discovery/item/"))) {
+                status = "当前笔记链接未能识别；暂时无法直接跳转。"
+                return@evaluateJavascript
+            }
+            runCatching {
+                context.startActivity(Intent(Intent.ACTION_VIEW, target))
+            }.onFailure {
+                status = "无法打开笔记：" + it.message.orEmpty().take(70)
+            }
+        }
+    }
+
     fun returnToList() {
         val current = browser ?: return
         websiteIssue = ""
@@ -231,6 +260,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error,
                     )
+                    if (websiteIssue.contains("笔记详情")) {
+                        TextButton(onClick = { openOriginalNote() }) { Text("外部读帖") }
+                    }
                     TextButton(onClick = { returnToList() }) { Text("返回列表") }
                 }
             }
@@ -361,6 +393,32 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             }
 
                             override fun onPageFinished(view: WebView?, url: String?) {
+                                // Capture only a user-clicked note URL, preserving any
+                                // xsec_token in the link. Never store it outside this page.
+                                view?.evaluateJavascript(
+                                    """
+                                    (() => {
+                                      if (window.__luluNoteCaptureReady) return;
+                                      window.__luluNoteCaptureReady = true;
+                                      window.__luluLastNoteUrl = '';
+                                      document.addEventListener('click', event => {
+                                        const node = event.target instanceof Element
+                                          ? event.target : event.target?.parentElement;
+                                        const link = node?.closest?.('a[href]');
+                                        if (!link) return;
+                                        try {
+                                          const u = new URL(link.getAttribute('href'), location.href);
+                                          if (u.protocol === 'https:' &&
+                                              (u.hostname === 'www.xiaohongshu.com' || u.hostname === 'xiaohongshu.com') &&
+                                              /^\\/(explore|discovery\\/item)\\//.test(u.pathname)) {
+                                            window.__luluLastNoteUrl = u.href;
+                                          }
+                                        } catch (_) {}
+                                      }, true);
+                                    })()
+                                    """.trimIndent(),
+                                    null,
+                                )
                                 val uri = runCatching { Uri.parse(url.orEmpty()) }.getOrNull()
                                 val riskCode = if (uri?.path?.contains("/website-login/error") == true)
                                     uri.getQueryParameter("error_code") else null
