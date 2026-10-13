@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T09:36:36.169438+00:00",
-  "commit": "d2e6db56d8c5e1d48b68c69b450a11066844d0d1",
+  "generatedAt": "2026-10-13T10:06:49.953522+00:00",
+  "commit": "8e0291e8d767bfb932e5a29be4431c1b433bb5b3",
   "branch": "main",
-  "sourceFingerprint": "690f07b6afce861c39fb46344ab600797dbaad66d8ca2cb1cc03f43851ee8c09",
+  "sourceFingerprint": "9b6ce19ccab58a12b793a3b946cb4bf49209078baf945fa3a257567e51615015",
   "summary": {
-    "files": 599,
-    "lines": 117977,
-    "symbols": 1782
+    "files": 600,
+    "lines": 118202,
+    "symbols": 1787
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1092,6 +1092,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+        "line": 27
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -5682,6 +5686,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 105
+      }
+    ],
+    "configured": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+        "line": 21
+      }
+    ],
+    "endpoint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+        "line": 24
+      }
+    ],
+    "savedToken": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+        "line": 38
+      }
+    ],
+    "healthContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+        "line": 99
       }
     ],
     "MeetingProseLength": [
@@ -15404,6 +15432,33 @@
       "lines": 10,
       "sha256": "92ed2091ff91464f4d1a5efc217b91c0dc7f7ad3507957f3018e8ca3a97b190f",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+      "lines": 225,
+      "sha256": "bc802161b21b3d489d17412e6d40bcb92e032d8a0b08d26545a3b06447bb872d",
+      "symbols": [
+        {
+          "name": "configured",
+          "line": 21
+        },
+        {
+          "name": "endpoint",
+          "line": 24
+        },
+        {
+          "name": "save",
+          "line": 27
+        },
+        {
+          "name": "savedToken",
+          "line": 38
+        },
+        {
+          "name": "healthContext",
+          "line": 99
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
