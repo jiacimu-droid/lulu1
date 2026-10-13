@@ -38,12 +38,13 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private const val LEXICON_PAGE_SIZE = 40
-private const val LIFE_AUDIT_INDEX = 5
+private const val LIFE_AUDIT_INDEX = 4
 private const val FAVORITE_REASON_SEPARATOR = "\n\n收藏理由："
 
 private val LexiconV2Sections = listOf(
-    LexiconSection.Life to "生活",
-    LexiconSection.Concern to "挂心",
+    // One inbox for user circumstances and unresolved concern, without two
+    // competing copies of the same life event or separate extraction stores.
+    LexiconSection.Concern to "近况与挂心",
     LexiconSection.Promise to "约定",
     LexiconSection.Diary to "日记",
     LexiconSection.Favorite to "收藏",
@@ -88,7 +89,8 @@ fun LexiconFeatureScreenV2(
         LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0)
     }
     val requestedSectionIndex = remember(initialSectionName) {
-        if (initialSectionName in listOf("足迹", "audit", "life-audit")) LIFE_AUDIT_INDEX
+        if (initialSectionName in listOf("足迹", "历程", "audit", "life-audit")) LIFE_AUDIT_INDEX
+        else if (initialSectionName.equals("Life", ignoreCase = true)) 0
         else LexiconV2Sections.indexOfFirst { (section, _) ->
             section.name.equals(initialSectionName.orEmpty(), ignoreCase = true)
         }.takeIf { it >= 0 } ?: 0
@@ -105,9 +107,18 @@ fun LexiconFeatureScreenV2(
 
     val isLifeAudit = sectionIndex == LIFE_AUDIT_INDEX
     val section = LexiconV2Sections.getOrNull(sectionIndex)?.first ?: LexiconSection.Life
-    val entries by LuluRepositories.lexicon
+    val currentSectionEntries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
         .collectAsState(initial = emptyList())
+    val lifeEntries by LuluRepositories.lexicon
+        .observeEntries(selectedCharacterId, LexiconSection.Life)
+        .collectAsState(initial = emptyList())
+    val entries = remember(currentSectionEntries, lifeEntries, section) {
+        if (section == LexiconSection.Concern)
+            (currentSectionEntries + lifeEntries).distinctBy { it.id }
+                .sortedByDescending { it.updatedAt }
+        else currentSectionEntries
+    }
     var visibleCount by rememberSaveable(selectedCharacterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
     val visibleEntries = remember(entries, visibleCount) { entries.take(visibleCount) }
     val listState = rememberLazyListState()
@@ -181,7 +192,7 @@ fun LexiconFeatureScreenV2(
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            CharacterSectionTabs(LexiconV2Sections.map { it.second } + "足迹", sectionIndex,
+            CharacterSectionTabs(LexiconV2Sections.map { it.second } + "历程", sectionIndex,
                 onSelect = { sectionIndex = it; editing = null; creating = false })
 
             if (isLifeAudit) {
@@ -218,6 +229,9 @@ fun LexiconFeatureScreenV2(
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                                     Column(Modifier.weight(1f)) {
                                         Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                                        if (entry.section == LexiconSection.Life) {
+                                            Text("生活近况", color = LuluColors.Muted, fontSize = 11.sp)
+                                        }
                                         if (entry.section == LexiconSection.Promise) {
                                             Text(
                                                 LexiconV2PromiseKinds
@@ -235,7 +249,9 @@ fun LexiconFeatureScreenV2(
                                                     status = if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) com.jiacimu.lulu.core.LexiconStatus.Resolved else com.jiacimu.lulu.core.LexiconStatus.Active,
                                                     updatedAt = java.time.Instant.now(),
                                                 ))
-                                            } }) { Text(if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) "标记已解决" else "已解决 · 重新挂心") }
+                                            } }) { Text(if (entry.section == LexiconSection.Life)
+                                                (if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) "记为已过去" else "恢复为当前近况")
+                                                else (if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) "标记已解决" else "已解决 · 重新挂心")) }
                                         }
                                     }
                                     IconButton(onClick = { editing = entry }) {
