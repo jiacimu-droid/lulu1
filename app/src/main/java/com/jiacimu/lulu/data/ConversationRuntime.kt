@@ -137,11 +137,11 @@ internal object DialogueMoveEngine {
             DialogueMoveType.SELF_REPAIR, DialogueMoveType.OTHER_INITIATED_REPAIR,
             DialogueMoveType.CANDIDATE_UNDERSTANDING -> 1
             DialogueMoveType.TEASE, DialogueMoveType.DISAGREE, DialogueMoveType.REASSURE,
-            DialogueMoveType.TOPIC_SHIFT, DialogueMoveType.ASK -> 2
-            DialogueMoveType.ANSWER, DialogueMoveType.SHARE -> 3
+            DialogueMoveType.TOPIC_SHIFT, DialogueMoveType.ASK -> 3
+            DialogueMoveType.ANSWER, DialogueMoveType.SHARE -> 4
             DialogueMoveType.SILENCE -> 1
         }
-        val requestedBubbles = raw?.optInt("maxBubbles", moveCap)?.coerceIn(1, 3) ?: moveCap
+        val requestedBubbles = raw?.optInt("maxBubbles", moveCap)?.coerceIn(1, 4) ?: moveCap
         return DialogueMovePlan(
             type = resolvedType,
             repairFormat = when (raw?.optString("repairFormat").orEmpty().lowercase()) {
@@ -165,7 +165,8 @@ internal object DialogueMoveEngine {
             appendLine("唯一允许提出的候选理解：${plan.candidate}")
             appendLine("该候选仅供确认，不能当成已经理解正确。")
         }
-        appendLine("最多发送 ${plan.maxBubbles} 个气泡；每个气泡必须是一个局部互动动作，而不是长答案的排版切片。")
+        appendLine("最多发送 ${plan.maxBubbles} 个气泡；请优先让单个气泡只承载一小段自然完整的话，阅读轻松。内容稍长时可以按完整语句分为两到四泡，而不是一块长文字。短回应仍然一泡就好。")
+        appendLine("严禁把一个词或一句没说完的话拆到两条气泡中；不按固定字符数切，任何分段都要让阅读顺畅。")
         when (plan.type) {
             DialogueMoveType.BACKCHANNEL ->
                 appendLine("这只是一个在场反应：一个短反应就够，不总结、不建议、不把话题抢过来。")
