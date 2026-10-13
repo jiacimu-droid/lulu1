@@ -32,59 +32,72 @@ internal fun CharacterLifeSettings(
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    var filling by remember(characterId) { mutableStateOf(false) }
-    var fillFeedback by remember(characterId) { mutableStateOf("") }
-    val fillable = CharacterProfileSchema.fields.filter { it.group != "兼容存档" }
-    val missing = fillable.filter { root.optJSONObject("profile")?.optString(it.key).isNullOrBlank() }
+    // A one-time, evidence-constrained fill of *only* speech habits and interests.
+    // Existing user-authored fields are never replaced. Unlike the former
+    // ten-field button, this is tied to stable setting evidence, not guesses.
+    val app = androidx.compose.ui.platform.LocalContext.current.applicationContext
+    val autofillPrefs = remember(app) {
+        app.getSharedPreferences("lulu_persona_user_requested_autofill_v1", android.content.Context.MODE_PRIVATE)
+    }
+    var autofillPending by remember(characterId) { mutableStateOf(false) }
+    var autofillResult by remember(characterId) { mutableStateOf("") }
+    LaunchedEffect(characterId, seedPersona, seedIdentity) {
+        val profile = CharacterLifeStore.state(characterId).optJSONObject("profile")
+        val missingFields = listOf("speechHabits", "interests")
+            .filter { profile?.optString(it).isNullOrBlank() }
+        val key = "review:$characterId:${seedPersona.hashCode()}:${seedIdentity.hashCode()}"
+        if (missingFields.isEmpty() || seedPersona.isBlank() || autofillPrefs.getBoolean(key, false)) return@LaunchedEffect
+        // Mark BEFORE dispatch so navigating back never starts another paid request.
+        autofillPrefs.edit().putBoolean(key, true).apply()
+        autofillPending = true
+        try {
+            val observedInterests = com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
+                .filter { it.kind == com.jiacimu.lulu.data.DevelopmentKind.Interest }
+                .takeLast(5).joinToString("；") { it.content }
+            val observedExpression = com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
+                .filter { it.kind == com.jiacimu.lulu.data.DevelopmentKind.ExpressionHabit }
+                .takeLast(4).joinToString("；") { it.content }
+            val response = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = """用户原始人格：${seedPersona.take(2300)}
+身份事实：${seedIdentity.take(900)}
+已验证形成的兴趣：$observedInterests
+已验证形成的表达习惯：$observedExpression
+要整理的字段：${missingFields.joinToString("、")}""",
+                instruction = """
+                    仅从给出的角色设定和已验证成长提取字段；只输出 {"speechHabits":"...","interests":"..."}。
+                    speechHabits 用自然的个人语言习惯与小癖好描述，不生成固定台词；颜文字和图片表情包允许按已有角色风格自然使用，不要求每回合卖萌或发图。没有证据就不要发明口头禅。
+                    interests 只写角色确有的兴趣／倾向，区分曾经接触和确实喜欢；若没有明确兴趣依据，保持空字符串，不编造书名、爱好、往事。
+                    不修改原始人格，不给角色添加虚构职业、成长史或经历，不写心理报告。每项至多 170 字。
+                """.trimIndent(),
+                source = "角色稳定表达与兴趣的首次资料整理",
+                title = "人格字段一次性整理",
+                maxTokens = 360,
+                contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Isolated,
+            ).getOrNull()?.text?.let(ModelStructuredOutput::objectOrNull)
+            var saved = 0
+            missingFields.forEach { field ->
+                val proposed = response?.optString(field).orEmpty().trim().take(200)
+                if (proposed.isNotBlank() &&
+                    CharacterLifeStore.state(characterId).optJSONObject("profile")?.optString(field).isNullOrBlank()) {
+                    CharacterLifeStore.setProfile(characterId, field, proposed)
+                    saved++
+                }
+            }
+            autofillResult = if (saved > 0) "已根据原有设定整理 $saved 项，可随时修改" else "没有可靠依据的兴趣保持未设定"
+        } finally {
+            autofillPending = false
+        }
+    }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("稳定倾向", style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold)
-        if (missing.isNotEmpty() && seedPersona.isNotBlank()) {
-            OutlinedButton(
-                enabled = !filling,
-                onClick = {
-                    filling = true
-                    fillFeedback = ""
-                    scope.launch {
-                        val questions = missing.joinToString("、") { "${it.key}=${it.label}" }
-                        val answer = LuluAiServices.gateway.generate(
-                            characterId = characterId,
-                            facts = "这是用户保存的角色稳定核心简介：${seedPersona.take(1500)}\n身份背景：${seedIdentity.take(900)}\n仅需补全：$questions",
-                            instruction = """
-                                按已有用户人设，以简洁中文仅输出一个 JSON 对象，key 为指定字段英文键，每值 20～90 字。
-                                只能提炼核心简介与身份已经明确表达的稳定倾向，不能编造新职业、履历、童年、喜爱过的作品、真实经历、已形成的关系、恐惧和未发生的事。
-                                特别是 interests：没有明确提到具体爱好就留空；不把“有好奇心”当作已形成一个具体兴趣。
-                                表达气质、语言习惯、边界和判断是原则，不写固定口头禅、强制行动脚本或跨角色通用客服腔。
-                                仅输出键值 JSON，不要解释，不修改现有字段。
-                            """.trimIndent(),
-                            source = "基于已有核心人设的空白人格补齐",
-                            title = "角色稳定人格整理",
-                            maxTokens = 1_400,
-                        ).getOrNull()
-                        val proposal = answer?.text?.let(ModelStructuredOutput::objectOrNull)
-                        var saved = 0
-                        if (proposal != null) {
-                            missing.forEach { field ->
-                                val suggested = proposal.optString(field.key).trim().take(260)
-                                if (suggested.isNotBlank() &&
-                                    CharacterLifeStore.state(characterId).optJSONObject("profile")
-                                        ?.optString(field.key).isNullOrBlank()) {
-                                    CharacterLifeStore.setProfile(characterId, field.key, suggested)
-                                    saved++
-                                }
-                            }
-                        }
-                        fillFeedback = if (saved > 0) "已补齐 $saved 项"
-                            else "暂无可补充内容"
-                        filling = false
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (filling) "整理中…" else "补齐空白") }
-        }
-        if (fillFeedback.isNotBlank()) Text(fillFeedback,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodySmall)
+        if (autofillPending) Text("正在整理已知语言习惯与兴趣…",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        else if (autofillResult.isNotBlank()) Text(autofillResult,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
         CharacterExpressionPreferencesSettings(characterId)
         CharacterProfileSchema.groupedFields().forEach { (group, fields) ->
             var expanded by remember(characterId, group) { mutableStateOf(group == "兴趣与表达") }
