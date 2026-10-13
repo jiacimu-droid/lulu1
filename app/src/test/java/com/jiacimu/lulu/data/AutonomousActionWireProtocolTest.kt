@@ -56,6 +56,27 @@ class AutonomousActionWireProtocolTest {
         assertEquals("那我跟你说一件刚发现的趣事", result.getString("text"))
     }
 
+    @Test fun nestedToolNameIsRecoveredWithoutInventingAnUnknownCapability() {
+        val nested = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool")
+                .put("args", JSONObject().put("tool", "read_xiaohongshu")
+                    .put("keyword", "猫咪")))
+        assertEquals("tool", nested.getString("action"))
+        assertEquals("read_xiaohongshu", nested.getString("tool"))
+
+        val reply = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool")
+                .put("args", JSONObject().put("name", "send_private_message")
+                    .put("text", "我还想和你说句话。")))
+        assertEquals("message", reply.getString("action"))
+        assertEquals("我还想和你说句话。", reply.getString("text"))
+
+        val nameless = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool")
+                .put("args", JSONObject().put("keyword", "猫咪")))
+        assertEquals("", nameless.optString("tool"))
+    }
+
     @Test fun directFavoriteUsesRegisteredToolWithExactMessageId() {
         val direct = AutonomousActionWireProtocol.normalize(
             JSONObject().put("action", "favorite_user_message")
