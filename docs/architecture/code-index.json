@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T21:21:08.726958+00:00",
-  "commit": "77990909f90bbd200b0d2d2f2c95335a9c39253b",
+  "generatedAt": "2026-10-13T21:21:34.491015+00:00",
+  "commit": "7212bb05521e27e8033a21142bf256ea9944a554",
   "branch": "main",
-  "sourceFingerprint": "70454bb5395cf2f2f287e4776f10d2098e5fba0e99e0f4963d8bb018cbfb6930",
+  "sourceFingerprint": "5b9a234c564b6697fac557add9cb4845f5ba5aa2f3fa2bfdfd020fb74557a76e",
   "summary": {
     "files": 615,
-    "lines": 122232,
+    "lines": 122233,
     "symbols": 1835
   },
   "symbolIndex": {
@@ -367,7 +367,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 281
+        "line": 282
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -4815,19 +4815,19 @@
     "beforeTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 230
+        "line": 231
       }
     ],
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 263
+        "line": 264
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 287
+        "line": 288
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -14716,8 +14716,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 420,
-      "sha256": "d6f471849d0ad689cd41ae3d3dc6b3557a86e032e4e448d1b3fa90ed1aa8da14",
+      "lines": 421,
+      "sha256": "12650182d24b142d188492b2a17bb5b85b8dafaf7913d846620046322e27d0c4",
       "symbols": [
         {
           "name": "fromWire",
@@ -14745,19 +14745,19 @@
         },
         {
           "name": "beforeTurn",
-          "line": 230
+          "line": 231
         },
         {
           "name": "afterDecision",
-          "line": 263
+          "line": 264
         },
         {
           "name": "context",
-          "line": 281
+          "line": 282
         },
         {
           "name": "evaluate",
-          "line": 287
+          "line": 288
         }
       ]
     },
