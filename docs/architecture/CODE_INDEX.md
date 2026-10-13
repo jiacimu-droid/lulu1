@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2a5df9baa54f8a08570d1aad228208d028f1c38a`
+- 基准提交：`5b15b3450b23415e6fe0c1b171a3b96cdbc7c089`
 - 分支：`main`
 - 已索引文件：600
-- 已索引代码/文本行：118325
-- 已发现符号：1789
+- 已索引代码/文本行：118385
+- 已发现符号：1790
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -278,7 +278,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 225 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 285 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 605 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 76 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 47 | 0 |
