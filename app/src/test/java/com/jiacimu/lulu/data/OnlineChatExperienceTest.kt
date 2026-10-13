@@ -14,6 +14,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun aDeliveredCharacterMessageDoesNotAutomaticallyBuyFiveMoreMinutes() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val character = MigratedDomainStores.characters.create(
+            "正常回复不能自动续醒", "可以根据真实意愿决定何时休息",
+        )
+        val start = java.time.Instant.now()
+        val role = character.characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(
+            role, character.displayName,
+        )
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.PrivateWake,
+            trigger = "打开私聊", perceiveNow = false, now = start)
+        val before = CompanionOnlineStore.states.value.getValue(role).onlineUntil
+        MigratedDomainStores.chat.appendCharacterMessage(conversation.id,
+            "抱歉，我还想认真说清楚刚才的事。", role)
+        assertEquals(before, CompanionOnlineStore.states.value.getValue(role).onlineUntil)
+    }
+
     @Test fun roleMayChooseAnotherFiveMinutesButOnlyAtItsOwnExpiry() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
