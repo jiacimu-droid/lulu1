@@ -452,8 +452,6 @@ private fun CallMicrophoneMeter(state: LuluVoiceCallState) {
         Text(
             when {
                 state.microphoneMuted -> "麦克风已关闭"
-                state.batchRecording -> "正在录音 · 音量条显示真实收音"
-                state.batchUploading -> "录音已发送 · 等待 ElevenLabs 转写"
                 state.speaking && level == 0f -> "对方播放中 · 扬声器可能暂停收音"
                 level > .18f -> "麦克风收到声音 · 等待转成文字"
                 else -> "真实麦克风电平 · 对着手机说话，竖条会随音量变化"
