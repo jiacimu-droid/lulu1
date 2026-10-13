@@ -240,6 +240,7 @@ internal class RealtimeVoiceAdapter(
         val definition = CharacterRuntime.definition(id)
         val context = listOf(
             definition.promptSection(),
+            CharacterDecisionProtocol.causalPrinciples,
             CharacterExpressionGuide.promptSection(),
             CharacterSpeechIdentity.promptSection(id),
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),

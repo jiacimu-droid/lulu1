@@ -65,6 +65,16 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    @Synchronized fun setExpressionPreference(characterId: String, key: String, value: String) {
+        require(key in setOf("kaomoji", "stickers"))
+        require(CharacterExpressionPreferences.choices.any { it.first == value })
+        val root = state(characterId)
+        val preferences = root.optJSONObject("expressionPreferences") ?: JSONObject()
+        preferences.put(key, value)
+        root.put("expressionPreferences", preferences)
+        save(characterId, root)
+    }
+
     /**
      * Role-owned social names: a private remark for the user and a changeable screen nickname.
      * Neither alters the user's profile or the character's canonical identity.

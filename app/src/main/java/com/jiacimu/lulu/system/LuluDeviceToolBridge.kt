@@ -304,24 +304,14 @@ object LuluDeviceToolBridge {
             if (plan.action == "tool") return Result.failure(IllegalStateException("重新回复只重做表达，没有再次执行工具"))
             plan.appraisal?.remove("ownActivity")
         }
-        val programRepair = separateExpression &&
-            com.jiacimu.lulu.data.DialogueMoveEngine.userInitiatesRepair(userText) &&
-            !com.jiacimu.lulu.data.DialogueMoveEngine.correctionSuppliesDirection(userText)
         if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
             plan = plan.copy(speechIntent = plan.text)
-        }
-        if (programRepair && plan.action != "reply") {
-            plan = plan.copy(
-                action = "reply",
-                speechIntent = "承认刚才理解有误，进行最小必要修复，让对方继续说明真正意思",
-                reason = "程序识别到用户在纠正上一轮理解，优先恢复共同语境",
-            )
         }
         // One character-authored reason protocol for text chat, phone and tools.
         // Speaking intent itself is a valid tiny everyday motive; innerThought is
         // optional and must never be fabricated to justify an outgoing action.
         val choiceBasis = com.jiacimu.lulu.data.CharacterBehaviorMotivation.resolve(
-            plan.action, plan.reason, plan.appraisal, plan.innerLife,
+            if (plan.action == "tool") plan.tool else plan.action, plan.reason, plan.appraisal, plan.innerLife,
             speechIntent = plan.speechIntent,
         )
         if (plan.action == "tool" && choiceBasis == null) {

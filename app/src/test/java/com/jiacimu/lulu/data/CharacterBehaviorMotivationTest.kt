@@ -38,7 +38,7 @@ class CharacterBehaviorMotivationTest {
         assertEquals("听见她说累了", spoken?.trace()?.optString("understanding"))
 
         val innerLife = JSONObject().put("emotion",
-            JSONObject().put("feeling", "有点无聊").put("impulse", "想去外面逛逛"))
+            JSONObject().put("feeling", "有点无聊").put("action", "digital_world").put("impulse", "想去外面逛逛"))
         val outdoors = CharacterBehaviorMotivation.resolve("digital_world", innerLife = innerLife)
         assertEquals("想去外面逛逛", outdoors?.reason)
         assertEquals("有点无聊", outdoors?.feeling)
@@ -68,4 +68,23 @@ class CharacterBehaviorMotivationTest {
         assertNull(CharacterBehaviorMotivation.resolve(
             "digital_world", speechIntent = "想问问她今天怎么样"))
     }
+    @Test fun unrelatedEmotionalImpulseCannotAuthorizeOtherActions() {
+        val life = JSONObject().put("emotion", JSONObject()
+            .put("action", "reading").put("impulse", "好奇结局，想继续读书"))
+        assertNull(CharacterBehaviorMotivation.resolve("publish_moment", innerLife = life))
+        assertNotNull(CharacterBehaviorMotivation.resolve("read_book", innerLife = life))
+        val unscoped = JSONObject().put("emotion", JSONObject().put("impulse", "想休息"))
+        assertNull(CharacterBehaviorMotivation.resolve("start_call", innerLife = unscoped))
+    }
+
+    @Test fun actualStickerAndReadingActionsUseTheSamePersonalMotiveContract() {
+        val social = JSONObject().put("responseAim", "想用表情告诉她我很开心")
+        assertNotNull(CharacterBehaviorMotivation.resolve("sticker", appraisal = social))
+        assertNotNull(CharacterBehaviorMotivation.resolve("group_sticker", appraisal = social))
+        val reading = JSONObject().put("ownActivity", JSONObject()
+            .put("action", "read_book").put("whyNow", "刚才那一章勾起了好奇"))
+        assertNotNull(CharacterBehaviorMotivation.resolve("reading", appraisal = reading))
+        assertNull(CharacterBehaviorMotivation.resolve("digital_world", appraisal = reading))
+    }
+
 }

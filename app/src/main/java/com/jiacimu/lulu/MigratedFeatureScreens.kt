@@ -71,11 +71,11 @@ private enum class MemoryPageSection(val label: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemoryFeatureScreen(onBack: () -> Unit) {
+fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null) {
     val repository = LuluRepositories.memory
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    var selectedCharacterId by rememberSaveable {
-        mutableStateOf(characters.keys.firstOrNull() ?: "lulu")
+    var selectedCharacterId by rememberSaveable(personalCharacterId) {
+        mutableStateOf(personalCharacterId ?: characters.keys.firstOrNull() ?: "lulu")
     }
     val policy by repository.observePolicy(selectedCharacterId).collectAsState(initial = MemoryPolicy())
     val memories by repository.observeMemories(selectedCharacterId).collectAsState(initial = emptyList())
@@ -113,7 +113,11 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("记忆", fontWeight = FontWeight.SemiBold) },
+                title = { Column {
+                    Text("记忆", fontWeight = FontWeight.SemiBold)
+                    if (personalCharacterId != null) Text(characters[selectedCharacterId]?.displayName.orEmpty(),
+                        fontSize = 12.sp, color = FeatureBlueGray)
+                } },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
@@ -125,10 +129,10 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         onClick = {
                             organizing = true
                             scope.launch {
-                                val removed = repository.maintainAll()
+                                val removed = if (personalCharacterId != null) repository.maintain(selectedCharacterId) else repository.maintainAll()
                                 snackbarHostState.showSnackbar(
-                                    if (removed > 0) "已整理全部角色，合并 $removed 条重复记忆"
-                                    else "全部角色都没有可安全合并的重复记忆",
+                                    if (removed > 0) "已合并 $removed 条重复记忆"
+                                    else "没有可合并的重复记忆",
                                 )
                                 organizing = false
                             }
@@ -138,7 +142,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         if (organizing) {
                             CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp)
                         } else {
-                            Icon(Icons.Outlined.AutoFixHigh, "整理全部角色的重复记忆")
+                            Icon(Icons.Outlined.AutoFixHigh, if (personalCharacterId != null) "整理当前角色的记忆" else "整理全部角色的重复记忆")
                         }
                     }
                     IconButton(onClick = { creatingMemory = true }) {
@@ -150,7 +154,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            Row(
+            if (personalCharacterId == null) Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState())
@@ -177,7 +181,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
 
             if (showSettings) {
                 FeatureCardBox(Modifier.padding(horizontal = 16.dp)) {
-                    Text("全部角色共用的记忆规则", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(if (personalCharacterId != null) "个人记忆规则" else "统一记忆规则", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     OutlinedTextField(
                         value = excluded,
                         onValueChange = { value -> excluded = value.filter(Char::isDigit) },
@@ -222,20 +226,22 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                     Button(
                         onClick = {
                             scope.launch {
-                                repository.updatePolicy(
-                                    selectedCharacterId,
-                                    MemoryPolicy(
-                                        excludedRecentMessages = excludedValue,
-                                        readableThreshold = thresholdValue,
-                                        autoSummarize = autoSummarize,
-                                    ),
-                                )
+                                val savedPolicy = MemoryPolicy(
+                                    excludedRecentMessages = excludedValue,
+                                    readableThreshold = thresholdValue,
+                                    autoSummarize = autoSummarize)
+                                if (personalCharacterId != null) repository.updatePersonalPolicy(selectedCharacterId, savedPolicy)
+                                else repository.updatePolicy(selectedCharacterId, savedPolicy)
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("保存统一设置") }
+                    ) { Text("保存") }
+                    if (personalCharacterId != null) TextButton(onClick = {
+                        scope.launch { repository.followGlobalPolicy(selectedCharacterId) }
+                    }) { Text("跟随统一设置") }
                     Text(
-                        "删除记忆后，它会立即退出召回范围，并留下删除标记，自动总结不会再把同一条重新生成；如果多个角色里存在同一条错误记忆，手动删除会一起清掉等价副本。",
+                        if (personalCharacterId != null) "删除只作用于当前角色，并退出召回。"
+                        else "删除会清除全部角色中的等价副本，并退出召回。",
                         color = FeatureBlueGray,
                         fontSize = 11.sp,
                         lineHeight = 16.sp,
@@ -364,7 +370,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                         MemoryEntryCard(
                             memory = memory,
                             onEdit = { editingMemory = memory },
-                            onDelete = { scope.launch { repository.deleteEverywhereEquivalent(memory.id) } },
+                            onDelete = { scope.launch { if (personalCharacterId != null) repository.delete(memory.id) else repository.deleteEverywhereEquivalent(memory.id) } },
                             onTogglePinned = { scope.launch { repository.togglePinned(memory.id) } },
                             onToggleRecall = { scope.launch { repository.toggleRecall(memory.id) } },
                         )
@@ -401,7 +407,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit) {
                 creatingMemory = false
             },
             onDelete = {
-                scope.launch { repository.deleteEverywhereEquivalent(memory.id) }
+                scope.launch { if (personalCharacterId != null) repository.delete(memory.id) else repository.deleteEverywhereEquivalent(memory.id) }
                 editingMemory = null
                 creatingMemory = false
             },

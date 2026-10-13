@@ -39,12 +39,11 @@ import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-private val ChatHubLabels = listOf("消息", "角色", "朋友圈", "辞海", "我的")
+private val ChatHubLabels = listOf("消息", "角色", "朋友圈", "我的")
 private val ChatHubIcons = listOf(
     Icons.Outlined.ChatBubbleOutline,
     Icons.Outlined.PeopleOutline,
     Icons.Outlined.DynamicFeed,
-    Icons.Outlined.MenuBook,
     Icons.Outlined.PersonOutline,
 )
 
@@ -57,6 +56,9 @@ fun MigratedChatHubScreenV2(
     onOpenSettings: () -> Unit,
 ) {
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    LaunchedEffect(selectedTab) {
+        if (selectedTab !in ChatHubLabels.indices) selectedTab = ChatHubLabels.lastIndex
+    }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val unreadRevision by ChatUnreadStore.revision.collectAsState()
@@ -81,7 +83,6 @@ fun MigratedChatHubScreenV2(
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = {
-            if (selectedTab != 3) {
                 MigratedChatTopBar(
                     title = "聊天",
                     onBack = onBack,
@@ -101,7 +102,6 @@ fun MigratedChatHubScreenV2(
                         }
                     },
                 )
-            }
         },
         bottomBar = {
             NavigationBar(containerColor = LuluColors.Card) {
@@ -136,7 +136,6 @@ fun MigratedChatHubScreenV2(
                 0 -> ChatHubV2Messages(onOpenConversation)
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
                 2 -> MomentsScreen()
-                3 -> LexiconFeatureScreenV2(onBack = {}, embedded = true)
                 else -> ChatHubV2Profile(onFavorites = { showFavorites = true })
             }
         }

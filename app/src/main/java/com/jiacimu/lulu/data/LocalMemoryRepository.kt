@@ -70,6 +70,19 @@ class LocalMemoryRepository : MemoryRepository {
         refreshDebug("已保存全部角色共用的记忆规则", characterId)
     }
 
+    /** Personal settings override the global defaults without reviving obsolete policies. */
+    suspend fun updatePersonalPolicy(characterId: String, policy: MemoryPolicy) {
+        require(characterId.isNotBlank())
+        require(policy.excludedRecentMessages >= 0 && policy.readableThreshold > 0)
+        mutate { current -> current.copy(personalPolicies = current.personalPolicies + (characterId to policy)) }
+        refreshDebug("已保存当前角色的记忆规则", characterId)
+    }
+
+    suspend fun followGlobalPolicy(characterId: String) {
+        mutate { current -> current.copy(personalPolicies = current.personalPolicies - characterId) }
+        refreshDebug("当前角色跟随统一记忆规则", characterId)
+    }
+
     /** Clear history bookkeeping too, allowing the new life to learn the same fact again. */
     fun clearCharacterHistory(characterId: String) {
         mutate { current ->
@@ -711,6 +724,9 @@ class LocalMemoryRepository : MemoryRepository {
             },
         )
         .put("globalPolicy", value.globalPolicy?.let(::encodePolicy) ?: JSONObject.NULL)
+        .put("personalPolicies", JSONObject().apply {
+            value.personalPolicies.forEach { (id, policy) -> put(id, encodePolicy(policy)) }
+        })
         .put(
             "processedMessageIds",
             JSONObject().apply {
@@ -744,6 +760,14 @@ class LocalMemoryRepository : MemoryRepository {
                             autoSummarize = item.optBoolean("autoSummarize", true),
                         ),
                     )
+                }
+            }
+            val personalObject = root.optJSONObject("personalPolicies") ?: JSONObject()
+            val personalPolicies = buildMap {
+                val keys = personalObject.keys()
+                while (keys.hasNext()) {
+                    val id = keys.next()
+                    personalObject.optJSONObject(id)?.let { put(id, decodePolicy(it)) }
                 }
             }
             val globalPolicy = root.optJSONObject("globalPolicy")?.let(::decodePolicy)
@@ -784,6 +808,7 @@ class LocalMemoryRepository : MemoryRepository {
                 entries = entries,
                 policies = policies,
                 globalPolicy = globalPolicy,
+                personalPolicies = personalPolicies,
                 processedMessageIds = processed,
                 immediateProcessedIds = immediateProcessed,
                 forgottenSourceIds = forgotten,
@@ -857,6 +882,7 @@ private data class MemoryStoreState(
     val entries: List<MemoryEntry> = emptyList(),
     val policies: Map<String, MemoryPolicy> = emptyMap(),
     val globalPolicy: MemoryPolicy? = null,
+    val personalPolicies: Map<String, MemoryPolicy> = emptyMap(),
     val processedMessageIds: Map<String, Set<String>> = emptyMap(),
     val immediateProcessedIds: Map<String, Set<String>> = emptyMap(),
     val forgottenSourceIds: Map<String, Set<String>> = emptyMap(),
@@ -864,7 +890,7 @@ private data class MemoryStoreState(
 )
 
 private fun MemoryStoreState.resolvedPolicy(characterId: String): MemoryPolicy =
-    globalPolicy ?: policies[characterId] ?: MemoryPolicy()
+    personalPolicies[characterId] ?: globalPolicy ?: policies[characterId] ?: MemoryPolicy()
 
 private fun MemoryEntry.dedupeKey(): String = kind.name + ":" + memoryIdentityKey()
 

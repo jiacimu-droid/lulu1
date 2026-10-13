@@ -16,8 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
 import com.jiacimu.lulu.data.CharacterAddressPreference
 import com.jiacimu.lulu.data.CharacterProfileSchema
-import com.jiacimu.lulu.data.CharacterDevelopmentStore
-import com.jiacimu.lulu.data.DevelopmentMaturity
 import com.jiacimu.lulu.data.ModelStructuredOutput
 import com.jiacimu.lulu.ai.LuluAiServices
 import kotlinx.coroutines.launch
@@ -38,12 +36,8 @@ internal fun CharacterLifeSettings(
     var fillFeedback by remember(characterId) { mutableStateOf("") }
     val fillable = CharacterProfileSchema.fields.filter { it.group != "兼容存档" }
     val missing = fillable.filter { root.optJSONObject("profile")?.optString(it.key).isNullOrBlank() }
-    val grownRevision by CharacterDevelopmentStore.revisions.collectAsState()
-    val grown = remember(characterId, states, grownRevision) {
-        CharacterDevelopmentStore.active(characterId).takeLast(5)
-    }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("人物人格", style = MaterialTheme.typography.titleLarge,
+        Text("稳定倾向", style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold)
         if (missing.isNotEmpty() && seedPersona.isNotBlank()) {
             OutlinedButton(
@@ -80,20 +74,28 @@ internal fun CharacterLifeSettings(
                                 }
                             }
                         }
-                        fillFeedback = if (saved > 0) "按已有设定补齐了 $saved 项；未明确的兴趣仍留待真实经历形成"
-                            else "这次未生成可核实的补充，原有人格未被改动"
+                        fillFeedback = if (saved > 0) "已补齐 $saved 项"
+                            else "暂无可补充内容"
                         filling = false
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (filling) "正在依据已有设定整理" else "依据已有核心简介补齐空白（不覆盖已填项）") }
+            ) { Text(if (filling) "整理中…" else "补齐空白") }
         }
         if (fillFeedback.isNotBlank()) Text(fillFeedback,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall)
+        CharacterExpressionPreferencesSettings(characterId)
         CharacterProfileSchema.groupedFields().forEach { (group, fields) ->
-            Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            fields.forEach { field ->
+            var expanded by remember(characterId, group) { mutableStateOf(group == "兴趣与表达") }
+            Row(Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f))
+                Text(if (expanded) "收起" else "展开", style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (expanded) fields.forEach { field ->
                 val value = root.optJSONObject("profile")?.optString(field.key).orEmpty()
                 Column(Modifier.fillMaxWidth().clickable { editing = field.key; draft = value }
                     .padding(vertical = 7.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -104,23 +106,13 @@ internal fun CharacterLifeSettings(
                             style = MaterialTheme.typography.bodySmall)
                     }
                     Text(value.ifBlank {
-                        if (field.key == "interests") "尚未从真实经历中形成具体的稳定兴趣"
-                        else "未设定 · 可按已有简介整理"
+                        if (field.key == "interests") "尚未形成"
+                        else "未设定"
                     }, maxLines = 3,
                         overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 HorizontalDivider()
-            }
-        }
-        if (grown.isNotEmpty()) {
-            Text("相处中逐渐形成", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            grown.forEach { record ->
-                val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
-                Text(record.kind.label + " · " + maturity,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(record.content, style = MaterialTheme.typography.bodyMedium)
             }
         }
         // Short-lived mental states belong to 此刻, not the stable persona.

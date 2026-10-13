@@ -523,6 +523,11 @@ class CompanionModelGateway(
                     }
                 }
                 if (effectiveMode != CompanionContextMode.Isolated) {
+                    if ((effectiveMode == CompanionContextMode.Full ||
+                        effectiveMode == CompanionContextMode.CharacterAndScenario) &&
+                        !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)) {
+                        appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)
+                    }
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.promptSection())
                     appendLine(com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
                         characterId,

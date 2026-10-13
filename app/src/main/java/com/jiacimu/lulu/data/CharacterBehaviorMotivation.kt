@@ -33,7 +33,7 @@ internal object CharacterBehaviorMotivation {
         speechIntent: String = "",
     ): Basis? {
         fun clean(text: String): String = text.replace(Regex("\\s+"), " ").trim().take(240)
-        val actionName = action.trim().lowercase()
+        val actionName = canonicalAction(action)
         val conversational = actionName in setOf(
             "reply", "call_reply", "group_reply", "message", "group_message",
             "send_private_message", "send_group_message", "send_private_sticker",
@@ -43,16 +43,16 @@ internal object CharacterBehaviorMotivation {
         val ownIdea = appraisal?.optJSONObject("ownActivity")
         val playful = appraisal?.optJSONObject("spontaneousBid")
         val wanted = if (conversational) clean(appraisal?.optString("responseAim").orEmpty()) else ""
-        val impulse = clean(emotion?.optString("impulse").orEmpty())
-        val ownAction = ownIdea?.optString("action").orEmpty().lowercase()
-        val activityWhy = if (ownAction == actionName ||
-            (actionName == "read_book" && ownAction == "reading") ||
-            (actionName == "digital_world_action" && ownAction == "digital_world") ||
-            (actionName == "play_solo_game" && ownAction == "solo_game"))
+        // An emotion can contain a different urge (e.g. to rest while deciding to
+        // publish). Only an explicitly matched impulse can authorize this action.
+        val impulse = if (canonicalAction(emotion?.optString("action").orEmpty()) == actionName)
+            clean(emotion?.optString("impulse").orEmpty()) else ""
+        val ownAction = canonicalAction(ownIdea?.optString("action").orEmpty())
+        val activityWhy = if (ownAction == actionName)
             clean(ownIdea?.optString("whyNow").orEmpty()) else ""
         val playfulWhy = if (conversational) clean(playful?.optString("wantedMove").orEmpty()) else ""
         val written = clean(reason)
-        val speech = if (action.lowercase() in setOf("reply", "group_reply", "call_reply"))
+        val speech = if (actionName in setOf("reply", "group_reply", "call_reply"))
             clean(speechIntent) else ""
         val candidates = listOf(
             "chosen_reason" to written,
@@ -72,6 +72,17 @@ internal object CharacterBehaviorMotivation {
             feeling = clean(emotion?.optString("feeling").orEmpty()),
             wanted = wanted.ifBlank { activityWhy.ifBlank { playfulWhy.ifBlank { impulse.ifBlank { speech } } } },
         )
+    }
+
+    private fun canonicalAction(action: String): String = when (val name = action.trim().lowercase()) {
+        "reading", "read_book" -> "reading"
+        "solo_game", "play_solo_game" -> "solo_game"
+        "digital_world", "digital_world_action" -> "digital_world"
+        "moment", "publish_moment" -> "moment"
+        "journal", "write_journal" -> "journal"
+        "sticker", "send_private_sticker" -> "send_private_sticker"
+        "group_sticker", "send_group_sticker" -> "send_group_sticker"
+        else -> name
     }
 
     /** An action without any subjective reason must wait; silence may be undecided. */

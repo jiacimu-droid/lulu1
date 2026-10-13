@@ -87,7 +87,7 @@ internal fun CompanionPresenceDialog(
             color = Color.White,
             shape = RoundedCornerShape(28.dp),
             border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
-            shadowElevation = 10.dp,
+            shadowElevation = 2.dp,
         ) {
             Box(Modifier.fillMaxWidth()) {
                 LazyColumn(
@@ -101,20 +101,15 @@ internal fun CompanionPresenceDialog(
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             
-                            Text("$characterName · 此刻", color = Color(0xFF1D1D1F), fontWeight = FontWeight.Bold, fontSize = 23.sp)
+                            Text("$characterName", color = Color(0xFF1D1D1F), fontWeight = FontWeight.Bold, fontSize = 23.sp)
                             if (messageAnchor != null) {
                                 Text("这条消息发出时的此刻", color = Color(0xFF7A7A7E), fontSize = 11.sp)
                             }
                         }
                     }
                     item(key = "tabs") {
-                        Row(
-                            modifier = Modifier.horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            FilterChip(selected = selectedTab == 0, onClick = { selectedTab = 0 }, label = { Text("当前") })
-                            FilterChip(selected = selectedTab == 1, onClick = { selectedTab = 1 }, label = { Text("心声历史") })
-                        }
+                        CharacterSectionTabs(listOf("此刻", "心声历史"), selectedTab) { selectedTab = it }
+
                     }
 
                     if (selectedTab == 0) {
@@ -151,7 +146,7 @@ internal fun CompanionPresenceDialog(
                                                     activity.optString("whyNow").takeIf(String::isNotBlank),
                                                     activity.optString("result").takeIf(String::isNotBlank),
                                                 ).filterNotNull().joinToString("\n")
-                                                PresenceDialogSection("自己的生活动作 · $status", lines)
+                                                PresenceDialogSection("正在做 · $status", lines)
                                             }
                                         }
                                     }
@@ -242,14 +237,15 @@ private fun PresenceStateContent(
     // Keep the active action/status separate from the most recent *authored*
     // inner voice. An old thought may be the latest one, but it must retain its
     // original time, never be falsely attributed to today's state update.
-    if (state.gesture.isNotBlank()) PresenceDialogSection("当前动作", state.gesture)
     val status = PresencePresentation.status(state)
-    if (status.isNotBlank()) PresenceDialogSection("状态", status)
+    val summary = listOf(state.mood, status, state.gesture).filter(String::isNotBlank).distinct()
+    if (summary.isNotEmpty()) Text(summary.joinToString(" · "),
+        color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
     val voice = heartMoment?.innerThought.orEmpty()
     if (voice.isNotBlank()) {
         val time = heartMoment!!.updatedAt.atZone(ZoneId.systemDefault())
             .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
-        val label = if (heartMoment.updatedAt == state.updatedAt) "这一刻的心声"
+        val label = if (heartMoment.updatedAt == state.updatedAt) "心声"
             else "最近一次心声 · $time"
         PresenceDialogSection(label, voice)
     }
@@ -257,7 +253,7 @@ private fun PresenceStateContent(
         val date = thoughtMoment.updatedAt.atZone(ZoneId.systemDefault())
             .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
         PresenceDialogSection(
-            if (thoughtMoment.updatedAt == state.updatedAt) "此刻的小心思与顾虑"
+            if (thoughtMoment.updatedAt == state.updatedAt) "想法与顾虑"
             else "最近的小心思与顾虑 · $date",
             detail,
         )
@@ -337,8 +333,6 @@ private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
         olderConcerns.isNotEmpty() || ended.isNotEmpty()) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("过去的心路", fontWeight = FontWeight.SemiBold, color = Color(0xFF262629))
-            Text("这里保留过去的想法与变化；它们不代表角色此刻仍在这样想。",
-                fontSize = 11.sp, color = Color(0xFF7A7A7E))
             oldThoughts.forEach { entry ->
                 val time = runCatching {
                     Instant.parse(entry.optString("at")).atZone(ZoneId.systemDefault())

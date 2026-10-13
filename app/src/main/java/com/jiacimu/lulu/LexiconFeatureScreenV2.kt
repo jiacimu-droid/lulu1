@@ -64,21 +64,22 @@ fun LexiconFeatureScreenV2(
     initialDiaryTitle: String? = null,
     initialSectionName: String? = null,
     embedded: Boolean = false,
+    personal: Boolean = false,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
     var selectedCharacterId by rememberSaveable(initialCharacterId) {
         mutableStateOf(
-            initialCharacterId?.takeIf { it in characters }
+            initialCharacterId?.takeIf { personal || it in characters }
                 ?: characters.keys.firstOrNull()
                 ?: "lulu",
         )
     }
     LaunchedEffect(characters.keys, selectedCharacterId, initialCharacterId) {
-        val requestedCharacterId = initialCharacterId?.takeIf { it.isNotBlank() && it in characters }
+        val requestedCharacterId = initialCharacterId?.takeIf { it.isNotBlank() && (personal || it in characters) }
         if (requestedCharacterId != null && selectedCharacterId != requestedCharacterId) {
             selectedCharacterId = requestedCharacterId
-        } else if (selectedCharacterId !in characters && characters.isNotEmpty()) {
+        } else if (!personal && selectedCharacterId !in characters && characters.isNotEmpty()) {
             selectedCharacterId = characters.keys.first()
         }
     }
@@ -136,14 +137,18 @@ fun LexiconFeatureScreenV2(
         containerColor = LuluColors.Paper,
         topBar = {
             TopAppBar(
-                title = { Text(if (embedded) "聊天" else "辞海", fontWeight = FontWeight.SemiBold) },
+                title = { Column {
+                    Text("辞海", fontWeight = FontWeight.SemiBold)
+                    if (personal) Text(characters[selectedCharacterId]?.displayName.orEmpty(),
+                        fontSize = 12.sp, color = LuluColors.Muted)
+                } },
                 navigationIcon = {
                     if (!embedded) {
                         IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                     }
                 },
                 actions = {
-                    Box {
+                    if (!personal) Box {
                         TextButton(onClick = { characterMenuExpanded = true }) {
                             Text(
                                 characters[selectedCharacterId]?.displayName.orEmpty().ifBlank { "选择角色" },
@@ -176,41 +181,8 @@ fun LexiconFeatureScreenV2(
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            Box(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Surface(
-                    color = LuluColors.Card,
-                    border = BorderStroke(1.dp, LuluColors.Border),
-                    shape = RoundedCornerShape(15.dp),
-                ) {
-                    Row(Modifier.padding(3.dp).horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        (LexiconV2Sections.map { it.second } + "足迹").forEachIndexed { index, label ->
-                            TextButton(
-                                onClick = {
-                                    sectionIndex = index
-                                    editing = null
-                                    creating = false
-                                },
-                                modifier = Modifier.width(54.dp).height(34.dp),
-                                contentPadding = PaddingValues(0.dp),
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = if (sectionIndex == index) LuluColors.CardStrong else Color.Transparent,
-                                    contentColor = LuluColors.Ink,
-                                ),
-                            ) {
-                                Text(
-                                    label,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (sectionIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            CharacterSectionTabs(LexiconV2Sections.map { it.second } + "足迹", sectionIndex,
+                onSelect = { sectionIndex = it; editing = null; creating = false })
 
             if (isLifeAudit) {
                 CharacterLifeAuditScreen(selectedCharacterId, Modifier.weight(1f))
@@ -224,13 +196,7 @@ fun LexiconFeatureScreenV2(
                     item {
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
-                            if (section == LexiconSection.Favorite) {
-                                Text(
-                                    "角色在聊天时真心想留下来的主人消息，会出现在这里。",
-                                    color = LuluColors.Muted,
-                                    fontSize = 12.sp,
-                                )
-                            }
+
                         }
                     }
                 } else {

@@ -81,6 +81,7 @@ fun LuluMigrationRootAppV2(
     var selectedCharacterId by rememberSaveable(initialTargetCharacterId) {
         mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu")
     }
+    var personalMemory by rememberSaveable { mutableStateOf(false) }
     var lexiconInitialDiaryTitle by rememberSaveable(initialDiaryTitle) { mutableStateOf(initialDiaryTitle) }
     var lexiconInitialSection by rememberSaveable(initialLexiconSection) { mutableStateOf(initialLexiconSection) }
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
@@ -245,6 +246,17 @@ fun LuluMigrationRootAppV2(
                                         selectConversationCharacter()
                                         pushRoute(MigrationRoute.WorldBook)
                                     },
+                                    onLexicon = {
+                                        selectConversationCharacter()
+                                        lexiconInitialDiaryTitle = null
+                                        lexiconInitialSection = null
+                                        pushRoute(MigrationRoute.Lexicon)
+                                    },
+                                    onMemory = {
+                                        selectConversationCharacter()
+                                        personalMemory = true
+                                        pushRoute(MigrationRoute.Memory)
+                                    },
                                     onOpenGame = { gameId ->
                                         initialGameId = gameId
                                         pushRoute(MigrationRoute.Games)
@@ -260,6 +272,7 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Home -> MigrationHomeV2(
                                     onOpen = { target ->
                                         if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
+                                        if (target == MigrationRoute.Memory) personalMemory = false
                                         if (target == MigrationRoute.Lexicon) {
                                             selectedCharacterId = "lulu"
                                             lexiconInitialDiaryTitle = null
@@ -294,12 +307,16 @@ fun LuluMigrationRootAppV2(
                                     },
                                 )
 
-                                MigrationRoute.Memory -> MemoryFeatureScreen(::popRoute)
+                                MigrationRoute.Memory -> MemoryFeatureScreen(
+                                    onBack = ::popRoute,
+                                    personalCharacterId = selectedCharacterId.takeIf { personalMemory },
+                                )
                                 MigrationRoute.Lexicon -> LexiconFeatureScreenV2(
                                     onBack = ::popRoute,
                                     initialCharacterId = selectedCharacterId,
                                     initialDiaryTitle = lexiconInitialDiaryTitle,
                                     initialSectionName = lexiconInitialSection,
+                                    personal = true,
                                 )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
                                     initialCharacterId = selectedCharacterId,

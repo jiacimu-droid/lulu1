@@ -21,6 +21,7 @@ internal object CharacterSpeechIdentity {
 
         return buildString {
             appendLine("【这个角色自己的表达倾向，不是必须照着说的台词】")
+            appendLine(CharacterExpressionPreferences.promptSection(characterId))
             if (includeRelationship) {
                 appendLine(CharacterAddressPreference.promptSection(characterId))
                 CharacterRelationshipPreferences.promptSection(characterId, includeCore)

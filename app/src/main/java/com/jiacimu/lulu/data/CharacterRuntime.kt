@@ -30,7 +30,8 @@ object CharacterRuntime {
         val life = DigitalLifeProfileStore.get(characterId)
         return CharacterDefinitionSnapshot(character.displayName, CharacterIdentityStore.get(characterId), persona,
             listOf(character.displayName, CharacterIdentityStore.identities.value[characterId].orEmpty(), persona,
-                life.lifeForm.name, life.bornAt?.toString().orEmpty()))
+                life.lifeForm.name, life.bornAt?.toString().orEmpty(),
+                CharacterLifeStore.state(characterId).optJSONObject("expressionPreferences")?.toString().orEmpty()))
     }
 
     fun definitionChanges(characterId: String): Flow<CharacterDefinitionSnapshot> = combine(

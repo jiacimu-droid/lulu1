@@ -161,16 +161,18 @@ fun CharacterSettingsScreenV2(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    listOf("资料", "人格", "陪伴", "管理").forEachIndexed { index, label ->
-                        FilterChip(section == index, onClick = {
-                            pageFocusManager.clearFocus(force = true)
-                            keyboard?.hide()
-                            section = index
-                        }, label = { Text(label, fontSize = 12.sp) }, modifier = Modifier.weight(1f))
-                    }
-                }
+                CharacterSectionTabs(listOf("资料", "人格", "成长", "陪伴", "管理"),
+                    selected = when (section) { 4 -> 2; 2 -> 3; 3 -> 4; else -> section },
+                    onSelect = { index ->
+                        pageFocusManager.clearFocus(force = true)
+                        keyboard?.hide()
+                        section = when (index) { 2 -> 4; 3 -> 2; 4 -> 3; else -> index }
+                    })
             }
+            if (section == 4) item {
+                CharacterV2Card { CharacterLearningSettings(characterId) }
+            }
+
             if (section == 1) item {
                 CharacterV2Card {
                     Text("人格与表达", fontWeight = FontWeight.Bold, fontSize = 19.sp)
@@ -178,7 +180,7 @@ fun CharacterSettingsScreenV2(
                         value = persona,
                         onValueChange = { persona = it; persistDefinition() },
                         label = { Text("人物核心简介") },
-                        placeholder = { Text("用一小段概括人物定位与最重要的长期特征。价值、判断、关系方式和语言习惯请到「人格」页面分别填写，避免重复。") },
+                        placeholder = { Text("核心性格与长期特征") },
                         minLines = 4,
                         maxLines = 10,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
@@ -208,7 +210,7 @@ fun CharacterSettingsScreenV2(
                         value = identity,
                         onValueChange = { identity = it; persistDefinition() },
                         label = { Text("身份与背景事实") },
-                        placeholder = { Text("这个角色是谁：身份、职业、时代、阵营、出身与明确背景事实。不要写说话习惯、当前心情或临时目标。") },
+                        placeholder = { Text("身份、背景与已知事实") },
                         minLines = 3,
                         maxLines = 8,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
@@ -234,26 +236,19 @@ fun CharacterSettingsScreenV2(
                             Text("确认为现实角色")
                         }
                     } else if (digitalLife.enabled) {
-                        Text("数字生命 · 从生命形态确定起始终如此", fontWeight = FontWeight.SemiBold)
-                        Text("生活在数字世界，拥有原生数字身体和持久化家园。数字世界的触觉与见面是真实共同体验，但不冒充物理肉身事件。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                        Text("数字生命", fontWeight = FontWeight.SemiBold)
                         digitalLife.bornAt?.let { bornAt ->
                             val day = (Duration.between(bornAt, Instant.now()).toDays() + 1L).coerceAtLeast(1L)
                             val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(bornAt)
                             Text("生命记录 · 第${day}天 · 可追溯起点 ${bornLabel}", color = LuluColors.Muted, fontSize = 11.sp)
                         }
                     } else {
-                        Text("现实角色 · 从创建起始终如此", fontWeight = FontWeight.SemiBold)
-                        Text("以现实人物设定与你互动。见面时可以进行现实场景演绎，也可以通过数字投影进入数字世界；不会获得数字生命的原生家园。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                        Text("现实角色", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
             }
             if (section == 2) {
-            item {
-                CharacterV2Card {
-                    CharacterLearningSettings(characterId)
-                }
-            }
             item {
                 CharacterV2Card {
                     Text("主动感知", fontWeight = FontWeight.Bold, fontSize = 19.sp)
@@ -265,7 +260,6 @@ fun CharacterSettingsScreenV2(
                     ) { checked ->
                         ProactivePerceptionPolicyStore.update(characterId) { it.copy(adaptiveFrequency = checked, rememberedAdaptiveFrequency = checked) }
                     }
-                    Text("开启后会参考未读消息、挂心事项、近期联系来调整感知间隔，并保留少量自然浮动；不是按固定概率主动打电话。是否联系由角色另行决定。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
                     CharacterV2Switch(
                         title = "夜间勿扰",
                         checked = perceptionPolicy.quietHoursEnabled,
@@ -302,7 +296,6 @@ fun CharacterSettingsScreenV2(
                 CharacterV2Card {
                     Text("主动来电", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     CharacterV2Switch(title = "允许主动来电", checked = proactiveCalls) { proactiveCalls = it; persistDefinition() }
-                    Text("角色可以自主选择是否拨号；自己答应的定时来电会尝试通过真实来电执行。关闭主动来电时，未执行的拨号承诺会显示受阻，不能伪装为已拨出。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
             item {
@@ -322,9 +315,7 @@ fun CharacterSettingsScreenV2(
                     CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
                     HorizontalDivider()
                     Text("哄睡专用声线", fontWeight = FontWeight.SemiBold)
-                    Text("仅 ElevenLabs 哄睡通话使用；关闭或留空时沿用角色平时的声线。",
-                        color = LuluColors.Muted, fontSize = 12.sp)
-                    var bedtimeVoiceId by remember(characterId) {
+                                        var bedtimeVoiceId by remember(characterId) {
                         mutableStateOf(CharacterVoicePreferenceStore.sleepVoiceId(characterId))
                     }
                     var bedtimeVoiceEnabled by remember(characterId) {
@@ -527,8 +518,8 @@ private fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
         border = BorderStroke(1.dp, LuluColors.Border),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
     ) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
     }
 }

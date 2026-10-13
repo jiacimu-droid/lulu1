@@ -1018,7 +1018,7 @@ object ProactivePerceptionRuntime {
             // A blank model reason must remain visible as a missing reason,
             // rather than disappearing from the audit as if no call happened.
             reason = CharacterBehaviorMotivation.resolve(
-                decision.action.name.lowercase(), decision.reason, decision.appraisal, decision.innerLife,
+                (if (decision.action == Action.TOOL) decision.tool else decision.action.name.lowercase()), decision.reason, decision.appraisal, decision.innerLife,
             )?.reason.orEmpty().ifBlank {
                 if (decision.action == Action.SILENT)
                     "未提供具体的沉默理由；本次没有执行外部行动"
@@ -1104,7 +1104,7 @@ object ProactivePerceptionRuntime {
         // appraisal aim or brief subjective reason means NO physical/social action.
         // Never manufacture an explanation after the tool has already run.
         if (!CharacterBehaviorMotivation.permitsExternalAction(
-                decision.action.name.lowercase(), decision.reason, decision.appraisal, decision.innerLife,
+                (if (decision.action == Action.TOOL) decision.tool else decision.action.name.lowercase()), decision.reason, decision.appraisal, decision.innerLife,
             )) return ActionExecution(false, "角色本轮没有提出行动动机，未执行外部动作")
         val tool = when (decision.action) {
             Action.MESSAGE, Action.KAOMOJI -> "send_private_message"

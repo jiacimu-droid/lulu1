@@ -49,13 +49,6 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
         LazyColumn(modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item(key = "intro") {
-                Text(when (section) {
-                    0 -> "反馈、长期形成的倾向与真实变化。收到评价不等于已经改正。"
-                    1 -> "自己的决定、尝试和执行结果。决定不代表执行成功。"
-                    else -> "触发的疑问、真实探索、学习和分享结果。可查看原始依据。"
-                }, fontSize = 12.sp, color = Color(0xFF737378))
-            }
             if (visible.isEmpty()) item(key = "empty") {
                 Text("还没有可追溯的记录。", color = Color(0xFF7A7A7E))
             }
@@ -75,9 +68,15 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
                         Text(entry.at.atZone(ZoneId.systemDefault())
                             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                             color = Color(0xFF818187), fontSize = 11.sp)
-                        Text(if (entry.evidenceId.isBlank()) "主观决定记录 · 不是执行证明"
-                            else "原始依据 · " + entry.evidenceId,
-                            color = Color(0xFF818187), fontSize = 10.sp)
+                        if (entry.evidenceId.isNotBlank()) {
+                            var showSource by remember(entry.evidenceId) { mutableStateOf(false) }
+                            TextButton(onClick = { showSource = !showSource }) { Text(if (showSource) "收起依据" else "查看依据") }
+                            if (showSource) {
+                                val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(entry.evidenceId)).firstOrNull()
+                                Text(source?.content ?: "原始依据已撤回", fontSize = 12.sp,
+                                    color = Color(0xFF818187))
+                            }
+                        }
                     }
                 }
             }
