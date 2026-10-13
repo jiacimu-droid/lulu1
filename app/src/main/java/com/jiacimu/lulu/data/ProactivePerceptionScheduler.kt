@@ -313,8 +313,7 @@ object ProactivePerceptionScheduler {
         context: Context, characterId: String, evidenceId: String,
         delayMillis: Long = 20_000L,
     ) {
-        if (characterId.isBlank() || evidenceId.isBlank() ||
-            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        if (characterId.isBlank() || evidenceId.isBlank()) return
         val app = context.applicationContext
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -338,8 +337,7 @@ object ProactivePerceptionScheduler {
      * currently running worker; its evidence is checked again at execution.
      */
     fun scheduleInteractionRetry(context: Context, characterId: String, evidenceId: String) {
-        if (characterId.isBlank() || evidenceId.isBlank() ||
-            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        if (characterId.isBlank() || evidenceId.isBlank()) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInitialDelay(90_000L, TimeUnit.MILLISECONDS)
