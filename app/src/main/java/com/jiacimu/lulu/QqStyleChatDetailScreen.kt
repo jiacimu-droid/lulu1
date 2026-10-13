@@ -369,14 +369,22 @@ fun QqStyleChatDetailScreen(
         selectedMessage = null
         ChatReplyTaskManager.launch(conversationId) {
             setTypingCharacter(roleId)
-            LuluDeviceToolBridge.reconsiderChatReply(
+            var stagedState: LuluDeviceToolBridge.ReconsideredChatReply? = null
+            LuluDeviceToolBridge.respond(
                 characterId = roleId,
                 history = history,
-                originalUserText = originalUserText,
-                oldReply = originals.joinToString("\n") { qqForwardContextText(it.content) },
+                userText = originalUserText,
                 title = activeLabel,
                 archiveId = chatArchiveId,
-                groupChat = groupChat != null,
+                reconsiderationEvidenceId = observationId,
+                sceneContext = if (groupChat == null)
+                    "正在重新回复最近一轮私聊；内容由同一角色人格、主观决策和表达架构生成。"
+                else "正在重新回复最近一轮群聊发言；只代表这个角色，不泄漏任何私聊内容。",
+                turnContext = "用户要求重新考虑角色上一轮已经发出的消息；这不是新增的用户正文。" +
+                    "\n【旧回复，仅供判断哪里需要重写，不能作为新经历】\n" +
+                    originals.joinToString("\n") { qqForwardContextText(it.content) } +
+                    "\n不得再次执行旧工具，不重复发送系统回执。模型自己重新判断表达及真正有变化的心声。",
+                onReconsiderationDraft = { stagedState = it },
             ).onSuccess { reply ->
                 val bubbles = semanticReplyBubbles(reply.text)
                 if (bubbles.isEmpty()) {
@@ -400,7 +408,7 @@ fun QqStyleChatDetailScreen(
                             evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
                             triggerExtraction = false,
                         )
-                        LuluDeviceToolBridge.commitReconsideredChatReply(roleId, observationId, reply)
+                        stagedState?.let { LuluDeviceToolBridge.commitReconsideredChatReply(roleId, observationId, it) }
                     }.onFailure { reportError("回复已替换，但更新心声失败：${it.message}") }
                     replacement.filter { decodeQqChatImage(it.content) == null }.forEach {
                         ChatAutoVoicePlayback.enqueue(roleId, it.id, it.content, conversationId)
