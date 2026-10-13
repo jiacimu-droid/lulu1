@@ -106,6 +106,10 @@ internal object XhsReadingEngine {
         return requested
     }
 
+    fun mcpFallbackEnabled(context: Context): Boolean =
+        prefs(context).getBoolean("xiaohongshu:mcp-fallback-enabled", false)
+    fun setMcpFallbackEnabled(context: Context, enabled: Boolean): Boolean =
+        prefs(context).edit().putBoolean("xiaohongshu:mcp-fallback-enabled", enabled).commit()
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
@@ -133,7 +137,11 @@ internal object XhsReadingEngine {
         val query = keyword.trim().take(64)
         val canUseLocal = localEnabled(context) &&
             owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true
-        val canUseMcp = !localOnly && LuluExternalMcp.configured(context, "xiaohongshu")
+        // A saved 127.0.0.1 address does NOT mean Termux is running.
+        // Native reading is primary; optional MCP fallback is explicit and
+        // OFF by default so a dead localhost server cannot double the wait.
+        val canUseMcp = !localOnly && LuluExternalMcp.configured(context, "xiaohongshu") &&
+            (!canUseLocal || mcpFallbackEnabled(context))
         if (localOnly && !canUseLocal) {
             error("内置浏览器不可用：请打开露露机并开启「使用已登录的本机网页」，再重试")
         }
@@ -234,7 +242,8 @@ internal object XhsReadingEngine {
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                if (localOnly || !LuluExternalMcp.configured(context, "xiaohongshu")) throw error
+                if (localOnly || !mcpFallbackEnabled(context) ||
+                    !LuluExternalMcp.configured(context, "xiaohongshu")) throw error
                 onProgress("网页笔记读取失败，正在尝试备用 MCP")
                 try { readMcpNote(context, target).also { actualProvider = "mcp" } }
                 catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
