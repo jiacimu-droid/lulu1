@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T20:36:45.417451+00:00",
-  "commit": "d6aea3af1a94788de7379632df2dda318eb8c5d7",
+  "generatedAt": "2026-10-13T20:37:29.486793+00:00",
+  "commit": "d9bb11152035778d81462955e0f3e819d342a51c",
   "branch": "main",
-  "sourceFingerprint": "ba3b0400244ae438dee6bcbc92de4532c4aa3fd58f2001417789c2705f4a9e32",
+  "sourceFingerprint": "78ff2d4ca52683c859e08797e299ea0455301f64ad3b8707768ea4dbeef3854e",
   "summary": {
     "files": 615,
-    "lines": 122052,
-    "symbols": 1833
+    "lines": 122092,
+    "symbols": 1834
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10267,6 +10267,12 @@
         "path": "scripts/test_timeline_migration.py",
         "line": 8
       }
+    ],
+    "XHR": [
+      {
+        "path": "scripts/test_xhs_reader.js",
+        "line": 297
+      }
     ]
   },
   "files": [
@@ -10308,8 +10314,8 @@
     },
     {
       "path": "app/src/main/assets/xhs-reader.js",
-      "lines": 248,
-      "sha256": "659abfafe957f0363b42ff75a13a95ddd8e829db76395ac9a34d8684b0c0db15",
+      "lines": 249,
+      "sha256": "d6c116ae2f024d27c3273448357e2c6fa6f7b650b119011fc886715860bd68f6",
       "symbols": []
     },
     {
@@ -21738,9 +21744,14 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 294,
-      "sha256": "201b0f96f4bf0f0197ea1074d433b8ee70b33827787148aba92df547e1793e98",
-      "symbols": []
+      "lines": 333,
+      "sha256": "b17f9e2f1ed7330123612706b7a85562b2a059627b23fbd759b7228594d509c2",
+      "symbols": [
+        {
+          "name": "XHR",
+          "line": 297
+        }
+      ]
     },
     {
       "path": "preview/app.js",

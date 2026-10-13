@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d6aea3af1a94788de7379632df2dda318eb8c5d7`
+- 基准提交：`d9bb11152035778d81462955e0f3e819d342a51c`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：122052
-- 已发现符号：1833
+- 已索引代码/文本行：122092
+- 已发现符号：1834
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -14,7 +14,7 @@
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 56 | 0 |
-| `app/src/main/assets/xhs-reader.js` | 248 | 0 |
+| `app/src/main/assets/xhs-reader.js` | 249 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
@@ -619,7 +619,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 294 | 0 |
+| `scripts/test_xhs_reader.js` | 333 | 1 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |
