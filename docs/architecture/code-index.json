@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:17:05.699256+00:00",
-  "commit": "539598658507e289523a638e50861ca9d668ce5f",
+  "generatedAt": "2026-10-13T05:29:43.744939+00:00",
+  "commit": "e19dcb30272398b45b4c2e8c928db48bfc5a7670",
   "branch": "main",
-  "sourceFingerprint": "67729c6904c6af5426eb21fcb252dcfbbff4a3608587313f08dacc40e99a29cb",
+  "sourceFingerprint": "9678addf3083ffd20f9a842f627582d4af43589938f0fb0bfdaf0d7c1e2f55aa",
   "summary": {
-    "files": 592,
-    "lines": 116803,
-    "symbols": 1767
+    "files": 593,
+    "lines": 116890,
+    "symbols": 1771
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -582,6 +582,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt",
@@ -2486,6 +2490,10 @@
         "line": 36
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+        "line": 44
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 58
       }
@@ -2944,6 +2952,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
         "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+        "line": 16
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
@@ -3442,6 +3454,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+        "line": 12
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
@@ -14216,6 +14232,29 @@
         {
           "name": "evaluate",
           "line": 287
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+      "lines": 87,
+      "sha256": "10387ac1f220f5601b3b8c1dc46d6433592433e96b06cd69d2e0ebe70de42a44",
+      "symbols": [
+        {
+          "name": "active",
+          "line": 12
+        },
+        {
+          "name": "render",
+          "line": 16
+        },
+        {
+          "name": "initialize",
+          "line": 40
+        },
+        {
+          "name": "recent",
+          "line": 44
         }
       ]
     },
