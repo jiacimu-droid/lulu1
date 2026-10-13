@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:07:40.666474+00:00",
-  "commit": "56088c6c8e597108abe262e388cb3c0c7f92a7a5",
+  "generatedAt": "2026-10-13T10:08:19.831422+00:00",
+  "commit": "76267f8911adc20059f71caa4e48c877686dacb8",
   "branch": "main",
-  "sourceFingerprint": "e65b993b208d3eeea1d9f4baa44c3c99f3da65fe55510184ac3d2d089b29e1f3",
+  "sourceFingerprint": "1a429c60865eea93eec91496eca78bc0cee5ef61c0093646442148f0b1482486",
   "summary": {
     "files": 600,
-    "lines": 118206,
+    "lines": 118230,
     "symbols": 1787
   },
   "symbolIndex": {
@@ -4485,7 +4485,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 621
+        "line": 631
       }
     ],
     "describe": [
@@ -6573,7 +6573,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1360
+        "line": 1372
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -8073,7 +8073,7 @@
     "recordLatestSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-        "line": 163
+        "line": 165
       }
     ],
     "LuluReadingScreen": [
@@ -14126,8 +14126,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 639,
-      "sha256": "e3e6e7d568ce68d9f131181f781592d99ec2dbca21fc98b00dd9e877e7fa190d",
+      "lines": 649,
+      "sha256": "1171f0b503fda05ca6cc398f0c6df8e51dfc8aff69938172ce1b4e4971ff391a",
       "symbols": [
         {
           "name": "asJson",
@@ -14139,7 +14139,7 @@
         },
         {
           "name": "world",
-          "line": 621
+          "line": 631
         }
       ]
     },
@@ -16355,8 +16355,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1416,
-      "sha256": "b7c4b810a4ab6ddd9d3cc71131a81204c50589f14badf42c8d6174fef27b5b5a",
+      "lines": 1428,
+      "sha256": "e3336b5f46d1585485bb669877404c2d3e2b65ad18996b7259f99a0e08a1ead4",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -16380,7 +16380,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1360
+          "line": 1372
         }
       ]
     },
@@ -18316,8 +18316,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
-      "lines": 185,
-      "sha256": "0003b5aee0e41726c69a3cfa533071068a3161cbffd391faadc47f1de3a9b5df",
+      "lines": 187,
+      "sha256": "5b39cf9c95d347930b8f733dc3dae3873715418a6d80d2f7aa6dbcd080117733",
       "symbols": [
         {
           "name": "clock",
@@ -18353,7 +18353,7 @@
         },
         {
           "name": "recordLatestSleep",
-          "line": 163
+          "line": 165
         }
       ]
     },
