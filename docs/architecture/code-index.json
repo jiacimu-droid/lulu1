@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T11:24:50.672582+00:00",
-  "commit": "c76de4f542d70a2c50b6dee862c5e9fca87a829d",
+  "generatedAt": "2026-10-13T11:50:57.474052+00:00",
+  "commit": "5c5429677b2d78386f44122573021afb939b8b24",
   "branch": "main",
-  "sourceFingerprint": "8e82da4a0a8bd15da4eb32062c8697b99d3d93e0849152b79bb54a667b280791",
+  "sourceFingerprint": "8f504f9493a35a54ba7dc28079b770354c83e834903b7f419759492f3e1dca36",
   "summary": {
     "files": 603,
-    "lines": 118894,
+    "lines": 118911,
     "symbols": 1795
   },
   "symbolIndex": {
@@ -15507,8 +15507,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 361,
-      "sha256": "a352e947de1c6e03dc597fd09a25c2277b6a857734ec72550062c292b2eef5a2",
+      "lines": 378,
+      "sha256": "e6fa4374e525687904f8231b3fe53fcfaf63ff8475a927c5ee85b3b104cdd11f",
       "symbols": [
         {
           "name": "configured",
