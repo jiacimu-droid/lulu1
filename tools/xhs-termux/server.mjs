@@ -20,6 +20,15 @@ const PORT = Number(process.env.LULU_XHS_PORT || "18060");
 const HOST = "127.0.0.1";
 const LOGIN_SEL = ".main-container .user .link-wrapper .channel";
 const QR_SEL = ".login-container .qrcode-img, .qrcode-container img, img[class*='qrcode'], [class*='qrcode'] img";
+function assertXhsAccess(page) {
+  let u;
+  try { u = new URL(page.url()); } catch { return; }
+  if (!u.pathname.includes("/website-login/error")) return;
+  const code = u.searchParams.get("error_code") || "unknown";
+  const message = u.searchParams.get("error_msg") || "小红书网页拒绝访问";
+  throw new Error("小红书网页限制访问（错误码 " + code + "）： " + message +
+    "。请检查 VPN/代理和当前网络，或稍后通过官方网页确认；当前没有可用二维码。");
+}
 const TTL = 4 * 60 * 1000;
 const MAX = 10;
 let activeLogin = null;
@@ -61,6 +70,7 @@ async function qrLogin() {
     });
     await loadCookies(page);
     await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
+    assertXhsAccess(page);
     if (await page.$(LOGIN_SEL)) {
       await saveCookies(page);
       await browser.close();
@@ -71,7 +81,8 @@ async function qrLogin() {
         || [...document.querySelectorAll("button, a")].find(x => (x.innerText || "").trim() === "登录");
       el?.click();
     });
-    const qr = await page.waitForSelector(QR_SEL, { visible: true, timeout: 25000 });
+    const qr = await page.waitForSelector(QR_SEL, { visible: true, timeout: 25000 })
+      .catch(e => { assertXhsAccess(page); throw e; });
     const shot = await qr.screenshot({ type:"png" });
     login = { browser, page, expired:false, timer:null };
     activeLogin = login;
