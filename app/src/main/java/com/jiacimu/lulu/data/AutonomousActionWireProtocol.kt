@@ -46,7 +46,10 @@ internal object AutonomousActionWireProtocol {
         if (specified == "tool" && result.optString("tool").isBlank()) {
             val nestedName = result.optJSONObject("args")?.optString("tool").orEmpty()
                 .ifBlank { result.optJSONObject("args")?.optString("name").orEmpty() }
-            if (nestedName.isNotBlank()) result.put("tool", nestedName)
+            if (nestedName.isNotBlank()) {
+                result.put("tool", nestedName)
+                friendlyActionForTool[nestedName]?.let { result.put("action", it) }
+            }
         }
         // Favorites have no top-level "favorite" enum: they must remain a
         // real registered tool, even when a model calls it as a direct action.
