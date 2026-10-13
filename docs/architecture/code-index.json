@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:31:48.093307+00:00",
-  "commit": "6cfff6b2d714f321c9225310f6863ef08348b955",
+  "generatedAt": "2026-10-13T05:32:38.376765+00:00",
+  "commit": "f5f1a5d9b0af70cb23a0da61579059d855ada1e8",
   "branch": "main",
-  "sourceFingerprint": "a8e297db16db6324e059cebb40c7944b1be91f459dce5a3905a695ff335aa2e3",
+  "sourceFingerprint": "efb6571314b33e15f0c98b7829e2342c0ed7bb46b4d586174ad8f00d19c97f9b",
   "summary": {
-    "files": 593,
-    "lines": 116992,
-    "symbols": 1771
+    "files": 594,
+    "lines": 117080,
+    "symbols": 1772
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9570,6 +9570,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
         "line": 5
+      }
+    ],
+    "CoreMemoryDeliveryIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt",
+        "line": 28
       }
     ],
     "DevelopmentPolicyTest": [
@@ -20361,6 +20367,17 @@
         {
           "name": "ConversationNaturalnessGateTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt",
+      "lines": 88,
+      "sha256": "9f4e1b8aa8a4e1dda7af55473c07d8fac5295d7cd5a57eba96d0b893d23a50b9",
+      "symbols": [
+        {
+          "name": "CoreMemoryDeliveryIntegrationTest",
+          "line": 28
         }
       ]
     },
