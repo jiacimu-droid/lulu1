@@ -64,8 +64,6 @@ internal data class LuluVoiceCallState(
     val partialTranscript: String = "",
     val inputLevel: Float = 0f,
     val inputMeterAvailable: Boolean = false,
-    val batchRecording: Boolean = false,
-    val batchUploading: Boolean = false,
     val errorMessage: String = "",
     val provider: String = "",
     val generatedTranscript: String = "",
@@ -413,7 +411,6 @@ internal object LuluVoiceCallSession {
                 userSpeaking = if (nextMuted) false else it.userSpeaking,
                 listening = if (nextMuted) false else it.listening,
                 inputLevel = if (nextMuted) 0f else it.inputLevel,
-                batchRecording = if (nextMuted) false else it.batchRecording,
                 partialTranscript = if (nextMuted && providerInput == null &&
                     pendingSystemSpeech.isBlank()) "" else it.partialTranscript,
                 statusMessage = when {
@@ -511,11 +508,10 @@ internal object LuluVoiceCallSession {
                 mutableState.value.callExperienceId == sessionId &&
                 mutableState.value.sleepMode && realtime == null) {
                 val now = mutableState.value
-                val busy = now.speaking || now.batchRecording || now.batchUploading ||
-                    speechQueue?.hasPendingAudio == true
+                val busy = now.speaking || speechQueue?.hasPendingAudio == true
                 if (SleepCallContinuationPolicy.shouldQuietlyEnd(
                         sleepSilenceMillis(), now.connected, now.sleepMode,
-                        confirmedSpeechInProgress() || now.batchRecording || now.batchUploading, busy,
+                        confirmedSpeechInProgress(), busy,
                     )) {
                     endSleepCallOnSilence()
                     return@launch
@@ -1516,7 +1512,7 @@ internal object LuluVoiceCallSession {
                     providerSpeechConfirmed = false
                     providerSpeechStartedMillis = 0L
                     providerRecognitionPendingUntilMillis = 0L
-                    mutableState.update { it.copy(userSpeaking = false, batchUploading = false) }
+                    mutableState.update { it.copy(userSpeaking = false) }
                     // Check BEFORE calling handleUserSpeech: it writes sender=User
                     // and begins another model reply. Speaker TTS must never
                     // manufacture one of those turns.
@@ -1553,7 +1549,6 @@ internal object LuluVoiceCallSession {
                 scheduleSleepContinuation()
                 val dialing = mutableState.value.phase == CallPhase.Dialing
                 mutableState.update { it.copy(phase = if (dialing) CallPhase.Ready else it.phase, listening = false, userSpeaking = false, inputLevel = 0f,
-                    batchRecording = false, batchUploading = false,
                     errorMessage = "收音／识别失败：$error", statusMessage = "语音识别未完成，可重新收音") }
                 if (dialing) { providerInput?.stop(); providerInput = null; restoreCallAudio(); stopForegroundService() }
             } },
@@ -1603,8 +1598,7 @@ internal object LuluVoiceCallSession {
                         sinceUserReplyMillis = sleepSilenceMillis(),
                         connected = current.connected,
                         sleepMode = current.sleepMode,
-                        userSpeaking = confirmedSpeechInProgress() || current.batchRecording ||
-                            current.batchUploading,
+                        userSpeaking = confirmedSpeechInProgress(),
                         audioInProgress = current.speaking || speechQueue?.hasPendingAudio == true,
                     )) {
                     endSleepCallOnSilence()
@@ -1644,7 +1638,7 @@ internal object LuluVoiceCallSession {
                         current.thinking || current.speaking || current.opening ||
                             speechQueue?.hasPendingAudio == true ||
                             providerRecognitionPendingUntilMillis > clock,
-                        confirmedSpeechInProgress() || current.batchRecording || current.batchUploading,
+                        confirmedSpeechInProgress(),
                         clock - lastConfirmedUserSpeechMillis,
                         clock - lastCallAudioMillis, clock - lastSilenceReflectionMillis, silenceFailures)) {
                     lastSilenceReflectionMillis = clock
