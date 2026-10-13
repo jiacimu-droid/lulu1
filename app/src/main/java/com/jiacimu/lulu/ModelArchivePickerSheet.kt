@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -71,6 +72,7 @@ internal fun ModelArchivePickerSheet(
     ink: Color = Color(0xFF1D211F),
     muted: Color = Color(0xFF727975),
     border: Color = Color(0xFFE0E4E1),
+    usage: ModelUsage? = null,
 ) {
     val library by LuluAiServices.connectionStore.library.collectAsState()
 
@@ -105,6 +107,14 @@ internal fun ModelArchivePickerSheet(
             }
 
             HorizontalDivider(color = border)
+            if (usage == ModelUsage.VoiceCall) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("跟随私聊模型", modifier = Modifier.weight(1f), color = ink)
+                    Switch(checked = library.voiceCallFollowsChat,
+                        onCheckedChange = LuluAiServices.connectionStore::setVoiceCallFollowsChat)
+                }
+                Text("选下方模型将改为独立电话模型", color = muted, fontSize = 11.sp)
+            }
 
             if (library.archives.isEmpty()) {
                 Surface(
@@ -201,6 +211,7 @@ internal fun ModelArchiveIconButton(
     if (visible) {
         ModelArchivePickerSheet(
             title = title,
+            usage = usage,
             subtitle = subtitle,
             selectedArchiveId = selectedId,
             onSelect = { id ->
@@ -242,6 +253,7 @@ internal fun ModelArchiveTextButton(
     if (visible) {
         ModelArchivePickerSheet(
             title = title,
+            usage = usage,
             subtitle = subtitle,
             selectedArchiveId = selectedId,
             onSelect = { id ->

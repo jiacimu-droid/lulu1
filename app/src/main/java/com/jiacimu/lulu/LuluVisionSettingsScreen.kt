@@ -62,10 +62,10 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Visibility, null, tint = Color(0xFF292929))
                             Spacer(Modifier.width(9.dp))
-                            Text("图片理解 · 聊天 / 朋友圈", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text("图片理解 · 聊天 / 小红书", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
-                            "聊天和朋友圈发图时，露露机会先理解图片，再把结果作为角色内部上下文。这里的专用识图模型是可选的：不单独配置时，会自动尝试当前聊天模型；只要聊天模型本身支持图片输入，就不需要再配第二个模型。",
+                            "聊天和朋友圈发图时，露露机会先理解图片，再把结果作为角色内部上下文。小红书自动识图使用这里的专用模型，一次最多识别前六张图片。聊天识图的专用模型是可选的：不单独配置时，会自动尝试当前聊天模型；只要聊天模型本身支持图片输入，就不需要再配第二个模型。",
                             color = Color(0xFF77777B),
                             fontSize = 13.sp,
                             lineHeight = 19.sp,
@@ -81,9 +81,9 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                     border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
                 ) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("专用识图模型（可选）", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text("专用识图模型", fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         Text(
-                            "如果这里选了模型，会优先使用它；它失败时还会再尝试当前聊天模型。留空则直接跟随聊天模型。",
+                            "聊天识图优先用这里的模型，失败或留空时尝试聊天模型。小红书识图需要在这里配置支持图片的模型。",
                             color = Color(0xFF77777B),
                             fontSize = 12.sp,
                             lineHeight = 18.sp,
@@ -111,7 +111,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                     Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Text("什么时候才需要单独配？", fontWeight = FontWeight.Bold, color = Color(0xFF1D1D1F))
                         Text(
-                            "只有当前聊天模型不支持视觉输入、兼容接口不接受图片，或者你想用一个更便宜/更擅长看图的模型时，才需要在这里单独选择支持图片理解的模型。",
+                            "需要让角色理解小红书图片时，请在这里选好模型。聊天图片也可以共用它。",
                             color = Color(0xFF77777B),
                             fontSize = 12.sp,
                             lineHeight = 18.sp,

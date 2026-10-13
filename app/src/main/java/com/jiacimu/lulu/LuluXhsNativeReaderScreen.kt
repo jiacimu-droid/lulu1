@@ -2,6 +2,13 @@ package com.jiacimu.lulu
 
 import android.content.Intent
 import android.net.Uri
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import com.jiacimu.lulu.data.XhsImage
+import com.jiacimu.lulu.data.XhsImageLoader
+import com.jiacimu.lulu.ai.VisionModelService
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,6 +48,9 @@ internal fun LuluXhsNativeReaderScreen(
     var loading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var task by remember { mutableStateOf<Job?>(null) }
+    var visionTask by remember { mutableStateOf<Job?>(null) }
+    var visionText by remember { mutableStateOf("") }
+    var visionLoading by remember { mutableStateOf(false) }
     var sequence by remember { mutableIntStateOf(0) }
 
     fun failure(error: Exception): String = if (error is TimeoutCancellationException)
@@ -51,6 +61,7 @@ internal fun LuluXhsNativeReaderScreen(
         focus.clearFocus(force = true)
         keyboard?.hide()
         task?.cancel()
+        visionTask?.cancel(); visionText = ""; visionLoading = false
         val current = ++sequence
         selected = null
         article = null
@@ -81,6 +92,7 @@ internal fun LuluXhsNativeReaderScreen(
             return
         }
         task?.cancel()
+        visionTask?.cancel(); visionText = ""; visionLoading = false
         val current = ++sequence
         selected = card
         article = null
@@ -98,7 +110,7 @@ internal fun LuluXhsNativeReaderScreen(
     }
 
     fun back() {
-        task?.cancel()
+        task?.cancel(); visionTask?.cancel()
         sequence++
         if (selected != null) {
             if (initialCard != null && cards.isEmpty()) { onBack(); return }
@@ -113,7 +125,7 @@ internal fun LuluXhsNativeReaderScreen(
     LaunchedEffect(Unit) {
         if (initialCard != null) readNote(initialCard) else loadList(initialKeyword)
     }
-    DisposableEffect(Unit) { onDispose { task?.cancel() } }
+    DisposableEffect(Unit) { onDispose { task?.cancel(); visionTask?.cancel() } }
 
     Scaffold(modifier = Modifier.imePadding(), topBar = {
         TopAppBar(title = { Text("小红书 · 阅读") }, navigationIcon = {
@@ -138,6 +150,21 @@ internal fun LuluXhsNativeReaderScreen(
                     runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(target.url()))) }
                         .onFailure { message = "无法打开原文" }
                 }) { Text("查看原文") }
+                val content = article
+                if (content?.images?.isNotEmpty() == true) {
+                    TextButton(enabled = !visionLoading, onClick = {
+                        val current = sequence
+                        visionLoading = true
+                        visionTask = scope.launch {
+                            val result = VisionModelService.describeXhsImages(context, content.images.map { it.url }, content.body)
+                            if (sequence == current) {
+                                visionText = result.getOrNull().orEmpty()
+                                message = result.exceptionOrNull()?.message.orEmpty()
+                                visionLoading = false
+                            }
+                        }
+                    }) { Text(if (visionLoading) "正在识图…" else "识别图片（前${minOf(6, content.images.size)}张）") }
+                }
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
             }
             if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
@@ -150,6 +177,11 @@ internal fun LuluXhsNativeReaderScreen(
             if (target != null) {
                 LazyColumn(Modifier.weight(1f)) {
                     item { Text(article?.body.orEmpty(), style = MaterialTheme.typography.bodyLarge) }
+                    items(article?.images.orEmpty(), key = { it.url }) { photo -> XhsNoteImage(photo) }
+                    if (visionText.isNotBlank()) item {
+                        Text("图片理解（模型识别可能有误）", style = MaterialTheme.typography.titleSmall)
+                        Text(visionText, style = MaterialTheme.typography.bodyLarge)
+                    }
                 }
             } else {
                 LazyColumn(Modifier.weight(1f), state = listState, verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -165,5 +197,26 @@ internal fun LuluXhsNativeReaderScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun XhsNoteImage(photo: XhsImage) {
+    var failure by remember(photo.url) { mutableStateOf("") }
+    var retry by remember(photo.url) { mutableIntStateOf(0) }
+    val bitmap by produceState<Bitmap?>(null, photo.url, retry) {
+        value = null
+        failure = ""
+        runCatching { XhsImageLoader.bitmap(photo.url) }
+            .onFailure { if (it is CancellationException) throw it }.fold({ value = it }, { failure = it.message.orEmpty() })
+    }
+    val image = bitmap
+    if (image != null) {
+        Image(image.asImageBitmap(), contentDescription = "笔记图片",
+            modifier = Modifier.fillMaxWidth().aspectRatio(image.width.toFloat() / image.height), contentScale = ContentScale.Fit)
+    } else if (failure.isNotBlank()) {
+        TextButton(onClick = { retry++ }) { Text("图片加载失败 · 重试") }
+    } else {
+        Box(Modifier.fillMaxWidth().height(180.dp)) { LinearProgressIndicator(Modifier.fillMaxWidth()) }
     }
 }

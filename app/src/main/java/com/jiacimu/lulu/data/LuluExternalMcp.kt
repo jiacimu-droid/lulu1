@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -138,11 +139,25 @@ internal object LuluExternalMcp {
             val article = XhsReadingEngine.read(context, chosen)
             val feedId = article.id
             val title = article.title
-            val body = article.body
+            var visualText = ""
+            var visualStatus = if (article.images.isEmpty()) "无图片" else "尚未识图"
+            if (article.images.isNotEmpty() && VisionModelService.configuration(context).ready) {
+                val visual = VisionModelService.describeXhsImages(context, article.images.map { it.url }, article.body)
+                visualText = visual.getOrNull().orEmpty()
+                visualStatus = if (visualText.isNotBlank()) "已识别前${minOf(6, article.images.size)}张，共${article.images.size}张"
+                    else "识图失败，不能声称看过图片内容"
+            }
+            require(article.body.isNotBlank() || visualText.isNotBlank()) {
+                "图片笔记已取得，但没有实际识图结果；请配置识图模型后再读，未标记为已读"
+            }
+            val body = article.body + if (visualText.isNotBlank())
+                "\n[图片理解；${visualStatus}；模型识别可能有误，不是作者原始文字]\n$visualText" else ""
             val link = article.sourceUrl
             val event = "xhs-read-$characterId-${UUID.randomUUID()}"
             val observation = JSONObject().put("title", title).put("author", article.author)
-                .put("url", link).put("text", body).put("topic", keyword.ifBlank { title }).toString()
+                .put("url", link).put("text", article.body.ifBlank { body }).put("topic", keyword.ifBlank { title })
+                .put("imageCount", article.images.size).put("imageReadingStatus", visualStatus)
+                .put("imageUnderstanding", visualText).toString()
             SharedExperienceTimeline.record(event, characterId,
                 "小红书阅读", "外部平台", observation, occurredAt = Instant.now(),
                 source = "xiaohongshu-${article.provider}", evidenceKind = EventEvidenceKind.Observation)
@@ -173,7 +188,7 @@ internal object LuluExternalMcp {
             runCatching { CharacterLearningLedger.recordReading(characterId, event, personalThought?.optJSONObject("learning")) }
             prefs(context).edit().putString("xiaohongshu:seen:$characterId",
                 ((history - "" + feedId).toList().takeLast(40)).joinToString(",")).apply()
-            CompanionActionResult(true, "确实读到小红书《$title》；链接=$link；正文摘录：${body.take(1000)}。" +
+            CompanionActionResult(true, "确实读到小红书《$title》；链接=$link；正文摘录：${body.take(1000)}；图片状态：$visualStatus。" +
                 (if (thought.isBlank()) "没有生成额外感想。" else "真实读后感：$thought。") +
                 "外部作者的经历不等于你的亲历。分享给用户需要另行决定和真正发送。", evidenceId = event)
         }

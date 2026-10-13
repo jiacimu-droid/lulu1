@@ -36,7 +36,7 @@ internal data class XhsCard(
         .appendQueryParameter("xsec_source", source).build().toString()
 }
 
-internal data class XhsArticle(val id: String, val title: String, val body: String, val author: String, val provider: String) {
+internal data class XhsArticle(val id: String, val title: String, val body: String, val author: String, val provider: String, val images: List<XhsImage> = emptyList()) {
     val sourceUrl: String get() = "https://www.xiaohongshu.com/explore/$id"
 }
 
@@ -112,13 +112,30 @@ internal object XhsReadingEngine {
             val raw = payload.optJSONObject("note") ?: error("MCP 正文结构缺少 note")
             val actualId = raw.optString("noteId").ifBlank { raw.optString("note_id") }.ifBlank { raw.optString("id") }
             require(actualId.isBlank() || actualId == target.id) { "MCP 返回了其他笔记，未标记已读" }
-            JSONObject().put("title", raw.optString("title")).put("body", raw.optString("desc"))
+            val pictures = org.json.JSONArray()
+            val values = raw.optJSONArray("imageList") ?: raw.optJSONArray("image_list")
+            for (index in 0 until minOf(values?.length() ?: 0, 30)) {
+                val image = values?.optJSONObject(index) ?: continue
+                val infos = image.optJSONArray("infoList") ?: image.optJSONArray("info_list")
+                val full = (0 until (infos?.length() ?: 0)).mapNotNull { infos?.optJSONObject(it) }
+                    .firstOrNull { it.optString("imageScene") == "WB_DFT" }?.optString("url").orEmpty()
+                pictures.put(JSONObject().put("url", image.optString("urlDefault")
+                    .ifBlank { image.optString("url_default") }.ifBlank { full }.ifBlank { image.optString("urlPre") }.ifBlank { image.optString("url") })
+                    .put("width", image.optInt("width")).put("height", image.optInt("height")))
+            }
+            JSONObject().put("images", pictures).put("title", raw.optString("title")).put("body", raw.optString("desc"))
                 .put("author", raw.optJSONObject("user")?.optString("nickname").orEmpty())
         } ?: error("网站没有提供这篇笔记的正文")
         val body = note.optString("body").trim().take(8000)
-        require(body.isNotBlank()) { "实际正文为空，未标记为已读" }
+        val values = note.optJSONArray("images")
+        val images = (0 until minOf(values?.length() ?: 0, 30)).mapNotNull {
+            val row = values?.optJSONObject(it) ?: return@mapNotNull null
+            val url = XhsImagePolicy.normalize(row.optString("url")) ?: return@mapNotNull null
+            XhsImage(url, row.optInt("width"), row.optInt("height"))
+        }.distinctBy { it.url }
+        require(body.isNotBlank() || images.isNotEmpty()) { "实际笔记没有正文或图片，未标记为已读" }
         return XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
-            note.optString("author").ifBlank { target.author }, target.provider)
+            note.optString("author").ifBlank { target.author }, target.provider, images)
     }
 
     private suspend fun loadPage(context: Context, url: String, kind: String, id: String, keyword: String): JSONObject =

@@ -283,7 +283,7 @@ internal fun LuluGroupVoiceCallScreen(
                     ModelArchiveTextButton(
                         usage = ModelUsage.VoiceCall,
                         title = "电话模型",
-                        subtitle = "单人电话和群聊电话共用电话模型；聊天、游戏和末世求生不会跟着改变。",
+                        subtitle = "单人和群聊电话默认跟随私聊模型，也可单独选择电话模型。",
                         activeLabel = activeLabel,
                         icon = Icons.Outlined.Tune,
                         accent = Color(0xFF5F77A9),

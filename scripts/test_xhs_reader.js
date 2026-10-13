@@ -110,9 +110,9 @@ function navigationBrowser(path = '/explore') {
   Object.defineProperty(b.sandbox.location, 'pathname', {get: () => new URL(b.sandbox.location.href).pathname});
   b.sandbox.addEventListener = (kind, handler) => { handlers[kind] = handler; };
   b.sandbox.document.addEventListener = (kind, handler) => { handlers[kind] = handler; };
-  b.sandbox.Element = class Element {constructor(link) {this.link = link;} closest() {return this.link;} };
+  b.sandbox.Element = class Element {constructor(link) {this.link = link;} closest(selector) {return selector === 'a[href]' ? this.link : null;} };
   vm.runInContext(routeScript, b.sandbox);
-  return {...b, messages, click(href) {
+  return {...b, messages, handlers, click(href) {
     const event = {target: new b.sandbox.Element({href, innerText: '标题'}),
       prevented: false, stopped: false, preventDefault() {this.prevented = true;},
       stopImmediatePropagation() {this.stopped = true;}};
@@ -161,4 +161,63 @@ test('actual profile-note source must not be replaced by a cached feed source', 
   const b = navigationBrowser();
   b.click(`https://www.xiaohongshu.com/explore/${id}?xsec_token=actual&xsec_source=pc_user`);
   assert.equal(b.messages[0].source, 'pc_user'); assert.equal(b.messages[0].token, 'actual');
+});
+
+function searchEvent(target) {
+  return {target, key: 'Enter', prevented: false,
+    preventDefault() {this.prevented = true;}, stopImmediatePropagation() {}};
+}
+function setSearchInput(b, value) {
+  const input = {value, matches: () => true, blur() {this.blurred = true;}};
+  b.sandbox.document.querySelector = () => input;
+  return input;
+}
+test('Enter on homepage search routes before any URL or overlay change', () => {
+  const b = navigationBrowser(); const input = setSearchInput(b, ' 记者 ');
+  const event = searchEvent(input); b.handlers.keydown(event);
+  assert.equal(event.prevented, true); assert.equal(input.blurred, true);
+  assert.deepEqual(b.messages, [{kind: 'search', keyword: '记者'}]);
+});
+test('form submit routes search but unrelated and empty forms are untouched', () => {
+  const b = navigationBrowser(); setSearchInput(b, '猫');
+  b.handlers.submit(searchEvent({querySelector: () => null}));
+  assert.equal(b.messages.length, 0);
+  b.handlers.submit(searchEvent({querySelector: () => ({})}));
+  assert.equal(b.messages[0].keyword, '猫');
+  setSearchInput(b, '  '); const empty = searchEvent({querySelector: () => ({})});
+  b.handlers.submit(empty); assert.equal(empty.prevented, false); assert.equal(b.messages.length, 1);
+});
+test('search icon click routes without a search anchor', () => {
+  const b = navigationBrowser(); setSearchInput(b, '记者');
+  const element = new b.sandbox.Element(null);
+  element.closest = selector => selector !== 'a[href]' ? {} : null;
+  b.handlers.click(searchEvent(element));
+  assert.deepEqual(b.messages[0], {kind: 'search', keyword: '记者'});
+});
+test('successful overlay search API hands off even when homepage URL stays unchanged', async () => {
+  const b = browser({api: 'search/notes', payload: {code: 0, success: true, data: {items: [row()]}}});
+  const messages = [];
+  b.sandbox.luluXhsNavigation = {postMessage: json => messages.push(JSON.parse(json))};
+  b.sandbox.__luluXhsSearchKeyword = () => '记者';
+  await b.receive(); assert.deepEqual(messages[0], {kind: 'search', keyword: '记者'});
+});
+test('actual note image variants are preserved, deduplicated and restricted to official hosts', () => {
+  const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
+    desc: '正文', imageList: [
+      {urlDefault: 'http://sns-webpic-qc.xhscdn.com:80/a%2Fb?sig=x%2Fy', width: 900, height: 1200},
+      {url_default: 'https://sns-webpic-qc.xhscdn.com/a%2Fb?sig=x%2Fy'},
+      {infoList: [{imageScene: 'WB_DFT', url: 'https://sns-img.xhscdn.com/second'}]},
+      {}, {urlDefault: '/undefined'}, {urlDefault: 'https://xhscdn.com.evil.test/a'},
+      {urlDefault: 'https://user:pass@sns-img.xhscdn.com/a'}, {urlDefault: 'data:image/png;base64,abc'}
+    ]}}}}}});
+  const photos = b.snapshot('note', id).note.images;
+  assert.equal(photos.length, 2);
+  assert.equal(photos[0].url, 'https://sns-webpic-qc.xhscdn.com/a%2Fb?sig=x%2Fy');
+  assert.equal(photos[1].url, 'https://sns-img.xhscdn.com/second');
+});
+test('image-only note returns actual pixels sources without inventing a text body', () => {
+  const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
+    title: '图片知识', image_list: [{url: 'https://sns-img.xhscdn.com/photo'}]}}}}}});
+  const note = b.snapshot('note', id).note;
+  assert.equal(note.body, ''); assert.equal(note.images.length, 1);
 });

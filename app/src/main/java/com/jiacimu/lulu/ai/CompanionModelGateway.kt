@@ -66,11 +66,12 @@ data class ModelLibraryState(
     val chatArchiveId: String? = null,
     val voiceCallArchiveId: String? = null,
     val gameArchiveId: String? = null,
+    val voiceCallFollowsChat: Boolean = true,
 )
 
 fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? = when (usage) {
     ModelUsage.Chat -> chatArchiveId
-    ModelUsage.VoiceCall -> voiceCallArchiveId
+    ModelUsage.VoiceCall -> if (voiceCallFollowsChat) chatArchiveId else voiceCallArchiveId
     ModelUsage.Game -> gameArchiveId
 }?.takeIf { candidate -> archives.any { it.id == candidate } }
     ?: activeArchiveId?.takeIf { candidate -> archives.any { it.id == candidate } }
@@ -199,10 +200,14 @@ class ModelConnectionStore private constructor(context: Context) {
         persist(
             when (usage) {
                 ModelUsage.Chat -> current.copy(chatArchiveId = id)
-                ModelUsage.VoiceCall -> current.copy(voiceCallArchiveId = id)
+                ModelUsage.VoiceCall -> current.copy(voiceCallArchiveId = id, voiceCallFollowsChat = false)
                 ModelUsage.Game -> current.copy(gameArchiveId = id)
             },
         )
+    }
+
+    fun setVoiceCallFollowsChat(follows: Boolean) {
+        persist(mutable.value.copy(voiceCallFollowsChat = follows))
     }
 
     fun selectedArchiveId(usage: ModelUsage): String? = mutable.value.archiveIdFor(usage)
@@ -295,6 +300,7 @@ class ModelConnectionStore private constructor(context: Context) {
         .put("activeArchiveId", state.activeArchiveId ?: JSONObject.NULL)
         .put("chatArchiveId", state.chatArchiveId ?: JSONObject.NULL)
         .put("voiceCallArchiveId", state.voiceCallArchiveId ?: JSONObject.NULL)
+        .put("voiceCallFollowsChat", state.voiceCallFollowsChat)
         .put("gameArchiveId", state.gameArchiveId ?: JSONObject.NULL)
 
     private fun decode(root: JSONObject): ModelLibraryState {
@@ -338,6 +344,7 @@ class ModelConnectionStore private constructor(context: Context) {
             activeArchiveId = savedActive ?: archives.firstOrNull()?.id,
             chatArchiveId = root.optString("chatArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
             voiceCallArchiveId = root.optString("voiceCallArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
+            voiceCallFollowsChat = root.optBoolean("voiceCallFollowsChat", true),
             gameArchiveId = root.optString("gameArchiveId").takeIf { candidate -> archives.any { it.id == candidate } },
         )
     }

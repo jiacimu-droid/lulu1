@@ -22,7 +22,6 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import androidx.webkit.WebViewCompat
 import com.jiacimu.lulu.data.XhsCard
-import com.jiacimu.lulu.data.XhsReadingEngine
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -99,7 +98,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
 
     fun routeToReader(target: Uri): Boolean {
         if (target.scheme != "https" || target.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
-        if (target.path == "/search_result") {
+        if (target.path in setOf("/search_result", "/search", "/search/result")) {
             readerKeyword = target.getQueryParameter("keyword").orEmpty().take(64)
             readerCard = null
             readerVisible = true
@@ -185,7 +184,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 noteFailure: text.includes("笔记详情获取失败") || text.includes("笔记加载失败"),
                                 loginPrompt: /请先登录|登录后查看|扫码登录|立即登录/.test(text),
                                 verifyPrompt: /安全验证|滑块验证|异常访问|IP at risk|300012/.test(text),
-                                pageReady: document.readyState
+                                pageReady: document.readyState,
+                                currentDiagnostic: window.__luluXhsReader?.diagnostics?.() || null,
+                                searchRoutingInstalled: !!window.__luluXhsRouting,
+                                navigationBridge: !!window.luluXhsNavigation
                               });
                             })()
                         """.trimIndent()
@@ -214,8 +216,13 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 } else {
                                     append("\n网页脚本未返回诊断结果，可能仍未完成加载。")
                                 }
-                                val readReport = XhsReadingEngine.lastDiagnostic(context)
-                                if (readReport.isNotBlank()) append("\n最近读取的实际诊断：\n$readReport")
+                                val currentDiagnostic = flags?.optJSONObject("currentDiagnostic")
+                                if (currentDiagnostic != null) {
+                                    currentDiagnostic.put("stage", "current-browser")
+                                        .put("nativeWidth", web.width).put("nativeHeight", web.height)
+                                    append("\n当前页面诊断：\n$currentDiagnostic")
+                                }
+                                append("\n搜索接管脚本：${flags?.optBoolean("searchRoutingInstalled") == true}；导航桥：${flags?.optBoolean("navigationBridge") == true}")
                                 if (apiFailures == 0) append("\nHTTP 无错误不等于网站业务成功；以实际读取业务码为准。")
                             }
                         }
@@ -347,6 +354,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                     setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
                         }
                         webViewClient = object : WebViewClient() {
+                            override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
+                                if (view === browser) routeToReader(Uri.parse(url.orEmpty()))
+                            }
                             override fun shouldOverrideUrlLoading(
                                 view: WebView?,
                                 request: WebResourceRequest?,

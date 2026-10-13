@@ -31,13 +31,33 @@
     }
     return [...cards.values()].slice(0, 35);
   };
+  const images = raw => {
+    const rows = unwrap(raw?.imageList ?? raw?.image_list) || [];
+    if (!Array.isArray(rows)) return [];
+    const result = new Map();
+    for (const row of rows.slice(0, 30)) {
+      const info = row?.infoList ?? row?.info_list ?? [];
+      const candidate = row?.urlDefault ?? row?.url_default ?? info.find?.(v => v.imageScene === 'WB_DFT')?.url ?? row?.urlPre ?? row?.url;
+      try {
+        if (typeof candidate !== 'string' || !candidate.trim()) continue;
+        const url = new URL(candidate);
+        if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
+            !(/(^|\.)xhscdn\.com$|(^|\.)xiaohongshu\.com$/.test(url.hostname))) continue;
+        if (url.protocol === 'http:' && url.port === '80') url.port = '';
+        url.protocol = 'https:';
+        result.set(url.href, {url: url.href, width: Number(row.width) || 0, height: Number(row.height) || 0});
+      } catch (_) {}
+    }
+    return [...result.values()];
+  };
   const note = (raw, id) => {
     raw = unwrap(raw);
     const actual = clean(raw?.noteId ?? raw?.note_id ?? raw?.id, 40);
     if (!raw || (actual && actual !== id)) return null;
     const body = clean(raw.desc ?? raw.description, 8000);
-    if (!body) return null; // Titles/comments are not a completed reading.
-    return {id, title: clean(raw.title, 200), body,
+    const photos = images(raw);
+    if (!body && !photos.length) return null; // Image-only posts need actual visual reading before AI receipt.
+    return {id, title: clean(raw.title, 200), body, images: photos,
       author: clean(raw.user?.nickname ?? raw.user?.nickName, 120)};
   };
   // Only normalized list/body fields stay in this document's bounded memory.
@@ -62,6 +82,11 @@
       return;
     }
     received.failures[kind] = '';
+    // Also hand off searches that happen inside an overlay without changing history.
+    if (kind === 'search' && window.luluXhsNavigation && window.__luluXhsSearchKeyword) {
+      const keyword = window.__luluXhsSearchKeyword();
+      if (keyword) window.luluXhsNavigation.postMessage(JSON.stringify({kind: 'search', keyword}));
+    }
     const data = payload?.data ?? payload;
     if (kind === 'note') {
       for (const row of (data?.items ?? []).slice(0, 8)) {

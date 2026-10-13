@@ -318,9 +318,10 @@ fun LuluVoiceCallScreen(
                     CallPhase.Ready -> {
                         // Model choice stays available before dialing, without
                         // cluttering the portrait of an active phone call.
-                        if (activeArchive == null) ModelArchiveTextButton(
+                        ModelArchiveTextButton(
                             usage = ModelUsage.VoiceCall, title = "选择电话模型",
-                            subtitle = "用于这次语音通话", activeLabel = activeLabel,
+                            subtitle = "默认跟随私聊，可单独选择", activeLabel =
+                                if (library.voiceCallFollowsChat) "跟随私聊 · $activeLabel" else activeLabel,
                             icon = Icons.Outlined.Tune, accent = CallBlue, textColor = CallInk,
                             background = Color(0xFFF3F6FF), muted = CallMuted, border = CallLine,
                         )
