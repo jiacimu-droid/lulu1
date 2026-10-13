@@ -6,6 +6,8 @@ import com.jiacimu.lulu.system.LuluMediaPlayback
 
 /** Optional, evidence-gated wake-up music. Never starts on an unanswered alarm. */
 internal object WakeMusicCoordinator {
+    private const val STORE = "lulu_wake_music_actions"
+    private const val PENDING = "pending:"
     private var deferredCharacter: String? = null
 
     internal fun explicitlyAwake(text: String): Boolean {
@@ -39,11 +41,58 @@ internal object WakeMusicCoordinator {
         }
     }
 
+    /** An opted-in song may be the alarm itself; no awake acknowledgement is required. */
+    @Synchronized fun onScheduledWake(context: Context, characterId: String, taskId: String, defer: Boolean): String {
+        val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
+            !permission.getBoolean("$characterId:media", false)) return "未授权音乐叫醒"
+        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+        if (prefs.getBoolean("requested:$taskId", false)) return "本次音乐已请求"
+        if (defer || LuluVoiceCallSession.state.value.connected) {
+            prefs.edit().putString(PENDING + characterId, taskId).commit()
+            deferredCharacter = characterId
+            return "音乐将在通话结束后开始"
+        }
+        return play(context, taskId)
+    }
+
+    @Synchronized fun shouldSwitchAfterSpeech(context: Context?, characterId: String, taskId: String): Boolean =
+        context != null && context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+            .getString(PENDING + characterId, null) == taskId
+
     @Synchronized fun onCallEnded(context: Context?, characterId: String) {
-        if (deferredCharacter != characterId) return
+        if (context == null || LuluVoiceCallSession.state.value.connected) return
+        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+        val pending = prefs.getString(PENDING + characterId, null)
         deferredCharacter = null
-        if (context == null) return
-        // Dispatch only after call routing/audio focus is returned to Android.
-        LuluMediaPlayback.control(context, "play")
+        if (pending != null) {
+            prefs.edit().remove(PENDING + characterId).commit()
+            play(context, pending)
+        }
+    }
+
+    @Synchronized fun onMissedCall(context: Context?, characterId: String, taskId: String?) {
+        if (context == null || taskId == null) return
+        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+        if (prefs.getString(PENDING + characterId, null) == taskId) onCallEnded(context, characterId)
+    }
+
+    @Synchronized fun onDeclinedCall(context: Context?, characterId: String, taskId: String?) {
+        if (context == null || taskId == null) return
+        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+        if (prefs.getString(PENDING + characterId, null) == taskId) {
+            prefs.edit().remove(PENDING + characterId).commit()
+        }
+    }
+
+    private fun play(context: Context, taskId: String): String {
+        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
+        if (prefs.getBoolean("requested:$taskId", false)) return "已请求播放"
+        val response = org.json.JSONObject(LuluMediaPlayback.control(context, "play"))
+        return if (response.optBoolean("accepted") || response.optBoolean("success")) {
+            prefs.edit().putBoolean("requested:$taskId", true).commit()
+            if (response.optBoolean("success")) "音乐已开始播放"
+            else "音乐播放请求已发出，等待播放器响应"
+        } else "音乐未播放：" + response.optString("error", "尚未发现可控制的播放器")
     }
 }
