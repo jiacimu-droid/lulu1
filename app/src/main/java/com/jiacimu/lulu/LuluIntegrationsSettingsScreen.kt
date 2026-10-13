@@ -101,7 +101,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                 HorizontalDivider()
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
                 OutlinedButton(onClick = {
-                    links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/docs/XHS_PHONE_ONLY_SETUP.md")
+                    links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-termux/README.md")
                 }) { Text("查看手机安装教程") }
                 Text("先确保已连接可用的 MCP（云端或兼容的 Termux 本机服务）。按下面按钮生成登录码、保存到相册，然后在小红书的扫一扫中从相册选择图片。返回这里检查登录状态；二维码可能很快过期。",
                     style = MaterialTheme.typography.bodySmall)
