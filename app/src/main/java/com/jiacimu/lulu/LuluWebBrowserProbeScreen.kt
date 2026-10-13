@@ -52,6 +52,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var returningToList by remember { mutableStateOf(false) }
     var readerKeyword by remember { mutableStateOf("") }
     var readerCard by remember { mutableStateOf<XhsCard?>(null) }
+    // Results already received by the visible, logged-in WebView. Passing
+    // them across avoids an unnecessary second search in a hidden WebView.
+    var readerCards by remember { mutableStateOf<List<XhsCard>>(emptyList()) }
     val routingScript = remember {
         context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() } + "\n" +
             context.assets.open("xhs-browser-route.js").bufferedReader().use { it.readText() }
@@ -110,6 +113,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         returningToList = true
         readerVisible = false
         readerCard = null
+        readerCards = emptyList()
         readerKeyword = ""
         websiteIssue = ""
         val current = browser
@@ -129,15 +133,16 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         if (returningToList || readerVisible) return false
         if (target.scheme != "https" || target.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
         if (target.path in setOf("/search_result", "/search", "/search/result")) {
-            readerKeyword = target.getQueryParameter("keyword").orEmpty().take(64)
-            readerCard = null
-            readerVisible = true
-            return true
+            // Do not cover a live WebView before its search has completed.
+            // The actual search response or hydrated SSR/DOM is forwarded
+            // through the in-document reader's search-ready signal.
+            return false
         }
         val id = Regex("/(?:explore|discovery/item)/([a-zA-Z0-9]{12,40})/?")
             .matchEntire(target.path.orEmpty())?.groupValues?.get(1) ?: return false
         readerCard = XhsCard(id, target.getQueryParameter("xsec_token").orEmpty(), "笔记", "",
             target.getQueryParameter("xsec_source").orEmpty().ifBlank { "pc_feed" })
+        readerCards = emptyList()
         readerVisible = true
         return true
     }
@@ -370,10 +375,39 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 val value = runCatching { JSONObject(message.data.orEmpty()) }.getOrNull()
                                     ?: return@addWebMessageListener
                                 when (value.optString("kind")) {
-                                    "search-start", "search-ready" -> {
+                                    "search-start" -> {
                                         readerKeyword = value.optString("keyword").take(64)
-                                        readerCard = null
-                                        readerVisible = true
+                                        readerCards = emptyList()
+                                        status = "网页正在搜索，等待实际结果…"
+                                    }
+                                    "search-ready" -> {
+                                        val query = value.optString("keyword").take(64)
+                                        if (query.isBlank()) return@addWebMessageListener
+                                        val snapshot = """window.__luluXhsReader?.snapshot("search","",${JSONObject.quote(query)}) || "{}";"""
+                                        view.evaluateJavascript(snapshot) { encoded ->
+                                            if (browser !== view || readerVisible || returningToList) return@evaluateJavascript
+                                            val raw = runCatching {
+                                                org.json.JSONTokener(encoded).nextValue() as String
+                                            }.getOrNull() ?: return@evaluateJavascript
+                                            val rows = runCatching { JSONObject(raw).optJSONArray("items") }.getOrNull()
+                                            val received = (0 until minOf(rows?.length() ?: 0, 35)).mapNotNull { index ->
+                                                val item = rows?.optJSONObject(index) ?: return@mapNotNull null
+                                                val id = item.optString("id")
+                                                if (!Regex("[a-zA-Z0-9]{12,40}").matches(id)) return@mapNotNull null
+                                                XhsCard(id, item.optString("token").take(512),
+                                                    item.optString("title").take(200), item.optString("author").take(120),
+                                                    item.optString("source").takeIf {
+                                                        it in setOf("pc_feed", "pc_search", "pc_user", "pc_share", "pc_board")
+                                                    } ?: "pc_search")
+                                            }.distinctBy { it.id }
+                                            if (received.isNotEmpty() && query == readerKeyword) {
+                                                readerCards = received
+                                                readerCard = null
+                                                readerVisible = true
+                                            } else {
+                                                status = "网页搜索已结束，但没有获取到可读笔记；可点击「诊断」"
+                                            }
+                                        }
                                     }
                                     "note" -> {
                                         val id = value.optString("id")
@@ -556,7 +590,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         Surface(Modifier.fillMaxSize(), color = androidx.compose.ui.graphics.Color.White) {
             key(readerKeyword, readerCard?.id) {
                 LuluXhsNativeReaderScreen(onBack = { returnToList() },
-                    initialKeyword = readerKeyword, initialCard = readerCard)
+                    initialKeyword = readerKeyword, initialCard = readerCard,
+                    initialCards = readerCards)
             }
         }
     }
