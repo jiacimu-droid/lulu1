@@ -131,8 +131,10 @@ object LuluDeviceToolBridge {
         silenceObservationId: String = "",
         turnContext: String = "",
         reconsiderationEvidenceId: String = "",
+        onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
+        val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         if (reconsiderationEvidenceId.isBlank()) GroupEnsembleReplyEngine.respondIfApplicable(
             context = appContext,
@@ -162,7 +164,7 @@ object LuluDeviceToolBridge {
                             it.content.contains(userText.trim().take(60)))
                 }
                 .lastOrNull()?.id.orEmpty()
-        if (groundingEvidenceId.isNotBlank()) {
+        if (groundingEvidenceId.isNotBlank() && !rewriting) {
             com.jiacimu.lulu.data.ConversationGroundingEngine.beforeTurn(
                 characterId, interactionKey, groundingEvidenceId, userText,
             )
@@ -172,14 +174,14 @@ object LuluDeviceToolBridge {
         )
         // Chat does not suspend the digital world. Its persisted hourly slot prevents
         // event rerolls from rapid messages or retries.
-        val inWorldMoment = if ((!sceneContext.contains("电话") || callSilence) &&
+        val inWorldMoment = if (!rewriting && (!sceneContext.contains("电话") || callSilence) &&
             com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId)) {
             com.jiacimu.lulu.data.DigitalWorldLifeEventStore.tick(
                 appContext, characterId, now
             )
         } else null
         HealthRolePerception.initialize(appContext)
-        HealthRolePerception.recordLatestSleep(characterId)
+        if (!rewriting) HealthRolePerception.recordLatestSleep(characterId)
         val deviceContext = com.jiacimu.lulu.data.UserDevicePerception.context(appContext, characterId, now)
         val observedWorld = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(appContext, characterId, now)
         val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
@@ -222,7 +224,17 @@ object LuluDeviceToolBridge {
                 appendLine("对方已经显露出可能值得回应的需要，不要用“那我该做什么/你想让我做什么”把自己的判断责任原样退回去；按本人性格先作一个自然的小判断或回应。")
             }
         }.trim() else ""
-        val decisionFormatRule = if (callSilence) """
+        val decisionFormatRule = if (rewriting) """
+            这是已有聊天的重新回复：不是新的用户消息。保留全部原本人格、记忆、判断、主观心声和表达两阶段架构，
+            但只允许重新决定这轮该怎样用 reply 表达，不能选 tool 或 silent，不能重做已经执行的动作。
+            决策阶段只输出一个尽快闭合的 JSON，必须有 action=reply、speechIntent 和 dialogueMove。
+            speechIntent 是想传达的真实意思，不是已经说出口的话；表达层将负责分气泡。
+            dialogueMove 可用正常聊天的 type/target/contentIntent/maxBubbles（1到3）。
+            若真正产生新的未说出口想法，可选 innerThought，必须同时提供
+            innerThoughtBasis={"focus":"具体触发点","change":"和上一刻有何不同","unsaidWhy":"为何没有说出口"}；
+            如情绪、内在动机有可靠变化可选 innerLife、appraisal、mood。
+            不能为了凑结构创造情绪、心声或未发生的事件，禁止重复执行工具。
+        """.trimIndent() else if (callSilence) """
             这是电话中没有新增用户发言的自主观察，可选择 silent 或 reply；不允许工具动作。
             安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
             真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
@@ -344,6 +356,7 @@ object LuluDeviceToolBridge {
             maxTokens = when {
                 sceneContext.contains("哄睡") && sceneContext.contains("长故事优先") -> 5_000
                 sceneContext.contains("哄睡") -> 3_800
+                rewriting -> 2_400
                 separateExpression -> 1_450
                 sceneContext.contains("电话") && userText.length < 280 -> 1_500
                 else -> 2_400
@@ -357,7 +370,7 @@ object LuluDeviceToolBridge {
                 currentInput = userText,
                 sceneContext = sceneContext,
                 recentContext = history,
-                taskIntent = "判断是直接回复还是执行一个真实手机工具",
+                taskIntent = if (rewriting) "使用统一人格和两阶段表达链路重写上一轮，不执行工具" else "判断是直接回复还是执行一个真实手机工具",
             ),
         )
         currentCoroutineContext().ensureActive()
@@ -385,8 +398,10 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
-        if (reconsiderationEvidenceId.isNotBlank()) {
-            if (plan.action == "tool") return Result.failure(IllegalStateException("重新回复只重做表达，没有再次执行工具"))
+        if (rewriting) {
+            if (plan.action != "reply") return Result.failure(
+                IllegalStateException("重新回复只能重新组织语言，不重做工具或沉默决定")
+            )
             plan.appraisal?.remove("ownActivity")
         }
         if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
@@ -406,7 +421,7 @@ object LuluDeviceToolBridge {
         val dialoguePlan = com.jiacimu.lulu.data.DialogueMoveEngine.resolve(
             plan.dialogueMove ?: plan.appraisal, plan.speechIntent, userText,
         )
-        if (groundingEvidenceId.isNotBlank()) {
+        if (groundingEvidenceId.isNotBlank() && !rewriting) {
             com.jiacimu.lulu.data.ConversationGroundingEngine.afterDecision(
                 characterId, interactionKey, groundingEvidenceId, dialoguePlan,
             )
@@ -428,7 +443,7 @@ object LuluDeviceToolBridge {
             ) else ""
         // A corrected visible sentence must not leave abusive hidden state behind.
         val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
-        if (!invalidBlame) {
+        if (!invalidBlame && !rewriting) {
             com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
             val verifiedSources = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
                 .filter { userText.isNotBlank() && it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
@@ -513,7 +528,7 @@ object LuluDeviceToolBridge {
                 plan.innerThought, now, privateDelta.fingerprint,
             )
         }
-        if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence)) {
+        if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence) && !rewriting) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,
                 decisionId = if (callSilence) "$silenceObservationId:silent" else "chat:silent:${now.toEpochMilli()}:${userText.hashCode()}",
@@ -589,7 +604,9 @@ object LuluDeviceToolBridge {
                         actionContext = plan.speechIntent.take(220) + " " + plan.socialAttempt.take(100),
                     ),
                 ).getOrElse { return Result.failure(it) }
-                val structuredBubbles = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(generated.text)
+                val structuredBubbles = if (rewriting)
+                    com.jiacimu.lulu.data.ModelStructuredOutput.replyBubblesWithPartialState(generated.text)
+                else com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(generated.text)
                 val firstBubbles = structuredBubbles
                     ?: generated.text.trim().takeIf { it.isNotBlank() &&
                         !it.startsWith("{") && !it.startsWith("```") }?.let(::listOf)
@@ -675,7 +692,7 @@ object LuluDeviceToolBridge {
                     sticker = true,
                 ),
             ).filter(String::isNotBlank).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
-            if (!invalidBlame && safeText == naturalText) {
+            if (!invalidBlame && safeText == naturalText && !rewriting) {
                 savePresence(
                     characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
                     heartVoiceFingerprint = privateDelta.fingerprint,
@@ -683,11 +700,22 @@ object LuluDeviceToolBridge {
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
-            if (!invalidBlame && plan.endCall && sceneContext.contains("电话"))
+            if (!invalidBlame && !rewriting && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
+            if (rewriting) onReconsiderationDraft?.invoke(ReconsideredChatReply(
+                text = sendText,
+                innerThought = plan.innerThought,
+                innerThoughtBasis = plan.innerThoughtBasis,
+                innerLife = plan.innerLife,
+                appraisal = plan.appraisal,
+                reason = plan.reason,
+                mood = plan.mood.takeIf(String::isNotBlank),
+                gesture = plan.gesture.takeIf(String::isNotBlank),
+                statusText = plan.statusText.takeIf(String::isNotBlank),
+            ))
             return Result.success(expressed.copy(text = sendText,
                 bedtimeContinuation = plan.sleepContinuation?.toString(),
-                interactionReceipt = if (invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
+                interactionReceipt = if (rewriting || invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
                     plan.learningApplication, intentionId = plan.intentionId,
