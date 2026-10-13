@@ -326,7 +326,7 @@ internal object LuluExternalMcp {
         return try {
             connection.requestMethod = "POST"
             connection.connectTimeout = 10_000
-            connection.readTimeout = 35_000
+            connection.readTimeout = 120_000
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             connection.setRequestProperty("Accept", "application/json, text/event-stream")
