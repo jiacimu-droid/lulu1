@@ -504,6 +504,7 @@ object ProactivePerceptionRuntime {
                         appendLine("- groupId=${it.id}；${it.groupChat?.name}；最近=${it.lastMessage.take(120)}")
                     }
                 }
+                appendLine(CharacterSocialActionOpportunities.prompt(characterId))
                 if (recentUserActivityContext.isNotBlank()) {
                     appendLine("【用户跨场景最新动态｜新→旧；收藏仅能引用这些真实用户消息ID】")
                     appendLine(recentUserActivityContext)
