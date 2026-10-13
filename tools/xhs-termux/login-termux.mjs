@@ -175,26 +175,23 @@ try {
       console.log("当前没有可扫码的二维码：不必等待或按回车，可 Ctrl+C 退出并检查网页。");
       process.exitCode = 1;
     }
-    if (qr) console.log("用小红书 App 的扫一扫 → 从相册选择截图进行扫码。");
-    if (!qr) {
-      // No code means no login session to confirm.
-      // Keep diagnostic screenshot but do not fake a success or wait for input.
-    } else {
-    console.log("请保持此 Termux 命令运行；完成扫码后回到此处按回车。");
-    const rl = readline.createInterface({input:process.stdin,output:process.stdout});
-    await rl.question("扫码后按回车检查并保存 Cookie（Ctrl+C 可退出）> ");
-    rl.close();
-    await delay(2500);
-    await page.reload({waitUntil:"domcontentloaded",timeout:40000}).catch(()=>{});
-    await delay(2000);
-    if (await page.$(loginMarker)) {
-      await saveCookies(page);
-      console.log("✅ 检测到已登录，Cookie 已保存。回露露机检查登录状态。");
-    } else {
-      console.log("尚未检测到登录成功；先不覆盖原来的 Cookie。");
-      console.log("如果网页确实扫码成功但判定不准，请把相册截图（遮盖私人信息）发来。");
-      process.exitCode=1;
-    }
+    if (qr) {
+      console.log("用小红书 App 的扫一扫 → 从相册选择二维码进行扫码。");
+      console.log("请保持此 Termux 命令运行；完成扫码后回到此处按回车。");
+      const rl = readline.createInterface({input:process.stdin,output:process.stdout});
+      await rl.question("扫码后按回车检查并保存 Cookie（Ctrl+C 可退出）> ");
+      rl.close();
+      await delay(2500);
+      await page.reload({waitUntil:"domcontentloaded",timeout:40000}).catch(()=>{});
+      await delay(2000);
+      if (await page.$(loginMarker)) {
+        await saveCookies(page);
+        console.log("✅ 检测到已登录，Cookie 已保存。回露露机检查登录状态。");
+      } else {
+        console.log("尚未检测到登录成功；先不覆盖原来的 Cookie。");
+        console.log("如果网页确实扫码成功但判定不准，请把相册截图（遮盖私人信息）发来。");
+        process.exitCode=1;
+      }
     }
   }
 } catch(e) {
