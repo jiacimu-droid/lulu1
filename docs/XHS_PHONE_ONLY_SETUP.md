@@ -6,7 +6,32 @@
 
 所选开源项目 [xpzouying/xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp) 的真实服务依赖 Linux x64 Chromium 浏览器自动化。它发布的程序面向 Windows x64 / Linux x64 / macOS ARM64；当前**没有可直接安装的安卓 MCP 服务端 APK**。露露机已接好客户端，但还要有一个正在运行的服务端。
 
-## 推荐：纯手机浏览器 + Railway 云端 Docker（可能需要付费）
+## 优先探索：Termux 本地免费方案（尚非即装即用）
+
+如果你已经安装 Termux，这是零月租路线：Termux 在**这部手机**启动小红书 MCP，露露机用 `http://127.0.0.1:端口/mcp` 访问。露露机 2026-10-13 已开放只限回环地址的 HTTP，不必购买服务器。
+
+**但原作者 xpzouying/xiaohongshu-mcp 明确只提供 Linux x64 / Windows x64 / macOS ARM64，未支持 Android 或 Linux ARM64。不能把它的 Linux x64 文件当成安卓文件执行。** 要真正在 Termux 使用，有两条实验方向：
+
+- `jobsonlook/xhs-mcp`：Python + Node，直接请求无需重型 Chromium，但要求手工导出网页登录 Cookie，且工具名称及 stdio 传输与露露机客户端不兼容，需要编写可信赖的协议适配器。
+- Termux Chromium + Playwright/Go Rod：社区已验证 ARM64 Chromium 在 Termux 中运行，但必须改造上游浏览器查找/下载安装逻辑。运行开销高，尤其 Android 后台与省电机制会终止长驻进程。
+
+**两条都还没有在真实小红书账号上验证成功，不能只复制一行安装命令就声称已经连通。** 目前可先在 Termux 内检查环境（只检测，不会登录或部署小红书）：
+
+```sh
+uname -m
+command -v python
+command -v node
+command -v chromium
+```
+
+如果 `uname -m` 显示 `aarch64`，证实使用 ARM64；未显示 Chromium 不等于手机不能安装。设备未授权前，请不要把 Cookie 或 Token 发给第三方或上传到公开仓库。哪怕 Termux 本地 MCP 已启动，后台持续运行仍受安卓进程限制。
+
+参考：
+- https://github.com/jobsonlook/xhs-mcp
+- https://github.com/Jobians/playwright-termux
+- https://github.com/termux/termux-app
+
+## 备选：纯手机浏览器 + Railway 云端 Docker（可能需要付费）
 
 用手机浏览器操作 [Railway 项目管理](https://railway.com/dashboard)，部署镜像由云端服务器完成，与你是否有电脑无关。
 
