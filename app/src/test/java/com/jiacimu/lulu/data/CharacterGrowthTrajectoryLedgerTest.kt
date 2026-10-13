@@ -130,6 +130,45 @@ class CharacterGrowthTrajectoryLedgerTest {
             .contains("自己仍未想通的心事"))
     }
 
+    @Test fun twoConcernsFromTheSameRealUserMessageRemainVisibleAndRetractable() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val role = "two-real-anchored-concerns"
+        val evidence = "real-argument-message"
+        val now = Instant.now()
+        SharedExperienceTimeline.record(evidence, role, "私聊", "用户",
+            "你刚刚的话让我很生气，觉得没有被尊重。", now,
+            triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val appraisal = org.json.JSONObject().put("meaning", "我需要认真看待这次冲突")
+            .put("pendingConcerns", org.json.JSONArray()
+                .put(org.json.JSONObject().put("status", "open")
+                    .put("topicKey", "relationship_repair")
+                    .put("focus", "怎样修复这次造成的伤害")
+                    .put("whyItMatters", "用户明确说被伤害了"))
+                .put(org.json.JSONObject().put("status", "open")
+                    .put("topicKey", "change_speech_habits")
+                    .put("focus", "以后如何改掉不尊重的说话方式")
+                    .put("whyItMatters", "不想重犯同一问题")))
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = role, evidenceId = evidence, appraisal = appraisal,
+            innerLife = null, innerThoughtBasis = null, selectedAction = "reply",
+            innerThought = "", reason = "我想认真面对这次反馈", now = now.plusSeconds(1))
+        val concerns = CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns")
+        assertEquals(2, concerns.length())
+        assertEquals(2, (0 until concerns.length())
+            .map { concerns.getJSONObject(it).getString("id") }.toSet().size)
+        val visible = CharacterGrowthTrajectory.entries(role, now.plusSeconds(3))
+            .filter { it.category == "心事" && it.evidenceId == evidence }
+        assertEquals(2, visible.size)
+        SharedExperienceTimeline.deleteEvent(evidence)
+        assertTrue(CharacterGrowthTrajectory.entries(role, now.plusSeconds(5))
+            .none { it.category == "心事" && it.evidenceId == evidence })
+    }
+
     @Test fun emotionOnlyAfterSignificantFeedbackIsVisibleWithoutPretendingToBeAHabit() {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
