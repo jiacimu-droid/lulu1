@@ -14,6 +14,66 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun roleMayChooseAnotherFiveMinutesButOnlyAtItsOwnExpiry() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val character = MigratedDomainStores.characters.create(
+            "五分钟决定角色", "有自己的想法，能主动决定继续交流或休息",
+        )
+        val role = character.characterId
+        val start = java.time.Instant.now()
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.PrivateWake,
+            trigger = "用户唤醒", perceiveNow = false, now = start)
+        val boundary = start.plusSeconds(300).toEpochMilli()
+
+        // A scheduled worker cannot ask the model early and cannot steal a
+        // second decision after foreground already claimed this deadline.
+        assertFalse(CompanionOnlineStore.claimOnlineExpiry(
+            role, boundary, start.plusSeconds(299)))
+        assertTrue(CompanionOnlineStore.claimOnlineExpiry(
+            role, boundary, start.plusSeconds(300).plusMillis(50)))
+        assertFalse(CompanionOnlineStore.claimOnlineExpiry(
+            role, boundary, start.plusSeconds(300).plusMillis(100)))
+
+        // A reasoned, explicit role choice renews ONLY one five-minute window.
+        val chosenAt = start.plusSeconds(301)
+        assertFalse(CompanionOnlineStore.extendByOwnChoice(
+            role, boundary, "", chosenAt))
+        assertTrue(CompanionOnlineStore.extendByOwnChoice(
+            role, boundary, "还想认真解决自己刚才的误解", chosenAt))
+        val next = CompanionOnlineStore.states.value.getValue(role)
+        assertEquals(CompanionOnlineReason.SelfChosenExtension, next.reason)
+        assertEquals(chosenAt.plusSeconds(300), next.onlineUntil)
+
+        // A stale expiry worker cannot erase or renew the new interval.
+        assertFalse(CompanionOnlineStore.claimOnlineExpiry(
+            role, boundary, chosenAt.plusMillis(100)))
+        assertFalse(CompanionOnlineStore.extendByOwnChoice(
+            role, boundary, "旧的一次判断", chosenAt.plusMillis(100)))
+    }
+
+    @Test fun anExpiryDecisionMustNotOverwriteANewerUserWake() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("续醒竞争角色", "保持自己的活动").characterId
+        val start = java.time.Instant.now()
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.PrivateWake, "用户唤醒",
+            perceiveNow = false, now = start)
+        val oldUntil = start.plusSeconds(300).toEpochMilli()
+        assertTrue(CompanionOnlineStore.claimOnlineExpiry(
+            role, oldUntil, start.plusSeconds(301)))
+
+        // While the LLM is responding, a new wake supersedes its old expiry.
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.PrivateWake, "用户新一次唤醒",
+            perceiveNow = false, now = start.plusSeconds(303))
+        assertFalse(CompanionOnlineStore.extendByOwnChoice(
+            role, oldUntil, "旧决定不应该生效", start.plusSeconds(304)))
+        assertEquals(start.plusSeconds(603),
+            CompanionOnlineStore.states.value.getValue(role).onlineUntil)
+    }
+
     @Test fun manyBubblesAndWakeSignalsCannotEnqueueTheSamePaidReplyFourTimes() {
         val context = RuntimeEnvironment.getApplication() as Context
         val role = "one-paid-worker-per-real-batch"
