@@ -23,6 +23,7 @@ internal data class MeetingV2Reply(
     val sceneSnapshot: MeetingSceneSnapshot?,
     val appraisal: JSONObject? = null,
     val innerLife: JSONObject? = null,
+    val decisionReason: String = "",
 )
 internal data class MeetingV2DirectorPlan(val order: List<String>, val guidance: String) {
     fun ledgerText(): String = buildString {
@@ -230,11 +231,12 @@ internal suspend fun meetingGenerateReplyV2(
             ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "每轮让现场真正向前发展，写成完整、可体验的小段剧情，不要只反应一句就停，也不要一次写完整故事。"}
 
             只返回一个 JSON 对象：
-            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情"}
+            {"sequence":[{"speaker":"user","type":"dialogue","text":"主人说的话"},{"speaker":"character","type":"action","text":"${character.displayName}的反应","speechText":"[sighs]"},{"speaker":"character","type":"dialogue","text":"${character.displayName}说的话","speechText":"[warmly] ${character.displayName}说的话"}],"moveTo":"可用地点或空字符串","sceneState":{"location":"当前地点","ambience":"持续环境事实","participants":[{"participantId":"user或准确角色ID","position":"相对位置","posture":"姿态","facing":"朝向","contact":["持续接触"],"heldItems":["持有物品"],"explorationMode":"FOLLOW_USER或STAY"}]},"statusText":"简短当前状态","gesture":"延续姿态","innerThought":"角色本人没说出口的念头，自由按心境与个人语感展开，可为空","mood":"简短心情","reason":"这一次角色为何愿意说话、动作、移动或保持安静的本人想法；可以只是觉得无聊想走走"}
 
             规则：
             ${spontaneousInnerVoiceGuide}
-            - 可以选填 appraisal.spontaneousBid={"spark":"本轮现场引起玩心的真事","wantedMove":"想自然做的小互动"} 和 innerLife={"emotion":{"feeling":"真正新增的感受","cause":"触发依据"},"thoughts":[{"thought":"私人小心思","hesitation":"真实顾虑"}]}，没有变化就不填。可选 appraisal.ownActivity={"stage":"decided","action":"reading|solo_game|digital_world","whyNow":"本人这时决定做的具体缘由",...有效 ID 参数}；这是把决定交给共用执行调度，不等于已经做成。想想而已不要填 decided，没有可执行参数也不要编造。见面本身发生的场内交互依然按 sceneState 和程序落库，而不是凭心理字段改动世界。
+            - 统一行为依据：每一次自主决定的对话、走动、停留、触碰、探索或暂时不行动，都先结合真实感知、已有状态和本人意愿写一句简短 reason。可以只是‘觉得有点闷想去吹吹风’‘想接住她这句话’‘此刻想继续坐着’，不要倒写看似严谨的长篇理由。reason 是决定的主观依据，不等于必须产生新 innerThought 或 emotion；同一份依据要传给统一的因果记录与执行校验。没有真实的移动意愿就不要填 moveTo。
+             - 可以选填 appraisal.spontaneousBid={"spark":"本轮现场引起玩心的真事","wantedMove":"想自然做的小互动"} 和 innerLife={"emotion":{"feeling":"真正新增的感受","cause":"触发依据"},"thoughts":[{"thought":"私人小心思","hesitation":"真实顾虑"}]}，没有变化就不填。可选 appraisal.ownActivity={"stage":"decided","action":"reading|solo_game|digital_world","whyNow":"本人这时决定做的具体缘由",...有效 ID 参数}；这是把决定交给共用执行调度，不等于已经做成。想想而已不要填 decided，没有可执行参数也不要编造。见面本身发生的场内交互依然按 sceneState 和程序落库，而不是凭心理字段改动世界。
             - 每个character片段另带speechText音频轨，与正文text分开。dialogue的speechText保留完全相同的原话，只插入音频标签；action的speechText只能放实际动作/环境发出的声音标签，不念叙事正文。没有声音的动作留空，user不添加音频轨。
             - 见面是有具体身体和环境的现场：剧情确实发生打喷嚏、轻笑、吸气、咳嗽、脚步或环境声时，可以在对应角色 action 的 speechText 放对应受支持的短英文音频标签，例如 [sneezes] [laughs] [gasps] [coughs] [footsteps]，不要凭空制造动作；角色台词必须用 character/dialogue 独立片段，不能塞进 user/action 导致翻页后没有声音。
             ${VoicePerformance.direction}
@@ -348,10 +350,16 @@ internal fun meetingParseReplyV2(raw: String, session: MeetingSession, respondin
         gesture = json.optString("gesture").trim().take(500),
         innerThought = json.optString("innerThought").trim().take(500),
         mood = json.optString("mood").trim().take(80),
-        moveTo = json.optString("moveTo").trim().take(80),
+        moveTo = json.optString("moveTo").trim().take(80).takeIf {
+            it.isBlank() || CharacterBehaviorMotivation.resolve(
+                "digital_world", json.optString("reason").ifBlank { json.optString("decisionReason") },
+                json.optJSONObject("appraisal"), json.optJSONObject("innerLife"),
+            ) != null
+        }.orEmpty(),
         sceneSnapshot = meetingParseSceneSnapshotV2(json.optJSONObject("sceneState"), session, respondingCharacterId),
         appraisal = json.optJSONObject("appraisal"),
         innerLife = json.optJSONObject("innerLife"),
+        decisionReason = json.optString("reason").ifBlank { json.optString("decisionReason") }.trim().take(240),
     )
 }
 
