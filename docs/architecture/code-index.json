@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T22:47:39.781924+00:00",
-  "commit": "abd803451aedc79a75f39dba5a5adcb4bfecd772",
+  "generatedAt": "2026-10-13T22:48:15.813539+00:00",
+  "commit": "2738f2949f58234761e29bbb2a4b475f756a0361",
   "branch": "main",
-  "sourceFingerprint": "2f9c75315ae349c0bcf8f94d9885fe059089e0edeb5b8c7708f5529007e0be19",
+  "sourceFingerprint": "db520e21da0e7da97c79fd99d51760d5b39682d024c7c224b515544d29a6082b",
   "summary": {
     "files": 615,
-    "lines": 122725,
+    "lines": 122785,
     "symbols": 1840
   },
   "symbolIndex": {
@@ -1715,25 +1715,25 @@
     "openOriginalNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 79
+        "line": 90
       }
     ],
     "returnToList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 108
+        "line": 119
       }
     ],
     "searchInVisibleBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 131
+        "line": 142
       }
     ],
     "routeToReader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 145
+        "line": 156
       }
     ],
     "failure": [
@@ -11418,7 +11418,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt",
       "lines": 212,
-      "sha256": "12c6717efacaf7e0773f05e579e12635cdf3879886a482c7e6d9792aef59fba0",
+      "sha256": "4310f219a3c416b1ae395ac2f4510f711394441f2ff31c600cb3e6399345368f",
       "symbols": []
     },
     {
@@ -11640,24 +11640,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-      "lines": 614,
-      "sha256": "d2069389da827125b770b0ceac7a9863c782ef3d1c568676dba16ad5c7d1bfa2",
+      "lines": 674,
+      "sha256": "c5d48d4c0b2e354f3d3314e370bb95c049bdf2ea1e34dc88b783e14edbe9ea1e",
       "symbols": [
         {
           "name": "openOriginalNote",
-          "line": 79
+          "line": 90
         },
         {
           "name": "returnToList",
-          "line": 108
+          "line": 119
         },
         {
           "name": "searchInVisibleBrowser",
-          "line": 131
+          "line": 142
         },
         {
           "name": "routeToReader",
-          "line": 145
+          "line": 156
         }
       ]
     },
