@@ -168,8 +168,8 @@ internal fun VoiceCallSettings(provider: String) {
                 onValueChangeFinished = {
                     prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
                 }, valueRange = 1_450f..4_500f)
-            if (sttMode != "elevenlabs") {
-            Text("轻声识别灵敏度（越低越容易捕获轻声，也可能听到环境声）")
+            if (sttMode != "elevenlabs" || elevenSttModel == CallVoiceConfiguration.SCRIBE_V2) {
+            Text("本地分段收音灵敏度（普通 Scribe v2 也使用；调低可能更容易拾取轻声，但也可能捕获噪声）")
             Slider(value = threshold, onValueChange = { threshold = it },
                 onValueChangeFinished = {
                     prefs.edit().putFloat("voice_vad_threshold", threshold).apply()
