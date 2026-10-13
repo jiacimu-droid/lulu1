@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T07:55:01.309231+00:00",
-  "commit": "b128e285d1d5c86ea1f3e979fe68ea11c0e2f2c2",
+  "generatedAt": "2026-10-13T07:55:29.122650+00:00",
+  "commit": "a938b03958e15c39d182ff80bbdeb9e3fde48ea5",
   "branch": "main",
-  "sourceFingerprint": "38d296cd9fb84ff512764923581f2cdb5ae865cb8e855835b0f629ae9819dbf7",
+  "sourceFingerprint": "99bb0267138d8c10105b82e5ccfacdb703085b56a597a7076e572835b6998c9a",
   "summary": {
     "files": 595,
-    "lines": 117539,
+    "lines": 117543,
     "symbols": 1777
   },
   "symbolIndex": {
@@ -9516,16 +9516,16 @@
         "line": 234
       }
     ],
-    "v5JiangDuDefaultsMoveCompletelyIntoV6FrameworkWithoutInventingInterests": [
+    "legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 271
+        "line": 272
       }
     ],
     "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 313
+        "line": 314
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -20260,8 +20260,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 364,
-      "sha256": "cf2cbc70417ecff6cf2fa34922e850bc2654142cd4da28827edf22b5c8dd65f9",
+      "lines": 368,
+      "sha256": "500de7d96822b2b4cca5d6620d6b1d9687f2141f7492294b2495ff9ae0f00dab",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -20280,12 +20280,12 @@
           "line": 234
         },
         {
-          "name": "v5JiangDuDefaultsMoveCompletelyIntoV6FrameworkWithoutInventingInterests",
-          "line": 271
+          "name": "legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests",
+          "line": 272
         },
         {
           "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
-          "line": 313
+          "line": 314
         }
       ]
     },
