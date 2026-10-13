@@ -32,6 +32,21 @@ class AutonomousDecisionRecoveryTest {
         assertEquals("reading", AutonomousDecisionRecovery.choose(original).getString("action"))
     }
 
+    @Test fun anIndependentActionDoesNotEraseTheSameTurnsChoiceToStayAwake() {
+        val choice = JSONObject().put("choice", "continue")
+            .put("reason", "这件事还没有认真说完，我自己想再留一会儿")
+        val original = JSONObject().put("action", "silent").put("reason", "没有用户新消息")
+            .put("onlineDecision", choice)
+            .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
+                .put("readingBookId", "book-3").put("personallyWanted", true)
+                .put("whyNow", "还想趁清醒把刚才的书读完"))
+        val reviewed = AutonomousDecisionRecovery.choose(original)
+        assertEquals("reading", reviewed.getString("action"))
+        assertEquals("continue", reviewed.getJSONObject("onlineDecision").getString("choice"))
+        assertEquals(choice.getString("reason"),
+            reviewed.getJSONObject("onlineDecision").getString("reason"))
+    }
+
     @Test fun neverOverridesARealWishToBeAlone() {
         val original = JSONObject().put("action", "silent").put("reason", "现在想好好休息")
             .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
