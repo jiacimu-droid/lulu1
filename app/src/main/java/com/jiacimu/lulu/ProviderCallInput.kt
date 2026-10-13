@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong
 /** Real PCM + segmented cloud ASR, independent of ElevenLabs/MiniMax speech synthesis. */
 internal class ProviderCallInput(private val context: Context, private val scope: CoroutineScope,
     private val sttEngine: String,
+    private val elevenPath: CallVoiceConfiguration.ElevenInputPath,
     private val accept: () -> Boolean, private val onReady: () -> Unit,
     private val onLevel: (Float) -> Unit, private val onSpeech: () -> Unit,
     private val onCaptureFinished: () -> Unit = {},
@@ -44,7 +45,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         presentingChunk.set(-1)
         currentPhrase = ""
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
-        when (CallVoiceConfiguration.elevenInputPath(sttEngine, prefs.getString("eleven_asr_model", null))) {
+        when (elevenPath) {
             CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME -> {
                 capturePaused = false
                 startRealtime(epoch, prefs)
