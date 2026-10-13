@@ -241,10 +241,14 @@ internal suspend fun runGroupReplies(
             if (group.allowCharacterConversation) appendLine("[说完后只有当某位具体成员真的会自然接话才输出 ⟪NEXT:成员名⟫；否则输出 ⟪END⟫。不要为了让更多人出现而NEXT。]")
             append(if (index == 0) "用户刚在群里说：$pendingText" else "这轮最初由用户说：$pendingText")
         }
-        var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, activeLabel, archiveId, sceneContext)
+        var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, activeLabel,
+            archiveId, sceneContext, userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
         if (result.getOrNull()?.text.isNullOrBlank() &&
             result.getOrNull()?.disposition != "silent" && currentCoroutineContext().isActive) {
-            result = LuluDeviceToolBridge.respond(member.characterId, history, "$prompt\n[如果你确实该接话，直接自然发言；不要替别人说话。]", activeLabel, archiveId, sceneContext)
+            result = LuluDeviceToolBridge.respond(member.characterId, history,
+                "$prompt\n[如果你确实该接话，直接自然发言；不要替别人说话。]",
+                activeLabel, archiveId, sceneContext,
+                userEvidenceIds = pendingUserIds.map { "${it}:group:${member.characterId}" })
         }
         if (!currentCoroutineContext().isActive) return
         val reply = result.getOrNull()
