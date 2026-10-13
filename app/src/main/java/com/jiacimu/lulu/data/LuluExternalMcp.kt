@@ -168,8 +168,8 @@ internal object LuluExternalMcp {
             val result = send(url, token, session, JSONObject()
                 .put("jsonrpc", "2.0").put("id", 2).put("method", "tools/call")
                 .put("params", JSONObject().put("name", name).put("arguments", arguments))).first
-            val error = result.optJSONObject("error")
-            if (error != null) error("MCP 调用失败：${error.optString("message")}")
+            val rpcError = result.optJSONObject("error")
+            if (rpcError != null) error("MCP 调用失败：${rpcError.optString("message")}")
             val value = result.optJSONObject("result") ?: error("MCP 没有工具执行结果")
             val content = value.optJSONArray("content") ?: error("MCP 结果缺少内容")
             val data = (0 until content.length()).mapNotNull { content.optJSONObject(it)?.optString("text") }
