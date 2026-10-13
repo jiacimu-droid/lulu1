@@ -17,6 +17,28 @@ import java.time.Instant
 internal object CharacterOpenConcernRuntime {
     private val activeWindow = Duration.ofHours(48)
     private val acceptedStatuses = setOf("open", "revise", "settled", "dismissed")
+    private const val MAX_OPEN = 12
+    private const val MAX_CHANGES_PER_EVENT = 4
+
+    /**
+     * New protocol: appraisal.pendingConcerns is an array of INDEPENDENT,
+     * role-authored concerns. The old pendingConcern object remains readable.
+     * Neither absence of a proposal nor a plain apology is silently turned into
+     * a fabricated desire to reconcile.
+     */
+    fun proposals(appraisal: JSONObject?): List<JSONObject> {
+        if (appraisal == null) return emptyList()
+        val array = appraisal.optJSONArray("pendingConcerns")
+        val proposed = buildList {
+            if (array != null) for (i in 0 until minOf(array.length(), MAX_CHANGES_PER_EVENT)) {
+                array.optJSONObject(i)?.let(::add)
+            }
+            appraisal.optJSONObject("pendingConcern")?.let(::add)
+        }
+        return proposed.take(MAX_CHANGES_PER_EVENT)
+    }
+
+    fun hasProposals(appraisal: JSONObject?): Boolean = proposals(appraisal).isNotEmpty()
 
     fun update(
         previous: JSONArray?, appraisal: JSONObject?, evidenceId: String,
@@ -24,17 +46,30 @@ internal object CharacterOpenConcernRuntime {
     ): JSONArray {
         // An unresolved question may fall quiet without having been solved. Keep the
         // thread, but stop treating old worries as live impulses after 48 hours.
+        var current = previous
+        for (proposal in proposals(appraisal)) {
+            current = updateOne(current, proposal, evidenceId, now)
+        }
+        return JSONArray().apply { retained(current).forEach(::put) }
+    }
+
+    private fun updateOne(
+        previous: JSONArray?, proposal: JSONObject, evidenceId: String, now: Instant,
+    ): JSONArray {
         val existing = retained(previous).toMutableList()
-        fun result() = JSONArray().apply { existing.takeLast(8).forEach(::put) }
-        val proposal = appraisal?.optJSONObject("pendingConcern") ?: return result()
+        fun result() = JSONArray().apply { existing.takeLast(MAX_OPEN).forEach(::put) }
         val status = proposal.optString("status", "open").trim().lowercase()
         if (status !in acceptedStatuses || evidenceId.isBlank()) return result()
         val requestedId = proposal.optString("threadId").trim().take(100)
+        val topic = proposal.optString("topicKey").trim().lowercase()
+            .replace(Regex("[^a-z0-9_-]"), "").take(70)
         val focusKey = proposal.optString("focus").trim()
             .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_]+"), "")
             .lowercase()
         val match = existing.indexOfFirst { item ->
             (requestedId.isNotBlank() && item.optString("id") == requestedId) ||
+                (requestedId.isBlank() && status == "open" && topic.isNotBlank() &&
+                    item.optString("topicKey") == topic) ||
                 (requestedId.isBlank() && status == "open" && focusKey.isNotBlank() &&
                     item.optString("focus").trim()
                         .replace(Regex("[\\s，。！？!?、；;：:“”‘’…~～—_]+"), "")
@@ -57,16 +92,22 @@ internal object CharacterOpenConcernRuntime {
             else prior?.optString("hesitation").orEmpty()
         val nextStep = if (proposal.has("possibleNextStep")) proposal.optString("possibleNextStep").trim().take(170)
             else prior?.optString("possibleNextStep").orEmpty()
+        val priority = if (proposal.has("priority")) proposal.optInt("priority", 2).coerceIn(1, 3)
+            else prior?.optInt("priority", 2) ?: 2
+        val topicKey = topic.ifBlank { prior?.optString("topicKey").orEmpty() }
         if (prior != null) {
             val unchanged = focus == prior.optString("focus") && why == prior.optString("whyItMatters") &&
-                hesitation == prior.optString("hesitation") && nextStep == prior.optString("possibleNextStep")
+                hesitation == prior.optString("hesitation") && nextStep == prior.optString("possibleNextStep") &&
+                priority == prior.optInt("priority", 2) && topicKey == prior.optString("topicKey")
             val sameEvidence = prior.optString("evidenceId") == evidenceId ||
                 (0 until (prior.optJSONArray("journey")?.length() ?: 0)).any { i ->
                     prior.optJSONArray("journey")?.optJSONObject(i)?.optString("evidenceId") == evidenceId
                 }
             if (unchanged || sameEvidence) return result()
         }
-        val id = prior?.optString("id") ?: "concern-${evidenceId.hashCode().toUInt().toString(16)}"
+        // More than one concern may begin from exactly the same event. Never
+        // derive every new thread ID from only its event ID.
+        val id = prior?.optString("id") ?: "concern-${(evidenceId + ":" + (topic.ifBlank { focusKey })).hashCode().toUInt().toString(16)}"
         val journey = prior?.optJSONArray("journey") ?: JSONArray()
         val step = JSONObject().put("evidenceId", evidenceId)
             .put("at", now.toString()).put("phase", if (prior == null) "产生" else "转变")
@@ -75,6 +116,7 @@ internal object CharacterOpenConcernRuntime {
         val revised = JSONObject()
             .put("id", id).put("focus", focus).put("whyItMatters", why)
             .put("hesitation", hesitation).put("possibleNextStep", nextStep)
+            .put("priority", priority).put("topicKey", topicKey)
             .put("evidenceId", evidenceId)
             .put("createdAt", prior?.optString("createdAt").orEmpty().ifBlank { now.toString() })
             .put("updatedAt", now.toString())
@@ -122,7 +164,7 @@ internal object CharacterOpenConcernRuntime {
         if (previous == null) emptyList() else (0 until previous.length())
             .mapNotNull(previous::optJSONObject)
             .filter { it.optString("id").isNotBlank() && it.optString("focus").isNotBlank() }
-            .takeLast(8)
+            .takeLast(MAX_OPEN)
 
     fun recent(previous: JSONArray?, now: Instant = Instant.now()): List<JSONObject> =
         retained(previous).filter { item ->
@@ -143,9 +185,17 @@ internal object CharacterOpenConcernRuntime {
     /** Preserve the *subjective* ending of a thought process when the role lets it go.
      * Closure is not proof that the other person's intent was ever correctly guessed.
      */
+    fun closures(previous: JSONArray?, appraisal: JSONObject?, evidenceId: String,
+                 now: Instant = Instant.now()): List<JSONObject> =
+        proposals(appraisal).mapNotNull { proposal -> closureOne(previous, proposal, evidenceId, now) }
+
+    // Backwards compatible single-closure helper used by existing callers/tests.
     fun closure(previous: JSONArray?, appraisal: JSONObject?, evidenceId: String,
-                now: Instant = Instant.now()): JSONObject? {
-        val proposal = appraisal?.optJSONObject("pendingConcern") ?: return null
+                now: Instant = Instant.now()): JSONObject? =
+        closures(previous, appraisal, evidenceId, now).firstOrNull()
+
+    private fun closureOne(previous: JSONArray?, proposal: JSONObject, evidenceId: String,
+                           now: Instant): JSONObject? {
         val status = proposal.optString("status").lowercase().trim()
         if (status !in setOf("settled", "dismissed") || evidenceId.isBlank()) return null
         val id = proposal.optString("threadId").trim()
@@ -201,10 +251,12 @@ internal object CharacterOpenConcernRuntime {
         return buildString {
             if (active.isNotEmpty()) {
                 appendLine("【自己仍未想通的心事｜私人猜测，不是用户事实，也不是外部待办】")
-                active.takeLast(3).forEach { entry ->
+                active.sortedWith(compareByDescending<JSONObject> { it.optInt("priority", 2) }
+                    .thenByDescending { it.optString("updatedAt") })
+                    .take(4).forEach { entry ->
                     val at = runCatching { Instant.parse(entry.optString("updatedAt")) }.getOrNull()
                     val elapsed = at?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) }
-                    appendLine("- threadId=${entry.optString("id")}；在意=${entry.optString("focus")}" +
+                    appendLine("- threadId=${entry.optString("id")}；重要度=${entry.optInt("priority", 2)}；在意=${entry.optString("focus")}" +
                         "；为什么在意=${entry.optString("whyItMatters")}" +
                         "；犹豫=${entry.optString("hesitation")}" +
                         "；曾考虑=${entry.optString("possibleNextStep")}" +
