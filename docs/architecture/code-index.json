@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T11:11:54.155150+00:00",
-  "commit": "4c4e00d921db4ff5806f51412d18df0a422d8c47",
+  "generatedAt": "2026-10-13T11:12:09.683057+00:00",
+  "commit": "fd7cb44dd0a4f854393893dbd0d0896322d01e85",
   "branch": "main",
-  "sourceFingerprint": "d668c437bf2104696ea9fa74496af24ce17f1a8cb1f7198fb1366a37daa16b90",
+  "sourceFingerprint": "ec2d918cab004eed8a5a53c6ee8479595a10bb2710850b0a4faeb50449869c30",
   "summary": {
-    "files": 602,
-    "lines": 118883,
+    "files": 603,
+    "lines": 118894,
     "symbols": 1795
   },
   "symbolIndex": {
@@ -10056,8 +10056,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 128,
-      "sha256": "9d6dc07ec7d5b4b781c6e5fa93dc067ae860b06e72a9850361945e98e562c782",
+      "lines": 129,
+      "sha256": "1ed3eb61fd8b0a96bc90d025fe54883d7966f2d659d8019df3a0c1d5b068ce8c",
       "symbols": []
     },
     {
@@ -19667,6 +19667,12 @@
       "path": "app/src/main/res/xml/lulu_accessibility_service.xml",
       "lines": 11,
       "sha256": "7a8604d40b3980d83deddf98189840299af8ec3e624d8a241ae8e2b4b3d2358a",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/res/xml/lulu_mcp_network_security_config.xml",
+      "lines": 10,
+      "sha256": "8c2ab79fd5a556bef2915412bce0fef7ed0cea1d3dbdfe81d8f55c71eac73423",
       "symbols": []
     },
     {

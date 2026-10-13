@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`4c4e00d921db4ff5806f51412d18df0a422d8c47`
+- 基准提交：`fd7cb44dd0a4f854393893dbd0d0896322d01e85`
 - 分支：`main`
-- 已索引文件：602
-- 已索引代码/文本行：118883
+- 已索引文件：603
+- 已索引代码/文本行：118894
 - 已发现符号：1795
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 138 | 0 |
-| `app/src/main/AndroidManifest.xml` | 128 | 0 |
+| `app/src/main/AndroidManifest.xml` | 129 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
@@ -466,6 +466,7 @@
 | `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
+| `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 208 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
