@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T06:47:45.484433+00:00",
-  "commit": "7e89ae502f6ba9c83848b80947f5967e7a4f1f46",
+  "generatedAt": "2026-10-13T06:48:00.983818+00:00",
+  "commit": "8bee44e43a4fed70e6af9d667ae67170515b7ce8",
   "branch": "main",
-  "sourceFingerprint": "b06f02b4c86d2a4c7a540fdf4eebca2fdcccf78663647c4ed6eefbf2bccf8e0b",
+  "sourceFingerprint": "71e2e4d3864d4409e40dfeb849b2097f3968d34bb0fa8d9ceec21d9a9d127593",
   "summary": {
     "files": 594,
-    "lines": 117150,
+    "lines": 117148,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -6595,31 +6595,31 @@
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 340
+        "line": 339
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 358
+        "line": 356
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 366
+        "line": 364
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 466
+        "line": 464
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 473
+        "line": 471
       }
     ],
     "PromptContextBudget": [
@@ -16242,8 +16242,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 517,
-      "sha256": "c95904573e0d397503dcba6a20339acc635f404c741654df0bf3a0058b48ac94",
+      "lines": 515,
+      "sha256": "6ef896c58c2e7ce417679b48dacdeff848238552bc5e9f537a4d34468d60b8bb",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -16303,23 +16303,23 @@
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 340
+          "line": 339
         },
         {
           "name": "cancelOnline",
-          "line": 358
+          "line": 356
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 366
+          "line": 364
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 466
+          "line": 464
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 473
+          "line": 471
         }
       ]
     },
