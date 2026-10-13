@@ -104,8 +104,8 @@ object LuluDeviceToolBridge {
                 it.isNotBlank() && !it.startsWith("{") && !it.startsWith("```")
             }?.let(::listOf)
             ?: return Result.failure(IllegalStateException("重新回复未生成完整的可发送文字，原消息保持不变"))
-        val bubbles = speech.flatMap(com.jiacimu.lulu::semanticReplyBubbles)
-            .map(com.jiacimu.lulu::sanitizePersistedChatText)
+        val bubbles = speech.flatMap { com.jiacimu.lulu.semanticReplyBubbles(it) }
+            .map { com.jiacimu.lulu.sanitizePersistedChatText(it) }
             .filter(String::isNotBlank).take(3)
         if (bubbles.isEmpty()) return Result.failure(IllegalStateException("重新回复没有有效气泡，原消息保持不变"))
         return Result.success(ReconsideredChatReply(
