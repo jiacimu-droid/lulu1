@@ -210,14 +210,15 @@ object CompanionOnlineStore {
         // A bounded wake pulse lets the role reconsider after an activity, including choosing silence.
         if (message.sender == LuluChatMessage.Sender.System) return
 
-        if (message.sender == LuluChatMessage.Sender.Character) {
-            recordActivity(message.authorCharacterId ?: conversation.characterId, now)
-        }
+        // Sending a message is a real expression, NOT an implicit decision to
+        // stay online another five minutes. The expiry decision belongs to
+        // the character's cognition, not to a chat append side effect.
         val members = conversation.groupChat?.members.orEmpty().map(LuluGroupMember::characterId).distinct()
         val recipients: List<String>
         synchronized(lock) {
             val focused = groupFocusUntil[conversation.id]?.isAfter(now) == true
-            if (focused && members.isNotEmpty()) {
+            if (focused && members.isNotEmpty() &&
+                message.sender == LuluChatMessage.Sender.User) {
                 groupFocusUntil = groupFocusUntil + (conversation.id to now.plus(onlineDuration))
                 members.forEach { characterId ->
                     val previous = mutableStates.value[characterId]
@@ -230,7 +231,9 @@ object CompanionOnlineStore {
                 }
                 persistLocked()
             }
-            if (conversation.groupChat == null && isOnline(conversation.characterId, now)) {
+            if (conversation.groupChat == null &&
+                message.sender == LuluChatMessage.Sender.User &&
+                isOnline(conversation.characterId, now)) {
                 val current = mutableStates.value[conversation.characterId]
                 if (current != null) {
                     val updated = current.copy(
