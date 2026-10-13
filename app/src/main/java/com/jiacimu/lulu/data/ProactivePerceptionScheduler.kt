@@ -395,6 +395,15 @@ class ProactivePerceptionWorker(
         val interactionId = inputData.getString("interactionEvidenceId").orEmpty()
         if (characterId != null && interactionId.isNotBlank() &&
             CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
+            // Chat is the primary owner of live user messages, but the
+            // call-end event must not disappear merely because chat is busy.
+            // Retry once using the same evidence ID; the causal receipt makes
+            // it idempotent if ordinary chat has already perceived the event.
+            if (!CharacterCausalAppraisalStage.hasCompletedDecision(characterId, interactionId)) {
+                ProactivePerceptionScheduler.scheduleInteractionRetry(
+                    applicationContext, characterId, interactionId,
+                )
+            }
             return@runCatching Result.success()
         }
         val onlineRevision = inputData.getLong("onlineRevision", -1L).takeIf { requireOnline && it >= 0L }
