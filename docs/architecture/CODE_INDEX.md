@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bd17555d229e3e69cf040d7c3c2c4ceec08b1810`
+- 基准提交：`f69d4d41005ccd40607a4d6024274b7de7c4362b`
 - 分支：`main`
 - 已索引文件：612
-- 已索引代码/文本行：121103
+- 已索引代码/文本行：121121
 - 已发现符号：1819
 
 | 文件 | 行数 | 符号数 |
@@ -185,7 +185,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 363 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 122 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 140 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 139 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 248 | 12 |
