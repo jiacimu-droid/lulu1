@@ -69,6 +69,14 @@ internal object CompanionActionRuntime {
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine(CharacterSocialActionOpportunities.prompt(characterId))
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
+        if (LuluExternalMcp.configured(context, "xiaohongshu") &&
+            CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
+            appendLine("- read_xiaohongshu，args={\\"keyword\\":\\"自己真正好奇的主题，可留空看推荐\\"}：自主逛小红书时，真实搜帖/推荐并打开一篇正文后才算读过；由角色依据兴趣决定，读完可以独立思考，若想分享必须另选私聊/朋友圈动作。外部博主的经历不能冒充自己亲身经历。")
+        }
+        if (LuluExternalMcp.configured(context, "health") &&
+            CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
+            appendLine("- read_health_mcp，args={\\"data_type\\":\\"current_status|sleep|steps|heart_rate|daily_summary\\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
+        }
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取阅读 App 的真实正文。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。完整感想在阅读页，角色若想分享须另外选择并发送自然消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
@@ -128,6 +136,8 @@ internal object CompanionActionRuntime {
         val normalizedAction = action.trim().lowercase()
         val result = when (normalizedAction) {
             "learn_topic" -> AutonomousLearningRuntime.execute(context, characterId, args)
+            "read_xiaohongshu" -> LuluExternalMcp.browse(context, characterId, args)
+            "read_health_mcp" -> LuluExternalMcp.healthRead(context, args)
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
                 val reason = args.optString("reason").trim().take(180)
@@ -401,7 +411,7 @@ internal object CompanionActionRuntime {
             }
             else -> error("未知露露机动作：$action")
         }
-        if (result.success && normalizedAction !in setOf("digital_world_action", "play_solo_game")) {
+        if (result.success && normalizedAction !in setOf("digital_world_action", "play_solo_game", "read_health_mcp")) {
             SharedExperienceTimeline.record(
                 eventId = "character-activity-${UUID.randomUUID()}",
                 characterId = characterId,
