@@ -361,6 +361,10 @@ fun QqStyleChatDetailScreen(
         val firstIndex = snapshot.indexOfFirst { it.id in ids }
         val history = buildBoundedHistory(snapshot.take(firstIndex), targetRole.displayName,
             characters.mapValues { it.value.displayName })
+        val originalUserText = snapshot.take(firstIndex)
+            .takeLastWhile { it.sender != LuluChatMessage.Sender.Character }
+            .filter { it.sender == LuluChatMessage.Sender.User }
+            .joinToString("\n") { it.content }
         val observationId = "interaction-reanswer-${java.util.UUID.randomUUID()}"
         com.jiacimu.lulu.data.SharedExperienceTimeline.record(
             eventId = observationId, characterId = roleId, channel = if (groupChat == null) "私聊交互" else "群聊交互", speaker = "界面操作",
@@ -371,28 +375,29 @@ fun QqStyleChatDetailScreen(
         selectedMessage = null
         ChatReplyTaskManager.launch(conversationId) {
             setTypingCharacter(roleId)
-            LuluDeviceToolBridge.respond(
-                characterId = roleId, history = history, userText = "", title = activeLabel,
-                archiveId = chatArchiveId, reconsiderationEvidenceId = observationId,
-                sceneContext = if (groupChat == null) "重新考虑自己刚才发出的私聊消息，包括主动分享或自主联系。"
-                    else "重新考虑自己刚才在群聊中的这一次发言，只代表自己，不让其他成员再次发言。所有成员可见，不能泄露其他私聊中的内容。",
-                turnContext = "这轮要重新考虑的原表达（角色自己说的，不是用户的话）：\n" +
-                    originals.joinToString("\n") { qqForwardContextText(it.content) } +
-                    "\n依据之前实际发生的事情重新想一想，再自然表达；用户不喜欢工作报告式解释。有时一个表情或短促反应就够。旧工具回执和其他聊天记录保留，不重复执行旧动作。",
+            LuluDeviceToolBridge.reconsiderChatReply(
+                characterId = roleId,
+                history = history,
+                originalUserText = originalUserText,
+                oldReply = originals.joinToString("\n") { qqForwardContextText(it.content) },
+                title = activeLabel,
+                archiveId = chatArchiveId,
+                groupChat = groupChat != null,
             ).onSuccess { reply ->
-                val presentation = parseCharacterReplyPresentation(reply.text)
-                val bubbles = semanticReplyBubbles(presentation.content)
+                val bubbles = semanticReplyBubbles(reply.text)
                 if (bubbles.isEmpty()) {
                     reportError("这次没有生成替代消息，原消息已保留")
                     return@onSuccess
                 }
-                val replacement = MigratedDomainStores.chat.replaceCharacterReply(conversationId, turn.generatedMessageIds, bubbles)
+                val replacement = MigratedDomainStores.chat.replaceCharacterReply(
+                    conversationId, turn.generatedMessageIds, bubbles,
+                )
                 if (replacement == null) reportError("聊天已经继续或原消息已变更，原记录已保留")
                 else {
-                    replacement.lastOrNull()?.let { last ->
-                        com.jiacimu.lulu.data.CharacterConversationAgency.delivered(roleId, reply.interactionReceipt,
-                            last.id, bubbles.joinToString("\n"))
-                    }
+                    // Only delivered replacement content may update the heart voice.
+                    runCatching {
+                        LuluDeviceToolBridge.commitReconsideredChatReply(roleId, observationId, reply)
+                    }.onFailure { reportError("回复已替换，但更新心声失败：${it.message}") }
                     replacement.filter { decodeQqChatImage(it.content) == null }.forEach {
                         ChatAutoVoicePlayback.enqueue(roleId, it.id, it.content, conversationId)
                     }
