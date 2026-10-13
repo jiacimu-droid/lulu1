@@ -472,6 +472,73 @@ object LuluDeviceToolBridge {
             )
             plan.appraisal?.remove("ownActivity")
         }
+        // Important relational feedback should not lose all of its private follow-through
+        // just because the model omitted one OPTIONAL JSON field. Ask the same model
+        // for a bounded addendum to the SAME decision; this is not a new character,
+        // an additional auto-apology, or a background action.
+        if (separateExpression &&
+            com.jiacimu.lulu.data.EmotionFollowThroughCoordinator.needsConcernAssessment(userText, plan.appraisal)) {
+            val review = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = buildString {
+                    appendLine("【现实互动】${userText.takeLast(2_000)}")
+                    if (history.isNotBlank()) appendLine("【已发生的上下文】${history.takeLast(3_000)}")
+                    appendLine("【原本的这轮角色判断】${plannedReply.text.take(2_000)}")
+                    appendLine("【已有的私人心事】${com.jiacimu.lulu.data.CharacterOpenConcernRuntime.context(
+                        com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
+                            .optJSONArray("openConcerns"), now
+                    )}")
+                },
+                instruction = """
+                    你仍是同一个角色，继续刚才同一次私聊的内部判断，完全不生成对外台词。
+                    对方明确表达了关系中实际的不愉快，但原决策漏掉了一个问题：
+                    你自己是否还有未解决的事放在心上？这不是必须哄、必须原谅或必须追着对方联系的任务。
+                    从自己的性格、真实经历、情绪与相互矛盾的想法出发，仔细判断。
+                    如果有一件或数件真正不同主题的持续心事，在 appraisal.pendingConcerns 中分别写出
+                    topicKey、status=open/revise、threadId(续想时)、focus、whyItMatters、hesitation、
+                    possibleNextStep、priority(1到3)，最多四个不同主题，不能对同一问题换句话重复建档。
+                    如果确实不想持续关注，给 appraisal.concernAssessment 写明自己不继续挂心的具体原因；
+                    如果决定持续关注，也写这个选择的简短原因；不能凭空认定用户已经原谅。
+                    可选 innerLife.thoughts 或 emotion 表示真正有变化的主观状态，不能凑数量。
+                    只返回紧凑 JSON：{"appraisal":{"concernAssessment":"自己的决定与理由",
+                    "pendingConcerns":[]},"innerLife":{}}。
+                    没有要保存的心事就使用空数组；不执行工具、不发送新消息、不修改旧事实。
+                """.trimIndent(),
+                source = "聊天重大关系反馈·原决策复核",
+                title = title,
+                maxTokens = 1_200,
+                connectionOverride = connection,
+                memoryRequest = UnifiedMemoryRequest(
+                    currentInput = userText,
+                    sceneContext = sceneContext,
+                    recentContext = history,
+                    taskIntent = "同一轮决策补齐未解决心事的判断，不额外生成对外行动",
+                ),
+            ).getOrNull()?.text?.let(com.jiacimu.lulu.data.ModelStructuredOutput::objectOrNull)
+            if (review != null) {
+                val addendum = review.optJSONObject("appraisal")
+                val revised = JSONObject(plan.appraisal?.toString() ?: "{}")
+                if (addendum != null) {
+                    for (key in listOf("concernAssessment", "pendingConcerns", "pendingConcern",
+                        "possibleReadings", "tension", "uncertainty")) {
+                        if (addendum.has(key)) revised.put(key, addendum.opt(key))
+                    }
+                }
+                val extraLife = review.optJSONObject("innerLife")
+                val sharedLife = JSONObject(plan.innerLife?.toString() ?: "{}")
+                if (extraLife != null) {
+                    for (key in listOf("emotion", "thoughts", "motives", "selfCorrection", "social")) {
+                        if (!sharedLife.has(key) && extraLife.has(key)) sharedLife.put(key, extraLife.opt(key))
+                    }
+                }
+                if (revised.length() > 0 || sharedLife.length() > 0) {
+                    plan = plan.copy(
+                        appraisal = revised.takeIf { it.length() > 0 },
+                        innerLife = sharedLife.takeIf { it.length() > 0 },
+                    )
+                }
+            }
+        }
         if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
             plan = plan.copy(speechIntent = plan.text)
         }
