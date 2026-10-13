@@ -115,6 +115,7 @@ private data class DigitalInteractionChoice(
     val label: String,
     val detail: String,
     val quickSummary: String? = null,
+    val venueActivityId: String? = null,
     val storyPrompt: String? = null,
     val dialogueCharacterId: String? = null,
     val gameId: String? = null,
@@ -175,6 +176,9 @@ internal fun DigitalWorldGameScene(
     }
     val stateStore = remember(context, sceneKey) { DigitalWorldPlayState(context, sceneKey) }
     var discoveredSpots by remember(sceneKey) { mutableStateOf(stateStore.loadDiscoveries()) }
+    // Real, player-completed venue activities are persisted per location. A
+    // returning visitor sees the outcome rather than just an old toast.
+    var finishedVenueActivities by remember(sceneKey) { mutableStateOf(stateStore.loadVenueActivities()) }
     val restored = remember(stateStore) { stateStore.loadPosition() }
     val safeStart = remember(restored, obstacles) { digitalSafeStart(restored, obstacles) }
     // The actual activity ledger survives closing the scene. A portrait alone
@@ -710,6 +714,7 @@ internal fun DigitalWorldGameScene(
                     drawDigitalSharedWorld(sceneCode, lightPhase)
                 }
                 drawDigitalExplorationMarkers(discoverySpots, discoveredSpots, lightPhase)
+                drawDigitalVenueOutcomes(sceneCode, venueAnchors, finishedVenueActivities, lightPhase)
                 drawNativeWorldResidents(nativeMotions.map { motion ->
                     DigitalNativeResidentPose(motion.resident, motion.position,
                         motion.position.distanceTo(motion.target) > 18f, motion.facingX)
@@ -1058,8 +1063,15 @@ internal fun DigitalWorldGameScene(
                             onCharacterClick(choice.dialogueCharacterId)
                         }
                         choice.quickSummary != null -> {
-                            questStage = questStage.coerceAtLeast(2)
-                            queuedActions = (queuedActions + DigitalQueuedAction(label = choice.label, summary = choice.quickSummary)).takeLast(4)
+                            val activity = choice.venueActivityId
+                            val saved = if (activity == null) true else
+                                stateStore.saveVenueActivity(finishedVenueActivities + activity)
+                            if (saved) {
+                                if (activity != null) finishedVenueActivities = finishedVenueActivities + activity
+                                questStage = questStage.coerceAtLeast(2)
+                                queuedActions = (queuedActions + DigitalQueuedAction(
+                                    label = choice.label, summary = choice.quickSummary)).takeLast(4)
+                            } else interactionMessage = "这个活动的场景状态暂时没能保存"
                         }
                         choice.storyPrompt != null -> {
                             val targetCharacterId = (selectedTarget as? DigitalNearbyTarget.Resident)?.motion?.character?.characterId
@@ -1175,6 +1187,7 @@ private fun buildInteractionChoices(
                 detail = target.anchor.label,
                 quickSummary = DigitalWorldActivityCatalog.locationActivitySummary("我", sceneCode, activityId, placeLabel)
                     ?: "我在${target.anchor.label}做了“$label”。",
+                venueActivityId = activityId,
             )
         }
     }
@@ -1350,6 +1363,12 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     fun loadQuest(): Int = prefs.getInt("quest_$suffix", 0).coerceIn(0, 2)
 
     fun loadDiscoveries(): Set<String> = prefs.getStringSet("discoveries_$suffix", null).orEmpty().toSet()
+
+    fun loadVenueActivities(): Set<String> =
+        prefs.getStringSet("venue-activities_$suffix", null).orEmpty().toSet()
+
+    fun saveVenueActivity(ids: Set<String>): Boolean =
+        prefs.edit().putStringSet("venue-activities_$suffix", ids.toSet()).commit()
 
     fun loadNativePosition(residentId: String, fallback: WorldVector): WorldVector {
         val id = (residentId.hashCode() and Int.MAX_VALUE).toString(36)
