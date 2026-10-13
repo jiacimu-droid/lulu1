@@ -189,6 +189,11 @@ internal object GroupEnsembleReplyEngine {
                     appendLine("---")
                     appendLine("characterId=${member.characterId}")
                     appendLine("显示名=${character.displayName}；群内称呼=$label")
+                    appendLine("【此成员自己对群里不同对象的主观印象｜只影响自己的相处态度，不是全员共识】")
+                    appendLine(com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
+                        member.characterId,
+                        validMembers.map { it.characterId }.filterNot { it == member.characterId } + "user",
+                    ).ifBlank { "尚无足够互动形成个人看法，不能预设亲疏" })
                     appendLine(CharacterAddressPreference.promptSection(member.characterId))
                     appendLine(com.jiacimu.lulu.data.CharacterRelationshipPreferences.promptSection(member.characterId))
                     appendLine(definitions.getValue(member.characterId).promptSection())
