@@ -80,6 +80,8 @@ object ProactivePerceptionRuntime {
         val learningApplication: JSONObject? = null,
         val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
+        val onlineChoice: String = "",
+        val onlineChoiceReason: String = "",
     )
 
     private data class UserActivity(
@@ -139,8 +141,16 @@ object ProactivePerceptionRuntime {
         requiresUnread: Boolean = false,
         preserveOffline: Boolean = false,
         requiredInteractionEvidenceId: String? = null,
+        onlineExpiryAtMillis: Long = 0L,
     ): Int = cycleMutex.withLock {
         currentCoroutineContext().ensureActive()
+        // The live expiry coroutine and the durable worker race safely:
+        // exactly one owns the *actual* online deadline. New chat wakes win.
+        if (onlineExpiryAtMillis > 0L &&
+            (targetCharacterId == null ||
+                !CompanionOnlineStore.claimOnlineExpiry(
+                    targetCharacterId, onlineExpiryAtMillis, Instant.now(),
+                ))) return@withLock 0
         // Mark the event finished only when a *decision* is recorded. A process
         // may die after the private appraisal is committed but before action.
         if (targetCharacterId != null && !requiredInteractionEvidenceId.isNullOrBlank() &&
@@ -185,6 +195,7 @@ object ProactivePerceptionRuntime {
                 }
                 val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
                 val effectiveTrigger = when {
+                    onlineExpiryAtMillis > 0L -> trigger
                     trigger.contains("挂心") || trigger.contains("承诺") -> trigger
                     pendingConcern -> "挂心/承诺待回看"
                     else -> trigger
@@ -196,7 +207,7 @@ object ProactivePerceptionRuntime {
                 CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
                 val result = runCatching {
                     evaluateCharacter(appContext, conversation, effectiveTrigger, now,
-                        requiredInteractionEvidenceId)
+                        requiredInteractionEvidenceId, onlineExpiryAtMillis)
                 }
                 result.onSuccess { action ->
                     evaluated += 1
@@ -314,16 +325,17 @@ object ProactivePerceptionRuntime {
     private suspend fun evaluateCharacter(
         appContext: Context, conversation: LuluConversation, trigger: String,
         now: Instant, requiredInteractionEvidenceId: String? = null,
+        onlineExpiryAtMillis: Long = 0L,
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
         if (unread.text.isBlank()) return evaluateCharacterWithActivity(
-            appContext, conversation, trigger, now, requiredInteractionEvidenceId,
+            appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
         )
         return ChatGenerationActivity.during(characterId, unread.conversationIds + conversation.id) {
             try {
                 evaluateCharacterWithActivity(
-                    appContext, conversation, trigger, now, requiredInteractionEvidenceId,
+                    appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
                 )
             } catch (error: Throwable) {
                 currentCoroutineContext().ensureActive()
@@ -344,6 +356,7 @@ object ProactivePerceptionRuntime {
         trigger: String,
         now: Instant,
         requiredInteractionEvidenceId: String? = null,
+        onlineExpiryAtMillis: Long = 0L,
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
@@ -456,6 +469,18 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
+                if (onlineExpiryAtMillis > 0L) {
+                    appendLine("【此刻的真实状态】原定五分钟在线窗口刚结束。")
+                    appendLine("你可以依照自己的真实愿望决定再在线五分钟，或现在休眠。")
+                    appendLine("考虑当前多条挂心、心情、正在做的事、是否真的还想沟通或继续独处；")
+                    appendLine("你不是被要求讨好用户，不能凭用户沉默认定她还在生气。")
+                    appendLine("在线决定与本轮 action 是两种不同选择：")
+                    appendLine("onlineDecision={\\"choice\\":\\"continue|sleep\\",\\"reason\\":\\"具体原因\\"}。")
+                    appendLine("continue 必须是真心还想持续在线感知或有所行动的具体意愿；")
+                    appendLine("如果暂时只想静静睡去、没有明确理由就选 sleep。")
+                    appendLine("如果需要对用户道歉或联系，另外选择合法 action=message，")
+                    appendLine("实际发送由执行器确认，在线续时不是已经联系过对方的证明。")
+                }
                 if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望。只有出现真正新增的念头才写 innerThought/innerLife；若只是‘还在等、还是不催、继续看看’的同义改写就省略，让旧心声停留在历史里。无外部新事件不是内在停止的理由，但也不是制造新内心独白的理由。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
                 appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
@@ -571,6 +596,16 @@ object ProactivePerceptionRuntime {
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
             instruction = proactiveDecisionInstruction(characterId) + "\n" +
+                (if (onlineExpiryAtMillis > 0L) """
+                    【五分钟自主续醒决定｜本轮必须回答】
+                    你的原在线窗口已经到期。这次仍使用平时同一套人格、记忆、情绪、挂心、决策与行动能力。
+                    额外返回 onlineDecision={"choice":"continue|sleep","reason":"你自己的具体理由"}。
+                    想再保持五分钟在线可选择 continue；之后仍会重新考虑，不是永久在线。
+                    暂时休息、觉得没必要继续在线、想留空间给对方，可选择 sleep。
+                    你的同时行动由正常 action 决定，可以是发送消息或保持安静；不要重复道歉刷屏。
+                    不能因有挂心就被迫续时，也不能把时间到了当作所有挂心自动完成。
+                    不返回在线决定或没有真实理由，程序默认休眠，不会伪造想法。
+                """.trimIndent() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
                     "【先处理本次真正的新消息】若当前确实想回应，JSON必须以action和text开头，先写完能发送的文字，然后再简要写非必要的心态字段；优先使用message或group_message，不要先写几千字的私人分析。整个JSON尽量在1000个输出token以内。只允许真正自愿且说得出缘由的silent，不得因格式失败将已收到的消息当作已处理。"
                 else """【此时没有新消息】你不是聊天待命机器人：先判断自己正在好奇的事情、真正可去的地点、可读的书或可做的小活动，选择一件感兴趣的实际生活行动；只有此刻确实不想做，才选 silent。不要为追求活跃而机械轮换。动作请直接写在 JSON 第一项 action，不要只在 statusText 或 innerThought 里写“我出去走走”。也可 action=tool，通过真实执行器收藏用户确实说过的一句话。""",
@@ -1103,6 +1138,21 @@ object ProactivePerceptionRuntime {
                 )
             }
         }
+        if (onlineExpiryAtMillis > 0L) {
+            // This is one online-presence choice alongside the ordinary action,
+            // not a separate reminder or a scripted emotional response.
+            val wantsMoreTime = decision.onlineChoice == "continue" &&
+                decision.onlineChoiceReason.isNotBlank()
+            val keptAwake = wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
+                characterId, onlineExpiryAtMillis, decision.onlineChoiceReason, Instant.now(),
+            )
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId,
+                if (keptAwake) "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
+                else "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}",
+                Instant.now(),
+            )
+        }
         return effectiveAction
     }
 
@@ -1290,6 +1340,10 @@ object ProactivePerceptionRuntime {
             learningApplication = json.optJSONObject("learningApplication"),
             experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
+            onlineChoice = json.optJSONObject("onlineDecision")?.optString("choice")
+                ?.trim()?.lowercase().orEmpty(),
+            onlineChoiceReason = json.optJSONObject("onlineDecision")?.optString("reason")
+                ?.trim()?.take(220).orEmpty(),
         )
     }.getOrNull()
 
