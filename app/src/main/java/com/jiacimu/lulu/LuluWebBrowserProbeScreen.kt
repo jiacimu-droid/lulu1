@@ -12,9 +12,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
@@ -27,7 +25,6 @@ import org.json.JSONObject
 import org.json.JSONTokener
 
 private const val XHS_PROBE_URL = "https://www.xiaohongshu.com/explore"
-private const val GENERAL_PROBE_URL = "https://example.com"
 
 /**
  * A visible, user-operated Android WebView compatibility probe.
@@ -49,6 +46,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var lastApiFailure by remember { mutableStateOf("") }
     var jsNetworkFailures by remember { mutableIntStateOf(0) }
     var browserDiagnostics by remember { mutableStateOf("") }
+    var diagnosticsVisible by remember { mutableStateOf(false) }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
         Regex("Chrome/([0-9.]+)").find(mobileAgent)?.groupValues?.get(1) ?: "120.0.0.0"
@@ -60,6 +58,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     BackHandler {
         val current = browser
         if (current?.canGoBack() == true) current.goBack() else onBack()
+    }
+
+    if (diagnosticsVisible) {
+        AlertDialog(
+            onDismissRequest = { diagnosticsVisible = false },
+            title = { Text("网页诊断结果") },
+            text = { Text(browserDiagnostics, style = MaterialTheme.typography.bodySmall) },
+            confirmButton = {
+                TextButton(onClick = { diagnosticsVisible = false }) { Text("关闭") }
+            },
+        )
     }
 
     Scaffold(
@@ -79,24 +88,21 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
             // Keep the browser viewport as tall as possible on a phone.
-            Text(
-                "仅验证网页显示；Cookie 不共享给角色或 Termux。",
-                modifier = Modifier.padding(horizontal = 12.dp),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
             Row(
-                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                TextButton(onClick = { browser?.loadUrl(XHS_PROBE_URL) }) { Text("小红书") }
-                TextButton(onClick = { browser?.zoomOut() }) { Text("缩小 −") }
-                TextButton(onClick = { browser?.zoomIn() }) { Text("放大 +") }
-                TextButton(onClick = {
-                    browser?.let { it.setInitialScale(0); it.reload() }
-                }) { Text("重载适配") }
-                TextButton(onClick = {
+                OutlinedButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = { browser?.loadUrl(XHS_PROBE_URL) },
+                ) { Text("首页") }
+                OutlinedButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = { browser?.reload() },
+                ) { Text("刷新") }
+                Button(modifier = Modifier.weight(1f), onClick = {
+                    diagnosticsVisible = true
+                    browserDiagnostics = "正在检查页面…"
                     val web = browser
                     if (web == null) {
                         browserDiagnostics = "浏览器尚未准备好。"
@@ -145,22 +151,6 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         }
                     }
                 }) { Text("诊断") }
-                TextButton(onClick = {
-                    val current = browser?.url?.let { runCatching { Uri.parse(it) }.getOrNull() }
-                    val target = if (current?.scheme == "https" &&
-                        (current.host == "xiaohongshu.com" ||
-                            current.host.orEmpty().endsWith(".xiaohongshu.com")))
-                        current else Uri.parse(XHS_PROBE_URL)
-                    runCatching {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, target))
-                    }.onFailure { status = "无法打开系统浏览器：" + it.message.orEmpty().take(80) }
-                }) { Text("当前页外部对照") }
-                TextButton(onClick = { browser?.loadUrl(GENERAL_PROBE_URL) }) { Text("对照网页") }
-                TextButton(onClick = {
-                    runCatching {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(XHS_PROBE_URL)))
-                    }.onFailure { status = "无法打开系统浏览器：" + it.message.orEmpty().take(80) }
-                }) { Text("外部打开") }
             }
             Text(
                 "桌面网页版 · " + status,
@@ -168,14 +158,6 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (browserDiagnostics.isNotBlank()) {
-                Text(
-                    browserDiagnostics,
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
             if (progress in 1..99) {
                 LinearProgressIndicator(
                     progress = { progress / 100f },
@@ -235,8 +217,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 val host = target.host.orEmpty().lowercase()
                                 val allowed = target.scheme == "https" &&
                                     (host == "xiaohongshu.com" ||
-                                        host.endsWith(".xiaohongshu.com") ||
-                                        host == "example.com")
+                                        host.endsWith(".xiaohongshu.com"))
                                 if (allowed) return false
                                 if (target.scheme == "http" || target.scheme == "https") {
                                     runCatching {
@@ -265,6 +246,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 lastApiFailure = ""
                                 jsNetworkFailures = 0
                                 browserDiagnostics = ""
+                                diagnosticsVisible = false
                                 progress = 0
                                 status = "正在加载网页…"
                             }
