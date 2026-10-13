@@ -142,8 +142,11 @@ internal object XhsReadingEngine {
             throw cancelled
         } catch (error: Exception) {
             val mcpFailure = error.message.orEmpty().take(140).ifBlank { "MCP 未能返回笔记" }
-            error(if (localFailure.isBlank()) "小红书 MCP 读取失败：$mcpFailure"
-                else "小红书本机读取失败：$localFailure；备用 MCP 也失败：$mcpFailure")
+            throw IllegalStateException(
+                if (localFailure.isBlank()) "小红书 MCP 读取失败：$mcpFailure"
+                else "小红书本机读取失败：$localFailure；备用 MCP 也失败：$mcpFailure",
+                error,
+            )
         }
     }
 
