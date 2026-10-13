@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserProbe: () -> Unit) {
+internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserProbe: () -> Unit, onOpenXhsNativeReader: () -> Unit) {
     val context = LocalContext.current
     val links = LocalUriHandler.current
     Scaffold(
@@ -61,6 +61,8 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
             if (service == "xiaohongshu") {
                 Text("不想折腾 Termux？先试试安卓系统自带的网页内核能否正常打开小红书。这个测试只在手机本地显示网页，不读取账号信息，不改变现有 MCP 配置。", style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = onOpenBrowserProbe) { Text("测试内置浏览器（推荐先试）") }
+                OutlinedButton(onClick = onOpenXhsNativeReader) { Text("简洁阅读（实验）：跳过网页弹窗") }
+                Text("新模式用本机已登录的网页数据生成原生列表和正文。不承诺能解除平台限制；获取不到正文就明确报错，也不会让角色误以为读过。", style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = {
                     mcpUrl = "http://127.0.0.1:18060/mcp"
                     mcpToken = ""
