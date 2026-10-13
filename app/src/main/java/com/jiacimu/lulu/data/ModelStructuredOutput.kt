@@ -97,6 +97,57 @@ internal object ModelStructuredOutput {
         .replace(Regex("""(?<=\p{IsHan})[ \t]*\n[ \t]*(?=\p{IsHan})"""), "")
 
     /**
+     * Readability happens at the outgoing message boundary, NOT by cutting
+     * Chinese strings every N characters. An unusually long bubble with
+     * complete sentences becomes a few easy-to-read messages, while a tiny
+     * backchannel or a single unfinished sentence stays intact.
+     *
+     * A model-selected bubble may contain several complete sentences; this
+     * changes only the send pacing, never the character's decided content.
+     */
+    fun readableReplyBubbles(values: List<String>, maxBubbles: Int = 5): List<String> {
+        val stable = stabilizeReplyBubbles(values)
+        val pieces = mutableListOf<String>()
+        stable.forEach { bubble ->
+            if (bubble.length <= 65 || bubble.startsWith("[") || bubble.startsWith("⟪")) {
+                pieces += bubble
+                return@forEach
+            }
+            val sentences = mutableListOf<String>()
+            var from = 0
+            bubble.forEachIndexed { index, char ->
+                if (char in "。！？!?；;" && index + 1 < bubble.length) {
+                    val part = bubble.substring(from, index + 1).trim()
+                    if (part.isNotBlank()) sentences += part
+                    from = index + 1
+                }
+            }
+            bubble.substring(from).trim().takeIf(String::isNotBlank)?.let(sentences::add)
+            if (sentences.size < 2) {
+                pieces += bubble
+                return@forEach
+            }
+            var current = ""
+            sentences.forEach { sentence ->
+                if (current.length >= 24 && current.length + sentence.length > 56) {
+                    pieces += current
+                    current = sentence
+                } else current += sentence
+            }
+            if (current.isNotBlank()) {
+                if (pieces.isNotEmpty() && current.length < 12 &&
+                    pieces.last().length < 66) {
+                    pieces[pieces.lastIndex] += current
+                } else pieces += current
+            }
+        }
+        // Never discard speech when there are more segments than visual slots.
+        val limit = maxBubbles.coerceIn(1, 8)
+        if (pieces.size <= limit) return pieces
+        return pieces.take(limit - 1) + pieces.drop(limit - 1).joinToString("")
+    }
+
+    /**
      * Preferred text-chat protocol: bubbles are structural JSON, never magic strings inside text.
      * Supports either ["text"] or [{"text":"..."}] during migration.
      */
@@ -121,7 +172,7 @@ internal object ModelStructuredOutput {
             }.take(8)
             // Structured model output owns the send boundaries. Once bubbles are valid JSON,
             // do not second-guess them with punctuation/length heuristics.
-            if (values.isNotEmpty()) return stabilizeReplyBubbles(values).take(3)
+            if (values.isNotEmpty()) return stabilizeReplyBubbles(values).take(5)
         }
 
         return smoothInlineBreaks(json.optString("text"))
@@ -162,7 +213,7 @@ internal object ModelStructuredOutput {
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
                                 bubble.trim().takeIf(String::isNotBlank)?.take(2_000)
-                            }.let(::stabilizeReplyBubbles).take(3).takeIf { it.isNotEmpty() }
+                            }.let(::stabilizeReplyBubbles).take(5).takeIf { it.isNotEmpty() }
                         }
                     }
                 }
