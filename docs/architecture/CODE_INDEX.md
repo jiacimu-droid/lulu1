@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ff16650eb6e4ae864ccf1d9a8386643a48ef4b93`
+- 基准提交：`40eaa5788f54f3a4685810fd9750f946d3c63ffc`
 - 分支：`main`
 - 已索引文件：583
-- 已索引代码/文本行：116416
+- 已索引代码/文本行：116436
 - 已发现符号：1765
 
 | 文件 | 行数 | 符号数 |
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt` | 46 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 79 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 75 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 86 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 216 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt` | 134 | 3 |
@@ -503,7 +503,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt` | 32 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 58 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityRuntimeTest.kt` | 57 | 1 |
