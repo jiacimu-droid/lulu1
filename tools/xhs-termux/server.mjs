@@ -144,10 +144,18 @@ async function invoke(name,args={}) {
       const result = await getFeedDetail(id,token);
       if (!result?.success || !result.detail) throw new Error(result?.message||"正文读取失败");
       // Adapt upstream's normalized "detail" to Lulu's existing "data.note" format.
+      // The upstream normalized detail contains an imageUrls:string[].
+      // Keep the MCP response compatible with the canonical imageList
+      // objects consumed by Android and other Go-compatible clients.
+      const imageList = (Array.isArray(result.detail.imageUrls)
+        ? result.detail.imageUrls : []).filter(Boolean).slice(0,30)
+        .map(image => typeof image === "string"
+          ? {urlDefault:image}
+          : {urlDefault:image.urlDefault||image.url||""});
       return jsonText({data:{note:{
         title:result.detail.title||"", desc:result.detail.desc||"",
         id:result.detail.id||id, author:result.detail.author||{},
-        imageList:result.detail.imageUrls||[]
+        imageList
       }}});
     }
     default: throw new Error("只读权限拒绝：不允许发帖、评论、点赞或收藏");
