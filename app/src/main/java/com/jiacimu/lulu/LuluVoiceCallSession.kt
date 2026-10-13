@@ -1408,33 +1408,6 @@ internal object LuluVoiceCallSession {
         }
     }
 
-    /** V2 and Realtime are separate input paths: only batch Scribe has a record button. */
-    fun beginRecordedSpeech() {
-        val call = mutableState.value
-        if (!call.connected || call.microphoneMuted || call.batchRecording ||
-            call.batchUploading || call.opening || (call.speaking && !privateCallOutput())) return
-        if (providerInput?.beginRecording() == true) mutableState.update {
-            it.copy(batchRecording = true, statusMessage = "正在录音 · 结束并发送后才扣转写用量",
-                errorMessage = "", listening = true)
-        }
-    }
-
-    /** End recording and explicitly submit only the PCM recorded since Start. */
-    fun submitRecordedSpeech() {
-        val ctx = appContext ?: return
-        if (!mutableState.value.connected || mutableState.value.microphoneMuted ||
-            CallVoiceConfiguration.sttEngine(ctx) != "elevenlabs" ||
-            CallVoiceConfiguration.elevenSttModel(ctx.getSharedPreferences(
-                "lulu_advanced_settings", 0).getString("eleven_asr_model", null)) !=
-                CallVoiceConfiguration.SCRIBE_V2) return
-        if (!mutableState.value.batchRecording) return
-        val accepted = providerInput?.finishCurrentPhrase() == true
-        mutableState.update { it.copy(
-            batchRecording = false, batchUploading = accepted,
-            statusMessage = if (accepted) "录音已发送 · 正在转写" else "录音过短，请重新开始录音",
-            listening = false) }
-    }
-
     private fun startProviderInput() {
         val context = appContext ?: return
         providerInput?.stop()
@@ -1462,11 +1435,11 @@ internal object LuluVoiceCallSession {
                     if (!mutableState.value.microphoneMuted) audioRoute?.refresh()
                     val wasConnected = mutableState.value.connected
                     mutableState.update { it.copy(phase = CallPhase.Connected, callStartedAt = it.callStartedAt ?: Instant.now(), everConnected = true,
-                        listening = !it.speaking && !it.microphoneMuted && !providerInput!!.isManualBatch,
+                        listening = !it.speaking && !it.microphoneMuted,
                         inputMeterAvailable = true,
                         errorMessage = "", statusMessage = if (it.thinking) it.statusMessage
-                            else if (providerInput!!.isManualBatch) "V2 已就绪 · 点开始录音，录完点结束并发送"
-                            else "实时麦克风已就绪，可以直接说话") }
+                            else if (scribeRealtime) "Scribe 实时转写已就绪，可以直接说话"
+                            else "麦克风已就绪，可以直接说话，停顿后自动转写") }
                     if (!wasConnected) { startTimer(); startOpening() }
                 }
             },
@@ -1640,7 +1613,7 @@ internal object LuluVoiceCallSession {
                 val clock = SystemClock.elapsedRealtime()
                 if (CallSilencePolicy.shouldRecoverStuckCapture(
                         providerActive = providerInput?.usesServerVad == false &&
-                            providerInput?.isManualBatch != true && !current.microphoneMuted,
+                            !current.microphoneMuted,
                         userSpeechInProgress = userSpeechInProgress,
                         sinceSpeechStartedMillis = clock - providerSpeechStartedMillis,
                     )) {
