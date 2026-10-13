@@ -11,6 +11,7 @@ internal object ReadingChatReceiptFormatter {
     private val chapter = Regex("""第[零〇一二三四五六七八九十百千万0-9]+[章节回卷]""")
     private val batch = Regex("""连续阅读\s*(\d+)\s*段""")
     private const val openLabel = "查看感想"
+    private const val previewLimit = 36
 
     data class Preview(val recordId: String, val text: String, val linkStart: Int, val linkEnd: Int)
 
@@ -29,7 +30,7 @@ internal object ReadingChatReceiptFormatter {
     ): String {
         val cleanTitle = bookTitle.trim().removePrefix("《").removeSuffix("》").take(54)
         val cleanChapter = chapter.find(chapterTitle)?.value.orEmpty()
-        val note = reflection.replace(Regex("""\s+"""), " ").trim().take(36)
+        val note = reflection.replace(Regex("""\s+"""), " ").trim().take(previewLimit)
         val prefix = if (consecutiveReads > 1) "连续阅读 ${consecutiveReads.coerceAtMost(30)} 段 · " else ""
         return buildString {
             append("[阅读记录|").append(recordId).append("]")
@@ -47,19 +48,20 @@ internal object ReadingChatReceiptFormatter {
         val bookName = Regex("""《([^》]+)》""").find(raw)?.groupValues?.get(1).orEmpty()
             .ifBlank { "阅读记录" }.take(35)
         val chapterName = chapter.find(raw)?.value.orEmpty()
-        val summary = (if (raw.contains("当时：")) raw.substringAfter("当时：", "") else raw.substringAfter("读后感：", ""))
+        val fullSummary = (if (raw.contains("当时：")) raw.substringAfter("当时：", "") else raw.substringAfter("读后感：", ""))
             .substringBefore("\n点开查看")
             .substringBefore("\n查看")
             .substringBefore("点开查看")
             .substringBefore(openLabel)
             .replace(Regex("""\s+"""), " ")
-            .trim().take(32)
+            .trim()
+        val summary = fullSummary.take(previewLimit)
         val compact = buildString {
             if (count > 1) append("连读${count}段 · ")
             else append("读了 ")
             append("《").append(bookName).append("》")
             if (chapterName.isNotEmpty()) append(" · ").append(chapterName)
-            if (summary.isNotBlank()) append("\n").append(summary).append(if (summary.length == 32) "…" else "")
+            if (summary.isNotBlank()) append("\n").append(summary).append(if (fullSummary.length > previewLimit) "…" else "")
             append("\n").append(openLabel)
         }
         val start = compact.lastIndexOf(openLabel)
