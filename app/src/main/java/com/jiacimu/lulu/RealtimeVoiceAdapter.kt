@@ -53,7 +53,10 @@ internal class RealtimeVoiceAdapter(
         val epoch = ++generation
         deliveryEpoch = delivery.reset()
         val core = coreSnapshot(characterId)
-        val auth = CloudTaskBridge.request("/v1/voice/session", core)
+        val auth = CloudTaskBridge.request("/v1/voice/session", core.payload)
+        // This audits a successful Agent context handoff, not an LLM generation.
+        CoreMemoryInjectionAudit.recordSuccess(characterId, "ElevenLabs Agent 会话上下文同步",
+            "AgentContextSync", core.coreIds)
         if (epoch != generation) return
         val config = ConversationConfig(
             conversationToken = auth.getString("conversationToken"),
@@ -224,11 +227,15 @@ internal class RealtimeVoiceAdapter(
         runCatching {
             val snapshot = coreSnapshot(characterId)
             if (epoch != generation) return
-            CloudTaskBridge.request("/v1/context", snapshot)
+            CloudTaskBridge.request("/v1/context", snapshot.payload)
+            CoreMemoryInjectionAudit.recordSuccess(characterId, "ElevenLabs Agent 上下文更新",
+                "AgentContextSync", snapshot.coreIds)
         }.onFailure { if (epoch == generation) onError("角色状态同步失败：${it.message}") }
     }
 
-    private suspend fun coreSnapshot(id: String): JSONObject {
+    private data class AgentCoreSnapshot(val payload: JSONObject, val coreIds: List<String>)
+
+    private suspend fun coreSnapshot(id: String): AgentCoreSnapshot {
         val version = synchronized(this) {
             contextVersion = maxOf(contextVersion + 1, Instant.now().toEpochMilli())
             contextVersion
@@ -255,6 +262,9 @@ internal class RealtimeVoiceAdapter(
             "辞海：" + lexicon.take(24).joinToString("\n") { "${it.title}：${it.content}" }, CapabilityRegistry.context(context = this.context, characterId = id),
             "只按实际事件、工具结果和当前世界状态续接。用户陈述、观察事实和推测分开；生成或日记不能证明已经行动。")
             .filter(String::isNotBlank).joinToString("\n\n")
-        return JSONObject().put("characterId", id).put("context", context).put("version", version)
+        return AgentCoreSnapshot(
+            JSONObject().put("characterId", id).put("context", context).put("version", version),
+            memory.coreMemories.map { it.id },
+        )
     }
 }
