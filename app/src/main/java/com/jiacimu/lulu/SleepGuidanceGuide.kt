@@ -48,7 +48,7 @@ internal object SleepGuidanceGuide {
         SleepGuidanceFocus.Affection ->
             "以爱意和具体夸奖为主，但可不着痕迹地穿插呼吸、放松肩膀、温暖意象或小故事；不要一小时不停夸、反复保证或使人不得不回应。"
         SleepGuidanceFocus.Story ->
-            "以连贯故事为主，剧情自然有停顿时可以融入安宁的画面、人物间温柔的爱与欣赏、轻声的睡意引导；不要突然暂停剧情强行插入整套练习，也不要每轮重讲故事开头。"
+            "以连贯故事为主，剧情自然有停顿时可以融入安宁的画面、人物间温柔的爱与欣赏、轻声的睡意引导；不要突然暂停剧情强行插入整套练习，也不要每轮重讲故事开头。故事要记得已讲过的人物与情节，沿着已发生的行动和关系继续推进。"
     }
 
     private fun quietStage(silenceMillis: Long): String = when {
