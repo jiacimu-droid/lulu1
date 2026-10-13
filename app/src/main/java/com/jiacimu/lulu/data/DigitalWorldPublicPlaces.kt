@@ -49,6 +49,10 @@ internal object DigitalWorldPublicPlaces {
             )
         }
 
+    fun explorationPlaces(): List<DigitalWorldPublicPlace> = all.filter {
+        it.code !in setOf(GAME_HALL, CAFE, COURTYARD)
+    }.distinctBy { it.code }
+
     fun label(code: String): String? = all.firstOrNull { it.code == code }?.label
     fun contains(code: String): Boolean = all.any { it.code == code }
     fun isBuiltIn(code: String): Boolean = builtIns.any { it.code == code }

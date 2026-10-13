@@ -59,4 +59,28 @@ class CharacterConversationAgencyTest {
         assertFalse(receipt.has("text"))
         assertFalse(receipt.has("speechIntent"))
     }
+    @Test fun linkedWishProgressWaitsForAnActualDeliveredMessageAndDoesNotCompleteTheWish() {
+        val context = RuntimeEnvironment.getApplication()
+        CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
+        CharacterLifeStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val role = "wish-conversation-receipt"
+        CharacterInnerLifeStore.clear(role)
+        CharacterLifeStore.clearHistory(role)
+        CharacterLifeStore.consider(role, JSONObject().put("aim", "聊聊双方喜欢的事")
+            .put("motive", "想认真认识她").put("nextStep", "接住她刚分享的兴趣"))
+        val id = CharacterLifeStore.state(role).getJSONObject("intention").getString("createdAt")
+        val receipt = CharacterConversationAgency.receipt("", "想继续这个话题", "", "", null, "", intentionId = id)
+        CharacterConversationAgency.delivered(role, receipt, "unsent", "我也很好奇")
+        assertEquals(0, CharacterLifeStore.state(role).getJSONObject("intention").getJSONArray("outcomes").length())
+        SharedExperienceTimeline.record("wish-message-real", role, "私聊", "角色", "我也很好奇",
+            triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        CharacterConversationAgency.delivered(role, receipt, "wish-message-real", "我也很好奇")
+        val goal = CharacterLifeStore.state(role).getJSONObject("intention")
+        assertEquals("following_up", goal.getString("stage"))
+        assertEquals(1, goal.getJSONArray("outcomes").length())
+        CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
+    }
+
 }

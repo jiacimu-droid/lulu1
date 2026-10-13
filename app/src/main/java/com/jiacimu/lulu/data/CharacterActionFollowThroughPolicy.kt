@@ -21,9 +21,6 @@ internal object CharacterActionFollowThroughPolicy {
                     (item.optJSONArray("outcomes")?.length() ?: 0) == 0) choices += item.optString("aim")
             }
         }
-        if (intention?.optString("disposition") !in setOf("release", "pause") &&
-            intention?.optString("stage") !in setOf("paused", "released", "executing"))
-            choices += intention?.optString("aim").orEmpty()
         choices += afterglow?.optString("impulse").orEmpty()
         if (ownActivity?.optString("stage") in setOf("considering", "decided")) {
             val action = ownActivity?.optString("action").orEmpty()
@@ -35,7 +32,7 @@ internal object CharacterActionFollowThroughPolicy {
         return choices.map(String::trim).filter {
             it.length >= 4 && !CharacterStaleGoalPolicy.isGenericOrientation(it) &&
                 !Regex("^(继续)?(等她|等他|等用户|等待|不催|保持安静|先休息|想休息|想独处)").containsMatchIn(it)
-        }.distinct().take(6)
+        }.distinct().take(5) + listOfNotNull(CharacterIntentionContinuation.cue(intention?.takeUnless { it.optString("disposition") in setOf("pause", "release") }))
     }
 
     fun shouldReview(silent: Boolean, choices: List<String>, key: String, previousKey: String,

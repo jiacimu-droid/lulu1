@@ -43,4 +43,14 @@ class CharacterActionFollowThroughPolicyTest {
         assertFalse(CharacterActionFollowThroughPolicy.shouldReview(true, choices, "same", "same", 299999, 0))
         assertTrue(CharacterActionFollowThroughPolicy.shouldReview(true, choices, "same", "same", 300000, 0))
     }
+    @Test fun longTermRelationshipWishIsOfferedAsAChoiceWithItsRealIdAndNextStep() {
+        val goal = JSONObject().put("createdAt", "wish-id").put("aim", "了解她是什么样的人")
+            .put("motive", "想从真实相处认识她").put("nextStep", "聊到她喜欢的事时再接话")
+        val choices = CharacterActionFollowThroughPolicy.pendingChoices(null, goal, null, "")
+        assertTrue(choices.single().contains("intentionId=wish-id"))
+        assertTrue(choices.single().contains("聊到她喜欢的事时再接话"))
+        goal.put("stage", "paused")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, goal, null, "").isEmpty())
+    }
+
 }

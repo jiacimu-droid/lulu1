@@ -54,7 +54,11 @@ object CharacterLifeStore {
 
     fun state(characterId: String): JSONObject = runCatching {
         JSONObject(mutable.value[characterId] ?: "{}")
-    }.getOrDefault(JSONObject())
+    }.getOrDefault(JSONObject()).also { root ->
+        root.optJSONObject("intention")?.let { goal ->
+            if (goal.optString("stage").isBlank()) goal.put("stage", "considering")
+        }
+    }
 
     @Synchronized fun setProfile(characterId: String, key: String, value: String) {
         require(CharacterProfileSchema.fields.any { it.key == key })
@@ -457,6 +461,7 @@ object CharacterLifeStore {
                     else -> "considering"
                 }).put("stageReason", proposal.optString("reason").take(220))
                     .put("updatedAt", now.toString())
+                if (proposal.has("nextStep")) existing.put("nextStep", proposal.optString("nextStep").trim().take(300))
                 save(characterId, root)
             }
             if (proposal.optString("disposition") == "update" &&
@@ -466,6 +471,7 @@ object CharacterLifeStore {
                 if (aim.isNotBlank() && motive.isNotBlank()) {
                     existing.put("aim", aim).put("motive", motive)
                         .put("updatedAt", now.toString()).put("changeReason", proposal.optString("reason").take(300))
+                    if (proposal.has("nextStep")) existing.put("nextStep", proposal.optString("nextStep").trim().take(300))
                     save(characterId, root)
                 }
             }
@@ -474,14 +480,15 @@ object CharacterLifeStore {
         val aim = proposal.optString("aim").trim().take(300)
         val motive = proposal.optString("motive").trim().take(300)
         if (aim.isBlank() || motive.isBlank() ||
-            CharacterStaleGoalPolicy.isGenericOrientation(aim)) return
+            (CharacterStaleGoalPolicy.isGenericOrientation(aim) && proposal.optString("nextStep").isBlank())) return
         val innerMotives = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
         if ((0 until (innerMotives?.length() ?: 0)).any { index ->
                 sameCharacterMotive(innerMotives?.optJSONObject(index)?.optString("aim").orEmpty(), aim)
             }) return
         if (root.optJSONObject("previousIntention")?.let { it.optString("aim") == aim && it.optString("releaseReason") == "用户结束这件事" } == true) return
         root.put("intention", JSONObject().put("aim", aim).put("motive", motive)
-            .put("createdAt", now.toString()).put("stage", "considering").put("outcomes", JSONArray()))
+            .put("createdAt", now.toString()).put("stage", "considering").put("outcomes", JSONArray())
+            .put("nextStep", proposal.optString("nextStep").trim().take(300)))
         save(characterId, root)
     }
 
@@ -618,12 +625,12 @@ object CharacterLifeStore {
                 }
             }
             afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
+            CharacterIntentionContinuation.cue(root.optJSONObject("intention"))?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { prior ->
                 if (prior.optString("releaseReason") == "用户结束这件事")
                     appendLine("用户已结束的愿望：${prior.optString("aim")}，不可擅自重启")
             }
             root.optJSONObject("intention")
-                ?.takeUnless { goal -> innerAims.any { sameCharacterMotive(goal.optString("aim"), it) } }
                 ?.let { goal ->
                     appendLine("仍在意：${goal.optString("aim")}；原因：${goal.optString("motive")}；id=${goal.optString("createdAt")}；阶段=${goal.optString("stage", "considering")}")
                     val outcomes = goal.optJSONArray("outcomes")
@@ -652,6 +659,7 @@ object CharacterLifeStore {
                 }
             }
             afterglowContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
+            CharacterIntentionContinuation.cue(root.optJSONObject("intention"))?.let(::appendLine)
             root.optJSONObject("previousIntention")?.let { appendLine("上一件已放下的事（不代表完成）：${it.optString("aim")}；原因：${it.optString("releaseReason")}。用户结束的事不要擅自重新开启。") }
             val innerGoals = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
             val innerAims = (0 until (innerGoals?.length() ?: 0))

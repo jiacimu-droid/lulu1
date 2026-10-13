@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -39,6 +41,9 @@ internal object DigitalWorldExpansionStore {
     private const val MAX_PLACES = 8
     private const val MAX_RESIDENTS = 12
 
+    private val revision = MutableStateFlow(0L)
+    val revisions = revision.asStateFlow()
+
     private var prefs: android.content.SharedPreferences? = null
     private var places: List<DigitalWorldDiscoveredPlace> = emptyList()
     private var residents: List<DigitalWorldResident> = emptyList()
@@ -57,10 +62,10 @@ internal object DigitalWorldExpansionStore {
     }
 
     @Synchronized
-    fun places(): List<DigitalWorldDiscoveredPlace> = places.sortedBy(DigitalWorldDiscoveredPlace::createdAt)
+    fun places(): List<DigitalWorldDiscoveredPlace> = places.distinctBy { it.code }.sortedBy(DigitalWorldDiscoveredPlace::createdAt)
 
     @Synchronized
-    fun residents(): List<DigitalWorldResident> = residents.sortedBy(DigitalWorldResident::createdAt)
+    fun residents(): List<DigitalWorldResident> = residents.distinctBy { it.id }.sortedBy(DigitalWorldResident::createdAt)
 
     @Synchronized
     fun residentsAt(locationCode: String): List<DigitalWorldResident> = residents
@@ -185,6 +190,7 @@ internal object DigitalWorldExpansionStore {
         check(prefs?.edit()?.putString(KEY_PLACES, placeArray.toString())?.putString(KEY_RESIDENTS, residentArray.toString())?.commit() == true) {
             "数字世界扩展状态保存失败"
         }
+        revision.value += 1
     }
 
     private fun decodePlaces(raw: String?): List<DigitalWorldDiscoveredPlace> {

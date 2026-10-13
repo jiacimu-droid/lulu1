@@ -264,11 +264,7 @@ private fun PresenceStateContent(
     if (state.gesture.isBlank() && status.isBlank() && voice.isBlank()) {
         Text("这一刻还没有留下心声或动作。", color = Color(0xFF7A7A7E))
     }
-    Text(
-        "状态记录 · " + state.updatedAt.atZone(ZoneId.systemDefault())
-            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-        color = Color(0xFF7A7A7E), fontSize = 11.sp,
-    )
+
 }
 
 /**

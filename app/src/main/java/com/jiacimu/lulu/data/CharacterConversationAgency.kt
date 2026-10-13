@@ -19,6 +19,7 @@ internal object CharacterConversationAgency {
         如果你正自然地把已读材料的一个理解应用在这次回复，可选 learningApplication={"sourceEvidenceId":"确实存在的阅读/外部材料证据ID","howApplied":"这次怎样用在实际发出的文字/口语里"}。只有完成文字送达/语音播放，才能记为实践；不是验证成功，也不需要每轮填。
         若本次用户原话清楚评价了你**此前已经执行**的一次学习应用（如喜欢、不喜欢、有效、没用），可选 learningFeedback={"sourceEvidenceId":"阅读证据ID","actionEvidenceId":"以前实践行动的证据ID","evaluation":"helped|unhelpful|mixed","why":"她原话针对那次做法的理由"}。仅依据本轮亲耳听到的用户原话，且必须有那次真实行动ID；没有明确相关评价就不填，不要把闲聊或感谢自动变成学习效果证明。
         如果用户这次明确纠正你对某份已读材料的理解，可选 learningChallenge={"sourceEvidenceId":"那次阅读的证据ID","issue":"对方原话让原理解哪一点存疑"}。必须是用户本人这一轮实际说的反例，不是你凭空想到的不同意见；记录争议后要审慎核对，既不能装作自己从未有过旧想法，也不能自动判定用户或书中说法绝对正确。没有精确阅读证据ID就省略。
+        如果这次说出口的话确实是在推进上下文里的某条持续愿望，可填 intentionId=那条愿望的准确ID；只在文字送达或整段语音实际播放后记录尝试，没填就不自动关联。愿望较抽象时自己选择具体下一步，可用 intention.nextStep 更新计划，不能把用户回复视为完成长期愿望。
         情绪推动这次表达时可以给 motiveId=已有真实动机ID 或 concernId=已有心事ID，只有这次交流确实与它有关才填。表达是一次尝试，后续根据用户的真实回应调整；不靠发出一句话就自动宣布长期矛盾已解决。
     """.trimIndent()
 
@@ -34,12 +35,12 @@ internal object CharacterConversationAgency {
 
     fun receipt(evidenceId: String, reason: String, motiveId: String, concernId: String,
                 curiosity: JSONObject?, experienceId: String,
-                learningApplication: JSONObject? = null): String = JSONObject()
+                learningApplication: JSONObject? = null, intentionId: String = ""): String = JSONObject()
         .put("id", "conversation-choice-${UUID.randomUUID()}").put("evidenceId", evidenceId)
         .put("reason", reason.take(240)).put("motiveId", motiveId.take(80))
         .put("concernId", concernId.take(100)).put("curiosity", curiosity)
         .put("experienceId", experienceId.take(180))
-        .put("learningApplication", learningApplication).toString()
+        .put("learningApplication", learningApplication).put("intentionId", intentionId.take(80)).toString()
 
     /** A complete sender receipt, never a model-generated claim of having spoken. */
     @Synchronized fun delivered(characterId: String, raw: String?, messageId: String, text: String, phone: Boolean = false) {
@@ -59,6 +60,11 @@ internal object CharacterConversationAgency {
         val deliveredEvidenceId = CharacterActionEvidence.resolve(characterId, messageId)
             ?.takeIf { CharacterActionEvidence.supports(it, action) }?.id ?: return
         val summary = if (phone) "这段口语已实际播放完毕：${text.take(180)}" else "文字已实际送达：${text.take(180)}"
+        val intentionId = metadata.optString("intentionId")
+        if (intentionId.isNotBlank() && metadata.optString("reason").isNotBlank() &&
+            CharacterLifeStore.markExecuting(characterId, intentionId, deliveredEvidenceId, action)) {
+            CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, deliveredEvidenceId, action, true, summary)
+        }
         CharacterInnerLifeStore.recordDecision(characterId, id, action, metadata.optString("reason"),
             metadata.optString("motiveId"), null, summary, true, actionSignature = deliveredEvidenceId, causalEvidenceId = source)
         CharacterInnerLifeStore.recordActionResult(characterId, metadata.optString("motiveId"), deliveredEvidenceId, action, true, summary)

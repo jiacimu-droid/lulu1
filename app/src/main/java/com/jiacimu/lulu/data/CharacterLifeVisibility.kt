@@ -24,7 +24,7 @@ internal object CharacterLifeVisibility {
         "following_up" -> "行动有结果，等待后续"
         "paused" -> "暂缓"
         "released" -> "已放下"
-        else -> "尚未确认"
+        else -> "考虑中"
     }
     private fun jsonEntries(array: org.json.JSONArray?): List<JSONObject> =
         (0 until (array?.length() ?: 0)).mapNotNull { array?.optJSONObject(it) }
@@ -39,15 +39,16 @@ internal object CharacterLifeVisibility {
                     append(goal.optString("aim").take(180))
                     if (goal.optString("motive").isNotBlank())
                         append("\n缘由：" + goal.optString("motive").take(170))
-                    append("\n阶段：" + stage(goal.optString("stage")))
+                    goal.optString("nextStep").takeIf(String::isNotBlank)?.let {
+                        append("\n下一步：" + it.take(180))
+                    }
                     val outcomes = goal.optJSONArray("outcomes")
                     val last = outcomes?.optJSONObject(outcomes.length() - 1)
                     if (last != null && source(role, last.optString("id")) != null) {
-                        append("\n上次实际执行：" + last.optString("summary").take(160))
-                        append(if (last.optBoolean("success")) "（动作成功，愿望未必完成）" else "（没成功）")
+                        append("\n最近尝试：" + last.optString("summary").take(160))
                     }
                 }
-                add(CharacterLifeVisible(start, "当前", "持续想做的事 · " +
+                add(CharacterLifeVisible(start, "当前", "想继续做 · " +
                     stage(goal.optString("stage")), output))
             }
         }
@@ -90,7 +91,7 @@ internal object CharacterLifeVisibility {
                 val t = parse(event.optString("occurredAt")) ?: return@forEach
                 if (!t.isAfter(now)) add(CharacterLifeVisible(t, "当前",
                     "想分享，但还没有发出",
-                    event.optString("fact").take(155) +
+                    event.optString("fact").lineSequence().firstOrNull { it.isNotBlank() }.orEmpty().substringBefore("（地点证据").take(155) +
                         if (event.optString("shareWhy").isNotBlank())
                             "\n原因：" + event.optString("shareWhy").take(150)
                         else ""))

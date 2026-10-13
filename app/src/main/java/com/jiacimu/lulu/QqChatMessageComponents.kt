@@ -86,104 +86,7 @@ internal fun QqMessageRow(
     }
 
     if (message.sender == LuluChatMessage.Sender.System) {
-        val incidentId = remember(message.content) {
-            Regex("\\[世界事件\\|([A-Za-z0-9-]+)\\]").find(message.content)?.groupValues?.get(1)
-        }
-        var showEventHistory by remember(message.id) { mutableStateOf(false) }
-        val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
-        if (showEventHistory && incidentId != null) {
-            val history = SharedExperienceTimeline.all(message.authorCharacterId ?: MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId.orEmpty())
-                .filter { it.id.startsWith("world-fact-$incidentId-") }
-            AlertDialog(
-                onDismissRequest = { showEventHistory = false },
-                title = { Text("生活记录") },
-                text = {
-                    Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        history.forEach { event ->
-                            Text(event.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M/d HH:mm")) + "  " + event.content)
-                        }
-                        if (history.isEmpty()) Text(notice.visibleText)
-                    }
-                },
-                confirmButton = { TextButton(onClick = { showEventHistory = false }) { Text("收起") } },
-            )
-        }
-        val receiptTime = remember(message.createdAt) {
-            message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
-        }
-        Box(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Surface(
-                modifier = if (incidentId != null) Modifier.clickable { showEventHistory = true } else Modifier,
-                color = Color(0xFFF5F5F5),
-                shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(0.5.dp, Color(0xFFE2E2E2)),
-                shadowElevation = 0.dp,
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Text(
-                        receiptTime,
-                        color = Color(0xFF777777),
-                        fontSize = 9.5.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text("·", color = Color(0xFF9A9A9A), fontSize = 10.sp)
-                    if (notice.link == null) {
-                        Text(
-                            notice.visibleText + if (incidentId != null) "  · 查看经过" else "",
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                            color = Color(0xFF3F3F3F),
-                            fontSize = 10.5.sp,
-                            lineHeight = 15.sp,
-                        )
-                    } else {
-                        val annotated = remember(notice) {
-                            buildAnnotatedString {
-                                append(notice.visibleText)
-                                if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
-                                    addStyle(
-                                        SpanStyle(
-                                            color = Color(0xFF437965),
-                                            fontWeight = FontWeight.SemiBold,
-                                            textDecoration = TextDecoration.Underline,
-                                        ),
-                                        notice.linkStart,
-                                        notice.linkEnd.coerceAtMost(length),
-                                    )
-                                    addStringAnnotation(
-                                        tag = "system_activity",
-                                        annotation = "open",
-                                        start = notice.linkStart,
-                                        end = notice.linkEnd.coerceAtMost(length),
-                                    )
-                                }
-                            }
-                        }
-                        ClickableText(
-                            text = annotated,
-                            style = LocalTextStyle.current.copy(
-                                color = Color(0xFF3F3F3F),
-                                fontSize = 10.5.sp,
-                                lineHeight = 15.sp,
-                            ),
-                            onClick = { offset ->
-                                if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
-                                    openSystemActivity(context, message, notice.link)
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-        }
+        QqSystemReceiptRow(message)
         return
     }
 
@@ -832,4 +735,110 @@ internal fun QqAvatar(label: String, size: Int, imageUri: String? = null, modifi
             onDismiss = { latestPresenceOpen = false },
         )
     }
+}
+
+@Composable
+internal fun QqSystemReceiptRow(message: LuluChatMessage) {
+    val context = LocalContext.current
+        val incidentId = remember(message.content) {
+            Regex("\\[世界事件\\|([A-Za-z0-9-]+)\\]").find(message.content)?.groupValues?.get(1)
+        }
+        var showEventHistory by remember(message.id) { mutableStateOf(false) }
+        val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
+        if (showEventHistory && incidentId != null) {
+            val history = SharedExperienceTimeline.all(message.authorCharacterId ?: MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId.orEmpty())
+                .filter { it.id.startsWith("world-fact-$incidentId-") }
+            AlertDialog(
+                onDismissRequest = { showEventHistory = false },
+                title = { Text("生活记录") },
+                text = {
+                    Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        history.forEach { event ->
+                            Text(event.occurredAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M/d HH:mm")) + "  " + event.content)
+                        }
+                        if (history.isEmpty()) Text(notice.visibleText)
+                    }
+                },
+                confirmButton = { TextButton(onClick = { showEventHistory = false }) { Text("收起") } },
+            )
+        }
+        val receiptTime = remember(message.createdAt) {
+            message.createdAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
+        }
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(.86f).then(if (incidentId != null) Modifier.clickable { showEventHistory = true } else Modifier),
+                color = Color(0xFFF5F5F5),
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(0.5.dp, Color(0xFFE2E2E2)),
+                shadowElevation = 0.dp,
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        receiptTime,
+                        color = Color(0xFF777777),
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text("·", color = Color(0xFF9A9A9A), fontSize = 10.sp)
+                    if (notice.link == null) {
+                        Text(
+                            notice.visibleText + if (incidentId != null) "  · 查看经过" else "",
+                            modifier = Modifier.weight(1f),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                            color = Color(0xFF3F3F3F),
+                            fontSize = 10.5.sp,
+                            lineHeight = 15.sp,
+                        )
+                    } else {
+                        val annotated = remember(notice) {
+                            buildAnnotatedString {
+                                append(notice.visibleText)
+                                if (notice.linkStart in 0 until notice.visibleText.length && notice.linkEnd > notice.linkStart) {
+                                    addStyle(
+                                        SpanStyle(
+                                            color = Color(0xFF437965),
+                                            fontWeight = FontWeight.SemiBold,
+                                            textDecoration = TextDecoration.Underline,
+                                        ),
+                                        notice.linkStart,
+                                        notice.linkEnd.coerceAtMost(length),
+                                    )
+                                    addStringAnnotation(
+                                        tag = "system_activity",
+                                        annotation = "open",
+                                        start = notice.linkStart,
+                                        end = notice.linkEnd.coerceAtMost(length),
+                                    )
+                                }
+                            }
+                        }
+                        ClickableText(
+                            modifier = Modifier.weight(1f),
+                            text = annotated,
+                            style = LocalTextStyle.current.copy(
+                                color = Color(0xFF3F3F3F),
+                                fontSize = 10.5.sp,
+                                lineHeight = 15.sp,
+                            ),
+                            onClick = { offset ->
+                                if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
+                                    openSystemActivity(context, message, notice.link)
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
 }

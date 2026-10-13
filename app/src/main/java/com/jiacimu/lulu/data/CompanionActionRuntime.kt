@@ -352,7 +352,7 @@ internal object CompanionActionRuntime {
                     if (residentResult.success) {
                         MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, residentResult.summary)
                     }
-                    return@runCatching CompanionActionResult(residentResult.success, residentResult.summary)
+                    return@runCatching CompanionActionResult(residentResult.success, residentResult.summary, evidenceId = residentResult.evidenceId)
                 }
                 if (worldAction in setOf("use_home_item", "use_location") && activityId in setOf("read_at_desk", "quiet_read", "window_read")) {
                     require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命能使用数字世界阅读地点" }

@@ -407,7 +407,7 @@ object DigitalWorldStore {
         )
         MeetingExperienceStore.registerSessionOrigin(session.id, originLocations)
         synchronized(lock) {
-            mutable.value = mutable.value.copy(meetings = (mutable.value.meetings + session).takeLast(80))
+            mutable.value = mutable.value.copy(meetings = (mutable.value.meetings + session))
             if (reality == MeetingReality.DIGITAL_WORLD) {
                 val locationCode = meetingLocationCode(resolvedLocation)
                 mutable.value = mutable.value.copy(
@@ -438,6 +438,28 @@ object DigitalWorldStore {
             )
             persistLocked()
             return updated
+        }
+    }
+
+    /** Completed native-resident conversations have no user participant or teleportation. */
+    fun commitResidentEncounter(characterId: String, residentId: String, locationCode: String,
+        turns: List<MeetingTurn>, now: Instant = Instant.now()): MeetingSession {
+        synchronized(lock) {
+            val resident = DigitalWorldExpansionStore.residentsAt(locationCode)
+                .firstOrNull { it.id == residentId } ?: error("居民已离开现场，交流未提交")
+            require(locationOf(characterId) == locationCode) { "角色已离开现场，交流未提交" }
+            require(DigitalLifeProfileStore.isEnabled(characterId))
+            val nativeId = "resident:$residentId"
+            require(turns.isNotEmpty() && turns.all { it.speakerId in setOf(characterId, nativeId) && it.dialogue.isNotBlank() })
+            require(turns.any { it.speakerId == characterId } && turns.any { it.speakerId == nativeId })
+            val session = MeetingSession(UUID.randomUUID().toString(), listOf(characterId),
+                MeetingReality.DIGITAL_WORLD, locationLabel(locationCode), now,
+                initiatedByCharacterId = characterId, invitationText = "与${resident.name}相处",
+                endedAt = now.plusMillis(turns.size.toLong()), turns = turns)
+            val prior = mutable.value
+            mutable.value = prior.copy(meetings = (prior.meetings + session))
+            try { persistLocked(synchronous = true) } catch (error: Exception) { mutable.value = prior; throw error }
+            return session
         }
     }
 
@@ -840,8 +862,10 @@ object DigitalWorldStore {
         }
     }
 
-    private fun persistLocked() {
-        prefs?.edit()?.putString(KEY_STATE, encode(mutable.value).toString())?.apply()
+    private fun persistLocked(synchronous: Boolean = false) {
+        val editor = prefs?.edit()?.putString(KEY_STATE, encode(mutable.value).toString())
+        if (synchronous) check(editor?.commit() == true) { "见面记录保存失败" }
+        else editor?.apply()
     }
 
     private fun encode(state: DigitalWorldState): JSONObject = JSONObject().apply {

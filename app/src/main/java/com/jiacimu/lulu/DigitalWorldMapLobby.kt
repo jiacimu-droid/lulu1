@@ -256,7 +256,8 @@ private fun DigitalWorldRouteDock(
     onOpenScene: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val stops = remember(characters, profiles, world.homes, activeSceneCode) {
+    val expansionRevision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val stops = remember(characters, profiles, world.homes, activeSceneCode, expansionRevision) {
         buildList {
             add(DigitalWorldStore.CLOUD_MEADOW)
             addAll(DigitalWorldPublicPlaces.all.map { it.code })
@@ -354,12 +355,12 @@ private fun DigitalWorldMapPage(
     val digitalCharacters = characters.filter {
         (profiles[it.characterId] ?: DigitalLifeProfileStore.get(it.characterId)).enabled
     }
-    val localResidents = DigitalWorldExpansionStore.residents()
+    val expansionRevision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val localResidents = remember(expansionRevision) { DigitalWorldExpansionStore.residents() }
     val places = DigitalWorldPublicPlaces.all
     val outdoor = places.filter { it.code == DigitalWorldPublicPlaces.COURTYARD }
     val facilities = places.filter { it.code == DigitalWorldPublicPlaces.CAFE || it.code == DigitalWorldPublicPlaces.GAME_HALL }
-    val discovered = places.filter { it.code !in setOf(DigitalWorldPublicPlaces.COURTYARD, DigitalWorldPublicPlaces.CAFE, DigitalWorldPublicPlaces.GAME_HALL) }
-    val savedDiscoveries = DigitalWorldExpansionStore.places()
+    val discovered = DigitalWorldPublicPlaces.explorationPlaces()
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
@@ -400,10 +401,10 @@ private fun DigitalWorldMapPage(
                 }
             }
         }
-        if (discovered.isNotEmpty() || savedDiscoveries.isNotEmpty()) {
+        if (discovered.isNotEmpty()) {
             item { WorldMapSectionHeading("探索发现", "有记录、有地址，可反复进入", Icons.Outlined.Explore) }
             discovered.chunked(2).forEach { rowPlaces ->
-                item(key = rowPlaces.joinToString("|") { it.code }) {
+                item(key = "discovered-row:" + rowPlaces.joinToString("|") { it.code }) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowPlaces.forEach { place ->
                             MapPlaceCard(Modifier.weight(1f), place.label, place.subtitle,
@@ -415,21 +416,7 @@ private fun DigitalWorldMapPage(
                     }
                 }
             }
-            savedDiscoveries.chunked(2).forEach { savedRow ->
-                item(key = savedRow.joinToString("|") { it.code }) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        savedRow.forEach { place ->
-                            MapPlaceCard(
-                                Modifier.weight(1f), place.label, place.subtitle.ifBlank { place.purpose },
-                                Icons.Outlined.Explore, residentsAt(world, place.code, characters),
-                                { onOpenScene(place.code) }, place.code,
-                                DigitalWorldExpansionStore.residentsAt(place.code).size,
-                            )
-                        }
-                        if (savedRow.size == 1) Spacer(Modifier.weight(1f))
-                    }
-                }
-            }
+
         }
         if (digitalCharacters.isNotEmpty()) {
             item { WorldMapSectionHeading("角色家园", "他们各自生活的私人空间", Icons.Outlined.Home) }
@@ -506,13 +493,18 @@ private fun MapNativeHomeCard(
         shadowElevation = 2.dp,
     ) {
         Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.SpaceBetween) {
-            WorldMapIllustration(resident.homeLocationCode, Modifier.fillMaxWidth().height(76.dp))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                WorldMapIllustration(resident.homeLocationCode, Modifier.weight(1f).height(76.dp))
+                if (atHome) NativeResidentMiniature(resident, Modifier.size(52.dp, 76.dp))
+            }
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text("${resident.name}的家", color = Color(0xFF26352D), fontSize = 14.sp,
                     fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(resident.identity, color = Color(0xFF7B8980), fontSize = 9.5.sp,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text("${neighborhood}附近 · ${if (atHome) "在家" else "出门了"}",
+                val occupancy = DigitalWorldExpansionStore.residentsAt(resident.homeLocationCode).size +
+                    worldCharactersAt(resident.homeLocationCode)
+                Text("${occupancy} 人在这里 · ${neighborhood}附近",
                     color = if (atHome) Color(0xFF517869) else Color(0xFF8E7F6A), fontSize = 9.5.sp)
             }
         }
@@ -735,3 +727,8 @@ private fun residentsAt(
     code: String,
     characters: List<CharacterSettings>,
 ): List<CharacterSettings> = characters.filter { world.characterLocations[it.characterId] == code }
+
+private fun worldCharactersAt(location: String): Int =
+    DigitalWorldStore.state.value.characterLocations.count { (id, code) ->
+        code == location && DigitalLifeProfileStore.isEnabled(id)
+    }

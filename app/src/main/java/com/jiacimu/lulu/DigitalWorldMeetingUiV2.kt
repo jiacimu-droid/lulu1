@@ -117,7 +117,9 @@ internal fun MeetingUiHistory(
                             Spacer(Modifier.width(11.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(
-                                    session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName },
+                                    (session.participantIds.map { MigratedDomainStores.characters.get(it).displayName } +
+                                        session.turns.filter { it.speakerId?.startsWith("resident:") == true }
+                                            .map { it.speakerName }).distinct().joinToString(" · "),
                                     fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -415,8 +417,15 @@ private fun MeetingUiDialogue(text: String, speakerId: String?, userAvatar: Stri
             Spacer(Modifier.width(8.dp))
             LuluProfileAvatar(userAvatarUri, userAvatar, 43)
         } else {
-            val character = MigratedDomainStores.characters.get(speakerId.orEmpty())
-            LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 43)
+            val native = speakerId?.takeIf { it.startsWith("resident:") }?.removePrefix("resident:")
+                ?.let { id -> com.jiacimu.lulu.data.DigitalWorldExpansionStore.residents().firstOrNull { it.id == id } }
+            if (native != null) Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                NativeResidentMiniature(native, Modifier.size(43.dp, 55.dp))
+                Text(native.name, fontSize = 10.sp, color = Color(0xFF777777))
+            } else {
+                val character = MigratedDomainStores.characters.get(speakerId.orEmpty())
+                LuluProfileAvatar(character.avatarUri, character.displayName.take(1).ifBlank { "角" }, 43)
+            }
             Spacer(Modifier.width(8.dp))
             bubble()
         }

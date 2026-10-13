@@ -84,6 +84,7 @@ fun QqStyleChatDetailScreen(
         val recalledIds = recalledMessageIds(messages)
         messages.filterNot { it.id in recalledIds }
     }
+    val displayRuns = remember(visibleMessages) { groupChatReceiptRuns(visibleMessages) }
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val preferences by LuluAppPreferencesStore.state.collectAsState()
@@ -431,7 +432,7 @@ fun QqStyleChatDetailScreen(
     LaunchedEffect(visibleMessages.size, preferences.autoScrollChat, imeBottom) {
         if (visibleMessages.isNotEmpty() && (preferences.autoScrollChat || imeBottom > 0)) {
             val announcementOffset = if (groupChat?.announcement.isNullOrBlank()) 0 else 1
-            listState.scrollToItem(visibleMessages.lastIndex + announcementOffset)
+            listState.scrollToItem(displayRuns.lastIndex + announcementOffset)
         }
     }
 
@@ -633,9 +634,14 @@ fun QqStyleChatDetailScreen(
                     }
                 }
             }
-            itemsIndexed(visibleMessages, key = { _, item -> item.id }) { index, message ->
-                val previous = visibleMessages.getOrNull(index - 1)
-                val next = visibleMessages.getOrNull(index + 1)
+            itemsIndexed(displayRuns, key = { _, item -> item.key }) { index, run ->
+                if (run.messages.size > 1) {
+                    QqSystemReceiptGroup(run)
+                    return@itemsIndexed
+                }
+                val message = run.messages.first()
+                val previous = displayRuns.getOrNull(index - 1)?.messages?.lastOrNull()
+                val next = displayRuns.getOrNull(index + 1)?.messages?.firstOrNull()
                 val groupStart = previous == null || !sameQqMessageGroup(previous, message)
                 val groupEnd = next == null || !sameQqMessageGroup(message, next)
                 val author = message.authorCharacterId?.let { characters[it] ?: MigratedDomainStores.characters.get(it) } ?: character
