@@ -37,8 +37,8 @@
     const result = new Map();
     for (const row of rows.slice(0, 30)) {
       const info = row?.infoList ?? row?.info_list ?? [];
-      const candidate = row?.urlDefault ?? row?.url_default ?? info.find?.(v => v.imageScene === 'WB_DFT')?.url ?? row?.urlPre ?? row?.url;
-      try {
+      const candidates = [row?.urlDefault, row?.url_default, info.find?.(v => v.imageScene === 'WB_DFT')?.url, row?.urlPre, row?.url];
+      for (const candidate of candidates) try {
         if (typeof candidate !== 'string' || !candidate.trim()) continue;
         const url = new URL(candidate);
         if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
@@ -46,6 +46,7 @@
         if (url.protocol === 'http:' && url.port === '80') url.port = '';
         url.protocol = 'https:';
         result.set(url.href, {url: url.href, width: Number(row.width) || 0, height: Number(row.height) || 0});
+        break;
       } catch (_) {}
     }
     return [...result.values()];
@@ -161,7 +162,7 @@
             return {el, index: index == null ? position : Number(index)};
           }).sort((a, b) => a.index - b.index);
           const photos = images({imageList: indexed.map(({el}) => ({
-            url: el.currentSrc || el.getAttribute?.('data-src') || el.src,
+            urlDefault: el.currentSrc, urlPre: el.getAttribute?.('data-src'), url: el.src,
             width: el.naturalWidth || 0, height: el.naturalHeight || 0
           }))});
           if (detail) detail = {...detail, images: photos};

@@ -239,3 +239,16 @@ test('carousel fallback cannot collect unrelated document images without a note 
   const b = browser({path: '/explore/' + id});
   assert.equal(b.snapshot('note', id).note, null);
 });
+
+test('blank or placeholder image URLs fall through to actual lazy image addresses', () => {
+  const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
+    desc: '图文笔记', imageList: [{urlDefault: '', urlPre: 'https://sns-img.xhscdn.com/preview'},
+      {urlDefault: 'data:image/gif;base64,R0lG', url: 'https://sns-img.xhscdn.com/actual'}]}}}}}});
+  assert.equal(b.snapshot('note', id).note.images.length, 2);
+  const dom = browser({path: '/explore/' + id});
+  const container = {querySelectorAll: () => [{currentSrc: 'data:image/gif;base64,R0lG',
+    getAttribute: key => key === 'data-src' ? 'https://sns-img.xhscdn.com/lazy' : null}]};
+  const scope = {closest: () => container, querySelector: () => null};
+  dom.sandbox.document.querySelector = selector => selector === '.note-scroller' ? scope : null;
+  assert.equal(dom.snapshot('note', id).note.images[0].url, 'https://sns-img.xhscdn.com/lazy');
+});
