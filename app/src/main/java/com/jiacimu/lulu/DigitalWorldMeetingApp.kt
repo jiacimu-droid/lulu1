@@ -340,7 +340,7 @@ fun DigitalWorldMeetingApp(
     ) { padding ->
         when {
             showHistory -> MeetingUiHistory(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
                 meetings = world.meetings.filter { it.endedAt != null && it.turns.isNotEmpty() },
                 onOpen = { id ->
@@ -352,7 +352,7 @@ fun DigitalWorldMeetingApp(
             )
 
             activeSession == null -> DigitalWorldMapLobby(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
                 profiles = profiles,
                 selectedIds = emptySet(),
@@ -370,7 +370,7 @@ fun DigitalWorldMeetingApp(
             )
 
             else -> DigitalWorldMeetingSceneExperience(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
                 session = activeSession,
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
                 world = world,
