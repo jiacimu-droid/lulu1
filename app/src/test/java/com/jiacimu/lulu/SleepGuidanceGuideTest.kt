@@ -12,7 +12,7 @@ class SleepGuidanceGuideTest {
         assertTrue(prompt.contains("被夸"))
         assertTrue(prompt.contains("不要求马上睡着"))
         assertTrue(prompt.contains("不是统一的催眠口播"))
-        assertTrue(prompt.contains("不是必须独占 60 分钟的单一模式"))
+        assertTrue(prompt.contains("不是必须独占 45 分钟的单一模式"))
         assertTrue(prompt.contains("不要定时轮换"))
     }
 
@@ -24,7 +24,7 @@ class SleepGuidanceGuideTest {
             assertTrue(prompt.contains("以她的新要求为先"))
             assertTrue(prompt.contains("不凭空模拟用户回答"))
             assertTrue(prompt.contains("降低语言密度"))
-            assertTrue(prompt.contains("60 分钟只是连续无人回应后的通话结束上限"))
+            assertTrue(prompt.contains("45 分钟只是连续无人回应后的通话结束上限"))
         }
     }
 
