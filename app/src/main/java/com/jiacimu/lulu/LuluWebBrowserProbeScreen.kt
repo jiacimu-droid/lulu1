@@ -32,6 +32,15 @@ import org.json.JSONTokener
 
 private const val XHS_PROBE_URL = "https://www.xiaohongshu.com/explore"
 
+/** A SPA note can have no WebView history even though its detail screen is visible. */
+internal fun xhsBrowserIsNoteUrl(raw: String): Boolean {
+    val url = runCatching { Uri.parse(raw) }.getOrNull() ?: return false
+    if (url.scheme != "https" || url.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
+    return Regex("""^/(?:explore|discovery/item)/[a-zA-Z0-9]{12,40}/?$""")
+        .matches(url.path.orEmpty())
+}
+
+
 /** Login stays in the visible website; manual searches and note taps use the shared reader. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,9 +101,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     }
 
     fun returnToList() {
-        val current = browser ?: return
+        // XHS details are SPA overlays: WebView.canGoBack() can be false
+        // even while a full-screen note is covering the feed. A real "list"
+        // button must escape that overlay rather than depending on site history.
+        readerVisible = false
+        readerCard = null
+        readerKeyword = ""
         websiteIssue = ""
-        if (current.canGoBack()) current.goBack() else current.loadUrl(XHS_PROBE_URL)
+        val current = browser ?: return
+        current.stopLoading()
+        current.loadUrl(XHS_PROBE_URL)
+        status = "已返回小红书首页"
     }
 
     fun routeToReader(target: Uri): Boolean {
@@ -116,7 +133,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
 
     BackHandler(enabled = !readerVisible) {
         val current = browser
-        if (current?.canGoBack() == true) current.goBack() else onBack()
+        if (current != null && xhsBrowserIsNoteUrl(current.url.orEmpty())) {
+            returnToList()
+        } else if (current?.canGoBack() == true) current.goBack() else onBack()
     }
 
     if (diagnosticsVisible && !readerVisible) {
@@ -139,9 +158,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = { Text("小红书") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        if (readerVisible || xhsBrowserIsNoteUrl(browser?.url.orEmpty())) returnToList()
+                        else onBack()
+                    }) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
+                },
+                actions = {
+                    // Always visible even when a website modal consumes touch/
+                    // history inside WebView. This is not another WebView back.
+                    TextButton(onClick = { returnToList() }) { Text("返回列表") }
                 },
             )
         }
@@ -157,7 +184,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             ) {
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
-                    onClick = { browser?.loadUrl(XHS_PROBE_URL) },
+                    onClick = { returnToList() },
                 ) { Text("首页") }
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
@@ -499,7 +526,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     if (readerVisible) {
         Surface(Modifier.fillMaxSize(), color = androidx.compose.ui.graphics.Color.White) {
             key(readerKeyword, readerCard?.id) {
-                LuluXhsNativeReaderScreen(onBack = { browser?.loadUrl(XHS_PROBE_URL); readerVisible = false },
+                LuluXhsNativeReaderScreen(onBack = { returnToList() },
                     initialKeyword = readerKeyword, initialCard = readerCard)
             }
         }
