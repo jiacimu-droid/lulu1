@@ -85,8 +85,8 @@ internal object XhsReadingEngine {
             .put("status", if (failure.isBlank()) "succeeded" else "failed")
         if (failure.isNotBlank()) {
             state.put("reason", failure
-                .replace(Regex("""https?://\\S+"""), "[链接]")
-                .replace(Regex("""(?i)(?:xsec_token|web_session|token)=[^\\s&，；]+"""), "[敏感参数]")
+                .replace(Regex("""https?://\S+"""), "[链接]")
+                .replace(Regex("""(?i)(?:xsec_token|web_session|token)=[^\s&，；]+"""), "[敏感参数]")
                 .take(130))
         }
         prefs(context).edit().putString("xiaohongshu:last-tool-attempt", state.toString()).apply()
