@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T21:29:11.805974+00:00",
-  "commit": "4df3aaeca3e0a7faa04aac15f2ad958468c13286",
+  "generatedAt": "2026-10-13T21:29:41.160450+00:00",
+  "commit": "08e1cfda9135f0fb03a5caf238c8d0ba3838d340",
   "branch": "main",
-  "sourceFingerprint": "874733bead665d207445d0a8de0f148b048d8189d951754dd9c66f5b94f1e4b6",
+  "sourceFingerprint": "54ca933f6e81226023c064a8a2423619013d8e8b243b1a04932ec76a3370b451",
   "summary": {
     "files": 615,
-    "lines": 122349,
-    "symbols": 1835
+    "lines": 122389,
+    "symbols": 1836
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5547,7 +5547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 266
+        "line": 286
       }
     ],
     "retryAt": [
@@ -5569,7 +5569,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 87
+        "line": 107
       }
     ],
     "stale": [
@@ -5847,19 +5847,19 @@
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 220
+        "line": 240
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 239
+        "line": 259
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 272
+        "line": 292
       }
     ],
     "MeetingProseLength": [
@@ -7316,28 +7316,34 @@
         "line": 73
       }
     ],
+    "recordToolStage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 82
+      }
+    ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 74
+        "line": 94
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 75
+        "line": 95
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 77
+        "line": 97
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 81
+        "line": 101
       }
     ],
     "LuluPageScaffold": [
@@ -15842,8 +15848,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 395,
-      "sha256": "97d8b8d6913a3f859621fa306f8711aa36e88edaaa0b6697f883cac33de6f4ba",
+      "lines": 415,
+      "sha256": "fdd73a9a67f4b735622703cfba60598aa4ef312069aeb6fe28443780942fd463",
       "symbols": [
         {
           "name": "configured",
@@ -15867,15 +15873,15 @@
         },
         {
           "name": "XhsLoginQr",
-          "line": 220
+          "line": 240
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 239
+          "line": 259
         },
         {
           "name": "healthContext",
-          "line": 272
+          "line": 292
         }
       ]
     },
@@ -17468,8 +17474,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 369,
-      "sha256": "ad68692cfd392931a531e398ea0dacd2791c309764e4ed30862b29277e79dd9a",
+      "lines": 389,
+      "sha256": "64319b96c8c8d46b87e1464c33f127fb12435e4b99fca1c76c955c621814ae97",
       "symbols": [
         {
           "name": "url",
@@ -17492,28 +17498,32 @@
           "line": 73
         },
         {
+          "name": "recordToolStage",
+          "line": 82
+        },
+        {
           "name": "localEnabled",
-          "line": 74
+          "line": 94
         },
         {
           "name": "setLocalEnabled",
-          "line": 75
+          "line": 95
         },
         {
           "name": "resume",
-          "line": 77
+          "line": 97
         },
         {
           "name": "pause",
-          "line": 81
+          "line": 101
         },
         {
           "name": "available",
-          "line": 87
+          "line": 107
         },
         {
           "name": "stage",
-          "line": 266
+          "line": 286
         }
       ]
     },
