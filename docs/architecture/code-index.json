@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T20:35:39.378007+00:00",
-  "commit": "a9e13546ceb94fbbc3cdac3e9af5355d4fb106d0",
+  "generatedAt": "2026-10-13T20:36:03.447348+00:00",
+  "commit": "770b22d145bbe09c9d1890acf6caedb72c0f6c71",
   "branch": "main",
-  "sourceFingerprint": "0a08f16c7ac59284b45d30331fc65e212bdfde9a73aa07cef9e11ed4d9324b60",
+  "sourceFingerprint": "abe9e1c9ea1ac9d7ce2678a2a8a46df8def19838a13dd424bae7f7f0b2ce210b",
   "summary": {
     "files": 615,
     "lines": 122041,
@@ -21559,7 +21559,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt",
       "lines": 89,
-      "sha256": "067e79ff7a998dbb1dfa4e2c7c4b90a319af028f6ac72b4aa0327ff11a9e380d",
+      "sha256": "be234da42b613d0adb90a292ee98138fa6b54152d08ecb2f6ca40908930daa03",
       "symbols": [
         {
           "name": "XhsBrowserSessionTest",
