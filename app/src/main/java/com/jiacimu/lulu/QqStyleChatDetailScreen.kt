@@ -305,6 +305,7 @@ fun QqStyleChatDetailScreen(
                     title = activeLabel,
                     archiveId = chatArchiveId,
                     turnContext = privateTurnContext,
+                    userEvidenceIds = actionable.map { it.id },
                 )
                 if (!currentCoroutineContext().isActive) return@launch
                 result.onSuccess { reply ->
