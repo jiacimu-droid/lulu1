@@ -802,6 +802,8 @@ object CharacterInnerLifeStore {
     ) {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
         val action = selectedAction.trim().lowercase().take(80)
+        val actionBasis = CharacterBehaviorMotivation.resolve(action, reason, appraisal, innerLife)
+        val effectiveReason = actionBasis?.reason.orEmpty()
         val thought = innerThought.replace(Regex("[ \\t]+"), " ").trim().take(500)
         val focus = innerThoughtBasis?.optString("focus").orEmpty().trim().take(220)
         val change = innerThoughtBasis?.optString("change").orEmpty().trim().take(220)
@@ -814,7 +816,7 @@ object CharacterInnerLifeStore {
         val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim().take(180)
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
-            responseAim.isBlank() && reason.isBlank() &&
+            responseAim.isBlank() && effectiveReason.isBlank() &&
             appraisal?.optJSONObject("pendingConcern") == null &&
             appraisal?.optJSONObject("ownActivity") == null &&
             appraisal?.optJSONObject("shareWish") == null) return
@@ -828,10 +830,11 @@ object CharacterInnerLifeStore {
             .put("id", id)
             .put("evidenceId", evidenceId)
             .put("selectedAction", action)
-            .put("reason", reason.trim().take(240))
+            .put("reason", effectiveReason)
             .put("innerThought", thought)
             .put("at", now.toString())
 
+        actionBasis?.let { entry.put("actionBasis", it.trace()) }
         val appraisalTrace = JSONObject()
         appraisal?.optJSONObject("expression")?.let { expression ->
             appraisalTrace.put("expression", JSONObject()
