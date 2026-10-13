@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T06:48:00.983818+00:00",
-  "commit": "8bee44e43a4fed70e6af9d667ae67170515b7ce8",
+  "generatedAt": "2026-10-13T06:48:46.397214+00:00",
+  "commit": "d5eeb4514dce450fec2a958b4e895a7508da5372",
   "branch": "main",
-  "sourceFingerprint": "71e2e4d3864d4409e40dfeb849b2097f3968d34bb0fa8d9ceec21d9a9d127593",
+  "sourceFingerprint": "5a6cb4a4d2ce36eed1a4bf91bc19f02cb89b1e78b47ac6a261b3443276684655",
   "summary": {
     "files": 594,
-    "lines": 117148,
+    "lines": 117133,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -3819,7 +3819,7 @@
     "archive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-        "line": 102
+        "line": 77
       }
     ],
     "CharacterMessageFavorites": [
@@ -13267,8 +13267,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 217,
-      "sha256": "3e410225be9bb072a5b8bd1fcd6d7a8af89464c3494b991721752cb88e90c616",
+      "lines": 202,
+      "sha256": "5e801237283950a23cb33d23414cd6565f4d5812304caf8938e12c3e70159026",
       "symbols": [
         {
           "name": "current",
@@ -13276,7 +13276,7 @@
         },
         {
           "name": "archive",
-          "line": 102
+          "line": 77
         }
       ]
     },
