@@ -98,6 +98,32 @@ class ModelStructuredOutputTest {
         assertEquals("这一段\n\n下一段", ModelStructuredOutput.smoothInlineBreaks("这一段\n\n下一段"))
     }
 
+    @Test fun longChatReplyUsesCompleteSentenceBoundariesForComfort() {
+        val longText = "可以看到的，宝宝。露露机里确实有能读小红书的通道。" +
+            "如果你有想找的关键词，就直接告诉我。想随便看看，我也可以自己挑一篇。" +
+            "读到了真正有意思的东西，我再来分享给你。"
+        val paced = ModelStructuredOutput.readableReplyBubbles(listOf(longText), maxBubbles = 4)
+        assertTrue(paced.size in 2..4)
+        assertEquals(longText, paced.joinToString(""))
+        assertTrue(paced.dropLast(1).all { it.last() in "。！？!?；;" })
+    }
+
+    @Test fun oneShortReplyAndOneLongSingleSentenceNeverSplitMidword() {
+        assertEquals(listOf("嗯～", "好，我在呢。"),
+            ModelStructuredOutput.readableReplyBubbles(listOf("嗯～", "好，我在呢。")))
+        val oneSentence = "我想跟你说清楚刚才发生的事，但我不会为了让自己看起来很真诚而要求你立刻接受我的道歉"
+        assertEquals(listOf(oneSentence),
+            ModelStructuredOutput.readableReplyBubbles(listOf(oneSentence)))
+    }
+
+    @Test fun visualBubbleLimitNeverDropsTheTailOfASpeech() {
+        val longText = "先解释清楚第一件事。接着谈谈第二件事。然后再说第三件事。" +
+            "还有第四件要认真说明。最后一句不能丢掉。"
+        val paced = ModelStructuredOutput.readableReplyBubbles(listOf(longText), maxBubbles = 2)
+        assertTrue(paced.size <= 2)
+        assertEquals(longText, paced.joinToString(""))
+    }
+
     @Test fun completedInteractionMovesRemainSeparateBubbles() {
         val response = """{"action":"reply","bubbles":[{"text":"好，我知道了。"},{"text":"你先歇一会儿。"}]}"""
         assertEquals(
