@@ -15,7 +15,16 @@ internal const val MEETING_LIVING_MOMENT_PREFIX_V2 = "__meeting_living_moment__:
 private fun commitMeetingDecision(
     characterId: String, reply: MeetingV2Reply, sourceId: String, at: Instant,
 ) {
-    if (reply.appraisal == null && reply.innerLife == null && reply.innerThought.isBlank()) return
+    if (reply.appraisal == null && reply.innerLife == null &&
+        reply.innerThought.isBlank() && reply.decisionReason.isBlank()) return
+    val action = when {
+        reply.moveTo.isNotBlank() -> "digital_world"
+        reply.segments.isNotEmpty() -> "reply"
+        else -> "silent"
+    }
+    val motive = CharacterBehaviorMotivation.resolve(
+        action, reply.decisionReason, reply.appraisal, reply.innerLife,
+    )
     CharacterInnerLifeStore.observe(
         characterId, sourceId, "这次见面中已经落库的真实现场互动",
         reply.innerLife, emptySet(), at,
@@ -25,9 +34,9 @@ private fun commitMeetingDecision(
         characterId = characterId, evidenceId = sourceId,
         appraisal = reply.appraisal, innerLife = reply.innerLife,
         innerThoughtBasis = null,
-        selectedAction = if (reply.segments.isEmpty()) "silent" else "reply",
+        selectedAction = action,
         innerThought = reply.innerThought,
-        reason = "在同一场数字世界见面中独立作出的选择", now = at,
+        reason = motive?.reason.orEmpty(), now = at,
     )
 }
 
