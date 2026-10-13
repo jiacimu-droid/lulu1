@@ -331,18 +331,26 @@ internal object LuluExternalMcp {
             val url = endpoint(context, service)
             require(url.isNotBlank()) { "尚未配置 $service MCP 地址" }
             val token = savedToken(context, service)
+            val readOnlyXhs = service == "xiaohongshu" &&
+                name in setOf("list_feeds", "search_feeds", "get_feed_detail")
+            val initTimeout = if (readOnlyXhs) 12_000 else 120_000
+            val notificationTimeout = if (readOnlyXhs) 8_000 else 120_000
+            val toolTimeout = if (readOnlyXhs) 70_000 else 120_000
             val init = send(url, token, null, JSONObject()
                 .put("jsonrpc", "2.0").put("id", 1).put("method", "initialize")
                 .put("params", JSONObject().put("protocolVersion", "2025-03-26")
                     .put("capabilities", JSONObject()).put("clientInfo", JSONObject()
-                        .put("name", "lulu-android").put("version", "1.0"))))
+                        .put("name", "lulu-android").put("version", "1.0"))),
+                timeoutMillis = initTimeout)
             val session = init.second
             check(init.first.optJSONObject("result") != null) { "MCP 初始化失败：${init.first.optJSONObject("error")?.optString("message").orEmpty()}" }
             send(url, token, session, JSONObject()
-                .put("jsonrpc", "2.0").put("method", "notifications/initialized"), false)
+                .put("jsonrpc", "2.0").put("method", "notifications/initialized"),
+                expectResponse = false, timeoutMillis = notificationTimeout)
             val reply = send(url, token, session, JSONObject()
                 .put("jsonrpc", "2.0").put("id", 2).put("method", "tools/call")
-                .put("params", JSONObject().put("name", name).put("arguments", arguments))).first
+                .put("params", JSONObject().put("name", name).put("arguments", arguments)),
+                timeoutMillis = toolTimeout).first
             val rpcError = reply.optJSONObject("error")
             if (rpcError != null) error("MCP 调用失败：${rpcError.optString("message")}")
             val result = reply.optJSONObject("result") ?: error("MCP 没有工具执行结果")
