@@ -341,7 +341,10 @@ private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
         .filter { entry ->
             val time = runCatching { Instant.parse(entry.optString("createdAt")) }.getOrNull()
             time != null && (cutoff == null || !time.isAfter(cutoff))
-        }.takeLast(4).asReversed()
+        }.distinctBy { it.optString("id") }
+            .sortedWith(compareByDescending<org.json.JSONObject> { it.optInt("priority", 2) }
+                .thenByDescending { it.optString("updatedAt") })
+            .take(8)
     val closed = mind.optJSONArray("closedConcerns")
     val ended = (0 until (closed?.length() ?: 0))
         .mapNotNull { closed?.optJSONObject(it) }
@@ -378,8 +381,16 @@ private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
                         listOf(it.optString("phase"), it.optString("focus"),
                             it.optString("hesitation")).filter(String::isNotBlank).joinToString(" · ")
                     }
-                val detail = developments.ifBlank { entry.optString("focus") }
-                if (detail.isNotBlank()) PresenceDialogSection("曾经挂心的事", detail)
+                val detail = listOf(
+                    entry.optString("focus").takeIf(String::isNotBlank),
+                    entry.optString("whyItMatters").takeIf(String::isNotBlank)?.let { "缘由：$it" },
+                    entry.optString("hesitation").takeIf(String::isNotBlank)?.let { "仍在犹豫：$it" },
+                    entry.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" },
+                    developments.takeIf(String::isNotBlank)?.let { "心路变化：$it" },
+                ).filterNotNull().joinToString("\n")
+                if (detail.isNotBlank()) PresenceDialogSection(
+                    "仍放在心上的事 · 重要度${entry.optInt("priority", 2)}", detail,
+                )
             }
             ended.forEach { entry ->
                 val result = entry.optString("resolution").ifBlank { "后来放下了" }
