@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T07:44:38.516221+00:00",
-  "commit": "ada0522d0f818d9071096cf613a1610e8a232494",
+  "generatedAt": "2026-10-13T07:45:35.696181+00:00",
+  "commit": "ac36693d365dc8e57c65d855d3b8ed9dc7ef86a8",
   "branch": "main",
-  "sourceFingerprint": "a7a1ce464a3d1e1df7ef02ae7f9a9b8075c474044597f0aed768456e6def735b",
+  "sourceFingerprint": "617d22c9fb2e565648ce5eca9a9e7413e9d7333bf39dc8eead25239afaa2bc29",
   "summary": {
-    "files": 594,
-    "lines": 117302,
-    "symbols": 1772
+    "files": 595,
+    "lines": 117357,
+    "symbols": 1773
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -216,6 +216,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
         "line": 112
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
+        "line": 12
       }
     ],
     "update": [
@@ -13546,6 +13550,17 @@
         {
           "name": "CharacterSelfActivityWorker",
           "line": 216
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
+      "lines": 55,
+      "sha256": "5d2a8ca2df877f56819d50e5396c19e1c58773d8e89bed53aabb60f05cac3ac1",
+      "symbols": [
+        {
+          "name": "prompt",
+          "line": 12
         }
       ]
     },
