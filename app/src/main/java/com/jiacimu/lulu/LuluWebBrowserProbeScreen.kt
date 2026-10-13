@@ -42,14 +42,13 @@ private const val GENERAL_PROBE_URL = "https://example.com"
 internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var browser by remember { mutableStateOf<WebView?>(null) }
-    var status by remember { mutableStateOf("准备打开小红书网页…") }
+    var status by remember { mutableStateOf("准备打开小红书桌面网页版…") }
     var progress by remember { mutableIntStateOf(0) }
     var resourceFailures by remember { mutableIntStateOf(0) }
     var apiFailures by remember { mutableIntStateOf(0) }
     var lastApiFailure by remember { mutableStateOf("") }
     var jsNetworkFailures by remember { mutableIntStateOf(0) }
     var browserDiagnostics by remember { mutableStateOf("") }
-    var desktopMode by remember { mutableStateOf(false) }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
         Regex("Chrome/([0-9.]+)").find(mobileAgent)?.groupValues?.get(1) ?: "120.0.0.0"
@@ -66,7 +65,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("内置浏览器测试") },
+                title = { Text("小红书网页版测试") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "返回 MCP 设置")
@@ -92,17 +91,6 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 TextButton(onClick = { browser?.loadUrl(XHS_PROBE_URL) }) { Text("小红书") }
-                TextButton(onClick = {
-                    desktopMode = !desktopMode
-                    browser?.let { view ->
-                        view.settings.userAgentString = if (desktopMode) desktopAgent else mobileAgent
-                        view.settings.useWideViewPort = desktopMode
-                        view.settings.loadWithOverviewMode = desktopMode
-                        view.setInitialScale(0)
-                        status = if (desktopMode) "切换桌面网页版中…" else "切换手机版中…"
-                        view.loadUrl(XHS_PROBE_URL)
-                    }
-                }) { Text(if (desktopMode) "切回手机版" else "桌面网页版") }
                 TextButton(onClick = { browser?.zoomOut() }) { Text("缩小 −") }
                 TextButton(onClick = { browser?.zoomIn() }) { Text("放大 +") }
                 TextButton(onClick = {
@@ -134,7 +122,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             }.getOrNull()
                             browserDiagnostics = buildString {
                                 append("网页会话 Cookie：")
-                                append(if (hasWebSession) "已检测到（不能单凭此确认登录）" else "未检测到（可能需要扫码登录）")
+                                append(if (hasWebSession) "已检测到（不能单凭此确认登录）" else "未检测到（不代表账号已退出）")
                                 append("\n")
                                 append("小红书接口 HTTP 失败：$apiFailures")
                                 if (lastApiFailure.isNotBlank()) append("；最近：$lastApiFailure")
@@ -175,7 +163,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 }) { Text("外部打开") }
             }
             Text(
-                (if (desktopMode) "桌面 · " else "手机 · ") + status,
+                "桌面网页版 · " + status,
                 modifier = Modifier.padding(horizontal = 12.dp),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -211,8 +199,12 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         settings.setSupportZoom(true)
                         settings.builtInZoomControls = true
                         settings.displayZoomControls = false
-                        settings.useWideViewPort = false
-                        settings.loadWithOverviewMode = false
+                        // Always identify this embedded view as a desktop browser.
+                        // Set the UA before the first navigation; toggling between mobile
+                        // and desktop is removed to keep the same login/web session.
+                        settings.userAgentString = desktopAgent
+                        settings.useWideViewPort = true
+                        settings.loadWithOverviewMode = true
                         settings.textZoom = 100
                         setInitialScale(0)
                         CookieManager.getInstance().setAcceptCookie(true)
@@ -334,6 +326,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 },
                 onRelease = { view ->
                     if (browser === view) browser = null
+                    CookieManager.getInstance().flush()
                     view.stopLoading()
                     view.webViewClient = WebViewClient()
                     view.webChromeClient = null
