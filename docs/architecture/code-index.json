@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:09:35.659195+00:00",
-  "commit": "b518a1c3097f97286eb70edf4a041d0ac0dae72e",
+  "generatedAt": "2026-10-13T10:12:25.548426+00:00",
+  "commit": "2a5df9baa54f8a08570d1aad228208d028f1c38a",
   "branch": "main",
-  "sourceFingerprint": "acdc77cabc7241a211a37976a2e5fbe8815a3d80ef6d96f42495ded5fe34dd46",
+  "sourceFingerprint": "03f93f672776aca7b55c6eda1cd9d5dd20ca8a41c35b8196dba84936625dab7d",
   "summary": {
     "files": 600,
-    "lines": 118272,
-    "symbols": 1787
+    "lines": 118325,
+    "symbols": 1789
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3077,7 +3077,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 472
+        "line": 525
       }
     ],
     "allows": [
@@ -4385,7 +4385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 748
+        "line": 801
       }
     ],
     "CloudTaskWorker": [
@@ -7950,40 +7950,52 @@
         "line": 13
       }
     ],
+    "mergeHealthMcp": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 151
+      }
+    ],
+    "JSONObject": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 158
+      }
+    ],
     "disconnect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 144
+        "line": 197
       }
     ],
     "picked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 272
+        "line": 325
       }
     ],
     "sum": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 274
+        "line": 327
       }
     ],
     "average": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 277
+        "line": 330
       }
     ],
     "minimum": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 280
+        "line": 333
       }
     ],
     "maximum": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 283
+        "line": 336
       }
     ],
     "savePeriod": [
@@ -18223,44 +18235,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-      "lines": 854,
-      "sha256": "f2970ad29d12ae1b822d8ad913862e45df7bedba478262e0feb98518f39f6f43",
+      "lines": 907,
+      "sha256": "d9faf08322d27686135f551ab56356319454087537bed5617611f7dddc32e524",
       "symbols": [
         {
           "name": "initialize",
           "line": 86
         },
         {
+          "name": "mergeHealthMcp",
+          "line": 151
+        },
+        {
+          "name": "JSONObject",
+          "line": 158
+        },
+        {
           "name": "disconnect",
-          "line": 144
+          "line": 197
         },
         {
           "name": "picked",
-          "line": 272
+          "line": 325
         },
         {
           "name": "sum",
-          "line": 274
+          "line": 327
         },
         {
           "name": "average",
-          "line": 277
+          "line": 330
         },
         {
           "name": "minimum",
-          "line": 280
+          "line": 333
         },
         {
           "name": "maximum",
-          "line": 283
+          "line": 336
         },
         {
           "name": "find",
-          "line": 472
+          "line": 525
         },
         {
           "name": "schedule",
-          "line": 748
+          "line": 801
         }
       ]
     },

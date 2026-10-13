@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b518a1c3097f97286eb70edf4a041d0ac0dae72e`
+- 基准提交：`2a5df9baa54f8a08570d1aad228208d028f1c38a`
 - 分支：`main`
 - 已索引文件：600
-- 已索引代码/文本行：118272
-- 已发现符号：1787
+- 已索引代码/文本行：118325
+- 已发现符号：1789
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -398,7 +398,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 329 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 659 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 854 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 577 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
