@@ -45,8 +45,12 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
         SettingsHomePage.Integrations -> LuluIntegrationsSettingsScreen(
             onBack = { page = SettingsHomePage.Home },
             onOpenBrowserProbe = { page = SettingsHomePage.BrowserProbe },
+            onOpenXhsNativeReader = { page = SettingsHomePage.XhsNativeReader },
         )
         SettingsHomePage.BrowserProbe -> LuluWebBrowserProbeScreen(
+            onBack = { page = SettingsHomePage.Integrations },
+        )
+        SettingsHomePage.XhsNativeReader -> LuluXhsNativeReaderScreen(
             onBack = { page = SettingsHomePage.Integrations },
         )
         SettingsHomePage.Voice -> LuluVoiceSettingsScreen(onBack = { page = SettingsHomePage.Home })
@@ -66,7 +70,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, Voice, Memory, Image, Vision }
+private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Image, Vision }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
