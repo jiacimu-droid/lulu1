@@ -153,6 +153,7 @@ object LuluDeviceToolBridge {
         silenceObservationId: String = "",
         turnContext: String = "",
         reconsiderationEvidenceId: String = "",
+        userEvidenceIds: List<String> = emptyList(),
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
@@ -176,8 +177,16 @@ object LuluDeviceToolBridge {
         val zone = ZoneId.systemDefault()
         val interactionKey = "direct:user"
         val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
-        val groundingEvidenceId = if (reconsiderationEvidenceId.isNotBlank()) reconsiderationEvidenceId else if (callSilence) silenceObservationId else
-            com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
+        // Real message IDs supplied by the chat transport outrank fuzzy
+        // text matching. A synthetic hash is not a deletable user statement.
+        val originalUserEvidence = if (userEvidenceIds.isEmpty()) emptyList() else
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
+                characterId, userEvidenceIds.takeLast(12),
+            ).filter { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }
+        val groundingEvidenceId = if (reconsiderationEvidenceId.isNotBlank()) reconsiderationEvidenceId
+            else if (callSilence) silenceObservationId
+            else if (originalUserEvidence.isNotEmpty()) originalUserEvidence.last().id
+            else com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
                 .filter {
                     userText.isNotBlank() &&
                         it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
@@ -580,10 +589,12 @@ object LuluDeviceToolBridge {
         val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
         if (!invalidBlame && !rewriting) {
             com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
-            val verifiedSources = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
+            val verifiedSources = originalUserEvidence.ifEmpty {
+                com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
                 .filter { userText.isNotBlank() && it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
                     it.content.isNotBlank() && (userText.contains(it.content.trim().take(60)) ||
                         it.content.contains(userText.trim().take(60))) }.takeLast(12)
+            }
             val userSources = if (callSilence) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 silenceObservationId, "电话持续接通；本轮没有新增用户发言", setOf("user"))) else verifiedSources.map {
                 com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"))
