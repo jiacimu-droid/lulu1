@@ -340,13 +340,13 @@ internal object AutonomousSocialRuntime {
                 你只负责让角色对程序已经确认并保存的现场事实作出反应，不能创造、移动、解决或改写事件。
                 ${spontaneousInnerVoiceGuide}
                 只返回 JSON：
-                {"statusText":"事件后正在做什么","gesture":"动作神态","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|private|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串"}
+                {"statusText":"事件后正在做什么","gesture":"动作神态","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|private|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串","reason":"为什么此刻本人想分享或想保持沉默，允许非常简单的念头"
 
                 规则：
                 1. 主人不在现场，不能让主人说话、行动、被看见或默认参与。
                 2. 只能引用给出的准确地点、事件和真实家具。不得添加其他物品、食物、天气、声响、小生物、故障或后续结果。
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。若角色此刻真正决定自己观察、寻找、避让或处理已存在的事件，可以在 appraisal.ownActivity 填 {"stage":"decided","action":"digital_world","worldAction":"handle_incident","incidentId":"上面的真实ID","approach":"当前权威状态允许的真实操作","whyNow":"角色自己选择这一步的原因"}；程序再次验证事件仍在现场，交给同一个执行器处理，失败也保留。也可以先好奇、害怕、分享或暂时不管，不能强制每次立即处理。
-                4. 角色的分享欲是自己的生活动机，不是只在重大事故时才允许：想单独告诉用户可选 private，想给大家看自己的趣事、得意、感动、吐槽、意外发现可选 moment（公开朋友圈），想和实际群友聊天可选 group。公开朋友圈可以只是随手记录一次真实的小情绪或发现，绝非只能用于大事；也不要机械每个事件必发。没有分享欲选 none，可以让真实经历保留在后续记忆和好奇心中。
+                4. 分享仍要来自本人心理反应：先理解所见、产生具体想分享给谁的兴致，再选 shareChannel 并用 reason 留一句当时真正的想法。没有那股意愿不要为了发朋友圈而发，程序也会在无动机时拒绝真正发布。角色的分享欲是自己的生活动机，不是只在重大事故时才允许：想单独告诉用户可选 private，想给大家看自己的趣事、得意、感动、吐槽、意外发现可选 moment（公开朋友圈），想和实际群友聊天可选 group。公开朋友圈可以只是随手记录一次真实的小情绪或发现，绝非只能用于大事；也不要机械每个事件必发。没有分享欲选 none，可以让真实经历保留在后续记忆和好奇心中。
                 5. group 必须使用真实 groupId。shareText 可以有角色口吻和情绪，但其中每个事实都必须来自上面的程序记录。
                 对这次亲历如果真的产生了新疑问（例如蟑螂明明没食物怎么进来的，或者想研究角色自己喜欢的书），可以选填 curiosity={"topic":"自己关注的主题","question":"真正好奇的问题","why":"本轮真实事件怎样触发","nextStep":"可实际执行的下一步"}。这只是好奇，不等于已查到答案或已采取行动。若暂时很想分享但没立刻发，可填 appraisal.shareWish={"status":"held","why":"为何想告诉别人"}；程序会与这次真实事件ID绑定，不是发布回执。
                 6. 可选 appraisal.spontaneousBid={"spark":"这次真实现场里突然想到的小趣事","wantedMove":"想和别人发起的一次自然微互动"}；它只是意图，不能改写世界事实。若角色真的决定另做一件有程序执行能力的生活事，可选 appraisal.ownActivity={"stage":"decided","action":"solo_game|reading|digital_world","whyNow":"自己的具体理由",...真实ID参数}。不确定或只是想到时不填 decided；由统一队列等待真实回执。
@@ -369,6 +369,17 @@ internal object AutonomousSocialRuntime {
         }
 
         val sourceId = "world-fact-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
+        val selectedShareAction = when (reaction.shareChannel) {
+            "private" -> "message"
+            "moment" -> "moment"
+            "group" -> "group_message"
+            else -> "silent"
+        }
+        val shareBasis = CharacterBehaviorMotivation.resolve(
+            selectedShareAction, reaction.decisionReason, reaction.appraisal, reaction.innerLife,
+        )
+        val effectiveShareChannel = if (selectedShareAction == "silent" || shareBasis != null)
+            reaction.shareChannel else "none"
         CharacterCuriosityRuntime.initialize(context.applicationContext)
         CharacterCuriosityRuntime.recordInquiry(
             characterId, reaction.curiosity, sourceId, tick.summary, now,
@@ -382,13 +393,9 @@ internal object AutonomousSocialRuntime {
             characterId = characterId, evidenceId = sourceId,
             appraisal = reaction.appraisal, innerLife = reaction.innerLife,
             innerThoughtBasis = null,
-            selectedAction = when (reaction.shareChannel) {
-                "private" -> "message"
-                "moment" -> "moment"
-                "group" -> "group_message"
-                else -> "silent"
-            }, innerThought = reaction.innerThought,
-            reason = "自己亲历了数字世界里的真实小事", now = now,
+            selectedAction = if (effectiveShareChannel == "none") "silent" else selectedShareAction,
+            innerThought = reaction.innerThought,
+            reason = shareBasis?.reason.orEmpty(), now = now,
         )
         val provenanceId = "world-incident-reaction-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         CompanionPresenceStore.update(
@@ -406,7 +413,7 @@ internal object AutonomousSocialRuntime {
             ),
         )
 
-        val shareResult = when (reaction.shareChannel) {
+        val shareResult = when (effectiveShareChannel) {
             "private" -> CompanionActionRuntime.execute(
                 context,
                 characterId,
@@ -436,13 +443,13 @@ internal object AutonomousSocialRuntime {
         if (shareResult != null) {
             CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,
-                decisionId = "world-sharing:$sourceId:${reaction.shareChannel}",
-                selectedAction = when (reaction.shareChannel) {
+                decisionId = "world-sharing:$sourceId:$effectiveShareChannel",
+                selectedAction = when (effectiveShareChannel) {
                     "private" -> "message"
                     "group" -> "group_message"
                     else -> "moment"
                 },
-                reason = "自己亲历了这件事，并选择是否把它分享出去",
+                reason = shareBasis?.reason.orEmpty(),
                 chosenMotiveId = "", alternatives = null,
                 outcome = shareResult.summary, succeeded = shareResult.success,
                 now = now, causalEvidenceId = sourceId,
@@ -488,6 +495,7 @@ internal object AutonomousSocialRuntime {
             shareChannel = json.optString("shareChannel").trim().lowercase(),
             shareText = json.optString("shareText").trim().take(2_000),
             groupId = json.optString("groupId").trim(),
+            decisionReason = json.optString("reason").trim().take(240),
             innerLife = json.optJSONObject("innerLife"),
             appraisal = json.optJSONObject("appraisal"),
             curiosity = json.optJSONObject("curiosity"),
@@ -554,6 +562,7 @@ internal object AutonomousSocialRuntime {
         val shareChannel: String,
         val shareText: String,
         val groupId: String,
+        val decisionReason: String = "",
         val innerLife: JSONObject? = null,
         val appraisal: JSONObject? = null,
         val curiosity: JSONObject? = null,
