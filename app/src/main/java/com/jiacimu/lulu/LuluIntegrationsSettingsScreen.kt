@@ -51,14 +51,14 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         HorizontalDivider()
         Text("外部 MCP 连接（所有角色共用）", style = MaterialTheme.typography.titleMedium)
-        Text("小红书连接 xpzouying/xiaohongshu-mcp；手环连接 band-health-sync 配套的 health-mcp。需要先在你的电脑或服务器启动服务并登录；填 HTTPS /mcp 地址，手机无法直接访问电脑的 localhost。仅开放读取工具，不会自动评论或发帖。", style = MaterialTheme.typography.bodySmall)
+        Text("连接方式：云端 MCP 填 HTTPS 地址；如果你已经用 Termux 在同一部安卓手机启动兼容的 MCP 服务，也可填 http://127.0.0.1:端口/mcp。官方小红书 MCP 尚未适配安卓 ARM64，Termux 安装需要另行验证。仅开放读取工具。", style = MaterialTheme.typography.bodySmall)
         val scope = rememberCoroutineScope()
         listOf("xiaohongshu" to "小红书阅读 MCP", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
             var mcpUrl by remember(service) { mutableStateOf(LuluExternalMcp.endpoint(context, service)) }
             var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
             var mcpStatus by remember(service) { mutableStateOf("") }
             Text(title, style = MaterialTheme.typography.titleSmall)
-            OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS MCP 地址") },
+            OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS 地址 / Termux 本机 127.0.0.1") },
                 singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
             OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（可留空；建议服务端开启鉴权）") },
                 visualTransformation = PasswordVisualTransformation(),
@@ -93,7 +93,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                 OutlinedButton(onClick = {
                     links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/docs/XHS_PHONE_ONLY_SETUP.md")
                 }) { Text("一部手机部署教程 · 云端托管可能收费") }
-                Text("先在手机浏览器部署好能持续运行的云端 MCP，并填入其 HTTPS 地址。按下面按钮生成登录码、保存到相册，然后打开小红书 → 我 → 左上角菜单 → 扫一扫 → 相册，选刚保存的图片完成授权。返回这里检查登录状态。二维码可能很快过期，请尽快操作。",
+                Text("先确保已连接可用的 MCP（云端或兼容的 Termux 本机服务）。按下面按钮生成登录码、保存到相册，然后在小红书的扫一扫中从相册选择图片。返回这里检查登录状态；二维码可能很快过期。",
                     style = MaterialTheme.typography.bodySmall)
                 var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
                 var qrBusy by remember { mutableStateOf(false) }
