@@ -72,7 +72,10 @@
       author: clean(raw.user?.nickname ?? raw.user?.nickName, 120)};
   };
   // Only normalized list/body fields stay in this document's bounded memory.
-  const received = {feed: [], search: [], notes: new Map(), failures: {}, api: {}, searchKeyword: '', searchPending: '', searchEmpty: false};
+  const received = {feed: [], search: [], notes: new Map(), failures: {}, api: {},
+    searchKeyword: '', searchPending: '', searchEmpty: false, searchBaseline: ''};
+  const searchStateRows = () => list(unwrap(unwrap(window.__INITIAL_STATE__)?.search)?.feeds, 'pc_search');
+  const fingerprint = rows => rows.map(row => row.id + ':' + row.token).join('|');
   const pageKeyword = () => clean(new URL(location.href).searchParams.get('keyword') || window.__luluXhsSearchKeyword?.(), 64);
   const requestKeyword = (url, body) => {
     try {
@@ -85,6 +88,13 @@
     if (next !== received.searchPending || received.searchKeyword) {
       received.search = []; received.searchKeyword = ''; received.searchEmpty = false;
       delete received.api.search;
+    }
+    if (received.searchPending !== next) {
+      // URL changes before Vue fetch finishes can leave the previous search
+      // array visible in __INITIAL_STATE__. Never label that stale array as
+      // results for the new keyword. A changed array, a confirmed response,
+      // or a full SSR navigation can satisfy the new request.
+      received.searchBaseline = fingerprint(searchStateRows());
     }
     received.searchPending = next;
     received.failures.search = '';
@@ -236,11 +246,15 @@
         }
       } else {
         const section = unwrap(kind === 'search' ? state.search : state.feed ?? state.homeFeed);
+        const stateItems = list(section?.feeds, kind === 'search' ? 'pc_search' : 'pc_feed');
+        const staleSearchState = kind === 'search' && searchPage && !searchResponse &&
+          received.searchPending === keyword && !!received.searchBaseline &&
+          fingerprint(stateItems) === received.searchBaseline;
         items = searchResponse && received.search.length ? received.search :
-          list(section?.feeds, kind === 'search' ? 'pc_search' : 'pc_feed');
+          staleSearchState ? [] : stateItems;
         if (!items.length && kind !== 'search') items = received[kind];
         // Actual note links retain the site's token/source; avoid generic links in menus.
-        if (!items.length && (kind !== 'search' || searchPage)) for (const card of document.querySelectorAll('section.note-item,.note-item')) {
+        if (!items.length && (kind !== 'search' || (searchPage && !staleSearchState))) for (const card of document.querySelectorAll('section.note-item,.note-item')) {
           const a = card.querySelector('a[href*="/explore/"],a[href*="/discovery/item/"]');
           if (!a) continue;
           try {
