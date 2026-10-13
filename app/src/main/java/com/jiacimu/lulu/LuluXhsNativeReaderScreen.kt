@@ -71,7 +71,7 @@ internal fun LuluXhsNativeReaderScreen(
         message = "正在读取真实笔记列表…"
         task = scope.launch {
             try {
-                val result = XhsReadingEngine.list(context, query) { if (sequence == current) message = it }
+                val result = XhsReadingEngine.list(context, query, onProgress = { if (sequence == current) message = it })
                 if (sequence == current) {
                     cards = result
                     message = if (result.isEmpty()) "没有找到相关笔记。" else "已获取 ${result.size} 篇笔记"
@@ -101,7 +101,7 @@ internal fun LuluXhsNativeReaderScreen(
         message = "正在读取笔记正文…"
         task = scope.launch {
             try {
-                val result = XhsReadingEngine.read(context, card) { if (sequence == current) message = it }
+                val result = XhsReadingEngine.read(context, card, onProgress = { if (sequence == current) message = it })
                 if (sequence == current) { article = result; message = "" }
             } catch (error: Exception) {
                 if (error is CancellationException && error !is TimeoutCancellationException) throw error
