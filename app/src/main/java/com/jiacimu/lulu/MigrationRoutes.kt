@@ -20,6 +20,7 @@ enum class MigrationRoute {
     ChatDetail,
     CharacterSettings,
     Memory,
+    CoreMemory,
     Lexicon,
     WorldBook,
     Performance,
