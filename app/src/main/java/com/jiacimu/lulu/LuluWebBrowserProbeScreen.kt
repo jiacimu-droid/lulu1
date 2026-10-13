@@ -153,7 +153,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 error: WebResourceError?,
                             ) {
                                 if (request?.isForMainFrame == true) {
-                                    status = "网页加载失败：" + error?.description.orEmpty().take(100)
+                                    status = "网页加载失败：" + error?.description?.toString().orEmpty().take(100)
                                 }
                             }
 
