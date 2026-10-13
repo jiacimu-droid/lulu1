@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:51:21.529635+00:00",
-  "commit": "fc0441d595156c007bd5a3bd732c37c2b61d0700",
+  "generatedAt": "2026-10-13T11:11:54.155150+00:00",
+  "commit": "4c4e00d921db4ff5806f51412d18df0a422d8c47",
   "branch": "main",
-  "sourceFingerprint": "7017ea75706662c0d4c7bdbc1dd580ba4025d4fd10a5cacfd9be735655651e5e",
+  "sourceFingerprint": "d668c437bf2104696ea9fa74496af24ce17f1a8cb1f7198fb1366a37daa16b90",
   "summary": {
     "files": 602,
-    "lines": 118877,
+    "lines": 118883,
     "symbols": 1795
   },
   "symbolIndex": {
@@ -5721,31 +5721,31 @@
     "scheduleHealth": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 50
+        "line": 56
       }
     ],
     "savedToken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 62
+        "line": 68
       }
     ],
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 155
+        "line": 161
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 174
+        "line": 180
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 207
+        "line": 213
       }
     ],
     "MeetingProseLength": [
@@ -15507,8 +15507,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 355,
-      "sha256": "11bcc510dc228c8bd79f3b71d03ba48610d243e64b50ea0a207c0f678ca8d00e",
+      "lines": 361,
+      "sha256": "a352e947de1c6e03dc597fd09a25c2277b6a857734ec72550062c292b2eef5a2",
       "symbols": [
         {
           "name": "configured",
@@ -15524,23 +15524,23 @@
         },
         {
           "name": "scheduleHealth",
-          "line": 50
+          "line": 56
         },
         {
           "name": "savedToken",
-          "line": 62
+          "line": 68
         },
         {
           "name": "XhsLoginQr",
-          "line": 155
+          "line": 161
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 174
+          "line": 180
         },
         {
           "name": "healthContext",
-          "line": 207
+          "line": 213
         }
       ]
     },
