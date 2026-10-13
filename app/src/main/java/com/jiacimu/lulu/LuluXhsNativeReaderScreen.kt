@@ -19,6 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.webkit.UserAgentMetadata
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -144,7 +147,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
               if (!row || !card) continue;
               add(row.id ?? card.noteId, row.xsecToken ?? row.xsec_token,
                   card.displayTitle ?? card.title, card.user?.nickname ?? card.user?.nickName,
-                  searching ? 'pc_search' : 'pc_feed');
+                  'pc_feed');
               if (items.length >= 35) break;
             }
             // DOM fallback uses actual same-origin note URLs only.
@@ -278,6 +281,27 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                         settings.allowFileAccessFromFileURLs = false
                         settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                         settings.userAgentString = desktopUserAgent
+                        // Keep Client Hints consistent with the desktop UA as on
+                        // the already signed-in visible browser, when supported.
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
+                            runCatching {
+                                val major = chromeVersion.substringBefore(".")
+                                val chromium = UserAgentMetadata.BrandVersion.Builder()
+                                    .setBrand("Chromium").setMajorVersion(major)
+                                    .setFullVersion(chromeVersion).build()
+                                val chrome = UserAgentMetadata.BrandVersion.Builder()
+                                    .setBrand("Google Chrome").setMajorVersion(major)
+                                    .setFullVersion(chromeVersion).build()
+                                WebSettingsCompat.setUserAgentMetadata(
+                                    settings,
+                                    UserAgentMetadata.Builder()
+                                        .setPlatform("Linux")
+                                        .setMobile(false)
+                                        .setBrandVersionList(listOf(chromium, chrome))
+                                        .build(),
+                                )
+                            }
+                        }
                         settings.useWideViewPort = true
                         settings.loadWithOverviewMode = true
                         CookieManager.getInstance().setAcceptCookie(true)
