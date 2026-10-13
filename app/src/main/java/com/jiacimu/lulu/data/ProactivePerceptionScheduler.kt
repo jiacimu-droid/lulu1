@@ -198,6 +198,29 @@ object ProactivePerceptionScheduler {
     }
 
     /**
+     * Durable fallback for an exact five-minute expiry boundary. The foreground
+     * expiry job uses the same decision path; CompanionOnlineStore claims the
+     * boundary once so these two paths never cause two paid calls.
+     */
+    fun scheduleOnlineExpiryDecision(context: Context, characterId: String, untilMillis: Long) {
+        if (characterId.isBlank() || untilMillis <= System.currentTimeMillis()) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay((untilMillis - System.currentTimeMillis() + 100L).coerceAtLeast(0L), TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", "五分钟在线到期，自主决定继续醒着或休眠")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putBoolean("preserveOffline", true)
+                .putLong("onlineExpiryAtMillis", untilMillis)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-online-expiry-v1-$characterId-$untilMillis", ExistingWorkPolicy.KEEP, request,
+        )
+    }
+
+    /**
      * Five minutes means leaving live chat, not forgetting a strong emotion.
      * Run at most one low-priority follow-up per 90 minutes; do not reopen the
      * online window or dictate which specific action a character should choose.
@@ -374,14 +397,16 @@ class ProactivePerceptionWorker(
         val force = inputData.getBoolean("force", false)
         val requireOnline = inputData.getBoolean("requireOnline", false)
         val preserveOffline = inputData.getBoolean("preserveOffline", false)
+        val onlineExpiryAtMillis = inputData.getLong("onlineExpiryAtMillis", 0L)
         val retryEvidenceId = inputData.getString("retryEvidenceId").orEmpty()
         if (characterId != null && retryEvidenceId.isNotBlank() &&
             PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId)) {
             return@runCatching Result.success()
         }
-        if (preserveOffline && (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
-            !CharacterInnerLifeStore.needsPostOnlineReflection(characterId) ||
-            !ProactivePerceptionPolicyStore.get(characterId).enabled)) {
+        if (preserveOffline && onlineExpiryAtMillis == 0L &&
+            (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
+                !CharacterInnerLifeStore.needsPostOnlineReflection(characterId) ||
+                !ProactivePerceptionPolicyStore.get(characterId).enabled)) {
             return@runCatching Result.success()
         }
         if (requireOnline && (characterId == null || !CompanionOnlineStore.isOnline(characterId))) {
@@ -460,6 +485,7 @@ class ProactivePerceptionWorker(
             requiresUnread = inputData.getBoolean("requiresUnread", false),
             preserveOffline = preserveOffline,
             requiredInteractionEvidenceId = inputData.getString("interactionEvidenceId"),
+            onlineExpiryAtMillis = onlineExpiryAtMillis,
         )
         ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
         Result.success()
