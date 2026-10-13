@@ -30,6 +30,21 @@
 
 挂断后仍可以由 WorkManager 提供一次**自主行动机会**，但这是正常的单次行动决策，而不是强制经历两次独立的主观反思。设备后台调度不是实时保障；主动感知关掉时不自行发起新反应。
 
+## 当下动机：同一决策，不是各页面的新规则（2026-10-13）
+
+这次补充的是**执行前约束**，不是给出门等单项动作加提示词：
+
+1. 统一事实源（`SharedExperienceTimeline`、`CharacterPerceptionContext`）提供可观察的当下情境；过去记忆与持续人格提供背景。
+2. 各个响应入口沿用 `CharacterDecisionProtocol.principles`，角色先产生自己的解释、情绪或普通愿望，再作出一个选择。小小的「想出去吹风」「继续读」「有点烦不想回」都是有效当下动机；不强制新增心声和长期目标。
+3. `CharacterBehaviorMotivation.resolve` 从角色**已生成**的 `reason`、`appraisal.responseAim`、与当前动作匹配的 `ownActivity.whyNow`、`innerLife.emotion.impulse` 等字段提取短依据；不能从工具结果倒推出曾经有某个想法。也不允许用「想读书」替代「为什么发朋友圈」。
+4. `CharacterInnerLifeStore.recordCausalTransition` 在各渠道记录原始 evidenceId、选择和 `actionBasis`（短理解、感受、打算及其来源），但没有新心理变化不强迫生成 `innerThought`。
+5. **执行前**，后台自主活动与私聊/电话/群聊附加工具统一校验动机。没有角色本人依据就拒绝执行而保留失败回执；数字世界见面 `moveTo` 无依据时不进行跳转。聊天和见面的普通口语仍由各场景自然表达，不为了检查而增加一次模型调用。
+6. 后续行动只以 `ToolRouter` 或真实见面/世界状态回执为准。既有 `CharacterActionFeedback` 把选择原因和成功/失败交回角色下一次感知；曾经想过不等于做成。
+
+**入口对应：** 私聊/电话 `LuluDeviceToolBridge`，群聊 `GroupEnsembleReplyEngine`，见面 `DigitalWorldMeetingGenerationV2` + `DigitalWorldMeetingRuntimeV2`，后台/世界 `ProactivePerceptionRuntime`，延迟私生活动作 `CharacterSelfActivityRuntime`。各自保留不同的音频、消息、场景协议，但不能脱离共享的人格-动机-反馈链。
+
+**边界：** 这一层确认「有没有角色亲自形成的选择依据」，并不能只靠字符串判断一个理由是不是符合性格、是否自相矛盾；这需要继续结合情境、记忆和实机行为验收，不应伪称程序已具备完美心理学判断。
+
 ## 电话闭环
 
 - 直播电话中：根据最后一次**成功确认**的用户语音时间观察静默。麦克风触发噪声不能重置这项时钟。持续空白按 1/5/15/30/60 分钟及之后的小时段归档，每个段只留一个证据，不强制回复。
