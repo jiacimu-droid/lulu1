@@ -80,10 +80,10 @@ object LuluDeviceToolBridge {
                 保留已真实发生的客观事实，不要把旧回复或这次点击当成新的共同经历。
                 气泡边界由你决定，每个气泡是完整的局部交流动作；不要把句子从词中间切开。
                 只返回一个简洁 JSON，action 必须是 reply：
-                {"action":"reply","bubbles":["第一条自然气泡","需要时才有第二条"],"innerThought":"可选的、真正没说出口的新念头","innerThoughtBasis":{"focus":"念头触发点","change":"相比之前具体变了什么"},"mood":"可选心情"}
+                {"action":"reply","bubbles":["第一条自然气泡","需要时才有第二条"],"innerThought":"可选的、真正没说出口的新念头","innerThoughtBasis":{"focus":"真实触发点","change":"相比之前具体变了什么","unsaidWhy":"这个念头为什么没有说出口"},"mood":"可选心情"}
                 bubbles 是唯一必需的正文，1到3条；innerThought、innerThoughtBasis、mood、gesture、statusText、innerLife 全部可省略。
                 不要为了填字段硬写心声，旧话里已经说出的内容不能换种措辞写成心声；真实出现新的犹豫、情绪或私人判断才写。
-                若补充了 innerThought，必须有 focus 以及 change/conflict/unsaidWhy 之一；可按实际变化选填 innerLife。
+                若补充 innerThought，必须有具体的 focus 与真正的新变化，并用 unsaidWhy 或 conflict 表示这为何是未说出口的私有想法；也可通过真实变化的 innerLife 表达新的感受。没有新念头直接省略，绝不能把已发送台词改写成心声。
                 让 JSON 尽快闭合，优先完整的 bubbles 数组，不要输出解释、代码块、心声之外的隐藏协议。
             """.trimIndent(),
             source = "聊天重新回复",
@@ -158,17 +158,22 @@ object LuluDeviceToolBridge {
                 characterId, evidenceId, groundedThought, now, delta.fingerprint,
             )
         }
-        CompanionPresenceStore.update(
-            characterId = characterId,
-            statusText = reply.statusText,
-            gesture = reply.gesture,
-            innerThought = groundedThought,
-            mood = reply.mood,
-            source = "聊天重新回复",
-            now = now,
-            provenanceId = evidenceId,
-            innerThoughtFingerprint = delta.fingerprint.takeIf { groundedThought.isNotBlank() },
-        )
+        // No new inner voice is not an instruction to erase an earlier, still valid thought.
+        // Avoid a blank status update creating a fictitious new moment.
+        if (groundedThought.isNotBlank() || reply.statusText != null ||
+            reply.gesture != null || reply.mood != null) {
+            CompanionPresenceStore.update(
+                characterId = characterId,
+                statusText = reply.statusText,
+                gesture = reply.gesture,
+                innerThought = groundedThought.takeIf(String::isNotBlank),
+                mood = reply.mood,
+                source = "聊天重新回复",
+                now = now,
+                provenanceId = evidenceId,
+                innerThoughtFingerprint = delta.fingerprint.takeIf { groundedThought.isNotBlank() },
+            )
+        }
     }
 
     suspend fun respond(
