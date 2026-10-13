@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T09:33:04.200818+00:00",
-  "commit": "3d4680c445db6eb0ae9a4047d203cf1e83ae6e64",
+  "generatedAt": "2026-10-13T09:33:18.873369+00:00",
+  "commit": "59d3f944fc908bd1dcfc3521c68a4b9ebbd0d28d",
   "branch": "main",
-  "sourceFingerprint": "e085e5f88ccf3af4cd8837699b9c1c7bd97f1b97f9dbfd242dd5324082179630",
+  "sourceFingerprint": "58d0aafb1af0299d4ab58bb074f88bd2eca8558e49a499f3b2cc094409eee52f",
   "summary": {
     "files": 599,
-    "lines": 117968,
+    "lines": 117974,
     "symbols": 1782
   },
   "symbolIndex": {
@@ -693,7 +693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 33
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
@@ -4089,7 +4089,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 41
+        "line": 43
       }
     ],
     "latestConsideration": [
@@ -6445,13 +6445,13 @@
     "activeFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 66
+        "line": 68
       }
     ],
     "clear": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 91
+        "line": 97
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -16207,8 +16207,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 125,
-      "sha256": "9936a68ad6bf1e09c03c948c68b689130e2c19c30b53e0eeb5f8261c04a20fa1",
+      "lines": 131,
+      "sha256": "f249189e5740346dae7e55fac6f32d427ae6d2685d1e789ee8e651c1567d381c",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
@@ -16224,19 +16224,19 @@
         },
         {
           "name": "initialize",
-          "line": 33
+          "line": 34
         },
         {
           "name": "offer",
-          "line": 41
+          "line": 43
         },
         {
           "name": "activeFor",
-          "line": 66
+          "line": 68
         },
         {
           "name": "clear",
-          "line": 91
+          "line": 97
         }
       ]
     },
