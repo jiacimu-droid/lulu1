@@ -436,11 +436,33 @@ internal object XhsReadingEngine {
             }
         } catch (error: TimeoutCancellationException) {
             val api = latestReport.optJSONObject("api")?.optJSONObject(kind)
+            val page = latestReport.optJSONObject("page")
+            val search = latestReport.optJSONObject("search")
             val detail = if (kind == "search") {
-                if (lastStage == "等待网页搜索框" || lastStage == "等待阅读窗口") "网页搜索尚未启动" else
-                    if (api == null) "搜索请求未返回" else "搜索已返回但没有可读取的笔记"
+                val path = page?.optString("path").orEmpty()
+                val ready = page?.optString("readyState").orEmpty()
+                val visible = page?.optInt("visibleCards") ?: 0
+                val hydrated = page?.optInt("stateCards") ?: 0
+                when {
+                    page?.optBoolean("verificationPrompt") == true ->
+                        "网页要求安全验证，请在内置网页完成验证"
+                    page?.optBoolean("loginPrompt") == true ->
+                        "网页需要重新登录，请在内置网页检查登录状态"
+                    ready.isBlank() -> "页面脚本尚未运行，无法判断搜索请求是否发出"
+                    path !in setOf("/search_result", "/search", "/search/result") &&
+                        search?.optBoolean("pending") != true ->
+                        "仍停留在首页，网页搜索未成功导航"
+                    api == null && path in setOf("/search_result", "/search", "/search/result") ->
+                        "已进入搜索页，但未观察到搜索结果；可能是页面数据未加载或网站限制"
+                    visible > 0 || hydrated > 0 ->
+                        "网页含有搜索卡片但提取器未读取，请查看诊断中的页面计数"
+                    api != null -> "搜索数据已响应，但当前没有可识别的笔记卡片"
+                    else -> "页面未完成搜索，未确认是网络失败还是网页脚本未加载"
+                }
             } else lastStage
             latestReport.put("result", "timeout").put("phase", lastStage)
+                .put("readiness", if (page == null) "reader-script-unavailable"
+                     else page.optString("readyState"))
             prefs(context).edit().putString("xiaohongshu:last-diagnostic", latestReport.toString()).apply()
             throw IllegalStateException("读取超时：$detail", error)
         }
