@@ -617,14 +617,16 @@ internal object LuluVoiceCallSession {
                     (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1_000L
                     else current.elapsedSeconds,
             )
-            if (!endedByCharacter) appContext?.let { context ->
+            appContext?.let { context ->
                 ProactivePerceptionScheduler.scheduleInteractionReflection(context, current.characterId, cueId)
                 // The app is still alive immediately after the user hangs up.
                 // Run the same authoritative pipeline now so that opening the
                 // avatar can reveal a real reaction. The queued WorkManager
                 // item is only a durable fallback if Android kills this process.
                 val id = current.characterId
-                if (com.jiacimu.lulu.data.ProactivePerceptionPolicyStore.get(id).enabled) scope.launch(Dispatchers.IO) {
+                // This is an immediate response to an actual user interaction,
+                // not the optional periodic autonomous-background heartbeat.
+                scope.launch(Dispatchers.IO) {
                     runCatching {
                         initializeBackgroundRuntime(context)
                         ProactivePerceptionRuntime.runDueCycle(
