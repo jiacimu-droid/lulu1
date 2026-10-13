@@ -96,6 +96,7 @@ class LocalMemoryRepository : MemoryRepository {
             )
         }
         MemoryInspectionStore.clearCharacter(characterId)
+        CoreMemoryInjectionAudit.clearCharacter(characterId)
         refreshDebug("经历与记忆已清空，角色资料与记忆设置保留", characterId)
     }
 
@@ -417,6 +418,7 @@ class LocalMemoryRepository : MemoryRepository {
                     ?: current.deletedMemoryKeys,
             )
         }
+        target?.let { CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id) }
         refreshDebug("记忆已删除")
     }
 
@@ -428,8 +430,10 @@ class LocalMemoryRepository : MemoryRepository {
         val target = state.value.entries.firstOrNull { entry -> entry.id == id } ?: return 0
         val targetKey = target.memoryIdentityKey()
         var removed = 0
+        var removedEntries = emptyList<MemoryEntry>()
         mutate { current ->
             val victims = current.entries.filter { entry -> entry.memoryIdentityKey() == targetKey }
+            removedEntries = victims
             removed = victims.size
             current.copy(
                 entries = current.entries.filterNot { entry -> entry.memoryIdentityKey() == targetKey },
@@ -439,6 +443,7 @@ class LocalMemoryRepository : MemoryRepository {
                 },
             )
         }
+        removedEntries.forEach { CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id) }
         refreshDebug(if (removed > 1) "已删除 $removed 个角色中的同内容记忆" else "记忆已删除")
         return removed
     }
@@ -489,13 +494,16 @@ class LocalMemoryRepository : MemoryRepository {
 
     suspend fun deleteDerivedFromEvent(eventId: String) {
         if (eventId.isBlank()) return
+        var removedEntries = emptyList<MemoryEntry>()
         mutate { current ->
+            removedEntries = current.entries.filter { entry -> eventId in entry.memorySourceEventIds() }
             current.copy(
                 entries = current.entries.filterNot { entry -> eventId in entry.memorySourceEventIds() },
                 processedMessageIds = current.processedMessageIds.mapValues { (_, ids) -> ids - eventId },
                 immediateProcessedIds = current.immediateProcessedIds.mapValues { (_, ids) -> ids - eventId },
             )
         }
+        removedEntries.forEach { CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id) }
         refreshDebug("已撤销由删除内容产生的派生记忆")
     }
 
