@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T22:46:48.007440+00:00",
-  "commit": "02b0f2f081cad5691c5cd35bb098c1ba5ed85676",
+  "generatedAt": "2026-10-13T22:47:27.605435+00:00",
+  "commit": "d5dba1823eeee443f3c891993df43fc97a4b367d",
   "branch": "main",
-  "sourceFingerprint": "ff966e722ad1995818ce11cb81b61a066c15fb774748cc477547a0a20121b7b2",
+  "sourceFingerprint": "2f9c75315ae349c0bcf8f94d9885fe059089e0edeb5b8c7708f5529007e0be19",
   "summary": {
     "files": 615,
-    "lines": 122764,
-    "symbols": 1837
+    "lines": 122725,
+    "symbols": 1840
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5553,7 +5553,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 329
+        "line": 344
       }
     ],
     "retryAt": [
@@ -5575,7 +5575,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 107
+        "line": 122
       }
     ],
     "stale": [
@@ -7328,28 +7328,46 @@
         "line": 82
       }
     ],
+    "requestVisibleReadTest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 98
+      }
+    ],
+    "visibleReadTestPending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 101
+      }
+    ],
+    "consumeVisibleReadTest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 103
+      }
+    ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 94
+        "line": 108
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 95
+        "line": 110
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 97
+        "line": 112
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 101
+        "line": 116
       }
     ],
     "LuluPageScaffold": [
@@ -11399,8 +11417,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt",
-      "lines": 266,
-      "sha256": "42c08d000cb0d0e26ec9c7bb4b9f66635563a16da5f5986c9596c3ef99cdfb54",
+      "lines": 212,
+      "sha256": "12c6717efacaf7e0773f05e579e12635cdf3879886a482c7e6d9792aef59fba0",
       "symbols": []
     },
     {
@@ -17484,8 +17502,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 455,
-      "sha256": "20c44ec1b71666117ae0780e0fbaffafd4f5c651a23e6769c53e344020401db7",
+      "lines": 470,
+      "sha256": "26017dad8caf32a754c1029aecd886adbfb9133e057e48e68603bb388d81b029",
       "symbols": [
         {
           "name": "url",
@@ -17512,28 +17530,40 @@
           "line": 82
         },
         {
-          "name": "localEnabled",
-          "line": 94
+          "name": "requestVisibleReadTest",
+          "line": 98
         },
         {
-          "name": "setLocalEnabled",
-          "line": 95
-        },
-        {
-          "name": "resume",
-          "line": 97
-        },
-        {
-          "name": "pause",
+          "name": "visibleReadTestPending",
           "line": 101
         },
         {
+          "name": "consumeVisibleReadTest",
+          "line": 103
+        },
+        {
+          "name": "localEnabled",
+          "line": 108
+        },
+        {
+          "name": "setLocalEnabled",
+          "line": 110
+        },
+        {
+          "name": "resume",
+          "line": 112
+        },
+        {
+          "name": "pause",
+          "line": 116
+        },
+        {
           "name": "available",
-          "line": 107
+          "line": 122
         },
         {
           "name": "stage",
-          "line": 329
+          "line": 344
         }
       ]
     },
