@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:13:17.027919+00:00",
-  "commit": "5b15b3450b23415e6fe0c1b171a3b96cdbc7c089",
+  "generatedAt": "2026-10-13T10:13:45.621514+00:00",
+  "commit": "6d02737a097664a002226829be514adbf0d85991",
   "branch": "main",
-  "sourceFingerprint": "d17e85ef4f0882bd018504fb1b6cf293436d5ddb283970c7c6093950a1124850",
+  "sourceFingerprint": "8b6254b73ac1ed1d502b27680e1cecb64686a8780b2d09e5bd2cb6f8ebe71121",
   "summary": {
     "files": 600,
-    "lines": 118385,
+    "lines": 118386,
     "symbols": 1790
   },
   "symbolIndex": {
@@ -16408,8 +16408,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 524,
-      "sha256": "2a2d94b8a791fd8e13fa299c8b905c8e3c7cc21764d60d06a1560d17057be370",
+      "lines": 525,
+      "sha256": "08b6218d0c603f2c547ae643dc140e00c047f718f04340133c8403a2e211913b",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -18240,7 +18240,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt",
       "lines": 659,
-      "sha256": "3d0813845d92e86c4c0124592c1eedb15074ff670b7fce3b9f2a38888322c3bf",
+      "sha256": "22794516efa3641b61f2ccfe1f24fe4e7f549e37dfb326b799548c5cdf81b500",
       "symbols": []
     },
     {
