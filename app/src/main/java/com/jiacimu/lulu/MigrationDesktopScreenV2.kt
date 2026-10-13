@@ -45,6 +45,7 @@ private data class DesktopV2Launcher(
 private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("chat", "聊天", Icons.Outlined.ChatBubbleOutline, MigrationRoute.Chat),
     DesktopV2Launcher("memory", "记忆", Icons.Outlined.Psychology, MigrationRoute.Memory),
+    DesktopV2Launcher("core-memory", "核心记忆", Icons.Outlined.PushPin, MigrationRoute.CoreMemory),
     DesktopV2Launcher("worldbook", "世界书", Icons.Outlined.Public, MigrationRoute.WorldBook),
     DesktopV2Launcher("performance", "性能监测", Icons.Outlined.MonitorHeart, MigrationRoute.Performance),
     DesktopV2Launcher("health", "健康", Icons.Outlined.FavoriteBorder, MigrationRoute.Health),
