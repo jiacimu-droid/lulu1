@@ -160,6 +160,13 @@ internal object AutonomousSocialRuntime {
             CharacterInnerLifeStore.observe(draft.speakerId, sourceId, body, draft.innerLife,
                 participantIds.filterNot { it == draft.speakerId }.toSet(), turnTime)
             CharacterInnerLifeStore.recordInnerVoice(draft.speakerId, sourceId, draft.innerThought, turnTime)
+            CharacterInnerLifeStore.recordCausalTransition(
+                characterId = draft.speakerId, evidenceId = sourceId,
+                appraisal = draft.appraisal, innerLife = draft.innerLife,
+                innerThoughtBasis = null, selectedAction = "group_reply",
+                innerThought = draft.innerThought, reason = draft.decisionReason,
+                now = turnTime,
+            )
         }
 
         val finishedAt = now.plusMillis((generated.turns.size + 2L) * 900L)
@@ -275,9 +282,10 @@ internal object AutonomousSocialRuntime {
             instruction = """
                 你是露露机数字世界的一次小型生活场景调度器。角色因为各自真实移动恰好到了同一个地方，请生成他们自己的一小段相处，而不是替主人写剧情。
                 只返回 JSON：
-                {"turns":[{"speakerId":"准确角色ID","segments":[{"type":"action|dialogue","text":"内容","speechText":"音频轨，可为空"}]}],"summary":"一句客观、可记忆的共同经历摘要"}
+                {"turns":[{"speakerId":"准确角色ID","reason":"这个角色此刻为什么想说话或做这件事，简单的一句话即可","segments":[{"type":"action|dialogue","text":"内容","speechText":"音频轨，可为空"}]}],"summary":"一句客观、可记忆的共同经历摘要"}
 
                 规则：
+                0. 每个 speaker 的 turn 必须先有本人的简短 reason：例如‘认出熟人，想打声招呼’‘觉得话题好玩，想插一句’‘有点累想坐坐’。它是当下的想法，不是事后写的行为总结。没有主动说话或行动意愿就不要替这个角色生成 turn。
                 1. 主人不在现场，绝不能让主人说话、行动、被看见或被默认参与；也不要让角色突然对主人隔空汇报。
                 2. 只能使用上面列出的准确 speakerId。每个人保持自己的性格、关系和说话方式，不要写成同一种客服腔。
                 3. 这是生活中的一个小片段，不是强制剧情事件。通常 2—8 个 turn 即可；可以打招呼、坐一会儿、聊最近的真实记录、一起看看某样已有物品，也可以有自然的安静和停顿。只有上面明确给出【本轮程序权威环境事件】时才能让角色现场反应，不能自行触发任何环境插曲。
@@ -532,8 +540,14 @@ internal object AutonomousSocialRuntime {
                         add(com.jiacimu.lulu.VoicePerformance.meetingSegment(type, text, segment.optString("speechText")))
                     }
                 }
-                if (segments.isNotEmpty()) add(GeneratedTurn(speakerId, segments,
-                    item.optJSONObject("innerLife"), item.optString("innerThought").trim().take(1_200)))
+                val reason = item.optString("reason").trim().take(240)
+                val appraisal = item.optJSONObject("appraisal")
+                val innerLife = item.optJSONObject("innerLife")
+                if (segments.isNotEmpty() && CharacterBehaviorMotivation.resolve(
+                        "group_reply", reason, appraisal, innerLife,
+                    ) != null) add(GeneratedTurn(speakerId, segments,
+                    innerLife, item.optString("innerThought").trim().take(1_200),
+                    appraisal, reason))
             }
         }
         GeneratedEncounter(
@@ -573,6 +587,8 @@ internal object AutonomousSocialRuntime {
         val segments: List<MeetingSegment>,
         val innerLife: JSONObject? = null,
         val innerThought: String = "",
+        val appraisal: JSONObject? = null,
+        val decisionReason: String = "",
     )
 
     private data class GeneratedEncounter(
