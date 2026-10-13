@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`104abf0066521a9b8849532e9c136c4ccecacf20`
+- 基准提交：`0be354c7c7ccae07cd4110140bd9a967b4d4b165`
 - 分支：`main`
 - 已索引文件：594
-- 已索引代码/文本行：117170
+- 已索引代码/文本行：117198
 - 已发现符号：1772
 
 | 文件 | 行数 | 符号数 |
@@ -76,7 +76,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 229 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 158 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 525 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 553 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 583 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 86 | 1 |
