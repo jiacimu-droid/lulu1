@@ -20,6 +20,9 @@ import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
 import com.jiacimu.lulu.data.XhsReadingEngine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.CancellationException
 
 /**
  * Application-wide external integrations. Character settings only decide who can invoke them.
@@ -72,28 +75,69 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 OutlinedButton(onClick = onOpenBrowserProbe) { Text("登录 / 检查小红书网页") }
                 OutlinedButton(onClick = onOpenXhsNativeReader) { Text("阅读 / 搜索（与角色共用）") }
                 var readTestBusy by remember { mutableStateOf(false) }
+                var readTestStatus by remember { mutableStateOf("") }
+                var readTestDialog by remember { mutableStateOf("") }
                 OutlinedButton(enabled = !readTestBusy, onClick = {
                     readTestBusy = true
-                    mcpStatus = "正在执行角色同款真实读帖测试：获取列表 → 打开正文…"
+                    readTestStatus = "正在检查内置浏览器…"
                     scope.launch {
-                        try {
-                            val candidates = XhsReadingEngine.list(context, "猫咪")
-                            val accessible = candidates.firstOrNull { it.token.isNotBlank() }
-                                ?: error("搜索已返回 ${candidates.size} 条，但都没有可用的笔记详情令牌")
-                            val article = XhsReadingEngine.read(context, accessible)
-                            mcpStatus = "读取成功：${article.provider} 通道找到了真实正文（${article.body.length} 字）" +
-                                "、${article.images.size} 张图片。未保存到任何角色记忆。"
-                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                        val outcome = try {
+                            withTimeout(75_000L) {
+                                readTestStatus = "第 1 步 / 2：从内置网页搜索真实笔记…"
+                                // Do NOT silently switch to MCP and call that a
+                                // successful native-browser diagnostic.
+                                val candidates = XhsReadingEngine.list(
+                                    context, "猫咪", onProgress = { progress ->
+                                        readTestStatus = "第 1 步 / 2 · $progress"
+                                    }, localOnly = true,
+                                )
+                                readTestStatus = "搜索到 ${candidates.size} 篇，正在检查详情令牌…"
+                                val accessible = candidates.firstOrNull {
+                                    it.token.isNotBlank() && it.provider == "webview"
+                                } ?: error("搜索获得 ${candidates.size} 篇，但没有可打开的详情令牌")
+                                readTestStatus = "第 2 步 / 2：读取笔记图文正文…"
+                                val article = XhsReadingEngine.read(
+                                    context, accessible, onProgress = { progress ->
+                                        readTestStatus = "第 2 步 / 2 · $progress"
+                                    }, localOnly = true,
+                                )
+                                "内置浏览器验证成功！\n搜索：${candidates.size} 篇；" +
+                                    "读帖：${article.body.length} 字、${article.images.size} 张图片。" +
+                                    "\n没有使用 MCP，也没有写入角色记忆。"
+                            }
+                        } catch (timeout: TimeoutCancellationException) {
+                            "内置浏览器测试超时（75 秒）。请打开小红书内置网页确认是否登录，" +
+                                "并查看「阅读 / 搜索」的读取诊断。"
+                        } catch (cancelled: CancellationException) {
                             throw cancelled
                         } catch (error: Exception) {
-                            mcpStatus = "读取未成功：${error.message.orEmpty().take(160)}。可到「阅读 / 搜索」查看读取诊断。"
+                            "内置浏览器测试未通过：${error.message.orEmpty().take(180)}。" +
+                                "\n没有切换 MCP；可以在「阅读 / 搜索」里查看读取诊断。"
                         } finally {
                             readTestBusy = false
                         }
+                        readTestStatus = outcome
+                        readTestDialog = outcome
                     }
-                }) { Text(if (readTestBusy) "正在验证…" else "一键测试真实读帖") }
-                Text("这项测试使用角色同一条阅读链路，必须真正找到笔记并取得正文；只测试连通性，不生成读后感或标记角色已读。",
-                    style = MaterialTheme.typography.bodySmall)
+                }) {
+                    Text(if (readTestBusy) "内置浏览器测试中…" else "一键测试内置浏览器真实读帖")
+                }
+                if (readTestBusy) LinearProgressIndicator(Modifier.fillMaxWidth())
+                if (readTestStatus.isNotBlank()) {
+                    Text(readTestStatus, style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    Text("只测试内置浏览器：真实搜索一篇笔记并打开图文，" +
+                        "在这里显示每一步和最后结果。不会偷偷改用 MCP。",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                if (readTestDialog.isNotBlank()) {
+                    AlertDialog(onDismissRequest = { readTestDialog = "" },
+                        title = { Text("内置小红书读帖检测") },
+                        text = { Text(readTestDialog) },
+                        confirmButton = {
+                            TextButton(onClick = { readTestDialog = "" }) { Text("知道了") }
+                        })
+                }
                 OutlinedButton(onClick = {
                     mcpUrl = "http://127.0.0.1:18060/mcp"
                     mcpToken = ""
