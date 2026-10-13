@@ -74,7 +74,7 @@ internal object LuluExternalMcp {
     /** One real browse = discover candidates + fetch ONE actual article, not a fabricated reading receipt. */
     suspend fun browse(context: Context, characterId: String, args: JSONObject): CompanionActionResult =
         withContext(Dispatchers.IO) {
-            require(configured(context, "xiaohongshu")) { "请先在角色执行设置中连接小红书 MCP" }
+            require(configured(context, "xiaohongshu")) { "请先在通用设置 → MCP 与联网服务中连接小红书" }
             val keyword = args.optString("keyword").trim().take(64)
             val feeds = call(context, "xiaohongshu", if (keyword.isBlank()) "list_feeds" else "search_feeds",
                 if (keyword.isBlank()) JSONObject() else JSONObject().put("keyword", keyword))
@@ -89,11 +89,17 @@ internal object LuluExternalMcp {
             require(feedId.isNotBlank() && xsec.isNotBlank())
             val details = call(context, "xiaohongshu", "get_feed_detail",
                 JSONObject().put("feed_id", feedId).put("xsec_token", xsec).put("load_all_comments", false))
-            val note = runCatching { JSONObject(details) }.getOrElse { error("获取笔记详情失败，未标记已读：${details.take(120)}") }
-            val title = firstString(note, "title", "displayTitle").ifBlank {
-                firstString(chosen, "displayTitle", "title")
-            }.take(90).ifBlank { "一则小红书笔记" }
-            val body = firstString(note, "desc", "description", "content", "text").take(2_400)
+            val detailRoot = runCatching { JSONObject(details) }
+                .getOrElse { error("获取笔记详情失败，未标记已读：${details.take(120)}") }
+            // Upstream returns {"feed_id":"...", "data":{"note":{"title":"...","desc":"..."}}}.
+            // Some wrappers add one more "data" level. Never read arbitrary comments.
+            val detailContainer = detailRoot.optJSONObject("data") ?: detailRoot
+            val payload = detailContainer.optJSONObject("data") ?: detailContainer
+            val note = payload.optJSONObject("note") ?: error("小红书正文结构缺少 note，未标记为已读")
+            val title = note.optString("title").ifBlank {
+                chosen.optJSONObject("noteCard")?.optString("displayTitle").orEmpty()
+            }.trim().take(90).ifBlank { "一则小红书笔记" }
+            val body = note.optString("desc").trim().take(2_400)
             require(body.isNotBlank()) { "实际笔记正文为空，未标记为已读" }
             val link = "https://www.xiaohongshu.com/explore/$feedId"
             val event = "xhs-read-$characterId-${UUID.randomUUID()}"
@@ -145,6 +151,58 @@ internal object LuluExternalMcp {
         prefs(context).edit().putString("health:last", result.take(4_000))
             .putLong("health:lastAt", System.currentTimeMillis()).commit()
         CompanionActionResult(true, "健康 MCP 实际返回：${result.take(2_200)}；数据属于用户本人，不属于角色的身体。")
+    }
+
+    data class XhsLoginQr(val description: String, val pngBase64: String)
+
+    /** Smartphone-only QR login using Xiaohongshu's scan-from-album feature. */
+    suspend fun xhsLoginQr(context: Context): XhsLoginQr = withContext(Dispatchers.IO) {
+        val result = callResult(context, "xiaohongshu", "get_login_qrcode", JSONObject())
+        val content = result.optJSONArray("content") ?: error("MCP 未提供扫码内容")
+        var image = ""
+        var description = ""
+        for (i in 0 until content.length()) {
+            val entry = content.optJSONObject(i) ?: continue
+            when (entry.optString("type")) {
+                "image" -> if (entry.optString("mimeType") == "image/png") image = entry.optString("data")
+                "text" -> description = entry.optString("text").take(240)
+            }
+        }
+        if (image.isBlank() && description.isBlank()) error("MCP 没有返回可用的登录二维码")
+        XhsLoginQr(description, image)
+    }
+
+    fun saveXhsLoginQrToPhotos(context: Context, base64: String): Boolean {
+        require(base64.isNotBlank()) { "请先获取二维码" }
+        val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+        require(bytes.size in 100..1_500_000 &&
+            android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size) != null) {
+            "不是有效的二维码图片"
+        }
+        val values = android.content.ContentValues().apply {
+            put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "lulu-xhs-login-${System.currentTimeMillis()}.png")
+            put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Lulu")
+                put(android.provider.MediaStore.Images.Media.IS_PENDING, 1)
+            }
+        }
+        val resolver = context.contentResolver
+        val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return false
+        return try {
+            resolver.openOutputStream(uri)?.use { it.write(bytes) }
+                ?: error("无法写入相册")
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                values.clear()
+                values.put(android.provider.MediaStore.Images.Media.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+            }
+            true
+        } catch (e: Exception) {
+            resolver.delete(uri, null, null)
+            throw e
+        }
     }
 
     fun healthContext(context: Context): String {
@@ -201,7 +259,14 @@ internal object LuluExternalMcp {
         }
     }
 
-    private suspend fun call(context: Context, service: String, name: String, arguments: JSONObject): String =
+    private suspend fun call(context: Context, service: String, name: String, arguments: JSONObject): String {
+        val result = callResult(context, service, name, arguments)
+        val content = result.optJSONArray("content") ?: error("MCP 结果缺少内容")
+        return (0 until content.length()).mapNotNull { content.optJSONObject(it)?.optString("text") }
+            .joinToString("\\n").take(150_000)
+    }
+
+    private suspend fun callResult(context: Context, service: String, name: String, arguments: JSONObject): JSONObject =
         withContext(Dispatchers.IO) {
             val url = endpoint(context, service)
             require(url.isNotBlank()) { "尚未配置 $service MCP 地址" }
@@ -215,17 +280,20 @@ internal object LuluExternalMcp {
             check(init.first.optJSONObject("result") != null) { "MCP 初始化失败：${init.first.optJSONObject("error")?.optString("message").orEmpty()}" }
             send(url, token, session, JSONObject()
                 .put("jsonrpc", "2.0").put("method", "notifications/initialized"), false)
-            val result = send(url, token, session, JSONObject()
+            val reply = send(url, token, session, JSONObject()
                 .put("jsonrpc", "2.0").put("id", 2).put("method", "tools/call")
                 .put("params", JSONObject().put("name", name).put("arguments", arguments))).first
-            val rpcError = result.optJSONObject("error")
+            val rpcError = reply.optJSONObject("error")
             if (rpcError != null) error("MCP 调用失败：${rpcError.optString("message")}")
-            val value = result.optJSONObject("result") ?: error("MCP 没有工具执行结果")
-            val content = value.optJSONArray("content") ?: error("MCP 结果缺少内容")
-            val data = (0 until content.length()).mapNotNull { content.optJSONObject(it)?.optString("text") }
-                .joinToString("\n").take(150_000)
-            if (value.optBoolean("isError")) error("MCP 工具执行失败：${data.take(260)}")
-            data
+            val result = reply.optJSONObject("result") ?: error("MCP 没有工具执行结果")
+            if (result.optBoolean("isError")) {
+                val messages = result.optJSONArray("content")
+                val detail = (0 until (messages?.length() ?: 0)).mapNotNull {
+                    messages?.optJSONObject(it)?.optString("text")
+                }.joinToString("; ").take(260)
+                error("MCP 工具执行失败：$detail")
+            }
+            result
         }
 
     /** Return RPC result and optional MCP session ID, including SSE responses. */
