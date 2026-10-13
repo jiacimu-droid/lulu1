@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:18:21.723864+00:00",
-  "commit": "2bba2058476991dd9732b735c767d24a8c4472f0",
+  "generatedAt": "2026-10-13T19:19:53.178745+00:00",
+  "commit": "74da1a8bd498b0f1853ec5a5da4c1f177355e3e1",
   "branch": "main",
-  "sourceFingerprint": "afe997f4f3fa9972072ec0aad485d922dbb491b65f8f8a80600e0dea11e8407e",
+  "sourceFingerprint": "d8dbba9b8711767bea1931b147f7498254318fdf7835665bae70f543ee56e488",
   "summary": {
     "files": 612,
-    "lines": 121121,
-    "symbols": 1819
+    "lines": 121139,
+    "symbols": 1820
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5430,6 +5430,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
         "line": 18
+      }
+    ],
+    "needsConcernAssessment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
+        "line": 31
       }
     ],
     "ImportantEventBridge": [
@@ -15324,12 +15330,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt",
-      "lines": 30,
-      "sha256": "568b37f80da6aa303733b6189ae7a0567aa4a69556ff884405369c0d0fce4a8a",
+      "lines": 48,
+      "sha256": "d0f8deb52e0c0fea4bb03ac28e911291cc90129d64fe6a1be2988fd8ee3b8e64",
       "symbols": [
         {
           "name": "qualifies",
           "line": 18
+        },
+        {
+          "name": "needsConcernAssessment",
+          "line": 31
         }
       ]
     },
