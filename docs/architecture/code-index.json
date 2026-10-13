@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T09:18:57.846118+00:00",
-  "commit": "f695d00dd201582d35741863281a854c926fd744",
+  "generatedAt": "2026-10-13T09:32:13.333692+00:00",
+  "commit": "bff2567f1fd2bf3a6d95dae283b7dcc3deabe93e",
   "branch": "main",
-  "sourceFingerprint": "4d5dde6424059fa0a800492199e7e086f0e04c429e4cb1b63e9f272c25f55a72",
+  "sourceFingerprint": "f8f627175017022e74a39cd56e6716d80f1e9f7d36c2cf264c1ea82534ad9ea4",
   "summary": {
     "files": 599,
-    "lines": 117882,
+    "lines": 117931,
     "symbols": 1782
   },
   "symbolIndex": {
@@ -16891,8 +16891,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt",
-      "lines": 50,
-      "sha256": "523731a7993143aa570b032ce7d2ae2418230961dcffea4fd968b37ab95df867",
+      "lines": 99,
+      "sha256": "b2be18a375f2bb5f78a2a67001854bf70968387339b1e3df9b8d72e375426c96",
       "symbols": []
     },
     {
