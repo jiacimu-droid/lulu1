@@ -119,8 +119,8 @@ internal object CharacterLifeVisibility {
                 items += CharacterLifeVisible(start, "行动", "曾经产生的个人愿望",
                     intention.optString("aim").take(180) +
                         intention.optString("motive").takeIf(String::isNotBlank)
-                            ?.let { "\\n当时缘由：" + it.take(150) }.orEmpty() +
-                        "\\n当前阶段：" + stage(intention.optString("stage")))
+                            ?.let { "\n当时缘由：" + it.take(150) }.orEmpty() +
+                        "\n当前阶段：" + stage(intention.optString("stage")))
             }
         }
         listOf("intention", "previousIntention", "retiredGenericIntention").forEach { name ->
