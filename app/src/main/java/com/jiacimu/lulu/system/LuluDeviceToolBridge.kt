@@ -35,6 +35,142 @@ object LuluDeviceToolBridge {
         LuluAlarmSystem.initialize(appContext)
     }
 
+    /**
+     * Re-answering an already delivered chat turn is NOT another autonomous action.
+     * Generate only a replacement expression, with its optional private afterthought.
+     * Nothing here mutates the role's mental timeline; the UI commits that only after
+     * the replacement messages have actually been persisted.
+     */
+    data class ReconsideredChatReply(
+        val text: String,
+        val innerThought: String = "",
+        val innerThoughtBasis: JSONObject? = null,
+        val innerLife: JSONObject? = null,
+        val mood: String? = null,
+        val gesture: String? = null,
+        val statusText: String? = null,
+    )
+
+    suspend fun reconsiderChatReply(
+        characterId: String,
+        history: String,
+        originalUserText: String,
+        oldReply: String,
+        title: String,
+        archiveId: String?,
+        groupChat: Boolean,
+    ): Result<ReconsideredChatReply> {
+        if (context == null) return Result.failure(IllegalStateException("手机能力尚未初始化"))
+        val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
+            .getOrElse { return Result.failure(it) }
+        val generated = LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = buildString {
+                appendLine("【场景】用户在${if (groupChat) "群聊" else "私聊"}中点击了重新回复。这是对旧回复的重写，用户并没有发来一条新消息。")
+                if (history.isNotBlank()) appendLine("【旧回复之前的真实对话】\\n${history.takeLast(8_000)}")
+                if (originalUserText.isNotBlank()) appendLine("【当时真正需要回应的用户消息】\\n${originalUserText.takeLast(2_000)}")
+                else appendLine("【没有对应的新增用户消息】角色当时可能是主动开口；不要凭空补造一条用户消息。")
+                appendLine("【将要替换的角色旧表达｜不是新事实，也不是必须复述的内容】\\n${oldReply.take(2_400)}")
+                appendLine("【当前状态】${com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, Instant.now())}")
+            },
+            instruction = """
+                你是此刻的同一个角色。用户对你刚才那轮表达不满意，决定让你重新说。
+                重新考虑当时的事实、关系、态度和自己的主观感受，给出新的、更自然的回应。
+                这是同一轮话的替换，不是新一次用户发言；不能执行工具、发圈、打电话、写日记或宣称外部动作成功。
+                保留已真实发生的客观事实，不要把旧回复或这次点击当成新的共同经历。
+                气泡边界由你决定，每个气泡是完整的局部交流动作；不要把句子从词中间切开。
+                只返回一个简洁 JSON，action 必须是 reply：
+                {"action":"reply","bubbles":["第一条自然气泡","需要时才有第二条"],"innerThought":"可选的、真正没说出口的新念头","innerThoughtBasis":{"focus":"念头触发点","change":"相比之前具体变了什么"},"mood":"可选心情"}
+                bubbles 是唯一必需的正文，1到3条；innerThought、innerThoughtBasis、mood、gesture、statusText、innerLife 全部可省略。
+                不要为了填字段硬写心声，旧话里已经说出的内容不能换种措辞写成心声；真实出现新的犹豫、情绪或私人判断才写。
+                若补充了 innerThought，必须有 focus 以及 change/conflict/unsaidWhy 之一；可按实际变化选填 innerLife。
+                让 JSON 尽快闭合，优先完整的 bubbles 数组，不要输出解释、代码块、心声之外的隐藏协议。
+            """.trimIndent(),
+            source = "聊天重新回复",
+            title = title,
+            maxTokens = 1_400,
+            connectionOverride = connection,
+            memoryRequest = UnifiedMemoryRequest(
+                currentInput = originalUserText,
+                sceneContext = if (groupChat) "重写最新群聊角色回复" else "重写最新私聊角色回复",
+                recentContext = history,
+                taskIntent = "仅替换原来已经发送的文字，不重新执行行动",
+            ),
+        ).getOrElse { return Result.failure(it) }
+        currentCoroutineContext().ensureActive()
+        val parsed = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(generated.text)
+        val speech = com.jiacimu.lulu.data.ModelStructuredOutput.replyBubblesWithPartialState(generated.text)
+            ?: generated.text.trim().takeIf {
+                it.isNotBlank() && !it.startsWith("{") && !it.startsWith("```")
+            }?.let(::listOf)
+            ?: return Result.failure(IllegalStateException("重新回复未生成完整的可发送文字，原消息保持不变"))
+        val bubbles = speech.flatMap(com.jiacimu.lulu::semanticReplyBubbles)
+            .map(com.jiacimu.lulu::sanitizePersistedChatText)
+            .filter(String::isNotBlank).take(3)
+        if (bubbles.isEmpty()) return Result.failure(IllegalStateException("重新回复没有有效气泡，原消息保持不变"))
+        return Result.success(ReconsideredChatReply(
+            text = bubbles.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
+            innerThought = parsed?.optString("innerThought").orEmpty(),
+            innerThoughtBasis = parsed?.optJSONObject("innerThoughtBasis"),
+            innerLife = parsed?.optJSONObject("innerLife"),
+            mood = parsed?.optString("mood")?.takeIf(String::isNotBlank),
+            gesture = parsed?.optString("gesture")?.takeIf(String::isNotBlank),
+            statusText = parsed?.optString("statusText")?.takeIf(String::isNotBlank),
+        ))
+    }
+
+    /** Commit optional mental changes only AFTER the replacement messages were saved. */
+    fun commitReconsideredChatReply(
+        characterId: String,
+        evidenceId: String,
+        reply: ReconsideredChatReply,
+    ) {
+        val now = Instant.now()
+        val delta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
+            previous = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId),
+            proposal = reply.innerLife,
+            appraisal = null,
+            basis = reply.innerThoughtBasis,
+            thought = reply.innerThought,
+        )
+        val groundedThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
+            thought = reply.innerThought,
+            outward = reply.text.replace(com.jiacimu.lulu.SemanticBubbleSeparator, " "),
+            innerLife = reply.innerLife,
+            basis = reply.innerThoughtBasis,
+            delta = delta,
+            hasFreshEvidence = true, // the user's real request to revise is an observed event
+        )
+        if (delta.meaningful && reply.innerLife != null) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
+                characterId, evidenceId, "用户请求重新考虑自己刚才的表达",
+                reply.innerLife, emptySet(), now,
+            )
+        }
+        if (groundedThought.isNotBlank()) {
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
+                characterId = characterId, evidenceId = evidenceId, appraisal = null,
+                innerLife = reply.innerLife, innerThoughtBasis = reply.innerThoughtBasis,
+                selectedAction = "reply", innerThought = groundedThought,
+                reason = "用户要求重写上一轮回复", now = now,
+            )
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
+                characterId, evidenceId, groundedThought, now, delta.fingerprint,
+            )
+        }
+        CompanionPresenceStore.update(
+            characterId = characterId,
+            statusText = reply.statusText,
+            gesture = reply.gesture,
+            innerThought = groundedThought,
+            mood = reply.mood,
+            source = "聊天重新回复",
+            now = now,
+            provenanceId = evidenceId,
+            innerThoughtFingerprint = delta.fingerprint.takeIf { groundedThought.isNotBlank() },
+        )
+    }
+
     suspend fun respond(
         characterId: String,
         history: String,
