@@ -74,7 +74,19 @@ internal object LuluExternalMcp {
             return@withContext healthRead(context,
                 JSONObject().put("data_type", "daily_summary").put("days", 7)).summary.take(500)
         }
-        call(context, "xiaohongshu", "check_login_status", JSONObject()).take(500)
+        val raw = call(context, "xiaohongshu", "check_login_status", JSONObject())
+        val status = runCatching { JSONObject(raw) }.getOrNull()
+        if (status == null) return@withContext "MCP 已连接，但登录状态返回格式无法识别：${raw.take(140)}"
+        val message = status.optString("message").trim().take(180)
+        when {
+            status.optBoolean("isLoggedIn") -> "MCP 已连接，小红书已登录" +
+                status.optString("nickname").takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
+            message.contains("Failed to launch", ignoreCase = true) ||
+                message.contains("CANNOT LINK EXECUTABLE", ignoreCase = true) ||
+                message.contains("cannot locate symbol", ignoreCase = true) ->
+                "MCP 已连接，但 Termux Chromium 启动失败：请更新 C++ 运行库后重试"
+            else -> "MCP 已连接，小红书尚未登录：${message.ifBlank { "请获取二维码扫码" }}"
+        }
     }
 
     /** One real browse = discover candidates + fetch ONE actual article, not a fabricated reading receipt. */
