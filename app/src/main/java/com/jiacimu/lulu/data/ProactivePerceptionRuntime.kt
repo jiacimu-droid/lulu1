@@ -475,7 +475,7 @@ object ProactivePerceptionRuntime {
                     appendLine("考虑当前多条挂心、心情、正在做的事、是否真的还想沟通或继续独处；")
                     appendLine("你不是被要求讨好用户，不能凭用户沉默认定她还在生气。")
                     appendLine("在线决定与本轮 action 是两种不同选择：")
-                    appendLine("onlineDecision={\\"choice\\":\\"continue|sleep\\",\\"reason\\":\\"具体原因\\"}。")
+                    appendLine("""onlineDecision={"choice":"continue|sleep","reason":"具体原因"}。""")
                     appendLine("continue 必须是真心还想持续在线感知或有所行动的具体意愿；")
                     appendLine("如果暂时只想静静睡去、没有明确理由就选 sleep。")
                     appendLine("如果需要对用户道歉或联系，另外选择合法 action=message，")
@@ -755,6 +755,8 @@ object ProactivePerceptionRuntime {
             intentionId = independentChoice.intentionId.ifBlank { parsed.intentionId },
             experienceId = independentChoice.experienceId.ifBlank { parsed.experienceId },
             relationshipInitiative = parsed.relationshipInitiative,
+            onlineChoice = parsed.onlineChoice,
+            onlineChoiceReason = parsed.onlineChoiceReason,
         ) ?: parsed
         val fallbackDecision = resolved.withPresenceFallback(character)
         val decision = fallbackDecision.copy(innerThought =
