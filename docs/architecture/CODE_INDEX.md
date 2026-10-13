@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`224addc0090c8003590d1c96610437fb3b4f9917`
+- 基准提交：`26001458ffb065ef7eb027521d881676a4253983`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：122447
+- 已索引代码/文本行：122495
 - 已发现符号：1836
 
 | 文件 | 行数 | 符号数 |
@@ -602,7 +602,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 80 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 162 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 148 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 46 | 1 |
