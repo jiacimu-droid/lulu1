@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import android.content.Intent
 import android.net.Uri
+import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -22,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import org.json.JSONObject
+import org.json.JSONTokener
 
 private const val XHS_PROBE_URL = "https://www.xiaohongshu.com/explore"
 private const val GENERAL_PROBE_URL = "https://example.com"
@@ -42,6 +45,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var status by remember { mutableStateOf("准备打开小红书网页…") }
     var progress by remember { mutableIntStateOf(0) }
     var resourceFailures by remember { mutableIntStateOf(0) }
+    var apiFailures by remember { mutableIntStateOf(0) }
+    var lastApiFailure by remember { mutableStateOf("") }
+    var jsNetworkFailures by remember { mutableIntStateOf(0) }
+    var browserDiagnostics by remember { mutableStateOf("") }
     var desktopMode by remember { mutableStateOf(false) }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
@@ -101,6 +108,65 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 TextButton(onClick = {
                     browser?.let { it.setInitialScale(0); it.reload() }
                 }) { Text("重载适配") }
+                TextButton(onClick = {
+                    val web = browser
+                    if (web == null) {
+                        browserDiagnostics = "浏览器尚未准备好。"
+                    } else {
+                        // Report categories and booleans only. Never surface raw URLs, notes, tokens, or cookies.
+                        val hasWebSession = CookieManager.getInstance()
+                            .getCookie(XHS_PROBE_URL).orEmpty()
+                            .split(";").any { it.trimStart().startsWith("web_session=") }
+                        val script = """
+                            (() => {
+                              const text = (document.body?.innerText || "").slice(0, 40000);
+                              return JSON.stringify({
+                                noteFailure: text.includes("笔记详情获取失败") || text.includes("笔记加载失败"),
+                                loginPrompt: /请先登录|登录后查看|扫码登录|立即登录/.test(text),
+                                verifyPrompt: /安全验证|滑块验证|异常访问|IP at risk|300012/.test(text),
+                                pageReady: document.readyState
+                              });
+                            })()
+                        """.trimIndent()
+                        web.evaluateJavascript(script) { raw ->
+                            val flags = runCatching {
+                                JSONObject(JSONTokener(raw).nextValue() as String)
+                            }.getOrNull()
+                            browserDiagnostics = buildString {
+                                append("网页会话 Cookie：")
+                                append(if (hasWebSession) "已检测到（不能单凭此确认登录）" else "未检测到（可能需要扫码登录）")
+                                append("\n")
+                                append("小红书接口 HTTP 失败：$apiFailures")
+                                if (lastApiFailure.isNotBlank()) append("；最近：$lastApiFailure")
+                                append("\n其他网络加载失败：$resourceFailures；页面脚本网络报错：$jsNetworkFailures")
+                                if (flags != null) {
+                                    append("\n页面状态：")
+                                    append(when {
+                                        flags.optBoolean("verifyPrompt") -> "检测到安全验证提示"
+                                        flags.optBoolean("noteFailure") -> "检测到笔记详情失败提示"
+                                        flags.optBoolean("loginPrompt") -> "检测到登录提示"
+                                        else -> "未检测到上述提示"
+                                    })
+                                    append("；文档：")
+                                    append(flags.optString("pageReady", "未知"))
+                                } else {
+                                    append("\n网页脚本未返回诊断结果，可能仍未完成加载。")
+                                }
+                                if (apiFailures == 0) append("\n注意：HTTP 200 也可能包含网站业务错误。")
+                            }
+                        }
+                    }
+                }) { Text("诊断") }
+                TextButton(onClick = {
+                    val current = browser?.url?.let { runCatching { Uri.parse(it) }.getOrNull() }
+                    val target = if (current?.scheme == "https" &&
+                        (current.host == "xiaohongshu.com" ||
+                            current.host.orEmpty().endsWith(".xiaohongshu.com")))
+                        current else Uri.parse(XHS_PROBE_URL)
+                    runCatching {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, target))
+                    }.onFailure { status = "无法打开系统浏览器：" + it.message.orEmpty().take(80) }
+                }) { Text("当前页外部对照") }
                 TextButton(onClick = { browser?.loadUrl(GENERAL_PROBE_URL) }) { Text("对照网页") }
                 TextButton(onClick = {
                     runCatching {
@@ -114,6 +180,14 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (browserDiagnostics.isNotBlank()) {
+                Text(
+                    browserDiagnostics,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             if (progress in 1..99) {
                 LinearProgressIndicator(
                     progress = { progress / 100f },
@@ -146,6 +220,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         webChromeClient = object : WebChromeClient() {
                             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                                 progress = newProgress.coerceIn(0, 100)
+                            }
+
+                            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                                // Count known network errors only; never retain the console message.
+                                val text = consoleMessage?.message().orEmpty()
+                                if (text.contains("Failed to fetch", ignoreCase = true) ||
+                                    text.contains("ERR_CONNECTION", ignoreCase = true) ||
+                                    text.contains("NetworkError", ignoreCase = true)) {
+                                    jsNetworkFailures = (jsNetworkFailures + 1).coerceAtMost(999)
+                                }
+                                return false
                             }
                         }
                         webViewClient = object : WebViewClient() {
@@ -184,6 +269,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 favicon: android.graphics.Bitmap?,
                             ) {
                                 resourceFailures = 0
+                                apiFailures = 0
+                                lastApiFailure = ""
+                                jsNetworkFailures = 0
+                                browserDiagnostics = ""
                                 progress = 0
                                 status = "正在加载网页…"
                             }
@@ -221,9 +310,21 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 request: WebResourceRequest?,
                                 errorResponse: WebResourceResponse?,
                             ) {
-                                if (request?.isForMainFrame == true &&
-                                    (errorResponse?.statusCode ?: 0) >= 400) {
-                                    status = "网页返回 HTTP " + errorResponse?.statusCode
+                                val code = errorResponse?.statusCode ?: 0
+                                if (request?.isForMainFrame == true && code >= 400) {
+                                    status = "网页返回 HTTP $code"
+                                } else if (code >= 400 && request?.url?.host.orEmpty()
+                                        .endsWith("xiaohongshu.com") &&
+                                    request?.url?.path.orEmpty().contains("/api/")) {
+                                    val path = request?.url?.path.orEmpty()
+                                    val category = when {
+                                        path.contains("search", ignoreCase = true) -> "搜索"
+                                        path.contains("feed", ignoreCase = true) ||
+                                            path.contains("note", ignoreCase = true) -> "笔记详情/列表"
+                                        else -> "小红书数据"
+                                    }
+                                    apiFailures = (apiFailures + 1).coerceAtMost(999)
+                                    lastApiFailure = "$category HTTP $code"
                                 }
                             }
                         }
