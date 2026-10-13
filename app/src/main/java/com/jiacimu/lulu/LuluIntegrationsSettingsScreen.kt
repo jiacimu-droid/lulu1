@@ -58,6 +58,16 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
             var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
             var mcpStatus by remember(service) { mutableStateOf("") }
             Text(title, style = MaterialTheme.typography.titleSmall)
+            if (service == "xiaohongshu") {
+                OutlinedButton(onClick = {
+                    mcpUrl = "http://127.0.0.1:18060/mcp"
+                    mcpToken = ""
+                    mcpStatus = runCatching {
+                        require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
+                        "已使用手机本机地址。先在 Termux 安装并启动只读服务，再点“保存并测试”。"
+                    }.getOrElse { "配置失败：" + it.message.orEmpty() }
+                }) { Text("一键使用本机 Termux · 免费") }
+            }
             OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS 地址 / Termux 本机 127.0.0.1") },
                 singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
             OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（可留空；建议服务端开启鉴权）") },
@@ -92,7 +102,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
                 OutlinedButton(onClick = {
                     links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/docs/XHS_PHONE_ONLY_SETUP.md")
-                }) { Text("一部手机部署教程 · 云端托管可能收费") }
+                }) { Text("查看手机安装教程") }
                 Text("先确保已连接可用的 MCP（云端或兼容的 Termux 本机服务）。按下面按钮生成登录码、保存到相册，然后在小红书的扫一扫中从相册选择图片。返回这里检查登录状态；二维码可能很快过期。",
                     style = MaterialTheme.typography.bodySmall)
                 var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
