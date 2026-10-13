@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:06:49.953522+00:00",
-  "commit": "8e0291e8d767bfb932e5a29be4431c1b433bb5b3",
+  "generatedAt": "2026-10-13T10:07:40.666474+00:00",
+  "commit": "56088c6c8e597108abe262e388cb3c0c7f92a7a5",
   "branch": "main",
-  "sourceFingerprint": "9b6ce19ccab58a12b793a3b946cb4bf49209078baf945fa3a257567e51615015",
+  "sourceFingerprint": "e65b993b208d3eeea1d9f4baa44c3c99f3da65fe55510184ac3d2d089b29e1f3",
   "summary": {
     "files": 600,
-    "lines": 118202,
+    "lines": 118206,
     "symbols": 1787
   },
   "symbolIndex": {
@@ -323,7 +323,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 36
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
@@ -3069,7 +3069,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 28
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
@@ -3083,7 +3083,7 @@
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 29
+        "line": 33
       }
     ],
     "isUnmetPromiseChallenge": [
@@ -12678,8 +12678,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 43,
-      "sha256": "f5b970a6f89b3d3c9f02ea5fef7127f509bf89fff845d996cfbea805a3e53539",
+      "lines": 47,
+      "sha256": "8c6845be2614749c86248467663d32f637a35416213b0e0520d134c63f9aa18b",
       "symbols": [
         {
           "name": "Capability",
@@ -12691,15 +12691,15 @@
         },
         {
           "name": "find",
-          "line": 28
+          "line": 32
         },
         {
           "name": "allows",
-          "line": 29
+          "line": 33
         },
         {
           "name": "context",
-          "line": 36
+          "line": 40
         }
       ]
     },
@@ -15436,7 +15436,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
       "lines": 225,
-      "sha256": "bc802161b21b3d489d17412e6d40bcb92e032d8a0b08d26545a3b06447bb872d",
+      "sha256": "e37ee76b384b31c50bb4979f2123f0aea24eacce416eaf8af37a66f6773552c9",
       "symbols": [
         {
           "name": "configured",
