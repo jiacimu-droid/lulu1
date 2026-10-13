@@ -1044,11 +1044,12 @@ internal fun DigitalWorldGameScene(
                                     if (persisted == null) {
                                         interactionMessage = "互动保存失败"
                                     } else {
+                                        val alreadyKnown = resident.id in acquaintedResidents
                                         val known = acquaintedResidents + resident.id
                                         if (stateStore.saveAcquaintedResidents(known)) {
                                             acquaintedResidents = known
                                             queuedActions = (queuedActions + DigitalQueuedAction(
-                                                label = if (resident.id in acquaintedResidents) "再见到${resident.name}" else choice.label,
+                                                label = if (alreadyKnown) "再见到${resident.name}" else choice.label,
                                                 summary = summary + " 这次相遇已留在世界探索档案中。",
                                             )).takeLast(4)
                                         } else interactionMessage = "这次认识还没能存档"
