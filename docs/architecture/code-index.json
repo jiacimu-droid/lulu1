@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T02:35:45.590885+00:00",
-  "commit": "d9f75d5574d2a92442e94ce9e81f7e375899b78f",
+  "generatedAt": "2026-10-13T02:43:27.223509+00:00",
+  "commit": "073b44ab6c4f5967add4dd8f27aa2a50a79b38c3",
   "branch": "main",
-  "sourceFingerprint": "823b3779b9f47bdd5ba65e950cc1509f2e3a09e9b7fe5532a876278529ad112b",
+  "sourceFingerprint": "8cc578876b73a0d4d537098c9da36851828ad76db4e73cc8ed1daaaf290c96b8",
   "summary": {
     "files": 581,
-    "lines": 116230,
+    "lines": 116221,
     "symbols": 1759
   },
   "symbolIndex": {
@@ -11828,7 +11828,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
       "lines": 44,
-      "sha256": "f2bfcae3a6e1af479d67437d35e1fcef4fb210b95929bea506d56082dfa030f7",
+      "sha256": "45d90f18e9d09045a615075e584c22a3af2c384fc2c629aef1e34aeb07254847",
       "symbols": [
         {
           "name": "nextPauseMillis",
@@ -11847,7 +11847,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
       "lines": 88,
-      "sha256": "ef36be0dcc74be1af58b649e4d3bcfea3684bd7378495614aabb505c9d76ebd1",
+      "sha256": "66fa1e19470575775415d4e5d7749406a654a1c04c3dbd23fc4cd36bd9ad1023",
       "symbols": [
         {
           "name": "requestedFocus",
@@ -15963,8 +15963,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 82,
-      "sha256": "a3322af5d73e353640eb4614faf9625720ffa6cd78c38c4094126299a22b02a0",
+      "lines": 83,
+      "sha256": "d1da9cd7590fa755f363d01e482f093b9e52090dd4f66dde9d81f36e81ccb339",
       "symbols": []
     },
     {
@@ -16210,8 +16210,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-      "lines": 74,
-      "sha256": "7e195a682fc9c5cbd75b8c0bfb85961edc8d8a494c0cff4ea6b1a4676aca1c78",
+      "lines": 63,
+      "sha256": "8cfddbc95a85d20ef0932946c19cd61b9119065b283e7dd2af5e8f5eb33aff90",
       "symbols": [
         {
           "name": "Preview",
@@ -16435,8 +16435,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 24,
-      "sha256": "df50c96183c6215f55a3034c902f755365f92a273fe08c51b7238a5622c8b44f",
+      "lines": 25,
+      "sha256": "5d173ca7ddc638ec4c093a10178e165694efd0780e8327802d2b2e1df60e8233",
       "symbols": []
     },
     {
