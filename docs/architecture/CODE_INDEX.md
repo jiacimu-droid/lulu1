@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`511b614ae36cc86aa70bc2d77381dcc4a2f6643c`
+- 基准提交：`52fc5f20325bc275480b07aae0f89bb6e667d76e`
 - 分支：`main`
 - 已索引文件：592
-- 已索引代码/文本行：116839
+- 已索引代码/文本行：116841
 - 已发现符号：1768
 
 | 文件 | 行数 | 符号数 |
@@ -460,7 +460,7 @@
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 206 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 208 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 60 | 1 |
