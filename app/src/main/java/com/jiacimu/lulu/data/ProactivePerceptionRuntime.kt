@@ -1151,7 +1151,9 @@ object ProactivePerceptionRuntime {
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
                 if (keptAwake) "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
-                else "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}",
+                else if (decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank())
+                    "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
+                else "五分钟到期，未形成有效续醒决定，进入休眠",
                 Instant.now(),
             )
         }
