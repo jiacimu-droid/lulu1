@@ -366,12 +366,6 @@ fun QqStyleChatDetailScreen(
             .filter { it.sender == LuluChatMessage.Sender.User }
             .joinToString("\n") { it.content }
         val observationId = "interaction-reanswer-${java.util.UUID.randomUUID()}"
-        com.jiacimu.lulu.data.SharedExperienceTimeline.record(
-            eventId = observationId, characterId = roleId, channel = if (groupChat == null) "私聊交互" else "群聊交互", speaker = "界面操作",
-            content = "用户要求角色重新考虑刚才这一轮自己的表达；没有新增聊天正文。",
-            source = com.jiacimu.lulu.data.InteractionSignalBridge.SOURCE,
-            evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation, triggerExtraction = false,
-        )
         selectedMessage = null
         ChatReplyTaskManager.launch(conversationId) {
             setTypingCharacter(roleId)
@@ -394,8 +388,18 @@ fun QqStyleChatDetailScreen(
                 )
                 if (replacement == null) reportError("聊天已经继续或原消息已变更，原记录已保留")
                 else {
-                    // Only delivered replacement content may update the heart voice.
+                    // A failed retry is not a new life event. Record the user's
+                    // actual re-answer request only after its replacement was committed.
                     runCatching {
+                        com.jiacimu.lulu.data.SharedExperienceTimeline.record(
+                            eventId = observationId, characterId = roleId,
+                            channel = if (groupChat == null) "私聊交互" else "群聊交互",
+                            speaker = "界面操作",
+                            content = "用户要求角色重新考虑刚才这一轮自己的表达；没有新增聊天正文。",
+                            source = com.jiacimu.lulu.data.InteractionSignalBridge.SOURCE,
+                            evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
+                            triggerExtraction = false,
+                        )
                         LuluDeviceToolBridge.commitReconsideredChatReply(roleId, observationId, reply)
                     }.onFailure { reportError("回复已替换，但更新心声失败：${it.message}") }
                     replacement.filter { decodeQqChatImage(it.content) == null }.forEach {
