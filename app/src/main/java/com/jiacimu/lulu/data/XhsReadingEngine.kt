@@ -70,7 +70,27 @@ internal object XhsReadingEngine {
     }
     private fun prefs(context: Context) = context.applicationContext
         .getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE)
-    fun lastDiagnostic(context: Context): String = prefs(context).getString("xiaohongshu:last-diagnostic", "").orEmpty()
+    fun lastDiagnostic(context: Context): String = listOf(
+        prefs(context).getString("xiaohongshu:last-tool-attempt", "").orEmpty(),
+        prefs(context).getString("xiaohongshu:last-diagnostic", "").orEmpty(),
+    ).filter(String::isNotBlank).joinToString("\n")
+
+    /**
+     * Plain stage+result only. No cookies, search terms, note URLs, account
+     * identifiers, session tokens or model-generated paraphrases.
+     */
+    fun recordToolStage(context: Context, phase: String, failure: String = "") {
+        val state = JSONObject().put("stage", phase.take(24))
+            .put("at", System.currentTimeMillis())
+            .put("status", if (failure.isBlank()) "succeeded" else "failed")
+        if (failure.isNotBlank()) {
+            state.put("reason", failure
+                .replace(Regex("""https?://\\S+"""), "[链接]")
+                .replace(Regex("""(?i)(?:xsec_token|web_session|token)=[^\\s&，；]+"""), "[敏感参数]")
+                .take(130))
+        }
+        prefs(context).edit().putString("xiaohongshu:last-tool-attempt", state.toString()).apply()
+    }
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
