@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -59,6 +60,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
     var loading by remember { mutableStateOf(true) }
     var message by remember { mutableStateOf("正在读取网页中的真实推荐笔记…") }
     var sequence by remember { mutableIntStateOf(0) }
+    var latestHttpError by remember { mutableStateOf("") }
 
     val originalUserAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(originalUserAgent) {
@@ -80,6 +82,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
         sequence += 1
         loading = true
         message = "正在读取小红书实际网页数据…"
+        latestHttpError = ""
         if (next == XhsReaderPage.Note) {
             noteTitle = ""
             noteBody = ""
@@ -102,34 +105,68 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
 
     BackHandler { backWithinReader() }
 
+    LaunchedEffect(sequence) {
+        val started = sequence
+        delay(23_000)
+        if (sequence == started && loading) {
+            loading = false
+            message = if (latestHttpError.isNotBlank()) latestHttpError
+                else "小红书在规定时间内未提供列表/正文数据。可能是网站限制或页面脚本未完成。"
+        }
+    }
+
     val listScript = remember {
         """
         (() => {
           try {
             const state = window.__INITIAL_STATE__ || {};
             const unwrap = o => o?._rawValue ?? o?._value ?? o?.value ?? o;
-            const search = unwrap(state.search?.feeds);
-            const feed = unwrap(state.feed?.feeds);
-            const home = unwrap(state.homeFeed?.feeds);
-            const list = [search, feed, home].find(Array.isArray) || [];
-            const source = location.pathname.includes('search') ? 'pc_search' : 'pc_feed';
-            const used = new Set();
-            const items = [];
-            for (const row of list) {
-              const id = String(row?.id ?? row?.noteCard?.noteId ?? '');
-              if (!/^[a-z0-9]{12,40}$/i.test(id) || used.has(id) || !row?.noteCard) continue;
+            const searching = location.pathname.includes('search');
+            const data = searching ? unwrap(state.search?.feeds)
+                : unwrap(state.feed?.feeds) ?? unwrap(state.homeFeed?.feeds);
+            const list = Array.isArray(data) ? data
+                : (Array.isArray(unwrap(data?.feeds)) ? unwrap(data.feeds) : []);
+            const used = new Set(), items = [];
+            function add(id, token, title, author, source) {
+              id = String(id || '').trim();
+              token = String(token || '').trim();
+              if (!/^[a-z0-9]{12,40}$/i.test(id) || used.has(id)) return;
               used.add(id);
               items.push({
-                id: id,
-                token: String(row?.xsecToken ?? row?.xsec_token ?? '').slice(0, 400),
-                title: String(row.noteCard.displayTitle ?? row.noteCard.title ?? '未命名笔记').slice(0, 160),
-                author: String(row.noteCard.user?.nickname ?? row.noteCard.user?.nickName ?? '').slice(0, 90),
-                source: source
+                id, token: token.slice(0, 512),
+                title: String(title || '未命名笔记').slice(0, 160),
+                author: String(author || '').slice(0, 90),
+                source: String(source || (searching ? 'pc_search' : 'pc_feed')).slice(0, 32)
               });
-              if (items.length >= 30) break;
             }
-            return JSON.stringify({items, hasState: !!window.__INITIAL_STATE__,
-              blocked: /笔记不可访问|安全限制|访问异常|300012|300017/.test((document.body?.innerText || '').slice(0, 6000))});
+            for (const row of list) {
+              const card = row?.noteCard ?? row?.note_card;
+              if (!row || !card) continue;
+              add(row.id ?? card.noteId, row.xsecToken ?? row.xsec_token,
+                  card.displayTitle ?? card.title, card.user?.nickname ?? card.user?.nickName,
+                  searching ? 'pc_search' : 'pc_feed');
+              if (items.length >= 35) break;
+            }
+            // DOM fallback uses actual same-origin note URLs only.
+            if (!items.length) for (const a of document.querySelectorAll('a[href]')) {
+              try {
+                const url = new URL(a.href);
+                if (url.hostname !== location.hostname) continue;
+                const match = url.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})$/i);
+                if (!match) continue;
+                add(match[1], url.searchParams.get('xsec_token') || '',
+                    a.querySelector('[class*="title"]')?.textContent ||
+                      a.getAttribute('title') || a.innerText || '',
+                    '', url.searchParams.get('xsec_source') || '');
+                if (items.length >= 35) break;
+              } catch (_) {}
+            }
+            const text = (document.body?.innerText || '').slice(0, 6500);
+            return JSON.stringify({
+              items,
+              blocked: /IP at risk|300012|安全验证|访问异常|当前页面不可访问/.test(text),
+              loginRequired: /请登录后|扫码登录/.test(text)
+            });
           } catch (_) { return JSON.stringify({items:[], exception:true}); }
         })()
         """.trimIndent()
@@ -161,12 +198,12 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
     }
 
     fun inspect(loaded: WebView, expectedPage: XhsReaderPage, seq: Int, attempt: Int) {
-        if (sequence != seq || web !== loaded || page != expectedPage) return
+        if (sequence != seq || web !== loaded || page != expectedPage || !loading) return
         val script = if (expectedPage == XhsReaderPage.Note) {
             noteScript(selected?.id.orEmpty())
         } else listScript
         loaded.evaluateJavascript(script) { raw ->
-            if (sequence != seq || web !== loaded || page != expectedPage) return@evaluateJavascript
+            if (sequence != seq || web !== loaded || page != expectedPage || !loading) return@evaluateJavascript
             val result = runCatching {
                 JSONObject(JSONTokener(raw).nextValue() as String)
             }.getOrNull()
@@ -196,12 +233,15 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                     return@evaluateJavascript
                 }
             }
-            if (attempt < 4) {
+            if (attempt < 11) {
                 loaded.postDelayed({ inspect(loaded, expectedPage, seq, attempt + 1) }, 1500L)
             } else {
                 loading = false
-                message = if (result?.optBoolean("blocked") == true) {
-                    "网站拒绝这次笔记访问；不会伪造读取结果。"
+                message = if (latestHttpError.isNotBlank()) latestHttpError
+                else if (result?.optBoolean("blocked") == true) {
+                    "小红书网页提示访问受限；不会伪造读取结果。"
+                } else if (result?.optBoolean("loginRequired") == true) {
+                    "网站提示需要登录，请回到原网页检查会话。"
                 } else if (expectedPage == XhsReaderPage.Note) {
                     "网站没有提供可读取的笔记正文，可能被限制或内容尚未加载。"
                 } else {
@@ -238,6 +278,8 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                         settings.allowFileAccessFromFileURLs = false
                         settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                         settings.userAgentString = desktopUserAgent
+                        settings.useWideViewPort = true
+                        settings.loadWithOverviewMode = true
                         CookieManager.getInstance().setAcceptCookie(true)
                         CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
                         webViewClient = object : WebViewClient() {
@@ -246,13 +288,24 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                                 val seq = sequence
                                 val currentPage = page
                                 val host = runCatching { Uri.parse(url.orEmpty()).host }.getOrNull()
-                                if (host != "www.xiaohongshu.com") {
+                                if (host != "www.xiaohongshu.com" && host != "xiaohongshu.com") {
                                     loading = false
                                     message = "网站跳转到了其他地址，可能触发登录或访问限制。"
                                     return
                                 }
                                 target.postDelayed({ inspect(target, currentPage, seq, 0) }, 800L)
                             }
+                            override fun onReceivedHttpError(
+                                view: WebView?,
+                                request: WebResourceRequest?,
+                                response: android.webkit.WebResourceResponse?,
+                            ) {
+                                val code = response?.statusCode ?: 0
+                                if (request?.isForMainFrame == true && code >= 400) {
+                                    latestHttpError = "小红书网页返回 HTTP $code"
+                                }
+                            }
+
                             override fun onReceivedError(
                                 view: WebView?,
                                 request: WebResourceRequest?,
@@ -270,6 +323,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                 },
                 onRelease = { view ->
                     if (web === view) web = null
+                    CookieManager.getInstance().flush()
                     view.stopLoading()
                     view.webViewClient = WebViewClient()
                     view.destroy()
