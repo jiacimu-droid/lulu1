@@ -520,4 +520,5 @@ internal fun initializeBackgroundRuntime(context: Context) {
     PostgraduateExamStores.initialize(context)
     StarWishStores.initialize(context)
     GadgetbridgeHealthStore.initialize(context)
+    LuluExternalMcp.scheduleHealth(context)
 }
