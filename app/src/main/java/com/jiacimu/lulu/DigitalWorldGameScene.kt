@@ -182,6 +182,7 @@ internal fun DigitalWorldGameScene(
     // Real, player-completed venue activities are persisted per location. A
     // returning visitor sees the outcome rather than just an old toast.
     var finishedVenueActivities by remember(sceneKey) { mutableStateOf(stateStore.loadVenueActivities()) }
+    var acquaintedResidents by remember(sceneKey) { mutableStateOf(stateStore.loadAcquaintedResidents()) }
     val restored = remember(stateStore) { stateStore.loadPosition() }
     val safeStart = remember(restored, obstacles) { digitalSafeStart(restored, obstacles) }
     // The actual activity ledger survives closing the scene. A portrait alone
@@ -722,6 +723,14 @@ internal fun DigitalWorldGameScene(
                     DigitalNativeResidentPose(motion.resident, motion.position,
                         motion.position.distanceTo(motion.target) > 18f, motion.facingX)
                 }, lightPhase)
+                // The player actually greeted these residents on an earlier
+                // visit. Their tiny recognition marks survive scene reloads.
+                nativeMotions.filter { it.resident.id in acquaintedResidents }.forEach { motion ->
+                    val at = Offset(motion.position.x, motion.position.y - 116f)
+                    drawCircle(Color(0xFFD6EEC9), 18f, at)
+                    drawCircle(Color(0xFF4D806E), 13f, at)
+                    drawCircle(Color(0xFFF7E4A0), 6f, at)
+                }
             }
 
             val focus = if (showExplorationHud && controlsEnabled) {
@@ -1035,7 +1044,14 @@ internal fun DigitalWorldGameScene(
                                     if (persisted == null) {
                                         interactionMessage = "互动保存失败"
                                     } else {
-                                        queuedActions = (queuedActions + DigitalQueuedAction(label = choice.label, summary = summary)).takeLast(4)
+                                        val known = acquaintedResidents + resident.id
+                                        if (stateStore.saveAcquaintedResidents(known)) {
+                                            acquaintedResidents = known
+                                            queuedActions = (queuedActions + DigitalQueuedAction(
+                                                label = if (resident.id in acquaintedResidents) "再见到${resident.name}" else choice.label,
+                                                summary = summary + " 这次相遇已留在世界探索档案中。",
+                                            )).takeLast(4)
+                                        } else interactionMessage = "这次认识还没能存档"
                                     }
                                 } else {
                                     queuedActions = (queuedActions + DigitalQueuedAction(label = choice.label, summary = summary)).takeLast(4)
@@ -1443,6 +1459,10 @@ private class DigitalWorldPlayState(context: Context, sceneKey: String) {
     fun loadQuest(): Int = prefs.getInt("quest_$suffix", 0).coerceIn(0, 2)
 
     fun loadDiscoveries(): Set<String> = prefs.getStringSet("discoveries_$suffix", null).orEmpty().toSet()
+    fun loadAcquaintedResidents(): Set<String> =
+        prefs.getStringSet("met-residents_$suffix", null).orEmpty().toSet()
+    fun saveAcquaintedResidents(ids: Set<String>): Boolean =
+        prefs.edit().putStringSet("met-residents_$suffix", ids.toSet()).commit()
 
     fun loadVenueActivities(): Set<String> =
         prefs.getStringSet("venue-activities_$suffix", null).orEmpty().toSet()
