@@ -234,6 +234,7 @@ internal object GroupEnsembleReplyEngine {
                 ${com.jiacimu.lulu.data.CharacterDecisionProtocol.principles}
                 文字群聊如果这一刻所有成员确实都不想说话，可只返回 {"action":"silent","reason":"各人此刻不发言的真实原因","turns":[]}；不要为了填满消息硬编气泡。电话仍需真实可念出的语音回应。
 
+                每一位决定发言的成员都需要一个属于自己、哪怕只有半句话的 intent（如忽然觉得好笑、想接话、想追问、觉得不合适想拒绝）。intent 是当下动机，不是说出口的台词，也不是必须很复杂的心理分析。若要另外执行 tool，意图必须真实支持那个具体动作；没有明确想法就不要代他执行工具。
                 只返回一个 JSON 对象，不要代码块、分析、旁白或额外说明：
                 {"turns":[{"characterId":"真实角色ID","replyTo":"user|group|另一个真实角色ID","intent":"简短意图","stickerId":"可选，准确已入库的表情ID，不需要图片时留空","appraisal":{"meaning":"对这一轮的简短理解","responseAim":"想达到什么","commonGroundUpdate":"新增或修正的共同语境","uncertainty":"仍不确定的点","interactionMove":"acknowledge|answer|repair|ask|share|tease|decline|shift|silent"},"bubbles":["群里真正说出的气泡"],"tool":"可选的露露机内动作名或空字符串","args":{},"quoteMessageId":"真实用户消息ID或空字符串","favoriteMessageId":"角色真心想收藏的真实用户消息ID或空字符串","recallBubbleNumber":0,"pokeUser":false,"statusText":"简短状态","gesture":"该角色此刻的微动作神态","innerThought":"这个角色自己的心声，不强制简短，可为空","innerThoughtBasis":{"focus":"若有心声，真实触发点","change":"相比上一刻新增或改变了什么","conflict":"可选内部冲突","unsaidWhy":"为何没说出口"},"mood":"简短心情"}]}
 
@@ -394,7 +395,10 @@ internal object GroupEnsembleReplyEngine {
             innerThoughtBasis = served.turn.innerThoughtBasis,
             selectedAction = if (served.turn.tool.isBlank()) "group_reply" else "group_reply+${served.turn.tool}",
             innerThought = groundedInnerThought,
-            reason = served.turn.intent,
+            reason = com.jiacimu.lulu.data.CharacterBehaviorMotivation.resolve(
+                "group_reply", served.turn.intent, served.turn.appraisal,
+                served.turn.innerLife, speechIntent = served.turn.intent,
+            )?.reason.orEmpty(),
         )
         com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(
             served.turn.characterId, served.emotionalAnchor, served.turn.afterglow)
@@ -431,7 +435,10 @@ internal object GroupEnsembleReplyEngine {
                 innerThought = groundedInnerThought,
             ) else "",
         )
-        if (served.turn.tool.isNotBlank()) {
+        if (served.turn.tool.isNotBlank() &&
+            com.jiacimu.lulu.data.CharacterBehaviorMotivation.permitsExternalAction(
+                served.turn.tool, served.turn.intent, served.turn.appraisal, served.turn.innerLife,
+            )) {
             val toolResult = CompanionActionRuntime.execute(
                 context = context,
                 characterId = served.turn.characterId,
@@ -446,6 +453,14 @@ internal object GroupEnsembleReplyEngine {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordConcernOutcome(
                 served.turn.characterId, served.turn.concernId,
                 receiptId, served.turn.tool, toolResult.success, toolResult.summary,
+            )
+        }
+        if (served.turn.tool.isNotBlank() &&
+            !com.jiacimu.lulu.data.CharacterBehaviorMotivation.permitsExternalAction(
+                served.turn.tool, served.turn.intent, served.turn.appraisal, served.turn.innerLife,
+            )) {
+            CompanionPresenceStore.recordPerceptionAttempt(
+                served.turn.characterId, "群聊工具动作缺少角色本人动机，未执行", Instant.now(),
             )
         }
         val marker = served.nextLabel?.let { "⟪NEXT:$it⟫" } ?: EndMarker
