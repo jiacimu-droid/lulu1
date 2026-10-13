@@ -304,6 +304,11 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (section == MemoryPageSection.Core) {
+                    item(key = "core-injection-audit") {
+                        CoreMemoryInjectionCard(selectedCharacterId, memories)
+                    }
+                }
                 if (section == MemoryPageSection.Pending) {
                     item {
                         FeatureCardBox {
@@ -421,6 +426,59 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 creatingMemory = false
             },
         )
+    }
+}
+
+@Composable
+private fun CoreMemoryInjectionCard(characterId: String, memories: List<MemoryEntry>) {
+    val active = remember(characterId, memories) { CoreMemoryDelivery.active(characterId) }
+    val latest = CoreMemoryInjectionAudit.recent(characterId).firstOrNull()
+    val injected = latest?.coreIds.orEmpty().toSet()
+    FeatureCardBox {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(Modifier.weight(1f)) {
+                Text("核心记忆 · 常驻上下文", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("${active.size} 条有效核心记忆，不占普通召回名额",
+                    color = FeatureBlueGray, fontSize = 12.sp)
+            }
+            Icon(Icons.Outlined.PushPin, contentDescription = null, tint = FeatureBlueGray)
+        }
+        Text("可点击下方记忆的「取消核心」调整；也可以点右上角 + 创建并打开核心记忆开关。已删除、已更正或来源失效的旧条目不会继续注入。",
+            color = FeatureBlueGray, fontSize = 12.sp, lineHeight = 18.sp)
+        HorizontalDivider(color = FeatureBorder)
+        Text("最近一次角色模型注入凭据", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        if (latest == null) {
+            Text("尚无可核对的成功请求。更新后先让角色聊天一次再回来查看；这里不会把检索候选或失败请求冒充已注入。",
+                color = FeatureBlueGray, fontSize = 12.sp)
+        } else {
+            Text(latest.at.atZone(ZoneId.systemDefault()).format(MemoryDateTimeFormatter),
+                color = FeatureBlueGray, fontSize = 12.sp)
+            Text("${latest.source} · ${latest.contextMode} · 当次 ${latest.coreIds.size} 条",
+                fontSize = 12.sp)
+            val currentIds = active.mapTo(mutableSetOf()) { it.id }
+            val newIds = currentIds - injected
+            if (newIds.isNotEmpty()) Text("${newIds.size} 条当前有效核心记忆尚未在最近这次请求中出现；新建后可再发起一次角色交互验证。",
+                color = FeatureBlueGray, fontSize = 12.sp)
+            if (injected.isNotEmpty()) {
+                Text("当次已注入：", color = FeatureBlueGray, fontSize = 12.sp)
+                latest.coreIds.forEach { id ->
+                    val item = active.firstOrNull { it.id == id }
+                    Text("• " + (item?.content?.take(95) ?: "历史记忆已删除／已更正／来源失效"),
+                        fontSize = 12.sp, color = FeatureBlueGray)
+                }
+            } else Text("这次请求没有有效核心记忆可注入。", color = FeatureBlueGray, fontSize = 12.sp)
+            Text("此凭据只在模型请求成功后记录实际发送的 Core ID；不表示模型已经理解、遵守或记住所有事实。",
+                fontSize = 11.sp, color = FeatureBlueGray)
+        }
+        val history = CoreMemoryInjectionAudit.recent(characterId).drop(1).take(4)
+        if (history.isNotEmpty()) {
+            Text("更早的成功请求", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            history.forEach { record ->
+                Text("${record.at.atZone(ZoneId.systemDefault()).format(MemoryDateTimeFormatter)} · ${record.source} · ${record.coreIds.size} 条",
+                    fontSize = 11.sp, color = FeatureBlueGray)
+            }
+        }
     }
 }
 
