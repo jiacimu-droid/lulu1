@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T02:44:15.500039+00:00",
-  "commit": "e85c873bc93347f35a9d47e0f646e908b36f69b7",
+  "generatedAt": "2026-10-13T02:51:58.083127+00:00",
+  "commit": "02af354e03b27571769f1997ad12a93068a6962e",
   "branch": "main",
-  "sourceFingerprint": "71f8c842573438e4aa5f6ca8882fa6146430ad600edc67c463b819f3a94e2703",
+  "sourceFingerprint": "00873306054ee31d16b9a64c5555cbfafb1ab3b52b1a65329b947b541e35b5b8",
   "summary": {
-    "files": 581,
-    "lines": 116222,
-    "symbols": 1759
+    "files": 582,
+    "lines": 116297,
+    "symbols": 1764
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2952,6 +2952,10 @@
         "line": 45
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+        "line": 35
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
         "line": 11
       }
@@ -3090,6 +3094,10 @@
         "line": 7
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+        "line": 27
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
         "line": 94
       },
@@ -3188,6 +3196,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 84
+      }
+    ],
+    "Basis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+        "line": 13
+      }
+    ],
+    "trace": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+        "line": 20
+      }
+    ],
+    "permitsExternalAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+        "line": 67
       }
     ],
     "actionOnly": [
@@ -12623,6 +12649,33 @@
         {
           "name": "promptSection",
           "line": 63
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+      "lines": 75,
+      "sha256": "ae87cde6c426b32fdcf36b2afa06c390852b886def60296ae9c7915488ea1eda",
+      "symbols": [
+        {
+          "name": "Basis",
+          "line": 13
+        },
+        {
+          "name": "trace",
+          "line": 20
+        },
+        {
+          "name": "resolve",
+          "line": 27
+        },
+        {
+          "name": "clean",
+          "line": 35
+        },
+        {
+          "name": "permitsExternalAction",
+          "line": 67
         }
       ]
     },
