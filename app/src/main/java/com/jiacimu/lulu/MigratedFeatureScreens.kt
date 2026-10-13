@@ -102,10 +102,13 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val snackbarHostState = remember { SnackbarHostState() }
     val pendingEvents = repository.pendingTimelineEvents(selectedCharacterId)
 
-    val filtered = remember(memories, section, search) {
+    val liveCoreIds = remember(memories, selectedCharacterId) {
+        CoreMemoryDelivery.active(selectedCharacterId).mapTo(mutableSetOf()) { it.id }
+    }
+    val filtered = remember(memories, section, search, liveCoreIds) {
         memories.filter { memory ->
             val sectionMatch = when (section) {
-                MemoryPageSection.Core -> memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core
+                MemoryPageSection.Core -> memory.id in liveCoreIds
                 MemoryPageSection.Recent -> true
                 MemoryPageSection.Fact -> memory.kind == MemoryKind.Fact
                 MemoryPageSection.Emotion -> memory.kind == MemoryKind.Emotion
@@ -464,7 +467,9 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
 @Composable
 private fun CoreMemoryInjectionCard(characterId: String, memories: List<MemoryEntry>) {
     val active = remember(characterId, memories) { CoreMemoryDelivery.active(characterId) }
-    val latest = CoreMemoryInjectionAudit.recent(characterId).firstOrNull()
+    var auditRevision by remember(characterId) { mutableIntStateOf(0) }
+    val recentAudit = remember(characterId, auditRevision) { CoreMemoryInjectionAudit.recent(characterId) }
+    val latest = recentAudit.firstOrNull()
     val injected = latest?.coreIds.orEmpty().toSet()
     FeatureCardBox {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
@@ -479,7 +484,11 @@ private fun CoreMemoryInjectionCard(characterId: String, memories: List<MemoryEn
         Text("可点击下方记忆的「取消核心」调整；也可以点右上角 + 创建并打开核心记忆开关。已删除、已更正或来源失效的旧条目不会继续注入。",
             color = FeatureBlueGray, fontSize = 12.sp, lineHeight = 18.sp)
         HorizontalDivider(color = FeatureBorder)
-        Text("最近一次核心记忆下发凭据", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("最近一次核心记忆下发凭据", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            TextButton(onClick = { auditRevision++ }) { Text("刷新", fontSize = 12.sp) }
+        }
         if (latest == null) {
             Text("尚无可核对的成功请求。更新后先让角色聊天一次再回来查看；这里不会把检索候选或失败请求冒充已注入。",
                 color = FeatureBlueGray, fontSize = 12.sp)
@@ -503,7 +512,7 @@ private fun CoreMemoryInjectionCard(characterId: String, memories: List<MemoryEn
             Text("普通模型调用返回成功后记录；Agent 记录只证明上下文同步成功，不代表已经完成一次角色回答或理解全部内容。",
                 fontSize = 11.sp, color = FeatureBlueGray)
         }
-        val history = CoreMemoryInjectionAudit.recent(characterId).drop(1).take(4)
+        val history = recentAudit.drop(1).take(4)
         if (history.isNotEmpty()) {
             Text("更早的成功请求", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             history.forEach { record ->
