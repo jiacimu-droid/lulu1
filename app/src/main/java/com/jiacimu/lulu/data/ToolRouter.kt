@@ -91,7 +91,11 @@ object ToolRouter {
                 "send_private_message", "send_group_message",
                 "send_private_sticker", "send_group_sticker",
             )
-            if (outcome.optBoolean("success") && !chatDelivery)
+            // An autonomous tool that finished while the role explicitly
+            // chose offline cannot implicitly wake it for another five minutes.
+            // During a real online window, activities may still refresh it.
+            if (outcome.optBoolean("success") && !chatDelivery &&
+                CompanionOnlineStore.isOnline(characterId))
                 CompanionOnlineStore.recordActivity(characterId)
             CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, goalReceiptId, name,
                 outcome.optBoolean("success"),
