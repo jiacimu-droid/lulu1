@@ -25,12 +25,14 @@ object ProactiveIncomingCallStore {
     private const val KEY_PENDING = "pending"
     private val lifetime = Duration.ofMinutes(2)
     private var prefs: android.content.SharedPreferences? = null
+    private var application: Context? = null
     private val mutablePending = MutableStateFlow<ProactiveIncomingCall?>(null)
     private val resolvedTaskCalls = mutableMapOf<String, Boolean>()
     val pending: StateFlow<ProactiveIncomingCall?> = mutablePending.asStateFlow()
 
     @Synchronized
     fun initialize(context: Context) {
+        application = context.applicationContext
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutablePending.value = decode(prefs?.getString(KEY_PENDING, null))
@@ -78,6 +80,9 @@ object ProactiveIncomingCallStore {
         call.commitmentTaskId?.let { resolvedTaskCalls[it] = answered }
         clear(call)
         call.commitmentTaskId?.let { CommitmentCallFeedback.onResponse(it, answered) }
+        if (!answered) WakeMusicCoordinator.onDeclinedCall(
+            application, call.characterId, call.commitmentTaskId,
+        )
     }
 
     @Synchronized fun responseForTask(taskId: String): Boolean? = resolvedTaskCalls[taskId]
@@ -87,6 +92,7 @@ object ProactiveIncomingCallStore {
         val call = mutablePending.value?.takeIf { !it.active(now) } ?: return
         clear(call)
         call.commitmentTaskId?.let(CommitmentCallFeedback::onMissed)
+        WakeMusicCoordinator.onMissedCall(application, call.characterId, call.commitmentTaskId)
     }
 
     fun clear(call: ProactiveIncomingCall? = null) {
