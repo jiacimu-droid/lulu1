@@ -157,6 +157,17 @@ internal object LuluVoiceCallSession {
                 if (mutableState.value.connected && mutableState.value.callExperienceId == callId) {
                     MigratedDomainStores.chat.appendVoiceMessage(call.conversationId, messageId, speech, true)
                     mutableState.update { it.copy(playingTranscript = "") }
+                    if (com.jiacimu.lulu.data.WakeMusicCoordinator.shouldSwitchAfterSpeech(
+                            appContext, characterId, taskId)) {
+                        // Finish the audible wake phrase, then release the phone audio focus.
+                        scope.launch {
+                            delay(300L)
+                            if (mutableState.value.connected &&
+                                mutableState.value.callExperienceId == callId) {
+                                finishCall(endedByCharacter = true)
+                            }
+                        }
+                    }
                 }
             },
         )
@@ -701,9 +712,13 @@ internal object LuluVoiceCallSession {
         }
         restoreCallAudio()
         stopForegroundService()
-        com.jiacimu.lulu.data.WakeMusicCoordinator.onCallEnded(
-            appContext, current.characterId,
-        )
+        scope.launch {
+            // Never mix music with the last phone TTS frame or call audio route.
+            delay(500L)
+            com.jiacimu.lulu.data.WakeMusicCoordinator.onCallEnded(
+                appContext, current.characterId,
+            )
+        }
         scope.launch {
             delay(if (endedByCharacter) 2_500L else 850L)
             if (mutableState.value.phase == CallPhase.Ended &&
