@@ -86,7 +86,16 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 Text("点击会打开内置小红书网页，显示搜索、读帖各阶段进度，并在网页上弹出最终结果。" +
                     "只使用本机浏览器，不使用 MCP，也不写入角色记忆。",
                     style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = {
+            }
+            var optionalMcpExpanded by remember(service) { mutableStateOf(false) }
+            if (service == "xiaohongshu") {
+                TextButton(onClick = { optionalMcpExpanded = !optionalMcpExpanded }) {
+                    Text(if (optionalMcpExpanded) "收起备用 MCP 设置"
+                        else "备用方案：外部 MCP（可选，不影响内置网页）")
+                }
+            }
+            if (service != "xiaohongshu" || optionalMcpExpanded) {
+                if (service == "xiaohongshu") OutlinedButton(onClick = {
                     mcpUrl = "http://127.0.0.1:18060/mcp"
                     mcpToken = ""
                     mcpStatus = runCatching {
@@ -94,7 +103,6 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                         "已使用手机本机地址。先在 Termux 安装并启动只读服务，再点“保存并测试”。"
                     }.getOrElse { "配置失败：" + it.message.orEmpty() }
                 }) { Text("一键使用本机 Termux · 免费") }
-            }
             OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS 地址 / Termux 本机 127.0.0.1") },
                 singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
             OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（可留空；建议服务端开启鉴权）") },
@@ -184,6 +192,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                     }
                 }
             }
+            } // end optional external MCP configuration
         }
 
         HorizontalDivider()
