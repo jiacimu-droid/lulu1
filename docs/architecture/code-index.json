@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T17:20:44.000722+00:00",
-  "commit": "622db8089dfe78980c1d76c534703f9fdea7b56d",
+  "generatedAt": "2026-10-13T17:21:28.160297+00:00",
+  "commit": "04aca95cff4bac80bc6ce019c29a4a0c0f7af86f",
   "branch": "main",
-  "sourceFingerprint": "d8883cd19f9a06f24bf70fe7ef7a55b811fac9b052ef2243188b94ffd5658d8c",
+  "sourceFingerprint": "2ff6786cd1d243c6354d51f44ed1e95cda293db1f4a3fa94ab0719c426fafc6c",
   "summary": {
     "files": 605,
-    "lines": 119942,
+    "lines": 119958,
     "symbols": 1802
   },
   "symbolIndex": {
@@ -1727,31 +1727,31 @@
     "targetUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 75
+        "line": 76
       }
     ],
     "navigate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 82
+        "line": 83
       }
     ],
     "backWithinReader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 98
+        "line": 100
       }
     ],
     "noteScript": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 181
+        "line": 183
       }
     ],
     "inspect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 206
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -11419,28 +11419,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 458,
-      "sha256": "d7774bd2ec4caffe8e17c03f0adfc82bb7a2341ec3e3b1c03e23de35681368ca",
+      "lines": 474,
+      "sha256": "4884095e6ca6b5ad4d90be8345ed8ea1ec379c1237aa874151d9091e8d0df6bf",
       "symbols": [
         {
           "name": "targetUrl",
-          "line": 75
+          "line": 76
         },
         {
           "name": "navigate",
-          "line": 82
+          "line": 83
         },
         {
           "name": "backWithinReader",
-          "line": 98
+          "line": 100
         },
         {
           "name": "noteScript",
-          "line": 181
+          "line": 183
         },
         {
           "name": "inspect",
-          "line": 206
+          "line": 208
         }
       ]
     },
