@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T17:18:15.409270+00:00",
-  "commit": "bc41b21f3fd83abb64845bb42a8ea30439276e79",
+  "generatedAt": "2026-10-13T17:19:06.089686+00:00",
+  "commit": "dfec66df323f48de8bddd0a4f7ba5e5b44290589",
   "branch": "main",
-  "sourceFingerprint": "08a072e94f7c2505c1714c4e0643b58c4aecd7c2a695e9bdc5cf576537528bbf",
+  "sourceFingerprint": "f31e61ab0ca2a84dc330263ac1e9a8cafee2c9f326e1dfaf2dc68c6768553a68",
   "summary": {
     "files": 605,
-    "lines": 119923,
+    "lines": 119935,
     "symbols": 1802
   },
   "symbolIndex": {
@@ -1745,13 +1745,13 @@
     "noteScript": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 177
+        "line": 181
       }
     ],
     "inspect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 202
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -11419,8 +11419,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 439,
-      "sha256": "88102810d2535f59c0fe67634944659e4bae8157f04abf608ca0242a42367180",
+      "lines": 451,
+      "sha256": "d095c5bc9cbf0f8f63b965ebbc19c7815eb87139a724e382fda38b9ff167c621",
       "symbols": [
         {
           "name": "targetUrl",
@@ -11436,11 +11436,11 @@
         },
         {
           "name": "noteScript",
-          "line": 177
+          "line": 181
         },
         {
           "name": "inspect",
-          "line": 202
+          "line": 206
         }
       ]
     },
