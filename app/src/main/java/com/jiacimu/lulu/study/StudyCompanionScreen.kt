@@ -47,7 +47,7 @@ internal fun StudyCompanionScreen(state: StudyState, store: PostgraduateExamStor
     var refreshedHealth by remember { mutableStateOf(false) }
 
     LaunchedEffect(healthState.connected, refreshedHealth) {
-        if (healthState.connected && !refreshedHealth) {
+        if (healthState.sourceUri.isNotBlank() && !refreshedHealth) {
             refreshedHealth = true
             GadgetbridgeHealthStore.refresh(context)
         }
