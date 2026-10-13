@@ -136,8 +136,10 @@ internal object DialogueMoveEngine {
             DialogueMoveType.CLOSE, DialogueMoveType.DEFER, DialogueMoveType.DECLINE,
             DialogueMoveType.SELF_REPAIR, DialogueMoveType.OTHER_INITIATED_REPAIR,
             DialogueMoveType.CANDIDATE_UNDERSTANDING -> 1
+            // Tiny social moves should not inflate into mini essays. Only
+            // genuine explanations/shares may use four complete bubbles.
             DialogueMoveType.TEASE, DialogueMoveType.DISAGREE, DialogueMoveType.REASSURE,
-            DialogueMoveType.TOPIC_SHIFT, DialogueMoveType.ASK -> 3
+            DialogueMoveType.TOPIC_SHIFT, DialogueMoveType.ASK -> 2
             DialogueMoveType.ANSWER, DialogueMoveType.SHARE -> 4
             DialogueMoveType.SILENCE -> 1
         }
