@@ -41,6 +41,25 @@ curl -fsSL https://raw.githubusercontent.com/jiacimu-droid/lulu1/main/tools/xhs-
 
 **注意：** 不能跳过 Termux 中的服务安装而只点露露机按钮；露露机是客户端，Termux 是本地 MCP 服务端。
 
+## 可选：完全在 Termux 登录，不使用露露机生成二维码
+
+如果“获取登录二维码”报 `Waiting for selector`，不用反复重装。
+
+先在 Termux 运行 `termux-setup-storage` 并在安卓权限弹窗中点“允许”。这一步只是让脚本能把二维码保存到手机相册，不会把 Cookie 放进相册。
+
+然后执行：
+
+```bash
+curl -fL --retry 2 -o ~/.lulu/xhs-termux/login-termux.mjs https://raw.githubusercontent.com/jiacimu-droid/lulu1/main/tools/xhs-termux/login-termux.mjs
+cd ~/.lulu/xhs-termux && PUPPETEER_EXECUTABLE_PATH="$(command -v chromium-browser || command -v chromium)" XHS_COOKIES_PATH="$HOME/.lulu/xhs-termux/cookies.json" node login-termux.mjs
+```
+
+脚本将在后台启动 Termux Chromium，尝试点开登录和扫码模式，把二维码保存为 **相册中的 `lulu-xhs-login-qr.png`**。拿同一部手机的小红书 App 打开扫一扫 → 相册 → 选择该图授权；切回 Termux 按回车，程序检测到登录后把 Cookie 保存到 `~/.lulu/xhs-termux/cookies.json`，和原 MCP 服务共用。
+
+如果没有找到网页中的二维码，它会保存 `lulu-xhs-login-page.png` **完整网页截图**，让你直观看到是否出现验证码、访问限制或者登录按钮。**没有找到二维码时不要把截图误当成可用二维码，也不要向他人发送 Cookie**。浏览器测试正常并不等于小红书允许第三方自动登录。
+
+成功后，回露露机检查账号登录状态。Termux 脚本不需要露露机参与，也不执行发帖、点赞等操作。
+
 ## 第三步：允许角色使用
 
 角色设置 → 主动执行授权 → 启用 **主动逛小红书（只读）**。之后你可以在聊天里说「去小红书搜一篇关于小猫的帖子，读完再说说你的想法」，也允许角色在后台感知时根据兴趣自己选择搜索/推荐阅读。
