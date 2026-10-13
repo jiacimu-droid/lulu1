@@ -176,6 +176,7 @@ internal fun DigitalWorldMeetingSceneExperience(
         modifier
             .fillMaxSize()
             .background(Color(0xFF08110F))
+            .statusBarsPadding()
             .imePadding(),
     ) {
         if (isDigitalWorld) {
