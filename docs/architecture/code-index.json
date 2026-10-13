@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T04:41:45.039845+00:00",
-  "commit": "local",
-  "branch": "local",
-  "sourceFingerprint": "3811510f5c1e7c5b463ae65f10dceeb6895b5a2b56694cd3e1cadf4e42fad2b8",
+  "generatedAt": "2026-10-13T05:10:29.400574+00:00",
+  "commit": "714c408d966af938258d71ec27e71af3df914be0",
+  "branch": "main",
+  "sourceFingerprint": "7e0f707c297ad599f0ef16103f6111ab52b3a66d69202ee87dfdaa0798e95d8c",
   "summary": {
     "files": 592,
     "lines": 117020,
@@ -10181,7 +10181,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
       "lines": 73,
-      "sha256": "91ad14733037b6494f866aa4700e7ccfcb77162de7e5d6659f1f59697af698af",
+      "sha256": "a9d8043f4ed73e547ba9fa004955f66a5e550b8a07b7eaba85d4848136e63027",
       "symbols": [
         {
           "name": "provider",
