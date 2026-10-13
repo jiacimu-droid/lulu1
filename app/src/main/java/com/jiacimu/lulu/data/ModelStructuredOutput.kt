@@ -117,7 +117,7 @@ internal object ModelStructuredOutput {
      */
     fun replyBubblesWithPartialState(raw: String): List<String>? {
         completedReplyBubbles(raw)?.let { return it }
-        val action = Regex(""""action"\\s*:\\s*"([^"]+)"""").find(raw)
+        val action = Regex(""""action"\s*:\s*"([^"]+)"""").find(raw)
             ?.groupValues?.getOrNull(1)?.lowercase()
         if (action != null && action != "reply") return null
         val marker = Regex("\"bubbles\"\\s*:\\s*\\[").find(raw)
