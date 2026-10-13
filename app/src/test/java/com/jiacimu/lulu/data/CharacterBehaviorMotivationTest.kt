@@ -48,6 +48,15 @@ class CharacterBehaviorMotivationTest {
             "reading", appraisal = appraisal))
     }
 
+    @Test fun onePlannedActivityMustNotExplainAnUnrelatedAction() {
+        val unrelated = JSONObject().put("responseAim", "想给她回消息")
+            .put("ownActivity", JSONObject().put("action", "reading")
+                .put("whyNow", "想继续读下一章"))
+        assertNull(CharacterBehaviorMotivation.resolve("digital_world", appraisal = unrelated))
+        assertNotNull(CharacterBehaviorMotivation.resolve("reply", appraisal = unrelated))
+        assertNotNull(CharacterBehaviorMotivation.resolve("reading", appraisal = unrelated))
+    }
+
     @Test fun speechIntentCanExplainOrdinaryReplyButCannotJustifyUnrelatedTool() {
         assertEquals("想问问她今天怎么样",
             CharacterBehaviorMotivation.resolve("reply", speechIntent = "想问问她今天怎么样")?.reason)
