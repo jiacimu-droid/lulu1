@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`535d2dd4d208e2f0babd8bcdf68244d31c6181af`
+- 基准提交：`9e0e1e1d950b285391ab76468d215c4396766549`
 - 分支：`main`
 - 已索引文件：601
-- 已索引代码/文本行：118675
+- 已索引代码/文本行：118687
 - 已发现符号：1793
 
 | 文件 | 行数 | 符号数 |
@@ -30,7 +30,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 192 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 89 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 230 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 233 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 526 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 242 | 1 |
@@ -58,7 +58,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 670 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1516 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 740 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 743 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 640 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 414 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 411 | 0 |
@@ -97,7 +97,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 220 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 226 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 602 | 1 |

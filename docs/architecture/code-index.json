@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:34:17.574010+00:00",
-  "commit": "535d2dd4d208e2f0babd8bcdf68244d31c6181af",
+  "generatedAt": "2026-10-13T10:34:44.279985+00:00",
+  "commit": "9e0e1e1d950b285391ab76468d215c4396766549",
   "branch": "main",
-  "sourceFingerprint": "51411eeadeb77e62b95e99f46e229d7a91bcb01d76f4612899f8f7361f06e9a3",
+  "sourceFingerprint": "e7567c0ccc7e8df4294c1020024c99ed1774f11aba39938f6b530ad581ed2787",
   "summary": {
     "files": 601,
-    "lines": 118675,
+    "lines": 118687,
     "symbols": 1793
   },
   "symbolIndex": {
@@ -1145,25 +1145,25 @@
     "sceneLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 89
+        "line": 90
       }
     ],
     "openScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 103
+        "line": 104
       }
     ],
     "talkTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 108
+        "line": 109
       }
     ],
     "toggleVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-        "line": 118
+        "line": 119
       }
     ],
     "DigitalWorldMeetingApp": [
@@ -10361,8 +10361,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 230,
-      "sha256": "51887fd0f314e2c124228295b738680eb7e04c88ca0a82b3c5a9d71b912f8144",
+      "lines": 233,
+      "sha256": "e4baf59af3f73bac400ae5a8ac10a73a6b45909d81a2591a2cb83c8c8198f8d6",
       "symbols": []
     },
     {
@@ -10738,24 +10738,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt",
-      "lines": 740,
-      "sha256": "dc0eb8a2331122da6d23da5a2929fbfb7417a201badade589362f7adb7d740c9",
+      "lines": 743,
+      "sha256": "fd38dc586c3d010f22d0a1179058593870de862b9c0e658b1c2d33e81377f031",
       "symbols": [
         {
           "name": "sceneLabel",
-          "line": 89
+          "line": 90
         },
         {
           "name": "openScene",
-          "line": 103
+          "line": 104
         },
         {
           "name": "talkTo",
-          "line": 108
+          "line": 109
         },
         {
           "name": "toggleVoice",
-          "line": 118
+          "line": 119
         }
       ]
     },
@@ -11423,8 +11423,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt",
-      "lines": 220,
-      "sha256": "5edb50031b0f5d546f349f8ff9734880772d180003067ca2e44f4faa03be3bd4",
+      "lines": 226,
+      "sha256": "aadb811d8375cbc7623842c57c0bc53eac046c85c409805b97a0b4ff23578110",
       "symbols": []
     },
     {
