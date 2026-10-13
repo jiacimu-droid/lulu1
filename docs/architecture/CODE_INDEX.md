@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fcbd3d2078df4d9124fd3a12b49c12d80c161db0`
+- 基准提交：`b518a1c3097f97286eb70edf4a041d0ac0dae72e`
 - 分支：`main`
 - 已索引文件：600
-- 已索引代码/文本行：118234
+- 已索引代码/文本行：118272
 - 已发现符号：1787
 
 | 文件 | 行数 | 符号数 |
@@ -27,7 +27,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 73 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 154 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 192 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 230 | 0 |
