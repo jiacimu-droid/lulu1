@@ -16,11 +16,11 @@ internal object CallVoiceConfiguration {
 
     const val SCRIBE_V2 = "scribe_v2"
     const val SCRIBE_V2_REALTIME = "scribe_v2_realtime"
-    internal enum class ElevenInputPath { RECORD_AND_SEND, CONTINUOUS_REALTIME, OTHER }
+    internal enum class ElevenInputPath { SEGMENTED_UPLOAD, CONTINUOUS_REALTIME, OTHER }
     fun elevenInputPath(sttEngine: String, model: String?): ElevenInputPath =
         if (sttEngine != "elevenlabs") ElevenInputPath.OTHER
         else if (elevenSttModel(model) == SCRIBE_V2_REALTIME) ElevenInputPath.CONTINUOUS_REALTIME
-        else ElevenInputPath.RECORD_AND_SEND
+        else ElevenInputPath.SEGMENTED_UPLOAD
 
     /** Existing installs keep Scribe v2; invalid/obsolete preferences cannot select arbitrary APIs. */
     fun elevenSttModel(raw: String?): String =
