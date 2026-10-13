@@ -91,7 +91,7 @@ internal fun VoiceCallSettings(provider: String) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 录完发送",
+                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 自动分段上传",
                     CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 Realtime · 实时转写",
                 ).forEach { (id, label) ->
                     FilterChip(selected = elevenSttModel == id, onClick = {
@@ -103,9 +103,9 @@ internal fun VoiceCallSettings(provider: String) {
             Text(
                 if (elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
                     "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
-                else "普通 V2：单独的录音路径。点击「开始录音」后收集原声，点击「结束并发送录音」才上传；不用本地 VAD 断句，上传前不请求 ElevenLabs 转写。",
+                else "普通 Scribe v2：接通后直接讲话，手机自动检测自然停顿、分段录音后上传转写；长句分段按顺序拼接，不用每句话点击录音按钮。它不是流式识别，字幕会等上传返回后出现。",
                 style = MaterialTheme.typography.bodySmall)
-            Text("两条识别线路互不混用，均使用 ElevenLabs API Key（不需要 Voice ID），计费以 ElevenLabs 账户为准。普通电话中央新增真实麦克风电平条：有声波不代表云端已经转出文字。选项从下一通电话生效；Agent 模式另行配置。",
+            Text("两条转写线路只在此设置：实时版连续上传并显示临时字幕；普通 v2 在录音分段完成后上传。均使用 ElevenLabs API Key（无需 Voice ID），计费以账户为准。电话内无需再次选择，也无需手动发送录音；下次接通生效。Agent 模式另行配置。",
                 style = MaterialTheme.typography.bodySmall)
             var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
             OutlinedTextField(value = elevenKey, onValueChange = {
@@ -158,14 +158,12 @@ internal fun VoiceCallSettings(provider: String) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("哄睡 · 无人回应也继续轻声聊天", style = MaterialTheme.typography.bodyMedium)
-                Text("角色会主动持续轻声说话；从你最后一句真正说完的话起计时，约一小时后自动结束电话，无需起床挂断。模型和语音生成可能消耗 API 积分。",
+                Text("角色会主动持续轻声说话；从你最后一句真正说完的话起计时，约45分钟后自动结束电话，无需起床挂断。模型和语音生成可能消耗 API 积分。",
                     style = MaterialTheme.typography.bodySmall)
             }
         }
         if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
-            if (sttMode != "elevenlabs" || elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
             Text("思考停顿宽容：${silence.toInt()} 毫秒（说话断续时可调高，停下后的回复也会稍晚）")
-            if (sttMode != "elevenlabs" || elevenSttModel == CallVoiceConfiguration.SCRIBE_V2_REALTIME)
             Slider(value = silence, onValueChange = { silence = it },
                 onValueChangeFinished = {
                     prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
