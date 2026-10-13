@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T23:25:55.400059+00:00",
-  "commit": "d7817175737abfe4521cbda64725a5d14b488e9c",
+  "generatedAt": "2026-10-13T23:44:04.584668+00:00",
+  "commit": "9c89f6c9d662af81e7d8c22df7bb082b5d1edf58",
   "branch": "main",
-  "sourceFingerprint": "a15fcabfdf832ae3af7832ec3dcd94fff638d00f76b3bb2f1d63f8abee5115c2",
+  "sourceFingerprint": "2d2f611796a45c600d57887b045c0bc958aeaed3e814052881888c42d5dd534a",
   "summary": {
     "files": 615,
-    "lines": 123023,
+    "lines": 123025,
     "symbols": 1843
   },
   "symbolIndex": {
@@ -1739,31 +1739,31 @@
     "failure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 81
+        "line": 83
       }
     ],
     "loadList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 85
+        "line": 87
       }
     ],
     "readNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 121
+        "line": 123
       }
     ],
     "startNativeReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 147
+        "line": 149
       }
     ],
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 195
+        "line": 197
       }
     ],
     "PendingTouch": [
@@ -11681,28 +11681,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 439,
-      "sha256": "51178a798ec30c0b1e393a891424488fd66c7ad5675f716d84b0f907e50b324e",
+      "lines": 441,
+      "sha256": "f849465a2c43993622533210958362d54a1139bd8ec2c5c7cc54e9707f6ef1de",
       "symbols": [
         {
           "name": "failure",
-          "line": 81
+          "line": 83
         },
         {
           "name": "loadList",
-          "line": 85
+          "line": 87
         },
         {
           "name": "readNote",
-          "line": 121
+          "line": 123
         },
         {
           "name": "startNativeReadTest",
-          "line": 147
+          "line": 149
         },
         {
           "name": "back",
-          "line": 195
+          "line": 197
         }
       ]
     },
