@@ -17,6 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.webkit.UserAgentMetadata
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -71,15 +74,15 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     LaunchedEffect(browser) {
         val active = browser ?: return@LaunchedEffect
         while (true) {
-            delay(2_000)
+            delay(5_000)
             if (browser !== active || active.url?.startsWith("https://www.xiaohongshu.com/") != true) continue
             val probe = """
                 (() => {
-                  const text = (document.body?.innerText || "").slice(0, 45000);
+                  const text = (document.body?.innerText || "").slice(0, 16000);
                   const area = Math.max(1, innerWidth * innerHeight);
                   const candidates = [...document.querySelectorAll(
                     '[role="dialog"],[class*="modal"],[class*="Modal"],[class*="overlay"],[class*="Overlay"],[class*="mask"],[class*="Mask"]'
-                  )].slice(0, 120);
+                  )].slice(0, 45);
                   const blankCover = candidates.some(el => {
                     const r = el.getBoundingClientRect(), style = getComputedStyle(el);
                     if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
@@ -264,6 +267,30 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         // Set the UA before the first navigation; toggling between mobile
                         // and desktop is removed to keep the same login/web session.
                         settings.userAgentString = desktopAgent
+                        // A desktop UA string alone can disagree with WebView's Android
+                        // Client Hints. Align supported UA metadata with the same desktop
+                        // identity; leave the existing CookieManager storage unchanged.
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
+                            runCatching {
+                                val major = chromeVersion.substringBefore(".")
+                                val chromium = UserAgentMetadata.BrandVersion.Builder()
+                                    .setBrand("Chromium")
+                                    .setMajorVersion(major)
+                                    .setFullVersion(chromeVersion)
+                                    .build()
+                                val chrome = UserAgentMetadata.BrandVersion.Builder()
+                                    .setBrand("Google Chrome")
+                                    .setMajorVersion(major)
+                                    .setFullVersion(chromeVersion)
+                                    .build()
+                                val metadata = UserAgentMetadata.Builder()
+                                    .setPlatform("Linux")
+                                    .setMobile(false)
+                                    .setBrandVersionList(listOf(chromium, chrome))
+                                    .build()
+                                WebSettingsCompat.setUserAgentMetadata(settings, metadata)
+                            }
+                        }
                         settings.useWideViewPort = true
                         settings.loadWithOverviewMode = true
                         settings.textZoom = 100
