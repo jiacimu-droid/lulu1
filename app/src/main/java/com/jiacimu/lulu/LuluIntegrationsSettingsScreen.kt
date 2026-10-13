@@ -36,7 +36,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("MCP 与联网服务") },
+                title = { Text("联网与阅读") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "返回设置")
@@ -54,10 +54,12 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         HorizontalDivider()
-        Text("外部 MCP 连接（所有角色共用）", style = MaterialTheme.typography.titleMedium)
-        Text("连接方式：云端 MCP 填 HTTPS 地址；如果你已经用 Termux 在同一部安卓手机启动兼容的 MCP 服务，也可填 http://127.0.0.1:端口/mcp。官方小红书 MCP 尚未适配安卓 ARM64，Termux 安装需要另行验证。仅开放读取工具。", style = MaterialTheme.typography.bodySmall)
+        Text("小红书内置阅读优先 · MCP 是可选备用", style = MaterialTheme.typography.titleMedium)
+        Text("先使用内置小红书网页登录、阅读和下方的真实读帖测试，不需要安装 Termux。" +
+            "只有希望后台稳定阅读或本机网页确实不可用时，才考虑可选的外部 MCP。",
+            style = MaterialTheme.typography.bodySmall)
         val scope = rememberCoroutineScope()
-        listOf("xiaohongshu" to "小红书阅读 MCP", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
+        listOf("xiaohongshu" to "小红书阅读（内置网页）", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
             var mcpUrl by remember(service) { mutableStateOf(LuluExternalMcp.endpoint(context, service)) }
             var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
             var mcpStatus by remember(service) { mutableStateOf("") }
