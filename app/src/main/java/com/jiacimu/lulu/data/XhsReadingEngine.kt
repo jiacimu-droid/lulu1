@@ -148,16 +148,7 @@ internal object XhsReadingEngine {
             val raw = LuluExternalMcp.xhsRead(context, if (query.isBlank()) "list_feeds" else "search_feeds",
                 if (query.isBlank()) JSONObject() else JSONObject().put("keyword", query))
             val root = JSONObject(raw)
-            val rows = root.optJSONArray("feeds") ?: root.optJSONObject("data")?.optJSONArray("feeds")
-                ?: error("MCP 没有返回笔记列表")
-            return (0 until rows.length()).mapNotNull { index ->
-                val row = rows.optJSONObject(index) ?: return@mapNotNull null
-                val note = row.optJSONObject("noteCard") ?: row.optJSONObject("note_card") ?: return@mapNotNull null
-                card(JSONObject().put("id", row.optString("id"))
-                    .put("token", row.optString("xsecToken").ifBlank { row.optString("xsec_token") })
-                    .put("title", note.optString("displayTitle").ifBlank { note.optString("title") })
-                    .put("author", note.optJSONObject("user")?.optString("nickname").orEmpty()), query, "mcp")
-            }.distinctBy { it.id }
+            return parseMcpCards(root, query)
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
         } catch (error: Exception) {
@@ -168,6 +159,34 @@ internal object XhsReadingEngine {
                 error,
             )
         }
+    }
+
+    /**
+     * Both upstream types are real: Go MCP returns nested noteCard, whereas
+     * @the-thing/xiaohongshu-mcp (our Termux adapter) returns *normalized*
+     * {id,xsecToken,title,authorName}. Reject missing token later, but do
+     * not discard perfectly valid normalized results here.
+     */
+    internal fun parseMcpCards(root: JSONObject, query: String): List<XhsCard> {
+        val rows = root.optJSONArray("feeds") ?: root.optJSONObject("data")?.optJSONArray("feeds")
+            ?: error("MCP 没有返回笔记列表")
+        return (0 until rows.length()).mapNotNull { index ->
+            val row = rows.optJSONObject(index) ?: return@mapNotNull null
+            val note = row.optJSONObject("noteCard") ?: row.optJSONObject("note_card") ?: row
+            val user = note.optJSONObject("user")
+            card(JSONObject()
+                .put("id", row.optString("id").ifBlank { note.optString("noteId") })
+                .put("token", row.optString("xsecToken")
+                    .ifBlank { row.optString("xsec_token") }
+                    .ifBlank { note.optString("xsecToken") }
+                    .ifBlank { note.optString("xsec_token") })
+                .put("title", note.optString("displayTitle")
+                    .ifBlank { note.optString("title") })
+                .put("author", row.optString("authorName")
+                    .ifBlank { row.optString("author") }
+                    .ifBlank { user?.optString("nickname").orEmpty() })
+                .put("source", row.optString("source")), query, "mcp")
+        }.distinctBy { it.id }
     }
 
     private fun card(row: JSONObject, query: String, provider: String): XhsCard? {
@@ -227,12 +246,20 @@ internal object XhsReadingEngine {
             val pictures = org.json.JSONArray()
             val values = raw.optJSONArray("imageList") ?: raw.optJSONArray("image_list")
             for (index in 0 until minOf(values?.length() ?: 0, 30)) {
-                val image = values?.optJSONObject(index) ?: continue
+                val item = values?.opt(index)
+                // @the-thing returns imageUrls: ["https://..."], while
+                // the Go MCP returns imageList: [{urlDefault,...}].
+                if (item is String) {
+                    pictures.put(JSONObject().put("url", item).put("width", 0).put("height", 0))
+                    continue
+                }
+                val image = item as? JSONObject ?: continue
                 val infos = image.optJSONArray("infoList") ?: image.optJSONArray("info_list")
                 val full = (0 until (infos?.length() ?: 0)).mapNotNull { infos?.optJSONObject(it) }
                     .firstOrNull { it.optString("imageScene") == "WB_DFT" }?.optString("url").orEmpty()
                 pictures.put(JSONObject().put("url", image.optString("urlDefault")
-                    .ifBlank { image.optString("url_default") }.ifBlank { full }.ifBlank { image.optString("urlPre") }.ifBlank { image.optString("url") })
+                    .ifBlank { image.optString("url_default") }.ifBlank { full }
+                    .ifBlank { image.optString("urlPre") }.ifBlank { image.optString("url") })
                     .put("width", image.optInt("width")).put("height", image.optInt("height")))
             }
             return JSONObject().put("images", pictures).put("title", raw.optString("title")).put("body", raw.optString("desc"))
