@@ -8,11 +8,12 @@ const id = '1234567890abcdef12345678';
 const other = 'abcdef123456789012345678';
 const row = (token = 'token+/=') => ({id, modelType: 'note', xsecToken: token,
   noteCard: {displayTitle: '猫咪和纸箱', user: {nickname: '真实作者'}}});
-function browser({path = '/explore', state = {}, text = '', elements = [], payload, api = 'homefeed'} = {}) {
+function browser({path = '/explore', state = {}, text = '', elements = [], payload, api = 'homefeed', xhr} = {}) {
   const sandbox = {URL, location: {href: 'https://www.xiaohongshu.com' + path},
     document: {body: {innerText: text}, querySelectorAll: () => elements, querySelector: () => null},
     __INITIAL_STATE__: state,
     fetch: async () => ({status: 200, clone: () => ({text: async () => JSON.stringify(payload)})})};
+  if (xhr) sandbox.XMLHttpRequest = xhr;
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(script, sandbox);
@@ -290,4 +291,42 @@ test('programmatic search uses the real input and button without a forged API re
   assert.equal(input.value, '记者'); assert.equal(clicks, 1);
   assert.deepEqual(events, ['input', 'change']);
   assert.equal(b.sandbox.__luluXhsReader.pendingSearch('记者'), true);
+});
+
+function xhrFixture() {
+  class XHR {
+    constructor() {this.listeners = {}; this.responseType = 'json'; this.status = 200;}
+    open() {} send(body) {this.sentBody = body;}
+    addEventListener(kind, fn) {this.listeners[kind] = fn;}
+    receive(payload) {this.response = payload; this.listeners.load();}
+  }
+  const b = browser({xhr: XHR});
+  return {...b, request(keyword) {
+    const request = new b.sandbox.XMLHttpRequest();
+    request.open('POST', 'https://edith.xiaohongshu.com/api/sns/web/v1/search/notes');
+    request.send(JSON.stringify({keyword}));
+    return request;
+  }};
+}
+test('XHR search forwards the original body and reads its actual keyword in an overlay', () => {
+  const b = xhrFixture(); b.sandbox.__luluXhsReader.beginSearch('记者');
+  const request = b.request('记者'); request.receive({code: 0, data: {items: [row('actual-xhr')]}});
+  assert.equal(request.sentBody, JSON.stringify({keyword: '记者'}));
+  assert.equal(b.snapshot('search', '', '记者').items[0].token, 'actual-xhr');
+});
+test('late XHR responses and network errors cannot invalidate a different keyword', () => {
+  const b = xhrFixture(); b.sandbox.__luluXhsReader.beginSearch('old');
+  const request = b.request('old'); b.sandbox.__luluXhsReader.beginSearch('new');
+  request.receive({code: 300012, success: false}); request.listeners.error();
+  assert.equal(b.snapshot('search', '', 'new').error, '');
+  assert.equal(b.snapshot('search', '', 'new').items.length, 0);
+});
+
+test('changing SPA URL cannot relabel stale SSR feeds while a new search is pending', async () => {
+  const b = browser({path: '/search_result?keyword=new', api: 'search/notes',
+    state: {search: {feeds: [row('old-SSR')]}}, payload: {code: 0, data: {items: [row('new-response')]}}});
+  b.sandbox.__luluXhsReader.beginSearch('new');
+  assert.equal(b.snapshot('search', '', 'new').items.length, 0);
+  await b.receive('new');
+  assert.equal(b.snapshot('search', '', 'new').items[0].token, 'new-response');
 });

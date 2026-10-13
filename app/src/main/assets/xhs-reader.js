@@ -184,7 +184,8 @@
     const url = new URL(location.href), path = url.pathname;
     const searchResponse = kind === 'search' && !!keyword && received.searchKeyword === keyword;
     const searchPage = ['/search_result','/search','/search/result'].includes(path) && url.searchParams.get('keyword') === keyword;
-    const onPage = kind === 'search' ? searchPage || searchResponse
+    const pendingSearch = kind === 'search' && received.searchPending === keyword;
+    const onPage = kind === 'search' ? searchResponse || (searchPage && !pendingSearch)
       : kind === 'note' ? new RegExp('^/(explore|discovery/item)/' + id + '/?$').test(path)
       : path === '/' || path === '/explore';
     const visibleText = [...document.querySelectorAll('.access-wrapper,.error-wrapper,.not-found-wrapper,.blocked-wrapper,[role="dialog"]')]
