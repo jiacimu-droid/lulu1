@@ -39,8 +39,19 @@ internal object WakeMusicCoordinator {
         if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
             !permission.getBoolean("$characterId:media", false)) return "未授权音乐叫醒"
         val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-        if (prefs.getBoolean("requested:$taskId", false)) return "本次音乐已请求"
-        if (defer || LuluVoiceCallSession.state.value.connected) {
+        val waitForCall = defer || LuluVoiceCallSession.state.value.connected
+        if (prefs.getBoolean("requested:$taskId", false)) {
+            if (waitForCall) {
+                // A finite call retry must not talk over music previously started
+                // by this wake task. Resume the same media session afterward.
+                LuluMediaPlayback.control(context, "pause")
+                prefs.edit().remove("requested:$taskId")
+                    .putString(PENDING + characterId, taskId).commit()
+                return "已暂停音乐，等电话结束后续播"
+            }
+            return "本次音乐已请求"
+        }
+        if (waitForCall) {
             prefs.edit().putString(PENDING + characterId, taskId).commit()
             deferredCharacter = characterId
             return "音乐将在通话结束后开始"
