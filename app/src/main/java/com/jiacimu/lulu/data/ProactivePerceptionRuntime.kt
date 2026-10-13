@@ -779,8 +779,9 @@ object ProactivePerceptionRuntime {
             val keptAwake = wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
                 characterId, onlineExpiryAtMillis, decision.onlineChoiceReason, Instant.now(),
             )
-            val newerWindow = CompanionOnlineStore.states.value[characterId]
-                ?.onlineUntil?.toEpochMilli() != (if (keptAwake) 0L else onlineExpiryAtMillis)
+            val newerWindow = !keptAwake &&
+                CompanionOnlineStore.states.value[characterId]
+                    ?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
                 when {
