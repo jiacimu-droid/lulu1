@@ -72,7 +72,8 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                         if (XhsReadingEngine.setLocalEnabled(context, enabled)) localReading = enabled
                     })
                 }
-                Text("本机阅读需露露机保持打开；角色仍需单独开启只读授权。后台可使用下方 MCP。",
+                Text("内置浏览器是主线路；角色仍需单独开启只读授权。外部 MCP 不必配置，" +
+                    "也不会因仅保存本机地址就自动接管阅读。",
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = onOpenBrowserProbe) { Text("登录 / 检查小红书网页") }
                 OutlinedButton(onClick = onOpenBrowserProbe) { Text("在内置网页搜索 / 阅读") }
