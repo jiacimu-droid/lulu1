@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T17:47:37.772614+00:00",
-  "commit": "d632e6e005cafd70ff3d5c67991c7fc74920aa88",
-  "branch": "main",
-  "sourceFingerprint": "7a66ffb2688afd504aa38ad818a3d3bccc3fe26e754d4a50753ecc01d0039c5f",
+  "generatedAt": "2026-10-13T17:59:03.821306+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "bb96654a7452d5d8fd8410e61cb4f001bc1e9de772e04e56ec0aef84d4ffa12a",
   "summary": {
     "files": 609,
-    "lines": 120189,
-    "symbols": 1808
+    "lines": 120245,
+    "symbols": 1809
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1715,43 +1715,43 @@
     "openOriginalNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 63
+        "line": 64
       }
     ],
     "returnToList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 92
+        "line": 93
       }
     ],
     "routeToReader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 98
+        "line": 99
       }
     ],
     "failure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 43
+        "line": 45
       }
     ],
     "loadList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 47
+        "line": 49
       }
     ],
     "readNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 70
+        "line": 74
       }
     ],
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 93
+        "line": 99
       }
     ],
     "PendingTouch": [
@@ -5501,7 +5501,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "stale": [
@@ -7200,28 +7200,34 @@
         "line": 34
       }
     ],
-    "localEnabled": [
+    "lastDiagnostic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
         "line": 53
       }
     ],
-    "setLocalEnabled": [
+    "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
         "line": 54
       }
     ],
+    "setLocalEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 55
+      }
+    ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 57
+        "line": 58
       }
     ],
     "LuluPageScaffold": [
@@ -10157,13 +10163,13 @@
     {
       "path": "app/src/main/assets/xhs-browser-route.js",
       "lines": 38,
-      "sha256": "dc585443bf80ddba050101e7760c475de6563c46749561aeca4b7d36d586dc1e",
+      "sha256": "71d828d2d28bde3e8db0e50e469e31959fdcb784e9464ea02eecec79f84a86f0",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/xhs-reader.js",
-      "lines": 150,
-      "sha256": "ba5cc828b2fda1042acee8355c62d961d2100d06c2e47e9ca02382fe0a47fc08",
+      "lines": 162,
+      "sha256": "86172be25d05df2187be1d74d008d02bb0020cdad126db31d2b6d162974dd4ca",
       "symbols": []
     },
     {
@@ -11452,43 +11458,43 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-      "lines": 488,
-      "sha256": "f5c90033fce8d0e022111fc88434a405223e5ddae92d95757fe8f5f43caacf04",
+      "lines": 491,
+      "sha256": "1980a74a0d87c62b00adf652cd2c6be6727d83867177c269a12c7ea783a26fe9",
       "symbols": [
         {
           "name": "openOriginalNote",
-          "line": 63
+          "line": 64
         },
         {
           "name": "returnToList",
-          "line": 92
+          "line": 93
         },
         {
           "name": "routeToReader",
-          "line": 98
+          "line": 99
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 164,
-      "sha256": "88a8de991e00b2067e38247d4ed70cbd63dccb24b97136fe91a75ab68886b3b5",
+      "lines": 170,
+      "sha256": "3746c36f9219f42433383af2b940a6d76cf2caf16cc339d2dedaeef25edfaeb7",
       "symbols": [
         {
           "name": "failure",
-          "line": 43
+          "line": 45
         },
         {
           "name": "loadList",
-          "line": 47
+          "line": 49
         },
         {
           "name": "readNote",
-          "line": 70
+          "line": 74
         },
         {
           "name": "back",
-          "line": 93
+          "line": 99
         }
       ]
     },
@@ -17236,32 +17242,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 223,
-      "sha256": "608ea5543e0fdaedbf91472d61c72d4370aebf6db6a1308c5d99bc34ac00eb9e",
+      "lines": 234,
+      "sha256": "00731731e28093b923ce855357257a8a419cfb54efbc43875af73debfeb342ea",
       "symbols": [
         {
           "name": "url",
           "line": 34
         },
         {
-          "name": "localEnabled",
+          "name": "lastDiagnostic",
           "line": 53
         },
         {
-          "name": "setLocalEnabled",
+          "name": "localEnabled",
           "line": 54
         },
         {
-          "name": "resume",
-          "line": 56
+          "name": "setLocalEnabled",
+          "line": 55
         },
         {
-          "name": "pause",
+          "name": "resume",
           "line": 57
         },
         {
-          "name": "available",
+          "name": "pause",
           "line": 58
+        },
+        {
+          "name": "available",
+          "line": 59
         }
       ]
     },
@@ -21450,8 +21460,8 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 141,
-      "sha256": "42000988f428760332f24407894ac7959b30e47562463d042ab3f42450c2f0d9",
+      "lines": 165,
+      "sha256": "db45ac62d97974f851600001ce3559108ee702882a56cfc630905dc491a0245f",
       "symbols": []
     },
     {

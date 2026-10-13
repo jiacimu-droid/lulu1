@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d632e6e005cafd70ff3d5c67991c7fc74920aa88`
-- 分支：`main`
+- 基准提交：`local`
+- 分支：`local`
 - 已索引文件：609
-- 已索引代码/文本行：120189
-- 已发现符号：1808
+- 已索引代码/文本行：120245
+- 已发现符号：1809
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -14,7 +14,7 @@
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 38 | 0 |
-| `app/src/main/assets/xhs-reader.js` | 150 | 0 |
+| `app/src/main/assets/xhs-reader.js` | 162 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
@@ -97,8 +97,8 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 521 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1850 | 18 |
-| `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 488 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 164 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 491 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 170 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
@@ -336,7 +336,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 223 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 234 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
@@ -613,7 +613,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 141 | 0 |
+| `scripts/test_xhs_reader.js` | 165 | 0 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |

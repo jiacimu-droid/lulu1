@@ -21,7 +21,7 @@
       if (u.protocol !== 'https:' || !['www.xiaohongshu.com', 'xiaohongshu.com'].includes(u.hostname)) return;
       const match = u.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})$/i);
       if (!match) return;
-      const source = u.searchParams.get('xsec_source') || 'pc_feed';
+      const source = u.searchParams.get('xsec_source') || '';
       const kind = location.pathname === '/search_result' ? 'search' : 'feed';
       const keyword = new URL(location.href).searchParams.get('keyword') || '';
       const cards = JSON.parse(window.__luluXhsReader?.snapshot(kind, '', keyword) || '{}').items || [];
@@ -29,7 +29,7 @@
       const token = u.searchParams.get('xsec_token') || card?.token || '';
       // Never invoke the broken website detail modal for an actual note tap.
       event.preventDefault(); event.stopImmediatePropagation();
-      send({kind: 'note', id: match[1], token, source: card?.source || source,
+      send({kind: 'note', id: match[1], token, source: source || card?.source || (kind === 'search' ? 'pc_search' : 'pc_feed'),
         title: card?.title || a.innerText || '', author: card?.author || ''});
     } catch (_) {}
   }, true);

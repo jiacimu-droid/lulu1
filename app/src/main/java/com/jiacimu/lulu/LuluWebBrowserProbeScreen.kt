@@ -22,6 +22,7 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import androidx.webkit.WebViewCompat
 import com.jiacimu.lulu.data.XhsCard
+import com.jiacimu.lulu.data.XhsReadingEngine
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -213,7 +214,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 } else {
                                     append("\n网页脚本未返回诊断结果，可能仍未完成加载。")
                                 }
-                                if (apiFailures == 0) append("\n注意：HTTP 200 也可能包含网站业务错误。")
+                                val readReport = XhsReadingEngine.lastDiagnostic(context)
+                                if (readReport.isNotBlank()) append("\n最近读取的实际诊断：\n$readReport")
+                                if (apiFailures == 0) append("\nHTTP 无错误不等于网站业务成功；以实际读取业务码为准。")
                             }
                         }
                     }
@@ -334,7 +337,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                         readerCard = XhsCard(id, value.optString("token").take(512),
                                             value.optString("title").take(200).ifBlank { "笔记" },
                                             value.optString("author").take(120),
-                                            value.optString("source").takeIf { it in setOf("pc_feed", "pc_search") } ?: "pc_feed")
+                                            value.optString("source").takeIf { it in setOf("pc_feed", "pc_search", "pc_user", "pc_share", "pc_board") } ?: "pc_feed")
                                         readerVisible = true
                                     }
                                 }

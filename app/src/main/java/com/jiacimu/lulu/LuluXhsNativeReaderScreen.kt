@@ -31,6 +31,8 @@ internal fun LuluXhsNativeReaderScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val focus = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val listState = rememberLazyListState()
     var keyword by remember { mutableStateOf(initialKeyword) }
     var cards by remember { mutableStateOf<List<XhsCard>>(emptyList()) }
@@ -46,6 +48,8 @@ internal fun LuluXhsNativeReaderScreen(
         else error.message.orEmpty().take(180).ifBlank { "读取失败，未新增阅读记录。" }
 
     fun loadList(query: String) {
+        focus.clearFocus(force = true)
+        keyboard?.hide()
         task?.cancel()
         val current = ++sequence
         selected = null
@@ -69,6 +73,8 @@ internal fun LuluXhsNativeReaderScreen(
     }
 
     fun readNote(card: XhsCard) {
+        focus.clearFocus(force = true)
+        keyboard?.hide()
         if (card.token.isBlank()) {
             selected = card
             message = "这篇笔记没有详情令牌，无法读取正文。"
@@ -109,12 +115,12 @@ internal fun LuluXhsNativeReaderScreen(
     }
     DisposableEffect(Unit) { onDispose { task?.cancel() } }
 
-    Scaffold(topBar = {
+    Scaffold(modifier = Modifier.imePadding(), topBar = {
         TopAppBar(title = { Text("小红书 · 阅读") }, navigationIcon = {
             IconButton(onClick = { back() }) { Icon(Icons.Outlined.ArrowBack, "返回") }
         })
     }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 12.dp),
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val target = selected
             if (target == null) {

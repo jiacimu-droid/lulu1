@@ -138,3 +138,27 @@ test('note href without a token can use its actual current-page card', () => {
   const b = navigationBrowser(); b.click(`https://www.xiaohongshu.com/explore/${id}`);
   assert.equal(b.messages[0].token, 'token+/='); assert.equal(b.messages[0].title, '猫咪和纸箱');
 });
+
+test('diagnostics preserve HTTP-200 business failure without note/token data', async () => {
+  const b = browser({api: 'feed', path: '/explore/' + id, payload: {success: false, code: -1, secret: 'never-copy-me'}});
+  await b.receive();
+  const value = b.snapshot('note', id).diagnostics;
+  assert.equal(value.api.note.http, 200); assert.equal(value.api.note.code, '-1');
+  assert.equal(JSON.stringify(value).includes('never-copy-me'), false);
+  assert.equal(JSON.stringify(value).includes('token'), false);
+});
+test('diagnostics measure visual/document viewport and lower hit element', () => {
+  const b = browser();
+  Object.assign(b.sandbox, {innerWidth: 980, innerHeight: 1300, visualViewport: {height: 500}});
+  b.sandbox.document.documentElement = {clientHeight: 1300};
+  b.sandbox.document.elementFromPoint = () => ({tagName: 'DIV', className: 'search-cover',
+    getBoundingClientRect: () => ({top: 500, bottom: 1300, height: 800})});
+  const viewport = b.snapshot().diagnostics.viewport;
+  assert.equal(viewport.visualHeight, 500); assert.equal(viewport.lowerElement, 'DIV.search-cover');
+  assert.equal(viewport.lowerRect.height, 800);
+});
+test('actual profile-note source must not be replaced by a cached feed source', () => {
+  const b = navigationBrowser();
+  b.click(`https://www.xiaohongshu.com/explore/${id}?xsec_token=actual&xsec_source=pc_user`);
+  assert.equal(b.messages[0].source, 'pc_user'); assert.equal(b.messages[0].token, 'actual');
+});

@@ -41,7 +41,7 @@
       author: clean(raw.user?.nickname ?? raw.user?.nickName, 120)};
   };
   // Only normalized list/body fields stay in this document's bounded memory.
-  const received = {feed: [], search: [], notes: new Map(), failures: {}};
+  const received = {feed: [], search: [], notes: new Map(), failures: {}, api: {}};
   const category = raw => {
     try {
       const u = new URL(raw, location.href);
@@ -54,6 +54,8 @@
   };
   const capture = (kind, payload, status) => {
     if (!kind) return;
+    received.api[kind] = {http: status, code: payload?.code == null ? null : String(payload.code).slice(0, 16),
+      success: payload?.success !== false};
     if (status >= 400 || payload?.success === false || (payload?.code != null && Number(payload.code) !== 0)) {
       const code = String(payload?.code ?? status).slice(0, 16);
       received.failures[kind] = /300012|300017|461|471/.test(code) ? 'restricted' : `api:${code}`;
@@ -97,7 +99,17 @@
       return open.call(this, method, url, ...rest);
     };
   }
-  window.__luluXhsReader = {snapshot(kind, id, keyword) {
+  const diagnostics = () => {
+    const width = window.innerWidth || 0, height = window.innerHeight || 0;
+    const hit = document.elementFromPoint?.(width / 2, height * .75);
+    const rect = hit?.getBoundingClientRect();
+    return {api: received.api, viewport: {width, height,
+      visualHeight: window.visualViewport?.height ?? null,
+      documentHeight: document.documentElement?.clientHeight ?? null,
+      lowerElement: hit ? String(hit.tagName || '') + '.' + String(hit.className || '').slice(0, 100) : '',
+      lowerRect: rect ? {top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height)} : null}};
+  };
+  window.__luluXhsReader = {diagnostics, snapshot(kind, id, keyword) {
     const url = new URL(location.href), path = url.pathname;
     const onPage = kind === 'search' ? path === '/search_result' && url.searchParams.get('keyword') === keyword
       : kind === 'note' ? new RegExp('^/(explore|discovery/item)/' + id + '/?$').test(path)
@@ -106,7 +118,7 @@
       .filter(el => el.getBoundingClientRect().height > 0).map(el => el.innerText || '').join(' ').slice(0, 6000);
     const bodyText = (document.body?.innerText || '').slice(0, 6000);
     const restricted = /website-login\/error/.test(path) || /IP at risk|300012|300017|安全验证|滑块验证|访问异常|当前笔记暂时无法浏览|笔记详情获取失败/.test(visibleText);
-    if (restricted || received.failures[kind] === 'restricted') return JSON.stringify({error: 'restricted'});
+    if (restricted || received.failures[kind] === 'restricted') return JSON.stringify({error: 'restricted', diagnostics: diagnostics()});
     const state = unwrap(window.__INITIAL_STATE__) || {};
     let items = [], detail = null;
     if (onPage) {
@@ -143,7 +155,7 @@
       }
     }
     const login = /website-login/.test(path) || (!items.length && !detail && /扫码登录|请先登录|登录后查看/.test(bodyText));
-    return JSON.stringify({items, note: detail, onPage, error: login ? 'login' : received.failures[kind] || '',
+    return JSON.stringify({items, note: detail, onPage, diagnostics: diagnostics(), error: login ? 'login' : received.failures[kind] || '',
       empty: onPage && /没有找到相关|暂无搜索结果|无相关结果/.test(bodyText)});
   }};
 })();

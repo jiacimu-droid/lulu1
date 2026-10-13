@@ -50,6 +50,7 @@ internal object XhsReadingEngine {
     private val navigation = Mutex()
     private fun prefs(context: Context) = context.applicationContext
         .getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE)
+    fun lastDiagnostic(context: Context): String = prefs(context).getString("xiaohongshu:last-diagnostic", "").orEmpty()
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
@@ -92,7 +93,7 @@ internal object XhsReadingEngine {
         if (!Regex("[a-zA-Z0-9]{12,40}").matches(id)) return null
         return XhsCard(id, row.optString("token").take(512),
             row.optString("title").take(200).ifBlank { "未命名笔记" }, row.optString("author").take(120),
-            row.optString("source").takeIf { it in setOf("pc_feed", "pc_search") }
+            row.optString("source").takeIf { it in setOf("pc_feed", "pc_search", "pc_user", "pc_share", "pc_board") }
                 ?: if (query.isBlank()) "pc_feed" else "pc_search", provider)
     }
 
@@ -156,6 +157,7 @@ internal object XhsReadingEngine {
                         WebViewCompat.addDocumentStartJavaScript(view, script,
                             setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
                     }
+                    prefs(context).edit().putString("xiaohongshu:last-diagnostic", "阶段=$kind；等候网页数据").apply()
                     view.loadUrl(url)
                     withTimeout(35_000) {
                         while (true) {
@@ -168,8 +170,17 @@ internal object XhsReadingEngine {
                             val js = script + "\nwindow.__luluXhsReader.snapshot(${JSONObject.quote(kind)},${JSONObject.quote(id)},${JSONObject.quote(keyword)});"
                             val raw = evaluate(view, js)
                             val root = runCatching { JSONObject(JSONTokener(raw).nextValue() as String) }.getOrNull() ?: continue
+                            val report = root.optJSONObject("diagnostics") ?: JSONObject()
+                            report.put("stage", kind).put("nativeWidth", view.width).put("nativeHeight", view.height)
+                                .put("ready", root.optBoolean("onPage")).put("result", root.optString("error"))
+                            val reportText = report.toString()
+                            if (lastDiagnostic(context) != reportText)
+                                prefs(context).edit().putString("xiaohongshu:last-diagnostic", reportText).apply()
                             val reason = root.optString("error")
-                            check(reason != "restricted") { "小红书限制了本次访问，请在登录网页完成验证后再试" }
+                            check(reason != "restricted") {
+                                val api = report.optJSONObject("api")?.optJSONObject(kind)
+                                "小红书拒绝了本次访问（HTTP ${api?.optInt("http") ?: 0}，业务码 ${api?.optString("code").orEmpty().ifBlank { "网页限制提示" }}），未新增阅读记录"
+                            }
                             check(!reason.startsWith("api:")) { "小红书数据接口失败（${reason.removePrefix("api:")}），未新增阅读记录" }
                             check(reason != "network") { "小红书数据请求未能连接，请检查网页网络" }
                             if (root.optJSONObject("note") != null || (root.optJSONArray("items")?.length() ?: 0) > 0)

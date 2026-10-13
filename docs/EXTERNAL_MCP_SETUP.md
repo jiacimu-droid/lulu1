@@ -84,3 +84,11 @@ $env:AUTH_TOKEN = "换成随机的长字符串"
 - 搜索有列表但正文为空：未视为成功读帖；先用上游 MCP Inspector 单独验证 `get_feed_detail`。
 - 健康 MCP 能连接但暂无数据：检查 Gadgetbridge 是否实际从手环同步，是否启用了上传，是否选对设备、时区和服务器上传令牌。
 - 手环数据日期滞后：应用后台调度是 **尽力而为的定期同步**，受 Android 省电和网络状态限制，非实时。
+
+## 根因证据边界与针对性处理（2026-10-14）
+
+- 用户原截图：可显示列表和搜索结果，诊断 HTTP 错误为 0 但检测到详情失败。旧诊断只统计 HTTP>=400，无法识别 HTTP 200 中的业务失败；这是已确认的诊断缺陷，不是账号/网络全部可用的证明。
+- 上游作者对同类详情失败列出「ID/token 不匹配」和「平台访问限制」两类可能，没有把每条报告断言成风控：https://github.com/xpzouying/xiaohongshu-mcp/issues/375#issuecomment-3977474556 。签名访问参数必须来自实际列表/链接，不能由模型拼接、裁掉 token 末尾 `=` 或沿用旧会话 URL：https://github.com/xpzouying/xiaohongshu-mcp/issues/451#issuecomment-5094719100 。
+- 半屏白块存在视口/输入法高度未正确恢复或 DOM 元素遮挡两类待核实方向。Android 16 已有键盘等高留白报告，但对应项目是 Capacitor，当前 lulu1 是原生 Compose，不能照搬结论：https://github.com/ionic-team/capacitor/issues/8329 。
+- 本轮原生搜索提交时主动取消输入焦点、收起键盘，使用 Compose 的 IME inset 消费机制，不手工叠加固定键盘高度。搜索/详情以原生视图呈现，不再渲染故障网页弹层。
+- 读取器现在保存最近一次的实际 HTTP/业务码、页面阶段、原生高度、文档/visual viewport 高度与下方命中元素；已有诊断按钮可查看。只保存尺寸/错误元数据，不保存 Cookie、访问 token 或帖子正文到诊断。仍需设备上的实际结果，才能确定用户这一例的唯一根因。
