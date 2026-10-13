@@ -648,8 +648,9 @@ object ProactivePerceptionRuntime {
         // The screenshot's "未知能力：" came from an empty tool name reaching the
         // executor. A pending chat deserves one bounded correction using the
         // SAME character and decision context, not an empty ToolRouter call.
-        val invalidTool = initialDecision?.action == Action.TOOL &&
-            CapabilityRegistry.find(initialDecision.tool).let { it == null }
+        val invalidTool = initialDecision?.let { decision ->
+            decision.action == Action.TOOL && CapabilityRegistry.find(decision.tool) == null
+        } == true
         val recoveredDecision = if (invalidTool && onlineUnread.text.isNotBlank()) {
             val correction = LuluAiServices.gateway.generate(
                 characterId = characterId,
