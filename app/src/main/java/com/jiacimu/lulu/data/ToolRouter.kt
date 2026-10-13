@@ -85,7 +85,14 @@ object ToolRouter {
             SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
             val outcome = parsed
-            if (outcome.optBoolean("success")) CompanionOnlineStore.recordActivity(characterId)
+            // A delivered chat bubble does not automatically buy another five-minute
+            // online lease. Only the character's next expiry decision can do that.
+            val chatDelivery = name in setOf(
+                "send_private_message", "send_group_message",
+                "send_private_sticker", "send_group_sticker",
+            )
+            if (outcome.optBoolean("success") && !chatDelivery)
+                CompanionOnlineStore.recordActivity(characterId)
             CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, goalReceiptId, name,
                 outcome.optBoolean("success"),
                 outcome.optString("summary").ifBlank { outcome.optString("error").ifBlank { result } })
