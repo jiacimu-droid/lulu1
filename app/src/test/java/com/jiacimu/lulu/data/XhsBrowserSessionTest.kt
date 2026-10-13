@@ -26,6 +26,18 @@ import java.time.Duration
 @Config(manifest = Config.NONE, sdk = [28])
 @LooperMode(LooperMode.Mode.PAUSED)
 class XhsBrowserSessionTest {
+    @Test fun noteDetailUrlIsRecognizedEvenWhenWebViewHasNoBackHistory() {
+        val id = "1234567890abcdef12345678"
+        assertTrue(com.jiacimu.lulu.xhsBrowserIsNoteUrl(
+            "https://www.xiaohongshu.com/explore/$id?xsec_token=abc"))
+        assertTrue(com.jiacimu.lulu.xhsBrowserIsNoteUrl(
+            "https://www.xiaohongshu.com/discovery/item/$id"))
+        assertFalse(com.jiacimu.lulu.xhsBrowserIsNoteUrl(
+            "https://www.xiaohongshu.com/explore"))
+        assertFalse(com.jiacimu.lulu.xhsBrowserIsNoteUrl(
+            "https://untrusted.example/explore/$id"))
+    }
+
     /** This fixture tests Android ownership only; production JS parsing has independent browser tests. */
     private class LoginBrowser(activity: Activity) : WebView(activity) {
         var navigations = 0
