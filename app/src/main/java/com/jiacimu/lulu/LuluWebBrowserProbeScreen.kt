@@ -40,6 +40,14 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var browser by remember { mutableStateOf<WebView?>(null) }
     var status by remember { mutableStateOf("准备打开小红书网页…") }
+    var desktopMode by remember { mutableStateOf(false) }
+    val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
+    val chromeVersion = remember(mobileAgent) {
+        Regex("Chrome/([0-9.]+)").find(mobileAgent)?.groupValues?.get(1) ?: "120.0.0.0"
+    }
+    val desktopAgent = remember(chromeVersion) {
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$chromeVersion Safari/537.36"
+    }
 
     BackHandler {
         val current = browser
@@ -73,6 +81,16 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 OutlinedButton(onClick = { browser?.loadUrl(XHS_PROBE_URL) }) { Text("小红书") }
+                OutlinedButton(onClick = {
+                    desktopMode = !desktopMode
+                    browser?.let { view ->
+                        view.settings.userAgentString = if (desktopMode) desktopAgent else mobileAgent
+                        view.settings.useWideViewPort = desktopMode
+                        view.settings.loadWithOverviewMode = desktopMode
+                        status = if (desktopMode) "正在测试桌面网页版（不保证网站提供完整功能）…" else "正在恢复手机版网页…"
+                        view.loadUrl(XHS_PROBE_URL)
+                    }
+                }) { Text(if (desktopMode) "切回手机版" else "试桌面网页版") }
                 OutlinedButton(onClick = { browser?.loadUrl(GENERAL_PROBE_URL) }) { Text("普通网页对照") }
                 OutlinedButton(onClick = { browser?.reload() }) { Text("刷新") }
                 OutlinedButton(onClick = {
@@ -82,7 +100,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 }) { Text("外部浏览器") }
             }
             Text(
-                status,
+                (if (desktopMode) "桌面模式 · " else "手机版 · ") + status,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -122,7 +140,12 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                         status = "无法跳转外部浏览器：" + it.message.orEmpty().take(80)
                                     }
                                 } else {
-                                    status = "阻止非网页链接：" + target.scheme.orEmpty()
+                                    status = if (target.scheme == "intent" ||
+                                        target.scheme?.startsWith("xhs") == true) {
+                                        "页面要求跳转小红书 App；已留在测试页。此网页不等于可供角色阅读的网页版。"
+                                    } else {
+                                        "阻止非网页链接：" + target.scheme.orEmpty()
+                                    }
                                 }
                                 return true
                             }
