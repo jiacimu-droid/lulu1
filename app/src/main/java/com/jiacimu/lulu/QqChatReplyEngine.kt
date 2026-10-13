@@ -51,15 +51,18 @@ private fun normalizeLegacyBubbleTokens(text: String): String =
         .replace(LegacyBubbleTokenRegex, SemanticBubbleSeparator)
 
 internal fun sanitizePersistedChatText(text: String): String =
-    normalizeLegacyBubbleTokens(text)
-        .replace(SemanticBubbleSeparator, "")
-        .replace(MalformedInternalDirectiveRegex, "")
-        .replace(Regex("[ \\t]+"), " ")
-        .trim()
+    com.jiacimu.lulu.data.ModelStructuredOutput.smoothInlineBreaks(
+        normalizeLegacyBubbleTokens(text)
+            .replace(SemanticBubbleSeparator, "")
+            .replace(MalformedInternalDirectiveRegex, "")
+            .replace(Regex("[ \\t]+"), " "),
+    )
 
 internal fun semanticReplyBubbles(text: String): List<String> =
-    normalizeLegacyBubbleTokens(text).split(SemanticBubbleSeparator)
-        .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank)
+    com.jiacimu.lulu.data.ModelStructuredOutput.stabilizeReplyBubbles(
+        normalizeLegacyBubbleTokens(text).split(SemanticBubbleSeparator)
+            .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank),
+    )
 
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = normalizeLegacyBubbleTokens(text).trim()
