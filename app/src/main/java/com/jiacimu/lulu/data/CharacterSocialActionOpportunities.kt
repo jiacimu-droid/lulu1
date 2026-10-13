@@ -32,7 +32,7 @@ internal object CharacterSocialActionOpportunities {
                             e.evidenceKind == EventEvidenceKind.UserStatement
                         }
                     }
-                    .takeLast(5)
+                    .toList().takeLast(5).asSequence()
                     .map { message -> Triple(message.createdAt, message.id, message.content) }
             }
             .sortedByDescending { it.first }
