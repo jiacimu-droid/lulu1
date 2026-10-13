@@ -1,7 +1,6 @@
 package com.jiacimu.lulu
 
-import android.content.Intent
-import android.net.Uri
+import android.webkit.WebResourceError
 import android.graphics.Bitmap
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -62,6 +61,7 @@ internal fun LuluXhsNativeReaderScreen(
     val smokeRequested = remember { XhsReadingEngine.consumeVisibleReadTest(context) }
     var webReady by remember { mutableStateOf(false) }
     var webProblem by remember { mutableStateOf("") }
+    var embeddedView by remember { mutableStateOf<WebView?>(null) }
     var showWebPreview by remember { mutableStateOf(smokeRequested) }
     var smokeStarted by remember { mutableStateOf(false) }
     var smokeResult by remember { mutableStateOf("") }
@@ -277,10 +277,13 @@ internal fun LuluXhsNativeReaderScreen(
                 Text(article?.title ?: target.title, style = MaterialTheme.typography.titleMedium)
                 val author = article?.author ?: target.author
                 if (author.isNotBlank()) Text(author, style = MaterialTheme.typography.labelMedium)
-                TextButton(onClick = {
-                    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(target.url()))) }
-                        .onFailure { message = "无法打开原文" }
-                }) { Text("查看原文") }
+                if (useEmbeddedBrowser) {
+                    TextButton(onClick = {
+                        showWebPreview = true
+                        embeddedView?.loadUrl(target.url())
+                        message = "已在本页内置网页区域打开原文，可随时返回简洁阅读"
+                    }) { Text("在本页查看原网页") }
+                }
                 val content = article
                 if (content?.images?.isNotEmpty() == true) {
                     TextButton(enabled = !visionLoading, onClick = {
@@ -344,20 +347,32 @@ internal fun LuluXhsNativeReaderScreen(
                             webViewClient = object : WebViewClient() {
                                 override fun shouldOverrideUrlLoading(
                                     view: WebView?, request: WebResourceRequest?): Boolean {
-                                    val uri = request?.url
-                                    return uri?.scheme != "https" ||
+                                    val uri = request?.url ?: return true
+                                    return uri.scheme != "https" ||
                                         uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
+                                }
+                                override fun onReceivedError(
+                                    view: WebView?,
+                                    request: WebResourceRequest?,
+                                    error: WebResourceError?,
+                                ) {
+                                    if (request?.isForMainFrame == true) {
+                                        webProblem = "内置网页加载失败：${error?.description.orEmpty()}"
+                                        if (!webReady) webReady = true
+                                    }
                                 }
                                 override fun onPageFinished(view: WebView?, url: String?) {
                                     if (!webReady) webReady = true
                                 }
                             }
+                            embeddedView = this
                             XhsReadingEngine.attachBrowser(this)
                             loadUrl("https://www.xiaohongshu.com/explore")
                         }
                     },
                     onRelease = { view ->
                         XhsReadingEngine.detachBrowser(view)
+                        if (embeddedView === view) embeddedView = null
                         view.stopLoading()
                         view.destroy()
                     },
