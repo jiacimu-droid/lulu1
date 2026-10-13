@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T22:21:48.267274+00:00",
-  "commit": "916db3d0a630d2ef04234674f089596c3cf6b2a0",
+  "generatedAt": "2026-10-13T22:44:43.921524+00:00",
+  "commit": "715dea4e01ad056c49b011ba6385e110e612fc11",
   "branch": "main",
-  "sourceFingerprint": "3e081cd29047801635cbb8ee07badaedd6188657cb43bc52bbf89e3bd0b2c939",
+  "sourceFingerprint": "d88f6fae38243ac3edde13903380fc14cd830a93565a4179c8c1a4eaa654c7e7",
   "summary": {
     "files": 615,
-    "lines": 122665,
+    "lines": 122700,
     "symbols": 1836
   },
   "symbolIndex": {
@@ -1715,19 +1715,19 @@
     "openOriginalNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 76
+        "line": 79
       }
     ],
     "returnToList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 105
+        "line": 108
       }
     ],
     "routeToReader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 127
+        "line": 131
       }
     ],
     "failure": [
@@ -11616,20 +11616,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-      "lines": 565,
-      "sha256": "34d3df9bfcc6faa993e4c06aa202362e2889e7f32c68128dab3a753bb44948b4",
+      "lines": 600,
+      "sha256": "26e95aa6bd145e9ecabe3cea9ea0094657ef8e84352959c266e43c3fa23e879c",
       "symbols": [
         {
           "name": "openOriginalNote",
-          "line": 76
+          "line": 79
         },
         {
           "name": "returnToList",
-          "line": 105
+          "line": 108
         },
         {
           "name": "routeToReader",
-          "line": 127
+          "line": 131
         }
       ]
     },
