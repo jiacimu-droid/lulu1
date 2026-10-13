@@ -71,6 +71,25 @@ class CoreMemoryDeliveryIntegrationTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun deletingCoreMemoryAlsoRedactsItsInjectionHistory() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        val role = "core-redaction"
+        LuluRepositories.memory.save(MemoryEntry(
+            id = "will-delete", characterId = role, content = "已经撤回的个人事实",
+            kind = MemoryKind.Fact, source = "手动", occurredAt = null,
+            createdAt = Instant.now(), strength = 5, pinned = true,
+            canRecallProactively = true, tier = MemoryTier.Core,
+        ))
+        CoreMemoryInjectionAudit.recordSuccess(role, "普通对话", "Full", listOf("will-delete"))
+        assertTrue(CoreMemoryInjectionAudit.recent(role).first().coreIds.contains("will-delete"))
+        LuluRepositories.memory.delete("will-delete")
+        assertFalse(CoreMemoryInjectionAudit.recent(role).first().coreIds.contains("will-delete"))
+        assertTrue(CoreMemoryDelivery.active(role).isEmpty())
+        CoreMemoryInjectionAudit.clearCharacter(role)
+        assertTrue(CoreMemoryInjectionAudit.recent(role).isEmpty())
+    }
+
     @Test fun coreAuditSurvivesReinitializationAndPreservesNoPrivateText() {
         val context = RuntimeEnvironment.getApplication() as Context
         CoreMemoryInjectionAudit.initialize(context)
