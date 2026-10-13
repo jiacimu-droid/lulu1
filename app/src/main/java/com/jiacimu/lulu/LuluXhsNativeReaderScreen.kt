@@ -409,7 +409,13 @@ internal fun LuluXhsNativeReaderScreen(
                         style = MaterialTheme.typography.labelSmall)
             }
             if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
-            if (!loading && message.contains("超时")) TextButton(onClick = { diagnosticVisible = true }) { Text("读取诊断") }
+            // Always expose the real state. Not every failure contains the
+            // literal "超时": a login prompt, unrendered search page or
+            // unknown parser can otherwise hide the only useful diagnostics.
+            if (useEmbeddedBrowser || message.contains("超时") ||
+                message.contains("失败") || message.contains("未通过")) {
+                TextButton(onClick = { diagnosticVisible = true }) { Text("网页读取诊断") }
+            }
             if (loading) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
                 TextButton(onClick = {
