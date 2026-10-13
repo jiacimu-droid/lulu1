@@ -76,7 +76,7 @@ internal object CoreMemoryInjectionAudit {
         val array = JSONArray()
         records.forEach { record ->
             val ids = JSONArray()
-            record.coreIds.forEach(ids::put)
+            record.coreIds.forEach { ids.put(it) }
             array.put(JSONObject().put("at", record.at.toString())
                 .put("source", record.source).put("mode", record.contextMode)
                 .put("ids", ids))
