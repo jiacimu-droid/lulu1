@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:35:04.711399+00:00",
-  "commit": "7300e5ccccfb2d3ef425788ff19172a7e8731fcb",
+  "generatedAt": "2026-10-13T19:35:52.718125+00:00",
+  "commit": "da86f1a8f556ce22aaab1b5f4719ab3874c309e8",
   "branch": "main",
-  "sourceFingerprint": "dd514a282a7520d544b807f2e9b9c98a952a0e263bda58c39b15c0fb4122568d",
+  "sourceFingerprint": "2ed8f6e00096da4120deea30c94a9d0b6a3fcd203f7349adcdeab097e46d98e4",
   "summary": {
     "files": 612,
-    "lines": 121517,
+    "lines": 121520,
     "symbols": 1824
   },
   "symbolIndex": {
@@ -4653,37 +4653,37 @@
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 275
+        "line": 278
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 318
+        "line": 321
       }
     ],
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 332
+        "line": 335
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 357
+        "line": 360
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 374
+        "line": 377
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 389
+        "line": 392
       }
     ],
     "CompanionPresenceState": [
@@ -14476,8 +14476,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 560,
-      "sha256": "abbaf9ae90f9b129e626b84d4e9bff3e23cee18f99e72ff6a3ea88010c32b0a6",
+      "lines": 563,
+      "sha256": "6f5e62c8902d6ed3b595188cb01a0a3cf1a92a9029bd58fa4dbe5483e0bcbd5b",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -14525,27 +14525,27 @@
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 275
+          "line": 278
         },
         {
           "name": "markSeen",
-          "line": 318
+          "line": 321
         },
         {
           "name": "resetCharacter",
-          "line": 332
+          "line": 335
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 357
+          "line": 360
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 374
+          "line": 377
         },
         {
           "name": "extendByOwnChoice",
-          "line": 389
+          "line": 392
         }
       ]
     },
