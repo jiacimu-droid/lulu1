@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:32:30.858345+00:00",
-  "commit": "069e4fa9ef1f90af6be5359fa20c09f65e72fb51",
+  "generatedAt": "2026-10-13T10:34:17.574010+00:00",
+  "commit": "535d2dd4d208e2f0babd8bcdf68244d31c6181af",
   "branch": "main",
-  "sourceFingerprint": "2ff212a50be27c66483716b755edf730d77fd0ef39195b143eb90a3839d577bf",
+  "sourceFingerprint": "51411eeadeb77e62b95e99f46e229d7a91bcb01d76f4612899f8f7361f06e9a3",
   "summary": {
-    "files": 600,
-    "lines": 118465,
+    "files": 601,
+    "lines": 118675,
     "symbols": 1793
   },
   "symbolIndex": {
@@ -10846,6 +10846,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt",
       "lines": 202,
       "sha256": "47ab29a1ea6e4be71272a9784168273170dc665d9dc5ee4cd459226e490d5526",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt",
+      "lines": 210,
+      "sha256": "d69677fe4a4cf1d8c7bf522150107ed55cea3af97f3f68bf3c64bd2c0bd864ed",
       "symbols": []
     },
     {

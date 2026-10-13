@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`069e4fa9ef1f90af6be5359fa20c09f65e72fb51`
+- 基准提交：`535d2dd4d208e2f0babd8bcdf68244d31c6181af`
 - 分支：`main`
-- 已索引文件：600
-- 已索引代码/文本行：118465
+- 已索引文件：601
+- 已索引代码/文本行：118675
 - 已发现符号：1793
 
 | 文件 | 行数 | 符号数 |
@@ -68,6 +68,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldNativeResidentsArt.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt` | 364 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldScenePage.kt` | 202 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 210 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
