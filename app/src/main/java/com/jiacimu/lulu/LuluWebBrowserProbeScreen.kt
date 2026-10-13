@@ -29,6 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import org.json.JSONObject
 import org.json.JSONTokener
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.CancellationException
 
 private const val XHS_PROBE_URL = "https://www.xiaohongshu.com/explore"
 
@@ -46,6 +51,12 @@ internal fun xhsBrowserIsNoteUrl(raw: String): Boolean {
 @Composable
 internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var smokeStarted by remember { mutableStateOf(false) }
+    var smokePending by remember { mutableStateOf(XhsReadingEngine.visibleReadTestPending(context)) }
+    var smokeStage by remember { mutableStateOf(if (smokePending) "正在打开可见的小红书网页以开始检测…" else "") }
+    var smokeReport by remember { mutableStateOf("") }
+    var smokeJob by remember { mutableStateOf<Job?>(null) }
     var readerVisible by remember { mutableStateOf(false) }
     // A late SPA navigation callback can otherwise reopen the note right
     // after the user presses Back. Keep routing disabled until home finishes.
@@ -169,6 +180,14 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         } else if (current?.canGoBack() == true) current.goBack() else onBack()
     }
 
+    if (smokeReport.isNotBlank()) {
+        AlertDialog(onDismissRequest = { smokeReport = "" },
+            title = { Text("内置小红书真实读帖检测") },
+            text = { Text(smokeReport) },
+            confirmButton = { TextButton(onClick = { smokeReport = "" }) { Text("知道了") } })
+    }
+    DisposableEffect(Unit) { onDispose { smokeJob?.cancel() } }
+
     if (diagnosticsVisible && !readerVisible) {
         AlertDialog(
             onDismissRequest = { diagnosticsVisible = false },
@@ -283,6 +302,13 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         }
                     }
                 }) { Text("诊断") }
+            }
+            if (smokeStage.isNotBlank()) {
+                Text(smokeStage, modifier = Modifier.padding(horizontal = 12.dp),
+                    style = MaterialTheme.typography.bodySmall)
+                if (smokeJob?.isActive == true || smokePending) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                }
             }
             if (websiteIssue.isNotBlank()) {
                 Row(
@@ -508,6 +534,40 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 if (!XhsReadingEngine.controls(view) && routeToReader(Uri.parse(url.orEmpty()))) return
                                 if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))
                                     view?.evaluateJavascript(routingScript, null)
+                                if (!smokeStarted && XhsReadingEngine.consumeVisibleReadTest(context)) {
+                                    smokeStarted = true
+                                    smokePending = false
+                                    smokeStage = "第 1 / 2 步：正在使用当前可见网页搜索真实笔记…"
+                                    smokeJob = scope.launch {
+                                        val outcome = try {
+                                            withTimeout(80_000L) {
+                                                val found = XhsReadingEngine.list(context, "猫咪",
+                                                    onProgress = { stage -> smokeStage = "第 1 / 2 步 · $stage" },
+                                                    localOnly = true)
+                                                smokeStage = "已获取 ${found.size} 篇笔记，准备核验正文…"
+                                                val chosen = found.firstOrNull {
+                                                    it.provider == "webview" && it.token.isNotBlank()
+                                                } ?: error("搜索结果没有可打开的真实笔记；网页搜索可能未成功加载")
+                                                smokeStage = "第 2 / 2 步：正在打开网页笔记并核验真实正文…"
+                                                val article = XhsReadingEngine.read(context, chosen,
+                                                    onProgress = { stage -> smokeStage = "第 2 / 2 步 · $stage" },
+                                                    localOnly = true)
+                                                "内置浏览器测试成功：获取 ${found.size} 篇真实搜索笔记；" +
+                                                    "读取正文 ${article.body.length} 字、${article.images.size} 张图片。" +
+                                                    "\n没有使用 MCP，也没有改动角色记忆。"
+                                            }
+                                        } catch (error: TimeoutCancellationException) {
+                                            "内置浏览器未在 80 秒内完成读帖。请查看下面当前网页实际呈现的搜索结果或验证提示，再打开「诊断」。"
+                                        } catch (error: CancellationException) {
+                                            throw error
+                                        } catch (error: Exception) {
+                                            "内置浏览器读帖失败：${error.message.orEmpty().take(180)}。" +
+                                                "\n当前网页保持可见，请检查网页内容并点「诊断」，未改用 MCP。"
+                                        }
+                                        smokeStage = outcome
+                                        smokeReport = outcome
+                                    }
+                                }
                                 // Keep the full original link only for the user-triggered external-open button.
                                 view?.evaluateJavascript(
                                     """
