@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T13:01:48.807427+00:00",
-  "commit": "267c302332459d457f3d894163ebdd3ea91bcf43",
+  "generatedAt": "2026-10-13T14:27:29.529212+00:00",
+  "commit": "e713b7ac847bdc88b9b45a565ad1f8c7d0eab458",
   "branch": "main",
-  "sourceFingerprint": "465244c8724ff6c7f1fbea2923a3e11df74b685694da4b2228d1a1a5dcb2ee33",
+  "sourceFingerprint": "fa06958183ed99b37a5e92d50becde43721076270ecbcddbf92700036a4746a0",
   "summary": {
-    "files": 603,
-    "lines": 118981,
+    "files": 604,
+    "lines": 119167,
     "symbols": 1795
   },
   "symbolIndex": {
@@ -11361,6 +11361,12 @@
           "line": 1764
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
+      "lines": 186,
+      "sha256": "935f01831a26a3b328ca225edc89444eee6c1e665b7df3de36b0d67eec2f7681",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt",
