@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:40:35.281012+00:00",
-  "commit": "4b6acb7360a345854948462eaa2bf9c175fa89fd",
+  "generatedAt": "2026-10-13T05:41:05.844770+00:00",
+  "commit": "569690260080feb69620ea896c68192bd5a2ff12",
   "branch": "main",
-  "sourceFingerprint": "a007f2d1169c7582f3ffb7907cf1007b5603c42c44edc7f27a1ddc0b0b0bf01b",
+  "sourceFingerprint": "2546e238c24df90ab929fbc414570c7d2685157a3e33379af950f96f79ef0b96",
   "summary": {
     "files": 594,
-    "lines": 117104,
+    "lines": 117121,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -14243,8 +14243,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
-      "lines": 87,
-      "sha256": "334eb94a1b221a5b3c697520b66a806cbbfb5d1e6af178ade60d74baf356194f",
+      "lines": 104,
+      "sha256": "4ed4761e70812c76f17b8c64256aa0d997954d8d4ad2631e86eb90a0d0f56977",
       "symbols": [
         {
           "name": "active",
