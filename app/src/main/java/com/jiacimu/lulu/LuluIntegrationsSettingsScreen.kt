@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val links = LocalUriHandler.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -88,6 +90,9 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
             if (service == "xiaohongshu") {
                 HorizontalDivider()
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
+                OutlinedButton(onClick = {
+                    links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/docs/XHS_PHONE_ONLY_SETUP.md")
+                }) { Text("一部手机部署教程 · 云端托管可能收费") }
                 Text("先在手机浏览器部署好能持续运行的云端 MCP，并填入其 HTTPS 地址。按下面按钮生成登录码、保存到相册，然后打开小红书 → 我 → 左上角菜单 → 扫一扫 → 相册，选刚保存的图片完成授权。返回这里检查登录状态。二维码可能很快过期，请尽快操作。",
                     style = MaterialTheme.typography.bodySmall)
                 var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
