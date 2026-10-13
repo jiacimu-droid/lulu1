@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:17:51.674768+00:00",
-  "commit": "f69d4d41005ccd40607a4d6024274b7de7c4362b",
+  "generatedAt": "2026-10-13T19:18:08.138105+00:00",
+  "commit": "c9934fe6236ca10c8e5f379f999815ec6ac9a6d4",
   "branch": "main",
-  "sourceFingerprint": "d603d0fa33a529f64ce3cc80c2d7e9064601e7d78a4a2d57523853a4a906a1c5",
+  "sourceFingerprint": "afe997f4f3fa9972072ec0aad485d922dbb491b65f8f8a80600e0dea11e8407e",
   "summary": {
     "files": 612,
     "lines": 121121,
@@ -13105,7 +13105,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt",
       "lines": 216,
-      "sha256": "d3a356bb7d3f76384cf57088f7fa82e3cbc8c48cc503fb739dd480da26e1b02e",
+      "sha256": "1c8412d7de651769fe852eeebd0f6860132c6227a78990bd40cee7ad183299c5",
       "symbols": [
         {
           "name": "hasExhaustedAttempts",
@@ -16555,7 +16555,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 83,
-      "sha256": "991196e3f10858fe0870b9989119ed468b34d36e5818662e68e1672eeeb3024e",
+      "sha256": "8630d1a0713f690fcef1c4dba8c5f9d4c903a8f9fb2b3dc17d124ac75645c67b",
       "symbols": []
     },
     {
@@ -19808,7 +19808,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 1192,
-      "sha256": "c984858534d2bdb8d80df5f7a84c1c0f8f1d3b24706426e3b25a75a6ae9a963c",
+      "sha256": "7ef23a9dd6cb2a508bedc1d5f8f13c8860e57fee4df072828df7ae50e4ad6c9e",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
