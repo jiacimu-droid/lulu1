@@ -23,7 +23,25 @@ internal object EmotionFollowThroughCoordinator {
             (friction.any(recentUserText::contains) &&
                 (remorse.any(roleText::contains) || repair.any(roleText::contains)))
 
-    // This is only a classification helper. Actual deliberation belongs to
-    // the original chat/phone/meeting decision. There is deliberately no
-    // post-reply reflection request, no forced mood and no extra online wake.
+    /**
+     * Evidenced, consequential relationship feedback merits checking whether
+     * the character consciously chose to keep or let go of a concern.
+     * This is NOT a rule to create one, nor a claim about the user's intentions.
+     */
+    fun needsConcernAssessment(userText: String, appraisal: org.json.JSONObject?): Boolean {
+        val explicitImpact = listOf(
+            "你让我生气", "我很生气", "我真的生气", "我生气了", "让我失望",
+            "你让我失望", "你伤害", "伤害到我", "很委屈", "没有安全感",
+            "不尊重我", "轻视我", "你骗我", "冷暴力", "我很难过",
+            "我不开心", "让我难过", "你没把我当回事", "我们吵架",
+        ).any(userText::contains)
+        if (!explicitImpact || userText.length > 4_000) return false
+        if (CharacterOpenConcernRuntime.hasProposals(appraisal)) return false
+        // Even 'there is no enduring concern, because ...' is an actual
+        // deliberated decision. A missing field is not.
+        return appraisal?.optString("concernAssessment").isNullOrBlank()
+    }
+
+    // This is only a classification helper. It never authors a character's
+    // feelings, creates a pending concern, or sends an automatic apology.
 }
