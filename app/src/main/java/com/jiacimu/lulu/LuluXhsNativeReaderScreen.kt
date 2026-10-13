@@ -64,6 +64,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
     var message by remember { mutableStateOf("正在读取网页中的真实推荐笔记…") }
     var sequence by remember { mutableIntStateOf(0) }
     var latestHttpError by remember { mutableStateOf("") }
+    var requestedUrl by remember { mutableStateOf(XHS_HOME) }
 
     val originalUserAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(originalUserAgent) {
@@ -81,6 +82,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
             .build().toString()
 
     fun navigate(url: String, next: XhsReaderPage) {
+        requestedUrl = url
         page = next
         sequence += 1
         loading = true
@@ -321,6 +323,13 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 val target = view ?: return
+                                val finishedUrl = url.orEmpty()
+                                if (finishedUrl != requestedUrl &&
+                                    !finishedUrl.startsWith("https://www.xiaohongshu.com/website-login/")) {
+                                    // A cancelled/old page must not start inspecting
+                                    // a new search request's state.
+                                    return
+                                }
                                 val seq = sequence
                                 val currentPage = page
                                 val host = runCatching { Uri.parse(url.orEmpty()).host }.getOrNull()
@@ -337,7 +346,8 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                                 response: android.webkit.WebResourceResponse?,
                             ) {
                                 val code = response?.statusCode ?: 0
-                                if (request?.isForMainFrame == true && code >= 400) {
+                                if (request?.isForMainFrame == true && code >= 400 &&
+                                    request.url.toString() == requestedUrl) {
                                     latestHttpError = "小红书网页返回 HTTP $code"
                                 }
                             }
@@ -348,8 +358,14 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                                 error: WebResourceError?,
                             ) {
                                 if (request?.isForMainFrame == true) {
+                                    val failedUrl = request.url?.toString().orEmpty()
+                                    val reason = error?.description?.toString().orEmpty()
+                                    // Navigating from home to search cancels the old
+                                    // request. ERR_ABORTED is not a network outage.
+                                    if (failedUrl != requestedUrl ||
+                                        reason.contains("ERR_ABORTED", ignoreCase = true)) return
                                     loading = false
-                                    message = "网页连接失败：" + error?.description?.toString().orEmpty().take(100)
+                                    message = "当前网页请求失败：" + reason.take(100)
                                 }
                             }
                         }
