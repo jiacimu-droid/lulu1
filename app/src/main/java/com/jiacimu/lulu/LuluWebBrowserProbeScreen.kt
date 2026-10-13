@@ -129,6 +129,20 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         status = "正在返回笔记列表…"
     }
 
+    fun searchInVisibleBrowser(query: String) {
+        val text = query.trim().take(64)
+        readerVisible = false
+        readerCard = null
+        readerCards = emptyList()
+        readerKeyword = text
+        status = if (text.isBlank()) "正在打开首页推荐…" else "网页正在搜索，等实际结果返回…"
+        val target = if (text.isBlank()) XHS_PROBE_URL else
+            "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(text)}&source=web_explore_feed"
+        val current = browser ?: return
+        current.stopLoading()
+        current.loadUrl(target)
+    }
+
     fun routeToReader(target: Uri): Boolean {
         if (returningToList || readerVisible) return false
         if (target.scheme != "https" || target.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
@@ -591,7 +605,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             key(readerKeyword, readerCard?.id) {
                 LuluXhsNativeReaderScreen(onBack = { returnToList() },
                     initialKeyword = readerKeyword, initialCard = readerCard,
-                    initialCards = readerCards)
+                    initialCards = readerCards, onSearchInBrowser = { searchInVisibleBrowser(it) })
             }
         }
     }
