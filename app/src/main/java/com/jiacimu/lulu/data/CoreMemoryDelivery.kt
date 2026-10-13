@@ -68,13 +68,30 @@ internal object CoreMemoryInjectionAudit {
         at: Instant = Instant.now(),
     ) {
         if (characterId.isBlank()) return
-        val prefs = preferences ?: return
-        // A request with zero valid Core entries is still a useful successful audit event:
-        // it tells the user the model call happened, but had none to inject.
+        if (preferences == null) return
+        // A successful request with zero valid Core entries is still useful.
         val records = (listOf(CoreMemoryInjectionReceipt(at, source.take(100),
             contextMode.take(60), coreIds.distinct())) + recent(characterId)).take(MAX_HISTORY)
+        persist(characterId, records)
+    }
+
+    /** Privacy invariant: deleting a memory also removes its IDs from audit history. */
+    @Synchronized fun removeMemory(characterId: String, memoryId: String) {
+        if (characterId.isBlank() || memoryId.isBlank()) return
+        val old = recent(characterId)
+        if (old.none { memoryId in it.coreIds }) return
+        persist(characterId, old.map { it.copy(coreIds = it.coreIds - memoryId) })
+    }
+
+    /** A full character reset must forget the audit too. */
+    @Synchronized fun clearCharacter(characterId: String) {
+        if (characterId.isNotBlank()) preferences?.edit()?.remove("role:$characterId")?.apply()
+    }
+
+    private fun persist(characterId: String, records: List<CoreMemoryInjectionReceipt>) {
+        val prefs = preferences ?: return
         val array = JSONArray()
-        records.forEach { record ->
+        records.take(MAX_HISTORY).forEach { record ->
             val ids = JSONArray()
             record.coreIds.forEach { ids.put(it) }
             array.put(JSONObject().put("at", record.at.toString())
