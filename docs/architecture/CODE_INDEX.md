@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`acf75c69fc4c08a4209f82dc129243f64502c815`
+- 基准提交：`f3f2d7aaab0cb26c0b1534d0ea6398ef6ab8e7bf`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：122180
-- 已发现符号：1834
+- 已索引代码/文本行：122232
+- 已发现符号：1835
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -135,7 +135,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 91 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 846 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 322 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 323 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 83 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -301,7 +301,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 100 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 996 | 48 |
-| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 197 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 248 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 898 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 122 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |

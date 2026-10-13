@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T21:20:11.105315+00:00",
-  "commit": "acf75c69fc4c08a4209f82dc129243f64502c815",
+  "generatedAt": "2026-10-13T21:20:54.271170+00:00",
+  "commit": "f3f2d7aaab0cb26c0b1534d0ea6398ef6ab8e7bf",
   "branch": "main",
-  "sourceFingerprint": "a7f9b002c8ddd81cce65da034880af6deef25f73f7c81037faab230f593c01f4",
+  "sourceFingerprint": "70454bb5395cf2f2f287e4776f10d2098e5fba0e99e0f4963d8bb018cbfb6930",
   "summary": {
     "files": 615,
-    "lines": 122180,
-    "symbols": 1834
+    "lines": 122232,
+    "symbols": 1835
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6476,22 +6476,28 @@
         "line": 96
       }
     ],
+    "readableReplyBubbles": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
+        "line": 108
+      }
+    ],
     "completedReplyBubbles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 103
+        "line": 154
       }
     ],
     "replyBubblesWithPartialState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 136
+        "line": 187
       }
     ],
     "completedReplyText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-        "line": 180
+        "line": 231
       }
     ],
     "MomentAuthorType": [
@@ -12199,8 +12205,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 322,
-      "sha256": "f5931704fbc70d5d0b8be780ad1e24072e34afed4a45982591dd1c1cf3c497bd",
+      "lines": 323,
+      "sha256": "e9eb109fd52e24d5c2406000942600f48f7dade2a5caaf006653eff0fbb452c1",
       "symbols": []
     },
     {
@@ -16507,8 +16513,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
-      "lines": 197,
-      "sha256": "84626b7a1c50525fe3523c7538c331c07984dbc569fbe79530e2820fabadc544",
+      "lines": 248,
+      "sha256": "c85c8e00c32789ddd88222c2ac8ac9a5a271082e78132579b8b313d8d97562ba",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -16523,16 +16529,20 @@
           "line": 96
         },
         {
+          "name": "readableReplyBubbles",
+          "line": 108
+        },
+        {
           "name": "completedReplyBubbles",
-          "line": 103
+          "line": 154
         },
         {
           "name": "replyBubblesWithPartialState",
-          "line": 136
+          "line": 187
         },
         {
           "name": "completedReplyText",
-          "line": 180
+          "line": 231
         }
       ]
     },
