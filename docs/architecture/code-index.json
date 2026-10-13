@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:09:33.292026+00:00",
-  "commit": "91183facbd53ba0deff5c75025b162a0a0bee067",
+  "generatedAt": "2026-10-13T19:16:24.517072+00:00",
+  "commit": "5283f9430ee5f131b13aa715993b5bc3c10296a7",
   "branch": "main",
-  "sourceFingerprint": "2647d7be88487b3b4d701edcd20391bf19817f385ce2c4ccafefbc6f091cf527",
+  "sourceFingerprint": "9f3982f0cb0960a828efae43befac9952ef3baa50bf6f3770dae4f5605894295",
   "summary": {
     "files": 612,
-    "lines": 120988,
-    "symbols": 1816
+    "lines": 121040,
+    "symbols": 1819
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -229,7 +229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 20
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -355,7 +355,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 193
+        "line": 243
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
@@ -2563,7 +2563,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 126
+        "line": 168
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -3956,46 +3956,64 @@
         "line": 102
       }
     ],
+    "proposals": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 29
+      }
+    ],
+    "hasProposals": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 40
+      }
+    ],
     "result": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 28
+        "line": 60
       }
     ],
     "recordOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 95
+        "line": 137
       }
     ],
     "meritsOneFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 137
+        "line": 179
+      }
+    ],
+    "closures": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 188
       }
     ],
     "closure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 146
+        "line": 193
       }
     ],
     "dependsOnEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 163
+        "line": 213
       }
     ],
     "matches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 165
+        "line": 215
       }
     ],
     "closureContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 173
+        "line": 223
       }
     ],
     "integrate": [
@@ -13670,48 +13688,60 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-      "lines": 242,
-      "sha256": "584c45e1b1d8b1ee99027e976a930965a7a24c4770371aeb1b6374d10098bc94",
+      "lines": 294,
+      "sha256": "76ae0688a73bd8e451019ce1c4133d145747c9ade8a685fcae92e7420ba90cf8",
       "symbols": [
         {
+          "name": "proposals",
+          "line": 29
+        },
+        {
+          "name": "hasProposals",
+          "line": 40
+        },
+        {
           "name": "update",
-          "line": 20
+          "line": 42
         },
         {
           "name": "result",
-          "line": 28
+          "line": 60
         },
         {
           "name": "recordOutcome",
-          "line": 95
-        },
-        {
-          "name": "recent",
-          "line": 126
-        },
-        {
-          "name": "meritsOneFollowThrough",
           "line": 137
         },
         {
+          "name": "recent",
+          "line": 168
+        },
+        {
+          "name": "meritsOneFollowThrough",
+          "line": 179
+        },
+        {
+          "name": "closures",
+          "line": 188
+        },
+        {
           "name": "closure",
-          "line": 146
+          "line": 193
         },
         {
           "name": "dependsOnEvidence",
-          "line": 163
+          "line": 213
         },
         {
           "name": "matches",
-          "line": 165
+          "line": 215
         },
         {
           "name": "closureContext",
-          "line": 173
+          "line": 223
         },
         {
           "name": "context",
-          "line": 193
+          "line": 243
         }
       ]
     },
