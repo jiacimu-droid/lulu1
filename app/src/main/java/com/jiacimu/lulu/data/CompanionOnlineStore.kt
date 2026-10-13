@@ -440,6 +440,11 @@ object CompanionOnlineStore {
     private fun scheduleExpiryLocked(characterId: String) {
         expiryJobs.remove(characterId)?.cancel()
         val until = mutableStates.value[characterId]?.onlineUntil ?: return
+        // On cold start all existing expired windows (including the original
+        // default offline state) are NOT fresh five-minute sessions. Their
+        // previous durable worker may resume, but initialization itself must
+        // never create a paid expiry model call.
+        if (!until.isAfter(Instant.now())) return
         val waitMillis = Duration.between(Instant.now(), until).toMillis().coerceAtLeast(0L)
         // Persist a backup deadline for when Android kills the app process.
         // Each work has a boundary-specific identity; stale work only checks
