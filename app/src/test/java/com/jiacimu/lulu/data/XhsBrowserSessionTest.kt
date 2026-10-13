@@ -38,6 +38,19 @@ class XhsBrowserSessionTest {
             "https://untrusted.example/explore/$id"))
     }
 
+    @Test fun characterReadFailureDiagnosisShowsActualStageButNotSessionTokens() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        XhsReadingEngine.recordToolStage(context, "笔记正文",
+            "连接失败 https://www.xiaohongshu.com/explore/abcdef123456789012345678?xsec_token=secret")
+        val diagnostic = XhsReadingEngine.lastDiagnostic(context)
+        assertTrue(diagnostic.contains("笔记正文"))
+        assertTrue(diagnostic.contains("failed"))
+        assertFalse(diagnostic.contains("secret"))
+        assertFalse(diagnostic.contains("abcdef123456789012345678"))
+        XhsReadingEngine.recordToolStage(context, "笔记图文已核验")
+        assertTrue(XhsReadingEngine.lastDiagnostic(context).contains("succeeded"))
+    }
+
     /** This fixture tests Android ownership only; production JS parsing has independent browser tests. */
     private class LoginBrowser(activity: Activity) : WebView(activity) {
         var navigations = 0
