@@ -66,10 +66,15 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                 OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
                     mcpStatus = "正在检查…"
                     scope.launch {
-                        mcpStatus = runCatching { LuluExternalMcp.check(context, service) }
-                            .fold({ "连接返回：" + it.take(240) }, { "无法连接：" + it.message.orEmpty().take(180) })
+                        mcpStatus = runCatching {
+                            require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken)) { "无法保存连接信息" }
+                            LuluExternalMcp.check(context, service)
+                        }.fold(
+                            { "连接成功：" + it.take(240) },
+                            { "无法连接：" + it.message.orEmpty().take(180) },
+                        )
                     }
-                }) { Text("测试连接") }
+                }) { Text("保存并测试") }
                 OutlinedButton(onClick = {
                     mcpUrl = ""; mcpToken = ""
                     mcpStatus = if (LuluExternalMcp.save(context, service, "", "")) "已断开" else "断开失败"
