@@ -162,8 +162,37 @@ internal object XhsReadingEngine {
         }
         val note = if (target.provider == "webview") {
             require(localEnabled(context)) { "本机阅读已关闭" }
-            loadPage(context, target.url(), "note", target.id, "", onProgress).optJSONObject("note")
+            try {
+                loadPage(context, target.url(), "note", target.id, "", onProgress)
+                    .optJSONObject("note") ?: error("当前登录网页没有提供这篇笔记的正文")
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                if (!LuluExternalMcp.configured(context, "xiaohongshu")) throw error
+                onProgress("网页笔记读取失败，正在尝试备用 MCP")
+                try { readMcpNote(context, target) }
+                catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (secondary: Exception) {
+                    throw IllegalStateException("网页笔记读取失败：${error.message.orEmpty().take(110)}；" +
+                        "备用 MCP 也未返回正文：${secondary.message.orEmpty().take(110)}", secondary)
+                }
+            }
         } else {
+            readMcpNote(context, target)
+        }
+        val body = note.optString("body").trim().take(8000)
+        val values = note.optJSONArray("images")
+        val images = (0 until minOf(values?.length() ?: 0, 30)).mapNotNull {
+            val row = values?.optJSONObject(it) ?: return@mapNotNull null
+            val url = XhsImagePolicy.normalize(row.optString("url")) ?: return@mapNotNull null
+            XhsImage(url, row.optInt("width"), row.optInt("height"))
+        }.distinctBy { it.url }
+        require(body.isNotBlank() || images.isNotEmpty()) { "实际笔记没有正文或图片，未标记为已读" }
+        return XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
+            note.optString("author").ifBlank { target.author }, target.provider, images)
+    }
+
+    private suspend fun readMcpNote(context: Context, target: XhsCard): JSONObject {
             val root = JSONObject(LuluExternalMcp.xhsRead(context, "get_feed_detail", JSONObject()
                 .put("feed_id", target.id).put("xsec_token", target.token).put("load_all_comments", false)))
             val data = root.optJSONObject("data") ?: root
@@ -184,17 +213,6 @@ internal object XhsReadingEngine {
             }
             JSONObject().put("images", pictures).put("title", raw.optString("title")).put("body", raw.optString("desc"))
                 .put("author", raw.optJSONObject("user")?.optString("nickname").orEmpty())
-        } ?: error("网站没有提供这篇笔记的正文")
-        val body = note.optString("body").trim().take(8000)
-        val values = note.optJSONArray("images")
-        val images = (0 until minOf(values?.length() ?: 0, 30)).mapNotNull {
-            val row = values?.optJSONObject(it) ?: return@mapNotNull null
-            val url = XhsImagePolicy.normalize(row.optString("url")) ?: return@mapNotNull null
-            XhsImage(url, row.optInt("width"), row.optInt("height"))
-        }.distinctBy { it.url }
-        require(body.isNotBlank() || images.isNotEmpty()) { "实际笔记没有正文或图片，未标记为已读" }
-        return XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
-            note.optString("author").ifBlank { target.author }, target.provider, images)
     }
 
     private suspend fun loadPage(
