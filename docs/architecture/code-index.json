@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T02:51:58.083127+00:00",
-  "commit": "02af354e03b27571769f1997ad12a93068a6962e",
+  "generatedAt": "2026-10-13T02:52:12.627050+00:00",
+  "commit": "92886a3f0f8bd761967d415e214f297bf6d04301",
   "branch": "main",
-  "sourceFingerprint": "00873306054ee31d16b9a64c5555cbfafb1ab3b52b1a65329b947b541e35b5b8",
+  "sourceFingerprint": "ac367e0dc674220335b9fd1fedb4c75bd2e5a642d5b432740a593a850206032a",
   "summary": {
     "files": 582,
-    "lines": 116297,
+    "lines": 116300,
     "symbols": 1764
   },
   "symbolIndex": {
@@ -349,7 +349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1150
+        "line": 1153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -2997,7 +2997,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1050
+        "line": 1053
       }
     ],
     "needsIndependentLifeReview": [
@@ -3719,7 +3719,7 @@
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1067
+        "line": 1070
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -13042,8 +13042,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1272,
-      "sha256": "adff26b0819b6c278a606b6b845415dbe90ea0371324bda74ee354b9ad5786af",
+      "lines": 1275,
+      "sha256": "85c8a263b2b4773d2e6d76552335d95d6d6f921ce7a898038941d3ce683868b4",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -13067,15 +13067,15 @@
         },
         {
           "name": "normalize",
-          "line": 1050
+          "line": 1053
         },
         {
           "name": "compactContext",
-          "line": 1067
+          "line": 1070
         },
         {
           "name": "context",
-          "line": 1150
+          "line": 1153
         }
       ]
     },
