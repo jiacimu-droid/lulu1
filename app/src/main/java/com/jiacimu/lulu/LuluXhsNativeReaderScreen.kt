@@ -62,7 +62,9 @@ internal fun LuluXhsNativeReaderScreen(
     var webReady by remember { mutableStateOf(false) }
     var webProblem by remember { mutableStateOf("") }
     var embeddedView by remember { mutableStateOf<WebView?>(null) }
-    var showWebPreview by remember { mutableStateOf(smokeRequested) }
+    // Keep the site's actual viewport usable. A 2dp/180dp WebView cannot
+    // reliably hydrate virtualized result grids or interactive search.
+    var showWebPreview by remember { mutableStateOf(true) }
     var smokeStarted by remember { mutableStateOf(false) }
     var smokeResult by remember { mutableStateOf("") }
     var smokeRunning by remember { mutableStateOf(false) }
@@ -303,15 +305,15 @@ internal fun LuluXhsNativeReaderScreen(
             }
             if (useEmbeddedBrowser) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("同一页面内的登录网页 · 供搜索与角色阅读复用",
+                    Text("露露机内置网页 · 搜索及登录状态",
                         style = MaterialTheme.typography.labelSmall)
                     TextButton(onClick = { showWebPreview = !showWebPreview }) {
-                        Text(if (showWebPreview) "收起网页预览" else "查看网页状态")
+                        Text(if (showWebPreview) "缩小网页" else "展开网页")
                     }
                 }
                 AndroidView(
                     modifier = Modifier.fillMaxWidth().height(
-                        if (showWebPreview || loading || smokeRunning) 180.dp else 2.dp),
+                        if (showWebPreview || loading || smokeRunning) 340.dp else 180.dp),
                     factory = { ctx ->
                         WebView(ctx).apply {
                             settings.javaScriptEnabled = true
