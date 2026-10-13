@@ -122,12 +122,17 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         topBar = {
             TopAppBar(
                 title = { Column {
-                    Text(if (startInCore) "核心记忆" else "记忆", fontWeight = FontWeight.SemiBold)
+                    Text(if (section == MemoryPageSection.Core) "核心记忆" else "记忆", fontWeight = FontWeight.SemiBold)
                     if (personalCharacterId != null) Text(characters[selectedCharacterId]?.displayName.orEmpty(),
                         fontSize = 12.sp, color = FeatureBlueGray)
                 } },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+                    IconButton(onClick = {
+                        if (section == MemoryPageSection.Core && !startInCore) {
+                            section = MemoryPageSection.Recent
+                            search = ""
+                        } else onBack()
+                    }) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
                 actions = {
                     IconButton(onClick = { showSettings = !showSettings }) {
@@ -258,6 +263,32 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 Spacer(Modifier.height(10.dp))
             }
 
+            if (section != MemoryPageSection.Core) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp)
+                        .clickable {
+                            search = ""
+                            section = MemoryPageSection.Core
+                        },
+                    color = FeatureCard,
+                    shape = RoundedCornerShape(18.dp),
+                    border = BorderStroke(1.dp, FeatureBorder),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 15.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.PushPin, "核心记忆入口", tint = FeatureBlueGray)
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("核心记忆", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text("始终记住 · 查看实际注入记录", fontSize = 12.sp, color = FeatureBlueGray)
+                        }
+                        Icon(Icons.Outlined.ChevronRight, "进入", tint = FeatureBlueGray)
+                    }
+                }
+            }
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it },
@@ -268,13 +299,13 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 shape = RoundedCornerShape(18.dp),
             )
 
-            ScrollableTabRow(
-                selectedTabIndex = section.ordinal,
+            if (section != MemoryPageSection.Core) ScrollableTabRow(
+                selectedTabIndex = section.ordinal - 1,
                 containerColor = FeatureCard,
                 edgePadding = 8.dp,
                 modifier = Modifier.padding(top = 10.dp),
             ) {
-                MemoryPageSection.entries.forEach { item ->
+                MemoryPageSection.entries.filterNot { it == MemoryPageSection.Core }.forEach { item ->
                     Tab(
                         selected = section == item,
                         onClick = { section = item },
@@ -447,7 +478,7 @@ private fun CoreMemoryInjectionCard(characterId: String, memories: List<MemoryEn
         Text("可点击下方记忆的「取消核心」调整；也可以点右上角 + 创建并打开核心记忆开关。已删除、已更正或来源失效的旧条目不会继续注入。",
             color = FeatureBlueGray, fontSize = 12.sp, lineHeight = 18.sp)
         HorizontalDivider(color = FeatureBorder)
-        Text("最近一次角色模型注入凭据", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text("最近一次核心记忆下发凭据", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         if (latest == null) {
             Text("尚无可核对的成功请求。更新后先让角色聊天一次再回来查看；这里不会把检索候选或失败请求冒充已注入。",
                 color = FeatureBlueGray, fontSize = 12.sp)
@@ -468,7 +499,7 @@ private fun CoreMemoryInjectionCard(characterId: String, memories: List<MemoryEn
                         fontSize = 12.sp, color = FeatureBlueGray)
                 }
             } else Text("这次请求没有有效核心记忆可注入。", color = FeatureBlueGray, fontSize = 12.sp)
-            Text("此凭据只在模型请求成功后记录实际发送的 Core ID；不表示模型已经理解、遵守或记住所有事实。",
+            Text("普通模型调用返回成功后记录；Agent 记录只证明上下文同步成功，不代表已经完成一次角色回答或理解全部内容。",
                 fontSize = 11.sp, color = FeatureBlueGray)
         }
         val history = CoreMemoryInjectionAudit.recent(characterId).drop(1).take(4)
