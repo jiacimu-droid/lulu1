@@ -113,6 +113,18 @@ fun LexiconFeatureScreenV2(
     val lifeEntries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, LexiconSection.Life)
         .collectAsState(initial = emptyList())
+    val mindRevision by com.jiacimu.lulu.data.CharacterInnerLifeStore.revisions.collectAsState()
+    val recentPrivateConcerns = remember(selectedCharacterId, mindRevision) {
+        com.jiacimu.lulu.data.CharacterOpenConcernRuntime.recent(
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(selectedCharacterId)
+                .optJSONArray("openConcerns"),
+        ).filter { item ->
+            val evidence = item.optString("evidenceId")
+            evidence.isNotBlank() &&
+                com.jiacimu.lulu.data.SharedExperienceTimeline
+                    .eventsByIds(selectedCharacterId, listOf(evidence)).isNotEmpty()
+        }.distinctBy { it.optString("id") }
+    }
     val entries = remember(currentSectionEntries, lifeEntries, section) {
         if (section == LexiconSection.Concern)
             (currentSectionEntries + lifeEntries).distinctBy { it.id }
@@ -203,11 +215,27 @@ fun LexiconFeatureScreenV2(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (entries.isEmpty()) {
+                if (section == LexiconSection.Concern && !isLifeAudit && recentPrivateConcerns.isNotEmpty()) {
+                    item(key = "character-private-current-concerns-title") {
+                        Text("角色当前真实在意的事", fontWeight = FontWeight.SemiBold)
+                    }
+                    items(recentPrivateConcerns.size, key = { index ->
+                        "inner-concern:" + recentPrivateConcerns[index].optString("id")
+                    }) { index ->
+                        val concern = recentPrivateConcerns[index]
+                        LexiconV2Card {
+                            Text(concern.optString("focus"), fontWeight = FontWeight.SemiBold)
+                            Text(concern.optString("whyItMatters"),
+                                fontSize = 13.sp, color = LuluColors.Muted)
+                            Text("来自角色亲自形成的想法 · 随后续感知更新（不是用户承诺）",
+                                fontSize = 11.sp, color = LuluColors.Muted)
+                        }
+                    }
+                }
+                if (entries.isEmpty() && recentPrivateConcerns.isEmpty()) {
                     item {
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
-
                         }
                     }
                 } else {
