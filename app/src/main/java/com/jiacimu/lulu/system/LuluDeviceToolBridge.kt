@@ -88,7 +88,11 @@ object LuluDeviceToolBridge {
                 reply.innerLife, emptySet(), now,
             )
         }
-        if (delta.meaningful || groundedThought.isNotBlank()) {
+        // A pending concern is itself an enduring subjective decision, even if this
+        // turn has no new emotion or publishable inner-voice text. Dropping it here
+        // made a successful re-answer look emotionally resolved after five minutes.
+        if (delta.meaningful || groundedThought.isNotBlank() ||
+            reply.appraisal?.optJSONObject("pendingConcern") != null) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
                 characterId = characterId, evidenceId = evidenceId, appraisal = reply.appraisal,
                 innerLife = reply.innerLife, innerThoughtBasis = reply.innerThoughtBasis,
@@ -99,6 +103,24 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
                     characterId, evidenceId, groundedThought, now, delta.fingerprint,
                 )
+            }
+        }
+        // Durable, bounded follow-up: the ordinary online timeout handles this
+        // while the app stays alive; a persisted work request also survives
+        // background process death. It only reopens the shared autonomous
+        // decision, not a compulsory apology, message or new online window.
+        if (com.jiacimu.lulu.data.CharacterInnerLifeStore.needsPostOnlineReflection(characterId, now)) {
+            context?.let { app ->
+                val onlineUntil = com.jiacimu.lulu.data.CompanionOnlineStore.states
+                    .value[characterId]?.onlineUntil
+                val untilOffline = onlineUntil?.let {
+                    java.time.Duration.between(now, it).toMillis().coerceAtLeast(0L)
+                } ?: 0L
+                runCatching {
+                    com.jiacimu.lulu.data.ProactivePerceptionScheduler.scheduleEmotionalAftercare(
+                        app, characterId, delayMillis = untilOffline + 90_000L,
+                    )
+                }
             }
         }
         // No new inner voice is not an instruction to erase an earlier, still valid thought.
