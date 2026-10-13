@@ -46,7 +46,8 @@ class SleepGuidanceGuideTest {
         assertTrue(early.contains("慢慢铺陈一个舒服的睡前主题"))
         assertTrue(middle.contains("减少追问和新话题"))
         assertTrue(late.contains("不再开新冒险"))
-        assertTrue(late.contains("大段安静"))
+        assertTrue(late.contains("更长的播放间隔留白"))
+        assertTrue(late.contains("不要把每次模型回复缩成几句重复的晚安"))
     }
 
     @Test fun breathingAndBodyGuidanceDoNotImposeUncomfortableExercise() {
