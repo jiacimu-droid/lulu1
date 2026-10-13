@@ -42,6 +42,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     when (page) {
         SettingsHomePage.Api -> LuluSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Capabilities -> LuluCapabilitiesScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Integrations -> LuluIntegrationsSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Voice -> LuluVoiceSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Memory -> LuluMemorySettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Image -> LuluImageSettingsScreen(onBack = { page = SettingsHomePage.Home })
@@ -50,6 +51,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onBack = onBack,
             onOpenApi = { page = SettingsHomePage.Api },
             onOpenCapabilities = { page = SettingsHomePage.Capabilities },
+            onOpenIntegrations = { page = SettingsHomePage.Integrations },
             onOpenVoice = { page = SettingsHomePage.Voice },
             onOpenMemory = { page = SettingsHomePage.Memory },
             onOpenImage = { page = SettingsHomePage.Image },
@@ -58,7 +60,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Voice, Memory, Image, Vision }
+private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, Voice, Memory, Image, Vision }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +68,7 @@ private fun SettingsEntryScreen(
     onBack: () -> Unit,
     onOpenApi: () -> Unit,
     onOpenCapabilities: () -> Unit,
+    onOpenIntegrations: () -> Unit,
     onOpenVoice: () -> Unit,
     onOpenMemory: () -> Unit,
     onOpenImage: () -> Unit,
@@ -96,6 +99,14 @@ private fun SettingsEntryScreen(
                     title = "API 设置",
                     subtitle = "配置聊天站点、模型与当前聊天模型",
                     onClick = onOpenApi,
+                )
+            }
+            item {
+                SettingsEntryRow(
+                    icon = Icons.Outlined.Extension,
+                    title = "MCP 与联网服务",
+                    subtitle = "小红书、华为手环、通用网页搜索 · 所有角色共用",
+                    onClick = onOpenIntegrations,
                 )
             }
             item {
