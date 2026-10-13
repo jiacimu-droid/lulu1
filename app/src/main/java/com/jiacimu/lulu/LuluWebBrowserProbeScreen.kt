@@ -448,9 +448,14 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                         returningToList = false
                                         view?.clearHistory()
                                         status = "已返回小红书首页"
+                                    } else {
+                                        // Ignore stale note/search page-finished
+                                        // callbacks during the return navigation.
+                                        return
                                     }
-                                    // Never resurrect old details while returning.
-                                    return
+                                    // Home is now loaded. Continue below to
+                                    // reinstall click/search routing on WebViews
+                                    // without document-start injection.
                                 }
                                 if (!XhsReadingEngine.controls(view) && routeToReader(Uri.parse(url.orEmpty()))) return
                                 if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))
