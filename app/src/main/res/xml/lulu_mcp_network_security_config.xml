@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- The Termux MCP server is on this very phone. Only local loopback can use HTTP;
+         remote servers must remain HTTPS to protect login credentials and health data. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain>localhost</domain>
+        <domain>127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
