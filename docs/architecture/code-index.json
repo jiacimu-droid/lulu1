@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:39:34.842896+00:00",
-  "commit": "aeeb81804efc4956f0733e11568eda4af5730090",
+  "generatedAt": "2026-10-13T19:40:28.039710+00:00",
+  "commit": "4986f7f9d477147112c8b0ea9bcb463f1ae59110",
   "branch": "main",
-  "sourceFingerprint": "735d346c90f5ad1821cc1d393e398437098029101aeabb1efe00b898b8372d9b",
+  "sourceFingerprint": "7b979e1a58e44c81e5366fa85f1ca05a5c9b854e9c6b50c05a5c4dca57c63daf",
   "summary": {
     "files": 612,
-    "lines": 121565,
+    "lines": 121566,
     "symbols": 1824
   },
   "symbolIndex": {
@@ -12930,8 +12930,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-      "lines": 81,
-      "sha256": "e53a43d99145fa55552f18309c589d85d0971be7c707e37f6b27fd589d89ad8c",
+      "lines": 82,
+      "sha256": "cc9eaa3c3879abbc7d5131dd6546e39d4ec52cefd7c9920a70d33f743227b1fe",
       "symbols": [
         {
           "name": "needsIndependentLifeReview",
