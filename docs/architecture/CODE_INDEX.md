@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`86a4794e3cd5abf6d2699452a774879ba23f97d8`
+- 基准提交：`fcbd3d2078df4d9124fd3a12b49c12d80c161db0`
 - 分支：`main`
 - 已索引文件：600
-- 已索引代码/文本行：118230
+- 已索引代码/文本行：118234
 - 已发现符号：1787
 
 | 文件 | 行数 | 符号数 |
@@ -401,7 +401,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 854 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 577 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 187 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 406 | 29 |
