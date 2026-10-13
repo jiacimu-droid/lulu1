@@ -105,7 +105,13 @@ fun LexiconFeatureScreenV2(
         sectionIndex = if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex
     }
 
-    val isLifeAudit = sectionIndex == LIFE_AUDIT_INDEX
+    // Saved tabs from older APKs included a separate Life tab and used index 5
+    // for the audit. Normalize before reading the new compact tab list.
+    LaunchedEffect(sectionIndex) {
+        if (sectionIndex > LIFE_AUDIT_INDEX) sectionIndex = LIFE_AUDIT_INDEX
+        if (sectionIndex < 0) sectionIndex = 0
+    }
+    val isLifeAudit = sectionIndex >= LIFE_AUDIT_INDEX
     val section = LexiconV2Sections.getOrNull(sectionIndex)?.first ?: LexiconSection.Life
     val currentSectionEntries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
@@ -204,7 +210,7 @@ fun LexiconFeatureScreenV2(
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            CharacterSectionTabs(LexiconV2Sections.map { it.second } + "历程", sectionIndex,
+            CharacterSectionTabs(LexiconV2Sections.map { it.second } + "历程", sectionIndex.coerceIn(0, LIFE_AUDIT_INDEX),
                 onSelect = { sectionIndex = it; editing = null; creating = false })
 
             if (isLifeAudit) {
@@ -232,7 +238,7 @@ fun LexiconFeatureScreenV2(
                         }
                     }
                 }
-                if (entries.isEmpty() && recentPrivateConcerns.isEmpty()) {
+                if (entries.isEmpty() && (section != LexiconSection.Concern || recentPrivateConcerns.isEmpty())) {
                     item {
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
