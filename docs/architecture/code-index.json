@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T02:35:33.822209+00:00",
-  "commit": "4427e88fb1797b28f167e106916fa6e748d9632f",
+  "generatedAt": "2026-10-13T02:35:45.590885+00:00",
+  "commit": "d9f75d5574d2a92442e94ce9e81f7e375899b78f",
   "branch": "main",
-  "sourceFingerprint": "f56a3ff4c3bce4e94a0add253ed1afb8834ebf6552c2db9e21e2c138e0ae9f57",
+  "sourceFingerprint": "823b3779b9f47bdd5ba65e950cc1509f2e3a09e9b7fe5532a876278529ad112b",
   "summary": {
     "files": 581,
-    "lines": 116228,
+    "lines": 116230,
     "symbols": 1759
   },
   "symbolIndex": {
@@ -1281,7 +1281,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "commit": [
@@ -2647,7 +2647,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-        "line": 22
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -6613,19 +6613,19 @@
     "Preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "isReadingNotice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "consecutiveCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "fetchWorldNews": [
@@ -16210,28 +16210,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-      "lines": 72,
-      "sha256": "f99c2379f2f55c10182606eecd5f30535909ed6a06d93e4fc5e0b8f914f3318c",
+      "lines": 74,
+      "sha256": "7e195a682fc9c5cbd75b8c0bfb85961edc8d8a494c0cff4ea6b1a4676aca1c78",
       "symbols": [
         {
           "name": "Preview",
-          "line": 14
+          "line": 15
         },
         {
           "name": "isReadingNotice",
-          "line": 16
+          "line": 17
         },
         {
           "name": "consecutiveCount",
-          "line": 19
+          "line": 20
         },
         {
           "name": "create",
-          "line": 22
+          "line": 23
         },
         {
           "name": "preview",
-          "line": 42
+          "line": 43
         }
       ]
     },
