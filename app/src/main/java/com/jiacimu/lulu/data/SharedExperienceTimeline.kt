@@ -198,7 +198,8 @@ object SharedExperienceTimeline {
         // This is the single canonical gate from REAL timeline events to
         // the role's possible future sharing and curiosity. Chat claims,
         // fictional stories, and mere model intentions never enter this queue.
-        val verifiedLifeEvent = source == "digital-world" ||
+        val verifiedLifeEvent = source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") ||
+            source == "digital-world" ||
             source.startsWith("reading:") ||
             (channel.startsWith("独自") && source !in setOf("legacy", "message")) ||
             (channel.startsWith("数字世界") && source !in setOf("legacy", "message"))

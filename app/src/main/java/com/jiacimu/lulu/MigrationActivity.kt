@@ -43,6 +43,7 @@ import com.jiacimu.lulu.system.LuluDeviceToolBridge
 class MigrationActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
+        com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
         ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
@@ -60,6 +61,7 @@ class MigrationActivity : ComponentActivity() {
     }
 
     override fun onPause() {
+        com.jiacimu.lulu.data.XhsReadingEngine.pause(this)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(false)
         ProactivePerceptionScheduler.stopForegroundChecks()
         super.onPause()

@@ -26,7 +26,7 @@ object CapabilityRegistry {
         "publish_moment", "write_journal", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false) }
     val external = listOf(
-        Capability("read_xiaohongshu", "external", "xhs_read", "MCP search + confirmed full note detail and source", false),
+        Capability("read_xiaohongshu", "external", "xhs_read", "Shared local/MCP reader + confirmed note body and source", false),
         Capability("read_health_mcp", "external", "health_read", "authenticated read-only health_read response", true),
     )
     fun find(name: String): Capability? = (device + application + external).firstOrNull { it.name == name }

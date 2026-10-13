@@ -69,7 +69,7 @@ internal object CompanionActionRuntime {
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine(CharacterSocialActionOpportunities.prompt(characterId))
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
-        if (LuluExternalMcp.configured(context, "xiaohongshu") &&
+        if (XhsReadingEngine.available(context) &&
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
             appendLine("- read_xiaohongshu，args={\"keyword\":\"自己真正好奇的主题，可留空看推荐\"}：自主逛小红书时，真实搜帖/推荐并打开一篇正文后才算读过；由角色依据兴趣决定，读完可以独立思考，若想分享必须另选私聊/朋友圈动作。外部博主的经历不能冒充自己亲身经历。")
         }

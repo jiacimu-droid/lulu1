@@ -37,6 +37,25 @@ class CharacterLearningLedgerTest {
             now.plusSeconds(seconds), triggerExtraction = false, source = "reading:story",
             evidenceKind = EventEvidenceKind.Observation)
     }
+    @Test fun xhsLearningRequiresCommittedBodyAndDisappearsWithItsSource() {
+        val id = "xhs-learning-confirmed"
+        val payload = JSONObject().put("title", "猫和纸箱").put("text", "真实读到的笔记正文")
+            .put("url", "https://www.xiaohongshu.com/explore/1234567890abcdef12345678")
+        SharedExperienceTimeline.record(id, character, "小红书阅读", "外部平台", payload.toString(),
+            now, triggerExtraction = false, source = "xiaohongshu-webview", evidenceKind = EventEvidenceKind.Observation)
+        val event = CharacterActionEvidence.resolve(character, id)!!
+        assertTrue(CharacterActionEvidence.supports(event, "read_xiaohongshu"))
+        assertTrue(CharacterActionEvidence.supports(event, "tool"))
+        assertTrue(CharacterLearningLedger.recordReading(character, id, note("这是来自阅读的个人理解")))
+        assertTrue(CharacterLearningLedger.hasInsight(character, id))
+        SharedExperienceTimeline.deleteEvent(id)
+        assertFalse(CharacterLearningLedger.hasInsight(character, id))
+        assertNull(CharacterActionEvidence.resolve(character, id))
+        payload.put("text", "")
+        SharedExperienceTimeline.record("xhs-empty-test", character, "小红书阅读", "外部平台", payload.toString(),
+            now, triggerExtraction = false, source = "xiaohongshu-mcp", evidenceKind = EventEvidenceKind.Observation)
+        assertFalse(CharacterLearningLedger.recordReading(character, "xhs-empty-test", note("只看到标题不能算理解")))
+    }
     @Test fun learnedIdeaRequiresRealReadingNotUserClaim() {
         assertFalse(CharacterLearningLedger.recordReading(character, "imagined", note("动机未必单一")))
         SharedExperienceTimeline.record("user-said", character, "私聊", "用户", "读过书",

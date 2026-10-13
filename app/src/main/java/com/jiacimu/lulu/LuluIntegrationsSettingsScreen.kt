@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
+import com.jiacimu.lulu.data.XhsReadingEngine
 import kotlinx.coroutines.launch
 
 /**
@@ -59,10 +60,17 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
             var mcpStatus by remember(service) { mutableStateOf("") }
             Text(title, style = MaterialTheme.typography.titleSmall)
             if (service == "xiaohongshu") {
-                Text("不想折腾 Termux？先试试安卓系统自带的网页内核能否正常打开小红书。这个测试只在手机本地显示网页，不读取账号信息，不改变现有 MCP 配置。", style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = onOpenBrowserProbe) { Text("测试内置浏览器（推荐先试）") }
-                OutlinedButton(onClick = onOpenXhsNativeReader) { Text("简洁阅读（实验）：跳过网页弹窗") }
-                Text("新模式用本机已登录的网页数据生成原生列表和正文。不承诺能解除平台限制；获取不到正文就明确报错，也不会让角色误以为读过。", style = MaterialTheme.typography.bodySmall)
+                var localReading by remember { mutableStateOf(XhsReadingEngine.localEnabled(context)) }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("使用已登录的本机网页", modifier = Modifier.weight(1f))
+                    Switch(localReading, { enabled ->
+                        if (XhsReadingEngine.setLocalEnabled(context, enabled)) localReading = enabled
+                    })
+                }
+                Text("本机阅读需露露机保持打开；角色仍需单独开启只读授权。后台可使用下方 MCP。",
+                    style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = onOpenBrowserProbe) { Text("登录 / 检查小红书网页") }
+                OutlinedButton(onClick = onOpenXhsNativeReader) { Text("阅读 / 搜索（与角色共用）") }
                 OutlinedButton(onClick = {
                     mcpUrl = "http://127.0.0.1:18060/mcp"
                     mcpToken = ""

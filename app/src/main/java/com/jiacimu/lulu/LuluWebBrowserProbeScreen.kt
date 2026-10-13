@@ -20,7 +20,8 @@ import androidx.compose.runtime.*
 import androidx.webkit.UserAgentMetadata
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import kotlinx.coroutines.delay
+import androidx.webkit.WebViewCompat
+import com.jiacimu.lulu.data.XhsCard
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -30,18 +31,18 @@ import org.json.JSONTokener
 
 private const val XHS_PROBE_URL = "https://www.xiaohongshu.com/explore"
 
-/**
- * A visible, user-operated Android WebView compatibility probe.
- *
- * This is intentionally NOT an MCP bridge: no JS interfaces, DOM extraction,
- * cookie export, remote debugging, automated login, or AI tool access.
- * First confirm that the website permits WebView before designing a
- * permissioned read-only browser integration.
- */
+/** Login stays in the visible website; manual searches and note taps use the shared reader. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    var readerVisible by remember { mutableStateOf(false) }
+    var readerKeyword by remember { mutableStateOf("") }
+    var readerCard by remember { mutableStateOf<XhsCard?>(null) }
+    val routingScript = remember {
+        context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() } + "\n" +
+            context.assets.open("xhs-browser-route.js").bufferedReader().use { it.readText() }
+    }
     var browser by remember { mutableStateOf<WebView?>(null) }
     var status by remember { mutableStateOf("准备打开小红书桌面网页版…") }
     var progress by remember { mutableIntStateOf(0) }
@@ -52,8 +53,6 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var browserDiagnostics by remember { mutableStateOf("") }
     var diagnosticsVisible by remember { mutableStateOf(false) }
     var websiteIssue by remember { mutableStateOf("") }
-    var blankOverlaySeen by remember { mutableStateOf(false) }
-    var searchListEmpty by remember { mutableStateOf(false) }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
         Regex("Chrome/([0-9.]+)").find(mobileAgent)?.groupValues?.get(1) ?: "120.0.0.0"
@@ -94,55 +93,29 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     fun returnToList() {
         val current = browser ?: return
         websiteIssue = ""
-        blankOverlaySeen = false
         if (current.canGoBack()) current.goBack() else current.loadUrl(XHS_PROBE_URL)
     }
 
-    // SPA dialogs can change without a main-frame navigation.
-    // Inspect only coarse visual flags, never note text, cookies, tokens, or API payloads.
-    LaunchedEffect(browser) {
-        val active = browser ?: return@LaunchedEffect
-        while (true) {
-            delay(5_000)
-            if (browser !== active || active.url?.startsWith("https://www.xiaohongshu.com/") != true) continue
-            val probe = """
-                (() => {
-                  const text = (document.body?.innerText || "").slice(0, 16000);
-                  const area = Math.max(1, innerWidth * innerHeight);
-                  const candidates = [...document.querySelectorAll(
-                    '[role="dialog"],[class*="modal"],[class*="Modal"],[class*="overlay"],[class*="Overlay"],[class*="mask"],[class*="Mask"]'
-                  )].slice(0, 45);
-                  const blankCover = candidates.some(el => {
-                    const r = el.getBoundingClientRect(), style = getComputedStyle(el);
-                    if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
-                    if (r.width * r.height < area * 0.35 || r.width < innerWidth * 0.55) return false;
-                    if (r.bottom <= 0 || r.top >= innerHeight) return false;
-                    return (el.innerText || '').trim().length < 24 && !el.querySelector('img,video,canvas');
-                  });
-                  return JSON.stringify({
-                    noteError: /笔记详情获取失败|笔记加载失败/.test(text),
-                    searchPage: location.pathname.includes('search'),
-                    hasCards: !!document.querySelector('a[href*="/explore/"],a[href*="/discovery/item/"]'),
-                    blankCover: blankCover
-                  });
-                })()
-            """.trimIndent()
-            active.evaluateJavascript(probe) { raw ->
-                if (browser !== active) return@evaluateJavascript
-                val flags = runCatching {
-                    JSONObject(JSONTokener(raw).nextValue() as String)
-                }.getOrNull() ?: return@evaluateJavascript
-                val noteError = flags.optBoolean("noteError")
-                val cover = flags.optBoolean("blankCover")
-                blankOverlaySeen = cover
-                searchListEmpty = flags.optBoolean("searchPage") && !flags.optBoolean("hasCards")
-                websiteIssue = when {
-                    noteError -> "笔记详情加载失败，可能留下了空白弹窗。"
-                    cover -> "检测到疑似空白弹层。"
-                    else -> ""
-                }
-            }
+    fun routeToReader(target: Uri): Boolean {
+        if (target.scheme != "https" || target.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
+        if (target.path == "/search_result") {
+            readerKeyword = target.getQueryParameter("keyword").orEmpty().take(64)
+            readerCard = null
+            readerVisible = true
+            return true
         }
+        val id = Regex("/(?:explore|discovery/item)/([a-zA-Z0-9]{12,40})/?")
+            .matchEntire(target.path.orEmpty())?.groupValues?.get(1) ?: return false
+        readerCard = XhsCard(id, target.getQueryParameter("xsec_token").orEmpty(), "笔记", "",
+            target.getQueryParameter("xsec_source").orEmpty().ifBlank { "pc_feed" })
+        readerVisible = true
+        return true
+    }
+
+    if (readerVisible) {
+        LuluXhsNativeReaderScreen(onBack = { readerVisible = false },
+            initialKeyword = readerKeyword, initialCard = readerCard)
+        return
     }
 
     BackHandler {
@@ -167,10 +140,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("小红书网页版测试") },
+                title = { Text("小红书") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回 MCP 设置")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
             )
@@ -191,8 +164,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 ) { Text("首页") }
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
-                    onClick = { browser?.reload() },
-                ) { Text("刷新") }
+                    onClick = { readerKeyword = ""; readerCard = null; readerVisible = true },
+                ) { Text("阅读 / 搜索") }
                 Button(modifier = Modifier.weight(1f), onClick = {
                     diagnosticsVisible = true
                     browserDiagnostics = "正在检查页面…"
@@ -226,10 +199,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 append("小红书接口 HTTP 失败：$apiFailures")
                                 if (lastApiFailure.isNotBlank()) append("；最近：$lastApiFailure")
                                 append("\n其他网络加载失败：$resourceFailures；页面脚本网络报错：$jsNetworkFailures")
-                                append("\n检测疑似空白弹层：")
-                                append(if (blankOverlaySeen) "是" else "否")
-                                append("；搜索页暂未发现笔记卡片：")
-                                append(if (searchListEmpty) "是（也可能仍在加载）" else "否")
+                                append("\n搜索和笔记点击共用原生阅读页。")
                                 if (flags != null) {
                                     append("\n页面状态：")
                                     append(when {
@@ -345,6 +315,34 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 return false
                             }
                         }
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                            WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
+                                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) { view, message, origin, mainFrame, _ ->
+                                if (!mainFrame || browser !== view || origin.scheme != "https" ||
+                                    origin.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return@addWebMessageListener
+                                val value = runCatching { JSONObject(message.data.orEmpty()) }.getOrNull()
+                                    ?: return@addWebMessageListener
+                                when (value.optString("kind")) {
+                                    "search" -> {
+                                        readerKeyword = value.optString("keyword").take(64)
+                                        readerCard = null
+                                        readerVisible = true
+                                    }
+                                    "note" -> {
+                                        val id = value.optString("id")
+                                        if (!Regex("[a-zA-Z0-9]{12,40}").matches(id)) return@addWebMessageListener
+                                        readerCard = XhsCard(id, value.optString("token").take(512),
+                                            value.optString("title").take(200).ifBlank { "笔记" },
+                                            value.optString("author").take(120),
+                                            value.optString("source").takeIf { it in setOf("pc_feed", "pc_search") } ?: "pc_feed")
+                                        readerVisible = true
+                                    }
+                                }
+                            }
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
+                                WebViewCompat.addDocumentStartJavaScript(this, routingScript,
+                                    setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+                        }
                         webViewClient = object : WebViewClient() {
                             override fun shouldOverrideUrlLoading(
                                 view: WebView?,
@@ -352,6 +350,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             ): Boolean {
                                 if (request?.isForMainFrame != true) return false
                                 val target = request.url ?: return true
+                                if (routeToReader(target)) return true
                                 val host = target.host.orEmpty().lowercase()
                                 val allowed = target.scheme == "https" &&
                                     (host == "xiaohongshu.com" ||
@@ -366,7 +365,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 } else {
                                     status = if (target.scheme == "intent" ||
                                         target.scheme?.startsWith("xhs") == true) {
-                                        "页面要求跳转小红书 App；已留在测试页。此网页不等于可供角色阅读的网页版。"
+                                        "页面要求跳转小红书 App；已留在当前页，请使用阅读 / 搜索。"
                                     } else {
                                         "阻止非网页链接：" + target.scheme.orEmpty()
                                     }
@@ -386,15 +385,16 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 browserDiagnostics = ""
                                 diagnosticsVisible = false
                                 websiteIssue = ""
-                                blankOverlaySeen = false
-                                searchListEmpty = false
-                                progress = 0
+                                                        progress = 0
                                 status = "正在加载网页…"
                             }
 
                             override fun onPageFinished(view: WebView?, url: String?) {
-                                // Capture only a user-clicked note URL, preserving any
-                                // xsec_token in the link. Never store it outside this page.
+                                if (browser !== view) return
+                                if (routeToReader(Uri.parse(url.orEmpty()))) return
+                                if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))
+                                    view?.evaluateJavascript(routingScript, null)
+                                // Keep the full original link only for the user-triggered external-open button.
                                 view?.evaluateJavascript(
                                     """
                                     (() => {

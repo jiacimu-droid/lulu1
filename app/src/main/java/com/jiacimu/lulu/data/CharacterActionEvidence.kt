@@ -39,7 +39,12 @@ internal object CharacterActionEvidence {
                 (e.channel.startsWith("独自游戏") && e.evidenceKind == EventEvidenceKind.Observation)
             "digital_world", "digital_world_action" -> tool == "digital_world_action" ||
                 (e.source == "digital-world" && e.evidenceKind == EventEvidenceKind.Observation)
-            "learn_topic", "tool" -> (tool != null && (action == "tool" || tool == "learn_topic")) ||
+            "read_xiaohongshu" -> tool == "read_xiaohongshu" ||
+                (e.source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") &&
+                    e.evidenceKind == EventEvidenceKind.Observation)
+            "learn_topic", "tool" -> (action == "tool" &&
+                e.source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") &&
+                e.evidenceKind == EventEvidenceKind.Observation) || (tool != null && (action == "tool" || tool == "learn_topic")) ||
                 (e.source.startsWith("learning-material:") && e.evidenceKind == EventEvidenceKind.Observation) ||
                 ((e.source.startsWith("learning-practice:") || e.source.startsWith("learning-review:")) &&
                     e.evidenceKind == EventEvidenceKind.CharacterStatement)

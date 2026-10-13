@@ -39,6 +39,12 @@ internal object CharacterLearningLedger {
         ).firstOrNull()
 
     private fun materialSource(role: String, event: SharedTimelineEvent): Boolean {
+        if (event.source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") &&
+            event.evidenceKind == EventEvidenceKind.Observation) {
+            val material = runCatching { JSONObject(event.content) }.getOrNull() ?: return false
+            return material.optString("text").isNotBlank() &&
+                Regex("https://www\\.xiaohongshu\\.com/explore/[a-zA-Z0-9]{12,40}").matches(material.optString("url"))
+        }
         if (event.source.startsWith("reading:")) return true // Existing authoritative reading compatibility.
         if (!event.source.startsWith("learning-material:") ||
             event.evidenceKind != EventEvidenceKind.Observation) return false

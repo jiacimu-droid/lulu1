@@ -36,6 +36,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p ci-logs
+          node scripts/test_xhs_reader.js
           python scripts/test_timeline_migration.py
           gradle --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process --stacktrace :app:testDebugUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
 
