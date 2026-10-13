@@ -365,6 +365,13 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                     view.destroy()
                 },
             )
+            // Absorb touches in empty native UI areas so they cannot reach the
+            // website underneath and accidentally open its broken SPA modal.
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .clickable { },
+            )
             Column(
                 modifier = Modifier.fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
