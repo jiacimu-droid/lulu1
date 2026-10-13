@@ -37,12 +37,7 @@ data class UnifiedMemoryContext(
     val characterId: String = "",
     val inspectionId: String = "",
 ) {
-    val coreMemorySection: String
-        get() = if (coreMemories.isEmpty()) "" else buildString {
-            appendLine("【持续生效的核心记忆｜独立于普通召回名额】")
-            appendLine("仅在有关时自然使用，不逐条复述；当前明确纠正优先，临时状态不覆盖长期事实。")
-            coreMemories.forEach { appendLine("- ${it.content.trim().replace("\n", " ")}") }
-        }.trim()
+    val coreMemorySection: String get() = CoreMemoryDelivery.render(coreMemories)
 
     private fun evidenceRendered(budget: Int = evidenceCharacterBudget): RenderedMemorySection {
         val header = "召回记忆对应的原始时间线证据：\n事实、措辞和时间以这些原始记录为准；摘要只用于检索。\n"
@@ -103,9 +98,7 @@ object UnifiedMemoryOrchestrator {
         val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory.contextTimelineEvents(characterId)
         val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
         val query = request.retrievalQuery()
-        val core = LuluRepositories.memory.snapshot(characterId).filter {
-            it.isCoreMemory() && MemoryValidityStore.isActive(it.id) && memoryHasLiveSources(it, characterId)
-        }
+        val core = CoreMemoryDelivery.active(characterId)
         val coreIds = core.mapTo(mutableSetOf(), MemoryEntry::id)
         val recall = RelevantMemoryRecall.recallDetailed(characterId, query, recallLimit, localOnly = localOnly)
         val recalled = recall.memories
