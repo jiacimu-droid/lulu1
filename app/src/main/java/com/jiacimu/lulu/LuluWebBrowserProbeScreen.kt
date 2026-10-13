@@ -420,6 +420,16 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                         readerCards = emptyList()
                                         status = "网页正在搜索，等待实际结果…"
                                     }
+                                    "search-stalled" -> {
+                                        val query = value.optString("keyword").take(64)
+                                        if (query == readerKeyword) {
+                                            status = when (value.optString("reason")) {
+                                                "login" -> "网页搜索需要登录，请在当前网页完成登录"
+                                                "restricted" -> "小红书限制了当前搜索，请查看网页提示"
+                                                else -> "网页未加载出真实搜索结果，请点「诊断」；不会显示旧笔记"
+                                            }
+                                        }
+                                    }
                                     "search-ready" -> {
                                         val query = value.optString("keyword").take(64)
                                         if (query.isBlank()) return@addWebMessageListener
