@@ -103,24 +103,32 @@ class XhsBrowserSessionTest {
     private class LoginBrowser(activity: Activity) : WebView(activity) {
         var navigations = 0
         var searches = 0
+        var currentUrl = "https://www.xiaohongshu.com/explore"
         var clientChanges = 0
         var destroyed = false
-        override fun getUrl(): String = "https://www.xiaohongshu.com/explore"
-        override fun loadUrl(url: String) { navigations++ }
+        override fun getUrl(): String = currentUrl
+        override fun loadUrl(url: String) { currentUrl = url; navigations++ }
         override fun setWebViewClient(client: WebViewClient) { clientChanges++; super.setWebViewClient(client) }
         override fun destroy() { destroyed = true; super.destroy() }
         override fun evaluateJavascript(script: String, resultCallback: ValueCallback<String>?) {
-            if (script.contains("const reader = window.__luluXhsReader;")) {
-                searches++
-                resultCallback?.onReceiveValue(JSONObject.quote("submitted"))
-            } else {
-                val items = JSONArray()
-                if (searches > 0) items.put(JSONObject().put("id", "1234567890abcdef12345678")
+            if (script.contains("window.__luluXhsReader.snapshot(")) searches++
+            val items = JSONArray()
+            if (navigations == 1) items.put(JSONObject().put("id", "1234567890abcdef12345678")
                     .put("token", "fixture-token").put("title", "搜索结果").put("author", "作者").put("source", "pc_search"))
-                resultCallback?.onReceiveValue(JSONObject.quote(JSONObject().put("items", items)
-                    .put("onPage", searches > 0).put("diagnostics", JSONObject()).toString()))
-            }
+            resultCallback?.onReceiveValue(JSONObject.quote(JSONObject().put("items", items)
+                .put("onPage", navigations > 0).put("diagnostics", JSONObject()).toString()))
         }
+    }
+
+    @Test fun publicSearchRouteEncodesKeywordAndNeverProducesExtraRedirects() {
+        val target = XhsReadingEngine.searchUrl("  记者  ")
+        val url = android.net.Uri.parse(target)
+        assertEquals("https", url.scheme)
+        assertEquals("www.xiaohongshu.com", url.host)
+        assertEquals("/search_result", url.path)
+        assertEquals("记者", url.getQueryParameter("keyword"))
+        assertEquals("web_explore_feed", url.getQueryParameter("source"))
+        assertEquals("https://www.xiaohongshu.com/explore", XhsReadingEngine.searchUrl(""))
     }
 
     @Test fun nativeSearchKeepsTheAttachedLoginBrowserAndItsClientAlive() {
@@ -145,8 +153,9 @@ class XhsBrowserSessionTest {
             assertTrue("Session reading did not complete", reading.isCompleted)
             val result = kotlinx.coroutines.runBlocking { reading.await() }
             assertEquals("1234567890abcdef12345678", result.single().id)
-            assertEquals(1, browser.searches)
-            assertEquals(0, browser.navigations)
+            assertTrue("Must inspect the actual results", browser.searches >= 1)
+            assertEquals("One direct search navigation, no second reload", 1, browser.navigations)
+            assertTrue(browser.currentUrl.contains("keyword=%E8%AE%B0%E8%80%85"))
             assertEquals(0, browser.clientChanges)
             assertFalse(browser.destroyed)
             assertFalse(XhsReadingEngine.controls(browser))
