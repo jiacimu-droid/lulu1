@@ -120,7 +120,7 @@ internal object ModelStructuredOutput {
         val action = Regex(""""action"\\s*:\\s*"([^"]+)"""").find(raw)
             ?.groupValues?.getOrNull(1)?.lowercase()
         if (action != null && action != "reply") return null
-        val marker = Regex(""""bubbles"\\s*:\\s*\\[""").find(raw)
+        val marker = Regex("\"bubbles\"\\s*:\\s*\\[").find(raw)
         if (marker != null) {
             val start = raw.indexOf('[', marker.range.first)
             var inString = false
