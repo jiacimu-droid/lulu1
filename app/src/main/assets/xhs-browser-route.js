@@ -5,6 +5,28 @@
   const send = value => window.luluXhsNavigation?.postMessage(JSON.stringify(value));
   const searchSelector = '#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"]';
   const searchInput = () => document.querySelector(searchSelector);
+  // Search is a live SPA operation. Never cover the visible WebView while
+  // its data is pending. Hand off only real cards found in this document.
+  let searchWatch = null;
+  const watchResults = keyword => {
+    if (!keyword || typeof setInterval !== 'function') return;
+    if (searchWatch != null) clearInterval(searchWatch);
+    let checks = 0;
+    searchWatch = setInterval(() => {
+      checks++;
+      let result;
+      try {
+        result = JSON.parse(window.__luluXhsReader?.snapshot('search', '', keyword) || '{}');
+      } catch (_) { result = {}; }
+      if ((result.items?.length || 0) > 0 || result.empty) {
+        clearInterval(searchWatch); searchWatch = null;
+        send({kind: 'search-ready', keyword});
+      } else if (checks >= 30 || result.error === 'restricted' || result.error === 'login') {
+        clearInterval(searchWatch); searchWatch = null;
+        send({kind: 'search-stalled', keyword, reason: result.error || 'empty-page'});
+      }
+    }, 500);
+  };
   window.__luluXhsSearchKeyword = () => String(searchInput()?.value || '').trim().slice(0, 64);
   const submitSearch = event => {
     const keyword = window.__luluXhsSearchKeyword();
@@ -12,6 +34,7 @@
     window.__luluXhsReader?.beginSearch(keyword);
     searchInput()?.blur?.();
     send({kind: 'search-start', keyword});
+    watchResults(keyword);
     return true;
   };
   document.addEventListener('keydown', event => {
@@ -21,8 +44,12 @@
     if (event.target?.querySelector?.(searchSelector)) submitSearch(event);
   }, true);
   const route = () => {
-    if (['/search_result', '/search', '/search/result'].includes(location.pathname))
-      send({kind: 'search-start', keyword: new URL(location.href).searchParams.get('keyword') || ''});
+    if (['/search_result', '/search', '/search/result'].includes(location.pathname)) {
+      const keyword = new URL(location.href).searchParams.get('keyword') || '';
+      if (!keyword) return;
+      send({kind: 'search-start', keyword});
+      watchResults(keyword);
+    }
   };
   for (const name of ['pushState', 'replaceState']) {
     const original = history[name];
