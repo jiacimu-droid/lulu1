@@ -48,13 +48,20 @@ internal object ModelStructuredOutput {
      * a very short continuation. Obvious standalone backchannels stay separate.
      */
     fun stabilizeReplyBubbles(values: List<String>): List<String> {
-        val cleaned = values.map { it.replace("\r\n", "\n").trim() }.filter(String::isNotBlank)
+        val cleaned = values.map { smoothInlineBreaks(it) }.filter(String::isNotBlank)
         if (cleaned.size < 2) return cleaned
         val result = mutableListOf<String>()
         val sentenceEnd = Regex("""[。！？!?…~～”"』」）)]$""")
         val standalone = Regex("""^(?:嗯+|啊+|诶+|欸+|哦+|哈哈+|嘿嘿+|好+|行+|等等|等下|真的[？！!?]?|为什么[？！!?]?)$""")
         val grammarNeedsTail = Regex(
             """(?:是(?:我|你|他|她|它|我们|你们|他们)|我以为|你以为|还以为|原以为|觉得|感觉|本来|其实|只是|但是|可是|因为|所以|如果|要是|虽然|不过|就是|有点|有些|还没|没有|不会|不该|应该|可能|大概|想|要|让|把|被|跟|和|对|给)$"""
+        )
+        // Extremely obvious mid-word/phrase cuts need merging even when the
+        // following segment is a whole sentence, not merely a <=8-char tail.
+        val brokenLexicalBoundary = listOf(
+            "说" to "句", "揉" to "揉", "气" to "消",
+            "耳" to "朵", "心" to "跳", "亲" to "亲",
+            "不" to "好", "可" to "以",
         )
         cleaned.forEach { current ->
             if (result.isEmpty()) {
@@ -66,7 +73,10 @@ internal object ModelStructuredOutput {
             val incompletePrevious = !sentenceEnd.containsMatchIn(previous.trim())
             val shortContinuation = compact.length <= 8 && !standalone.matches(compact)
             val previousNeedsContinuation = grammarNeedsTail.containsMatchIn(previous.trim())
-            if (incompletePrevious && shortContinuation && previousNeedsContinuation) {
+            val clippedWord = brokenLexicalBoundary.any { (before, after) ->
+                previous.trimEnd().endsWith(before) && current.trimStart().startsWith(after)
+            }
+            if (incompletePrevious && (clippedWord || shortContinuation && previousNeedsContinuation)) {
                 val needsSpace = previous.lastOrNull()?.isLetterOrDigit() == true &&
                     current.firstOrNull()?.isLetterOrDigit() == true &&
                     previous.last().code < 128 && current.first().code < 128
@@ -76,6 +86,19 @@ internal object ModelStructuredOutput {
             }
         }
         return result
+    }
+
+    /**
+     * Model linebreaks are text formatting, not separate send requests.
+     * Remove a SINGLE accidental newline only inside an uninterrupted Chinese
+     * phrase; keep paragraphs and lines that follow normal sentence endings.
+     */
+    fun smoothInlineBreaks(text: String): String {
+        val compact = text.replace("\r\n", "\n").trim()
+        return compact.replace(Regex("""(?<=[\\p{IsHan}])([ \\t]*\\n[ \\t]*)(?=[\\p{IsHan}])""")) { hit ->
+            val before = compact.substring(0, hit.range.first).trimEnd()
+            if (before.endsWith(Regex("""[。！？!?；;，,：:…~～—]"""))) hit.value else ""
+        }
     }
 
     /**
@@ -103,10 +126,10 @@ internal object ModelStructuredOutput {
             }.take(8)
             // Structured model output owns the send boundaries. Once bubbles are valid JSON,
             // do not second-guess them with punctuation/length heuristics.
-            if (values.isNotEmpty()) return values.take(3)
+            if (values.isNotEmpty()) return stabilizeReplyBubbles(values).take(3)
         }
 
-        return json.optString("text").replace("\r\n", "\n").trim()
+        return smoothInlineBreaks(json.optString("text"))
             .takeIf(String::isNotBlank)?.let(::listOf)
     }
 
@@ -144,7 +167,7 @@ internal object ModelStructuredOutput {
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
                                 bubble.trim().takeIf(String::isNotBlank)?.take(2_000)
-                            }.take(3).takeIf { it.isNotEmpty() }
+                            }.let(::stabilizeReplyBubbles).take(3).takeIf { it.isNotEmpty() }
                         }
                     }
                 }
