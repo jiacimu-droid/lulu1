@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -101,6 +102,10 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     var organizing by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val pendingEvents = repository.pendingTimelineEvents(selectedCharacterId)
+    BackHandler(enabled = section == MemoryPageSection.Core && !startInCore) {
+        section = MemoryPageSection.Recent
+        search = ""
+    }
 
     val liveCoreIds = remember(memories, selectedCharacterId) {
         CoreMemoryDelivery.active(selectedCharacterId).mapTo(mutableSetOf()) { it.id }
