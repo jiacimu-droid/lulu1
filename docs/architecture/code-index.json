@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T07:40:19.335568+00:00",
-  "commit": "8ac022673b018747ea84013cc4a161dc987b28af",
+  "generatedAt": "2026-10-13T07:40:41.886412+00:00",
+  "commit": "b9999af4bb71ecad52422222e8485822d771c4fc",
   "branch": "main",
-  "sourceFingerprint": "a6dc7658e93c189209b32771b65fb828eb664177d9794005209913d0e711153d",
+  "sourceFingerprint": "3f380d234d7f2f38114420198e5065376f55196bb9a1f230b4f0556b5b02014e",
   "summary": {
     "files": 594,
-    "lines": 117243,
+    "lines": 117271,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -347,7 +347,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 645
+        "line": 673
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -3721,7 +3721,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 610
+        "line": 638
       }
     ],
     "cue": [
@@ -3803,7 +3803,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 590
+        "line": 618
       }
     ],
     "current": [
@@ -13236,8 +13236,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 692,
-      "sha256": "6c2a3462ea163d139e341f606fdbbf5177d0d1de5728c4b5bdc09c18ce2c3e04",
+      "lines": 720,
+      "sha256": "7320d148f6d5f93b3d9a14548845f9900e6ac11b03130749d027f75adca782fd",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -13253,15 +13253,15 @@
         },
         {
           "name": "profileContext",
-          "line": 590
+          "line": 618
         },
         {
           "name": "compactContext",
-          "line": 610
+          "line": 638
         },
         {
           "name": "context",
-          "line": 645
+          "line": 673
         }
       ]
     },
