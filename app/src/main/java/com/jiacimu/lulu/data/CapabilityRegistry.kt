@@ -25,7 +25,11 @@ object CapabilityRegistry {
     val application = listOf("send_private_message", "send_group_message", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
         "publish_moment", "write_journal", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false) }
-    fun find(name: String): Capability? = (device + application).firstOrNull { it.name == name }
+    val external = listOf(
+        Capability("read_xiaohongshu", "external", "xhs_read", "MCP search + confirmed full note detail and source", false),
+        Capability("read_health_mcp", "external", "health_read", "authenticated read-only health_read response", true),
+    )
+    fun find(name: String): Capability? = (device + application + external).firstOrNull { it.name == name }
 
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
