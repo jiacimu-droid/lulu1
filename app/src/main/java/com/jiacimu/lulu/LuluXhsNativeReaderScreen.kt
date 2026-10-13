@@ -357,7 +357,7 @@ internal fun LuluXhsNativeReaderScreen(
                                     error: WebResourceError?,
                                 ) {
                                     if (request?.isForMainFrame == true) {
-                                        webProblem = "内置网页加载失败：${error?.description.orEmpty()}"
+                                        webProblem = "内置网页加载失败：${error?.description?.toString().orEmpty()}"
                                         if (!webReady) webReady = true
                                     }
                                 }
