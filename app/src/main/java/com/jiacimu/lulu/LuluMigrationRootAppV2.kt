@@ -311,6 +311,11 @@ fun LuluMigrationRootAppV2(
                                     onBack = ::popRoute,
                                     personalCharacterId = selectedCharacterId.takeIf { personalMemory },
                                 )
+                                MigrationRoute.CoreMemory -> MemoryFeatureScreen(
+                                    onBack = ::popRoute,
+                                    personalCharacterId = null,
+                                    startInCore = true,
+                                )
                                 MigrationRoute.Lexicon -> LexiconFeatureScreenV2(
                                     onBack = ::popRoute,
                                     initialCharacterId = selectedCharacterId,
