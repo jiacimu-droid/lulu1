@@ -96,6 +96,40 @@ class CharacterGrowthTrajectoryLedgerTest {
         assertEquals(1, after.length())
     }
 
+    @Test fun retryCanPersistAnUnresolvedConcernEvenWithoutNewEmotionOrSpokenInnerVoice() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        val role = "retry-unresolved-relationship-concern"
+        val evidence = "actual-successful-retry-event"
+        val now = Instant.now()
+        SharedExperienceTimeline.record(evidence, role, "私聊交互", "界面操作",
+            "已成功替换刚才的消息，双方分歧仍未有用户确认已经解决。", now,
+            triggerExtraction = false, source = "interaction-signal",
+            evidenceKind = EventEvidenceKind.Observation)
+        val appraisal = org.json.JSONObject().put("pendingConcern", org.json.JSONObject()
+            .put("status", "open")
+            .put("focus", "自己的态度伤害了她，该如何认真修复")
+            .put("whyItMatters", "她明确反馈自己很生气，而一次道歉未必足够")
+            .put("hesitation", "不确定她现在是否想继续聊")
+            .put("possibleNextStep", "之后根据真实回应选择认真解释或暂时留出空间"))
+        // There is no fabricated emotional intensity or mandatory private monologue.
+        com.jiacimu.lulu.system.LuluDeviceToolBridge.commitReconsideredChatReply(
+            role, evidence, com.jiacimu.lulu.system.LuluDeviceToolBridge.ReconsideredChatReply(
+                text = "我刚才不该那样说，抱歉。",
+                appraisal = appraisal,
+            ),
+        )
+        val concerns = CharacterInnerLifeStore.snapshot(role).optJSONArray("openConcerns")
+        assertEquals(1, concerns?.length())
+        assertTrue(concerns!!.getJSONObject(0).getString("focus").contains("认真修复"))
+        assertTrue(CharacterInnerLifeStore.needsPostOnlineReflection(role, now.plusSeconds(300)))
+        // A delivered apology did not automatically mark the concern as settled.
+        assertTrue(CharacterOpenConcernRuntime.context(concerns, now.plusSeconds(300))
+            .contains("自己仍未想通的心事"))
+    }
+
     @Test fun emotionOnlyAfterSignificantFeedbackIsVisibleWithoutPretendingToBeAHabit() {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
