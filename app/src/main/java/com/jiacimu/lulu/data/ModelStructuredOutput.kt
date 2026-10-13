@@ -93,13 +93,8 @@ internal object ModelStructuredOutput {
      * Remove a SINGLE accidental newline only inside an uninterrupted Chinese
      * phrase; keep paragraphs and lines that follow normal sentence endings.
      */
-    fun smoothInlineBreaks(text: String): String {
-        val compact = text.replace("\r\n", "\n").trim()
-        return compact.replace(Regex("""(?<=[\\p{IsHan}])([ \\t]*\\n[ \\t]*)(?=[\\p{IsHan}])""")) { hit ->
-            val before = compact.substring(0, hit.range.first).trimEnd()
-            if (before.endsWith(Regex("""[。！？!?；;，,：:…~～—]"""))) hit.value else ""
-        }
-    }
+    fun smoothInlineBreaks(text: String): String = text.replace("\r\n", "\n").trim()
+        .replace(Regex("""(?<=\p{IsHan})[ \t]*\n[ \t]*(?=\p{IsHan})"""), "")
 
     /**
      * Preferred text-chat protocol: bubbles are structural JSON, never magic strings inside text.
