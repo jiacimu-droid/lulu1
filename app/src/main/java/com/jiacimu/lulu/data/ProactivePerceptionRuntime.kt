@@ -1141,19 +1141,24 @@ object ProactivePerceptionRuntime {
             }
         }
         if (onlineExpiryAtMillis > 0L) {
-            // This is one online-presence choice alongside the ordinary action,
-            // not a separate reminder or a scripted emotional response.
+            // The interval might have been superseded while the model was
+            // composing an action, e.g. a new user wake or a genuine activity.
+            val current = CompanionOnlineStore.states.value[characterId]
+            val superseded = current?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
             val wantsMoreTime = decision.onlineChoice == "continue" &&
                 decision.onlineChoiceReason.isNotBlank()
-            val keptAwake = wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
+            val keptAwake = !superseded && wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
                 characterId, onlineExpiryAtMillis, decision.onlineChoiceReason, Instant.now(),
             )
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
-                if (keptAwake) "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
-                else if (decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank())
-                    "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
-                else "五分钟到期，未形成有效续醒决定，进入休眠",
+                when {
+                    keptAwake -> "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
+                    superseded -> "旧到期判断已被更新的在线状态取代"
+                    decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
+                        "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
+                    else -> "五分钟到期，未形成有效续醒决定，进入休眠"
+                },
                 Instant.now(),
             )
         }
