@@ -11,6 +11,7 @@ fi
 echo "[1/5] 检查基础依赖"
 if ! command -v curl >/dev/null 2>&1; then pkg install -y curl; fi
 if ! command -v node >/dev/null 2>&1; then pkg install -y nodejs-lts; fi
+if ! command -v npm >/dev/null 2>&1; then pkg install -y npm; fi
 if ! command -v chromium-browser >/dev/null 2>&1 && ! command -v chromium >/dev/null 2>&1; then
   echo "未检测到 Chromium，安装 Termux 官方 X11 仓库软件包（可能下载数百 MB）"
   pkg install -y x11-repo
