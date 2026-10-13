@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:32:38.376765+00:00",
-  "commit": "f5f1a5d9b0af70cb23a0da61579059d855ada1e8",
+  "generatedAt": "2026-10-13T05:33:17.297396+00:00",
+  "commit": "067ba0a5d273db9761ec513e3f83675e6ffe942c",
   "branch": "main",
-  "sourceFingerprint": "efb6571314b33e15f0c98b7829e2342c0ed7bb46b4d586174ad8f00d19c97f9b",
+  "sourceFingerprint": "44ad40b5454b3d5afaab7f9b4f63a817f4e496a34453cdbdc4b4b2543eee66f9",
   "summary": {
     "files": 594,
-    "lines": 117080,
+    "lines": 117073,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -6905,19 +6905,19 @@
     "compactPromptSection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 73
+        "line": 68
       }
     ],
     "UnifiedMemoryOrchestrator": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 88
+        "line": 83
       }
     ],
     "empty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-        "line": 90
+        "line": 85
       }
     ],
     "UserDataUpgradeGuard": [
@@ -14244,7 +14244,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
       "lines": 87,
-      "sha256": "10387ac1f220f5601b3b8c1dc46d6433592433e96b06cd69d2e0ebe70de42a44",
+      "sha256": "334eb94a1b221a5b3c697520b66a806cbbfb5d1e6af178ade60d74baf356194f",
       "symbols": [
         {
           "name": "active",
@@ -16642,8 +16642,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 266,
-      "sha256": "566fc17cfcf8aef595db37da7f45b90c7aa9e7fbd8f0790e84ff3cb8017d8f7d",
+      "lines": 259,
+      "sha256": "67806161632ebdcdc94ba8f79a21e742307880ba3dabf6047f3c99c36512f6ab",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -16663,15 +16663,15 @@
         },
         {
           "name": "compactPromptSection",
-          "line": 73
+          "line": 68
         },
         {
           "name": "UnifiedMemoryOrchestrator",
-          "line": 88
+          "line": 83
         },
         {
           "name": "empty",
-          "line": 90
+          "line": 85
         }
       ]
     },
