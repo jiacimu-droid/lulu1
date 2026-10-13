@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:31:01.378524+00:00",
-  "commit": "4c24355c1aa2c33c913c5e0d477446b4ea3db6d9",
+  "generatedAt": "2026-10-13T05:31:24.743936+00:00",
+  "commit": "2cbed209bfc5df6ab34ef9a5b9c0e286e809d8ab",
   "branch": "main",
-  "sourceFingerprint": "e38e3b451201e6a470ff2648da9410a00dc55d9663ba0d42c5e9825574753c25",
+  "sourceFingerprint": "7bfdc278f9ea16a3eb5a955c7a897a22119beec741cd510c8600dad92c0c6b44",
   "summary": {
     "files": 593,
-    "lines": 116975,
+    "lines": 116982,
     "symbols": 1771
   },
   "symbolIndex": {
@@ -1823,7 +1823,7 @@
     "MigrationEmptyScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "accept": [
@@ -10979,8 +10979,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 409,
-      "sha256": "f1006131e551839caf2e9e4931025d8fe25211484a639007dafc71d4153b9b48",
+      "lines": 414,
+      "sha256": "5365bf7a801c11ca49f64445766c2e5496590a3dd4daacc95244348805aef716",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -11375,14 +11375,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 446,
-      "sha256": "428fd6e73a038e37f0f763362439c9bdcb2227cbed5feda30142e8efe7cc09f7",
+      "lines": 447,
+      "sha256": "0be3cf55c70f56de534188c67264a441d3dd74301b5cff673cb84028a716fb49",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-      "lines": 94,
-      "sha256": "d49667790bdcbd50e1e54f6bcf6ee99fdc0c27064267d34125b15bfcf8b1ba05",
+      "lines": 95,
+      "sha256": "8de5ea4bd275e4769b86e98fb153093554365db98cda4bf57b237a5205ba3620",
       "symbols": [
         {
           "name": "MigrationRoute",
@@ -11390,7 +11390,7 @@
         },
         {
           "name": "MigrationEmptyScreen",
-          "line": 43
+          "line": 44
         }
       ]
     },
