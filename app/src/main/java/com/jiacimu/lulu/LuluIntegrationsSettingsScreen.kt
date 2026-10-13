@@ -86,7 +86,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                             require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken)) { "无法保存连接信息" }
                             LuluExternalMcp.check(context, service)
                         }.fold(
-                            { "连接成功：" + it.take(240) },
+                            { it.take(240) },
                             { "无法连接：" + it.message.orEmpty().take(180) },
                         )
                     }
