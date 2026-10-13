@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -8,6 +9,9 @@ import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -81,6 +85,52 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                 }) { Text("断开") }
             }
             if (mcpStatus.isNotBlank()) Text(mcpStatus, style = MaterialTheme.typography.bodySmall)
+            if (service == "xiaohongshu") {
+                HorizontalDivider()
+                Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
+                Text("先在手机浏览器部署好能持续运行的云端 MCP，并填入其 HTTPS 地址。按下面按钮生成登录码、保存到相册，然后打开小红书 → 我 → 左上角菜单 → 扫一扫 → 相册，选刚保存的图片完成授权。返回这里检查登录状态。二维码可能很快过期，请尽快操作。",
+                    style = MaterialTheme.typography.bodySmall)
+                var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
+                var qrBusy by remember { mutableStateOf(false) }
+                var qrMessage by remember { mutableStateOf("") }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(enabled = !qrBusy && mcpUrl.isNotBlank(), onClick = {
+                        qrBusy = true
+                        qrMessage = "正在从 MCP 获取二维码…"
+                        scope.launch {
+                            runCatching {
+                                LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken)
+                                LuluExternalMcp.xhsLoginQr(context)
+                            }.fold(
+                                { qr = it; qrMessage = it.description },
+                                { qr = null; qrMessage = it.message.orEmpty().take(160) },
+                            )
+                            qrBusy = false
+                        }
+                    }) { Text(if (qrBusy) "正在获取…" else "获取登录二维码") }
+                    OutlinedButton(enabled = qr?.pngBase64?.isNotBlank() == true, onClick = {
+                        qrMessage = runCatching {
+                            LuluExternalMcp.saveXhsLoginQrToPhotos(context, qr!!.pngBase64)
+                        }.fold(
+                            { if (it) "已保存到系统相册，切换小红书 App 从相册扫描" else "保存失败" },
+                            { "保存失败：" + it.message.orEmpty().take(130) },
+                        )
+                    }) { Text("保存到相册") }
+                }
+                if (qrMessage.isNotBlank()) Text(qrMessage, style = MaterialTheme.typography.bodySmall)
+                qr?.pngBase64?.takeIf(String::isNotBlank)?.let { encoded ->
+                    val bitmap = remember(encoded) {
+                        runCatching {
+                            val bytes = Base64.decode(encoded, Base64.DEFAULT)
+                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                        }.getOrNull()
+                    }
+                    if (bitmap != null) {
+                        Image(bitmap = bitmap, contentDescription = "小红书 MCP 登录二维码",
+                            modifier = Modifier.size(196.dp))
+                    }
+                }
+            }
         }
 
         HorizontalDivider()
