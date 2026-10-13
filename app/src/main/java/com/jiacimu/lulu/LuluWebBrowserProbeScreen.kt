@@ -444,7 +444,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 if (returningToList) {
                                     val address = runCatching { Uri.parse(url.orEmpty()) }.getOrNull()
                                     if (address?.host in setOf("www.xiaohongshu.com", "xiaohongshu.com") &&
-                                        address.path in setOf("/", "/explore")) {
+                                        address?.path in setOf("/", "/explore")) {
                                         returningToList = false
                                         view?.clearHistory()
                                         status = "已返回小红书首页"
