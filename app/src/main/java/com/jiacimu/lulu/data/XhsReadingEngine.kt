@@ -149,8 +149,7 @@ internal object XhsReadingEngine {
         if (canUseLocal) {
             try {
                 onProgress("正在通过已登录网页寻找笔记")
-                val url = if (query.isBlank()) "https://www.xiaohongshu.com/explore" else
-                    "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(query)}&source=web_explore_feed"
+                val url = searchUrl(query)
                 val root = loadPage(context, url, if (query.isBlank()) "feed" else "search", "", query, onProgress)
                 val values = root.optJSONArray("items")
                 val found = (0 until (values?.length() ?: 0)).mapNotNull {
@@ -306,6 +305,16 @@ internal object XhsReadingEngine {
                     .orEmpty().ifBlank { raw.optJSONObject("author")?.optString("nickname").orEmpty() })
     }
 
+    /** The browser navigates once to the public website route. Never race a
+     * synthetic input click against a second forced reload of the same query. */
+    internal fun searchUrl(keyword: String): String {
+        val query = keyword.trim().take(64)
+        return if (query.isBlank()) "https://www.xiaohongshu.com/explore"
+        else Uri.Builder().scheme("https").authority("www.xiaohongshu.com")
+            .appendPath("search_result").appendQueryParameter("keyword", query)
+            .appendQueryParameter("source", "web_explore_feed").build().toString()
+    }
+
     private suspend fun loadPage(
         context: Context, url: String, kind: String, id: String, keyword: String,
         onProgress: (String) -> Unit,
@@ -353,19 +362,23 @@ internal object XhsReadingEngine {
                     fun stage(value: String) {
                         if (lastStage != value) { lastStage = value; onProgress(value) }
                     }
-                    var searchSubmitted = false
-                    var searchStartedAt = System.currentTimeMillis()
-                    var navigatedToSearchPage = false
                     try {
-                        if (kind == "search") {
-                            stage("在已登录网页搜索")
-                            val uri = Uri.parse(view.url.orEmpty())
-                            if (uri.scheme != "https" || uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com"))
-                                view.loadUrl("https://www.xiaohongshu.com/explore")
-                        } else {
-                            stage(if (kind == "note") "读取笔记图文" else "读取首页推荐")
-                            if (view.url != url) view.loadUrl(url)
-                        }
+                        // Single owner, single navigation, one clearly scoped
+                        // requested URL. This eliminates the previous race:
+                        // clicking the site's search field and, seven seconds
+                        // later, forcibly reloading the route a second time.
+                        stage(when (kind) {
+                            "search" -> "打开实际网页搜索结果"
+                            "note" -> "读取笔记图文"
+                            else -> "读取首页推荐"
+                        })
+                        val current = Uri.parse(view.url.orEmpty())
+                        val requested = Uri.parse(url)
+                        val sameSearch = kind == "search" &&
+                            current.host == requested.host &&
+                            current.path == requested.path &&
+                            current.getQueryParameter("keyword") == keyword
+                        if (!(sameSearch || view.url == url)) view.loadUrl(url)
                         while (true) {
                             delay(350)
                             check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
@@ -389,42 +402,10 @@ internal object XhsReadingEngine {
                             if (root.optJSONObject("note") != null || (root.optJSONArray("items")?.length() ?: 0) > 0 || root.optBoolean("empty"))
                                 return@withLock root
                             check(reason != "login") { "请先在小红书网页完成登录" }
-                            if (kind == "search" && !searchSubmitted) {
-                                val state = evaluate(view, """(() => {
-                                    const reader = window.__luluXhsReader;
-                                    const keyword = ${JSONObject.quote(keyword)};
-                                    const url = new URL(location.href);
-                                    if (reader.pendingSearch(keyword) ||
-                                        (['/search_result','/search','/search/result'].includes(url.pathname) && url.searchParams.get('keyword') === keyword)) return 'waiting';
-                                    return reader.startSearch(keyword);
-                                })()""".trimIndent())
-                                val action = runCatching { JSONTokener(state).nextValue() as String }.getOrNull()
-                                if (action == "submitted" || action == "waiting") {
-                                    searchSubmitted = true
-                                    searchStartedAt = System.currentTimeMillis()
-                                    stage("等待搜索结果")
-                                } else if (action == "input-missing") {
-                                    // Many XHS desktop builds hide the search
-                                    // input behind an SPA overlay. Reuse the
-                                    // SAME logged-in WebView and navigate to
-                                    // its official search_result route; never
-                                    // call signed internal APIs ourselves.
-                                    searchSubmitted = true
-                                    navigatedToSearchPage = true
-                                    stage("打开网页搜索结果")
-                                    view.loadUrl(url)
-                                } else stage("等待网页搜索框")
-                            }
-                            if (kind == "search" && searchSubmitted && !navigatedToSearchPage &&
-                                System.currentTimeMillis() - searchStartedAt > 7_000L) {
-                                // If a synthetic click opened a stuck SPA
-                                // search screen, force ONE official full page
-                                // navigation. New document starts with fresh
-                                // Vue state and the same logged-in cookies.
-                                navigatedToSearchPage = true
-                                stage("直接读取网页搜索结果")
-                                view.loadUrl(url)
-                            }
+                            // Do not click search twice or reload a working SPA.
+                            // The website itself decides when search data is ready;
+                            // snapshot watches the same page and reports its actual
+                            // SSR/Vue/DOM results or a real login/risk condition.
                         }
                         @Suppress("UNREACHABLE_CODE") JSONObject()
                     } finally {
