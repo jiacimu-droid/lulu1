@@ -98,7 +98,6 @@ internal fun CharacterLifeSettings(
         else if (autofillResult.isNotBlank()) Text(autofillResult,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
-        CharacterExpressionPreferencesSettings(characterId)
         CharacterProfileSchema.groupedFields().forEach { (group, fields) ->
             var expanded by remember(characterId, group) { mutableStateOf(group == "兴趣与表达") }
             Row(Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(vertical = 8.dp),
@@ -124,6 +123,12 @@ internal fun CharacterLifeSettings(
                     }, maxLines = 3,
                         overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (field.key == "speechHabits") {
+                    Text("颜文字与图片表情包的个人使用习惯",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    CharacterExpressionPreferencesSettings(characterId)
                 }
                 HorizontalDivider()
             }
