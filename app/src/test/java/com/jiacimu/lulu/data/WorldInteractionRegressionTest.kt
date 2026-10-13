@@ -43,6 +43,9 @@ class WorldInteractionRegressionTest {
 
     @Test fun nativeConversationIsSavedAsEndedMeetingWithoutUserOrLocationChangesAndSurvivesReload() {
         val context = RuntimeEnvironment.getApplication()
+        if (runCatching { androidx.work.WorkManager.getInstance(context) }.isFailure) {
+            androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build())
+        }
         MigratedDomainStores.characters.initialize(context)
         DigitalWorldStore.initialize(context)
         DigitalLifeProfileStore.initialize(context)

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T04:36:02.973076+00:00",
+  "generatedAt": "2026-10-13T04:41:45.039845+00:00",
   "commit": "local",
   "branch": "local",
-  "sourceFingerprint": "953e54bb4773487e8919e843a7e97c1e4efcda22a9af44951e4246dd5382f6c3",
+  "sourceFingerprint": "3811510f5c1e7c5b463ae65f10dceeb6895b5a2b56694cd3e1cadf4e42fad2b8",
   "summary": {
     "files": 592,
-    "lines": 117017,
+    "lines": 117020,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -20827,8 +20827,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt",
-      "lines": 77,
-      "sha256": "490fbb2309ea76f93dec6fb4185a93665bd95e115748944778df3b8863bf4fe5",
+      "lines": 80,
+      "sha256": "c6cf0282f3b4c6ae9eb768cca3f1dc7fcba8d6a523a871e9cafb0f970a1d3ef5",
       "symbols": [
         {
           "name": "WorldInteractionRegressionTest",

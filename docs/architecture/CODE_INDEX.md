@@ -3,7 +3,7 @@
 - 基准提交：`local`
 - 分支：`local`
 - 已索引文件：592
-- 已索引代码/文本行：117017
+- 已索引代码/文本行：117020
 - 已发现符号：1772
 
 | 文件 | 行数 | 符号数 |
@@ -581,7 +581,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 37 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 253 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 77 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 80 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 148 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingStarterLibraryTest.kt` | 19 | 1 |
