@@ -68,7 +68,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         // ACTION_VIEW, never to the model, logs, analytics, or our MCP service.
         active.evaluateJavascript(
             """(() => window.__luluLastNoteUrl || (
-                /^\\/(explore|discovery\\/item)\\//.test(location.pathname)
+                /^\/(explore|discovery\/item)\//.test(location.pathname)
                 ? location.href : ""))()""".trimIndent(),
         ) { encoded ->
             val candidate = runCatching {
@@ -410,7 +410,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                           const u = new URL(link.getAttribute('href'), location.href);
                                           if (u.protocol === 'https:' &&
                                               (u.hostname === 'www.xiaohongshu.com' || u.hostname === 'xiaohongshu.com') &&
-                                              /^\\/(explore|discovery\\/item)\\//.test(u.pathname)) {
+                                              /^\/(explore|discovery\/item)\//.test(u.pathname)) {
                                             window.__luluLastNoteUrl = u.href;
                                           }
                                         } catch (_) {}
