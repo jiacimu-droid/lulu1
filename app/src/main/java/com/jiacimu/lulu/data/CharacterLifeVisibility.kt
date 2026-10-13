@@ -31,27 +31,9 @@ internal object CharacterLifeVisibility {
 
     /** Avatar is current inner life, never the entire historic audit. */
     fun current(role: String, now: Instant = Instant.now()): List<CharacterLifeVisible> = buildList {
-        val life = CharacterLifeStore.state(role)
-        life.optJSONObject("intention")?.let { goal ->
-            val start = parse(goal.optString("createdAt"))
-            if (start != null && !start.isAfter(now)) {
-                val output = buildString {
-                    append(goal.optString("aim").take(180))
-                    if (goal.optString("motive").isNotBlank())
-                        append("\n缘由：" + goal.optString("motive").take(170))
-                    goal.optString("nextStep").takeIf(String::isNotBlank)?.let {
-                        append("\n下一步：" + it.take(180))
-                    }
-                    val outcomes = goal.optJSONArray("outcomes")
-                    val last = outcomes?.optJSONObject(outcomes.length() - 1)
-                    if (last != null && source(role, last.optString("id")) != null) {
-                        append("\n最近尝试：" + last.optString("summary").take(160))
-                    }
-                }
-                add(CharacterLifeVisible(start, "当前", "想继续做 · " +
-                    stage(goal.optString("stage")), output))
-            }
-        }
+        // 此刻 is a snapshot of active mental changes, not a task inbox.
+        // Persisted goals remain available to the planner and the read-only
+        // 经历 archive; do not duplicate a stale "想继续做" on every avatar open.
         val mind = CharacterInnerLifeStore.snapshot(role)
         jsonEntries(mind.optJSONArray("openConcerns"))
             .lastOrNull { source(role, it.optString("evidenceId")) != null }
@@ -86,16 +68,9 @@ internal object CharacterLifeVisibility {
                     thread.optString("question").take(150) +
                         "\n上次行动：" + step.optString("receipt").take(140)))
             }
-        CharacterLifeFollowThroughStore.auditSnapshot(role).asReversed()
-            .filter { it.optString("shareStatus") == "held" }.take(2).forEach { event ->
-                val t = parse(event.optString("occurredAt")) ?: return@forEach
-                if (!t.isAfter(now)) add(CharacterLifeVisible(t, "当前",
-                    "想分享，但还没有发出",
-                    event.optString("fact").lineSequence().firstOrNull { it.isNotBlank() }.orEmpty().substringBefore("（地点证据").take(155) +
-                        if (event.optString("shareWhy").isNotBlank())
-                            "\n原因：" + event.optString("shareWhy").take(150)
-                        else ""))
-            }
+        // Held shares are past possibilities, not perpetual *current* feelings.
+        // They remain in the evidence-backed archive and may be reconsidered
+        // through the shared decision runtime without being pinned to 此刻.
     }
 
     /** Long-term history belongs to the read-only 足迹 in 辞海. */
@@ -138,6 +113,16 @@ internal object CharacterLifeVisibility {
                 decision.optString("causalEvidenceId"))
         }
         val life = CharacterLifeStore.state(role)
+        life.optJSONObject("intention")?.let { intention ->
+            val start = parse(intention.optString("createdAt"))
+            if (start != null && !start.isAfter(now) && intention.optString("aim").isNotBlank()) {
+                items += CharacterLifeVisible(start, "行动", "曾经产生的个人愿望",
+                    intention.optString("aim").take(180) +
+                        intention.optString("motive").takeIf(String::isNotBlank)
+                            ?.let { "\\n当时缘由：" + it.take(150) }.orEmpty() +
+                        "\\n当前阶段：" + stage(intention.optString("stage")))
+            }
+        }
         listOf("intention", "previousIntention", "retiredGenericIntention").forEach { name ->
             val intention = life.optJSONObject(name) ?: return@forEach
             jsonEntries(intention.optJSONArray("outcomes")).forEach { receipt ->
