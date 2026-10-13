@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -142,8 +144,9 @@ internal fun DigitalWorldMapLobby(
 
     // Reserve the actual system status-bar inset at the screen boundary.
     // A nested scene/canvas must never paint or intercept the back-button row.
-    Column(modifier.fillMaxSize().statusBarsPadding().background(LuluColors.Paper)) {
+    Column(modifier.fillMaxSize().statusBarsPadding().background(LuluColors.Paper).clipToBounds()) {
         TopAppBar(
+            modifier = Modifier.zIndex(20f).fillMaxWidth(),
             title = {
                 Text(
                     activeSceneLabel ?: "数字世界",
@@ -210,7 +213,7 @@ internal fun DigitalWorldMapLobby(
             DigitalWorld3DTrialRoom(Modifier.fillMaxWidth().weight(1f))
         } else {
             Box(
-                modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFF091311)),
+                modifier = Modifier.fillMaxWidth().weight(1f).clipToBounds().background(Color(0xFF091311)),
             ) {
                 DigitalWorldSceneCanvas(
                     modifier = Modifier.fillMaxSize(),
