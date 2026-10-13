@@ -140,7 +140,9 @@ internal fun DigitalWorldMapLobby(
         ?.takeIf { it.startsWith("home:") }
         ?.removePrefix("home:")
 
-    Column(modifier.fillMaxSize().background(LuluColors.Paper)) {
+    // Reserve the actual system status-bar inset at the screen boundary.
+    // A nested scene/canvas must never paint or intercept the back-button row.
+    Column(modifier.fillMaxSize().statusBarsPadding().background(LuluColors.Paper)) {
         TopAppBar(
             title = {
                 Text(
@@ -191,7 +193,7 @@ internal fun DigitalWorldMapLobby(
                     )
                 }
             },
-            windowInsets = WindowInsets.statusBars,
+            windowInsets = WindowInsets(0, 0, 0, 0),
             colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
         )
 
