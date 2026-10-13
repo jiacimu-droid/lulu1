@@ -272,8 +272,25 @@ internal object LuluExternalMcp {
             .joinToString("\\n").take(150_000)
     }
 
+    /**
+     * Hard permission boundary for MCP: the model cannot turn an XHS
+     * search/read grant into publish, comment, like, favorite or follow.
+     * Do NOT dynamically forward model-picked remote tool names.
+     */
+    private val xhsReadOnlyTools = setOf(
+        "check_login_status", "get_login_qrcode",
+        "list_feeds", "search_feeds", "get_feed_detail",
+    )
+
     private suspend fun callResult(context: Context, service: String, name: String, arguments: JSONObject): JSONObject =
         withContext(Dispatchers.IO) {
+            require(
+                when (service) {
+                    "xiaohongshu" -> name in xhsReadOnlyTools
+                    "health" -> name == "health_read"
+                    else -> false
+                }
+            ) { "该 MCP 工具没有执行权限：只允许搜索和阅读，不允许对外发布、评论或互动" }
             val url = endpoint(context, service)
             require(url.isNotBlank()) { "尚未配置 $service MCP 地址" }
             val token = savedToken(context, service)
