@@ -35,7 +35,7 @@ internal object CharacterLifeVisibility {
         // Persisted goals remain available to the planner and the read-only
         // 经历 archive; do not duplicate a stale "想继续做" on every avatar open.
         val mind = CharacterInnerLifeStore.snapshot(role)
-        jsonEntries(mind.optJSONArray("openConcerns"))
+        CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
             .lastOrNull { source(role, it.optString("evidenceId")) != null }
             ?.let { concern ->
                 val t = parse(concern.optString("updatedAt")) ?:
