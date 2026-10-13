@@ -113,11 +113,15 @@ internal object XhsReadingEngine {
      * sources. A failed local page is not proof that MCP is down. Try the
      * second configured source before admitting that nothing was read.
      */
-    suspend fun list(context: Context, keyword: String, onProgress: (String) -> Unit = {}): List<XhsCard> {
+    suspend fun list(context: Context, keyword: String, onProgress: (String) -> Unit = {},
+                     localOnly: Boolean = false): List<XhsCard> {
         val query = keyword.trim().take(64)
         val canUseLocal = localEnabled(context) &&
             owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true
-        val canUseMcp = LuluExternalMcp.configured(context, "xiaohongshu")
+        val canUseMcp = !localOnly && LuluExternalMcp.configured(context, "xiaohongshu")
+        if (localOnly && !canUseLocal) {
+            error("内置浏览器不可用：请打开露露机并开启「使用已登录的本机网页」，再重试")
+        }
         var localFailure = ""
         if (canUseLocal) {
             try {
@@ -198,9 +202,13 @@ internal object XhsReadingEngine {
                 ?: if (query.isBlank()) "pc_feed" else "pc_search", provider)
     }
 
-    suspend fun read(context: Context, target: XhsCard, onProgress: (String) -> Unit = {}): XhsArticle {
+    suspend fun read(context: Context, target: XhsCard, onProgress: (String) -> Unit = {},
+                     localOnly: Boolean = false): XhsArticle {
         require(Regex("[a-zA-Z0-9]{12,40}").matches(target.id) && target.token.isNotBlank()) {
             "笔记缺少有效 ID 或详情令牌，未标记为已读"
+        }
+        if (localOnly) require(target.provider == "webview") {
+            "该笔记并非来自内置浏览器，不能算内置浏览器测试成功"
         }
         var actualProvider = target.provider
         val note = if (target.provider == "webview") {
@@ -211,7 +219,7 @@ internal object XhsReadingEngine {
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                if (!LuluExternalMcp.configured(context, "xiaohongshu")) throw error
+                if (localOnly || !LuluExternalMcp.configured(context, "xiaohongshu")) throw error
                 onProgress("网页笔记读取失败，正在尝试备用 MCP")
                 try { readMcpNote(context, target).also { actualProvider = "mcp" } }
                 catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
