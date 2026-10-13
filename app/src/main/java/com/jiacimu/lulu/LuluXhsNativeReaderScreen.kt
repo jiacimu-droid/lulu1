@@ -134,9 +134,21 @@ internal fun LuluXhsNativeReaderScreen(
         confirmButton = { TextButton(onClick = { diagnosticVisible = false }) { Text("关闭") } })
 
     Scaffold(modifier = Modifier.imePadding(), topBar = {
-        TopAppBar(title = { Text("小红书 · 阅读") }, navigationIcon = {
-            IconButton(onClick = { back() }) { Icon(Icons.Outlined.ArrowBack, "返回") }
-        })
+        TopAppBar(
+            title = { Text(if (selected == null) "小红书 · 列表" else "小红书 · 笔记") },
+            navigationIcon = {
+                IconButton(onClick = { back() }) {
+                    Icon(Icons.Outlined.ArrowBack, contentDescription = "返回列表")
+                }
+            },
+            actions = {
+                // This is the VISIBLE top bar while the native note covers the
+                // WebView toolbar. A parent-only button was unreachable.
+                TextButton(onClick = { back() }) {
+                    Text(if (selected != null) "返回列表" else "退出阅读")
+                }
+            },
+        )
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
