@@ -33,16 +33,19 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
             now = Instant.now()
         }
     }
-    val categories = listOf("成长", "行动", "探索")
+    // A single evidence timeline: own actions and exploration are both lived experiences.
+    val categories = listOf("成长", "经历")
     val history = remember(characterId, now, life, mindRevision, developmentRevision) {
         CharacterLifeVisibility.archive(characterId, now)
     }
-    val visible = history.filter { it.category == categories[section] }
+    val activeSection = section.coerceIn(0, categories.lastIndex)
+    val visible = history.filter { if (activeSection == 0) it.category == "成长"
+        else it.category == "行动" || it.category == "探索" }
     Column(modifier) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             categories.forEachIndexed { index, title ->
-                FilterChip(selected = section == index, onClick = { section = index },
+                FilterChip(selected = activeSection == index, onClick = { section = index },
                     label = { Text(title) })
             }
         }
