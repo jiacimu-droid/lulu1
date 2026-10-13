@@ -200,6 +200,12 @@ object CharacterLifeStore {
         }
         if (version >= 5) {
             migrateJiangDuUnifiedFramework(characterId, character, root)
+            // v6 is only an intermediate migration. Continue into the
+            // speech-habit and interest presets (v7/v8) on the same launch.
+            // In-progress migration guards ensure user edits stay untouched.
+            if (state(characterId).optInt("jiangDuPresetVersion") >= 6) {
+                applyJiangDuPreset(characterId)
+            }
             return
         }
         if (version >= 4) {
