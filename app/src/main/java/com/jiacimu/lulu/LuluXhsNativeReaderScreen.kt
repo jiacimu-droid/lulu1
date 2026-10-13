@@ -35,6 +35,8 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun LuluXhsNativeReaderScreen(
     onBack: () -> Unit, initialKeyword: String = "", initialCard: XhsCard? = null,
+    initialCards: List<XhsCard> = emptyList(),
+    onSearchInBrowser: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -62,6 +64,16 @@ internal fun LuluXhsNativeReaderScreen(
         focus.clearFocus(force = true)
         keyboard?.hide()
         task?.cancel()
+        // A visible login WebView is already available on this route.
+        // Let that real page perform the search instead of spawning a
+        // second, obscured WebView behind the reading screen.
+        if (onSearchInBrowser != null) {
+            sequence++
+            loading = false
+            message = "正在切回小红书网页搜索…"
+            onSearchInBrowser(query.trim().take(64))
+            return
+        }
         visionTask?.cancel(); visionText = ""; visionLoading = false
         val current = ++sequence
         selected = null
@@ -124,7 +136,18 @@ internal fun LuluXhsNativeReaderScreen(
 
     BackHandler { back() }
     LaunchedEffect(Unit) {
-        if (initialCard != null) readNote(initialCard) else loadList(initialKeyword)
+        when {
+            initialCard != null -> readNote(initialCard)
+            initialCards.isNotEmpty() -> {
+                cards = initialCards
+                loading = false
+                message = "网页已经找到 ${initialCards.size} 篇真实笔记（无需重新搜索）"
+            }
+            onSearchInBrowser != null -> {
+                message = "请在小红书网页搜索，或输入关键词后点「搜索」"
+            }
+            else -> loadList(initialKeyword)
+        }
     }
     DisposableEffect(Unit) { onDispose { task?.cancel(); visionTask?.cancel() } }
 
