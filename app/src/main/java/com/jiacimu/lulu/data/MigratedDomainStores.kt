@@ -377,35 +377,30 @@ class InMemoryLuluChatStore : LuluChatStore {
         val favoriteTarget = markerFavoriteId?.let { candidateId ->
             originalMessages.firstOrNull { message -> message.id == candidateId && message.sender == LuluChatMessage.Sender.User }
         }
-        val bubbleContents = if (clean.startsWith("[游戏邀约|")) {
-            listOf(clean)
-        } else {
-            clean.replace("\r\n", "\n")
-                .split(Regex("\n+"))
-                .map(String::trim)
-                .filter(String::isNotBlank)
-        }
+        // Exactly ONE persisted message per caller-selected semantic bubble.
+        // The caller owns message boundaries (structured JSON bubbles); newlines
+        // are layout inside that bubble, NEVER another send event.
+        // Previously splitting by \\n+ turned "肯赏脸说\\n句可以" into TWO messages,
+        // breaking both the visual chat and a single TTS utterance.
         val effectiveAuthorId = authorCharacterId
             ?: conversationState.value.firstOrNull { it.id == conversationId }?.characterId
             ?: "lulu"
         val effectiveBatchId = replyBatchId?.takeIf(String::isNotBlank) ?: UUID.randomUUID().toString()
-        val created = bubbleContents.mapIndexed { index, bubble ->
-            LuluChatMessage(
-                conversationId = conversationId,
-                sender = LuluChatMessage.Sender.Character,
-                content = bubble,
-                authorCharacterId = authorCharacterId,
-                replyToMessageId = effectiveReplyId.takeIf { index == 0 },
-                replyBatchId = effectiveBatchId,
-            ).also { message ->
-                append(conversationId, message, incrementUnread = false)
-                CompanionPresenceStore.bindDeliveredMessage(effectiveAuthorId, message.id, message.createdAt)
-            }
+        val created = LuluChatMessage(
+            conversationId = conversationId,
+            sender = LuluChatMessage.Sender.Character,
+            content = clean.replace("\r\n", "\n"),
+            authorCharacterId = authorCharacterId,
+            replyToMessageId = effectiveReplyId,
+            replyBatchId = effectiveBatchId,
+        ).also { message ->
+            append(conversationId, message, incrementUnread = false)
+            CompanionPresenceStore.bindDeliveredMessage(effectiveAuthorId, message.id, message.createdAt)
         }
         favoriteTarget?.let { target ->
             CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
         }
-        return created.last()
+        return created
     }
 
     override fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage {
