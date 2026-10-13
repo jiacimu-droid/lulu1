@@ -16,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -75,8 +77,9 @@ internal fun DigitalWorldScenePage(
         rememberedAction = ""
     }
 
-    Column(modifier.fillMaxSize().statusBarsPadding()) {
+    Column(modifier.fillMaxSize().statusBarsPadding().clipToBounds()) {
         TopAppBar(
+            modifier = Modifier.zIndex(20f).fillMaxWidth(),
             title = { Text(sceneLabel, fontWeight = FontWeight.SemiBold) },
             navigationIcon = {
                 IconButton(onClick = onBackToMap) { Icon(Icons.Outlined.ArrowBack, "返回地图") }
@@ -98,7 +101,7 @@ internal fun DigitalWorldScenePage(
                 actionIconContentColor = Color.White,
             ),
         )
-        Box(Modifier.weight(1f).fillMaxSize()) {
+        Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
             DigitalWorldSceneCanvas(
                 modifier = Modifier.fillMaxSize(),
                 sceneCode = sceneCode,
