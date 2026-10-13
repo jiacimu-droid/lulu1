@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T22:44:43.921524+00:00",
-  "commit": "715dea4e01ad056c49b011ba6385e110e612fc11",
+  "generatedAt": "2026-10-13T22:45:46.139734+00:00",
+  "commit": "fa61d8cf0a825b314d44572ce9e1613951585d78",
   "branch": "main",
-  "sourceFingerprint": "d88f6fae38243ac3edde13903380fc14cd830a93565a4179c8c1a4eaa654c7e7",
+  "sourceFingerprint": "d9070f82185e66434e5eecc7d9d7a18ff5d3dcc51e348841c8fbcc01c5abd24b",
   "summary": {
     "files": 615,
-    "lines": 122700,
+    "lines": 122723,
     "symbols": 1836
   },
   "symbolIndex": {
@@ -1733,25 +1733,25 @@
     "failure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 56
+        "line": 58
       }
     ],
     "loadList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 60
+        "line": 62
       }
     ],
     "readNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 86
+        "line": 98
       }
     ],
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 112
+        "line": 124
       }
     ],
     "PendingTouch": [
@@ -11635,24 +11635,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 242,
-      "sha256": "b247d57aede85c495dae4833e026b0e1b8b5acdb25e37b70bd50ce7c612f352a",
+      "lines": 265,
+      "sha256": "be4de2e40185fc60f639628b802c5c5a5be4a5f0a2ab6e1ce3489a58579f6a82",
       "symbols": [
         {
           "name": "failure",
-          "line": 56
+          "line": 58
         },
         {
           "name": "loadList",
-          "line": 60
+          "line": 62
         },
         {
           "name": "readNote",
-          "line": 86
+          "line": 98
         },
         {
           "name": "back",
-          "line": 112
+          "line": 124
         }
       ]
     },
