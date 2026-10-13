@@ -69,6 +69,43 @@ internal object LuluExternalMcp {
     fun savedToken(context: Context, service: String): String =
         prefs(context).getString("$service:token", "").orEmpty()
 
+    /**
+     * Fast MCP connectivity test, never invokes Chromium, authentication, or health_read.
+     * The local /health confirms the Node bridge process only; a separate login test
+     * is required before describing the Xiaohongshu account as usable.
+     */
+    suspend fun testService(context: Context, service: String): String = withContext(Dispatchers.IO) {
+        val url = endpoint(context, service)
+        require(url.isNotBlank()) { "请先保存 MCP 地址" }
+        val uri = java.net.URI(url)
+        if (service == "xiaohongshu" && uri.scheme == "http" &&
+            uri.host in setOf("127.0.0.1", "localhost")) {
+            val healthUrl = java.net.URL(uri.scheme, uri.host, uri.port, "/health")
+            val connection = healthUrl.openConnection() as HttpURLConnection
+            try {
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 2_500
+                connection.readTimeout = 4_000
+                if (connection.responseCode != 200) error("本机 MCP 没有正常响应（HTTP ${connection.responseCode}）")
+                val data = JSONObject(connection.inputStream.bufferedReader().use { it.readText().take(500) })
+                require(data.optBoolean("ready") && data.optBoolean("readOnly")) {
+                    "端口有服务，但不是露露机的小红书只读 MCP"
+                }
+                return@withContext "Termux MCP 服务在线（尚未检测 Chromium 和小红书登录）"
+            } finally { connection.disconnect() }
+        }
+        val init = send(url, savedToken(context, service), null, JSONObject()
+            .put("jsonrpc", "2.0").put("id", 1).put("method", "initialize")
+            .put("params", JSONObject().put("protocolVersion", "2025-03-26")
+                .put("capabilities", JSONObject())
+                .put("clientInfo", JSONObject().put("name", "lulu-android").put("version", "1.0"))),
+            timeoutMillis = 8_000)
+        require(init.first.has("result")) {
+            "MCP 初始化失败：${init.first.optJSONObject("error")?.optString("message").orEmpty()}"
+        }
+        "MCP 服务已响应（尚未测试小红书账号或健康数据）"
+    }
+
     suspend fun check(context: Context, service: String): String = withContext(Dispatchers.IO) {
         if (service == "health") {
             return@withContext healthRead(context,
@@ -333,12 +370,12 @@ internal object LuluExternalMcp {
 
     /** Return RPC result and optional MCP session ID, including SSE responses. */
     private fun send(url: String, token: String, session: String?, payload: JSONObject,
-        expectResponse: Boolean = true): Pair<JSONObject, String?> {
+        expectResponse: Boolean = true, timeoutMillis: Int = 120_000): Pair<JSONObject, String?> {
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
             connection.requestMethod = "POST"
-            connection.connectTimeout = 10_000
-            connection.readTimeout = 120_000
+            connection.connectTimeout = minOf(10_000, timeoutMillis)
+            connection.readTimeout = timeoutMillis
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
             connection.setRequestProperty("Accept", "application/json, text/event-stream")
