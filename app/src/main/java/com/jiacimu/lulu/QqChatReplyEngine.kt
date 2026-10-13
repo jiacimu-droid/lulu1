@@ -150,6 +150,9 @@ internal suspend fun appendRoleReplyWithPacing(
     if (spoken.size == bubbles.size) spoken.lastOrNull()?.let { last ->
         com.jiacimu.lulu.data.CharacterConversationAgency.delivered(characterId, interactionReceipt,
             last.id, spoken.joinToString("\n", transform = LuluChatMessage::content))
+        // Only a truly delivered turn can schedule durable later consideration.
+        // The shared online/perception engine makes the next autonomous choice.
+        com.jiacimu.lulu.data.CompanionOnlineStore.schedulePersistedConcernReview(characterId)
     }
     favoriteTarget?.let { CharacterMessageFavorites.favorite(characterId, conversationId, it) }
     if (presentation.pokeUser && currentCoroutineContext().isActive) {
