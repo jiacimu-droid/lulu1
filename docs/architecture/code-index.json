@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T23:04:28.763136+00:00",
-  "commit": "e979dc5944e30e300d61b3fe7525ab112da8ee05",
+  "generatedAt": "2026-10-13T23:05:51.016748+00:00",
+  "commit": "564b076b9ebab55f759b417a41e0240d60f9252f",
   "branch": "main",
-  "sourceFingerprint": "68069b715630abe0ecc14f878fe150e91c51e5b20de8b9df589368ecd452b276",
+  "sourceFingerprint": "29ce31144ac1d8a83eafb4e23038c1a624b5a1a3f5579b5f0ad9b4c75a13a6b3",
   "summary": {
     "files": 615,
-    "lines": 122822,
-    "symbols": 1840
+    "lines": 122831,
+    "symbols": 1842
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5553,7 +5553,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 344
+        "line": 353
       }
     ],
     "retryAt": [
@@ -5575,7 +5575,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 122
+        "line": 126
       }
     ],
     "stale": [
@@ -7346,28 +7346,40 @@
         "line": 103
       }
     ],
-    "localEnabled": [
+    "mcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
         "line": 108
       }
     ],
+    "setMcpFallbackEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 111
+      }
+    ],
+    "localEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 113
+      }
+    ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 110
+        "line": 114
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 112
+        "line": 116
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 116
+        "line": 120
       }
     ],
     "LuluPageScaffold": [
@@ -17502,8 +17514,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 470,
-      "sha256": "26017dad8caf32a754c1029aecd886adbfb9133e057e48e68603bb388d81b029",
+      "lines": 479,
+      "sha256": "c2ca783c7df070ffa5194c41ea6f33e4b7dd3f9c6c60471acf5aeda6a4039d21",
       "symbols": [
         {
           "name": "url",
@@ -17542,28 +17554,36 @@
           "line": 103
         },
         {
-          "name": "localEnabled",
+          "name": "mcpFallbackEnabled",
           "line": 108
         },
         {
+          "name": "setMcpFallbackEnabled",
+          "line": 111
+        },
+        {
+          "name": "localEnabled",
+          "line": 113
+        },
+        {
           "name": "setLocalEnabled",
-          "line": 110
+          "line": 114
         },
         {
           "name": "resume",
-          "line": 112
-        },
-        {
-          "name": "pause",
           "line": 116
         },
         {
+          "name": "pause",
+          "line": 120
+        },
+        {
           "name": "available",
-          "line": 122
+          "line": 126
         },
         {
           "name": "stage",
-          "line": 344
+          "line": 353
         }
       ]
     },
