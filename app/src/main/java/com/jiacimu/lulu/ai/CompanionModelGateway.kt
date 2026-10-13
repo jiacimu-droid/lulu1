@@ -489,6 +489,15 @@ class CompanionModelGateway(
             } else {
                 UnifiedMemoryOrchestrator.empty()
             }
+            // Every character-owned call in the real world carries the SAME core channel.
+            // Isolated tooling and cross-world roleplay deliberately inherit no private facts.
+            val deliveredCore = when (effectiveMode) {
+                CompanionContextMode.Full -> unifiedMemory.coreMemories
+                CompanionContextMode.CharacterAndScenario ->
+                    com.jiacimu.lulu.data.CoreMemoryDelivery.active(characterId)
+                else -> emptyList()
+            }
+            val deliveredCoreSection = com.jiacimu.lulu.data.CoreMemoryDelivery.render(deliveredCore)
             val memories = unifiedMemory.memories
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
@@ -539,7 +548,8 @@ class CompanionModelGateway(
                         includeConfigured = !fullContext,
                         includeRelationship = effectiveMode == CompanionContextMode.Full ||
                             effectiveMode == CompanionContextMode.CharacterAndScenario,
-                        includeCore = effectiveMode == CompanionContextMode.CharacterAndScenario && unifiedMemory.coreMemories.isEmpty(),
+                        // Core lives in one central prompt channel, not a second speech-only copy.
+                        includeCore = false,
                     ))
                     appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
@@ -626,7 +636,7 @@ class CompanionModelGateway(
                 learningSection,
                 currentWorld,
                 timelineSection,
-                unifiedMemory.coreMemorySection,
+                deliveredCoreSection,
                 memorySection,
                 memoryEvidenceSection,
                 lexiconSection,
@@ -649,7 +659,7 @@ class CompanionModelGateway(
                 "已读材料与可修订的理解" to learningSection,
                 "数字世界权威状态" to currentWorld,
                 "近期时间线/未完成责任" to timelineSection,
-                "核心记忆" to unifiedMemory.coreMemorySection,
+                "核心记忆" to deliveredCoreSection,
                 "召回记忆摘要" to memorySection,
                 "召回原始证据" to memoryEvidenceSection,
                 "辞海" to lexiconSection,
@@ -670,6 +680,14 @@ class CompanionModelGateway(
                 readTimeoutMillis = readTimeoutMillis,
                 onStreamText = onStreamText,
             )
+            // Record only after the request returned a valid model reply. The audit
+            // reflects the exact core IDs included in this outgoing system prompt,
+            // not the ordinary retrieval candidates or merely assembled text.
+            if (effectiveMode == CompanionContextMode.Full ||
+                effectiveMode == CompanionContextMode.CharacterAndScenario) {
+                com.jiacimu.lulu.data.CoreMemoryInjectionAudit.recordSuccess(
+                    characterId, source, effectiveMode.name, deliveredCore.map { it.id })
+            }
             val modelMillis = elapsedMillis(modelStartedAt)
             val totalMillis = elapsedMillis(totalStartedAt)
             LuluRepositories.performance.recordGeneration(
