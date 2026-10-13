@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:15:17.769283+00:00",
-  "commit": "9e01b3cfaa2138dc730e35ce722b92df5520c0fd",
+  "generatedAt": "2026-10-13T05:16:14.875868+00:00",
+  "commit": "610292fed0449d64c3d577ca65e59a46aeb9622a",
   "branch": "main",
-  "sourceFingerprint": "2598e6accf7279baef2b0d6a9891f758129b11fc877ffa80aaa29408c6e0172d",
+  "sourceFingerprint": "fc00ac60e4842d8e586f672d44d7687ff9caeceb20982da9e013f28f7c0bd3a6",
   "summary": {
     "files": 592,
-    "lines": 116833,
-    "symbols": 1768
+    "lines": 116796,
+    "symbols": 1767
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -22,16 +22,10 @@
         "line": 12
       }
     ],
-    "finishCurrentPhrase": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 25
-      }
-    ],
     "start": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 28
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
@@ -53,13 +47,13 @@
     "bindInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 54
+        "line": 48
       }
     ],
     "stop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-        "line": 246
+        "line": 210
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
@@ -9957,24 +9951,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt",
-      "lines": 267,
-      "sha256": "9c045a7ee99969d433c25ecab64e537b24d90b9874ae63d923ca919c9353f84a",
+      "lines": 230,
+      "sha256": "1e3d43c080dcb345a049a73cc5e03187f957a0a9d056ad10d5f98ad45742aa40",
       "symbols": [
         {
-          "name": "finishCurrentPhrase",
-          "line": 25
-        },
-        {
           "name": "start",
-          "line": 28
+          "line": 22
         },
         {
           "name": "bindInput",
-          "line": 54
+          "line": 48
         },
         {
           "name": "stop",
-          "line": 246
+          "line": 210
         }
       ]
     },
