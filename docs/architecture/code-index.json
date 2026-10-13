@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T02:43:27.223509+00:00",
-  "commit": "073b44ab6c4f5967add4dd8f27aa2a50a79b38c3",
+  "generatedAt": "2026-10-13T02:43:54.926600+00:00",
+  "commit": "0f4a214d0e7663574cbd20bdb9b4b19272e4d6cf",
   "branch": "main",
-  "sourceFingerprint": "8cc578876b73a0d4d537098c9da36851828ad76db4e73cc8ed1daaaf290c96b8",
+  "sourceFingerprint": "061117bf26755c387b060b08dbc62339258756da9e38c8a2a136cc9261bcee6b",
   "summary": {
     "files": 581,
-    "lines": 116221,
+    "lines": 116222,
     "symbols": 1759
   },
   "symbolIndex": {
@@ -19567,7 +19567,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
       "lines": 59,
-      "sha256": "eb34b8cf934e0f23b78771003ebc0282e12b27251d07271c1b3c646449e9bdc7",
+      "sha256": "adeb6c9903369236341fac39e0844bf38c2074ccc16de48d8e6f427069f32c26",
       "symbols": [
         {
           "name": "SleepCallContinuationPolicyTest",
@@ -19586,7 +19586,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
       "lines": 61,
-      "sha256": "362a79e55b5e9f6fe7512fa643f9bb7919d14563546353053a6e9714280f6091",
+      "sha256": "529cffdb061a27feba985e3fa053aa4ed57488c071eb9c0b0b93f0b95eda67b2",
       "symbols": [
         {
           "name": "SleepGuidanceGuideTest",
@@ -20498,8 +20498,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt",
-      "lines": 48,
-      "sha256": "cb8a0a87b6921f307d13434edeb6ccbc4f6c6e46a1a066c76f003f279aaf4967",
+      "lines": 49,
+      "sha256": "398a91a9f03c22ff2b730cb01617b77def82b61eb283c70393c57233ae66218d",
       "symbols": [
         {
           "name": "ReadingChatReceiptFormatterTest",

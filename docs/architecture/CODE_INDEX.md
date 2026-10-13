@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`073b44ab6c4f5967add4dd8f27aa2a50a79b38c3`
+- 基准提交：`0f4a214d0e7663574cbd20bdb9b4b19272e4d6cf`
 - 分支：`main`
 - 已索引文件：581
-- 已索引代码/文本行：116221
+- 已索引代码/文本行：116222
 - 已发现符号：1759
 
 | 文件 | 行数 | 符号数 |
@@ -559,7 +559,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 48 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
