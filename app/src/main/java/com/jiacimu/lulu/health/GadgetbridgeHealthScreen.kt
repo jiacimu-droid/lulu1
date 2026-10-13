@@ -61,7 +61,7 @@ internal fun GadgetbridgeHealthScreen() {
     var selectedDateText by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(state.connected, refreshedOnOpen) {
-        if (state.connected && !refreshedOnOpen) {
+        if (state.sourceUri.isNotBlank() && !refreshedOnOpen) {
             refreshedOnOpen = true
             scope.launch { GadgetbridgeHealthStore.refresh(context) }
         }
