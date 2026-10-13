@@ -634,7 +634,10 @@ object ProactivePerceptionRuntime {
         currentCoroutineContext().ensureActive()
         // A call takes ownership immediately; a finished awake window cannot execute stale decisions.
         if (CompanionPresenceStore.isInCall(characterId) ||
-            (awakeReflection && !CompanionOnlineStore.isOnline(characterId))) return Action.SILENT
+            (awakeReflection && !CompanionOnlineStore.isOnline(characterId)) ||
+            (onlineExpiryAtMillis > 0L &&
+                CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis)
+        ) return Action.SILENT
         if (awakeReflection) SharedExperienceTimeline.record(
             eventId = awakeObservationId, characterId = characterId,
             channel = "在线感知", speaker = "在线观察",
@@ -740,10 +743,13 @@ object ProactivePerceptionRuntime {
             ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
         } else null
         currentCoroutineContext().ensureActive()
-        // A phone call or expired online window may take ownership while the
-        // optional follow-through model is in flight. Never execute its stale choice.
+        // A phone call, user wake or replaced online window may take ownership
+        // while optional follow-through is in flight. Never send a stale apology.
         if (CompanionPresenceStore.isInCall(characterId) ||
-            (awakeReflection && !CompanionOnlineStore.isOnline(characterId))) return Action.SILENT
+            (awakeReflection && !CompanionOnlineStore.isOnline(characterId)) ||
+            (onlineExpiryAtMillis > 0L &&
+                CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis)
+        ) return Action.SILENT
         // The review owns ONLY the action. Preserve the original appraisal,
         // heart voice and motive proposal instead of silently discarding them.
         val resolved = independentChoice?.copy(
@@ -764,6 +770,32 @@ object ProactivePerceptionRuntime {
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
                 fallbackDecision.innerThought,
             ))
+        // The very SAME autonomous decision chooses attention and outward action.
+        // Commit the online choice first so a chosen message is sent while awake;
+        // a new user wake or call supersedes this older expiry atomically.
+        if (onlineExpiryAtMillis > 0L) {
+            val wantsMoreTime = decision.onlineChoice == "continue" &&
+                decision.onlineChoiceReason.isNotBlank()
+            val keptAwake = wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
+                characterId, onlineExpiryAtMillis, decision.onlineChoiceReason, Instant.now(),
+            )
+            val newerWindow = CompanionOnlineStore.states.value[characterId]
+                ?.onlineUntil?.toEpochMilli() != (if (keptAwake) 0L else onlineExpiryAtMillis)
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId,
+                when {
+                    keptAwake -> "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
+                    newerWindow -> "旧到期判断已被更新的在线状态取代"
+                    decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
+                        "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
+                    else -> "五分钟到期，未形成有效续醒决定，进入休眠"
+                },
+                Instant.now(),
+            )
+            // If another event won the lease after the model generated its
+            // response, its old action must not get sent into the new chat.
+            if (!keptAwake && newerWindow) return Action.SILENT
+        }
         // Emotion and intent are decided together in this same action call.
         CharacterLifeStore.consider(characterId, decision.intention, now)
         // Capture the private state before this proposal is applied. Delta must compare two moments,
@@ -1139,28 +1171,6 @@ object ProactivePerceptionRuntime {
                     "回复动作执行失败：${execution.summary.take(100)}，没有标记你的消息为已处理"
                 )
             }
-        }
-        if (onlineExpiryAtMillis > 0L) {
-            // The interval might have been superseded while the model was
-            // composing an action, e.g. a new user wake or a genuine activity.
-            val current = CompanionOnlineStore.states.value[characterId]
-            val superseded = current?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
-            val wantsMoreTime = decision.onlineChoice == "continue" &&
-                decision.onlineChoiceReason.isNotBlank()
-            val keptAwake = !superseded && wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
-                characterId, onlineExpiryAtMillis, decision.onlineChoiceReason, Instant.now(),
-            )
-            CompanionPresenceStore.recordPerceptionAttempt(
-                characterId,
-                when {
-                    keptAwake -> "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
-                    superseded -> "旧到期判断已被更新的在线状态取代"
-                    decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
-                        "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
-                    else -> "五分钟到期，未形成有效续醒决定，进入休眠"
-                },
-                Instant.now(),
-            )
         }
         return effectiveAction
     }
