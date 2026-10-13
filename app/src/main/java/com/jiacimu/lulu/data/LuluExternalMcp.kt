@@ -64,9 +64,11 @@ internal object LuluExternalMcp {
         prefs(context).getString("$service:token", "").orEmpty()
 
     suspend fun check(context: Context, service: String): String = withContext(Dispatchers.IO) {
-        val result = call(context, service, if (service == "xiaohongshu") "check_login_status" else "health_read",
-            if (service == "health") JSONObject().put("data_type", "current_status") else JSONObject())
-        result.take(500)
+        if (service == "health") {
+            return@withContext healthRead(context,
+                JSONObject().put("data_type", "daily_summary").put("days", 7)).summary.take(500)
+        }
+        call(context, "xiaohongshu", "check_login_status", JSONObject()).take(500)
     }
 
     /** One real browse = discover candidates + fetch ONE actual article, not a fabricated reading receipt. */
