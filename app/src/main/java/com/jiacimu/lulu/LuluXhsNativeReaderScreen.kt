@@ -3,6 +3,16 @@ package com.jiacimu.lulu
 import android.content.Intent
 import android.net.Uri
 import android.graphics.Bitmap
+import android.webkit.CookieManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.WebSettings
+import android.webkit.WebResourceRequest
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.UserAgentMetadata
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -29,6 +39,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 
 /** Manual browsing and character tools use the same session, extraction and failure handling. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +55,17 @@ internal fun LuluXhsNativeReaderScreen(
     val focus = androidx.compose.ui.platform.LocalFocusManager.current
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val listState = rememberLazyListState()
+    // A real, attached WebView is embedded BELOW the native reader toolbar.
+    // It shares the site's login state, but never opens Chrome or a separate
+    // browser screen. This also avoids the invisible WebView timeout.
+    val useEmbeddedBrowser = onSearchInBrowser == null
+    val smokeRequested = remember { XhsReadingEngine.consumeVisibleReadTest(context) }
+    var webReady by remember { mutableStateOf(false) }
+    var webProblem by remember { mutableStateOf("") }
+    var showWebPreview by remember { mutableStateOf(smokeRequested) }
+    var smokeStarted by remember { mutableStateOf(false) }
+    var smokeResult by remember { mutableStateOf("") }
+    var smokeRunning by remember { mutableStateOf(false) }
     var keyword by remember { mutableStateOf(initialKeyword) }
     var cards by remember { mutableStateOf<List<XhsCard>>(emptyList()) }
     var selected by remember { mutableStateOf<XhsCard?>(null) }
@@ -122,6 +145,54 @@ internal fun LuluXhsNativeReaderScreen(
         }
     }
 
+    fun startNativeReadTest() {
+        if (smokeRunning) return
+        task?.cancel()
+        val current = ++sequence
+        selected = null
+        article = null
+        cards = emptyList()
+        loading = true
+        smokeRunning = true
+        showWebPreview = true
+        message = "第 1 / 2 步：在当前内置网页搜索真实笔记…"
+        task = scope.launch {
+            val result = try {
+                withTimeout(82_000L) {
+                    val found = XhsReadingEngine.list(context, "猫咪",
+                        onProgress = { if (current == sequence) message = "第 1 / 2 步 · $it" },
+                        localOnly = true)
+                    if (current != sequence) return@withTimeout ""
+                    cards = found
+                    val chosen = found.firstOrNull { it.provider == "webview" && it.token.isNotBlank() }
+                        ?: error("找到 ${found.size} 篇笔记，但没有可打开的真实详情令牌")
+                    message = "第 2 / 2 步：在同一内置网页读取笔记图文…"
+                    val real = XhsReadingEngine.read(context, chosen,
+                        onProgress = { if (current == sequence) message = "第 2 / 2 步 · $it" },
+                        localOnly = true)
+                    if (current != sequence) return@withTimeout ""
+                    if (real.body.isBlank() && real.images.isEmpty())
+                        error("帖子没有返回真实正文或图片")
+                    "通过：内置网页搜索 ${found.size} 篇，读到正文 ${real.body.length} 字" +
+                        "、${real.images.size} 张图片。\n未用 MCP，未写入角色记忆。"
+                }
+            } catch (error: TimeoutCancellationException) {
+                "失败：等待内置网页搜索/正文超过 82 秒。可展开下方网页预览，" +
+                    "查看实际登录或验证提示，并点「读取诊断」。"
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                "失败：${error.message.orEmpty().take(180)}。\n未切换 MCP，也没有虚报已读。"
+            }
+            if (current == sequence) {
+                smokeResult = result
+                smokeRunning = false
+                loading = false
+                message = result
+            }
+        }
+    }
+
     fun back() {
         task?.cancel(); visionTask?.cancel()
         sequence++
@@ -135,21 +206,40 @@ internal fun LuluXhsNativeReaderScreen(
     }
 
     BackHandler { back() }
-    LaunchedEffect(Unit) {
-        when {
-            initialCard != null -> readNote(initialCard)
-            initialCards.isNotEmpty() -> {
-                cards = initialCards
-                loading = false
-                message = "网页已经找到 ${initialCards.size} 篇真实笔记（无需重新搜索）"
+    LaunchedEffect(webReady) {
+        // When launched from Settings we wait for the embedded page to start
+        // loading before asking it for search data. When nested over the
+        // existing browser, reuse the supplied cards instead.
+        if (useEmbeddedBrowser && !webReady) return@LaunchedEffect
+        if (initialCard != null) readNote(initialCard)
+        else if (initialCards.isNotEmpty()) {
+            cards = initialCards
+            loading = false
+            message = "网页已经找到 ${initialCards.size} 篇真实笔记（无需重新搜索）"
+        } else if (smokeRequested && !smokeStarted) {
+            smokeStarted = true
+            startNativeReadTest()
+        } else if (onSearchInBrowser != null) {
+            message = "请在小红书网页搜索，或输入关键词后点「搜索」"
+        } else if (!smokeStarted) loadList(initialKeyword)
+    }
+    LaunchedEffect(useEmbeddedBrowser, webReady, smokeRequested) {
+        if (useEmbeddedBrowser && !webReady && smokeRequested) {
+            delay(18_000)
+            if (!webReady && !smokeStarted) {
+                smokeStarted = true
+                smokeResult = "内置小红书网页没有在 18 秒内完成主文档加载。" +
+                    "请检查网页预览中的网络、登录或验证提示；未调用 MCP。"
+                message = smokeResult
             }
-            onSearchInBrowser != null -> {
-                message = "请在小红书网页搜索，或输入关键词后点「搜索」"
-            }
-            else -> loadList(initialKeyword)
         }
     }
     DisposableEffect(Unit) { onDispose { task?.cancel(); visionTask?.cancel() } }
+
+    if (smokeResult.isNotBlank()) AlertDialog(onDismissRequest = { smokeResult = "" },
+        title = { Text("内置阅读测试结果") },
+        text = { Text(smokeResult) },
+        confirmButton = { TextButton(onClick = { smokeResult = "" }) { Text("知道了") } })
 
     if (diagnosticVisible) AlertDialog(onDismissRequest = { diagnosticVisible = false },
         title = { Text("读取诊断") },
@@ -207,6 +297,75 @@ internal fun LuluXhsNativeReaderScreen(
                     }) { Text(if (visionLoading) "正在识图…" else "识别图片（前${minOf(6, content.images.size)}张）") }
                 }
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
+            }
+            if (useEmbeddedBrowser) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("同一页面内的登录网页 · 供搜索与角色阅读复用",
+                        style = MaterialTheme.typography.labelSmall)
+                    TextButton(onClick = { showWebPreview = !showWebPreview }) {
+                        Text(if (showWebPreview) "收起网页预览" else "查看网页状态")
+                    }
+                }
+                AndroidView(
+                    modifier = Modifier.fillMaxWidth().height(
+                        if (showWebPreview || loading || smokeRunning) 180.dp else 2.dp),
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            settings.javaScriptEnabled = true
+                            settings.domStorageEnabled = true
+                            settings.allowFileAccess = false
+                            settings.allowContentAccess = false
+                            settings.useWideViewPort = true
+                            settings.loadWithOverviewMode = true
+                            val chromeVersion = Regex("Chrome/([0-9.]+)").find(
+                                WebSettings.getDefaultUserAgent(ctx))?.groupValues?.get(1) ?: "120.0.0.0"
+                            settings.userAgentString = "Mozilla/5.0 (X11; Linux x86_64) " +
+                                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$chromeVersion Safari/537.36"
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
+                                runCatching {
+                                    val brands = listOf("Chromium", "Google Chrome").map { brand ->
+                                        UserAgentMetadata.BrandVersion.Builder().setBrand(brand)
+                                            .setMajorVersion(chromeVersion.substringBefore('.'))
+                                            .setFullVersion(chromeVersion).build()
+                                    }
+                                    WebSettingsCompat.setUserAgentMetadata(settings,
+                                        UserAgentMetadata.Builder().setPlatform("Linux").setMobile(false)
+                                            .setBrandVersionList(brands).build())
+                                }
+                            }
+                            CookieManager.getInstance().setAcceptCookie(true)
+                            CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+                                val script = ctx.assets.open("xhs-reader.js").bufferedReader()
+                                    .use { it.readText() }
+                                WebViewCompat.addDocumentStartJavaScript(this, script,
+                                    setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+                            }
+                            webViewClient = object : WebViewClient() {
+                                override fun shouldOverrideUrlLoading(
+                                    view: WebView?, request: WebResourceRequest?): Boolean {
+                                    val uri = request?.url
+                                    return uri?.scheme != "https" ||
+                                        uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
+                                }
+                                override fun onPageFinished(view: WebView?, url: String?) {
+                                    if (!webReady) webReady = true
+                                }
+                            }
+                            XhsReadingEngine.attachBrowser(this)
+                            loadUrl("https://www.xiaohongshu.com/explore")
+                        }
+                    },
+                    onRelease = { view ->
+                        XhsReadingEngine.detachBrowser(view)
+                        view.stopLoading()
+                        view.destroy()
+                    },
+                )
+                if (webProblem.isNotBlank()) Text(webProblem, style = MaterialTheme.typography.bodySmall)
+                if (!smokeRunning && !loading && !smokeRequested && cards.isEmpty() && selected == null)
+                    Text("搜索将直接读取上面的内置网页，不会打开外部浏览器。",
+                        style = MaterialTheme.typography.labelSmall)
             }
             if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
             if (!loading && message.contains("超时")) TextButton(onClick = { diagnosticVisible = true }) { Text("读取诊断") }
