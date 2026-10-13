@@ -91,6 +91,21 @@ internal object XhsReadingEngine {
         }
         prefs(context).edit().putString("xiaohongshu:last-tool-attempt", state.toString()).apply()
     }
+    /**
+     * Launch the actual visible, logged-in WebView before a one-click smoke
+     * test; never execute this test in a hidden, unrendered fallback browser.
+     */
+    fun requestVisibleReadTest(context: Context) {
+        prefs(context).edit().putBoolean("xiaohongshu:visible-read-test", true).commit()
+    }
+    fun visibleReadTestPending(context: Context): Boolean =
+        prefs(context).getBoolean("xiaohongshu:visible-read-test", false)
+    fun consumeVisibleReadTest(context: Context): Boolean {
+        val requested = visibleReadTestPending(context)
+        if (requested) prefs(context).edit().remove("xiaohongshu:visible-read-test").commit()
+        return requested
+    }
+
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
