@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T07:46:22.090640+00:00",
-  "commit": "1abba15141a2beb17bded6515d4241c58cdf27ef",
+  "generatedAt": "2026-10-13T07:47:57.429111+00:00",
+  "commit": "64389e9c39d18c3b51fce51665928dd9c56573f0",
   "branch": "main",
-  "sourceFingerprint": "0383bcef4c8703b66a509c7b69c72e85aa8e24e46e8f97d4f95cfb8d9f5b2284",
+  "sourceFingerprint": "d2ee41ac315964fb285914d9bfc489121c485b0a3a8bd2bf9a7090345d120861",
   "summary": {
     "files": 595,
-    "lines": 117359,
-    "symbols": 1773
+    "lines": 117378,
+    "symbols": 1775
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -989,13 +989,13 @@
     "furniturePoseFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 194
+        "line": 198
       }
     ],
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1340
+        "line": 1353
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -1005,61 +1005,73 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1349
+        "line": 1362
       }
     ],
     "loadDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1351
+        "line": 1364
+      }
+    ],
+    "loadVenueActivities": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
+        "line": 1366
+      }
+    ],
+    "saveVenueActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
+        "line": 1369
       }
     ],
     "loadNativePosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1353
+        "line": 1372
       }
     ],
     "saveNativePositions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1361
+        "line": 1380
       }
     ],
     "saveDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1371
+        "line": 1390
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1374
+        "line": 1393
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1376
+        "line": 1395
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1379
+        "line": 1398
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1382
+        "line": 1401
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1390
+        "line": 1409
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -10523,8 +10535,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1395,
-      "sha256": "60ee970c3cfe86b416b20a1b343200af155b9217c68185ec92ce07e667c41cca",
+      "lines": 1414,
+      "sha256": "dc0870d3c60043c7880b5c58ab58baa6a9e8f0a8845f21cf486945b7cc4f2365",
       "symbols": [
         {
           "name": "Resident",
@@ -10548,51 +10560,59 @@
         },
         {
           "name": "furniturePoseFor",
-          "line": 194
+          "line": 198
         },
         {
           "name": "loadPosition",
-          "line": 1340
-        },
-        {
-          "name": "loadQuest",
-          "line": 1349
-        },
-        {
-          "name": "loadDiscoveries",
-          "line": 1351
-        },
-        {
-          "name": "loadNativePosition",
           "line": 1353
         },
         {
+          "name": "loadQuest",
+          "line": 1362
+        },
+        {
+          "name": "loadDiscoveries",
+          "line": 1364
+        },
+        {
+          "name": "loadVenueActivities",
+          "line": 1366
+        },
+        {
+          "name": "saveVenueActivity",
+          "line": 1369
+        },
+        {
+          "name": "loadNativePosition",
+          "line": 1372
+        },
+        {
           "name": "saveNativePositions",
-          "line": 1361
+          "line": 1380
         },
         {
           "name": "saveDiscoveries",
-          "line": 1371
+          "line": 1390
         },
         {
           "name": "loadHandHoldingId",
-          "line": 1374
+          "line": 1393
         },
         {
           "name": "loadFollowerIds",
-          "line": 1376
+          "line": 1395
         },
         {
           "name": "loadSuspendedFollowers",
-          "line": 1379
+          "line": 1398
         },
         {
           "name": "saveCompanionship",
-          "line": 1382
+          "line": 1401
         },
         {
           "name": "save",
-          "line": 1390
+          "line": 1409
         }
       ]
     },
