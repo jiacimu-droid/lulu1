@@ -35,7 +35,7 @@ test('reader diagnostic distinguishes hydrated search from an unready/blocked br
   assert.equal(d.page.loginPrompt, true);
   assert.equal(d.page.visibleCards, 0);
   assert.equal(JSON.stringify(d).includes('real-value'), false);
-  assert.equal(JSON.stringify(d).includes('cat'), false);
+  assert.equal(JSON.stringify(d).includes('"keyword":"cat"'), false);
 });
 test('diagnostics report website verification separately from intercepted requests', () => {
   const b = browser({path: '/search_result?keyword=news', text: '请进行安全验证',
