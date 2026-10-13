@@ -1410,11 +1410,17 @@ internal object LuluVoiceCallSession {
         cloudCaptureTurnAllowed = false
         val id = mutableState.value.callExperienceId
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
-        val scribeRealtime = CallVoiceConfiguration.sttEngine(context) == "elevenlabs" &&
-            CallVoiceConfiguration.elevenSttModel(context.getSharedPreferences("lulu_advanced_settings", 0)
-                .getString("eleven_asr_model", null)) == CallVoiceConfiguration.SCRIBE_V2_REALTIME
+        val selectedSttEngine = CallVoiceConfiguration.sttEngine(context)
+        val selectedElevenPath = CallVoiceConfiguration.elevenInputPath(
+            selectedSttEngine,
+            context.getSharedPreferences("lulu_advanced_settings", 0)
+                .getString("eleven_asr_model", null),
+        )
+        val scribeRealtime =
+            selectedElevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME
         providerInput = ProviderCallInput(context, scope,
-            sttEngine = CallVoiceConfiguration.sttEngine(context),
+            sttEngine = selectedSttEngine,
+            elevenPath = selectedElevenPath,
             // Listen throughout model/TTS preparation. Audible playback owns
             // its turn on all output routes, as requested by the user.
             accept = {
