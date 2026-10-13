@@ -83,9 +83,6 @@ fun LuluVoiceCallScreen(
     }
 
     val callPrefs = remember(context) { context.getSharedPreferences("lulu_advanced_settings", 0) }
-    var scribeChoice by remember {
-        mutableStateOf(CallVoiceConfiguration.elevenSttModel(callPrefs.getString("eleven_asr_model", null)))
-    }
     val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接电话模型"
@@ -222,23 +219,6 @@ fun LuluVoiceCallScreen(
                         if (state.errorMessage.isNotBlank()) TextButton(onClick = LuluVoiceCallSession::retryListening) {
                             Text("重新收音", fontSize = 12.sp)
                         }
-                        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
-                        val batchEleven = CallVoiceConfiguration.sttEngine(context) == "elevenlabs" &&
-                            CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null)) ==
-                                CallVoiceConfiguration.SCRIBE_V2
-                        if (batchEleven && !state.microphoneMuted) {
-                            TextButton(
-                                enabled = !state.batchUploading &&
-                                    (!state.opening || state.batchRecording),
-                                onClick = {
-                                    if (state.batchRecording) LuluVoiceCallSession.submitRecordedSpeech()
-                                    else LuluVoiceCallSession.beginRecordedSpeech()
-                                }) {
-                                Text(if (state.batchUploading) "正在转写…"
-                                    else if (state.batchRecording) "结束并发送录音"
-                                    else "开始录音", fontSize = 12.sp)
-                            }
-                        }
                         TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
                             Icon(Icons.Outlined.NightsStay, contentDescription = null,
                                 tint = if (state.sleepMode) Color(0xFF9A6BB5) else CallMuted)
@@ -342,35 +322,6 @@ fun LuluVoiceCallScreen(
                 Spacer(Modifier.height(12.dp))
                 when (state.phase) {
                     CallPhase.Ready -> {
-                        if (CallVoiceConfiguration.sttEngine(context) == "elevenlabs" &&
-                            !CallVoiceConfiguration.usesAgent(
-                                CallVoiceConfiguration.provider(context),
-                                callPrefs.getString("voice_call_mode", "direct"))) {
-                            Text("这通电话用哪条识别线路", color = CallInk,
-                                fontWeight = FontWeight.Medium, fontSize = 13.sp)
-                            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                                listOf(
-                                    CallVoiceConfiguration.SCRIBE_V2 to "Scribe v2 · 分段",
-                                    CallVoiceConfiguration.SCRIBE_V2_REALTIME to "Scribe v2 · 实时"
-                                ).forEach { (model, label) ->
-                                    FilterChip(
-                                        selected = scribeChoice == model,
-                                        onClick = {
-                                            scribeChoice = model
-                                            callPrefs.edit().putString("eleven_asr_model", model).apply()
-                                        },
-                                        label = { Text(label, fontSize = 12.sp) }
-                                    )
-                                }
-                            }
-                            Text(
-                                if (scribeChoice == CallVoiceConfiguration.SCRIBE_V2)
-                                    "录音完成后才上传到 V2。接通后点「开始录音」，说完点「结束并发送录音」。"
-                                else "实时 WebSocket 线路，边说边出字幕；费用取决于 ElevenLabs 计费。",
-                                color = CallMuted, fontSize = 11.sp, textAlign = TextAlign.Center,
-                            )
-                            Spacer(Modifier.height(5.dp))
-                        }
                         // Model choice stays available before dialing, without
                         // cluttering the portrait of an active phone call.
                         if (activeArchive == null) ModelArchiveTextButton(
