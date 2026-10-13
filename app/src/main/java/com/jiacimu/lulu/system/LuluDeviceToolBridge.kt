@@ -257,7 +257,7 @@ object LuluDeviceToolBridge {
             如情绪、内在动机有可靠变化可选 innerLife、appraisal、mood。
             若上一轮真实发生了争执或对方明确受伤，应重新判断自己是否仍有未解决的个人心事，
             而不是因已经说过道歉就自动当作和好；如角色确实想继续修复，可在
-            appraisal.pendingConcern 中开放同一条可延续的心事，记录真实缘由、犹豫与可能的下一步。
+            appraisal.pendingConcerns 中开放不同主题的可延续心事（每条有独立 topicKey、focus、whyItMatters、priority、hesitation、possibleNextStep），或续想相同 threadId；老的单条 pendingConcern 仍兼容。
             也允许多个不同甚至矛盾的念头保存在 innerLife.thoughts，行动由后续本人自主选择，
             不要把一种可能的修复方式写成必做规则、擅自认定用户已原谅或强制连发道歉。
             不能为了凑结构创造情绪、心声或未发生的事件，禁止重复执行工具。
