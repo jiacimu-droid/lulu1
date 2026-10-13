@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0cb656e782fe577a39f5e8b783761c3ab349b3f8`
+- 基准提交：`d5394d5cf50d7f571a2d3417f996dacccde61658`
 - 分支：`main`
 - 已索引文件：592
-- 已索引代码/文本行：116841
+- 已索引代码/文本行：116833
 - 已发现符号：1768
 
 | 文件 | 行数 | 符号数 |
@@ -91,8 +91,8 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 473 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 125 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 551 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1785 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 549 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1779 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
