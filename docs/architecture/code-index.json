@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T03:01:02.993754+00:00",
-  "commit": "f2602b19d392d8bb5f2967c4623d3fac50b551ff",
+  "generatedAt": "2026-10-13T03:16:45.463645+00:00",
+  "commit": "26c1cb3d1d3897f0a074dda913e933cc0f02a95f",
   "branch": "main",
-  "sourceFingerprint": "0b475458eb0f51064fb09a70e55840e7528caf903a02752723f733881d8fc2d8",
+  "sourceFingerprint": "21dd3391992d794f4457a2ad9504d94461ae39b19e2803e21ef14fba3239f43e",
   "summary": {
     "files": 583,
-    "lines": 116461,
+    "lines": 116466,
     "symbols": 1765
   },
   "symbolIndex": {
@@ -9337,7 +9337,7 @@
     "CharacterBehaviorMotivationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "CharacterCausalActionPolicyTest": [
@@ -19898,12 +19898,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt",
-      "lines": 67,
-      "sha256": "b5c15853ad0c3de35976caf6a54bf295f646771c454ac22e26e38fbab1e68c5e",
+      "lines": 72,
+      "sha256": "370cd87d7703d84d28d83ca5e037e859186ce33ab87d567e6bc22eb593355bb9",
       "symbols": [
         {
           "name": "CharacterBehaviorMotivationTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
