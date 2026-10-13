@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ca66098bda978c7360c5a58c4256eb69f8cecc2b`
+- 基准提交：`c7b73985bc4551bc32df602a587ae79cbe22ea68`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：122272
+- 已索引代码/文本行：122296
 - 已发现符号：1835
 
 | 文件 | 行数 | 符号数 |
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 146 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 85 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 82 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 217 | 1 |
@@ -517,7 +517,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 67 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 83 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 139 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 153 | 1 |
