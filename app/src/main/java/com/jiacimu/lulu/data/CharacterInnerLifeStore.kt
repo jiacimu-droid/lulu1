@@ -817,7 +817,7 @@ object CharacterInnerLifeStore {
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
             responseAim.isBlank() && effectiveReason.isBlank() &&
-            appraisal?.optJSONObject("pendingConcern") == null &&
+            !CharacterOpenConcernRuntime.hasProposals(appraisal) &&
             appraisal?.optJSONObject("ownActivity") == null &&
             appraisal?.optJSONObject("shareWish") == null) return
 
@@ -911,15 +911,18 @@ object CharacterInnerLifeStore {
             for (i in maxOf(0, past.length() - 95) until past.length()) put(past.opt(i))
             put(entry)
         })
-        if (appraisal?.optJSONObject("pendingConcern") != null) {
+        if (CharacterOpenConcernRuntime.hasProposals(appraisal)) {
             val open = root.optJSONArray("openConcerns")
-            CharacterOpenConcernRuntime.closure(open, appraisal, evidenceId, now)?.let { closed ->
+            val closures = CharacterOpenConcernRuntime.closures(open, appraisal, evidenceId, now)
+            if (closures.isNotEmpty()) {
                 val pastClosures = root.optJSONArray("closedConcerns") ?: JSONArray()
                 root.put("closedConcerns", JSONArray().apply {
-                    for (i in maxOf(0, pastClosures.length() - 7) until pastClosures.length()) put(pastClosures.opt(i))
-                    put(closed)
+                    for (i in maxOf(0, pastClosures.length() - 8) until pastClosures.length()) put(pastClosures.opt(i))
+                    closures.take(4).forEach(::put)
                 })
             }
+            // All authored changes from one decision are applied atomically to the
+            // SAME state snapshot; separate thoughts never overwrite each other.
             root.put("openConcerns", CharacterOpenConcernRuntime.update(
                 open, appraisal, evidenceId, now,
             ))
