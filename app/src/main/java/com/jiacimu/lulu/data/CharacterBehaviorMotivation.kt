@@ -33,13 +33,24 @@ internal object CharacterBehaviorMotivation {
         speechIntent: String = "",
     ): Basis? {
         fun clean(text: String): String = text.replace(Regex("\\s+"), " ").trim().take(240)
+        val actionName = action.trim().lowercase()
+        val conversational = actionName in setOf(
+            "reply", "call_reply", "group_reply", "message", "group_message",
+            "send_private_message", "send_group_message", "send_private_sticker",
+            "send_group_sticker", "kaomoji", "group_kaomoji", "silent",
+        )
         val emotion = innerLife?.optJSONObject("emotion")
         val ownIdea = appraisal?.optJSONObject("ownActivity")
         val playful = appraisal?.optJSONObject("spontaneousBid")
-        val wanted = clean(appraisal?.optString("responseAim").orEmpty())
+        val wanted = if (conversational) clean(appraisal?.optString("responseAim").orEmpty()) else ""
         val impulse = clean(emotion?.optString("impulse").orEmpty())
-        val activityWhy = clean(ownIdea?.optString("whyNow").orEmpty())
-        val playfulWhy = clean(playful?.optString("wantedMove").orEmpty())
+        val ownAction = ownIdea?.optString("action").orEmpty().lowercase()
+        val activityWhy = if (ownAction == actionName ||
+            (actionName == "read_book" && ownAction == "reading") ||
+            (actionName == "digital_world_action" && ownAction == "digital_world") ||
+            (actionName == "play_solo_game" && ownAction == "solo_game"))
+            clean(ownIdea?.optString("whyNow").orEmpty()) else ""
+        val playfulWhy = if (conversational) clean(playful?.optString("wantedMove").orEmpty()) else ""
         val written = clean(reason)
         val speech = if (action.lowercase() in setOf("reply", "group_reply", "call_reply"))
             clean(speechIntent) else ""
