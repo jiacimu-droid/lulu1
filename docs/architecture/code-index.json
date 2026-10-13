@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:23:50.338104+00:00",
-  "commit": "201bb8172651b8b0436326ac690a341863bdf117",
+  "generatedAt": "2026-10-13T19:24:48.881615+00:00",
+  "commit": "6489972aaf70d4cd242d085fbdfa7af80a1c7df2",
   "branch": "main",
-  "sourceFingerprint": "d2630bc5dec9fc9bd737544222dac3f284893b1c922be6c2a8e6bd9241f9317a",
+  "sourceFingerprint": "3f08b07d49b97b8b6dd584b56e5349c81d292b2f6d948af91a19b423e9005e4e",
   "summary": {
     "files": 612,
-    "lines": 121259,
+    "lines": 121298,
     "symbols": 1821
   },
   "symbolIndex": {
@@ -20693,8 +20693,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt",
-      "lines": 216,
-      "sha256": "21324df54c63a8a9959028a814ca8e7ff02d006288407521447658cb3a378ade",
+      "lines": 255,
+      "sha256": "77ed4e00ed54b6ffe388f13734f0eb0cb133ebdb53083f77f75d7fa25e4f43fc",
       "symbols": [
         {
           "name": "CharacterGrowthTrajectoryLedgerTest",

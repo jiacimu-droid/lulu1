@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`201bb8172651b8b0436326ac690a341863bdf117`
+- 基准提交：`6489972aaf70d4cd242d085fbdfa7af80a1c7df2`
 - 分支：`main`
 - 已索引文件：612
-- 已索引代码/文本行：121259
+- 已索引代码/文本行：121298
 - 已发现符号：1821
 
 | 文件 | 行数 | 符号数 |
@@ -537,7 +537,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 195 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 216 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 375 | 3 |
