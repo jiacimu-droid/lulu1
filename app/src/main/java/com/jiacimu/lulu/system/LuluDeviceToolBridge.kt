@@ -228,6 +228,7 @@ object LuluDeviceToolBridge {
                 【已有真实手机能力】
                 调用格式：{"action":"tool","tool":"能力名","args":{...}}。读取状态：get_battery、get_location、get_current_app、read_recent_notifications(args.limit)、
                 read_screen；闹钟：create_alarm(args.triggerAt=带时区ISO时间,args.label)、list_alarms、cancel_alarm(args.id)；
+                音乐：list_media_sessions 查看已有播放器；control_music(args.command=play|pause|next|previous,args.packageName=可选，填查询返回的包名)。只有通知读取权限和当前媒体会话可用时才能控制，不能假装已经播放某首未找到的歌曲；外部音乐 App 是否执行以结果为准。
                 界面操作：screen_action(args.name=back|home|recents|notifications|quick_settings)、click_text(args.text)。
                 位置只用工具返回的 readableAddress；定位老旧/模糊要说明，不能猜具体建筑。
                 需要闹钟/操作/设备实时状态时调用工具，不假装完成；日期不明时追问，禁止自行猜时间。
@@ -754,7 +755,7 @@ object LuluDeviceToolBridge {
                     label = args.optString("label").ifBlank { "${characterName}提醒你" },
                     id = "tool-$characterId-$requestId",
                 ).getOrThrow()
-                JSONObject().put("success", LuluAlarmSystem.canScheduleExact()).put("status", if (LuluAlarmSystem.canScheduleExact()) "succeeded" else "waiting_user").put("verification", if (LuluAlarmSystem.canScheduleExact()) "AlarmManager已接受本地精确调度，注册记录已持久化" else "已请求系统时钟创建，尚无法读取系统时钟结果，请核实").put("systemClock", !LuluAlarmSystem.canScheduleExact()).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
+                JSONObject().put("success", LuluAlarmSystem.canScheduleExact()).put("status", if (LuluAlarmSystem.canScheduleExact()) "succeeded" else "waiting_permission").put("verification", if (LuluAlarmSystem.canScheduleExact()) "AlarmManager已接受本地精确调度，注册记录已持久化" else "已保存本机非精确提醒，但无法保证准点；请在露露机角色授权页开启精确闹钟权限，无须反复进入系统时钟确认").put("systemClock", false).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
             }
             "list_alarms" -> {
                 val alarms = LuluAlarmSystem.list().filter { it.characterId == characterId }
@@ -763,6 +764,9 @@ object LuluDeviceToolBridge {
                     alarms.joinToString("\n") { alarm -> "${alarm.id} | ${alarm.triggerAt.atZone(ZoneId.systemDefault())} | ${alarm.label}" },
                 ).toString()
             }
+            "list_media_sessions" -> LuluMediaPlayback.sessions(context)
+            "control_music" -> LuluMediaPlayback.control(
+                context, args.optString("command"), args.optString("packageName"))
             "cancel_alarm" -> {
                 val id = args.optString("id")
                 require(LuluAlarmSystem.list().any { it.id == id && it.characterId == characterId }) { "不能取消其他角色的闹钟或不存在的闹钟" }

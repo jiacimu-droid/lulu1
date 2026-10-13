@@ -118,6 +118,51 @@ internal object LuluVoiceCallSession {
     private val incomingChatDrafts = mutableListOf<String>()
     private var incomingChatJob: Job? = null
 
+    /**
+     * Scheduled reminders reuse the live call instead of creating call-in-call.
+     * A bedtime session switches to the usual speaking voice for an audible wake.
+     * This is an agent-owned reminder, never synthesized as a user utterance.
+     */
+    fun announceScheduledReminder(characterId: String, text: String, taskId: String): Boolean {
+        val call = mutableState.value
+        if (!call.connected || call.characterId != characterId || text.isBlank()) return false
+        val queue = speechQueue ?: return false
+        // Cancel any unfinished bedtime narration before delivering the wake cue.
+        sleepContinuationJob?.cancel()
+        replyJob?.cancel()
+        replyGeneration++
+        subtitleRevealJob?.cancel()
+        mutableState.update { current ->
+            current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Natural,
+                thinking = false, opening = false, playingTranscript = "",
+                generatedTranscript = "", statusMessage = "到点提醒 · 正常通话声线")
+        }
+        queue.stop()
+        val callId = call.callExperienceId
+        val speech = VoicePerformance.plain(text).take(600)
+        val messageId = "voice-$callId-scheduled-$taskId"
+        queue.enqueue(
+            text = speech,
+            speakerId = characterId,
+            voiceId = CharacterVoicePreferenceStore.callVoiceId(characterId, false),
+            messageId = messageId,
+            onStarted = {
+                if (mutableState.value.connected && mutableState.value.callExperienceId == callId) {
+                    recentlyPlayedAgentText = speech
+                    recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
+                    mutableState.update { it.copy(playingTranscript = PhoneSubtitleLayout.lines(speech).joinToString("\n")) }
+                }
+            },
+            onDelivered = {
+                if (mutableState.value.connected && mutableState.value.callExperienceId == callId) {
+                    MigratedDomainStores.chat.appendVoiceMessage(call.conversationId, messageId, speech, true)
+                    mutableState.update { it.copy(playingTranscript = "") }
+                }
+            },
+        )
+        return true
+    }
+
     fun isActiveForChat(conversationId: String): Boolean {
         val call = mutableState.value
         return call.connected && call.conversationId == conversationId

@@ -80,12 +80,10 @@ object LuluAlarmSystem {
         } else if (canScheduleExact()) {
             schedule(appContext, alarm)
         } else {
-            // The system Clock is the exact/offline user-facing fallback. A best-effort app callback
-            // is also registered so task progress can still advance when Android later wakes us.
-            // In the background Android may reject opening the system Clock UI.
-            // Never let that remove our own alarm callback: schedule it first.
+            // Never unexpectedly open an OEM Clock confirmation page.
+            // Without exact-alarm access we can only offer an inexact local callback.
+            // The tool receipt explicitly asks for one-time exact-alarm permission.
             scheduleBestEffortCallback(appContext, alarm)
-            runCatching { setSystemClockAlarm(appContext, alarm) }
         }
         save(appContext, list(appContext).filterNot { it.id == alarm.id } + alarm)
         alarm

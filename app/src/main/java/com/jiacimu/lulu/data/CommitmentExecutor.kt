@@ -58,6 +58,29 @@ internal object CommitmentExecutor {
             wake -> "${claimedTask.goal}。还没确认你醒来，我再提醒你一次。"
             else -> "之前答应你的事到时间了：${claimedTask.goal}。完成或取消都可以告诉我。"
         }
+        // A promised wake-up during an already connected call is a spoken
+        // reminder in THAT call, never another incoming call over its UI.
+        // The call session switches from bedtime voice to the normal voice.
+        val activeCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+        if (useCall && activeCall.connected && activeCall.characterId == claimedTask.characterId) {
+            val queued = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
+                    claimedTask.characterId, wording, claimedTask.id,
+                )
+            }
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                old.copy(
+                    status = if (queued) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Blocked,
+                    attemptCount = attempt,
+                    linkedAlarmId = null,
+                    nextCheckAt = null,
+                    lastActionResult = if (queued)
+                        "已在当前电话内排入正常声线提醒，等待实际播放及用户反馈；未发起第二通来电"
+                    else "当前电话未能安排语音提醒，保留闹钟通知；没有发起第二通来电",
+                )
+            }
+            return
+        }
         val args = JSONObject().put("text", wording)
         if (useCall) args.put("commitmentTaskId", claimedTask.id)
         val result = CompanionActionRuntime.execute(

@@ -17,13 +17,30 @@ internal fun CharacterExecutionSettings(characterId: String) {
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("主动执行授权", style = MaterialTheme.typography.titleMedium)
-        listOf("device_read" to "主动读取设备状态", "alarm" to "主动设置本地闹钟", "screen" to "主动操作屏幕", "cloud" to "主动提交云端任务").forEach { (key, label) ->
+        listOf("device_read" to "主动读取设备状态", "alarm" to "主动设置本地闹钟", "media" to "主动控制手机音乐", "screen" to "主动操作屏幕", "cloud" to "主动提交云端任务").forEach { (key, label) ->
             var allowed by remember(characterId, key) { mutableStateOf(prefs.getBoolean("$characterId:$key", false)) }
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text(label, modifier = Modifier.weight(1f))
                 Switch(allowed, { allowed = it; prefs.edit().putBoolean("$characterId:$key", it).commit() })
             }
         }
+        val exactAlarmGranted = remember { mutableStateOf(com.jiacimu.lulu.system.LuluAlarmSystem.canScheduleExact()) }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text(if (exactAlarmGranted.value) "精确闹钟权限已开启" else "精确闹钟权限未开启：仅能尝试非精确提醒",
+                    modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                TextButton(onClick = {
+                    runCatching {
+                        context.startActivity(android.content.Intent(
+                            android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                            android.net.Uri.parse("package:" + context.packageName),
+                        ))
+                    }
+                    exactAlarmGranted.value = com.jiacimu.lulu.system.LuluAlarmSystem.canScheduleExact()
+                }) { Text("授权") }
+            }
+        }
+        Text("音乐控制需要先在手机权限页开启「通知读取」，并让音乐 App 建立播放会话；授权后可以暂停、继续、上一首和下一首。", style = MaterialTheme.typography.bodySmall)
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
