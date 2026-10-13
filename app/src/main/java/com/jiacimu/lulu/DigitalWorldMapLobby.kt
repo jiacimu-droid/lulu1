@@ -59,6 +59,7 @@ internal fun DigitalWorldMapLobby(
     var openSceneCode by remember { mutableStateOf<String?>(null) }
     var showCatalog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    var showRelationships by remember { mutableStateOf(false) }
     var pendingLegacyQuickStart by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) { MeetingVoicePlayback.initialize(context) }
@@ -193,6 +194,7 @@ internal fun DigitalWorldMapLobby(
                         onOpenHistory = onOpenHistory,
                         onOpenModelPicker = onOpenModelPicker,
                         onOpenWritingPicker = onOpenWritingPicker,
+                        onOpenRelationshipNetwork = { showRelationships = true },
                     )
                 }
             },
@@ -248,6 +250,7 @@ internal fun DigitalWorldMapLobby(
     }
 
     if (showCatalog) StyledFurnitureCatalogDialog(onDismiss = { showCatalog = false })
+    if (showRelationships) DigitalWorldSocialGraphDialog(onDismiss = { showRelationships = false })
 }
 
 @Composable
