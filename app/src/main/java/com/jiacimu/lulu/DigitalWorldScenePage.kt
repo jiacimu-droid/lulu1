@@ -75,7 +75,7 @@ internal fun DigitalWorldScenePage(
         rememberedAction = ""
     }
 
-    Column(modifier.fillMaxSize()) {
+    Column(modifier.fillMaxSize().statusBarsPadding()) {
         TopAppBar(
             title = { Text(sceneLabel, fontWeight = FontWeight.SemiBold) },
             navigationIcon = {
