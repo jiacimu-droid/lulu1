@@ -31,7 +31,7 @@ DEST="$HOME/.lulu/xhs-termux"
 mkdir -p "$DEST"
 chmod 700 "$DEST"
 BASE="https://raw.githubusercontent.com/jiacimu-droid/lulu1/main/tools/xhs-termux"
-for file in package.json server.mjs patch-browser.mjs start.sh stop.sh; do
+for file in package.json server.mjs patch-browser.mjs login-termux.mjs start.sh stop.sh; do
   curl --fail --location --silent --show-error --retry 2 "$BASE/$file" -o "$DEST/$file"
 done
 chmod 700 "$DEST/start.sh" "$DEST/stop.sh"
