@@ -352,8 +352,17 @@ class CharacterLifeStoreTest {
         assertEquals(stagedCurrent, unifiedPrevious)
         val v8Previous = upgraded.optString("jiangDuV8PreviousConstraints")
         val v8Current = upgraded.optString("jiangDuV8CurrentConstraints")
-        assertEquals(current, v8Previous)
-        assertEquals(CharacterRuntime.personaConstraintSnapshot(normal.characterId), v8Current)
+        // A migration writes a new constraints snapshot only when the actual
+        // personality content changed. Some v6 archives already contain the
+        // v8 program default: re-running the same text must not manufacture
+        // a fake personality-change event just to satisfy this test.
+        if (v8Previous.isNotBlank()) {
+            assertEquals(current, v8Previous)
+            assertEquals(CharacterRuntime.personaConstraintSnapshot(normal.characterId), v8Current)
+        } else {
+            assertEquals("", v8Current)
+            assertEquals(current, CharacterRuntime.personaConstraintSnapshot(normal.characterId))
+        }
         assertTrue(CharacterDevelopmentStore.authorizedPersonaSnapshots(normal.characterId).contains(inherited))
         CharacterLifeStore.setProfile(normal.characterId, "speechHabits", "用户后来自己调整口吻")
         assertFalse(CharacterDevelopmentStore.authorizedPersonaSnapshots(normal.characterId).contains(inherited))
