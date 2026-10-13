@@ -71,6 +71,29 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = onOpenBrowserProbe) { Text("登录 / 检查小红书网页") }
                 OutlinedButton(onClick = onOpenXhsNativeReader) { Text("阅读 / 搜索（与角色共用）") }
+                var readTestBusy by remember { mutableStateOf(false) }
+                OutlinedButton(enabled = !readTestBusy, onClick = {
+                    readTestBusy = true
+                    mcpStatus = "正在执行角色同款真实读帖测试：获取列表 → 打开正文…"
+                    scope.launch {
+                        try {
+                            val candidates = XhsReadingEngine.list(context, "猫咪")
+                            val accessible = candidates.firstOrNull { it.token.isNotBlank() }
+                                ?: error("搜索已返回 ${candidates.size} 条，但都没有可用的笔记详情令牌")
+                            val article = XhsReadingEngine.read(context, accessible)
+                            mcpStatus = "读取成功：${article.provider} 通道找到了真实正文（${article.body.length} 字）" +
+                                "、${article.images.size} 张图片。未保存到任何角色记忆。"
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                            throw cancelled
+                        } catch (error: Exception) {
+                            mcpStatus = "读取未成功：${error.message.orEmpty().take(160)}。可到「阅读 / 搜索」查看读取诊断。"
+                        } finally {
+                            readTestBusy = false
+                        }
+                    }
+                }) { Text(if (readTestBusy) "正在验证…" else "一键测试真实读帖") }
+                Text("这项测试使用角色同一条阅读链路，必须真正找到笔记并取得正文；只测试连通性，不生成读后感或标记角色已读。",
+                    style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = {
                     mcpUrl = "http://127.0.0.1:18060/mcp"
                     mcpToken = ""
