@@ -67,6 +67,7 @@ internal object CompanionActionRuntime {
         appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到辞海，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
+        appendLine(CharacterSocialActionOpportunities.prompt(characterId))
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取阅读 App 的真实正文。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。完整感想在阅读页，角色若想分享须另外选择并发送自然消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
