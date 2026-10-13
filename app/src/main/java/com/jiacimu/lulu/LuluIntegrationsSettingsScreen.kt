@@ -84,13 +84,13 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
                     scope.launch {
                         mcpStatus = runCatching {
                             require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken)) { "无法保存连接信息" }
-                            LuluExternalMcp.check(context, service)
+                            LuluExternalMcp.testService(context, service)
                         }.fold(
                             { it.take(240) },
-                            { "无法连接：" + it.message.orEmpty().take(180) },
+                            { "服务连接失败：" + it.message.orEmpty().take(180) },
                         )
                     }
-                }) { Text("保存并测试") }
+                }) { Text("测试服务") }
                 OutlinedButton(onClick = {
                     mcpUrl = ""; mcpToken = ""
                     mcpStatus = if (LuluExternalMcp.save(context, service, "", "")) "已断开" else "断开失败"
@@ -100,6 +100,17 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit) {
             if (service == "xiaohongshu") {
                 HorizontalDivider()
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
+                Text("先用“测试服务”确认本机 MCP 在线；这一步不启动浏览器。下面的“检查小红书登录”才会启动 Chromium，第一次较慢，若它超时请检查 Termux 浏览器运行库或网页加载。",
+                    style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
+                    mcpStatus = "正在启动浏览器并检查小红书登录，请稍候…"
+                    scope.launch {
+                        mcpStatus = runCatching {
+                            require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
+                            LuluExternalMcp.check(context, service)
+                        }.fold({ it.take(260) }, { "登录检查失败：" + it.message.orEmpty().take(180) })
+                    }
+                }) { Text("检查小红书登录") }
                 OutlinedButton(onClick = {
                     links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-termux/README.md")
                 }) { Text("查看手机安装教程") }
