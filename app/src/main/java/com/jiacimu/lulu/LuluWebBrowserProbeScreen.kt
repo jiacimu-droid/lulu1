@@ -47,6 +47,9 @@ internal fun xhsBrowserIsNoteUrl(raw: String): Boolean {
 internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var readerVisible by remember { mutableStateOf(false) }
+    // A late SPA navigation callback can otherwise reopen the note right
+    // after the user presses Back. Keep routing disabled until home finishes.
+    var returningToList by remember { mutableStateOf(false) }
     var readerKeyword by remember { mutableStateOf("") }
     var readerCard by remember { mutableStateOf<XhsCard?>(null) }
     val routingScript = remember {
@@ -104,17 +107,26 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         // XHS details are SPA overlays: WebView.canGoBack() can be false
         // even while a full-screen note is covering the feed. A real "list"
         // button must escape that overlay rather than depending on site history.
+        returningToList = true
         readerVisible = false
         readerCard = null
         readerKeyword = ""
         websiteIssue = ""
-        val current = browser ?: return
+        val current = browser
+        if (current == null) {
+            returningToList = false
+            status = "已退出笔记阅读"
+            return
+        }
         current.stopLoading()
+        // A fresh home navigation is deterministic even when the note was a
+        // SPA dialog with no WebView history; don't navigate back into it.
         current.loadUrl(XHS_PROBE_URL)
-        status = "已返回小红书首页"
+        status = "正在返回笔记列表…"
     }
 
     fun routeToReader(target: Uri): Boolean {
+        if (returningToList || readerVisible) return false
         if (target.scheme != "https" || target.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
         if (target.path in setOf("/search_result", "/search", "/search/result")) {
             readerKeyword = target.getQueryParameter("keyword").orEmpty().take(64)
@@ -352,7 +364,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
                             WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
                                 setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) { view, message, origin, mainFrame, _ ->
-                                if (!mainFrame || browser !== view || XhsReadingEngine.controls(view) || origin.scheme != "https" ||
+                                if (!mainFrame || browser !== view || returningToList || readerVisible ||
+                                    XhsReadingEngine.controls(view) || origin.scheme != "https" ||
                                     origin.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return@addWebMessageListener
                                 val value = runCatching { JSONObject(message.data.orEmpty()) }.getOrNull()
                                     ?: return@addWebMessageListener
@@ -428,6 +441,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
 
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 if (browser !== view) return
+                                if (returningToList) {
+                                    val address = runCatching { Uri.parse(url.orEmpty()) }.getOrNull()
+                                    if (address?.host in setOf("www.xiaohongshu.com", "xiaohongshu.com") &&
+                                        address.path in setOf("/", "/explore")) {
+                                        returningToList = false
+                                        view?.clearHistory()
+                                        status = "已返回小红书首页"
+                                    }
+                                    // Never resurrect old details while returning.
+                                    return
+                                }
                                 if (!XhsReadingEngine.controls(view) && routeToReader(Uri.parse(url.orEmpty()))) return
                                 if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))
                                     view?.evaluateJavascript(routingScript, null)
