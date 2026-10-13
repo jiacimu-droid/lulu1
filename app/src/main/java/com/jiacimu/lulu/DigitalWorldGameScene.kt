@@ -28,9 +28,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -1082,6 +1085,83 @@ internal fun DigitalWorldGameScene(
                 },
                 modifier = Modifier.align(Alignment.BottomCenter).padding(start = 14.dp, end = 14.dp, bottom = controlsBottomPadding + 88.dp),
             )
+        }
+    }
+}
+
+/**
+ * Place a few tangible scene objects at real venue anchors after the user has
+ * performed the matching in-world action. These aren't random decorations:
+ * the retained activity IDs determine what the player sees on the next visit.
+ * Never draw a coffee, lit machine or discovered object before its action.
+ */
+private fun DrawScope.drawDigitalVenueOutcomes(
+    sceneCode: String,
+    anchors: List<DigitalVenueAnchor>,
+    completed: Set<String>,
+    phase: Float,
+) {
+    if (completed.isEmpty()) return
+    anchors.forEach { anchor ->
+        if (anchor.activityIds.none { it in completed }) return@forEach
+        val p = Offset(anchor.position.x, anchor.position.y - 18f)
+        val glow = (.20f + phase * .09f).coerceIn(.14f, .40f)
+        drawOval(Color(0xFF0F1C1D).copy(alpha = .20f), Offset(p.x - 49f, p.y + 27f), Size(98f, 22f))
+        when (sceneCode) {
+            DigitalWorldPublicPlaces.CAFE -> {
+                // A cup stays on the counter only once it was actually ordered.
+                if ("order_drink" in completed || "slow_drink" in completed) {
+                    drawOval(Color(0xFFFFE7C1), Offset(p.x - 29f, p.y + 16f), Size(59f, 16f))
+                    drawRoundRect(Color(0xFFF6F0D9), Offset(p.x - 19f, p.y - 13f),
+                        Size(40f, 35f), CornerRadius(8f))
+                    drawOval(Color(0xFF9D715E), Offset(p.x - 17f, p.y - 15f), Size(36f, 10f))
+                    drawCircle(Color(0xFFFFFAEB).copy(alpha = glow), 22f, Offset(p.x, p.y - 16f))
+                    drawCircle(Color(0xFFFFFAEB), 3f, Offset(p.x + 25f, p.y - 4f))
+                }
+                if ("order_snack" in completed) {
+                    repeat(3) { i ->
+                        drawCircle(Color(0xFFC69A62), 7f, Offset(p.x + 35f + i * 5f, p.y + 12f - i * 7f))
+                        drawCircle(Color(0xFFF8DC9D), 2f, Offset(p.x + 34f + i * 5f, p.y + 10f - i * 7f))
+                    }
+                }
+            }
+            DigitalWorldPublicPlaces.GAME_HALL -> {
+                if (completed.any { it in setOf("browse_games", "check_scoreboard", "arcade_linger") }) {
+                    drawRoundRect(Color(0xFF162832), Offset(p.x - 30f, p.y - 25f),
+                        Size(60f, 58f), CornerRadius(8f))
+                    drawRoundRect(Color(0xFF4BC4CF), Offset(p.x - 22f, p.y - 18f),
+                        Size(44f, 33f), CornerRadius(5f))
+                    repeat(3) { i ->
+                        drawCircle(Color(0xFFFFE5A5), 4f,
+                            Offset(p.x - 12f + i * 12f, p.y + 24f))
+                    }
+                    drawCircle(Color(0xFF98F8E8).copy(alpha = glow), 34f, Offset(p.x, p.y))
+                }
+            }
+            DigitalWorldPublicPlaces.COURTYARD -> {
+                if (completed.any { it in setOf("courtyard_walk", "courtyard_sit", "watch_sky") }) {
+                    repeat(5) { i ->
+                        val x = p.x - 30f + 15f * i
+                        val y = p.y + if (i % 2 == 0) -5f else 11f
+                        drawCircle(Color(0xFFF3C6CB), 6f, Offset(x, y))
+                        drawCircle(Color(0xFFFFF1B8), 2.5f, Offset(x, y))
+                    }
+                }
+            }
+            DigitalWorldStore.CLOUD_MEADOW -> {
+                if (completed.any { it in setOf("cloud_walk", "cloud_sit", "cloud_feel", "cloud_edge") }) {
+                    drawOval(Color.White.copy(alpha = .50f), Offset(p.x - 45f, p.y - 17f), Size(90f, 48f))
+                    repeat(4) { i ->
+                        drawCircle(Color(0xFFD7FFF4).copy(alpha = .48f + phase * .12f),
+                            7f + i % 2 * 3f, Offset(p.x - 28f + i * 20f, p.y - 5f + (i % 2) * 12f))
+                    }
+                }
+            }
+            else -> {
+                // Other locations use a modest physical footprint, not fake rewards.
+                drawCircle(Color(0xFFE6D8B4).copy(alpha = .60f), 11f, p)
+                drawCircle(Color(0xFF7DAA9D), 5f, p)
+            }
         }
     }
 }
