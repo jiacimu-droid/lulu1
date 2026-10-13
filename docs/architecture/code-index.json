@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T05:39:21.262087+00:00",
-  "commit": "05c6e0f44d989808657bd82a860a66f90bfa2532",
+  "generatedAt": "2026-10-13T05:40:35.281012+00:00",
+  "commit": "4b6acb7360a345854948462eaa2bf9c175fa89fd",
   "branch": "main",
-  "sourceFingerprint": "9377d75b28af00a7c23bc454e2a40f945d88d12f247ced19876dcde431724e35",
+  "sourceFingerprint": "a007f2d1169c7582f3ffb7907cf1007b5603c42c44edc7f27a1ddc0b0b0bf01b",
   "summary": {
     "files": 594,
-    "lines": 117099,
+    "lines": 117104,
     "symbols": 1772
   },
   "symbolIndex": {
@@ -513,7 +513,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 59
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
@@ -1793,19 +1793,19 @@
     "LuluRepositories": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "MemoryFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "LexiconFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-        "line": 718
+        "line": 723
       }
     ],
     "MigrationActivity": [
@@ -11347,24 +11347,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt",
-      "lines": 894,
-      "sha256": "ee6a1cd0daff0d98a4eae358269eb20b76f2137845c97a46593d0a310e107b6d",
+      "lines": 899,
+      "sha256": "a380eef387c4ac52aa6d06dc1ee90346c453143689d64e30205b52d767434cb5",
       "symbols": [
         {
           "name": "LuluRepositories",
-          "line": 50
+          "line": 51
         },
         {
           "name": "initialize",
-          "line": 59
+          "line": 60
         },
         {
           "name": "MemoryFeatureScreen",
-          "line": 79
+          "line": 80
         },
         {
           "name": "LexiconFeatureScreen",
-          "line": 718
+          "line": 723
         }
       ]
     },
