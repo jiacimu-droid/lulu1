@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T02:54:44.104333+00:00",
-  "commit": "214bc6081bca1fce5ed5430c642019bc7f37df9d",
+  "generatedAt": "2026-10-13T02:55:32.824133+00:00",
+  "commit": "fa2afa3c1c1659d4396ed2311b4bd82976683a58",
   "branch": "main",
-  "sourceFingerprint": "a09e342319e6a1493b9261ef0fe45c112b20ffb039eeabac7d2f8dcb080d1d0f",
+  "sourceFingerprint": "bae348bbf587708b2e6c0c5b98216b76d5d289eb54aaef866ba80080ad195abb",
   "summary": {
-    "files": 582,
-    "lines": 116351,
-    "symbols": 1764
+    "files": 583,
+    "lines": 116409,
+    "symbols": 1765
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9332,6 +9332,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt",
         "line": 5
+      }
+    ],
+    "CharacterBehaviorMotivationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt",
+        "line": 6
       }
     ],
     "CharacterCausalActionPolicyTest": [
@@ -19887,6 +19893,17 @@
         {
           "name": "CharacterAddressPreferenceTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt",
+      "lines": 58,
+      "sha256": "29a8761895f760f23c8186f82fa6d92ff626916bae2ce7c0d043970604b92d48",
+      "symbols": [
+        {
+          "name": "CharacterBehaviorMotivationTest",
+          "line": 6
         }
       ]
     },
