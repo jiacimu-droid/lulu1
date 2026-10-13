@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T07:55:29.122650+00:00",
-  "commit": "a938b03958e15c39d182ff80bbdeb9e3fde48ea5",
+  "generatedAt": "2026-10-13T07:58:08.241757+00:00",
+  "commit": "648c8f7c58312707132495afe7b9803eab455b31",
   "branch": "main",
-  "sourceFingerprint": "99bb0267138d8c10105b82e5ccfacdb703085b56a597a7076e572835b6998c9a",
+  "sourceFingerprint": "924263d8c872c22e6fd69a13988891de7810d59f6ceb44ec4ace7e1e49a671d1",
   "summary": {
-    "files": 595,
-    "lines": 117543,
-    "symbols": 1777
+    "files": 596,
+    "lines": 117592,
+    "symbols": 1778
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9562,6 +9562,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
         "line": 12
+      }
+    ],
+    "CharacterSocialActionOpportunitiesTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
+        "line": 14
       }
     ],
     "CharacterStaleGoalPolicyTest": [
@@ -20356,6 +20362,17 @@
         {
           "name": "CharacterSelfActivityRuntimeTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
+      "lines": 49,
+      "sha256": "7a8beb71f91a262e9c489a064f5f6d381a46996912c65b1511ae9a11fc91bca4",
+      "symbols": [
+        {
+          "name": "CharacterSocialActionOpportunitiesTest",
+          "line": 14
         }
       ]
     },
