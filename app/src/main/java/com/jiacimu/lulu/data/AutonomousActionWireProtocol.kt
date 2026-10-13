@@ -40,6 +40,14 @@ internal object AutonomousActionWireProtocol {
             result.optString("tool").trim().lowercase() else specified
         val friendly = friendlyActionForTool[toolName]
         if (friendly != null) result.put("action", friendly)
+        // Some models return {"action":"tool","args":{"tool":"read_xiaohongshu",...}}
+        // instead of the top-level name. Normalize the explicit name; NEVER
+        // guess a tool merely from an unrelated piece of reply text.
+        if (specified == "tool" && result.optString("tool").isBlank()) {
+            val nestedName = result.optJSONObject("args")?.optString("tool").orEmpty()
+                .ifBlank { result.optJSONObject("args")?.optString("name").orEmpty() }
+            if (nestedName.isNotBlank()) result.put("tool", nestedName)
+        }
         // Favorites have no top-level "favorite" enum: they must remain a
         // real registered tool, even when a model calls it as a direct action.
         // Previously this valid request was parsed as an unknown action and
