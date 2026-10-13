@@ -324,12 +324,21 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 val target = view ?: return
                                 val finishedUrl = url.orEmpty()
-                                if (finishedUrl != requestedUrl &&
-                                    !finishedUrl.startsWith("https://www.xiaohongshu.com/website-login/")) {
-                                    // A cancelled/old page must not start inspecting
-                                    // a new search request's state.
+                                val finishedPath = runCatching {
+                                    Uri.parse(finishedUrl).path.orEmpty()
+                                }.getOrDefault("")
+                                if (finishedPath.contains("website-login")) {
+                                    loading = false
+                                    message = "网站转到了登录/安全验证页面，当前读取无法继续。"
                                     return
                                 }
+                                val requestedPath = runCatching {
+                                    Uri.parse(requestedUrl).path.orEmpty()
+                                }.getOrDefault("")
+                                val samePage = finishedPath == requestedPath ||
+                                    (page == XhsReaderPage.Feed &&
+                                        (finishedPath == "/" || finishedPath == "/explore"))
+                                if (!samePage) return // Ignore stale navigation.
                                 val seq = sequence
                                 val currentPage = page
                                 val host = runCatching { Uri.parse(url.orEmpty()).host }.getOrNull()
