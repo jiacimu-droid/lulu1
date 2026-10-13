@@ -67,7 +67,7 @@ internal data class GadgetbridgeHealthState(
     val importing: Boolean = false,
     val error: String = "",
 ) {
-    val connected: Boolean get() = sourceUri.isNotBlank()
+    val connected: Boolean get() = sourceUri.isNotBlank() || tableName == "MCP"
     val latest: GadgetbridgeDaySummary? get() = days.maxByOrNull { it.date }
 }
 
@@ -90,7 +90,7 @@ internal object GadgetbridgeHealthStore {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_STATE, null)
         mutableState.value = decode(raw)
-        if (mutableState.value.connected) GadgetbridgeHealthRefreshScheduler.schedule(context)
+        if (mutableState.value.sourceUri.isNotBlank()) GadgetbridgeHealthRefreshScheduler.schedule(context)
     }
 
     suspend fun connect(context: Context, uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
@@ -140,6 +140,59 @@ internal object GadgetbridgeHealthStore {
                 ),
             )
         }
+    }
+
+    /**
+     * Merge the verified daily_summary schema from band-health-sync/health-mcp.
+     * Does not invent clock times: this MCP only returns daily durations/stages.
+     * Original Gadgetbridge records and their real sleep timestamps are preserved.
+     */
+    @Synchronized
+    fun mergeHealthMcp(context: Context, payload: JSONObject): Int {
+        initialize(context)
+        require(payload.optBoolean("success")) { "健康 MCP 未确认返回成功" }
+        val array = payload.optJSONArray("summaries") ?: error("健康 MCP 缺少每日记录")
+        val existing = mutableState.value
+        val merged = existing.days.associateByTo(linkedMapOf()) { it.date }
+        var accepted = 0
+        fun JSONObject.number(key: String, min: Int, max: Int): Int? =
+            if (!has(key) || isNull(key)) null else optInt(key).takeIf { it in min..max }
+        for (index in 0 until minOf(array.length(), 65)) {
+            val obj = array.optJSONObject(index) ?: continue
+            val date = runCatching { LocalDate.parse(obj.optString("date")) }.getOrNull() ?: continue
+            val prior = merged[date] ?: GadgetbridgeDaySummary(date)
+            val sleep = obj.optJSONObject("sleep")
+            val step = obj.number("steps", 0, 150_000)
+            val next = prior.copy(
+                steps = step ?: prior.steps,
+                calories = obj.number("calories", 0, 50_000) ?: prior.calories,
+                averageHeartRate = obj.number("hr_avg", 30, 240) ?: prior.averageHeartRate,
+                minimumHeartRate = obj.number("hr_min", 30, 240) ?: prior.minimumHeartRate,
+                maximumHeartRate = obj.number("hr_max", 30, 240) ?: prior.maximumHeartRate,
+                restingHeartRate = obj.number("hr_resting", 30, 240) ?: prior.restingHeartRate,
+                spo2 = obj.number("spo2_avg", 50, 100) ?: prior.spo2,
+                stress = obj.number("stress_avg", 0, 100) ?: prior.stress,
+                sleepMinutes = sleep?.number("duration_min", 1, 1_200) ?: prior.sleepMinutes,
+                deepSleepMinutes = sleep?.number("deep_min", 0, 1_200) ?: prior.deepSleepMinutes,
+                lightSleepMinutes = sleep?.number("light_min", 0, 1_200) ?: prior.lightSleepMinutes,
+                remSleepMinutes = sleep?.number("rem_min", 0, 1_200) ?: prior.remSleepMinutes,
+                awakeSleepMinutes = sleep?.number("awake_min", 0, 1_200) ?: prior.awakeSleepMinutes,
+                sleepScore = sleep?.number("score", 0, 100) ?: prior.sleepScore,
+            )
+            if (next != prior) {
+                merged[date] = next
+                accepted++
+            }
+        }
+        if (accepted > 0) setState(context, existing.copy(
+            sourceName = if (existing.sourceUri.isBlank()) "华为手环 MCP" else existing.sourceName,
+            tableName = if (existing.sourceUri.isBlank()) "MCP" else existing.tableName,
+            lastImportedAt = Instant.now(),
+            days = merged.values.sortedBy { it.date }.takeLast(80),
+            importing = false,
+            error = "",
+        ))
+        return accepted
     }
 
     fun disconnect(context: Context) {
