@@ -159,32 +159,56 @@ internal fun LuluXhsNativeReaderScreen(
         showWebPreview = true
         message = "第 1 / 2 步：在当前内置网页搜索真实笔记…"
         task = scope.launch {
+            // Check home and search independently. A blocked search is NOT
+            // evidence that the character cannot read real home-feed posts.
             val result = try {
-                withTimeout(82_000L) {
-                    val found = XhsReadingEngine.list(context, "猫咪",
-                        onProgress = { if (current == sequence) message = "第 1 / 2 步 · $it" },
-                        localOnly = true)
+                withTimeout(115_000L) {
+                    val homeReport = try {
+                        message = "第 1 / 2 步：验证首页推荐与真实笔记正文…"
+                        val home = XhsReadingEngine.list(context, "",
+                            onProgress = { if (current == sequence) message = "首页 · $it" },
+                            localOnly = true)
+                        if (current != sequence) return@withTimeout ""
+                        cards = home
+                        val chosen = home.firstOrNull { it.provider == "webview" && it.token.isNotBlank() }
+                            ?: error("首页有 ${home.size} 篇笔记，但没有可用的详情令牌")
+                        val article = XhsReadingEngine.read(context, chosen,
+                            onProgress = { if (current == sequence) message = "首页正文 · $it" },
+                            localOnly = true)
+                        require(article.body.isNotBlank() || article.images.isNotEmpty()) {
+                            "首页笔记没有可验证的图文"
+                        }
+                        "首页通过：${home.size} 篇，实际读到 ${article.body.length} 字、${article.images.size} 张图片"
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (error: Exception) {
+                        "首页未通过：${error.message.orEmpty().take(130)}"
+                    }
                     if (current != sequence) return@withTimeout ""
-                    cards = found
-                    val chosen = found.firstOrNull { it.provider == "webview" && it.token.isNotBlank() }
-                        ?: error("找到 ${found.size} 篇笔记，但没有可打开的真实详情令牌")
-                    message = "第 2 / 2 步：在同一内置网页读取笔记图文…"
-                    val real = XhsReadingEngine.read(context, chosen,
-                        onProgress = { if (current == sequence) message = "第 2 / 2 步 · $it" },
-                        localOnly = true)
-                    if (current != sequence) return@withTimeout ""
-                    if (real.body.isBlank() && real.images.isEmpty())
-                        error("帖子没有返回真实正文或图片")
-                    "通过：内置网页搜索 ${found.size} 篇，读到正文 ${real.body.length} 字" +
-                        "、${real.images.size} 张图片。\n未用 MCP，未写入角色记忆。"
+                    message = "$homeReport\n第 2 / 2 步：验证关键词搜索…"
+                    val searchReport = try {
+                        val result = XhsReadingEngine.list(context, "猫咪",
+                            onProgress = { if (current == sequence) message = "$homeReport\n搜索 · $it" },
+                            localOnly = true)
+                        require(result.isNotEmpty()) { "网页没有返回可确认的搜索笔记" }
+                        if (current == sequence) cards = result
+                        "搜索通过：${result.size} 篇真实笔记"
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (error: Exception) {
+                        "搜索未通过：${error.message.orEmpty().take(180)}"
+                    }
+                    "$homeReport\n$searchReport\n未使用 MCP，未伪造已读记录。" +
+                        if (homeReport.startsWith("首页通过") && !searchReport.startsWith("搜索通过"))
+                            "\n角色已可从首页阅读，搜索需继续针对网页实际状态修复。"
+                        else ""
                 }
             } catch (error: TimeoutCancellationException) {
-                "失败：等待内置网页搜索/正文超过 82 秒。可展开下方网页预览，" +
-                    "查看实际登录或验证提示，并点「读取诊断」。"
+                "检测总时间超过 115 秒。\n${message.take(240)}\n网页保持在本页，可直接看网页状态和读取诊断。"
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                "失败：${error.message.orEmpty().take(180)}。\n未切换 MCP，也没有虚报已读。"
+                "检测中断：${error.message.orEmpty().take(180)}，未切换 MCP。"
             }
             if (current == sequence) {
                 smokeResult = result
