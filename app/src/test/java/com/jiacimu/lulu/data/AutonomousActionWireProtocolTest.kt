@@ -56,6 +56,22 @@ class AutonomousActionWireProtocolTest {
         assertEquals("那我跟你说一件刚发现的趣事", result.getString("text"))
     }
 
+    @Test fun directFavoriteUsesRegisteredToolWithExactMessageId() {
+        val direct = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "favorite_user_message")
+                .put("messageId", "msg-user-1").put("reason", "我想留住她这句鼓励"))
+        assertEquals("tool", direct.getString("action"))
+        assertEquals("favorite_user_message", direct.getString("tool"))
+        assertEquals("msg-user-1", direct.getJSONObject("args").getString("messageId"))
+        assertEquals("我想留住她这句鼓励", direct.getJSONObject("args").getString("reason"))
+        val nested = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool").put("tool", "favorite_user_message")
+                .put("args", JSONObject().put("messageId", "msg-user-2")
+                    .put("reason", "这句话对我很特别")))
+        assertEquals("tool", nested.getString("action"))
+        assertEquals("msg-user-2", nested.getJSONObject("args").getString("messageId"))
+    }
+
     @Test fun genuineSilenceIsNeverReplacedWithMandatoryAction() {
         val original = JSONObject().put("action", "silent")
             .put("reason", "我现在只想一个人慢慢整理这段心情")
