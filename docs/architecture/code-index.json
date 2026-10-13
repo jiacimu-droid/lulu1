@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T21:29:55.545015+00:00",
-  "commit": "96b671a4cbb68cb895ec9b14f0e78bd80c688d41",
+  "generatedAt": "2026-10-13T21:30:28.064549+00:00",
+  "commit": "3daf1e572a86917a86f5bdeb1212f65dd4ae5ee6",
   "branch": "main",
-  "sourceFingerprint": "54ca933f6e81226023c064a8a2423619013d8e8b243b1a04932ec76a3370b451",
+  "sourceFingerprint": "81902b5cf69732fad174a8b06a14490c5e9f685fc6b6b03daecad66b29a3f6a4",
   "summary": {
     "files": 615,
     "lines": 122389,
@@ -17475,7 +17475,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
       "lines": 389,
-      "sha256": "64319b96c8c8d46b87e1464c33f127fb12435e4b99fca1c76c955c621814ae97",
+      "sha256": "8a6a689632a3393d81f5d17f9e7ddbb571b334c7b72b1661d7ccde138e654cb5",
       "symbols": [
         {
           "name": "url",
