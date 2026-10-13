@@ -30,6 +30,8 @@ import com.jiacimu.lulu.core.MemoryPolicy
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.data.InMemoryLexiconRepository
 import com.jiacimu.lulu.data.InMemoryWorldBookRepository
+import com.jiacimu.lulu.data.CoreMemoryDelivery
+import com.jiacimu.lulu.data.CoreMemoryInjectionAudit
 import com.jiacimu.lulu.data.LocalMemoryRepository
 import com.jiacimu.lulu.data.LocalPerformanceRepository
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -58,10 +60,12 @@ object LuluRepositories {
         if (performanceInternal != null) return
         performanceInternal = LocalPerformanceRepository(context.applicationContext)
         memory.initialize(context.applicationContext)
+        CoreMemoryInjectionAudit.initialize(context.applicationContext)
     }
 }
 
 private enum class MemoryPageSection(val label: String) {
+    Core("核心记忆"),
     Recent("全部记忆"),
     Fact("长期事实"),
     Emotion("情绪印象"),
@@ -71,7 +75,8 @@ private enum class MemoryPageSection(val label: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null) {
+fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
+                        startInCore: Boolean = false) {
     val repository = LuluRepositories.memory
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     var selectedCharacterId by rememberSaveable(personalCharacterId) {
@@ -82,7 +87,9 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null)
     val debug by repository.debugState.collectAsState()
     val scope = rememberCoroutineScope()
 
-    var section by rememberSaveable { mutableStateOf(MemoryPageSection.Recent) }
+    var section by rememberSaveable(startInCore) {
+        mutableStateOf(if (startInCore) MemoryPageSection.Core else MemoryPageSection.Recent)
+    }
     var search by rememberSaveable { mutableStateOf("") }
     var excluded by remember(policy.excludedRecentMessages) { mutableStateOf(policy.excludedRecentMessages.toString()) }
     var threshold by remember(policy.readableThreshold) { mutableStateOf(policy.readableThreshold.toString()) }
@@ -97,6 +104,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null)
     val filtered = remember(memories, section, search) {
         memories.filter { memory ->
             val sectionMatch = when (section) {
+                MemoryPageSection.Core -> memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core
                 MemoryPageSection.Recent -> true
                 MemoryPageSection.Fact -> memory.kind == MemoryKind.Fact
                 MemoryPageSection.Emotion -> memory.kind == MemoryKind.Emotion
@@ -114,7 +122,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null)
         topBar = {
             TopAppBar(
                 title = { Column {
-                    Text("记忆", fontWeight = FontWeight.SemiBold)
+                    Text(if (startInCore) "核心记忆" else "记忆", fontWeight = FontWeight.SemiBold)
                     if (personalCharacterId != null) Text(characters[selectedCharacterId]?.displayName.orEmpty(),
                         fontSize = 12.sp, color = FeatureBlueGray)
                 } },
@@ -278,6 +286,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null)
             if (section != MemoryPageSection.Pending) {
                 Text(
                     when (section) {
+                        MemoryPageSection.Core -> "这里独立展示每轮角色真实世界调用都应携带的常驻记忆。长期事实可随明确纠正而更新；删除或来源失效后不再注入。"
                         MemoryPageSection.Recent -> "这里是三类已整理记忆的合并视图，不会另外生成一份重复内容。"
                         MemoryPageSection.Fact -> "长期稳定的身份、偏好、边界和持续计划；不会再靠‘不是/其实/应该’等关键词机械判定。"
                         MemoryPageSection.Emotion -> "明确发生过的情绪、原因与时间，不把普通语气猜成情绪。"
@@ -389,7 +398,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null)
         occurredAt = null,
         createdAt = Instant.now(),
         strength = 5,
-        pinned = false,
+        pinned = section == MemoryPageSection.Core,
         canRecallProactively = true,
     ).takeIf { creatingMemory }
 
@@ -449,7 +458,7 @@ private fun MemoryEntryCard(
             TextButton(onClick = onTogglePinned) {
                 Icon(Icons.Outlined.PushPin, null)
                 Spacer(Modifier.width(4.dp))
-                Text(if (memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core) "取消常驻" else "始终记住")
+                Text(if (memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core) "取消核心" else "设为核心")
             }
             TextButton(onClick = onToggleRecall) {
                 Icon(if (memory.canRecallProactively) Icons.Outlined.VisibilityOff else Icons.Outlined.AutoAwesome, null)
@@ -527,7 +536,7 @@ private fun MemoryEditorDialog(
                 Text("记忆强度：${strength.toInt()}/10", fontWeight = FontWeight.SemiBold)
                 Slider(value = strength, onValueChange = { strength = it }, valueRange = 1f..10f, steps = 8)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("固定在前面")
+                    Text("核心记忆 · 每轮角色上下文常驻")
                     Switch(checked = pinned, onCheckedChange = { pinned = it })
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
