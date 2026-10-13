@@ -38,8 +38,14 @@ internal object LuluExternalMcp {
     fun save(context: Context, service: String, url: String, token: String): Boolean {
         require(service in setOf("xiaohongshu", "health")) { "未知外部连接" }
         val clean = url.trim().trimEnd('/')
-        require(clean.isBlank() || (clean.startsWith("https://") && URL(clean).host.isNotBlank())) {
-            "为保护账号和健康数据，MCP 连接地址必须是 HTTPS"
+        val parsed = runCatching { java.net.URI(clean) }.getOrNull()
+        val local = parsed?.scheme == "http" &&
+            parsed.host?.lowercase() in setOf("localhost", "127.0.0.1") &&
+            parsed.userInfo == null && parsed.fragment == null && parsed.rawQuery == null
+        val secure = parsed?.scheme == "https" && !parsed.host.isNullOrBlank() &&
+            parsed.userInfo == null && parsed.fragment == null
+        require(clean.isBlank() || local || secure) {
+            "远程 MCP 必须使用 HTTPS；手机本机 Termux 可以使用 http://127.0.0.1:端口/mcp"
         }
         val normalized = if (clean.isNotBlank() && !clean.endsWith("/mcp")) "$clean/mcp" else clean
         val saved = prefs(context).edit().putString("$service:url", normalized)
