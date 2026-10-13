@@ -194,7 +194,19 @@
     const width = window.innerWidth || 0, height = window.innerHeight || 0;
     const hit = document.elementFromPoint?.(width / 2, height * .75);
     const rect = hit?.getBoundingClientRect();
-    return {api: received.api, search: {pending: !!received.searchPending, responseMatched: received.searchKeyword === received.searchPending && !!received.searchKeyword, count: received.search.length, empty: received.searchEmpty}, viewport: {width, height,
+    const path = new URL(location.href).pathname;
+    const searchState = unwrap(unwrap(window.__INITIAL_STATE__)?.search);
+    const hydrated = list(searchState?.feeds, 'pc_search');
+    const visibleCards = document.querySelectorAll?.('section.note-item,.note-item')?.length || 0;
+    const bodyText = (document.body?.innerText || '').slice(0, 2000);
+    // Record page-level facts, NEVER the note text, query string, cookies or
+    // note URL. Without this we falsely called every stalled SPA a network timeout.
+    return {api: received.api,
+      page: {path: path.slice(0, 60), readyState: String(document.readyState || ''),
+        stateCards: hydrated.length, visibleCards, hasSearchInput: !!document.querySelector?.('#search-input,input.search-input,input[type="search"],input[name="keyword"]'),
+        loginPrompt: /扫码登录|请先登录|登录后查看/.test(bodyText),
+        verificationPrompt: /滑块验证|安全验证|访问异常|IP at risk|300012|300017/.test(bodyText)},
+      search: {pending: !!received.searchPending, responseMatched: received.searchKeyword === received.searchPending && !!received.searchKeyword, count: received.search.length, empty: received.searchEmpty}, viewport: {width, height,
       visualHeight: window.visualViewport?.height ?? null,
       documentHeight: document.documentElement?.clientHeight ?? null,
       lowerElement: hit ? String(hit.tagName || '') + '.' + String(hit.className || '').slice(0, 100) : '',
