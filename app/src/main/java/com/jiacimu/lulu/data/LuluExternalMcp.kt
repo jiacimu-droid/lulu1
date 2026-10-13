@@ -230,7 +230,7 @@ internal object LuluExternalMcp {
     private fun send(url: String, token: String, session: String?, payload: JSONObject,
         expectResponse: Boolean = true): Pair<JSONObject, String?> {
         val connection = URL(url).openConnection() as HttpURLConnection
-        try {
+        return try {
             connection.requestMethod = "POST"
             connection.connectTimeout = 10_000
             connection.readTimeout = 35_000
