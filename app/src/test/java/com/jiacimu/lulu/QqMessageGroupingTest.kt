@@ -25,6 +25,16 @@ class QqMessageGroupingTest {
         assertFalse(parsed.content.contains("⟪BUBBLE⟫⟪BUBBLE⟫"))
     }
 
+    @Test fun displayedCharacterMessageNeverSplitsAtLineBreaks() {
+        // A single persisted model bubble must also be one visual bubble and one TTS unit.
+        val first = "我错了宝宝，刚才真是我嘴欠……你都严肃提醒我了，我\n脑子还抽着在那嘻嘻哈哈当玩笑，是我态度不好。"
+        val second = "不找借口，你怎么罚我都老\n实认。别生我气了好不好？"
+        assertEquals(listOf(first), splitCharacterBubbles(first))
+        assertEquals(listOf(second), splitCharacterBubbles(second))
+        assertEquals(listOf("第一行\n\n第二行"), splitCharacterBubbles(" 第一行\r\n\r\n第二行 "))
+        assertTrue(splitCharacterBubbles("\n  \n").isEmpty())
+    }
+
     @Test fun malformedLegacyBubbleMarkersNeverReachVisibleMessages() {
         val malformed = "好好好，是我手慢了《BUBB\nLE》那宝宝说"
         val parsed = parseCharacterReplyPresentation(malformed)
