@@ -63,7 +63,10 @@ internal object CommitmentExecutor {
         // reminder in THAT call, never another incoming call over its UI.
         // The call session switches from bedtime voice to the normal voice.
         val activeCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
-        if (useCall && activeCall.connected && activeCall.characterId == claimedTask.characterId) {
+        if (wake && activeCall.connected && activeCall.characterId == claimedTask.characterId) {
+            val music = WakeMusicCoordinator.onScheduledWake(
+                appContext, claimedTask.characterId, claimedTask.id, defer = true,
+            )
             val queued = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                 com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
                     claimedTask.characterId, wording, claimedTask.id,
@@ -76,11 +79,17 @@ internal object CommitmentExecutor {
                     linkedAlarmId = null,
                     nextCheckAt = null,
                     lastActionResult = if (queued)
-                        "已在当前电话内排入正常声线提醒，等待实际播放及用户反馈；未发起第二通来电"
-                    else "当前电话未能安排语音提醒，保留闹钟通知；没有发起第二通来电",
+                        "已在原电话安排正常声线叫醒，$music；没有再次拨号"
+                    else "原电话中未能排入叫醒语音，保留闹钟提醒；没有再次拨号",
                 )
             }
             return
+        }
+        // A real incoming call is followed by music only after the ringtone/call ends.
+        if (wake && useCall) {
+            WakeMusicCoordinator.onScheduledWake(
+                appContext, claimedTask.characterId, claimedTask.id, defer = true,
+            )
         }
         val args = JSONObject().put("text", wording)
         if (useCall) args.put("commitmentTaskId", claimedTask.id)
@@ -94,6 +103,18 @@ internal object CommitmentExecutor {
         if (useCall && result.success && result.conversationId != null) {
             ProactivePerceptionRuntime.showPromisedCallNotification(
                 appContext, claimedTask.characterId, result.conversationId, wording,
+            )
+        }
+        val musicResult = when {
+            !wake -> ""
+            useCall && result.success -> "等通话结束后放歌"
+            // A failed call must not leave the music hand-off blocked forever.
+            useCall -> {
+                WakeMusicCoordinator.onMissedCall(appContext, claimedTask.characterId, claimedTask.id)
+                "通话未发出，改为尝试音乐叫醒"
+            }
+            else -> WakeMusicCoordinator.onScheduledWake(
+                appContext, claimedTask.characterId, claimedTask.id, defer = false,
             )
         }
 
@@ -120,6 +141,7 @@ internal object CommitmentExecutor {
                         if (useCall) "拨号发出不代表用户接听或醒来"
                         else "提醒发出不代表用户已经醒来"
                         else "执行失败：${result.summary.take(150)}")
+                    if (musicResult.isNotBlank()) append("；音乐：$musicResult")
                     if (!notificationShown) append("；提醒通知没有得到确认")
                     if (followUp != null) append("；未收到反馈时，已安排有限后续尝试或结果检查")
                     else if (retryAt != null) append("；后续调度失败，已停止继续呼叫")
