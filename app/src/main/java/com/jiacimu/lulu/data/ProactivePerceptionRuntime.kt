@@ -420,7 +420,9 @@ object ProactivePerceptionRuntime {
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
         // Consequential world and call events use this SAME autonomous action
         // decision as unread messages, not an extra paid pre-action appraisal.
-        val salientInteraction = CharacterCausalAppraisalStage.latestPending(observedWorld)
+        val salientInteraction = observedWorld.firstOrNull { event ->
+            event.id == requiredInteractionEvidenceId && CharacterCausalAppraisalStage.eligible(event)
+        } ?: CharacterCausalAppraisalStage.latestPending(observedWorld)
         val deviceContext = UserDevicePerception.context(appContext, characterId, now, refreshLocation = true)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
