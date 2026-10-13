@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e6e94036212888c5e1f04f319cce33d92ba3e89a`
+- 基准提交：`695a4766b6a15daaee297f4d6030e178a260fd40`
 - 分支：`main`
 - 已索引文件：612
-- 已索引代码/文本行：121309
-- 已发现符号：1821
+- 已索引代码/文本行：121375
+- 已发现符号：1823
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -240,7 +240,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 237 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 649 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 494 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 560 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 470 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 420 | 10 |
