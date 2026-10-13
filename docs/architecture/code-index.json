@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T18:43:46.858982+00:00",
-  "commit": "e9f90578c4d2048f09183e39d8510804947e26ba",
+  "generatedAt": "2026-10-13T18:44:48.156969+00:00",
+  "commit": "8781e9f72bae4932fa031fb6b7ef2fb03d766271",
   "branch": "main",
-  "sourceFingerprint": "6468399b4e94510b55abc1bee32aaa7cc441b2ea3c48a7d9261f6a25e440cc14",
+  "sourceFingerprint": "931dbd352c62909fac0c0620ac7ef64eead0e0c7ec86660577d2f7797e75b997",
   "summary": {
     "files": 612,
-    "lines": 120726,
-    "symbols": 1814
+    "lines": 120862,
+    "symbols": 1816
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9204,6 +9204,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
         "line": 29
+      }
+    ],
+    "ReconsideredChatReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+        "line": 44
+      }
+    ],
+    "commitReconsideredChatReply": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
+        "line": 123
       }
     ],
     "LuluLocationProvider": [
@@ -19765,8 +19777,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1012,
-      "sha256": "be8137583c98593b52db16bebe725c29824543ad563ac99bce85bc2f34b68182",
+      "lines": 1148,
+      "sha256": "a234357bf0e3ac5f78fa3c8c4d6d5e3e892c5ca92cab7676f2b26bd843e18861",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -19775,6 +19787,14 @@
         {
           "name": "initialize",
           "line": 32
+        },
+        {
+          "name": "ReconsideredChatReply",
+          "line": 44
+        },
+        {
+          "name": "commitReconsideredChatReply",
+          "line": 123
         }
       ]
     },
