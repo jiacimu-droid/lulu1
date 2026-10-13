@@ -448,9 +448,10 @@ object CharacterLifeStore {
      */
     private fun updateJiangDuV8Profile(characterId: String, root: JSONObject) {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val beforeConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
         val profile = root.optJSONObject("profile") ?: JSONObject()
         val currentSpeech = profile.optString("speechHabits")
-        if (currentSpeech.isBlank() || currentSpeech in setOf(
+        if (!profile.has("speechHabits") || currentSpeech in setOf(
                 CharacterProfileSchema.jiangDuV5SpeechHabits,
                 CharacterProfileSchema.jiangDuPreviousSpeechHabits,
                 CharacterProfileSchema.jiangDuV7SpeechHabits,
@@ -462,6 +463,12 @@ object CharacterLifeStore {
         }
         root.put("profile", profile).put("jiangDuPresetVersion", 8)
         save(characterId, root)
+        val afterConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
+        if (beforeConstraints != afterConstraints) {
+            root.put("jiangDuV8PreviousConstraints", beforeConstraints)
+                .put("jiangDuV8CurrentConstraints", afterConstraints)
+            save(characterId, root)
+        }
     }
 
     /** A pending intention survives new rounds; a model cannot silently overwrite it. */
