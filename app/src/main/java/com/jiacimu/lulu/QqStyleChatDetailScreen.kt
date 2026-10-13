@@ -441,7 +441,8 @@ fun QqStyleChatDetailScreen(
         replyTaskState.lastError?.let { error ->
             val id = replyTaskState.errorId
             val notice = chatErrorNotice(error)
-            android.widget.Toast.makeText(context, notice, android.widget.Toast.LENGTH_LONG).show()
+            // One nonblocking notice only. Duplicating a system Toast AND a
+            // large Snackbar obscures the input and feels like two failures.
             snackbar.currentSnackbarData?.dismiss()
             snackbar.showSnackbar(notice, duration = SnackbarDuration.Short)
             ChatReplyTaskManager.clearError(conversationId, id)
