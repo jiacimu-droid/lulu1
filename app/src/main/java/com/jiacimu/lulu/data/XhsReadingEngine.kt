@@ -322,6 +322,8 @@ internal object XhsReadingEngine {
                         if (lastStage != value) { lastStage = value; onProgress(value) }
                     }
                     var searchSubmitted = false
+                    var searchStartedAt = System.currentTimeMillis()
+                    var navigatedToSearchPage = false
                     try {
                         if (kind == "search") {
                             stage("在已登录网页搜索")
@@ -367,8 +369,34 @@ internal object XhsReadingEngine {
                                 val action = runCatching { JSONTokener(state).nextValue() as String }.getOrNull()
                                 if (action == "submitted" || action == "waiting") {
                                     searchSubmitted = true
+                                    searchStartedAt = System.currentTimeMillis()
                                     stage("等待搜索结果")
+                                } else if (action == "input-missing") {
+                                    // Many XHS desktop builds hide the search
+                                    // input behind an SPA overlay. Reuse the
+                                    // SAME logged-in WebView and navigate to
+                                    // its official search_result route; never
+                                    // call signed internal APIs ourselves.
+                                    searchSubmitted = true
+                                    navigatedToSearchPage = true
+                                    stage("打开网页搜索结果")
+                                    view.loadUrl(url)
                                 } else stage("等待网页搜索框")
+                            }
+                            if (kind == "search" && searchSubmitted && !navigatedToSearchPage &&
+                                System.currentTimeMillis() - searchStartedAt > 4_500L) {
+                                // A synthetic Enter/click may be ignored by
+                                // the site. Give the real page one chance,
+                                // then load the official search route.
+                                val current = Uri.parse(view.url.orEmpty())
+                                val sameQuery = current.path in setOf(
+                                    "/search_result", "/search", "/search/result",
+                                ) && current.getQueryParameter("keyword") == keyword
+                                if (!sameQuery) {
+                                    navigatedToSearchPage = true
+                                    stage("切换到网页搜索结果")
+                                    view.loadUrl(url)
+                                }
                             }
                         }
                         @Suppress("UNREACHABLE_CODE") JSONObject()
