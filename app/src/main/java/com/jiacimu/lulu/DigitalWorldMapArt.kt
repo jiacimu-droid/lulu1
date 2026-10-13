@@ -51,6 +51,14 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
             close()
         }
         drawPath(lane, Color.White.copy(alpha = .29f))
+        // Small map tiles share materials with the full scenes: fine paving,
+        // individual stones and a soft ground shadow, not a flat icon rectangle.
+        repeat(16) { i ->
+            val x = w * ((i * 37 % 97) / 100f)
+            val y = h * (.59f + (i * 13 % 32) / 100f)
+            drawOval(Color(0xFF49695D).copy(alpha = .08f + (i % 3) * .02f),
+                Offset(x, y), Size(w * (.018f + i % 3 * .008f), h * .014f))
+        }
         when {
             home -> {
                 // Three-quarter house: projecting roof, visible front elevation, doorway and windows.
@@ -71,6 +79,14 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
                     close()
                 }
                 drawPath(roof, Color(0xFF566F64))
+                repeat(4) { row ->
+                    val ry = roofY + h * (.012f + row * .030f)
+                    val inset = w * (.06f - row * .008f)
+                    drawLine(Color(0xFFDCE8DF).copy(alpha = .25f),
+                        Offset(l + inset, ry), Offset(r - inset, ry + h * .003f), 1.1f)
+                }
+                drawRoundRect(Color(0xFFE4E3D3), Offset(l + w * .012f, frontY - h * .07f),
+                    Size((r - l) - w * .024f, h * .055f), CornerRadius(2f))
                 drawLine(Color(0xFF8CA899), Offset(l - w * .035f, roofY + h * .12f),
                     Offset(r + w * .04f, roofY + h * .12f), 2.5f, StrokeCap.Round)
                 drawRoundRect(Color(0xFF657D72), Offset(w * .47f, frontY - h * .27f),
@@ -83,6 +99,10 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
                 }
                 drawMapTree(w * .16f, h * .73f, h * .24f)
                 drawMapTree(w * .81f, h * .77f, h * .20f)
+                repeat(5) { i ->
+                    drawCircle(Color(0xFFE9F1D9), h * .012f,
+                        Offset(w * (.18f + .12f * i), h * (.85f + .025f * (i % 2))))
+                }
             }
             cloud -> {
                 repeat(5) { i ->
@@ -94,6 +114,17 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
                     Offset(w * .29f, h * .55f), Size(w * .40f, h * .18f))
                 drawOval(Color.White.copy(alpha = .78f),
                     Offset(w * .34f, h * .50f), Size(w * .28f, h * .12f))
+                repeat(7) { i ->
+                    val x = w * (.18f + .10f * i)
+                    val y = h * (.30f + (i % 3) * .14f)
+                    drawCircle(Color(0xFFFFF9E7).copy(alpha = .48f), h * .012f + i % 3, Offset(x, y))
+                }
+                val cloudBridge = Path().apply {
+                    moveTo(w * .29f, h * .82f)
+                    cubicTo(w * .40f, h * .68f, w * .57f, h * .68f, w * .71f, h * .81f)
+                }
+                drawPath(cloudBridge, Color(0xFFFFFFFF).copy(alpha = .32f),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(h * .05f, cap = StrokeCap.Round))
             }
             cafe -> {
                 drawRoundRect(Color(0xFFF5F0E5), Offset(w * .30f, h * .23f),
@@ -106,6 +137,15 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
                 }
                 drawRoundRect(Color(0xFF739990), Offset(w * .40f, h * .52f),
                     Size(w * .15f, h * .22f), CornerRadius(3f))
+                drawRoundRect(Color(0xFFAECFD0), Offset(w * .414f, h * .535f),
+                    Size(w * .12f, h * .12f), CornerRadius(2f))
+                drawLine(Color(0xFFEEF9F0), Offset(w * .473f, h * .54f),
+                    Offset(w * .473f, h * .652f), 1.2f)
+                drawOval(Color(0xFF684B39).copy(alpha = .25f),
+                    Offset(w * .35f, h * .775f), Size(w * .26f, h * .040f))
+                drawOval(Color(0xFFF6E9D2), Offset(w * .38f, h * .752f), Size(w * .19f, h * .040f))
+                drawCircle(Color(0xFFE6B77C), h * .038f, Offset(w * .47f, h * .749f))
+                drawCircle(Color(0xFFFFF3D5), h * .016f, Offset(w * .47f, h * .735f))
                 drawMapTree(w * .16f, h * .79f, h * .18f)
                 drawMapTree(w * .86f, h * .78f, h * .22f)
             }
@@ -117,6 +157,12 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
                     drawRoundRect(if (i == 1) Color(0xFF9ED6D8) else Color(0xFFABBAE8),
                         Offset(x + w * .016f, h * .30f), Size(w * .128f, h * .22f), CornerRadius(4f))
                     drawCircle(Color(0xFFFFE2AD), 3f, Offset(x + w * .08f, h * .61f))
+                    drawLine(Color(0xFFCADDEC), Offset(x + w * .024f, h * .25f),
+                        Offset(x + w * .128f, h * .25f), 1.1f)
+                    repeat(3) { star ->
+                        drawCircle(Color.White.copy(alpha = .72f), h * .012f,
+                            Offset(x + w * (.037f + star * .039f), h * (.38f + ((star + i) % 2) * .07f)))
+                    }
                 }
                 drawOval(Color(0xFF697B91).copy(alpha = .30f),
                     Offset(w * .22f, h * .75f), Size(w * .57f, h * .10f))
@@ -134,6 +180,11 @@ internal fun WorldMapIllustration(sceneCode: String, modifier: Modifier = Modifi
                 drawMapTree(w * .39f, h * .68f, h * .19f)
                 drawMapTree(w * .79f, h * .74f, h * .27f)
                 if (garden) {
+                    repeat(4) { i ->
+                        val x = w * (.20f + .18f * i)
+                        drawCircle(Color(0xFFF6DCE0), h * .023f, Offset(x, h * (.79f - .04f * (i % 2))))
+                        drawCircle(Color(0xFFFFEAB0), h * .009f, Offset(x, h * (.79f - .04f * (i % 2))))
+                    }
                     drawOval(Color(0xFF85B6BC).copy(alpha = .75f),
                         Offset(w * .47f, h * .57f), Size(w * .22f, h * .16f))
                     drawOval(Color.White.copy(alpha = .46f),
