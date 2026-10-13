@@ -113,6 +113,31 @@ internal fun CompanionPresenceDialog(
                     }
 
                     if (selectedTab == 0) {
+                        if (messageAnchor == null) item(key = "recent-interaction-awareness") {
+                            // Show factual perception progress without fabricating a new
+                            // feeling or heart voice when the character chose silence.
+                            val latestCallEnd = SharedExperienceTimeline.recentEvents(characterId, 80)
+                                .lastOrNull { event ->
+                                    event.id.startsWith("interaction-call-end-") &&
+                                        !event.occurredAt.isAfter(now) &&
+                                        Duration.between(event.occurredAt, now) <= Duration.ofHours(2)
+                                }
+                            latestCallEnd?.let { event ->
+                                val completed = CharacterCausalAppraisalStage.hasCompletedDecision(characterId, event.id)
+                                val failed = state?.lastPerceptionAt?.let { !it.isBefore(event.occurredAt) } == true &&
+                                    state.lastPerceptionNote.let { note ->
+                                        note.contains("失败") || note.contains("不完整") ||
+                                            note.contains("暂停") || note.contains("未完成")
+                                    }
+                                val label = when {
+                                    completed -> "这通电话结束后已完成一次感知与选择；没有新心声也属于有效结果"
+                                    failed -> "电话结束后的感知尚未完成，可在下方查看最近感知状态"
+                                    else -> "已记录电话结束，正在等待角色的感知结果"
+                                }
+                                Text(label, fontSize = 12.sp, color = Color(0xFF7A7A7E),
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
+                            }
+                        }
                         item(key = "current") {
                             if (displayState == null) {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
