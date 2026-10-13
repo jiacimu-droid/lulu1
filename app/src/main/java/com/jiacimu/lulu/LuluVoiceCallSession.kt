@@ -701,6 +701,9 @@ internal object LuluVoiceCallSession {
         }
         restoreCallAudio()
         stopForegroundService()
+        com.jiacimu.lulu.data.WakeMusicCoordinator.onCallEnded(
+            appContext, current.characterId,
+        )
         scope.launch {
             delay(if (endedByCharacter) 2_500L else 850L)
             if (mutableState.value.phase == CallPhase.Ended &&

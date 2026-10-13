@@ -41,6 +41,16 @@ internal fun CharacterExecutionSettings(characterId: String) {
             }
         }
         Text("音乐控制需要先在手机权限页开启「通知读取」，并让音乐 App 建立播放会话；授权后可以暂停、继续、上一首和下一首。", style = MaterialTheme.typography.bodySmall)
+        var wakeMusic by remember(characterId) { mutableStateOf(prefs.getBoolean("$characterId:wake_music_enabled", false)) }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text("确认醒来后自动播放音乐", modifier = Modifier.weight(1f))
+            Switch(wakeMusic, {
+                wakeMusic = it
+                prefs.edit().putBoolean("$characterId:wake_music_enabled", it).commit()
+            })
+        }
+        Text("只有你明确说已醒、对应叫醒任务仍有效且媒体控制已授权时才执行。正在通话会等挂断后再播放；没有可用音乐会话时不会假装成功。",
+            style = MaterialTheme.typography.bodySmall)
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())

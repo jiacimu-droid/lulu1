@@ -20,6 +20,7 @@ object CommitmentTurnAutomation {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val jobs = mutableMapOf<String, Job>()
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private var started = false
 
     @OptIn(kotlinx.coroutines.FlowPreview::class)
@@ -27,6 +28,7 @@ object CommitmentTurnAutomation {
     fun initialize(context: Context) {
         if (started) return
         started = true
+        appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         CommitmentTaskStore.initialize(context)
         scope.launch {
@@ -90,6 +92,14 @@ object CommitmentTurnAutomation {
             if (active.isEmpty()) return@forEach
             val signature = "immediate:${conversation.id}:${latest.id}:$characterId"
             if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
+            // A real "I'm awake" acknowledgement can request a song, but
+            // receiving/answering a wake-up call alone is not such proof.
+            WakeMusicCoordinator.onExplicitWakeConfirmation(
+                context = appContext ?: return@forEach,
+                characterId = characterId,
+                text = latest.content,
+                activeTasks = active,
+            )
             val drafts = extractCommitmentTaskDrafts(
                 characterId = characterId,
                 userText = latest.content,
