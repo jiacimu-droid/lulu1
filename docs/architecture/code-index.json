@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:15:12.291912+00:00",
-  "commit": "3a0f741bd9595a18dd5ae8095c5864572530ee1e",
+  "generatedAt": "2026-10-13T10:17:28.982397+00:00",
+  "commit": "8107cc3b7519a79b59c2be3d612cdd4b18dc77ed",
   "branch": "main",
-  "sourceFingerprint": "647c8bd6cc27e788b0973c4e5e7beb030378f15a0f23197e2704a594d0350c8a",
+  "sourceFingerprint": "28ad71df0bc73c24dd62992b0dc974776b75f09baceec7e23c12bf2f6522947e",
   "summary": {
     "files": 600,
-    "lines": 118386,
+    "lines": 118395,
     "symbols": 1790
   },
   "symbolIndex": {
@@ -5715,7 +5715,7 @@
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 147
+        "line": 149
       }
     ],
     "MeetingProseLength": [
@@ -15453,8 +15453,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 285,
-      "sha256": "2f3b21b7196e625cfe5ba57300581062a18ea9ec8b436908c2e8c6f401708e2b",
+      "lines": 287,
+      "sha256": "ee81dbf8ea78cc0cb2c936f95300b8f297397ad33b2a0a3dda1e59f6886ebdd8",
       "symbols": [
         {
           "name": "configured",
@@ -15478,7 +15478,7 @@
         },
         {
           "name": "healthContext",
-          "line": 147
+          "line": 149
         }
       ]
     },
@@ -18239,8 +18239,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt",
-      "lines": 659,
-      "sha256": "22794516efa3641b61f2ccfe1f24fe4e7f549e37dfb326b799548c5cdf81b500",
+      "lines": 666,
+      "sha256": "0ae047acfe08bb2326e6ac03b06ef5d19f0aae7f325f01faf99ef77a462789dc",
       "symbols": []
     },
     {
@@ -19074,7 +19074,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyCompanionScreen.kt",
       "lines": 280,
-      "sha256": "c552eba3d523aae2729a457a7b96a18bd0b830f4dbbd4bdca78969e0378d3934",
+      "sha256": "89e4431563d3d73f020bbc8cee22a3f9d2e67566d5f30c902d8dff315fa0751e",
       "symbols": []
     },
     {

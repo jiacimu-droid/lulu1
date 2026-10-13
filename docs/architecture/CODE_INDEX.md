@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3a0f741bd9595a18dd5ae8095c5864572530ee1e`
+- 基准提交：`8107cc3b7519a79b59c2be3d612cdd4b18dc77ed`
 - 分支：`main`
 - 已索引文件：600
-- 已索引代码/文本行：118386
+- 已索引代码/文本行：118395
 - 已发现符号：1790
 
 | 文件 | 行数 | 符号数 |
@@ -278,7 +278,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 285 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 605 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 76 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryContextPolicy.kt` | 47 | 0 |
@@ -397,7 +397,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 766 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 329 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 659 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 577 | 2 |
