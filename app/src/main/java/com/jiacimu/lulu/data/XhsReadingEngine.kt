@@ -88,32 +88,63 @@ internal object XhsReadingEngine {
         (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true) ||
             LuluExternalMcp.configured(context, "xiaohongshu")
 
+    /**
+     * The phone browser and the optional authenticated MCP are two real
+     * sources. A failed local page is not proof that MCP is down. Try the
+     * second configured source before admitting that nothing was read.
+     */
     suspend fun list(context: Context, keyword: String, onProgress: (String) -> Unit = {}): List<XhsCard> {
         val query = keyword.trim().take(64)
-        if (localEnabled(context) && owner?.get() != null) {
-            val url = if (query.isBlank()) "https://www.xiaohongshu.com/explore" else
-                "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(query)}&source=web_explore_feed"
-            val root = loadPage(context, url, if (query.isBlank()) "feed" else "search", "", query, onProgress)
-            val values = root.optJSONArray("items")
-            return (0 until (values?.length() ?: 0)).mapNotNull {
-                val row = values?.optJSONObject(it) ?: return@mapNotNull null
-                card(row, query, "webview")
-            }.distinctBy { it.id }
+        val canUseLocal = localEnabled(context) &&
+            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true
+        val canUseMcp = LuluExternalMcp.configured(context, "xiaohongshu")
+        var localFailure = ""
+        if (canUseLocal) {
+            try {
+                onProgress("正在通过已登录网页寻找笔记")
+                val url = if (query.isBlank()) "https://www.xiaohongshu.com/explore" else
+                    "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(query)}&source=web_explore_feed"
+                val root = loadPage(context, url, if (query.isBlank()) "feed" else "search", "", query, onProgress)
+                val values = root.optJSONArray("items")
+                val found = (0 until (values?.length() ?: 0)).mapNotNull {
+                    val row = values?.optJSONObject(it) ?: return@mapNotNull null
+                    card(row, query, "webview")
+                }.distinctBy { it.id }
+                if (found.isNotEmpty() || !canUseMcp) return found
+                localFailure = "本机网页没有返回可读笔记"
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                localFailure = error.message.orEmpty().take(140).ifBlank { "本机网页读取失败" }
+                if (!canUseMcp) throw IllegalStateException("本机小红书读取失败：$localFailure", error)
+            }
         }
-        require(LuluExternalMcp.configured(context, "xiaohongshu")) { "请打开露露机使用本机阅读，或配置可用的 MCP" }
-        val raw = LuluExternalMcp.xhsRead(context, if (query.isBlank()) "list_feeds" else "search_feeds",
-            if (query.isBlank()) JSONObject() else JSONObject().put("keyword", query))
-        val root = JSONObject(raw)
-        val rows = root.optJSONArray("feeds") ?: root.optJSONObject("data")?.optJSONArray("feeds")
-            ?: error("MCP 没有返回笔记列表")
-        return (0 until rows.length()).mapNotNull { index ->
-            val row = rows.optJSONObject(index) ?: return@mapNotNull null
-            val note = row.optJSONObject("noteCard") ?: row.optJSONObject("note_card") ?: return@mapNotNull null
-            card(JSONObject().put("id", row.optString("id"))
-                .put("token", row.optString("xsecToken").ifBlank { row.optString("xsec_token") })
-                .put("title", note.optString("displayTitle").ifBlank { note.optString("title") })
-                .put("author", note.optJSONObject("user")?.optString("nickname").orEmpty()), query, "mcp")
-        }.distinctBy { it.id }
+        if (!canUseMcp) {
+            error(if (canUseLocal) "本机网页没有返回可读笔记" else
+                "角色当前没有可用的小红书读取窗口；请打开露露机并登录网页，或连接可用的 MCP")
+        }
+        if (localFailure.isNotBlank()) onProgress("本机阅读未成功，正在尝试已有 MCP 连接")
+        try {
+            val raw = LuluExternalMcp.xhsRead(context, if (query.isBlank()) "list_feeds" else "search_feeds",
+                if (query.isBlank()) JSONObject() else JSONObject().put("keyword", query))
+            val root = JSONObject(raw)
+            val rows = root.optJSONArray("feeds") ?: root.optJSONObject("data")?.optJSONArray("feeds")
+                ?: error("MCP 没有返回笔记列表")
+            return (0 until rows.length()).mapNotNull { index ->
+                val row = rows.optJSONObject(index) ?: return@mapNotNull null
+                val note = row.optJSONObject("noteCard") ?: row.optJSONObject("note_card") ?: return@mapNotNull null
+                card(JSONObject().put("id", row.optString("id"))
+                    .put("token", row.optString("xsecToken").ifBlank { row.optString("xsec_token") })
+                    .put("title", note.optString("displayTitle").ifBlank { note.optString("title") })
+                    .put("author", note.optJSONObject("user")?.optString("nickname").orEmpty()), query, "mcp")
+            }.distinctBy { it.id }
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            val mcpFailure = error.message.orEmpty().take(140).ifBlank { "MCP 未能返回笔记" }
+            error(if (localFailure.isBlank()) "小红书 MCP 读取失败：$mcpFailure"
+                else "小红书本机读取失败：$localFailure；备用 MCP 也失败：$mcpFailure")
+        }
     }
 
     private fun card(row: JSONObject, query: String, provider: String): XhsCard? {
