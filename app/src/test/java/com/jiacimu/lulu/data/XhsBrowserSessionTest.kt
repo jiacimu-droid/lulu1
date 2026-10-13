@@ -51,6 +51,54 @@ class XhsBrowserSessionTest {
         assertTrue(XhsReadingEngine.lastDiagnostic(context).contains("succeeded"))
     }
 
+    @Test fun termuxNormalizedFeedIsNotDiscardedForMissingNoteCard() {
+        val id = "1234567890abcdef12345678"
+        val normalized = JSONObject().put("feeds", JSONArray().put(JSONObject()
+            .put("id", id).put("xsecToken", "xsec-token-real")
+            .put("title", "一篇真实可读笔记").put("authorName", "作者甲")))
+        val cards = XhsReadingEngine.parseMcpCards(normalized, "猫咪")
+        assertEquals(1, cards.size)
+        assertEquals(id, cards.single().id)
+        assertEquals("xsec-token-real", cards.single().token)
+        assertEquals("一篇真实可读笔记", cards.single().title)
+        assertEquals("作者甲", cards.single().author)
+        assertEquals("mcp", cards.single().provider)
+
+        val legacy = JSONObject().put("feeds", JSONArray().put(JSONObject()
+            .put("id", id).put("xsecToken", "legacy-token")
+            .put("noteCard", JSONObject().put("displayTitle", "旧版结构")
+                .put("user", JSONObject().put("nickname", "作者乙")))))
+        assertEquals("旧版结构", XhsReadingEngine.parseMcpCards(legacy, "").single().title)
+        assertEquals("作者乙", XhsReadingEngine.parseMcpCards(legacy, "").single().author)
+    }
+
+    @Test fun termuxImageUrlArrayAndTraditionalImageObjectBothSurviveDetailParsing() {
+        val target = XhsCard("1234567890abcdef12345678", "valid-token", "标题", "作者", "pc_feed", "mcp")
+        val raw = JSONObject().put("data", JSONObject().put("note", JSONObject()
+            .put("id", target.id).put("title", "详情")
+            .put("desc", "真正获取的文字正文")
+            .put("imageList", JSONArray()
+                .put("https://sns-img-bd.xhscdn.com/image-one")
+                .put(JSONObject().put("urlDefault", "https://sns-img-bd.xhscdn.com/image-two")))))
+        val parsed = XhsReadingEngine.normalizeMcpNote(raw, target)
+        assertEquals("真正获取的文字正文", parsed.getString("body"))
+        val images = parsed.getJSONArray("images")
+        assertEquals(2, images.length())
+        assertEquals("https://sns-img-bd.xhscdn.com/image-one",
+            images.getJSONObject(0).getString("url"))
+        assertEquals("https://sns-img-bd.xhscdn.com/image-two",
+            images.getJSONObject(1).getString("url"))
+    }
+
+    @Test fun anotherPostIdCannotBeSilentlyMarkedAsTheRequestedArticle() {
+        val target = XhsCard("1234567890abcdef12345678", "token", "标题", "作者", "pc_feed", "mcp")
+        val wrong = JSONObject().put("data", JSONObject().put("note",
+            JSONObject().put("id", "aaaa567890abcdef12345678").put("desc", "别人的帖子")))
+        assertThrows(IllegalArgumentException::class.java) {
+            XhsReadingEngine.normalizeMcpNote(wrong, target)
+        }
+    }
+
     /** This fixture tests Android ownership only; production JS parsing has independent browser tests. */
     private class LoginBrowser(activity: Activity) : WebView(activity) {
         var navigations = 0
