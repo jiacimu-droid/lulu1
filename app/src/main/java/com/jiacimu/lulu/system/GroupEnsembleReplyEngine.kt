@@ -276,6 +276,17 @@ internal object GroupEnsembleReplyEngine {
         )
 
         val baseReply = generated.getOrElse { error -> return Result.success(fallbackReply(currentSpeakerId, memberLabels, error.message)) }
+        // The ensemble request includes each member's independent Core facts in
+        // the outgoing system/user payload. The gateway already audits the primary
+        // speaker; record the other members only after this shared call succeeds.
+        validMembers.filter { it.characterId != currentSpeakerId }.forEach { member ->
+            com.jiacimu.lulu.data.CoreMemoryInjectionAudit.recordSuccess(
+                member.characterId,
+                if (isCall) "群聊电话·成员上下文" else "群聊·成员上下文",
+                "GroupEnsemble",
+                memberMemoryContexts[member.characterId]?.coreMemories?.map { it.id }.orEmpty(),
+            )
+        }
         if (!isCall && com.jiacimu.lulu.data.CharacterDecisionProtocol.groupIsExplicitlySilent(baseReply.text)) {
             val decision = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(baseReply.text)
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
