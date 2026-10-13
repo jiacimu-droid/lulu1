@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T23:06:19.626896+00:00",
-  "commit": "3a3caf9719ac4ac2312cba868275283f71a205a9",
+  "generatedAt": "2026-10-13T23:06:50.886096+00:00",
+  "commit": "00807736f1bbd6b011dbfb99aacaae83eda8a2d6",
   "branch": "main",
-  "sourceFingerprint": "340e2a9371c610300008968ec22ea50ab18c544c7e129bf6110d76148fe8d549",
+  "sourceFingerprint": "349d115f0f7b7e22e42c060bdc59900386eeb9df914b9b7c69a415cf24b8677b",
   "summary": {
     "files": 615,
-    "lines": 122846,
+    "lines": 122847,
     "symbols": 1842
   },
   "symbolIndex": {
@@ -11429,8 +11429,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt",
-      "lines": 236,
-      "sha256": "1678d98416d77a780263e5fbc702af574c2df6005b6c3b3b962bd83c711a1a97",
+      "lines": 237,
+      "sha256": "b461d5eee5fc2cf46aa0267518eec56a1d4f337ef4b94ffb5ef3f5fbf816c167",
       "symbols": []
     },
     {
