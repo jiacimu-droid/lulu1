@@ -317,6 +317,17 @@ object LuluDeviceToolBridge {
                 reason = "程序识别到用户在纠正上一轮理解，优先恢复共同语境",
             )
         }
+        // One character-authored reason protocol for text chat, phone and tools.
+        // Speaking intent itself is a valid tiny everyday motive; innerThought is
+        // optional and must never be fabricated to justify an outgoing action.
+        val choiceBasis = com.jiacimu.lulu.data.CharacterBehaviorMotivation.resolve(
+            plan.action, plan.reason, plan.appraisal, plan.innerLife,
+            speechIntent = plan.speechIntent,
+        )
+        if (plan.action == "tool" && choiceBasis == null) {
+            return Result.failure(IllegalStateException("角色尚未形成这次工具行为的具体意愿，未执行"))
+        }
+        if (choiceBasis != null) plan = plan.copy(reason = choiceBasis.reason)
         val dialoguePlan = com.jiacimu.lulu.data.DialogueMoveEngine.resolve(
             plan.dialogueMove ?: plan.appraisal, plan.speechIntent, userText,
         )
