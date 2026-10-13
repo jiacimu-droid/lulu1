@@ -9,6 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterDevelopmentStore
 import com.jiacimu.lulu.data.WebSearchProvider
+import com.jiacimu.lulu.data.LuluExternalMcp
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
@@ -17,7 +19,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("主动执行授权", style = MaterialTheme.typography.titleMedium)
-        listOf("device_read" to "主动读取设备状态", "alarm" to "主动设置本地闹钟", "media" to "主动控制手机音乐", "screen" to "主动操作屏幕", "cloud" to "主动提交云端任务").forEach { (key, label) ->
+        listOf("device_read" to "主动读取设备状态", "alarm" to "主动设置本地闹钟", "media" to "主动控制手机音乐", "xhs_read" to "主动逛小红书（只读）", "health_read" to "读取手环健康 MCP（只读）", "screen" to "主动操作屏幕", "cloud" to "主动提交云端任务").forEach { (key, label) ->
             var allowed by remember(characterId, key) { mutableStateOf(prefs.getBoolean("$characterId:$key", false)) }
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text(label, modifier = Modifier.weight(1f))
@@ -54,6 +56,42 @@ internal fun CharacterExecutionSettings(characterId: String) {
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
             label = { Text("重要通知的 App 包名，逗号分隔") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+
+        HorizontalDivider()
+        Text("外部 MCP 连接（所有角色共用）", style = MaterialTheme.typography.titleMedium)
+        Text("小红书连接 xpzouying/xiaohongshu-mcp；手环连接 band-health-sync 配套的 health-mcp。需要先在你的电脑或服务器启动服务并登录；填 HTTPS /mcp 地址，手机无法直接访问电脑的 localhost。仅开放读取工具，不会自动评论或发帖。", style = MaterialTheme.typography.bodySmall)
+        val scope = rememberCoroutineScope()
+        listOf("xiaohongshu" to "小红书阅读 MCP", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
+            var mcpUrl by remember(service) { mutableStateOf(LuluExternalMcp.endpoint(context, service)) }
+            var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
+            var mcpStatus by remember(service) { mutableStateOf("") }
+            Text(title, style = MaterialTheme.typography.titleSmall)
+            OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS MCP 地址") },
+                singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+            OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（可留空；建议服务端开启鉴权）") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = {
+                    mcpStatus = runCatching { LuluExternalMcp.save(context, service, mcpUrl, mcpToken) }
+                        .fold({ if (it) "配置已保存；接下来检查登录与数据" else "保存失败" },
+                            { it.message.orEmpty() })
+                }) { Text("保存") }
+                OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
+                    mcpStatus = "正在检查…"
+                    scope.launch {
+                        mcpStatus = runCatching { LuluExternalMcp.check(context, service) }
+                            .fold({ "连接返回：" + it.take(240) }, { "无法连接：" + it.message.orEmpty().take(180) })
+                    }
+                }) { Text("测试连接") }
+                OutlinedButton(onClick = {
+                    mcpUrl = ""; mcpToken = ""
+                    mcpStatus = if (LuluExternalMcp.save(context, service, "", "")) "已断开" else "断开失败"
+                }) { Text("断开") }
+            }
+            if (mcpStatus.isNotBlank()) Text(mcpStatus, style = MaterialTheme.typography.bodySmall)
+        }
+
         HorizontalDivider()
         Text("网络搜索（所有角色共用）", style = MaterialTheme.typography.titleMedium)
         var searchKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
