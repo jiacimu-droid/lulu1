@@ -26,6 +26,24 @@ test('plain SSR feed returns actual title, author and unmodified token', () => {
   const b = browser({state: {feed: {feeds: [row()]}}});
   assert.deepEqual(b.snapshot().items, [{id, token: 'token+/=', source: 'pc_feed', title: '猫咪和纸箱', author: '真实作者'}]);
 });
+test('reader diagnostic distinguishes hydrated search from an unready/blocked browser', () => {
+  const b = browser({path: '/search_result?keyword=cat',
+    state: {search: {feeds: [row('real-value')]}}, text: '登录后查看内容'});
+  const d = b.snapshot('search', '', 'cat').diagnostics;
+  assert.equal(d.page.path, '/search_result');
+  assert.equal(d.page.stateCards, 1);
+  assert.equal(d.page.loginPrompt, true);
+  assert.equal(d.page.visibleCards, 0);
+  assert.equal(JSON.stringify(d).includes('real-value'), false);
+  assert.equal(JSON.stringify(d).includes('cat'), false);
+});
+test('diagnostics report website verification separately from intercepted requests', () => {
+  const b = browser({path: '/search_result?keyword=news', text: '请进行安全验证',
+    state: {search: {feeds: []}}});
+  const d = b.snapshot('search', '', 'news').diagnostics;
+  assert.equal(d.page.verificationPrompt, true);
+  assert.equal(d.api.search, undefined);
+});
 test('nested Vue refs and search source are handled', () => {
   const b = browser({path: '/search_result?keyword=%E7%8C%AB', state:
     {search: {_value: {feeds: {_rawValue: {_value: [row()]}}}}}});
