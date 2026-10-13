@@ -80,6 +80,22 @@ class CharacterOpenConcernRuntimeTest {
         assertEquals(one.getJSONObject(0).getString("id"), again.getJSONObject(0).getString("id"))
     }
 
+    @Test fun consequentialConflictRequiresAnExplicitAssessmentNotAnAutomaticConcern() {
+        assertTrue(EmotionFollowThroughCoordinator.needsConcernAssessment(
+            "你让我很生气，我现在真的很失望。",
+            JSONObject().put("meaning", "她真的不高兴了")))
+        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment(
+            "今天天气真不错。",
+            JSONObject()))
+        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment(
+            "我很生气！",
+            JSONObject().put("concernAssessment", "我已经认真考虑过，目前没有持续的心事")))
+        val authored = JSONObject().put("pendingConcerns", JSONArray().put(
+            JSONObject().put("status", "open").put("topicKey", "repair")
+                .put("focus", "怎样改善交流").put("whyItMatters", "明确的关系反馈")))
+        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment("你让我失望了", authored))
+    }
+
     @Test fun aSuspendedConcernSurvivesAnotherQuietTurn() {
         val opened = CharacterOpenConcernRuntime.update(null, first, "call-silence-1", now)
         assertEquals(1, opened.length())
