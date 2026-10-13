@@ -20,6 +20,8 @@ enum class MigrationRoute {
     ChatDetail,
     CharacterSettings,
     Memory,
+    // Keep legacy route for existing saved navigation stacks; no desktop shortcut.
+    CoreMemory,
     Lexicon,
     WorldBook,
     Performance,
