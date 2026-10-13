@@ -376,7 +376,43 @@ object LuluDeviceToolBridge {
         currentCoroutineContext().ensureActive()
         if (planner.isFailure) return planner
         val plannedReply = planner.getOrThrow()
-        val parsedPlan = parsePlan(plannedReply.text) ?: run {
+        val firstParsedPlan = parsePlan(plannedReply.text)
+        // Same character/planner architecture; a malformed first JSON envelope gets
+        // one bounded planner retry, not a separate personality-free response path.
+        val plannerRepair = if (rewriting && (firstParsedPlan == null ||
+            firstParsedPlan.action != "reply" ||
+            (firstParsedPlan.speechIntent.isBlank() && firstParsedPlan.text.isBlank()))) {
+            LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = buildString {
+                    appendLine("重新回复仍属于同一角色的同一轮对话。")
+                    appendLine("原本需要回应的用户内容：${userText.takeLast(1_500)}")
+                    appendLine("之前真实的交流：${history.takeLast(2_500)}")
+                    appendLine("角色状态：${com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now)}")
+                    appendLine("上一份不完整或错误的决策草稿只供参考：${plannedReply.text.take(1_000)}")
+                },
+                instruction = """
+                    继续作为同一角色重新思考本轮表达，不更改已发生事实，不执行工具、不选择 silent。
+                    只返回一个完整紧凑的 JSON 对象，采用与正常聊天相同的决策字段：
+                    {"action":"reply","speechIntent":"这一轮具体想表达的意思",
+                     "dialogueMove":{"type":"answer","target":"当前交流意图","contentIntent":"具体想表达什么","maxBubbles":2}}
+                    只有确实发生新的私有心理变化时才可选 innerThought、innerThoughtBasis、innerLife、appraisal、mood。
+                    若有 innerThought，basis 应提供 focus 以及 unsaidWhy/conflict/change，不重复对外说的话。
+                    只规划思想和说话意图，下一阶段仍由正常聊天表达层生成气泡。
+                """.trimIndent(),
+                source = "聊天决策结构补全",
+                title = title,
+                maxTokens = 1_300,
+                connectionOverride = connection,
+                memoryRequest = UnifiedMemoryRequest(
+                    currentInput = userText,
+                    sceneContext = sceneContext,
+                    recentContext = history,
+                    taskIntent = "补全一次结构化聊天决策，保持原有角色人格和心理架构",
+                ),
+            ).getOrNull()?.text?.let(::parsePlan)
+        } else null
+        val parsedPlan = plannerRepair?.takeIf { it.action == "reply" } ?: firstParsedPlan ?: run {
             val fallback = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(plannedReply.text)
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text)
                 ?: plannedReply.text.takeIf { value ->
