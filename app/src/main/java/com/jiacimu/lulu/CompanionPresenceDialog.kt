@@ -125,7 +125,7 @@ internal fun CompanionPresenceDialog(
                             latestCallEnd?.let { event ->
                                 val completed = CharacterCausalAppraisalStage.hasCompletedDecision(characterId, event.id)
                                 val failed = state?.lastPerceptionAt?.let { !it.isBefore(event.occurredAt) } == true &&
-                                    state.lastPerceptionNote.let { note ->
+                                    state?.lastPerceptionNote.orEmpty().let { note ->
                                         note.contains("失败") || note.contains("不完整") ||
                                             note.contains("暂停") || note.contains("未完成")
                                     }
