@@ -413,6 +413,11 @@ object LuluDeviceToolBridge {
             ).getOrNull()?.text?.let(::parsePlan)
         } else null
         val parsedPlan = plannerRepair?.takeIf { it.action == "reply" } ?: firstParsedPlan ?: run {
+            // The re-answer must not bypass character judgement and private-state planning.
+            // Only ordinary legacy chat/phone may fall back directly to raw speech.
+            if (rewriting) return Result.failure(IllegalStateException(
+                "重新回复的角色决策结构仍不完整，未替换旧消息、也未写入心声"
+            ))
             val fallback = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(plannedReply.text)
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(plannedReply.text)
                 ?: plannedReply.text.takeIf { value ->
