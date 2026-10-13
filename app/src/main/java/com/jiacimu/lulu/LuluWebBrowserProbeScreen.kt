@@ -22,6 +22,7 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import androidx.webkit.WebViewCompat
 import com.jiacimu.lulu.data.XhsCard
+import com.jiacimu.lulu.data.XhsReadingEngine
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -112,18 +113,13 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         return true
     }
 
-    if (readerVisible) {
-        LuluXhsNativeReaderScreen(onBack = { readerVisible = false },
-            initialKeyword = readerKeyword, initialCard = readerCard)
-        return
-    }
 
-    BackHandler {
+    BackHandler(enabled = !readerVisible) {
         val current = browser
         if (current?.canGoBack() == true) current.goBack() else onBack()
     }
 
-    if (diagnosticsVisible) {
+    if (diagnosticsVisible && !readerVisible) {
         AlertDialog(
             onDismissRequest = { diagnosticsVisible = false },
             title = { Text("网页诊断结果") },
@@ -137,6 +133,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         )
     }
 
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -328,12 +325,12 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
                             WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
                                 setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) { view, message, origin, mainFrame, _ ->
-                                if (!mainFrame || browser !== view || origin.scheme != "https" ||
+                                if (!mainFrame || browser !== view || XhsReadingEngine.controls(view) || origin.scheme != "https" ||
                                     origin.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return@addWebMessageListener
                                 val value = runCatching { JSONObject(message.data.orEmpty()) }.getOrNull()
                                     ?: return@addWebMessageListener
                                 when (value.optString("kind")) {
-                                    "search" -> {
+                                    "search-start", "search-ready" -> {
                                         readerKeyword = value.optString("keyword").take(64)
                                         readerCard = null
                                         readerVisible = true
@@ -355,7 +352,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         }
                         webViewClient = object : WebViewClient() {
                             override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
-                                if (view === browser) routeToReader(Uri.parse(url.orEmpty()))
+                                if (view === browser && !XhsReadingEngine.controls(view)) routeToReader(Uri.parse(url.orEmpty()))
                             }
                             override fun shouldOverrideUrlLoading(
                                 view: WebView?,
@@ -363,7 +360,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             ): Boolean {
                                 if (request?.isForMainFrame != true) return false
                                 val target = request.url ?: return true
-                                if (routeToReader(target)) return true
+                                if (!XhsReadingEngine.controls(view) && routeToReader(target)) return true
                                 val host = target.host.orEmpty().lowercase()
                                 val allowed = target.scheme == "https" &&
                                     (host == "xiaohongshu.com" ||
@@ -404,7 +401,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
 
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 if (browser !== view) return
-                                if (routeToReader(Uri.parse(url.orEmpty()))) return
+                                if (!XhsReadingEngine.controls(view) && routeToReader(Uri.parse(url.orEmpty()))) return
                                 if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))
                                     view?.evaluateJavascript(routingScript, null)
                                 // Keep the full original link only for the user-triggered external-open button.
@@ -483,10 +480,12 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             }
                         }
                         browser = this
+                        XhsReadingEngine.attachBrowser(this)
                         loadUrl(XHS_PROBE_URL)
                     }
                 },
                 onRelease = { view ->
+                    XhsReadingEngine.detachBrowser(view)
                     if (browser === view) browser = null
                     CookieManager.getInstance().flush()
                     view.stopLoading()
@@ -496,5 +495,14 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 },
             )
         }
+    }
+    if (readerVisible) {
+        Surface(Modifier.fillMaxSize(), color = androidx.compose.ui.graphics.Color.White) {
+            key(readerKeyword, readerCard?.id) {
+                LuluXhsNativeReaderScreen(onBack = { browser?.loadUrl(XHS_PROBE_URL); readerVisible = false },
+                    initialKeyword = readerKeyword, initialCard = readerCard)
+            }
+        }
+    }
     }
 }

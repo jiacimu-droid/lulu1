@@ -62,7 +62,37 @@
       author: clean(raw.user?.nickname ?? raw.user?.nickName, 120)};
   };
   // Only normalized list/body fields stay in this document's bounded memory.
-  const received = {feed: [], search: [], notes: new Map(), failures: {}, api: {}};
+  const received = {feed: [], search: [], notes: new Map(), failures: {}, api: {}, searchKeyword: '', searchPending: '', searchEmpty: false};
+  const pageKeyword = () => clean(new URL(location.href).searchParams.get('keyword') || window.__luluXhsSearchKeyword?.(), 64);
+  const requestKeyword = (url, body) => {
+    try {
+      const value = typeof body === 'string' ? JSON.parse(body) : body;
+      return clean(value?.keyword, 64) || clean(new URL(url, location.href).searchParams.get('keyword'), 64) || pageKeyword();
+    } catch (_) { return pageKeyword(); }
+  };
+  const beginSearch = keyword => {
+    const next = clean(keyword, 64);
+    if (next !== received.searchPending || received.searchKeyword) {
+      received.search = []; received.searchKeyword = ''; received.searchEmpty = false;
+      delete received.api.search;
+    }
+    received.searchPending = next;
+    received.failures.search = '';
+  };
+  const startSearch = keyword => {
+    const input = document.querySelector('#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"]');
+    if (!input) return 'input-missing';
+    beginSearch(keyword);
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement?.prototype || {}, 'value')?.set;
+    if (setter) setter.call(input, keyword); else input.value = keyword;
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+    const button = document.querySelector('.search-icon,.search-button,.search-btn,[aria-label*="搜索"],[aria-label="search"]') || input.form?.querySelector('button[type="submit"]');
+    if (button) button.click();
+    else input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}));
+    input.blur?.();
+    return 'submitted';
+  };
   const category = raw => {
     try {
       const u = new URL(raw, location.href);
@@ -73,7 +103,8 @@
     } catch (_) {}
     return '';
   };
-  const capture = (kind, payload, status) => {
+  const capture = (kind, payload, status, keyword = '') => {
+    if (kind === 'search' && received.searchPending && keyword !== received.searchPending) return;
     if (!kind) return;
     received.api[kind] = {http: status, code: payload?.code == null ? null : String(payload.code).slice(0, 16),
       success: payload?.success !== false};
@@ -83,11 +114,6 @@
       return;
     }
     received.failures[kind] = '';
-    // Also hand off searches that happen inside an overlay without changing history.
-    if (kind === 'search' && window.luluXhsNavigation && window.__luluXhsSearchKeyword) {
-      const keyword = window.__luluXhsSearchKeyword();
-      if (keyword) window.luluXhsNavigation.postMessage(JSON.stringify({kind: 'search', keyword}));
-    }
     const data = payload?.data ?? payload;
     if (kind === 'note') {
       for (const row of (data?.items ?? []).slice(0, 8)) {
@@ -97,30 +123,49 @@
         if (value) received.notes.set(id, value);
       }
       while (received.notes.size > 8) received.notes.delete(received.notes.keys().next().value);
-    } else received[kind] = list(data?.items ?? data?.feeds ?? data, kind === 'search' ? 'pc_search' : 'pc_feed');
+    } else {
+      received[kind] = list(data?.items ?? data?.feeds ?? data, kind === 'search' ? 'pc_search' : 'pc_feed');
+      if (kind === 'search') {
+        received.searchKeyword = keyword;
+        received.searchEmpty = Array.isArray(data?.items ?? data?.feeds ?? data) && (data?.items ?? data?.feeds ?? data).length === 0;
+        if (keyword) window.luluXhsNavigation?.postMessage(JSON.stringify({kind: 'search-ready', keyword}));
+      }
+    }
+  };
+  const invalidResponse = (kind, status, keyword) => {
+    if (kind === 'search' && received.searchPending && keyword !== received.searchPending) return;
+    received.api[kind] = {http: status, code: null, success: false};
+    received.failures[kind] = 'invalid';
   };
   const nativeFetch = window.fetch;
   if (nativeFetch) window.fetch = function (...args) {
-    const kind = category(typeof args[0] === 'string' ? args[0] : args[0]?.url);
+    const url = typeof args[0] === 'string' ? args[0] : args[0]?.url;
+    const kind = category(url);
+    const keyword = kind === 'search' ? (args[1]?.body !== undefined || typeof args[0] === 'string'
+      ? Promise.resolve(requestKeyword(url, args[1]?.body))
+      : args[0].clone().text().then(body => requestKeyword(url, body))) : Promise.resolve('');
     return nativeFetch.apply(this, args).then(response => {
-      if (kind) response.clone().text().then(text => {
-        if (text.length <= 1500000) try { capture(kind, JSON.parse(text), response.status); } catch (_) {}
+      if (kind) response.clone().text().then(async text => {
+        if (text.length <= 1500000) try { capture(kind, JSON.parse(text), response.status, await keyword); } catch (_) { invalidResponse(kind, response.status, await keyword); }
       }).catch(() => {});
       return response;
-    }, error => { if (kind) received.failures[kind] = 'network'; throw error; });
+    }, async error => { if (kind && (kind !== 'search' || await keyword === received.searchPending || !received.searchPending)) received.failures[kind] = 'network'; throw error; });
   };
   const xhr = window.XMLHttpRequest?.prototype;
   if (xhr) {
-    const open = xhr.open;
+    const open = xhr.open, send = xhr.send;
+    xhr.send = function (body) { if (this.__luluSearchUrl) this.__luluSearchKeyword = requestKeyword(this.__luluSearchUrl, body); return send.call(this, body); };
     xhr.open = function (method, url, ...rest) {
       const kind = category(url);
-      this.addEventListener('error', () => { if (kind) received.failures[kind] = 'network'; }, {once: true});
+      this.__luluSearchUrl = kind === 'search' ? url : '';
+      this.__luluSearchKeyword = kind === 'search' ? pageKeyword() : '';
+      this.addEventListener('error', () => { if (kind && (kind !== 'search' || !received.searchPending || this.__luluSearchKeyword === received.searchPending)) received.failures[kind] = 'network'; }, {once: true});
       this.addEventListener('load', () => {
         if (!kind) return;
         try {
-          if (this.responseType === 'json') capture(kind, this.response, this.status);
-          else if (this.responseText.length <= 1500000) capture(kind, JSON.parse(this.responseText), this.status);
-        } catch (_) {}
+          if (this.responseType === 'json') capture(kind, this.response, this.status, this.__luluSearchKeyword);
+          else if (this.responseText.length <= 1500000) capture(kind, JSON.parse(this.responseText), this.status, this.__luluSearchKeyword);
+        } catch (_) { invalidResponse(kind, this.status, this.__luluSearchKeyword); }
       }, {once: true});
       return open.call(this, method, url, ...rest);
     };
@@ -129,15 +174,17 @@
     const width = window.innerWidth || 0, height = window.innerHeight || 0;
     const hit = document.elementFromPoint?.(width / 2, height * .75);
     const rect = hit?.getBoundingClientRect();
-    return {api: received.api, viewport: {width, height,
+    return {api: received.api, search: {pending: !!received.searchPending, responseMatched: received.searchKeyword === received.searchPending && !!received.searchKeyword, count: received.search.length, empty: received.searchEmpty}, viewport: {width, height,
       visualHeight: window.visualViewport?.height ?? null,
       documentHeight: document.documentElement?.clientHeight ?? null,
       lowerElement: hit ? String(hit.tagName || '') + '.' + String(hit.className || '').slice(0, 100) : '',
       lowerRect: rect ? {top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height)} : null}};
   };
-  window.__luluXhsReader = {diagnostics, snapshot(kind, id, keyword) {
+  window.__luluXhsReader = {diagnostics, beginSearch, startSearch, pendingSearch: keyword => received.searchPending === keyword, snapshot(kind, id, keyword) {
     const url = new URL(location.href), path = url.pathname;
-    const onPage = kind === 'search' ? path === '/search_result' && url.searchParams.get('keyword') === keyword
+    const searchResponse = kind === 'search' && !!keyword && received.searchKeyword === keyword;
+    const searchPage = ['/search_result','/search','/search/result'].includes(path) && url.searchParams.get('keyword') === keyword;
+    const onPage = kind === 'search' ? searchPage || searchResponse
       : kind === 'note' ? new RegExp('^/(explore|discovery/item)/' + id + '/?$').test(path)
       : path === '/' || path === '/explore';
     const visibleText = [...document.querySelectorAll('.access-wrapper,.error-wrapper,.not-found-wrapper,.blocked-wrapper,[role="dialog"]')]
@@ -175,10 +222,10 @@
         }
       } else {
         const section = unwrap(kind === 'search' ? state.search : state.feed ?? state.homeFeed);
-        items = list(section?.feeds, kind === 'search' ? 'pc_search' : 'pc_feed');
-        if (!items.length) items = received[kind];
+        items = searchResponse ? received.search : list(section?.feeds, kind === 'search' ? 'pc_search' : 'pc_feed');
+        if (!items.length && kind !== 'search') items = received[kind];
         // Actual note links retain the site's token/source; avoid generic links in menus.
-        if (!items.length) for (const card of document.querySelectorAll('section.note-item,.note-item')) {
+        if (!items.length && !searchResponse) for (const card of document.querySelectorAll('section.note-item,.note-item')) {
           const a = card.querySelector('a[href*="/explore/"],a[href*="/discovery/item/"]');
           if (!a) continue;
           try {
@@ -195,6 +242,6 @@
     }
     const login = /website-login/.test(path) || (!items.length && !detail && /扫码登录|请先登录|登录后查看/.test(bodyText));
     return JSON.stringify({items, note: detail, onPage, diagnostics: diagnostics(), error: login ? 'login' : received.failures[kind] || '',
-      empty: onPage && /没有找到相关|暂无搜索结果|无相关结果/.test(bodyText)});
+      empty: (searchResponse && received.searchEmpty) || (onPage && /没有找到相关|暂无搜索结果|无相关结果/.test(bodyText))});
   }};
 })();

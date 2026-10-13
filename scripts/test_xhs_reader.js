@@ -18,7 +18,7 @@ function browser({path = '/explore', state = {}, text = '', elements = [], paylo
   vm.runInContext(script, sandbox);
   return {snapshot: (kind = 'feed', noteId = '', keyword = '') =>
     JSON.parse(sandbox.__luluXhsReader.snapshot(kind, noteId, keyword)),
-    receive: async () => {await sandbox.fetch(`https://edith.xiaohongshu.com/api/sns/web/v1/${api}`); await new Promise(setImmediate);}, sandbox};
+    receive: async (keyword) => {await sandbox.fetch(`https://edith.xiaohongshu.com/api/sns/web/v1/${api}`, keyword === undefined ? undefined : {method: 'POST', body: JSON.stringify({keyword})}); await new Promise(setImmediate);}, sandbox};
 }
 
 test('plain SSR feed returns actual title, author and unmodified token', () => {
@@ -128,7 +128,7 @@ test('note click avoids the website modal and preserves the token', () => {
 test('SPA search navigates to native reading without waiting for the white overlay', () => {
   const b = navigationBrowser();
   b.sandbox.history.pushState(null, '', '/search_result?keyword=%E7%8C%AB');
-  assert.deepEqual(b.messages[0], {kind: 'search', keyword: '猫'});
+  assert.deepEqual(b.messages[0], {kind: 'search-start', keyword: '猫'});
 });
 test('login/profile links remain in the visible website', () => {
   const b = navigationBrowser(); const event = b.click('https://www.xiaohongshu.com/user/profile/123');
@@ -172,11 +172,11 @@ function setSearchInput(b, value) {
   b.sandbox.document.querySelector = () => input;
   return input;
 }
-test('Enter on homepage search routes before any URL or overlay change', () => {
+test('Enter opens native reading without cancelling the website search', () => {
   const b = navigationBrowser(); const input = setSearchInput(b, ' 记者 ');
   const event = searchEvent(input); b.handlers.keydown(event);
-  assert.equal(event.prevented, true); assert.equal(input.blurred, true);
-  assert.deepEqual(b.messages, [{kind: 'search', keyword: '记者'}]);
+  assert.equal(event.prevented, false); assert.equal(input.blurred, true);
+  assert.deepEqual(b.messages, [{kind: 'search-start', keyword: '记者'}]);
 });
 test('form submit routes search but unrelated and empty forms are untouched', () => {
   const b = navigationBrowser(); setSearchInput(b, '猫');
@@ -192,14 +192,15 @@ test('search icon click routes without a search anchor', () => {
   const element = new b.sandbox.Element(null);
   element.closest = selector => selector !== 'a[href]' ? {} : null;
   b.handlers.click(searchEvent(element));
-  assert.deepEqual(b.messages[0], {kind: 'search', keyword: '记者'});
+  assert.deepEqual(b.messages[0], {kind: 'search-start', keyword: '记者'});
 });
 test('successful overlay search API hands off even when homepage URL stays unchanged', async () => {
   const b = browser({api: 'search/notes', payload: {code: 0, success: true, data: {items: [row()]}}});
   const messages = [];
   b.sandbox.luluXhsNavigation = {postMessage: json => messages.push(JSON.parse(json))};
   b.sandbox.__luluXhsSearchKeyword = () => '记者';
-  await b.receive(); assert.deepEqual(messages[0], {kind: 'search', keyword: '记者'});
+  await b.receive(); assert.deepEqual(messages[0], {kind: 'search-ready', keyword: '记者'});
+  assert.equal(b.snapshot('search', '', '记者').items[0].id, id);
 });
 test('actual note image variants are preserved, deduplicated and restricted to official hosts', () => {
   const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
@@ -251,4 +252,42 @@ test('blank or placeholder image URLs fall through to actual lazy image addresse
   const scope = {closest: () => container, querySelector: () => null};
   dom.sandbox.document.querySelector = selector => selector === '.note-scroller' ? scope : null;
   assert.equal(dom.snapshot('note', id).note.images[0].url, 'https://sns-img.xhscdn.com/lazy');
+});
+
+test('search responses inside a homepage overlay are bound to the actual request keyword', async () => {
+  const b = browser({api: 'search/notes', state: {feed: {feeds: [row('homepage')]}},
+    payload: {code: 0, data: {items: [row('search-real')]}}});
+  b.sandbox.__luluXhsReader.beginSearch('记者');
+  await b.receive('记者');
+  assert.equal(b.snapshot('search', '', '记者').items[0].token, 'search-real');
+  assert.equal(b.snapshot('search', '', '猫').items.length, 0);
+});
+test('a late response from another query cannot satisfy the new search or show an old error', async () => {
+  const b = browser({api: 'search/notes', payload: {code: 300012, success: false}});
+  b.sandbox.__luluXhsReader.beginSearch('new'); await b.receive('old');
+  assert.equal(b.snapshot('search', '', 'new').error, '');
+  assert.equal(b.snapshot('search', '', 'new').items.length, 0);
+});
+test('an actual empty overlay search is not replaced by homepage recommendations', async () => {
+  const b = browser({api: 'search/notes', state: {feed: {feeds: [row()]}}, payload: {code: 0, data: {items: []}}});
+  b.sandbox.__luluXhsReader.beginSearch('记者'); await b.receive('记者');
+  assert.equal(b.snapshot('search', '', '记者').empty, true);
+  assert.equal(b.snapshot('search', '', '记者').items.length, 0);
+});
+test('alternate search paths return their real SSR results', () => {
+  for (const path of ['/search', '/search/result']) {
+    const b = browser({path: path + '?keyword=cat', state: {search: {feeds: [row()]}}});
+    assert.equal(b.snapshot('search', '', 'cat').items[0].id, id);
+  }
+});
+test('programmatic search uses the real input and button without a forged API request', () => {
+  const b = browser(); const events = [];
+  const input = {value: '', dispatchEvent: event => events.push(event.type), blur() {}};
+  let clicks = 0;
+  b.sandbox.Event = class {constructor(type) {this.type = type;}};
+  b.sandbox.document.querySelector = selector => selector.includes('#search-input') ? input : {click() {clicks++;}};
+  assert.equal(b.sandbox.__luluXhsReader.startSearch('记者'), 'submitted');
+  assert.equal(input.value, '记者'); assert.equal(clicks, 1);
+  assert.deepEqual(events, ['input', 'change']);
+  assert.equal(b.sandbox.__luluXhsReader.pendingSearch('记者'), true);
 });

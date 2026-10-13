@@ -9,9 +9,9 @@
   const submitSearch = event => {
     const keyword = window.__luluXhsSearchKeyword();
     if (!keyword || !window.luluXhsNavigation) return false;
-    event?.preventDefault(); event?.stopImmediatePropagation();
+    window.__luluXhsReader?.beginSearch(keyword);
     searchInput()?.blur?.();
-    send({kind: 'search', keyword});
+    send({kind: 'search-start', keyword});
     return true;
   };
   document.addEventListener('keydown', event => {
@@ -22,7 +22,7 @@
   }, true);
   const route = () => {
     if (['/search_result', '/search', '/search/result'].includes(location.pathname))
-      send({kind: 'search', keyword: new URL(location.href).searchParams.get('keyword') || ''});
+      send({kind: 'search-start', keyword: new URL(location.href).searchParams.get('keyword') || ''});
   };
   for (const name of ['pushState', 'replaceState']) {
     const original = history[name];

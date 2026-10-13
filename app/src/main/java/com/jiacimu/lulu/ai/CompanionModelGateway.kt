@@ -461,6 +461,7 @@ class CompanionModelGateway(
         streamResponse: Boolean = false,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
         onStreamText: ((String) -> Unit)? = null,
+        imageDataUrls: List<String> = emptyList(),
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -686,6 +687,7 @@ class CompanionModelGateway(
                 streamResponse = streamResponse,
                 readTimeoutMillis = readTimeoutMillis,
                 onStreamText = onStreamText,
+                imageDataUrls = imageDataUrls,
             )
             // Record only after the request returned a valid model reply. The audit
             // reflects the exact core IDs included in this outgoing system prompt,
@@ -743,8 +745,10 @@ class CompanionModelGateway(
         streamResponse: Boolean,
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
+        imageDataUrls: List<String> = emptyList(),
     ): ModelReply {
         val nativeClaude = isNativeClaude(connection.baseUrl)
+        val userContent = MultimodalContent.user(user, imageDataUrls, nativeClaude)
         if (nativeClaude) {
             // Anthropic Messages requires max_tokens. For a caller that
             // explicitly requests no app-side cap, provide a generous budget
@@ -759,7 +763,7 @@ class CompanionModelGateway(
             }
             val body = JSONObject().put("model", connection.model).put("system", system)
                 .put("max_tokens", maxTokens ?: nativeClaudeOutputBudget).put("stream", streamResponse)
-                .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", user)))
+                .put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", userContent)))
             val url = "${claudeBase(connection.baseUrl)}/messages"
             val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
             if (streamResponse) return requestPostStreamingReply(url, headers, body, readTimeoutMillis, onStreamText)
@@ -777,7 +781,7 @@ class CompanionModelGateway(
                 "messages",
                 JSONArray()
                     .put(JSONObject().put("role", "system").put("content", system))
-                    .put(JSONObject().put("role", "user").put("content", user)),
+                    .put(JSONObject().put("role", "user").put("content", userContent)),
             )
         if (maxTokens != null) body.put("max_tokens", maxTokens)
         val url = "${connection.baseUrl}/chat/completions"

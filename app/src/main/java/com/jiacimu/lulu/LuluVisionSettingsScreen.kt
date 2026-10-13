@@ -65,7 +65,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             Text("图片理解 · 聊天 / 小红书", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
-                            "聊天和朋友圈发图时，露露机会先理解图片，再把结果作为角色内部上下文。小红书自动识图使用这里的专用模型，一次最多识别前六张图片。聊天识图的专用模型是可选的：不单独配置时，会自动尝试当前聊天模型；只要聊天模型本身支持图片输入，就不需要再配第二个模型。",
+                            "聊天和朋友圈发图时，露露机会先理解图片，再把结果作为角色内部上下文。小红书默认跟随角色感知使用的私聊模型，一次输入正文和前六张图片；也可在这里单独选择支持视觉的模型。聊天识图的专用模型是可选的：不单独配置时，会自动尝试当前聊天模型；只要聊天模型本身支持图片输入，就不需要再配第二个模型。",
                             color = Color(0xFF77777B),
                             fontSize = 13.sp,
                             lineHeight = 19.sp,
@@ -83,7 +83,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text("专用识图模型", fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         Text(
-                            "聊天识图优先用这里的模型，失败或留空时尝试聊天模型。小红书识图需要在这里配置支持图片的模型。",
+                            "聊天识图优先用这里的模型，失败或留空时尝试聊天模型。小红书图文阅读默认用私聊模型；这里选好模型后改用它。",
                             color = Color(0xFF77777B),
                             fontSize = 12.sp,
                             lineHeight = 18.sp,
@@ -111,7 +111,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                     Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Text("什么时候才需要单独配？", fontWeight = FontWeight.Bold, color = Color(0xFF1D1D1F))
                         Text(
-                            "需要让角色理解小红书图片时，请在这里选好模型。聊天图片也可以共用它。",
+                            "私聊模型支持图文输入时，无需另配。若不支持，可在这里选择支持视觉的模型。",
                             color = Color(0xFF77777B),
                             fontSize = 12.sp,
                             lineHeight = 18.sp,

@@ -51,6 +51,7 @@ internal fun LuluXhsNativeReaderScreen(
     var visionTask by remember { mutableStateOf<Job?>(null) }
     var visionText by remember { mutableStateOf("") }
     var visionLoading by remember { mutableStateOf(false) }
+    var diagnosticVisible by remember { mutableStateOf(false) }
     var sequence by remember { mutableIntStateOf(0) }
 
     fun failure(error: Exception): String = if (error is TimeoutCancellationException)
@@ -70,7 +71,7 @@ internal fun LuluXhsNativeReaderScreen(
         message = "正在读取真实笔记列表…"
         task = scope.launch {
             try {
-                val result = XhsReadingEngine.list(context, query)
+                val result = XhsReadingEngine.list(context, query) { if (sequence == current) message = it }
                 if (sequence == current) {
                     cards = result
                     message = if (result.isEmpty()) "没有找到相关笔记。" else "已获取 ${result.size} 篇笔记"
@@ -100,7 +101,7 @@ internal fun LuluXhsNativeReaderScreen(
         message = "正在读取笔记正文…"
         task = scope.launch {
             try {
-                val result = XhsReadingEngine.read(context, card)
+                val result = XhsReadingEngine.read(context, card) { if (sequence == current) message = it }
                 if (sequence == current) { article = result; message = "" }
             } catch (error: Exception) {
                 if (error is CancellationException && error !is TimeoutCancellationException) throw error
@@ -126,6 +127,11 @@ internal fun LuluXhsNativeReaderScreen(
         if (initialCard != null) readNote(initialCard) else loadList(initialKeyword)
     }
     DisposableEffect(Unit) { onDispose { task?.cancel(); visionTask?.cancel() } }
+
+    if (diagnosticVisible) AlertDialog(onDismissRequest = { diagnosticVisible = false },
+        title = { Text("读取诊断") },
+        text = { Text(XhsReadingEngine.lastDiagnostic(context), style = MaterialTheme.typography.bodySmall) },
+        confirmButton = { TextButton(onClick = { diagnosticVisible = false }) { Text("关闭") } })
 
     Scaffold(modifier = Modifier.imePadding(), topBar = {
         TopAppBar(title = { Text("小红书 · 阅读") }, navigationIcon = {
@@ -168,6 +174,7 @@ internal fun LuluXhsNativeReaderScreen(
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
             }
             if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
+            if (!loading && message.contains("超时")) TextButton(onClick = { diagnosticVisible = true }) { Text("读取诊断") }
             if (loading) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
                 TextButton(onClick = {

@@ -11,11 +11,13 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.view.ViewGroup
 import androidx.webkit.UserAgentMetadata
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -41,31 +43,57 @@ internal data class XhsArticle(val id: String, val title: String, val body: Stri
 }
 
 /** One session and one parser for native reading and authorized character tools.
- * A fresh, full-sized attached WebView per navigation prevents old SPA responses
- * from becoming the next search. Its default CookieManager reuses the login view.
+ * Reuse the actual login browser (including its SPA and session storage); when
+ * absent, retain one attached browser for this foreground Activity. Search data
+ * must belong to the requested keyword, even when rendered in an overlay.
  * Android background execution is not promised: MCP remains the optional path.
  */
 internal object XhsReadingEngine {
     @Volatile private var owner: WeakReference<Activity>? = null
     private val navigation = Mutex()
+    private var visibleBrowser: WeakReference<WebView>? = null
+    private var retainedBrowser: WebView? = null
+    private var controlledBrowser: WebView? = null
+    fun attachBrowser(view: WebView) {
+        if (controlledBrowser !== retainedBrowser) releaseRetainedBrowser()
+        visibleBrowser = WeakReference(view)
+    }
+    fun detachBrowser(view: WebView) { if (visibleBrowser?.get() === view) visibleBrowser = null }
+    fun controls(view: WebView?): Boolean = view != null && controlledBrowser === view
+    private fun releaseRetainedBrowser() {
+        retainedBrowser?.let { view ->
+            view.stopLoading()
+            (view.parent as? ViewGroup)?.removeView(view)
+            view.destroy()
+        }
+        retainedBrowser = null
+    }
     private fun prefs(context: Context) = context.applicationContext
         .getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE)
     fun lastDiagnostic(context: Context): String = prefs(context).getString("xiaohongshu:last-diagnostic", "").orEmpty()
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
-    fun resume(activity: Activity) { owner = WeakReference(activity) }
-    fun pause(activity: Activity) { if (owner?.get() === activity) owner = null }
+    fun resume(activity: Activity) {
+        if (retainedBrowser?.context !== activity && controlledBrowser !== retainedBrowser) releaseRetainedBrowser()
+        owner = WeakReference(activity)
+    }
+    fun pause(activity: Activity) {
+        if (owner?.get() === activity) {
+            owner = null
+            if (controlledBrowser !== retainedBrowser) releaseRetainedBrowser()
+        }
+    }
     fun available(context: Context): Boolean =
         (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true) ||
             LuluExternalMcp.configured(context, "xiaohongshu")
 
-    suspend fun list(context: Context, keyword: String): List<XhsCard> {
+    suspend fun list(context: Context, keyword: String, onProgress: (String) -> Unit = {}): List<XhsCard> {
         val query = keyword.trim().take(64)
         if (localEnabled(context) && owner?.get() != null) {
             val url = if (query.isBlank()) "https://www.xiaohongshu.com/explore" else
                 "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(query)}&source=web_explore_feed"
-            val root = loadPage(context, url, if (query.isBlank()) "feed" else "search", "", query)
+            val root = loadPage(context, url, if (query.isBlank()) "feed" else "search", "", query, onProgress)
             val values = root.optJSONArray("items")
             return (0 until (values?.length() ?: 0)).mapNotNull {
                 val row = values?.optJSONObject(it) ?: return@mapNotNull null
@@ -97,13 +125,13 @@ internal object XhsReadingEngine {
                 ?: if (query.isBlank()) "pc_feed" else "pc_search", provider)
     }
 
-    suspend fun read(context: Context, target: XhsCard): XhsArticle {
+    suspend fun read(context: Context, target: XhsCard, onProgress: (String) -> Unit = {}): XhsArticle {
         require(Regex("[a-zA-Z0-9]{12,40}").matches(target.id) && target.token.isNotBlank()) {
             "笔记缺少有效 ID 或详情令牌，未标记为已读"
         }
         val note = if (target.provider == "webview") {
             require(localEnabled(context)) { "本机阅读已关闭" }
-            loadPage(context, target.url(), "note", target.id, "").optJSONObject("note")
+            loadPage(context, target.url(), "note", target.id, "", onProgress).optJSONObject("note")
         } else {
             val root = JSONObject(LuluExternalMcp.xhsRead(context, "get_feed_detail", JSONObject()
                 .put("feed_id", target.id).put("xsec_token", target.token).put("load_all_comments", false)))
@@ -138,85 +166,122 @@ internal object XhsReadingEngine {
             note.optString("author").ifBlank { target.author }, target.provider, images)
     }
 
-    private suspend fun loadPage(context: Context, url: String, kind: String, id: String, keyword: String): JSONObject =
-        withContext(Dispatchers.Main.immediate) {
-            navigation.withLock {
-                val activity = owner?.get()?.takeIf { !it.isFinishing && !it.isDestroyed }
-                    ?: error("本机阅读需要露露机保持打开；后台可另配 MCP")
-                val container = activity.findViewById<FrameLayout>(android.R.id.content)
-                    ?: error("阅读窗口尚未准备好")
-                val script = withContext(Dispatchers.IO) { context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() } }
-                val view = WebView(activity)
-                var mainError = ""
-                try {
-                    configure(view)
-                    view.isFocusable = false
-                    view.isFocusableInTouchMode = false
-                    // Behind the opaque Compose surface, with a real viewport. Not GONE/1dp.
-                    container.addView(view, 0, FrameLayout.LayoutParams(-1, -1))
-                    view.webViewClient = object : WebViewClient() {
+    private suspend fun loadPage(
+        context: Context, url: String, kind: String, id: String, keyword: String,
+        onProgress: (String) -> Unit,
+    ): JSONObject = withContext(Dispatchers.Main.immediate) {
+        var lastStage = "等待阅读窗口"
+        onProgress(lastStage)
+        var latestReport = JSONObject()
+        try {
+            // The deadline also covers waiting for another reading to release the session.
+            withTimeout(if (kind == "search") 25_000L else 35_000L) {
+                navigation.withLock {
+                    val activity = owner?.get()?.takeIf { !it.isFinishing && !it.isDestroyed }
+                        ?: error("本机阅读需露露机保持前台")
+                    val container = activity.findViewById<FrameLayout>(android.R.id.content)
+                        ?: error("阅读窗口尚未准备好")
+                    val script = withContext(Dispatchers.IO) {
+                        context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() }
+                    }
+                    val shared = visibleBrowser?.get()?.takeIf { it.isAttachedToWindow }
+                    val view = shared ?: retainedBrowser ?: WebView(activity).also { created ->
+                        configure(created)
+                        created.isFocusable = false
+                        created.isFocusableInTouchMode = false
+                        container.addView(created, 0, FrameLayout.LayoutParams(-1, -1))
+                        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
+                            WebViewCompat.addDocumentStartJavaScript(created, script,
+                                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+                        retainedBrowser = created
+                    }
+                    controlledBrowser = view
+                    var mainError = ""
+                    if (shared == null) view.webViewClient = object : WebViewClient() {
                         override fun shouldOverrideUrlLoading(web: WebView?, request: WebResourceRequest?): Boolean {
                             if (request?.isForMainFrame != true) return false
-                            val uri = request.url
-                            return uri.scheme != "https" || uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
+                            return request.url.scheme != "https" || request.url.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
                         }
                         override fun onReceivedError(web: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                            if (request?.isForMainFrame == true && request.url.toString() == url &&
-                                !error?.description.toString().contains("ERR_ABORTED", true)) {
+                            if (request?.isForMainFrame == true && !error?.description.toString().contains("ERR_ABORTED", true))
                                 mainError = "网页加载失败（${error?.errorCode}）"
-                            }
                         }
                         override fun onReceivedHttpError(web: WebView?, request: WebResourceRequest?, response: WebResourceResponse?) {
                             if (request?.isForMainFrame == true) mainError = "网页返回 HTTP ${response?.statusCode}"
                         }
                     }
-                    if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
-                        WebViewCompat.addDocumentStartJavaScript(view, script,
-                            setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+                    fun stage(value: String) {
+                        if (lastStage != value) { lastStage = value; onProgress(value) }
                     }
-                    prefs(context).edit().putString("xiaohongshu:last-diagnostic", "阶段=$kind；等候网页数据").apply()
-                    view.loadUrl(url)
-                    withTimeout(35_000) {
+                    var searchSubmitted = false
+                    try {
+                        if (kind == "search") {
+                            stage("在已登录网页搜索")
+                            val uri = Uri.parse(view.url.orEmpty())
+                            if (uri.scheme != "https" || uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com"))
+                                view.loadUrl("https://www.xiaohongshu.com/explore")
+                        } else {
+                            stage(if (kind == "note") "读取笔记图文" else "读取首页推荐")
+                            if (view.url != url) view.loadUrl(url)
+                        }
                         while (true) {
-                            delay(700)
-                            check(owner?.get() === activity && !activity.isDestroyed) { "露露机已离开前台，读取已停止；未新增阅读记录" }
+                            delay(350)
+                            check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
+                            check(shared == null || view.isAttachedToWindow) { "阅读窗口已关闭" }
                             check(mainError.isBlank()) { mainError }
                             val host = Uri.parse(view.url.orEmpty()).host
                             if (host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) continue
-                            // Fallback for older WebViews; repeated evaluation is idempotent.
-                            val js = script + "\nwindow.__luluXhsReader.snapshot(${JSONObject.quote(kind)},${JSONObject.quote(id)},${JSONObject.quote(keyword)});"
-                            val raw = evaluate(view, js)
+                            val raw = evaluate(view, script + "\nwindow.__luluXhsReader.snapshot(${JSONObject.quote(kind)},${JSONObject.quote(id)},${JSONObject.quote(keyword)});")
                             val root = runCatching { JSONObject(JSONTokener(raw).nextValue() as String) }.getOrNull() ?: continue
-                            val report = root.optJSONObject("diagnostics") ?: JSONObject()
-                            report.put("stage", kind).put("nativeWidth", view.width).put("nativeHeight", view.height)
+                            latestReport = root.optJSONObject("diagnostics") ?: JSONObject()
+                            latestReport.put("stage", kind).put("phase", lastStage)
+                                .put("session", if (shared != null) "login-browser" else "retained-browser")
+                                .put("nativeWidth", view.width).put("nativeHeight", view.height)
                                 .put("ready", root.optBoolean("onPage")).put("result", root.optString("error"))
-                            val reportText = report.toString()
-                            if (lastDiagnostic(context) != reportText)
-                                prefs(context).edit().putString("xiaohongshu:last-diagnostic", reportText).apply()
+                            prefs(context).edit().putString("xiaohongshu:last-diagnostic", latestReport.toString()).apply()
                             val reason = root.optString("error")
-                            check(reason != "restricted") {
-                                val api = report.optJSONObject("api")?.optJSONObject(kind)
-                                "小红书拒绝了本次访问（HTTP ${api?.optInt("http") ?: 0}，业务码 ${api?.optString("code").orEmpty().ifBlank { "网页限制提示" }}），未新增阅读记录"
+                            check(reason != "restricted") { "小红书限制访问，请在网页登录页查看验证提示" }
+                            check(!reason.startsWith("api:")) { "小红书接口失败（${reason.removePrefix("api:")}）" }
+                            check(reason != "network") { "小红书数据请求连接失败" }
+                            check(reason != "invalid") { "小红书返回的数据无法解析" }
+                            if (root.optJSONObject("note") != null || (root.optJSONArray("items")?.length() ?: 0) > 0 || root.optBoolean("empty"))
+                                return@withLock root
+                            check(reason != "login") { "请先在小红书网页完成登录" }
+                            if (kind == "search" && !searchSubmitted) {
+                                val state = evaluate(view, """(() => {
+                                    const reader = window.__luluXhsReader;
+                                    const keyword = ${JSONObject.quote(keyword)};
+                                    const url = new URL(location.href);
+                                    if (reader.pendingSearch(keyword) ||
+                                        (['/search_result','/search','/search/result'].includes(url.pathname) && url.searchParams.get('keyword') === keyword)) return 'waiting';
+                                    return reader.startSearch(keyword);
+                                })()""".trimIndent())
+                                val action = runCatching { JSONTokener(state).nextValue() as String }.getOrNull()
+                                if (action == "submitted" || action == "waiting") {
+                                    searchSubmitted = true
+                                    stage("等待搜索结果")
+                                } else stage("等待网页搜索框")
                             }
-                            check(!reason.startsWith("api:")) { "小红书数据接口失败（${reason.removePrefix("api:")}），未新增阅读记录" }
-                            check(reason != "network") { "小红书数据请求未能连接，请检查网页网络" }
-                            if (root.optJSONObject("note") != null || (root.optJSONArray("items")?.length() ?: 0) > 0)
-                                return@withTimeout root
-                            check(reason != "login") { "请先在小红书登录网页完成登录" }
-                            if (root.optBoolean("empty")) return@withTimeout root
                         }
-                        @Suppress("UNREACHABLE_CODE")
-                        JSONObject()
+                        @Suppress("UNREACHABLE_CODE") JSONObject()
+                    } finally {
+                        controlledBrowser = null
+                        CookieManager.getInstance().flush()
+                        if (owner?.get() !== activity || (shared == null && visibleBrowser?.get()?.isAttachedToWindow == true)) releaseRetainedBrowser()
                     }
-                } finally {
-                    view.stopLoading()
-                    container.removeView(view)
-                    view.webViewClient = WebViewClient()
-                    CookieManager.getInstance().flush()
-                    view.destroy()
                 }
             }
+        } catch (error: TimeoutCancellationException) {
+            val api = latestReport.optJSONObject("api")?.optJSONObject(kind)
+            val detail = if (kind == "search") {
+                if (lastStage == "等待网页搜索框" || lastStage == "等待阅读窗口") "网页搜索尚未启动" else
+                    if (api == null) "搜索请求未返回" else "搜索已返回但没有可读取的笔记"
+            } else lastStage
+            latestReport.put("result", "timeout").put("phase", lastStage)
+            prefs(context).edit().putString("xiaohongshu:last-diagnostic", latestReport.toString()).apply()
+            throw IllegalStateException("读取超时：$detail", error)
         }
+    }
 
     private suspend fun evaluate(view: WebView, script: String): String = suspendCancellableCoroutine { continuation ->
         view.evaluateJavascript(script) { if (continuation.isActive) continuation.resume(it ?: "null") }
