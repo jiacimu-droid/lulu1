@@ -75,7 +75,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 Text("本机阅读需露露机保持打开；角色仍需单独开启只读授权。后台可使用下方 MCP。",
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(onClick = onOpenBrowserProbe) { Text("登录 / 检查小红书网页") }
-                OutlinedButton(onClick = onOpenXhsNativeReader) { Text("阅读 / 搜索（与角色共用）") }
+                OutlinedButton(onClick = onOpenBrowserProbe) { Text("在内置网页搜索 / 阅读") }
                 // Search tests must execute on a genuinely visible WebView.
                 // Running a second hidden WebView from Settings creates a
                 // blank/no-response page on some Android WebView versions.
