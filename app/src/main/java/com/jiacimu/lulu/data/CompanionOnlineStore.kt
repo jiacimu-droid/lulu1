@@ -346,6 +346,24 @@ object CompanionOnlineStore {
         }
     }
 
+    /**
+     * The role may go offline in five minutes, but its newly saved unresolved
+     * thoughts should still receive one durable later decision opportunity.
+     * This is called only AFTER the outgoing chat batch has actually been sent.
+     * It does not extend online time or automatically contact the user.
+     */
+    fun schedulePersistedConcernReview(characterId: String, now: Instant = Instant.now()) {
+        val app = appContext ?: return
+        if (!CharacterInnerLifeStore.needsPostOnlineReflection(characterId, now)) return
+        val until = mutableStates.value[characterId]?.onlineUntil
+        val remaining = until?.let { Duration.between(now, it).toMillis().coerceAtLeast(0L) } ?: 0L
+        runCatching {
+            ProactivePerceptionScheduler.scheduleEmotionalAftercare(
+                app, characterId, delayMillis = remaining + 90_000L,
+            )
+        }
+    }
+
     /** Continue across genuine online extensions without resetting the perception cadence. */
     private fun scheduleLifePulseLocked(characterId: String) {
         // Extending an online window must not reset its thinking clock indefinitely.
