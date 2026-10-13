@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -47,12 +48,69 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var jsNetworkFailures by remember { mutableIntStateOf(0) }
     var browserDiagnostics by remember { mutableStateOf("") }
     var diagnosticsVisible by remember { mutableStateOf(false) }
+    var websiteIssue by remember { mutableStateOf("") }
+    var blankOverlaySeen by remember { mutableStateOf(false) }
+    var searchListEmpty by remember { mutableStateOf(false) }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
         Regex("Chrome/([0-9.]+)").find(mobileAgent)?.groupValues?.get(1) ?: "120.0.0.0"
     }
     val desktopAgent = remember(chromeVersion) {
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$chromeVersion Safari/537.36"
+    }
+
+    fun returnToList() {
+        val current = browser ?: return
+        websiteIssue = ""
+        blankOverlaySeen = false
+        if (current.canGoBack()) current.goBack() else current.loadUrl(XHS_PROBE_URL)
+    }
+
+    // SPA dialogs can change without a main-frame navigation.
+    // Inspect only coarse visual flags, never note text, cookies, tokens, or API payloads.
+    LaunchedEffect(browser) {
+        val active = browser ?: return@LaunchedEffect
+        while (true) {
+            delay(2_000)
+            if (browser !== active || active.url?.startsWith("https://www.xiaohongshu.com/") != true) continue
+            val probe = """
+                (() => {
+                  const text = (document.body?.innerText || "").slice(0, 45000);
+                  const area = Math.max(1, innerWidth * innerHeight);
+                  const candidates = [...document.querySelectorAll(
+                    '[role="dialog"],[class*="modal"],[class*="Modal"],[class*="overlay"],[class*="Overlay"],[class*="mask"],[class*="Mask"]'
+                  )].slice(0, 120);
+                  const blankCover = candidates.some(el => {
+                    const r = el.getBoundingClientRect(), style = getComputedStyle(el);
+                    if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
+                    if (r.width * r.height < area * 0.35 || r.width < innerWidth * 0.55) return false;
+                    if (r.bottom <= 0 || r.top >= innerHeight) return false;
+                    return (el.innerText || '').trim().length < 24 && !el.querySelector('img,video,canvas');
+                  });
+                  return JSON.stringify({
+                    noteError: /笔记详情获取失败|笔记加载失败/.test(text),
+                    searchPage: location.pathname.includes('search'),
+                    hasCards: !!document.querySelector('a[href*="/explore/"],a[href*="/discovery/item/"]'),
+                    blankCover: blankCover
+                  });
+                })()
+            """.trimIndent()
+            active.evaluateJavascript(probe) { raw ->
+                if (browser !== active) return@evaluateJavascript
+                val flags = runCatching {
+                    JSONObject(JSONTokener(raw).nextValue() as String)
+                }.getOrNull() ?: return@evaluateJavascript
+                val noteError = flags.optBoolean("noteError")
+                val cover = flags.optBoolean("blankCover")
+                blankOverlaySeen = cover
+                searchListEmpty = flags.optBoolean("searchPage") && !flags.optBoolean("hasCards")
+                websiteIssue = when {
+                    noteError -> "笔记详情加载失败，可能留下了空白弹窗。"
+                    cover -> "检测到疑似空白弹层。"
+                    else -> ""
+                }
+            }
+        }
     }
 
     BackHandler {
@@ -67,6 +125,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             text = { Text(browserDiagnostics, style = MaterialTheme.typography.bodySmall) },
             confirmButton = {
                 TextButton(onClick = { diagnosticsVisible = false }) { Text("关闭") }
+            },
+            dismissButton = {
+                TextButton(onClick = { diagnosticsVisible = false; returnToList() }) { Text("返回列表") }
             },
         )
     }
@@ -133,6 +194,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 append("小红书接口 HTTP 失败：$apiFailures")
                                 if (lastApiFailure.isNotBlank()) append("；最近：$lastApiFailure")
                                 append("\n其他网络加载失败：$resourceFailures；页面脚本网络报错：$jsNetworkFailures")
+                                append("\n检测疑似空白弹层：")
+                                append(if (blankOverlaySeen) "是" else "否")
+                                append("；搜索页暂未发现笔记卡片：")
+                                append(if (searchListEmpty) "是（也可能仍在加载）" else "否")
                                 if (flags != null) {
                                     append("\n页面状态：")
                                     append(when {
@@ -151,6 +216,20 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         }
                     }
                 }) { Text("诊断") }
+            }
+            if (websiteIssue.isNotBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        websiteIssue,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    TextButton(onClick = { returnToList() }) { Text("返回列表") }
+                }
             }
             Text(
                 "桌面网页版 · " + status,
@@ -247,6 +326,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 jsNetworkFailures = 0
                                 browserDiagnostics = ""
                                 diagnosticsVisible = false
+                                websiteIssue = ""
+                                blankOverlaySeen = false
+                                searchListEmpty = false
                                 progress = 0
                                 status = "正在加载网页…"
                             }
@@ -260,7 +342,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 } else if (!status.startsWith("网页加载失败") &&
                                     !status.startsWith("网页返回 HTTP")) {
                                     if (resourceFailures > 0)
-                                        "网页主文档已加载，部分资源失败（$resourceFailures 项）；可关闭 VPN 后重载适配。"
+                                        "网页已打开，但部分资源失败（$resourceFailures 项）；可点诊断查看。"
                                     else
                                         "主文档已加载；笔记列表等动态内容可能仍在加载。"
                                 } else status
