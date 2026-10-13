@@ -188,9 +188,14 @@ object CharacterLifeStore {
         if (character.displayName !in setOf("江渡", "江都")) return
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
-        if (version >= 7) return
+        if (version >= 8) return
+        if (version == 7) {
+            updateJiangDuV8Profile(characterId, root)
+            return
+        }
         if (version == 6) {
             updateJiangDuV7SpeechHabits(characterId, root)
+            updateJiangDuV8Profile(characterId, state(characterId))
             return
         }
         if (version >= 5) {
@@ -433,6 +438,29 @@ object CharacterLifeStore {
             profile.put("speechHabits", CharacterProfileSchema.jiangDuV7SpeechHabits)
         }
         root.put("profile", profile).put("jiangDuPresetVersion", 7)
+        save(characterId, root)
+    }
+
+    /**
+     * One deterministic, no-API migration for Jiang Du's initial interests and
+     * natural expression. Preserve every user-authored value (including an
+     * explicitly customized speech pattern); never invent a remembered event.
+     */
+    private fun updateJiangDuV8Profile(characterId: String, root: JSONObject) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
+        val profile = root.optJSONObject("profile") ?: JSONObject()
+        val currentSpeech = profile.optString("speechHabits")
+        if (currentSpeech.isBlank() || currentSpeech in setOf(
+                CharacterProfileSchema.jiangDuV5SpeechHabits,
+                CharacterProfileSchema.jiangDuPreviousSpeechHabits,
+                CharacterProfileSchema.jiangDuV7SpeechHabits,
+            )) {
+            profile.put("speechHabits", CharacterProfileSchema.jiangDuV8SpeechHabits)
+        }
+        if (profile.optString("interests").isBlank()) {
+            profile.put("interests", CharacterProfileSchema.jiangDuV8Interests)
+        }
+        root.put("profile", profile).put("jiangDuPresetVersion", 8)
         save(characterId, root)
     }
 
