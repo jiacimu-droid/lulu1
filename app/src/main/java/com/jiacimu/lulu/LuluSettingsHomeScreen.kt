@@ -42,7 +42,13 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     when (page) {
         SettingsHomePage.Api -> LuluSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Capabilities -> LuluCapabilitiesScreen(onBack = { page = SettingsHomePage.Home })
-        SettingsHomePage.Integrations -> LuluIntegrationsSettingsScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Integrations -> LuluIntegrationsSettingsScreen(
+            onBack = { page = SettingsHomePage.Home },
+            onOpenBrowserProbe = { page = SettingsHomePage.BrowserProbe },
+        )
+        SettingsHomePage.BrowserProbe -> LuluWebBrowserProbeScreen(
+            onBack = { page = SettingsHomePage.Integrations },
+        )
         SettingsHomePage.Voice -> LuluVoiceSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Memory -> LuluMemorySettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Image -> LuluImageSettingsScreen(onBack = { page = SettingsHomePage.Home })
@@ -60,7 +66,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, Voice, Memory, Image, Vision }
+private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, Voice, Memory, Image, Vision }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
