@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:22:57.684880+00:00",
-  "commit": "c110b9cc3377708eadfdd0ac71362d390a6404e3",
+  "generatedAt": "2026-10-13T19:23:37.891635+00:00",
+  "commit": "12f030584d7424ccfc90a529577aa5de9abbd5ed",
   "branch": "main",
-  "sourceFingerprint": "12d7ad22dbe18c68736b1d559594a9495d6ec373091862d708ef2c2e278f6b0a",
+  "sourceFingerprint": "d2630bc5dec9fc9bd737544222dac3f284893b1c922be6c2a8e6bd9241f9317a",
   "summary": {
     "files": 612,
-    "lines": 121238,
-    "symbols": 1820
+    "lines": 121259,
+    "symbols": 1821
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4666,6 +4666,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
         "line": 330
+      }
+    ],
+    "schedulePersistedConcernReview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
+        "line": 355
       }
     ],
     "CompanionPresenceState": [
@@ -12117,8 +12123,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 316,
-      "sha256": "1e6dac2dc323c99e1033a4bff4e9a9b2a57d399f09c56ad5413152e608d48251",
+      "lines": 319,
+      "sha256": "f80a69844849b0a77bae6fda743ecc9c856abd4c527f747bd62a965009a54870",
       "symbols": []
     },
     {
@@ -14452,8 +14458,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 476,
-      "sha256": "192c495830eb7d2ceecc6b37d1dc86678c473f463c055d65576f3baf0e9562d7",
+      "lines": 494,
+      "sha256": "7e2d46b273b548f47c24b5576239f966bc9ee2d29eaf94fec798d7b04436db29",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -14510,6 +14516,10 @@
         {
           "name": "resetCharacter",
           "line": 330
+        },
+        {
+          "name": "schedulePersistedConcernReview",
+          "line": 355
         }
       ]
     },

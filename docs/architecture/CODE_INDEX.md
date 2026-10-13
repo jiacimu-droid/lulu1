@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c110b9cc3377708eadfdd0ac71362d390a6404e3`
+- 基准提交：`12f030584d7424ccfc90a529577aa5de9abbd5ed`
 - 分支：`main`
 - 已索引文件：612
-- 已索引代码/文本行：121238
-- 已发现符号：1820
+- 已索引代码/文本行：121259
+- 已发现符号：1821
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -135,7 +135,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 91 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 846 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 316 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 319 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 83 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -240,7 +240,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 237 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 649 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 476 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 494 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 470 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 150 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 420 | 10 |
