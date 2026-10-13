@@ -238,13 +238,19 @@ internal object XhsReadingEngine {
     private suspend fun readMcpNote(context: Context, target: XhsCard): JSONObject {
             val root = JSONObject(LuluExternalMcp.xhsRead(context, "get_feed_detail", JSONObject()
                 .put("feed_id", target.id).put("xsec_token", target.token).put("load_all_comments", false)))
+            return normalizeMcpNote(root, target)
+    }
+
+    internal fun normalizeMcpNote(root: JSONObject, target: XhsCard): JSONObject {
             val data = root.optJSONObject("data") ?: root
             val payload = data.optJSONObject("data") ?: data
-            val raw = payload.optJSONObject("note") ?: error("MCP 正文结构缺少 note")
+            val raw = payload.optJSONObject("note") ?: payload.optJSONObject("detail")
+                ?: error("MCP 正文结构缺少 note/detail")
             val actualId = raw.optString("noteId").ifBlank { raw.optString("note_id") }.ifBlank { raw.optString("id") }
             require(actualId.isBlank() || actualId == target.id) { "MCP 返回了其他笔记，未标记已读" }
             val pictures = org.json.JSONArray()
             val values = raw.optJSONArray("imageList") ?: raw.optJSONArray("image_list")
+                ?: raw.optJSONArray("imageUrls")
             for (index in 0 until minOf(values?.length() ?: 0, 30)) {
                 val item = values?.opt(index)
                 // @the-thing returns imageUrls: ["https://..."], while
@@ -262,8 +268,10 @@ internal object XhsReadingEngine {
                     .ifBlank { image.optString("urlPre") }.ifBlank { image.optString("url") })
                     .put("width", image.optInt("width")).put("height", image.optInt("height")))
             }
-            return JSONObject().put("images", pictures).put("title", raw.optString("title")).put("body", raw.optString("desc"))
-                .put("author", raw.optJSONObject("user")?.optString("nickname").orEmpty())
+            return JSONObject().put("images", pictures).put("title", raw.optString("title"))
+                .put("body", raw.optString("desc").ifBlank { raw.optString("description") })
+                .put("author", raw.optJSONObject("user")?.optString("nickname")
+                    .orEmpty().ifBlank { raw.optJSONObject("author")?.optString("nickname").orEmpty() })
     }
 
     private suspend fun loadPage(
