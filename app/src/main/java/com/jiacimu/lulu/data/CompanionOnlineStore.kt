@@ -23,6 +23,7 @@ enum class CompanionOnlineReason {
     MomentsWake,
     NewActivity,
     ScheduledCommitment,
+    SelfChosenExtension,
 }
 
 data class CompanionOnlineState(
@@ -51,9 +52,10 @@ data class CompanionUnreadSnapshot(
  * character is online, new relevant chat events schedule an independent perception for that role.
  * User Moments are perceived through MomentsStore by the same online-state predicate.
  *
- * A fixed five-minute wake pulse offers further choices without recursively extending itself. This lets "go somewhere" naturally become "do something there" or lets a finished
- * reading/game become a fresh decision about sharing, journaling or another activity without
- * turning one wake into an unbounded model-call loop.
+ * Every five-minute boundary is a decision opportunity, not an automatic forced logout
+ * or an automatic renewal. The shared autonomous decision can choose one more five-minute
+ * window with a concrete personal reason, or can go offline while preserving its concerns.
+ * Each exact boundary is claimed at most once, even if foreground and WorkManager race.
  */
 object CompanionOnlineStore {
     private const val PREFS_NAME = "lulu_companion_online_v1"
@@ -364,6 +366,46 @@ object CompanionOnlineStore {
         }
     }
 
+    /**
+     * Only the exact, still-current five-minute boundary may be evaluated.
+     * Persist the claim BEFORE any paid model request. An older queued worker
+     * cannot renew a character who received another message or a newer wake.
+     */
+    fun claimOnlineExpiry(characterId: String, expectedUntilMs: Long,
+                          now: Instant = Instant.now()): Boolean = synchronized(lock) {
+        val state = mutableStates.value[characterId] ?: return@synchronized false
+        if (prefs == null || expectedUntilMs <= 0L ||
+            state.onlineUntil.toEpochMilli() != expectedUntilMs ||
+            now.isBefore(state.onlineUntil) ||
+            now.isAfter(state.onlineUntil.plus(Duration.ofMinutes(3))) ||
+            CompanionPresenceStore.isInCall(characterId) ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return@synchronized false
+        val key = "expiry_decision_claim:$characterId"
+        if (prefs?.getLong(key, Long.MIN_VALUE) == expectedUntilMs) return@synchronized false
+        prefs?.edit()?.putLong(key, expectedUntilMs)?.commit() == true
+    }
+
+    /** Apply ONLY the character's own 'continue' decision, never a timer heuristic. */
+    fun extendByOwnChoice(characterId: String, expectedUntilMs: Long, reason: String,
+                          now: Instant = Instant.now()): Boolean = synchronized(lock) {
+        val current = mutableStates.value[characterId] ?: return@synchronized false
+        if (reason.isBlank() || current.onlineUntil.toEpochMilli() != expectedUntilMs ||
+            now.isAfter(current.onlineUntil.plus(Duration.ofMinutes(3))) ||
+            prefs?.getLong("expiry_decision_claim:$characterId", Long.MIN_VALUE) != expectedUntilMs ||
+            CompanionPresenceStore.isInCall(characterId)) return@synchronized false
+        // New activity may already have awakened the character. If so, the stale
+        // expiry cannot overwrite that session's purpose or expiry.
+        if (current.isOnline(now)) return@synchronized false
+        mutableStates.value = mutableStates.value + (characterId to current.copy(
+            onlineUntil = now.plus(onlineDuration),
+            reason = CompanionOnlineReason.SelfChosenExtension,
+        ))
+        persistLocked()
+        scheduleLifePulseLocked(characterId)
+        scheduleExpiryLocked(characterId)
+        true
+    }
+
     /** Continue across genuine online extensions without resetting the perception cadence. */
     private fun scheduleLifePulseLocked(characterId: String) {
         // Extending an online window must not reset its thinking clock indefinitely.
@@ -396,13 +438,27 @@ object CompanionOnlineStore {
         expiryJobs.remove(characterId)?.cancel()
         val until = mutableStates.value[characterId]?.onlineUntil ?: return
         val waitMillis = Duration.between(Instant.now(), until).toMillis().coerceAtLeast(0L)
+        // Persist a backup deadline for when Android kills the app process.
+        // Each work has a boundary-specific identity; stale work only checks
+        // the timestamp and never asks the model to renew an old session.
+        if (until.isAfter(Instant.now())) {
+            appContext?.let { context ->
+                runCatching {
+                    ProactivePerceptionScheduler.scheduleOnlineExpiryDecision(
+                        context, characterId, until.toEpochMilli(),
+                    )
+                }
+            }
+        }
         expiryJobs[characterId] = scope.launch {
             delay(waitMillis + 50L)
             val ended = synchronized(lock) {
                 val current = mutableStates.value[characterId]
                 if (current == null || current.isOnline()) false else {
                     mutableStates.value = mutableStates.value + (
-                        characterId to current.copy(onlineUntil = Instant.now().minusMillis(1L))
+                        // Keep the original persisted deadline: the background
+                        // expiry worker must still recognize this same boundary.
+                        characterId to current
                     )
                     lifePulseJobs.remove(characterId)?.cancel()
                     persistLocked()
@@ -412,6 +468,16 @@ object CompanionOnlineStore {
             }
             if (ended) {
                 appContext?.let { context ->
+                    // Fast foreground path, competing safely with the durable work.
+                    scope.launch {
+                        runCatching {
+                            ProactivePerceptionRuntime.runDueCycle(
+                                context, trigger = "五分钟在线到期，自主决定继续醒着或休眠",
+                                targetCharacterId = characterId, force = true,
+                                preserveOffline = true, onlineExpiryAtMillis = until.toEpochMilli(),
+                            )
+                        }
+                    }
                     runCatching { ProactivePerceptionScheduler.scheduleEmotionalAftercare(context, characterId) }
                 }
             }
