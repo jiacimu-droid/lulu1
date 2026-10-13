@@ -111,7 +111,8 @@ internal object HealthRolePerception {
 
     fun context(now: Instant = Instant.now()): String {
         val state = GadgetbridgeHealthStore.state.value
-        if (!state.connected) return ""
+        val remote = LuluExternalMcp.healthContext(com.jiacimu.lulu.data.MigratedDomainStores.context())
+        if (!state.connected) return remote
         val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
         val day = state.days.firstOrNull { it.date == today } ?: state.latest
         val sleep = latestSleep()
@@ -158,7 +159,8 @@ internal object HealthRolePerception {
             ?.format(DateTimeFormatter.ofPattern("M-d HH:mm"))
             ?: "未知"
         return facts.joinToString("；") +
-            "；健康 App最后同步=$sync。手环再次导出前，数据可能保持不变。"
+            "；健康 App最后同步=$sync。手环再次导出前，数据可能保持不变。" +
+            (if (remote.isNotBlank()) "；$remote" else "")
     }
 
     fun recordLatestSleep(characterId: String): HealthSleepObservation? {
