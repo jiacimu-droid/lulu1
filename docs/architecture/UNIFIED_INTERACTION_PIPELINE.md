@@ -41,7 +41,7 @@
 5. **执行前**，后台自主活动与私聊/电话/群聊附加工具统一校验动机。没有角色本人依据就拒绝执行而保留失败回执；数字世界见面 `moveTo` 无依据时不进行跳转。聊天和见面的普通口语仍由各场景自然表达，不为了检查而增加一次模型调用。
 6. 后续行动只以 `ToolRouter` 或真实见面/世界状态回执为准。既有 `CharacterActionFeedback` 把选择原因和成功/失败交回角色下一次感知；曾经想过不等于做成。
 
-**入口对应：** 私聊/电话 `LuluDeviceToolBridge`，群聊 `GroupEnsembleReplyEngine`，见面 `DigitalWorldMeetingGenerationV2` + `DigitalWorldMeetingRuntimeV2`，后台/世界 `ProactivePerceptionRuntime`，延迟私生活动作 `CharacterSelfActivityRuntime`。各自保留不同的音频、消息、场景协议，但不能脱离共享的人格-动机-反馈链。
+**入口对应：** 私聊/电话 `LuluDeviceToolBridge`，群聊 `GroupEnsembleReplyEngine`，见面 `DigitalWorldMeetingGenerationV2` + `DigitalWorldMeetingRuntimeV2`，后台/世界 `ProactivePerceptionRuntime`，真实世界相遇及生活事件的自发表达 `AutonomousSocialRuntime`，延迟私生活动作 `CharacterSelfActivityRuntime`。各自保留不同的音频、消息、场景协议，但不能脱离共享的人格-动机-反馈链。
 
 **边界：** 这一层确认「有没有角色亲自形成的选择依据」，并不能只靠字符串判断一个理由是不是符合性格、是否自相矛盾；这需要继续结合情境、记忆和实机行为验收，不应伪称程序已具备完美心理学判断。
 
