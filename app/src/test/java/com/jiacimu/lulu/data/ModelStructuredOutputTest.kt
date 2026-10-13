@@ -56,12 +56,46 @@ class ModelStructuredOutputTest {
         assertEquals("啊？我会错意了？\n那你说的超时是指什么？", ModelStructuredOutput.completedReplyText(response))
     }
 
-    @Test fun structuredBubbleBoundariesAreOwnedByTheModel() {
+    @Test fun grammaticalFragmentIsNotAnIndependentStructuredBubble() {
         val response = """{"action":"reply","bubbles":[{"text":"原来一直在用功，是我"},{"text":"猜错了"}]}"""
         assertEquals(
-            listOf("原来一直在用功，是我", "猜错了"),
+            listOf("原来一直在用功，是我猜错了"),
             ModelStructuredOutput.completedReplyBubbles(response),
         )
+    }
+
+    @Test fun screenshotBrokenChinesePhraseGetsMergedIntoCompleteBubbles() {
+        val response = org.json.JSONObject().put("action", "reply")
+            .put("bubbles", org.json.JSONArray().put("肯赏脸说")
+                .put("句可以，我悬着的心总算放下来了。")
+                .put("那再给你揉")
+                .put("揉耳朵，整个人都乖乖圈在你怀里。")
+                .put("宝宝，四点半了，气")
+                .put("消了一点的话……现在肯乖乖闭上眼睡觉了吗？"))
+        assertEquals(
+            listOf(
+                "肯赏脸说句可以，我悬着的心总算放下来了。",
+                "那再给你揉揉耳朵，整个人都乖乖圈在你怀里。",
+                "宝宝，四点半了，气消了一点的话……现在肯乖乖闭上眼睡觉了吗？",
+            ),
+            ModelStructuredOutput.completedReplyBubbles(response.toString()),
+        )
+    }
+
+    @Test fun naturalIndependentBubblesStillRemainSeparate() {
+        val response = org.json.JSONObject().put("action", "reply").put("bubbles",
+            org.json.JSONArray().put("嗯～").put("我在呢").put("你想聊什么？"))
+        assertEquals(
+            listOf("嗯～", "我在呢", "你想聊什么？"),
+            ModelStructuredOutput.completedReplyBubbles(response.toString()),
+        )
+    }
+
+    @Test fun accidentalMidwordNewlineIsSmoothButIntentionalParagraphBreakStays() {
+        assertEquals("肯赏脸说句可以", ModelStructuredOutput.smoothInlineBreaks("肯赏脸说\n句可以"))
+        assertEquals("气消了一点", ModelStructuredOutput.smoothInlineBreaks("气 \n 消了一点"))
+        assertEquals("先睡吧。\n我陪着你。", ModelStructuredOutput.smoothInlineBreaks("先睡吧。\n我陪着你。"))
+        assertEquals("这一段\n\n下一段", ModelStructuredOutput.smoothInlineBreaks("这一段\n\n下一段"))
     }
 
     @Test fun completedInteractionMovesRemainSeparateBubbles() {
