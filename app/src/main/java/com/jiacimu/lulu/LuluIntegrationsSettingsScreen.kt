@@ -95,6 +95,21 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 }
             }
             if (service != "xiaohongshu" || optionalMcpExpanded) {
+                if (service == "xiaohongshu") {
+                    var fallbackOn by remember(service) {
+                        mutableStateOf(XhsReadingEngine.mcpFallbackEnabled(context))
+                    }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("内置网页失败后自动尝试 MCP", modifier = Modifier.weight(1f))
+                        Switch(fallbackOn, { enabled ->
+                            if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled))
+                                fallbackOn = enabled
+                        })
+                    }
+                    Text("默认关闭。只有外部服务确实在线时才建议开启，" +
+                        "否则保存了 127.0.0.1 地址也只会额外等待超时。",
+                        style = MaterialTheme.typography.bodySmall)
+                }
                 if (service == "xiaohongshu") OutlinedButton(onClick = {
                     mcpUrl = "http://127.0.0.1:18060/mcp"
                     mcpToken = ""
