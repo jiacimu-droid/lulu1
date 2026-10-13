@@ -368,7 +368,10 @@ class InMemoryLuluChatStore : LuluChatStore {
         val conversation = conversationState.value.firstOrNull { it.id == conversationId }
         val actualAuthor = authorCharacterId ?: conversation?.characterId ?: "lulu"
         val directedAtUser = conversation?.groupChat == null || replyToMessageId != null || markerQuoteId != null
-        val clean = if (directedAtUser) RelationshipExpressionGuard.apply(actualAuthor, rawClean) else rawClean
+        // An LLM may insert a formatting newline mid-word. Neither that nor
+        // a paragraph newline is a new message; smooth only mid-Han fragments.
+        val readableBody = ModelStructuredOutput.smoothInlineBreaks(rawClean)
+        val clean = if (directedAtUser) RelationshipExpressionGuard.apply(actualAuthor, readableBody) else readableBody
         require(clean.isNotEmpty()) { "Message content cannot be blank" }
         val originalMessages = messageStates[conversationId]?.value.orEmpty()
         val effectiveReplyId = replyToMessageId ?: markerQuoteId?.takeIf { candidateId ->
@@ -486,7 +489,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         val state = messageStates[conversationId] ?: return@synchronized null
         val ids = originalIds.toSet()
         val originals = state.value.filter { it.id in ids }
-        val clean = contents.map(String::trim).filter(String::isNotBlank)
+        val clean = contents.map(ModelStructuredOutput::smoothInlineBreaks).filter(String::isNotBlank)
         if (ids.isEmpty() || originals.size != ids.size || clean.isEmpty() ||
             originals.any { it.sender != LuluChatMessage.Sender.Character }) return@synchronized null
         val insertion = state.value.indexOfFirst { it.id in ids }
