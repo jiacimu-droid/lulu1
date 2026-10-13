@@ -14,10 +14,11 @@ class ReadingChatReceiptFormatterTest {
         val preview = ReadingChatReceiptFormatter.preview("[共同活动] $raw")!!
         assertEquals("read-001", preview.recordId)
         assertTrue(preview.text.contains("《春天在屋顶上》"))
-        assertTrue(preview.text.contains("第4章"))
-        assertTrue(preview.text.contains("第二段很有趣。"))
+        assertFalse(preview.text.contains("第4章"))
+        assertFalse(preview.text.contains("第二段很有趣。"))
         assertEquals("查看感想", preview.text.substring(preview.linkStart, preview.linkEnd))
         assertTrue(preview.linkStart > 0)
+        assertEquals(1, preview.text.lines().size)
         assertEquals(1, ReadingChatReceiptFormatter.consecutiveCount(raw))
     }
 
@@ -26,7 +27,7 @@ class ReadingChatReceiptFormatterTest {
             "江渡走到了原木书架旁，准备挑一本书。\n读后感：这章让我想起了雨夜的等待。\n点开查看完整感想和正文"
         val compact = ReadingChatReceiptFormatter.preview(legacy)!!
         assertEquals("historical-id", compact.recordId)
-        assertTrue(compact.text.contains("《旧小说》 · 第5章"))
+        assertTrue(compact.text.contains("《旧小说》"))
         assertEquals(1, compact.text.split("《旧小说》").size - 1)
         assertFalse(compact.text.contains("原木书架"))
         assertFalse(compact.text.contains("2749"))
@@ -41,7 +42,7 @@ class ReadingChatReceiptFormatterTest {
         assertEquals(2, ReadingChatReceiptFormatter.consecutiveCount("[共同活动] $latest"))
         val preview = ReadingChatReceiptFormatter.preview(latest)!!
         assertTrue(preview.text.startsWith("连读2段"))
-        assertTrue(preview.text.contains("第2章"))
+        assertFalse(preview.text.contains("第2章"))
         assertEquals("查看感想", preview.text.substring(preview.linkStart, preview.linkEnd))
     }
 }
