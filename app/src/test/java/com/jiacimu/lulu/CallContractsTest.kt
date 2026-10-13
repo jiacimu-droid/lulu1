@@ -26,11 +26,13 @@ class CallContractsTest {
         assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("scribe_v2"))
         assertEquals("scribe_v2_realtime", CallVoiceConfiguration.elevenSttModel("scribe_v2_realtime"))
     }
-    @Test fun elevenLabsBatchAndRealtimeNeverShareAnInputPath() {
-        assertEquals(CallVoiceConfiguration.ElevenInputPath.RECORD_AND_SEND,
+    @Test fun elevenLabsUploadAndRealtimeUseDistinctPathsFromSettings() {
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD,
             CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2"))
         assertEquals(CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME,
             CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2_realtime"))
+        assertEquals(CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD,
+            CallVoiceConfiguration.elevenInputPath("elevenlabs", null))
         assertEquals(CallVoiceConfiguration.ElevenInputPath.OTHER,
             CallVoiceConfiguration.elevenInputPath("groq", "scribe_v2"))
     }
