@@ -69,6 +69,7 @@ internal fun MeetingOverflowMenu(
     onOpenModelPicker: () -> Unit,
     onOpenWritingPicker: () -> Unit,
     onOpenVoiceSettings: (() -> Unit)? = null,
+    onOpenRelationshipNetwork: (() -> Unit)? = null,
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -121,6 +122,11 @@ internal fun MeetingOverflowMenu(
                 onDismiss()
                 onOpenHistory()
             },
+        )
+        if (onOpenRelationshipNetwork != null) MeetingMenuRow(
+            icon = Icons.Outlined.People,
+            title = "人物关系网络",
+            onClick = { onDismiss(); onOpenRelationshipNetwork() },
         )
         MeetingMenuRow(
             icon = Icons.Outlined.Memory,
