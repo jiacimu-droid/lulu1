@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.clipToBounds
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.data.DigitalFurnitureKind
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
@@ -667,7 +668,7 @@ internal fun DigitalWorldGameScene(
     }
 
     Box(
-        modifier.fillMaxSize().background(Color(0xFF091311)).onSizeChanged { viewportSize = it },
+        modifier.fillMaxSize().clipToBounds().background(Color(0xFF091311)).onSizeChanged { viewportSize = it },
     ) {
         val moveInputModifier = if (controlsEnabled && selectedTarget == null) {
             Modifier.pointerInput(sceneKey, viewportSize) {
