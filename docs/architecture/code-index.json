@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T19:21:02.683878+00:00",
-  "commit": "7b80fe57f7d75051ff65be6f894f8e7fd266ca6c",
+  "generatedAt": "2026-10-13T19:22:32.542465+00:00",
+  "commit": "7e0a99736b0247c2ff9be2153f790770e9d624f3",
   "branch": "main",
-  "sourceFingerprint": "2a12b57966a1dec51601edae7810556fcf61b1bb48d014c1c87fa7b4906f1bce",
+  "sourceFingerprint": "0149ed9ad627d59bdf459c7d925b73e6af97de529b77f87b26572b15048bfe94",
   "summary": {
     "files": 612,
-    "lines": 121222,
+    "lines": 121234,
     "symbols": 1820
   },
   "symbolIndex": {
@@ -2231,7 +2231,7 @@
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 338
+        "line": 339
       }
     ],
     "mute": [
@@ -12153,8 +12153,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 873,
-      "sha256": "32ab7605515d470b02e37c3157b55cd8cd23abdb57529863e1d6bdf081251945",
+      "lines": 874,
+      "sha256": "6e3d73781a443e9b73b085c4d651826f8c699b9e21d6a6aa84409b5a247c4d25",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -12198,7 +12198,7 @@
         },
         {
           "name": "regenerateLatestReply",
-          "line": 338
+          "line": 339
         }
       ]
     },
@@ -19817,8 +19817,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1259,
-      "sha256": "b4450fd2ce2f2125d66978cfed65dcfa6f5efa38616c0d5095f5c546dfb2afae",
+      "lines": 1270,
+      "sha256": "bfa7dfdfa6c55dfff79579e87770b722d2fc0dd7f5704d1a9672355adfb07c27",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
