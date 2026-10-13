@@ -136,7 +136,12 @@ fun LuluVoiceCallScreen(
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                CallTopBar(onMinimize = onDismiss)
+                CallTopBar(
+                    onMinimize = onDismiss,
+                    connected = state.connected,
+                    sleepMode = state.sleepMode,
+                    onToggleSleep = LuluVoiceCallSession::toggleSleepMode,
+                )
                 Spacer(Modifier.height(14.dp))
                 Box(contentAlignment = Alignment.Center) {
                     Surface(
@@ -203,7 +208,6 @@ fun LuluVoiceCallScreen(
                         horizontalArrangement = Arrangement.spacedBy(9.dp, Alignment.CenterHorizontally),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        CallActivityIndicator(state)
                         Text(liveStatus, color = CallInk, fontSize = 13.sp, fontWeight = FontWeight.Medium,
                             maxLines = 1)
                     }
@@ -214,18 +218,9 @@ fun LuluVoiceCallScreen(
                 }
 
                 if (state.errorMessage.isNotBlank()) Text(state.errorMessage, color = CallDanger, fontSize = 12.sp)
-                if (state.connected) {
-                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                        if (state.errorMessage.isNotBlank()) TextButton(onClick = LuluVoiceCallSession::retryListening) {
-                            Text("重新收音", fontSize = 12.sp)
-                        }
-                        TextButton(onClick = LuluVoiceCallSession::toggleSleepMode) {
-                            Icon(Icons.Outlined.NightsStay, contentDescription = null,
-                                tint = if (state.sleepMode) Color(0xFF9A6BB5) else CallMuted)
-                            Spacer(Modifier.width(6.dp))
-                            Text(if (state.sleepMode) "结束哄睡" else "哄睡", fontSize = 12.sp,
-                                color = if (state.sleepMode) Color(0xFF9A6BB5) else CallInk)
-                        }
+                if (state.connected && state.errorMessage.isNotBlank()) {
+                    TextButton(onClick = LuluVoiceCallSession::retryListening) {
+                        Text("重新收音", fontSize = 12.sp)
                     }
                 }
                 if (state.connected && state.sleepMode) {
@@ -449,48 +444,16 @@ private fun CallMicrophoneMeter(state: LuluVoiceCallState) {
                         else if (level > .18f) CallBlue else CallMuted.copy(alpha = .48f)))
             }
         }
-        Text(
-            when {
-                state.microphoneMuted -> "麦克风已关闭"
-                state.speaking && level == 0f -> "对方播放中 · 扬声器可能暂停收音"
-                level > .18f -> "麦克风收到声音 · 等待转成文字"
-                else -> "真实麦克风电平 · 对着手机说话，竖条会随音量变化"
-            },
-            style = MaterialTheme.typography.bodySmall, color = CallMuted,
-            textAlign = TextAlign.Center, maxLines = 2,
-        )
     }
 }
 
 @Composable
-private fun CallActivityIndicator(state: LuluVoiceCallState) {
-    val active = state.userSpeaking || state.thinking || state.speaking
-    Row(
-        modifier = Modifier.clip(RoundedCornerShape(99.dp)).background(Color.White.copy(alpha = .58f)).padding(horizontal = 14.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        repeat(7) { index ->
-            val height = when {
-                !active -> 4
-                state.thinking -> 5 + (index % 3) * 3
-                else -> 6 + ((index * 5) % 4) * 3
-            }
-            Box(
-                Modifier.width(3.dp).height(height.dp).clip(CircleShape).background(
-                    when {
-                        state.speaking -> Color(0xFF9A6BB5)
-                        state.userSpeaking -> CallBlue
-                        else -> CallMuted.copy(alpha = .55f)
-                    },
-                ),
-            )
-        }
-    }
-}
-
-@Composable
-private fun CallTopBar(onMinimize: () -> Unit) {
+private fun CallTopBar(
+    onMinimize: () -> Unit,
+    connected: Boolean,
+    sleepMode: Boolean,
+    onToggleSleep: () -> Unit,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         FilledTonalIconButton(
             onClick = onMinimize,
@@ -501,6 +464,16 @@ private fun CallTopBar(onMinimize: () -> Unit) {
             ),
         ) { Icon(Icons.Outlined.KeyboardArrowDown, "缩小通话") }
         Spacer(Modifier.weight(1f))
+        if (connected) {
+            TextButton(onClick = onToggleSleep) {
+                Icon(Icons.Outlined.NightsStay, contentDescription = null,
+                    tint = if (sleepMode) Color(0xFF9A6BB5) else CallMuted,
+                    modifier = Modifier.size(19.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(if (sleepMode) "结束哄睡" else "哄睡",
+                    color = if (sleepMode) Color(0xFF9A6BB5) else CallInk, fontSize = 13.sp)
+            }
+        }
     }
 }
 
