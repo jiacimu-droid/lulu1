@@ -221,3 +221,21 @@ test('image-only note returns actual pixels sources without inventing a text bod
   const note = b.snapshot('note', id).note;
   assert.equal(note.body, ''); assert.equal(note.images.length, 1);
 });
+
+test('DOM-only note collects its own carousel images and preserves signed URLs', () => {
+  const b = browser({path: '/explore/' + id});
+  const image = {currentSrc: 'https://sns-img.xhscdn.com/real?sig=a%2Fb', naturalWidth: 1000, naturalHeight: 1200};
+  const container = {querySelectorAll: selector => {
+    assert.equal(selector.includes('img'), true); return [image];
+  }};
+  const scope = {closest: () => container, querySelector: selector =>
+    selector.includes('desc') ? {innerText: '渲染后的正文'} : null};
+  b.sandbox.document.querySelector = selector => selector === '.note-scroller' ? scope : null;
+  const note = b.snapshot('note', id).note;
+  assert.equal(note.body, '渲染后的正文'); assert.equal(note.images.length, 1);
+  assert.equal(note.images[0].url, 'https://sns-img.xhscdn.com/real?sig=a%2Fb');
+});
+test('carousel fallback cannot collect unrelated document images without a note scope', () => {
+  const b = browser({path: '/explore/' + id});
+  assert.equal(b.snapshot('note', id).note, null);
+});

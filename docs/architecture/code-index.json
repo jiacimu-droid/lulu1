@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T18:35:54.246265+00:00",
-  "commit": "266fafecf4b3f96729b7dbcfcfa57cd7b5142adc",
-  "branch": "main",
-  "sourceFingerprint": "6e0936c0d1780562697c659f8a98529fdd4158bdaaba7ebf7c0d08805ae24195",
+  "generatedAt": "2026-10-13T18:38:00.609495+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "6814c9b10865cdba662b24f67b7ca97f38458e1d6214f0ef71a1a5d5059c41d0",
   "summary": {
     "files": 612,
-    "lines": 120639,
+    "lines": 120670,
     "symbols": 1813
   },
   "symbolIndex": {
@@ -10190,8 +10190,8 @@
     },
     {
       "path": "app/src/main/assets/xhs-reader.js",
-      "lines": 187,
-      "sha256": "cbc47d17b3772b32aaacc8f35d1cd9b2b5041011220afa34e900544161409d5b",
+      "lines": 200,
+      "sha256": "6f072ddefd1240ac7d0159d3503cc4bc14aac6bdea8db7ea970b48d13041305f",
       "symbols": []
     },
     {
@@ -21519,8 +21519,8 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 224,
-      "sha256": "b575376dab8b52ace80af4260cace74f8b224cae56acdcb675d397db842de7c3",
+      "lines": 242,
+      "sha256": "2a525fe55ff6104430ba14e7a147c09c88e54147ec38be29c744ee18318fd3f7",
       "symbols": []
     },
     {

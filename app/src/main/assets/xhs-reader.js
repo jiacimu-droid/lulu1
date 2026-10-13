@@ -151,13 +151,26 @@
         const map = unwrap(unwrap(state.note)?.noteDetailMap) || {};
         const entry = unwrap(map[id]);
         detail = note(unwrap(entry?.note ?? entry?.data?.note), id) ?? received.notes.get(id) ?? null;
-        if (!detail) {
-          // Scope to the note, never document.body (which contains recommendations/comments).
+        if (!detail || !detail.images?.length) {
+          // Read only the current note's own carousel; never avatars or recommendation images.
           const scope = document.querySelector('.note-scroller');
-          const desc = scope?.querySelector('#detail-desc,.desc');
-          const body = clean(desc?.innerText, 8000);
-          if (body) detail = {id, body, title: clean(scope.querySelector('#detail-title,.title')?.innerText, 200),
-            author: clean(document.querySelector('.author-wrapper .username')?.innerText, 120)};
+          const container = scope?.closest?.('#noteContainer,.note-container') || scope;
+          const elements = [...(container?.querySelectorAll?.('.swiper-slide img,.carousel-image img,.note-slider img,.note-image img,.media-container img') || [])];
+          const indexed = elements.map((el, position) => {
+            const index = el.closest?.('[data-swiper-slide-index]')?.getAttribute?.('data-swiper-slide-index');
+            return {el, index: index == null ? position : Number(index)};
+          }).sort((a, b) => a.index - b.index);
+          const photos = images({imageList: indexed.map(({el}) => ({
+            url: el.currentSrc || el.getAttribute?.('data-src') || el.src,
+            width: el.naturalWidth || 0, height: el.naturalHeight || 0
+          }))});
+          if (detail) detail = {...detail, images: photos};
+          else {
+            const body = clean(scope?.querySelector('#detail-desc,.desc')?.innerText, 8000);
+            if (body || photos.length) detail = {id, body, images: photos,
+              title: clean(scope?.querySelector('#detail-title,.title')?.innerText, 200),
+              author: clean(document.querySelector('.author-wrapper .username')?.innerText, 120)};
+          }
         }
       } else {
         const section = unwrap(kind === 'search' ? state.search : state.feed ?? state.homeFeed);
