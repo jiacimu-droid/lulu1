@@ -308,7 +308,8 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        assertEquals(6, upgraded.getInt("jiangDuPresetVersion"))
+        // The current migration runs through v6, v7 and v8 in one launch.
+        assertEquals(8, upgraded.getInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuSpeechHabits,
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])

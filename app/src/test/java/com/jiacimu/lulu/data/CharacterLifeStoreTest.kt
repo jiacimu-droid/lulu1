@@ -327,11 +327,17 @@ class CharacterLifeStoreTest {
         val prefs = context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
         val legacyRoot = CharacterLifeStore.state(normal.characterId).apply {
             put("jiangDuPresetVersion", 4)
+            // Simulate a genuine v4 archive, without audit snapshots produced
+            // by the earlier v8 setup of this test fixture.
+            remove("jiangDuV8PreviousConstraints")
+            remove("jiangDuV8CurrentConstraints")
             getJSONObject("profile").remove("speechHabits")
             getJSONObject("profile").put("expression", CharacterProfileSchema.previousJiangDuExpression)
         }
         val customRoot = CharacterLifeStore.state(customized.characterId).apply {
             put("jiangDuPresetVersion", 4)
+            remove("jiangDuV8PreviousConstraints")
+            remove("jiangDuV8CurrentConstraints")
         }
         assertTrue(prefs.edit().putString(normal.characterId, legacyRoot.toString())
             .putString(customized.characterId, customRoot.toString()).commit())
