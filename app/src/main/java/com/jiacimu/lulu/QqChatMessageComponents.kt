@@ -679,12 +679,13 @@ private fun GameInviteMessageCard(invite: GameInviteMessage, onAccept: () -> Uni
     }
 }
 
-private fun splitCharacterBubbles(text: String): List<String> = text
-    .replace("\r\n", "\n")
-    .trim()
-    .split(Regex("\n+"))
-    .map(String::trim)
-    .filter(String::isNotBlank)
+/**
+ * Each persisted character message is already one model-selected bubble.
+ * Newlines inside that message are only text layout, never another send event.
+ * Splitting them here made a single TTS message appear as multiple chat bubbles.
+ */
+internal fun splitCharacterBubbles(text: String): List<String> =
+    text.replace("\r\n", "\n").trim().takeIf(String::isNotBlank)?.let(::listOf).orEmpty()
 
 @Composable
 internal fun QqGroupAvatar(group: LuluGroupChat, size: Int) {
