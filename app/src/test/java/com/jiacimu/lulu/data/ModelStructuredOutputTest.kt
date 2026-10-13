@@ -72,6 +72,23 @@ class ModelStructuredOutputTest {
         )
     }
 
+    @Test fun aRetryKeepsFinishedBubblesWhenOptionalInnerStateIsTruncated() {
+        val raw = """{"action":"reply","bubbles":["第一句话完整。","第二句话完整。"],"innerThought":"这段没生成完"""
+        assertEquals(
+            listOf("第一句话完整。", "第二句话完整。"),
+            ModelStructuredOutput.replyBubblesWithPartialState(raw),
+        )
+    }
+
+    @Test fun aRetryDoesNotRecoverUnfinishedOrToolOnlyPayload() {
+        assertNull(ModelStructuredOutput.replyBubblesWithPartialState(
+            """{"action":"reply","bubbles":["还没完成""",
+        ))
+        assertNull(ModelStructuredOutput.replyBubblesWithPartialState(
+            """{"action":"tool","bubbles":["假装执行完成"]}""",
+        ))
+    }
+
     @Test fun incompleteTextIsNotRecovered() {
         val response = """{"action":"reply","text":"第一句话还没"""
         assertNull(ModelStructuredOutput.completedReplyText(response))
