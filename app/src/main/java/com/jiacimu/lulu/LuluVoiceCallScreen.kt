@@ -82,7 +82,6 @@ fun LuluVoiceCallScreen(
             LuluVoiceCallSession.dial() else LuluVoiceCallSession.reportPermissionDenied()
     }
 
-    val callPrefs = remember(context) { context.getSharedPreferences("lulu_advanced_settings", 0) }
     val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
     val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接电话模型"
