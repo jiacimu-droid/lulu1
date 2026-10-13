@@ -6,6 +6,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.first
 import org.json.JSONObject
 import org.junit.Assert.*
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -15,6 +17,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class PersonalCharacterSettingsTest {
+    @Before @After fun reconnectLifeStoreToCurrentRobolectricApplication() {
+        // Robolectric recreates the application, while Kotlin objects can retain
+        // a previous test's SharedPreferences instance in the same sandbox.
+        CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(CharacterLifeStore, null)
+    }
+
     @Test fun personalMemoryPolicySurvivesReloadAndDoesNotAlterOtherCharacters() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         val repository = LocalMemoryRepository().apply { initialize(context) }
@@ -53,6 +62,9 @@ class PersonalCharacterSettingsTest {
         // Speech rendering and a live voice snapshot both use this identity builder.
         assertTrue(CharacterSpeechIdentity.promptSection(a.characterId, includeConfigured = false)
             .contains("偏少"))
+        reconnectLifeStoreToCurrentRobolectricApplication()
+        CharacterLifeStore.initialize(context)
+        assertEquals("restrained", CharacterExpressionPreferences.selected(a.characterId, "kaomoji"))
         CharacterLifeStore.clearHistory(a.characterId)
         assertEquals("restrained", CharacterExpressionPreferences.selected(a.characterId, "kaomoji"))
     }

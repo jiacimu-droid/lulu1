@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T03:47:22.111025+00:00",
+  "generatedAt": "2026-10-13T03:55:49.487834+00:00",
   "commit": "local",
   "branch": "local",
-  "sourceFingerprint": "920d3fc1834ae8e9ef52780a19ac05d6f2c8a063e6500a2e16fa38d84bbe2a58",
+  "sourceFingerprint": "2a8ba773b9c3f1b2611201b6ba3417bcec31f0995cb8fd2390343379538695a9",
   "summary": {
     "files": 587,
-    "lines": 116657,
+    "lines": 116669,
     "symbols": 1768
   },
   "symbolIndex": {
@@ -9713,7 +9713,7 @@
     "PersonalCharacterSettingsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt",
-        "line": 17
+        "line": 19
       }
     ],
     "ProactiveQuietDecisionTest": [
@@ -20578,12 +20578,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt",
-      "lines": 60,
-      "sha256": "bd2ae0f1f64fbbcbbb29c7b83337537dbd8ffb07e2592c8a08a7e1bb9b4e852f",
+      "lines": 72,
+      "sha256": "96960567d55daabf70600a1264ef81a1a38bc9e14a47cf71a7b58dce404cdca8",
       "symbols": [
         {
           "name": "PersonalCharacterSettingsTest",
-          "line": 17
+          "line": 19
         }
       ]
     },

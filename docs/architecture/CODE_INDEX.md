@@ -3,7 +3,7 @@
 - 基准提交：`local`
 - 分支：`local`
 - 已索引文件：587
-- 已索引代码/文本行：116657
+- 已索引代码/文本行：116669
 - 已发现符号：1768
 
 | 文件 | 行数 | 符号数 |
@@ -561,7 +561,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 74 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 60 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
