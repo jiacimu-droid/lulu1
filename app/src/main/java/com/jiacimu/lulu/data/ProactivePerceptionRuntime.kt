@@ -644,7 +644,48 @@ object ProactivePerceptionRuntime {
             content = "角色处于在线窗口，本次感知实际读取了当前时间与获准读取的设备状态；新增聊天=${onlineUnread.text.isNotBlank()}；新增场景观察=${observedWorld.size}",
             occurredAt = now, triggerExtraction = false, source = "online-awareness",
             evidenceKind = EventEvidenceKind.Observation)
-        val parsed = parseDecision(result.text, actionOnly = false) ?: run {
+        val initialDecision = parseDecision(result.text, actionOnly = false)
+        // The screenshot's "未知能力：" came from an empty tool name reaching the
+        // executor. A pending chat deserves one bounded correction using the
+        // SAME character and decision context, not an empty ToolRouter call.
+        val invalidTool = initialDecision?.action == Action.TOOL &&
+            CapabilityRegistry.find(initialDecision.tool).let { it == null }
+        val recoveredDecision = if (invalidTool && onlineUnread.text.isNotBlank()) {
+            val correction = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = buildString {
+                    appendLine("当前真实用户消息：${onlineUnread.text.takeLast(1_400)}")
+                    appendLine("上一轮已做出的判断（其中工具名称无效，未执行）：${result.text.take(1_300)}")
+                    appendLine("当前角色真正可以选择的操作：")
+                    appendLine(CompanionActionRuntime.capabilityContext(appContext, characterId, false).take(2_800))
+                    appendLine("小红书阅读工具只有在已启用并获授权时才可以用。")
+                },
+                instruction = """
+                    你仍是同一角色，本轮只是修正一个格式错误的动作，不重做心理状态或编造事件。
+                    上一轮 action=tool 但工具名称无效，尚未执行，也没有给对方发消息。
+                    请选择真实合法的行动并输出简洁 JSON。若确实想读小红书且该能力已授权，
+                    用 {"action":"tool","tool":"read_xiaohongshu","args":{"keyword":"你自己想看的关键词"},"reason":"角色真实缘由"}。
+                    若决定先回应用户，可用 {"action":"message","text":"完整且自然的实际回复","reason":"真实缘由"}。
+                    如果此刻不想行动，可用 {"action":"silent","reason":"为什么选择暂时安静"}。
+                    不能返回空 tool、编造已阅读、代替真实执行回执，也不要把这个格式问题告诉用户。
+                """.trimIndent(),
+                source = "同次自主决定·无效动作补正",
+                title = "${character.displayName}修正行动格式",
+                maxTokens = 900,
+                connectionOverride = connection,
+            ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
+            correction?.takeUnless { it.action == Action.TOOL &&
+                CapabilityRegistry.find(it.tool) == null }?.copy(
+                innerLife = initialDecision?.innerLife,
+                appraisal = initialDecision?.appraisal,
+                innerThought = initialDecision?.innerThought.orEmpty(),
+                innerThoughtBasis = initialDecision?.innerThoughtBasis,
+                intention = initialDecision?.intention,
+                afterglow = initialDecision?.afterglow,
+                mood = initialDecision?.mood.orEmpty(),
+            )
+        } else null
+        val parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
@@ -653,7 +694,8 @@ object ProactivePerceptionRuntime {
             if (onlineUnread.text.isNotBlank()) {
                 (onlineUnread.conversationIds + conversation.id).forEach { id ->
                     com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
-                        "模型输出过长或格式不完整，消息没有送达。请点击回复重试；本次不会假装已经回复。"
+                        if (invalidTool) "模型未返回有效工具，消息仍未回复，可点击「回复」重试"
+                        else "模型输出格式不完整，消息仍未回复，可点击「回复」重试"
                     )
                 }
             }
@@ -1169,7 +1211,7 @@ object ProactivePerceptionRuntime {
             decision.action != Action.SILENT) {
             (onlineUnread.conversationIds + conversation.id).forEach { id ->
                 com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
-                    "回复动作执行失败：${execution.summary.take(100)}，没有标记你的消息为已处理"
+                    "本轮未能完成回复，消息仍保留待处理；请点「回复」重试"
                 )
             }
         }
@@ -1191,6 +1233,10 @@ object ProactivePerceptionRuntime {
         if (!CharacterBehaviorMotivation.permitsExternalAction(
                 (if (decision.action == Action.TOOL) decision.tool else decision.action.name.lowercase()), decision.reason, decision.appraisal, decision.innerLife,
             )) return ActionExecution(false, "角色本轮没有提出行动动机，未执行外部动作")
+        if (decision.action == Action.TOOL &&
+            CapabilityRegistry.find(decision.tool) == null) {
+            return ActionExecution(false, "模型未提供有效的工具名称，尚未执行")
+        }
         val tool = when (decision.action) {
             Action.MESSAGE, Action.KAOMOJI -> "send_private_message"
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI -> "send_group_message"
