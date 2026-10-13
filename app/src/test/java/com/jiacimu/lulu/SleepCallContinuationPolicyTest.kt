@@ -20,7 +20,7 @@ class SleepCallContinuationPolicyTest {
         assertEquals(12_000L, SleepCallContinuationPolicy.nextPauseMillis(20 * 60_000L))
         assertEquals(12_000L, SleepCallContinuationPolicy.nextPauseMillis(40 * 60_000L - 1L))
         assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(40 * 60_000L))
-        assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(60 * 60_000L))
+        assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(45 * 60_000L))
     }
 
     @Test fun unattendedSleepCallEndsOnlyAfterDeadlineAndNoAudibleOrUserSpeech() {
@@ -30,13 +30,13 @@ class SleepCallContinuationPolicyTest {
                 userSpeaking, audioBusy)
         assertFalse(canEnd(20 * 60_000L))
         assertFalse(canEnd(40 * 60_000L))
-        assertFalse(canEnd(60 * 60_000L - 1L))
-        assertTrue(canEnd(60 * 60_000L))
-        assertTrue(canEnd(62 * 60_000L))
-        assertFalse(canEnd(60 * 60_000L, connected = false))
-        assertFalse(canEnd(60 * 60_000L, enabled = false))
-        assertFalse(canEnd(60 * 60_000L, userSpeaking = true))
-        assertFalse(canEnd(60 * 60_000L, audioBusy = true))
+        assertFalse(canEnd(45 * 60_000L - 1L))
+        assertTrue(canEnd(45 * 60_000L))
+        assertTrue(canEnd(47 * 60_000L))
+        assertFalse(canEnd(45 * 60_000L, connected = false))
+        assertFalse(canEnd(45 * 60_000L, enabled = false))
+        assertFalse(canEnd(45 * 60_000L, userSpeaking = true))
+        assertFalse(canEnd(45 * 60_000L, audioBusy = true))
         // Any newly recognized response resets the elapsed-silence input.
         assertFalse(canEnd(0L))
     }
