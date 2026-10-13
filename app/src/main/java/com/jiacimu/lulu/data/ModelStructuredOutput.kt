@@ -111,6 +111,51 @@ internal object ModelStructuredOutput {
     }
 
     /**
+     * A retry can finish its speech bubbles but run out of tokens while writing optional
+     * inner state. Recover ONLY a fully closed JSON speech array; no partial tools or
+     * half-written words are accepted. The missing mental fields remain absent.
+     */
+    fun replyBubblesWithPartialState(raw: String): List<String>? {
+        completedReplyBubbles(raw)?.let { return it }
+        val action = Regex(""""action"\\s*:\\s*"([^"]+)"""").find(raw)
+            ?.groupValues?.getOrNull(1)?.lowercase()
+        if (action != null && action != "reply") return null
+        val marker = Regex(""""bubbles"\\s*:\\s*\\[""").find(raw)
+        if (marker != null) {
+            val start = raw.indexOf('[', marker.range.first)
+            var inString = false
+            var escaped = false
+            var depth = 0
+            for (i in start until raw.length) {
+                when {
+                    inString && escaped -> escaped = false
+                    inString && raw[i] == '\\' -> escaped = true
+                    inString && raw[i] == '"' -> inString = false
+                    raw[i] == '"' -> inString = true
+                    raw[i] == '[' -> depth++
+                    raw[i] == ']' -> {
+                        depth--
+                        if (depth == 0) {
+                            val array = runCatching {
+                                org.json.JSONArray(raw.substring(start, i + 1))
+                            }.getOrNull() ?: return null
+                            return (0 until array.length()).mapNotNull { index ->
+                                val value = array.opt(index)
+                                val bubble = if (value is JSONObject) value.optString("text")
+                                    else array.optString(index)
+                                bubble.trim().takeIf(String::isNotBlank)?.take(2_000)
+                            }.take(3).takeIf { it.isNotEmpty() }
+                        }
+                    }
+                }
+            }
+            return null
+        }
+        // An entirely completed "text" field is still a valid one-bubble reply.
+        return completedReplyText(raw)?.let(::listOf)
+    }
+
+    /**
      * Recover only a *completed* speech text field from a truncated chat envelope.
      * Invalid command parameters are never executed or marked successful.
      */
