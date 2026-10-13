@@ -32,6 +32,7 @@
         android:allowBackup="true"
         android:icon="@drawable/lulu_exact_icon"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/lulu_mcp_network_security_config"
         android:roundIcon="@drawable/lulu_exact_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Lulu">
