@@ -68,6 +68,8 @@ object CharacterDevelopmentStore {
                 saved.optString("jiangDuLanguageCurrentConstraints"),
             saved.optString("jiangDuUnifiedPreviousConstraints") to
                 saved.optString("jiangDuUnifiedCurrentConstraints"),
+            saved.optString("jiangDuV8PreviousConstraints") to
+                saved.optString("jiangDuV8CurrentConstraints"),
         )
         val authorized = linkedSetOf(current)
         var changed: Boolean
