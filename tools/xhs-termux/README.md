@@ -60,6 +60,32 @@ cd ~/.lulu/xhs-termux && PUPPETEER_EXECUTABLE_PATH="$(command -v chromium-browse
 
 成功后，回露露机检查账号登录状态。Termux 脚本不需要露露机参与，也不执行发帖、点赞等操作。
 
+## 可选：用 Termux:X11 图形化 Chromium 登录（对照普通手机浏览器）
+
+当 **普通手机浏览器能打开小红书登录页面，但 Termux 无头 Chromium 被错误码 300012 拒绝**，可以尝试可见窗口登录。注意：安卓浏览器和 Termux 浏览器并不共享登录数据；图形模式也不保证能通过平台安全检查。遇到平台限制应停止重试。
+
+1. 在 [Termux:X11 官方 nightly 发布页](https://github.com/termux/termux-x11/releases/tag/nightly) 安装 `termux-x11-universal-debug.apk`（是安卓 App，不是终端命令）。**无需安装整个 XFCE 桌面**；我们只需要打开 Chromium 窗口。
+2. Termux 中安装配套 X11 服务（已安装 x11-repo 才能找到）：
+
+```bash
+apt install -y termux-x11-nightly
+```
+
+3. 启动 X11 后显示 Chromium 浏览器：
+
+```bash
+termux-x11 :1 >/dev/null 2>&1 &
+am start -n com.termux.x11/com.termux.x11.MainActivity
+curl -fL --retry 2 -o ~/.lulu/xhs-termux/login-visible.mjs https://raw.githubusercontent.com/jiacimu-droid/lulu1/main/tools/xhs-termux/login-visible.mjs
+cd ~/.lulu/xhs-termux && DISPLAY=:1 node login-visible.mjs
+```
+
+切换到 **Termux:X11 App** 观察可见的 Chromium 网页；在网站提供的登录界面中手动完成登录，随后回 Termux 按回车。脚本使用专门的浏览器数据目录 `~/.lulu/xhs-termux/visible-chrome-profile`，若发现有效网页登录 Cookie，会写入 MCP 已使用的私有文件 `~/.lulu/xhs-termux/cookies.json`（0600 权限），使服务沿用登录态。**不用把 Cookie 复制到聊天或上传到网上**。
+
+MCP 服务可继续在后台运行；如果登录后账号检查因平台拒绝再次失败，说明图形化登录并未解决网站对自动访问的限制。
+
+如 Termux:X11 中 Chromium 窗口显示不完整，可按官方说明再配置轻量窗口管理器；目前首先验证能否打开登录页即可。没必要在验证之前安装完整桌面或重新安装 MCP。
+
 ## 第三步：允许角色使用
 
 角色设置 → 主动执行授权 → 启用 **主动逛小红书（只读）**。之后你可以在聊天里说「去小红书搜一篇关于小猫的帖子，读完再说说你的想法」，也允许角色在后台感知时根据兴趣自己选择搜索/推荐阅读。
