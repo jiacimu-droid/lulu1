@@ -126,10 +126,28 @@ test('note click avoids the website modal and preserves the token', () => {
   assert.equal(event.prevented, true); assert.equal(event.stopped, true);
   assert.equal(b.messages[0].token, 'token+/='); assert.equal(b.messages[0].kind, 'note');
 });
-test('SPA search navigates to native reading without waiting for the white overlay', () => {
+test('SPA search keeps the real page alive until results are actually available', () => {
   const b = navigationBrowser();
+  const ticks = [];
+  b.sandbox.setInterval = callback => { ticks.push(callback); return 1; };
+  b.sandbox.clearInterval = () => {};
   b.sandbox.history.pushState(null, '', '/search_result?keyword=%E7%8C%AB');
-  assert.deepEqual(b.messages[0], {kind: 'search-start', keyword: '猫'});
+  assert.deepEqual(b.messages, [{kind: 'search-start', keyword: '猫'}]);
+  ticks[0]();
+  assert.deepEqual(b.messages[1], {kind: 'search-ready', keyword: '猫'});
+  assert.equal(b.snapshot('search', '', '猫').items[0].id, id);
+});
+test('a stalled visible search reports a failure rather than pretending to have read notes', () => {
+  const b = navigationBrowser();
+  const ticks = [];
+  b.sandbox.setInterval = callback => { ticks.push(callback); return 1; };
+  b.sandbox.clearInterval = () => {};
+  // Simulate an unrendered page without genuine search state or DOM cards.
+  b.sandbox.__INITIAL_STATE__ = {feed: {feeds: [row()]}};
+  b.sandbox.history.pushState(null, '', '/search_result?keyword=%E8%AE%B0%E8%80%85');
+  for (let i = 0; i < 30; i++) ticks[0]();
+  assert.equal(b.messages.some(message => message.kind === 'search-ready'), false);
+  assert.deepEqual(b.messages.at(-1), {kind: 'search-stalled', keyword: '记者', reason: 'empty-page'});
 });
 test('login/profile links remain in the visible website', () => {
   const b = navigationBrowser(); const event = b.click('https://www.xiaohongshu.com/user/profile/123');
