@@ -10,6 +10,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -222,10 +223,64 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
             )
         },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            // Keep WebView attached for its same-process session cookies and SSR.
+            // Keep a real-sized browser behind opaque native UI so the site can hydrate.
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { ctx ->
+                    WebView(ctx).apply {
+                        settings.javaScriptEnabled = true
+                        settings.domStorageEnabled = true
+                        settings.allowFileAccess = false
+                        settings.allowContentAccess = false
+                        settings.allowUniversalAccessFromFileURLs = false
+                        settings.allowFileAccessFromFileURLs = false
+                        settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                        settings.userAgentString = desktopUserAgent
+                        CookieManager.getInstance().setAcceptCookie(true)
+                        CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
+                        webViewClient = object : WebViewClient() {
+                            override fun onPageFinished(view: WebView?, url: String?) {
+                                val target = view ?: return
+                                val seq = sequence
+                                val currentPage = page
+                                val host = runCatching { Uri.parse(url.orEmpty()).host }.getOrNull()
+                                if (host != "www.xiaohongshu.com") {
+                                    loading = false
+                                    message = "网站跳转到了其他地址，可能触发登录或访问限制。"
+                                    return
+                                }
+                                target.postDelayed({ inspect(target, currentPage, seq, 0) }, 800L)
+                            }
+                            override fun onReceivedError(
+                                view: WebView?,
+                                request: WebResourceRequest?,
+                                error: WebResourceError?,
+                            ) {
+                                if (request?.isForMainFrame == true) {
+                                    loading = false
+                                    message = "网页连接失败：" + error?.description?.toString().orEmpty().take(100)
+                                }
+                            }
+                        }
+                        web = this
+                        loadUrl(XHS_HOME)
+                    }
+                },
+                onRelease = { view ->
+                    if (web === view) web = null
+                    view.stopLoading()
+                    view.webViewClient = WebViewClient()
+                    view.destroy()
+                },
+            )
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
             if (page != XhsReaderPage.Note) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -299,57 +354,7 @@ internal fun LuluXhsNativeReaderScreen(onBack: () -> Unit) {
                 }
             }
 
-            // Keep WebView attached for its same-process session cookies and SSR.
-            // The 1dp view is not an interactive website; all reading UI is native.
-            AndroidView(
-                modifier = Modifier.fillMaxWidth().height(1.dp),
-                factory = { ctx ->
-                    WebView(ctx).apply {
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-                        settings.allowFileAccess = false
-                        settings.allowContentAccess = false
-                        settings.allowUniversalAccessFromFileURLs = false
-                        settings.allowFileAccessFromFileURLs = false
-                        settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
-                        settings.userAgentString = desktopUserAgent
-                        CookieManager.getInstance().setAcceptCookie(true)
-                        CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
-                        webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                val target = view ?: return
-                                val seq = sequence
-                                val currentPage = page
-                                val host = runCatching { Uri.parse(url.orEmpty()).host }.getOrNull()
-                                if (host != "www.xiaohongshu.com") {
-                                    loading = false
-                                    message = "网站跳转到了其他地址，可能触发登录或访问限制。"
-                                    return
-                                }
-                                target.postDelayed({ inspect(target, currentPage, seq, 0) }, 800L)
-                            }
-                            override fun onReceivedError(
-                                view: WebView?,
-                                request: WebResourceRequest?,
-                                error: WebResourceError?,
-                            ) {
-                                if (request?.isForMainFrame == true) {
-                                    loading = false
-                                    message = "网页连接失败：" + error?.description?.toString().orEmpty().take(100)
-                                }
-                            }
-                        }
-                        web = this
-                        loadUrl(XHS_HOME)
-                    }
-                },
-                onRelease = { view ->
-                    if (web === view) web = null
-                    view.stopLoading()
-                    view.webViewClient = WebViewClient()
-                    view.destroy()
-                },
-            )
+            }
         }
     }
 }
