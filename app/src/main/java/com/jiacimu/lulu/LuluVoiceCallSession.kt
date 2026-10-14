@@ -617,6 +617,8 @@ internal object LuluVoiceCallSession {
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) return
         LuluCallRingtone.stopAll()
+        lastPhoneXhsRequest = ""
+        lastPhoneXhsRequestAt = 0L
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         resetSystemRecognitionTurn()
