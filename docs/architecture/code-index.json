@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T11:23:20.055113+00:00",
-  "commit": "50a789d68076a00aeab08831ca22c84b4cc30e31",
+  "generatedAt": "2026-10-14T11:24:15.450638+00:00",
+  "commit": "404906debb0f35f5987dcaa6b3ca48025a5c7b04",
   "branch": "main",
-  "sourceFingerprint": "c4d89acd12f1a8f31ba3485a6e23aecbba7d0cd9ca136a91e4250bae944123c3",
+  "sourceFingerprint": "18deab1df6dc3444bd820bf1495d44315b0bf47d63f9b132f2dd753506f91fc9",
   "summary": {
     "files": 632,
-    "lines": 126497,
+    "lines": 126514,
     "symbols": 1874
   },
   "symbolIndex": {
@@ -20779,8 +20779,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 84,
-      "sha256": "6a291a5944e5620d9f16e495a873f9a8aaba00e5b730127f068cbd0e8bfcf890",
+      "lines": 101,
+      "sha256": "c4309cb84321dfa0fcc6aa4542ef7a624b1ade5295b2e56f0abd2754e3cbc87f",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
