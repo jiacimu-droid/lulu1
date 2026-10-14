@@ -438,6 +438,27 @@ internal object XhsReadingEngine {
             .appendQueryParameter("source", "web_explore_feed").build().toString()
     }
 
+    /**
+     * UI search/home buttons share the SAME navigation mutex as the role's
+     * verified reads. A tap cannot stop an in-flight note acquisition and
+     * silently cause another page's content to be attributed to that note.
+     */
+    suspend fun navigateFromUi(view: WebView, url: String) =
+        withContext(Dispatchers.Main.immediate) {
+            val target = Uri.parse(url)
+            require(target.scheme == "https" &&
+                target.host in setOf("www.xiaohongshu.com", "xiaohongshu.com")) {
+                "只允许在应用内导航到小红书页面"
+            }
+            navigation.withLock {
+                require(visibleBrowser?.get() === view && view.isAttachedToWindow) {
+                    "当前网页登录页面已退出，请重新打开小红书"
+                }
+                view.stopLoading()
+                view.loadUrl(url)
+            }
+        }
+
     private suspend fun loadPage(
         context: Context, url: String, kind: String, id: String, keyword: String,
         onProgress: (String) -> Unit,
