@@ -41,6 +41,22 @@ import com.jiacimu.lulu.study.StudyRemovedFeatureMigration
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 
 class MigrationActivity : ComponentActivity() {
+    // Activity-scoped owner survives Settings -> Chat -> Settings navigation.
+    // All XHS screens reuse the same WebView; it is never a singleton with a
+    // leaked Activity and is destroyed only when this Activity is destroyed.
+    internal val xhsAppBrowserSession by lazy { XhsAppBrowserSession(this) }
+
+    override fun onDestroy() {
+        if (xhsBrowserSessionInitialized) xhsAppBrowserSession.destroy()
+        super.onDestroy()
+    }
+
+    private var xhsBrowserSessionInitialized = false
+    internal fun browserSession(): XhsAppBrowserSession {
+        xhsBrowserSessionInitialized = true
+        return xhsAppBrowserSession
+    }
+
     override fun onResume() {
         super.onResume()
         com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
