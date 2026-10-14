@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:22:23.625217+00:00",
-  "commit": "2fabd7ea27f85bf2c460e837a04001a11e9be4cf",
+  "generatedAt": "2026-10-14T09:24:38.440965+00:00",
+  "commit": "fd83d9f4ef7e3e4dde08290ff5f8925769cfb332",
   "branch": "main",
-  "sourceFingerprint": "131566d85daabc9891d9d23a399205c8b735785c8ed1d53365681b40daa98c5b",
+  "sourceFingerprint": "ded26bbacfe5cbe8bc288adb9bbb8d35d9da197a481afb2fc6a12feff7d419ba",
   "summary": {
     "files": 628,
-    "lines": 125944,
+    "lines": 125949,
     "symbols": 1868
   },
   "symbolIndex": {
@@ -1755,19 +1755,19 @@
     "nativeBrowserClient": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 181
+        "line": 186
       }
     ],
     "startNativeReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 201
+        "line": 206
       }
     ],
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 276
+        "line": 281
       }
     ],
     "PendingTouch": [
@@ -11821,8 +11821,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 758,
-      "sha256": "b57e0b04951f83fac333ef156864e764d54d84385d69d84d8d020af71887c946",
+      "lines": 763,
+      "sha256": "ec4aa6ee1a4c351f1f515041025e69992860a1bfe4663e8b98dcc62538bfbd64",
       "symbols": [
         {
           "name": "failure",
@@ -11838,15 +11838,15 @@
         },
         {
           "name": "nativeBrowserClient",
-          "line": 181
+          "line": 186
         },
         {
           "name": "startNativeReadTest",
-          "line": 201
+          "line": 206
         },
         {
           "name": "back",
-          "line": 276
+          "line": 281
         }
       ]
     },
