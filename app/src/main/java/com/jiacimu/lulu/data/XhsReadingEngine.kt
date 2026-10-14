@@ -443,6 +443,8 @@ internal object XhsReadingEngine {
                             current.path == requested.path &&
                             current.getQueryParameter("keyword") == keyword
                         if (!(sameSearch || view.url == url)) view.loadUrl(url)
+                        val navigationStartedAt = System.currentTimeMillis()
+                        var triedSiteSearchInput = false
                         while (true) {
                             delay(350)
                             check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
@@ -466,6 +468,28 @@ internal object XhsReadingEngine {
                             if (root.optJSONObject("note") != null || (root.optJSONArray("items")?.length() ?: 0) > 0 || root.optBoolean("empty"))
                                 return@withLock root
                             check(reason != "login") { "请先在小红书网页完成登录" }
+                            // Some XHS sessions redirect a direct search URL
+                            // back to /explore. Only then make ONE normal search
+                            // input interaction on the existing logged-in page.
+                            // Never simultaneously click and reload the route.
+                            if (kind == "search" && !triedSiteSearchInput &&
+                                System.currentTimeMillis() - navigationStartedAt >= 4_500L &&
+                                !root.optBoolean("onPage")) {
+                                val currentPath = Uri.parse(view.url.orEmpty()).path.orEmpty()
+                                if (currentPath in setOf("/", "/explore")) {
+                                    triedSiteSearchInput = true
+                                    stage("网站未进入搜索页，尝试现有搜索框")
+                                    val jsResult = evaluate(view, script +
+                                        "\nwindow.__luluXhsReader?.startSearch(${JSONObject.quote(keyword)});")
+                                    val outcome = runCatching {
+                                        JSONTokener(jsResult).nextValue() as String
+                                    }.getOrDefault("")
+                                    if (outcome == "input-missing") {
+                                        stage("网页未显示可操作的搜索框")
+                                        error("网页仍在首页，且没有可操作的搜索框。请展开内置网页检查登录或网站限制")
+                                    }
+                                }
+                            }
                             // Do not click search twice or reload a working SPA.
                             // The website itself decides when search data is ready;
                             // snapshot watches the same page and reports its actual
