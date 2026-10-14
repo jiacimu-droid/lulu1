@@ -40,8 +40,11 @@ class XhsBrowserSessionTest {
             XhsReadingEngine.attachBrowser(browser)
             session.park(browser)
             assertTrue("A temporary page exit must not delete the web session", session.hasBrowser())
+            assertNotNull("Foreground parking slot must keep the SPA view parented", browser.parent)
             assertSame("A second reader opens exactly the same WebView", browser, session.reuse())
-            assertFalse("A parked browser must not pretend to be active",
+            assertNull("Reopened browser must be detached from parking host until AndroidView attaches",
+                browser.parent)
+            assertFalse("Activity is not yet resumed for character reads",
                 XhsReadingEngine.available(activity))
         } finally {
             session.destroy()
