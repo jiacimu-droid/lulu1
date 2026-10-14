@@ -108,7 +108,7 @@ internal fun QqXhsSharedNoteCard(
                 overflow = TextOverflow.Ellipsis)
             HorizontalDivider(color = Color(0xFFF2EEEE))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(if (note.verified) "已附正文 · 点击查看详情" else "分享链接 · 点击查看",
+                Text(if (note.body.isNotBlank()) "已附正文 · 点击查看详情" else if (note.verified) "已读取笔记 · 点击查看详情" else "分享链接 · 点击查看",
                     modifier = Modifier.weight(1f), fontSize = 11.sp, color = secondaryInk)
                 Text("查看  ›", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = xhsRed)
             }
