@@ -52,3 +52,30 @@ internal object CharacterSocialActionOpportunities {
         }.trim()
     }
 }
+
+
+/**
+ * Capture an EXPRESSLY authored unresolved phone wish without turning every
+ * mention of "favorite" into a mandatory action. This is a private concern,
+ * not a saved message or an instruction to act without a verified target.
+ */
+internal object CharacterDeferredFavoritePolicy {
+    fun concern(innerThought: String, spoken: String, hasVerifiedUserMessage: Boolean): org.json.JSONObject? {
+        if (!hasVerifiedUserMessage) return null
+        val privateWish = Regex("""(?:我|自己).{0,9}(?:想|打算|准备|舍不得不).{0,22}收藏""")
+            .containsMatchIn(innerThought) &&
+            !Regex("""(?:不想|没想|不打算|不准备|只是如果|假如)""").containsMatchIn(innerThought)
+        val outwardPromise = Regex("""(?:挂(?:断|了)电话|电话结束|通话结束).{0,20}(?:再|以后|之后).{0,18}收藏""")
+            .containsMatchIn(spoken)
+        if (!privateWish && !outwardPromise) return null
+        return org.json.JSONObject()
+            .put("status", "open")
+            .put("topicKey", "phone-deferred-favorite")
+            .put("focus", "想从刚才真实听到的用户原话里挑一句珍藏，但尚未收藏")
+            .put("whyItMatters", if (privateWish) innerThought.trim().take(140)
+                else "自己在电话里说了稍后收藏，但还没有执行或得到回执")
+            .put("hesitation", "先确认究竟是哪条仍然存在的用户原话，不能猜消息 ID")
+            .put("possibleNextStep", "有空时核对原始消息及ID，再自主决定是否调用 favorite_user_message；成功回执前不说已收藏")
+            .put("priority", 2)
+    }
+}
