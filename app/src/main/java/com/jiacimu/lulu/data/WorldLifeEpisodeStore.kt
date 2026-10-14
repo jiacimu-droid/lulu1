@@ -50,6 +50,14 @@ internal object WorldLifeEpisodeStore {
         .asSequence().flatMap { it.asSequence() }
         .firstOrNull { it.id == id }
 
+    /** A location outing is one chapter, even when successive perceptions
+     * independently execute small, verified actions inside that same place. */
+    fun recentAt(characterId: String, location: String, now: Instant = Instant.now()):
+        WorldLifeEpisode? = episodes(characterId).lastOrNull()?.takeIf { episode ->
+            episode.location == location &&
+                java.time.Duration.between(episode.occurredAt, now).toMinutes() in 0..35
+        }
+
     /** Called only after the world executor has committed its actual action. */
     @Synchronized fun record(
         characterId: String,
