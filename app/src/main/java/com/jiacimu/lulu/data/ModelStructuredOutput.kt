@@ -172,7 +172,7 @@ internal object ModelStructuredOutput {
             }.take(8)
             // Structured model output owns the send boundaries. Once bubbles are valid JSON,
             // do not second-guess them with punctuation/length heuristics.
-            if (values.isNotEmpty()) return stabilizeReplyBubbles(values).take(5)
+            if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = 5)
         }
 
         return smoothInlineBreaks(json.optString("text"))
@@ -213,7 +213,7 @@ internal object ModelStructuredOutput {
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
                                 bubble.trim().takeIf(String::isNotBlank)?.take(2_000)
-                            }.let(::stabilizeReplyBubbles).take(5).takeIf { it.isNotEmpty() }
+                            }.let { readableReplyBubbles(it, maxBubbles = 5) }.takeIf { it.isNotEmpty() }
                         }
                     }
                 }
