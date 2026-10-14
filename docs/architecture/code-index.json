@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T05:41:37.011912+00:00",
-  "commit": "dd6d221c22292d66633d0e69cd6f7e4c5558ec50",
+  "generatedAt": "2026-10-14T06:12:34.503783+00:00",
+  "commit": "4248d07b5eb5176999f2ce2d21d5bc087b78932c",
   "branch": "main",
-  "sourceFingerprint": "f7276ab36c8a63ad1d4e1c1d431e511fee5bf527a4a6bc0e03cf8d3a702d0da4",
+  "sourceFingerprint": "f6498cfb78a1ab32f0d55e45edd8146052e37167614832e668fc1b32e05318a3",
   "summary": {
     "files": 616,
-    "lines": 123851,
+    "lines": 123856,
     "symbols": 1852
   },
   "symbolIndex": {
@@ -249,7 +249,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 77
+        "line": 80
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
@@ -701,7 +701,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 55
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
@@ -3783,7 +3783,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 61
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -6317,7 +6317,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 34
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
@@ -6757,13 +6757,13 @@
     "intervalMinutes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 31
+        "line": 33
       }
     ],
     "ProactivePerceptionPolicyStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 45
+        "line": 48
       }
     ],
     "ProactivePerceptionRuntime": [
@@ -16890,8 +16890,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-      "lines": 131,
-      "sha256": "7b1d9b9209ce43a5ed4e89450ede3d3ef0fe4c268ef53ac303a6cbe1e4d58b24",
+      "lines": 136,
+      "sha256": "2fea41f55aa333417dad4b47cd9054486e8595b2fbe486b2ea6613f89fafa4c2",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -16903,27 +16903,27 @@
         },
         {
           "name": "intervalMinutes",
-          "line": 31
+          "line": 33
         },
         {
           "name": "normalized",
-          "line": 34
+          "line": 36
         },
         {
           "name": "ProactivePerceptionPolicyStore",
-          "line": 45
+          "line": 48
         },
         {
           "name": "initialize",
-          "line": 55
+          "line": 58
         },
         {
           "name": "get",
-          "line": 61
+          "line": 64
         },
         {
           "name": "update",
-          "line": 77
+          "line": 80
         }
       ]
     },
