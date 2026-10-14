@@ -773,8 +773,10 @@ object ProactivePerceptionRuntime {
         // appraisal and action choice. Never spend on a SECOND optional
         // agency-recovery model call merely because it chose solitude.
         // Real unread messages and new scene/call events retain recovery.
-        val routineHeartbeat = trigger.startsWith("在线持续感知") ||
-            trigger.startsWith("合并后的自主生活回顾")
+        val routineHeartbeat = listOf(
+            "在线持续感知", "合并后的自主生活回顾", "真实生活后续回想",
+            "角色自己先前有过", "角色自己刚完成", "强烈情绪的后续整理",
+        ).any(trigger::startsWith)
         val shouldReview = !routineHeartbeat && (followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
             now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
             AutonomousDecisionRecovery.needsIndependentLifeReview(
