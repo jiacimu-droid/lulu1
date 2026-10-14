@@ -73,7 +73,7 @@ test('visible search links remain readable when site changes card CSS classes', 
     getAttribute: key => key === 'aria-label' ? '从真实搜索链接读取' : null,
     innerText: '真实笔记链接',
     closest: () => null,
-    getBoundingClientRect: () => ({height: 0})
+    getBoundingClientRect: () => ({width: 280, height: 160})
   };
   const b = browser({path: '/search_result?keyword=cat', elements: [cardLink],
     state: {search: {feeds: []}}});
@@ -83,6 +83,20 @@ test('visible search links remain readable when site changes card CSS classes', 
   assert.equal(notes[0].token, 'actual-token');
   assert.equal(notes[0].title, '从真实搜索链接读取');
 });
+test('hidden stale search links must not be mistaken for visible results', () => {
+  const hiddenLink = {
+    href: 'https://www.xiaohongshu.com/explore/' + id +
+      '?xsec_token=old-token&xsec_source=pc_feed',
+    getAttribute: () => null,
+    innerText: '隐藏的旧结果',
+    closest: () => null,
+    getBoundingClientRect: () => ({width: 0, height: 0})
+  };
+  const b = browser({path: '/search_result?keyword=cat', elements: [hiddenLink],
+    state: {search: {feeds: []}}});
+  assert.equal(b.snapshot('search', '', 'cat').items.length, 0);
+});
+
 test('client API response works when initial state is empty', async () => {
   const b = browser({payload: {success: true, code: 0, data: {items: [row()]}}});
   await b.receive();
