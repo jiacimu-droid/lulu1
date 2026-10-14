@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:51:40.878177+00:00",
-  "commit": "2346590a23f26957260522f453bb84e5976d8ca2",
+  "generatedAt": "2026-10-14T06:52:11.840077+00:00",
+  "commit": "f1dba132c9586dae9c5919f1935cc7b4d8ca67b4",
   "branch": "main",
-  "sourceFingerprint": "46941f1ba0f3146903fb175f9e1a43c33dc1ae8840e361511d094e8b9a2affe6",
+  "sourceFingerprint": "5eaa86665eeafcd6e3652fc0a0c665662afebf1568f03b08cc175f750079d0f1",
   "summary": {
     "files": 619,
-    "lines": 124549,
+    "lines": 124558,
     "symbols": 1861
   },
   "symbolIndex": {
@@ -14748,8 +14748,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 572,
-      "sha256": "edeaa1c9a68d978469fe3a335adee21b03f114fbed8ee680b025fd830a76c2aa",
+      "lines": 581,
+      "sha256": "fed1e84ff50b026f4c94f7cc5fbd20b2557292530c6148912befe82dffbd0b79",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
