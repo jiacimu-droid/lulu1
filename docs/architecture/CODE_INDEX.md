@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`25f8fca37da147513d641c5352e46e3c853f4dcf`
+- 基准提交：`5491460560c741aab648ad4a65d9aee8a88bccca`
 - 分支：`main`
-- 已索引文件：629
-- 已索引代码/文本行：126005
-- 已发现符号：1868
+- 已索引文件：630
+- 已索引代码/文本行：126035
+- 已发现符号：1869
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -344,6 +344,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 143 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 739 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |

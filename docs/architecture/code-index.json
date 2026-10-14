@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:55:44.828853+00:00",
-  "commit": "25f8fca37da147513d641c5352e46e3c853f4dcf",
+  "generatedAt": "2026-10-14T09:58:03.456478+00:00",
+  "commit": "5491460560c741aab648ad4a65d9aee8a88bccca",
   "branch": "main",
-  "sourceFingerprint": "4bacc66783e1d4d19cac3e6b52ba9f1c89d1d38514ca6d904aa7605a2edf6cce",
+  "sourceFingerprint": "c2420376496bfc3c7b8e6ceb4523b2969d6b29552819e06a36c2a613b9f6fb2b",
   "summary": {
-    "files": 629,
-    "lines": 126005,
-    "symbols": 1868
+    "files": 630,
+    "lines": 126035,
+    "symbols": 1869
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4220,6 +4220,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
         "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
+        "line": 17
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -17757,6 +17761,17 @@
         {
           "name": "recentContext",
           "line": 82
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
+      "lines": 30,
+      "sha256": "10fd15e47972576e02c4856b712989208db197ad44074ddb40803da1cc92abdf",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 17
         }
       ]
     },
