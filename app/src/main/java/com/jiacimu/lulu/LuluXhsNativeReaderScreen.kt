@@ -49,6 +49,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** Manual browsing and character tools use the same session, extraction and failure handling. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -340,9 +341,11 @@ internal fun LuluXhsNativeReaderScreen(
                     try {
                         val imageReading = if (openedArticle.images.isEmpty()) "" else {
                             val reading = visionText.takeIf { it.isNotBlank() } ?: run {
-                                val result = VisionModelService.describeXhsImages(
-                                    context, openedArticle.images.map { it.url }, openedArticle.body)
-                                result.getOrNull().orEmpty()
+                                val result = withTimeoutOrNull(30_000L) {
+                                    VisionModelService.describeXhsImages(
+                                        context, openedArticle.images.map { it.url }, openedArticle.body)
+                                }
+                                result?.getOrNull().orEmpty()
                             }
                             if (reading.isBlank()) "本帖有${openedArticle.images.size}张图片，但图片内容尚未识别成功，请勿当作已看见。"
                             else "图片理解（模型识别，未必准确，最多前6张）：\n" + reading.take(6000)
@@ -487,7 +490,8 @@ internal fun LuluXhsNativeReaderScreen(
                         val author = article?.author ?: target.author
                         Text(buildString {
                             append(if (author.isNotBlank()) "@$author" else "小红书原帖")
-                            if (article != null) append("   ·   已获取真实正文")
+                            if (article?.body?.isNotBlank() == true) append("   ·   已提取正文")
+                            else if (article?.images?.isNotEmpty() == true) append("   ·   已获取图片链接")
                             else append("   ·   等待阅读")
                         }, style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
