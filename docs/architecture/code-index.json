@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:54:58.451764+00:00",
-  "commit": "1536e5f5bd28e21838628a7ba050f07e7fff2361",
+  "generatedAt": "2026-10-14T06:55:11.959948+00:00",
+  "commit": "5ea463c51079b5e53134ce2c170f4030fc06d0e6",
   "branch": "main",
-  "sourceFingerprint": "110bb0d07ca9c84e68e5daf594ac696706c3d987a0cafb531121055e58b072a0",
+  "sourceFingerprint": "c01b6b3b672e959416c4eecc208cabd1809d8edb70d9b8878e5d71e8daaa50c7",
   "summary": {
     "files": 619,
-    "lines": 124587,
+    "lines": 124588,
     "symbols": 1861
   },
   "symbolIndex": {
@@ -15499,8 +15499,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1089,
-      "sha256": "2621203c6c7a99ae23e7515ff25cb01e6b654f222e61f7d075652e28633eeec6",
+      "lines": 1090,
+      "sha256": "c8bc454d8207f22418bded89cc5b23af92e11280808d131397a54d69bde7b149",
       "symbols": [
         {
           "name": "MeetingReality",
