@@ -423,6 +423,15 @@ object CompanionOnlineStore {
             // initial quiet window. Subsequent pulses are gentle, not an action quota.
             delay(onlinePulseMillis(characterId))
             while (isOnline(characterId)) {
+                // Near the five-minute boundary, the expiry appraisal already
+                // performs a full paid choice. Do not enqueue a second life
+                // model call just before it. Fresh chat/events are separate.
+                val untilMs = mutableStates.value[characterId]?.onlineUntil?.toEpochMilli() ?: 0L
+                val remainingMs = untilMs - System.currentTimeMillis()
+                if (remainingMs in 0L..60_000L) {
+                    delay(70_000L)
+                    continue
+                }
                 if (CompanionPresenceStore.isInCall(characterId) ||
                     MigratedDomainStores.chat.conversations.value.any {
                         it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
