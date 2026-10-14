@@ -63,12 +63,20 @@ internal fun MeetingUiHistory(
     meetings: List<MeetingSession>,
     onOpen: (String) -> Unit,
     onDelete: (MeetingSession) -> Unit,
+    episodes: List<WorldLifeEpisode> = emptyList(),
+    onOpenEpisode: (String) -> Unit = {},
+    onDeleteEpisode: (String) -> Unit = {},
 ) {
-    val participantIds = remember(meetings) { meetings.flatMap(MeetingSession::participantIds).toSet() }
+    val participantIds = remember(meetings, episodes) {
+        (meetings.flatMap(MeetingSession::participantIds) + episodes.map(WorldLifeEpisode::characterId)).toSet()
+    }
     val available = remember(characters, participantIds) { characters.filter { it.characterId in participantIds } }
     var selectedCharacterId by remember { mutableStateOf<String?>(null) }
     val visible = remember(meetings, selectedCharacterId) {
         meetings.asReversed().filter { selectedCharacterId == null || selectedCharacterId in it.participantIds }
+    }
+    val visibleEpisodes = remember(episodes, selectedCharacterId) {
+        episodes.asReversed().filter { selectedCharacterId == null || selectedCharacterId == it.characterId }
     }
     Column(modifier) {
         LazyRow(
@@ -85,7 +93,7 @@ internal fun MeetingUiHistory(
                 )
             }
         }
-        if (visible.isEmpty()) {
+        if (visible.isEmpty() && visibleEpisodes.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("还没有真正发生过的见面", color = LuluColors.Muted)
             }
@@ -95,6 +103,41 @@ internal fun MeetingUiHistory(
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                items(visibleEpisodes, key = { "life-" + it.id }) { episode ->
+                    Surface(
+                        onClick = { onOpenEpisode(episode.id) },
+                        color = LuluColors.Card,
+                        shape = RoundedCornerShape(18.dp),
+                        border = BorderStroke(1.dp, LuluColors.Border),
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(start = 14.dp, top = 12.dp, bottom = 12.dp, end = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Surface(color = LuluColors.CardStrong, shape = RoundedCornerShape(12.dp)) {
+                                Icon(Icons.Outlined.AutoStories, null, tint = LuluColors.BlueGray,
+                                    modifier = Modifier.padding(9.dp).size(20.dp))
+                            }
+                            Spacer(Modifier.width(11.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(episode.title, fontWeight = FontWeight.SemiBold, maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    MigratedDomainStores.characters.get(episode.characterId).displayName +
+                                        " · 独自生活 · " + episode.occurredAt.atZone(ZoneId.systemDefault())
+                                            .format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
+                                    color = LuluColors.Muted, fontSize = 11.sp, maxLines = 1,
+                                )
+                                Text(episode.scene.replace("\\n", " ").take(85) + " · 查看片段",
+                                    color = LuluColors.BlueGray, fontSize = 11.sp,
+                                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+                            IconButton(onClick = { onDeleteEpisode(episode.id) }) {
+                                Icon(Icons.Outlined.DeleteOutline, "删除生活片段", tint = LuluColors.Muted)
+                            }
+                        }
+                    }
+                }
                 items(visible, key = MeetingSession::id) { session ->
                     Surface(
                         onClick = { onOpen(session.id) },
