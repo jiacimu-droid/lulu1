@@ -261,6 +261,7 @@ internal class RealtimeVoiceAdapter(
             definition.promptSection(),
             CharacterDecisionProtocol.causalPrinciples,
             CharacterExpressionGuide.promptSection(),
+            CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE),
             CharacterSpeechIdentity.promptSection(id),
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
             CharacterRuntime.personalityRuntimeContext(id, compact = true, interactionKey = "direct:user"),
