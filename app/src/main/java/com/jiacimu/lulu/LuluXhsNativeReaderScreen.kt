@@ -443,10 +443,13 @@ internal fun LuluXhsNativeReaderScreen(
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
             }
             }
-            if (useEmbeddedBrowser) {
+            // In simplified reading, park the Activity-owned browser instead
+            // of displaying the SAME site as a distracting second mini-page.
+            // It remains attached for truthful extraction/navigation.
+            if (useEmbeddedBrowser && (showWebPreview || appBrowser == null)) {
                 AndroidView(
                     modifier = if (showWebPreview) Modifier.fillMaxWidth().weight(1f)
-                        else Modifier.fillMaxWidth().height(if (loading || smokeRunning) 240.dp else 112.dp),
+                        else Modifier.fillMaxWidth().height(180.dp),
                     factory = { ctx ->
                         val existing = appBrowser?.reuse()
                         if (existing != null) {
