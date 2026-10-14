@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:16:14.317793+00:00",
-  "commit": "37306fe4d767028c6cdf2e487e2aa5a28eeb7105",
+  "generatedAt": "2026-10-14T06:16:33.201725+00:00",
+  "commit": "4813599180d2188d7a3d29256e092a810a595ec1",
   "branch": "main",
-  "sourceFingerprint": "96801dde528f66389c3d5edf709853feeb6411bb09ab55d5cfccbe76de912fb3",
+  "sourceFingerprint": "6a4e28bc8691102197b49dbaea57dfe1d3eac479caa725a2846802011bf2b4f2",
   "summary": {
     "files": 616,
-    "lines": 123956,
+    "lines": 123964,
     "symbols": 1854
   },
   "symbolIndex": {
@@ -17438,8 +17438,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 143,
-      "sha256": "ec54eb6435e88c2f433f0e6c1828f7244e0a3f015af3f320d3e9acdba03cca1f",
+      "lines": 151,
+      "sha256": "866d00e8f40fa8577d093f97da00c42bc6928cc3152656cadf1d0ceb34965a03",
       "symbols": []
     },
     {
