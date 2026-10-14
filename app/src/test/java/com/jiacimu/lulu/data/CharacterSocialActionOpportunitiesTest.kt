@@ -31,6 +31,31 @@ class CharacterSocialActionOpportunitiesTest {
         assertTrue(view.contains("不需要"))
     }
 
+    @Test fun phoneTranscriptOffersAnActuallyStoredMessageIdForImmediateFavorite() = kotlinx.coroutines.runBlocking {
+        val ctx = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(ctx)
+        SharedExperienceTimeline.initialize(ctx)
+        MigratedDomainStores.initialize(ctx)
+        CharacterLifeStore.initialize(ctx)
+        val character = MigratedDomainStores.characters.create("电话收藏测试", "喜欢珍藏有趣对话")
+        val conversation = MigratedDomainStores.chat.ensureConversation(
+            character.characterId, character.displayName,
+        )
+        val voice = MigratedDomainStores.chat.appendVoiceMessage(
+            conversation.id, "voice-test-favorite-user-1", "我其实一直记得你那句冷笑话", false,
+        )
+        val candidates = CharacterSocialActionOpportunities.prompt(character.characterId)
+        assertTrue(candidates.contains("messageId=${voice.id}"))
+        val receipt = CharacterMessageFavorites.favoriteExplicit(
+            character.characterId, voice, "因为她还记得那个笑话，我想珍藏这句话",
+        )
+        assertNotNull(receipt)
+        assertTrue(LuluRepositories.lexicon.snapshot(character.characterId)
+            .any { it.id == "message-${voice.id}" && it.content.contains(voice.content) })
+        assertFalse(CharacterSocialActionOpportunities.prompt(character.characterId)
+            .contains("messageId=${voice.id}"))
+    }
+
     @Test fun unrelatedCharacterCannotSeeAnotherRolesPrivateCandidates() {
         val ctx = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(ctx)
