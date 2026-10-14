@@ -43,7 +43,7 @@ internal class ElevenLabsRealtimeStt(
     private val endpoint: String = "wss://api.elevenlabs.io/v1/speech-to-text/realtime",
     private val socketFactory: WebSocket.Factory? = null,
 ) {
-    private data class Packet(val pcm: ByteArray)
+    private data class Packet(val pcm: ByteArray, val keepalive: Boolean = false)
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .pingInterval(20, TimeUnit.SECONDS)
@@ -58,6 +58,11 @@ internal class ElevenLabsRealtimeStt(
     private var turnDelay: Job? = null
     private var socket: WebSocket? = null
     private val lastWireSendAt = AtomicLong(SystemClock.elapsedRealtime())
+    private val sentPcmBytes = AtomicLong(0L)
+    private val sentKeepaliveBytes = AtomicLong(0L)
+
+    fun sentAudioMillis(): Long = sentPcmBytes.get() / 32L
+    fun sentKeepaliveMillis(): Long = sentKeepaliveBytes.get() / 32L
 
     fun start() {
         check(apiKey.isNotBlank()) { "请先配置 ElevenLabs API Key" }
@@ -132,7 +137,7 @@ internal class ElevenLabsRealtimeStt(
                     while (!closed.get() && active()) {
                         delay(4_000L)
                         if (SystemClock.elapsedRealtime() - lastWireSendAt.get() >= 3_500L) {
-                            outgoing.trySend(Packet(ByteArray(3_200)))
+                            outgoing.trySend(Packet(ByteArray(3_200), keepalive = true))
                         }
                     }
                 }
@@ -144,6 +149,8 @@ internal class ElevenLabsRealtimeStt(
                             .put("audio_base_64", Base64.encodeToString(packet.pcm, Base64.NO_WRAP))
                             .put("sample_rate", 16_000)
                         check(webSocket.send(body.toString())) { "识别连接无法发送音频" }
+                        sentPcmBytes.addAndGet(packet.pcm.size.toLong())
+                        if (packet.keepalive) sentKeepaliveBytes.addAndGet(packet.pcm.size.toLong())
                         lastWireSendAt.set(SystemClock.elapsedRealtime())
                     }
                 } finally {
