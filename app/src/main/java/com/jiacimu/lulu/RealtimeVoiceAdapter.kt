@@ -263,6 +263,14 @@ internal class RealtimeVoiceAdapter(
             CharacterExpressionGuide.promptSection(),
             CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE),
             CharacterSpeechIdentity.promptSection(id),
+            // The actual local favorite executor is available through a
+            // configured Agent client tool; do not pretend the Agent already
+            // used it just because it thought about keeping a sentence.
+            CharacterSocialActionOpportunities.prompt(id),
+            "实时电话中的收藏只能通过实际的 favorite_user_message 客户端工具调用完成。" +
+                "工具参数须有本人已看到的准确 messageId 和真心的 reason。" +
+                "有工具成功回执才说已收藏；工具未配置、失败或没有执行时不能说已完成。" +
+                "不需要挂断电话才能执行；如当下未决定执行，保留未完成意愿而非说成已办。",
             UserProfileContext.promptSection(), UserDevicePerception.context(this.context, id),
             CharacterRuntime.personalityRuntimeContext(id, compact = true, interactionKey = "direct:user"),
             com.jiacimu.lulu.data.CharacterContinuityRuntime.context(id),
