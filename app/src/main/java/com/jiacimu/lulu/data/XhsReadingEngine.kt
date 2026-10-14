@@ -39,7 +39,11 @@ internal data class XhsCard(
         .appendQueryParameter("xsec_source", source).build().toString()
 }
 
-internal data class XhsArticle(val id: String, val title: String, val body: String, val author: String, val provider: String, val images: List<XhsImage> = emptyList()) {
+internal data class XhsArticle(
+    val id: String, val title: String, val body: String, val author: String,
+    val provider: String, val images: List<XhsImage> = emptyList(),
+    val comments: List<String> = emptyList(),
+) {
     val sourceUrl: String get() = "https://www.xiaohongshu.com/explore/$id"
 }
 
@@ -383,8 +387,14 @@ internal object XhsReadingEngine {
             XhsImage(url, row.optInt("width"), row.optInt("height"))
         }.distinctBy { it.url }
         require(body.isNotBlank() || images.isNotEmpty()) { "实际笔记没有正文或图片，未标记为已读" }
+        // Only comments confirmed on the actual opened page may appear
+        // here. Other replies and unopened pagination pages are not read.
+        val rawComments = note.optJSONArray("comments")
+        val comments = (0 until minOf(rawComments?.length() ?: 0, 10))
+            .map { rawComments?.optString(it).orEmpty().trim().take(260) }
+            .filter(String::isNotBlank).distinct()
         val article = XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
-            note.optString("author").ifBlank { target.author }, actualProvider, images)
+            note.optString("author").ifBlank { target.author }, actualProvider, images, comments)
         if (actualProvider == "webview") rememberNote(target, article)
         return article
     }
