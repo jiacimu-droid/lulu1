@@ -124,7 +124,12 @@ internal object ConversationNaturalnessGate {
         }
         val userLength = userText.count { !it.isWhitespace() }
         val replyLength = reply.count { !it.isWhitespace() }
-        if (userLength in 1..70 && replyLength >=
+        // Explicit requests for a detailed explanation may legitimately be
+        // much longer than the user's question. Length alone is not an error.
+        val detailRequested = Regex(
+            """详细|具体讲讲|展开讲|解释清楚|说清楚|深度分析|仔细分析|分析原因|排查|教程|步骤|为什么|怎么回事"""
+        ).containsMatchIn(userText)
+        if (!detailRequested && userLength in 1..70 && replyLength >=
             (if (userLength <= 24) 115 else 175)) {
             score += 2
             reasons += "日常一拍的回复远长于对方新增信息；只需要重点情绪和一两个新意思"
@@ -133,10 +138,6 @@ internal object ConversationNaturalnessGate {
         // and lexical-overlap checks: all three paragraphs may use different
         // words to explain the SAME one-line tool failure. Detect excessive
         // explanation without setting a blanket character or bubble quota.
-        // Explicit requests for a detailed explanation must remain detailed.
-        val detailRequested = Regex(
-            """详细|具体讲讲|展开讲|解释清楚|说清楚|深度分析|仔细分析|分析原因|排查|教程|步骤|为什么|怎么回事"""
-        ).containsMatchIn(userText)
         // Two fairly substantial explanations plus a third self-justifying
         // follow-up can be verbose even without any single 55-character bubble.
         // Keep the gate disabled when the user asked for a detailed answer.
