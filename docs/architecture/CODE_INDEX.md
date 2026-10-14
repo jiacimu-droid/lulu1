@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fb0a7591b756946bfb550c7d559397504225e02b`
+- 基准提交：`a768b0b64204439114cb7a99273e27594032f952`
 - 分支：`main`
 - 已索引文件：628
-- 已索引代码/文本行：125887
+- 已索引代码/文本行：125914
 - 已发现符号：1868
 
 | 文件 | 行数 | 符号数 |
@@ -566,7 +566,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 22 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 19 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 88 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 115 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DialogueMoveEngineTest.kt` | 77 | 1 |
