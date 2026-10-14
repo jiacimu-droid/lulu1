@@ -388,13 +388,27 @@ internal fun LuluXhsNativeReaderScreen(
     if (diagnosticVisible) AlertDialog(onDismissRequest = { diagnosticVisible = false },
         title = { Text(if (showTechnicalDiagnostic) "技术诊断" else "网页读取状态") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 Text(if (showTechnicalDiagnostic)
                     XhsReadingEngine.lastDiagnostic(context).take(3500)
                     else XhsReadingEngine.lastDiagnosticSummary(context),
-                    style = MaterialTheme.typography.bodyMedium)
+                    style = if (showTechnicalDiagnostic)
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            lineHeight = 18.sp)
+                        else MaterialTheme.typography.bodyMedium,
+                )
+                if (!showTechnicalDiagnostic) {
+                    Text("首页阅读成功与关键词搜索成功是两回事；如果搜索停在首页，这里不会拿首页笔记冒充搜索结果。",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 TextButton(onClick = { showTechnicalDiagnostic = !showTechnicalDiagnostic }) {
-                    Text(if (showTechnicalDiagnostic) "返回简要诊断" else "查看技术详情")
+                    Text(if (showTechnicalDiagnostic) "返回简要诊断" else "展开完整技术信息")
                 }
             }
         },
