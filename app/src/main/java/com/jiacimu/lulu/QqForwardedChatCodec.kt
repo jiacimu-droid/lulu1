@@ -74,6 +74,7 @@ internal fun stripQqForwardDirective(content: String): String =
 
 internal fun qqForwardContextText(content: String): String {
     qqChatImageContextText(content)?.let { return it }
+    qqXhsContextText(content)?.let { return it }
     val bundle = decodeQqForwardedChat(content) ?: return stripQqForwardDirective(content)
     val preview = bundle.entries.take(6).joinToString("；") { entry ->
         "${entry.sender}：${entry.content.take(160)}"
