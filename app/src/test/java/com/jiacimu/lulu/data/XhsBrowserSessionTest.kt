@@ -193,6 +193,12 @@ class XhsBrowserSessionTest {
             assertEquals("Only verified, current-session results enter cache", 1,
                 XhsReadingEngine.cachedFeed("记者")?.size)
             val repeated = scope.async { XhsReadingEngine.list(activity, "记者") }
+            val repeatDeadline = System.nanoTime() + 5_000_000_000L
+            while (!repeated.isCompleted && System.nanoTime() < repeatDeadline) {
+                shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(100))
+                Thread.sleep(5)
+            }
+            assertTrue("Cached session read must finish", repeated.isCompleted)
             val reused = kotlinx.coroutines.runBlocking { repeated.await() }
             assertEquals("1234567890abcdef12345678", reused.single().id)
             assertEquals("Repeated read must not trigger an unnecessary navigation",
