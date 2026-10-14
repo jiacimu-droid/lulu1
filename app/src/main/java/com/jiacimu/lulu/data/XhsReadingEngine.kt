@@ -87,6 +87,11 @@ internal object XhsReadingEngine {
             resetSession()
         }
     }
+    /** A screen can temporarily park the Activity-owned WebView; keep verified
+     * cache, but attachedBrowser() must refuse requests until reattached. */
+    fun parkBrowser(view: WebView) {
+        if (visibleBrowser?.get() === view) controlledBrowser = null
+    }
     fun controls(view: WebView?): Boolean = view != null && controlledBrowser === view
     /** A foreground, attached WebView is mandatory for native reading.
      * Do not synthesize a second invisible reader under another screen. */
@@ -224,7 +229,7 @@ internal object XhsReadingEngine {
     }
     fun available(context: Context): Boolean =
         (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true &&
-            visibleBrowser?.get() != null) ||
+            attachedBrowser() != null) ||
             (mcpFallbackEnabled(context) && LuluExternalMcp.configured(context, "xiaohongshu"))
 
     /**
@@ -237,14 +242,14 @@ internal object XhsReadingEngine {
         val query = keyword.trim().take(64)
         val canUseLocal = localEnabled(context) &&
             owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
-            visibleBrowser?.get() != null
+            attachedBrowser() != null
         // A saved 127.0.0.1 address does NOT mean Termux is running.
         // Native reading is primary; optional MCP fallback is explicit and
         // OFF by default so a dead localhost server cannot double the wait.
         val canUseMcp = !localOnly && mcpFallbackEnabled(context) &&
             LuluExternalMcp.configured(context, "xiaohongshu")
         if (localOnly && !canUseLocal) {
-            error("内置浏览器不可用：请打开露露机并开启「使用已登录的本机网页」，再重试")
+            error("内置浏览器当前没有显示。请进入露露机「小红书 · 列表」再试；浏览器会话已保留")
         }
         var localFailure = ""
         if (canUseLocal) {
@@ -342,7 +347,7 @@ internal object XhsReadingEngine {
         }
         if (!forceRefresh && target.provider == "webview" &&
             owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
-            visibleBrowser?.get() != null) {
+            attachedBrowser() != null) {
             cachedNote(target)?.let {
                 onProgress("复用当前会话已经验证的笔记正文")
                 return it
