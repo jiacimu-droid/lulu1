@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:55:50.066145+00:00",
-  "commit": "66dc800c184c5af8538dc7fd113590ebcbe28c7c",
+  "generatedAt": "2026-10-14T06:56:11.324720+00:00",
+  "commit": "5993ced7c0101eb38ecf7fa7fe7ba63d5b8b0f76",
   "branch": "main",
-  "sourceFingerprint": "a29b48243d6486baca6785c2d36a21ed2ed0917aeb9751f523e05a1871a1aba7",
+  "sourceFingerprint": "b2ac4fdcd1a2d95b1cf43d7bb3940e07683e86c4c9f4eaec35f00d0e917f05d6",
   "summary": {
-    "files": 620,
-    "lines": 124623,
-    "symbols": 1862
+    "files": 621,
+    "lines": 124664,
+    "symbols": 1863
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10332,6 +10332,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt",
         "line": 16
+      }
+    ],
+    "WorldLifeEpisodeStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt",
+        "line": 14
       }
     ],
     "XhsBrowserSessionTest": [
@@ -21857,6 +21863,17 @@
         {
           "name": "WorldInteractionRegressionTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt",
+      "lines": 41,
+      "sha256": "2486a13b4fc2438fdc4a6cf929cdb2066abee65d56293cc92129d5358dbb82fc",
+      "symbols": [
+        {
+          "name": "WorldLifeEpisodeStoreTest",
+          "line": 14
         }
       ]
     },
