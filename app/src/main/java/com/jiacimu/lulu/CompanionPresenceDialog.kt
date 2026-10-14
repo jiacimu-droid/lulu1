@@ -180,8 +180,12 @@ internal fun CompanionPresenceDialog(
                                             color = Color(0xFF7A7A7E), fontSize = 11.sp)
                                         if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}",
                                             color = Color(0xFF1D1D1F), fontSize = 14.sp)
-                                        if (item.momentReflection.isNotBlank()) Text(item.momentReflection,
-                                            color = Color(0xFF5F5F63), fontSize = 13.sp)
+                                        // This is a separate structured reflection, NOT a
+                                        // second paragraph of the character's heart voice.
+                                        if (item.momentReflection.isNotBlank() &&
+                                            !CharacterHeartVoicePolicy.sameMeaning(item.momentReflection, item.innerThought))
+                                            Text("当时的想法 · ${item.momentReflection}",
+                                                color = Color(0xFF5F5F63), fontSize = 13.sp)
                                         if (entry.gesture.isNotBlank()) Text("动作 · ${entry.gesture}",
                                             color = Color(0xFF5F5F63), fontSize = 13.sp)
                                         if (entry.status.isNotBlank()) Text("状态 · ${entry.status}",
@@ -244,9 +248,24 @@ private fun PresenceStateContent(
     // Keep the active action/status separate from the most recent *authored*
     // inner voice. An old thought may be the latest one, but it must retain its
     // original time, never be falsely attributed to today's state update.
-    val status = PresencePresentation.status(state)
-    val summary = listOf(state.mood, status, state.gesture).filter(String::isNotBlank).distinct()
-    if (summary.isNotEmpty()) Text(summary.joinToString(" · "),
+    // "PresencePresentation.status" already contains mood, which used to
+    // duplicate the mood exactly as in the reported screenshot. Show stable
+    // state, mood and gesture as DIFFERENT fields; do not concatenate them.
+    val mood = state.mood.trim()
+    val status = state.statusText.trim().takeUnless { value ->
+        value.isBlank() || value == mood || mood.contains(value) ||
+            (state.gesture.isNotBlank() &&
+                (value == state.gesture || state.gesture.contains(value)))
+    }.orEmpty()
+    val gesture = state.gesture.trim().takeUnless { value ->
+        value.isBlank() || value == mood || value == status ||
+            status.contains(value)
+    }.orEmpty()
+    if (mood.isNotBlank()) Text("心情 · $mood",
+        color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
+    if (status.isNotBlank()) Text("状态 · $status",
+        color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
+    if (gesture.isNotBlank()) Text("动作 · $gesture",
         color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
     val voice = heartMoment?.innerThought.orEmpty()
     if (voice.isNotBlank()) {
@@ -259,7 +278,7 @@ private fun PresenceStateContent(
     // A chosen life activity is a real queued executor request, never merely
     // the model's private prose. Only show its receipt on the live tab, not a
     // historical message's anchored state.
-    if (state.gesture.isBlank() && status.isBlank() && voice.isBlank()) {
+    if (gesture.isBlank() && status.isBlank() && mood.isBlank() && voice.isBlank()) {
         Text("这一刻还没有留下心声或动作。", color = Color(0xFF7A7A7E))
     }
 
