@@ -280,7 +280,7 @@
           staleSearchState ? [] : stateItems;
         if (!items.length && kind !== 'search') items = received[kind];
         // Actual note links retain the site's token/source; avoid generic links in menus.
-        if (!items.length && (kind !== 'search' || (searchPage && !staleSearchState))) {
+        if (!items.length && (kind !== 'search' || searchPage || searchResponse)) {
           // Classes have changed repeatedly in the live XHS SPA. Prefer its
           // actual real note links to guessed Vue internals; never scrape a
           // generic page text or invent a note ID. Only trust signed links
@@ -294,6 +294,10 @@
               if (!['www.xiaohongshu.com','xiaohongshu.com'].includes(u.hostname) || !match ||
                   u.protocol !== 'https:') continue;
               const tile = a.closest?.('section.note-item,.note-item,[class*="note-item"],[class*="feed-item"]') || a;
+              const box = tile.getBoundingClientRect?.();
+              // Only cards actually visible on the requested search page,
+              // never stale hidden feed elements behind a search overlay.
+              if (!box || box.width < 3 || box.height < 3) continue;
               items.push({id: match[1], token: u.searchParams.get('xsec_token') || '',
                 source: u.searchParams.get('xsec_source') || (kind === 'search' ? 'pc_search' : 'pc_feed'),
                 title: clean(tile.querySelector?.('.title,[class*="title"]')?.innerText ||
