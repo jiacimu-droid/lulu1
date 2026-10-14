@@ -222,7 +222,10 @@ internal fun LuluXhsNativeReaderScreen(
                         require(article.body.isNotBlank() || article.images.isNotEmpty()) {
                             "首页笔记没有可验证的图文"
                         }
-                        "首页通过：${home.size} 篇，实际读到 ${article.body.length} 字、${article.images.size} 张图片"
+                        val quality = if (article.body.length < 250 && article.images.size <= 1)
+                            "图文样本偏少，只能确认打开一篇笔记，不能证明完整评论或长图文可读"
+                            else "已验证这一篇笔记的实际图文（不能代表所有列表笔记）"
+                        "首页列表：找到${home.size}篇候选；实际读取1篇：正文${article.body.length}字、图片链接${article.images.size}张。$quality"
                     } catch (cancelled: CancellationException) {
                         throw cancelled
                     } catch (error: Exception) {
@@ -243,8 +246,8 @@ internal fun LuluXhsNativeReaderScreen(
                         "搜索未通过：${error.message.orEmpty().take(180)}"
                     }
                     "$homeReport\n$searchReport\n未使用 MCP，未伪造已读记录。" +
-                        if (homeReport.startsWith("首页通过") && !searchReport.startsWith("搜索通过"))
-                            "\n角色已可从首页阅读，搜索需继续针对网页实际状态修复。"
+                        if (homeReport.startsWith("首页列表：") && !searchReport.startsWith("搜索通过"))
+                            "\n首页与搜索是两项独立验证。失败的搜索不能用首页笔记冒充；这次没有确认搜索可用。"
                         else ""
                 }
             } catch (error: TimeoutCancellationException) {
@@ -434,28 +437,6 @@ internal fun LuluXhsNativeReaderScreen(
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
             }
             }
-            if (useEmbeddedBrowser && !showWebPreview) {
-                Surface(color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shape = RoundedCornerShape(16.dp)) {
-                    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp),
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column(Modifier.weight(1f)) {
-                            Text("内置网页", style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold)
-                            Text(if (webProblem.isNotBlank()) "网页加载有问题，点开查看"
-                                 else if (loading || smokeRunning) "正在获取真实网页内容"
-                                 else "登录与内容在当前页面共享",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
-                        TextButton(onClick = { showWebPreview = !showWebPreview }) {
-                            Text(if (showWebPreview) "收起网页" else "查看网页")
-                        }
-                    }
-                }
-            }
             if (useEmbeddedBrowser) {
                 AndroidView(
                     modifier = if (showWebPreview) Modifier.fillMaxWidth().weight(1f)
@@ -525,9 +506,7 @@ internal fun LuluXhsNativeReaderScreen(
                 if (webProblem.isNotBlank()) Text(webProblem,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall, maxLines = 2)
-                if (!smokeRunning && !loading && !smokeRequested && cards.isEmpty() && selected == null)
-                    Text("搜索将直接读取上面的内置网页，不会打开外部浏览器。",
-                        style = MaterialTheme.typography.labelSmall)
+
             }
             if (message.isNotBlank() && (!showWebPreview || !useEmbeddedBrowser ||
                 message.contains("失败") || message.contains("超时") || smokeRunning)) {
