@@ -51,8 +51,13 @@ internal fun LuluXhsNativeReaderScreen(
     onBack: () -> Unit, initialKeyword: String = "", initialCard: XhsCard? = null,
     initialCards: List<XhsCard> = emptyList(),
     onSearchInBrowser: ((String) -> Unit)? = null,
+    initialShowWebsite: Boolean = false,
 ) {
     val context = LocalContext.current
+    // The WebView is owned by MigrationActivity, not by this Composable.
+    val appBrowser = remember(context) {
+        (context as? MigrationActivity)?.browserSession()
+    }
     val scope = rememberCoroutineScope()
     val focus = androidx.compose.ui.platform.LocalFocusManager.current
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
@@ -67,7 +72,7 @@ internal fun LuluXhsNativeReaderScreen(
     var embeddedView by remember { mutableStateOf<WebView?>(null) }
     // Keep the site's actual viewport usable. A 2dp/180dp WebView cannot
     // reliably hydrate virtualized result grids or interactive search.
-    var showWebPreview by remember { mutableStateOf(false) }
+    var showWebPreview by remember { mutableStateOf(initialShowWebsite) }
     var showTechnicalDiagnostic by remember { mutableStateOf(false) }
     var smokeStarted by remember { mutableStateOf(false) }
     var smokeResult by remember { mutableStateOf("") }
@@ -150,6 +155,26 @@ internal fun LuluXhsNativeReaderScreen(
                 if (error is CancellationException && error !is TimeoutCancellationException) throw error
                 if (sequence == current) message = failure(error)
             } finally { if (sequence == current) loading = false }
+        }
+    }
+
+    fun nativeBrowserClient(): WebViewClient = object : WebViewClient() {
+        override fun shouldOverrideUrlLoading(
+            view: WebView?, request: WebResourceRequest?): Boolean {
+            val uri = request?.url ?: return true
+            return uri.scheme != "https" ||
+                uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
+        }
+        override fun onReceivedError(
+            view: WebView?, request: WebResourceRequest?, error: WebResourceError?,
+        ) {
+            if (request?.isForMainFrame == true) {
+                webProblem = "内置网页加载失败：${error?.description?.toString().orEmpty()}"
+                if (!webReady) webReady = true
+            }
+        }
+        override fun onPageFinished(view: WebView?, url: String?) {
+            if (!webReady) webReady = true
         }
     }
 
@@ -394,7 +419,17 @@ internal fun LuluXhsNativeReaderScreen(
                         if (showWebPreview) 360.dp
                         else if (loading || smokeRunning) 280.dp else 112.dp),
                     factory = { ctx ->
-                        WebView(ctx).apply {
+                        val existing = appBrowser?.reuse()
+                        if (existing != null) {
+                            // A route change does not create another browser or
+                            // wipe a real logged-in SPA document. Replace only
+                            // screen callbacks, which held old Compose state.
+                            existing.webViewClient = nativeBrowserClient()
+                            embeddedView = existing
+                            XhsReadingEngine.attachBrowser(existing)
+                            webReady = true
+                            existing
+                        } else WebView(ctx).apply {
                             settings.javaScriptEnabled = true
                             settings.domStorageEnabled = true
                             settings.allowFileAccess = false
@@ -425,37 +460,24 @@ internal fun LuluXhsNativeReaderScreen(
                                 WebViewCompat.addDocumentStartJavaScript(this, script,
                                     setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
                             }
-                            webViewClient = object : WebViewClient() {
-                                override fun shouldOverrideUrlLoading(
-                                    view: WebView?, request: WebResourceRequest?): Boolean {
-                                    val uri = request?.url ?: return true
-                                    return uri.scheme != "https" ||
-                                        uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
-                                }
-                                override fun onReceivedError(
-                                    view: WebView?,
-                                    request: WebResourceRequest?,
-                                    error: WebResourceError?,
-                                ) {
-                                    if (request?.isForMainFrame == true) {
-                                        webProblem = "内置网页加载失败：${error?.description?.toString().orEmpty()}"
-                                        if (!webReady) webReady = true
-                                    }
-                                }
-                                override fun onPageFinished(view: WebView?, url: String?) {
-                                    if (!webReady) webReady = true
-                                }
-                            }
+                            webViewClient = nativeBrowserClient()
                             embeddedView = this
                             XhsReadingEngine.attachBrowser(this)
                             loadUrl("https://www.xiaohongshu.com/explore")
-                        }
+                        }.also { appBrowser?.adopt(it) }
                     },
                     onRelease = { view ->
-                        XhsReadingEngine.detachBrowser(view)
                         if (embeddedView === view) embeddedView = null
-                        view.stopLoading()
-                        view.destroy()
+                        // The current screen may leave while the Activity and
+                        // its browser session keep living. Release old Compose
+                        // callbacks, but don't destroy cookies or the SPA.
+                        view.webViewClient = WebViewClient()
+                        if (appBrowser != null) appBrowser.park(view)
+                        else {
+                            XhsReadingEngine.detachBrowser(view)
+                            view.stopLoading()
+                            view.destroy()
+                        }
                     },
                 )
                 if (webProblem.isNotBlank()) Text(webProblem,
