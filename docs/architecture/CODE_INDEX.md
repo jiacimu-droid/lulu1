@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`03e4681d6495797326165a523aace2ebb886ed45`
+- 基准提交：`c354b3f2391ef6ec5608af3da9dfefaf3257ea34`
 - 分支：`main`
 - 已索引文件：623
-- 已索引代码/文本行：125218
+- 已索引代码/文本行：125219
 - 已发现符号：1865
 
 | 文件 | 行数 | 符号数 |
@@ -583,7 +583,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 193 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 194 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 465 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 59 | 1 |
