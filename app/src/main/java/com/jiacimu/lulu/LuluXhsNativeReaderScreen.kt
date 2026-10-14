@@ -20,6 +20,9 @@ import com.jiacimu.lulu.data.XhsImageLoader
 import com.jiacimu.lulu.ai.VisionModelService
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -64,7 +67,8 @@ internal fun LuluXhsNativeReaderScreen(
     var embeddedView by remember { mutableStateOf<WebView?>(null) }
     // Keep the site's actual viewport usable. A 2dp/180dp WebView cannot
     // reliably hydrate virtualized result grids or interactive search.
-    var showWebPreview by remember { mutableStateOf(true) }
+    var showWebPreview by remember { mutableStateOf(false) }
+    var showTechnicalDiagnostic by remember { mutableStateOf(false) }
     var smokeStarted by remember { mutableStateOf(false) }
     var smokeResult by remember { mutableStateOf("") }
     var smokeRunning by remember { mutableStateOf(false) }
@@ -268,13 +272,34 @@ internal fun LuluXhsNativeReaderScreen(
         confirmButton = { TextButton(onClick = { smokeResult = "" }) { Text("知道了") } })
 
     if (diagnosticVisible) AlertDialog(onDismissRequest = { diagnosticVisible = false },
-        title = { Text("读取诊断") },
-        text = { Text(XhsReadingEngine.lastDiagnostic(context), style = MaterialTheme.typography.bodySmall) },
-        confirmButton = { TextButton(onClick = { diagnosticVisible = false }) { Text("关闭") } })
+        title = { Text(if (showTechnicalDiagnostic) "技术诊断" else "网页读取状态") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(if (showTechnicalDiagnostic)
+                    XhsReadingEngine.lastDiagnostic(context).take(3500)
+                    else XhsReadingEngine.lastDiagnosticSummary(context),
+                    style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { showTechnicalDiagnostic = !showTechnicalDiagnostic }) {
+                    Text(if (showTechnicalDiagnostic) "返回简要诊断" else "查看技术详情")
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = {
+            diagnosticVisible = false
+            showTechnicalDiagnostic = false
+        }) { Text("关闭") } })
 
     Scaffold(modifier = Modifier.imePadding(), topBar = {
         TopAppBar(
-            title = { Text(if (selected == null) "小红书 · 列表" else "小红书 · 笔记") },
+            title = {
+                Column {
+                    Text(if (selected == null) "小红书" else "笔记阅读",
+                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(if (selected == null) "发现有意思的内容" else "来自已登录网页的真实内容",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            },
             navigationIcon = {
                 IconButton(onClick = { back() }) {
                     Icon(Icons.Outlined.ArrowBack, contentDescription = "返回列表")
@@ -293,16 +318,30 @@ internal fun LuluXhsNativeReaderScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val target = selected
             if (target == null) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(keyword, { keyword = it.take(64) }, modifier = Modifier.weight(1f),
-                        label = { Text("搜索笔记") }, singleLine = true)
-                    Button(onClick = { loadList(keyword) }) { Text("搜索") }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(keyword, { keyword = it.take(64) },
+                        modifier = Modifier.weight(1f), singleLine = true,
+                        shape = RoundedCornerShape(18.dp),
+                        placeholder = { Text("搜索你感兴趣的笔记") })
+                    Button(onClick = { loadList(keyword) }, enabled = !loading,
+                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier.height(56.dp)) { Text("搜索") }
                 }
-                TextButton(onClick = { keyword = ""; loadList("") }) { Text("首页推荐") }
+                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(if (keyword.isBlank()) "为你推荐" else "搜索与发现",
+                        style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    TextButton(onClick = { keyword = ""; loadList("") }, enabled = !loading) {
+                        Text("刷新首页")
+                    }
+                }
             } else {
-                Text(article?.title ?: target.title, style = MaterialTheme.typography.titleMedium)
+                Text(article?.title ?: target.title,
+                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 val author = article?.author ?: target.author
-                if (author.isNotBlank()) Text(author, style = MaterialTheme.typography.labelMedium)
+                if (author.isNotBlank()) Text("来自 $author",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (useEmbeddedBrowser) {
                     TextButton(onClick = {
                         showWebPreview = true
@@ -328,16 +367,30 @@ internal fun LuluXhsNativeReaderScreen(
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
             }
             if (useEmbeddedBrowser) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("露露机内置网页 · 搜索及登录状态",
-                        style = MaterialTheme.typography.labelSmall)
-                    TextButton(onClick = { showWebPreview = !showWebPreview }) {
-                        Text(if (showWebPreview) "缩小网页" else "展开网页")
+                Surface(color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    shape = RoundedCornerShape(16.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column(Modifier.weight(1f)) {
+                            Text("内置网页", style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold)
+                            Text(if (webProblem.isNotBlank()) "网页加载有问题，点开查看"
+                                 else if (loading || smokeRunning) "正在获取真实网页内容"
+                                 else "登录与内容在当前页面共享",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                        TextButton(onClick = { showWebPreview = !showWebPreview }) {
+                            Text(if (showWebPreview) "收起网页" else "查看网页")
+                        }
                     }
                 }
                 AndroidView(
                     modifier = Modifier.fillMaxWidth().height(
-                        if (showWebPreview || loading || smokeRunning) 340.dp else 180.dp),
+                        if (showWebPreview) 360.dp
+                        else if (loading || smokeRunning) 280.dp else 112.dp),
                     factory = { ctx ->
                         WebView(ctx).apply {
                             settings.javaScriptEnabled = true
@@ -403,12 +456,22 @@ internal fun LuluXhsNativeReaderScreen(
                         view.destroy()
                     },
                 )
-                if (webProblem.isNotBlank()) Text(webProblem, style = MaterialTheme.typography.bodySmall)
+                if (webProblem.isNotBlank()) Text(webProblem,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall, maxLines = 2)
                 if (!smokeRunning && !loading && !smokeRequested && cards.isEmpty() && selected == null)
                     Text("搜索将直接读取上面的内置网页，不会打开外部浏览器。",
                         style = MaterialTheme.typography.labelSmall)
             }
-            if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
+            if (message.isNotBlank() && !smokeRunning && smokeResult.isNotBlank()) {
+                Text("检测结束 · 首页和搜索结果已分别记录",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else if (message.isNotBlank()) {
+                Text(message.take(165), style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3,
+                    overflow = TextOverflow.Ellipsis)
+            }
             // Always expose the real state. Not every failure contains the
             // literal "超时": a login prompt, unrendered search page or
             // unknown parser can otherwise hide the only useful diagnostics.
@@ -423,23 +486,35 @@ internal fun LuluXhsNativeReaderScreen(
                 }) { Text("停止") }
             }
             if (target != null) {
-                LazyColumn(Modifier.weight(1f)) {
-                    item { Text(article?.body.orEmpty(), style = MaterialTheme.typography.bodyLarge) }
+                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp),
+                    contentPadding = PaddingValues(bottom = 22.dp)) {
+                    if (article?.body?.isNotBlank() == true) item {
+                        Text(article?.body.orEmpty(), style = MaterialTheme.typography.bodyLarge,
+                            lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified)
+                    }
                     items(article?.images.orEmpty(), key = { it.url }) { photo -> XhsNoteImage(photo) }
                     if (visionText.isNotBlank()) item {
-                        Text("图片理解（模型识别可能有误）", style = MaterialTheme.typography.titleSmall)
+                        HorizontalDivider()
+                        Text("图片理解 · 模型识别内容", style = MaterialTheme.typography.titleSmall)
                         Text(visionText, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             } else {
-                LazyColumn(Modifier.weight(1f), state = listState, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(cards, key = { it.id }) { card ->
-                        ElevatedCard(Modifier.fillMaxWidth().clickable { readNote(card) }) {
-                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(card.title, style = MaterialTheme.typography.bodyLarge)
-                                Text(card.author + if (card.token.isBlank()) " · 无详情令牌" else "",
-                                    style = MaterialTheme.typography.labelMedium)
+                LazyColumn(Modifier.weight(1f), state = listState,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)) {
+                    if (cards.isNotEmpty()) item {
+                        Text("已找到 ${cards.size} 篇笔记",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    items(cards.chunked(2), key = { it.first().id }) { pair ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()) {
+                            pair.forEach { card ->
+                                XhsNoteTile(card, Modifier.weight(1f), onClick = { readNote(card) })
                             }
+                            if (pair.size == 1) Spacer(Modifier.weight(1f))
                         }
                     }
                 }
@@ -448,6 +523,50 @@ internal fun LuluXhsNativeReaderScreen(
     }
 }
 
+
+@Composable
+private fun XhsNoteTile(card: XhsCard, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    ElevatedCard(onClick = onClick, modifier = modifier,
+        shape = RoundedCornerShape(18.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            XhsNoteCover(card.coverUrl)
+            Column(Modifier.fillMaxWidth().padding(start = 11.dp, end = 11.dp, bottom = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(card.title, style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold, maxLines = 3,
+                    overflow = TextOverflow.Ellipsis)
+                Text(card.author.ifBlank { "小红书笔记" } +
+                    if (card.token.isBlank()) " · 详情未就绪" else "",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
+@Composable
+private fun XhsNoteCover(url: String) {
+    val bitmap by produceState<Bitmap?>(null, url) {
+        value = if (url.isBlank()) null
+                else runCatching { XhsImageLoader.bitmap(url) }
+                    .getOrNull()
+    }
+    val image = bitmap
+    if (image != null && image.height > 0 && image.width > 0) {
+        Image(image.asImageBitmap(), contentDescription = "笔记封面",
+            modifier = Modifier.fillMaxWidth().height(130.dp),
+            contentScale = ContentScale.Crop)
+    } else {
+        Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
+            Box(Modifier.fillMaxWidth().height(130.dp),
+                contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Text("小红书 · 笔记", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
 @Composable
 private fun XhsNoteImage(photo: XhsImage) {
     var failure by remember(photo.url) { mutableStateOf("") }
