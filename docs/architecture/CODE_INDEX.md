@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d28de46d72262c2050249ab1dbf0027f2d471e77`
+- 基准提交：`4d59de29d908efe01f419c7dc9b38ca8e7b66ee7`
 - 分支：`main`
 - 已索引文件：632
-- 已索引代码/文本行：126238
+- 已索引代码/文本行：126260
 - 已发现符号：1870
 
 | 文件 | 行数 | 符号数 |
@@ -14,7 +14,7 @@
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 83 | 0 |
-| `app/src/main/assets/xhs-reader.js` | 337 | 0 |
+| `app/src/main/assets/xhs-reader.js` | 359 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
