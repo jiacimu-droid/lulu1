@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:48:12.793771+00:00",
-  "commit": "e57353e0743603943dbf144dd1b2bac944d56d67",
+  "generatedAt": "2026-10-14T06:48:46.265404+00:00",
+  "commit": "306bda0ed580652fec52d6de25e07886b2d2a2dc",
   "branch": "main",
-  "sourceFingerprint": "8ee884d42d54f0828f2b1408546c3487298132f832a6cc63e20dcd42b9350fb5",
+  "sourceFingerprint": "bbcf895ecd8e280f8dc9721d9a479c775fcb50abe8c7f77c88c17a2c2c4563a1",
   "summary": {
     "files": 618,
-    "lines": 124438,
+    "lines": 124483,
     "symbols": 1860
   },
   "symbolIndex": {
@@ -1169,31 +1169,31 @@
     "DigitalWorldMeetingApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 31
+        "line": 33
       }
     ],
     "launchExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 140
+        "line": 151
       }
     ],
     "launchLivingMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 157
+        "line": 168
       }
     ],
     "openDirectMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 171
+        "line": 182
       }
     ],
     "rewindAndRegenerate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 192
+        "line": 203
       }
     ],
     "ledgerText": [
@@ -11163,28 +11163,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 640,
-      "sha256": "62f1933602a7832376cae7155902e8de44e9cffa39be75729e4934df07a39000",
+      "lines": 685,
+      "sha256": "a6e337220dca0f1478ee2e56c5f0dbad2eaa2e9885a2294a2d37760d811a566b",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
-          "line": 31
+          "line": 33
         },
         {
           "name": "launchExchange",
-          "line": 140
+          "line": 151
         },
         {
           "name": "launchLivingMoment",
-          "line": 157
+          "line": 168
         },
         {
           "name": "openDirectMeeting",
-          "line": 171
+          "line": 182
         },
         {
           "name": "rewindAndRegenerate",
-          "line": 192
+          "line": 203
         }
       ]
     },
