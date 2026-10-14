@@ -14,6 +14,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.webkit.UserAgentMetadata
@@ -90,6 +91,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var jsNetworkFailures by remember { mutableIntStateOf(0) }
     var browserDiagnostics by remember { mutableStateOf("") }
     var diagnosticsVisible by remember { mutableStateOf(false) }
+    var toolsMenuExpanded by remember { mutableStateOf(false) }
     var websiteIssue by remember { mutableStateOf("") }
     val mobileAgent = remember { WebSettings.getDefaultUserAgent(context) }
     val chromeVersion = remember(mobileAgent) {
@@ -217,29 +219,28 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                 actions = {
                     // Always visible even when a website modal consumes touch/
                     // history inside WebView. This is not another WebView back.
-                    TextButton(onClick = { returnToList() }) { Text("返回列表") }
-                },
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
-        ) {
-            // Keep the browser viewport as tall as possible on a phone.
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedButton(
-                    modifier = Modifier.weight(1f),
-                    onClick = { returnToList() },
-                ) { Text("首页") }
-                OutlinedButton(
-                    modifier = Modifier.weight(1f),
-                    onClick = { readerKeyword = ""; readerCard = null; readerVisible = true },
-                ) { Text("阅读 / 搜索") }
-                Button(modifier = Modifier.weight(1f), onClick = {
+                    Box {
+                        IconButton(onClick = { toolsMenuExpanded = true }) {
+                            Icon(Icons.Outlined.MoreVert, contentDescription = "小红书工具")
+                        }
+                        DropdownMenu(expanded = toolsMenuExpanded, onDismissRequest = { toolsMenuExpanded = false }) {
+                            DropdownMenuItem(text = { Text("回到首页") }, onClick = {
+                                toolsMenuExpanded = false
+                                returnToList()
+                            })
+                            DropdownMenuItem(text = { Text("简洁图文阅读") }, onClick = {
+                                toolsMenuExpanded = false
+                                readerKeyword = ""; readerCard = null; readerVisible = true
+                            })
+                            DropdownMenuItem(text = { Text("真实读帖测试") }, onClick = {
+                                toolsMenuExpanded = false
+                                smokeStarted = false
+                                XhsReadingEngine.requestVisibleReadTest(context)
+                                browser?.reload()
+                            })
+                            HorizontalDivider()
+                            DropdownMenuItem(text = { Text("网页诊断") }, onClick = {
+                                toolsMenuExpanded = false
                     diagnosticsVisible = true
                     browserDiagnostics = "正在检查页面…"
                     val web = browser
@@ -300,8 +301,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             }
                         }
                     }
-                }) { Text("诊断") }
-            }
+                            })
+                        }
+                    }
+                },
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+        ) {
             if (smokeStage.isNotBlank()) {
                 Text(smokeStage, modifier = Modifier.padding(horizontal = 12.dp),
                     style = MaterialTheme.typography.bodySmall)
@@ -323,19 +333,17 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                     TextButton(onClick = { returnToList() }) { Text("返回列表") }
                 }
             }
-            Text(
-                "桌面网页版 · " + status,
-                modifier = Modifier.padding(horizontal = 12.dp),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            if (status.startsWith("网页加载失败") || status.startsWith("网页返回 HTTP") ||
+                status.contains("限制") || status.contains("未能打开")) {
+                Text(status, modifier = Modifier.padding(horizontal = 12.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error, maxLines = 2)
+            }
             if (progress in 1..99) {
                 LinearProgressIndicator(
                     progress = { progress / 100f },
                     modifier = Modifier.fillMaxWidth(),
                 )
-            } else {
-                HorizontalDivider()
             }
             AndroidView(
                 modifier = Modifier.fillMaxWidth().weight(1f),
