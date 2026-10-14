@@ -776,7 +776,7 @@ object ProactivePerceptionRuntime {
         val routineHeartbeat = listOf(
             "在线持续感知", "合并后的自主生活回顾", "真实生活后续回想",
             "角色自己先前有过", "角色自己刚完成", "强烈情绪的后续整理",
-        ).any(trigger::startsWith)
+        ).any { trigger.startsWith(it) }
         val shouldReview = !routineHeartbeat && (followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
             now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
             AutonomousDecisionRecovery.needsIndependentLifeReview(
