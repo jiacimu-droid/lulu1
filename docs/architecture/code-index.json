@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:55:45.165103+00:00",
-  "commit": "5b60d338e5abc17b9286f25f256610755d430203",
+  "generatedAt": "2026-10-14T10:56:00.609271+00:00",
+  "commit": "9383e9fc2dc743eb4f61c2cc071ba48f91bf844f",
   "branch": "main",
-  "sourceFingerprint": "63a5263e11763806438b14d73c9de8f7b0f327c80d62c3762c24fb66482997e3",
+  "sourceFingerprint": "efd022782d53579002d215711948dbf156f15c0358321b95e9a25381f15076c3",
   "summary": {
     "files": 632,
-    "lines": 126405,
+    "lines": 126439,
     "symbols": 1874
   },
   "symbolIndex": {
@@ -20934,8 +20934,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt",
-      "lines": 56,
-      "sha256": "2082cd51462327ab170642530b921d8daa0c414f5cd481b051ab66cf949f5215",
+      "lines": 90,
+      "sha256": "031d69bf0f74832c23bd317fcb137f7428cc3fc9efa67e2e3cd2f9d92dd75b32",
       "symbols": [
         {
           "name": "VoiceSynthesisPolicyTest",
