@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:50:12.426164+00:00",
-  "commit": "d3b91805034dd36798c2c05ccf9b1f3fac4cc5f4",
+  "generatedAt": "2026-10-14T06:50:56.556532+00:00",
+  "commit": "6e264071498eee2985999d19483a8b3c14cbbb4e",
   "branch": "main",
-  "sourceFingerprint": "fb4758ebcc8a992452ab9aa89263f80faa6fbf6dbe9691d0e10dee2de8d53475",
+  "sourceFingerprint": "b7b6e40d63bc34438ebc2304edd142f6e3c744a61b8bf57b7ee461b4ce51319a",
   "summary": {
-    "files": 618,
-    "lines": 124483,
-    "symbols": 1860
+    "files": 619,
+    "lines": 124527,
+    "symbols": 1861
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6668,6 +6668,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
         "line": 109
+      }
+    ],
+    "permits": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
+        "line": 20
       }
     ],
     "shouldUpdateVisibleState": [
@@ -16828,6 +16834,17 @@
         {
           "name": "dueAt",
           "line": 109
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
+      "lines": 44,
+      "sha256": "a0a2db0f1137c2c47ca57f6c6e6060215565907a140965367638a8d6d922ef15",
+      "symbols": [
+        {
+          "name": "permits",
+          "line": 20
         }
       ]
     },
