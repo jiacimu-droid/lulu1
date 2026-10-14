@@ -769,14 +769,20 @@ object ProactivePerceptionRuntime {
             key = followThroughKey, previousKey = prefs.getString("last_impulse_review_key_$characterId", "").orEmpty(),
             nowMs = now.toEpochMilli(), previousAtMs = prefs.getLong("last_impulse_review_at_$characterId", 0L),
         )
-        val shouldReview = followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
+        // A quiet heartbeat already paid for one complete personality,
+        // appraisal and action choice. Never spend on a SECOND optional
+        // agency-recovery model call merely because it chose solitude.
+        // Real unread messages and new scene/call events retain recovery.
+        val routineHeartbeat = trigger.startsWith("在线持续感知") ||
+            trigger.startsWith("合并后的自主生活回顾")
+        val shouldReview = !routineHeartbeat && (followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
             now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
             AutonomousDecisionRecovery.needsIndependentLifeReview(
                 silent = parsed.action == Action.SILENT,
                 reason = parsed.reason,
                 recentActions = recentAutonomousActions,
                 hasPendingUserMessage = onlineUnread.text.isNotBlank(),
-            ))
+            )))
         val independentChoice = if (shouldReview) {
             prefs.edit().putLong("last_independent_life_review_$characterId", now.toEpochMilli())
                 .putString("last_impulse_review_key_$characterId", followThroughKey)
