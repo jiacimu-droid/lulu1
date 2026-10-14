@@ -527,6 +527,11 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
         ?.characterId
         .orEmpty()
     val intent = Intent(context, MigrationActivity::class.java).apply {
+        // Keep the originating private conversation beneath the target page so
+        // Android Back returns to the exact chat that displayed this receipt.
+        if (message.conversationId.isNotBlank()) {
+            putExtra("open_conversation_id", message.conversationId)
+        }
         when (link.type) {
             SystemActivityType.Diary -> {
                 putExtra("open_route", MigrationRoute.Lexicon.name)
