@@ -82,6 +82,8 @@ object ProactivePerceptionRuntime {
         val alternatives: org.json.JSONArray? = null,
         val onlineChoice: String = "",
         val onlineChoiceReason: String = "",
+        val lifeSceneTitle: String = "",
+        val lifeScene: String = "",
     )
 
     private data class UserActivity(
@@ -522,6 +524,8 @@ object ProactivePerceptionRuntime {
                 }
                 appendLine(affordances)
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                WorldLifeEpisodeStore.initialize(appContext)
+                WorldLifeEpisodeStore.recentContext(characterId, now).takeIf(String::isNotBlank)?.let(::appendLine)
                 // Music is a REAL device action, not an imagined soundtrack
                 // in the character's digital home. The role must have opted-in
                 // media permission and can only act on existing MediaSessions.
@@ -1309,6 +1313,12 @@ object ProactivePerceptionRuntime {
             put("content", decision.journalContent.ifBlank { if (decision.action == Action.JOURNAL) decision.text else "" })
             put("readingBookId", decision.readingBookId)
             put("worldAction", decision.worldAction)
+            // Subjective narration is handled only by the world episode store
+            // AFTER a successful executor receipt; it never enters world state.
+            if (decision.action == Action.DIGITAL_WORLD) {
+                put("lifeSceneTitle", decision.lifeSceneTitle)
+                put("lifeScene", decision.lifeScene)
+            }
             put("itemId", decision.itemId)
             put("itemType", decision.itemType)
             put("name", decision.itemName)
@@ -1454,6 +1464,8 @@ object ProactivePerceptionRuntime {
                 ?.trim()?.lowercase().orEmpty(),
             onlineChoiceReason = json.optJSONObject("onlineDecision")?.optString("reason")
                 ?.trim()?.take(220).orEmpty(),
+            lifeSceneTitle = json.optString("lifeSceneTitle").trim().take(70),
+            lifeScene = json.optString("lifeScene").trim().take(1_800),
         )
     }.getOrNull()
 
