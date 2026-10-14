@@ -105,44 +105,52 @@ internal object ModelStructuredOutput {
      * A model-selected bubble may contain several complete sentences; this
      * changes only the send pacing, never the character's decided content.
      */
-    fun readableReplyBubbles(values: List<String>, maxBubbles: Int = 5): List<String> {
+    fun readableReplyBubbles(values: List<String>, maxBubbles: Int = 8): List<String> {
         val stable = stabilizeReplyBubbles(values)
         val pieces = mutableListOf<String>()
         stable.forEach { bubble ->
-            if (bubble.length <= 65 || bubble.startsWith("[") || bubble.startsWith("⟪")) {
+            // Never split technical payloads or already short human responses.
+            if (bubble.length <= 54 || bubble.startsWith("[") || bubble.startsWith("⟪")) {
                 pieces += bubble
                 return@forEach
             }
-            val sentences = mutableListOf<String>()
+            val clauses = mutableListOf<String>()
             var from = 0
             bubble.forEachIndexed { index, char ->
-                if (char in "。！？!?；;" && index + 1 < bubble.length) {
+                val completeSentence = char in "。！？!?；;"
+                // A very long comma-delimited sentence can be divided at a
+                // legitimate Chinese clause boundary, never at a character count.
+                val longCommaClause = char in "，," && index - from >= 38
+                if (completeSentence || longCommaClause) {
                     val part = bubble.substring(from, index + 1).trim()
-                    if (part.isNotBlank()) sentences += part
+                    if (part.isNotBlank()) clauses += part
                     from = index + 1
                 }
             }
-            bubble.substring(from).trim().takeIf(String::isNotBlank)?.let(sentences::add)
-            if (sentences.size < 2) {
+            bubble.substring(from).trim().takeIf(String::isNotBlank)?.let(clauses::add)
+            if (clauses.size < 2) {
                 pieces += bubble
                 return@forEach
             }
             var current = ""
-            sentences.forEach { sentence ->
-                if (current.length >= 24 && current.length + sentence.length > 56) {
+            clauses.forEach { clause ->
+                if (current.isNotBlank() && current.length >= 19 &&
+                    current.length + clause.length > 52) {
                     pieces += current
-                    current = sentence
-                } else current += sentence
+                    current = clause
+                } else current += clause
             }
             if (current.isNotBlank()) {
-                if (pieces.isNotEmpty() && current.length < 12 &&
-                    pieces.last().length < 66) {
+                // A tiny dependent tail belongs to the preceding thought.
+                if (pieces.isNotEmpty() && current.length < 9 &&
+                    pieces.last().length < 70) {
                     pieces[pieces.lastIndex] += current
                 } else pieces += current
             }
         }
-        // Never discard speech when there are more segments than visual slots.
-        val limit = maxBubbles.coerceIn(1, 8)
+        // Preserve ALL spoken text, even when a model ignores requested slots.
+        // Keep visual slots independent of the planning dialogue-move count.
+        val limit = maxBubbles.coerceIn(1, 10)
         if (pieces.size <= limit) return pieces
         return pieces.take(limit - 1) + pieces.drop(limit - 1).joinToString("")
     }
@@ -172,7 +180,7 @@ internal object ModelStructuredOutput {
             }.take(8)
             // Structured model output owns the send boundaries. Once bubbles are valid JSON,
             // do not second-guess them with punctuation/length heuristics.
-            if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = 5)
+            if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = 8)
         }
 
         return smoothInlineBreaks(json.optString("text"))
@@ -213,7 +221,7 @@ internal object ModelStructuredOutput {
                                 val bubble = if (value is JSONObject) value.optString("text")
                                     else array.optString(index)
                                 bubble.trim().takeIf(String::isNotBlank)?.take(2_000)
-                            }.let { readableReplyBubbles(it, maxBubbles = 5) }.takeIf { it.isNotEmpty() }
+                            }.let { readableReplyBubbles(it, maxBubbles = 8) }.takeIf { it.isNotEmpty() }
                         }
                     }
                 }
