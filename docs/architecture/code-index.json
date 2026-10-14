@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T11:20:40.302362+00:00",
-  "commit": "1480ed2432ec74865c39f053c24118f3e57f3cb0",
+  "generatedAt": "2026-10-14T11:21:00.714140+00:00",
+  "commit": "0ee91fa39fff659e5de2ac8a65755efc417aa6d3",
   "branch": "main",
-  "sourceFingerprint": "a6d411f2d9afde0e37a0f4b0c7e2362ceee659897bc7ce34d8d2ebb711be686b",
+  "sourceFingerprint": "ad9571b23138f13136d7b9179a7cf3b4430390f825b3b6e8631d8ebebdc075c9",
   "summary": {
     "files": 632,
-    "lines": 126463,
+    "lines": 126500,
     "symbols": 1874
   },
   "symbolIndex": {
@@ -20373,8 +20373,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1304,
-      "sha256": "8bc570280b16aecc0efd5614fc3a927a1ad7786e9b457b178dec38af4cecd261",
+      "lines": 1308,
+      "sha256": "7c94446bd6072af19acd39c5cd0680fa6255e6c80961239c006c09c6fad22cb0",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -21506,8 +21506,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
-      "lines": 115,
-      "sha256": "d13c7c37598b7afdf82834140d076e38171175f2f4e3e2126bea789086218f5c",
+      "lines": 148,
+      "sha256": "abfc59ba2909a39f564f2f9d7a8ea48259bb561ced742bea00689bdd0ebe4d59",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
