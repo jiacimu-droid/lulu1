@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`35bd20e43a893684ff49b435f8d9049d29bb9068`
+- 基准提交：`c3d8feff46542981ab8d86ed52d74f025ee6a628`
 - 分支：`main`
 - 已索引文件：622
-- 已索引代码/文本行：125031
+- 已索引代码/文本行：125038
 - 已发现符号：1865
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 139 | 0 |
-| `app/src/main/AndroidManifest.xml` | 129 | 0 |
+| `app/src/main/AndroidManifest.xml` | 136 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
