@@ -112,7 +112,9 @@ internal fun LuluXhsNativeReaderScreen(
         message = "正在读取真实笔记列表…"
         task = scope.launch {
             try {
-                val result = XhsReadingEngine.list(context, query, onProgress = { if (sequence == current) message = it })
+                val result = XhsReadingEngine.list(context, query,
+                    onProgress = { if (sequence == current) message = it },
+                    forceRefresh = true)
                 if (sequence == current) {
                     cards = result
                     message = if (result.isEmpty()) "没有找到相关笔记。" else "已获取 ${result.size} 篇笔记"
@@ -171,7 +173,7 @@ internal fun LuluXhsNativeReaderScreen(
                         message = "第 1 / 2 步：验证首页推荐与真实笔记正文…"
                         val home = XhsReadingEngine.list(context, "",
                             onProgress = { if (current == sequence) message = "首页 · $it" },
-                            localOnly = true)
+                            localOnly = true, forceRefresh = true)
                         if (current != sequence) return@withTimeout ""
                         cards = home
                         val chosen = home.firstOrNull { it.provider == "webview" && it.token.isNotBlank() }
@@ -193,7 +195,7 @@ internal fun LuluXhsNativeReaderScreen(
                     val searchReport = try {
                         val result = XhsReadingEngine.list(context, "猫咪",
                             onProgress = { if (current == sequence) message = "$homeReport\n搜索 · $it" },
-                            localOnly = true)
+                            localOnly = true, forceRefresh = true)
                         require(result.isNotEmpty()) { "网页没有返回可确认的搜索笔记" }
                         if (current == sequence) cards = result
                         "搜索通过：${result.size} 篇真实笔记"
