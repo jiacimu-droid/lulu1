@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T07:46:34.197711+00:00",
-  "commit": "820dce90b9a0326aaa1b5cbecf0fbe4617c3cd67",
+  "generatedAt": "2026-10-14T07:47:48.699341+00:00",
+  "commit": "2e9b27c615c6b4f8fe6b349a1cd83ccc9cda7d95",
   "branch": "main",
-  "sourceFingerprint": "035611dd1148d64ea092da0b02bf141418aa8ad3f1e6ce0ce37f5e03fdcf9b68",
+  "sourceFingerprint": "be55b099242bd4f2391a7a71f7f927a7c04347ff750138e26d8e1ed680f7da2a",
   "summary": {
     "files": 621,
-    "lines": 124861,
+    "lines": 124870,
     "symbols": 1863
   },
   "symbolIndex": {
@@ -20281,8 +20281,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-      "lines": 177,
-      "sha256": "220f8c08b29461a8282245804951d4b8600378d0f4e94c7141977418cc850a1d",
+      "lines": 186,
+      "sha256": "0f6ba2d8baa3c331014e99796ad36444546d680d19976440de6a914be09afd9a",
       "symbols": [
         {
           "name": "observation",
