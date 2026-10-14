@@ -208,13 +208,22 @@ object VisionModelService {
         }
     }
 
-    private fun imageDataUrl(context: Context, uri: Uri): String {
+    /**
+     * Prepare a REAL user-attached photo for the current chat model.
+     * Called after chat persistence, not from the photo-picker send control.
+     */
+    suspend fun prepareChatImageDataUrl(context: Context, imageUri: String): Result<String> =
+        withContext(Dispatchers.IO) {
+            runCatching { imageDataUrl(context, Uri.parse(imageUri), maxSide = 1536, quality = 85) }
+        }
+
+    private fun imageDataUrl(context: Context, uri: Uri, maxSide: Int = 2_048, quality: Int = 92): String {
         val resolver = context.applicationContext.contentResolver
         val bitmap = resolver.openInputStream(uri)?.use(BitmapFactory::decodeStream)
             ?: error("无法读取这张图片")
-        val scaled = scaleDown(bitmap, 2_048)
+        val scaled = scaleDown(bitmap, maxSide)
         val bytes = ByteArrayOutputStream().use { output ->
-            scaled.compress(Bitmap.CompressFormat.JPEG, 92, output)
+            scaled.compress(Bitmap.CompressFormat.JPEG, quality, output)
             output.toByteArray()
         }
         if (scaled !== bitmap) scaled.recycle()
