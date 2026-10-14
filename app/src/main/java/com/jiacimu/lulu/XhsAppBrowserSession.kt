@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.app.Activity
+import android.net.Uri
 import android.view.ViewGroup
 import android.view.View
 import android.widget.FrameLayout
@@ -27,6 +28,13 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
     private var retained: WebView? = null
     private var parkingSlot: FrameLayout? = null
     private var destroyed = false
+    // The bridge belongs to the Activity-owned WebView, not an individual
+    // Compose screen. A late-mounted screen only attaches a short-lived handler.
+    private var navigationHandler: ((WebView, String, Uri, Boolean) -> Unit)? = null
+
+    fun setNavigationHandler(handler: ((WebView, String, Uri, Boolean) -> Unit)?) {
+        navigationHandler = handler
+    }
 
     // Initializing at foreground start makes the authorized reader available to
     // a character on the chat screen, not only after the user visits XHS.
@@ -65,10 +73,20 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
         }
         CookieManager.getInstance().setAcceptCookie(true)
         CookieManager.getInstance().setAcceptThirdPartyCookies(view, false)
+        val xhsOrigins = setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")
+        // Register before the FIRST request. Adding a listener only when the
+        // Compose browser screen opens leaves an already loaded document with
+        // no window.luluXhsNavigation, silently breaking SPA search/note taps.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(view, "luluXhsNavigation", xhsOrigins) {
+                    source, message, origin, isMainFrame, _ ->
+                navigationHandler?.invoke(source, message.data.orEmpty(), origin, isMainFrame)
+            }
+        }
         if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
-            val script = activity.assets.open("xhs-reader.js").bufferedReader().use { it.readText() }
-            WebViewCompat.addDocumentStartJavaScript(view, script,
-                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+            val reader = activity.assets.open("xhs-reader.js").bufferedReader().use { it.readText() }
+            val routes = activity.assets.open("xhs-browser-route.js").bufferedReader().use { it.readText() }
+            WebViewCompat.addDocumentStartJavaScript(view, reader + "\n" + routes, xhsOrigins)
         }
         retained = view
         park(view)
@@ -86,11 +104,6 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
                 uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
         }
     }
-
-    // Probe owns a single document-start routing registration per retained view.
-    // Native reading may be opened first; it only installs the parser.
-    private var routeScriptInstalled = false
-    fun needsRouteScript(): Boolean = !routeScriptInstalled.also { routeScriptInstalled = true }
 
     /** An attached and measured slot underneath the root Compose UI.
      * Its viewport is large enough for the site's virtualized cards.
@@ -165,7 +178,7 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
             view.destroy()
         }
         retained = null
-        routeScriptInstalled = false
+        navigationHandler = null
         parkingSlot?.let { slot ->
             (slot.parent as? ViewGroup)?.removeView(slot)
             slot.removeAllViews()
