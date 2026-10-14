@@ -111,7 +111,8 @@ class ModelStructuredOutputTest {
     @Test fun structuredLongBubbleAlsoSplitsAtFullSentenceBoundaries() {
         val text = "这篇帖子挺有意思，不过我想先看看原文再跟你聊。" +
             "我没有看到图片时不会假装已经看清楚了。" +
-            "你要是分享给我，我会先确认真正拿到的内容。"
+            "你要是分享给我，我会先确认真正拿到的内容。" +
+            "然后我们可以一起聊聊哪些细节有意思，不必只看标题就下结论。"
         val result = ModelStructuredOutput.completedReplyBubbles(
             org.json.JSONObject().put("action", "reply")
                 .put("bubbles", org.json.JSONArray().put(text)).toString()
