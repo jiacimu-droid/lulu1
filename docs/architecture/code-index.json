@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T11:33:22.376525+00:00",
-  "commit": "7985ad52e81b5356a9657bc8efb4f15ec2f325e3",
+  "generatedAt": "2026-10-14T11:41:07.671672+00:00",
+  "commit": "c1d31326a5332c93b24557fc9f1d00819ff7469d",
   "branch": "main",
-  "sourceFingerprint": "6b054ad42e0b14c0ad79410c257c4a337bc58b5a609df65cc3241339e8220798",
+  "sourceFingerprint": "a0ff2b3edb8ebaa6cf693242b58bd00e3017316ccb897d2ddc2150792a9d214b",
   "summary": {
     "files": 633,
-    "lines": 126600,
+    "lines": 126603,
     "symbols": 1875
   },
   "symbolIndex": {
@@ -15010,8 +15010,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt",
-      "lines": 190,
-      "sha256": "f922933e3170941e344e9251a4f5c50623f882ed80ad5a682e0efcf378954dcd",
+      "lines": 193,
+      "sha256": "fc60b3aa6255926d671a22df8a2c8985f513ee18185a2088cfbf248945819233",
       "symbols": [
         {
           "name": "repairInstruction",
