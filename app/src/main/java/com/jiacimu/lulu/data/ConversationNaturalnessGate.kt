@@ -48,11 +48,11 @@ internal object ConversationNaturalnessGate {
         // negative conclusions or the identity of a specific shared post.
         // Reject the rewrite and use the original instead of letting style
         // polishing fabricate a tool result or invert someone's stance.
-        val numbers = Regex("""(?<![\\p{L}\\d])\\d+(?:[.:：]\\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
+        val numbers = Regex("""(?<![\p{L}\d])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
             .findAll(before).map { it.value }.toSet()
         if (numbers.any { it !in after }) return false
 
-        val protectedUrls = Regex("""https?://[^\\s，。；;）)]+""", RegexOption.IGNORE_CASE)
+        val protectedUrls = Regex("""https?://[^\s，。；;）)]+""", RegexOption.IGNORE_CASE)
             .findAll(before).map { it.value }.toSet()
         if (protectedUrls.any { it !in after }) return false
 
