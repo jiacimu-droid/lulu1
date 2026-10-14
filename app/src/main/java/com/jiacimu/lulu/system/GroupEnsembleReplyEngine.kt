@@ -150,6 +150,9 @@ internal object GroupEnsembleReplyEngine {
         }
 
         val definitions = validMembers.associate { it.characterId to CharacterRuntime.definition(it.characterId) }
+        // Ensemble mode does not inject the current speaker's worldbook into
+        // everyone else. Resolve each member's own global/role entries instead.
+        val memberWorldBook = LuluRepositories.worldBook.snapshot()
         val generated = LuluAiServices.gateway.generate(
             characterId = currentSpeakerId,
             facts = buildString {
@@ -202,6 +205,16 @@ internal object GroupEnsembleReplyEngine {
                         member.characterId, includeObserved = true, includeConfigured = true,
                         includeRelationship = true,
                     ))
+                    val allowedWorldRules = memberWorldBook.filter { entry ->
+                        (entry.globalEnabled && entry.characterOverrides[member.characterId] != false) ||
+                            (!entry.globalEnabled && entry.characterOverrides[member.characterId] == true)
+                    }
+                    if (allowedWorldRules.isNotEmpty()) {
+                        appendLine("【仅本成员适用的世界书｜不得当作其他成员已知的私人事实】")
+                        allowedWorldRules.forEach { entry ->
+                            appendLine("- ${entry.title}：${entry.content}")
+                        }
+                    }
                     appendLine(CharacterRuntime.personalityRuntimeContext(
                         member.characterId,
                         interactionKey = "group:${conversation.id}",
