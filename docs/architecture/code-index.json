@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:48:46.265404+00:00",
-  "commit": "306bda0ed580652fec52d6de25e07886b2d2a2dc",
+  "generatedAt": "2026-10-14T06:50:01.482223+00:00",
+  "commit": "48ecec44ed0974742aa6a0696d6dd950d6df074b",
   "branch": "main",
-  "sourceFingerprint": "bbcf895ecd8e280f8dc9721d9a479c775fcb50abe8c7f77c88c17a2c2c4563a1",
+  "sourceFingerprint": "fb4758ebcc8a992452ab9aa89263f80faa6fbf6dbe9691d0e10dee2de8d53475",
   "summary": {
     "files": 618,
     "lines": 124483,
@@ -16943,7 +16943,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
       "lines": 136,
-      "sha256": "2fea41f55aa333417dad4b47cd9054486e8595b2fbe486b2ea6613f89fafa4c2",
+      "sha256": "734c3b97718fadc9b6e4b80e9fbb118db35ff2d40a6fe6d3d4d832d4ce287c5f",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -21608,7 +21608,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt",
       "lines": 84,
-      "sha256": "ad3b05be5ee223e2240d92569498e2d7f8d1ddac3dd604b1dd413cba1ef397ed",
+      "sha256": "26fb90d2c8125658d45963c335b0c210224bc69b22cab078e8024773c13e8049",
       "symbols": [
         {
           "name": "PerceptionWakePlanStoreTest",
