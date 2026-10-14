@@ -267,17 +267,27 @@
           staleSearchState ? [] : stateItems;
         if (!items.length && kind !== 'search') items = received[kind];
         // Actual note links retain the site's token/source; avoid generic links in menus.
-        if (!items.length && (kind !== 'search' || (searchPage && !staleSearchState))) for (const card of document.querySelectorAll('section.note-item,.note-item')) {
-          const a = card.querySelector('a[href*="/explore/"],a[href*="/discovery/item/"]');
-          if (!a) continue;
-          try {
-            const u = new URL(a.href, location.href), match = u.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})$/i);
-            if (!['www.xiaohongshu.com','xiaohongshu.com'].includes(u.hostname) || !match) continue;
-            items.push({id: match[1], token: u.searchParams.get('xsec_token') || '',
-              source: u.searchParams.get('xsec_source') || (kind === 'search' ? 'pc_search' : 'pc_feed'),
-              title: clean(card.querySelector('.title')?.innerText, 200) || '未命名笔记',
-              author: clean(card.querySelector('.author .name,.username')?.innerText, 120)});
-          } catch (_) {}
+        if (!items.length && (kind !== 'search' || (searchPage && !staleSearchState))) {
+          // Classes have changed repeatedly in the live XHS SPA. Prefer its
+          // actual real note links to guessed Vue internals; never scrape a
+          // generic page text or invent a note ID. Only trust signed links
+          // belonging to the current page's allowed note-route patterns.
+          const anchors = document.querySelectorAll(
+            'section.note-item a[href],.note-item a[href],a[href*="/explore/"],a[href*="/discovery/item/"]');
+          for (const a of [...anchors].slice(0, 140)) {
+            try {
+              const u = new URL(a.href || a.getAttribute('href'), location.href);
+              const match = u.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})\/?$/i);
+              if (!['www.xiaohongshu.com','xiaohongshu.com'].includes(u.hostname) || !match ||
+                  u.protocol !== 'https:') continue;
+              const tile = a.closest?.('section.note-item,.note-item,[class*="note-item"],[class*="feed-item"]') || a;
+              items.push({id: match[1], token: u.searchParams.get('xsec_token') || '',
+                source: u.searchParams.get('xsec_source') || (kind === 'search' ? 'pc_search' : 'pc_feed'),
+                title: clean(tile.querySelector?.('.title,[class*="title"]')?.innerText ||
+                  a.getAttribute?.('aria-label') || a.innerText, 200) || '未命名笔记',
+                author: clean(tile.querySelector?.('.author .name,.username,[class*="author"] .name')?.innerText, 120)});
+            } catch (_) {}
+          }
         }
         items = [...new Map(items.map(item => [item.id, item])).values()].slice(0, 35);
       }
