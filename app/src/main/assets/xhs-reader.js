@@ -103,17 +103,35 @@
     received.searchPending = next;
     received.failures.search = '';
   };
+  const searchInputSelectors = '#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"],input[placeholder*="搜"],[role="searchbox"],[class*="search"] input';
+  const isVisibleSearchControl = el => {
+    const r = el?.getBoundingClientRect?.();
+    return !!el && (!r || (r.width > 2 && r.height > 2));
+  };
+  const findSearchInput = () => {
+    const candidates = [...(document.querySelectorAll?.(searchInputSelectors) || [])];
+    if (!candidates.length) {
+      const only = document.querySelector?.(searchInputSelectors);
+      if (only) candidates.push(only);
+    }
+    return candidates.find(isVisibleSearchControl) || null;
+  };
   const openSearchBox = () => {
-    // Only click the website's own explicit search control. Do not simulate
-    // authenticated internal APIs and do not guess unrelated button behavior.
-    const button = document.querySelector(
-      '.search-icon,.search-button,.search-btn,[role="button"][aria-label*="搜索"],button[aria-label*="搜索"],[aria-label="search"]');
-    if (!button || typeof button.click !== 'function') return 'opener-missing';
+    // Search entry differs between desktop and narrow XHS layouts; accept
+    // only recognizable search controls, never arbitrary site or note buttons.
+    const selectors = '.search-icon,.search-button,.search-btn,[class*="search-input-wrapper"],[class*="search-trigger"],[aria-label*="搜索"],[title*="搜索"],[aria-label="search"]';
+    const nodes = [...(document.querySelectorAll?.(selectors) || [])];
+    if (!nodes.length) {
+      const only = document.querySelector?.(selectors);
+      if (only) nodes.push(only);
+    }
+    const button = nodes.find(node => isVisibleSearchControl(node) && typeof node.click === 'function');
+    if (!button) return 'opener-missing';
     button.click();
     return 'opened';
   };
   const startSearch = keyword => {
-    const input = document.querySelector('#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"]');
+    const input = findSearchInput();
     if (!input) return 'input-missing';
     beginSearch(keyword);
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement?.prototype || {}, 'value')?.set;
@@ -121,8 +139,12 @@
     input.dispatchEvent(new Event('input', {bubbles: true}));
     input.dispatchEvent(new Event('change', {bubbles: true}));
     const button = document.querySelector('.search-icon,.search-button,.search-btn,[aria-label*="搜索"],[aria-label="search"]') || input.form?.querySelector('button[type="submit"]');
-    if (button) button.click();
-    else input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}));
+    if (input.form?.requestSubmit) input.form.requestSubmit();
+    else if (button) button.click();
+    else {
+      input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}));
+      input.dispatchEvent(new KeyboardEvent('keyup', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}));
+    }
     input.blur?.();
     return 'submitted';
   };
@@ -216,7 +238,7 @@
     // note URL. Without this we falsely called every stalled SPA a network timeout.
     return {api: received.api,
       page: {path: path.slice(0, 60), readyState: String(document.readyState || ''),
-        stateCards: hydrated.length, visibleCards, hasSearchInput: !!document.querySelector?.('#search-input,input.search-input,input[type="search"],input[name="keyword"]'),
+        stateCards: hydrated.length, visibleCards, hasSearchInput: !!findSearchInput(),
         loginPrompt: /扫码登录|请先登录|登录后查看/.test(bodyText),
         verificationPrompt: /滑块验证|安全验证|访问异常|IP at risk|300012|300017/.test(bodyText)},
       search: {pending: !!received.searchPending, responseMatched: received.searchKeyword === received.searchPending && !!received.searchKeyword, count: received.search.length, empty: received.searchEmpty}, viewport: {width, height,
