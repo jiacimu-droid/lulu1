@@ -43,6 +43,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
     }.getOrDefault("")
     return """
         ${CharacterDecisionProtocol.principles}
+        ${CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)}
         ${spontaneousInnerVoiceGuide}
         ${CharacterSpontaneityGuide.autonomousPrinciples}
 
