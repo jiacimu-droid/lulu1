@@ -33,7 +33,10 @@ internal fun XhsShareToRoleDialog(
     onSelect: (LuluConversation) -> Unit,
 ) {
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
-    val recipients = conversations.filter { it.groupChat == null }.distinctBy { it.characterId }
+    val characters by MigratedDomainStores.characters.settings.collectAsState()
+    // A role is shareable even if there is no existing private chat yet.
+    // Never use a stale conversation title as the identity of a character.
+    val recipients = characters.values.sortedBy { it.displayName }
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(25.dp),
@@ -68,11 +71,15 @@ internal fun XhsShareToRoleDialog(
                 }
                 Column(Modifier.heightIn(max = 322.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (recipients.isEmpty()) Text("还没有私聊，先在聊天页创建一个角色会话。",
+                    if (recipients.isEmpty()) Text("还没有创建角色。可以先创建角色，再来分享笔记。",
                         fontSize = 13.sp, color = Color(0xFF858189))
-                    recipients.forEach { chat ->
+                    recipients.forEach { person ->
+                        val chat = conversations.filter { it.characterId == person.characterId && it.groupChat == null }
+                            .maxByOrNull { it.updatedAt }
                         Surface(
-                            modifier = Modifier.fillMaxWidth().clickable { onSelect(chat) },
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                onSelect(chat ?: MigratedDomainStores.chat.ensureConversation(person.characterId, person.displayName))
+                            },
                             color = Color(0xFFF9F8F8),
                             shape = RoundedCornerShape(14.dp),
                             border = BorderStroke(1.dp, Color(0xFFF0EDEF)),
@@ -82,13 +89,15 @@ internal fun XhsShareToRoleDialog(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Box(Modifier.size(38.dp).background(Color(0xFFEDE6F1), CircleShape),
                                     contentAlignment = Alignment.Center) {
-                                    Text(chat.title.take(1).ifBlank { "露" },
+                                    Text(person.displayName.take(1).ifBlank { "露" },
                                         color = Color(0xFF675477), fontWeight = FontWeight.SemiBold)
                                 }
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    Text(chat.title.ifBlank { chat.characterId }, fontSize = 14.sp,
+                                    Text(person.displayName.ifBlank { person.characterId }, fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium, color = Color(0xFF302D34))
-                                    Text("发送到私聊", fontSize = 10.sp, color = Color(0xFF9C99A0))
+                                    Text(chat?.title?.takeIf { it.isNotBlank() && it != person.displayName }
+                                        ?.let { "现有会话：$it" } ?: "发送到私聊",
+                                        fontSize = 10.sp, color = Color(0xFF9C99A0))
                                 }
                                 Text("›", fontSize = 21.sp, color = Color(0xFFAAA3AA))
                             }
