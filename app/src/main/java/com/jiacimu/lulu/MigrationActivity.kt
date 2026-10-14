@@ -58,7 +58,7 @@ class MigrationActivity : ComponentActivity() {
         if (intent?.action != android.content.Intent.ACTION_SEND ||
             !intent.type.orEmpty().startsWith("text/")) return null
         val text = intent.getStringExtra(android.content.Intent.EXTRA_TEXT)?.trim()?.take(3_000).orEmpty()
-        val urls = Regex("""https?://[^\\s<>]+""", RegexOption.IGNORE_CASE).findAll(text)
+        val urls = Regex("""https?://[^\s<>]+""", RegexOption.IGNORE_CASE).findAll(text)
         val isXhs = urls.any { match ->
             val host = runCatching {
                 android.net.Uri.parse(match.value.trimEnd('。', '，', ',', ')')).host?.lowercase()
