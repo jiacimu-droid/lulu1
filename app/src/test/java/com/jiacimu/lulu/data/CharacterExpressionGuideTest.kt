@@ -43,6 +43,44 @@ class CharacterExpressionGuideTest {
         assertFalse(prompt.contains("每条不超过"))
     }
 
+    @Test fun oneSpeakerIdentityRuleSurvivesEveryDeliveryChannel() {
+        val channels = CharacterSpeechChannel.values().toList()
+        assertEquals(6, channels.size)
+        channels.forEach { channel ->
+            val guidance = CharacterExpressionGuide.channelNote(channel)
+            assertTrue("Missing shared identity for $channel",
+                guidance.contains("【同一人物的跨场景说话准则】"))
+            assertTrue(guidance.contains("稳定称呼"))
+            assertTrue(guidance.contains("真正想说的重点"))
+            assertFalse(guidance.contains("每条不超过"))
+        }
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
+            .contains("实时通话优先低延迟、可打断"))
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.MEETING)
+            .contains("动作、环境和内心独白放在各自的现场叙述"))
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.GROUP_CHAT)
+            .contains("每位成员保持自己的一套语言偏好"))
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.TOOL_RESULT)
+            .contains("真实回执"))
+    }
+
+    @Test fun distinctMembersKeepDistinctConfiguredVoicesInSharedGroupOrCall() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        val first = MigratedDomainStores.characters.create("风格甲", "说话直接")
+        val second = MigratedDomainStores.characters.create("风格乙", "说话温吞")
+        CharacterLifeStore.setProfile(first.characterId, "speechHabits", "爱说冷笑话的独特节奏")
+        CharacterLifeStore.setProfile(second.characterId, "speechHabits", "说话细致温柔但不绕弯")
+        val firstVoice = CharacterSpeechIdentity.promptSection(first.characterId)
+        val secondVoice = CharacterSpeechIdentity.promptSection(second.characterId)
+        assertTrue(firstVoice.contains("爱说冷笑话的独特节奏"))
+        assertFalse(firstVoice.contains("说话细致温柔但不绕弯"))
+        assertTrue(secondVoice.contains("说话细致温柔但不绕弯"))
+        assertFalse(secondVoice.contains("爱说冷笑话的独特节奏"))
+    }
+
     @Test fun situationalPlayfulnessIsAChoiceNotAFlirtingTemplate() {
         val expression = CharacterExpressionGuide.promptSection()
         val initiative = proactiveDecisionInstruction("ordinary-role-without-life")
