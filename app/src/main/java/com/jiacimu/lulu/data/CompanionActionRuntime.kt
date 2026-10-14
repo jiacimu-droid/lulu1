@@ -410,7 +410,7 @@ internal object CompanionActionRuntime {
                     if (episode != null) {
                         MigratedDomainStores.chat.appendPrivateActivityNotice(
                             characterId,
-                            "[独处片段|${episode.id}] ${character.displayName}的《${episode.title}》 · 查看完整片段",
+                            "[独处片段|${episode.id}] ${character.displayName}的《${episode.title}》 · 查看片段",
                         )
                     } else if (worldAction !in leisureActions) {
                         MigratedDomainStores.chat.appendPrivateActivityNotice(
