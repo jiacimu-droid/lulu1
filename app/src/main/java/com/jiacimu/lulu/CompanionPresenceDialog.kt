@@ -153,6 +153,18 @@ internal fun CompanionPresenceDialog(
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState, latestHeartMoment)
+                                    // A structured consideration is NOT a second heart voice.
+                                    // Show it only when materially different, with its own label.
+                                    val reflection = latestThinkingMoment?.momentReflection.orEmpty()
+                                    if (reflection.isNotBlank() &&
+                                        !CharacterHeartVoicePolicy.sameMeaning(
+                                            reflection, latestHeartMoment?.innerThought.orEmpty(),
+                                        )) {
+                                        val whenThought = latestThinkingMoment?.updatedAt
+                                            ?.atZone(ZoneId.systemDefault())
+                                            ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")).orEmpty()
+                                        PresenceDialogSection("最近的想法 · $whenThought", reflection)
+                                    }
 
                                 }
                             }
@@ -251,22 +263,13 @@ private fun PresenceStateContent(
     // "PresencePresentation.status" already contains mood, which used to
     // duplicate the mood exactly as in the reported screenshot. Show stable
     // state, mood and gesture as DIFFERENT fields; do not concatenate them.
-    val mood = state.mood.trim()
-    val status = state.statusText.trim().takeUnless { value ->
-        value.isBlank() || value == mood || mood.contains(value) ||
-            (state.gesture.isNotBlank() &&
-                (value == state.gesture || state.gesture.contains(value)))
-    }.orEmpty()
-    val gesture = state.gesture.trim().takeUnless { value ->
-        value.isBlank() || value == mood || value == status ||
-            status.contains(value)
-    }.orEmpty()
-    if (mood.isNotBlank()) Text("心情 · $mood",
-        color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
-    if (status.isNotBlank()) Text("状态 · $status",
-        color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
-    if (gesture.isNotBlank()) Text("动作 · $gesture",
-        color = Color(0xFF7A7A7E), fontSize = 13.sp, lineHeight = 19.sp)
+    // The same cleanup serves this live page and other presence projections.
+    // Never present the same emotional words as three separate state fields.
+    val visibleFields = PresencePresentation.stateFields(state)
+    visibleFields.forEach { (label, value) ->
+        Text("$label · $value", color = Color(0xFF7A7A7E),
+            fontSize = 13.sp, lineHeight = 19.sp)
+    }
     val voice = heartMoment?.innerThought.orEmpty()
     if (voice.isNotBlank()) {
         val time = heartMoment!!.updatedAt.atZone(ZoneId.systemDefault())
@@ -278,7 +281,7 @@ private fun PresenceStateContent(
     // A chosen life activity is a real queued executor request, never merely
     // the model's private prose. Only show its receipt on the live tab, not a
     // historical message's anchored state.
-    if (gesture.isBlank() && status.isBlank() && mood.isBlank() && voice.isBlank()) {
+    if (visibleFields.isEmpty() && voice.isBlank()) {
         Text("这一刻还没有留下心声或动作。", color = Color(0xFF7A7A7E))
     }
 
