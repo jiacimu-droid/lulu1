@@ -3,6 +3,8 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +41,7 @@ fun DigitalWorldMeetingApp(
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val profiles by DigitalLifeProfileStore.profiles.collectAsState()
     val world by DigitalWorldStore.state.collectAsState()
+    val lifeEpisodesByRole by WorldLifeEpisodeStore.state.collectAsState()
     val experience by MeetingExperienceStore.state.collectAsState()
     val taskStates by MeetingReplyTaskManager.states.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
@@ -56,12 +59,20 @@ fun DigitalWorldMeetingApp(
     var showWritingPicker by remember { mutableStateOf(false) }
     var showVoiceSettings by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
+    var selectedLifeEpisodeId by remember { mutableStateOf<String?>(null) }
     var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
     var pendingDeleteTurn by remember { mutableStateOf<MeetingTurn?>(null) }
     var selectedSceneGroup by remember { mutableStateOf<MeetingUiDisplayGroup?>(null) }
 
     LaunchedEffect(Unit) {
+        WorldLifeEpisodeStore.initialize(context)
         MeetingVoicePlayback.initialize(context)
+        DigitalWorldNavigationStore.consumeEpisode(context)?.let { episodeId ->
+            if (WorldLifeEpisodeStore.find(episodeId) != null) {
+                selectedLifeEpisodeId = episodeId
+                showHistory = true
+            }
+        }
         DigitalWorldNavigationStore.consumeMeeting(context)?.let { sessionId ->
             val saved = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
             if (saved != null && saved.turns.isNotEmpty()) {
@@ -322,6 +333,36 @@ fun DigitalWorldMeetingApp(
         }
     }
 
+    selectedLifeEpisodeId?.let { selectedId ->
+        val episode = WorldLifeEpisodeStore.find(selectedId)
+        if (episode != null) {
+            AlertDialog(
+                onDismissRequest = { selectedLifeEpisodeId = null },
+                title = { Text(episode.title, fontWeight = FontWeight.SemiBold) },
+                text = {
+                    Column(Modifier.heightIn(max = 540.dp).verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            "${MigratedDomainStores.characters.get(episode.characterId).displayName} · " +
+                                episode.occurredAt.atZone(java.time.ZoneId.systemDefault())
+                                    .format(java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm")),
+                            color = LuluColors.Muted, fontSize = 12.sp,
+                        )
+                        Text("实际世界动作：${episode.actualAction}",
+                            color = LuluColors.Muted, fontSize = 12.sp)
+                        HorizontalDivider()
+                        Text(episode.scene, fontSize = 15.sp, lineHeight = 26.sp)
+                        Text("这是角色个人生活片段；未执行的居民对话、物品或游戏结果不作为客观事实。",
+                            color = LuluColors.Muted, fontSize = 11.sp)
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { selectedLifeEpisodeId = null }) { Text("收起") }
+                },
+            )
+        }
+    }
+
     Scaffold(
         containerColor = LuluColors.Paper,
         topBar = {
@@ -349,6 +390,10 @@ fun DigitalWorldMeetingApp(
                     browsingMap = false
                 },
                 onDelete = { pendingDeleteSession = it },
+                episodes = lifeEpisodesByRole.values.flatten()
+                    .sortedBy(WorldLifeEpisode::occurredAt),
+                onOpenEpisode = { selectedLifeEpisodeId = it },
+                onDeleteEpisode = { WorldLifeEpisodeStore.delete(it) },
             )
 
             activeSession == null -> DigitalWorldMapLobby(
