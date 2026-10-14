@@ -41,6 +41,9 @@ internal class RealtimeVoiceAdapter(
     private var suppressDelivery = false
     private var deliveryJob: Job? = null
     private var openingJob: Job? = null
+    // Idempotent per actual source message. Provider transcripts can emit
+    // response corrections/mode transitions more than once per audible turn.
+    private val handledPhoneFavorites = mutableSetOf<String>()
 
     suspend fun start(characterId: String, conversationId: String, openingPrompt: String = CallOpeningTurn.prompt()) {
         stop()
@@ -48,6 +51,7 @@ internal class RealtimeVoiceAdapter(
         openingWaiting = true
         openingEventText = openingPrompt
         controlEvents.clear()
+        handledPhoneFavorites.clear()
         controlEvents += openingPrompt
         this.characterId = characterId
         this.conversationId = conversationId
@@ -85,6 +89,12 @@ internal class RealtimeVoiceAdapter(
                         if (epoch == generation && !speaking && lastUserActivity == lastActivity) {
                             val delivered = delivery.played(deliveryEpoch)
                             delivered.forEach { (id, text) -> persistAgent(id, text) }
+                            // A provider Agent may not expose any client tools.
+                            // Honor only this character's explicit, DELIVERED
+                            // save-now decision; never treat private thoughts,
+                            // generated-but-interrupted text or vague promises
+                            // as permission to save the user's speech.
+                            saveAudiblyChosenFavorite(delivered.values.takeLast(3), epoch)
                             onCandidate("")
                             // Only words actually delivered by the provider's
                             // audio-mode transition may carry this commitment.
@@ -227,6 +237,43 @@ internal class RealtimeVoiceAdapter(
                 "agent_realtime", durationMs = duration)
             connectedAtElapsed = 0L
             scope.launch { old.endSession() }
+        }
+    }
+
+    private fun saveAudiblyChosenFavorite(spokenLines: Collection<String>, epoch: Long) {
+        val decision = spokenLines.joinToString(" ").trim()
+        if (!RealtimePhoneFavoritePolicy.decidedToSaveNow(decision)) return
+        val latest = MigratedDomainStores.chat.messages(conversationId).value
+            .asReversed().firstOrNull { message ->
+                message.sender == LuluChatMessage.Sender.User &&
+                    message.status == LuluChatMessage.Status.Sent &&
+                    !message.createdAt.isBefore(Instant.now().minusSeconds(240))
+            } ?: return
+        val role = characterId
+        val chat = conversationId
+        val source = latest.id
+        if (!SharedExperienceTimeline.eventsByIds(role, listOf(source)).any {
+                it.evidenceKind == EventEvidenceKind.UserStatement
+            }) return
+        if (!handledPhoneFavorites.add(source)) return
+        scope.launch {
+            val outcome = runCatching {
+                JSONObject(ToolRouter.execute(context, role, "favorite_user_message",
+                    JSONObject().put("messageId", source)
+                        .put("reason", "通话中听到这句真实原话，自己明确决定当场收藏：${latest.content.take(100)}"),
+                    requestId = "voice-favorite-$providerSessionId-$source",
+                ))
+            }.getOrElse { exception ->
+                JSONObject().put("success", false)
+                    .put("error", exception.message.orEmpty().take(100))
+            }
+            // A real receipt is the single source of truth. Don't fabricate a
+            // new character utterance or claim a favorite before the tool runs.
+            MigratedDomainStores.chat.appendSystemMessage(chat,
+                if (outcome.optBoolean("success"))
+                    "收藏 · 角色已将刚才的真实语音消息保存到辞海"
+                else "收藏 · 这次没有保存成功：${outcome.optString("error").take(90)}")
+            if (epoch == generation) refreshCore(epoch)
         }
     }
 
