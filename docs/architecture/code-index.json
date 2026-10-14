@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T07:57:05.637175+00:00",
-  "commit": "6f786c44f65470e62c1228ab4b7ce8a8fde1d810",
+  "generatedAt": "2026-10-14T07:57:38.618507+00:00",
+  "commit": "2a2a5806c38e03da5047c1995a5be44d6e146970",
   "branch": "main",
-  "sourceFingerprint": "97c9556e6f484e03ace13c2da7dcb87fd6d494a8e7ae8d4f961e5605e025c6ef",
+  "sourceFingerprint": "377f99499eb95162567f96a80943f32eadb364469f0ef2a916633e81ef0adc6f",
   "summary": {
     "files": 622,
-    "lines": 125037,
+    "lines": 125038,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -11803,8 +11803,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 657,
-      "sha256": "837d8c4a3000d4bfba416a27c6c6f0589dd56e286a7bd1914e744cd213efd40e",
+      "lines": 658,
+      "sha256": "a800142765311697e43f38e39d71644ee40bdf6ed3e65104f3976a6844d0603c",
       "symbols": [
         {
           "name": "failure",
