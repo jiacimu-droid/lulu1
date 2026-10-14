@@ -21,6 +21,8 @@ data class ProactivePerceptionPolicy(
     val quietStartMinutesOfDay: Int = 23 * 60,
     val quietEndMinutesOfDay: Int = 7 * 60,
     val intervalValue: Int = 2,
+    /** Price-aware autonomous thinking cadence while online; incoming events are independent. */
+    val onlinePulseSeconds: Int = 150,
     val intervalUnit: PerceptionIntervalUnit = PerceptionIntervalUnit.Hours,
 ) {
     val baseIntervalMinutes: Long
@@ -36,6 +38,7 @@ data class ProactivePerceptionPolicy(
         quietStartMinutesOfDay = quietStartMinutesOfDay.coerceIn(0, 24 * 60 - 1),
         quietEndMinutesOfDay = quietEndMinutesOfDay.coerceIn(0, 24 * 60 - 1),
         intervalValue = intervalValue.coerceIn(1, 999),
+        onlinePulseSeconds = onlinePulseSeconds.coerceIn(150, 300),
         adaptiveFrequency = if (enabled) adaptiveFrequency else false,
         quietHoursEnabled = if (enabled) quietHoursEnabled else false,
     )
@@ -94,6 +97,7 @@ object ProactivePerceptionPolicyStore {
                 put("quietStartMinutesOfDay", policy.quietStartMinutesOfDay)
                 put("quietEndMinutesOfDay", policy.quietEndMinutesOfDay)
                 put("intervalValue", policy.intervalValue)
+                put("onlinePulseSeconds", policy.onlinePulseSeconds)
                 put("intervalUnit", policy.intervalUnit.name)
             })
         }
@@ -119,6 +123,7 @@ object ProactivePerceptionPolicyStore {
                         quietStartMinutesOfDay = item.optInt("quietStartMinutesOfDay", 23 * 60),
                         quietEndMinutesOfDay = item.optInt("quietEndMinutesOfDay", 7 * 60),
                         intervalValue = item.optInt("intervalValue", 2),
+                        onlinePulseSeconds = item.optInt("onlinePulseSeconds", 150),
                         intervalUnit = runCatching {
                             PerceptionIntervalUnit.valueOf(item.optString("intervalUnit", PerceptionIntervalUnit.Hours.name))
                         }.getOrDefault(PerceptionIntervalUnit.Hours),
