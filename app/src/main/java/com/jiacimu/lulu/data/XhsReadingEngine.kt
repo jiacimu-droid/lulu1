@@ -535,6 +535,17 @@ internal object XhsReadingEngine {
                         var openedSearchOverlayAt = 0L
                         var searchFormSubmitted = false
                         var siteSearchStarted = false
+                        // A note modal has its OWN /explore/<id> history entry.
+                        // Search cannot operate against its covered viewport.
+                        // Close that detail by returning to the known real home
+                        // route first; only then try the site's search control.
+                        val wasOnNote = kind == "search" && current.path.orEmpty()
+                            .matches(Regex("^/(?:explore|discovery/item)/[a-zA-Z0-9]{12,40}/?$"))
+                        if (wasOnNote) {
+                            stage("先退出笔记详情，再搜索关键词")
+                            view.loadUrl("https://www.xiaohongshu.com/explore")
+                            siteSearchStarted = true
+                        }
                         // Prefer the website's own live search box while the
                         // logged-in SPA is already on its feed. Forcing a brand
                         // new /search_result document is exactly where some
@@ -620,9 +631,18 @@ internal object XhsReadingEngine {
                                             val opened = runCatching {
                                                 JSONTokener(openRaw).nextValue() as String
                                             }.getOrDefault("")
-                                            if (opened != "opened")
-                                                error("搜索页未打开，且当前网页没有搜索入口；请展开网页查看网站状态")
-                                            openedSearchOverlayAt = System.currentTimeMillis()
+                                            if (opened != "opened") {
+                                                // No clickable search entry on the genuine
+                                                // homepage. Try ONE official result URL;
+                                                // never repeatedly reload a working page.
+                                                if (!attemptedDirectFallback) {
+                                                    attemptedDirectFallback = true
+                                                    stage("网页没有搜索输入框，尝试一次官方结果页")
+                                                    view.loadUrl(url)
+                                                } else error("网页没有搜索输入框，且官方搜索页也未加载；请切换网页浏览检查登录状态")
+                                            } else {
+                                                openedSearchOverlayAt = System.currentTimeMillis()
+                                            }
                                             stage("已展开网站搜索框，等待输入区域")
                                         }
                                         else -> stage("正在等待网站搜索框")
@@ -658,6 +678,14 @@ internal object XhsReadingEngine {
                                         error("已经打开网站搜索入口，但未显示可输入的搜索框；请在当前网页检查登录或验证")
                                     }
                                 }
+                            }
+                            if (kind == "search" && attemptedDirectFallback &&
+                                System.currentTimeMillis() - navigationStartedAt >= 13_000L &&
+                                Uri.parse(view.url.orEmpty()).path.orEmpty() in
+                                setOf("/", "/explore") &&
+                                latestReport.optJSONObject("search")?.optBoolean("responseMatched") != true &&
+                                latestReport.optJSONObject("search")?.optBoolean("pending") != true) {
+                                error("已尝试网站搜索框和官方结果页，但站点仍返回首页，未得到关键词的真实搜索结果；请在网页浏览模式手动搜索")
                             }
                             // Do not click search twice or reload a working SPA.
                             // The website itself decides when search data is ready;
