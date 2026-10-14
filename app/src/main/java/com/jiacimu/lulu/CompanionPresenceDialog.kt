@@ -50,6 +50,7 @@ internal fun CompanionPresenceDialog(
         if (messageAnchor == null) history else history.filter { it.updatedAt <= messageAnchor.messageAt }
     }
     var selectedTab by remember(characterId) { mutableIntStateOf(0) }
+    LaunchedEffect(messageAnchor?.messageAt) { selectedTab = 0 }
     var manualCheckRequested by remember { mutableStateOf(false) }
     val plans by PerceptionWakePlanStore.plans.collectAsState()
     val schedulingError by PerceptionWakePlanStore.schedulingError.collectAsState()
@@ -96,14 +97,18 @@ internal fun CompanionPresenceDialog(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     item(key = "header") {
-                        Column(
-                            modifier = Modifier.padding(end = 42.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            
-                            Text("$characterName", color = Color(0xFF1D1D1F), fontWeight = FontWeight.Bold, fontSize = 23.sp)
-                            if (messageAnchor != null) {
-                                Text("这条消息发出时的此刻", color = Color(0xFF7A7A7E), fontSize = 11.sp)
+                        Surface(color = Color(0xFFF8F6F7),
+                            shape = RoundedCornerShape(19.dp),
+                            border = BorderStroke(1.dp, Color(0xFFF0ECEE))) {
+                            Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text("PERSONAL MOMENT  ·  这一刻", color = Color(0xFF93868D),
+                                    fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                Text(characterName, color = Color(0xFF1D1D1F),
+                                    fontWeight = FontWeight.Bold, fontSize = 23.sp)
+                                Text(if (messageAnchor != null) "这条消息发出时的状态与心声"
+                                     else "状态是此刻的，想法与行动在相邻页继续",
+                                    color = Color(0xFF7A7A7E), fontSize = 11.sp)
                             }
                         }
                     }
@@ -192,7 +197,7 @@ internal fun CompanionPresenceDialog(
                         }
                     }
 
-                    if (messageAnchor == null && selectedTab <= 2) {
+                    if (messageAnchor == null && selectedTab == 0) {
                         item(key = "awareness") {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 PerceptionStatusPresentation.lines(state, policy, plans[characterId],
