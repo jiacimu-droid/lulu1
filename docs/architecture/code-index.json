@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T05:38:48.984281+00:00",
-  "commit": "3936a05065c1e2a10baa8a7b1854fd52c92fe90d",
+  "generatedAt": "2026-10-14T05:39:57.509530+00:00",
+  "commit": "03c8a6931396baffaaeb20b1c2b902ac50d32eed",
   "branch": "main",
-  "sourceFingerprint": "72a01c625942eefc3e66d01fc7b430820fb5a545d8c7fedba49d8f4ac249ba04",
+  "sourceFingerprint": "58d3309e7537d63241332947ef863f7a9d2c4be412c66ee9cc72203b7a4c64b9",
   "summary": {
     "files": 616,
-    "lines": 123837,
+    "lines": 123846,
     "symbols": 1853
   },
   "symbolIndex": {
@@ -17610,8 +17610,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
-      "lines": 89,
-      "sha256": "c7782636d0b9f8613b869445b3a169ab75de9933c2eaac4dffea6bd18ed3a0a0",
+      "lines": 98,
+      "sha256": "fcc50d544c84c3d5548c0988314894fe59b891f614c0bf7528019a49b5336981",
       "symbols": [
         {
           "name": "normalize",
