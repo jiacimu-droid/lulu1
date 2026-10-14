@@ -20,8 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.ModelUsage
-import com.jiacimu.lulu.ai.VisionModelService
-import kotlinx.coroutines.launch
 
 internal data class QqComposerPayload(
     val text: String,
@@ -43,11 +41,7 @@ internal fun QqChatComposer(
     onStop: () -> Unit,
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var imageUri by remember { mutableStateOf<String?>(null) }
-    var imageDescription by remember { mutableStateOf("") }
-    var imageBusy by remember { mutableStateOf(false) }
-    var imageNotice by remember { mutableStateOf("") }
     var showStickerShelf by remember { mutableStateOf(false) }
     var stickerNotice by remember { mutableStateOf("") }
 
@@ -56,32 +50,8 @@ internal fun QqChatComposer(
         runCatching {
             context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        imageUri = uri.toString()
-        imageDescription = ""
-        imageNotice = ""
-        imageBusy = true
-        scope.launch {
-            VisionModelService.describeImage(context, uri.toString(), input.trim())
-                .onSuccess { description ->
-                    imageDescription = description.trim().take(1_800)
-                    imageNotice = ""
-                }
-                .onFailure { error ->
-                    imageDescription = ""
-                    val reason = error.message
-                        .orEmpty()
-                        .replace(Regex("\\s+"), " ")
-                        .trim()
-                        .take(260)
-                    imageNotice = if (reason.isBlank()) {
-                        "识图失败，仍可发送图片；角色只能看到你的配文。"
-                    } else {
-                        "识图失败：$reason。仍可发送图片；角色只能看到你的配文。"
-                    }
-                }
-            imageBusy = false
-        }
-    }
+        // Attach immediately. The selected chat model reads the actual image
+        // AFTER this message is persisted, during its reply request.    }
 
     val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
@@ -95,14 +65,11 @@ internal fun QqChatComposer(
     fun payload(): QqComposerPayload = QqComposerPayload(
         text = input.trim(),
         imageUri = imageUri,
-        imageDescription = imageDescription,
+        imageDescription = "",
     )
 
     fun clearAttachment() {
         imageUri = null
-        imageDescription = ""
-        imageNotice = ""
-        imageBusy = false
     }
 
     Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
@@ -136,12 +103,9 @@ internal fun QqChatComposer(
                 ) {
                     LuluSelectedPhoto(imageUri = imageUri, modifier = Modifier.size(58.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(if (imageBusy) "正在识图…" else "图片已准备", color = QqInk, fontSize = 12.sp)
-                        if (imageNotice.isNotBlank()) {
-                            Text(imageNotice, color = MaterialTheme.colorScheme.error, fontSize = 10.sp, lineHeight = 14.sp)
-                        } else if (imageDescription.isNotBlank()) {
-                            Text(imageDescription, color = QqMuted, fontSize = 10.sp, maxLines = 2)
-                        }
+                        Text("图片已就绪 · 可以直接发送", color = QqInk, fontSize = 12.sp)
+                        Text("发送后由当前聊天模型看图回复", color = QqMuted,
+                            fontSize = 11.sp, lineHeight = 16.sp)
                     }
                     IconButton(onClick = ::clearAttachment) { Icon(Icons.Outlined.Close, "移除图片", tint = QqMuted) }
                 }
@@ -226,7 +190,7 @@ internal fun QqChatComposer(
                 ),
             )
 
-            val canSend = (input.isNotBlank() || imageUri != null) && !imageBusy
+            val canSend = input.isNotBlank() || imageUri != null
             FilledIconButton(
                 onClick = { if (onSendOnly(payload())) clearAttachment() },
                 enabled = canSend,
@@ -241,7 +205,7 @@ internal fun QqChatComposer(
             FilledTonalIconButton(
                 onClick = {
                     if (receiving) onStop()
-                    else if (!imageBusy && onWakeOrReply(payload())) clearAttachment()
+                    else if (onWakeOrReply(payload())) clearAttachment()
                 },
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = QqIconSurface,
