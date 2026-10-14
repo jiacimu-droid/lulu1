@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T00:52:35.254061+00:00",
-  "commit": "5ace9419a719e7b4372433ec0a0178a52abb344a",
+  "generatedAt": "2026-10-14T05:06:01.360747+00:00",
+  "commit": "116b85f89649057dd3342024a15a105f58b7a782",
   "branch": "main",
-  "sourceFingerprint": "dc9e30a0cc2c40d6588d8e7e61b9c254dac8ed305e15a8434754b0ffbd53443b",
+  "sourceFingerprint": "f6c21b2572c42bad3c4c3ea79d4f650fddce553a2b3403866a1bfa7ee1cc6873",
   "summary": {
-    "files": 615,
-    "lines": 123508,
-    "symbols": 1844
+    "files": 616,
+    "lines": 123567,
+    "symbols": 1849
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1468,6 +1468,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 46
       }
     ],
     "saveGroupCall": [
@@ -2588,6 +2592,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 58
+      }
+    ],
+    "reuse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 19
+      }
+    ],
+    "adopt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 27
+      }
+    ],
+    "park": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 36
+      }
+    ],
+    "hasBrowser": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 44
       }
     ],
     "ApiConfiguration": [
@@ -12692,6 +12720,33 @@
         {
           "name": "recent",
           "line": 25
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+      "lines": 59,
+      "sha256": "8d2cea755840fd60ddd08d5d2f95c76da662d19ffe030a2e1af69942eb7f4da9",
+      "symbols": [
+        {
+          "name": "reuse",
+          "line": 19
+        },
+        {
+          "name": "adopt",
+          "line": 27
+        },
+        {
+          "name": "park",
+          "line": 36
+        },
+        {
+          "name": "hasBrowser",
+          "line": 44
+        },
+        {
+          "name": "destroy",
+          "line": 46
         }
       ]
     },
