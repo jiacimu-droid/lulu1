@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -83,7 +84,8 @@ internal fun LuluXhsNativeReaderScreen(
     var embeddedView by remember { mutableStateOf<WebView?>(null) }
     // Keep the site's actual viewport usable. A 2dp/180dp WebView cannot
     // reliably hydrate virtualized result grids or interactive search.
-    var showWebPreview by remember { mutableStateOf(initialShowWebsite) }
+    var showWebPreview by remember { mutableStateOf(initialShowWebsite || useEmbeddedBrowser) }
+    var readerMenuExpanded by remember { mutableStateOf(false) }
     var showTechnicalDiagnostic by remember { mutableStateOf(false) }
     var smokeStarted by remember { mutableStateOf(false) }
     var smokeResult by remember { mutableStateOf("") }
@@ -344,10 +346,36 @@ internal fun LuluXhsNativeReaderScreen(
                 }
             },
             actions = {
-                // This is the VISIBLE top bar while the native note covers the
-                // WebView toolbar. A parent-only button was unreachable.
-                TextButton(onClick = { back() }) {
-                    Text(if (selected != null) "返回列表" else "退出阅读")
+                Box {
+                    IconButton(onClick = { readerMenuExpanded = true }) {
+                        Icon(Icons.Outlined.MoreVert, contentDescription = "阅读工具")
+                    }
+                    DropdownMenu(expanded = readerMenuExpanded,
+                        onDismissRequest = { readerMenuExpanded = false }) {
+                        if (useEmbeddedBrowser) {
+                            DropdownMenuItem(text = { Text("网页浏览") }, onClick = {
+                                readerMenuExpanded = false; showWebPreview = true
+                            })
+                            DropdownMenuItem(text = { Text("简洁图文阅读") }, onClick = {
+                                readerMenuExpanded = false; showWebPreview = false
+                            })
+                            DropdownMenuItem(text = { Text("刷新首页") }, onClick = {
+                                readerMenuExpanded = false; keyword = ""; loadList("")
+                                showWebPreview = true
+                            })
+                            DropdownMenuItem(text = { Text("真实读帖测试") }, onClick = {
+                                readerMenuExpanded = false; startNativeReadTest()
+                            })
+                        }
+                        if (selected != null && !loading) {
+                            DropdownMenuItem(text = { Text("重试读取正文") }, onClick = {
+                                readerMenuExpanded = false; selected?.let { readNote(it) }
+                            })
+                        }
+                        DropdownMenuItem(text = { Text("读取诊断") }, onClick = {
+                            readerMenuExpanded = false; diagnosticVisible = true
+                        })
+                    }
                 }
             },
         )
@@ -355,6 +383,7 @@ internal fun LuluXhsNativeReaderScreen(
         Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val target = selected
+            if (!useEmbeddedBrowser || !showWebPreview) {
             if (target == null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(keyword, { keyword = it.take(64) },
@@ -404,7 +433,8 @@ internal fun LuluXhsNativeReaderScreen(
                 }
                 if (!loading && article == null) TextButton(onClick = { readNote(target) }) { Text("重试读取") }
             }
-            if (useEmbeddedBrowser) {
+            }
+            if (useEmbeddedBrowser && !showWebPreview) {
                 Surface(color = MaterialTheme.colorScheme.surfaceContainerLow,
                     shape = RoundedCornerShape(16.dp)) {
                     Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp),
@@ -425,10 +455,11 @@ internal fun LuluXhsNativeReaderScreen(
                         }
                     }
                 }
+            }
+            if (useEmbeddedBrowser) {
                 AndroidView(
-                    modifier = Modifier.fillMaxWidth().height(
-                        if (showWebPreview) 360.dp
-                        else if (loading || smokeRunning) 280.dp else 112.dp),
+                    modifier = if (showWebPreview) Modifier.fillMaxWidth().weight(1f)
+                        else Modifier.fillMaxWidth().height(if (loading || smokeRunning) 240.dp else 112.dp),
                     factory = { ctx ->
                         val existing = appBrowser?.reuse()
                         if (existing != null) {
@@ -498,11 +529,8 @@ internal fun LuluXhsNativeReaderScreen(
                     Text("搜索将直接读取上面的内置网页，不会打开外部浏览器。",
                         style = MaterialTheme.typography.labelSmall)
             }
-            if (message.isNotBlank() && !smokeRunning && smokeResult.isNotBlank()) {
-                Text("检测结束 · 首页和搜索结果已分别记录",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            } else if (message.isNotBlank()) {
+            if (message.isNotBlank() && (!showWebPreview || !useEmbeddedBrowser ||
+                message.contains("失败") || message.contains("超时") || smokeRunning)) {
                 Text(message.take(165), style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3,
                     overflow = TextOverflow.Ellipsis)
@@ -510,16 +538,14 @@ internal fun LuluXhsNativeReaderScreen(
             // Always expose the real state. Not every failure contains the
             // literal "超时": a login prompt, unrendered search page or
             // unknown parser can otherwise hide the only useful diagnostics.
-            if (useEmbeddedBrowser || message.contains("超时") ||
-                message.contains("失败") || message.contains("未通过")) {
-                TextButton(onClick = { diagnosticVisible = true }) { Text("网页读取诊断") }
-            }
+
             if (loading) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
                 TextButton(onClick = {
                     task?.cancel(); sequence++; loading = false; message = "已停止读取"
                 }) { Text("停止") }
             }
+            if (!useEmbeddedBrowser || !showWebPreview) {
             if (target != null) {
                 LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp),
                     contentPadding = PaddingValues(bottom = 22.dp)) {
@@ -553,6 +579,7 @@ internal fun LuluXhsNativeReaderScreen(
                         }
                     }
                 }
+            }
             }
         }
     }
