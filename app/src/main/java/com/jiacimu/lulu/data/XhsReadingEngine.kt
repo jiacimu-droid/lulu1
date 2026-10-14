@@ -125,7 +125,7 @@ internal object XhsReadingEngine {
     }
     fun available(context: Context): Boolean =
         (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true) ||
-            LuluExternalMcp.configured(context, "xiaohongshu")
+            (mcpFallbackEnabled(context) && LuluExternalMcp.configured(context, "xiaohongshu"))
 
     /**
      * The phone browser and the optional authenticated MCP are two real
@@ -140,8 +140,8 @@ internal object XhsReadingEngine {
         // A saved 127.0.0.1 address does NOT mean Termux is running.
         // Native reading is primary; optional MCP fallback is explicit and
         // OFF by default so a dead localhost server cannot double the wait.
-        val canUseMcp = !localOnly && LuluExternalMcp.configured(context, "xiaohongshu") &&
-            (!canUseLocal || mcpFallbackEnabled(context))
+        val canUseMcp = !localOnly && mcpFallbackEnabled(context) &&
+            LuluExternalMcp.configured(context, "xiaohongshu")
         if (localOnly && !canUseLocal) {
             error("内置浏览器不可用：请打开露露机并开启「使用已登录的本机网页」，再重试")
         }
