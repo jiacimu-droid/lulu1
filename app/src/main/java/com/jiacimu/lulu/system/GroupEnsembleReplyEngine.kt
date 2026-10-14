@@ -194,9 +194,14 @@ internal object GroupEnsembleReplyEngine {
                         member.characterId,
                         validMembers.map { it.characterId }.filterNot { it == member.characterId } + "user",
                     ).ifBlank { "尚无足够互动形成个人看法，不能预设亲疏" })
-                    appendLine(CharacterAddressPreference.promptSection(member.characterId))
-                    appendLine(com.jiacimu.lulu.data.CharacterRelationshipPreferences.promptSection(member.characterId))
                     appendLine(definitions.getValue(member.characterId).promptSection())
+                    // Group orchestration uses the current speaker as the gateway identity.
+                    // Re-inject EVERY member's personal speech/relationship habits here,
+                    // otherwise other members imitate the current speaker's voice.
+                    appendLine(com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
+                        member.characterId, includeObserved = true, includeConfigured = true,
+                        includeRelationship = true,
+                    ))
                     appendLine(CharacterRuntime.personalityRuntimeContext(
                         member.characterId,
                         interactionKey = "group:${conversation.id}",
@@ -237,6 +242,10 @@ internal object GroupEnsembleReplyEngine {
             instruction = """
                 你是多人群聊的整体编排器。每个成员有独立立场和意愿，可以接话、插话或保持沉默；绝不按名单轮班。
                 ${com.jiacimu.lulu.data.CharacterDecisionProtocol.principles}
+                ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(
+                    if (isCall) com.jiacimu.lulu.data.CharacterSpeechChannel.PHONE
+                    else com.jiacimu.lulu.data.CharacterSpeechChannel.GROUP_CHAT
+                )}
                 文字群聊如果这一刻所有成员确实都不想说话，可只返回 {"action":"silent","reason":"各人此刻不发言的真实原因","turns":[]}；不要为了填满消息硬编气泡。电话仍需真实可念出的语音回应。
 
                 每一位决定发言的成员都需要一个属于自己、哪怕只有半句话的 intent（如忽然觉得好笑、想接话、想追问、觉得不合适想拒绝）。intent 是当下动机，不是说出口的台词，也不是必须很复杂的心理分析。若要另外执行 tool，意图必须真实支持那个具体动作；没有明确想法就不要代他执行工具。
