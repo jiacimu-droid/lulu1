@@ -103,6 +103,15 @@
     received.searchPending = next;
     received.failures.search = '';
   };
+  const openSearchBox = () => {
+    // Only click the website's own explicit search control. Do not simulate
+    // authenticated internal APIs and do not guess unrelated button behavior.
+    const button = document.querySelector(
+      '.search-icon,.search-button,.search-btn,[role="button"][aria-label*="搜索"],button[aria-label*="搜索"],[aria-label="search"]');
+    if (!button || typeof button.click !== 'function') return 'opener-missing';
+    button.click();
+    return 'opened';
+  };
   const startSearch = keyword => {
     const input = document.querySelector('#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"]');
     if (!input) return 'input-missing';
@@ -216,7 +225,7 @@
       lowerElement: hit ? String(hit.tagName || '') + '.' + String(hit.className || '').slice(0, 100) : '',
       lowerRect: rect ? {top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height)} : null}};
   };
-  window.__luluXhsReader = {diagnostics, beginSearch, startSearch, pendingSearch: keyword => received.searchPending === keyword, snapshot(kind, id, keyword) {
+  window.__luluXhsReader = {diagnostics, beginSearch, startSearch, openSearchBox, pendingSearch: keyword => received.searchPending === keyword, snapshot(kind, id, keyword) {
     const url = new URL(location.href), path = url.pathname;
     const searchResponse = kind === 'search' && !!keyword && received.searchKeyword === keyword;
     const searchPage = kind === 'search' &&
