@@ -5,6 +5,7 @@ import android.os.Looper
 import android.webkit.ValueCallback
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.jiacimu.lulu.XhsAppBrowserSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,6 +27,29 @@ import java.time.Duration
 @Config(manifest = Config.NONE, sdk = [28])
 @LooperMode(LooperMode.Mode.PAUSED)
 class XhsBrowserSessionTest {
+    @Test fun ActivityOwnedBrowserSurvivesScreenParkingAndOnlyDiesWithActivity() {
+        val controller = Robolectric.buildActivity(Activity::class.java).setup()
+        val activity = controller.get()
+        val session = XhsAppBrowserSession(activity)
+        val browser = WebView(activity)
+        try {
+            assertFalse(session.hasBrowser())
+            session.adopt(browser)
+            assertTrue(session.hasBrowser())
+            assertSame(browser, session.reuse())
+            XhsReadingEngine.attachBrowser(browser)
+            session.park(browser)
+            assertTrue("A temporary page exit must not delete the web session", session.hasBrowser())
+            assertSame("A second reader opens exactly the same WebView", browser, session.reuse())
+            assertFalse("A parked browser must not pretend to be active",
+                XhsReadingEngine.available(activity))
+        } finally {
+            session.destroy()
+            assertFalse(session.hasBrowser())
+            controller.pause().stop().destroy()
+        }
+    }
+
     @Test fun noteDetailUrlIsRecognizedEvenWhenWebViewHasNoBackHistory() {
         val id = "1234567890abcdef12345678"
         assertTrue(com.jiacimu.lulu.xhsBrowserIsNoteUrl(
