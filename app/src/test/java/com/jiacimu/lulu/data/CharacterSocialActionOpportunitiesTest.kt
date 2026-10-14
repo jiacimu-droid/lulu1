@@ -56,6 +56,29 @@ class CharacterSocialActionOpportunitiesTest {
             .contains("messageId=${voice.id}"))
     }
 
+    @Test fun onlyRealUnfinishedPhoneFavoriteWishBecomesAConcern() {
+        val pending = CharacterDeferredFavoritePolicy.concern(
+            "我想收藏她刚才那句话，可还不知道具体是哪条", "",
+            hasVerifiedUserMessage = true,
+        )
+        assertNotNull(pending)
+        assertEquals("phone-deferred-favorite", pending?.getString("topicKey"))
+        assertTrue(pending!!.getString("possibleNextStep").contains("成功回执前"))
+        assertNull(CharacterDeferredFavoritePolicy.concern(
+            "我想收藏她刚才那句话", "", hasVerifiedUserMessage = false,
+        ))
+        assertNull(CharacterDeferredFavoritePolicy.concern(
+            "我不想收藏她的消息", "", hasVerifiedUserMessage = true,
+        ))
+        assertNull(CharacterDeferredFavoritePolicy.concern(
+            "", "可以收藏我的消息吗？", hasVerifiedUserMessage = true,
+        ))
+        assertNotNull(CharacterDeferredFavoritePolicy.concern(
+            "", "等这通电话结束之后再收藏她刚才那句话",
+            hasVerifiedUserMessage = true,
+        ))
+    }
+
     @Test fun unrelatedCharacterCannotSeeAnotherRolesPrivateCandidates() {
         val ctx = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(ctx)
