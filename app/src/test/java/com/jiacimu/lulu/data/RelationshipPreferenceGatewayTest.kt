@@ -28,6 +28,46 @@ class RelationshipPreferenceGatewayTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
 
+    @Test fun ensembleDoesNotLeakFirstSpeakersPrivateVoiceOrMemoryToEveryMember() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val leader = "group-ensemble-leading-role"
+        val uniqueHabit = "甲在私聊独有的魔法语气密码不该灌进群里所有人"
+        val uniqueMemory = "甲只在私聊知道的秘密绝不能成为群里其他人的公共记忆"
+        CharacterLifeStore.setProfile(leader, "speechHabits", uniqueHabit)
+        LuluRepositories.memory.upsert(MemoryEntry(
+            id = "ensemble-private-core", characterId = leader,
+            content = uniqueMemory, kind = MemoryKind.Fact, tier = MemoryTier.Core,
+            source = "manual", occurredAt = null, createdAt = java.time.Instant.now(),
+            strength = 10, pinned = false, canRecallProactively = true,
+        ))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+            .setBody("""{"choices":[{"message":{"content":"{\"turns\":[]}"},"finish_reason":"stop"}]}"""))
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            LuluAiServices.gateway.generate(
+                leader, "群聊所有成员的独立资料由调用方逐角色提供",
+                "请按成员各自ID组织发言",
+                "群聊·全员自然讨论", "ensemble test",
+                connectionOverride = connection,
+                contextMode = CompanionContextMode.Ensemble,
+            ).getOrThrow()
+            val request = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            val prompt = request.getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(prompt.contains("多角色共同互动"))
+            assertTrue(prompt.contains("人物的基本原则"))
+            assertFalse(prompt.contains(uniqueHabit))
+            assertFalse(prompt.contains(uniqueMemory))
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test fun leanExpressionActuallyReceivesEnduringPreferencesAndCoreButIsolatedTasksDoNot() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
