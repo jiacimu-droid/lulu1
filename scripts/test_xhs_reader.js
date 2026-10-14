@@ -53,6 +53,22 @@ test('same path with an old search query must not return stale results', () => {
   const b = browser({path: '/search_result?keyword=old', state: {search: {feeds: [row()]}}});
   assert.equal(b.snapshot('search', '', 'new').items.length, 0);
 });
+test('visible search links remain readable when site changes card CSS classes', () => {
+  const cardLink = {
+    href: 'https://www.xiaohongshu.com/explore/' + id +
+      '?xsec_token=actual-token&xsec_source=pc_search',
+    getAttribute: key => key === 'aria-label' ? '从真实搜索链接读取' : null,
+    innerText: '真实笔记链接',
+    closest: () => null
+  };
+  const b = browser({path: '/search_result?keyword=cat', elements: [cardLink],
+    state: {search: {feeds: []}}});
+  const notes = b.snapshot('search', '', 'cat').items;
+  assert.equal(notes.length, 1);
+  assert.equal(notes[0].id, id);
+  assert.equal(notes[0].token, 'actual-token');
+  assert.equal(notes[0].title, '从真实搜索链接读取');
+});
 test('client API response works when initial state is empty', async () => {
   const b = browser({payload: {success: true, code: 0, data: {items: [row()]}}});
   await b.receive();
