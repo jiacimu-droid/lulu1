@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:21:13.250733+00:00",
-  "commit": "cff754665608a182f13ecde38ce7bdd29445cc46",
+  "generatedAt": "2026-10-14T06:24:20.143108+00:00",
+  "commit": "12c206e64f827a1e65c57fa26738fcf9342237e5",
   "branch": "main",
-  "sourceFingerprint": "d8e78e9b80d10089bafb50c709d87e21abf36dfecf0062bb69c02d3dab89e115",
+  "sourceFingerprint": "427c9d81f0b47f5d4fe1501c3d25293c70db43a7f4fcda84abc8738a766ba4e2",
   "summary": {
     "files": 616,
-    "lines": 124120,
+    "lines": 124130,
     "symbols": 1854
   },
   "symbolIndex": {
@@ -21548,8 +21548,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt",
-      "lines": 74,
-      "sha256": "e6c047b0203f8b112a6709e5e69c6df3dccdc1ff5787e0ff46beab555bbb7c29",
+      "lines": 84,
+      "sha256": "ad3b05be5ee223e2240d92569498e2d7f8d1ddac3dd604b1dd413cba1ef397ed",
       "symbols": [
         {
           "name": "PerceptionWakePlanStoreTest",
