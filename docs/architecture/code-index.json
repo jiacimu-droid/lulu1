@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T05:12:22.922369+00:00",
-  "commit": "c3b9d3813f4bd146c8ac8798423c2ce8f3b77a3b",
+  "generatedAt": "2026-10-14T05:35:03.748975+00:00",
+  "commit": "46fec3b9d7105f5a0c010566ad95c392000ebe0c",
   "branch": "main",
-  "sourceFingerprint": "a89f4360126b93ba7cc4727733c67153d7693ce89bd5af4ce0d584f65de8c610",
+  "sourceFingerprint": "cce6dc97e532b402c7a2cff6cac13d04b0dedf16dbc968efc7b4afc3129c53cd",
   "summary": {
     "files": 616,
-    "lines": 123695,
-    "symbols": 1851
+    "lines": 123769,
+    "symbols": 1853
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1471,7 +1471,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 84
+        "line": 157
       }
     ],
     "saveGroupCall": [
@@ -2600,28 +2600,40 @@
         "line": 58
       }
     ],
+    "prepareForForeground": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 34
+      }
+    ],
+    "needsRouteScript": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
+        "line": 93
+      }
+    ],
     "reuse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 46
+        "line": 118
       }
     ],
     "adopt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 54
+        "line": 126
       }
     ],
     "park": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 63
+        "line": 135
       }
     ],
     "hasBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 82
+        "line": 155
       }
     ],
     "ApiConfiguration": [
@@ -12741,28 +12753,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-      "lines": 102,
-      "sha256": "5361c48bb5873635faf472c72cdf178e22854864c8b870fde6803cd032bc86d8",
+      "lines": 176,
+      "sha256": "177a0b729091a73076c4da08801b12bd6d4ea266b95cb92ac79335c88c35b6e6",
       "symbols": [
         {
+          "name": "prepareForForeground",
+          "line": 34
+        },
+        {
+          "name": "needsRouteScript",
+          "line": 93
+        },
+        {
           "name": "reuse",
-          "line": 46
+          "line": 118
         },
         {
           "name": "adopt",
-          "line": 54
+          "line": 126
         },
         {
           "name": "park",
-          "line": 63
+          "line": 135
         },
         {
           "name": "hasBrowser",
-          "line": 82
+          "line": 155
         },
         {
           "name": "destroy",
-          "line": 84
+          "line": 157
         }
       ]
     },
