@@ -806,8 +806,8 @@ object LuluDeviceToolBridge {
                 val candidate = conversation?.let { chat ->
                     com.jiacimu.lulu.MigratedDomainStores.chat.messages(chat.id).value
                         .asReversed().firstOrNull { msg ->
-                            msg.sender == com.jiacimu.lulu.LuluChatMessage.Sender.User &&
-                                msg.status == com.jiacimu.lulu.LuluChatMessage.Status.Sent &&
+                            msg.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User &&
+                                msg.status == com.jiacimu.lulu.data.LuluChatMessage.Status.Sent &&
                                 msg.createdAt.isAfter(now.minusSeconds(300)) &&
                                 (userText.isBlank() ||
                                     msg.content.contains(userText.trim().take(60)) ||
