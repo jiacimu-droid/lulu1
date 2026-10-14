@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T00:03:17.265920+00:00",
-  "commit": "9e83b60526ed744177d068d6a867f43316b0bbfc",
+  "generatedAt": "2026-10-14T00:37:03.711699+00:00",
+  "commit": "9e2b8524fc5cb61db18b4627c9d9b7dc0cc093ac",
   "branch": "main",
-  "sourceFingerprint": "52db5dd1635fcd30bd9232bb29d13456afeb6fdfab4aeae90fb188b87fa83cc6",
+  "sourceFingerprint": "d65212bbeb2e83b1a3d48a44756786e5144d150cd60ec6ce92bdbc3232f1cb8c",
   "summary": {
     "files": 615,
-    "lines": 123153,
-    "symbols": 1843
+    "lines": 123218,
+    "symbols": 1844
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5559,7 +5559,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 362
+        "line": 426
       }
     ],
     "retryAt": [
@@ -5581,7 +5581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 126
+        "line": 188
       }
     ],
     "stale": [
@@ -7301,91 +7301,97 @@
     "url": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "attachBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 57
+        "line": 58
       }
     ],
     "detachBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 61
+        "line": 62
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 62
+        "line": 63
+      }
+    ],
+    "lastDiagnosticSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 132
       }
     ],
     "lastDiagnostic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 73
+        "line": 134
       }
     ],
     "recordToolStage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 82
+        "line": 144
       }
     ],
     "requestVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 98
+        "line": 160
       }
     ],
     "visibleReadTestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 101
+        "line": 163
       }
     ],
     "consumeVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 103
+        "line": 165
       }
     ],
     "mcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 108
+        "line": 170
       }
     ],
     "setMcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 111
+        "line": 173
       }
     ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 113
+        "line": 175
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 114
+        "line": 176
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 116
+        "line": 178
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 120
+        "line": 182
       }
     ],
     "LuluPageScaffold": [
@@ -10325,7 +10331,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 349
+        "line": 350
       }
     ]
   },
@@ -17524,76 +17530,80 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 482,
-      "sha256": "11351bd5e341516362741268a4593422e5e4ff7725513a449ace5f86d8c19778",
+      "lines": 546,
+      "sha256": "706ef4611c19f41fdc0dae691fd611e7af63777f44c2a6475167b98787424e82",
       "symbols": [
         {
           "name": "url",
-          "line": 36
+          "line": 37
         },
         {
           "name": "attachBrowser",
-          "line": 57
+          "line": 58
         },
         {
           "name": "detachBrowser",
-          "line": 61
-        },
-        {
-          "name": "controls",
           "line": 62
         },
         {
+          "name": "controls",
+          "line": 63
+        },
+        {
+          "name": "lastDiagnosticSummary",
+          "line": 132
+        },
+        {
           "name": "lastDiagnostic",
-          "line": 73
+          "line": 134
         },
         {
           "name": "recordToolStage",
-          "line": 82
+          "line": 144
         },
         {
           "name": "requestVisibleReadTest",
-          "line": 98
+          "line": 160
         },
         {
           "name": "visibleReadTestPending",
-          "line": 101
+          "line": 163
         },
         {
           "name": "consumeVisibleReadTest",
-          "line": 103
+          "line": 165
         },
         {
           "name": "mcpFallbackEnabled",
-          "line": 108
+          "line": 170
         },
         {
           "name": "setMcpFallbackEnabled",
-          "line": 111
+          "line": 173
         },
         {
           "name": "localEnabled",
-          "line": 113
+          "line": 175
         },
         {
           "name": "setLocalEnabled",
-          "line": 114
+          "line": 176
         },
         {
           "name": "resume",
-          "line": 116
+          "line": 178
         },
         {
           "name": "pause",
-          "line": 120
+          "line": 182
         },
         {
           "name": "available",
-          "line": 126
+          "line": 188
         },
         {
           "name": "stage",
-          "line": 362
+          "line": 426
         }
       ]
     },
@@ -21834,12 +21844,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 385,
-      "sha256": "86dd7af0b86c225c617c7fed4277a956523d44585f295676ecd27a101527e59d",
+      "lines": 386,
+      "sha256": "a5c890ac0de5ad339f32f4ccc52bdf9301006f4f2ae718a7129a189189259d25",
       "symbols": [
         {
           "name": "XHR",
-          "line": 349
+          "line": 350
         }
       ]
     },
