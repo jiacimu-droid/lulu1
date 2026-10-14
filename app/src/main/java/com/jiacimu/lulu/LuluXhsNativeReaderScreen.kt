@@ -56,7 +56,18 @@ internal fun LuluXhsNativeReaderScreen(
     val context = LocalContext.current
     // The WebView is owned by MigrationActivity, not by this Composable.
     val appBrowser = remember(context) {
-        (context as? MigrationActivity)?.browserSession()
+        // Compose may wrap the Activity in a theme ContextWrapper. Unwrap it
+        // so the reader never silently falls back to a page-owned WebView.
+        var candidate: android.content.Context? = context
+        var session: XhsAppBrowserSession? = null
+        while (candidate != null) {
+            if (candidate is MigrationActivity) {
+                session = candidate.browserSession()
+                break
+            }
+            candidate = (candidate as? android.content.ContextWrapper)?.baseContext
+        }
+        session
     }
     val scope = rememberCoroutineScope()
     val focus = androidx.compose.ui.platform.LocalFocusManager.current
