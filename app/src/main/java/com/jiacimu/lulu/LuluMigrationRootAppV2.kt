@@ -231,7 +231,8 @@ fun LuluMigrationRootAppV2(
             onDismiss = onSharedNoteHandled,
             onSelect = { target ->
                 MigratedDomainStores.chat.sendUserMessage(
-                    target.id, externalXhsSharedNote(incomingSharedNote)?.let(::encodeQqXhsSharedNote)\n                        ?: incomingSharedNote,
+                    target.id, externalXhsSharedNote(incomingSharedNote)?.let(::encodeQqXhsSharedNote)
+                        ?: incomingSharedNote,
                 )
                 onSharedNoteHandled()
                 openConversation(target.id)
