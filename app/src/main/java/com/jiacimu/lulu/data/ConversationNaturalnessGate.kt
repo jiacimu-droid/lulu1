@@ -124,9 +124,10 @@ internal object ConversationNaturalnessGate {
         }
         val userLength = userText.count { !it.isWhitespace() }
         val replyLength = reply.count { !it.isWhitespace() }
-        if (userLength in 1..24 && replyLength >= 140) {
-            score += 1
-            reasons += "短促聊天被无必要扩成长篇"
+        if (userLength in 1..70 && replyLength >=
+            (if (userLength <= 24) 115 else 175)) {
+            score += 2
+            reasons += "日常一拍的回复远长于对方新增信息；只需要重点情绪和一两个新意思"
         }
         // Multi-paragraph postmortems can evade the existing assistant-phrase
         // and lexical-overlap checks: all three paragraphs may use different
