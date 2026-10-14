@@ -71,11 +71,11 @@ private fun decodeLegacyXhsShare(content: String): QqXhsSharedNote? {
     val author = rest.lineSequence().firstOrNull { it.startsWith("作者：") }
         ?.removePrefix("作者：").orEmpty()
     val body = rest.substringAfter("帖子原文：\n", "")
-        .substringBefore("\n图片理解（", "")
-        .substringBefore("\n实际加载到的评论摘录", "")
+        .substringBefore("\n图片理解（")
+        .substringBefore("\n实际加载到的评论摘录")
         .take(8_000)
     val visual = rest.substringAfter("图片理解（模型识别，未必准确，最多前6张）：\n", "")
-        .substringBefore("\n实际加载到的评论摘录", "").take(6_000)
+        .substringBefore("\n实际加载到的评论摘录").take(6_000)
     return QqXhsSharedNote(title.ifBlank { "分享的小红书笔记" }, url,
         author = author, body = body, visualReading = visual,
         verified = body.isNotBlank() || visual.isNotBlank(), shareText = "")
