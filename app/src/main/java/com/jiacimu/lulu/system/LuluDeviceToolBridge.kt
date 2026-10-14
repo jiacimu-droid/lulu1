@@ -531,13 +531,32 @@ object LuluDeviceToolBridge {
                     value.isNotBlank() && !value.trimStart().startsWith("{") &&
                         !value.trimStart().startsWith("```")
                 }
-            // Incomplete JSON commands cannot run. But actual natural-language text
-            // should not disappear just because the model skipped the requested envelope.
-            if (fallback.isNullOrBlank()) return Result.failure(
-                IllegalStateException("模型返回了不完整的结构化内容，未执行任何动作；可重新回复")
-            )
+            // Incomplete JSON commands never run, but malformed optional
+            // metadata should not fail an entire phone turn. One bounded
+            // speech-only recovery uses the SAME configured character model.
+            val recoveredPhoneSpeech = if (fallback.isNullOrBlank() &&
+                sceneContext.contains("电话") && !callSilence) {
+                LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = "你仍在刚才的同一通电话。用户刚说：${userText.take(1000)}。之前模型返回的文字不完整：${plannedReply.text.take(600)}。",
+                    instruction = "保持本人既有性格、称呼与感情，直接说自然口语，不要 JSON、代码块、字段名，也不要假装做过工具动作。",
+                    source = "电话口语·格式失败后的柔性恢复",
+                    title = title,
+                    maxTokens = 380,
+                    connectionOverride = connection,
+                ).getOrNull()?.text?.trim()
+                    ?.takeIf { it.isNotBlank() && !it.startsWith("{") &&
+                        !it.startsWith("```") }
+            } else null
+            val visible = fallback?.takeIf(String::isNotBlank) ?: recoveredPhoneSpeech
+            if (visible.isNullOrBlank()) {
+                if (sceneContext.contains("电话")) return Result.success(plannedReply.copy(
+                    text = "", disposition = CharacterDecisionProtocol.SILENT,
+                ))
+                return Result.failure(IllegalStateException("模型没有产生可核实的完整回复"))
+            }
             return Result.success(plannedReply.copy(
-                text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, fallback),
+                text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, visible),
             ))
         }
         if (callSilence && parsedPlan.action !in setOf("reply", CharacterDecisionProtocol.SILENT))
@@ -546,6 +565,24 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        // Common voice models sometimes complete speechIntent but omit the
+        // optional final text field. Fix only the missing spoken surface instead
+        // of treating a usable character decision as a failed phone request.
+        if (sceneContext.contains("电话") && !callSilence &&
+            plan.action == "reply" && plan.text.isBlank() &&
+            plan.speechIntent.isNotBlank()) {
+            val speech = LuluAiServices.gateway.generate(
+                characterId = characterId,
+                facts = "这是刚刚确定的本人电话表达意图：${plan.speechIntent.take(600)}。用户刚说：${userText.take(700)}。",
+                instruction = "只返回简短自然口语，禁止 JSON 或状态字段；不需要重复解释或报备工具。",
+                source = "电话已决定意图·补一句可听的台词",
+                title = title,
+                maxTokens = 300,
+                connectionOverride = connection,
+            ).getOrNull()?.text?.trim().orEmpty()
+            if (speech.isNotBlank() && !speech.startsWith("{") &&
+                !speech.startsWith("```")) plan = plan.copy(text = speech)
+        }
         if (rewriting) {
             if (plan.action != "reply") return Result.failure(
                 IllegalStateException("重新回复只能重新组织语言，不重做工具或沉默决定")
