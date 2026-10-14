@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cloud
@@ -53,6 +52,7 @@ import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.ReadingChatReceiptFormatter
 import com.jiacimu.lulu.data.MeetingExperienceStore
 import com.jiacimu.lulu.data.MeetingInvitationStatus
+import com.jiacimu.lulu.data.WorldLifeEpisodeStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import java.time.Duration
@@ -779,7 +779,66 @@ internal fun QqSystemReceiptRow(message: LuluChatMessage) {
             Regex("\\[世界事件\\|([A-Za-z0-9-]+)\\]").find(message.content)?.groupValues?.get(1)
         }
         var showEventHistory by remember(message.id) { mutableStateOf(false) }
+        var selectedLifeEpisodeId by remember(message.id) { mutableStateOf<String?>(null) }
+        var episodeUnavailable by remember(message.id) { mutableStateOf(false) }
         val notice = remember(message.content) { parseSystemActivityNotice(message.content) }
+
+        fun openReceiptLink(link: SystemActivityLink) {
+            if (link.type == SystemActivityType.LifeEpisode) {
+                // Opening a saved story is a local read, not another generated scene
+                // or an Activity relaunch. This also works when Chat is already open.
+                WorldLifeEpisodeStore.initialize(context)
+                if (WorldLifeEpisodeStore.find(link.targetTitle) != null) {
+                    selectedLifeEpisodeId = link.targetTitle
+                } else {
+                    episodeUnavailable = true
+                }
+            } else {
+                openSystemActivity(context, message, link)
+            }
+        }
+        selectedLifeEpisodeId?.let { id ->
+            WorldLifeEpisodeStore.find(id)?.let { episode ->
+                AlertDialog(
+                    onDismissRequest = { selectedLifeEpisodeId = null },
+                    title = { Text(episode.title, fontWeight = FontWeight.SemiBold) },
+                    text = {
+                        Column(
+                            Modifier.heightIn(max = 540.dp).verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            val characterName = MigratedDomainStores.characters.settings.value[episode.characterId]
+                                ?.displayName ?: "角色"
+                            Text(
+                                "$characterName · " + episode.occurredAt.atZone(ZoneId.systemDefault())
+                                    .format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
+                                fontSize = 12.sp, color = Color(0xFF777777),
+                            )
+                            Text("实际世界动作：${episode.actualAction}", fontSize = 12.sp, color = Color(0xFF777777))
+                            HorizontalDivider()
+                            Text(episode.scene, fontSize = 15.sp, lineHeight = 26.sp)
+                            Text(
+                                "这是角色个人生活片段；未实际执行的行为不作为世界事实。",
+                                fontSize = 11.sp, color = Color(0xFF777777),
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { selectedLifeEpisodeId = null }) { Text("收起") }
+                    },
+                )
+            }
+        }
+        if (episodeUnavailable) {
+            AlertDialog(
+                onDismissRequest = { episodeUnavailable = false },
+                title = { Text("片段暂不可查看") },
+                text = { Text("这条活动记录指向的原始片段已不存在，可能被删除或旧版未保存。活动通知本身不会自动生成新片段。") },
+                confirmButton = {
+                    TextButton(onClick = { episodeUnavailable = false }) { Text("知道了") }
+                },
+            )
+        }
         if (showEventHistory && incidentId != null) {
             val history = SharedExperienceTimeline.all(message.authorCharacterId ?: MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == message.conversationId }?.characterId.orEmpty())
                 .filter { it.id.startsWith("world-fact-$incidentId-") }
@@ -806,7 +865,15 @@ internal fun QqSystemReceiptRow(message: LuluChatMessage) {
             contentAlignment = Alignment.Center,
         ) {
             Surface(
-                modifier = Modifier.fillMaxWidth(.86f).then(if (incidentId != null) Modifier.clickable { showEventHistory = true } else Modifier),
+                // Entire receipt is the hit target: the tiny green substring is
+                // only a visual affordance and must not be the sole tap area.
+                modifier = Modifier.fillMaxWidth(.86f).then(
+                    when {
+                        notice.link != null -> Modifier.clickable { openReceiptLink(notice.link) }
+                        incidentId != null -> Modifier.clickable { showEventHistory = true }
+                        else -> Modifier
+                    }
+                ),
                 color = Color(0xFFF5F5F5),
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(0.5.dp, Color(0xFFE2E2E2)),
@@ -848,28 +915,19 @@ internal fun QqSystemReceiptRow(message: LuluChatMessage) {
                                         notice.linkStart,
                                         notice.linkEnd.coerceAtMost(length),
                                     )
-                                    addStringAnnotation(
-                                        tag = "system_activity",
-                                        annotation = "open",
-                                        start = notice.linkStart,
-                                        end = notice.linkEnd.coerceAtMost(length),
-                                    )
                                 }
                             }
                         }
-                        ClickableText(
-                            modifier = Modifier.weight(1f),
+                        Text(
                             text = annotated,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                             style = LocalTextStyle.current.copy(
                                 color = Color(0xFF3F3F3F),
                                 fontSize = 10.5.sp,
                                 lineHeight = 15.sp,
                             ),
-                            onClick = { offset ->
-                                if (annotated.getStringAnnotations("system_activity", offset, offset).isNotEmpty()) {
-                                    openSystemActivity(context, message, notice.link)
-                                }
-                            },
                         )
                     }
                 }
