@@ -864,11 +864,31 @@ object ProactivePerceptionRuntime {
         // Commit the online choice first so a chosen message is sent while awake;
         // a new user wake or call supersedes this older expiry atomically.
         if (onlineExpiryAtMillis > 0L) {
-            val wantsMoreTime = decision.onlineChoice == "continue" &&
-                decision.onlineChoiceReason.isNotBlank()
+            val currentGoal = CharacterLifeStore.state(characterId).optJSONObject("intention")
+            val hasContinuingGoal = currentGoal != null &&
+                currentGoal.optString("stage") !in setOf("released", "completed") &&
+                currentGoal.optString("aim").isNotBlank()
+            val hasCurrentConcerns = CharacterInnerLifeStore.snapshot(characterId)
+                .optJSONArray("openConcerns")?.length() ?: 0 > 0
+            val previousReason = prefs.getString("last_online_extension_reason_$characterId", "").orEmpty()
+            val previousAt = prefs.getLong("last_online_extension_at_$characterId", 0L)
+            val minutesSincePrevious = if (previousAt > 0)
+                ((System.currentTimeMillis() - previousAt) / 60_000L).coerceAtLeast(0L) else Long.MAX_VALUE
+            val wantsMoreTime = OnlineContinuationPolicy.permits(
+                choice = decision.onlineChoice,
+                reason = decision.onlineChoiceReason,
+                hasChosenAction = decision.action != Action.SILENT,
+                hasOpenIntention = hasContinuingGoal || hasCurrentConcerns,
+                previousReason = previousReason,
+                minutesSincePrevious = minutesSincePrevious,
+            )
             val keptAwake = wantsMoreTime && CompanionOnlineStore.extendByOwnChoice(
                 characterId, onlineExpiryAtMillis, decision.onlineChoiceReason, Instant.now(),
             )
+            if (keptAwake) prefs.edit()
+                .putString("last_online_extension_reason_$characterId", decision.onlineChoiceReason)
+                .putLong("last_online_extension_at_$characterId", System.currentTimeMillis())
+                .apply()
             val newerWindow = !keptAwake &&
                 CompanionOnlineStore.states.value[characterId]
                     ?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
@@ -879,6 +899,8 @@ object ProactivePerceptionRuntime {
                     newerWindow -> "旧到期判断已被更新的在线状态取代"
                     decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
                         "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}"
+                    decision.onlineChoice == "continue" && !wantsMoreTime ->
+                        "五分钟到期 · 续醒理由缺少具体念头或只是重复等待，本次自然休眠"
                     else -> "五分钟到期，未形成有效续醒决定，进入休眠"
                 },
                 Instant.now(),
