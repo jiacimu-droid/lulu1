@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:14:14.027102+00:00",
-  "commit": "188d14ac318b6a591d05651a2b5c22ab5de0c199",
+  "generatedAt": "2026-10-14T06:16:14.317793+00:00",
+  "commit": "37306fe4d767028c6cdf2e487e2aa5a28eeb7105",
   "branch": "main",
-  "sourceFingerprint": "7a30deab80c47b6381f0fd398e93c153c3241647605a8b2d62a1a1e9f974f384",
+  "sourceFingerprint": "96801dde528f66389c3d5edf709853feeb6411bb09ab55d5cfccbe76de912fb3",
   "summary": {
     "files": 616,
-    "lines": 123925,
-    "symbols": 1853
+    "lines": 123956,
+    "symbols": 1854
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9430,16 +9430,22 @@
         "line": 50
       }
     ],
+    "observation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
+        "line": 37
+      }
+    ],
     "sessions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 29
+        "line": 53
       }
     ],
     "control": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 42
+        "line": 67
       }
     ],
     "LuluNotificationListenerService": [
@@ -20187,16 +20193,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-      "lines": 88,
-      "sha256": "a66777ae3ef0bced9aa4d52b30579d24cc8783d20ad604152e2623b0815e8d74",
+      "lines": 119,
+      "sha256": "55a645dfe943bc7fa9b970ab5e80e672552fa86628ab99912c5d7e74bc4e398f",
       "symbols": [
         {
+          "name": "observation",
+          "line": 37
+        },
+        {
           "name": "sessions",
-          "line": 29
+          "line": 53
         },
         {
           "name": "control",
-          "line": 42
+          "line": 67
         }
       ]
     },
