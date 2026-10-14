@@ -191,6 +191,11 @@ fun QqStyleChatDetailScreen(
 
     fun buildForwardPayload(values: List<LuluChatMessage>): String {
         val ordered = messages.filter { source -> values.any { it.id == source.id } }
+        // A single XHS note is forwarded AS THE SAME NOTE. Do not flatten its
+        // cover, source evidence and card metadata into a generic chat bundle.
+        if (ordered.size == 1 && decodeQqXhsSharedNote(ordered.first().content) != null) {
+            return ordered.first().content
+        }
         val title = if (groupChat != null) "${groupChat.name}的聊天记录" else "${character.displayName}的聊天记录"
         val formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm")
         return encodeQqForwardedChat(
