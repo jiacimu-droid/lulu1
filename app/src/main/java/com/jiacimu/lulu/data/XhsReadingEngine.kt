@@ -33,10 +33,11 @@ internal data class XhsCard(
     val id: String, val token: String, val title: String, val author: String,
     val source: String, val provider: String = "webview",
     val coverUrl: String = "",
+    val sharedUrl: String = "",
 ) {
-    fun url(): String = Uri.Builder().scheme("https").authority("www.xiaohongshu.com")
+    fun url(): String = sharedUrl.ifBlank { Uri.Builder().scheme("https").authority("www.xiaohongshu.com")
         .appendPath("explore").appendPath(id).appendQueryParameter("xsec_token", token)
-        .appendQueryParameter("xsec_source", source).build().toString()
+        .appendQueryParameter("xsec_source", source).build().toString() }
 }
 
 internal data class XhsArticle(
@@ -341,9 +342,28 @@ internal object XhsReadingEngine {
             XhsImagePolicy.normalize(row.optString("coverUrl")).orEmpty())
     }
 
+    /** The same in-app reader used for normal feed navigation can open an exact
+     * user-shared note, instead of searching for a similarly titled stranger's post. */
+    internal suspend fun cardForSharedLink(context: Context, rawUrl: String): XhsCard {
+        val link = XhsSharedLinkResolver.resolve(rawUrl)
+        val canReadLocally = localEnabled(context) &&
+            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
+            attachedBrowser() != null
+        val canReadViaMcp = mcpFallbackEnabled(context) &&
+            LuluExternalMcp.configured(context, "xiaohongshu")
+        require(canReadLocally || (canReadViaMcp && link.token.isNotBlank())) {
+            if (link.token.isBlank())
+                "链接未附详情令牌，需保持露露机前台并打开已登录的小红书内置网页"
+            else "阅读器不可用：请打开露露机内置小红书，或连接已授权的只读 MCP"
+        }
+        return XhsCard(link.id, link.token, "用户分享的笔记", "", link.source,
+            if (canReadLocally) "webview" else "mcp", sharedUrl = link.url)
+    }
+
     suspend fun read(context: Context, target: XhsCard, onProgress: (String) -> Unit = {},
                      localOnly: Boolean = false, forceRefresh: Boolean = false): XhsArticle {
-        require(Regex("[a-zA-Z0-9]{12,40}").matches(target.id) && target.token.isNotBlank()) {
+        require(Regex("[a-zA-Z0-9]{12,40}").matches(target.id) &&
+            (target.provider == "webview" || target.token.isNotBlank())) {
             "笔记缺少有效 ID 或详情令牌，未标记为已读"
         }
         if (localOnly) require(target.provider == "webview") {
@@ -366,7 +386,7 @@ internal object XhsReadingEngine {
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                if (localOnly || !mcpFallbackEnabled(context) ||
+                if (localOnly || target.token.isBlank() || !mcpFallbackEnabled(context) ||
                     !LuluExternalMcp.configured(context, "xiaohongshu")) throw error
                 onProgress("网页笔记读取失败，正在尝试备用 MCP")
                 try { readMcpNote(context, target).also { actualProvider = "mcp" } }
