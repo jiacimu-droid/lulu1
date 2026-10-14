@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e8b711f17e6805c18d51e2ed486bdf645d107849`
+- 基准提交：`56a20ba7d18288f76be024561506f0422552bee3`
 - 分支：`main`
 - 已索引文件：625
-- 已索引代码/文本行：125520
+- 已索引代码/文本行：125533
 - 已发现符号：1865
 
 | 文件 | 行数 | 符号数 |
@@ -98,7 +98,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 522 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1850 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 708 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 717 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 713 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
@@ -134,10 +134,10 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 259 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 91 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 864 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 880 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 323 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 83 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |

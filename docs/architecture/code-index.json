@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:38:51.269828+00:00",
-  "commit": "e8b711f17e6805c18d51e2ed486bdf645d107849",
+  "generatedAt": "2026-10-14T08:39:56.335390+00:00",
+  "commit": "56a20ba7d18288f76be024561506f0422552bee3",
   "branch": "main",
-  "sourceFingerprint": "891fb83ef142dbe044819b28c9509a1961a39514f506d044fe993e19b75a9fa2",
+  "sourceFingerprint": "aa0f1381f5bb327083675ba6b5537245c021a296932a41d77594da0cb1e9f2a0",
   "summary": {
     "files": 625,
-    "lines": 125520,
+    "lines": 125533,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -11568,7 +11568,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
       "lines": 435,
-      "sha256": "3207a1518df714e8244f39a294342f4e68e01d3b3c826a2e86a7fa2c4ec61363",
+      "sha256": "6763c4b060d8f7742008ca6443c731423b4f2b8e6259993aa8ee7135b40f81ab",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -11803,8 +11803,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 717,
-      "sha256": "64c61e940aee8b774f50e1a420110a87155de42b84da7515588812638cfd1511",
+      "lines": 713,
+      "sha256": "7cec92439481dcaa36f269781b8867dd1f4ba1394e44798a58d72cf2a3fe23b7",
       "symbols": [
         {
           "name": "failure",
@@ -12381,8 +12381,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 864,
-      "sha256": "69e6055847d53f1185b44ef83ace67d43dfc2a0ff141af65200428113e766529",
+      "lines": 880,
+      "sha256": "eb96bb6744d934675c97a749b6b998cb3fa55f8b4dd61d8bbdb0ed4b5ef5d1a1",
       "symbols": []
     },
     {
@@ -12399,8 +12399,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt",
-      "lines": 83,
-      "sha256": "677b35d9584bd4cbd7e71486c18215c1979fc54a236dd2bbbba763c9f7b60081",
+      "lines": 84,
+      "sha256": "72be59d61bf91e1eef0c092f943cd39607ef1417319123f00679396323e99064",
       "symbols": []
     },
     {
