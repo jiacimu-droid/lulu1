@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T11:25:16.816127+00:00",
-  "commit": "226ae38eeca55ba7a30ca7044adc67b2d6a74a47",
+  "generatedAt": "2026-10-14T11:25:33.832731+00:00",
+  "commit": "022fa930dab441d4c2e72be0e5ea54bf0fc3e88a",
   "branch": "main",
-  "sourceFingerprint": "cf3211bf877714a6f3ee5c59039a7fae1c2fe35bfbfc0f88900f9674111bb9d2",
+  "sourceFingerprint": "1f154ac82e925d1f7de9e7174bb76c388c8a62d36da8168f0283ad60d6077d68",
   "summary": {
-    "files": 632,
-    "lines": 126515,
-    "symbols": 1874
+    "files": 633,
+    "lines": 126553,
+    "symbols": 1875
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10077,6 +10077,12 @@
     "CharacterVoicePreferenceStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
+        "line": 13
+      }
+    ],
+    "CharacterXhsReadPermissionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt",
         "line": 13
       }
     ],
@@ -21467,6 +21473,17 @@
       "symbols": [
         {
           "name": "CharacterVoicePreferenceStoreTest",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt",
+      "lines": 38,
+      "sha256": "46f626752cc869422e9adba8017f26056040371db7b408971e2be255470460df",
+      "symbols": [
+        {
+          "name": "CharacterXhsReadPermissionTest",
           "line": 13
         }
       ]
