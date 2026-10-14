@@ -35,6 +35,11 @@ object CapabilityRegistry {
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
         if (userRequested) return true
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        // This is read-only discovery in the user's already-authorized XHS
+        // browser, not screen control or account posting. Characters may
+        // explore by default; an explicit OFF preference still wins.
+        if (capability.name == "read_xiaohongshu")
+            return prefs.getBoolean("$characterId:xhs_read", true)
         // Authorizing media transport reasonably includes inspecting the
         // media session it will control, without granting all device_read data.
         if (capability.name == "list_media_sessions" &&
