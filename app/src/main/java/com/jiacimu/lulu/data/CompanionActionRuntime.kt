@@ -381,8 +381,34 @@ internal object CompanionActionRuntime {
                 val previousLocation = DigitalWorldStore.locationOf(characterId)
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
                 if (worldResult.success) {
+                    // One paid decision can narrate a complete low-stakes
+                    // afternoon. Persist it ONLY after a real world action
+                    // succeeded; the text cannot manufacture NPC dialogue,
+                    // furniture, discoveries or additional map transitions.
+                    val leisureActions = setOf(
+                        "visit_public_place", "visit_cloud_meadow", "go_home",
+                        "use_location", "use_home_item",
+                    )
+                    val episode = if (worldAction in leisureActions &&
+                        args.optString("lifeScene").isNotBlank() && worldResult.evidenceId.isNotBlank()) {
+                        WorldLifeEpisodeStore.initialize(context)
+                        runCatching {
+                            WorldLifeEpisodeStore.record(
+                                characterId = characterId,
+                                location = DigitalWorldStore.locationOf(characterId),
+                                title = args.optString("lifeSceneTitle"),
+                                prose = args.optString("lifeScene"),
+                                actualAction = worldResult.summary,
+                                evidenceId = worldResult.evidenceId,
+                                now = now,
+                            )
+                        }.getOrNull()
+                    } else null
+                    val receipt = episode?.let {
+                        "[独处片段|${it.id}] ${character.displayName}在数字世界度过了一段时光 · 查看片段"
+                    } ?: worldResult.summary
                     MigratedDomainStores.chat.appendPrivateActivityNotice(
-                        characterId, worldResult.summary,
+                        characterId, receipt,
                         args.optString("incidentId").takeIf { worldAction == "handle_incident" && it.isNotBlank() },
                     )
                     AutonomousSocialRuntime.onWorldArrival(
