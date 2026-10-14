@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:29:19.373919+00:00",
-  "commit": "06c99e7c3295f8c916522c02d42fd97a549ff7e1",
+  "generatedAt": "2026-10-14T06:29:52.660344+00:00",
+  "commit": "11d6a3967dc596f20b225aedf9eacd4dd87a35e4",
   "branch": "main",
-  "sourceFingerprint": "7ce7acc8918c7e42ddb345590cfd702c98a925b6a86a26c2ccd4dba1f12cbbf1",
+  "sourceFingerprint": "971508a9cacf7ddbb6c2d90e2310dcdb436f76f9fd1624aa95312642501ffe7f",
   "summary": {
     "files": 617,
-    "lines": 124187,
+    "lines": 124189,
     "symbols": 1855
   },
   "symbolIndex": {
@@ -6793,7 +6793,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1534
+        "line": 1536
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -16947,8 +16947,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1590,
-      "sha256": "af905f9382e1e1bf42663ffb562f72aa42df3281e94e6863ed254990a07909a6",
+      "lines": 1592,
+      "sha256": "ff4cba3d62452005b44189929fbba358bf564bd4f48e19143429c8b72c26f2c5",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -16972,7 +16972,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1534
+          "line": 1536
         }
       ]
     },
