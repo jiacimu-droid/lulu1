@@ -277,6 +277,16 @@ fun CharacterSettingsScreenV2(
                             },
                             onUnitChange = { unit -> ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) } },
                         )
+                        Text("在线期间自主思考间隔 · 新消息与真实事件不受此间隔限制", color = LuluColors.Muted, fontSize = 12.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = {
+                                ProactivePerceptionPolicyStore.update(characterId) { it.copy(onlinePulseSeconds = 150) }
+                            }) { Text(if (perceptionPolicy.onlinePulseSeconds == 150) "✓ 2分半" else "2分半") }
+                            OutlinedButton(onClick = {
+                                ProactivePerceptionPolicyStore.update(characterId) { it.copy(onlinePulseSeconds = 300) }
+                            }) { Text(if (perceptionPolicy.onlinePulseSeconds == 300) "✓ 5分钟" else "5分钟") }
+                        }
+                        Text("使用同一角色聊天模型；生活后续感知合并排队，避免重复花费。", color = LuluColors.Muted, fontSize = 11.sp)
                     }
                     if (perceptionPolicy.enabled) wakePlans[characterId]?.let { plan ->
                         Text("下次预计醒来 · ${plan.dueAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))} · 本轮 ${plan.intervalMinutes} 分钟",
