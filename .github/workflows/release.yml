@@ -14,9 +14,10 @@ permissions:
   issues: write
 
 concurrency:
+  # A newer commit on the same branch supersedes older queued/running APK builds.
+  # Keep workflow_dispatch on separate refs independent.
   group: lulu-apk-${{ github.ref }}
-  # Complete one tested APK while subsequent main updates wait in the same group.
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
