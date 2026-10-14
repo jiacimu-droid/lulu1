@@ -43,6 +43,7 @@ fun LuluMigrationRootAppV2(
     initialMeetingInvitationText: String? = null,
     initialMeetingLocation: String? = null,
     initialMeetingInvitationId: String? = null,
+    navigationRequestId: Long = 0L,
     incomingSharedNote: String? = null,
     onSharedNoteHandled: () -> Unit = {},
 ) {
@@ -168,6 +169,7 @@ fun LuluMigrationRootAppV2(
     }
 
     LaunchedEffect(
+        navigationRequestId,
         initialConversationId,
         initialRouteName,
         initialTargetCharacterId,
