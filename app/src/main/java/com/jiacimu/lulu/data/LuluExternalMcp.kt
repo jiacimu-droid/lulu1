@@ -169,15 +169,31 @@ internal object LuluExternalMcp {
             }
             require(candidates.isNotEmpty()) { "列表没有可打开的真实笔记，尚未读取正文" }
             val history = prefs(context).getString("xiaohongshu:seen:$characterId", "").orEmpty().split(",").toSet()
-            val chosen = candidates.firstOrNull { it.id !in history } ?: candidates.first()
-            val article = try {
-                XhsReadingEngine.read(context, chosen)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                XhsReadingEngine.recordToolStage(context, "笔记正文",
-                    error.message.orEmpty().ifBlank { "正文读取失败" })
-                throw error
+            // A recommendation can be removed or restricted after its list
+            // was loaded. Try at most one OTHER actually returned note rather
+            // than claim success or give up on the whole reading session.
+            val candidatesToTry = (candidates.filter { it.id !in history } +
+                candidates.filter { it.id in history }).distinctBy { it.id }.take(2)
+            var lastReadError: Exception? = null
+            var verifiedArticle: XhsArticle? = null
+            for (candidate in candidatesToTry) {
+                try {
+                    verifiedArticle = XhsReadingEngine.read(context, candidate)
+                    break
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: Exception) {
+                    lastReadError = error
+                    val problem = error.message.orEmpty()
+                    // Login, risk-control and foreground loss affect the whole
+                    // session; do not hammer the site with another request.
+                    if (listOf("限制访问", "登录", "前台", "验证").any { problem.contains(it) }) break
+                }
+            }
+            val article = verifiedArticle ?: run {
+                val reason = lastReadError?.message.orEmpty().ifBlank { "正文读取失败" }
+                XhsReadingEngine.recordToolStage(context, "笔记正文", reason)
+                throw IllegalStateException("候选笔记均未读取成功：${reason.take(160)}", lastReadError)
             }
             val feedId = article.id
             val title = article.title
