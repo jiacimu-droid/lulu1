@@ -62,6 +62,7 @@ internal fun LuluXhsNativeReaderScreen(
     initialCards: List<XhsCard> = emptyList(),
     onSearchInBrowser: ((String) -> Unit)? = null,
     initialShowWebsite: Boolean = false,
+    initialLoadError: String = "",
 ) {
     val context = LocalContext.current
     // The WebView is owned by MigrationActivity, not by this Composable.
@@ -106,7 +107,7 @@ internal fun LuluXhsNativeReaderScreen(
     var selected by remember { mutableStateOf<XhsCard?>(null) }
     var article by remember { mutableStateOf<XhsArticle?>(null) }
     var loading by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf(initialLoadError) }
     var task by remember { mutableStateOf<Job?>(null) }
     var visionTask by remember { mutableStateOf<Job?>(null) }
     var visionText by remember { mutableStateOf("") }
@@ -309,7 +310,8 @@ internal fun LuluXhsNativeReaderScreen(
             smokeStarted = true
             startNativeReadTest()
         } else if (onSearchInBrowser != null) {
-            message = "请在小红书网页搜索，或输入关键词后点「搜索」"
+            if (initialLoadError.isBlank())
+                message = "可以搜索笔记，实际结果会显示在这里"
         } else if (!smokeStarted) {
             if (!useEmbeddedBrowser || !showWebPreview || initialKeyword.isNotBlank()) {
                 loadList(initialKeyword)
