@@ -43,6 +43,8 @@ fun LuluMigrationRootAppV2(
     initialMeetingInvitationText: String? = null,
     initialMeetingLocation: String? = null,
     initialMeetingInvitationId: String? = null,
+    incomingSharedNote: String? = null,
+    onSharedNoteHandled: () -> Unit = {},
 ) {
     val deepLinkRoute = remember(initialRouteName) {
         runCatching { MigrationRoute.valueOf(initialRouteName.orEmpty()) }.getOrNull()
@@ -218,6 +220,23 @@ fun LuluMigrationRootAppV2(
             delay(1_000)
             PomodoroCompanionSessions.syncCountUpClock()
         }
+    }
+
+    // The Android share sheet delivers a link, not proof that a role has read
+    // the article. A recipient is chosen explicitly and the payload enters the
+    // ordinary persistent user-message timeline before navigating to chat.
+    if (!incomingSharedNote.isNullOrBlank()) {
+        XhsShareToRoleDialog(
+            preview = incomingSharedNote,
+            onDismiss = onSharedNoteHandled,
+            onSelect = { target ->
+                MigratedDomainStores.chat.sendUserMessage(
+                    target.id, "分享给你一篇小红书笔记：\n" + incomingSharedNote,
+                )
+                onSharedNoteHandled()
+                openConversation(target.id)
+            },
+        )
     }
 
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
