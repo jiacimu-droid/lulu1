@@ -71,7 +71,7 @@ internal object CompanionActionRuntime {
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
         if (XhsReadingEngine.available(context) &&
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
-            appendLine("- read_xiaohongshu，args={\"keyword\":\"自己真正好奇的主题，可留空看推荐\"}：自主逛小红书时，真实搜帖/推荐并打开一篇正文后才算读过；由角色依据兴趣决定，读完可以独立思考，若想分享必须另选私聊/朋友圈动作。外部博主的经历不能冒充自己亲身经历。")
+            appendLine("- read_xiaohongshu：读用户分享的指定笔记时传 args={\"url\":\"聊天里实际分享的官方链接\"}；自己寻找资料时才传 args={\"keyword\":\"自己好奇的具体主题，可留空看推荐\"}。不能把关键词搜索到的另一篇当成用户分享的原帖；要真实打开正文并取得回执后才声称已读。可以形成独立兴趣与感想；是否分享给用户/朋友圈须另选真实发送动作。博主经历不是自己的经历。")
         }
         if (LuluExternalMcp.configured(context, "health") &&
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
