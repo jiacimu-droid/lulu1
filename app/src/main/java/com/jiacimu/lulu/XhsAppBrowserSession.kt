@@ -5,6 +5,14 @@ import android.view.ViewGroup
 import android.view.View
 import android.widget.FrameLayout
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.WebResourceRequest
+import android.webkit.CookieManager
+import android.webkit.WebSettings
+import androidx.webkit.UserAgentMetadata
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import com.jiacimu.lulu.data.XhsReadingEngine
 
 /**
@@ -19,6 +27,70 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
     private var retained: WebView? = null
     private var parkingSlot: FrameLayout? = null
     private var destroyed = false
+
+    // Initializing at foreground start makes the authorized reader available to
+    // a character on the chat screen, not only after the user visits XHS.
+    // No WebView or Activity is ever retained by a process-wide singleton.
+    fun prepareForForeground() {
+        if (destroyed || retained != null || activity.isFinishing || activity.isDestroyed) return
+        val view = WebView(activity)
+        view.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            allowFileAccess = false
+            allowContentAccess = false
+            allowFileAccessFromFileURLs = false
+            allowUniversalAccessFromFileURLs = false
+            mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            mediaPlaybackRequiresUserGesture = true
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            val version = Regex("Chrome/([0-9.]+)")
+                .find(WebSettings.getDefaultUserAgent(activity))?.groupValues?.get(1)
+                ?: "120.0.0.0"
+            userAgentString = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " +
+                "(KHTML, like Gecko) Chrome/$version Safari/537.36"
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) {
+                runCatching {
+                    val brands = listOf("Chromium", "Google Chrome").map {
+                        UserAgentMetadata.BrandVersion.Builder().setBrand(it)
+                            .setMajorVersion(version.substringBefore('.'))
+                            .setFullVersion(version).build()
+                    }
+                    WebSettingsCompat.setUserAgentMetadata(this,
+                        UserAgentMetadata.Builder().setPlatform("Linux").setMobile(false)
+                            .setBrandVersionList(brands).build())
+                }
+            }
+        }
+        CookieManager.getInstance().setAcceptCookie(true)
+        CookieManager.getInstance().setAcceptThirdPartyCookies(view, false)
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            val script = activity.assets.open("xhs-reader.js").bufferedReader().use { it.readText() }
+            WebViewCompat.addDocumentStartJavaScript(view, script,
+                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+        }
+        retained = view
+        park(view)
+        XhsReadingEngine.attachBrowser(view)
+        view.loadUrl("https://www.xiaohongshu.com/explore")
+    }
+
+    private fun safeParkedClient(): WebViewClient = object : WebViewClient() {
+        override fun shouldOverrideUrlLoading(
+            view: WebView?, request: WebResourceRequest?,
+        ): Boolean {
+            if (request?.isForMainFrame != true) return false
+            val uri = request.url
+            return uri.scheme != "https" ||
+                uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
+        }
+    }
+
+    // Probe owns a single document-start routing registration per retained view.
+    // Native reading may be opened first; it only installs the parser.
+    private var routeScriptInstalled = false
+    fun needsRouteScript(): Boolean = !routeScriptInstalled.also { routeScriptInstalled = true }
 
     /** An attached and measured slot underneath the root Compose UI.
      * Its viewport is large enough for the site's virtualized cards.
@@ -73,6 +145,7 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
         // If Android pauses the Activity, the engine refuses new requests.
         val host = foregroundSlot()
         view.clearFocus()
+        view.webViewClient = safeParkedClient()
         (view.parent as? ViewGroup)?.removeView(view)
         host.addView(view, FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -92,6 +165,7 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
             view.destroy()
         }
         retained = null
+        routeScriptInstalled = false
         parkingSlot?.let { slot ->
             (slot.parent as? ViewGroup)?.removeView(slot)
             slot.removeAllViews()
