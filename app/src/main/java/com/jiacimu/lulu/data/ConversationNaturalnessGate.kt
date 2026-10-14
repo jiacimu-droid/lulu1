@@ -16,6 +16,7 @@ internal data class ConversationNaturalnessAssessment(
         appendLine("保留原来的事实、立场、dialogueMove 和行动结果，只重写表面说法。")
         if (reasons.isNotEmpty()) appendLine("本次需要消掉的人机感来源：" + reasons.joinToString("；"))
         appendLine("不要新增建议、承诺、工具动作、关系结论或新的问题；像这个人当场接话，说够就停。")
+        appendLine("当只是简单追问或工具未成功时，留最关键的事实和本人真实反应就够了。删掉重复的原因复述、客服式安慰及事后检讨；简短而不是故意敷衍。")
     }.trim()
 }
 
@@ -126,6 +127,23 @@ internal object ConversationNaturalnessGate {
         if (userLength in 1..24 && replyLength >= 140) {
             score += 1
             reasons += "短促聊天被无必要扩成长篇"
+        }
+        // Multi-paragraph postmortems can evade the existing assistant-phrase
+        // and lexical-overlap checks: all three paragraphs may use different
+        // words to explain the SAME one-line tool failure. Detect excessive
+        // explanation without setting a blanket character or bubble quota.
+        // Explicit requests for a detailed explanation must remain detailed.
+        val detailRequested = Regex(
+            """详细|具体讲讲|展开讲|解释清楚|说清楚|深度分析|仔细分析|分析原因|排查|教程|步骤|为什么|怎么回事"""
+        ).containsMatchIn(userText)
+        val longBubbles = bubbles.count { bubble ->
+            bubble.count { !it.isWhitespace() } >= 55
+        }
+        if (!detailRequested && userLength in 1..50 &&
+            ((replyLength >= 140 && longBubbles >= 2) ||
+                (replyLength >= 180 && longBubbles >= 1))) {
+            score += 2
+            reasons += "简单追问被写成多段事后说明，缺乏真实对话的轻重取舍"
         }
         val normalizedBubbles = bubbles.map(::surfaceNormalize).filter { it.length >= 8 }
         val repeatedPair = normalizedBubbles.indices.any { i ->
