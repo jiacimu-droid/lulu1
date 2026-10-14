@@ -98,6 +98,11 @@ object CharacterRuntime {
             appendLine(CharacterAccountabilityContext.prompt(characterId))
             CharacterCuriosityRuntime.briefContext(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
+            // Same recent personal scene is visible in chat, telephone and
+            // autonomous thought. Its prose stays SUBJECTIVE and short;
+            // only the verified world action is an objective timeline fact.
+            WorldLifeEpisodeStore.recentContext(characterId)
+                .takeIf(String::isNotBlank)?.let(::appendLine)
             // One evidence-backed relational will follows the same identity and
             // private life across chat, phone and digital-world meetings.
             appendLine(CharacterRelationalInitiative.context(characterId))
