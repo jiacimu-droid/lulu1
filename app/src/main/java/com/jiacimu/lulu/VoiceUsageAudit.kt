@@ -27,6 +27,23 @@ internal object VoiceUsageAudit {
         prefs.edit().putString(KEY, after.toString()).apply()
     }
 
+    /** Totals are client-observed requests ONLY, never an estimated charge. */
+    fun summary(context: Context): String {
+        val raw = context.applicationContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
+            .getString(KEY, "[]").orEmpty()
+        val rows = runCatching { JSONArray(raw) }.getOrDefault(JSONArray())
+        val items = (0 until rows.length()).mapNotNull(rows::optJSONObject)
+            .filter { it.optString("provider") == "ElevenLabs" }
+        val tts = items.filter { it.optInt("characters") > 0 }
+        val realtime = items.filter { it.optString("source") == "stt_realtime_session" }
+        val uploads = items.filter { it.optString("source") == "stt_segment_sent" }
+        val agent = items.filter { it.optString("source") == "agent_call_ended" }
+        return "本机最近${items.size}条记录：TTS ${tts.size}次、提交${tts.sumOf { it.optInt("characters") }}字；" +
+            "实时 STT ${realtime.size}次会话、上传音频约${realtime.sumOf { it.optLong("audioMs") } / 1000L}秒；" +
+            "分段 STT ${uploads.size}次、音频约${uploads.sumOf { it.optLong("audioMs") } / 1000L}秒；" +
+            "Agent 电话${agent.size}次、连接约${agent.sumOf { it.optLong("durationMs") } / 1000L}秒。"
+    }
+
     fun recent(context: Context, max: Int = 20): List<String> {
         val prefs = context.applicationContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
         val saved = runCatching { JSONArray(prefs.getString(KEY, "[]")) }.getOrDefault(JSONArray())
