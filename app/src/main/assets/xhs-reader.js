@@ -270,6 +270,24 @@
               author: clean(document.querySelector('.author-wrapper .username')?.innerText, 120)};
           }
         }
+        if (detail) {
+          // Comments are optional: capture only text actually rendered in
+          // the opened note, not comments guessed from counts or user profile
+          // avatars. Never claim that an unloaded comment list was read.
+          const commentRoot = document.querySelector(
+            '#noteContainer,.note-container,.note-scroller,[class*="note-detail"]') || document;
+          const commentEls = [...commentRoot.querySelectorAll(
+            '.comments-container .comment-item,.comment-list .comment-item,[class*="comments-container"] [class*="comment-item"]'
+          )].slice(0, 12);
+          detail.comments = commentEls.map(el => {
+            const box = el.getBoundingClientRect?.();
+            if (!box || box.width < 2 || box.height < 2) return '';
+            const text = el.querySelector(
+              '.comment-content,.comment-text,[class*="comment-content"],[class*="content-text"]'
+            )?.innerText || '';
+            return clean(text, 260);
+          }).filter(Boolean).slice(0, 10);
+        }
       } else {
         const section = unwrap(kind === 'search' ? state.search : state.feed ?? state.homeFeed);
         const stateItems = list(section?.feeds, kind === 'search' ? 'pc_search' : 'pc_feed');
