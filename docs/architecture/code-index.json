@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:19:32.720862+00:00",
-  "commit": "a08e80e2fa6fc3bf78fcb31dbb4b0dfa16d85329",
+  "generatedAt": "2026-10-14T08:19:54.780206+00:00",
+  "commit": "72683c7b104b26c81f776fc56558ac01dd6d02d1",
   "branch": "main",
-  "sourceFingerprint": "706ece63c5ad7c5c660b713919d94a56137474df70f1d2fb7b0eabba8c7185bf",
+  "sourceFingerprint": "a6e0550ce68a1eac38b8945bece43623817ada2ef4557cdc1ce261335b816d70",
   "summary": {
     "files": 623,
-    "lines": 125116,
+    "lines": 125135,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -1495,43 +1495,43 @@
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 124
+        "line": 126
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 130
+        "line": 132
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 134
+        "line": 136
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 138
+        "line": 140
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 145
+        "line": 147
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 149
+        "line": 151
       }
     ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 153
+        "line": 155
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -11567,8 +11567,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 416,
-      "sha256": "2e809201305724aafc9deb5e30378373c0456028cbe36c984cc84858f4740aa1",
+      "lines": 435,
+      "sha256": "3207a1518df714e8244f39a294342f4e68e01d3b3c826a2e86a7fa2c4ec61363",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -11576,31 +11576,31 @@
         },
         {
           "name": "characterIdForConversation",
-          "line": 124
+          "line": 126
         },
         {
           "name": "selectConversationCharacter",
-          "line": 130
+          "line": 132
         },
         {
           "name": "pushRoute",
-          "line": 134
+          "line": 136
         },
         {
           "name": "openConversation",
-          "line": 138
+          "line": 140
         },
         {
           "name": "popRoute",
-          "line": 145
+          "line": 147
         },
         {
           "name": "replaceTop",
-          "line": 149
+          "line": 151
         },
         {
           "name": "openActivePomodoro",
-          "line": 153
+          "line": 155
         }
       ]
     },
