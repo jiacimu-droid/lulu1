@@ -59,7 +59,8 @@ test('visible search links remain readable when site changes card CSS classes', 
       '?xsec_token=actual-token&xsec_source=pc_search',
     getAttribute: key => key === 'aria-label' ? '从真实搜索链接读取' : null,
     innerText: '真实笔记链接',
-    closest: () => null
+    closest: () => null,
+    getBoundingClientRect: () => ({height: 0})
   };
   const b = browser({path: '/search_result?keyword=cat', elements: [cardLink],
     state: {search: {feeds: []}}});
