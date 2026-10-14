@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:50:23.606932+00:00",
-  "commit": "4fdf192e5ebd3c9b9b3ce83414c04b44c5481a5b",
+  "generatedAt": "2026-10-14T10:50:45.653887+00:00",
+  "commit": "44c57c92b3d50954ab21a69fe3807f8de13f2fdb",
   "branch": "main",
-  "sourceFingerprint": "2af0b8248141f51596a63f2d86449cbdd8af8344e6c28b66319aa65785cd4f78",
+  "sourceFingerprint": "7b65ff077c64b5c0f495dbf1d7867c0f5f023ab8aad5e0da6f78aadece64deb6",
   "summary": {
     "files": 632,
-    "lines": 126337,
-    "symbols": 1871
+    "lines": 126344,
+    "symbols": 1873
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -33,7 +33,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 61
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
@@ -65,7 +65,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 196
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
@@ -1288,22 +1288,34 @@
         "line": 23
       }
     ],
+    "sentAudioMillis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
+        "line": 63
+      }
+    ],
+    "sentKeepaliveMillis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
+        "line": 65
+      }
+    ],
     "audioFrame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 161
+        "line": 168
       }
     ],
     "acceptPartial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 212
+        "line": 219
       }
     ],
     "preview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 218
+        "line": 225
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -1313,13 +1325,13 @@
     "commit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 220
+        "line": 227
       }
     ],
     "takeFinal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-        "line": 226
+        "line": 233
       }
     ],
     "close": [
@@ -11395,36 +11407,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
-      "lines": 229,
-      "sha256": "3bd81dc68bed31a9bc35f9baa9c5a5b7f79616d5062913eb796d4486ca34f0a6",
+      "lines": 236,
+      "sha256": "0544822f88bec4f666b157a6d541cde19ddbcae8afb3462ac8d15d77474abff4",
       "symbols": [
         {
+          "name": "sentAudioMillis",
+          "line": 63
+        },
+        {
+          "name": "sentKeepaliveMillis",
+          "line": 65
+        },
+        {
           "name": "start",
-          "line": 61
+          "line": 66
         },
         {
           "name": "audioFrame",
-          "line": 161
+          "line": 168
         },
         {
           "name": "stop",
-          "line": 196
+          "line": 203
         },
         {
           "name": "acceptPartial",
-          "line": 212
+          "line": 219
         },
         {
           "name": "preview",
-          "line": 218
+          "line": 225
         },
         {
           "name": "commit",
-          "line": 220
+          "line": 227
         },
         {
           "name": "takeFinal",
-          "line": 226
+          "line": 233
         }
       ]
     },
