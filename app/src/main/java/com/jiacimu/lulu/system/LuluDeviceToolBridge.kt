@@ -686,10 +686,10 @@ object LuluDeviceToolBridge {
         if (sceneContext.contains("电话") && plan.action == "tool" &&
             plan.tool == "favorite_user_message" && !rewriting) {
             val requestedId = plan.args.optString("messageId").trim()
-            val conversation = com.jiacimu.lulu.MigratedDomainStores.chat.conversations.value
+            val conversation = com.jiacimu.lulu.data.MigratedDomainStores.chat.conversations.value
                 .firstOrNull { it.groupChat == null && it.characterId == characterId }
             val userMessage = conversation?.let { chat ->
-                com.jiacimu.lulu.MigratedDomainStores.chat.messages(chat.id).value
+                com.jiacimu.lulu.data.MigratedDomainStores.chat.messages(chat.id).value
                     .asReversed().firstOrNull { msg ->
                         msg.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User &&
                             msg.status == com.jiacimu.lulu.data.LuluChatMessage.Status.Sent &&
@@ -869,10 +869,10 @@ object LuluDeviceToolBridge {
             else null
             val phoneFavoriteResult = chosenPhoneFavorite?.let { selected ->
                 val requestedId = selected.optString("messageId").trim()
-                val conversation = com.jiacimu.lulu.MigratedDomainStores.chat.conversations.value
+                val conversation = com.jiacimu.lulu.data.MigratedDomainStores.chat.conversations.value
                     .firstOrNull { it.groupChat == null && it.characterId == characterId }
                 val candidate = conversation?.let { chat ->
-                    com.jiacimu.lulu.MigratedDomainStores.chat.messages(chat.id).value
+                    com.jiacimu.lulu.data.MigratedDomainStores.chat.messages(chat.id).value
                         .asReversed().firstOrNull { msg ->
                             msg.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User &&
                                 msg.status == com.jiacimu.lulu.data.LuluChatMessage.Status.Sent &&
