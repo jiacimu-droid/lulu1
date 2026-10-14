@@ -51,7 +51,7 @@ class XhsBrowserSessionTest {
         val summary = XhsReadingEngine.readableDiagnostic(raw)
         assertTrue(summary.contains("搜索页"))
         assertTrue(summary.contains("页面状态 3 篇，当前页面 5 篇"))
-        assertTrue(summary.contains("尚未观察到搜索返回"))
+        assertTrue(summary.contains("未观察到对应接口返回"))
         assertFalse(summary.contains("{"))
         assertFalse(summary.contains("must-not-appear"))
         val home = XhsReadingEngine.readableDiagnostic(
