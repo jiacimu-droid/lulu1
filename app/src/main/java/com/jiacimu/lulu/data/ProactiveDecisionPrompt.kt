@@ -39,7 +39,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
                 val status = body.optString("imageReadingStatus").take(90)
                 "- 实际读过《$title》；来源证据ID=${event.id}；自己的读后想法=${thought.ifBlank { "尚无独立感想" }}；图片状态=$status"
             }.distinct().take(2).toList()
-            .takeIf(List<String>::isNotEmpty)?.joinToString("\n").orEmpty()
+            .takeIf { it.isNotEmpty() }?.joinToString("\n").orEmpty()
     }.getOrDefault("")
     return """
         ${CharacterDecisionProtocol.principles}
