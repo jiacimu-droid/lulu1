@@ -82,6 +82,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     var nativeSearchVisible by remember { mutableStateOf(false) }
     var nativeSearchKeyword by remember { mutableStateOf("") }
     var nativeSearchJob by remember { mutableStateOf<Job?>(null) }
+    var nativeSearchEpoch by remember { mutableIntStateOf(0) }
     val routingScript = remember {
         context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() } + "\n" +
             context.assets.open("xhs-browser-route.js").bufferedReader().use { it.readText() }
@@ -140,6 +141,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
 
     fun searchInVisibleBrowser(query: String) {
         val text = query.trim().take(64)
+        val searchEpoch = ++nativeSearchEpoch
         nativeSearchJob?.cancel()
         readerVisible = false
         readerCard = null
@@ -154,17 +156,23 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             try {
                 val found = XhsReadingEngine.list(context, text,
                     localOnly = true, forceRefresh = true,
-                    onProgress = { progress -> status = progress })
-                readerCards = found
-                readerSearchError = if (found.isEmpty()) "网页没有返回可以打开的真实笔记。" else ""
-                status = if (found.isEmpty()) "没有获得可用结果" else "已获取 ${found.size} 篇真实笔记"
+                    onProgress = { progress ->
+                        if (searchEpoch == nativeSearchEpoch) status = progress
+                    })
+                if (searchEpoch == nativeSearchEpoch) {
+                    readerCards = found
+                    readerSearchError = if (found.isEmpty()) "网页没有返回可以打开的真实笔记。" else ""
+                    status = if (found.isEmpty()) "没有获得可用结果" else "已获取 ${found.size} 篇真实笔记"
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                readerSearchError = "搜索未完成：${error.message.orEmpty().take(145)}"
-                status = readerSearchError
+                if (searchEpoch == nativeSearchEpoch) {
+                    readerSearchError = "搜索未完成：${error.message.orEmpty().take(145)}"
+                    status = readerSearchError
+                }
             } finally {
-                readerVisible = true
+                if (searchEpoch == nativeSearchEpoch) readerVisible = true
             }
         }
     }
