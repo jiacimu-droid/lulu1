@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.XhsArticle
 import com.jiacimu.lulu.data.XhsCard
 import com.jiacimu.lulu.data.XhsReadingEngine
+import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -86,6 +87,8 @@ internal fun LuluXhsNativeReaderScreen(
     // reliably hydrate virtualized result grids or interactive search.
     var showWebPreview by remember { mutableStateOf(initialShowWebsite || useEmbeddedBrowser) }
     var readerMenuExpanded by remember { mutableStateOf(false) }
+    var shareVisible by remember { mutableStateOf(false) }
+    var shareSending by remember { mutableStateOf(false) }
     var showTechnicalDiagnostic by remember { mutableStateOf(false) }
     var smokeStarted by remember { mutableStateOf(false) }
     var smokeResult by remember { mutableStateOf("") }
@@ -318,6 +321,57 @@ internal fun LuluXhsNativeReaderScreen(
     }
     DisposableEffect(Unit) { onDispose { task?.cancel(); visionTask?.cancel() } }
 
+    if (shareVisible && article != null) {
+        XhsShareToRoleDialog(
+            preview = article?.title.orEmpty(),
+            onDismiss = { shareVisible = false },
+            onSelect = share@{ chat ->
+                val openedArticle = article ?: return@share
+                val openedCard = selected ?: return@share
+                if (shareSending) return@share
+                shareVisible = false
+                shareSending = true
+                message = "正在整理真实图文，准备发给${chat.title}…"
+                scope.launch {
+                    try {
+                        val imageReading = if (openedArticle.images.isEmpty()) "" else {
+                            val reading = visionText.takeIf { it.isNotBlank() } ?: run {
+                                val result = VisionModelService.describeXhsImages(
+                                    context, openedArticle.images.map { it.url }, openedArticle.body)
+                                result.getOrNull().orEmpty()
+                            }
+                            if (reading.isBlank()) "本帖有${openedArticle.images.size}张图片，但图片内容尚未识别成功，请勿当作已看见。"
+                            else "图片理解（模型识别，未必准确，最多前6张）：\n" + reading.take(6000)
+                        }
+                        val payload = buildString {
+                            appendLine("分享给你一篇小红书笔记：")
+                            appendLine("标题：${openedArticle.title.ifBlank { openedCard.title }}")
+                            if (openedArticle.author.isNotBlank()) appendLine("作者：${openedArticle.author}")
+                            appendLine("原链接：${openedCard.url()}")
+                            if (openedArticle.body.isNotBlank()) {
+                                appendLine("帖子原文：")
+                                appendLine(openedArticle.body.take(8_000))
+                            } else appendLine("帖子没有提取到正文文字。")
+                            if (imageReading.isNotBlank()) appendLine(imageReading)
+                            if (openedArticle.comments.isNotEmpty()) {
+                                appendLine("实际加载到的评论摘录（不代表完整评论区）：")
+                                openedArticle.comments.take(8).forEach { appendLine(it.take(320)) }
+                            }
+                        }
+                        MigratedDomainStores.chat.sendUserMessage(chat.id, payload)
+                        message = "已发给${chat.title}，到私聊中查看。"
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (error: Exception) {
+                        message = "分享没有发送成功：${error.message.orEmpty().take(150)}"
+                    } finally {
+                        shareSending = false
+                    }
+                }
+            },
+        )
+    }
+
     if (smokeResult.isNotBlank()) AlertDialog(onDismissRequest = { smokeResult = "" },
         title = { Text("内置阅读测试结果") },
         text = { Text(smokeResult) },
@@ -353,6 +407,11 @@ internal fun LuluXhsNativeReaderScreen(
                 }
             },
             actions = {
+                if (selected != null && article != null) {
+                    TextButton(onClick = { shareVisible = true }, enabled = !shareSending) {
+                        Text(if (shareSending) "发送中…" else "发给角色")
+                    }
+                }
                 Box {
                     IconButton(onClick = { readerMenuExpanded = true }) {
                         Icon(Icons.Outlined.MoreVert, contentDescription = "阅读工具")
