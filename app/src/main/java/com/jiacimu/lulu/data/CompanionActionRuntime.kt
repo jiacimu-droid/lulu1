@@ -390,11 +390,9 @@ internal object CompanionActionRuntime {
                     )
                     val locationAfter = DigitalWorldStore.locationOf(characterId)
                     WorldLifeEpisodeStore.initialize(context)
-                    val recentEpisode = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
-                        ?.takeIf { prior ->
-                            prior.location == locationAfter &&
-                                java.time.Duration.between(prior.occurredAt, now).toMinutes() in 0..35
-                        }
+                    val recentEpisode = WorldLifeEpisodeStore.recentAt(
+                        characterId, locationAfter, now,
+                    )
                     val episode = if (worldAction in leisureActions &&
                         recentEpisode == null && worldResult.evidenceId.isNotBlank()) {
                         val (title, story) = WorldLifeEpisodeComposer.compose(
