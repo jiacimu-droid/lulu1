@@ -51,6 +51,18 @@ internal fun xhsBrowserIsNoteUrl(raw: String): Boolean {
 @Composable
 internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    val appBrowser = remember(context) {
+        var candidate: android.content.Context? = context
+        var session: XhsAppBrowserSession? = null
+        while (candidate != null) {
+            if (candidate is MigrationActivity) {
+                session = candidate.browserSession()
+                break
+            }
+            candidate = (candidate as? android.content.ContextWrapper)?.baseContext
+        }
+        session
+    }
     val scope = rememberCoroutineScope()
     var smokeStarted by remember { mutableStateOf(false) }
     var smokePending by remember { mutableStateOf(XhsReadingEngine.visibleReadTestPending(context)) }
@@ -344,7 +356,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             AndroidView(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 factory = { ctx ->
-                    WebView(ctx).apply {
+                    (appBrowser?.reuse() ?: WebView(ctx)).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
                         settings.allowFileAccess = false
@@ -407,6 +419,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             }
                         }
                         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                            // This same WebView moves between screens. A bridge from
+                            // the previous screen must not retain stale Compose state.
+                            WebViewCompat.removeWebMessageListener(this, "luluXhsNavigation")
                             WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
                                 setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) { view, message, origin, mainFrame, _ ->
                                 if (!mainFrame || browser !== view || returningToList || readerVisible ||
@@ -470,7 +485,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                     }
                                 }
                             }
-                            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT) &&
+                                (appBrowser == null || appBrowser.needsRouteScript()))
                                 WebViewCompat.addDocumentStartJavaScript(this, routingScript,
                                     setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
                         }
@@ -491,11 +507,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                         host.endsWith(".xiaohongshu.com"))
                                 if (allowed) return false
                                 if (target.scheme == "http" || target.scheme == "https") {
-                                    runCatching {
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, target))
-                                    }.onFailure {
-                                        status = "无法跳转外部浏览器：" + it.message.orEmpty().take(80)
-                                    }
+                                    status = "外部站点不会自动跳出露露机；请继续使用当前小红书网页。"
                                 } else {
                                     status = if (target.scheme == "intent" ||
                                         target.scheme?.startsWith("xhs") == true) {
@@ -654,18 +666,27 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             }
                         }
                         browser = this
+                        appBrowser?.adopt(this)
                         XhsReadingEngine.attachBrowser(this)
-                        loadUrl(XHS_PROBE_URL)
+                        if (url.isNullOrBlank()) loadUrl(XHS_PROBE_URL)
+                        else evaluateJavascript(routingScript, null)
                     }
                 },
                 onRelease = { view ->
-                    XhsReadingEngine.detachBrowser(view)
                     if (browser === view) browser = null
+                    // Remove the screen-owned JS listener and callbacks; do
+                    // not destroy the shared login, SPA state, or navigation.
+                    if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                        WebViewCompat.removeWebMessageListener(view, "luluXhsNavigation")
+                    }
                     CookieManager.getInstance().flush()
-                    view.stopLoading()
-                    view.webViewClient = WebViewClient()
                     view.webChromeClient = null
-                    view.destroy()
+                    if (appBrowser != null) appBrowser.park(view)
+                    else {
+                        XhsReadingEngine.detachBrowser(view)
+                        view.stopLoading()
+                        view.destroy()
+                    }
                 },
             )
         }
