@@ -1,6 +1,5 @@
 package com.jiacimu.lulu
 
-import android.content.Intent
 import android.net.Uri
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
@@ -98,35 +97,6 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     }
     val desktopAgent = remember(chromeVersion) {
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$chromeVersion Safari/537.36"
-    }
-
-    fun openOriginalNote() {
-        val active = browser ?: return
-        // User-triggered only: the complete note URL is passed directly to Android
-        // ACTION_VIEW, never to the model, logs, analytics, or our MCP service.
-        active.evaluateJavascript(
-            """(() => window.__luluLastNoteUrl || (
-                /^\/(explore|discovery\/item)\//.test(location.pathname)
-                ? location.href : ""))()""".trimIndent(),
-        ) { encoded ->
-            val candidate = runCatching {
-                JSONTokener(encoded).nextValue() as String
-            }.getOrNull().orEmpty()
-            val target = runCatching { Uri.parse(candidate) }.getOrNull()
-            val host = target?.host.orEmpty().lowercase()
-            val notePath = target?.path.orEmpty()
-            if (target?.scheme != "https" ||
-                host !in setOf("xiaohongshu.com", "www.xiaohongshu.com") ||
-                !(notePath.startsWith("/explore/") || notePath.startsWith("/discovery/item/"))) {
-                status = "当前笔记链接未能识别；暂时无法直接跳转。"
-                return@evaluateJavascript
-            }
-            runCatching {
-                context.startActivity(Intent(Intent.ACTION_VIEW, target))
-            }.onFailure {
-                status = "无法打开笔记：" + it.message.orEmpty().take(70)
-            }
-        }
     }
 
     fun returnToList() {
@@ -350,9 +320,6 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error,
                     )
-                    if (websiteIssue.contains("笔记详情")) {
-                        TextButton(onClick = { openOriginalNote() }) { Text("外部读帖") }
-                    }
                     TextButton(onClick = { returnToList() }) { Text("返回列表") }
                 }
             }
