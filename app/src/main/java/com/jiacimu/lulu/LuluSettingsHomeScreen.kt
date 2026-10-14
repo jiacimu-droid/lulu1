@@ -47,8 +47,12 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onOpenBrowserProbe = { page = SettingsHomePage.BrowserProbe },
             onOpenXhsNativeReader = { page = SettingsHomePage.XhsNativeReader },
         )
-        SettingsHomePage.BrowserProbe -> LuluWebBrowserProbeScreen(
+        // A second standalone browser page used to create a competing SPA.
+        // Both "login website" and "read" now enter the SAME Activity-scoped
+        // reader. Expose its website preview for manual login/verification.
+        SettingsHomePage.BrowserProbe -> LuluXhsNativeReaderScreen(
             onBack = { page = SettingsHomePage.Integrations },
+            initialShowWebsite = true,
         )
         SettingsHomePage.XhsNativeReader -> LuluXhsNativeReaderScreen(
             onBack = { page = SettingsHomePage.Integrations },
