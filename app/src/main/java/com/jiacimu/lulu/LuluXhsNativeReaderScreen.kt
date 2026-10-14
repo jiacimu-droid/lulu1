@@ -365,6 +365,7 @@ internal fun LuluXhsNativeReaderScreen(
                             })
                             DropdownMenuItem(text = { Text("简洁图文阅读") }, onClick = {
                                 readerMenuExpanded = false; showWebPreview = false
+                                if (selected == null && cards.isEmpty() && !loading) loadList(keyword)
                             })
                             DropdownMenuItem(text = { Text("刷新首页") }, onClick = {
                                 readerMenuExpanded = false; keyword = ""; loadList("")
