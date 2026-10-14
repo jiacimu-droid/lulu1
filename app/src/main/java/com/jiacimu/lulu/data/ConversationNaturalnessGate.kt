@@ -48,9 +48,9 @@ internal object ConversationNaturalnessGate {
         // negative conclusions or the identity of a specific shared post.
         // Reject the rewrite and use the original instead of letting style
         // polishing fabricate a tool result or invert someone's stance.
-        val numbers = Regex("""(?<![\p{L}\d])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
+        val numbers = Regex("""(?<![A-Za-z0-9])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
             .findAll(before).map { it.value }.toSet()
-        val numbersAfter = Regex("""(?<![\p{L}\d])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
+        val numbersAfter = Regex("""(?<![A-Za-z0-9])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
             .findAll(after).map { it.value }.toSet()
         if (!numbersAfter.containsAll(numbers)) return false
 
