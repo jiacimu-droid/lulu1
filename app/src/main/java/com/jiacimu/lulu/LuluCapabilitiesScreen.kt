@@ -41,6 +41,7 @@ import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
+import com.jiacimu.lulu.system.LuluMediaPlayback
 import com.jiacimu.lulu.system.LuluNotificationListenerService
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -88,6 +89,9 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
 
     val snapshot = remember(refreshKey, accessibility.connected, notificationConnected) {
         CapabilitySnapshot.read(context, accessibility.connected, notificationConnected)
+    }
+    val musicDiagnostic = remember(refreshKey, notificationConnected) {
+        LuluMediaPlayback.observation(context)
     }
     val library by com.jiacimu.lulu.ai.LuluAiServices.connectionStore.library.collectAsState()
     val chatArchiveId = library.archiveIdFor(ModelUsage.Chat)
@@ -166,7 +170,15 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.NotificationsActive,
                     "通知读取",
-                    "读取其他 App 的近期通知，作为下一次主动感知的上下文",
+                    "读取近期通知，也用于音乐 App 的系统媒体会话访问",
+                    snapshot.notificationAccess,
+                ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+            }
+            item {
+                CapabilityRow(
+                    Icons.Outlined.MusicNote,
+                    "音乐播放识别 / 控制",
+                    musicDiagnostic + "\n当前只控制支持 Android MediaSession 的播放器；没有会话不代表没有声音。点击可检查通知使用权。",
                     snapshot.notificationAccess,
                 ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
             }
