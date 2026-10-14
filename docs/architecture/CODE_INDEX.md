@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2daab43d42eed74c05fb7ae7accb450818de6a7f`
+- 基准提交：`d28de46d72262c2050249ab1dbf0027f2d471e77`
 - 分支：`main`
 - 已索引文件：632
-- 已索引代码/文本行：126210
+- 已索引代码/文本行：126238
 - 已发现符号：1870
 
 | 文件 | 行数 | 符号数 |
@@ -347,7 +347,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 143 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 739 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 767 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
