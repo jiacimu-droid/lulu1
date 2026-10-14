@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`faf62d106d62d1e2bfaea67c8ce7e30cff11359a`
+- 基准提交：`23c835446780f9a8927fbafb34841a23f6fb7a7f`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：123405
+- 已索引代码/文本行：123434
 - 已发现符号：1844
 
 | 文件 | 行数 | 符号数 |
@@ -338,7 +338,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 89 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 574 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 603 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
