@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T17:06:03.380634+00:00",
-  "commit": "ba5bfe295f55933d309c7ae3e7493a464bd72ca1",
+  "generatedAt": "2026-10-14T17:06:45.459767+00:00",
+  "commit": "581affc21f2f67307d324c7b503f6b0004d918dc",
   "branch": "main",
-  "sourceFingerprint": "29054bb7c84efbc243fdd423bda4ce057618439e10046e3b815ae8c1335c6df0",
+  "sourceFingerprint": "aaa5b8a68e58811894c7bc465a953dbf389b4d74771ccb8478d439f17659fd3f",
   "summary": {
     "files": 634,
-    "lines": 127199,
+    "lines": 127246,
     "symbols": 1881
   },
   "symbolIndex": {
@@ -89,7 +89,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 207
+        "line": 217
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -113,7 +113,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 199
+        "line": 209
       }
     ],
     "refresh": [
@@ -2283,7 +2283,7 @@
     "mute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 197
+        "line": 207
       }
     ],
     "ScheduleFeatureScreen": [
@@ -12605,20 +12605,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 292,
-      "sha256": "d12e1b3adb5559980f058d0cfb7d48e6c257baf64159b7d9aba69260e5ecc4c3",
+      "lines": 339,
+      "sha256": "f7c4a8767540c9052f73605a3e200c9b0276c5e5c1c9aa348af2bfbd24dad26a",
       "symbols": [
         {
           "name": "mute",
-          "line": 197
+          "line": 207
         },
         {
           "name": "speaker",
-          "line": 199
+          "line": 209
         },
         {
           "name": "stop",
-          "line": 207
+          "line": 217
         }
       ]
     },
