@@ -289,14 +289,13 @@ object LuluDeviceToolBridge {
         """.trimIndent() else """
             这是电话的低延迟通道，普通交谈必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
-            【电话里也能当场收藏，不必先挂断】
-            若下面真实消息候选中有一句用户原话，你本人确实想珍藏，可以直接选
-            {"action":"tool","tool":"favorite_user_message","args":{"messageId":"下方提供的准确ID","reason":"自己真实而具体的收藏理由"},"reason":"此刻为何真心想保存这句话"}。
-            收藏执行器会马上校验消息及原始时间线、保存到辞海，再依据成功/失败回执给用户一句自然的电话回复。
-            没有明确收藏意愿时继续普通 reply；只是在心里犹豫想以后收藏，不代表做成了。
-            不能把“等挂电话再收藏”当成完成动作，不能无回执说已收藏。
-            如果当下确实决定留待以后行动，应把未完成意图放进本人真实的 pendingConcern，
-            让后续统一自主感知能继续权衡；不能只写一条心声就等它自己变成操作。
+            【电话里可以当场收藏，无需先挂断或先回复另一次电话】
+            你若真正决定把提供的某条准确用户消息留在辞海，可以在正常的电话回复里同时写
+            {"action":"reply","text":"不预言执行结果的自然口语","phoneFavorite":{"messageId":"真实用户消息ID","reason":"自己为何想收藏这句原话"}}。
+            注意 phoneFavorite 是本人这次真实选择的副动作，不只是内心想到；系统会在播报收藏结果前校验消息和原始证据、执行已有收藏工具，成功才说成功，失败会给出真实原因。
+            如果根本不需要说话，也可直接选择 action=tool、tool=favorite_user_message 的旧方式。
+            如果真的想收藏，就在此刻填写 phoneFavorite 并执行，不要先说“挂了以后再操作”来逃避执行；犹豫或暂不收藏时不要填写。
+            如果决定以后再做，应把有真实目标和下一步的未完成意愿放进 appraisal.pendingConcern；心声、后续口头承诺或意图字段本身不会自动执行工具。
         """.trimIndent()
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
         // This is deliberately AFTER message persistence, not a photo-picker blocker.
@@ -746,6 +745,31 @@ object LuluDeviceToolBridge {
             return Result.success(plannedReply.copy(text = "", disposition = CharacterDecisionProtocol.SILENT))
         }
         if (plan.action == "reply") {
+            // Phone reply and a voluntary favorite can be one decision. A
+            // second chat/phone round is not needed to store a real user quote.
+            val chosenPhoneFavorite = if (sceneContext.contains("电话") &&
+                !callSilence && !rewriting && !sceneContext.contains("哄睡"))
+                plan.phoneFavorite else null
+            val phoneFavoriteResult = chosenPhoneFavorite?.let { selected ->
+                val messageId = selected.optString("messageId").trim()
+                val reason = selected.optString("reason").trim().take(180)
+                if (messageId.isBlank() || reason.length < 4) {
+                    JSONObject().put("success", false)
+                        .put("error", "没有提供可核实的用户消息和收藏缘由")
+                } else {
+                    val requestId = "phone-favorite-" + messageId
+                    runCatching {
+                        JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
+                            appContext, characterId, "favorite_user_message",
+                            JSONObject().put("messageId", messageId).put("reason", reason),
+                            requestId = requestId,
+                        ))
+                    }.getOrElse { error ->
+                        JSONObject().put("success", false)
+                            .put("error", error.message.orEmpty().take(120))
+                    }
+                }
+            }
             if (!separateExpression && plan.text.isBlank()) return Result.failure(
                 IllegalStateException("电话模型没有返回可朗读的正文，不能把决策 JSON 当作语音")
             )
@@ -891,8 +915,18 @@ object LuluDeviceToolBridge {
                 IllegalStateException("角色选了只发图，但表情包已不存在或场景不支持图片"))
             if (safeText.isBlank() && chosenSticker == null) return Result.failure(
                 IllegalStateException("角色决定回复但没有生成可发送内容"))
-            val sendText = if (chosenSticker == null) safeText else listOf(
-                safeText, com.jiacimu.lulu.encodeQqChatImage(
+            val phoneFavoriteReceipt = phoneFavoriteResult?.let { actual ->
+                if (actual.optBoolean("success")) "我把那句话收好了。"
+                else "那句暂时没收藏成功。"
+            }.orEmpty()
+            // Tool outcome is appended ONLY after the actual executor returned.
+            // The spoken model text cannot independently prove an action ran.
+            val deliveredSpeech = if (phoneFavoriteReceipt.isNotBlank()) {
+                listOf(safeText, phoneFavoriteReceipt).filter(String::isNotBlank)
+                    .joinToString(" ")
+            } else safeText
+            val sendText = if (chosenSticker == null) deliveredSpeech else listOf(
+                deliveredSpeech, com.jiacimu.lulu.encodeQqChatImage(
                     chosenSticker.uri,
                     imageDescription = com.jiacimu.lulu.StickerLibraryStore.imageDescription(chosenSticker),
                     sticker = true,
@@ -1320,6 +1354,7 @@ object LuluDeviceToolBridge {
                 motiveId = json.optString("motiveId"),
                 intentionId = json.optString("intentionId").trim().take(70),
                 endCall = json.optBoolean("endCall", false),
+                phoneFavorite = json.optJSONObject("phoneFavorite"),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
                 stickerId = json.optString("stickerId").trim().take(90),
@@ -1382,6 +1417,7 @@ private data class ToolPlan(
     val motiveId: String = "",
     val intentionId: String = "",
     val endCall: Boolean = false,
+    val phoneFavorite: JSONObject? = null,
     val speechIntent: String = "",
     val socialAttempt: String = "",
     val stickerId: String = "",
