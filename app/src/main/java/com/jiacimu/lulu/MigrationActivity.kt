@@ -60,6 +60,17 @@ class MigrationActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
+        // Warm the single Activity-owned browser only while Lulu is foregrounded.
+        // A character can then read using the same logged-in WebView even when
+        // the user is in chat; Android may pause it when the app is backgrounded.
+        if (com.jiacimu.lulu.data.XhsReadingEngine.localEnabled(this)) {
+            window.decorView.post {
+                if (!isFinishing && !isDestroyed &&
+                    com.jiacimu.lulu.data.XhsReadingEngine.localEnabled(this)) {
+                    browserSession().prepareForForeground()
+                }
+            }
+        }
         com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
         ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
