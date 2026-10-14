@@ -47,7 +47,7 @@ internal object WorldLifeEpisodeStore {
         mutable.value[characterId].orEmpty()
 
     fun find(id: String): WorldLifeEpisode? = mutable.value.values
-        .asSequence().flatMap(List<WorldLifeEpisode>::asSequence)
+        .asSequence().flatMap { it.asSequence() }
         .firstOrNull { it.id == id }
 
     /** Called only after the world executor has committed its actual action. */
@@ -95,6 +95,18 @@ internal object WorldLifeEpisodeStore {
         if (prefs?.edit()?.putString(found.characterId, encode(next))?.commit() != true) return false
         mutable.value = mutable.value + (found.characterId to next)
         return true
+    }
+
+    /** Removing an originating world fact also removes its derived prose. */
+    @Synchronized fun invalidateEvidence(evidenceId: String) {
+        if (prefs == null || evidenceId.isBlank()) return
+        mutable.value.forEach { (characterId, entries) ->
+            val next = entries.filterNot { it.evidenceId == evidenceId }
+            if (next.size != entries.size &&
+                prefs?.edit()?.putString(characterId, encode(next))?.commit() == true) {
+                mutable.value = mutable.value + (characterId to next)
+            }
+        }
     }
 
     @Synchronized fun clear(characterId: String) {
