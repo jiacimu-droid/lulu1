@@ -1218,7 +1218,7 @@ internal object LuluVoiceCallSession {
                     val success = result?.optBoolean("success") == true
                     val detail = result?.optString("summary").orEmpty()
                         .ifBlank { result?.optString("error").orEmpty() }
-                        .replace(Regex("""\\s+"""), " ").trim().take(160)
+                        .replace(Regex("""\s+"""), " ").trim().take(160)
                         .ifBlank { if (success) "已取得真实阅读结果" else "本次网页没有返回可验证的结果" }
                     // Leave ONE compact factual note, not a fake character
                     // performance or a verbose raw JSON receipt.
@@ -1395,7 +1395,7 @@ internal object LuluVoiceCallSession {
                     alreadyPersisted -> "你正在与用户通话，用户此刻没有通过麦克风说这段话，而是在同一个人的私聊窗口打字发给你。你确实能看见这些文字，并且可以在电话里自然开口回应；不要假装从麦克风听见了打字声。始终沿用这个角色的稳定人格、真实经历、关系称呼与连续状态，只根据电话这个媒介调整表达节奏。不要重复发一条独立的私聊回复。"
                     else -> "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然，别像客服确认工单。先理解用户这段话的重点、情绪和说话是否已经结束，再依角色自己的个性、关系和兴趣自然回应。简单的事可以轻快接话，甚至只哼一声、笑一下、接个梗；值得深谈的事可以认真讲清。可以自然主动提起自己真实经历的一件小事或先前没说完的念头，但它必须与此刻有关系，不把每次通话做成主动生活报告。不要固定每轮几句话，不要机械复述、每句都追问或习惯性附和。角色可以有自己的判断、幽默、沉默与不同意见，但不得编造已经发生的事情。不要朗读说明文字。"
                 }) + if (xhsDispatched)
-                    "\\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果稍后写入私聊。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
+                    "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果稍后写入私聊。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
                 onCharacterHangup = if (realtime != null) null else ({
                     if (sameReply() && !autonomousSleep) autonomousHangup.request(latest.callExperienceId, generation)
