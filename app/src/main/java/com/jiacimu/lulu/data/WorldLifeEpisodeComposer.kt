@@ -22,7 +22,12 @@ internal object WorldLifeEpisodeComposer {
             return suppliedTitle.ifBlank { "在这里待过的一段时间" } to suppliedScene
 
         val character = MigratedDomainStores.characters.get(characterId)
-        val locationName = DigitalWorldStore.locationLabel(location)
+        val locationName = when (location) {
+            DigitalWorldStore.ARRIVAL -> "世界入口"
+            DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
+            else -> DigitalWorldPublicPlaces.label(location)
+                ?: if (location.startsWith("home:")) "角色家中" else "已登记的数字世界地点"
+        }
         val items = DigitalWorldStore.itemsAtLocation(characterId).take(9)
             .joinToString("；") { "${it.name}（${it.position.take(65)}）" }
         val prior = WorldLifeEpisodeStore.episodes(characterId).takeLast(1).firstOrNull()
