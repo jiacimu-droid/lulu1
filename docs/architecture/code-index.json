@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T17:09:44.681505+00:00",
-  "commit": "7a7d962960f54332fae337d4baa9078e1fce3ebc",
+  "generatedAt": "2026-10-14T17:10:26.592255+00:00",
+  "commit": "e84a2453754bde259fa03f49ee33544850ba7488",
   "branch": "main",
-  "sourceFingerprint": "104a6efd20eccba5b7c55005b02d4cccaa6b5369c979ec86145e37df254a4b5b",
+  "sourceFingerprint": "ea4ddf2e554c0ac3b92a9e04aa27f2cb67913c9def6e4055acf395a28776ece1",
   "summary": {
-    "files": 633,
-    "lines": 127209,
-    "symbols": 1880
+    "files": 634,
+    "lines": 127230,
+    "symbols": 1881
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4162,6 +4162,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
         "line": 54
+      }
+    ],
+    "decided": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt",
+        "line": 15
       }
     ],
     "groupedFields": [
@@ -14257,6 +14263,17 @@
         {
           "name": "keepOrBlank",
           "line": 54
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntent.kt",
+      "lines": 21,
+      "sha256": "fe23354c8fb7402eb4e1b1dbbb0a6aca6da3c9681cb6ff0a8681531e8107a683",
+      "symbols": [
+        {
+          "name": "decided",
+          "line": 15
         }
       ]
     },
