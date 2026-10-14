@@ -287,8 +287,16 @@ object LuluDeviceToolBridge {
             如果本轮行动是为了推进之前一件仍未解决的私人心事，可带 concernId=上下文里真实存在的 threadId；必须依据执行回执确认行动结果。没有对应心事就留空，不要随意创造。
             角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
         """.trimIndent() else """
-            这是电话的低延迟通道，必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
+            这是电话的低延迟通道，普通交谈必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
+            【电话里也能当场收藏，不必先挂断】
+            若下面真实消息候选中有一句用户原话，你本人确实想珍藏，可以直接选
+            {"action":"tool","tool":"favorite_user_message","args":{"messageId":"下方提供的准确ID","reason":"自己真实而具体的收藏理由"},"reason":"此刻为何真心想保存这句话"}。
+            收藏执行器会马上校验消息及原始时间线、保存到辞海，再依据成功/失败回执给用户一句自然的电话回复。
+            没有明确收藏意愿时继续普通 reply；只是在心里犹豫想以后收藏，不代表做成了。
+            不能把“等挂电话再收藏”当成完成动作，不能无回执说已收藏。
+            如果当下确实决定留待以后行动，应把未完成意图放进本人真实的 pendingConcern，
+            让后续统一自主感知能继续权衡；不能只写一条心声就等它自己变成操作。
         """.trimIndent()
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
         // This is deliberately AFTER message persistence, not a photo-picker blocker.
@@ -342,6 +350,11 @@ object LuluDeviceToolBridge {
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
+                // Phone speech is persisted as an actual user message. Provide
+                // real, role-visible IDs so the same existing favorite tool
+                // can run during the call instead of becoming a deferred wish.
+                if (sceneContext.contains("电话") && !callSilence && !rewriting)
+                    appendLine(com.jiacimu.lulu.data.CharacterSocialActionOpportunities.prompt(characterId))
                 if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
                 if (directXhsResult != null) {
                     appendLine("【本轮已由真实执行器尝试小红书读取｜不可重复执行】")
