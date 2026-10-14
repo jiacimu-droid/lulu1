@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:51:57.479163+00:00",
-  "commit": "ed5b0e29d37a32db34b73bc9b72565bb2620b80d",
+  "generatedAt": "2026-10-14T09:54:26.618532+00:00",
+  "commit": "aa8b8ee56b7efb44d848410fad341247883ae93d",
   "branch": "main",
-  "sourceFingerprint": "1973882f6d8028e761f8b7fb355f5c020fe32865bfaebb3bd1e8d46ea66804e7",
+  "sourceFingerprint": "e01d015a8ae2470ec6e408a4b00cd42647a8285edefadef9994c45cf7a40e300",
   "summary": {
     "files": 629,
-    "lines": 125984,
+    "lines": 125993,
     "symbols": 1868
   },
   "symbolIndex": {
@@ -12888,8 +12888,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt",
-      "lines": 105,
-      "sha256": "bcb11936496af5772c1924888f9d8728e0343d06a6fc96d1a29c7d2638ddc0ac",
+      "lines": 114,
+      "sha256": "8b02381edb2e61187e4c041ab60245fb2b19041993bbbf98446a31930d8daf97",
       "symbols": []
     },
     {
