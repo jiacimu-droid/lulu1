@@ -107,7 +107,6 @@ internal object LuluMediaPlayback {
         val controllers = active(context)
         if (controllers.isEmpty()) error("未发现可控制的媒体会话；不代表手机没有声音。请检查通知使用权及播放器的系统媒体会话")
         val requested = command.trim().lowercase()
-        val toggle = requested in setOf("toggle", "play_pause", "playpause", "播放暂停", "播放/暂停")
         val selected = if (packageName.isNotBlank()) {
             controllers.firstOrNull { it.packageName == packageName }
                 ?: error("指定播放器未运行或未暴露媒体会话：$packageName")
@@ -123,16 +122,20 @@ internal object LuluMediaPlayback {
                     supports(requestedAction(requested, true), it.playbackState)
             } ?: controllers.firstOrNull {
                 supports(requestedAction(requested, it.playbackState?.state == PlaybackState.STATE_PLAYING), it.playbackState)
-            } ?: error("发现媒体会话，但没有播放器提供对应的系统控制能力。请打开音乐App播放一次再试")
+            } ?: controllers.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING }
+                ?: controllers.firstOrNull { it.packageName == lastPlayerPackage }
+                ?: controllers.singleOrNull()
+                ?: error("发现多个播放器但无法确定要控制哪一个；请先查询 list_media_sessions 并指定 packageName")
         }
         val before = selected.playbackState
         val action = requestedAction(requested, before?.state == PlaybackState.STATE_PLAYING)
-        check(supports(action, before)) {
-            "当前播放器未开放「$action」控制（可检查是否仅有其他媒体App的会话）"
+        check(before != null) { "播放器没有提供状态，无法安全区分播放或暂停。请在音乐App里先播放一次再重试" }
+        check(supports(action, before) || action in setOf("play", "pause")) {
+            "当前播放器未开放「$action」控制"
         }
         lastPlayerPackage = selected.packageName
         val oldTitle = title(selected)
-        val explicit = (before!!.actions and explicitFlag(action)) != 0L
+        val explicit = (before.actions and explicitFlag(action)) != 0L
         val sentBy = if (explicit) {
             when (action) {
                 "play" -> selected.transportControls.play()
@@ -142,12 +145,18 @@ internal object LuluMediaPlayback {
             }
             "transport_controls"
         } else {
-            // Common PLAY_PAUSE-only sessions (e.g. some embedded players).
-            val key = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+            // Prefer an explicit PLAY / PAUSE media key so the requested
+            // operation never becomes an accidental toggle when state changes
+            // between reading it and dispatching the command. For a session
+            // only advertising PLAY_PAUSE, use its own toggle key.
+            val hasToggle = (before.actions and PlaybackState.ACTION_PLAY_PAUSE) != 0L
+            val key = if (hasToggle) KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                else if (action == "play") KeyEvent.KEYCODE_MEDIA_PLAY
+                else KeyEvent.KEYCODE_MEDIA_PAUSE
             val down = selected.dispatchMediaButtonEvent(KeyEvent(KeyEvent.ACTION_DOWN, key))
             val up = selected.dispatchMediaButtonEvent(KeyEvent(KeyEvent.ACTION_UP, key))
             check(down || up) { "播放器没有接收系统播放/暂停按键" }
-            "media_button"
+            if (hasToggle) "media_toggle" else "media_play_pause_key"
         }
         // MediaSession callbacks may be asynchronous; an immediate stale
         // playbackState is NOT evidence that the operation failed.
