@@ -183,9 +183,12 @@ internal object CharacterInitiativeRuntime {
             "click_text" -> Regex("点|点击|按.*按钮|帮我选").containsMatchIn(text)
             "screen_action", "screen_sequence" -> Regex("返回|主页|桌面|最近任务|通知栏|快捷设置|点|点击|操作.*屏幕|帮我操作").containsMatchIn(text)
             "cloud_task" -> Regex("研究|ppt|pptx|文档|docx|云端任务").containsMatchIn(text)
+            "read_xiaohongshu" -> Regex("小红书|红薯|xhs|笔记|帖子").containsMatchIn(text)
             else -> false
         }
         if (!topicMatches) return false
+
+        if (toolName == "read_xiaohongshu") return Regex("搜|搜索|找|看看|看下|阅读|读|刷|查|试试|帮我|分享|给你|这个帖子").containsMatchIn(text)
 
         if (toolName in setOf(
                 "get_battery", "get_location", "get_current_app",
