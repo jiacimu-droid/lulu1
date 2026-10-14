@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:49:15.836593+00:00",
-  "commit": "47c6cc936a369c8e7a1e1b12d224e9f0e3937704",
+  "generatedAt": "2026-10-14T10:50:23.606932+00:00",
+  "commit": "4fdf192e5ebd3c9b9b3ce83414c04b44c5481a5b",
   "branch": "main",
-  "sourceFingerprint": "b5febff0909be0a8842f538cfe2485a634e9560d4e5de12f03dc9a0d06caddf7",
+  "sourceFingerprint": "2af0b8248141f51596a63f2d86449cbdd8af8344e6c28b66319aa65785cd4f78",
   "summary": {
     "files": 632,
-    "lines": 126325,
+    "lines": 126337,
     "symbols": 1871
   },
   "symbolIndex": {
@@ -2567,7 +2567,7 @@
     "recent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
-        "line": 25
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt",
@@ -12858,12 +12858,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
-      "lines": 43,
-      "sha256": "6eb9ca97d10fe284f9d4d28b99c6e3b3a43a039d78c1944fb000059ab0566de2",
+      "lines": 55,
+      "sha256": "9f895132054f1ae35879b714b577d9c52b18384804b391e989693a7f891a632f",
       "symbols": [
         {
           "name": "recent",
-          "line": 25
+          "line": 29
         }
       ]
     },
