@@ -3,10 +3,18 @@ package com.jiacimu.lulu
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +36,7 @@ internal fun QqChatImageRow(
     onCharacterAvatarClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
+    var descriptionOpen by remember(image.imageUri, image.imageDescription) { mutableStateOf(false) }
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top,
@@ -68,6 +77,12 @@ internal fun QqChatImageRow(
                         .heightIn(min = if (image.sticker) 140.dp else 150.dp,
                             max = if (image.sticker) 175.dp else 260.dp),
                 )
+                if (image.imageDescription.isNotBlank() && !image.sticker) {
+                    TextButton(onClick = { descriptionOpen = true }) {
+                        Text("查看完整识图描述 ›", fontSize = 12.sp,
+                            color = if (mine) Color.White else QqInk)
+                    }
+                }
                 if (image.caption.isNotBlank()) {
                     Text(
                         image.caption,
@@ -86,5 +101,19 @@ internal fun QqChatImageRow(
                 if (showAvatar) QqAvatar(userAvatar, 44, userAvatarUri)
             }
         }
+    }
+    if (descriptionOpen) {
+        AlertDialog(
+            onDismissRequest = { descriptionOpen = false },
+            title = { Text("图片识别详情") },
+            text = {
+                Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState())) {
+                    Text(image.imageDescription, lineHeight = 21.sp, fontSize = 14.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { descriptionOpen = false }) { Text("关闭") }
+            },
+        )
     }
 }
