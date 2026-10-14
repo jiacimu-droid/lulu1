@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.os.SystemClock
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import org.json.JSONObject
@@ -23,6 +24,17 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val microphone = CallAudioInput(scope)
     private var transcription: Job? = null
     private var realtime: ElevenLabsRealtimeStt? = null
+    private var realtimeStartedAtElapsed = 0L
+
+    private fun closeRealtimeSession() {
+        val running = realtime ?: return
+        realtime = null
+        running.stop()
+        val elapsed = (SystemClock.elapsedRealtime() - realtimeStartedAtElapsed).coerceAtLeast(0L)
+        VoiceUsageAudit.record(context, "ElevenLabs", "stt_realtime_session", 0,
+            "scribe_v2_realtime", audioMs = running.sentAudioMillis(), durationMs = elapsed)
+        realtimeStartedAtElapsed = 0L
+    }
     private val activeConnections = Collections.synchronizedSet(mutableSetOf<HttpURLConnection>())
     @Volatile private var generation = 0L
     @Volatile private var capturingVoice = false
@@ -167,6 +179,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             onError = { if (epoch == generation) onError(it) },
         )
         realtime = recognizer
+        realtimeStartedAtElapsed = SystemClock.elapsedRealtime()
         recognizer.start()
         onStatus("Scribe v2 Realtime 已选择，正在连接实时识别…")
         startRealtimeMicrophone(epoch, prefs, recognizer)
@@ -246,8 +259,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         // Close the cloud ASR session as well as releasing AudioRecord.
         if (elevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME) {
             microphone.stop()
-            realtime?.stop()
-            realtime = null
+            closeRealtimeSession()
             capturingVoice = false
         } else {
             pauseReleaseJob = scope.launch {
@@ -320,6 +332,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 output.write(pcmWav(pcm))
                 output.write("\r\n--$boundary--\r\n".toByteArray())
             }
+            VoiceUsageAudit.record(context, "ElevenLabs", "stt_segment_sent", 0,
+                "scribe_v2", audioMs = pcm.size.toLong() / 32L)
             val status = connection.responseCode
             check(status in 200..299) {
                 when (status) {
@@ -449,8 +463,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         capturingVoice = false
         capturePaused = false
         microphone.stop()
-        realtime?.stop()
-        realtime = null
+        closeRealtimeSession()
         segments?.close()
         segments = null
         transcription?.cancel()
