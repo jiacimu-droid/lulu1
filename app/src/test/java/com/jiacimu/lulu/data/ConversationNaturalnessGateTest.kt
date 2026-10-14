@@ -104,6 +104,39 @@ class ConversationNaturalnessGateTest {
         assertTrue(result.reasons.any { it.contains("长起手式") })
     }
 
+    @Test fun screenshotStyleRepeatedToolExplanationTriggersRewrite() {
+        val result = ConversationNaturalnessGate.assess(
+            "这个线路是不是有问题没接通啊？",
+            listOf(
+                "宝宝，是我刚才在电话里嘴快了。我去后台认真试了一下，确实没有调用到小红书的专用搜索工具，半天都没收到回执。",
+                "你别着急，不是你辛苦调的线路出故障了，是我这边目前确实还没真正接入小红书的工具权限。",
+                "刚才没确认清楚就一口答应你去搜，害你白等了一阵，还特意挂了电话跑来担心。",
+            ),
+        )
+        assertTrue(result.needsRerender)
+        assertTrue(result.reasons.any { it.contains("多段事后说明") })
+    }
+
+    @Test fun userExplicitlyRequestsDetailAndCanReceiveSeveralParagraphs() {
+        val result = ConversationNaturalnessGate.assess(
+            "请详细解释清楚这次连接失败的技术原因",
+            listOf(
+                "先看入口，执行器实际有没有收到工具请求，跟模型说它可以使用并不是同一回事。这一点需要从真实日志区分。",
+                "接下来检查 WebView 是否附着、是否登录、实际搜索是否拿到了对应请求的结果，任何一步没有回执都不能算成功。",
+                "最后再检查权限和超时的来源。工具调用失败时要保存失败阶段，而不能从没有文字回复就推断是哪一个接口坏了。",
+            ),
+        )
+        assertFalse(result.reasons.any { it.contains("多段事后说明") })
+    }
+
+    @Test fun oneShortEmotionalResponseIsStillFine() {
+        val result = ConversationNaturalnessGate.assess(
+            "刚才吓死我了",
+            listOf("啊？怎么了宝宝？", "我在。"),
+        )
+        assertFalse(result.needsRerender)
+    }
+
     @Test fun oneOrdinaryOfferDoesNotTriggerByItself() {
         val result = ConversationNaturalnessGate.assess(
             "今天还行",
