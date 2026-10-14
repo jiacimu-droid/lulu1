@@ -501,11 +501,42 @@ internal object XhsReadingEngine {
                             current.host == requested.host &&
                             current.path == requested.path &&
                             current.getQueryParameter("keyword") == keyword
-                        if (!(sameSearch || view.url == url)) view.loadUrl(url)
-                        val navigationStartedAt = System.currentTimeMillis()
                         var triedSiteSearchInput = false
                         var openedSearchOverlayAt = 0L
                         var searchFormSubmitted = false
+                        var siteSearchStarted = false
+                        // Prefer the website's own live search box while the
+                        // logged-in SPA is already on its feed. Forcing a brand
+                        // new /search_result document is exactly where some
+                        // XHS WebViews become half-blank or lose their session.
+                        if (kind == "search" && !sameSearch &&
+                            current.host == requested.host &&
+                            current.path in setOf("/", "/explore")) {
+                            stage("在当前网页尝试原生搜索框")
+                            val raw = evaluate(view, script +
+                                "\nwindow.__luluXhsReader?.startSearch(${JSONObject.quote(keyword)});")
+                            val outcome = runCatching {
+                                JSONTokener(raw).nextValue() as String
+                            }.getOrDefault("")
+                            if (outcome == "submitted") {
+                                triedSiteSearchInput = true
+                                searchFormSubmitted = true
+                                siteSearchStarted = true
+                                stage("已经提交网页搜索，等待真实结果")
+                            } else if (outcome == "input-missing") {
+                                val openedRaw = evaluate(view, script +
+                                    "\nwindow.__luluXhsReader?.openSearchBox();")
+                                if (runCatching { JSONTokener(openedRaw).nextValue() as String }
+                                        .getOrDefault("") == "opened") {
+                                    triedSiteSearchInput = true
+                                    openedSearchOverlayAt = System.currentTimeMillis()
+                                    siteSearchStarted = true
+                                    stage("已打开网页搜索框，等待输入")
+                                }
+                            }
+                        }
+                        if (!(sameSearch || view.url == url || siteSearchStarted)) view.loadUrl(url)
+                        val navigationStartedAt = System.currentTimeMillis()
                         while (true) {
                             delay(350)
                             check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
