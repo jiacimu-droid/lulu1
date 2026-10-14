@@ -44,6 +44,25 @@ internal object ConversationNaturalnessGate {
         val afterQuestions = after.count { it == '？' || it == '?' }
         if (afterQuestions > beforeQuestions) return false
 
+        // A cosmetic language pass must never rewrite actual facts, times,
+        // negative conclusions or the identity of a specific shared post.
+        // Reject the rewrite and use the original instead of letting style
+        // polishing fabricate a tool result or invert someone's stance.
+        val numbers = Regex("""(?<![\\p{L}\\d])\\d+(?:[.:：]\\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
+            .findAll(before).map { it.value }.toSet()
+        if (numbers.any { it !in after }) return false
+
+        val protectedUrls = Regex("""https?://[^\\s，。；;）)]+""", RegexOption.IGNORE_CASE)
+            .findAll(before).map { it.value }.toSet()
+        if (protectedUrls.any { it !in after }) return false
+
+        val unreadSignals = Regex("""(?:还没|没有|没能|没法|尚未|未能|无法|不能|失败|没读|没看|未读取|不可)""")
+        if (unreadSignals.containsMatchIn(before) &&
+            !unreadSignals.containsMatchIn(after)) return false
+        val executedSignals = Regex("""(?:已经(?:看过|读过|打开|发送|完成)|实际(?:读取|执行)|已成功)""")
+        if (!executedSignals.containsMatchIn(before) &&
+            executedSignals.containsMatchIn(after)) return false
+
         val actionOrPromise = Regex(
             """(?:我(?:会|要|去|来|帮你|给你|替你|陪你去)|待会(?:儿)?我|等会(?:儿)?我|马上(?:去|给|帮)|一定(?:会|要)|保证|答应你|说到做到)"""
         )
