@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:44:50.953028+00:00",
-  "commit": "b74cc1c4240a92db420209cb08110c584bf415b8",
+  "generatedAt": "2026-10-14T08:46:03.668674+00:00",
+  "commit": "f2a2568672fab23900b70f163004ae9135acf0c8",
   "branch": "main",
-  "sourceFingerprint": "14275450a5ef85db9ad2bf676e26e8e6c06c09fbf6e3706c1a2ac0468e3fc9a1",
+  "sourceFingerprint": "93689eacb1d5d3f559268afcbb0fd5191c386a4bf289e63ca9b7444056df183a",
   "summary": {
     "files": 626,
     "lines": 125655,
@@ -11574,7 +11574,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
       "lines": 435,
-      "sha256": "6763c4b060d8f7742008ca6443c731423b4f2b8e6259993aa8ee7135b40f81ab",
+      "sha256": "9cce91f98859ab1e0cb8cdaa978fe4c04283364dad083cf7154486ed6a4f17fc",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -12487,7 +12487,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt",
       "lines": 178,
-      "sha256": "946e89218afe21e5f9a0d178674c51f53c09162bb39330a366f93f63cec30302",
+      "sha256": "670a34d8fdadcbdbf4424483084d1a2bb64a4950d14c2237367f9d4de7a0ce32",
       "symbols": []
     },
     {
