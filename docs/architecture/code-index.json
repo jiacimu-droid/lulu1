@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T05:40:43.185765+00:00",
-  "commit": "f7f37db900dcde3a3933e0c704f92332e2b69554",
+  "generatedAt": "2026-10-14T05:41:37.011912+00:00",
+  "commit": "dd6d221c22292d66633d0e69cd6f7e4c5558ec50",
   "branch": "main",
-  "sourceFingerprint": "ad6a5bb1195633ad769f69b273916e582445e69b98f1f86979ab278569b7001f",
+  "sourceFingerprint": "f7276ab36c8a63ad1d4e1c1d431e511fee5bf527a4a6bc0e03cf8d3a702d0da4",
   "summary": {
     "files": 616,
-    "lines": 123884,
-    "symbols": 1853
+    "lines": 123851,
+    "symbols": 1852
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1716,28 +1716,22 @@
         "line": 1764
       }
     ],
-    "openOriginalNote": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 102
-      }
-    ],
     "returnToList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 131
+        "line": 101
       }
     ],
     "searchInVisibleBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 164
+        "line": 134
       }
     ],
     "routeToReader": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-        "line": 185
+        "line": 155
       }
     ],
     "failure": [
@@ -11716,24 +11710,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt",
-      "lines": 722,
-      "sha256": "029d778978cc3c41b9d5e1df64f1936095df3ed9e791e9bb3e7a31c5c5da53db",
+      "lines": 689,
+      "sha256": "066eb6f581fc4ddac56386c146ff7d4832a16d12a83c307df7fc0881dd862edf",
       "symbols": [
         {
-          "name": "openOriginalNote",
-          "line": 102
-        },
-        {
           "name": "returnToList",
-          "line": 131
+          "line": 101
         },
         {
           "name": "searchInVisibleBrowser",
-          "line": 164
+          "line": 134
         },
         {
           "name": "routeToReader",
-          "line": 185
+          "line": 155
         }
       ]
     },
