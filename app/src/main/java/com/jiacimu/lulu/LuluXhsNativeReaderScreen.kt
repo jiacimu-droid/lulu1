@@ -294,7 +294,16 @@ internal fun LuluXhsNativeReaderScreen(
             startNativeReadTest()
         } else if (onSearchInBrowser != null) {
             message = "请在小红书网页搜索，或输入关键词后点「搜索」"
-        } else if (!smokeStarted) loadList(initialKeyword)
+        } else if (!smokeStarted) {
+            if (!useEmbeddedBrowser || !showWebPreview || initialKeyword.isNotBlank()) {
+                loadList(initialKeyword)
+            } else {
+                // Browsing is the default. Do not hijack the page with an
+                // unsolicited parser navigation merely to fill a duplicate
+                // native list that the user has not opened.
+                message = "网页已就绪；需要提取内容时可从菜单打开简洁图文阅读"
+            }
+        }
     }
     LaunchedEffect(useEmbeddedBrowser, webReady, smokeRequested) {
         if (useEmbeddedBrowser && !webReady && smokeRequested) {
