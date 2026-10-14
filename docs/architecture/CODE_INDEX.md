@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7db9e7dec738e76467583de509a39c8e38295a06`
+- 基准提交：`2df5a014eb0c24e3c0c9a075aebec525a82780df`
 - 分支：`main`
-- 已索引文件：633
-- 已索引代码/文本行：127174
-- 已发现符号：1880
+- 已索引文件：634
+- 已索引代码/文本行：127199
+- 已发现符号：1881
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -324,6 +324,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/RealtimePhoneFavoritePolicy.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 46 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
