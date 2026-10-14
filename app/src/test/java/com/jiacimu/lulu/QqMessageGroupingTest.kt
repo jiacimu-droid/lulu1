@@ -61,6 +61,23 @@ class QqMessageGroupingTest {
         assertEquals(listOf(text), semanticReplyBubbles(parsed.content))
     }
 
+    @Test fun longHumanSentencesBecomeSeveralReadableBubblesWithoutRewritingFacts() {
+        val original = "宝宝，我刚才在电话里没有真正收到小红书的搜索结果，网页其实还停在首页。" +
+            "你让我随便找一篇，我也想试试，可惜搜索页面确实超时了。" +
+            "我不想装成已经读完，也不想又把问题甩给你。"
+        val result = semanticReplyBubbles(original)
+        assertTrue("应该按完整句子拆开", result.size >= 2)
+        assertEquals("所有原话必须保留", original, result.joinToString(""))
+        assertTrue(result.none { it.endsWith("不是") || it.endsWith("可是") })
+    }
+
+    @Test fun aLongSingleSentenceMaySplitAtNaturalCommaButNeverMidword() {
+        val original = "我刚刚在想这件事情为什么一直都没有解决，也想着是不是我搞错了打开网页的顺序，不过至少现在能够确定首页内容是真实读到的，别再把那个当成搜索结果啦。"
+        val result = semanticReplyBubbles(original)
+        assertTrue(result.size >= 2)
+        assertEquals(original, result.joinToString(""))
+    }
+
     @Test fun directivesDoNotCreateBubblesOrLeakIntoContent() {
         val parsed = parseCharacterReplyPresentation("⟪QUOTE:abc⟫我看到了。\n你先吃饭⟪BUBBLE⟫别着急。")
         assertEquals("abc", parsed.quoteMessageId)
