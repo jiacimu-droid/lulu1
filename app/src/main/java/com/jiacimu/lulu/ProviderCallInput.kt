@@ -213,7 +213,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             },
             onSegment = { bytes, completed ->
                 capturingVoice = !completed
-                if (epoch == generation) {
+                if (epoch == generation && !capturePaused && accept()) {
                     // An ended PCM segment means capture has stopped, even if
                     // cloud recognition still takes time or returns no text.
                     // Releasing the speaking flag must not wait for valid ASR.
@@ -241,11 +241,21 @@ internal class ProviderCallInput(private val context: Context, private val scope
         if (capturePaused) return
         capturePaused = true
         pauseReleaseJob?.cancel()
-        pauseReleaseJob = scope.launch {
-            delay(650)
-            if (capturePaused) {
-                microphone.stop()
-                capturingVoice = false
+        // Scribe Realtime previously kept the socket alive by transmitting
+        // 100 ms of SILENT PCM every few seconds, even during explicit mute.
+        // Close the cloud ASR session as well as releasing AudioRecord.
+        if (elevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME) {
+            microphone.stop()
+            realtime?.stop()
+            realtime = null
+            capturingVoice = false
+        } else {
+            pauseReleaseJob = scope.launch {
+                delay(650)
+                if (capturePaused) {
+                    microphone.stop()
+                    capturingVoice = false
+                }
             }
         }
         onLevel(0f)
@@ -254,17 +264,20 @@ internal class ProviderCallInput(private val context: Context, private val scope
     fun resumeCapture() {
         if (!capturePaused) return
         val queue = segments
-        val stream = realtime
-        if (queue == null && stream == null) return
         pauseReleaseJob?.cancel()
         pauseReleaseJob = null
-        capturePaused = false
-        // Release the old recorder first; reuse the SAME Scribe websocket
-        // instead of accidentally switching to the batch queue after unmuting.
         microphone.stop()
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
-        if (stream != null) startRealtimeMicrophone(generation, prefs, stream)
-        else if (queue != null) startMicrophone(generation, queue, prefs)
+        // Fresh realtime socket ONLY when the user explicitly unmutes.
+        // Never leave a Scribe billable keepalive session running through mute.
+        if (elevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME) {
+            capturePaused = false
+            startRealtime(generation, prefs)
+            return
+        }
+        if (queue == null) return
+        capturePaused = false
+        startMicrophone(generation, queue, prefs)
     }
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
