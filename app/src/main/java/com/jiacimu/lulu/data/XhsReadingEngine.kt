@@ -478,6 +478,8 @@ internal object XhsReadingEngine {
                         if (!(sameSearch || view.url == url)) view.loadUrl(url)
                         val navigationStartedAt = System.currentTimeMillis()
                         var triedSiteSearchInput = false
+                        var openedSearchOverlayAt = 0L
+                        var searchFormSubmitted = false
                         while (true) {
                             delay(350)
                             check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
@@ -517,9 +519,40 @@ internal object XhsReadingEngine {
                                     val outcome = runCatching {
                                         JSONTokener(jsResult).nextValue() as String
                                     }.getOrDefault("")
-                                    if (outcome == "input-missing") {
-                                        stage("网页未显示可操作的搜索框")
-                                        error("网页仍在首页，且没有可操作的搜索框。请展开内置网页检查登录或网站限制")
+                                    when (outcome) {
+                                        "submitted" -> {
+                                            searchFormSubmitted = true
+                                            stage("已通过当前网页的搜索框提交")
+                                        }
+                                        "input-missing" -> {
+                                            val openRaw = evaluate(view, script +
+                                                "\nwindow.__luluXhsReader?.openSearchBox();")
+                                            val opened = runCatching {
+                                                JSONTokener(openRaw).nextValue() as String
+                                            }.getOrDefault("")
+                                            if (opened != "opened")
+                                                error("搜索页未打开，且当前网页没有搜索入口；请展开网页查看网站状态")
+                                            openedSearchOverlayAt = System.currentTimeMillis()
+                                            stage("已展开网站搜索框，等待输入区域")
+                                        }
+                                        else -> stage("正在等待网站搜索框")
+                                    }
+                                }
+                            }
+                            if (kind == "search" && openedSearchOverlayAt > 0L &&
+                                !searchFormSubmitted) {
+                                val elapsed = System.currentTimeMillis() - openedSearchOverlayAt
+                                if (elapsed >= 700L) {
+                                    val inputRaw = evaluate(view, script +
+                                        "\nwindow.__luluXhsReader?.startSearch(${JSONObject.quote(keyword)});")
+                                    val state = runCatching {
+                                        JSONTokener(inputRaw).nextValue() as String
+                                    }.getOrDefault("")
+                                    if (state == "submitted") {
+                                        searchFormSubmitted = true
+                                        stage("已经向网站搜索框提交关键词")
+                                    } else if (elapsed >= 4_000L) {
+                                        error("已经打开网站搜索入口，但未显示可输入的搜索框；请在当前网页检查登录或验证")
                                     }
                                 }
                             }
