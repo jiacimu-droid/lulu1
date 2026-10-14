@@ -40,7 +40,16 @@ internal object XhsImageLoader {
                 connection.instanceFollowRedirects = false
                 connection.connectTimeout = 10_000
                 connection.readTimeout = 20_000
+                // XHS CDN sometimes rejects Java's default HTTP client agent
+                // even when the same signed image opens in the logged-in page.
+                // Use ordinary image request headers; never export WebView
+                // cookies, impersonate an authenticated API or bypass a block.
                 connection.setRequestProperty("Referer", "https://www.xiaohongshu.com/")
+                connection.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " +
+                        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                connection.setRequestProperty("Accept", "image/avif,image/webp,image/apng,image/*;q=0.8,*/*;q=0.5")
+                connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.6")
                 val status = connection.responseCode
                 if (status in 300..399) {
                     val next = URI(target).resolve(connection.getHeaderField("Location").orEmpty()).toString()
