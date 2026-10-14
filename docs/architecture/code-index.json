@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T16:03:42.787205+00:00",
-  "commit": "398208c9a0276d58760a6d5c8885a250c1466648",
+  "generatedAt": "2026-10-14T16:04:53.296802+00:00",
+  "commit": "70f3833939cdaf310ff4038ccc3c89a6a3520a61",
   "branch": "main",
-  "sourceFingerprint": "adaba2f96539b62a53fdefdd2ba2027e9a9fc2d8bb4775408a078cd92c392c59",
+  "sourceFingerprint": "8e3e086f6cebb7e9b952a045254e886a995bcff34726bddcf87d4cbe68bbeb77",
   "summary": {
     "files": 633,
-    "lines": 126997,
-    "symbols": 1877
+    "lines": 127021,
+    "symbols": 1879
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2146,10 +2146,22 @@
         "line": 24
       }
     ],
+    "uniqueMood": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
+        "line": 17
+      }
+    ],
+    "stateFields": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
+        "line": 23
+      }
+    ],
     "status": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 7
+        "line": 39
       }
     ],
     "connect": [
@@ -12373,12 +12385,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-      "lines": 19,
-      "sha256": "f370c24145b5f6a171d86f90e952ce4f919d4808c3a51b4de6c74ef2c882c62b",
+      "lines": 43,
+      "sha256": "69741fd8bc90c6e9779d924122eb975b7179833ec20bd920475c8c8684c983a2",
       "symbols": [
         {
+          "name": "uniqueMood",
+          "line": 17
+        },
+        {
+          "name": "stateFields",
+          "line": 23
+        },
+        {
           "name": "status",
-          "line": 7
+          "line": 39
         }
       ]
     },
