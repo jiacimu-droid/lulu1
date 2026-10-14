@@ -52,11 +52,8 @@ test('nested Vue refs and search source are handled', () => {
 test('when XHS hides its search input, only its real search opener is clicked', () => {
   const b = browser();
   let clicks = 0;
-  b.sandbox.document.querySelector = selector => selector.includes('.search-icon')
-    ? {click: () => {clicks++;}} : null;
-  assert.equal(b.sandbox.__luluXhsReader.startSearch('猫咪'), 'submitted');
-  // The mocked selector returns a control for the input too; check opener
-  // separately with an absent input to exercise the blocked search overlay.
+  // The page has a visible magnifying-glass control but no input until
+  // that control is pressed. Opening it is not the same as submitting text.
   b.sandbox.document.querySelector = selector =>
     selector.startsWith('#search-input') ? null : {click: () => {clicks++;}};
   assert.equal(b.sandbox.__luluXhsReader.startSearch('猫咪'), 'input-missing');
