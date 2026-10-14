@@ -62,7 +62,7 @@ internal fun semanticReplyBubbles(text: String): List<String> =
     com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
         normalizeLegacyBubbleTokens(text).split(SemanticBubbleSeparator)
             .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank),
-        maxBubbles = 5,
+        maxBubbles = 8,
     )
 
 internal fun normalizeSemanticBubbles(text: String): String {
