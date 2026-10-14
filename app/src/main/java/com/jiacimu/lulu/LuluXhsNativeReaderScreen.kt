@@ -343,21 +343,17 @@ internal fun LuluXhsNativeReaderScreen(
                             if (reading.isBlank()) "本帖有${openedArticle.images.size}张图片，但图片内容尚未识别成功，请勿当作已看见。"
                             else "图片理解（模型识别，未必准确，最多前6张）：\n" + reading.take(6000)
                         }
-                        val payload = buildString {
-                            appendLine("分享给你一篇小红书笔记：")
-                            appendLine("标题：${openedArticle.title.ifBlank { openedCard.title }}")
-                            if (openedArticle.author.isNotBlank()) appendLine("作者：${openedArticle.author}")
-                            appendLine("原链接：${openedCard.url()}")
-                            if (openedArticle.body.isNotBlank()) {
-                                appendLine("帖子原文：")
-                                appendLine(openedArticle.body.take(8_000))
-                            } else appendLine("帖子没有提取到正文文字。")
-                            if (imageReading.isNotBlank()) appendLine(imageReading)
-                            if (openedArticle.comments.isNotEmpty()) {
-                                appendLine("实际加载到的评论摘录（不代表完整评论区）：")
-                                openedArticle.comments.take(8).forEach { appendLine(it.take(320)) }
-                            }
-                        }
+                        val payload = encodeQqXhsSharedNote(QqXhsSharedNote(
+                            title = openedArticle.title.ifBlank { openedCard.title },
+                            url = openedCard.url(),
+                            author = openedArticle.author.ifBlank { openedCard.author },
+                            coverUrl = openedArticle.images.firstOrNull()?.url ?: openedCard.coverUrl,
+                            body = openedArticle.body,
+                            visualReading = imageReading.takeIf { it.startsWith("图片理解（") }
+                                ?.substringAfter("：\n").orEmpty(),
+                            comments = openedArticle.comments,
+                            verified = true,
+                        ))
                         MigratedDomainStores.chat.sendUserMessage(chat.id, payload)
                         message = "已发给${chat.title}，到私聊中查看。"
                     } catch (cancelled: CancellationException) {
