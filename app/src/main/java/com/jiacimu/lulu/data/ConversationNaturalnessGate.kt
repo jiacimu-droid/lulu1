@@ -50,7 +50,9 @@ internal object ConversationNaturalnessGate {
         // polishing fabricate a tool result or invert someone's stance.
         val numbers = Regex("""(?<![\p{L}\d])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
             .findAll(before).map { it.value }.toSet()
-        if (numbers.any { it !in after }) return false
+        val numbersAfter = Regex("""(?<![\p{L}\d])\d+(?:[.:：]\d+)?(?:%|％|元|分钟|小时|天|次|条|张|月|日|点)?""")
+            .findAll(after).map { it.value }.toSet()
+        if (!numbersAfter.containsAll(numbers)) return false
 
         val protectedUrls = Regex("""https?://[^\s，。；;）)]+""", RegexOption.IGNORE_CASE)
             .findAll(before).map { it.value }.toSet()
