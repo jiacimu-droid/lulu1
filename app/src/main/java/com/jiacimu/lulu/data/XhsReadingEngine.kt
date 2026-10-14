@@ -101,17 +101,21 @@ internal object XhsReadingEngine {
                 "loading" -> "正在加载"
                 else -> "尚未确认"
             }
-            lines += "搜索卡片：页面状态 ${p.optInt("stateCards", 0)} 篇，当前页面 ${p.optInt("visibleCards", 0)} 篇"
+            if (location != "笔记详情页") {
+                lines += "搜索卡片：页面状态 ${p.optInt("stateCards", 0)} 篇，当前页面 ${p.optInt("visibleCards", 0)} 篇"
+            }
             if (p.optBoolean("loginPrompt")) lines += "需要登录：请在下方内置网页完成登录"
             if (p.optBoolean("verificationPrompt")) lines += "需要验证：请在内置网页完成网站安全验证"
         }
         val api = state?.optJSONObject("api")
-        val searchApi = api?.optJSONObject("search")
-        lines += "搜索接口：" + when {
-            searchApi == null -> "尚未观察到搜索返回（不代表网络断开）"
-            searchApi.optBoolean("success", false) -> "已观察到响应"
-            else -> "请求已响应，但返回失败"
-        }
+        val apiKind = if (location == "笔记详情页") "note" else if (location == "搜索页") "search" else "feed"
+        val observed = api?.optJSONObject(apiKind)
+        lines += (if (apiKind == "note") "笔记接口：" else if (apiKind == "feed") "首页接口：" else "搜索接口：") +
+            when {
+                observed == null -> "未观察到对应接口返回（不代表网络断开）"
+                observed.optBoolean("success", false) -> "已观察到响应"
+                else -> "请求已响应，但返回失败"
+            }
         val stage = state?.optString("phase").orEmpty().ifBlank {
             tool?.optString("stage").orEmpty()
         }
