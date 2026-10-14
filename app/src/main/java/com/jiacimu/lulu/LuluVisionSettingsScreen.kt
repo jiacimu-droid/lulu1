@@ -27,6 +27,11 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
     var baseUrl by remember { mutableStateOf(prefs.getString(VisionModelService.KEY_BASE_URL, "").orEmpty()) }
     var apiKey by remember { mutableStateOf(prefs.getString(VisionModelService.KEY_API_KEY, "").orEmpty()) }
     var model by remember { mutableStateOf(prefs.getString(VisionModelService.KEY_MODEL, "").orEmpty()) }
+    var customExpanded by remember { mutableStateOf(false) }
+    val chatModel = runCatching {
+        val store = com.jiacimu.lulu.ai.LuluAiServices.connectionStore
+        store.resolveConnection(store.selectedArchiveId(com.jiacimu.lulu.ai.ModelUsage.Chat)).model
+    }.getOrDefault("未选择聊天模型")
 
     LaunchedEffect(baseUrl, apiKey, model) {
         prefs.edit()
@@ -65,7 +70,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             Text("图片理解 · 聊天 / 小红书", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
-                            "聊天和朋友圈发图时，露露机会先理解图片，再把结果作为角色内部上下文。小红书默认跟随角色感知使用的私聊模型，一次输入正文和前六张图片；也可在这里单独选择支持视觉的模型。聊天识图的专用模型是可选的：不单独配置时，会自动尝试当前聊天模型；只要聊天模型本身支持图片输入，就不需要再配第二个模型。",
+                            "当前聊天模型：$chatModel。小红书的真实图文阅读会在同一次模型请求中输入正文、已加载评论和最多六张实际下载成功的图片；没有设置独立识图模型时，就使用当前聊天模型。模型和API中转都必须支持图片输入，否则图片不会被标记为已理解。",
                             color = Color(0xFF77777B),
                             fontSize = 13.sp,
                             lineHeight = 19.sp,
@@ -81,13 +86,24 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                     border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
                 ) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("专用识图模型", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text("专用识图模型（可选）", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text(if (baseUrl.isNotBlank() && apiKey.isNotBlank() && model.isNotBlank())
+                            "当前小红书图片使用独立模型：$model"
+                            else "当前小红书图片跟随聊天模型：$chatModel",
+                            color = Color(0xFF3C7667), fontSize = 13.sp)
                         Text(
                             "聊天识图优先用这里的模型，失败或留空时尝试聊天模型。小红书图文阅读默认用私聊模型；这里选好模型后改用它。",
                             color = Color(0xFF77777B),
                             fontSize = 12.sp,
                             lineHeight = 18.sp,
                         )
+                        TextButton(onClick = { customExpanded = !customExpanded }) {
+                            Text(if (customExpanded) "收起独立模型设置" else "更换识图模型（需要时再配）")
+                        }
+                        if (customExpanded) {
+                        TextButton(onClick = {
+                            baseUrl = ""; apiKey = ""; model = ""
+                        }) { Text("清除独立设置 · 恢复跟随聊天模型") }
                         SavedConfigurationModelPicker(
                             pickerKey = "vision-understanding",
                             currentBaseUrl = baseUrl,
@@ -98,6 +114,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             },
                             onModelSelected = { model = it },
                         )
+                        }
                     }
                 }
             }
