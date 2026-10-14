@@ -34,9 +34,13 @@
       const id = clean(row.id ?? card.noteId ?? card.note_id, 40);
       if (!validId(id)) continue;
       const token = clean(row.xsecToken ?? row.xsec_token ?? card.xsecToken ?? card.xsec_token, 512);
+      const cover = unwrap(card.cover ?? card.coverInfo ?? card.cover_info ?? card.imageList?.[0]);
+      const coverUrl = clean(cover?.urlDefault ?? cover?.url_default ??
+        cover?.urlPre ?? cover?.url ?? card.coverUrl ?? card.cover_url, 1024);
       const next = {id, token, source,
         title: clean(card.displayTitle ?? card.display_title ?? card.title, 200) || '未命名笔记',
-        author: clean(card.authorName ?? card.user?.nickname ?? card.user?.nickName, 120)};
+        author: clean(card.authorName ?? card.user?.nickname ?? card.user?.nickName, 120),
+        coverUrl};
       if (!cards.has(id) || (!cards.get(id).token && token)) cards.set(id, next);
     }
     return [...cards.values()].slice(0, 35);
@@ -285,7 +289,9 @@
                 source: u.searchParams.get('xsec_source') || (kind === 'search' ? 'pc_search' : 'pc_feed'),
                 title: clean(tile.querySelector?.('.title,[class*="title"]')?.innerText ||
                   a.getAttribute?.('aria-label') || a.innerText, 200) || '未命名笔记',
-                author: clean(tile.querySelector?.('.author .name,.username,[class*="author"] .name')?.innerText, 120)});
+                author: clean(tile.querySelector?.('.author .name,.username,[class*="author"] .name')?.innerText, 120),
+                coverUrl: clean(tile.querySelector?.('img')?.currentSrc ||
+                  tile.querySelector?.('img')?.src, 1024)});
             } catch (_) {}
           }
         }
