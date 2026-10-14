@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T07:57:38.618507+00:00",
-  "commit": "2a2a5806c38e03da5047c1995a5be44d6e146970",
+  "generatedAt": "2026-10-14T08:16:11.743818+00:00",
+  "commit": "8a038458d68fe9f9e307bd617c0789a7b1d05a3b",
   "branch": "main",
-  "sourceFingerprint": "377f99499eb95162567f96a80943f32eadb364469f0ef2a916633e81ef0adc6f",
+  "sourceFingerprint": "6894a6130d876d680dbc13701c2ed322504ce4c4a0178cf121fc7e364f49b968",
   "summary": {
     "files": 622,
-    "lines": 125038,
+    "lines": 125052,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -10451,7 +10451,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 363
+        "line": 377
       }
     ]
   },
@@ -10972,8 +10972,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 574,
-      "sha256": "be57ed5e97d4bfb5300d6fde3531ebbd47b31e22e5caf35372c8b53d4d99adfb",
+      "lines": 567,
+      "sha256": "486bacbc833e715b666637dba5809f12ab66816fb487ff84bb031609bb791178",
       "symbols": []
     },
     {
@@ -13772,8 +13772,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-      "lines": 200,
-      "sha256": "783b1b400ce9ec55d9408ae466c92fae1021996727fdfd0089a20f6888e919d2",
+      "lines": 203,
+      "sha256": "8525c3c63a41633c853328a03fe5ed7506751f837371d09c6dcd7f768bd1468c",
       "symbols": [
         {
           "name": "detect",
@@ -16743,7 +16743,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt",
       "lines": 248,
-      "sha256": "c85c8e00c32789ddd88222c2ac8ac9a5a271082e78132579b8b313d8d97562ba",
+      "sha256": "760da5a66f8d72206a1e4b99983748cd402ad18c3237ac7fe8247de3be8d3e2e",
       "symbols": [
         {
           "name": "objectOrNull",
@@ -20255,8 +20255,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1270,
-      "sha256": "bfa7dfdfa6c55dfff79579e87770b722d2fc0dd7f5704d1a9672355adfb07c27",
+      "lines": 1274,
+      "sha256": "549c0789f99538fda5c635b0da7b41b685a38484118b1cb9a6e3687bc02c98f2",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -22097,12 +22097,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 399,
-      "sha256": "b73793773d497436b98499d67982d05aa9b87bfbae62e364c95b082be852f39f",
+      "lines": 413,
+      "sha256": "a052b1a451f6eed00ed8b33ae3d8c81db012c4b38a8f31ab70aa3fe1fa02026f",
       "symbols": [
         {
           "name": "XHR",
-          "line": 363
+          "line": 377
         }
       ]
     },
