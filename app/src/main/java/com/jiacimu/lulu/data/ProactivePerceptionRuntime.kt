@@ -878,10 +878,20 @@ object ProactivePerceptionRuntime {
             val previousAt = prefs.getLong("last_online_extension_at_$characterId", 0L)
             val minutesSincePrevious = if (previousAt > 0)
                 ((System.currentTimeMillis() - previousAt) / 60_000L).coerceAtLeast(0L) else Long.MAX_VALUE
+            val lastSoloEpisode = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
+            val recentlyFinishedSoloScene = lastSoloEpisode?.let { episode ->
+                Duration.between(episode.occurredAt, now).toMinutes() in 0..20
+            } == true
+            val repeatedAmbientWandering = decision.action == Action.DIGITAL_WORLD &&
+                decision.worldAction in setOf(
+                    "visit_public_place", "visit_cloud_meadow", "go_home",
+                    "use_location", "use_home_item",
+                ) && recentlyFinishedSoloScene &&
+                recentAutonomousActions.takeLast(3).count { it == "DIGITAL_WORLD" } >= 2
             val wantsMoreTime = OnlineContinuationPolicy.permits(
                 choice = decision.onlineChoice,
                 reason = decision.onlineChoiceReason,
-                hasChosenAction = decision.action != Action.SILENT,
+                hasChosenAction = decision.action != Action.SILENT && !repeatedAmbientWandering,
                 hasOpenIntention = hasContinuingGoal || hasCurrentConcerns,
                 previousReason = previousReason,
                 minutesSincePrevious = minutesSincePrevious,
