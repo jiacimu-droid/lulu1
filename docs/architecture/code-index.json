@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T05:10:50.720517+00:00",
-  "commit": "4d1b6ffb33f76748f16a75ecf59b488ef7fac7c8",
+  "generatedAt": "2026-10-14T05:11:52.198592+00:00",
+  "commit": "098f0cc74be43754b1ddb9722c68d4b3c4c820d1",
   "branch": "main",
-  "sourceFingerprint": "152fb1768a765ec3b090148d185dd521c45d9521960615c63a4eff35dde93cdf",
+  "sourceFingerprint": "3257850e529bc93cf227a773824f45562f2ec9088f6876131dc0a183ad182350",
   "summary": {
     "files": 616,
-    "lines": 123678,
+    "lines": 123689,
     "symbols": 1851
   },
   "symbolIndex": {
@@ -1743,37 +1743,37 @@
     "failure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 92
+        "line": 103
       }
     ],
     "loadList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 96
+        "line": 107
       }
     ],
     "readNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 134
+        "line": 145
       }
     ],
     "nativeBrowserClient": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 160
+        "line": 171
       }
     ],
     "startNativeReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 180
+        "line": 191
       }
     ],
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 252
+        "line": 263
       }
     ],
     "PendingTouch": [
@@ -11727,32 +11727,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 614,
-      "sha256": "ba3b7312b227be00241511af5d00a9b49c42af074dffc01e8dd7ac11b406ad16",
+      "lines": 625,
+      "sha256": "985a95f8615c4a9e6e9bf157a10230e962fb5946fb6a11d49097ee141587b293",
       "symbols": [
         {
           "name": "failure",
-          "line": 92
+          "line": 103
         },
         {
           "name": "loadList",
-          "line": 96
+          "line": 107
         },
         {
           "name": "readNote",
-          "line": 134
+          "line": 145
         },
         {
           "name": "nativeBrowserClient",
-          "line": 160
+          "line": 171
         },
         {
           "name": "startNativeReadTest",
-          "line": 180
+          "line": 191
         },
         {
           "name": "back",
-          "line": 252
+          "line": 263
         }
       ]
     },
