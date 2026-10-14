@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:00:35.034405+00:00",
-  "commit": "dfcf41695f2cfdc972fb3b30b3a671de6f347d09",
+  "generatedAt": "2026-10-14T10:01:35.618268+00:00",
+  "commit": "caece01529ff88b20b4b60cc32330597f6d398ac",
   "branch": "main",
-  "sourceFingerprint": "39ab2943fa04e214f20e45fe6640e461145c0d5e2cf85f55319a14260237761c",
+  "sourceFingerprint": "12c3db99d25cb34ec758046dfaf77c17867cdc94e20c8bcded0a36f3dbd8a304",
   "summary": {
     "files": 630,
-    "lines": 126060,
+    "lines": 126089,
     "symbols": 1869
   },
   "symbolIndex": {
@@ -12403,8 +12403,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt",
-      "lines": 91,
-      "sha256": "5ff3973a9fd393865b3896effb22787b046029665bedd1fa08f41854d1860757",
+      "lines": 120,
+      "sha256": "9dd57602ca3b7ec588b92f89b77902a609991b448b315f5e6068b859dc22e561",
       "symbols": []
     },
     {
