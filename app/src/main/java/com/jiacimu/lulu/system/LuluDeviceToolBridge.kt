@@ -349,6 +349,25 @@ object LuluDeviceToolBridge {
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
+                // The built-in Reality Window's Bangumi / Google News sources
+                // are not a capability inventory for the independent Xiaohongshu
+                // reader. Only an actual tool invocation can prove search outcome.
+                if (userText.contains("小红书") || userText.contains("红薯") ||
+                    userText.contains("xhs", ignoreCase = true) ||
+                    history.takeLast(500).contains("小红书")) {
+                    val xhsCapability = com.jiacimu.lulu.data.CapabilityRegistry.find("read_xiaohongshu")
+                    val hasReader = xhsCapability != null
+                    val permitted = xhsCapability != null &&
+                        com.jiacimu.lulu.data.CapabilityRegistry.allows(
+                            appContext, characterId, xhsCapability, false,
+                        )
+                    val currentlyAvailable = com.jiacimu.lulu.data.XhsReadingEngine.available(appContext)
+                    appendLine("【程序核实的小红书能力状态｜与现实窗口来源列表无关】")
+                    appendLine("独立 read_xiaohongshu 工具已注册=$hasReader；角色有只读授权=$permitted；当前前台浏览会话可尝试读取=$currentlyAvailable。")
+                    appendLine("这三项仅表示能力/运行条件，不是已经搜索成功、拿到正文、页面网络正常或曾核对过后台。")
+                    appendLine("不能因为现实窗口只列出 Bangumi/Google News 就断言小红书搜索没接入；也不能谎称刚去后台核实。")
+                    appendLine("除非同轮提供真实工具回执，否则只能如实说明是否可尝试、仍未验证实际搜索结果。")
+                }
                 // Phone speech is persisted as an actual user message. Provide
                 // real, role-visible IDs so the same existing favorite tool
                 // can run during the call instead of becoming a deferred wish.
