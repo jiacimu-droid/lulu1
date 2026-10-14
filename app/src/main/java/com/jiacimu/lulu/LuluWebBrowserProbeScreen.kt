@@ -78,6 +78,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     // Results already received by the visible, logged-in WebView. Passing
     // them across avoids an unnecessary second search in a hidden WebView.
     var readerCards by remember { mutableStateOf<List<XhsCard>>(emptyList()) }
+    var readerSearchError by remember { mutableStateOf("") }
+    var nativeSearchVisible by remember { mutableStateOf(false) }
+    var nativeSearchKeyword by remember { mutableStateOf("") }
+    var nativeSearchJob by remember { mutableStateOf<Job?>(null) }
     val routingScript = remember {
         context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() } + "\n" +
             context.assets.open("xhs-browser-route.js").bufferedReader().use { it.readText() }
@@ -136,21 +140,31 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
 
     fun searchInVisibleBrowser(query: String) {
         val text = query.trim().take(64)
+        nativeSearchJob?.cancel()
         readerVisible = false
         readerCard = null
         readerCards = emptyList()
+        readerSearchError = ""
         readerKeyword = text
-        status = if (text.isBlank()) "正在打开首页推荐…" else "网页正在搜索，等实际结果返回…"
-        val target = if (text.isBlank()) XHS_PROBE_URL else
-            "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(text)}&source=web_explore_feed"
-        val current = browser ?: return
-        scope.launch {
+        status = if (text.isBlank()) "正在提取首页推荐…" else "正在搜索「$text」，等待真实网页数据…"
+        // Preserve the ONE logged-in, attached WebView as transport, but render
+        // actual results in native cards instead of exposing XHS's half-white
+        // search_result SPA. A failed search must never become a fake home hit.
+        nativeSearchJob = scope.launch {
             try {
-                XhsReadingEngine.navigateFromUi(current, target)
+                val found = XhsReadingEngine.list(context, text,
+                    localOnly = true, forceRefresh = true,
+                    onProgress = { progress -> status = progress })
+                readerCards = found
+                readerSearchError = if (found.isEmpty()) "网页没有返回可以打开的真实笔记。" else ""
+                status = if (found.isEmpty()) "没有获得可用结果" else "已获取 ${found.size} 篇真实笔记"
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                status = "网页搜索未能打开：${error.message.orEmpty().take(90)}"
+                readerSearchError = "搜索未完成：${error.message.orEmpty().take(145)}"
+                status = readerSearchError
+            } finally {
+                readerVisible = true
             }
         }
     }
@@ -187,7 +201,25 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             text = { Text(smokeReport) },
             confirmButton = { TextButton(onClick = { smokeReport = "" }) { Text("知道了") } })
     }
-    DisposableEffect(Unit) { onDispose { smokeJob?.cancel() } }
+    DisposableEffect(Unit) { onDispose { smokeJob?.cancel(); nativeSearchJob?.cancel() } }
+    if (nativeSearchVisible) {
+        AlertDialog(
+            onDismissRequest = { nativeSearchVisible = false },
+            title = { Text("搜索小红书笔记") },
+            text = { OutlinedTextField(
+                nativeSearchKeyword, { nativeSearchKeyword = it.take(64) },
+                singleLine = true, label = { Text("关键词") },
+                modifier = Modifier.fillMaxWidth(),
+            ) },
+            confirmButton = { TextButton(onClick = {
+                nativeSearchVisible = false
+                searchInVisibleBrowser(nativeSearchKeyword)
+            }) { Text("搜索") } },
+            dismissButton = { TextButton(onClick = {
+                nativeSearchVisible = false
+            }) { Text("取消") } },
+        )
+    }
 
     if (diagnosticsVisible && !readerVisible) {
         AlertDialog(
@@ -217,6 +249,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                     }
                 },
                 actions = {
+                    TextButton(onClick = { nativeSearchVisible = true }) { Text("搜索") }
                     // Always visible even when a website modal consumes touch/
                     // history inside WebView. This is not another WebView back.
                     Box {
@@ -699,7 +732,8 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             key(readerKeyword, readerCard?.id) {
                 LuluXhsNativeReaderScreen(onBack = { returnToList() },
                     initialKeyword = readerKeyword, initialCard = readerCard,
-                    initialCards = readerCards, onSearchInBrowser = { searchInVisibleBrowser(it) })
+                    initialCards = readerCards, initialLoadError = readerSearchError,
+                    onSearchInBrowser = { searchInVisibleBrowser(it) })
             }
         }
     }
