@@ -214,11 +214,16 @@ object ProactivePerceptionRuntime {
                     val eligibleAt = previousAt + policy.onlinePulseSeconds * 1_000L
                     val nowMs = now.toEpochMilli()
                     if (previousAt > 0L && nowMs < eligibleAt) {
-                        ProactivePerceptionScheduler.scheduleCoalescedLifeReview(
-                            appContext, characterId, eligibleAt - nowMs + 250L,
-                            onlineOnly = trigger.startsWith("在线持续感知"),
-                            eligibleAtMillis = eligibleAt,
-                        )
+                        // Online has its own pulse/expiry clock. Re-enqueueing a
+                        // deferred worker here can wake alongside the expiry
+                        // decision and pay for the very same empty observation.
+                        if (!trigger.startsWith("在线持续感知")) {
+                            ProactivePerceptionScheduler.scheduleCoalescedLifeReview(
+                                appContext, characterId, eligibleAt - nowMs + 250L,
+                                onlineOnly = false,
+                                eligibleAtMillis = eligibleAt,
+                            )
+                        }
                         continue
                     }
                 }
