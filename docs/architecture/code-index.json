@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T11:55:16.112967+00:00",
-  "commit": "2cf3a4024c8c03644f98d0837a0dd14ba6e8f86e",
+  "generatedAt": "2026-10-14T12:06:19.743793+00:00",
+  "commit": "225d083126a0ac1c302ac48cb79164f3ddaed876",
   "branch": "main",
-  "sourceFingerprint": "c6c9d779f1738aa6181ebbb7e07367ed96986ccba414a5a4d1af3fb7a31c88f9",
+  "sourceFingerprint": "ba1a928b99026bb66834d31e48126ed8994de4a0ead694608774997e0093e87a",
   "summary": {
     "files": 633,
-    "lines": 126718,
-    "symbols": 1875
+    "lines": 126750,
+    "symbols": 1876
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3329,7 +3329,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 9
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -3754,6 +3754,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
         "line": 33
+      }
+    ],
+    "channelNote": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
+        "line": 21
       }
     ],
     "selected": [
@@ -13788,12 +13794,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 25,
-      "sha256": "933616b90f8d13b551036414801255d41f46adf02439e4bbb560aa957a518b76",
+      "lines": 57,
+      "sha256": "56f11da7d486d0c817bd1461ce50e02d7be95a75b7cd5c45a1a731df5965b8d6",
       "symbols": [
         {
+          "name": "channelNote",
+          "line": 21
+        },
+        {
           "name": "promptSection",
-          "line": 9
+          "line": 39
         }
       ]
     },
