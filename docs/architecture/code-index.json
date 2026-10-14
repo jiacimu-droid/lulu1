@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:49:02.132844+00:00",
-  "commit": "37e76ebf725d5785cf698bb9554c69b17dffcb45",
+  "generatedAt": "2026-10-14T10:49:15.836593+00:00",
+  "commit": "47c6cc936a369c8e7a1e1b12d224e9f0e3937704",
   "branch": "main",
-  "sourceFingerprint": "8daa0cce07e519c5faa6c8eb34d576c13d0632876cd79f1af07cb518ac2a9ae3",
+  "sourceFingerprint": "b5febff0909be0a8842f538cfe2485a634e9560d4e5de12f03dc9a0d06caddf7",
   "summary": {
     "files": 632,
-    "lines": 126312,
+    "lines": 126325,
     "symbols": 1871
   },
   "symbolIndex": {
@@ -85,7 +85,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 431
+        "line": 444
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
@@ -2155,21 +2155,21 @@
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 253
+        "line": 263
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 300
+        "line": 313
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 345
+        "line": 358
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 387
+        "line": 400
       }
     ],
     "payload": [
@@ -12353,8 +12353,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 454,
-      "sha256": "66cbdf6512ae5608d9ef9033ed852b9ada936a54e6e8fb28bf6c16f5e619ac08",
+      "lines": 467,
+      "sha256": "1eca66293c9d76e9adc6ca0199d9d56f8726fe345f0f92399d9354a87530f1c7",
       "symbols": [
         {
           "name": "start",
@@ -12366,23 +12366,23 @@
         },
         {
           "name": "resumeCapture",
-          "line": 253
+          "line": 263
         },
         {
           "name": "field",
-          "line": 300
+          "line": 313
         },
         {
           "name": "field",
-          "line": 345
+          "line": 358
         },
         {
           "name": "field",
-          "line": 387
+          "line": 400
         },
         {
           "name": "stop",
-          "line": 431
+          "line": 444
         }
       ]
     },
