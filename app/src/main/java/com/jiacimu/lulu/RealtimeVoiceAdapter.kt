@@ -21,6 +21,7 @@ internal class RealtimeVoiceAdapter(
     private val onFarewellDelivered: () -> Unit = {},
 ) {
     private var session: ConversationSession? = null
+    private var connectedAtElapsed = 0L
     private var definitionJob: Job? = null
     private var contextVersion = 0L
     private var generation = 0L
@@ -147,7 +148,10 @@ internal class RealtimeVoiceAdapter(
             onDisconnect = { _ -> if (epoch == generation) { definitionJob?.cancel(); deliveryJob?.cancel(); delivery.reset(); onError("实时通话已断开") } },
         )
         val connected = ConversationClient.startSession(config, context)
-        if (epoch == generation) VoiceUsageAudit.record(context, "ElevenLabs", "agent_call_connected", 0, "agent_realtime")
+        if (epoch == generation) {
+            connectedAtElapsed = android.os.SystemClock.elapsedRealtime()
+            VoiceUsageAudit.record(context, "ElevenLabs", "agent_call_connected", 0, "agent_realtime")
+        }
         if (epoch != generation) connected.endSession() else {
             session = connected
             connected.setMicMuted(microphoneMuted || openingWaiting)
@@ -215,7 +219,15 @@ internal class RealtimeVoiceAdapter(
         if (characterId.isNotBlank()) { AvatarController.audio(characterId, 0f); AvatarController.listening(characterId, false) }
         val old = session
         session = null
-        if (old != null) scope.launch { old.endSession() }
+        if (old != null) {
+            val duration = if (connectedAtElapsed > 0L)
+                (android.os.SystemClock.elapsedRealtime() - connectedAtElapsed).coerceAtLeast(0L)
+            else 0L
+            VoiceUsageAudit.record(context, "ElevenLabs", "agent_call_ended", 0,
+                "agent_realtime", durationMs = duration)
+            connectedAtElapsed = 0L
+            scope.launch { old.endSession() }
+        }
     }
 
     private fun persistAgent(eventId: Int, text: String) {
