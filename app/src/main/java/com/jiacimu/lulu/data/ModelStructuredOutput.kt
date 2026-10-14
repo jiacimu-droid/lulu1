@@ -178,8 +178,9 @@ internal object ModelStructuredOutput {
                     if (text.isNotBlank()) add(text.take(2_000))
                 }
             }.take(8)
-            // Structured model output owns the send boundaries. Once bubbles are valid JSON,
-            // do not second-guess them with punctuation/length heuristics.
+            // The model owns the conversational moves. The renderer may split a
+            // long move at complete sentence/clause punctuation for readability,
+            // but must never cut an unfinished word or discard the spoken text.
             if (values.isNotEmpty()) return readableReplyBubbles(values, maxBubbles = 8)
         }
 
