@@ -38,6 +38,40 @@ class XhsBrowserSessionTest {
             "https://untrusted.example/explore/$id"))
     }
 
+    @Test fun diagnosticsAreReadableInsteadOfRawJsonOrCredentials() {
+        val raw = JSONObject().put("page", JSONObject()
+            .put("path", "/search_result")
+            .put("readyState", "interactive")
+            .put("visibleCards", 5).put("stateCards", 3)
+            .put("loginPrompt", false).put("verificationPrompt", false))
+            .put("api", JSONObject())
+            .put("phase", "网页搜索")
+            .put("search", JSONObject().put("pending", true))
+            .put("secretToken", "must-not-appear").toString()
+        val summary = XhsReadingEngine.readableDiagnostic(raw)
+        assertTrue(summary.contains("搜索页"))
+        assertTrue(summary.contains("页面状态 3 篇，当前页面 5 篇"))
+        assertTrue(summary.contains("尚未观察到搜索返回"))
+        assertFalse(summary.contains("{"))
+        assertFalse(summary.contains("must-not-appear"))
+        val home = XhsReadingEngine.readableDiagnostic(
+            JSONObject().put("page", JSONObject().put("path", "/explore")).toString())
+        assertTrue(home.contains("首页推荐"))
+    }
+
+    @Test fun safeRealNoteCoverPassesThroughWithoutBreakingOlderCards() {
+        val id = "1234567890abcdef12345678"
+        val feed = JSONObject().put("feeds", JSONArray().put(JSONObject()
+            .put("id", id).put("xsecToken", "token")
+            .put("title", "带封面的笔记")
+            .put("coverUrl", "https://sns-img-bd.xhscdn.com/cover.png")))
+        val card = XhsReadingEngine.parseMcpCards(feed, "").single()
+        assertTrue(card.coverUrl.startsWith("https://"))
+        assertEquals("带封面的笔记", card.title)
+        val without = XhsCard(id, "token", "旧卡片", "作者", "pc_feed")
+        assertEquals("", without.coverUrl)
+    }
+
     @Test fun characterReadFailureDiagnosisShowsActualStageButNotSessionTokens() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         XhsReadingEngine.recordToolStage(context, "笔记正文",
