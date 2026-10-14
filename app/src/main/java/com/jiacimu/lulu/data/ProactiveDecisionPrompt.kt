@@ -21,6 +21,26 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         新出现的真实环境瞬间可欣赏、忽略、分享或独处；不要自动变成必须完成的任务。人物可以自己选择生活、阅读、玩耍、交友而不向用户汇报。
         现实世界窗口：reality_explore:<关键词> 可按自己的兴趣搜索；reality_follow/unfollow 必须用现有 topicId；reality_open 必须用现有 eventId。只看标题不等于看过正文；外部报道不等于人物或用户亲历。
     """.trimIndent()
+    // Bring real reading into the next personal decision, without making every
+    // article an obligatory notification or inventing unread picture details.
+    val recentXhsReading = runCatching {
+        SharedExperienceTimeline.recentEvents(characterId, 70)
+            .asReversed()
+            .asSequence()
+            .filter { it.source.startsWith("xiaohongshu-") &&
+                it.evidenceKind == EventEvidenceKind.Observation &&
+                it.occurredAt.isAfter(java.time.Instant.now().minus(java.time.Duration.ofDays(3))) }
+            .mapNotNull { event ->
+                val body = runCatching { org.json.JSONObject(event.content) }.getOrNull()
+                    ?: return@mapNotNull null
+                val title = body.optString("title").take(72)
+                if (title.isBlank()) return@mapNotNull null
+                val thought = body.optString("personalThought").take(160)
+                val status = body.optString("imageReadingStatus").take(90)
+                "- 实际读过《$title》；来源证据ID=${event.id}；自己的读后想法=${thought.ifBlank { "尚无独立感想" }}；图片状态=$status"
+            }.distinct().take(2).toList()
+            .takeIf(List<String>::isNotEmpty)?.joinToString("\n").orEmpty()
+    }.getOrDefault("")
     return """
         ${CharacterDecisionProtocol.principles}
         ${spontaneousInnerVoiceGuide}
@@ -59,6 +79,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         片段可以写当时的心情、眼前已知环境、自己的思绪变化、小动作和时间流动，不必凭空创造惊天动地的情节。动作只需真实执行一次，之后一段时间自然保持休息，不要循环执行「坐下→走两步→坐下→转圈」来证明活着。
         【严格边界】片段是你在真实已到达的地点里的主观日常叙述，不是世界状态修改脚本：不能写未真正交谈的居民开口说话、凭空出现的新物品、未执行的阅读/游戏成绩/事件结局、与用户实际见面或未经授权的手机行为；想发生这些必须另选真实执行器并等成功回执。若没有实际适合的动作，选 silent 并保留自我想法，不要编剧情假装行动；若有新消息优先回应，不要输出长篇独处。
         【实际动作参数】
+        ${if (recentXhsReading.isBlank()) "" else "【最近自己确实读过的外部笔记｜不是用户经历】\\n" + recentXhsReading + "\\n这些记录只证明真实读过；你可以因自己的兴趣自然想再查、私下告诉用户、发朋友圈或写日记，也可以不分享。每个动作都需要真正执行，不要复述工具回执。 "}
         【真实生活产生的双重动力】角色可以对同一经历既好奇又想分享，两者不是互斥的任务：想弄清楚蟑螂从哪来，可以先实际观察/寻找/驱赶；觉得有趣、害怕、好笑、值得吐槽，可以自然私聊告诉用户、和群友聊，或像真人一样发条朋友圈。分享给用户是私下的一对一交流；朋友圈是面向所有联系人轻松分享自己的生活，不要把公开动态都变成“重大公告”，也不要习惯性只选私聊、silent 或日记。重要的是角色本人是否真的想这么做；有时没人问，他也可能兴冲冲想告诉别人，有时也会自己消化。
         【真实经历后续】若当前行动确实要推进一条提示词列出的 verified experienceId，请原样带回 experienceId；只有程序成功发出消息、真正发布朋友圈、读取真实书籍正文或处理数字世界事件后，才能把相应欲望标记为已实践。没做就不要声称做了。暂时有分享欲但想晚些说，可写 appraisal.shareWish={\"experienceId\":\"真实ID\",\"status\":\"held\",\"why\":\"想分享的具体缘由\"}；决定不再分享可写 released。不写并不等于抹除经历。无真实ID时不编造。
         message/moment/call 用 text；group_message 用真实 groupId + text；
