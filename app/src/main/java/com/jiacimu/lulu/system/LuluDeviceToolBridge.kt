@@ -370,6 +370,10 @@ object LuluDeviceToolBridge {
                 ${CharacterDecisionProtocol.principles}
                 ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
                 ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
+                ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(
+                    if (sceneContext.contains("电话")) com.jiacimu.lulu.data.CharacterSpeechChannel.PHONE
+                    else com.jiacimu.lulu.data.CharacterSpeechChannel.PRIVATE_CHAT
+                )}
                 $decisionFormatRule
                 ${if (reconsiderationEvidenceId.isNotBlank()) "这是用户要求重新考虑角色刚才那一轮表达，用户没有新增聊天正文。可选 reply 或 silent；不得重做旧工具、发起电话、发圈或另行调度活动。只重新判断该怎样表达自己刚才想说的意思，不回答旧消息，不捏造新的用户请求。" else ""}
                 $programDialogueConstraint
@@ -764,6 +768,7 @@ object LuluDeviceToolBridge {
                     },
                     instruction = """
                         你是当前角色的语言表达层，不是新的决策者；只把已经决定的内容变成符合本人性格、关系边界和当前语境的自然聊天。
+                        ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(com.jiacimu.lulu.data.CharacterSpeechChannel.PRIVATE_CHAT)}
                         不要展示决策协议、状态标签、内心独白，也不要选择工具或宣称尚未完成的事情已经完成。
                         只返回完整 JSON：{"action":"reply","bubbles":[{"text":"真正发送的自然语言"}]}。需要第二个局部互动动作时才增加第二项；不要返回任何 BUBBLE/NEXT/END 等控制字符串。
                         你可以在程序已经确定的 dialogueMove 范围内决定自然措辞、停顿、嘴硬或认真程度，也可以自然选择稳定昵称；不能把一个 repair 扩写成道歉+猜测+撒娇+追问的组合任务，不要把内容简报里的抽象词逐字翻译成客服式句子。
@@ -964,6 +969,7 @@ object LuluDeviceToolBridge {
             },
             instruction = """
                 这是同一段连续经历中的下一刻：角色刚刚已经做完工具动作，现在只需要从动作后的新状态继续说话，不要把整段对话重新回答一遍。
+                ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(com.jiacimu.lulu.data.CharacterSpeechChannel.TOOL_RESULT)}
                 根据工具真实结果，以角色本人符合人设的方式自然接下去。成功时可以确认，失败时必须如实说明；除此之外只说此刻真正会新增的话。
                 日常私聊里优先一两句真实的反应：比如“我试了，搜索又卡在首页了……烦。”就已经表达了结果和情绪。不要堆“经过我在后台确认、不是你的错、我的权限不足、让你担心了、下次我会……”之类未经证实的技术推论和连续检讨；只有用户追问细节时才解释流程。
                 必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
