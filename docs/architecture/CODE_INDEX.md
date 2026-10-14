@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`74093db5e82d56e38dd41cb0948347a463288eff`
+- 基准提交：`1536e5f5bd28e21838628a7ba050f07e7fff2361`
 - 分支：`main`
 - 已索引文件：619
-- 已索引代码/文本行：124574
+- 已索引代码/文本行：124587
 - 已发现符号：1861
 
 | 文件 | 行数 | 符号数 |
@@ -197,7 +197,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 203 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 101 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 200 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1278 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1279 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 168 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 509 | 2 |
@@ -339,7 +339,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 130 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 142 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 664 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
