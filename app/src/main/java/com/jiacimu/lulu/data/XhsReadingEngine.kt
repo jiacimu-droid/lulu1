@@ -53,22 +53,57 @@ internal object XhsReadingEngine {
     @Volatile private var owner: WeakReference<Activity>? = null
     private val navigation = Mutex()
     private var visibleBrowser: WeakReference<WebView>? = null
-    private var retainedBrowser: WebView? = null
     private var controlledBrowser: WebView? = null
+    // Cache belongs to the ACTUAL WebView session, not just Android cookies.
+    // Nothing here is persisted: detail tokens and article text are discarded
+    // on browser replacement and cannot leak across account switches.
+    private val sessionLock = Any()
+    private var sessionEpoch = 0L
+    private data class Timed<T>(val data: T, val epoch: Long, val expires: Long)
+    private val feedCache = linkedMapOf<String, Timed<List<XhsCard>>>()
+    private val articleCache = linkedMapOf<String, Timed<XhsArticle>>()
+    private fun resetSession() = synchronized(sessionLock) {
+        sessionEpoch++
+        feedCache.clear()
+        articleCache.clear()
+    }
+    private fun <T> cached(map: Map<String, Timed<T>>, key: String): T? =
+        synchronized(sessionLock) {
+            map[key]?.takeIf { it.epoch == sessionEpoch &&
+                System.currentTimeMillis() < it.expires }?.data
+        }
+    private fun <T> save(map: MutableMap<String, Timed<T>>, key: String, value: T,
+                         lifetimeMs: Long, limit: Int) = synchronized(sessionLock) {
+        map[key] = Timed(value, sessionEpoch, System.currentTimeMillis() + lifetimeMs)
+        while (map.size > limit) map.remove(map.keys.first())
+    }
     fun attachBrowser(view: WebView) {
-        if (controlledBrowser !== retainedBrowser) releaseRetainedBrowser()
+        if (visibleBrowser?.get() !== view) resetSession()
         visibleBrowser = WeakReference(view)
     }
-    fun detachBrowser(view: WebView) { if (visibleBrowser?.get() === view) visibleBrowser = null }
-    fun controls(view: WebView?): Boolean = view != null && controlledBrowser === view
-    private fun releaseRetainedBrowser() {
-        retainedBrowser?.let { view ->
-            view.stopLoading()
-            (view.parent as? ViewGroup)?.removeView(view)
-            view.destroy()
+    fun detachBrowser(view: WebView) {
+        if (visibleBrowser?.get() === view) {
+            visibleBrowser = null
+            resetSession()
         }
-        retainedBrowser = null
     }
+    fun controls(view: WebView?): Boolean = view != null && controlledBrowser === view
+    /** A foreground, attached WebView is mandatory for native reading.
+     * Do not synthesize a second invisible reader under another screen. */
+    private fun attachedBrowser(): WebView? =
+        visibleBrowser?.get()?.takeIf { it.isAttachedToWindow && !it.isDestroyedXhs() }
+    private fun WebView.isDestroyedXhs(): Boolean =
+        runCatching { this.settings.javaScriptEnabled }.isFailure
+    internal fun cachedFeed(keyword: String): List<XhsCard>? =
+        cached(feedCache, keyword.trim().take(64))
+    internal fun cachedNote(card: XhsCard): XhsArticle? =
+        cached(articleCache, card.id + ":" + card.token)
+    private fun rememberFeed(keyword: String, cards: List<XhsCard>) {
+        if (cards.isNotEmpty()) save(feedCache, keyword.trim().take(64), cards, 120_000L, 12)
+    }
+    private fun rememberNote(card: XhsCard, article: XhsArticle) =
+        save(articleCache, card.id + ":" + card.token, article, 600_000L, 24)
+
     private fun prefs(context: Context) = context.applicationContext
         .getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE)
     /**
@@ -179,18 +214,17 @@ internal object XhsReadingEngine {
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
-    fun resume(activity: Activity) {
-        if (retainedBrowser?.context !== activity && controlledBrowser !== retainedBrowser) releaseRetainedBrowser()
-        owner = WeakReference(activity)
-    }
+    fun resume(activity: Activity) { owner = WeakReference(activity) }
     fun pause(activity: Activity) {
         if (owner?.get() === activity) {
             owner = null
-            if (controlledBrowser !== retainedBrowser) releaseRetainedBrowser()
+            // Do not destroy an Activity-owned browser. Its screen owns
+            // attachment and disposal; stop advertising offline reading.
         }
     }
     fun available(context: Context): Boolean =
-        (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true) ||
+        (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true &&
+            visibleBrowser?.get() != null) ||
             (mcpFallbackEnabled(context) && LuluExternalMcp.configured(context, "xiaohongshu"))
 
     /**
@@ -199,10 +233,11 @@ internal object XhsReadingEngine {
      * second configured source before admitting that nothing was read.
      */
     suspend fun list(context: Context, keyword: String, onProgress: (String) -> Unit = {},
-                     localOnly: Boolean = false): List<XhsCard> {
+                     localOnly: Boolean = false, forceRefresh: Boolean = false): List<XhsCard> {
         val query = keyword.trim().take(64)
         val canUseLocal = localEnabled(context) &&
-            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true
+            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
+            visibleBrowser?.get() != null
         // A saved 127.0.0.1 address does NOT mean Termux is running.
         // Native reading is primary; optional MCP fallback is explicit and
         // OFF by default so a dead localhost server cannot double the wait.
@@ -213,6 +248,10 @@ internal object XhsReadingEngine {
         }
         var localFailure = ""
         if (canUseLocal) {
+            if (!forceRefresh) cachedFeed(query)?.let {
+                onProgress("复用当前阅读会话最近取得的笔记")
+                return it
+            }
             try {
                 onProgress("正在通过已登录网页寻找笔记")
                 val url = searchUrl(query)
@@ -222,6 +261,7 @@ internal object XhsReadingEngine {
                     val row = values?.optJSONObject(it) ?: return@mapNotNull null
                     card(row, query, "webview")
                 }.distinctBy { it.id }
+                if (found.isNotEmpty()) rememberFeed(query, found)
                 if (found.isNotEmpty() || !canUseMcp) return found
                 localFailure = "本机网页没有返回可读笔记"
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
@@ -233,7 +273,7 @@ internal object XhsReadingEngine {
         }
         if (!canUseMcp) {
             error(if (canUseLocal) "本机网页没有返回可读笔记" else
-                "角色当前没有可用的小红书读取窗口；请打开露露机并登录网页，或连接可用的 MCP")
+                "当前没有打开的内置小红书网页；请进入露露机「小红书 · 列表」并登录后再读。MCP 不是必需的")
         }
         if (localFailure.isNotBlank()) onProgress("本机阅读未成功，正在尝试已有 MCP 连接")
         try {
@@ -293,12 +333,20 @@ internal object XhsReadingEngine {
     }
 
     suspend fun read(context: Context, target: XhsCard, onProgress: (String) -> Unit = {},
-                     localOnly: Boolean = false): XhsArticle {
+                     localOnly: Boolean = false, forceRefresh: Boolean = false): XhsArticle {
         require(Regex("[a-zA-Z0-9]{12,40}").matches(target.id) && target.token.isNotBlank()) {
             "笔记缺少有效 ID 或详情令牌，未标记为已读"
         }
         if (localOnly) require(target.provider == "webview") {
             "该笔记并非来自内置浏览器，不能算内置浏览器测试成功"
+        }
+        if (!forceRefresh && target.provider == "webview" &&
+            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
+            visibleBrowser?.get() != null) {
+            cachedNote(target)?.let {
+                onProgress("复用当前会话已经验证的笔记正文")
+                return it
+            }
         }
         var actualProvider = target.provider
         val note = if (target.provider == "webview") {
@@ -330,8 +378,10 @@ internal object XhsReadingEngine {
             XhsImage(url, row.optInt("width"), row.optInt("height"))
         }.distinctBy { it.url }
         require(body.isNotBlank() || images.isNotEmpty()) { "实际笔记没有正文或图片，未标记为已读" }
-        return XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
+        val article = XhsArticle(target.id, note.optString("title").ifBlank { target.title }, body,
             note.optString("author").ifBlank { target.author }, actualProvider, images)
+        if (actualProvider == "webview") rememberNote(target, article)
+        return article
     }
 
     private suspend fun readMcpNote(context: Context, target: XhsCard): JSONObject {
@@ -396,37 +446,16 @@ internal object XhsReadingEngine {
                 navigation.withLock {
                     val activity = owner?.get()?.takeIf { !it.isFinishing && !it.isDestroyed }
                         ?: error("本机阅读需露露机保持前台")
-                    val container = activity.findViewById<FrameLayout>(android.R.id.content)
-                        ?: error("阅读窗口尚未准备好")
+                    val view = attachedBrowser()
+                        ?: error("内置阅读窗口未打开。请进入小红书列表并等待网页出现，不再后台创建隐形浏览器")
                     val script = withContext(Dispatchers.IO) {
                         context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() }
                     }
-                    val shared = visibleBrowser?.get()?.takeIf { it.isAttachedToWindow }
-                    val view = shared ?: retainedBrowser ?: WebView(activity).also { created ->
-                        configure(created)
-                        created.isFocusable = false
-                        created.isFocusableInTouchMode = false
-                        container.addView(created, 0, FrameLayout.LayoutParams(-1, -1))
-                        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
-                            WebViewCompat.addDocumentStartJavaScript(created, script,
-                                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
-                        retainedBrowser = created
-                    }
+                    val shared = view
                     controlledBrowser = view
                     var mainError = ""
-                    if (shared == null) view.webViewClient = object : WebViewClient() {
-                        override fun shouldOverrideUrlLoading(web: WebView?, request: WebResourceRequest?): Boolean {
-                            if (request?.isForMainFrame != true) return false
-                            return request.url.scheme != "https" || request.url.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
-                        }
-                        override fun onReceivedError(web: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                            if (request?.isForMainFrame == true && !error?.description.toString().contains("ERR_ABORTED", true))
-                                mainError = "网页加载失败（${error?.errorCode}）"
-                        }
-                        override fun onReceivedHttpError(web: WebView?, request: WebResourceRequest?, response: WebResourceResponse?) {
-                            if (request?.isForMainFrame == true) mainError = "网页返回 HTTP ${response?.statusCode}"
-                        }
-                    }
+                    // Do not overwrite the screen's own WebViewClient. That
+                    // client holds login, error and native navigation state.
                     fun stage(value: String) {
                         if (lastStage != value) { lastStage = value; onProgress(value) }
                     }
@@ -460,7 +489,7 @@ internal object XhsReadingEngine {
                             val root = runCatching { JSONObject(JSONTokener(raw).nextValue() as String) }.getOrNull() ?: continue
                             latestReport = root.optJSONObject("diagnostics") ?: JSONObject()
                             latestReport.put("stage", kind).put("phase", lastStage)
-                                .put("session", if (shared != null) "login-browser" else "retained-browser")
+                                .put("session", "attached-native-browser")
                                 .put("nativeWidth", view.width).put("nativeHeight", view.height)
                                 .put("ready", root.optBoolean("onPage")).put("result", root.optString("error"))
                             prefs(context).edit().putString("xiaohongshu:last-diagnostic", latestReport.toString()).apply()
@@ -503,7 +532,7 @@ internal object XhsReadingEngine {
                     } finally {
                         controlledBrowser = null
                         CookieManager.getInstance().flush()
-                        if (owner?.get() !== activity || (shared == null && visibleBrowser?.get()?.isAttachedToWindow == true)) releaseRetainedBrowser()
+                        // Browser lifetime is owned by its composable screen.
                     }
                 }
             }
