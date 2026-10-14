@@ -806,6 +806,7 @@ object DigitalWorldStore {
     }.trim()
 
     fun clearCharacter(characterId: String) {
+        WorldLifeEpisodeStore.clear(characterId)
         DigitalWorldActivityStateStore.clearCharacter(characterId)
         DigitalWorldLifeEventStore.clearCharacter(characterId)
         synchronized(lock) {
