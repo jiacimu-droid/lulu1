@@ -128,7 +128,7 @@ internal fun MeetingUiHistory(
                                             .format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
                                     color = LuluColors.Muted, fontSize = 11.sp, maxLines = 1,
                                 )
-                                Text(episode.scene.replace("\\n", " ").take(85) + " · 查看片段",
+                                Text(episode.scene.replace("\n", " ").take(85) + " · 查看片段",
                                     color = LuluColors.BlueGray, fontSize = 11.sp,
                                     maxLines = 2, overflow = TextOverflow.Ellipsis)
                             }
