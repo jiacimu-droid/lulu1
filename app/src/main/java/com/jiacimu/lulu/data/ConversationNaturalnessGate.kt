@@ -137,11 +137,14 @@ internal object ConversationNaturalnessGate {
         val detailRequested = Regex(
             """详细|具体讲讲|展开讲|解释清楚|说清楚|深度分析|仔细分析|分析原因|排查|教程|步骤|为什么|怎么回事"""
         ).containsMatchIn(userText)
+        // Two fairly substantial explanations plus a third self-justifying
+        // follow-up can be verbose even without any single 55-character bubble.
+        // Keep the gate disabled when the user asked for a detailed answer.
         val longBubbles = bubbles.count { bubble ->
-            bubble.count { !it.isWhitespace() } >= 55
+            bubble.count { !it.isWhitespace() } >= 38
         }
         if (!detailRequested && userLength in 1..50 &&
-            ((replyLength >= 140 && longBubbles >= 2) ||
+            ((replyLength >= 120 && longBubbles >= 2) ||
                 (replyLength >= 180 && longBubbles >= 1))) {
             score += 2
             reasons += "简单追问被写成多段事后说明，缺乏真实对话的轻重取舍"
