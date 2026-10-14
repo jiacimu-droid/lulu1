@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T11:31:59.180768+00:00",
-  "commit": "b408245341cbff73489e2544522638bb75ed74c1",
+  "generatedAt": "2026-10-14T11:32:43.597020+00:00",
+  "commit": "138b6fc72f27e2adfba8f469064dbd20c0455452",
   "branch": "main",
-  "sourceFingerprint": "3a2bdc25c5763b220808335e5c7346ceb84441637dfe5349a1f717af88ef8de8",
+  "sourceFingerprint": "d53dede6bdaa88426d1cdf723179ca38cdf8fc3491b00914d36e430515b8b84c",
   "summary": {
     "files": 633,
     "lines": 126598,
@@ -11770,7 +11770,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1893,
-      "sha256": "83f408583bfe9c3c9b82a0457cd5f2bee17ced95ea0a17c4c8f79b3ca79ad1d4",
+      "sha256": "681bb09819ce8e6a00d32e65076c27bd19933d7d7a145b35f67b264817cece07",
       "symbols": [
         {
           "name": "announceScheduledReminder",
