@@ -91,11 +91,16 @@ internal object WorldLifeEpisodeStore {
     fun recentContext(characterId: String, now: Instant = Instant.now()): String {
         val episode = episodes(characterId).lastOrNull() ?: return ""
         val elapsed = java.time.Duration.between(episode.occurredAt, now).toMinutes()
-        if (elapsed !in 0..35) return ""
-        return "最近已经有过一段完整的独处经历（约${elapsed}分钟前）：" +
-            "${episode.title}；真实动作：${episode.actualAction}。这是过去的活动而不是新事件。" +
-            "当时的主观独处感受（不增加世界事实）：${episode.scene.take(320)}。" +
-            "不要为了维持在线连续重演坐下、散步、换地点；若当下没有新的明确兴趣或事情，休息或休眠都是自然的。"
+        if (elapsed !in 0..1_440) return ""
+        val recentEnoughForContinuation = elapsed <= 35
+        return (if (recentEnoughForContinuation)
+            "刚才已经经历了一段完整的独处（约${elapsed}分钟前）："
+        else "今天较早时真实经历过一段独处（约${elapsed}分钟前；不可当作刚发生）：") +
+            "${episode.title}；唯一核实的世界动作：${episode.actualAction}。" +
+            "当时的主观叙事（不是新世界事实）：${episode.scene.take(260)}。" +
+            if (recentEnoughForContinuation)
+                "同一地点的日常动作应接着这段时间继续，不要隔几分钟重复生成走路、坐下的小回执。"
+            else "你可以因此产生自己的回味或新决定，但不要复演原剧情、把主观想象说成世界事实。"
     }
 
     @Synchronized fun delete(id: String): Boolean {
