@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T16:07:44.277512+00:00",
-  "commit": "e92b273d4e3c074c22f7cbf02d3b7c72dcc7ebb0",
+  "generatedAt": "2026-10-14T16:08:50.509202+00:00",
+  "commit": "4e50112a87cc159c4e95db32a29d6a22b48b2ca2",
   "branch": "main",
-  "sourceFingerprint": "170e98d2dec5fbddb85269e1929d3a85a4ca913cf60763a49930fad58ba42d57",
+  "sourceFingerprint": "5aeecbada518446c90d91d107eaf8be30ab6e397920c816ced0f9f84cad25211",
   "summary": {
     "files": 633,
-    "lines": 127103,
-    "symbols": 1879
+    "lines": 127130,
+    "symbols": 1880
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4300,6 +4300,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
         "line": 216
+      }
+    ],
+    "concern": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
+        "line": 63
       }
     ],
     "CharacterSocialRelationshipSnapshot": [
@@ -14390,12 +14396,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
-      "lines": 55,
-      "sha256": "fe38eda62bd5b9b4cb272cf10ee379817198ae60d8576b40cf8ae39f44b4e435",
+      "lines": 82,
+      "sha256": "9181d8a2b1d4386203ba46b7896802b347a71ec1159a6d406c11f647ef0c3144",
       "symbols": [
         {
           "name": "prompt",
           "line": 12
+        },
+        {
+          "name": "concern",
+          "line": 63
         }
       ]
     },
