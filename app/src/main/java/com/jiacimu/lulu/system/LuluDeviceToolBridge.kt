@@ -294,7 +294,8 @@ object LuluDeviceToolBridge {
             {"action":"reply","text":"不预言执行结果的自然口语","phoneFavorite":{"messageId":"真实用户消息ID","reason":"自己为何想收藏这句原话"}}。
             注意 phoneFavorite 是本人这次真实选择的副动作，不只是内心想到；系统会在播报收藏结果前校验消息和原始证据、执行已有收藏工具，成功才说成功，失败会给出真实原因。
             如果根本不需要说话，也可直接选择 action=tool、tool=favorite_user_message 的旧方式。
-            如果真的想收藏，就在此刻填写 phoneFavorite 并执行，不要先说“挂了以后再操作”来逃避执行；犹豫或暂不收藏时不要填写。
+            如果真的想收藏，可以选填 phoneFavorite；字段漏填时，只要你当下的真实心声或回复明确表达了收藏决定，程序也会尝试收藏刚刚真实收到的原话。格式不完整不应让整通电话回复失败。
+            如果已经决定现在收藏，就直接行动而不是说“挂了以后再操作”；犹豫或暂不收藏时不要填写。
             如果决定以后再做，应把有真实目标和下一步的未完成意愿放进 appraisal.pendingConcern；心声、后续口头承诺或意图字段本身不会自动执行工具。
         """.trimIndent()
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
@@ -787,21 +788,47 @@ object LuluDeviceToolBridge {
         if (plan.action == "reply") {
             // Phone reply and a voluntary favorite can be one decision. A
             // second chat/phone round is not needed to store a real user quote.
-            val chosenPhoneFavorite = if (sceneContext.contains("电话") &&
-                !callSilence && !rewriting && !sceneContext.contains("哄睡"))
-                plan.phoneFavorite else null
+            val inOrdinaryPhone = sceneContext.contains("电话") &&
+                !callSilence && !rewriting && !sceneContext.contains("哄睡")
+            // The actual, non-Agent phone uses the same user-message executor
+            // as text chat. An extra field or perfect JSON is NOT a prerequisite
+            // for an authentic wish to collect the newest user utterance.
+            val spontaneousWish = listOf(plan.innerThought, plan.text,
+                plan.appraisal?.optString("responseAim").orEmpty())
+                .any(com.jiacimu.lulu.data.CharacterPhoneFavoriteIntent::decided)
+            val chosenPhoneFavorite = if (inOrdinaryPhone &&
+                (plan.phoneFavorite != null || spontaneousWish)) plan.phoneFavorite ?: JSONObject()
+            else null
             val phoneFavoriteResult = chosenPhoneFavorite?.let { selected ->
-                val messageId = selected.optString("messageId").trim()
-                val reason = selected.optString("reason").trim().take(180)
-                if (messageId.isBlank() || reason.length < 4) {
-                    JSONObject().put("success", false)
-                        .put("error", "没有提供可核实的用户消息和收藏缘由")
-                } else {
-                    val requestId = "phone-favorite-" + messageId
+                val requestedId = selected.optString("messageId").trim()
+                val conversation = com.jiacimu.lulu.MigratedDomainStores.chat.conversations.value
+                    .firstOrNull { it.groupChat == null && it.characterId == characterId }
+                val candidate = conversation?.let { chat ->
+                    com.jiacimu.lulu.MigratedDomainStores.chat.messages(chat.id).value
+                        .asReversed().firstOrNull { msg ->
+                            msg.sender == com.jiacimu.lulu.LuluChatMessage.Sender.User &&
+                                msg.status == com.jiacimu.lulu.LuluChatMessage.Status.Sent &&
+                                (requestedId.isBlank() || msg.id == requestedId) &&
+                                com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
+                                    characterId, listOf(msg.id),
+                                ).any { it.evidenceKind ==
+                                    com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }
+                        }
+                }
+                // We never guess which historical message was meant if a
+                // specific ID was requested but deleted or inaccessible.
+                // With no supplied ID, the verified newest phone utterance wins.
+                if (candidate == null) null else {
+                    val reason = selected.optString("reason").trim().take(180).ifBlank {
+                        plan.innerThought.take(120).ifBlank {
+                            "自己被刚听见的这句原话触动，想留下来以后重温"
+                        }
+                    }
+                    val requestId = "phone-favorite-" + candidate.id
                     runCatching {
                         JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
                             appContext, characterId, "favorite_user_message",
-                            JSONObject().put("messageId", messageId).put("reason", reason),
+                            JSONObject().put("messageId", candidate.id).put("reason", reason),
                             requestId = requestId,
                         ))
                     }.getOrElse { error ->
@@ -810,9 +837,17 @@ object LuluDeviceToolBridge {
                     }
                 }
             }
-            if (!separateExpression && plan.text.isBlank()) return Result.failure(
-                IllegalStateException("电话模型没有返回可朗读的正文，不能把决策 JSON 当作语音")
-            )
+            // Optional missing/malformed state must not crash a call. Only
+            // speech that can be safely recovered is delivered, never raw JSON.
+            val phoneSpoken = if (!separateExpression && plan.text.isBlank())
+                com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(plannedReply.text)
+                    ?.trim().orEmpty() else plan.text
+            if (!separateExpression && phoneSpoken.isBlank()) {
+                return Result.success(plannedReply.copy(text = "", disposition =
+                    com.jiacimu.lulu.data.CharacterDecisionProtocol.SILENT))
+            }
+            if (!separateExpression && phoneSpoken != plan.text)
+                plan = plan.copy(text = phoneSpoken)
             // The phone remains single-pass. In text chat, only the expression model
             // renders the planner's intent; it must not re-decide actions.
             val imageOnly = !sceneContext.contains("电话") && plan.stickerOnly &&
@@ -956,8 +991,8 @@ object LuluDeviceToolBridge {
             if (safeText.isBlank() && chosenSticker == null) return Result.failure(
                 IllegalStateException("角色决定回复但没有生成可发送内容"))
             val phoneFavoriteReceipt = phoneFavoriteResult?.let { actual ->
-                if (actual.optBoolean("success")) "我把那句话收好了。"
-                else "那句暂时没收藏成功。"
+                if (actual.optBoolean("success")) "那句我收好了。"
+                else "" // Failure stays in the real receipt, not a robotic spoken error.
             }.orEmpty()
             // Tool outcome is appended ONLY after the actual executor returned.
             // The spoken model text cannot independently prove an action ran.
