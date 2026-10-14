@@ -27,8 +27,13 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
     private fun foregroundSlot(): FrameLayout {
         parkingSlot?.let { return it }
         val root = activity.findViewById<FrameLayout>(android.R.id.content)
-        val slot = FrameLayout(activity).apply {
-            isClickable = false
+        val slot = object : FrameLayout(activity) {
+            // The parked website is not an interactive surface. Prevent
+            // unhandled taps on the overlaying UI reaching invisible links.
+            override fun onInterceptTouchEvent(ev: android.view.MotionEvent?): Boolean = true
+            override fun onTouchEvent(event: android.view.MotionEvent?): Boolean = true
+        }.apply {
+            isClickable = true
             isFocusable = false
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
@@ -67,6 +72,7 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
         // online character reads while the user is on another app page.
         // If Android pauses the Activity, the engine refuses new requests.
         val host = foregroundSlot()
+        view.clearFocus()
         (view.parent as? ViewGroup)?.removeView(view)
         host.addView(view, FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
