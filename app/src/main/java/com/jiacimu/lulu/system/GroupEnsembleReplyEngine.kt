@@ -3,6 +3,7 @@ package com.jiacimu.lulu.system
 import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
+import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.CharacterRuntime
 import com.jiacimu.lulu.data.CharacterAddressPreference
 import com.jiacimu.lulu.data.CharacterDefinitionSnapshot
