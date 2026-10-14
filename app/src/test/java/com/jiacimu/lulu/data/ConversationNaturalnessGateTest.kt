@@ -127,6 +127,7 @@ class ConversationNaturalnessGateTest {
             ),
         )
         assertFalse(result.reasons.any { it.contains("多段事后说明") })
+        assertFalse("A specifically requested technical explanation must not be shortened just because it is detailed", result.needsRerender)
     }
 
     @Test fun oneShortEmotionalResponseIsStillFine() {
