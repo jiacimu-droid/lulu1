@@ -32,6 +32,7 @@ import kotlin.coroutines.resume
 internal data class XhsCard(
     val id: String, val token: String, val title: String, val author: String,
     val source: String, val provider: String = "webview",
+    val coverUrl: String = "",
 ) {
     fun url(): String = Uri.Builder().scheme("https").authority("www.xiaohongshu.com")
         .appendPath("explore").appendPath(id).appendQueryParameter("xsec_token", token)
@@ -70,6 +71,67 @@ internal object XhsReadingEngine {
     }
     private fun prefs(context: Context) = context.applicationContext
         .getSharedPreferences("lulu_external_mcp_v1", Context.MODE_PRIVATE)
+    /**
+     * UI diagnostics are a product surface, not a developer console. Keep
+     * raw JSON accessible only in a separately requested technical detail,
+     * never as the default dialog body.
+     */
+    internal fun readableDiagnostic(raw: String): String {
+        val entries = raw.lineSequence().mapNotNull {
+            runCatching { JSONObject(it.trim()) }.getOrNull()
+        }.toList()
+        val state = entries.lastOrNull { it.has("page") || it.has("viewport") }
+        val tool = entries.firstOrNull { it.has("status") }
+        if (state == null && tool == null) return "尚未记录网页读取状态。可以先打开一篇首页笔记，再进行检测。"
+        val lines = mutableListOf<String>()
+        val p = state?.optJSONObject("page")
+        val path = p?.optString("path").orEmpty()
+        val location = when {
+            path.startsWith("/search") -> "搜索页"
+            Regex("""^/(?:explore|discovery/item)/[a-zA-Z0-9]+""").containsMatchIn(path) -> "笔记详情页"
+            path == "/explore" || path == "/" -> "首页推荐"
+            path.isBlank() -> "尚未取得网页地址"
+            else -> "其他页面"
+        }
+        lines += "当前网页：$location"
+        if (p != null) {
+            lines += "页面状态：" + when (p.optString("readyState")) {
+                "complete" -> "文档加载完成"
+                "interactive" -> "已显示页面，可能仍在加载内容"
+                "loading" -> "正在加载"
+                else -> "尚未确认"
+            }
+            lines += "搜索卡片：页面状态 ${p.optInt("stateCards", 0)} 篇，当前页面 ${p.optInt("visibleCards", 0)} 篇"
+            if (p.optBoolean("loginPrompt")) lines += "需要登录：请在下方内置网页完成登录"
+            if (p.optBoolean("verificationPrompt")) lines += "需要验证：请在内置网页完成网站安全验证"
+        }
+        val api = state?.optJSONObject("api")
+        val searchApi = api?.optJSONObject("search")
+        lines += "搜索接口：" + when {
+            searchApi == null -> "尚未观察到搜索返回（不代表网络断开）"
+            searchApi.optBoolean("success", false) -> "已观察到响应"
+            else -> "请求已响应，但返回失败"
+        }
+        val stage = state?.optString("phase").orEmpty().ifBlank {
+            tool?.optString("stage").orEmpty()
+        }
+        if (stage.isNotBlank()) lines += "最后阶段：$stage"
+        val failure = tool?.optString("reason").orEmpty()
+        if (failure.isNotBlank()) lines += "近期失败：${failure.take(125)}"
+        lines += when {
+            p?.optBoolean("verificationPrompt") == true || p?.optBoolean("loginPrompt") == true ->
+                "建议：展开内置网页，按网站提示操作，再尝试读取。"
+            path == "/explore" || path == "/" ->
+                "建议：首页可以单独阅读；如正在搜索却仍停留首页，请检查网页搜索是否成功跳转。"
+            p != null && p.optInt("visibleCards") > 0 ->
+                "建议：网页中有卡片，若列表为空，应检查卡片提取逻辑。"
+            else -> "建议：展开内置网页观察实际页面，排查搜索、登录或内容加载。"
+        }
+        return lines.joinToString("\n")
+    }
+
+    fun lastDiagnosticSummary(context: Context): String = readableDiagnostic(lastDiagnostic(context))
+
     fun lastDiagnostic(context: Context): String = listOf(
         prefs(context).getString("xiaohongshu:last-tool-attempt", "").orEmpty(),
         prefs(context).getString("xiaohongshu:last-diagnostic", "").orEmpty(),
@@ -211,7 +273,8 @@ internal object XhsReadingEngine {
                 .put("author", row.optString("authorName")
                     .ifBlank { row.optString("author") }
                     .ifBlank { user?.optString("nickname").orEmpty() })
-                .put("source", row.optString("source")), query, "mcp")
+                .put("source", row.optString("source"))
+                .put("coverUrl", row.optString("coverUrl")), query, "mcp")
         }.distinctBy { it.id }
     }
 
@@ -221,7 +284,8 @@ internal object XhsReadingEngine {
         return XhsCard(id, row.optString("token").take(512),
             row.optString("title").take(200).ifBlank { "未命名笔记" }, row.optString("author").take(120),
             row.optString("source").takeIf { it in setOf("pc_feed", "pc_search", "pc_user", "pc_share", "pc_board") }
-                ?: if (query.isBlank()) "pc_feed" else "pc_search", provider)
+                ?: if (query.isBlank()) "pc_feed" else "pc_search", provider,
+            XhsImagePolicy.normalize(row.optString("coverUrl")).orEmpty())
     }
 
     suspend fun read(context: Context, target: XhsCard, onProgress: (String) -> Unit = {},
