@@ -267,7 +267,8 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
                                     )
                                 }
                                 Text(
-                                    conversation.lastMessage.ifBlank { "还没有消息，点开后开始聊天。" },
+                                    decodeQqXhsSharedNote(conversation.lastMessage)?.let { "小红书分享 · ${it.title}" }
+                                        ?: conversation.lastMessage.ifBlank { "还没有消息，点开后开始聊天。" },
                                     color = LuluColors.Muted,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
