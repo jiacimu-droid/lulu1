@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0a04000896ef29200f8b6ea7ce17bb8968f4716d`
+- 基准提交：`5ace9419a719e7b4372433ec0a0178a52abb344a`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：123489
+- 已索引代码/文本行：123508
 - 已发现符号：1844
 
 | 文件 | 行数 | 符号数 |
@@ -602,7 +602,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 80 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 214 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 220 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 148 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 46 | 1 |
@@ -619,7 +619,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 386 | 1 |
+| `scripts/test_xhs_reader.js` | 399 | 1 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |
