@@ -44,7 +44,12 @@ internal object UserDevicePerception {
         appendLine("用户设备最近前台应用：${foregroundAppContext(context, now)}")
         appendLine("用户设备位置：${locationContext(context, refreshLocation)}")
         appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
-        appendLine("用户设备媒体播放：${LuluMediaPlayback.observation(context)}")
+        val musicAllowed = listOfNotNull(
+            CapabilityRegistry.find("list_media_sessions"),
+            CapabilityRegistry.find("control_music"),
+        ).any { CapabilityRegistry.allows(context, characterId, it, userRequested = false) }
+        appendLine("用户设备媒体播放：" + if (musicAllowed)
+            LuluMediaPlayback.observation(context) else "角色尚未得到主动读取或控制音乐授权；当前状态未知")
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
         appendLine("用户学习状态：${studyContext(characterId)}")
         appendLine(UserInteractionPresenceStore.context(characterId, now))
