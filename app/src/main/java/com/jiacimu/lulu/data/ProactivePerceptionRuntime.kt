@@ -1161,7 +1161,18 @@ object ProactivePerceptionRuntime {
                 decision.action != Action.SILENT || decision.innerLife != null
             CompanionPresenceStore.update(
                 characterId = characterId,
-                statusText = if (execution.success && physicalAction) execution.summary else null,
+                // Status is the sustained situation; gesture is the one
+                // confirmed action. Copying the same receipt into both fields
+                // made the avatar show duplicated "动作/状态" on every stroll.
+                statusText = if (execution.success && physicalAction) {
+                    decision.statusText.trim().takeIf {
+                        it.isNotBlank() && it != execution.summary
+                    } ?: when (decision.action) {
+                        Action.READING -> "正在消化刚读到的内容"
+                        Action.SOLO_GAME -> "刚独自玩了一会儿"
+                        else -> "在数字世界度过自己的时间"
+                    }
+                } else null,
                 gesture = if (execution.success && physicalAction) execution.summary else null,
                 // Online awareness by itself is not a new heart voice. A model may still paraphrase
                 // "keep waiting" every minute; without a real stimulus/action/inner-state change we
