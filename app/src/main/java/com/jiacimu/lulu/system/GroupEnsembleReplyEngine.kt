@@ -283,6 +283,10 @@ internal object GroupEnsembleReplyEngine {
                 20. 私聊知识严格按角色隔离。A 与用户私聊里发生的事情可以让 A 在群里记得，但除非后来真实在群里说出、转发或通过其他共同事件让 B 知道，否则 B 不能凭空知道 A 的私聊内容。
             """.trimIndent(),
             source = if (isCall) "群聊电话·全员自然讨论" else "群聊·全员自然讨论",
+            // Members' individual persona, memory and speech habits are already
+            // assembled above. Do not make currentSpeakerId's private gateway
+            // identity the unintentional narrator of EVERY group member.
+            contextMode = com.jiacimu.lulu.ai.CompanionContextMode.Ensemble,
             title = title,
             maxTokens = (700 + replyLimit * 300).coerceIn(1_100, 3_200),
             connectionOverride = connection,
