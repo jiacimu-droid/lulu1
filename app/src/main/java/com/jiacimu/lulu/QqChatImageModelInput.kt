@@ -36,7 +36,7 @@ internal object QqChatImageModelInput {
             .sortedBy(LuluChatMessage::createdAt)
             .mapNotNull { decodeQqChatImage(it.content) }
             .filterNot { it.sticker }
-            .takeLast(maxPhotos.coerceIn(1, 3)).toList()
+            .toList().takeLast(maxPhotos.coerceIn(1, 3))
         if (messages.isEmpty()) return QqPreparedChatPhotos(emptyList(), 0, 0)
 
         val data = mutableListOf<String>()
