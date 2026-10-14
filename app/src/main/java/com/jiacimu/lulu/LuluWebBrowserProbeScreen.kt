@@ -230,7 +230,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                             })
                             DropdownMenuItem(text = { Text("简洁图文阅读") }, onClick = {
                                 toolsMenuExpanded = false
-                                readerKeyword = ""; readerCard = null; readerVisible = true
+                                // Keep the current real note/search context rather
+                                // than discarding it and showing an empty reader.
+                                readerVisible = true
                             })
                             DropdownMenuItem(text = { Text("真实读帖测试") }, onClick = {
                                 toolsMenuExpanded = false
