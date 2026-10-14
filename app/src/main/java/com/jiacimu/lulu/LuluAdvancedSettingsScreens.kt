@@ -279,8 +279,10 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         if (provider == "elevenlabs") item {
             SettingsSectionCard("ElevenLabs 请求记录（本机）") {
-                Text("从本版本起记录每次请求的时间、场景与字数，不记录语音内容或 API Key。这里只能证明 App 曾发起请求，不能代表供应商已经扣费。", color = AdvancedMuted, fontSize = 12.sp)
-                val attempts = remember(auditRefresh) { VoiceUsageAudit.recent(context, 15) }
+                Text("按实际发起的请求分类：TTS 看提交字数，Scribe 看上传音频和连接时长，Agent 看电话连接时长。它们不能直接换算为供应商扣费；不会保存语音文字或 API Key。", color = AdvancedMuted, fontSize = 12.sp)
+                Text(VoiceUsageAudit.summary(context), color = AdvancedInk, fontSize = 12.sp,
+                    lineHeight = 19.sp)
+                val attempts = remember(auditRefresh) { VoiceUsageAudit.recent(context, 25) }
                     .filter { it.contains("ElevenLabs") }
                 if (attempts.isEmpty()) Text("尚未记录到本机发起的 ElevenLabs 语音请求", color = AdvancedMuted, fontSize = 12.sp)
                 attempts.forEach { entry ->
