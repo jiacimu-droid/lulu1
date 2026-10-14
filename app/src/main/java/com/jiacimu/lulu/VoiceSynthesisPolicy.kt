@@ -18,7 +18,7 @@ internal object VoiceSynthesisPolicy {
 
     fun automaticAllowed(context: Context): Boolean {
         val p = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-        return p.getBoolean("tts_enabled", true) && p.getBoolean("tts_auto_speak", true)
+        return p.getBoolean("tts_enabled", true) && p.getBoolean("tts_auto_speak", false)
     }
 
     /** Audible automatic cloud speech only: sending TTS while media volume is zero wastes credits. */
