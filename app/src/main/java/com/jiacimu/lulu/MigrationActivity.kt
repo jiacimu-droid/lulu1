@@ -51,6 +51,30 @@ class MigrationActivity : ComponentActivity() {
         super.onDestroy()
     }
 
+    // Android share-sheet note awaiting a recipient. Never treat a link as verified article content.
+    private val incomingSharedNote = androidx.compose.runtime.mutableStateOf<String?>(null)
+
+    private fun incomingXhsText(intent: android.content.Intent?): String? {
+        if (intent?.action != android.content.Intent.ACTION_SEND ||
+            !intent.type.orEmpty().startsWith("text/")) return null
+        val text = intent.getStringExtra(android.content.Intent.EXTRA_TEXT)?.trim()?.take(3_000).orEmpty()
+        val urls = Regex("""https?://[^\\s<>]+""", RegexOption.IGNORE_CASE).findAll(text)
+        val isXhs = urls.any { match ->
+            val host = runCatching {
+                android.net.Uri.parse(match.value.trimEnd('。', '，', ',', ')')).host?.lowercase()
+            }.getOrNull()
+            host == "xhslink.com" || host?.endsWith(".xhslink.com") == true ||
+                host == "xiaohongshu.com" || host?.endsWith(".xiaohongshu.com") == true
+        }
+        return text.takeIf { isXhs }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        incomingXhsText(intent)?.let { incomingSharedNote.value = it }
+    }
+
     private var xhsBrowserSessionInitialized = false
     internal fun browserSession(): XhsAppBrowserSession {
         xhsBrowserSessionInitialized = true
@@ -166,6 +190,7 @@ class MigrationActivity : ComponentActivity() {
         ProactivePerceptionRuntime.initialize(appContext)
         ProactivePerceptionScheduler.schedule(appContext)
 
+        incomingSharedNote.value = incomingXhsText(intent)
         val initialConversationId = intent?.getStringExtra("open_conversation_id")
         val initialRouteName = intent?.getStringExtra("open_route")
         val initialCharacterId = intent?.getStringExtra("open_character_id")
@@ -187,6 +212,8 @@ class MigrationActivity : ComponentActivity() {
                 initialMeetingInvitationText = initialMeetingInvitationText,
                 initialMeetingLocation = initialMeetingLocation,
                 initialMeetingInvitationId = initialMeetingInvitationId,
+                incomingSharedNote = incomingSharedNote.value,
+                onSharedNoteHandled = { incomingSharedNote.value = null },
             )
             ProactiveIncomingCallOverlay()
         }
