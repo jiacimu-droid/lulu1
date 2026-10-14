@@ -542,16 +542,17 @@ internal fun LuluXhsNativeReaderScreen(
                             lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified)
                     }
                     items(article?.images.orEmpty(), key = { it.url }) { photo -> XhsNoteImage(photo) }
-                    if (article?.comments?.isNotEmpty() == true) {
+                    val loadedComments = article?.comments.orEmpty()
+                    if (loadedComments.isNotEmpty()) {
                         item {
                             HorizontalDivider()
-                            Text("已加载的评论 · ${article.comments.size} 条",
+                            Text("已加载的评论 · ${loadedComments.size} 条",
                                 style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                             Text("只展示这次打开笔记时网页实际加载的部分评论，不代表完整评论区。",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        items(article.comments) { comment ->
+                        items(loadedComments) { comment ->
                             Surface(shape = RoundedCornerShape(15.dp),
                                 color = MaterialTheme.colorScheme.surfaceContainerLow) {
                                 Text(comment, modifier = Modifier.fillMaxWidth().padding(13.dp),
