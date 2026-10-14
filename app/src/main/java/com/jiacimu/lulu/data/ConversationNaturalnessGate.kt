@@ -150,6 +150,17 @@ internal object ConversationNaturalnessGate {
             score += 2
             reasons += "简单追问被写成多段事后说明，缺乏真实对话的轻重取舍"
         }
+        // A three-beat apology / excuse / reassurance is a mini incident report,
+        // even when it is short enough to evade the length threshold.
+        // Count patterns across the whole turn, not just identical phrases.
+        val selfJustifications = Regex(
+            """(?:是我刚才|我刚才(?:没|不该|太)|对不起|抱歉|不好意思|你别着急|不是你.{0,15}(?:错|问题|线路)|害你(?:白等|担心)|让你(?:白等|担心)|没确认清楚)"""
+        )
+        if (!detailRequested && userLength in 1..70 &&
+            selfJustifications.findAll(reply).count() >= 3) {
+            score += 2
+            reasons += "一轮对话反复解释失误、安慰和自我检讨，压过了真正想表达的内容"
+        }
         val normalizedBubbles = bubbles.map(::surfaceNormalize).filter { it.length >= 8 }
         val repeatedPair = normalizedBubbles.indices.any { i ->
             (i + 1 until normalizedBubbles.size).any { j ->
