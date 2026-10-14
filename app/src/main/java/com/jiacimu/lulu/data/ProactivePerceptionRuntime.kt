@@ -496,9 +496,15 @@ object ProactivePerceptionRuntime {
                 .map { Triple(it.id, it.name, it.identity) } else emptyList(),
         )
 
+        // User photos were already posted to chat. Let the role's normal
+        // perception model see their pixels in this SAME decision call.
+        val unreadPhotos = com.jiacimu.lulu.QqChatImageModelInput.prepare(
+            appContext, characterId, onlineUnread.newestIds,
+        )
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
+                if (unreadPhotos.promptNote.isNotBlank()) appendLine(unreadPhotos.promptNote)
                 // Persona is already supplied once by the gateway.
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
@@ -666,6 +672,7 @@ object ProactivePerceptionRuntime {
                     .filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
+            imageDataUrls = unreadPhotos.urls,
         ).getOrElse { error ->
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
