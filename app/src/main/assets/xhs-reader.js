@@ -39,8 +39,8 @@
         cover?.urlPre ?? cover?.url ?? card.coverUrl ?? card.cover_url, 1024);
       const next = {id, token, source,
         title: clean(card.displayTitle ?? card.display_title ?? card.title, 200) || '未命名笔记',
-        author: clean(card.authorName ?? card.user?.nickname ?? card.user?.nickName, 120),
-        coverUrl};
+        author: clean(card.authorName ?? card.user?.nickname ?? card.user?.nickName, 120)};
+      if (coverUrl) next.coverUrl = coverUrl;
       if (!cards.has(id) || (!cards.get(id).token && token)) cards.set(id, next);
     }
     return [...cards.values()].slice(0, 35);
