@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:37:48.497071+00:00",
-  "commit": "04c0a42acc96ec910107bc39c2ac6672f4495b27",
+  "generatedAt": "2026-10-14T10:48:48.884219+00:00",
+  "commit": "1d3abb7e9c8946aa938cd709f7a3033e36fcbe8d",
   "branch": "main",
-  "sourceFingerprint": "b7a47678e8ec2024f3d69b50fe46b09da8da06fb916ff087d160cc7c8f30b481",
+  "sourceFingerprint": "8daa0cce07e519c5faa6c8eb34d576c13d0632876cd79f1af07cb518ac2a9ae3",
   "summary": {
     "files": 632,
     "lines": 126312,
@@ -11463,7 +11463,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
       "lines": 583,
-      "sha256": "0b28fb24b336176a7a88d6ff833e9d51928ed4a29db0964a18567847c3d96d53",
+      "sha256": "e167264417711979e36f032da82c702a5bcafc92cb052542a278d5db52bbd626",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -12832,7 +12832,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
       "lines": 53,
-      "sha256": "a7bc2a055c522238e82c5fcb5f682844c1ab023472fabf41de749db0b4dba2b0",
+      "sha256": "2b78e0ff23e1880ec08bf27b0175e9c3bfb633ada11f404c422a68f1c195189a",
       "symbols": [
         {
           "name": "enabled",
