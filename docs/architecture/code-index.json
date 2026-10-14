@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:02:10.925822+00:00",
-  "commit": "c915ce3b72b582c73633f7d4f6e62e804ba312b3",
+  "generatedAt": "2026-10-14T10:02:26.434028+00:00",
+  "commit": "03aa57bee0067f01ae8f8576cb643051c1520bc9",
   "branch": "main",
-  "sourceFingerprint": "db796c29d7d7db018b8bbd373d08cfc16b7b1a65b1bc833e21c00916311d255d",
+  "sourceFingerprint": "cda7dcc30b2bec92a5e00b6423dfcb62183aca8bf3c45fabc4fb582333ba89fe",
   "summary": {
-    "files": 630,
-    "lines": 126089,
-    "symbols": 1869
+    "files": 631,
+    "lines": 126122,
+    "symbols": 1870
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10366,6 +10366,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt",
         "line": 29
+      }
+    ],
+    "XhsExplicitReadIntentTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt",
+        "line": 5
       }
     ],
     "XhsImagePolicyTest": [
@@ -21980,6 +21986,17 @@
         {
           "name": "XhsBrowserSessionTest",
           "line": 29
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt",
+      "lines": 33,
+      "sha256": "488f8c616e32ab8ba01f468d9f4a5b9a7dd6d76f323221e71b5f822ca8294d78",
+      "symbols": [
+        {
+          "name": "XhsExplicitReadIntentTest",
+          "line": 5
         }
       ]
     },
