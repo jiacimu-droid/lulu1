@@ -174,7 +174,12 @@ object ProactivePerceptionRuntime {
                 // General background decisions must not start a second call or send competing chat.
                 if (CompanionPresenceStore.isInCall(characterId)) continue
                 val policy = ProactivePerceptionPolicyStore.get(characterId)
-                if (!policy.enabled && (!force || preserveOffline)) continue
+                // A passive scheduler may never bypass a disabled role's autonomy switch.
+                // An explicit user wake or a live user message still deserves a response.
+                val explicitUserWake = trigger.contains("用户手动唤醒") ||
+                    (onlineRevision != null && (requiresUnread ||
+                        trigger.contains("私聊新消息") || trigger.contains("群聊出现新消息")))
+                if (!policy.enabled && !explicitUserWake) continue
                 // One PRIMARY online chat-batch owner should handle unread
                 // content. Opportunistic world/life/timer ticks are NOT
                 // alternative reply workers. Without this guard they could
@@ -192,6 +197,28 @@ object ProactivePerceptionRuntime {
                     val due = dueAtFor(appContext, conversation, policy, prefs, now)
                     if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
                     if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
+                }
+                // A single expensive model owns subjective continuity. Repeated low-priority
+                // life, thought and activity follow-through calls share its next eligible slot.
+                // Fresh direct messages / call-ended / world-arrival evidence are not throttled.
+                val lowUrgencyLifeReview = trigger.startsWith("在线持续感知") ||
+                    trigger.startsWith("合并后的自主生活回顾") ||
+                    trigger.startsWith("真实生活后续回想") ||
+                    trigger.startsWith("角色自己先前有过") ||
+                    trigger.startsWith("角色自己刚完成") ||
+                    trigger.startsWith("强烈情绪的后续整理")
+                if (lowUrgencyLifeReview && onlineExpiryAtMillis == 0L) {
+                    val previousAt = prefs.getLong("last_evaluation_$characterId", 0L)
+                    val eligibleAt = previousAt + policy.onlinePulseSeconds * 1_000L
+                    val nowMs = now.toEpochMilli()
+                    if (previousAt > 0L && nowMs < eligibleAt) {
+                        ProactivePerceptionScheduler.scheduleCoalescedLifeReview(
+                            appContext, characterId, eligibleAt - nowMs + 250L,
+                            onlineOnly = trigger.startsWith("在线持续感知"),
+                            eligibleAtMillis = eligibleAt,
+                        )
+                        continue
+                    }
                 }
                 val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
                 val effectiveTrigger = when {
