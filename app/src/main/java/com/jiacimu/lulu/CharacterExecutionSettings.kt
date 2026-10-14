@@ -16,7 +16,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("主动执行授权", style = MaterialTheme.typography.titleMedium)
         listOf("device_read" to "主动读取设备状态", "alarm" to "主动设置本地闹钟", "media" to "主动控制手机音乐", "xhs_read" to "主动逛小红书（只读）", "health_read" to "读取手环健康 MCP（只读）", "screen" to "主动操作屏幕", "cloud" to "主动提交云端任务").forEach { (key, label) ->
-            var allowed by remember(characterId, key) { mutableStateOf(prefs.getBoolean("$characterId:$key", false)) }
+            var allowed by remember(characterId, key) { mutableStateOf(prefs.getBoolean("$characterId:$key", key == "xhs_read")) }
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text(label, modifier = Modifier.weight(1f))
                 Switch(allowed, { allowed = it; prefs.edit().putBoolean("$characterId:$key", it).commit() })
