@@ -985,7 +985,69 @@ object LuluDeviceToolBridge {
             onStreamText = if (disputeNeedsReview) null else onReplyStream,
             connectionOverride = connection,
         )
-        return finalReply.map { result ->
+        // Ordinary tool follow-ups previously bypassed the text-chat naturalness
+        // gate completely, so one failed search could produce three apologies and
+        // a verbose incident report. Only re-render non-streamed text replies;
+        // phone streams must not be silently replaced after audio was emitted.
+        val toolReplyForDelivery = if (!sceneContext.contains("电话") &&
+            onReplyStream == null && !disputeNeedsReview) {
+            val draft = finalReply.getOrNull()
+            val envelope = draft?.text?.let {
+                com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(it)
+            }
+            val draftSpeech = envelope?.optString("text").orEmpty().trim()
+            val quality = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
+                userText, listOf(draftSpeech), history,
+            )
+            if (draft != null && envelope != null && draftSpeech.isNotBlank() &&
+                quality.needsRerender) {
+                val adjusted = LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = buildString {
+                        appendLine("这是刚执行完工具后同一角色的即时聊天，不是新的一轮决策。")
+                        appendLine("用户问：${userText.take(900)}")
+                        appendLine("角色刚执行的工具：${plan.tool}")
+                        appendLine("真实工具结果（最高优先级，不得变更成功失败）：${toolResult.take(1800)}")
+                        appendLine("刚刚写出的回复草稿：${draftSpeech.take(1800)}")
+                        appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
+                    },
+                    instruction = """
+                        只把角色刚才工具结果后的回复改写成自己真实会发出的自然聊天。
+                        ${quality.repairInstruction()}
+                        留下真正的执行结果、重要事实和角色自己的情绪/态度；删掉解释三连、
+                        冗余安慰、责任总结、未经证实的技术原因。对方没索要说明书，就说够即停。
+                        保留事实的成功或失败、链接、数值、否定、约定和关系分寸，不改变工具事实；
+                        不增加新行动或承诺，也不能把别的笔记说成已搜索到的目标。
+                        只返回完整 JSON：{"action":"reply","text":"改写后真实发出的聊天正文"}。
+                        情绪自然、用词依照这个角色的已有习惯，不要生成统一的客服温柔腔。
+                    """.trimIndent(),
+                    source = "工具结果·聊天自然表达修复",
+                    title = title,
+                    maxTokens = 700,
+                    connectionOverride = connection,
+                ).getOrNull()
+                val revisedSpeech = adjusted?.text?.let {
+                    com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(it)
+                        ?.optString("text")
+                }.orEmpty().trim()
+                val revisedQuality = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
+                    userText, listOf(revisedSpeech), history,
+                )
+                if (revisedSpeech.isNotBlank() && revisedQuality.score < quality.score &&
+                    com.jiacimu.lulu.data.ConversationNaturalnessGate.preservesSurfaceIntent(
+                        listOf(draftSpeech), listOf(revisedSpeech),
+                    )) {
+                    val revisedEnvelope = JSONObject(envelope.toString()).put("text", revisedSpeech)
+                    Result.success(draft.copy(
+                        text = revisedEnvelope.toString(),
+                        inputTokens = draft.inputTokens + (adjusted?.inputTokens ?: 0),
+                        outputTokens = draft.outputTokens + (adjusted?.outputTokens ?: 0),
+                        cachedTokens = draft.cachedTokens + (adjusted?.cachedTokens ?: 0),
+                    ))
+                } else finalReply
+            } else finalReply
+        } else finalReply
+        return toolReplyForDelivery.map { result ->
             val toolResultPrivateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
             var toolResultPrivateDelta: com.jiacimu.lulu.data.PrivateStateDelta? = null
             val finalPlan = parsePlan(result.text)?.let { parsed ->
@@ -1033,8 +1095,13 @@ object LuluDeviceToolBridge {
                 if (finalPlan.endCall && checkedResultText.isNotBlank() && sceneContext.contains("电话"))
                     onCharacterHangup?.invoke()
             }
+            val displayedText = if (!sceneContext.contains("电话")) {
+                com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
+                    listOf(checkedResultText), maxBubbles = 8,
+                ).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
+            } else checkedResultText
             result.copy(
-                text = checkedResultText,
+                text = displayedText,
                 inputTokens = result.inputTokens + plannedReply.inputTokens,
                 outputTokens = result.outputTokens + plannedReply.outputTokens,
                 cachedTokens = result.cachedTokens + plannedReply.cachedTokens,
