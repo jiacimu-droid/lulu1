@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:11:29.684838+00:00",
-  "commit": "5f567018d6c25321d37cb47a6189da166ba4997c",
+  "generatedAt": "2026-10-14T09:11:49.567187+00:00",
+  "commit": "a3e808bf48b6371b3664ad76de704e4e27d91682",
   "branch": "main",
-  "sourceFingerprint": "836b74bcf0c706ee2eef93cb828b79c735e19d8e0101cf59410c36f8cbbeeace",
+  "sourceFingerprint": "99552cd3caf29e4f6248ff21c5dfc711ecfd0c55a0e17c0a4607038fde23e038",
   "summary": {
-    "files": 627,
-    "lines": 125771,
-    "symbols": 1867
+    "files": 628,
+    "lines": 125825,
+    "symbols": 1868
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10367,6 +10367,12 @@
     "XhsImagePolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt",
+        "line": 5
+      }
+    ],
+    "XhsSharedLinkResolverTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt",
         "line": 5
       }
     ],
@@ -21963,6 +21969,17 @@
       "symbols": [
         {
           "name": "XhsImagePolicyTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt",
+      "lines": 54,
+      "sha256": "92963eb8dbdb9faa916deedf0ca1623ae495410f6fc6660be1a61f798a662455",
+      "symbols": [
+        {
+          "name": "XhsSharedLinkResolverTest",
           "line": 5
         }
       ]

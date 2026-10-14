@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5f567018d6c25321d37cb47a6189da166ba4997c`
+- 基准提交：`a3e808bf48b6371b3664ad76de704e4e27d91682`
 - 分支：`main`
-- 已索引文件：627
-- 已索引代码/文本行：125771
-- 已发现符号：1867
+- 已索引文件：628
+- 已索引代码/文本行：125825
+- 已发现符号：1868
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -614,6 +614,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 267 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 18 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 148 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingStarterLibraryTest.kt` | 19 | 1 |
