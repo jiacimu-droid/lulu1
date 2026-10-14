@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`18379599b944b00c1a5d68a081107cba4fc4c62d`
+- 基准提交：`a08e80e2fa6fc3bf78fcb31dbb4b0dfa16d85329`
 - 分支：`main`
-- 已索引文件：622
-- 已索引代码/文本行：125065
+- 已索引文件：623
+- 已索引代码/文本行：125116
 - 已发现符号：1865
 
 | 文件 | 行数 | 符号数 |
@@ -161,6 +161,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 43 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 189 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 51 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1086 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
