@@ -530,7 +530,6 @@ object ProactivePerceptionRuntime {
                 appendLine(affordances)
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
                 WorldLifeEpisodeStore.initialize(appContext)
-                WorldLifeEpisodeStore.recentContext(characterId, now).takeIf(String::isNotBlank)?.let(::appendLine)
                 // Music is a REAL device action, not an imagined soundtrack
                 // in the character's digital home. The role must have opted-in
                 // media permission and can only act on existing MediaSessions.
