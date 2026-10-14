@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:46:47.139329+00:00",
-  "commit": "a87fe0cc6d3b4a7a9b947e8c61451d4424124bad",
+  "generatedAt": "2026-10-14T06:47:12.133703+00:00",
+  "commit": "73369771ea9cf3aec6d2ae8aabdbf4ecd146a15a",
   "branch": "main",
-  "sourceFingerprint": "f89bd03a0405dc51c4b5c220de6354f52e15d3ea67d65eab08e5ab3facddb6dc",
+  "sourceFingerprint": "81d46222c19e4974e29728cb47ef007f40684fbab81881696867f857c3d585e1",
   "summary": {
     "files": 618,
-    "lines": 124361,
-    "symbols": 1858
+    "lines": 124377,
+    "symbols": 1860
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5279,25 +5279,37 @@
     "requestHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
-        "line": 10
+        "line": 11
       }
     ],
     "consumeHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
-        "line": 20
+        "line": 21
       }
     ],
     "requestMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
-        "line": 27
+        "line": 28
       }
     ],
     "consumeMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
-        "line": 37
+        "line": 38
+      }
+    ],
+    "requestEpisode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
+        "line": 47
+      }
+    ],
+    "consumeEpisode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
+        "line": 53
       }
     ],
     "explorationPlaces": [
@@ -15406,8 +15418,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
-      "lines": 45,
-      "sha256": "5a73508f9c1772389f344d19d45c3216536fb8d66420fc5479e958c2fccd47d1",
+      "lines": 61,
+      "sha256": "4d9cfd7456650863814dc4818b0ffc9ead26e6c776b6b8ebce831eed7c3e549a",
       "symbols": [
         {
           "name": "DigitalWorldNavigationStore",
@@ -15415,19 +15427,27 @@
         },
         {
           "name": "requestHome",
-          "line": 10
+          "line": 11
         },
         {
           "name": "consumeHome",
-          "line": 20
+          "line": 21
         },
         {
           "name": "requestMeeting",
-          "line": 27
+          "line": 28
         },
         {
           "name": "consumeMeeting",
-          "line": 37
+          "line": 38
+        },
+        {
+          "name": "requestEpisode",
+          "line": 47
+        },
+        {
+          "name": "consumeEpisode",
+          "line": 53
         }
       ]
     },
