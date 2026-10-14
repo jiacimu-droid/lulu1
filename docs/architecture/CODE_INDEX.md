@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`132361c46c66e313c03039796fc3dbffca4141e5`
+- 基准提交：`c722e987b56199b4b3b39b97b935ff62a4351d08`
 - 分支：`main`
 - 已索引文件：633
-- 已索引代码/文本行：126834
+- 已索引代码/文本行：126874
 - 已发现符号：1876
 
 | 文件 | 行数 | 符号数 |
@@ -603,7 +603,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 67 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 119 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 71 | 1 |

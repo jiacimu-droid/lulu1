@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T12:12:39.128806+00:00",
-  "commit": "132361c46c66e313c03039796fc3dbffca4141e5",
+  "generatedAt": "2026-10-14T12:13:33.063986+00:00",
+  "commit": "c722e987b56199b4b3b39b97b935ff62a4351d08",
   "branch": "main",
-  "sourceFingerprint": "800538f117b6a12674ec48e6bcb8652f513e3d18453942e1753fcb15911045e3",
+  "sourceFingerprint": "1a9eb53c12f4dafb44e50b991608b983b9fc95b6e70c97fbc9e02aee158923a8",
   "summary": {
     "files": 633,
-    "lines": 126834,
+    "lines": 126874,
     "symbols": 1876
   },
   "symbolIndex": {
@@ -21896,8 +21896,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 67,
-      "sha256": "45565ba0f594a17f7f57b583f077364395cbc8fe13293a628879b0756dca1cb6",
+      "lines": 107,
+      "sha256": "1a5b4a2c5fa6dc8194720490977f30cbd9334352d45edf0a760687e48973788d",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
