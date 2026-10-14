@@ -227,7 +227,7 @@ fun LuluMigrationRootAppV2(
     // ordinary persistent user-message timeline before navigating to chat.
     if (!incomingSharedNote.isNullOrBlank()) {
         XhsShareToRoleDialog(
-            preview = incomingSharedNote,
+            preview = externalXhsSharedNote(incomingSharedNote)?.title ?: incomingSharedNote,
             onDismiss = onSharedNoteHandled,
             onSelect = { target ->
                 MigratedDomainStores.chat.sendUserMessage(
