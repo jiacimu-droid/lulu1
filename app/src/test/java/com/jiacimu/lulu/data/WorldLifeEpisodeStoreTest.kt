@@ -15,6 +15,29 @@ class WorldLifeEpisodeStoreTest {
     private val context get() = RuntimeEnvironment.getApplication() as Context
     private val role = "unit-test-solo-life"
 
+    @Test fun followupActionsAtSamePlaceShareOneEpisode() {
+        WorldLifeEpisodeStore.initialize(context)
+        WorldLifeEpisodeStore.clear(role)
+        val start = Instant.parse("2026-10-14T09:00:00Z")
+        val prose = "他在自己实际到达的地点度过一段时间，想着没说出口的话。".repeat(5)
+        try {
+            assertNull(WorldLifeEpisodeStore.recentAt(role, "shared:cloud_meadow", start))
+            val first = WorldLifeEpisodeStore.record(
+                role, "shared:cloud_meadow", "一个午后", prose,
+                "真实探索完成", "world-evidence-42", start,
+            )
+            assertNotNull(first)
+            assertEquals(first?.id, WorldLifeEpisodeStore.recentAt(
+                role, "shared:cloud_meadow", start.plusSeconds(6 * 60))?.id)
+            assertNull(WorldLifeEpisodeStore.recentAt(
+                role, "shared:arrival", start.plusSeconds(6 * 60)))
+            assertNull(WorldLifeEpisodeStore.recentAt(
+                role, "shared:cloud_meadow", start.plusSeconds(37 * 60)))
+        } finally {
+            WorldLifeEpisodeStore.clear(role)
+        }
+    }
+
     @Test fun verifiedWorldActionCanBecomeOneDurableClickThroughButTextAloneCannot() {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)
