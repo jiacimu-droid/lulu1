@@ -346,7 +346,7 @@ private fun QqForwardedChatCard(bundle: QqForwardedChatBundle, modifier: Modifie
     }
 }
 
-private enum class SystemActivityType { Diary, Reading, DigitalHome, MeetingRecord, Favorite }
+private enum class SystemActivityType { Diary, Reading, DigitalHome, MeetingRecord, LifeEpisode, Favorite }
 private data class SystemActivityLink(val type: SystemActivityType, val targetTitle: String)
 private data class SystemActivityNotice(
     val visibleText: String,
@@ -381,6 +381,20 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
             return SystemActivityNotice("在书架旁挑选读物")
         }
     }
+
+    Regex("^\\[独处片段\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL)
+        .find(rawVisible)
+        ?.let { match ->
+            val episodeId = match.groupValues[1].trim()
+            val visible = match.groupValues[2].trim().ifBlank { "独处了一会儿 · 查看片段" }
+            val start = visible.indexOf("查看片段")
+            return SystemActivityNotice(
+                visibleText = visible,
+                link = SystemActivityLink(SystemActivityType.LifeEpisode, episodeId),
+                linkStart = start,
+                linkEnd = if (start >= 0) start + 4 else -1,
+            )
+        }
 
     Regex("^\\[角色见面\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL)
         .find(rawVisible)
@@ -516,6 +530,10 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
             }
             SystemActivityType.MeetingRecord -> {
                 com.jiacimu.lulu.data.DigitalWorldNavigationStore.requestMeeting(context, link.targetTitle)
+                putExtra("open_route", MigrationRoute.Meeting.name)
+            }
+            SystemActivityType.LifeEpisode -> {
+                com.jiacimu.lulu.data.DigitalWorldNavigationStore.requestEpisode(context, link.targetTitle)
                 putExtra("open_route", MigrationRoute.Meeting.name)
             }
             SystemActivityType.Favorite -> {
