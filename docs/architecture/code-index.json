@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:24:20.143108+00:00",
-  "commit": "12c206e64f827a1e65c57fa26738fcf9342237e5",
+  "generatedAt": "2026-10-14T06:24:48.026541+00:00",
+  "commit": "ecd75be168c17ff219daa5e396045d59e3637466",
   "branch": "main",
-  "sourceFingerprint": "427c9d81f0b47f5d4fe1501c3d25293c70db43a7f4fcda84abc8738a766ba4e2",
+  "sourceFingerprint": "23ed557e99b6ba35c02bdca68aace35fbc96679ef4b605a5d64d8f8377f07881",
   "summary": {
-    "files": 616,
-    "lines": 124130,
-    "symbols": 1854
+    "files": 617,
+    "lines": 124157,
+    "symbols": 1855
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10378,6 +10378,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt",
         "line": 6
+      }
+    ],
+    "LuluMediaPlaybackEvidenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt",
+        "line": 13
       }
     ],
     "TimelineMigrationTest": [
@@ -21915,6 +21921,17 @@
         {
           "name": "TheaterWorldBookContextTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt",
+      "lines": 27,
+      "sha256": "23d059b2815f67c4b36efec7b22ed9ad6aec23d95f8c67a6dadce64a46196536",
+      "symbols": [
+        {
+          "name": "LuluMediaPlaybackEvidenceTest",
+          "line": 13
         }
       ]
     },
