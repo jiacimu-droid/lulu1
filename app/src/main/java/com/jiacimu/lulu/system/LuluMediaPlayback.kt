@@ -7,6 +7,7 @@ import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
+import android.view.KeyEvent
 import androidx.core.app.NotificationManagerCompat
 import org.json.JSONArray
 import org.json.JSONObject
@@ -65,54 +66,111 @@ internal object LuluMediaPlayback {
             }).toString()
     }.getOrElse { JSONObject().put("success", false).put("error", it.message).toString() }
 
-    fun control(context: Context, command: String, packageName: String = ""): String = runCatching {
-        val action = command.trim().lowercase()
-        val actionFlag = when (action) {
-            "play" -> PlaybackState.ACTION_PLAY
-            "pause" -> PlaybackState.ACTION_PAUSE
-            "next" -> PlaybackState.ACTION_SKIP_TO_NEXT
-            "previous" -> PlaybackState.ACTION_SKIP_TO_PREVIOUS
-            else -> error("不支持的音乐指令；仅支持 play、pause、next、previous")
+    /**
+     * A surprising number of Android players advertise PLAY_PAUSE (the media
+     * button) but not separate PLAY/PAUSE flags. Treat the flags as capability
+     * hints, not proof that the player cannot act. A skip-to-next succeeding
+     * does not imply that a pause request has been verified.
+     */
+    internal fun requestedAction(raw: String, playing: Boolean): String {
+        val command = raw.trim().lowercase()
+        return when (command) {
+            "play", "resume", "start", "继续", "播放", "开始", "继续播放" -> "play"
+            "pause", "stop", "暂停", "停止", "暂停播放" -> "pause"
+            "toggle", "play_pause", "playpause", "播放暂停", "播放/暂停" ->
+                if (playing) "pause" else "play"
+            "next", "下一首", "切歌", "下一曲" -> "next"
+            "previous", "prev", "上一首", "上一曲" -> "previous"
+            else -> error("不支持的音乐指令；可用播放、暂停、切换播放状态、下一首、上一首")
         }
+    }
+
+    private fun explicitFlag(action: String): Long = when (action) {
+        "play" -> PlaybackState.ACTION_PLAY
+        "pause" -> PlaybackState.ACTION_PAUSE
+        "next" -> PlaybackState.ACTION_SKIP_TO_NEXT
+        "previous" -> PlaybackState.ACTION_SKIP_TO_PREVIOUS
+        else -> 0L
+    }
+
+    internal fun supports(action: String, state: PlaybackState?): Boolean {
+        if (state == null) return false
+        val flag = explicitFlag(action)
+        return (state.actions and flag) != 0L ||
+            (action in setOf("play", "pause") &&
+                (state.actions and PlaybackState.ACTION_PLAY_PAUSE) != 0L)
+    }
+
+    @Volatile private var lastPlayerPackage = ""
+
+    fun control(context: Context, command: String, packageName: String = ""): String = runCatching {
         val controllers = active(context)
+        if (controllers.isEmpty()) error("未发现可控制的媒体会话；不代表手机没有声音。请检查通知使用权及播放器的系统媒体会话")
+        val requested = command.trim().lowercase()
+        val toggle = requested in setOf("toggle", "play_pause", "playpause", "播放暂停", "播放/暂停")
         val selected = if (packageName.isNotBlank()) {
             controllers.firstOrNull { it.packageName == packageName }
+                ?: error("指定播放器未运行或未暴露媒体会话：$packageName")
         } else {
-            // Prefer the audible player, then a paused player actually exposing
-            // this transport action. Do not pick an unrelated inactive session.
-            controllers.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING &&
-                ((it.playbackState?.actions ?: 0L) and actionFlag) != 0L }
-                ?: controllers.firstOrNull { ((it.playbackState?.actions ?: 0L) and actionFlag) != 0L }
-        } ?: error(
-            if (controllers.isEmpty()) "未检测到可控制的媒体会话；这不代表主人没有播放音乐。请检查通知使用权和音乐App的媒体控制支持"
-            else "已发现${controllers.size}个媒体会话，但没有找到支持此操作的播放器"
-        )
+            // A paused music session should stay the target instead of some
+            // unrelated newly-playing video. Never choose the first arbitrary
+            // session merely because a transport bit is missing.
+            controllers.firstOrNull { it.packageName == lastPlayerPackage }?.takeIf {
+                val a = requestedAction(requested, it.playbackState?.state == PlaybackState.STATE_PLAYING)
+                supports(a, it.playbackState)
+            } ?: controllers.firstOrNull {
+                it.playbackState?.state == PlaybackState.STATE_PLAYING &&
+                    supports(requestedAction(requested, true), it.playbackState)
+            } ?: controllers.firstOrNull {
+                supports(requestedAction(requested, it.playbackState?.state == PlaybackState.STATE_PLAYING), it.playbackState)
+            } ?: error("发现媒体会话，但没有播放器提供对应的系统控制能力。请打开音乐App播放一次再试")
+        }
         val before = selected.playbackState
-        check(before != null && (before.actions and actionFlag) != 0L) {
-            "当前音乐播放器未开放这项播放控制"
+        val action = requestedAction(requested, before?.state == PlaybackState.STATE_PLAYING)
+        check(supports(action, before)) {
+            "当前播放器未开放「$action」控制（可检查是否仅有其他媒体App的会话）"
         }
-        val previousTitle = title(selected)
-        when (action) {
-            "play" -> selected.transportControls.play()
-            "pause" -> selected.transportControls.pause()
-            "next" -> selected.transportControls.skipToNext()
-            "previous" -> selected.transportControls.skipToPrevious()
+        lastPlayerPackage = selected.packageName
+        val oldTitle = title(selected)
+        val explicit = (before!!.actions and explicitFlag(action)) != 0L
+        val sentBy = if (explicit) {
+            when (action) {
+                "play" -> selected.transportControls.play()
+                "pause" -> selected.transportControls.pause()
+                "next" -> selected.transportControls.skipToNext()
+                "previous" -> selected.transportControls.skipToPrevious()
+            }
+            "transport_controls"
+        } else {
+            // Common PLAY_PAUSE-only sessions (e.g. some embedded players).
+            val key = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+            val down = selected.dispatchMediaButtonEvent(KeyEvent(KeyEvent.ACTION_DOWN, key))
+            val up = selected.dispatchMediaButtonEvent(KeyEvent(KeyEvent.ACTION_UP, key))
+            check(down || up) { "播放器没有接收系统播放/暂停按键" }
+            "media_button"
         }
+        // MediaSession callbacks may be asynchronous; an immediate stale
+        // playbackState is NOT evidence that the operation failed.
         val after = selected.playbackState
-        val newTitle = title(selected)
         val verified = when (action) {
-            "play" -> after?.state == PlaybackState.STATE_PLAYING
-            "pause" -> after?.state == PlaybackState.STATE_PAUSED
-            else -> newTitle.isNotBlank() && previousTitle != newTitle
+            "play" -> after?.state == PlaybackState.STATE_PLAYING &&
+                before.state != PlaybackState.STATE_PLAYING
+            "pause" -> after?.state == PlaybackState.STATE_PAUSED &&
+                before.state != PlaybackState.STATE_PAUSED
+            else -> title(selected).isNotBlank() && title(selected) != oldTitle
         }
         JSONObject().put("success", verified)
-            .put("status", if (verified) "verified" else "requested_unverified")
             .put("accepted", true)
-            .put("packageName", selected.packageName)
+            .put("status", if (verified) "verified" else "requested_unverified")
             .put("command", action)
-            .put("title", newTitle)
-            .put("verification", if (verified) "已观察到播放状态或曲目变化"
-                else "已向播放器发出控制请求，播放器可能异步处理或拒绝；暂不能宣称已经完成")
+            .put("sentBy", sentBy)
+            .put("packageName", selected.packageName)
+            .put("title", title(selected))
+            .put("beforeState", before.state)
+            .put("afterState", after?.state ?: PlaybackState.STATE_NONE)
+            .put("verification", if (verified) "系统已经观察到播放状态或曲目发生变化"
+                else "播放控制已发出，但系统尚未报告状态变化；不能断言执行失败或成功")
             .toString()
-    }.getOrElse { JSONObject().put("success", false).put("error", it.message).toString() }
+    }.getOrElse { JSONObject().put("success", false).put("accepted", false)
+        .put("error", it.message).toString() }
 }
