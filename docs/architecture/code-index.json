@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:53:24.979588+00:00",
-  "commit": "e0b7af4175b1f2d72a725f57ba37015ea2cc7ab6",
+  "generatedAt": "2026-10-14T10:55:23.365849+00:00",
+  "commit": "8842b25a4eb46d1802d6a0e635dea92b2469fdeb",
   "branch": "main",
-  "sourceFingerprint": "9d0da94cffa6911cbbeb782e2f034343635c29b2dcb5888cef08563eed775a65",
+  "sourceFingerprint": "464b033c4d60a9d1597310625c96e974e547b42bb46805d917151cf0e81b3877",
   "summary": {
     "files": 632,
-    "lines": 126386,
-    "symbols": 1873
+    "lines": 126403,
+    "symbols": 1874
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2576,10 +2576,20 @@
         "line": 49
       }
     ],
+    "summary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
+        "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
+        "line": 34
+      }
+    ],
     "recent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
-        "line": 29
+        "line": 46
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt",
@@ -3574,12 +3584,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
         "line": 14
-      }
-    ],
-    "summary": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
-        "line": 34
       }
     ],
     "CharacterDevelopmentRuntime": [
@@ -12878,12 +12882,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
-      "lines": 55,
-      "sha256": "9f895132054f1ae35879b714b577d9c52b18384804b391e989693a7f891a632f",
+      "lines": 72,
+      "sha256": "29699a8801acfb90c6a1e3e12440ff91e5188ed69c128595518925b8d2c9680e",
       "symbols": [
         {
+          "name": "summary",
+          "line": 31
+        },
+        {
           "name": "recent",
-          "line": 29
+          "line": 46
         }
       ]
     },
