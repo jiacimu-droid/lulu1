@@ -56,7 +56,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val speechEngine = remember { LuluSpeechEngine(context) }
     var enabled by remember { mutableStateOf(prefs.getBoolean("tts_enabled", true)) }
-    var autoSpeak by remember { mutableStateOf(prefs.getBoolean("tts_auto_speak", true)) }
+    var autoSpeak by remember { mutableStateOf(prefs.getBoolean("tts_auto_speak", false)) }
     var provider by remember { mutableStateOf(prefs.getString("tts_provider", "system") ?: "system") }
     var language by remember { mutableStateOf(prefs.getString("tts_language", "zh-CN") ?: "zh-CN") }
     var rate by remember { mutableFloatStateOf(prefs.getFloat("tts_rate", 1.0f)) }
@@ -151,7 +151,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "自动朗读",
-                subtitle = "仅控制聊天自动朗读及见面朗读；电话需接通后单独计费。关闭后不再自动请求云端语音。",
+                subtitle = "默认关闭以节约语音费用。只有主动开启后，聊天的新文字气泡才可能自动调用 TTS；手动朗读、电话另行控制。",
                 checked = autoSpeak,
                 enabled = enabled,
                 onCheckedChange = {
