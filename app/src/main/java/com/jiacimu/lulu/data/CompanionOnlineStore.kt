@@ -409,6 +409,10 @@ object CompanionOnlineStore {
         true
     }
 
+    /** New messages/events are prompt; quiet life thinking has a separate, user-adjustable price-aware cadence. */
+    private fun onlinePulseMillis(characterId: String): Long =
+        ProactivePerceptionPolicyStore.get(characterId).onlinePulseSeconds.toLong() * 1_000L
+
     /** Continue across genuine online extensions without resetting the perception cadence. */
     private fun scheduleLifePulseLocked(characterId: String) {
         // Extending an online window must not reset its thinking clock indefinitely.
@@ -417,7 +421,7 @@ object CompanionOnlineStore {
         lifePulseJobs[characterId] = scope.launch {
             // Allow a newly online character to start living after the user's
             // initial quiet window. Subsequent pulses are gentle, not an action quota.
-            delay(25_000L)
+            delay(onlinePulseMillis(characterId))
             while (isOnline(characterId)) {
                 if (CompanionPresenceStore.isInCall(characterId) ||
                     MigratedDomainStores.chat.conversations.value.any {
@@ -432,7 +436,7 @@ object CompanionOnlineStore {
                 ProactivePerceptionScheduler.scheduleOnlineReflection(context, characterId,
                     "在线持续感知：先理解这段时间真实输入与状态，延续自己的感受、情绪与想法，再自主决定表达、行动或安静；没有用户说话也保持醒着，不为展示存在感强迫发言或编造变化",
                     delayMillis = 0L)
-                delay(55_000L)
+                delay(onlinePulseMillis(characterId))
             }
         }
     }
