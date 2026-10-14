@@ -808,6 +808,10 @@ object LuluDeviceToolBridge {
                         .asReversed().firstOrNull { msg ->
                             msg.sender == com.jiacimu.lulu.LuluChatMessage.Sender.User &&
                                 msg.status == com.jiacimu.lulu.LuluChatMessage.Status.Sent &&
+                                msg.createdAt.isAfter(now.minusSeconds(300)) &&
+                                (userText.isBlank() ||
+                                    msg.content.contains(userText.trim().take(60)) ||
+                                    userText.contains(msg.content.trim().take(60))) &&
                                 (requestedId.isBlank() || msg.id == requestedId) &&
                                 com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
                                     characterId, listOf(msg.id),
@@ -819,11 +823,10 @@ object LuluDeviceToolBridge {
                 // specific ID was requested but deleted or inaccessible.
                 // With no supplied ID, the verified newest phone utterance wins.
                 if (candidate == null) null else {
-                    val reason = selected.optString("reason").trim().take(180).ifBlank {
-                        plan.innerThought.take(120).ifBlank {
-                            "自己被刚听见的这句原话触动，想留下来以后重温"
-                        }
-                    }
+                    val reason = selected.optString("reason").trim().take(180)
+                        .takeIf { it.length >= 4 }
+                        ?: plan.innerThought.trim().take(120).takeIf { it.length >= 4 }
+                        ?: "自己刚听到这句原话，想把它收藏起来以后再听"
                     val requestId = "phone-favorite-" + candidate.id
                     runCatching {
                         JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
@@ -978,7 +981,10 @@ object LuluDeviceToolBridge {
                     cachedTokens = generated.cachedTokens + (rerendered?.cachedTokens ?: 0) + plannedReply.cachedTokens,
                 )
             } else plannedReply
-            val naturalText = if (imageOnly) "" else if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text else checkedText
+            val naturalText = if (imageOnly) "" else if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text
+                else if (!separateExpression && phoneSpoken.isNotBlank())
+                    com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, phoneSpoken)
+                else checkedText
             val safeText = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(characterId,
                 com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText))
             // A sticker exists only if the user has imported and approved that
