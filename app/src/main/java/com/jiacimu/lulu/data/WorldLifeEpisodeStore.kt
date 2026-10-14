@@ -98,9 +98,9 @@ internal object WorldLifeEpisodeStore {
         else "今天较早时真实经历过一段独处（约${elapsed}分钟前；不可当作刚发生）：") +
             "${episode.title}；唯一核实的世界动作：${episode.actualAction}。" +
             "当时的主观叙事（不是新世界事实）：${episode.scene.take(260)}。" +
-            if (recentEnoughForContinuation)
+            (if (recentEnoughForContinuation)
                 "同一地点的日常动作应接着这段时间继续，不要隔几分钟重复生成走路、坐下的小回执。"
-            else "你可以因此产生自己的回味或新决定，但不要复演原剧情、把主观想象说成世界事实。"
+            else "你可以因此产生自己的回味或新决定，但不要复演原剧情、把主观想象说成世界事实。")
     }
 
     @Synchronized fun delete(id: String): Boolean {
