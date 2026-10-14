@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:22:28.397670+00:00",
-  "commit": "9b4a2062e1a5465d773011411772dd9d4758e363",
+  "generatedAt": "2026-10-14T08:24:41.583312+00:00",
+  "commit": "03e4681d6495797326165a523aace2ebb886ed45",
   "branch": "main",
-  "sourceFingerprint": "de30515241c3c039d05a4741b8f3e5c3c45486f4ccf456f0a7731635194335ef",
+  "sourceFingerprint": "ab59def5ebf3e422844646e2b533fcdfada0798a9657ef1bfa1ddab93dbf6333",
   "summary": {
     "files": 623,
-    "lines": 125213,
+    "lines": 125218,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -10439,7 +10439,7 @@
     "LuluMediaTransportPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "TimelineMigrationTest": [
@@ -22063,12 +22063,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt",
-      "lines": 38,
-      "sha256": "d1cb921cf9c9f3e206524d0dca0d93705a15666a3a969901bd1d3b7d662a551d",
+      "lines": 43,
+      "sha256": "2eae2dc988dcfb944635ebb3b0f4274d8f2e837eecf9f911aa4562665e62e65c",
       "symbols": [
         {
           "name": "LuluMediaTransportPolicyTest",
-          "line": 6
+          "line": 12
         }
       ]
     },

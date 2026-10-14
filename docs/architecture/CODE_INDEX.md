@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9b4a2062e1a5465d773011411772dd9d4758e363`
+- 基准提交：`03e4681d6495797326165a523aace2ebb886ed45`
 - 分支：`main`
 - 已索引文件：623
-- 已索引代码/文本行：125213
+- 已索引代码/文本行：125218
 - 已发现符号：1865
 
 | 文件 | 行数 | 符号数 |
@@ -622,7 +622,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 38 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 43 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
