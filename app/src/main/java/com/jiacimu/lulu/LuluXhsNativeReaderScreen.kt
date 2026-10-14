@@ -13,6 +13,10 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.UserAgentMetadata
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import com.jiacimu.lulu.data.XhsImage
@@ -394,8 +398,13 @@ internal fun LuluXhsNativeReaderScreen(
     Scaffold(modifier = Modifier.imePadding(), topBar = {
         TopAppBar(
             title = {
-                Text(if (selected == null) "小红书" else "笔记阅读",
-                    style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(if (selected == null) "小红书 · 探索" else "小红书 · 笔记",
+                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(if (showWebPreview) "已登录网页 · 同一阅读会话" else "简洁阅读 · 仅展示实际提取内容",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             },
             navigationIcon = {
                 IconButton(onClick = { back() }) {
@@ -467,12 +476,23 @@ internal fun LuluXhsNativeReaderScreen(
                     }
                 }
             } else {
-                Text(article?.title ?: target.title,
-                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                val author = article?.author ?: target.author
-                if (author.isNotBlank()) Text("来自 $author",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Surface(color = Color(0xFFFFF7F5), shape = RoundedCornerShape(19.dp),
+                    border = BorderStroke(1.dp, Color(0xFFF4E9E7))) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
+                        verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        Text("● RED NOTE  /  小红书", color = Color(0xFFE7535B),
+                            style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(article?.title ?: target.title,
+                            style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        val author = article?.author ?: target.author
+                        Text(buildString {
+                            append(if (author.isNotBlank()) "@$author" else "小红书原帖")
+                            if (article != null) append("   ·   已获取真实正文")
+                            else append("   ·   等待阅读")
+                        }, style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
                 if (useEmbeddedBrowser) {
                     TextButton(onClick = {
                         showWebPreview = true
@@ -593,8 +613,17 @@ internal fun LuluXhsNativeReaderScreen(
                 LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp),
                     contentPadding = PaddingValues(bottom = 22.dp)) {
                     if (article?.body?.isNotBlank() == true) item {
-                        Text(article?.body.orEmpty(), style = MaterialTheme.typography.bodyLarge,
-                            lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified)
+                        Surface(shape = RoundedCornerShape(17.dp), color = Color.White,
+                            border = BorderStroke(1.dp, Color(0xFFF2ECEB))) {
+                            Column(Modifier.fillMaxWidth().padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("笔记正文", color = Color(0xFFE7535B),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold)
+                                Text(article?.body.orEmpty(), style = MaterialTheme.typography.bodyLarge,
+                                    lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified)
+                            }
+                        }
                     }
                     items(article?.images.orEmpty(), key = { it.url }) { photo -> XhsNoteImage(photo) }
                     val loadedComments = article?.comments.orEmpty()
@@ -650,7 +679,9 @@ internal fun LuluXhsNativeReaderScreen(
 @Composable
 private fun XhsNoteTile(card: XhsCard, modifier: Modifier = Modifier, onClick: () -> Unit) {
     ElevatedCard(modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp)) {
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
             XhsNoteCover(card.coverUrl)
             Column(Modifier.fillMaxWidth().padding(start = 11.dp, end = 11.dp, bottom = 12.dp),
@@ -658,11 +689,18 @@ private fun XhsNoteTile(card: XhsCard, modifier: Modifier = Modifier, onClick: (
                 Text(card.title, style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold, maxLines = 3,
                     overflow = TextOverflow.Ellipsis)
-                Text(card.author.ifBlank { "小红书笔记" } +
-                    if (card.token.isBlank()) " · 详情未就绪" else "",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                HorizontalDivider(color = Color(0xFFF4EEEE))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text(card.author.ifBlank { "小红书笔记" },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f))
+                    Text(if (card.token.isBlank()) "预览" else "阅读 ›",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFFE7535B), fontWeight = FontWeight.SemiBold)
+                }
             }
         }
     }
@@ -681,11 +719,14 @@ private fun XhsNoteCover(url: String) {
             modifier = Modifier.fillMaxWidth().height(130.dp),
             contentScale = ContentScale.Crop)
     } else {
-        Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
-            Box(Modifier.fillMaxWidth().height(130.dp),
-                contentAlignment = androidx.compose.ui.Alignment.Center) {
-                Text("小红书 · 笔记", style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(Modifier.fillMaxWidth().height(145.dp)
+            .background(Brush.linearGradient(listOf(Color(0xFFFFDDE0), Color(0xFFFFF4E8)))),
+            contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                Text("小", style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Black, color = Color(0xFFE7535B))
+                Text("RED NOTE", style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFFB66D75))
             }
         }
     }
