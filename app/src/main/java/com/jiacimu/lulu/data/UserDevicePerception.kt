@@ -15,6 +15,7 @@ import com.jiacimu.lulu.study.PostgraduateExamStores
 import com.jiacimu.lulu.study.roleStudyContext
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
+import com.jiacimu.lulu.system.LuluMediaPlayback
 import com.jiacimu.lulu.system.LuluNotificationListenerService
 import java.time.Duration
 import java.time.Instant
@@ -43,6 +44,7 @@ internal object UserDevicePerception {
         appendLine("用户设备最近前台应用：${foregroundAppContext(context, now)}")
         appendLine("用户设备位置：${locationContext(context, refreshLocation)}")
         appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
+        appendLine("用户设备媒体播放：${LuluMediaPlayback.observation(context)}")
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
         appendLine("用户学习状态：${studyContext(characterId)}")
         appendLine(UserInteractionPresenceStore.context(characterId, now))
@@ -90,8 +92,11 @@ internal object UserDevicePerception {
             val info = context.packageManager.getApplicationInfo(packageName, 0)
             context.packageManager.getApplicationLabel(info).toString()
         }.getOrNull()
-        return if (appLabel.isNullOrBlank() || appLabel == packageName) packageName
-        else "$appLabel（$packageName）"
+        val observed = if (appLabel.isNullOrBlank() || appLabel == packageName) packageName
+            else "$appLabel（$packageName）"
+        val source = if (accessibility.connected && freshAccessibility && accessibility.packageName == packageName)
+            "无障碍近期观察" else "最近15分钟的使用记录"
+        return "$observed（来源：$source；不保证仍是此刻前台应用）"
     }
 
     private suspend fun locationContext(context: Context, refresh: Boolean): String {
@@ -121,7 +126,10 @@ internal object UserDevicePerception {
             .filter { Duration.between(it.postedAt, now).abs().toMinutes() <= 180 }
             .filter { it.packageName != "app.lulu" }
             .take(8)
-            .joinToString("；") { "${it.packageName}｜${it.title.take(60)}｜${it.text.take(120)}" }
+            .joinToString("；") {
+                val age = Duration.between(it.postedAt, now).toMinutes()
+                "${it.packageName}｜${it.title.take(60)}｜${it.text.take(120)}（约${age.coerceAtLeast(0)}分钟前的通知，不代表当前）"
+            }
             .replace(Regex("\\s+"), " ")
             .take(500)
             .ifBlank { "近3小时没有可读通知" }
