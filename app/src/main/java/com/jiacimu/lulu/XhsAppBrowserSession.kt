@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import android.app.Activity
 import android.view.ViewGroup
+import android.view.View
+import android.widget.FrameLayout
 import android.webkit.WebView
 import com.jiacimu.lulu.data.XhsReadingEngine
 
@@ -15,7 +17,27 @@ import com.jiacimu.lulu.data.XhsReadingEngine
  */
 internal class XhsAppBrowserSession(private val activity: Activity) {
     private var retained: WebView? = null
+    private var parkingSlot: FrameLayout? = null
     private var destroyed = false
+
+    /** An attached and measured slot underneath the root Compose UI.
+     * Its viewport is large enough for the site's virtualized cards.
+     * It does not receive taps and is not a guarantee of background execution.
+     */
+    private fun foregroundSlot(): FrameLayout {
+        parkingSlot?.let { return it }
+        val root = activity.findViewById<FrameLayout>(android.R.id.content)
+        val slot = FrameLayout(activity).apply {
+            isClickable = false
+            isFocusable = false
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        }
+        val height = (420f * activity.resources.displayMetrics.density).toInt()
+        root.addView(slot, 0, FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, height))
+        parkingSlot = slot
+        return slot
+    }
 
     fun reuse(): WebView? {
         check(!destroyed) { "小红书会话已经销毁" }
@@ -36,10 +58,20 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
 
     fun park(view: WebView) {
         if (destroyed || retained !== view) return
-        // Keep the verified results and login state; do not advertise the
-        // detached browser as presently readable or try to run hidden work.
-        XhsReadingEngine.parkBrowser(view)
+        if (activity.isFinishing || activity.isDestroyed) {
+            XhsReadingEngine.detachBrowser(view)
+            return
+        }
+        // Place the SAME browser behind the app's normal Compose surface.
+        // Unlike a detached WebView, an attached/measured WebView can service
+        // online character reads while the user is on another app page.
+        // If Android pauses the Activity, the engine refuses new requests.
+        val host = foregroundSlot()
         (view.parent as? ViewGroup)?.removeView(view)
+        host.addView(view, FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT))
+        XhsReadingEngine.parkBrowser(view)
     }
 
     fun hasBrowser(): Boolean = retained != null && !destroyed
@@ -54,5 +86,10 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
             view.destroy()
         }
         retained = null
+        parkingSlot?.let { slot ->
+            (slot.parent as? ViewGroup)?.removeView(slot)
+            slot.removeAllViews()
+        }
+        parkingSlot = null
     }
 }
