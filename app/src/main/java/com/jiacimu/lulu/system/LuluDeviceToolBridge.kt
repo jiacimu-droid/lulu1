@@ -683,8 +683,39 @@ object LuluDeviceToolBridge {
         // One character-authored reason protocol for text chat, phone and tools.
         // Speaking intent itself is a valid tiny everyday motive; innerThought is
         // optional and must never be fabricated to justify an outgoing action.
+        if (sceneContext.contains("电话") && plan.action == "tool" &&
+            plan.tool == "favorite_user_message" && !rewriting) {
+            val requestedId = plan.args.optString("messageId").trim()
+            val conversation = com.jiacimu.lulu.MigratedDomainStores.chat.conversations.value
+                .firstOrNull { it.groupChat == null && it.characterId == characterId }
+            val userMessage = conversation?.let { chat ->
+                com.jiacimu.lulu.MigratedDomainStores.chat.messages(chat.id).value
+                    .asReversed().firstOrNull { msg ->
+                        msg.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User &&
+                            msg.status == com.jiacimu.lulu.data.LuluChatMessage.Status.Sent &&
+                            msg.createdAt.isAfter(now.minusSeconds(300)) &&
+                            (requestedId.isBlank() || msg.id == requestedId) &&
+                            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
+                                characterId, listOf(msg.id),
+                            ).any { it.evidenceKind ==
+                                com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }
+                    }
+            }
+            if (userMessage != null && requestedId.isBlank())
+                plan.args.put("messageId", userMessage.id)
+            if (plan.args.optString("reason").trim().length < 4)
+                plan.args.put("reason", plan.reason.trim().take(170).takeIf {
+                    it.length >= 4
+                } ?: plan.innerThought.trim().take(170).takeIf {
+                    it.length >= 4
+                } ?: "刚刚听到的那句话很想留着，日后再听听")
+        }
         val choiceBasis = com.jiacimu.lulu.data.CharacterBehaviorMotivation.resolve(
-            if (plan.action == "tool") plan.tool else plan.action, plan.reason, plan.appraisal, plan.innerLife,
+            if (plan.action == "tool") plan.tool else plan.action,
+            plan.reason.ifBlank {
+                if (plan.tool == "favorite_user_message") plan.args.optString("reason")
+                else ""
+            }, plan.appraisal, plan.innerLife,
             speechIntent = plan.speechIntent,
         )
         if (plan.action == "tool" && choiceBasis == null) {
@@ -1451,7 +1482,12 @@ object LuluDeviceToolBridge {
     private fun parsePlan(raw: String): ToolPlan? {
         return runCatching {
             val json = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(raw) ?: return null
-            val action = CharacterDecisionProtocol.chatAction(json) ?: return null
+            // Legacy models sometimes output the tool name as action directly.
+            // Normalize this one known, locally verified action instead of
+            // rejecting the entire telephone response for a wrapper mismatch.
+            val legacyFavorite = json.optString("action") == "favorite_user_message"
+            val action = if (legacyFavorite) "tool"
+                else CharacterDecisionProtocol.chatAction(json) ?: return null
             val bubbleValues = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(raw)
             val spoken = if (json.optJSONArray("bubbles") != null && !bubbleValues.isNullOrEmpty())
                 bubbleValues.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
@@ -1459,8 +1495,10 @@ object LuluDeviceToolBridge {
             ToolPlan(
                 action = action,
                 text = if (action == "reply") spoken else json.optString("text"),
-                tool = json.optString("tool"),
-                args = json.optJSONObject("args") ?: JSONObject(),
+                tool = if (legacyFavorite) "favorite_user_message" else json.optString("tool"),
+                args = json.optJSONObject("args") ?: if (legacyFavorite) JSONObject()
+                    .put("messageId", json.optString("messageId"))
+                    .put("reason", json.optString("reason")) else JSONObject(),
                 statusText = json.optString("statusText").ifBlank { json.optString("status") },
                 gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
                 innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
