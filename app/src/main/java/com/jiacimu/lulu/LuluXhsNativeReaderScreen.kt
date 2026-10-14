@@ -156,16 +156,21 @@ internal fun LuluXhsNativeReaderScreen(
     fun readNote(card: XhsCard) {
         focus.clearFocus(force = true)
         keyboard?.hide()
-        if (card.token.isBlank()) {
-            selected = card
-            message = "这篇笔记没有详情令牌，无法读取正文。"
-            return
-        }
+        // Reset all source-bound state BEFORE validating a newly selected note.
+        // Otherwise a tokenless card can accidentally inherit the previous
+        // article and image interpretation, and be shared as the wrong post.
         task?.cancel()
-        visionTask?.cancel(); visionText = ""; visionLoading = false
+        visionTask?.cancel()
         val current = ++sequence
         selected = card
         article = null
+        visionText = ""
+        visionLoading = false
+        loading = false
+        if (card.token.isBlank()) {
+            message = "这篇笔记没有详情令牌，无法读取正文。"
+            return
+        }
         loading = true
         message = "正在读取笔记正文…"
         task = scope.launch {
