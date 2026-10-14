@@ -190,12 +190,21 @@ class XhsBrowserSessionTest {
             assertTrue("Must inspect the actual results", browser.searches >= 1)
             assertEquals("One direct search navigation, no second reload", 1, browser.navigations)
             assertTrue(browser.currentUrl.contains("keyword=%E8%AE%B0%E8%80%85"))
+            assertEquals("Only verified, current-session results enter cache", 1,
+                XhsReadingEngine.cachedFeed("记者")?.size)
+            val repeated = scope.async { XhsReadingEngine.list(activity, "记者") }
+            val reused = kotlinx.coroutines.runBlocking { repeated.await() }
+            assertEquals("1234567890abcdef12345678", reused.single().id)
+            assertEquals("Repeated read must not trigger an unnecessary navigation",
+                1, browser.navigations)
             assertEquals(0, browser.clientChanges)
             assertFalse(browser.destroyed)
             assertFalse(XhsReadingEngine.controls(browser))
         } finally {
             scope.cancel()
             XhsReadingEngine.detachBrowser(browser)
+            assertNull("When the WebView closes its verified results must expire",
+                XhsReadingEngine.cachedFeed("记者"))
             XhsReadingEngine.pause(activity)
             browser.destroy()
             controller.pause().stop().destroy()
