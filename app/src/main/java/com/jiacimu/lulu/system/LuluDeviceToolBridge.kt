@@ -289,6 +289,10 @@ object LuluDeviceToolBridge {
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
         """.trimIndent()
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
+        // This is deliberately AFTER message persistence, not a photo-picker blocker.
+        val chatPhotos = if (!sceneContext.contains("电话") && userEvidenceIds.isNotEmpty())
+            com.jiacimu.lulu.QqChatImageModelInput.prepare(appContext, characterId, userEvidenceIds)
+        else com.jiacimu.lulu.QqPreparedChatPhotos(emptyList(), 0, 0)
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -319,6 +323,7 @@ object LuluDeviceToolBridge {
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
+                if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.prompt(characterId, now))
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
@@ -405,6 +410,7 @@ object LuluDeviceToolBridge {
             // not an irreversible stream of premature accusations.
             streamResponse = !separateExpression && onReplyStream != null && !disputeNeedsReview,
             onStreamText = if (separateExpression || disputeNeedsReview) null else onReplyStream,
+            imageDataUrls = chatPhotos.urls,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = userText,
