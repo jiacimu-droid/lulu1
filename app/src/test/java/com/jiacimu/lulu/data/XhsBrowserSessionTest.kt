@@ -53,6 +53,26 @@ class XhsBrowserSessionTest {
         }
     }
 
+    @Test fun foregroundSessionPreparesOneBrowserBeforeAnyXhsScreenIsOpened() {
+        val controller = Robolectric.buildActivity(Activity::class.java).setup()
+        val activity = controller.get()
+        val session = XhsAppBrowserSession(activity)
+        try {
+            assertFalse(session.hasBrowser())
+            session.prepareForForeground()
+            assertTrue("Role reading can start on chat without opening XHS UI", session.hasBrowser())
+            val first = session.reuse()
+            assertNotNull(first)
+            session.park(first!!)
+            session.prepareForForeground()
+            assertSame("Foreground resume must not open a second login browser", first, session.reuse())
+        } finally {
+            session.destroy()
+            XhsReadingEngine.pause(activity)
+            controller.pause().stop().destroy()
+        }
+    }
+
     @Test fun noteDetailUrlIsRecognizedEvenWhenWebViewHasNoBackHistory() {
         val id = "1234567890abcdef12345678"
         assertTrue(com.jiacimu.lulu.xhsBrowserIsNoteUrl(
