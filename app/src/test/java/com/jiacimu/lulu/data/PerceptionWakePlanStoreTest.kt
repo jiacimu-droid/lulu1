@@ -70,4 +70,14 @@ class PerceptionWakePlanStoreTest {
             plan(newAnchor, 20, "half-hour")
         }.intervalMinutes)
     }
+
+    @Test fun onlineThinkingCadenceIsIndependentOfBackgroundTimingAndNeverFastByAccident() {
+        val defaultPolicy = ProactivePerceptionPolicy()
+        assertEquals(120L, defaultPolicy.baseIntervalMinutes)
+        assertEquals(150, defaultPolicy.onlinePulseSeconds)
+        assertEquals(300, defaultPolicy.copy(onlinePulseSeconds = 300).normalized().onlinePulseSeconds)
+        assertEquals(150, defaultPolicy.copy(onlinePulseSeconds = 1).normalized().onlinePulseSeconds)
+        assertEquals(300, defaultPolicy.copy(onlinePulseSeconds = 3_600).normalized().onlinePulseSeconds)
+        assertEquals(120L, defaultPolicy.copy(onlinePulseSeconds = 300).baseIntervalMinutes)
+    }
 }
