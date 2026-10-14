@@ -621,6 +621,22 @@ object LuluDeviceToolBridge {
         if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
             plan = plan.copy(speechIntent = plan.text)
         }
+        // A specific phone wish that the role actually authored should not
+        // evaporate as soon as the call finishes. Persist it in the SAME private
+        // concern ledger, with a verified user message as its source, but never
+        // manufacture an executed favorite from thought alone.
+        if (sceneContext.contains("电话") && !callSilence && !rewriting &&
+            plan.action == "reply" && originalUserEvidence.isNotEmpty() &&
+            !com.jiacimu.lulu.data.CharacterOpenConcernRuntime.hasProposals(plan.appraisal)) {
+            val concern = com.jiacimu.lulu.data.CharacterDeferredFavoritePolicy.concern(
+                plan.innerThought, plan.text, hasVerifiedUserMessage = true,
+            )
+            if (concern != null) {
+                val appraisal = plan.appraisal?.let { JSONObject(it.toString()) } ?: JSONObject()
+                appraisal.put("pendingConcern", concern)
+                plan = plan.copy(appraisal = appraisal)
+            }
+        }
         // One character-authored reason protocol for text chat, phone and tools.
         // Speaking intent itself is a valid tiny everyday motive; innerThought is
         // optional and must never be fabricated to justify an outgoing action.
