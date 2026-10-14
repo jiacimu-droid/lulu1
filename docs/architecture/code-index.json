@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T10:32:18.116361+00:00",
-  "commit": "cc6caa49b9439b3e18a10c915b387dd4259bbd38",
+  "generatedAt": "2026-10-14T10:32:50.096652+00:00",
+  "commit": "5a6d92c1c633ca7fb6fc5329ff34b0f594db42ff",
   "branch": "main",
-  "sourceFingerprint": "3f3743e128cb771aae12d274df5b67790d9b9ad5f818cc31c1b657ca971bd23e",
+  "sourceFingerprint": "5dc7c66a7114a7b7c51e0d0544cd0f687eb9a72a297d22fb4c5c7577e6821e40",
   "summary": {
     "files": 632,
-    "lines": 126274,
-    "symbols": 1870
+    "lines": 126280,
+    "symbols": 1871
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4651,7 +4651,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 668
+        "line": 666
       }
     ],
     "describe": [
@@ -7169,7 +7169,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 82
+        "line": 90
       }
     ],
     "remember": [
@@ -7384,6 +7384,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
         "line": 45
+      }
+    ],
+    "recentAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 55
       }
     ],
     "url": [
@@ -14790,8 +14796,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 686,
-      "sha256": "bc8b2b62f8f55aa23d8dd98e896e75434c1c20ecb0f4db87169c85f1a9c80e6f",
+      "lines": 684,
+      "sha256": "7c1f43105ada2bfd6f52fb2f9f400fbb36f02fece15b1da359dd60f744bedf1e",
       "symbols": [
         {
           "name": "asJson",
@@ -14803,7 +14809,7 @@
         },
         {
           "name": "world",
-          "line": 668
+          "line": 666
         }
       ]
     },
@@ -17759,8 +17765,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-      "lines": 143,
-      "sha256": "ca6462d925410676965fb81a91ec321d9076ae5717b39499e704a35c15572733",
+      "lines": 151,
+      "sha256": "84f032c1a7ee2e524754dc4534cedf8aefdc64e207bf41c2a5aef5850c477fbf",
       "symbols": [
         {
           "name": "episodes",
@@ -17771,8 +17777,12 @@
           "line": 48
         },
         {
+          "name": "recentAt",
+          "line": 55
+        },
+        {
           "name": "recentContext",
-          "line": 82
+          "line": 90
         }
       ]
     },
