@@ -7,6 +7,7 @@ object DigitalWorldNavigationStore {
     private const val PREFS_NAME = "lulu_digital_world_navigation"
     private const val KEY_HOME_CHARACTER_ID = "pending_home_character_id"
     private const val KEY_MEETING_SESSION_ID = "pending_meeting_session_id"
+    private const val KEY_LIFE_EPISODE_ID = "pending_life_episode_id"
 
     fun requestHome(context: Context, characterId: String) {
         val clean = characterId.trim()
@@ -39,6 +40,21 @@ object DigitalWorldNavigationStore {
         val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val value = prefs.getString(KEY_MEETING_SESSION_ID, null)?.trim()?.takeIf(String::isNotBlank)
         if (value != null) prefs.edit().remove(KEY_MEETING_SESSION_ID).apply()
+        return value
+    }
+
+    /** Clickable, one-call life-story receipt opens the original persistent episode. */
+    fun requestEpisode(context: Context, episodeId: String) {
+        val clean = episodeId.trim()
+        if (clean.isBlank()) return
+        context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putString(KEY_LIFE_EPISODE_ID, clean).apply()
+    }
+
+    fun consumeEpisode(context: Context): String? {
+        val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val value = prefs.getString(KEY_LIFE_EPISODE_ID, null)?.trim()?.takeIf(String::isNotBlank)
+        if (value != null) prefs.edit().remove(KEY_LIFE_EPISODE_ID).apply()
         return value
     }
 }
