@@ -846,7 +846,11 @@ object LuluDeviceToolBridge {
                     )
                 val chosenResult = if (useRerender) rerendered!! else generated
                 val chosenBubbles = if (useRerender) rerenderedBubbles!! else firstBubbles
-                val spoken = chosenBubbles.take(dialoguePlan.maxBubbles)
+                // dialoguePlan.maxBubbles is a count of *conversation moves*,
+                // not a visual clamp. A single thought may need two complete
+                // sentences in separate chat bubbles. Never discard the rest.
+                val spoken = com.jiacimu.lulu.data.ModelStructuredOutput
+                    .readableReplyBubbles(chosenBubbles, maxBubbles = 8)
                     .joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
                 chosenResult.copy(
                     text = spoken,
