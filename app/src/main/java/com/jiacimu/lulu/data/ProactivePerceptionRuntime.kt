@@ -868,8 +868,8 @@ object ProactivePerceptionRuntime {
             val hasContinuingGoal = currentGoal != null &&
                 currentGoal.optString("stage") !in setOf("released", "completed") &&
                 currentGoal.optString("aim").isNotBlank()
-            val hasCurrentConcerns = CharacterInnerLifeStore.snapshot(characterId)
-                .optJSONArray("openConcerns")?.length() ?: 0 > 0
+            val hasCurrentConcerns = (CharacterInnerLifeStore.snapshot(characterId)
+                .optJSONArray("openConcerns")?.length() ?: 0) > 0
             val previousReason = prefs.getString("last_online_extension_reason_$characterId", "").orEmpty()
             val previousAt = prefs.getLong("last_online_extension_at_$characterId", 0L)
             val minutesSincePrevious = if (previousAt > 0)
