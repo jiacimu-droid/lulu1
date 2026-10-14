@@ -381,36 +381,47 @@ internal object CompanionActionRuntime {
                 val previousLocation = DigitalWorldStore.locationOf(characterId)
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
                 if (worldResult.success) {
-                    // One paid decision can narrate a complete low-stakes
-                    // afternoon. Persist it ONLY after a real world action
-                    // succeeded; the text cannot manufacture NPC dialogue,
-                    // furniture, discoveries or additional map transitions.
+                    // The executor records a single authoritative world action.
+                    // A whole outing gets ONE readable chapter, not a new
+                    // "walked/stood/looked" notification every few minutes.
                     val leisureActions = setOf(
                         "visit_public_place", "visit_cloud_meadow", "go_home",
                         "use_location", "use_home_item",
                     )
+                    val locationAfter = DigitalWorldStore.locationOf(characterId)
+                    WorldLifeEpisodeStore.initialize(context)
+                    val recentEpisode = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
+                        ?.takeIf { prior ->
+                            prior.location == locationAfter &&
+                                java.time.Duration.between(prior.occurredAt, now).toMinutes() in 0..35
+                        }
                     val episode = if (worldAction in leisureActions &&
-                        args.optString("lifeScene").isNotBlank() && worldResult.evidenceId.isNotBlank()) {
-                        WorldLifeEpisodeStore.initialize(context)
-                        runCatching {
-                            WorldLifeEpisodeStore.record(
-                                characterId = characterId,
-                                location = DigitalWorldStore.locationOf(characterId),
-                                title = args.optString("lifeSceneTitle"),
-                                prose = args.optString("lifeScene"),
-                                actualAction = worldResult.summary,
-                                evidenceId = worldResult.evidenceId,
-                                now = now,
-                            )
-                        }.getOrNull()
+                        recentEpisode == null && worldResult.evidenceId.isNotBlank()) {
+                        val (title, story) = WorldLifeEpisodeComposer.compose(
+                            characterId, locationAfter, worldResult.summary,
+                            args.optString("lifeSceneTitle"), args.optString("lifeScene"),
+                        )
+                        WorldLifeEpisodeStore.record(
+                            characterId, locationAfter, title, story,
+                            worldResult.summary, worldResult.evidenceId, now,
+                        )
                     } else null
-                    val receipt = episode?.let {
-                        "[独处片段|${it.id}] ${character.displayName}在数字世界度过了一段时光 · 查看片段"
-                    } ?: worldResult.summary
-                    MigratedDomainStores.chat.appendPrivateActivityNotice(
-                        characterId, receipt,
-                        args.optString("incidentId").takeIf { worldAction == "handle_incident" && it.isNotBlank() },
-                    )
+                    // Still persist EVERY true world action in its own world
+                    // timeline. The chat activity pane groups the routine
+                    // follow-up actions underneath the original episode.
+                    if (episode != null) {
+                        MigratedDomainStores.chat.appendPrivateActivityNotice(
+                            characterId,
+                            "[独处片段|${episode.id}] ${character.displayName}的《${episode.title}》 · 查看完整片段",
+                        )
+                    } else if (worldAction !in leisureActions) {
+                        MigratedDomainStores.chat.appendPrivateActivityNotice(
+                            characterId, worldResult.summary,
+                            args.optString("incidentId").takeIf {
+                                worldAction == "handle_incident" && it.isNotBlank()
+                            },
+                        )
+                    }
                     AutonomousSocialRuntime.onWorldArrival(
                         context = context,
                         characterId = characterId,
