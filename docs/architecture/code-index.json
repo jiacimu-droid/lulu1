@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:18:34.049756+00:00",
-  "commit": "e40273e2d699d9d58cd82e96117bbbbc6217640f",
+  "generatedAt": "2026-10-14T09:19:37.772399+00:00",
+  "commit": "bd2985cd78bf834e49a86ecbf531d6a77390fc7a",
   "branch": "main",
-  "sourceFingerprint": "29f84ec83a849ea298a7b05237cfbd754cd57017afdd07e84748cf3b751635b0",
+  "sourceFingerprint": "a02a725182143e4f7e52b7088a3ddf6fb140dbf79ace8e5efe8f0f78f79aa9fa",
   "summary": {
     "files": 628,
-    "lines": 125935,
+    "lines": 125940,
     "symbols": 1868
   },
   "symbolIndex": {
@@ -10990,8 +10990,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 546,
-      "sha256": "50e2846a01131b46833b8ec65a21833af50f5722c04a1761c7da6eac214871dd",
+      "lines": 551,
+      "sha256": "ca2af8a15b2a59c149a75144754e41bf30ceaf382f67d0e7c4a97c1c140343e7",
       "symbols": []
     },
     {
