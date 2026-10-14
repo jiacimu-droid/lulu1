@@ -321,119 +321,165 @@ private fun PresenceDialogSection(title: String, content: String) {
  * Read-only view of the actual durable stores. No extra AI call and no invented
  * "currently thinking" state. Plans, attempts and verified results are separate.
  */
+
+private data class LifeThoughtEntry(
+    val section: String, val title: String, val status: String,
+    val detail: String = "", val factual: Boolean = false,
+)
+
 @Composable
 private fun PresenceLifeThreads(characterId: String, now: Instant) {
     val context = LocalContext.current
-    val revision by CharacterInnerLifeStore.revisions.collectAsState()
-    val persistedLives by CharacterLifeStore.states.collectAsState()
-    // The existing 15-second UI clock refreshes non-Flow stores without
-    // starting the paid perception runtime.
+    val revisions by CharacterInnerLifeStore.revisions.collectAsState()
+    val lives by CharacterLifeStore.states.collectAsState()
+    // Recompose from actual saved stores; never run a paid model for this UI.
     @Suppress("UNUSED_VARIABLE")
-    val refreshKey = Triple(now.epochSecond / 15L, revision, persistedLives[characterId])
+    val refresh = Triple(now.epochSecond / 15L, revisions, lives[characterId])
     val goal = CharacterLifeStore.state(characterId).optJSONObject("intention")
     val mind = CharacterInnerLifeStore.snapshot(characterId)
     val motives = mind.optJSONArray("motives")
-    val consideration = CharacterSelfActivityRuntime.latestConsideration(context, characterId)
-    val activity = CharacterSelfActivityRuntime.latest(context, characterId)
+    val pending = CharacterSelfActivityRuntime.latestConsideration(context, characterId)
+    val performed = CharacterSelfActivityRuntime.latest(context, characterId)
     val curiosity = CharacterCuriosityRuntime.snapshot(characterId)
     val questions = curiosity.optJSONArray("questions")
     val threads = curiosity.optJSONArray("threads")
-    val experiences = CharacterLifeFollowThroughStore.auditSnapshot(characterId)
-        .filter { it.optString("shareStatus") == "held" ||
-            it.optString("curiosityStatus") == "open" }.takeLast(5).asReversed()
+    val evidence = CharacterLifeFollowThroughStore.auditSnapshot(characterId)
+        .filter { it.optString("shareStatus") == "held" }.takeLast(2).asReversed()
+    var expandedKey by remember(characterId) { mutableStateOf("") }
+    var showOlder by remember(characterId) { mutableStateOf(false) }
+    val ideas = mutableListOf<LifeThoughtEntry>()
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("这里显示角色真正保存的生活念头，不会为打开页面额外调用模型。愿望、想做、实际完成是三回事。",
-            fontSize = 12.sp, lineHeight = 18.sp, color = Color(0xFF77777D))
-        goal?.takeIf { it.optString("aim").isNotBlank() }?.let { entry ->
-            val status = when (entry.optString("stage")) {
-                "decided" -> "已有决定"
-                "executing" -> "执行中"
-                "following_up" -> "已行动，待后续"
-                "paused" -> "暂缓"
-                "blocked" -> "遇到阻碍"
-                else -> "考虑中"
-            }
-            val outcomes = entry.optJSONArray("outcomes")
-            val last = outcomes?.optJSONObject((outcomes.length() - 1).coerceAtLeast(0))
-            PresenceDialogSection("持续意愿 · $status", listOfNotNull(
-                entry.optString("aim"),
-                entry.optString("motive").takeIf { it.isNotBlank() }?.let { "为什么想做：$it" },
-                entry.optString("nextStep").takeIf { it.isNotBlank() }?.let { "想尝试：$it" },
-                last?.optString("summary")?.takeIf { it.isNotBlank() }?.let { "最近行动回执：$it" },
-            ).joinToString("\n"))
+    goal?.takeIf { it.optString("aim").isNotBlank() }?.let { g ->
+        val stage = when (g.optString("stage")) {
+            "decided", "executing" -> "打算去做"
+            "following_up" -> "已经尝试"
+            "paused" -> "暂时搁置"
+            "blocked" -> "遇到阻碍"
+            else -> "还在考虑"
         }
-        (0 until (motives?.length() ?: 0)).mapNotNull { motives?.optJSONObject(it) }
-            .takeLast(4).forEach { item ->
-                val aim = item.optString("aim")
-                if (aim.isNotBlank()) PresenceDialogSection("内在动机 · ${item.optString("stage").ifBlank { "仍在考虑" }}",
-                    listOf(aim, item.optString("why").ifBlank { item.optString("reason") })
-                        .filter(String::isNotBlank).joinToString("\n"))
-            }
-        consideration?.let { idea ->
-            PresenceDialogSection("尚未决定执行的小事", listOf(
-                "打算：${idea.optString("action")}",
-                "起因：${idea.optString("whyNow")}",
-                "只是考虑，并没有真的执行",
+        val outcomes = g.optJSONArray("outcomes")
+        val outcome = outcomes?.optJSONObject((outcomes.length() - 1).coerceAtLeast(0))
+        ideas += LifeThoughtEntry("想做的事", g.optString("aim"), stage,
+            listOfNotNull(
+                g.optString("motive").takeIf(String::isNotBlank)?.let { "起因：$it" },
+                g.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能的下一步：$it" },
+                outcome?.optString("summary")?.takeIf(String::isNotBlank)
+                    ?.let { "已经发生：$it" },
             ).joinToString("\n"))
+    }
+    pending?.optString("action")?.takeIf(String::isNotBlank)?.let { name ->
+        ideas += LifeThoughtEntry("一闪而过的小打算", name, "尚未执行",
+            pending.optString("whyNow").takeIf(String::isNotBlank)
+                ?.let { "当时为什么想到：$it" }.orEmpty())
+    }
+    performed?.let { item ->
+        val status = when (item.optString("status")) {
+            "pending" -> "排队中"
+            "running" -> "正在进行"
+            "completed" -> "有完成回执"
+            "failed" -> "未完成"
+            else -> "未确认"
         }
-        activity?.let { choice ->
-            val status = when (choice.optString("status")) {
-                "pending" -> "已选中，排队执行"
-                "running" -> "执行中"
-                "completed" -> "执行器确认完成"
-                "failed" -> "执行失败"
-                else -> "未确认"
-            }
-            PresenceDialogSection("实际行动 · $status", listOfNotNull(
-                choice.optString("label").ifBlank { choice.optString("tool") },
-                choice.optString("whyNow").takeIf { it.isNotBlank() }?.let { "当时原因：$it" },
-                choice.optString("result").takeIf { it.isNotBlank() }?.let { "执行回执：$it" },
-            ).joinToString("\n"))
+        val title = item.optString("label").ifBlank { item.optString("tool") }
+        if (title.isNotBlank()) ideas += LifeThoughtEntry("最近的行动", title,
+            status, listOfNotNull(
+                item.optString("whyNow").takeIf(String::isNotBlank)
+                    ?.let { "原本想做：$it" },
+                item.optString("result").takeIf(String::isNotBlank)
+                    ?.let { "实际结果：$it" },
+            ).joinToString("\n"), factual = status == "有完成回执")
+    }
+    (0 until (questions?.length() ?: 0)).mapNotNull { questions?.optJSONObject(it) }
+        .filter { q -> SharedExperienceTimeline.eventsByIds(
+            characterId, listOf(q.optString("observedId"))).isNotEmpty() }
+        .takeLast(3).asReversed().forEach { q ->
+            val question = q.optString("question").ifBlank { q.optString("topic") }
+            if (question.isNotBlank()) ideas += LifeThoughtEntry(
+                "还没弄清楚", question, "好奇中",
+                listOfNotNull(q.optString("why").takeIf(String::isNotBlank)
+                    ?.let { "为什么好奇：$it" },
+                    q.optString("nextStep").takeIf(String::isNotBlank)
+                        ?.let { "想尝试：$it" }).joinToString("\n"))
         }
-        (0 until (questions?.length() ?: 0)).mapNotNull { questions?.optJSONObject(it) }
-            .filter { q -> SharedExperienceTimeline.eventsByIds(
-                characterId, listOf(q.optString("observedId"))).isNotEmpty() }
-            .takeLast(4).asReversed().forEach { q ->
-                PresenceDialogSection("还想弄明白 · ${q.optString("topic")}",
-                    listOfNotNull(
-                        q.optString("question"),
-                        q.optString("why").takeIf { it.isNotBlank() }?.let { "好奇的原因：$it" },
-                        q.optString("nextStep").takeIf { it.isNotBlank() }?.let { "可能去做：$it" },
-                        "尚未证明已经探索",
-                    ).joinToString("\n"))
+    (0 until (threads?.length() ?: 0)).mapNotNull { threads?.optJSONObject(it) }
+        .filter { it.optString("status") == "exploring" }.takeLast(2).asReversed()
+        .forEach { t ->
+            val steps = t.optJSONArray("steps")
+            val last = steps?.optJSONObject((steps.length() - 1).coerceAtLeast(0))
+            if (last != null && SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(last.optString("evidenceId"))).isNotEmpty()) {
+                ideas += LifeThoughtEntry("正在探索", t.optString("topic"), "已有真实尝试",
+                    last.optString("receipt").take(240), factual = true)
             }
-        (0 until (threads?.length() ?: 0)).mapNotNull { threads?.optJSONObject(it) }
-            .filter { it.optString("status") == "exploring" }
-            .takeLast(3).asReversed().forEach { t ->
-                val steps = t.optJSONArray("steps")
-                val last = steps?.optJSONObject((steps.length() - 1).coerceAtLeast(0))
-                if (last != null && SharedExperienceTimeline.eventsByIds(
-                        characterId, listOf(last.optString("evidenceId"))).isNotEmpty()) {
-                    PresenceDialogSection("正在探索 · ${t.optString("topic")}",
-                        listOfNotNull(t.optString("question"),
-                            last.optString("receipt").takeIf { it.isNotBlank() }?.let { "真实尝试：$it" },
-                            t.optString("nextStep").takeIf { it.isNotBlank() }?.let { "还想尝试：$it" },
-                        ).joinToString("\n"))
+        }
+    (0 until (motives?.length() ?: 0)).mapNotNull { motives?.optJSONObject(it) }
+        .takeLast(3).asReversed().forEach { m ->
+            m.optString("aim").takeIf(String::isNotBlank)?.let { aim ->
+                ideas += LifeThoughtEntry("心里的动力", aim, "内在动机",
+                    m.optString("why").ifBlank { m.optString("reason") })
+            }
+        }
+    evidence.forEach { record ->
+        ideas += LifeThoughtEntry("还想分享", record.optString("fact").take(200),
+            "放在心里，还没说",
+            record.optString("shareWhy").takeIf(String::isNotBlank)
+                ?.let { "为什么想说：$it" }.orEmpty())
+    }
+    val unique = ideas.filter { it.title.isNotBlank() }
+        .distinctBy { it.title.replace(Regex("\\s+"), "").take(80) }
+    val visible = if (showOlder) unique else unique.take(4)
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text("心里的那些事", fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF28282A))
+            Text("想法不等于行动；只有真实执行后才会出现结果。",
+                fontSize = 12.sp, color = Color(0xFF88868A))
+        }
+        if (visible.isEmpty()) {
+            Text("现在没有特别想做或正在琢磨的事。",
+                color = Color(0xFF858388), fontSize = 14.sp)
+        }
+        visible.forEachIndexed { index, item ->
+            val key = "${item.section}-${item.title}-$index"
+            val expanded = expandedKey == key
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { expandedKey = if (expanded) "" else key },
+                color = if (item.factual) Color(0xFFF3F7F4) else Color(0xFFF8F7F6),
+                shape = RoundedCornerShape(19.dp),
+            ) {
+                Column(Modifier.padding(horizontal = 15.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(item.section, color = Color(0xFF68666A), fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.weight(1f))
+                        Text(item.status, color = if (item.factual) Color(0xFF3C7C65)
+                            else Color(0xFF969197), fontSize = 10.5.sp)
+                    }
+                    Text(item.title, fontSize = 15.sp, fontWeight = FontWeight.Medium,
+                        color = Color(0xFF242326), lineHeight = 23.sp,
+                        maxLines = if (expanded) 12 else 3,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    if (item.detail.isNotBlank()) {
+                        if (expanded) {
+                            HorizontalDivider(color = Color(0xFFE5E2E2))
+                            Text(item.detail, fontSize = 13.sp, lineHeight = 20.sp,
+                                color = Color(0xFF67656B))
+                        } else {
+                            Text("轻点查看缘由与进展", color = Color(0xFFA29FA3),
+                                fontSize = 11.sp)
+                        }
+                    }
                 }
             }
-        experiences.forEach { record ->
-            val share = when (record.optString("shareStatus")) {
-                "held" -> "曾想分享，尚未发出"
-                "shared" -> "已分享"
-                "released" -> "不准备分享"
-                else -> "尚未决定是否分享"
-            }
-            PresenceDialogSection("经历留下的念头 · $share",
-                listOfNotNull(record.optString("fact").take(250),
-                    record.optString("shareWhy").takeIf { it.isNotBlank() }?.let { "想分享的缘由：$it" })
-                    .joinToString("\n"))
         }
-        if (goal == null && consideration == null && activity == null &&
-            (motives?.length() ?: 0) == 0 && (questions?.length() ?: 0) == 0 &&
-            (threads?.length() ?: 0) == 0 && experiences.isEmpty()) {
-            Text("目前没有保存中的独立生活念头；这里不会为了显得活跃而编造。",
-                color = Color(0xFF7A7A7E), fontSize = 13.sp)
+        if (unique.size > 4) {
+            TextButton(onClick = { showOlder = !showOlder },
+                modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(if (showOlder) "收起其他想法" else "再看看其他${unique.size - 4}件事")
+            }
         }
     }
 }
