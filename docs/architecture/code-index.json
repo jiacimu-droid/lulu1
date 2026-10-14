@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:09:32.025582+00:00",
-  "commit": "0097b3b0feae5b54fd742ef279281568a1c0b34a",
+  "generatedAt": "2026-10-14T09:09:57.276364+00:00",
+  "commit": "d0e92910d64482ad0515de9e4367086b69cc091b",
   "branch": "main",
-  "sourceFingerprint": "7dd72fdfbd18257922ce034e394977b4c14094929fb06ea76ab534efde24841c",
+  "sourceFingerprint": "7c9eb15d34e6624c8b99553918f3a49b53c448fedbf48a7c8494a36f2ea9dd3b",
   "summary": {
     "files": 627,
-    "lines": 125744,
+    "lines": 125764,
     "symbols": 1867
   },
   "symbolIndex": {
@@ -5621,7 +5621,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 495
+        "line": 515
       }
     ],
     "retryAt": [
@@ -5643,7 +5643,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 234
+        "line": 235
       }
     ],
     "stale": [
@@ -7385,103 +7385,103 @@
     "url": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "attachBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 84
+        "line": 85
       }
     ],
     "detachBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 88
+        "line": 89
       }
     ],
     "parkBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 96
+        "line": 97
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 99
+        "line": 100
       }
     ],
     "lastDiagnosticSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 180
+        "line": 181
       }
     ],
     "lastDiagnostic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 182
+        "line": 183
       }
     ],
     "recordToolStage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 192
+        "line": 193
       }
     ],
     "requestVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 208
+        "line": 209
       }
     ],
     "visibleReadTestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 211
+        "line": 212
       }
     ],
     "consumeVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 213
+        "line": 214
       }
     ],
     "mcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 218
+        "line": 219
       }
     ],
     "setMcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 221
+        "line": 222
       }
     ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 223
+        "line": 224
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 224
+        "line": 225
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 226
+        "line": 227
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 227
+        "line": 228
       }
     ],
     "parseDirect": [
@@ -17761,84 +17761,84 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 719,
-      "sha256": "63b1c3d5a2cf4fee2167783b685cdf9ff6677acfe8e641ecf11192a87ab5a03d",
+      "lines": 739,
+      "sha256": "110b1df3d48e4ae9d36ba59183d20b37cf0e0c1ba4970498602f80b54277a4f3",
       "symbols": [
         {
           "name": "url",
-          "line": 37
+          "line": 38
         },
         {
           "name": "attachBrowser",
-          "line": 84
+          "line": 85
         },
         {
           "name": "detachBrowser",
-          "line": 88
+          "line": 89
         },
         {
           "name": "parkBrowser",
-          "line": 96
+          "line": 97
         },
         {
           "name": "controls",
-          "line": 99
+          "line": 100
         },
         {
           "name": "lastDiagnosticSummary",
-          "line": 180
+          "line": 181
         },
         {
           "name": "lastDiagnostic",
-          "line": 182
+          "line": 183
         },
         {
           "name": "recordToolStage",
-          "line": 192
+          "line": 193
         },
         {
           "name": "requestVisibleReadTest",
-          "line": 208
+          "line": 209
         },
         {
           "name": "visibleReadTestPending",
-          "line": 211
+          "line": 212
         },
         {
           "name": "consumeVisibleReadTest",
-          "line": 213
+          "line": 214
         },
         {
           "name": "mcpFallbackEnabled",
-          "line": 218
+          "line": 219
         },
         {
           "name": "setMcpFallbackEnabled",
-          "line": 221
+          "line": 222
         },
         {
           "name": "localEnabled",
-          "line": 223
-        },
-        {
-          "name": "setLocalEnabled",
           "line": 224
         },
         {
-          "name": "resume",
-          "line": 226
+          "name": "setLocalEnabled",
+          "line": 225
         },
         {
-          "name": "pause",
+          "name": "resume",
           "line": 227
         },
         {
+          "name": "pause",
+          "line": 228
+        },
+        {
           "name": "available",
-          "line": 234
+          "line": 235
         },
         {
           "name": "stage",
-          "line": 495
+          "line": 515
         }
       ]
     },
