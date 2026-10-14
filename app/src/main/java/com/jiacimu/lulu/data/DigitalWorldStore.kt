@@ -101,6 +101,7 @@ object DigitalWorldStore {
         mutable.value = decode(prefs?.getString(KEY_STATE, null))
         DigitalWorldLifeEventStore.initialize(context.applicationContext)
         DigitalWorldActivityStateStore.initialize(context.applicationContext)
+        WorldLifeEpisodeStore.initialize(context.applicationContext)
     }
 
     fun homeLocation(characterId: String): String = "home:$characterId"
