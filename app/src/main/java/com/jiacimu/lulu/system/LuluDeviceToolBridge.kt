@@ -293,6 +293,23 @@ object LuluDeviceToolBridge {
         val chatPhotos = if (!sceneContext.contains("电话") && userEvidenceIds.isNotEmpty())
             com.jiacimu.lulu.QqChatImageModelInput.prepare(appContext, characterId, userEvidenceIds)
         else com.jiacimu.lulu.QqPreparedChatPhotos(emptyList(), 0, 0)
+        // Explicit requests are dispatched through the actual tool router. Do
+        // not let a hallucinated model capability list veto a real app feature.
+        val directXhsRequest = if (!rewriting && !sceneContext.contains("电话"))
+            com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(userText)
+        else null
+        val directXhsResult = directXhsRequest?.let { request ->
+            val actualArgs = JSONObject()
+            if (request.url.isNotBlank()) actualArgs.put("url", request.url)
+            else actualArgs.put("keyword", request.keyword)
+            com.jiacimu.lulu.data.ToolRouter.execute(
+                appContext, characterId, "read_xiaohongshu", actualArgs,
+                requestId = "direct-xhs-" + groundingEvidenceId.ifBlank {
+                    userEvidenceIds.lastOrNull() ?: userText.hashCode().toString()
+                },
+                userRequested = true,
+            )
+        }
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -324,6 +341,11 @@ object LuluDeviceToolBridge {
                 }
                 appendLine("这一刻用户新增的消息：$userText")
                 if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
+                if (directXhsResult != null) {
+                    appendLine("【本轮已由真实执行器尝试小红书读取｜不可重复执行】")
+                    appendLine(directXhsResult.take(3_700))
+                    appendLine("应根据实际 success/status 和正文证据回应用户。失败须承认，不能说没有注册这个工具，也不能把首页读到的另一篇说成搜索成功。此轮已调用，不要再次选择 read_xiaohongshu。")
+                }
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.prompt(characterId, now))
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
@@ -888,7 +910,9 @@ object LuluDeviceToolBridge {
             .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
         val explicitUserToolRequest = com.jiacimu.lulu.data.CharacterInitiativeRuntime
             .isExplicitUserToolRequest(userText, plan.tool)
-        val toolResult = com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
+        val toolResult = if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
+            directXhsResult // The same real receipt: no second navigation/search.
+        } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
             requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}",
             userRequested = explicitUserToolRequest, intentionId = plan.intentionId)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
