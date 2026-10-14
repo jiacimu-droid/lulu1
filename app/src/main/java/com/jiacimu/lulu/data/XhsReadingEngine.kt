@@ -483,7 +483,9 @@ internal object XhsReadingEngine {
                         while (true) {
                             delay(350)
                             check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
-                            check(shared == null || view.isAttachedToWindow) { "阅读窗口已关闭" }
+                            check(visibleBrowser?.get() === view && view.isAttachedToWindow) {
+                                "正在使用的内置网页已切换；本次读取取消，不能沿用旧页面的数据"
+                            }
                             check(mainError.isBlank()) { mainError }
                             val host = Uri.parse(view.url.orEmpty()).host
                             if (host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) continue
