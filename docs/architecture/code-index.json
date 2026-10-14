@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:55:36.661878+00:00",
-  "commit": "81b971b91e4fa90861e807cf313680b86281d0d6",
+  "generatedAt": "2026-10-14T09:09:32.025582+00:00",
+  "commit": "0097b3b0feae5b54fd742ef279281568a1c0b34a",
   "branch": "main",
-  "sourceFingerprint": "e80df11431636c242cdd024181bdebcbe68fb3eba227b5c5b362840bfeda7a6f",
+  "sourceFingerprint": "7dd72fdfbd18257922ce034e394977b4c14094929fb06ea76ab534efde24841c",
   "summary": {
-    "files": 626,
-    "lines": 125661,
-    "symbols": 1866
+    "files": 627,
+    "lines": 125744,
+    "symbols": 1867
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7482,6 +7482,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
         "line": 227
+      }
+    ],
+    "parseDirect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt",
+        "line": 41
       }
     ],
     "LuluPageScaffold": [
@@ -17833,6 +17839,17 @@
         {
           "name": "stage",
           "line": 495
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt",
+      "lines": 83,
+      "sha256": "cc30b7dc3b3d019581941f7ee74c2e07f018b559e1de1d2ae464e09faa49fb57",
+      "symbols": [
+        {
+          "name": "parseDirect",
+          "line": 41
         }
       ]
     },
