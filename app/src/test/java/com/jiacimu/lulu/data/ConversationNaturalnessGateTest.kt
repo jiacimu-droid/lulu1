@@ -58,6 +58,33 @@ class ConversationNaturalnessGateTest {
         ))
     }
 
+    @Test fun stylePassCannotTurnUnreadArticleIntoReadArticle() {
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("还没看到这篇小红书的原文，只收到链接。"),
+            listOf("已经看过你发来的原文了，挺有意思。"),
+        ))
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("图片识别失败了，我没读到图。"),
+            listOf("图片我已经看过了，好漂亮。"),
+        ))
+    }
+
+    @Test fun stylePassMustRetainExactNumbersAndSharedUrls() {
+        val url = "https://www.xiaohongshu.com/explore/6777abcdef1234567890abcd"
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("我做了10题，错了3题。"),
+            listOf("我做了100题，错了3题。"),
+        ))
+        assertFalse(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("链接是：$url，先看这一篇。"),
+            listOf("链接是：https://www.xiaohongshu.com/explore/6777abcdef1234567890abce，先看这一篇。"),
+        ))
+        assertTrue(ConversationNaturalnessGate.preservesSurfaceIntent(
+            listOf("我做了10题，错了3题。"),
+            listOf("10题里有3题错了。"),
+        ))
+    }
+
     @Test fun repeatedMeaningAcrossBubblesTriggersRerender() {
         val result = ConversationNaturalnessGate.assess(
             "我有点累",
