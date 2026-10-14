@@ -108,6 +108,19 @@ class ModelStructuredOutputTest {
         assertTrue(paced.dropLast(1).all { it.last() in "。！？!?；;" })
     }
 
+    @Test fun structuredLongBubbleAlsoSplitsAtFullSentenceBoundaries() {
+        val text = "这篇帖子挺有意思，不过我想先看看原文再跟你聊。" +
+            "我没有看到图片时不会假装已经看清楚了。" +
+            "你要是分享给我，我会先确认真正拿到的内容。"
+        val result = ModelStructuredOutput.completedReplyBubbles(
+            org.json.JSONObject().put("action", "reply")
+                .put("bubbles", org.json.JSONArray().put(text)).toString()
+        )!!
+        assertTrue(result.size in 2..5)
+        assertEquals(text, result.joinToString(""))
+        assertTrue(result.dropLast(1).all { it.endsWith("。") })
+    }
+
     @Test fun oneShortReplyAndOneLongSingleSentenceNeverSplitMidword() {
         assertEquals(listOf("嗯～", "好，我在呢。"),
             ModelStructuredOutput.readableReplyBubbles(listOf("嗯～", "好，我在呢。")))
