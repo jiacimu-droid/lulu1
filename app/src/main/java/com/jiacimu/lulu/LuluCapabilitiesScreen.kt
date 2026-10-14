@@ -63,6 +63,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     var refreshKey by remember { mutableIntStateOf(0) }
     var freshLocationLabel by remember { mutableStateOf<String?>(null) }
     var locating by remember { mutableStateOf(false) }
+    var musicTestReport by remember { mutableStateOf("") }
     val accessibility by LuluAccessibilityService.state.collectAsState()
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
@@ -181,6 +182,31 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     musicDiagnostic + "\n当前只控制支持 Android MediaSession 的播放器；没有会话不代表没有声音。点击可检查通知使用权。",
                     snapshot.notificationAccess,
                 ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+            }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = {
+                            val report = org.json.JSONObject(LuluMediaPlayback.control(context, "play"))
+                            musicTestReport = if (report.optBoolean("accepted"))
+                                "播放请求已发送到${report.optString("packageName")}。 ${report.optString("verification")}"
+                                else "播放失败：${report.optString("error")}"
+                            refreshKey++
+                        }) { Text("测试播放") }
+                        OutlinedButton(onClick = {
+                            val report = org.json.JSONObject(LuluMediaPlayback.control(context, "pause"))
+                            musicTestReport = if (report.optBoolean("accepted"))
+                                "暂停请求已发送到${report.optString("packageName")}。 ${report.optString("verification")}"
+                                else "暂停失败：${report.optString("error")}"
+                            refreshKey++
+                        }) { Text("测试暂停") }
+                    }
+                    if (musicTestReport.isNotBlank()) {
+                        Text(musicTestReport, color = CapabilityMuted, fontSize = 12.sp)
+                    }
+                    Text("直接调用 Android 媒体控制，不产生模型费用。建议在音乐App开始播放后测试；如仍无法暂停，请查看返回的播放器状态。",
+                        color = CapabilityMuted, fontSize = 11.sp)
+                }
             }
             item {
                 CapabilityRow(
