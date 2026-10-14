@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:28:17.635869+00:00",
-  "commit": "c354b3f2391ef6ec5608af3da9dfefaf3257ea34",
+  "generatedAt": "2026-10-14T08:37:30.808292+00:00",
+  "commit": "037fbc8ae8268449df7436ca4fb8b935f60e1e8a",
   "branch": "main",
-  "sourceFingerprint": "446f15d654e843eec3e27e5fe54a17ed146a10e1764eef1b165939134471c530",
+  "sourceFingerprint": "972121330bd3b9840272b224b952b2969c2ac1e8d63c73220c302d38f576002c",
   "summary": {
-    "files": 623,
-    "lines": 125219,
+    "files": 624,
+    "lines": 125342,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -12471,6 +12471,12 @@
           "line": 339
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt",
+      "lines": 123,
+      "sha256": "d9abe1ee3fc5f8fbe9131b8f0a3881c4568e62a9006302ff0c63df3050f54f7d",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
