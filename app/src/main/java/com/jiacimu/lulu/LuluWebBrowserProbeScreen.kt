@@ -145,11 +145,21 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             status = "已退出笔记阅读"
             return
         }
-        current.stopLoading()
         // A fresh home navigation is deterministic even when the note was a
         // SPA dialog with no WebView history; don't navigate back into it.
-        current.loadUrl(XHS_PROBE_URL)
+        // The role's real reading operation owns the browser until its own
+        // result has been verified, so queue the user's navigation behind it.
         status = "正在返回笔记列表…"
+        scope.launch {
+            try {
+                XhsReadingEngine.navigateFromUi(current, XHS_PROBE_URL)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                returningToList = false
+                status = "返回列表失败：${error.message.orEmpty().take(90)}"
+            }
+        }
     }
 
     fun searchInVisibleBrowser(query: String) {
@@ -162,8 +172,15 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
         val target = if (text.isBlank()) XHS_PROBE_URL else
             "https://www.xiaohongshu.com/search_result?keyword=${Uri.encode(text)}&source=web_explore_feed"
         val current = browser ?: return
-        current.stopLoading()
-        current.loadUrl(target)
+        scope.launch {
+            try {
+                XhsReadingEngine.navigateFromUi(current, target)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                status = "网页搜索未能打开：${error.message.orEmpty().take(90)}"
+            }
+        }
     }
 
     fun routeToReader(target: Uri): Boolean {
