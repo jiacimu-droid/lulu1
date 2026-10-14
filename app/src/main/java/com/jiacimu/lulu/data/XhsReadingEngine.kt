@@ -537,6 +537,7 @@ internal object XhsReadingEngine {
                         }
                         if (!(sameSearch || view.url == url || siteSearchStarted)) view.loadUrl(url)
                         val navigationStartedAt = System.currentTimeMillis()
+                        var attemptedDirectFallback = false
                         while (true) {
                             delay(350)
                             check(owner?.get() === activity && !activity.isDestroyed) { "已离开前台，读取停止" }
@@ -597,6 +598,19 @@ internal object XhsReadingEngine {
                                         else -> stage("正在等待网站搜索框")
                                     }
                                 }
+                            }
+                            // A website search may acknowledge the input event but
+                            // silently fail to route. Fall back ONCE after a real
+                            // wait, never fire two navigations simultaneously.
+                            if (kind == "search" && siteSearchStarted &&
+                                !attemptedDirectFallback &&
+                                System.currentTimeMillis() - navigationStartedAt >= 8_000L &&
+                                Uri.parse(view.url.orEmpty()).path in setOf("/", "/explore") &&
+                                (root.optJSONArray("items")?.length() ?: 0) == 0 &&
+                                !root.optBoolean("empty")) {
+                                attemptedDirectFallback = true
+                                stage("网页搜索未产生结果，尝试一次官方结果页")
+                                view.loadUrl(url)
                             }
                             if (kind == "search" && openedSearchOverlayAt > 0L &&
                                 !searchFormSubmitted) {
