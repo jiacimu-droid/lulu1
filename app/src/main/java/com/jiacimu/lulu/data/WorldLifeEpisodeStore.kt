@@ -86,6 +86,7 @@ internal object WorldLifeEpisodeStore {
         if (elapsed !in 0..35) return ""
         return "最近已经有过一段完整的独处经历（约${elapsed}分钟前）：" +
             "${episode.title}；真实动作：${episode.actualAction}。这是过去的活动而不是新事件。" +
+            "当时的主观独处感受（不增加世界事实）：${episode.scene.take(320)}。" +
             "不要为了维持在线连续重演坐下、散步、换地点；若当下没有新的明确兴趣或事情，休息或休眠都是自然的。"
     }
 
