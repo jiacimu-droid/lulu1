@@ -49,6 +49,22 @@ test('nested Vue refs and search source are handled', () => {
     {search: {_value: {feeds: {_rawValue: {_value: [row()]}}}}}});
   assert.equal(b.snapshot('search', '', '猫').items[0].source, 'pc_search');
 });
+test('when XHS hides its search input, only its real search opener is clicked', () => {
+  const b = browser();
+  let clicks = 0;
+  b.sandbox.document.querySelector = selector => selector.includes('.search-icon')
+    ? {click: () => {clicks++;}} : null;
+  assert.equal(b.sandbox.__luluXhsReader.startSearch('猫咪'), 'submitted');
+  // The mocked selector returns a control for the input too; check opener
+  // separately with an absent input to exercise the blocked search overlay.
+  b.sandbox.document.querySelector = selector =>
+    selector.startsWith('#search-input') ? null : {click: () => {clicks++;}};
+  assert.equal(b.sandbox.__luluXhsReader.startSearch('猫咪'), 'input-missing');
+  assert.equal(b.sandbox.__luluXhsReader.openSearchBox(), 'opened');
+  assert.equal(clicks >= 1, true);
+  b.sandbox.document.querySelector = () => null;
+  assert.equal(b.sandbox.__luluXhsReader.openSearchBox(), 'opener-missing');
+});
 test('same path with an old search query must not return stale results', () => {
   const b = browser({path: '/search_result?keyword=old', state: {search: {feeds: [row()]}}});
   assert.equal(b.snapshot('search', '', 'new').items.length, 0);
