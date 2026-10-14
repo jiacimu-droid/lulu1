@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T09:21:01.939507+00:00",
-  "commit": "206fdbfe94042eeb1a698edc87c6059bf1eb6795",
+  "generatedAt": "2026-10-14T09:22:10.310736+00:00",
+  "commit": "19fbd5836b3e843c9f2150995da3e721d0070c3b",
   "branch": "main",
-  "sourceFingerprint": "030f07006c2909975e038c10aa2cf72efb9c7d72b8eb1c128925f455ef36da17",
+  "sourceFingerprint": "131566d85daabc9891d9d23a399205c8b735785c8ed1d53365681b40daa98c5b",
   "summary": {
     "files": 628,
-    "lines": 125940,
+    "lines": 125944,
     "symbols": 1868
   },
   "symbolIndex": {
@@ -1737,37 +1737,37 @@
     "failure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 112
+        "line": 113
       }
     ],
     "loadList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 116
+        "line": 117
       }
     ],
     "readNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 154
+        "line": 155
       }
     ],
     "nativeBrowserClient": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 180
+        "line": 181
       }
     ],
     "startNativeReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 200
+        "line": 201
       }
     ],
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 275
+        "line": 276
       }
     ],
     "PendingTouch": [
@@ -11821,32 +11821,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 754,
-      "sha256": "d36d28a5ab9d0cfe7917c5ff5e8bb5378800a68601aa5c3fe81759669f6abd2c",
+      "lines": 758,
+      "sha256": "b57e0b04951f83fac333ef156864e764d54d84385d69d84d8d020af71887c946",
       "symbols": [
         {
           "name": "failure",
-          "line": 112
+          "line": 113
         },
         {
           "name": "loadList",
-          "line": 116
+          "line": 117
         },
         {
           "name": "readNote",
-          "line": 154
+          "line": 155
         },
         {
           "name": "nativeBrowserClient",
-          "line": 180
+          "line": 181
         },
         {
           "name": "startNativeReadTest",
-          "line": 200
+          "line": 201
         },
         {
           "name": "back",
-          "line": 275
+          "line": 276
         }
       ]
     },
@@ -12499,7 +12499,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt",
       "lines": 178,
-      "sha256": "670a34d8fdadcbdbf4424483084d1a2bb64a4950d14c2237367f9d4de7a0ce32",
+      "sha256": "88633e9b78b1da443b1f114c02d5db388b54748ea10e46b70db8a8a1766ce3a5",
       "symbols": []
     },
     {
@@ -16964,7 +16964,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 108,
-      "sha256": "3b744e97ac7c12dfbccc1145674eed9f23c15c07b3806d571eb31d9a95fc66c9",
+      "sha256": "4746115809624d7a1d443dba898247ec851a6e905d8d6b9d7ef1769368d25041",
       "symbols": []
     },
     {
