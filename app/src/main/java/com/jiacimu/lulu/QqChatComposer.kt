@@ -50,8 +50,9 @@ internal fun QqChatComposer(
         runCatching {
             context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        // Attach immediately. The selected chat model reads the actual image
-        // AFTER this message is persisted, during its reply request.    }
+        // Attach immediately; the chat model reads the pixels after sending.
+        imageUri = uri.toString()
+    }
 
     val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
