@@ -138,6 +138,39 @@ class ConversationNaturalnessGateTest {
         assertFalse(result.needsRerender)
     }
 
+    @Test fun shortRepeatedApologiesStillCountAsRobotLikeExplanations() {
+        val assessment = ConversationNaturalnessGate.assess(
+            "那个线路怎么没接通啊？",
+            listOf(
+                "是我刚才嘴快了，没搜到。",
+                "你别着急，不是你的问题。",
+                "害你白等了，刚才没确认清楚。",
+            ),
+        )
+        assertTrue(assessment.needsRerender)
+        assertTrue(assessment.reasons.any { it.contains("自我检讨") })
+    }
+
+    @Test fun aSingleGenuineApologyIsNotAnIncidentReport() {
+        val assessment = ConversationNaturalnessGate.assess(
+            "你刚才把我吓了一跳",
+            listOf("啊，对不起。", "我刚才是真没注意到。"),
+        )
+        assertFalse(assessment.needsRerender)
+    }
+
+    @Test fun detailedTechnicalRequestMayIncludeResponsibilityAndEvidence() {
+        val assessment = ConversationNaturalnessGate.assess(
+            "请详细解释清楚，你刚才的工具调用为什么失败",
+            listOf(
+                "是我刚才没有核实工具结果。你别着急，我先把后台收到的调用状态讲清楚。",
+                "不是你的线路设置导致的结论，这里目前只有请求失败的记录，还不能证明是哪一段权限有问题。",
+                "我没有拿到笔记正文，因此不能说搜索已经成功。这件事需要根据实际日志进一步判断。",
+            ),
+        )
+        assertFalse(assessment.reasons.any { it.contains("自我检讨") })
+    }
+
     @Test fun oneOrdinaryOfferDoesNotTriggerByItself() {
         val result = ConversationNaturalnessGate.assess(
             "今天还行",
