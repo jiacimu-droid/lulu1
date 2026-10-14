@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T06:30:11.221028+00:00",
-  "commit": "f3bb0f07b1f019b5b7eb118cf0c7e458307ef7cc",
+  "generatedAt": "2026-10-14T06:45:39.976361+00:00",
+  "commit": "92808cbfc23ce373accdcf164c9f3db949678811",
   "branch": "main",
-  "sourceFingerprint": "2d92ce4b528c24bd551d4acfe7e9e5d00a475ae7f9f71f3b98253dcccc6ff992",
+  "sourceFingerprint": "ded8e5d2a993f26e5cc332c00eb5a38f148c7503a50236d8fa07e16c410351d5",
   "summary": {
-    "files": 617,
-    "lines": 124189,
-    "symbols": 1855
+    "files": 618,
+    "lines": 124319,
+    "symbols": 1858
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3190,6 +3190,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
         "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 48
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -7134,6 +7138,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
         "line": 385
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 82
       }
     ],
     "remember": [
@@ -7342,6 +7350,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 107
+      }
+    ],
+    "episodes": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 45
       }
     ],
     "url": [
@@ -17617,6 +17631,25 @@
         {
           "name": "clearWorld",
           "line": 107
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+      "lines": 130,
+      "sha256": "edef819b8eadbc92670e4964467587746035dd16509ccddcf567f209de57c33e",
+      "symbols": [
+        {
+          "name": "episodes",
+          "line": 45
+        },
+        {
+          "name": "find",
+          "line": 48
+        },
+        {
+          "name": "recentContext",
+          "line": 82
         }
       ]
     },
