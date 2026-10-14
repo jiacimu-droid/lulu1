@@ -34,6 +34,14 @@ object ChatAutoVoicePlayback {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val queue = Channel<Request>(Channel.UNLIMITED)
+    // Two rapid "朗读" taps or duplicate UI callbacks must not each
+    // purchase a fresh synthesis for the same uncached message.
+    private val queuedOrSynthesizing = mutableSetOf<String>()
+    private fun sendOnce(request: Request): Boolean = synchronized(this) {
+        if (!queuedOrSynthesizing.add(request.messageId)) return@synchronized true
+        if (queue.trySend(request).isSuccess) true
+        else { queuedOrSynthesizing.remove(request.messageId); false }
+    }
     private var appContext: Context? = null
     private var engine: LuluSpeechEngine? = null
     private var workerStarted = false
@@ -65,6 +73,7 @@ object ChatAutoVoicePlayback {
                 workerStarted = true
                 scope.launch {
                     for (request in queue) {
+                        try {
                         if (!AutomaticVoiceForeground.visible()) continue
                         if (request.requireAutoPlay && visibleConversationId != request.conversationId) continue
                         if (request.requireAutoPlay && (autoPlaySuppressed() ||
@@ -99,6 +108,11 @@ object ChatAutoVoicePlayback {
                             }
                         } finally {
                             if (activeRequest === request) activeRequest = null
+                        }
+                        } finally {
+                            synchronized(this@ChatAutoVoicePlayback) {
+                                queuedOrSynthesizing.remove(request.messageId)
+                            }
                         }
                     }
                 }
@@ -153,7 +167,7 @@ object ChatAutoVoicePlayback {
         if (!AutomaticVoiceForeground.visible()) return
         val clean = text.trim()
         if (clean.isBlank() || messageId.isBlank()) return
-        queue.trySend(
+        sendOnce(
             Request(
                 characterId = characterId,
                 messageId = messageId,
@@ -186,7 +200,7 @@ object ChatAutoVoicePlayback {
         val message = target.second
         val speech = stripCharacterReplyDirective(message.content).trim()
         if (speech.isBlank()) return false
-        return queue.trySend(
+        return sendOnce(
             Request(
                 characterId = characterId,
                 messageId = message.id,
@@ -195,7 +209,7 @@ object ChatAutoVoicePlayback {
                 voiceId = CharacterVoicePreferenceStore.playbackVoiceId(characterId),
                 requireAutoPlay = false,
             ),
-        ).isSuccess
+        )
     }
 
     internal fun cachedFile(messageId: String): File? {
