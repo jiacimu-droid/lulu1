@@ -49,6 +49,7 @@ enum class ModelUsage {
  * Full = normal Lulu world: identity + role settings + memories/worldbook/state.
  * CharacterAndScenario = current identity/persona with explicitly supplied scene context.
  * PersonaAndScenario = cross-world scenario: role settings only; original-world identity is excluded.
+ * Ensemble = multi-character conversation: each member's identity, memory and language are provided by caller; never inject only the first speaker's private state.
  * Isolated = standalone content generation: no character, chat, memory, timeline, profile, or worldbook context.
  */
 enum class CompanionContextMode {
@@ -56,6 +57,7 @@ enum class CompanionContextMode {
     CharacterAndScenario,
     Full,
     PersonaAndScenario,
+    Ensemble,
     Isolated,
 }
 
@@ -534,6 +536,10 @@ class CompanionModelGateway(
                         appendLine("你正在以‘${definition.displayName.ifBlank { "角色" }}’参与露露机中的当前活动。")
                         appendLine("这是独立跨世界场景：只继承角色设定中的性格、语言习惯、价值观和关系边界；不得带入角色原世界的身份、职业、时代、阵营或背景。")
                     }
+                    CompanionContextMode.Ensemble -> {
+                        appendLine("这是露露机原世界中的多角色共同互动，不属于任何一名单独角色的个人独白。")
+                        appendLine("每位参与者的人格、独立语言习惯、关系、核心记忆与可知事实，只来自本次明确标注该角色ID的成员上下文；不能将当前发言代表角色的私有资料灌给其他成员。")
+                    }
                     CompanionContextMode.Isolated -> {
                         appendLine("这是完全独立的内容生成任务。")
                         appendLine("不得读取、继承或猜测任何角色身份、人设、聊天记录、记忆、共同时间线、用户资料或世界书；只允许使用本次任务明确提供的素材。")
@@ -546,7 +552,8 @@ class CompanionModelGateway(
                         appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)
                     }
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.promptSection())
-                    appendLine(com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
+                    if (effectiveMode != CompanionContextMode.Ensemble) appendLine(
+                        com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
                         characterId,
                         // Lean chat expression intentionally skips broad memory recall, but it must
                         // still sound like the same person. Verified expression habits are bounded
@@ -559,7 +566,11 @@ class CompanionModelGateway(
                         // Core lives in one central prompt channel, not a second speech-only copy.
                         includeCore = false,
                     ))
-                    appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
+                    if (effectiveMode == CompanionContextMode.Ensemble) {
+                        appendLine("多人编排由本轮逐成员的准确角色ID决定语言与立场；当前发言者ID只是路由信息，不是其他成员共用的人格。")
+                    } else {
+                        appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
+                    }
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
                     appendLine("人设背景不是进入露露机后的亲历；主观想法、日记、自述不证明行动成功。无法找到依据时承认记不清，不补造事实。")
                     appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
