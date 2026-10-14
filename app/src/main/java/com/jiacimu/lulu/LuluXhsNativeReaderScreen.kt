@@ -335,13 +335,8 @@ internal fun LuluXhsNativeReaderScreen(
     Scaffold(modifier = Modifier.imePadding(), topBar = {
         TopAppBar(
             title = {
-                Column {
-                    Text(if (selected == null) "小红书" else "笔记阅读",
-                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text(if (selected == null) "发现有意思的内容" else "来自已登录网页的真实内容",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                Text(if (selected == null) "小红书" else "笔记阅读",
+                    style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             },
             navigationIcon = {
                 IconButton(onClick = { back() }) {
@@ -383,7 +378,8 @@ internal fun LuluXhsNativeReaderScreen(
             },
         )
     }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).padding(horizontal = 12.dp),
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)
+            .then(if (useEmbeddedBrowser && showWebPreview) Modifier else Modifier.padding(horizontal = 12.dp)),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val target = selected
             if (!useEmbeddedBrowser || !showWebPreview) {
