@@ -53,6 +53,10 @@ class MigrationActivity : ComponentActivity() {
 
     // Android share-sheet note awaiting a recipient. Never treat a link as verified article content.
     private val incomingSharedNote = androidx.compose.runtime.mutableStateOf<String?>(null)
+    // SingleTop receives activity-receipt links through onNewIntent. A fixed
+    // onCreate snapshot leaves the current chat on-screen and makes links look inert.
+    private val navigationIntent = androidx.compose.runtime.mutableStateOf<android.content.Intent?>(null)
+    private val navigationRequestSerial = androidx.compose.runtime.mutableLongStateOf(0L)
 
     private fun incomingXhsText(intent: android.content.Intent?): String? {
         if (intent?.action != android.content.Intent.ACTION_SEND ||
@@ -72,6 +76,8 @@ class MigrationActivity : ComponentActivity() {
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        navigationIntent.value = intent
+        navigationRequestSerial.longValue += 1L
         incomingXhsText(intent)?.let { incomingSharedNote.value = it }
     }
 
@@ -191,27 +197,21 @@ class MigrationActivity : ComponentActivity() {
         ProactivePerceptionScheduler.schedule(appContext)
 
         incomingSharedNote.value = incomingXhsText(intent)
-        val initialConversationId = intent?.getStringExtra("open_conversation_id")
-        val initialRouteName = intent?.getStringExtra("open_route")
-        val initialCharacterId = intent?.getStringExtra("open_character_id")
-        val initialDiaryTitle = intent?.getStringExtra("open_diary_title")
-        val initialLexiconSection = intent?.getStringExtra("open_lexicon_section")
+        navigationIntent.value = intent
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
-        val initialReadingTitle = intent?.getStringExtra("open_reading_title")
-        val initialMeetingInvitationText = intent?.getStringExtra("open_meeting_invitation_text")
-        val initialMeetingLocation = intent?.getStringExtra("open_meeting_location")
-        val initialMeetingInvitationId = intent?.getStringExtra("open_meeting_invitation_id")
         setContent {
+            val requestedNavigation = navigationIntent.value
             LuluMigrationRootAppV2(
-                initialConversationId = initialConversationId,
-                initialRouteName = initialRouteName,
-                initialTargetCharacterId = initialCharacterId,
-                initialDiaryTitle = initialDiaryTitle,
-                initialLexiconSection = initialLexiconSection,
-                initialReadingTitle = initialReadingTitle,
-                initialMeetingInvitationText = initialMeetingInvitationText,
-                initialMeetingLocation = initialMeetingLocation,
-                initialMeetingInvitationId = initialMeetingInvitationId,
+                initialConversationId = requestedNavigation?.getStringExtra("open_conversation_id"),
+                initialRouteName = requestedNavigation?.getStringExtra("open_route"),
+                initialTargetCharacterId = requestedNavigation?.getStringExtra("open_character_id"),
+                initialDiaryTitle = requestedNavigation?.getStringExtra("open_diary_title"),
+                initialLexiconSection = requestedNavigation?.getStringExtra("open_lexicon_section"),
+                initialReadingTitle = requestedNavigation?.getStringExtra("open_reading_title"),
+                initialMeetingInvitationText = requestedNavigation?.getStringExtra("open_meeting_invitation_text"),
+                initialMeetingLocation = requestedNavigation?.getStringExtra("open_meeting_location"),
+                initialMeetingInvitationId = requestedNavigation?.getStringExtra("open_meeting_invitation_id"),
+                navigationRequestId = navigationRequestSerial.longValue,
                 incomingSharedNote = incomingSharedNote.value,
                 onSharedNoteHandled = { incomingSharedNote.value = null },
             )
