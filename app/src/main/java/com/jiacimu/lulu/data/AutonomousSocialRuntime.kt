@@ -51,7 +51,14 @@ internal object AutonomousSocialRuntime {
             .take(4)
             .toList()
         if (coLocatedIds.isEmpty()) {
-            worldTick?.let {
+            // Routine walking already has its own one-call narrative. A
+            // freshly generated ambient footstep or ordinary stay must not
+            // buy ANOTHER model call just because the location changed.
+            // Substantive persisted incidents still deserve one reaction.
+            worldTick?.takeIf { tick ->
+                !DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
+                    DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick)
+            }?.let {
                 generateSoloIncidentReaction(
                     context = context,
                     characterId = characterId,
