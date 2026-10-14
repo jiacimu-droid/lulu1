@@ -75,20 +75,12 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 Text("内置浏览器是主线路；角色仍需单独开启只读授权。外部 MCP 不必配置，" +
                     "也不会因仅保存本机地址就自动接管阅读。",
                     style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = onOpenBrowserProbe) { Text("登录 / 检查小红书网页") }
-                OutlinedButton(onClick = onOpenXhsNativeReader) { Text("进入小红书 · 列表（内置阅读）") }
-                // Search tests must execute on a genuinely visible WebView.
-                // Running a second hidden WebView from Settings creates a
-                // blank/no-response page on some Android WebView versions.
-                OutlinedButton(onClick = {
-                    // Open the native list itself. No separate browser-probe
-                    // page, ACTION_VIEW, Chrome intent or MCP.
-                    XhsReadingEngine.requestVisibleReadTest(context)
-                    onOpenXhsNativeReader()
-                }) { Text("一键测试内置浏览器真实读帖") }
-                Text("直接进入「小红书 · 列表」内完成搜索和图文读取；" +
-                    "进度与检测结果就在阅读页显示。不打开独立浏览器，不使用 MCP，也不写入角色记忆。",
-                    style = MaterialTheme.typography.bodySmall)
+                Button(onClick = onOpenBrowserProbe, modifier = Modifier.fillMaxWidth()) {
+                    Text("打开小红书")
+                }
+                Text("直接浏览帖子和评论。网页阅读、搜索、提取图文、真实读帖测试和诊断都统一放进阅读页右上角菜单；不再需要三个不同入口。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             var optionalMcpExpanded by remember(service) { mutableStateOf(false) }
             if (service == "xiaohongshu") {
