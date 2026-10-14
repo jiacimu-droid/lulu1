@@ -198,6 +198,34 @@ object ProactivePerceptionScheduler {
     }
 
     /**
+     * Low-urgency life/idea follow-through shares one budget window per role.
+     * A real user message, verified new arrival or call event never comes here.
+     * Identity includes the next eligible timestamp so a worker currently executing
+     * cannot swallow a later deferred follow-through.
+     */
+    fun scheduleCoalescedLifeReview(
+        context: Context, characterId: String, delayMillis: Long, onlineOnly: Boolean,
+        eligibleAtMillis: Long,
+    ) {
+        if (characterId.isBlank() || eligibleAtMillis <= 0L) return
+        val app = context.applicationContext
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(delayMillis.coerceAtLeast(100L), TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", if (onlineOnly) "在线持续感知·合并回顾" else "合并后的自主生活回顾")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putBoolean("requireOnline", onlineOnly)
+                .putBoolean("respectMessageBuffer", true)
+                .build())
+            .build()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "lulu-coalesced-life-$characterId-$eligibleAtMillis", ExistingWorkPolicy.KEEP, request,
+        )
+    }
+
+    /**
      * Durable fallback for an exact five-minute expiry boundary. The foreground
      * expiry job uses the same decision path; CompanionOnlineStore claims the
      * boundary once so these two paths never cause two paid calls.
