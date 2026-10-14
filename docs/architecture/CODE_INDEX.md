@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b59bc2fd56d9ae31f761eaf7b1c0a8f2b83a205a`
+- 基准提交：`9e83b60526ed744177d068d6a867f43316b0bbfc`
 - 分支：`main`
 - 已索引文件：615
-- 已索引代码/文本行：123137
+- 已索引代码/文本行：123153
 - 已发现符号：1843
 
 | 文件 | 行数 | 符号数 |
@@ -619,7 +619,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 369 | 1 |
+| `scripts/test_xhs_reader.js` | 385 | 1 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |
