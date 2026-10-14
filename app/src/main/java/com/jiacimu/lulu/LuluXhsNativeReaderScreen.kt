@@ -526,7 +526,7 @@ internal fun LuluXhsNativeReaderScreen(
 
 @Composable
 private fun XhsNoteTile(card: XhsCard, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    ElevatedCard(onClick = onClick, modifier = modifier,
+    ElevatedCard(modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
             XhsNoteCover(card.coverUrl)
