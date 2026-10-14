@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T07:56:21.385759+00:00",
-  "commit": "c03c10f79d61aea6c41a4901dd0dfaa2069052d5",
+  "generatedAt": "2026-10-14T07:57:05.637175+00:00",
+  "commit": "6f786c44f65470e62c1228ab4b7ce8a8fde1d810",
   "branch": "main",
-  "sourceFingerprint": "8ba5c286146e831a50a2d290838fd4829a27c0de4e9a41eeafedbd0c623bd49c",
+  "sourceFingerprint": "97c9556e6f484e03ace13c2da7dcb87fd6d494a8e7ae8d4f961e5605e025c6ef",
   "summary": {
     "files": 622,
-    "lines": 125020,
+    "lines": 125037,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -11683,8 +11683,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt",
-      "lines": 125,
-      "sha256": "ccbd9e56122dbaae769da99ad0ecb793731fe71953834d2a424f7745a72ac62a",
+      "lines": 142,
+      "sha256": "45d742e6abce8a7bffe8aab0047d7e0e69af76d76282e10e499cdee4644d4c17",
       "symbols": [
         {
           "name": "LuluVisionSettingsScreen",
