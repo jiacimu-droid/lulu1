@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T07:17:20.834026+00:00",
-  "commit": "b2e4e4da886ec276a5f60fb74f2b6129aa460840",
+  "generatedAt": "2026-10-14T07:19:12.622730+00:00",
+  "commit": "0d022ff6d42cbd8c8b87941088f28cd67368886f",
   "branch": "main",
-  "sourceFingerprint": "82a5c8c574a4f0dd4754ebe8bc6e689d9d4505d041125c128d1bbc598ba0297a",
+  "sourceFingerprint": "ddb8352628b76a5e1ed2a88007ce142c97ed930bade47bd996d1626472c8f9b3",
   "summary": {
     "files": 621,
-    "lines": 124722,
+    "lines": 124701,
     "symbols": 1863
   },
   "symbolIndex": {
@@ -1767,7 +1767,7 @@
     "back": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 265
+        "line": 268
       }
     ],
     "PendingTouch": [
@@ -11791,8 +11791,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-      "lines": 652,
-      "sha256": "54f39d146f56eb74a88e8a5178d5c127a6d98f760143dd92df6b7a3c0ac924e4",
+      "lines": 631,
+      "sha256": "4be7291acce9d04f016ba2dc653a532c3cdebbd9b7504389a234f0444578deda",
       "symbols": [
         {
           "name": "failure",
@@ -11816,7 +11816,7 @@
         },
         {
           "name": "back",
-          "line": 265
+          "line": 268
         }
       ]
     },
