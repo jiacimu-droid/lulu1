@@ -363,6 +363,14 @@ object DigitalWorldStore {
             speaker = character.displayName,
             content = summary,
             occurredAt = now,
+            // Routine movement/rest remains a real raw timeline event, but
+            // does not independently trigger another paid memory/reaction pass.
+            // Meaningful incidents, furniture changes and concrete discoveries
+            // retain the existing evidence-driven follow-through.
+            triggerExtraction = action.trim().lowercase() !in setOf(
+                "visit_public_place", "visit_cloud_meadow", "go_home",
+                "use_location", "use_home_item",
+            ),
         )
         DigitalWorldActionResult(true, summary, evidenceId)
     }.getOrElse { DigitalWorldActionResult(false, it.message ?: it::class.java.simpleName) }
