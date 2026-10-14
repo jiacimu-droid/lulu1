@@ -625,8 +625,13 @@ object LuluDeviceToolBridge {
         // evaporate as soon as the call finishes. Persist it in the SAME private
         // concern ledger, with a verified user message as its source, but never
         // manufacture an executed favorite from thought alone.
-        if (sceneContext.contains("电话") && !callSilence && !rewriting &&
-            plan.action == "reply" && originalUserEvidence.isNotEmpty() &&
+        val verifiedCallSource = sceneContext.contains("电话") &&
+            groundingEvidenceId.isNotBlank() &&
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(groundingEvidenceId),
+            ).any { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }
+        if (verifiedCallSource && !callSilence && !rewriting &&
+            plan.action == "reply" &&
             !com.jiacimu.lulu.data.CharacterOpenConcernRuntime.hasProposals(plan.appraisal)) {
             val concern = com.jiacimu.lulu.data.CharacterDeferredFavoritePolicy.concern(
                 plan.innerThought, plan.text, hasVerifiedUserMessage = true,
