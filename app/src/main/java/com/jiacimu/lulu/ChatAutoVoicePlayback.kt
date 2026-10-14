@@ -165,7 +165,8 @@ object ChatAutoVoicePlayback {
         if (autoPlaySuppressed()) return
         if (!VoiceSynthesisPolicy.chatAutomaticAllowed(appContext ?: return, characterId)) return
         if (!AutomaticVoiceForeground.visible()) return
-        val clean = text.trim()
+        // Never pay TTS to read hidden reply directives or control metadata.
+        val clean = stripCharacterReplyDirective(text).trim()
         if (clean.isBlank() || messageId.isBlank()) return
         sendOnce(
             Request(
