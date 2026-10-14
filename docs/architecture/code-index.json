@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T07:51:14.682569+00:00",
-  "commit": "b5dad2c22b87ec4116754548ca4f9b09bb9ce98e",
+  "generatedAt": "2026-10-14T07:53:21.908436+00:00",
+  "commit": "1ce9adb7c105c6046b6fdeb88e5e9f63938a292a",
   "branch": "main",
-  "sourceFingerprint": "88c7c813af8e658a805316e1b1c445f5f8d4cc8243e196c3a5a0905e81f3ef0a",
+  "sourceFingerprint": "48fb3e31e313b6272524f1d0184c2b24c0946a2e8828d583f28d8e2500a4ab8b",
   "summary": {
     "files": 622,
-    "lines": 124947,
+    "lines": 124973,
     "symbols": 1865
   },
   "symbolIndex": {
@@ -1407,7 +1407,7 @@
     "open": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 84
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -1417,13 +1417,13 @@
     "refreshLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 111
+        "line": 112
       }
     ],
     "read": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 344
+        "line": 370
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -11500,8 +11500,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 424,
-      "sha256": "5a8a8d2ad3c50dae68e4ce05c4204744fa6fb57828d8cc100dc48a689b84f481",
+      "lines": 450,
+      "sha256": "4e4f1a0d6f22711d134066443363dc2bb969674bde7f0387e4bd8972f6a021ed",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -11509,15 +11509,15 @@
         },
         {
           "name": "open",
-          "line": 84
+          "line": 85
         },
         {
           "name": "refreshLocation",
-          "line": 111
+          "line": 112
         },
         {
           "name": "read",
-          "line": 344
+          "line": 370
         }
       ]
     },
