@@ -92,24 +92,26 @@ internal fun QqMessageRow(
 
     val mine = message.sender == LuluChatMessage.Sender.User
     val forwardBundle = remember(message.content) { decodeQqForwardedChat(message.content) }
+    val xhsShare = remember(message.content) { decodeQqXhsSharedNote(message.content) }
+    var xhsOpen by remember(message.id) { mutableStateOf(false) }
     var forwardOpen by remember(message.id) { mutableStateOf(false) }
     val gameInvite = remember(message.content, mine, forwardBundle) {
-        if (mine || forwardBundle != null) null else parseGameInvite(message.content)
+        if (mine || forwardBundle != null || xhsShare != null) null else parseGameInvite(message.content)
     }
     val worldInvite = remember(message.content, mine, forwardBundle) {
-        if (mine || forwardBundle != null) null else parseWorldInvite(message.content)
+        if (mine || forwardBundle != null || xhsShare != null) null else parseWorldInvite(message.content)
     }
-    val visibleContent = remember(message.content, gameInvite, worldInvite, forwardBundle) {
+    val visibleContent = remember(message.content, gameInvite, worldInvite, forwardBundle, xhsShare) {
         when {
-            forwardBundle != null -> ""
+            forwardBundle != null || xhsShare != null -> ""
             gameInvite != null -> gameInvite.message
             worldInvite != null -> worldInvite.message
             else -> stripCharacterReplyDirective(message.content)
         }
     }
-    val bubbles = remember(visibleContent, mine, gameInvite, worldInvite, forwardBundle) {
+    val bubbles = remember(visibleContent, mine, gameInvite, worldInvite, forwardBundle, xhsShare) {
         when {
-            forwardBundle != null -> emptyList()
+            forwardBundle != null || xhsShare != null -> emptyList()
             gameInvite != null || worldInvite != null -> emptyList()
             mine -> listOf(visibleContent)
             else -> splitCharacterBubbles(visibleContent)
@@ -209,6 +211,17 @@ internal fun QqMessageRow(
                     }
                     Spacer(Modifier.height(5.dp))
                 }
+                if (xhsShare != null) {
+                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
+                        QqXhsSharedNoteCard(
+                            note = xhsShare,
+                            modifier = bubbleModifier,
+                            onClick = { xhsOpen = true },
+                            onLongClick = onLongClick,
+                        )
+                    }
+                    Spacer(Modifier.height(5.dp))
+                }
                 if (forwardBundle != null) {
                     MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
                         QqForwardedChatCard(
@@ -262,6 +275,9 @@ internal fun QqMessageRow(
         }
     }
 
+    if (xhsOpen && xhsShare != null) {
+        QqXhsSharedNoteDetail(xhsShare, onDismiss = { xhsOpen = false })
+    }
     if (forwardOpen && forwardBundle != null) {
         AlertDialog(
             onDismissRequest = { forwardOpen = false },
