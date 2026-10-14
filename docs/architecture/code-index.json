@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T08:40:09.373192+00:00",
-  "commit": "7028e1994f6335e22c98f1d0e1f10f973f92c2c9",
+  "generatedAt": "2026-10-14T08:41:06.441248+00:00",
+  "commit": "d00ed9f8fbab0ec13f4c13d9249ae91840fbbc0c",
   "branch": "main",
-  "sourceFingerprint": "aa0f1381f5bb327083675ba6b5537245c021a296932a41d77594da0cb1e9f2a0",
+  "sourceFingerprint": "29725f83684340564bc4e6cb2af52045b37ab41b478e0ce4b31f9ffcc998c707",
   "summary": {
-    "files": 625,
-    "lines": 125533,
-    "symbols": 1865
+    "files": 626,
+    "lines": 125600,
+    "symbols": 1866
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9646,6 +9646,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
         "line": 7
+      }
+    ],
+    "QqXhsShareCodecTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt",
+        "line": 5
       }
     ],
     "ScribeRealtimeFailurePolicyTest": [
@@ -20685,6 +20691,17 @@
         {
           "name": "QqMessageGroupingTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt",
+      "lines": 67,
+      "sha256": "b74883dc2742fd1bb4e659407a81774c873346f1eeea195974841c5d7172ee50",
+      "symbols": [
+        {
+          "name": "QqXhsShareCodecTest",
+          "line": 5
         }
       ]
     },
