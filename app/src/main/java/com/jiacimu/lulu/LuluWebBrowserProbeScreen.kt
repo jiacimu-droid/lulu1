@@ -340,6 +340,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             AndroidView(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 factory = { ctx ->
+                    // Ensure the Activity installs the navigation bridge before
+                    // the first screen borrows the browser, even if onResume's
+                    // asynchronous warm-up has not run yet.
+                    appBrowser?.prepareForForeground()
                     (appBrowser?.reuse() ?: WebView(ctx)).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
