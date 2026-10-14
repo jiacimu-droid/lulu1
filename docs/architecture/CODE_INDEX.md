@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a23bdbab7775e74f269cf2b1c853603d8488e15b`
+- 基准提交：`dfcf41695f2cfdc972fb3b30b3a671de6f347d09`
 - 分支：`main`
 - 已索引文件：630
-- 已索引代码/文本行：126036
+- 已索引代码/文本行：126060
 - 已发现符号：1869
 
 | 文件 | 行数 | 符号数 |
@@ -468,7 +468,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt` | 621 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 342 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1280 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1304 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 186 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
