@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.ai.LuluAiServices
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 
 /**
@@ -32,7 +33,8 @@ internal object WorldLifeEpisodeComposer {
             .joinToString("；") { "${it.name}（${it.position.take(65)}）" }
         val prior = WorldLifeEpisodeStore.episodes(characterId).takeLast(1).firstOrNull()
         val model = try {
-            LuluAiServices.gateway.generate(
+            withTimeoutOrNull(35_000L) {
+                LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
                     appendLine("唯一已经执行并入库的世界动作：$confirmedAction")
@@ -55,7 +57,9 @@ internal object WorldLifeEpisodeComposer {
                 title = "${character.displayName}的独处片段",
                 maxTokens = 1_100,
                 contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
-            ).getOrNull()?.text
+                readTimeoutMillis = 32_000,
+                ).getOrNull()?.text
+            }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) { null }
