@@ -34,8 +34,12 @@ object CapabilityRegistry {
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
         if (userRequested) return true
-        return context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-            .getBoolean("$characterId:${capability.permission}", false)
+        val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        // Authorizing media transport reasonably includes inspecting the
+        // media session it will control, without granting all device_read data.
+        if (capability.name == "list_media_sessions" &&
+            prefs.getBoolean("$characterId:media", false)) return true
+        return prefs.getBoolean("$characterId:${capability.permission}", false)
     }
 
     fun context(context: Context, characterId: String): String = device.joinToString("\n", "统一手机/云端能力（离线手机操作不能由云端宣称成功）：\n") { cap ->
