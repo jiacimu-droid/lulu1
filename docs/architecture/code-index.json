@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T05:11:52.198592+00:00",
-  "commit": "098f0cc74be43754b1ddb9722c68d4b3c4c820d1",
+  "generatedAt": "2026-10-14T05:12:22.922369+00:00",
+  "commit": "c3b9d3813f4bd146c8ac8798423c2ce8f3b77a3b",
   "branch": "main",
-  "sourceFingerprint": "3257850e529bc93cf227a773824f45562f2ec9088f6876131dc0a183ad182350",
+  "sourceFingerprint": "a89f4360126b93ba7cc4727733c67153d7693ce89bd5af4ce0d584f65de8c610",
   "summary": {
     "files": 616,
-    "lines": 123689,
+    "lines": 123695,
     "symbols": 1851
   },
   "symbolIndex": {
@@ -1471,7 +1471,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 78
+        "line": 84
       }
     ],
     "saveGroupCall": [
@@ -2603,25 +2603,25 @@
     "reuse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 41
+        "line": 46
       }
     ],
     "adopt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 49
+        "line": 54
       }
     ],
     "park": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 58
+        "line": 63
       }
     ],
     "hasBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-        "line": 76
+        "line": 82
       }
     ],
     "ApiConfiguration": [
@@ -12741,28 +12741,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
-      "lines": 96,
-      "sha256": "cd596ada295a0421a873498c2778ae2791a8867956d30f3915770e580eb6c904",
+      "lines": 102,
+      "sha256": "5361c48bb5873635faf472c72cdf178e22854864c8b870fde6803cd032bc86d8",
       "symbols": [
         {
           "name": "reuse",
-          "line": 41
+          "line": 46
         },
         {
           "name": "adopt",
-          "line": 49
+          "line": 54
         },
         {
           "name": "park",
-          "line": 58
+          "line": 63
         },
         {
           "name": "hasBrowser",
-          "line": 76
+          "line": 82
         },
         {
           "name": "destroy",
-          "line": 78
+          "line": 84
         }
       ]
     },
