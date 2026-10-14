@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T17:05:27.980361+00:00",
-  "commit": "2df5a014eb0c24e3c0c9a075aebec525a82780df",
+  "generatedAt": "2026-10-14T17:06:03.380634+00:00",
+  "commit": "ba5bfe295f55933d309c7ae3e7493a464bd72ca1",
   "branch": "main",
-  "sourceFingerprint": "8599332034a9f83c97ae13c281efa57182ef585a74cf20e7e131c09d91dd8cce",
+  "sourceFingerprint": "29054bb7c84efbc243fdd423bda4ce057618439e10046e3b815ae8c1335c6df0",
   "summary": {
     "files": 634,
     "lines": 127199,
@@ -17413,7 +17413,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RealtimePhoneFavoritePolicy.kt",
       "lines": 25,
-      "sha256": "3466a5304f4339937b6fbe535934eba0a7c7585c506c17b1bf90e00c5561326d",
+      "sha256": "edd909de35bc66a135081d544282b19f89fe3499a4b679c63d81aec236831c7b",
       "symbols": [
         {
           "name": "decidedToSaveNow",
