@@ -402,17 +402,16 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                 return false
                             }
                         }
-                        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-                            // This same WebView moves between screens. A bridge from
-                            // the previous screen must not retain stale Compose state.
-                            WebViewCompat.removeWebMessageListener(this, "luluXhsNavigation")
-                            WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
-                                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) { view, message, origin, mainFrame, _ ->
+                        // The shared Activity browser installed its bridge BEFORE
+                        // loading the first page. This screen only supplies a temporary
+                        // callback; replacing the listener would leave preloaded SPA
+                        // documents without window.luluXhsNavigation.
+                        val routingHandler: (WebView, String, Uri, Boolean) -> Unit = route@{ view, payload, origin, mainFrame ->
                                 if (!mainFrame || browser !== view || returningToList || readerVisible ||
                                     XhsReadingEngine.controls(view) || origin.scheme != "https" ||
-                                    origin.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return@addWebMessageListener
-                                val value = runCatching { JSONObject(message.data.orEmpty()) }.getOrNull()
-                                    ?: return@addWebMessageListener
+                                    origin.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return@route
+                                val value = runCatching { JSONObject(payload) }.getOrNull()
+                                    ?: return@route
                                 when (value.optString("kind")) {
                                     "search-start" -> {
                                         readerKeyword = value.optString("keyword").take(64)
@@ -431,7 +430,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                     }
                                     "search-ready" -> {
                                         val query = value.optString("keyword").take(64)
-                                        if (query.isBlank()) return@addWebMessageListener
+                                        if (query.isBlank()) return@route
                                         val snapshot = """window.__luluXhsReader?.snapshot("search","",${JSONObject.quote(query)}) || "{}";"""
                                         view.evaluateJavascript(snapshot) { encoded ->
                                             if (browser !== view || readerVisible || returningToList) return@evaluateJavascript
@@ -460,7 +459,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                     }
                                     "note" -> {
                                         val id = value.optString("id")
-                                        if (!Regex("[a-zA-Z0-9]{12,40}").matches(id)) return@addWebMessageListener
+                                        if (!Regex("[a-zA-Z0-9]{12,40}").matches(id)) return@route
                                         readerCard = XhsCard(id, value.optString("token").take(512),
                                             value.optString("title").take(200).ifBlank { "笔记" },
                                             value.optString("author").take(120),
@@ -468,9 +467,15 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                                         readerVisible = true
                                     }
                                 }
+                        }
+                        if (appBrowser != null) {
+                            appBrowser.setNavigationHandler(routingHandler)
+                        } else if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                            WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
+                                setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) { view, message, origin, mainFrame, _ ->
+                                routingHandler(view, message.data.orEmpty(), origin, mainFrame)
                             }
-                            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT) &&
-                                (appBrowser == null || appBrowser.needsRouteScript()))
+                            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
                                 WebViewCompat.addDocumentStartJavaScript(this, routingScript,
                                     setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
                         }
@@ -660,9 +665,9 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
                     if (browser === view) browser = null
                     // Remove the screen-owned JS listener and callbacks; do
                     // not destroy the shared login, SPA state, or navigation.
-                    if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                    if (appBrowser != null) appBrowser.setNavigationHandler(null)
+                    else if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))
                         WebViewCompat.removeWebMessageListener(view, "luluXhsNavigation")
-                    }
                     CookieManager.getInstance().flush()
                     view.webChromeClient = null
                     if (appBrowser != null) appBrowser.park(view)
