@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`44c57c92b3d50954ab21a69fe3807f8de13f2fdb`
+- 基准提交：`27eaf606de21df646489ec593318090103c71eac`
 - 分支：`main`
 - 已索引文件：632
-- 已索引代码/文本行：126344
+- 已索引代码/文本行：126357
 - 已发现符号：1873
 
 | 文件 | 行数 | 符号数 |
@@ -130,7 +130,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 194 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 467 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 480 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 224 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 56 | 0 |
