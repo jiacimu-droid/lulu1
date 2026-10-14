@@ -3,7 +3,12 @@ package com.jiacimu.lulu.system
 import android.media.session.PlaybackState
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class LuluMediaTransportPolicyTest {
     private fun state(actions: Long, state: Int = PlaybackState.STATE_PLAYING): PlaybackState =
         PlaybackState.Builder()
