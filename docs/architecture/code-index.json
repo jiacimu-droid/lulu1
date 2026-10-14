@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T12:06:19.743793+00:00",
-  "commit": "225d083126a0ac1c302ac48cb79164f3ddaed876",
+  "generatedAt": "2026-10-14T12:07:06.666221+00:00",
+  "commit": "d1ff13cf64686f2544b11373e49f60f851fe3939",
   "branch": "main",
-  "sourceFingerprint": "ba1a928b99026bb66834d31e48126ed8994de4a0ead694608774997e0093e87a",
+  "sourceFingerprint": "4e746f8ae9594f40ef7f41aee889efa791081ee90b36336232dd97c26f6e0d3c",
   "summary": {
     "files": 633,
-    "lines": 126750,
+    "lines": 126762,
     "symbols": 1876
   },
   "symbolIndex": {
@@ -11282,8 +11282,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
-      "lines": 414,
-      "sha256": "e76dc658dafdf2e69c3c989217d5e040dfeb33848e2eb1b3e4859dce91271a48",
+      "lines": 415,
+      "sha256": "e0ab75e422b284dac0286ade534d27d29ca516aa2b8ae6ed7943b822d004359b",
       "symbols": [
         {
           "name": "ledgerText",
@@ -12562,8 +12562,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 283,
-      "sha256": "9959af01e0a0d1c5eb1522a9f4580624e1d7a91e890091972cd03147f3800fb3",
+      "lines": 284,
+      "sha256": "63ad0480d976160bc337c4a30b905b9d34b3d9da7807d6e429fe3492043265af",
       "symbols": [
         {
           "name": "mute",
@@ -17029,8 +17029,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 108,
-      "sha256": "4746115809624d7a1d443dba898247ec851a6e905d8d6b9d7ef1769368d25041",
+      "lines": 109,
+      "sha256": "3eb861fa3f28619cda36470569af69d1f2a223351f0856ae5695f112c97245ed",
       "symbols": []
     },
     {
@@ -20305,8 +20305,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 621,
-      "sha256": "26988470237f578dc12d1177b48bb9a76e357675dcefa189f5ac3e4587c2c954",
+      "lines": 630,
+      "sha256": "452cb14db27ccad5894285bd05f2952ba923b45ee0a6836094fbf84accc33792",
       "symbols": []
     },
     {
