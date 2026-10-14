@@ -239,7 +239,9 @@ internal object LuluExternalMcp {
             val visualText = if (data.isNotEmpty()) personalThought?.optString("imageUnderstanding").orEmpty().trim().take(3000) else ""
             if (data.isNotEmpty()) visualStatus = if (visualText.isNotBlank())
                 "模型已理解${data.size}张图片（原帖序号：${prepared.originalNumbers.joinToString("、")}），共${article.images.size}张图片链接；未输入的图片不算已读"
-                else "传入${data.size}张图片，但模型未返回有效图像理解，未标记图片已读"
+                else if (generated.isFailure)
+                    "已传入${data.size}张图片，但当前模型或中转服务未成功处理图文：${generated.exceptionOrNull()?.message.orEmpty().take(125)}；未标记图片已读"
+                else "已传入${data.size}张图片，但模型未返回有效图像理解，未标记图片已读"
             require(article.body.isNotBlank() || visualText.isNotBlank()) {
                 "图文读取失败：${generated.exceptionOrNull()?.message.orEmpty().take(160).ifBlank { visualStatus }}"
             }
