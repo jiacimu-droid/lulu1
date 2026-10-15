@@ -20,6 +20,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.ModelUsage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal data class QqComposerPayload(
     val text: String,
@@ -42,16 +45,33 @@ internal fun QqChatComposer(
 ) {
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<String?>(null) }
+    var importingPhoto by remember { mutableStateOf(false) }
+    var photoImportError by remember { mutableStateOf("") }
+    var pickerRevision by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
     var showStickerShelf by remember { mutableStateOf(false) }
     var stickerNotice by remember { mutableStateOf("") }
 
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        runCatching {
-            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        pickerRevision += 1
+        val current = pickerRevision
+        imageUri = null
+        photoImportError = ""
+        importingPhoto = true
+        scope.launch {
+            // PhotoPicker may supply only a temporary URI grant. Import
+            // outside the UI thread so both direct and delayed perception
+            // can read the exact same image after a process restart.
+            val imported = runCatching {
+                withContext(Dispatchers.IO) { QqChatPhotoAttachmentStore.import(context, uri) }
+            }
+            if (pickerRevision == current) {
+                importingPhoto = false
+                imported.onSuccess { imageUri = it }
+                    .onFailure { photoImportError = "图片未能保存：${it.message.orEmpty().take(85)}" }
+            }
         }
-        // Attach immediately; the chat model reads the pixels after sending.
-        imageUri = uri.toString()
     }
 
     val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -70,6 +90,9 @@ internal fun QqChatComposer(
     )
 
     fun clearAttachment() {
+        pickerRevision += 1
+        importingPhoto = false
+        photoImportError = ""
         imageUri = null
     }
 
@@ -89,6 +112,14 @@ internal fun QqChatComposer(
                     maxLines = 2,
                 )
             }
+        }
+        if (importingPhoto) {
+            Text("正在准备图片，完成后才能发送…", color = QqMuted,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.sp)
+        }
+        if (photoImportError.isNotBlank()) {
+            Text(photoImportError, color = Color(0xFFB04C4C),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.sp)
         }
         if (imageUri != null) {
             Surface(
@@ -191,7 +222,7 @@ internal fun QqChatComposer(
                 ),
             )
 
-            val canSend = input.isNotBlank() || imageUri != null
+            val canSend = !importingPhoto && (input.isNotBlank() || imageUri != null)
             FilledIconButton(
                 onClick = { if (onSendOnly(payload())) clearAttachment() },
                 enabled = canSend,
@@ -206,8 +237,9 @@ internal fun QqChatComposer(
             FilledTonalIconButton(
                 onClick = {
                     if (receiving) onStop()
-                    else if (onWakeOrReply(payload())) clearAttachment()
+                    else if (!importingPhoto && onWakeOrReply(payload())) clearAttachment()
                 },
+                enabled = receiving || !importingPhoto,
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = QqIconSurface,
                     contentColor = QqInk,
