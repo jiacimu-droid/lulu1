@@ -548,8 +548,11 @@ class CompanionModelGateway(
                 if (effectiveMode != CompanionContextMode.Isolated) {
                     if ((effectiveMode == CompanionContextMode.Full ||
                         effectiveMode == CompanionContextMode.CharacterAndScenario) &&
+                        !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples) &&
                         !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)) {
-                        appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)
+                        // Do not re-inject the historical long protocol when a scene
+                        // already supplied the unified compact contract.
+                        appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples)
                     }
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.promptSection())
                     if (effectiveMode != CompanionContextMode.Ensemble) appendLine(
