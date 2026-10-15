@@ -14,6 +14,53 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun aNewPrivateMessageWakesAnOfflineCharacterWithoutWaitingFiveMinutes() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "离线新消息主动感知测试", "即使离线也接得住用户的新消息",
+        )
+        val conversation = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        OnlineChatBatchStore.cancel(context, role.characterId)
+        CompanionOnlineStore.resetCharacter(role.characterId)
+        assertFalse(CompanionOnlineStore.isOnline(role.characterId))
+
+        val sent = MigratedDomainStores.chat.sendUserMessage(conversation.id, "现在在吗？")
+        val state = CompanionOnlineStore.states.value.getValue(role.characterId)
+        assertTrue(state.onlineUntil.isAfter(sent.createdAt.plusSeconds(290)))
+        assertEquals(CompanionOnlineReason.NewActivity, state.reason)
+        val due = OnlineChatBatchStore.pendingDueAt(context, role.characterId)
+        assertNotNull(due)
+        assertEquals(sent.createdAt.toEpochMilli() + OnlineChatBatchStore.QUIET_MILLIS, due)
+        assertTrue(CompanionOnlineStore.unreadChatSnapshot(role.characterId).text.contains("现在在吗"))
+        OnlineChatBatchStore.cancel(context, role.characterId)
+    }
+
+    @Test fun groupUserMessageWakesAllParticipantsIndependently() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val a = MigratedDomainStores.characters.create("群成员甲感知", "独立判断").characterId
+        val b = MigratedDomainStores.characters.create("群成员乙感知", "独立判断").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("来消息就醒的群聊", listOf(a, b))
+        for (id in listOf(a, b)) {
+            OnlineChatBatchStore.cancel(context, id)
+            CompanionOnlineStore.resetCharacter(id)
+            assertFalse(CompanionOnlineStore.isOnline(id))
+        }
+        val incoming = MigratedDomainStores.chat.sendUserMessage(group.id, "你们都在吗？")
+        for (id in listOf(a, b)) {
+            assertTrue(CompanionOnlineStore.isOnline(id))
+            assertEquals(CompanionOnlineReason.NewActivity,
+                CompanionOnlineStore.states.value.getValue(id).reason)
+            assertTrue(CompanionOnlineStore.unreadChatSnapshot(id).text.contains("你们都在吗"))
+            assertEquals(incoming.createdAt.toEpochMilli() + OnlineChatBatchStore.QUIET_MILLIS,
+                OnlineChatBatchStore.pendingDueAt(context, id))
+            OnlineChatBatchStore.cancel(context, id)
+        }
+    }
+
     @Test fun aDeliveredCharacterMessageDoesNotAutomaticallyBuyFiveMoreMinutes() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
