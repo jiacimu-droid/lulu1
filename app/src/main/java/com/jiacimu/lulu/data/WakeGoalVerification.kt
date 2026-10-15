@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.system.LuluAlarmSystem
+import java.time.Instant
 
 /**
  * Delivering a ringtone or talking is a recorded *attempt*; only clear user
@@ -14,11 +15,15 @@ internal object WakeGoalVerification {
         return Regex("我醒了|我醒啦|已经醒了|睡醒了|我起来了|我起床了|起床啦|起来啦").containsMatchIn(clean)
     }
 
-    fun confirm(characterId: String, text: String): Boolean {
+    /** Only confirm an already due or attempted wake-up; do not cancel future alarms. */
+    internal fun eligibleToComplete(task: CommitmentTask, now: Instant): Boolean =
+        task.isWakeResponsibility() && task.status.isActive() &&
+            (task.attemptCount > 0 || (task.dueAt != null && !task.dueAt.isAfter(now)))
+
+    fun confirm(characterId: String, text: String, now: Instant = Instant.now()): Boolean {
         if (!explicitlyAwake(text)) return false
         val outstanding = CommitmentTaskStore.snapshot(characterId).filter {
-            it.isWakeResponsibility() &&
-                it.status == CommitmentTaskStatus.WaitingForFeedback
+            eligibleToComplete(it, now)
         }
         outstanding.forEach { task ->
             task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
