@@ -349,11 +349,12 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
     }
 
     goal?.takeIf { it.optString("aim").isNotBlank() }?.let { g ->
-        val stage = when (g.optString("stage")) {
-            "decided", "executing" -> "打算去做"
-            "following_up" -> "已经尝试"
-            "paused" -> "暂时搁置"
-            "blocked" -> "遇到阻碍"
+        val stage = when {
+            g.optBoolean("userRequestedSpace") -> "尊重你的空间 · 暂停主动联系"
+            g.optString("stage") in setOf("decided", "executing") -> "打算去做"
+            g.optString("stage") == "following_up" -> "已采取行动 · 目标待确认"
+            g.optString("stage") == "paused" -> "暂时搁置"
+            g.optString("stage") == "blocked" -> "遇到阻碍"
             else -> "还在考虑"
         }
         val outcomes = g.optJSONArray("outcomes")
@@ -364,6 +365,18 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                 g.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能的下一步：$it" },
                 outcome?.optString("summary")?.takeIf(String::isNotBlank)
                     ?.let { "已经发生：$it" },
+                g.optString("nextReviewAt").takeIf(String::isNotBlank)?.let { iso ->
+                    runCatching {
+                        Instant.parse(iso).atZone(ZoneId.systemDefault())
+                            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+                    }.getOrNull()?.let { "计划重新看看：$it（不一定发消息）" }
+                },
+                g.optInt("unansweredContactAttempts").takeIf { it > 0 }?.let {
+                    "此前实际联系但未获新回复：$it 次；联系成功不等于目标达成"
+                },
+                g.optString("lastUserEvidenceAt").takeIf(String::isNotBlank)?.let {
+                    "已记录你的新回复，旧定时复查已取消；等待依据内容调整目标"
+                },
             ).joinToString("\n"))
     }
     pending?.optString("action")?.takeIf(String::isNotBlank)?.let { name ->
