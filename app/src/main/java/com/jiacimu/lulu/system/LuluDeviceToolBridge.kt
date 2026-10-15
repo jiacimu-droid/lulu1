@@ -242,7 +242,10 @@ object LuluDeviceToolBridge {
             text 应是确实要说的最后一句口语，可自然道别、说明想法或设立边界；结束语实际播放完毕后由电话系统真正挂断并记录。没有想挂断就省略该字段。
             不要把“我先挂了”当成完成挂断的证明，必须设置 endCall=true。只有发言才可申请结束，不输出无声终止的空 text。
         """.trimIndent() else ""
-        val separateExpression = CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
+        // Group members must decide and speak within their own single model turn.
+        // Private text chat retains its deliberate two-stage renderer.
+        val isGroupChat = sceneContext.contains("群聊《")
+        val separateExpression = !isGroupChat && CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
         val programDialogueConstraint = if (separateExpression)
             com.jiacimu.lulu.data.DialogueMoveEngine.plannerConstraint(userText) else ""
         val phoneConversationConstraint = if (!separateExpression && userText.isNotBlank()) buildString {
@@ -285,6 +288,15 @@ object LuluDeviceToolBridge {
             工具动作仍必须按下方的真实工具协议返回 tool 与 args；没有回执就不能假装成功。
             如果本轮行动是为了推进之前一件仍未解决的私人心事，可带 concernId=上下文里真实存在的 threadId；必须依据执行回执确认行动结果。没有对应心事就留空，不要随意创造。
             角色有自己的立场，可以反问、换话题或暂时不回复；被问到紧急、重要的事情时要考虑实际影响，不机械冷处理。
+        """.trimIndent() else if (isGroupChat) """
+            【群聊：一次调用只决定当前这一个角色】
+            你只扮演当前 characterId 的一个真实成员；其他成员的话已经在群聊历史中，绝不代他们发言。
+            可以选 action=silent（此刻不想说话）或 action=reply，直接写本人的 text，不需要额外表达调用。
+            回复只返回自己的自然口语，可分一到几个短气泡；不要给其他人写台词或生成 NEXT/END 控制命令。
+            如产生真实的学习、收藏或其他自主行动意愿，可选 action=tool 并附上受授权的能力及参数；执行成功与否必须等回执。
+            没有真正变化的情绪、想法、关系和目标就不要反复输出相同状态。
+            只输出一个完整 JSON，如 {"action":"reply","text":"我自己的群聊发言","reason":"想接话的简短原因"}；
+            或 {"action":"silent","reason":"此刻为什么不想接话"}。
         """.trimIndent() else """
             这是电话的低延迟通道，普通交谈必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
@@ -834,7 +846,7 @@ object LuluDeviceToolBridge {
                 plan.innerThought, now, privateDelta.fingerprint,
             )
         }
-        if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence) && !rewriting) {
+        if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat) && !rewriting) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,
                 decisionId = if (callSilence) "$silenceObservationId:silent" else "chat:silent:${now.toEpochMilli()}:${userText.hashCode()}",
