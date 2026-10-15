@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T17:41:02.993774+00:00",
-  "commit": "cd8714006190ff518e65a4a73569f5261d9d8a80",
+  "generatedAt": "2026-10-15T17:42:19.017203+00:00",
+  "commit": "1308919dfeecc0757bddf15f3222a4b70ef9e2d0",
   "branch": "main",
-  "sourceFingerprint": "3face42b5097f3050098f6b48b8178409871b6ab2ed088a779944fe36b89327b",
+  "sourceFingerprint": "a2faba93f0a26401a5a457b638580b6a1522e830c990c704c1290d864b692daa",
   "summary": {
-    "files": 654,
-    "lines": 128916,
-    "symbols": 1926
+    "files": 655,
+    "lines": 128968,
+    "symbols": 1927
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2220,6 +2220,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
         "line": 790
+      }
+    ],
+    "import": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt",
+        "line": 15
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -12772,6 +12778,17 @@
         {
           "name": "openReceiptLink",
           "line": 790
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt",
+      "lines": 52,
+      "sha256": "ac9451a34e77f8aab0a32108c25261ff6287df14e9de82e39ee35126eae3b383",
+      "symbols": [
+        {
+          "name": "import",
+          "line": 15
         }
       ]
     },
