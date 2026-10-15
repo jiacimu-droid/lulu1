@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`493ed3cc197054cc56343fd22ac2e92363fe67e7`
+- 基准提交：`bad07673edb03921471307eec6ed519ffdd1086a`
 - 分支：`main`
-- 已索引文件：634
-- 已索引代码/文本行：127043
-- 已发现符号：1878
+- 已索引文件：636
+- 已索引代码/文本行：127192
+- 已发现符号：1882
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -23,7 +23,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 74 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 20 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 23 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 54 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
@@ -96,7 +96,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 522 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1804 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1808 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 782 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -234,13 +234,13 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 36 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 161 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 107 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 110 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 37 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 198 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 62 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 32 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 170 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 175 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 182 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 237 | 2 |
@@ -325,6 +325,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 46 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 597 | 19 |
@@ -485,7 +486,7 @@
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 202 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 208 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 60 | 1 |
@@ -607,6 +608,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 119 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
