@@ -382,8 +382,12 @@ internal object LuluVoiceCallSession {
         if (mutableState.value.phase == CallPhase.Dialing) endCall()
     }
 
-    fun toggleMicrophone() {
-        val nextMuted = !mutableState.value.microphoneMuted
+    fun toggleMicrophone() = setMicrophoneMuted(!mutableState.value.microphoneMuted)
+
+    /** Real capture pause/resume, shared by tap toggle and temporary press-to-talk. */
+    fun setMicrophoneMuted(nextMuted: Boolean) {
+        val current = mutableState.value
+        if (!current.connected || current.microphoneMuted == nextMuted) return
         // A mute click means "I'm done"—freeze the recognizer's last words.
         val pendingSystemSpeech = if (nextMuted && providerInput == null)
             SystemSpeechTurnPolicy.wordsToSubmitOnMute(systemUtteranceBuffer, systemPartialCandidate)
