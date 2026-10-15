@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T15:10:05.743314+00:00",
-  "commit": "3f0ad30f92736ba9a8cd7b4eceafb054f434c7df",
-  "branch": "main",
-  "sourceFingerprint": "783e2a482b9616f1be09388f4f814b3758d65a052ee1b66e77a5519f01d54f8f",
+  "generatedAt": "2026-10-15T15:17:43.626749+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "638940373740de97bc8c88bd5a7f4cbff4e5f0eebe18ab53410720bb964ac3fd",
   "summary": {
     "files": 648,
-    "lines": 128266,
+    "lines": 128274,
     "symbols": 1912
   },
   "symbolIndex": {
@@ -21435,8 +21435,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
-      "lines": 213,
-      "sha256": "3f42964f8a717148f47633f94446f83d169bc815cee4dfe8e950c0879f982f53",
+      "lines": 221,
+      "sha256": "382bce4d888db5372102da72f428ba20683a1643cc3b620cd60f85259244c3d5",
       "symbols": [
         {
           "name": "AutonomousLearningRuntimeTest",

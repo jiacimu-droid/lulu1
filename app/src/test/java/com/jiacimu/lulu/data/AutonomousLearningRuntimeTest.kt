@@ -93,11 +93,19 @@ class AutonomousLearningRuntimeTest {
         assertTrue(result.success)
         CharacterLearningAgenda::class.java.getDeclaredField("prefs").apply { isAccessible = true }.set(null, null)
         CharacterLearningAgenda.initialize(context)
+        val restored = CharacterLearningAgenda.get(role, id)!!
+        val receipt = SharedExperienceTimeline.eventsByIds(role, listOf(result.evidenceId)).single()
+        assertEquals(result.evidenceId, restored.getString("lastSearchId"))
+        assertEquals(receipt.revision, restored.getLong("lastSearchRevision"))
         val resumed = CharacterLearningAgenda.prompt(role)
-        assertTrue(resumed.contains("https://example.org/discovered"))
+        // Android JSON escapes URL slashes; match the quoted data representation.
+        val quotedUrl = JSONObject.quote("https://example.org/discovered")
+        assertTrue(resumed, resumed.contains(quotedUrl))
         assertTrue(resumed.contains("不是已读正文"))
         SharedExperienceTimeline.deleteEvent(result.evidenceId)
-        assertFalse(CharacterLearningAgenda.prompt(role).contains("https://example.org/discovered"))
+        val withdrawn = CharacterLearningAgenda.prompt(role)
+        assertFalse(withdrawn, withdrawn.contains(quotedUrl))
+        assertFalse(CharacterLearningAgenda.get(role, id)!!.has("lastSearchId"))
     }
 
     @Test fun pausedRecentGoalsCannotHideAnOlderExecutableQuestion() {
