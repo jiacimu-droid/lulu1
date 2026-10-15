@@ -568,6 +568,7 @@ class CompanionModelGateway(
                             effectiveMode == CompanionContextMode.CharacterAndScenario,
                         // Core lives in one central prompt channel, not a second speech-only copy.
                         includeCore = false,
+                        query = request.retrievalQuery(),
                     ))
                     if (effectiveMode == CompanionContextMode.Ensemble) {
                         appendLine("多人编排由本轮逐成员的准确角色ID决定语言与立场；当前发言者ID只是路由信息，不是其他成员共用的人格。")
@@ -632,7 +633,7 @@ class CompanionModelGateway(
             } else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
-                    characterId, compact = !budget.richInnerLife)
+                    characterId, compact = !budget.richInnerLife, query = request.retrievalQuery())
                 // Private chat's second model pass renders text only. It still
                 // receives the same character's unfinished intention, but no
                 // broad timeline or new decision-making authority.

@@ -59,9 +59,69 @@ class AutonomousLearningRuntimeTest {
         assertTrue(CharacterLearningLedger.context(role, "讲笑话").contains("来源正文"))
         assertEquals("practice", CharacterLearningAgenda.get(role, id)!!.optString("status"))
         assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(result.evidenceId)).isNotEmpty())
+        assertTrue(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, result.evidenceId))
         SharedExperienceTimeline.deleteEvent("learning-origin")
         assertNull(CharacterLearningAgenda.get(role, id))
+        assertFalse(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, result.evidenceId))
         assertEquals("", CharacterLearningLedger.context(role, "幽默"))
+    }
+    @Test fun alreadyReadMaterialCanBeUnderstoodAfterModelFailureWithoutAnotherFetch() = runBlocking {
+        val id = goal().getString("id")
+        assertFalse(AutonomousLearningRuntime.execute(context, role, args(id, "study"),
+            materialLoader = { _, _ -> material() }, understand = { _, _ -> "incomplete" }).success)
+        val first = CharacterLearningAgenda.get(role, id)!!
+        val source = first.getString("materialId")
+        CharacterLearningAgenda.update(role, id) { it.put("retryAt", Instant.EPOCH.toString()) }
+        assertTrue(CharacterLearningAgenda.prompt(role).contains("\"op\":\"understand\""))
+        val result = AutonomousLearningRuntime.execute(context, role, args(id, "understand"),
+            materialLoader = { _, _ -> error("已有正文不能再次下载") },
+            understand = { facts, _ -> assertTrue(facts.contains(material().text)); note })
+        assertTrue(result.summary, result.success)
+        assertEquals(source, result.evidenceId)
+        assertTrue(CharacterLearningLedger.hasInsight(role, source))
+        assertTrue(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, source))
+        SharedExperienceTimeline.deleteEvent(source)
+        assertFalse(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, source))
+        assertEquals("", CharacterLearningLedger.context(role, "幽默"))
+    }
+
+    @Test fun searchCandidatesSurviveRestartButNotSourceDeletion() = runBlocking {
+        val id = goal().getString("id")
+        val result = AutonomousLearningRuntime.execute(context, role, args(id, "search"),
+            searchWeb = { _, _ -> listOf(WebSearchHit("已发现的资料", "https://example.org/discovered", "仅摘要")) },
+            understand = { _, _ -> error("搜索不应生成理解") })
+        assertTrue(result.success)
+        CharacterLearningAgenda::class.java.getDeclaredField("prefs").apply { isAccessible = true }.set(null, null)
+        CharacterLearningAgenda.initialize(context)
+        val resumed = CharacterLearningAgenda.prompt(role)
+        assertTrue(resumed.contains("https://example.org/discovered"))
+        assertTrue(resumed.contains("不是已读正文"))
+        SharedExperienceTimeline.deleteEvent(result.evidenceId)
+        assertFalse(CharacterLearningAgenda.prompt(role).contains("https://example.org/discovered"))
+    }
+
+    @Test fun pausedRecentGoalsCannotHideAnOlderExecutableQuestion() {
+        val old = goal().getString("id")
+        repeat(5) { index ->
+            val g = CharacterLearningAgenda.start(role, JSONObject().put("topic", "新主题$index")
+                .put("question", "想要研究这个新问题$index").put("sourceEvidenceId", "learning-origin"), now.plusSeconds(index + 1L))
+            CharacterLearningAgenda.update(role, g.getString("id")) { it.put("status", "paused") }
+        }
+        val prompt = CharacterLearningAgenda.prompt(role, now.plusSeconds(100))
+        assertTrue(prompt.contains(old))
+        assertTrue(prompt.contains("\"op\":\"study\""))
+    }
+
+    @Test fun exhaustedBudgetDoesNotOfferAnotherChargeableStep() {
+        val id = goal().getString("id")
+        context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+            .edit().putInt("$role:learning_daily_limit", 1).commit()
+        CharacterLearningAgenda.begin(context, role, id, now)
+        CharacterLearningAgenda.failed(role, id, "真实网络失败", now)
+        val prompt = CharacterLearningAgenda.prompt(role, now.plusSeconds(3_600))
+        assertTrue(prompt.contains("剩余0"))
+        assertFalse(prompt.contains("可选的一步："))
+        assertEquals(0, CharacterLearningAgenda.budget(role, now).remaining)
     }
     @Test fun webSearchOnlyDiscoversLinksWithoutCreatingKnowledge() = runBlocking {
         val id = goal().getString("id")

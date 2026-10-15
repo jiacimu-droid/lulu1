@@ -11,10 +11,10 @@ import java.util.UUID
 /** Runs only when the character chooses the tool; no pretend always-on training. */
 internal object AutonomousLearningRuntime {
     fun capabilityContext(context: Context, role: String): String {
-        val budget = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
-            .getInt("$role:learning_daily_limit", 2).coerceIn(0, 10)
+        CharacterLearningAgenda.initialize(context)
+        val budget = CharacterLearningAgenda.budget(role)
         return """- learn_topic：按本人问题真实学习，不训练底座权重。args={"op":"start","topic":"具体主题","question":"想改善/弄清什么","why":"本人动机","sourceEvidenceId":"真实观察/用户原话ID"}先保存意向。
-            后续 args={"op":"search|study|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"}。search列出真实搜索结果而不冒充已读；study再读取网页正文并形成暂定理解。无搜索API时使用百科；不支持登录网页。每天最多${budget}次学习/搜索步骤，失败也计入预算。
+            后续 args={"op":"search|study|understand|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"}。study可直接检索并读取正文、形成暂定理解，不必先search；search只发现候选，不算已读。已有正文但尚未理解时选understand复用材料，不重复联网。无搜索API时使用百科；不支持登录网页。今日上限${budget.limit}步、已用${budget.used}步、剩余${budget.remaining}步；失败也计入。额度为零时运用已有理解或稍后继续，勿重复请求学习工具。
             可用 op=attach、goalId、sourceEvidenceId 把本人已存在的reading:阅读理解接入目标，未读书籍仍须read_book执行。学习成果可以在后续互动里自选learningApplication，真实用户反馈才是对用户效果的证据。
             ${CharacterLearningAgenda.prompt(role)}
         """.trimIndent()
@@ -80,7 +80,9 @@ internal object AutonomousLearningRuntime {
                     it.put("status", if (it.optString("materialId").isBlank()) "planned"
                         else if (!CharacterLearningLedger.hasInsight(role, it.optString("materialId"))) "research"
                         else "practice")
-                        .put("lastSearchId", evidence).put("failures", 0)
+                        .put("lastSearchId", evidence)
+                        .put("lastSearchRevision", SharedExperienceTimeline.eventsByIds(role, listOf(evidence))
+                            .firstOrNull()?.revision ?: -1L).put("failures", 0)
                     it.remove("retryAt"); it.remove("error")
                 }
                 CompanionActionResult(true, "搜索到真实候选（仅标题和摘要，尚未读过正文）：\n" +
@@ -92,7 +94,7 @@ internal object AutonomousLearningRuntime {
                 CompanionActionResult(false, error.message ?: "搜索失败")
             }
         }
-        require(op in setOf("study", "practice", "review")) { "未知学习步骤" }
+        require(op in setOf("study", "understand", "practice", "review")) { "未知学习步骤" }
         CharacterLearningAgenda.begin(context, role, id, now)
         return try {
             val material = if (op == "study") {
@@ -118,6 +120,12 @@ internal object AutonomousLearningRuntime {
                     it.put("sourceIds", org.json.JSONArray().apply { ids.takeLast(8).forEach(::put) })
                 }
                 stored
+            } else if (op == "understand") {
+                require(!CharacterLearningLedger.hasInsight(role, goal.optString("materialId"))) {
+                    "已有有效理解，可选择练习、复习或研究新材料"
+                }
+                SharedExperienceTimeline.eventsByIds(role, listOf(goal.optString("materialId")))
+                    .firstOrNull() ?: error("需要先实际读到材料")
             } else {
                 require(CharacterLearningLedger.hasInsight(role, goal.optString("materialId"))) {
                     "材料尚未形成有效理解，先重读或换资料"
@@ -133,7 +141,7 @@ internal object AutonomousLearningRuntime {
                 appendLine(CharacterLearningLedger.context(role, goal.optString("topic"), compact = false))
             }
             val instruction = when (op) {
-                "study" -> """围绕本人问题，理解实际读到的材料，允许觉得无关、没用或尚未理解。
+                "study", "understand" -> """围绕本人问题，理解实际读到的材料，允许觉得无关、没用或尚未理解。
                     如上下文已有同主题旧材料，请比较来源是否独立、具体观点是否一致，区分补充、冲突或更正；仅有搜索摘要不能算独立证据。
                     返回JSON：{"learning":{"topic":"${goal.optString("topic")}","understanding":"来源支持的暂定理解","uncertainty":"局限/未核实处","question":"仍想弄清什么","applicableWhen":"适用条件"},"nextStep":"具体可练习/核对的一小步"}。
                     若新材料确实修订了上下文中同主题的旧理解，可在learning里填写revisesEvidenceId=准确的旧材料证据ID；没有新证据支持修订就保留分歧，不编造ID。
@@ -155,7 +163,7 @@ internal object AutonomousLearningRuntime {
             }
             val finished = Instant.now()
             var receiptId = material.id
-            if (op == "study") {
+            if (op == "study" || op == "understand") {
                 val note = response.optJSONObject("learning")
                 if (note == null) {
                     CharacterLearningAgenda.update(role, id) {
@@ -203,8 +211,27 @@ internal object AutonomousLearningRuntime {
                 CharacterCuriosityRuntime.recordInquiry(role, response.optJSONObject("curiosity"),
                     material.id, "实际读到${goal.optString("topic")}相关材料，仍可提出问题", finished)
             }
+            if (op == "study" || op == "understand") runCatching {
+                // Learning's raw receipts deliberately skip per-event memory extraction.
+                // Still let this real reading enter the SAME voluntary sharing/curiosity
+                // loop as books and world experiences. No automatic outbound message.
+                CharacterLifeFollowThroughStore.initialize(context)
+                val current = SharedExperienceTimeline.eventsByIds(role, listOf(material.id)).firstOrNull()
+                if (current?.revision == material.revision && CharacterLearningLedger.hasInsight(role, material.id)) {
+                    CharacterLifeFollowThroughStore.register(role, material.id, "自主学习·实际阅读",
+                        "实际读到与「${goal.optString("topic")}" +
+                            "」有关的材料，形成暂定理解；仍待核实和实践，可自选分享或继续探索。", finished)
+                    // Optimistic revalidation closes deletion/revision races without
+                    // nesting timeline, learning and follow-through Store monitors.
+                    val latest = SharedExperienceTimeline.eventsByIds(role, listOf(material.id)).firstOrNull()
+                    if (latest?.revision != material.revision || !CharacterLearningLedger.hasInsight(role, material.id))
+                        CharacterLifeFollowThroughStore.invalidateEvidence(material.id)
+                }
+                CharacterDevelopmentRuntime.request(role)
+            }
             CompanionActionResult(true, when(op) {
                 "study" -> "实际读取并整理材料；理解仍暂定，效果待实践"
+                "understand" -> "已复用先前真实材料形成暂定理解；效果待实践"
                 "practice" -> "已保存私人练习稿与自评，尚未发给用户"
                 else -> "已实际复习，保留不确定处；不代表方法已验证"
             } + "；材料证据=${material.id}；goalId=$id", evidenceId = receiptId)

@@ -13,11 +13,13 @@ internal object CharacterSpeechIdentity {
         includeConfigured: Boolean = true,
         includeRelationship: Boolean = true,
         includeCore: Boolean = false,
+        query: String = "",
     ): String {
         val initial = CharacterLifeStore.state(characterId).optJSONObject("profile")
             ?.optString("speechHabits").orEmpty().trim()
-        val acquired = if (includeObserved) CharacterDevelopmentStore.active(characterId)
-            .filter { it.kind == DevelopmentKind.ExpressionHabit }.takeLast(5) else emptyList()
+        val acquired = if (includeObserved) CharacterDevelopmentRecall.select(
+            CharacterDevelopmentStore.active(characterId).filter { it.kind == DevelopmentKind.ExpressionHabit },
+            query, limit = 5) else emptyList()
 
         return buildString {
             appendLine("【这个角色自己的表达倾向，不是必须照着说的台词】")

@@ -70,7 +70,7 @@ internal fun CharacterLearningSettings(characterId: String) {
             mutableStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10))
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("每日学习上限 · $learningLimit", modifier = Modifier.weight(1f))
+            Text("每日学习步骤上限 · $learningLimit", modifier = Modifier.weight(1f))
             Row {
                 TextButton(enabled = learningLimit > 0, onClick = {
                     learningLimit--; prefs.edit().putInt("$characterId:learning_daily_limit", learningLimit).commit()
@@ -81,6 +81,11 @@ internal fun CharacterLearningSettings(characterId: String) {
             }
         }
         val learningRevision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
+        val todayBudget = remember(characterId, learningRevision, learningLimit) {
+            com.jiacimu.lulu.data.CharacterLearningAgenda.budget(characterId)
+        }
+        Text("今日已用 ${todayBudget.used} 步 · 剩余 ${todayBudget.remaining} 步",
+            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         val learningGoals = remember(characterId, learningRevision) {
             com.jiacimu.lulu.data.CharacterLearningAgenda.goals(characterId)
                 .filter { it.optString("status") != "dropped" }

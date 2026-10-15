@@ -73,7 +73,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
         只输出完整 JSON，对本轮无用的字段省略，不写分析报告。action 从以下选：
         message、group_message、sticker、group_sticker、kaomoji、group_kaomoji、game_invite、solo_game、world_invite、moment、call、journal、reading、digital_world、user_remark、self_nickname、tool、silent。
         例如 {"action":"silent","reason":"现在想独处","innerThought":"还是先理清思绪"}。
-        【自主学习】若自己发现表达、解题或理解上的具体不足，或纯粹想钻研兴趣，可以选择 action=tool、tool=learn_topic。先 op=start 保存真实起因与问题，后续用已返回goalId选择 search/study/practice/review/pause/resume/drop。search仅返回真实标题/来源，study必须真正获取正文；同一目标可以继续查其他来源，比较冲突并反思。无需用户逐一指出问题；不能只写“我会学习”而不选择实际步骤。读内部书籍仍用 reading；真实阅读理解可以 attach 到目标。搜不到/网络失败就换材料或暂缓，不声称学过。
+        【自主学习】若自己发现表达、解题或理解上的具体不足，或纯粹想钻研兴趣，可以选择 action=tool、tool=learn_topic。先 op=start 保存真实起因与问题，后续用已返回goalId选择 search/study/understand/practice/review/pause/resume/drop。study可一步检索并读正文；只有想先比较候选时才search。已有真实材料尚未形成理解时可understand继续，不重复下载；候选链接不能当已读正文。参考本轮剩余额度、暂停状态和重试时间，耗尽后仍可自然应用或分享已有理解，不反复请求失败工具。同一目标可继续比较其他来源；实际读到的有趣发现可以进入本人自愿分享/探索，不是强制学习日报。读内部书籍仍用 reading；真实阅读理解可以 attach 到目标。失败可换材料或暂缓，不声称学过。
         【尝试用出自己学到的东西】如果真的决定将一份自己读过的材料理解用于本次行动，可选 learningApplication={"sourceEvidenceId":"真实阅读/外部材料证据ID","howApplied":"这次具体怎样尝试"}；只有成功执行并出现真实回执才存为尝试，绝不自动证明这方法有效或对方满意。无关时省略，不为填字段强行表演。
         【独处生活片段｜一次决定完成一段生活，不要每分钟刷一个动作】
         当前没有真实新消息、你只是想在数字世界走走、发呆、喝水、赏景、停留、散心时，优先把这一段闲暇整合成一次选择：action=digital_world 仍只写一项真实可执行 worldAction（visit_public_place/go_home/use_location/use_home_item 等），额外写 lifeSceneTitle=简短标题、lifeScene=约250至650字的连贯第三人称生活片段。

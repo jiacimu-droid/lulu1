@@ -76,10 +76,13 @@ object CharacterRuntime {
         characterId: String,
         compact: Boolean = false,
         interactionKey: String? = null,
+        query: String = "",
     ): String {
         val learned = CharacterDevelopmentStore.active(characterId)
-        val narrative = learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }
-        val adaptive = learned.filterNot { it.kind == DevelopmentKind.NarrativeMeaning }
+        val narrative = CharacterDevelopmentRecall.select(
+            learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8)
+        val adaptive = CharacterDevelopmentRecall.select(
+            learned.filterNot { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 5 else 16)
         return buildString {
             // The stable principles are shared in CharacterDecisionProtocol;
             // one brief anatomy is enough even for a full context request.
@@ -110,7 +113,7 @@ object CharacterRuntime {
             appendLine(CharacterRelationalInitiative.context(characterId))
             if (narrative.isNotEmpty()) {
                 appendLine("【叙事身份｜多次真实经历形成的主观意义，不是新增事实】")
-                narrative.takeLast(if (compact) 3 else 8).forEach { record ->
+                narrative.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
                     if (compact) appendLine("- [$maturity] ${record.slot}：${record.content.take(260)}")
                     else appendLine("- [$maturity] ${record.slot} v${record.version}：${record.content}；依据=${record.evidence.keys.joinToString()}")
@@ -118,7 +121,7 @@ object CharacterRuntime {
             }
             if (adaptive.isNotEmpty()) {
                 appendLine("基于真实经历形成的可变适应（不覆盖稳定人设）：")
-                adaptive.takeLast(if (compact) 5 else 16).forEach { record ->
+                adaptive.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
                     if (compact) appendLine("- [$maturity] ${record.kind}/${record.slot}：${record.content.take(230)}")
                     else appendLine("- [$maturity] ${record.kind} ${record.slot} v${record.version}：${record.content}；可信度=${record.confidence}；依据=${record.evidence.keys.joinToString()}")
@@ -130,14 +133,14 @@ object CharacterRuntime {
     /** Learning remains tied to reading sources and never overwrites persona. */
     fun learningContext(characterId: String, query: String, compact: Boolean = true): String =
         listOf(CharacterLearningLedger.context(characterId, query, compact),
-            CharacterLearningAgenda.prompt(characterId)).filter(String::isNotBlank).joinToString("\n")
+            CharacterLearningAgenda.prompt(characterId, query = query)).filter(String::isNotBlank).joinToString("\n")
 
     /** Only the already-decided private wish crosses lean decision→expression. */
     fun leanExpressionContext(characterId: String): String =
         CharacterRelationalInitiative.expressionHandoff(characterId)
 
     /** Backward-compatible entry for callers that do not have a live conversation key. */
-    fun developmentContext(characterId: String, compact: Boolean = false): String =
-        personalityRuntimeContext(characterId, compact = compact)
+    fun developmentContext(characterId: String, compact: Boolean = false, query: String = ""): String =
+        personalityRuntimeContext(characterId, compact = compact, query = query)
 
 }

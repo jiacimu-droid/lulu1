@@ -318,58 +318,67 @@ internal object CharacterLearningLedger {
     }
 
     /** Retract a deleted source and all dependent revisions; remove deleted application receipts. */
-    @Synchronized fun invalidateEvidence(eventId: String) {
-        if (prefs == null || eventId.isBlank()) return
-        prefs!!.all.keys.forEach { characterId ->
-            val original = records(characterId)
-            val removed = mutableSetOf(eventId)
-            var current = original.toList()
-            var changed: Boolean
-            do {
-                val next = current.filterNot {
-                    val id = it.optString("sourceEvidenceId")
-                    val invalid = id in removed || it.optString("revisesEvidenceId") in removed ||
-                        it.optString("originId") in removed
-                    if (invalid) removed.add(id)
-                    invalid
-                }
-                changed = next.size != current.size
-                current = next
-            } while (changed)
-            val remaining = current.map { item ->
-                val old = item.optJSONArray("applications") ?: JSONArray()
-                val next = JSONArray()
-                for (i in 0 until old.length()) {
-                    val application = old.optJSONObject(i) ?: continue
-                    if (application.optString("evidenceId") != eventId) {
-                        val feedback = application.optJSONArray("feedback") ?: JSONArray()
-                        val kept = JSONArray()
-                        for (index in 0 until feedback.length()) {
-                            val item = feedback.optJSONObject(index) ?: continue
-                            if (item.optString("evidenceId") != eventId) kept.put(item)
+    fun invalidateEvidence(eventId: String) {
+        val retractedMaterials = mutableSetOf<String>()
+        synchronized(this) {
+            if (prefs == null || eventId.isBlank()) return
+            prefs!!.all.keys.forEach { characterId ->
+                val original = records(characterId)
+                val removed = mutableSetOf(eventId)
+                var current = original.toList()
+                var changed: Boolean
+                do {
+                    val next = current.filterNot {
+                        val id = it.optString("sourceEvidenceId")
+                        val invalid = id in removed || it.optString("revisesEvidenceId") in removed ||
+                            it.optString("originId") in removed
+                        if (invalid) removed.add(id)
+                        invalid
+                    }
+                    changed = next.size != current.size
+                    current = next
+                } while (changed)
+                // A withdrawn origin also withdraws opportunities derived from its
+                // learning material; raw external text remaining on disk is not a
+                // license to keep sharing a retracted learning projection.
+                retractedMaterials += removed - eventId
+                val remaining = current.map { item ->
+                    val old = item.optJSONArray("applications") ?: JSONArray()
+                    val next = JSONArray()
+                    for (i in 0 until old.length()) {
+                        val application = old.optJSONObject(i) ?: continue
+                        if (application.optString("evidenceId") != eventId) {
+                            val feedback = application.optJSONArray("feedback") ?: JSONArray()
+                            val kept = JSONArray()
+                            for (index in 0 until feedback.length()) {
+                                val item = feedback.optJSONObject(index) ?: continue
+                                if (item.optString("evidenceId") != eventId) kept.put(item)
+                            }
+                            next.put(JSONObject(application.toString()).put("feedback", kept))
                         }
-                        next.put(JSONObject(application.toString()).put("feedback", kept))
                     }
-                }
-                val challenges = item.optJSONArray("challenges") ?: JSONArray()
-                val keptChallenges = JSONArray()
-                for (j in 0 until challenges.length()) {
-                    val issue = challenges.optJSONObject(j) ?: continue
-                    if (issue.optString("evidenceId") != eventId) keptChallenges.put(issue)
-                }
-                val exercises = item.optJSONArray("exercises") ?: JSONArray()
-                val keptExercises = JSONArray().apply {
-                    for (i in 0 until exercises.length()) {
-                        val exercise = exercises.optJSONObject(i) ?: continue
-                        if (exercise.optString("evidenceId") != eventId) put(exercise)
+                    val challenges = item.optJSONArray("challenges") ?: JSONArray()
+                    val keptChallenges = JSONArray()
+                    for (j in 0 until challenges.length()) {
+                        val issue = challenges.optJSONObject(j) ?: continue
+                        if (issue.optString("evidenceId") != eventId) keptChallenges.put(issue)
                     }
+                    val exercises = item.optJSONArray("exercises") ?: JSONArray()
+                    val keptExercises = JSONArray().apply {
+                        for (i in 0 until exercises.length()) {
+                            val exercise = exercises.optJSONObject(i) ?: continue
+                            if (exercise.optString("evidenceId") != eventId) put(exercise)
+                        }
+                    }
+                    JSONObject(item.toString()).put("applications", next).put("exercises", keptExercises)
+                        .put("challenges", keptChallenges)
                 }
-                JSONObject(item.toString()).put("applications", next).put("exercises", keptExercises)
-                    .put("challenges", keptChallenges)
+                if (remaining.map(JSONObject::toString) != original.map(JSONObject::toString))
+                    save(characterId, remaining)
             }
-            if (remaining.map(JSONObject::toString) != original.map(JSONObject::toString))
-                save(characterId, remaining)
         }
+        // Do not hold the learning-store monitor while entering another Store.
+        retractedMaterials.forEach(CharacterLifeFollowThroughStore::invalidateEvidence)
     }
 
     /** All Full-context routes use this bounded topical recall; old relevant evidence can win. */
