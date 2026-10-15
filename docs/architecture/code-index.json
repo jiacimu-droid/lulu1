@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T17:50:56.898713+00:00",
-  "commit": "6d237d4907776166ebe8ce10b13e44f25eb93342",
+  "generatedAt": "2026-10-15T17:52:26.811894+00:00",
+  "commit": "ef0bf38d01ec59964865e93661c97a8b75dcd8cb",
   "branch": "main",
-  "sourceFingerprint": "a0ae41897f35af3d698825150058bcc9f5ca6e0487a7e77a9b86fc5d37092b6f",
+  "sourceFingerprint": "81e7b96af8cf5d2e7ca969e13ef699062b8ce23eb81fb42515280d878f6b6b1d",
   "summary": {
     "files": 656,
-    "lines": 129154,
+    "lines": 129155,
     "symbols": 1930
   },
   "symbolIndex": {
@@ -21353,8 +21353,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt",
-      "lines": 56,
-      "sha256": "08a25c96ace2368eb9a7e03791ebb8436e7063b3324a2a2f701b0b1fc9b106c2",
+      "lines": 57,
+      "sha256": "2872f351571df05a3c9c6e000e7f2b4da900bc65ab08ccaac7f538669c0a0471",
       "symbols": [
         {
           "name": "QqChatPhotoAttachmentStoreTest",
