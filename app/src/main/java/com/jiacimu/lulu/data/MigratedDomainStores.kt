@@ -102,6 +102,7 @@ class InMemoryLuluChatStore : LuluChatStore {
     private val conversationState = MutableStateFlow(defaultConversations())
     private val messageStates = mutableMapOf<String, MutableStateFlow<List<LuluChatMessage>>>()
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private val lock = Any()
 
     override val conversations: StateFlow<List<LuluConversation>> = conversationState.asStateFlow()
@@ -110,6 +111,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         synchronized(lock) {
             if (prefs != null) return
             UserMessageFavorites.initialize(context)
+            appContext = context.applicationContext
             prefs = context.applicationContext.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
             val loaded = decode(prefs?.getString(CHAT_STATE, null))
             conversationState.value = loaded.first.ifEmpty { defaultConversations() }
@@ -288,6 +290,24 @@ class InMemoryLuluChatStore : LuluChatStore {
             }
     }
 
+    /** A surviving message may still reference the same private image bytes. */
+    private fun discardDeletedChatPhotos(deleted: List<LuluChatMessage>) {
+        val context = appContext ?: return
+        val uris = deleted.mapNotNull {
+            com.jiacimu.lulu.decodeQqChatImage(it.content)?.imageUri
+        }.distinct()
+        uris.forEach { uri ->
+            val stillUsed = synchronized(lock) {
+                messageStates.values.any { state ->
+                    state.value.any { item ->
+                        com.jiacimu.lulu.decodeQqChatImage(item.content)?.imageUri == uri
+                    }
+                }
+            }
+            if (!stillUsed) com.jiacimu.lulu.QqChatPhotoAttachmentStore.deleteIfOwned(context, uri)
+        }
+    }
+
     override fun deleteConversation(conversationId: String): Boolean {
         val deleted = synchronized(lock) {
             val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
@@ -300,6 +320,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
         SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
         deleted.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
+        discardDeletedChatPhotos(deleted.second)
         return true
     }
 
@@ -317,6 +338,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         }
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
         cleared.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
+        discardDeletedChatPhotos(cleared.second)
         return true
     }
 
@@ -517,6 +539,8 @@ class InMemoryLuluChatStore : LuluChatStore {
     }
 
     override fun deleteMessage(messageId: String): Boolean {
+        val deleted = messageStates.values.asSequence()
+            .flatMap { it.value.asSequence() }.firstOrNull { it.id == messageId }
         val conversation = conversationState.value.firstOrNull { current ->
             messageStates[current.id]?.value?.any { it.id == messageId } == true
         }
@@ -527,6 +551,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             SharedExperienceTimeline.deleteConversationMessage(conversation, messageId)
             CompanionPresenceStore.forgetDeliveredMessage(messageId)
             com.jiacimu.lulu.ChatAutoVoicePlayback.remove(messageId)
+            deleted?.let { discardDeletedChatPhotos(listOf(it)) }
         }
         return changed
     }
