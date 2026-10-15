@@ -1,6 +1,9 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import com.jiacimu.lulu.ai.VisionModelService
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -16,11 +19,29 @@ internal data class QqPreparedChatPhotos(
         count == 0 -> ""
         urls.isEmpty() -> "用户发来了${count}张图片，但当前无法读取像素；只能理解用户实际提供的文字，不能编造图像内容。"
         failures > 0 -> "本轮用户发来${count}张图片，其中${urls.size}张已附到本次聊天模型请求；其余${failures}张未能读取，请勿声称看见。"
-        else -> "本轮用户发来${count}张图片，像素已直接输入当前聊天模型。请先真正观察，再根据图片和配文自然回应；图片与配文是同一条用户消息。"
+        else -> "本轮用户发来${count}张图片，像素已经准备附加到本次模型请求。请根据可见画面和文字回应，不得臆造未能辨认的小字。"
     }
 }
 
 internal object QqChatImageModelInput {
+    private const val DIAG_PREFS = "lulu_chat_image_transport_v1"
+
+    /** Diagnostic means "pixels prepared", NOT that an API provider interpreted them. */
+    fun lastReadStatus(context: Context): String =
+        context.applicationContext.getSharedPreferences(DIAG_PREFS, Context.MODE_PRIVATE)
+            .getString("latest", "尚未记录到聊天图片准备结果").orEmpty()
+
+    private fun recordRead(context: Context, characterId: String, count: Int,
+                           prepared: Int, failure: String) {
+        val at = Instant.now().atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+        val note = "$at · 角色=${characterId.take(20)} · 像素准备 $prepared/$count 张" +
+            if (failure.isBlank()) "；模型是否真正识别仍取决于其视觉能力"
+            else "；读取失败：${failure.take(95)}"
+        context.applicationContext.getSharedPreferences(DIAG_PREFS, Context.MODE_PRIVATE)
+            .edit().putString("latest", note).apply()
+    }
+
     suspend fun prepare(
         context: Context, characterId: String, evidenceIds: Collection<String>,
         maxPhotos: Int = 2,
@@ -41,15 +62,22 @@ internal object QqChatImageModelInput {
 
         val data = mutableListOf<String>()
         var failures = 0
+        var failureDetail = ""
         for (image in messages) {
             try {
                 VisionModelService.prepareChatImageDataUrl(context, image.imageUri)
                     .onSuccess { data += it }
-                    .onFailure { if (it is CancellationException) throw it else failures++ }
+                    .onFailure {
+                        if (it is CancellationException) throw it
+                        failures++
+                        if (failureDetail.isBlank())
+                            failureDetail = it.message.orEmpty().ifBlank { "图片来源不可读取" }
+                    }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             }
         }
+        recordRead(context, characterId, messages.size, data.size, failureDetail)
         return QqPreparedChatPhotos(data, messages.size, failures)
     }
 }
