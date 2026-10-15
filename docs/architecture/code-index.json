@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T17:52:26.811894+00:00",
-  "commit": "ef0bf38d01ec59964865e93661c97a8b75dcd8cb",
+  "generatedAt": "2026-10-15T18:00:45.665248+00:00",
+  "commit": "7cb86e437e54aa78f498d607f1047e6e5a58f18c",
   "branch": "main",
-  "sourceFingerprint": "81e7b96af8cf5d2e7ca969e13ef699062b8ce23eb81fb42515280d878f6b6b1d",
+  "sourceFingerprint": "1575eb0c2845d7695dea1077ef00e3afa1b9ca73a10b96764f671a81ccc1f8d5",
   "summary": {
     "files": 656,
-    "lines": 129155,
+    "lines": 129159,
     "symbols": 1930
   },
   "symbolIndex": {
@@ -12778,8 +12778,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt",
-      "lines": 84,
-      "sha256": "3f02c1fb74c148e5ce7f6a7e4486df595e8cf2b76929573bec5957edf227d13f",
+      "lines": 88,
+      "sha256": "0d5a319ec3d85541cefae63ab644b9c25511700333e27298cef5dc55b0924c1b",
       "symbols": [
         {
           "name": "lastReadStatus",
