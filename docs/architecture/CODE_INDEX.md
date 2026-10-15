@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5f755d93be5eb8afdd25b7bb05dfe268146359e2`
+- 基准提交：`c1e55da5d165054ce8765b43dbf045851a606744`
 - 分支：`main`
 - 已索引文件：642
-- 已索引代码/文本行：127653
+- 已索引代码/文本行：127660
 - 已发现符号：1892
 
 | 文件 | 行数 | 符号数 |
@@ -233,7 +233,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 48 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 190 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 191 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 136 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 37 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 198 | 0 |
@@ -318,7 +318,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 131 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 136 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1665 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1671 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 579 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
