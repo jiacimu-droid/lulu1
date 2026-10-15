@@ -142,11 +142,13 @@ object ProactivePerceptionRuntime {
             val characterId = conversation.characterId.ifBlank { "lulu" }
             val policy = ProactivePerceptionPolicyStore.get(characterId)
             if (!policy.enabled || CompanionPresenceStore.isInCall(characterId)) return@mapNotNull null
-            // An imminent executable alarm already owns the next meaningful
-            // wake event; do not insert generic 2.5-minute polling in between.
-            if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
-                    CommitmentTaskStore.snapshot(characterId), now)) return@mapNotNull null
-            dueAtFor(context, conversation, policy, prefs, now)
+            // An imminent executable alarm owns its action slot, but must not
+            // erase this character's *next* autonomous wake from WorkManager.
+            // Re-evaluate after the promised alarm has had time to execute.
+            val ordinaryDue = dueAtFor(context, conversation, policy, prefs, now)
+            val afterAlarm = GoalDeadlinePerceptionPolicy.passiveResumeAt(
+                CommitmentTaskStore.snapshot(characterId), now)
+            if (afterAlarm != null) maxOf(ordinaryDue, afterAlarm) else ordinaryDue
         }.minOrNull()
     }
 
