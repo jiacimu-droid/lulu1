@@ -129,6 +129,10 @@ object ProactivePerceptionRuntime {
             val characterId = conversation.characterId.ifBlank { "lulu" }
             val policy = ProactivePerceptionPolicyStore.get(characterId)
             if (!policy.enabled || CompanionPresenceStore.isInCall(characterId)) return@mapNotNull null
+            // An imminent executable alarm already owns the next meaningful
+            // wake event; do not insert generic 2.5-minute polling in between.
+            if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
+                    CommitmentTaskStore.snapshot(characterId), now)) return@mapNotNull null
             dueAtFor(context, conversation, policy, prefs, now)
         }.minOrNull()
     }
@@ -196,6 +200,8 @@ object ProactivePerceptionRuntime {
                 if (trigger.startsWith("真实生活后续回想") &&
                     isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                 if (!force) {
+                    if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
+                            CommitmentTaskStore.snapshot(characterId), now)) continue
                     val due = dueAtFor(appContext, conversation, policy, prefs, now)
                     if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
                     if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue

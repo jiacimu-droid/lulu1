@@ -61,7 +61,7 @@ internal object CommitmentExecutor {
                     attemptCount = attempt,
                     linkedAlarmId = null,
                     nextCheckAt = null,
-                    lastActionResult = "最后一次拨号仍未接听；目标没有确认完成。重拨已自动停止",
+                    lastActionResult = "已达到有限叫醒尝试上限，仍未收到用户明确已醒的反馈；停止自动追加提醒",
                 )
             }
             return
@@ -106,10 +106,11 @@ internal object CommitmentExecutor {
                     attemptCount = attempt,
                     linkedAlarmId = nextAlarm?.id,
                     nextCheckAt = nextAlarm?.triggerAt,
-                    lastActionResult = if (queued)
-                        "第$attempt 次已在原电话发起铃声叫醒，随后自然说话；未收到明确回应，不视为已醒。$music" +
-                            if (nextAlarm != null) "；已安排后续目标复查" else "；后续提醒已到次数上限或未排成功"
-                    else "原电话中未能排入叫醒铃声与语音；没有再次拨号",
+                    lastActionResult = if (queued) buildString {
+                        append("第$attempt 次已在原电话发起铃声叫醒，随后自然说话；未收到明确回应，不视为已醒。$music")
+                        append(if (nextAlarm != null) "；已安排后续目标复查"
+                            else "；后续提醒已到次数上限或未排成功")
+                    } else "原电话中未能排入叫醒铃声与语音；没有再次拨号",
                 )
             }
             return
