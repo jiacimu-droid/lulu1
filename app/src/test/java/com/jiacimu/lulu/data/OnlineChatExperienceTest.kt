@@ -61,6 +61,34 @@ class OnlineChatExperienceTest {
         }
     }
 
+    @Test fun alreadyOnlineRoleTreatsEachNewUserMessageAsItsOwnEvent() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "已在线消息感知回归", "有新消息就进行一次独立感知",
+        ).characterId
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "在线消息窗口")
+        OnlineChatBatchStore.cancel(context, role)
+        val sessionStart = java.time.Instant.now()
+        CompanionOnlineStore.wakeCharacter(
+            role, CompanionOnlineReason.PrivateWake,
+            "主动上线测试", perceiveNow = false, now = sessionStart,
+        )
+        val previousUntil = CompanionOnlineStore.states.value.getValue(role).onlineUntil
+        val incoming = MigratedDomainStores.chat.sendUserMessage(conversation.id, "你现在在做什么？")
+        val deadline = OnlineChatBatchStore.pendingDueAt(context, role)
+        assertNotNull(deadline)
+        assertEquals(incoming.createdAt.toEpochMilli() + OnlineChatBatchStore.QUIET_MILLIS, deadline)
+        assertTrue(deadline!! < previousUntil.toEpochMilli())
+        assertTrue(CompanionOnlineStore.unreadChatSnapshot(role).text.contains("你现在在做什么"))
+        // Online lease expiry is not a prerequisite for receiving the new turn.
+        assertTrue(CompanionOnlineStore.isOnline(role))
+        assertTrue(CompanionOnlineStore.states.value.getValue(role).onlineUntil
+            .isAfter(incoming.createdAt))
+        OnlineChatBatchStore.cancel(context, role)
+    }
+
     @Test fun aDeliveredCharacterMessageDoesNotAutomaticallyBuyFiveMoreMinutes() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
