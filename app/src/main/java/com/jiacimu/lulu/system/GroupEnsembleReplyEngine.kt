@@ -229,12 +229,8 @@ internal object GroupEnsembleReplyEngine {
                     memoryContext?.compactPromptSection(characterBudget = 4_200)
                         ?.takeIf(String::isNotBlank)
                         ?.let { appendLine(it) }
-                    // A group member's private deliberation is only theirs;
-                    // another member never inherits this text.
-                    com.jiacimu.lulu.data.CharacterOpenConcernRuntime.context(
-                        com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(member.characterId)
-                            .optJSONArray("openConcerns"), now,
-                    ).takeIf(String::isNotBlank)?.let(::appendLine)
+                    // Active concerns are already included once in the character-specific
+                    // personalityRuntimeContext above; do not re-inject them here.
                     presence?.let { appendLine("上一刻状态=${it.statusText}；动作=${it.gesture}；心情=${it.mood}；没说出口=${it.innerThought}") }
                     val observedInteractions = com.jiacimu.lulu.data.CharacterPerceptionContext.pending(
                         context, member.characterId, now,
