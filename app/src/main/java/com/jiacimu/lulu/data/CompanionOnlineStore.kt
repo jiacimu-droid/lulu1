@@ -211,6 +211,19 @@ object CompanionOnlineStore {
                     OnlineChatBatchStore.onUserBubble(context, reader, atMillis = now.toEpochMilli())
                 }
             }
+            // Incoming user content is an independent perception event, even when
+            // the character was OFFLINE. The five-minute clock is an online lease,
+            // never a cooldown for reading new messages. Do not enqueue here:
+            // recipients below schedule one debounced worker for each reader.
+            readers.distinct().filter(String::isNotBlank).forEach { reader ->
+                wakeCharacter(
+                    characterId = reader,
+                    reason = CompanionOnlineReason.NewActivity,
+                    trigger = "收到真实用户新消息",
+                    perceiveNow = false,
+                    now = now,
+                )
+            }
         }
 
         // Life receipts do not renew the autonomous window or recursively enqueue another model.
