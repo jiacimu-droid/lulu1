@@ -113,7 +113,10 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             ?.atZone(ZoneId.systemDefault())
             ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
             .orEmpty()
-        "$time · ${state.lastPerceptionNote.ifBlank { "已运行" }}"
+        val actor = com.jiacimu.lulu.data.MigratedDomainStores.characters.settings.value
+            .get(state.characterId)?.displayName?.takeIf(String::isNotBlank)
+            ?: state.characterId.take(20)
+        "$actor · $time · ${state.lastPerceptionNote.ifBlank { "已运行" }}"
     } ?: "安装新版后尚未留下感知运行记录"
 
     LaunchedEffect(refreshKey, latestPerceptionLabel) {
@@ -155,8 +158,8 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             item { CapabilitySummaryCard(snapshot, backgroundModelLabel) }
             item {
                 CapabilityInfoCard(
-                    title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n图片输入：$latestImageTransport\n$wakeQueueStatus\n每个角色按自己设置的间隔安排后台感知；屏幕变化和普通通知只作为下次感知的上下文。",
+                    title = "后台任务与权限 · 全局",
+                    body = "全局聊天模型：$backgroundModelLabel\n跨角色最近一次感知：$latestPerceptionLabel\n跨角色最近一次图片准备：$latestImageTransport\n$wakeQueueStatus\n这里是全局任务状态，并不能证明某个角色成功。该角色的感知与识图结果请点其头像查看「此刻」。",
                 )
             }
 
