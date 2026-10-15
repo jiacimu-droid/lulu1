@@ -46,6 +46,10 @@ object ProactivePerceptionScheduler {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val scheduleMutex = Mutex()
     private var foregroundChecks: Job? = null
+    // A queued WorkManager job is not proof that a user bubble was perceived.
+    // Keep a short-lived foreground reader per batch revision, even when a
+    // durable job was already marked enqueued in the preferences.
+    private val liveChatJobs = mutableMapOf<Pair<String, Long>, Job>()
 
     @Synchronized fun startForegroundChecks(context: Context) {
         if (foregroundChecks?.isActive == true) return
@@ -197,9 +201,10 @@ object ProactivePerceptionScheduler {
         collectMessages: Boolean = false, requiresUnread: Boolean = false,
         delayMillis: Long = 0L) {
         val batch = OnlineChatBatchStore.next(context, characterId, collectMessages)
-        // New bubbles merely extend the four-second quiet deadline. They must
-        // not enqueue a fresh paid model worker for the same batch revision.
-        if (!OnlineChatBatchStore.markEnqueued(context, characterId, batch.revision)) return
+        // This flag is only a scheduling hint, never an acknowledgement of
+        // perception. A previously enqueued worker may have been stopped by
+        // Android, or may have exited before a later bubble extended this turn.
+        OnlineChatBatchStore.markEnqueued(context, characterId, batch.revision)
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
@@ -213,10 +218,16 @@ object ProactivePerceptionScheduler {
                     .putBoolean("requiresUnread", requiresUnread)
                     .build(),
             )
+            .addTag("$ONLINE_WORK-chat-$characterId")
             .build()
         try {
+            // A newer revision does NOT wait for an old generation or a
+            // five-minute life/expiry job to drain a WorkManager chain.
             WorkManager.getInstance(context.applicationContext)
-                .enqueueUniqueWork("$ONLINE_WORK-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
+                .enqueueUniqueWork(
+                    "$ONLINE_WORK-chat-$characterId-${batch.revision}",
+                    ExistingWorkPolicy.KEEP, request,
+                )
         } catch (error: Exception) {
             OnlineChatBatchStore.unmarkEnqueued(context, characterId, batch.revision)
             throw error
@@ -225,29 +236,43 @@ object ProactivePerceptionScheduler {
         // dispatch latency. The durable worker is still the fallback after
         // process death; both contenders must claim the SAME batch revision,
         // so only one model perception can consume the user's messages.
-        if (requiresUnread && foregroundChecks?.isActive == true) {
-            val app = context.applicationContext
-            scope.launch {
+        if (requiresUnread && foregroundChecks?.isActive == true)
+            ensureForegroundChatReader(context.applicationContext, characterId, batch.revision, trigger)
+    }
+
+    @Synchronized private fun ensureForegroundChatReader(
+        app: Context, characterId: String, revision: Long, trigger: String,
+    ) {
+        val key = characterId to revision
+        if (liveChatJobs[key]?.isActive == true) return
+        liveChatJobs[key] = scope.launch {
+            try {
                 while (CompanionOnlineStore.isOnline(characterId) &&
-                    OnlineChatBatchStore.isCurrent(app, characterId, batch.revision)) {
-                    val due = OnlineChatBatchStore.dueAt(app, characterId, batch.revision)
+                    OnlineChatBatchStore.isCurrent(app, characterId, revision)) {
+                    val due = OnlineChatBatchStore.dueAt(app, characterId, revision)
                         ?: return@launch
                     val remaining = due - System.currentTimeMillis()
                     if (remaining <= 0L) break
                     delay(remaining)
                 }
                 if (CompanionOnlineStore.isOnline(characterId) &&
-                    OnlineChatBatchStore.isCurrent(app, characterId, batch.revision)) {
+                    OnlineChatBatchStore.isCurrent(app, characterId, revision)) {
+                    // The durable and foreground workers share the same
+                    // atomic batch claim; only one is allowed to read.
                     runCatching {
                         ProactivePerceptionRuntime.runDueCycle(
                             context = app,
                             trigger = trigger,
                             targetCharacterId = characterId,
                             force = true,
-                            onlineRevision = batch.revision,
+                            onlineRevision = revision,
                             requiresUnread = true,
                         )
                     }
+                }
+            } finally {
+                synchronized(this@ProactivePerceptionScheduler) {
+                    liveChatJobs.remove(key)
                 }
             }
         }
@@ -486,8 +511,14 @@ object ProactivePerceptionScheduler {
 
     fun cancelOnline(context: Context, characterId: String) {
         OnlineChatBatchStore.cancel(context, characterId)
+        // Include per-revision chat jobs as well as the legacy per-role chain.
+        WorkManager.getInstance(context.applicationContext).cancelAllWorkByTag("$ONLINE_WORK-chat-$characterId")
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-reflection-$characterId")
+        synchronized(this) {
+            liveChatJobs.filterKeys { it.first == characterId }.values.forEach(Job::cancel)
+            liveChatJobs.keys.removeAll { it.first == characterId }
+        }
         ChatGenerationActivity.clearCharacter(characterId)
     }
 }
