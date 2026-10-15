@@ -186,6 +186,36 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /**
+     * Read the actual OS work queue (not just our in-memory desired plan).
+     * This is a read-only diagnostic for "the character did nothing all afternoon".
+     * It never starts a new model call or changes the role's chosen cadence.
+     */
+    suspend fun backgroundWakeStatus(context: Context): String =
+        kotlinx.coroutines.withContext(Dispatchers.IO) {
+            runCatching {
+                val manager = WorkManager.getInstance(context.applicationContext)
+                val dueWork = manager.getWorkInfosByTag(DUE_TAG).get()
+                    .filter { !it.state.isFinished }
+                val watchdog = manager.getWorkInfosForUniqueWork(WATCHDOG_WORK).get()
+                    .filter { !it.state.isFinished }
+                val next = ProactivePerceptionRuntime.nextDueAt(context.applicationContext)
+                val nextText = next?.atZone(java.time.ZoneId.systemDefault())
+                    ?.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+                    ?: "当前没有符合条件的普通感知计划"
+                val dueStatus = when {
+                    dueWork.any { it.state == WorkInfo.State.RUNNING } -> "任务正在执行"
+                    dueWork.any { it.state == WorkInfo.State.ENQUEUED } -> "已进入 Android 等待队列"
+                    dueWork.any { it.state == WorkInfo.State.BLOCKED } -> "任务被依赖阻塞"
+                    next == null -> "无需普通定时任务"
+                    else -> "未发现已排队的定时任务（可能正在重排，建议刷新）"
+                }
+                val watchdogStatus = if (watchdog.isNotEmpty()) "守护任务已登记"
+                    else "未发现两小时守护任务"
+                "下次预定：$nextText；系统排程：$dueStatus；$watchdogStatus。Android 省电/后台限制可能推迟实际执行。"
+            }.getOrElse { "系统排程读取失败：${it.message.orEmpty().take(100)}" }
+        }
+
     /** One location arrival -> one targeted assessment, without requiring prior online status. */
     fun scheduleWorldArrival(context: Context, characterId: String, evidenceId: String) {
         if (characterId.isBlank() || evidenceId.isBlank()) return
