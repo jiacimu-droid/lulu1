@@ -20,10 +20,12 @@ internal fun sameCharacterMotive(first: String, second: String): Boolean {
 /** Subjective motives are never evidence of an action or a fulfilled promise. */
 object CharacterLifeStore {
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private val mutable = MutableStateFlow<Map<String, String>>(emptyMap())
     val states = mutable.asStateFlow()
 
     @Synchronized fun initialize(context: Context) {
+        appContext = context.applicationContext
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
         mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
@@ -490,6 +492,7 @@ object CharacterLifeStore {
                 root.put("previousIntention", existing)
                 root.remove("intention")
                 save(characterId, root)
+                cancelGoalReview(characterId)
             }
             val transition = proposal.optString("disposition")
             if (transition in setOf("decide", "pause", "resume") &&
@@ -504,6 +507,8 @@ object CharacterLifeStore {
                     .put("updatedAt", now.toString())
                 if (proposal.has("nextStep")) existing.put("nextStep", proposal.optString("nextStep").trim().take(300))
                 save(characterId, root)
+                if (transition == "pause") cancelGoalReview(characterId)
+                else scheduleGoalReview(characterId, existing)
             }
             if (proposal.optString("disposition") == "update" &&
                 proposal.optString("id") == existing.optString("createdAt") && proposal.optString("reason").isNotBlank()) {
@@ -529,8 +534,13 @@ object CharacterLifeStore {
         if (root.optJSONObject("previousIntention")?.let { it.optString("aim") == aim && it.optString("releaseReason") == "用户结束这件事" } == true) return
         root.put("intention", JSONObject().put("aim", aim).put("motive", motive)
             .put("createdAt", now.toString()).put("stage", "considering").put("outcomes", JSONArray())
-            .put("nextStep", proposal.optString("nextStep").trim().take(300)))
+            .put("nextStep", proposal.optString("nextStep").trim().take(300)).apply {
+                GoalFollowUpPolicy.initialReview(proposal, now)?.let {
+                    put("nextReviewAt", it.toString())
+                }
+            })
         save(characterId, root)
+        scheduleGoalReview(characterId, root.optJSONObject("intention"))
     }
 
     /** Only the executor supplies outcomes. Silence and affectionate wording are not progress. */
@@ -579,11 +589,72 @@ object CharacterLifeStore {
         val updated = root.optJSONObject("intention") ?: return false
         updated.put("stage", if (paused) "paused" else if (success) "following_up" else "blocked")
             .put("lastActionSuccess", success).put("updatedAt", now.toString())
+        if (success && GoalFollowUpPolicy.outwardAction(action)) {
+            val unanswered = updated.optInt("unansweredContactAttempts", 0) + 1
+            updated.put("unansweredContactAttempts", unanswered)
+                .put("lastContactAt", now.toString())
+                .remove("lastUserEvidenceId")
+            val next = if (paused) null
+                else GoalFollowUpPolicy.afterReceipt(action, success, unanswered, now)
+            if (next != null) updated.put("nextReviewAt", next.toString())
+            else updated.remove("nextReviewAt")
+        }
+        save(characterId, root)
+        scheduleGoalReview(characterId, updated)
+        return true
+    }
+
+    /** One durable goal check belongs to the current intention, not a second personality store. */
+    private fun scheduleGoalReview(characterId: String, goal: JSONObject?) {
+        val at = goal?.optString("nextReviewAt")?.takeIf(String::isNotBlank)
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() }
+        val id = goal?.optString("createdAt").orEmpty()
+        val context = appContext ?: return
+        if (at == null || id.isBlank() ||
+            goal?.optString("stage") in setOf("paused", "released", "completed")) {
+            runCatching { ProactivePerceptionScheduler.cancelGoalReview(context, characterId) }
+            return
+        }
+        runCatching { ProactivePerceptionScheduler.scheduleGoalReview(context, characterId, id, at) }
+    }
+
+    private fun cancelGoalReview(characterId: String) {
+        appContext?.let { runCatching { ProactivePerceptionScheduler.cancelGoalReview(it, characterId) } }
+    }
+
+    /** A real user message takes priority over a stale timed check; never infer forgiveness. */
+    @Synchronized fun observeUserGoalEvidence(characterId: String, evidenceId: String,
+        text: String, now: Instant = Instant.now()) {
+        if (evidenceId.isBlank()) return
+        val root = state(characterId)
+        val goal = root.optJSONObject("intention") ?: return
+        if (goal.optString("lastUserEvidenceId") == evidenceId) return
+        goal.put("lastUserEvidenceId", evidenceId)
+            .put("lastUserEvidenceAt", now.toString())
+            .put("unansweredContactAttempts", 0)
+        goal.remove("nextReviewAt")
+        if (GoalFollowUpPolicy.hasRequestedSpace(text)) {
+            goal.put("stage", "paused")
+                .put("stageReason", "用户明确要求暂时不要联系，等待其主动恢复")
+        }
+        save(characterId, root)
+        cancelGoalReview(characterId)
+    }
+
+    /** Atomically claim the exact persisted goal review, rejecting stale work items. */
+    @Synchronized fun claimGoalReview(characterId: String, intentionId: String,
+        dueMillis: Long, now: Instant = Instant.now()): Boolean {
+        val root = state(characterId)
+        val goal = root.optJSONObject("intention") ?: return false
+        if (!GoalFollowUpPolicy.reviewMatches(goal, intentionId, dueMillis, now)) return false
+        goal.remove("nextReviewAt")
+        goal.put("lastGoalReviewAt", now.toString())
         save(characterId, root)
         return true
     }
 
     @Synchronized fun stopIntention(characterId: String) {
+        cancelGoalReview(characterId)
         val root = state(characterId)
         root.optJSONObject("intention")?.let { root.put("previousIntention", it.put("stage", "released").put("releaseReason", "用户结束这件事")) }
         root.remove("intention")
@@ -592,6 +663,7 @@ object CharacterLifeStore {
     }
 
     @Synchronized fun clearHistory(characterId: String) {
+        cancelGoalReview(characterId)
         val root = state(characterId)
         root.remove("intention")
         root.remove("previousIntention")

@@ -63,6 +63,54 @@ object ProactivePerceptionScheduler {
         foregroundChecks = null
     }
 
+    private fun goalWorkName(characterId: String) = "lulu-goal-review-$characterId"
+
+    /**
+     * One timed, evidence-gated reappraisal of an existing character desire.
+     * Unique REPLACE work prevents duplicate paid calls for the same goal.
+     */
+    fun scheduleGoalReview(context: Context, characterId: String, intentionId: String,
+        at: Instant) {
+        if (characterId.isBlank() || intentionId.isBlank() ||
+            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val app = context.applicationContext
+        val delayMs = Duration.between(Instant.now(), at).toMillis().coerceAtLeast(0L)
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", "持续目标定时复盘：只检查已保存的目标、真正行为回执和新证据；决定改进、联系、等待或休眠。")
+                .putString("characterId", characterId)
+                .putString("goalReviewId", intentionId)
+                .putLong("goalReviewDueMillis", at.toEpochMilli())
+                .putBoolean("force", true)
+                .build())
+            .build()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            goalWorkName(characterId), ExistingWorkPolicy.REPLACE, request)
+    }
+
+    fun cancelGoalReview(context: Context, characterId: String) {
+        if (characterId.isBlank()) return
+        WorkManager.getInstance(context.applicationContext)
+            .cancelUniqueWork(goalWorkName(characterId))
+    }
+
+    /** Restore still-valid intentions after process death or an APK upgrade. */
+    private fun restoreGoalReviews(context: Context) {
+        CharacterLifeStore.states.value.keys.forEach { characterId ->
+            val goal = CharacterLifeStore.state(characterId).optJSONObject("intention")
+                ?: return@forEach
+            val at = runCatching {
+                Instant.parse(goal.optString("nextReviewAt"))
+            }.getOrNull() ?: return@forEach
+            if (goal.optString("stage") !in setOf("paused", "released", "completed")) {
+                scheduleGoalReview(context, characterId, goal.optString("createdAt"), at)
+            }
+        }
+    }
+
     fun schedule(context: Context) {
         val appContext = context.applicationContext
         val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
@@ -76,6 +124,7 @@ object ProactivePerceptionScheduler {
             watchdog,
         )
         scheduleNextDue(appContext)
+        restoreGoalReviews(appContext)
     }
 
     fun scheduleNextDue(context: Context) {
@@ -426,6 +475,16 @@ class ProactivePerceptionWorker(
         val requireOnline = inputData.getBoolean("requireOnline", false)
         val preserveOffline = inputData.getBoolean("preserveOffline", false)
         val onlineExpiryAtMillis = inputData.getLong("onlineExpiryAtMillis", 0L)
+        val goalReviewId = inputData.getString("goalReviewId").orEmpty()
+        if (goalReviewId.isNotBlank()) {
+            if (characterId == null ||
+                CompanionPresenceStore.isInCall(characterId) ||
+                CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank() ||
+                !CharacterLifeStore.claimGoalReview(
+                    characterId, goalReviewId, inputData.getLong("goalReviewDueMillis", 0L))) {
+                return@runCatching Result.success()
+            }
+        }
         val retryEvidenceId = inputData.getString("retryEvidenceId").orEmpty()
         if (characterId != null && retryEvidenceId.isNotBlank() &&
             PerceptionStimulusLedger.hasSeen(applicationContext, characterId, retryEvidenceId)) {

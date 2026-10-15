@@ -531,6 +531,11 @@ object ProactivePerceptionRuntime {
                     appendLine("如果需要对用户道歉或联系，另外选择合法 action=message，")
                     appendLine("实际发送由执行器确认，在线续时不是已经联系过对方的证明。")
                 }
+                if (trigger.startsWith("持续目标定时复盘")) {
+                    appendLine("【目标复盘】仅在原持续愿望仍真实存在且用户没有新反馈时检查：上一个动作执行了什么、有没有目标达成的直接证据、下一步是否值得采取不同方式。")
+                    appendLine("道歉成功送达不等于得到原谅；没有回复也不代表她还在生气。可以选择不打扰、换个真实可做的事情，或者一次有分寸的联系；绝不复读道歉。")
+                    appendLine("不能为此复盘新造已经和好、用户正在伤心之类的事实。不勉强永久在线。")
+                }
                 if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望。只有出现真正新增的念头才写 innerThought/innerLife；若只是‘还在等、还是不催、继续看看’的同义改写就省略，让旧心声停留在历史里。无外部新事件不是内在停止的理由，但也不是制造新内心独白的理由。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
                 appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
@@ -1077,6 +1082,7 @@ object ProactivePerceptionRuntime {
         val actionStartedAt = Instant.now()
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
+            goalReviewMode = trigger.startsWith("持续目标定时复盘"),
             requestId = when {
                 // A new user message is a NEW decision. Never reuse the older
                 // call-end/world-event request key while the user is waiting.
@@ -1340,6 +1346,7 @@ object ProactivePerceptionRuntime {
         availableGroups: List<LuluConversation>,
         now: Instant,
         requestId: String,
+        goalReviewMode: Boolean = false,
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         // All autonomous external actions share this gate: no model-authored wish,
@@ -1369,6 +1376,16 @@ object ProactivePerceptionRuntime {
             Action.SELF_NICKNAME -> "set_self_nickname"
             Action.TOOL -> decision.tool
             Action.SILENT -> return ActionExecution(false, "角色选择保持安静")
+        }
+        // One delivered apology is not reconciliation. However, a still-open
+        // goal is not permission to send unlimited unsolicited follow-ups.
+        // The cap is reset only by a genuine new user event, never by silence.
+        val goal = CharacterLifeStore.state(character.characterId).optJSONObject("intention")
+        val pursuingThisGoal = goal != null && (goalReviewMode ||
+            decision.intentionId == goal.optString("createdAt"))
+        if (pursuingThisGoal && goal != null &&
+            GoalFollowUpPolicy.shouldBlockContact(goal, tool)) {
+            return ActionExecution(false, "已两次主动联系而未获得新的用户回应；保留目标但暂停重复打扰")
         }
         val args = if (decision.action == Action.TOOL) decision.toolArgs else JSONObject().apply {
             put("text", decision.text)

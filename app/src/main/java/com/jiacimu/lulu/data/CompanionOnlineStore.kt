@@ -171,6 +171,13 @@ object CompanionOnlineStore {
     /** Called after a chat or private activity event is durably appended. */
     fun onConversationMessage(conversation: LuluConversation, message: LuluChatMessage) {
         if (message.status != LuluChatMessage.Status.Sent) return
+        if (conversation.groupChat == null && message.sender == LuluChatMessage.Sender.User) {
+            // A real incoming user signal supersedes the pre-arranged goal
+            // check, including inside a voice call. It is NOT proof the
+            // longer-term goal is achieved or the user has forgiven the role.
+            CharacterLifeStore.observeUserGoalEvidence(
+                conversation.characterId, message.id, message.content, message.createdAt)
+        }
         if (message.id.startsWith("voice-")) {
             val participants = conversation.groupChat?.members?.map(LuluGroupMember::characterId)
                 ?: listOf(conversation.characterId)
