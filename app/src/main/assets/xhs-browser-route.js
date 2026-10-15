@@ -47,6 +47,11 @@
     if (['/search_result', '/search', '/search/result'].includes(location.pathname)) {
       const keyword = new URL(location.href).searchParams.get('keyword') || '';
       if (!keyword) return;
+      // A history.pushState from a different search must clear the old SSR
+      // baseline BEFORE asynchronous Vue hydration. Repeated events for the
+      // same query must not erase a verified API response.
+      if (!window.__luluXhsReader?.pendingSearch(keyword))
+        window.__luluXhsReader?.beginSearch(keyword);
       send({kind: 'search-start', keyword});
       watchResults(keyword);
     }
