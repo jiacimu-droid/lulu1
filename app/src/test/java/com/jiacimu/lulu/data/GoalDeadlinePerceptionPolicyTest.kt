@@ -26,4 +26,22 @@ class GoalDeadlinePerceptionPolicyTest {
         assertFalse(GoalDeadlinePerceptionPolicy.deferPassiveCheck(
             listOf(task.copy(status = CommitmentTaskStatus.Completed)), now))
     }
+    @Test fun protectedAlarmCannotDropNextAutonomousWakeOrPostponeItForever() {
+        val tenMinutes = CommitmentTask(characterId = "role", goal = "十分钟后叫醒",
+            status = CommitmentTaskStatus.Scheduled,
+            dueAt = now.plusSeconds(600), linkedAlarmId = "clock-1")
+        val twentyMinutes = CommitmentTask(characterId = "role", goal = "二十分钟后提醒",
+            status = CommitmentTaskStatus.Scheduled,
+            dueAt = now.plusSeconds(1200), linkedAlarmId = "clock-2")
+        assertEquals(now.plusSeconds(1260),
+            GoalDeadlinePerceptionPolicy.passiveResumeAt(
+                listOf(tenMinutes, twentyMinutes), now))
+        assertNull(GoalDeadlinePerceptionPolicy.passiveResumeAt(
+            listOf(tenMinutes, twentyMinutes), now.plusSeconds(1201)))
+        assertNull(GoalDeadlinePerceptionPolicy.passiveResumeAt(
+            listOf(tenMinutes.copy(linkedAlarmId = null)), now))
+        assertNull(GoalDeadlinePerceptionPolicy.passiveResumeAt(
+            listOf(tenMinutes.copy(status = CommitmentTaskStatus.Completed)), now))
+    }
+
 }
