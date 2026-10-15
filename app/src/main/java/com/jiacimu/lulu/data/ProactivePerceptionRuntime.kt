@@ -552,7 +552,7 @@ object ProactivePerceptionRuntime {
         // User photos were already posted to chat. Let the role's normal
         // perception model see their pixels in this SAME decision call.
         val unreadPhotos = com.jiacimu.lulu.QqChatImageModelInput.prepare(
-            appContext, characterId, onlineUnread.newestIds,
+            appContext, characterId, onlineUnread.imageEvidenceIds,
         )
         val result = LuluAiServices.gateway.generate(
             characterId = characterId,
