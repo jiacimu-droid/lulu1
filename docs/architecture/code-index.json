@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T08:14:22.423441+00:00",
-  "commit": "3cc161c2d253cc996e42cbaea2f864aaf4811bb3",
+  "generatedAt": "2026-10-15T08:14:43.639829+00:00",
+  "commit": "20b576c422a4115d4b3efce7e8762d80db34687e",
   "branch": "main",
-  "sourceFingerprint": "48010e79877ba1d3bb656dbef4353de2a4b56ee9694dec6d5e0cc3fd1a27f7ce",
+  "sourceFingerprint": "8bbf6206b502fd1cce75aedc72ffea1cd94916de02aa33ffb6e1fac2cc2338df",
   "summary": {
     "files": 647,
     "lines": 128377,
@@ -21726,7 +21726,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt",
       "lines": 55,
-      "sha256": "18b86fea9604affafd6b246672cbbcba9d7b92849a734997c9bb664ed3aa9ccb",
+      "sha256": "3d6dbb9baaf34f9c002dfc62ba98bf64890ae1e2662c63fa8f1bd12357d0c4fd",
       "symbols": [
         {
           "name": "CharacterMotivationOwnershipTest",
