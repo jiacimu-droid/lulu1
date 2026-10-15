@@ -516,7 +516,7 @@ object ProactivePerceptionScheduler {
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-$characterId")
         WorkManager.getInstance(context.applicationContext).cancelUniqueWork("$ONLINE_WORK-reflection-$characterId")
         synchronized(this) {
-            liveChatJobs.filterKeys { it.first == characterId }.values.forEach(Job::cancel)
+            liveChatJobs.filterKeys { it.first == characterId }.values.forEach { it.cancel() }
             liveChatJobs.keys.removeAll { it.first == characterId }
         }
         ChatGenerationActivity.clearCharacter(characterId)
