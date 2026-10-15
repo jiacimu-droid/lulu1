@@ -98,7 +98,10 @@ internal class ElevenLabsSpeech(context: Context) {
 
     suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null, source: String = "phone_direct"): Boolean = withContext(Dispatchers.IO) {
         val token = epoch
-        val call = openAudio(text, voiceId, "pcm_24000", source)
+        // A long bedtime turn remains one visible message and one recording,
+        // but each WebSocket synthesis segment has its own bounded PCM stream.
+        val speechParts = if (ElevenLabsModels.websocket(selectedModel()))
+            ElevenLabsSpeechSegments.split(text) else listOf(text)
         var audio: AudioTrack? = null
         val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
         var playedToEnd = false
@@ -116,26 +119,32 @@ internal class ElevenLabsSpeech(context: Context) {
             var written = 0L
             var carry = 0
             val buffer = ByteArray(8192)
-            call.input.use { input ->
-                while (token == epoch) {
-                    val count = input.read(buffer, carry, buffer.size - carry)
-                    if (count < 0) break
-                    val total = count + carry
-                    val even = total - total % 2
-                    var offset = 0
-                    while (offset < even && token == epoch) {
-                        CallAudioRoute.preferredOutput?.let {
-                            if (output.preferredDevice?.id != it.id) check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
+            for (part in speechParts) {
+                if (token != epoch) break
+                val call = openAudio(part, voiceId, "pcm_24000", source)
+                try {
+                    call.input.use { input ->
+                        while (token == epoch) {
+                            val count = input.read(buffer, carry, buffer.size - carry)
+                            if (count < 0) break
+                            val total = count + carry
+                            val even = total - total % 2
+                            var offset = 0
+                            while (offset < even && token == epoch) {
+                                CallAudioRoute.preferredOutput?.let {
+                                    if (output.preferredDevice?.id != it.id) check(output.setPreferredDevice(it)) { "系统未接受电话声音输出设备" }
+                                }
+                                val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_BLOCKING)
+                                check(sent > 0) { "ElevenLabs 音频播放失败" }
+                                if (written == 0L) onStarted()
+                                recording?.write(buffer, offset, sent)
+                                offset += sent; written += sent
+                            }
+                            carry = total % 2
+                            if (carry == 1) buffer[0] = buffer[even]
                         }
-                        val sent = output.write(buffer, offset, even - offset, AudioTrack.WRITE_BLOCKING)
-                        check(sent > 0) { "ElevenLabs 音频播放失败" }
-                        if (written == 0L) onStarted()
-                        recording?.write(buffer, offset, sent)
-                        offset += sent; written += sent
                     }
-                    carry = total % 2
-                    if (carry == 1) buffer[0] = buffer[even]
-                }
+                } finally { call.close() }
             }
             if (token != epoch) return@withContext false
             check(written > 0 && carry == 0) { "ElevenLabs PCM 音频不完整" }
@@ -150,7 +159,6 @@ internal class ElevenLabsSpeech(context: Context) {
             // The recording contains exactly what was sent to AudioTrack, not a
             // second TTS generation. Interrupted or failed speech is discarded.
             recording?.finish(playedToEnd)
-            call.close()
             if (track === audio) { track = null; runCatching { audio?.release() } }
         }
     }
