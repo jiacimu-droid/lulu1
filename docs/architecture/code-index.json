@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T08:11:33.526173+00:00",
-  "commit": "8595613d349f301796b874c0a89c3663dd410bee",
+  "generatedAt": "2026-10-15T08:12:24.801682+00:00",
+  "commit": "0ea28de1b735b0624b03b38a43b3cb7b40214de8",
   "branch": "main",
-  "sourceFingerprint": "6d9b719442ad9c0a6d23920abce9f208122d49f5bf00503b208ff75d27b4de28",
+  "sourceFingerprint": "083f7e222bdae35a8006357fd9a5619285904ffa5a7375087a387d744bc9fc57",
   "summary": {
     "files": 646,
     "lines": 128322,
@@ -15064,7 +15064,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 689,
-      "sha256": "c6a1e1bfda403f5626dfd0ba8ec0f226514aac2702994529f98d6e43b6b1d23d",
+      "sha256": "56c61dad61725fd28ea2a95b83112a75bb08dda0ea6e805d5018896c03ad6105",
       "symbols": [
         {
           "name": "asJson",
@@ -17299,7 +17299,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 109,
-      "sha256": "ea47a1a6aaef6a239ac0ec07293ec6b2ad974ba7ed275760523b8694ed1cbf1d",
+      "sha256": "aed1caf8fd942e28d84931a7feebc0524b9887344d32e372edd629e339af95f1",
       "symbols": []
     },
     {
@@ -20712,7 +20712,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 1631,
-      "sha256": "61fc87bceb4beb14bee4668f2b530c23d06ca54879a29a2396ccd29605500bc5",
+      "sha256": "66b8f349aa39d55054791d8084eff775b54b8875b00bbfc482319530597f19fe",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
