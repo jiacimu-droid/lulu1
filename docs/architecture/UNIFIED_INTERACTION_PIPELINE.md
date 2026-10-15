@@ -41,7 +41,7 @@
 5. **执行前**，后台自主活动与私聊/电话/群聊附加工具统一校验动机。没有角色本人依据就拒绝执行而保留失败回执；数字世界见面 `moveTo` 无依据时不进行跳转。聊天和见面的普通口语仍由各场景自然表达，不为了检查而增加一次模型调用。
 6. 后续行动只以 `ToolRouter` 或真实见面/世界状态回执为准。既有 `CharacterActionFeedback` 把选择原因和成功/失败交回角色下一次感知；曾经想过不等于做成。
 
-**入口对应：** 私聊/电话 `LuluDeviceToolBridge`，群聊 `GroupEnsembleReplyEngine`，见面 `DigitalWorldMeetingGenerationV2` + `DigitalWorldMeetingRuntimeV2`，后台/世界 `ProactivePerceptionRuntime`，真实世界相遇及生活事件的自发表达 `AutonomousSocialRuntime`，延迟私生活动作 `CharacterSelfActivityRuntime`。各自保留不同的音频、消息、场景协议，但不能脱离共享的人格-动机-反馈链。
+**入口对应：** 私聊/电话 `LuluDeviceToolBridge`，群聊 `runGroupReplies` → `LuluDeviceToolBridge.respond`（逐角色独立调用），见面 `DigitalWorldMeetingGenerationV2` + `DigitalWorldMeetingRuntimeV2`，后台/世界 `ProactivePerceptionRuntime`，真实世界相遇及生活事件的自发表达 `AutonomousSocialRuntime`，延迟私生活动作 `CharacterSelfActivityRuntime`。各自保留不同的音频、消息、场景协议，但不能脱离共享的人格-动机-反馈链。
 
 **边界：** 这一层确认「有没有角色亲自形成的选择依据」，并不能只靠字符串判断一个理由是不是符合性格、是否自相矛盾；这需要继续结合情境、记忆和实机行为验收，不应伪称程序已具备完美心理学判断。
 
@@ -54,8 +54,8 @@
 
 ## 已接入与后续边界
 
-- 共用输入入口：普通私聊/电话（`LuluDeviceToolBridge`）、主动/后台感知（`ProactivePerceptionRuntime`）、群聊角色回合（`GroupEnsembleReplyEngine`）；见面回复读取同一真实观察及同一决策原则。
-- 目前不同场景**输出协议仍保留**：电话一句话及发声、群聊多人结构、见面的时序与空间约束并不能用一个同构输出 JSON 代替。统一的是输入语义和主体状态，不是强行把所有呈现拆成一个大文件。
+- 共用输入入口：普通私聊/电话（`LuluDeviceToolBridge`）、主动/后台感知（`ProactivePerceptionRuntime`）、群聊角色回合（`runGroupReplies` → `LuluDeviceToolBridge.respond`（逐角色独立调用））；见面回复读取同一真实观察及同一决策原则。
+- 目前不同场景**输出协议仍保留**：电话一句话及发声、群聊逐人消息、见面的时序与空间约束并不能用一个同构输出 JSON 代替。统一的是输入语义和主体状态，不是强行把所有呈现拆成一个大文件。
 - 进一步扩展用户进入/退出页面、已读行为、其他游戏中的物理接触时，应先检查是否真有可观测的、已授权事实；依照 `InteractionSignalBridge` + `CharacterPerceptionContext` 扩展，不能增加对应的“用户做 X，角色必须说 Y”固定脚本。
 
 ## 验收场景
