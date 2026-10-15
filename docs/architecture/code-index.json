@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T07:04:58.025325+00:00",
-  "commit": "9a57f609d755cdfae682a94c329fc13b6aca9b96",
+  "generatedAt": "2026-10-15T07:06:04.863743+00:00",
+  "commit": "6f35aea530c25bbc65a106afe423375ed9277a81",
   "branch": "main",
-  "sourceFingerprint": "ef7dea567d5f8c97f17674079b164b7b823cf04e74f819fed9de31fd15d21c9c",
+  "sourceFingerprint": "5c9e28d15c2cd5eaa29ee64b031f23689875d0a48d9c93247e2f21c98b53c29d",
   "summary": {
     "files": 645,
-    "lines": 128088,
+    "lines": 128089,
     "symbols": 1902
   },
   "symbolIndex": {
@@ -14093,8 +14093,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt",
-      "lines": 28,
-      "sha256": "2fb272a358c721fe1ca8e602b95d90181b731f2837455d9eb1681d4dfb618d15",
+      "lines": 29,
+      "sha256": "4936fd51968271672ade883a61c74385f3fd8034329f3b8e9406775e4e1429f4",
       "symbols": [
         {
           "name": "cue",
