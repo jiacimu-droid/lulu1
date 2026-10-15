@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1f4a99ad22b526df4e770147dcc37bde781abac8`
+- 基准提交：`a3552ae0723d77c6e40c2259342e5def6bb5ea5c`
 - 分支：`main`
 - 已索引文件：654
-- 已索引代码/文本行：128799
-- 已发现符号：1925
+- 已索引代码/文本行：128813
+- 已发现符号：1926
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -279,7 +279,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 117 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1099 | 35 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 21 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 354 | 9 |
@@ -325,7 +325,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 136 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1752 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1754 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 777 | 24 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T16:42:42.093071+00:00",
-  "commit": "1f4a99ad22b526df4e770147dcc37bde781abac8",
+  "generatedAt": "2026-10-15T16:52:38.060244+00:00",
+  "commit": "a3552ae0723d77c6e40c2259342e5def6bb5ea5c",
   "branch": "main",
-  "sourceFingerprint": "1c5573f682c2977cc31b35ededf391c2d8e8c4c864bdd59f22fc94d402c00f47",
+  "sourceFingerprint": "79c84e6ac566601258424001d5000c0c16cf7cb5c742ea0200050af3310754e7",
   "summary": {
     "files": 654,
-    "lines": 128799,
-    "symbols": 1925
+    "lines": 128813,
+    "symbols": 1926
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5703,7 +5703,13 @@
     "deferPassiveCheck": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt",
-        "line": 12
+        "line": 23
+      }
+    ],
+    "passiveResumeAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt",
+        "line": 30
       }
     ],
     "outwardAction": [
@@ -7027,7 +7033,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1696
+        "line": 1698
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -16187,12 +16193,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt",
-      "lines": 21,
-      "sha256": "f111dec757650cdcb37ea382b8845b78225cda82d646e284645bddb14a7f30ec",
+      "lines": 33,
+      "sha256": "8c7b0caa9e801e40116de41bf10fc9bbfa2a7e64644d0896d8e8707e309be04c",
       "symbols": [
         {
           "name": "deferPassiveCheck",
-          "line": 12
+          "line": 23
+        },
+        {
+          "name": "passiveResumeAt",
+          "line": 30
         }
       ]
     },
@@ -17581,8 +17591,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1752,
-      "sha256": "bb833990af81b5ce0a32b4a3737b280f3e0c2813c951e9389fd4893d1f7d0dbb",
+      "lines": 1754,
+      "sha256": "6326d4a13020683fe2d3378d2db603a6102a9cebd2198b397ad2887b5ba5b341",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -17606,7 +17616,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1696
+          "line": 1698
         }
       ]
     },
