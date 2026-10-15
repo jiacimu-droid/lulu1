@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T03:41:48.332803+00:00",
-  "commit": "e16f107a938ecac586cb522adfef26cc13132afa",
+  "generatedAt": "2026-10-15T04:09:39.157947+00:00",
+  "commit": "493ed3cc197054cc56343fd22ac2e92363fe67e7",
   "branch": "main",
-  "sourceFingerprint": "4d950273ffc6722bc16ee118343ebde5b15bf802f163d67a496b01405e2250a8",
+  "sourceFingerprint": "9f636a895bf4c7dc48e17a1e824f660242f94318973d9c0d08e456a0f9bb09bd",
   "summary": {
     "files": 634,
-    "lines": 127042,
+    "lines": 127043,
     "symbols": 1878
   },
   "symbolIndex": {
@@ -12647,7 +12647,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
       "lines": 89,
-      "sha256": "a46fd7ba5b06677f2a01afe50dc216c9d0bf57537b61fdd8a689a0f0ee8307b3",
+      "sha256": "4b0808cc973138a9eac793f7bf63d1a0269443c245344de7861d2c5ee7b0a633",
       "symbols": [
         {
           "name": "requestedFocus",
@@ -12835,7 +12835,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
       "lines": 171,
-      "sha256": "b46dc650e66030d5363daa66f288eb6021ef44cd88f74347d87a7008c1b697ca",
+      "sha256": "d4e8a28dfe182f963c2bd70339676f838bc20121e6a8b47954cc7c333b6427fa",
       "symbols": [
         {
           "name": "plain",
@@ -20895,7 +20895,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
       "lines": 62,
-      "sha256": "da78a1789d329c13e18b90eb2f289caeb9d7b5072fe1a9b036a9e02b5ea6ff04",
+      "sha256": "f7aecae1760de2fc850387a8ea05bbc735bf073ac53d4b85f43098c06eede7fb",
       "symbols": [
         {
           "name": "SleepGuidanceGuideTest",
@@ -20960,8 +20960,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
-      "lines": 138,
-      "sha256": "1fda49499f14e965ef14f6ce0a3700484b04e0524b269a9caec55507b9e3485f",
+      "lines": 139,
+      "sha256": "c76bb955a1fe03f1fb3e0c77cd1895b32e67e5e99510ea934c26ec05c083bc72",
       "symbols": [
         {
           "name": "VoicePerformanceTest",
