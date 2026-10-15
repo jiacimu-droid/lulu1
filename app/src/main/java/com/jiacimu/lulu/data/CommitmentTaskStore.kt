@@ -148,6 +148,15 @@ object CommitmentTaskStore {
         }
     }
 
+    /** Removing a 辞海 promise removes the executable obligation and alarm. */
+    @Synchronized
+    fun remove(id: String): Boolean {
+        val current = mutableTasks.value.firstOrNull { it.id == id } ?: return false
+        current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+        persist(mutableTasks.value.filterNot { it.id == id })
+        return true
+    }
+
     /** Rephrasing an already-delivered promise does not undo its real alarm or call plan. */
     @Synchronized fun rebindReplySources(oldIds: Set<String>, newId: String) {
         if (newId.isBlank()) return

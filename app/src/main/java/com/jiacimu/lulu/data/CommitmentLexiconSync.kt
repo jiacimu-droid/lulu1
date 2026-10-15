@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.core.LexiconEntry
+import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.LexiconStatus
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +40,31 @@ object CommitmentLexiconSync {
     }
 
     private suspend fun syncTask(task: CommitmentTask) {
-        val lexiconId = task.lexiconEntryId ?: return
+        // Repair legacy/tool-created commitments that were persisted in the
+        // execution store without any visible 辞海 entry. Write the durable
+        // entry first, then link the task, so a process restart can reconcile.
+        if (task.lexiconEntryId == null) {
+            val id = "scheduled-task-${task.id}"
+            if (LuluRepositories.lexicon.snapshot(task.characterId).none { it.id == id }) {
+                LuluRepositories.lexicon.save(
+                    LexiconEntry(
+                        id = id,
+                        characterId = task.characterId,
+                        section = LexiconSection.Promise,
+                        title = task.goal.take(24).ifBlank { "定时约定" },
+                        content = task.goal,
+                        promiseKind = if (task.dueAt != null) PromiseKind.Reminder else PromiseKind.Promise,
+                        createdAt = task.createdAt,
+                        updatedAt = task.updatedAt,
+                    ),
+                )
+            }
+            CommitmentTaskStore.update(task.id) { existing ->
+                if (existing.lexiconEntryId == null) existing.copy(lexiconEntryId = id) else existing
+            }
+            return
+        }
+        val lexiconId = task.lexiconEntryId
         val current = LuluRepositories.lexicon.snapshot(task.characterId).firstOrNull { it.id == lexiconId }
         if (current == null) {
             if (task.status.isActive()) CommitmentTaskStore.cancel(task.id, "对应辞海约定已删除")

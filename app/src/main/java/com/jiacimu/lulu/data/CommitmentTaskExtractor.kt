@@ -37,6 +37,11 @@ internal suspend fun extractCommitmentTaskDrafts(
     RelativeWakeCommitmentParser.parse(userText, characterText, now, zone)?.let { wake ->
         return RelativeWakeCommitmentParser.draftsFor(wake, activeTasks, userText)
     }
+    // Relative contact promises ("5分钟后给我发消息") need a durable
+    // on-device clock and task record, not a best-effort model JSON draft.
+    RelativeContactCommitmentParser.parse(userText, characterText, now, zone)?.let { contact ->
+        return RelativeContactCommitmentParser.draftsFor(contact, activeTasks, userText)
+    }
     TimedContactCommitmentParser.parse(userText, characterText, now, zone)?.let { contact ->
         val matching = activeTasks.filter { task ->
             task.goal.contains("按约定联系用户") || task.goal.contains("按约定给用户打电话")

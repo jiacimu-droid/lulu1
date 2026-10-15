@@ -30,6 +30,9 @@ import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.CommitmentTaskStatus
+import com.jiacimu.lulu.data.isActive
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -131,11 +134,28 @@ fun LexiconFeatureScreenV2(
                     .eventsByIds(selectedCharacterId, listOf(evidence)).isNotEmpty()
         }.distinctBy { it.optString("id") }
     }
-    val entries = remember(currentSectionEntries, lifeEntries, section) {
-        if (section == LexiconSection.Concern)
-            (currentSectionEntries + lifeEntries).distinctBy { it.id }
-                .sortedByDescending { it.updatedAt }
-        else currentSectionEntries
+    // TaskStore is authoritative: an alarm may already be scheduled even if
+    // the async 辞海 materialization has not created a LexiconEntry yet.
+    val persistedTasks by CommitmentTaskStore.tasks.collectAsState()
+    val scheduledTasks = remember(persistedTasks, selectedCharacterId, section) {
+        if (section == LexiconSection.Promise)
+            persistedTasks.filter { it.characterId == selectedCharacterId }
+                .sortedWith(compareByDescending<com.jiacimu.lulu.data.CommitmentTask> {
+                    it.status.isActive()
+                }.thenByDescending { it.updatedAt })
+        else emptyList()
+    }
+    val taskLinkedEntryIds = remember(scheduledTasks) {
+        scheduledTasks.mapNotNull { it.lexiconEntryId }.toSet()
+    }
+    val entries = remember(currentSectionEntries, lifeEntries, section, taskLinkedEntryIds) {
+        when (section) {
+            LexiconSection.Concern -> (currentSectionEntries + lifeEntries)
+                .distinctBy { it.id }.sortedByDescending { it.updatedAt }
+            LexiconSection.Promise -> currentSectionEntries
+                .filterNot { it.id in taskLinkedEntryIds }
+            else -> currentSectionEntries
+        }
     }
     var visibleCount by rememberSaveable(selectedCharacterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
     val visibleEntries = remember(entries, visibleCount) { entries.take(visibleCount) }
@@ -238,7 +258,56 @@ fun LexiconFeatureScreenV2(
                         }
                     }
                 }
-                if (entries.isEmpty() && (section != LexiconSection.Concern || recentPrivateConcerns.isEmpty())) {
+                if (section == LexiconSection.Promise && scheduledTasks.isNotEmpty()) {
+                    item(key = "scheduled-commitments-heading") {
+                        Text("真实定时约定 · 直接来自执行任务", fontWeight = FontWeight.SemiBold)
+                    }
+                    items(scheduledTasks, key = { "scheduled-commitment:" + it.id }) { task ->
+                        val status = when (task.status) {
+                            CommitmentTaskStatus.NeedsClarification -> "待明确"
+                            CommitmentTaskStatus.Scheduled -> "已安排"
+                            CommitmentTaskStatus.Running -> "执行中"
+                            CommitmentTaskStatus.WaitingForFeedback -> "已触发 · 等待反馈"
+                            CommitmentTaskStatus.Completed -> "已完成"
+                            CommitmentTaskStatus.Cancelled -> "已取消"
+                            CommitmentTaskStatus.Blocked -> "执行受阻"
+                            CommitmentTaskStatus.Expired -> "已过期"
+                        }
+                        val whenText = task.dueAt?.atZone(
+                            task.timezone?.let { zone -> runCatching { ZoneId.of(zone) }.getOrNull() }
+                                ?: ZoneId.systemDefault(),
+                        )?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+                            ?: "等待确定时间"
+                        val delivery = if (task.deliveryAction == "start_call") "到点来电；正在通话时在原通话中提醒"
+                            else if (task.goal.contains("叫醒") || task.goal.contains("起床"))
+                                "到点提醒；正在通话时直接语音叫醒"
+                            else "到点发送私聊消息"
+                        LexiconV2Card {
+                            Text(task.goal, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("$whenText · $status", fontSize = 13.sp,
+                                color = LuluColors.Muted)
+                            Text(delivery, fontSize = 12.sp, color = LuluColors.Muted)
+                            if (task.lastActionResult.isNotBlank())
+                                Text("执行记录：${task.lastActionResult}", fontSize = 12.sp,
+                                    color = LuluColors.Muted)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                                if (task.status.isActive()) {
+                                    TextButton(onClick = {
+                                        CommitmentTaskStore.cancel(task.id, "用户从辞海取消定时约定")
+                                    }) { Text("取消约定") }
+                                }
+                                TextButton(onClick = {
+                                    CommitmentTaskStore.remove(task.id)
+                                    task.lexiconEntryId?.let { id ->
+                                        scope.launch { LuluRepositories.lexicon.delete(id) }
+                                    }
+                                }) { Text("删除记录") }
+                            }
+                        }
+                    }
+                }
+                if (entries.isEmpty() && scheduledTasks.isEmpty() &&
+                    (section != LexiconSection.Concern || recentPrivateConcerns.isEmpty())) {
                     item {
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)

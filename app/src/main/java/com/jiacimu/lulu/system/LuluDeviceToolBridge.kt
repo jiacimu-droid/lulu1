@@ -13,6 +13,9 @@ import android.os.BatteryManager
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelReply
+import com.jiacimu.lulu.data.CommitmentTask
+import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.CommitmentTaskStatus
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.CharacterDecisionProtocol
@@ -1327,6 +1330,23 @@ object LuluDeviceToolBridge {
                     label = args.optString("label").ifBlank { "${characterName}提醒你" },
                     id = "tool-$characterId-$requestId",
                 ).getOrThrow()
+                CommitmentTaskStore.initialize(context)
+                CommitmentTaskStore.save(
+                    CommitmentTask(
+                        id = "tool-task-${alarm.id}",
+                        characterId = characterId,
+                        goal = "本机闹钟：${alarm.label}",
+                        status = CommitmentTaskStatus.Scheduled,
+                        dueAt = alarm.triggerAt,
+                        timezone = ZoneId.systemDefault().id,
+                        nextCheckAt = alarm.triggerAt,
+                        linkedAlarmId = alarm.id,
+                        deliveryAction = "alarm_only",
+                        completionCondition = "本机闹钟到期触发；不可冒充角色打电话或发消息",
+                        lastActionResult = if (LuluAlarmSystem.canScheduleExact())
+                            "本机精确闹钟已登记，待触发" else "非精确闹钟已登记，可能延迟",
+                    ),
+                )
                 JSONObject().put("success", LuluAlarmSystem.canScheduleExact()).put("status", if (LuluAlarmSystem.canScheduleExact()) "succeeded" else "waiting_permission").put("verification", if (LuluAlarmSystem.canScheduleExact()) "AlarmManager已接受本地精确调度，注册记录已持久化" else "已保存本机非精确提醒，但无法保证准点；请在露露机角色授权页开启精确闹钟权限，无须反复进入系统时钟确认").put("systemClock", false).put("id", alarm.id).put("triggerAt", alarm.triggerAt.toString()).put("label", alarm.label).toString()
             }
             "list_alarms" -> {
@@ -1342,7 +1362,13 @@ object LuluDeviceToolBridge {
             "cancel_alarm" -> {
                 val id = args.optString("id")
                 require(LuluAlarmSystem.list().any { it.id == id && it.characterId == characterId }) { "不能取消其他角色的闹钟或不存在的闹钟" }
-                JSONObject().put("success", LuluAlarmSystem.cancel(id)).put("id", id).toString()
+                val cancelled = LuluAlarmSystem.cancel(id)
+                if (cancelled) {
+                    CommitmentTaskStore.snapshot(characterId)
+                        .filter { it.linkedAlarmId == id }
+                        .forEach { CommitmentTaskStore.cancel(it.id, "角色主动取消本机闹钟") }
+                }
+                JSONObject().put("success", cancelled).put("id", id).toString()
             }
             "screen_action" -> {
                 val action = when (args.optString("name").lowercase()) {

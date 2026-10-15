@@ -96,6 +96,12 @@ class InMemoryLexiconRepository : LexiconRepository {
 
     override suspend fun delete(id: String) {
         val deleted = entries.value.firstOrNull { entry -> entry.id == id }
+        // A deleted promise cannot leave its executable timer secretly running.
+        if (deleted?.section == LexiconSection.Promise) {
+            CommitmentTaskStore.snapshot(deleted.characterId)
+                .filter { it.lexiconEntryId == id }
+                .forEach { CommitmentTaskStore.remove(it.id) }
+        }
         mutate { current -> current.filterNot { entry -> entry.id == id } }
         when (deleted?.section) {
             LexiconSection.Diary -> SharedExperienceTimeline.deleteEvent("lexicon-diary-$id")

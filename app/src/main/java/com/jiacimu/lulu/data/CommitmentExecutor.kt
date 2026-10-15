@@ -24,6 +24,24 @@ internal object CommitmentExecutor {
             it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running
         }) return
 
+        // A directly requested device alarm is only a local alarm. It may
+        // have a first-class visible Promise record, but cannot be promoted
+        // into an unrequested character call or chat message.
+        if (claimedTask.deliveryAction == "alarm_only") {
+            CommitmentTaskStore.update(claimedTask.id) { old ->
+                old.copy(
+                    status = if (notificationShown) CommitmentTaskStatus.WaitingForFeedback
+                        else CommitmentTaskStatus.Blocked,
+                    linkedAlarmId = null,
+                    nextCheckAt = null,
+                    lastActionResult = if (notificationShown)
+                        "本机闹钟到点，已发出通知；未证明用户看到或已经醒来"
+                    else "闹钟到点，但手机通知未能显示；没有冒充已提醒用户",
+                )
+            }
+            return
+        }
+
         CompanionOnlineStore.initialize(appContext)
         CompanionOnlineStore.wakeCharacter(
             claimedTask.characterId, CompanionOnlineReason.ScheduledCommitment,
