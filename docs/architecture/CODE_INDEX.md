@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7cb86e437e54aa78f498d607f1047e6e5a58f18c`
+- 基准提交：`efdf55b57914e929c9c3e826da7b041fc9b6353d`
 - 分支：`main`
 - 已索引文件：656
-- 已索引代码/文本行：129159
-- 已发现符号：1930
+- 已索引代码/文本行：129177
+- 已发现符号：1931
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -120,7 +120,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 327 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 253 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 41 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 59 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
