@@ -347,7 +347,8 @@ object LuluDeviceToolBridge {
                 if (history.isNotBlank()) appendLine("最近对话（这是已经发生完的连续过程，用来确定你此刻站在什么状态上）：\n$history")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
                 if (interactionContext.isNotBlank()) appendLine(interactionContext)
-                appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now))
+                // The gateway already injects this character's inner-life record
+                // once in Full mode; do not duplicate the same motives and feelings.
                 if (groundingContext.isNotBlank()) appendLine(groundingContext)
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
                 if (!sceneContext.contains("电话"))
@@ -391,7 +392,8 @@ object LuluDeviceToolBridge {
                     appendLine(directXhsResult.take(3_700))
                     appendLine("应根据实际 success/status 和正文证据回应用户。失败须承认，不能说没有注册这个工具，也不能把首页读到的另一篇说成搜索成功。此轮已调用，不要再次选择 read_xiaohongshu。")
                 }
-                appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.prompt(characterId, now))
+                // Existing obligations are already delivered by CharacterRuntime
+                // in the gateway. Only the current-message challenge is local.
                 appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
             },
             instruction = if (sceneContext.contains("哄睡")) """
