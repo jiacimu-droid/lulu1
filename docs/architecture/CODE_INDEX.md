@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`a1b5ef88c78978915a1edd67b3e557ea45a638c3`
+- 基准提交：`e15da13977433f4088374ec115b9c10a4bd163b3`
 - 分支：`main`
 - 已索引文件：635
-- 已索引代码/文本行：127264
-- 已发现符号：1882
+- 已索引代码/文本行：127254
+- 已发现符号：1881
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 139 | 0 |
+| `app/build.gradle.kts` | 138 | 0 |
 | `app/src/main/AndroidManifest.xml` | 136 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
@@ -28,7 +28,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 54 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 73 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 70 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 134 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 89 | 0 |
@@ -486,7 +486,7 @@
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 208 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 202 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 60 | 1 |

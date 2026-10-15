@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T02:20:08.411828+00:00",
-  "commit": "a1b5ef88c78978915a1edd67b3e557ea45a638c3",
+  "generatedAt": "2026-10-15T02:21:00.081619+00:00",
+  "commit": "e15da13977433f4088374ec115b9c10a4bd163b3",
   "branch": "main",
-  "sourceFingerprint": "8bfa055f939bad1694d8b9d23a3b1f516abd3bdd833c377cc5685f91a4dc4d79",
+  "sourceFingerprint": "1e49683844d043e691f771ecb081a667dca78022d448a3cfe7939f2ff40ec630",
   "summary": {
     "files": 635,
-    "lines": 127264,
-    "symbols": 1882
+    "lines": 127254,
+    "symbols": 1881
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -408,52 +408,46 @@
         "line": 9
       }
     ],
-    "usesAgent": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 10
-      }
-    ],
     "normalizeSttMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 12
+        "line": 11
       }
     ],
     "elevenInputPath": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 20
+        "line": 19
       }
     ],
     "elevenSttModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 26
+        "line": 25
       }
     ],
     "resolveSttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 30
+        "line": 29
       }
     ],
     "sttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 31
+        "line": 30
       }
     ],
     "sttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 35
+        "line": 34
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 42
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -467,13 +461,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 43
+        "line": 42
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 48
+        "line": 47
       }
     ],
     "CharacterSettingsScreenV2": [
@@ -10556,8 +10550,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 139,
-      "sha256": "75941722b0d56c4d92bae93dd5c00a13b060f981961e8543715d1e298e2af969",
+      "lines": 138,
+      "sha256": "d62b7f795c6de2ce5ea3c519d7a78f140eddedc1c053a2ad1e79420973a4c223",
       "symbols": []
     },
     {
@@ -10822,52 +10816,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 73,
-      "sha256": "a9d8043f4ed73e547ba9fa004955f66a5e550b8a07b7eaba85d4848136e63027",
+      "lines": 70,
+      "sha256": "d3003148635838036b9ba926a6598f21a9eaf68eab8fbbc5d40fabc7acb16e51",
       "symbols": [
         {
           "name": "provider",
           "line": 9
         },
         {
-          "name": "usesAgent",
-          "line": 10
-        },
-        {
           "name": "normalizeSttMode",
-          "line": 12
+          "line": 11
         },
         {
           "name": "elevenInputPath",
-          "line": 20
+          "line": 19
         },
         {
           "name": "elevenSttModel",
-          "line": 26
+          "line": 25
         },
         {
           "name": "resolveSttEngine",
-          "line": 30
+          "line": 29
         },
         {
           "name": "sttEngine",
-          "line": 31
+          "line": 30
         },
         {
           "name": "sttLabel",
-          "line": 35
+          "line": 34
         },
         {
           "name": "label",
-          "line": 42
+          "line": 41
         },
         {
           "name": "miniAsrEndpoint",
-          "line": 43
+          "line": 42
         },
         {
           "name": "preflight",
-          "line": 48
+          "line": 47
         }
       ]
     },
@@ -20606,8 +20596,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt",
-      "lines": 208,
-      "sha256": "295f26cb0a493e6d70088ec9c1357ca7009c5c3c566fb48c53ecbb93a46070b8",
+      "lines": 202,
+      "sha256": "ecdee9eb55a6df2edd18bf031a1f022794364db54cfd506de8666bc5c934930c",
       "symbols": [
         {
           "name": "CallContractsTest",
