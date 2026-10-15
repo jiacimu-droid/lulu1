@@ -52,8 +52,8 @@ internal fun CompanionPresenceDialog(
     var selectedTab by remember(characterId) { mutableIntStateOf(0) }
     LaunchedEffect(messageAnchor?.messageAt) { selectedTab = 0 }
     var manualCheckRequested by remember { mutableStateOf(false) }
+    var diagnosticsExpanded by remember(characterId) { mutableStateOf(false) }
     val plans by PerceptionWakePlanStore.plans.collectAsState()
-    val schedulingError by PerceptionWakePlanStore.schedulingError.collectAsState()
     val policies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
     val policy = policies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
@@ -118,6 +118,58 @@ internal fun CompanionPresenceDialog(
                     }
 
                     if (selectedTab == 0) {
+                        if (messageAnchor == null) item(key = "character-perception") {
+                            val perceptionError = PerceptionStatusPresentation.errorFor(state)
+                            val photoStatus = QqChatImageModelInput.lastReadStatus(context, characterId)
+                            val photoFailed = photoStatus.contains("读取失败")
+                            val lastAt = state?.lastPerceptionAt
+                                ?.atZone(ZoneId.systemDefault())
+                                ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")).orEmpty()
+                            val summary = when {
+                                perceptionError != null -> "感知异常 · ${perceptionError.take(100)}"
+                                photoFailed -> "图片读取失败 · ${photoStatus.takeLast(100)}"
+                                lastAt.isNotBlank() -> "最近感知 · $lastAt · " +
+                                    if (state?.lastPerceptionNote.orEmpty().contains("silent", true))
+                                        "本人选择安静" else "有运行记录"
+                                else -> "尚无感知运行记录"
+                            }
+                            Column(
+                                Modifier.fillMaxWidth().padding(horizontal = 3.dp, vertical = 2.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(summary,
+                                        modifier = Modifier.weight(1f),
+                                        fontSize = 12.sp,
+                                        color = if (perceptionError != null || photoFailed)
+                                            Color(0xFFAF4545) else Color(0xFF7A7A7E),
+                                        maxLines = 3,
+                                    )
+                                    TextButton(onClick = { diagnosticsExpanded = !diagnosticsExpanded },
+                                        contentPadding = PaddingValues(horizontal = 6.dp)) {
+                                        Text(if (diagnosticsExpanded) "收起" else "详情", fontSize = 12.sp)
+                                    }
+                                }
+                                if (diagnosticsExpanded) {
+                                    PerceptionStatusPresentation.lines(
+                                        state, policy, plans[characterId],
+                                        onlineStates[characterId]?.isOnline(now) == true,
+                                        CompanionPresenceStore.isInCall(characterId), now,
+                                    ).forEach { line ->
+                                        Text(line, color = Color(0xFF66666A), fontSize = 12.sp)
+                                    }
+                                    state?.lastPerceptionNote?.takeIf(String::isNotBlank)?.let {
+                                        Text("感知回执 · ${it.take(180)}",
+                                            color = Color(0xFF66666A), fontSize = 12.sp)
+                                    }
+                                    Text("识图回执 · $photoStatus",
+                                        color = if (photoFailed) Color(0xFFAF4545)
+                                            else Color(0xFF66666A), fontSize = 12.sp)
+                                    Text("这里仅显示$characterName自己的记录，不包含其他角色。",
+                                        color = Color(0xFF8A8A90), fontSize = 11.sp)
+                                }
+                            }
+                        }
                         if (messageAnchor == null) item(key = "recent-interaction-awareness") {
                             // Show factual perception progress without fabricating a new
                             // feeling or heart voice when the character chose silence.
@@ -214,17 +266,6 @@ internal fun CompanionPresenceDialog(
                     }
 
                     if (messageAnchor == null && selectedTab == 0) {
-                        item(key = "awareness") {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                PerceptionStatusPresentation.lines(state, policy, plans[characterId],
-                                    onlineStates[characterId]?.isOnline(now) == true,
-                                    CompanionPresenceStore.isInCall(characterId), now).forEach {
-                                    Text(it, color = Color(0xFF7A7A7E), fontSize = 12.sp)
-                                }
-                                if (schedulingError.isNotBlank()) Text(schedulingError,
-                                    color = Color(0xFFB04C4C), fontSize = 12.sp)
-                            }
-                        }
                         item(key = "manual-check") {
                             OutlinedButton(
                                 onClick = {
