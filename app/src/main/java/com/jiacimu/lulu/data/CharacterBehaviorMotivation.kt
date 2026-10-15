@@ -62,9 +62,10 @@ internal object CharacterBehaviorMotivation {
         // calls, world changes, posts or fictional / empty messages.
         val chosenWords = if (actionName in setOf(
                 "message", "group_message", "send_private_message", "send_group_message",
+                "kaomoji", "group_kaomoji",
             )) clean(chosenUtterance) else ""
         val voicedChoice = chosenWords.takeIf {
-            it.length >= 2 && it.lowercase() !in
+            it.isNotEmpty() && it.lowercase() !in
                 setOf("null", "none", "n/a", "无", "不知道", "未说明", "...")
         }?.let { "本轮自己选择说：$it" }.orEmpty()
         val candidates = listOf(
