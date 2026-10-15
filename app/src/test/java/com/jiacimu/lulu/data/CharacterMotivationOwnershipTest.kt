@@ -34,7 +34,7 @@ class CharacterMotivationOwnershipTest {
     }
 
     @Test fun shortLivedOrientationDoesNotBecomePermanentGoal() {
-        val legacySuggestion = JSONObject().put("aim", "了解这个人是什么样的人")
+        val legacySuggestion = JSONObject().put("aim", "了解她是什么样的人")
             .put("motive", "希望建立关系")
         val life = CharacterMotivationOwnership.canonicalInnerLife(legacySuggestion, null)
         // A vague aspiration without a concrete step is not an executable goal.
