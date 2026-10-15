@@ -100,6 +100,9 @@ object CommitmentTurnAutomation {
                 text = latest.content,
                 activeTasks = active,
             )
+            // A real message "我醒了" completes the *goal* and cancels
+            // pending call-inside-call wake alarms. Generic noise never does.
+            WakeGoalVerification.confirm(characterId, latest.content)
             val drafts = extractCommitmentTaskDrafts(
                 characterId = characterId,
                 userText = latest.content,

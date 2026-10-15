@@ -117,6 +117,7 @@ internal object LuluVoiceCallSession {
     // Only the next call-model turn receives a scheduled wake event, not fake
     // user speech. Clearing this on interruption prevents stale wake prompts.
     private var pendingScheduledWakeReason: String? = null
+    private var wakeCueJob: Job? = null
     // Text typed in the private chat during a call is the same conversation,
     // not a second online-chat request or an invented microphone transcript.
     private val incomingChatDrafts = mutableListOf<String>()
@@ -131,20 +132,37 @@ internal object LuluVoiceCallSession {
         val call = mutableState.value
         if (!call.connected || call.characterId != characterId || text.isBlank()) return false
         if (speechQueue == null) return false
-        // An ongoing bedtime call becomes a normal call when the wake promise
-        // becomes due. The promised time is factual; the words are the
-        // companion's own model-generated opening, never a fixed canned TTS.
+        // A scheduled reminder inside an existing call has two separate acts:
+        // a short local ringing cue to help wake the user, then a free-form
+        // model turn. No new incoming-call UI or second connection is created.
         sleepContinuationJob?.cancel()
         replyJob?.cancel()
+        wakeCueJob?.cancel()
+        LuluCallRingtone.stopInCallWake()
         subtitleRevealJob?.cancel()
+        replyGeneration++
         mutableState.update { current ->
             current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Natural,
                 thinking = false, opening = false, playingTranscript = "",
-                generatedTranscript = "", statusMessage = "到点叫醒 · 继续保持通话")
+                generatedTranscript = "", statusMessage = "通话内响铃叫醒 · 不会重新拨号")
         }
         speechQueue?.stop()
-        pendingScheduledWakeReason = "约定已到时间：$text；taskId=$taskId"
-        handleUserSpeech("", opening = true)
+        val callId = call.callExperienceId
+        val reason = "约定已到时间：$text；taskId=$taskId"
+        pendingScheduledWakeReason = reason
+        val context = appContext ?: return false
+        wakeCueJob = scope.launch {
+            LuluCallRingtone.startInCallWake(context, "wake-$callId-$taskId", 6_000L)
+            delay(6_000L)
+            LuluCallRingtone.stopInCallWake()
+            val live = mutableState.value
+            if (live.connected && live.callExperienceId == callId &&
+                pendingScheduledWakeReason == reason) {
+                // Natural wake wording is generated only after the ringtone.
+                // It is not a user's simulated speech.
+                handleUserSpeech("", opening = true)
+            }
+        }
         return true
     }
 
@@ -531,6 +549,9 @@ internal object LuluVoiceCallSession {
         providerRecognitionPendingUntilMillis = 0L
         cancelPendingCharacterHangup()
         pendingScheduledWakeReason = null
+        wakeCueJob?.cancel()
+        wakeCueJob = null
+        LuluCallRingtone.stopInCallWake()
         val endStatus = if (sleepAutoEnded) "哄睡陪伴已安静结束" else
             if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
@@ -1067,6 +1088,16 @@ internal object LuluVoiceCallSession {
         if (autonomousSilence && (current.sleepMode || userSpeechInProgress || current.thinking ||
             current.speaking || speechQueue?.hasPendingAudio == true || current.opening)) return
         sleepContinuationJob?.cancel()
+        if (!opening && !autonomousSleep && !autonomousSilence &&
+            spoken.isNotBlank()) {
+            // Any actual user speech interrupts an in-call ringing cue.
+            // Only explicit words such as "我醒了" may complete the wake goal.
+            wakeCueJob?.cancel()
+            wakeCueJob = null
+            pendingScheduledWakeReason = null
+            LuluCallRingtone.stopInCallWake()
+            com.jiacimu.lulu.data.WakeGoalVerification.confirm(current.characterId, spoken)
+        }
         if (!autonomousSleep && !autonomousSilence) {
             userSpeechInProgress = false
             if (spoken.isNotBlank() && !opening) {

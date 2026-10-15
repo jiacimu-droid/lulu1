@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CommitmentCallRetryPolicyTest {
+    @Test fun connectedCallWakeChecksEveryFiveMinutesButStopsRingingAfterThreeTries() {
+        assertEquals(300L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(1))
+        assertEquals(300L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(2))
+        assertEquals(150L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(3))
+        assertNull(CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(4))
+    }
+
     private val phoneWake = CommitmentTask(
         characterId = "role", goal = "明天8点叫醒我",
         deliveryAction = "start_call",

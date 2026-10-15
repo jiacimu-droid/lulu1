@@ -20,6 +20,10 @@ internal object LuluCallRingtone {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var incoming: Ringtone? = null
     private var outgoing: Ringtone? = null
+    // A wake cue inside an existing call is NOT another incoming call.
+    private var inCallWake: Ringtone? = null
+    private var inCallWakeKey: String? = null
+
     private var incomingKey: String? = null
 
     fun enabled(context: Context): Boolean =
@@ -39,6 +43,27 @@ internal object LuluCallRingtone {
                 if (incomingKey == key) stopIncoming()
             }
         }
+    }
+
+    /** Short local wake ringtone in an already connected call; no overlay, no TTS credits. */
+    @Synchronized fun startInCallWake(context: Context, key: String, lifetimeMs: Long = 6_000L) {
+        if (key.isBlank()) return
+        stopInCallWake()
+        if (!enabled(context)) return
+        inCallWakeKey = key
+        inCallWake = play(context)
+        scope.launch {
+            delay(lifetimeMs.coerceIn(1_000L, 15_000L))
+            synchronized(this@LuluCallRingtone) {
+                if (inCallWakeKey == key) stopInCallWake()
+            }
+        }
+    }
+
+    @Synchronized fun stopInCallWake() {
+        runCatching { inCallWake?.stop() }
+        inCallWake = null
+        inCallWakeKey = null
     }
 
     @Synchronized fun startOutgoing(context: Context) {
@@ -61,6 +86,7 @@ internal object LuluCallRingtone {
     }
 
     @Synchronized fun stopAll() {
+        stopInCallWake()
         stopIncoming()
         stopOutgoing()
     }

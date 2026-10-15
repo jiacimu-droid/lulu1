@@ -90,15 +90,26 @@ internal object CommitmentExecutor {
                     claimedTask.characterId, wording, claimedTask.id,
                 )
             }
+            // Do not equate ringing/speaking with the goal "user awake".
+            // Only outstanding goals receive a bounded follow-up after 5min.
+            val delaySeconds = if (queued)
+                CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(attempt) else null
+            val nextAlarm = delaySeconds?.let { seconds ->
+                LuluAlarmSystem.create(
+                    claimedTask.characterId, characterName, now.plusSeconds(seconds),
+                    "${claimedTask.goal}（叫醒结果复查）", silentCallback = true,
+                ).getOrNull()
+            }
             CommitmentTaskStore.update(claimedTask.id) { old ->
                 old.copy(
                     status = if (queued) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Blocked,
                     attemptCount = attempt,
-                    linkedAlarmId = null,
-                    nextCheckAt = null,
+                    linkedAlarmId = nextAlarm?.id,
+                    nextCheckAt = nextAlarm?.triggerAt,
                     lastActionResult = if (queued)
-                        "已在原电话安排正常声线叫醒，$music；没有再次拨号"
-                    else "原电话中未能排入叫醒语音，保留闹钟提醒；没有再次拨号",
+                        "第$attempt 次已在原电话发起铃声叫醒，随后自然说话；未收到明确回应，不视为已醒。$music" +
+                            if (nextAlarm != null) "；已安排后续目标复查" else "；后续提醒已到次数上限或未排成功"
+                    else "原电话中未能排入叫醒铃声与语音；没有再次拨号",
                 )
             }
             return

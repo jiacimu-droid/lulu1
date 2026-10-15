@@ -4,6 +4,18 @@ package com.jiacimu.lulu.data
 internal object CommitmentCallRetryPolicy {
     const val MAX_WAKE_CALL_ATTEMPTS = 3
 
+    /**
+     * Live call: the call itself remains open. Revisit the unconfirmed wake
+     * goal after five minutes, with at most three audible attempts. The final
+     * short callback records a still-unconfirmed outcome without more ringing.
+     */
+    fun nextInCallWakeReviewSeconds(attempt: Int): Long? = when (attempt) {
+        1, 2 -> 5L * 60L
+        3 -> 150L
+        else -> null
+    }
+
+
     fun isFinalCheck(task: CommitmentTask, attempt: Int, callsEnabled: Boolean): Boolean =
         when {
             task.isWakeResponsibility() && (task.deliveryAction == "start_call" || callsEnabled) ->

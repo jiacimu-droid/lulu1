@@ -409,45 +409,17 @@ object CompanionOnlineStore {
         true
     }
 
-    /** New messages/events are prompt; quiet life thinking has a separate, user-adjustable price-aware cadence. */
-    private fun onlinePulseMillis(characterId: String): Long =
-        ProactivePerceptionPolicyStore.get(characterId).onlinePulseSeconds.toLong() * 1_000L
-
-    /** Continue across genuine online extensions without resetting the perception cadence. */
+    /**
+     * Event-driven online awareness: new messages, true world/device events
+     * and explicit commitments already use independent event/AlarmManager
+     * scheduling. The five-minute expiry is the sole no-new-event appraisal
+     * and lets the character choose to continue or sleep.
+     *
+     * Do not buy an extra generic model call every 150 seconds while the user
+     * is asleep, or wake repeatedly just because a call remains connected.
+     */
     private fun scheduleLifePulseLocked(characterId: String) {
-        // Extending an online window must not reset its thinking clock indefinitely.
-        if (lifePulseJobs[characterId]?.isActive == true) return
-        val context = appContext ?: return
-        lifePulseJobs[characterId] = scope.launch {
-            // Allow a newly online character to start living after the user's
-            // initial quiet window. Subsequent pulses are gentle, not an action quota.
-            delay(onlinePulseMillis(characterId))
-            while (isOnline(characterId)) {
-                // Near the five-minute boundary, the expiry appraisal already
-                // performs a full paid choice. Do not enqueue a second life
-                // model call just before it. Fresh chat/events are separate.
-                val untilMs = mutableStates.value[characterId]?.onlineUntil?.toEpochMilli() ?: 0L
-                val remainingMs = untilMs - System.currentTimeMillis()
-                if (remainingMs in 0L..60_000L) {
-                    delay(70_000L)
-                    continue
-                }
-                if (CompanionPresenceStore.isInCall(characterId) ||
-                    MigratedDomainStores.chat.conversations.value.any {
-                        it.characterId == characterId && ChatGenerationActivity.isRunning(it.id)
-                    }) {
-                    delay(55_000L)
-                    continue
-                }
-                // A user-message batch keeps its first-bubble deadline; the scheduler never bypasses it.
-                // A separate KEEP work item prevents a backlog of stale online
-                // chat revisions. Waits for unfinished user-message batches.
-                ProactivePerceptionScheduler.scheduleOnlineReflection(context, characterId,
-                    "在线持续感知：先理解这段时间真实输入与状态，延续自己的感受、情绪与想法，再自主决定表达、行动或安静；没有用户说话也保持醒着，不为展示存在感强迫发言或编造变化",
-                    delayMillis = 0L)
-                delay(onlinePulseMillis(characterId))
-            }
-        }
+        lifePulseJobs.remove(characterId)?.cancel()
     }
 
     private fun scheduleExpiryLocked(characterId: String) {
