@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T16:56:49.885935+00:00",
-  "commit": "04096f48cff6aab028344a8260bd8cf33e15d7d5",
+  "generatedAt": "2026-10-15T16:57:02.504966+00:00",
+  "commit": "5f11722e25f4525ca3e12a9bfe9bedad504e5a20",
   "branch": "main",
-  "sourceFingerprint": "b2467e5eb596952e2c53342ae1f3e898c82aecefca4697fb93205a7c63ef02ce",
+  "sourceFingerprint": "bd3083ac64eb96d01de4fa9abd99f13b46aeb6dd11b260b0818f0e2bff4d30ab",
   "summary": {
     "files": 654,
-    "lines": 128877,
+    "lines": 128886,
     "symbols": 1926
   },
   "symbolIndex": {
@@ -1415,13 +1415,13 @@
     "LuluCapabilitiesScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 60
+        "line": 62
       }
     ],
     "open": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 85
+        "line": 88
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -1431,13 +1431,13 @@
     "refreshLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 112
+        "line": 121
       }
     ],
     "read": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 370
+        "line": 379
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -11867,24 +11867,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 450,
-      "sha256": "4e4f1a0d6f22711d134066443363dc2bb969674bde7f0387e4bd8972f6a021ed",
+      "lines": 459,
+      "sha256": "7b6c95a9a7abbf66b5c79c02aec4447400add406ddbcb03b53344e7389ae2e97",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
-          "line": 60
+          "line": 62
         },
         {
           "name": "open",
-          "line": 85
+          "line": 88
         },
         {
           "name": "refreshLocation",
-          "line": 112
+          "line": 121
         },
         {
           "name": "read",
-          "line": 370
+          "line": 379
         }
       ]
     },
