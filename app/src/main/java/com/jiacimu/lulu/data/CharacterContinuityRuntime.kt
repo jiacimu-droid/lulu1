@@ -41,6 +41,7 @@ internal object CharacterContinuityRuntime {
                 it.evidenceKind == EventEvidenceKind.UserStatement ||
                     it.evidenceKind == EventEvidenceKind.CharacterStatement
             }
+            .filter { !it.occurredAt.isAfter(now) }
             .filterNot { isCurrentInputEcho(it, currentUserText, now) }
         val previous = interactions.lastOrNull()
         val minutes = previous?.occurredAt?.let {
@@ -48,9 +49,10 @@ internal object CharacterContinuityRuntime {
         }
         val social = CharacterLifeStore.state(characterId).optJSONObject("socialNames") ?: JSONObject()
         val motives = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
-        val aims = (0 until (motives?.length() ?: 0)).mapNotNull { index ->
-            motives?.optJSONObject(index)?.optString("aim")?.trim()?.takeIf(String::isNotBlank)
-        }.distinct().take(3)
+        val aims = CharacterMotiveState.active(motives)
+            .sortedByDescending { it.optInt("priority", 2) }
+            .map { it.optString("aim").trim() }
+            .distinct().take(3)
         return Snapshot(
             previousInteractionAt = previous?.occurredAt,
             minutesSinceInteraction = minutes,
@@ -74,11 +76,12 @@ internal object CharacterContinuityRuntime {
         characterId: String,
         currentUserText: String = "",
         now: Instant = Instant.now(),
-    ): String = render(snapshot(characterId, currentUserText, now))
+        includeMotives: Boolean = true,
+    ): String = render(snapshot(characterId, currentUserText, now), includeMotives)
 
-    internal fun render(state: Snapshot): String {
+    internal fun render(state: Snapshot, includeMotives: Boolean = true): String {
         if (state.previousInteractionAt == null && state.preferredAddress.isBlank() &&
-            state.activeMotiveAims.isEmpty()) return ""
+            (!includeMotives || state.activeMotiveAims.isEmpty())) return ""
         return buildString {
             appendLine("【人物连续性锚点｜程序提供的真实历史，不是要求你表演连续性】")
             state.minutesSinceInteraction?.let { minutes ->
@@ -106,7 +109,7 @@ internal object CharacterContinuityRuntime {
                 appendLine("稳定日常称呼基线：${state.preferredAddress}（$source）。")
                 appendLine("称呼可以省略，也可在特殊情境偶尔变化；但不要无缘无故每轮随机换一个，更不能用初始人设候选覆盖这个更具体的偏好。")
             }
-            if (state.activeMotiveAims.isNotEmpty()) {
+            if (includeMotives && state.activeMotiveAims.isNotEmpty()) {
                 appendLine("角色当前仍未放下的本人动机：${state.activeMotiveAims.joinToString("；")}。")
                 appendLine("这些是持续愿望，不是必须每轮提及的台词；只有当前情境真的相关时才影响选择。")
             }

@@ -16,8 +16,7 @@ internal object CharacterActionFollowThroughPolicy {
         innerLife?.optJSONArray("motives")?.let { items ->
             for (i in 0 until items.length()) {
                 val item = items.optJSONObject(i) ?: continue
-                if (item.optString("op") !in setOf("pause", "release") &&
-                    item.optString("status", "active") == "active") {
+                if (CharacterMotiveState.isActive(item)) {
                     val aim = item.optString("aim").trim()
                     val outcomes = item.optJSONArray("outcomes")
                     val last = outcomes?.optJSONObject(outcomes.length() - 1)

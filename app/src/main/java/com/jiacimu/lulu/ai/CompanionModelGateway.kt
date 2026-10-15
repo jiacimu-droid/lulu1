@@ -631,6 +631,14 @@ class CompanionModelGateway(
                     DigitalWorldLifeEventStore.contextFor(characterId)
                 else com.jiacimu.lulu.data.PromptContextPolicy.compactWorld(characterId)
             } else ""
+            // The same observed conversation continuity is delivered to chat,
+            // calls, meetings and autonomous Full-mode decisions. Channel
+            // adapters must not inject a second conflicting copy. Motives are
+            // already rendered once by CharacterInnerLifeStore.
+            val continuitySection = if (fullContext)
+                com.jiacimu.lulu.data.CharacterContinuityRuntime.context(
+                    characterId, request.currentInput, includeMotives = false)
+            else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
                     characterId, compact = !budget.richInnerLife, query = request.retrievalQuery())
@@ -656,6 +664,7 @@ class CompanionModelGateway(
                 roleWorldBookSection,
                 presenceSection,
                 developmentSection,
+                continuitySection,
                 learningSection,
                 currentWorld,
                 timelineSection,
@@ -679,6 +688,7 @@ class CompanionModelGateway(
                 "角色世界书/设计书" to roleWorldBookSection,
                 "当前状态" to presenceSection,
                 "成长与持续动机" to developmentSection,
+                "跨场景连续性锚点" to continuitySection,
                 "已读材料与可修订的理解" to learningSection,
                 "数字世界权威状态" to currentWorld,
                 "近期时间线/未完成责任" to timelineSection,

@@ -1080,11 +1080,9 @@ object CharacterInnerLifeStore {
     fun compactContext(characterId: String, now: Instant = Instant.now()): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
-        val active = (0 until motives.length()).mapNotNull(motives::optJSONObject)
-            .filter { it.optString("status", "active") == "active" }
+        val active = CharacterMotiveState.active(motives)
             .sortedByDescending { it.optInt("priority", 2) }
-        val paused = (0 until motives.length()).mapNotNull(motives::optJSONObject)
-            .filter { it.optString("status") == "paused" }
+        val paused = CharacterMotiveState.paused(motives)
         val emotion = root.optJSONObject("emotion")
         val bonds = root.optJSONObject("bonds")
         val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
@@ -1174,10 +1172,8 @@ object CharacterInnerLifeStore {
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
-            val active = (0 until motives.length()).mapNotNull(motives::optJSONObject)
-                .filter { it.optString("status", "active") == "active" }
-            val paused = (0 until motives.length()).mapNotNull(motives::optJSONObject)
-                .filter { it.optString("status") == "paused" }
+            val active = CharacterMotiveState.active(motives)
+            val paused = CharacterMotiveState.paused(motives)
             if (active.size > 1) {
                 appendLine("现在并行牵挂${active.size}件事。不要每回合只按固定优先级执行；考虑此刻状态、执行条件、上次行动后果及角色本人的冲突。")
                 val contrasting = active.sortedByDescending { it.optInt("priority", 2) }.take(3)
