@@ -52,7 +52,7 @@ internal object CommitmentExecutor {
         val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
         val action = if (useCall) "start_call" else "send_private_message"
         val wording = when {
-            scheduledCall && wake && attempt == 1 -> "起床啦！${claimedTask.goal}。该醒醒啦，听到我说话了没？"
+            scheduledCall && wake && attempt == 1 -> "约定的叫醒时间到了：${claimedTask.goal}。请自然地叫醒用户，电话接通后继续交谈。"
             scheduledCall && attempt == 1 -> "之前说好给你打电话：${claimedTask.goal}。我按约定来啦."
             useCall && attempt > 1 -> "之前答应了${claimedTask.goal}。刚才电话没接通，我再打一次；你醒了告诉我一声。"
             wake && attempt == 1 -> "${claimedTask.goal}。我来叫你啦，醒了跟我说一声。"

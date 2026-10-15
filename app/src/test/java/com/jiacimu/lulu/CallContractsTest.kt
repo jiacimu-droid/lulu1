@@ -187,6 +187,12 @@ class CallContractsTest {
         assertTrue(gate.consumeWhenReady("second", 4L, true, false, false))
     }
 
+    @Test fun wakeCallOpeningUsesNaturalSpeechButKeepsCallOpen() {
+        assertTrue(CallOpeningTurn.isWakeCallReason("约定的叫醒时间到了"))
+        assertTrue(CallOpeningTurn.isWakeCallReason("8点半叫我起床"))
+        assertFalse(CallOpeningTurn.isWakeCallReason("我想跟你聊天"))
+    }
+
     @Test fun callOpeningRunsOnceForBothCallDirectionsAndReconnectDoesNotRepeat() {
         val opening = CallOpeningTurn()
         assertFalse(opening.claim(""))

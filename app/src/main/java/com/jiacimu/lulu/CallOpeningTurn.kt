@@ -11,6 +11,9 @@ internal class CallOpeningTurn {
     }
 
     companion object {
+        fun isWakeCallReason(reason: String): Boolean =
+            listOf("叫醒", "起床", "醒醒", "唤醒", "喊醒", "睡醒").any(reason::contains)
+
         fun prompt(reason: String = ""): String = buildString {
             append("[通话事件：电话刚刚接通，用户还没有说话。请你先自然开口，按自己的人设、关系和最近上下文说一两句开场话。不要念出事件说明，不要编造用户说过的话。]")
             if (reason.isNotBlank()) append("[这是你主动打来的电话，来电缘由：${reason.take(500)}。自然接续这个缘由。]")

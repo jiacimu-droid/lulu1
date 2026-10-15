@@ -47,7 +47,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 prefs.edit().putBoolean("$characterId:wake_music_enabled", it).commit()
             })
         }
-        Text("即使还没醒，歌曲也可以作为叫醒方式。若在通话中，角色先用正常声线说完叫醒话，再结束通话放歌，避免两种声音叠在一起。",
+        Text("已开启时，叫醒电话会先自然叫你起床，电话保持接通，方便醒来再聊几句；等你或角色真正挂断后再播放音乐，避免声音重叠。",
             style = MaterialTheme.typography.bodySmall)
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },

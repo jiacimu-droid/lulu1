@@ -32,6 +32,11 @@ internal suspend fun extractCommitmentTaskDrafts(
         }
         return listOf(wake)
     }
+    // Deterministic relative deadlines: "20分钟后再叫我" must work even
+    // when the extraction model returns [] or malformed data.
+    RelativeWakeCommitmentParser.parse(userText, characterText, now, zone)?.let { wake ->
+        return RelativeWakeCommitmentParser.draftsFor(wake, activeTasks, userText)
+    }
     TimedContactCommitmentParser.parse(userText, characterText, now, zone)?.let { contact ->
         val matching = activeTasks.filter { task ->
             task.goal.contains("按约定联系用户") || task.goal.contains("按约定给用户打电话")

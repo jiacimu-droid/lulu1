@@ -114,6 +114,9 @@ internal object LuluVoiceCallSession {
     private var subtitleRevealJob: Job? = null
     private var replyJob: Job? = null
     private var replyGeneration = 0L
+    // Only the next call-model turn receives a scheduled wake event, not fake
+    // user speech. Clearing this on interruption prevents stale wake prompts.
+    private var pendingScheduledWakeReason: String? = null
     // Text typed in the private chat during a call is the same conversation,
     // not a second online-chat request or an invented microphone transcript.
     private val incomingChatDrafts = mutableListOf<String>()
@@ -127,51 +130,21 @@ internal object LuluVoiceCallSession {
     fun announceScheduledReminder(characterId: String, text: String, taskId: String): Boolean {
         val call = mutableState.value
         if (!call.connected || call.characterId != characterId || text.isBlank()) return false
-        val queue = speechQueue ?: return false
-        // Cancel any unfinished bedtime narration before delivering the wake cue.
+        if (speechQueue == null) return false
+        // An ongoing bedtime call becomes a normal call when the wake promise
+        // becomes due. The promised time is factual; the words are the
+        // companion's own model-generated opening, never a fixed canned TTS.
         sleepContinuationJob?.cancel()
         replyJob?.cancel()
-        replyGeneration++
         subtitleRevealJob?.cancel()
         mutableState.update { current ->
             current.copy(sleepMode = false, sleepFocus = SleepGuidanceFocus.Natural,
                 thinking = false, opening = false, playingTranscript = "",
-                generatedTranscript = "", statusMessage = "到点提醒 · 正常通话声线")
+                generatedTranscript = "", statusMessage = "到点叫醒 · 继续保持通话")
         }
-        queue.stop()
-        val callId = call.callExperienceId
-        val speech = VoicePerformance.plain(text).take(600)
-        val messageId = "voice-$callId-scheduled-$taskId"
-        queue.enqueue(
-            text = speech,
-            speakerId = characterId,
-            voiceId = CharacterVoicePreferenceStore.callVoiceId(characterId, false),
-            messageId = messageId,
-            onStarted = {
-                if (mutableState.value.connected && mutableState.value.callExperienceId == callId) {
-                    recentlyPlayedAgentText = speech
-                    recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
-                    mutableState.update { it.copy(playingTranscript = PhoneSubtitleLayout.lines(speech).joinToString("\n")) }
-                }
-            },
-            onDelivered = {
-                if (mutableState.value.connected && mutableState.value.callExperienceId == callId) {
-                    MigratedDomainStores.chat.appendVoiceMessage(call.conversationId, messageId, speech, true)
-                    mutableState.update { it.copy(playingTranscript = "") }
-                    if (com.jiacimu.lulu.data.WakeMusicCoordinator.shouldSwitchAfterSpeech(
-                            appContext, characterId, taskId)) {
-                        // Finish the audible wake phrase, then release the phone audio focus.
-                        scope.launch {
-                            delay(300L)
-                            if (mutableState.value.connected &&
-                                mutableState.value.callExperienceId == callId) {
-                                finishCall(endedByCharacter = true)
-                            }
-                        }
-                    }
-                }
-            },
-        )
+        speechQueue?.stop()
+        pendingScheduledWakeReason = "约定已到时间：$text；taskId=$taskId"
+        handleUserSpeech("", opening = true)
         return true
     }
 
@@ -557,6 +530,7 @@ internal object LuluVoiceCallSession {
         providerSpeechStartedMillis = 0L
         providerRecognitionPendingUntilMillis = 0L
         cancelPendingCharacterHangup()
+        pendingScheduledWakeReason = null
         val endStatus = if (sleepAutoEnded) "哄睡陪伴已安静结束" else
             if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
@@ -1111,6 +1085,11 @@ internal object LuluVoiceCallSession {
         subtitleRevealJob?.cancel()
         speechQueue?.stop()
         val generation = replyGeneration
+        val scheduledWakeReason = if (opening) pendingScheduledWakeReason.also {
+            pendingScheduledWakeReason = null
+        } else null
+        val wakeOpening = opening && (scheduledWakeReason != null ||
+            CallOpeningTurn.isWakeCallReason(current.incomingReason))
         val phoneXhsRequest = if (!opening && !autonomousSleep && !autonomousSilence &&
             spoken.isNotBlank())
             com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(spoken) else null
@@ -1299,7 +1278,9 @@ internal object LuluVoiceCallSession {
                 title = activeLabel,
                 archiveId = archiveId,
                 silenceObservationId = observationId,
-                turnContext = if (opening) "真实事件：本通电话刚接通；来电缘由=${latest.incomingReason}。这不是用户说的话。" else "",
+                turnContext = if (scheduledWakeReason != null)
+                    "真实事件：电话已经接通，先前约定的叫醒时间刚刚到了；$scheduledWakeReason。这不是用户发言，也不是电话结束指令。"
+                else if (opening) "真实事件：本通电话刚接通；来电缘由=${latest.incomingReason}。这不是用户说的话。" else "",
                 sceneContext = (when {
                     autonomousSilence -> silenceContext
                     autonomousSleep -> """
@@ -1308,6 +1289,7 @@ internal object LuluVoiceCallSession {
                         $bedtimeGuide
                         自然接着上次真正说过的内容继续，不断切换技巧或从头开场都没有必要。说完这一段让电话程序安排后续；不要反复索要回应或制造新的世界事件。
                     """.trimIndent()
+                    wakeOpening -> "你现在正在履行约定的叫醒电话：必须真的叫用户起床，但怎么称呼、说什么话、说几句，由你结合一贯的个性、相处经历和此刻心情自然决定。不要朗读闹钟文本或任务目标，不要机械地念‘起床啦，听见了没’模板；不要假装用户已醒。你说完第一段叫醒话后电话仍然接通，用户还想和你聊几句，别因为叫醒任务完成就主动挂电话或启动音乐。"
                     opening && latest.sleepMode -> "哄睡电话刚刚接通，用户尚未开口。你先轻声自然开场，不催促她说话，不假装她回答。\n$bedtimeGuide"
                     opening -> "你正在和用户进行一对一实时电话，刚刚接通，用户尚未开口。现在由你按自己的关系、人设和最近上下文先说一两句自然开场。不要把通话事件当作用户说过的话，不要朗读事件说明。"
                     latest.sleepMode -> "这是哄睡陪伴电话。用户刚刚说了话，要先认真回应她，再自然选择引导或陪伴方式。用户可以安静只听，别催促答话。\n$bedtimeGuide"
@@ -1317,7 +1299,8 @@ internal object LuluVoiceCallSession {
                     "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果稍后写入私聊。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
                 onCharacterHangup = ({
-                    if (sameReply() && !autonomousSleep) autonomousHangup.request(latest.callExperienceId, generation)
+                    if (sameReply() && !autonomousSleep && !wakeOpening)
+                        autonomousHangup.request(latest.callExperienceId, generation)
                 }),
                 onReplyStream = if (autonomousSilence) null else ({ envelope: String -> scope.launch {
                     if (!sameReply() || stream.isFinished) return@launch
@@ -1333,6 +1316,14 @@ internal object LuluVoiceCallSession {
                 if (autonomousSilence) silenceFailures = 0
                 if (reply.disposition == com.jiacimu.lulu.data.CharacterDecisionProtocol.SILENT) {
                     stream.cancel()
+                    if (wakeOpening) {
+                        // A promised wake cannot be silently consumed if the
+                        // model chose silence. Keep the call open afterward.
+                        enqueueSpoken(listOf("宝宝，醒醒啦，我来叫你起床了。"))
+                        mutableState.update { it.copy(thinking = false, opening = false,
+                            statusMessage = "叫醒提醒已发声 · 电话继续") }
+                        return@onSuccess
+                    }
                     mutableState.update { it.copy(thinking = false, opening = false,
                         statusMessage = "${latest.characterName} 正安静陪着你") }
                     return@onSuccess
@@ -1341,6 +1332,12 @@ internal object LuluVoiceCallSession {
                 if (text.isBlank()) {
                     stream.cancel()
                     speechQueue?.stop()
+                    if (wakeOpening) {
+                        enqueueSpoken(listOf("宝宝，醒醒，该起来啦。"))
+                        mutableState.update { it.copy(thinking = false, opening = false,
+                            statusMessage = "叫醒提醒已发声 · 电话继续") }
+                        return@onSuccess
+                    }
                     mutableState.update { it.copy(thinking = false, opening = false, statusMessage = "刚才没有听清回复，再说一句吧") }
                     scheduleListening(300)
                     if (autonomousSleep && ++sleepFailures >= 3) {
@@ -1372,7 +1369,8 @@ internal object LuluVoiceCallSession {
                 // an action, even if the planner omitted the JSON endCall flag.
                 // The gate still requires successfully delivered TTS and idle
                 // audio; farewell jokes, quotes and ordinary goodbyes do nothing.
-                if (!autonomousSleep && CallSpokenHangupPolicy.explicitlyEndsOwnCall(finalText.orEmpty())) {
+                if (!autonomousSleep && !wakeOpening &&
+                    CallSpokenHangupPolicy.explicitlyEndsOwnCall(finalText.orEmpty())) {
                     autonomousHangup.request(latest.callExperienceId, generation)
                 }
                 autonomousHangup.expectSpoken(latest.callExperienceId, generation, finalText.orEmpty())
@@ -1405,6 +1403,12 @@ internal object LuluVoiceCallSession {
                 stream.cancel()
                 cancelPendingCharacterHangup()
                 speechQueue?.stop()
+                if (wakeOpening) {
+                    enqueueSpoken(listOf("宝宝，起来啦，我来叫你了。"))
+                    mutableState.update { it.copy(thinking = false, opening = false,
+                        errorMessage = "", statusMessage = "叫醒提醒已发声 · 电话继续") }
+                    return@onFailure
+                }
                 mutableState.update {
                     it.copy(
                         thinking = false,

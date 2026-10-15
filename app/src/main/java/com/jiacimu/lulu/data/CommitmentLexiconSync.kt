@@ -45,7 +45,10 @@ object CommitmentLexiconSync {
             return
         }
         if (current.section != LexiconSection.Promise) return
-        val base = current.content.substringBefore(MARKER).trim().ifBlank { task.goal }
+        // A reschedule changes the authoritative task goal/time; retaining the
+        // original lexicon heading made "20分钟后" look absent after an update.
+        val base = task.goal.trim().ifBlank { current.content.substringBefore(MARKER).trim() }
+        val title = base.take(24).ifBlank { "新的约定" }
         val progress = buildString {
             append(base)
             append(MARKER)
@@ -71,8 +74,8 @@ object CommitmentLexiconSync {
             task.status == CommitmentTaskStatus.Completed -> LexiconStatus.Resolved
             else -> LexiconStatus.Archived
         }
-        if (current.content == progress && current.status == status) return
-        LuluRepositories.lexicon.save(current.copy(content = progress, status = status, updatedAt = task.updatedAt))
+        if (current.content == progress && current.status == status && current.title == title) return
+        LuluRepositories.lexicon.save(current.copy(title = title, content = progress, status = status, updatedAt = task.updatedAt))
     }
 
     private fun reconcileDeletedLexiconEntries() {
