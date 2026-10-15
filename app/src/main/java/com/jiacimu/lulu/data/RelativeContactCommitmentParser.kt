@@ -23,7 +23,8 @@ internal object RelativeContactCommitmentParser {
         if (answer.isBlank() || refusals.any(answer::contains) ||
             answer.endsWith("？") || answer.endsWith("?")) return null
         if (agreements.none(answer::contains)) return null
-        if (listOf("不要", "不用", "别给", "别发", "别打", "取消").any(text::contains)) return null
+        val exclusions = text.replace("别忘了", "").replace("别忘记", "")
+        if (listOf("不要", "不用", "别", "取消").any(exclusions::contains)) return null
         val isCall = callSignals.any(text::contains)
         val isMessage = messageSignals.any(text::contains)
         if (!isCall && !isMessage) return null
