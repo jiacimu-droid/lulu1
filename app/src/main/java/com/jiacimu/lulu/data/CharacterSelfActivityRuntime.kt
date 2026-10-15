@@ -91,8 +91,15 @@ internal object CharacterSelfActivityRuntime {
     fun offer(context: Context, characterId: String, appraisal: JSONObject?, evidenceId: String = ""): Boolean {
         if (characterId.isBlank()) return false
         val intended = appraisal?.optJSONObject("ownActivity") ?: return false
+        // A role-authored reference is accepted only if it resolves to this
+        // character's active motive; never infer ownership by similar prose.
+        val linkedMotiveId = CharacterMotiveProgress.resolveMotiveId(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+            intended.optString("motiveId").ifBlank { appraisal.optString("motiveId") },
+            intended.optString("motiveRef"), evidenceId,
+        )
         if (intended.optString("stage").equals("considering", ignoreCase = true)) {
-            return consider(context, characterId, intended, evidenceId)
+            return consider(context, characterId, intended, evidenceId, linkedMotiveId)
         }
         val available = if (intended.optString("action") == "reading")
             ReadingBackgroundBridge.availableBooks(context, characterId) else emptyList()
@@ -126,6 +133,7 @@ internal object CharacterSelfActivityRuntime {
             .put("id", id).put("characterId", characterId)
             .put("signature", selected.signature).put("createdAt", now)
             .put("whyNow", whyNow).put("evidenceId", evidenceId.take(180))
+            .put("motiveId", linkedMotiveId)
             .put("label", selected.label).put("tool", selected.tool)
             .put("args", selected.args).put("status", "pending")
         if (!prefs.edit().putString("activity:$characterId", record.toString()).commit()) return false
@@ -145,7 +153,7 @@ internal object CharacterSelfActivityRuntime {
      * future autonomous deliberation, but never executes a tool on its own.
      */
     private fun consider(context: Context, characterId: String,
-                         intent: JSONObject, evidenceId: String): Boolean {
+                         intent: JSONObject, evidenceId: String, motiveId: String): Boolean {
         val action = intent.optString("action").trim().lowercase()
         val reason = intent.optString("whyNow").trim().take(180)
         if (action !in setOf("reading", "solo_game", "digital_world") ||
@@ -158,7 +166,7 @@ internal object CharacterSelfActivityRuntime {
         val record = JSONObject()
             .put("stage", "considering").put("action", action)
             .put("whyNow", reason).put("createdAt", now)
-            .put("evidenceId", evidenceId.take(180))
+            .put("evidenceId", evidenceId.take(180)).put("motiveId", motiveId)
         if (!prefs.edit().putString("considering:$characterId", record.toString()).commit()) return false
         ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, characterId)
         return true
@@ -201,15 +209,21 @@ internal object CharacterSelfActivityRuntime {
     }
 
     internal fun markResult(context: Context, characterId: String, id: String,
-                            success: Boolean, summary: String) {
+                            success: Boolean, summary: String, attempted: Boolean = true) {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val key = "activity:$characterId"
         val prior = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
             ?: return
-        if (prior.optString("id") != id) return
+        if (prior.optString("id") != id ||
+            prior.optString("status") in setOf("completed", "failed")) return
+        val finishedAt = Instant.now()
         prior.put("status", if (success) "completed" else "failed")
-            .put("result", summary.take(240)).put("finishedAt", Instant.now().toString())
-        prefs.edit().putString(key, prior.toString()).commit()
+            .put("result", summary.take(240)).put("finishedAt", finishedAt.toString())
+        if (!prefs.edit().putString(key, prior.toString()).commit()) return
+        if (attempted) CharacterInnerLifeStore.recordActionResult(
+            characterId, prior.optString("motiveId"), "self-activity-$id",
+            prior.optString("tool"), success, summary, finishedAt,
+        )
         if (success) resolveConsideration(context, characterId, prior.optString("tool"))
     }
 }
@@ -230,7 +244,18 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
             val elapsed = System.currentTimeMillis() - entry.optLong("createdAt")
             if (elapsed !in 0L..(60 * 60_000L)) {
                 CharacterSelfActivityRuntime.markResult(applicationContext, characterId, id,
-                    false, "行动意向已过时，没有假装执行")
+                    false, "行动意向已过时，没有假装执行", attempted = false)
+                return Result.success()
+            }
+            // A paused/deleted motive revokes a still-pending linked action.
+            // Unlinked activities retain their original behavior.
+            val motiveId = entry.optString("motiveId")
+            if (motiveId.isNotBlank() &&
+                CharacterMotiveProgress.resolveMotiveId(
+                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+                    motiveId, "", "") != motiveId) {
+                CharacterSelfActivityRuntime.markResult(applicationContext, characterId, id,
+                    false, "原来的私人愿望已经暂停或不存在，没有执行", attempted = false)
                 return Result.success()
             }
             // A character may decide to read while still talking on the phone.
@@ -253,7 +278,8 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
             CharacterInnerLifeStore.recordDecision(
                 characterId = characterId, decisionId = "self-activity-$id",
                 selectedAction = entry.optString("tool"),
-                reason = entry.optString("whyNow"), chosenMotiveId = "",
+                reason = entry.optString("whyNow"),
+                chosenMotiveId = entry.optString("motiveId"),
                 alternatives = null, outcome = summary, succeeded = success,
                 actionSignature = entry.optString("signature"),
                 causalEvidenceId = entry.optString("evidenceId"),

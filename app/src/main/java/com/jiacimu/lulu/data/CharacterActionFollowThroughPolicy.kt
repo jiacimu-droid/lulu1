@@ -32,11 +32,17 @@ internal object CharacterActionFollowThroughPolicy {
                                 receipt.has("success") && !receipt.optBoolean("success")
                             } == true
                         }.count()
+                    if (!CharacterMotiveProgress.isDue(item)) continue
+                    val plan = CharacterMotiveProgress.brief(item)
                     if (aim.isNotBlank() && last == null) {
-                        choices += aim
+                        choices += if (plan.isBlank()) aim else "$aim；$plan；仅供本人再考虑"
                     } else if (aim.isNotBlank() && failed && consecutiveFailures < 3) {
                         val outcome = last?.optString("summary").orEmpty().trim().take(110)
-                        choices += "未完成的愿望：$aim；上次尝试失败：$outcome；请自己选择调整办法、暂缓或放弃，不要当作已经完成"
+                        choices += "未完成的愿望：$aim；上次尝试失败：$outcome；$plan；请自己选择调整办法、暂缓或放弃，不要当作已经完成"
+                    } else if (aim.isNotBlank() && last?.optBoolean("success") == true &&
+                        item.optString("nextStep").isNotBlank() &&
+                        item.optString("reviewAfter").isNotBlank()) {
+                        choices += "已有一次实际进展的愿望：$aim；$plan；一次成功不代表整件事做完，请自己决定是否继续"
                     }
                 }
             }

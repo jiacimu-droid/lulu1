@@ -31,7 +31,8 @@ internal object CharacterMotivationOwnership {
         // Put this first so legacy imports survive the three-change cap.
         val proposals = JSONArray().put(
             JSONObject().put("op", "start").put("aim", aim).put("why", why)
-                .put("priority", 2).put("reason", "模型提出的本人长期意愿"),
+                .put("priority", 2).put("reason", "模型提出的本人长期意愿")
+                .put("nextStep", legacyIntention.optString("nextStep").trim().take(180)),
         )
         for (i in 0 until minOf(existing.length(), 2)) proposals.put(existing.opt(i))
         return JSONObject(innerLife?.toString() ?: "{}").put("motives", proposals)

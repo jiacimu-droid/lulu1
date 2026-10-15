@@ -371,4 +371,41 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.invalidateEvidence("world-touch-source")
         assertNull(CharacterInnerLifeStore.snapshot("inside-test-a").optJSONObject("emotion"))
     }
+
+    @Test fun motiveStepPersistsAcrossRevisionsAndDeletedRevisionLosesItsPlan() {
+        start()
+        val role = "inside-test-linked-plans"
+        CharacterInnerLifeStore.clear(role)
+        val at = Instant.parse("2026-10-15T12:00:00Z")
+        CharacterInnerLifeStore.observe(role, "plan-evidence-1", "确实对书有兴趣",
+            JSONObject().put("motives", JSONArray().put(JSONObject()
+                .put("op", "start").put("ref", "read-more")
+                .put("aim", "弄懂小说的悬念").put("why", "真的想知道结局")
+                .put("nextStep", "接着阅读第三章").put("waitingFor", "等通话结束")
+                .put("reviewAfter", "2026-10-16T12:00:00Z"))), now = at)
+        val motive = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        assertEquals("接着阅读第三章", motive.getString("nextStep"))
+        assertFalse(CharacterMotiveProgress.isDue(motive, at))
+        assertEquals(motive.getString("id"), CharacterMotiveProgress.resolveMotiveId(
+            CharacterInnerLifeStore.snapshot(role).optJSONArray("motives"),
+            "", "read-more", "plan-evidence-1"))
+        assertEquals("", CharacterMotiveProgress.resolveMotiveId(
+            CharacterInnerLifeStore.snapshot(role).optJSONArray("motives"),
+            "", "read-more", "someone-elses-evidence"))
+        CharacterInnerLifeStore.observe(role, "plan-evidence-2", "通话结束",
+            JSONObject().put("motives", JSONArray().put(JSONObject()
+                .put("op", "revise").put("id", motive.getString("id"))
+                .put("reason", "现在有空").put("waitingFor", "")
+                .put("reviewAfter", "").put("nextStep", "打开第三章"))),
+            now = at.plusSeconds(90))
+        val revised = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        assertEquals(motive.getString("id"), revised.getString("id"))
+        assertEquals("打开第三章", revised.getString("nextStep"))
+        assertTrue(CharacterMotiveProgress.isDue(revised, at.plusSeconds(91)))
+        CharacterInnerLifeStore.invalidateEvidence("plan-evidence-2")
+        val revoked = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        assertFalse(revoked.has("nextStep"))
+        CharacterInnerLifeStore.clear(role)
+    }
+
 }

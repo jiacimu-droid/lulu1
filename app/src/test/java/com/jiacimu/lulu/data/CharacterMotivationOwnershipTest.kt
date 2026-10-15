@@ -20,6 +20,7 @@ class CharacterMotivationOwnershipTest {
         assertEquals(1, motives.length())
         assertEquals("start", motives.getJSONObject(0).getString("op"))
         assertEquals("读完一本真正感兴趣的书", motives.getJSONObject(0).getString("aim"))
+        assertEquals("阅读第二章", motives.getJSONObject(0).getString("nextStep"))
         assertFalse(result.has("intention"))
     }
 

@@ -99,4 +99,53 @@ class CharacterSelfActivityRuntimeTest {
         assertTrue(present.contains("想翻翻书"))
         assertFalse(present.contains("已经读完"))
     }
+
+    @Test fun aRealSelfActivityReceiptUpdatesOnlyItsExplicitMotiveAndNeverTwice() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CharacterInnerLifeStore.initialize(context)
+        val role = "self-activity-motive-receipt"
+        CharacterInnerLifeStore.clear(role)
+        CharacterInnerLifeStore.observe(role, "role-idea", "读过的小说留下疑问",
+            JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
+                .put("op", "start").put("aim", "探索小说结局")
+                .put("why", "觉得人物的抉择有意思"))))
+        val motive = CharacterInnerLifeStore.snapshot(role)
+            .getJSONArray("motives").getJSONObject(0)
+        val id = motive.getString("id")
+        val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
+        val action = JSONObject().put("id", "planned-reading-1").put("status", "running")
+            .put("motiveId", id).put("tool", "read_book").put("whyNow", "真想看下去")
+        prefs.edit().putString("activity:$role", action.toString()).commit()
+        CharacterSelfActivityRuntime.markResult(context, role, "planned-reading-1", true, "确实读到了第二章")
+        val result = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getJSONArray("outcomes")
+        assertEquals(1, result.length())
+        assertEquals("self-activity-planned-reading-1", result.getJSONObject(0).getString("id"))
+        assertTrue(result.getJSONObject(0).getBoolean("success"))
+        CharacterSelfActivityRuntime.markResult(context, role, "planned-reading-1", true, "重复回执")
+        assertEquals(1, CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getJSONArray("outcomes").length())
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test fun cancelledUnexecutedActivityNeverBecomesAFailedToolAttempt() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CharacterInnerLifeStore.initialize(context)
+        val role = "self-activity-cancelled"
+        CharacterInnerLifeStore.clear(role)
+        CharacterInnerLifeStore.observe(role, "idea-for-cancellation", "打算稍后再读书",
+            JSONObject().put("motives", org.json.JSONArray().put(JSONObject()
+                .put("op", "start").put("aim", "读完整本书").put("why", "自己想看完"))))
+        val motive = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
+        val planned = JSONObject().put("id", "cancel-1").put("status", "pending")
+            .put("motiveId", motive.getString("id")).put("tool", "read_book")
+        prefs.edit().putString("activity:$role", planned.toString()).commit()
+        CharacterSelfActivityRuntime.markResult(context, role, "cancel-1",
+            false, "愿望暂停，未实际执行", attempted = false)
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getJSONArray("outcomes").length())
+        CharacterInnerLifeStore.clear(role)
+    }
+
 }

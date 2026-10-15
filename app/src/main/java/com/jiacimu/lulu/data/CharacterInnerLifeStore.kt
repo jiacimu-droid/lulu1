@@ -165,7 +165,11 @@ object CharacterInnerLifeStore {
                         (key in setOf("voice", "expressiveDeliveries") && backedBy(entry.optString("id"))) ||
                         (key == "decisions" && (backedBy(entry.optString("causalEvidenceId")) ||
                             backedBy(entry.optString("signature")) || backedBy(entry.optString("id"))))
-                    if (linked) changed = true else next.put(entry)
+                    if (linked) changed = true else {
+                        if (key == "motives" &&
+                            CharacterMotiveProgress.invalidatePlanIfSourceDeleted(entry, eventId)) changed = true
+                        next.put(entry)
+                    }
                 }
                 root.put(key, next)
             }
@@ -354,6 +358,8 @@ object CharacterInnerLifeStore {
                             .put("priority", change.optInt("priority", 2).coerceIn(1, 3))
                             .put("status", "active").put("createdAt", now.toString())
                             .put("evidenceId", evidenceId).put("outcomes", JSONArray())
+                            .put("creationRef", change.optString("ref").trim().take(60))
+                            .also { CharacterMotiveProgress.applyPlan(it, change, evidenceId, now) }
                     }
                     "revise", "pause", "resume", "release" -> {
                         if (item == null || reason.isBlank()) continue
@@ -366,6 +372,7 @@ object CharacterInnerLifeStore {
                         if (op == "release") records.remove(item)
                         else {
                             if (op != "revise") item.put("status", if (op == "pause") "paused" else "active")
+                            CharacterMotiveProgress.applyPlan(item, change, evidenceId, now)
                             item.put("changedBecause", reason).put("updatedAt", now.toString())
                         }
                     }
@@ -1118,6 +1125,7 @@ object CharacterInnerLifeStore {
                 appendLine("【仍在意的事｜可以权衡而非必须行动】")
                 active.take(6).forEach { m ->
                     append("- id=${m.optString("id")}；目标=${m.optString("aim").take(170)}；缘由=${m.optString("why").take(120)}")
+                    CharacterMotiveProgress.brief(m).takeIf(String::isNotBlank)?.let { append("；$it") }
                     val outcomes = m.optJSONArray("outcomes")
                     if (outcomes != null && outcomes.length() > 0) {
                         val last = outcomes.optJSONObject(outcomes.length() - 1)
@@ -1187,6 +1195,8 @@ object CharacterInnerLifeStore {
             for (i in 0 until motives.length()) {
                 val m = motives.optJSONObject(i) ?: continue
                 appendLine("· 动机 id=${m.optString("id")}；${m.optString("status")}；优先级${m.optInt("priority")}；目标${m.optString("aim")}；缘由${m.optString("why")}")
+                CharacterMotiveProgress.brief(m).takeIf(String::isNotBlank)
+                    ?.let { appendLine("  $it（仅是本人可调整的计划，不是自动执行命令）") }
                 if (m.optString("lastAttemptOutcome") == "needs_review")
                     appendLine("  此愿望上次行动没做成：应按真实失败原因决定复试、暂停、求助或放弃，不得装成已经成功。")
                 val history = m.optJSONArray("outcomes") ?: JSONArray()
