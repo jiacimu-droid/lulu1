@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T02:21:00.081619+00:00",
-  "commit": "e15da13977433f4088374ec115b9c10a4bd163b3",
+  "generatedAt": "2026-10-15T02:21:16.423918+00:00",
+  "commit": "fcba2e8634f739b67574d8202e91cc81d13beb13",
   "branch": "main",
-  "sourceFingerprint": "1e49683844d043e691f771ecb081a667dca78022d448a3cfe7939f2ff40ec630",
+  "sourceFingerprint": "e9977226e914c48418770822a67f9fe645d2ae13a2b5aff03e78ff311ba2f36f",
   "summary": {
-    "files": 635,
-    "lines": 127254,
-    "symbols": 1881
+    "files": 634,
+    "lines": 126962,
+    "symbols": 1878
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -88,10 +88,6 @@
         "line": 458
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 207
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
         "line": 87
       },
@@ -110,10 +106,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt",
         "line": 57
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 199
       }
     ],
     "refresh": [
@@ -2272,12 +2264,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
         "line": 344
-      }
-    ],
-    "mute": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-        "line": 197
       }
     ],
     "ScheduleFeatureScreen": [
@@ -12598,25 +12584,6 @@
       "lines": 178,
       "sha256": "88633e9b78b1da443b1f114c02d5db388b54748ea10e46b70db8a8a1766ce3a5",
       "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/RealtimeVoiceAdapter.kt",
-      "lines": 292,
-      "sha256": "d12e1b3adb5559980f058d0cfb7d48e6c257baf64159b7d9aba69260e5ecc4c3",
-      "symbols": [
-        {
-          "name": "mute",
-          "line": 197
-        },
-        {
-          "name": "speaker",
-          "line": 199
-        },
-        {
-          "name": "stop",
-          "line": 207
-        }
-      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt",
