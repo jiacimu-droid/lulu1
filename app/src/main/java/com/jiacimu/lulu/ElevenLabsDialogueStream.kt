@@ -13,7 +13,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 /** Adapts TTD WebSocket audio to the same streamed PCM/MP3 reader as HTTP. */
 internal class ElevenLabsDialogueStream(key: String, model: String, voice: String, text: String, format: String) : InputStream() {
     private data class Frame(val bytes: ByteArray? = null, val error: String? = null)
-    private val frames = LinkedBlockingQueue<Frame>(128)
+    // Network bursts can contain >128 tiny PCM frames before AudioTrack catches up.
+    // The per-segment 20 MiB byte limit bounds the audio held in this queue.
+    private val frames = LinkedBlockingQueue<Frame>()
     private val ended = AtomicBoolean(false)
     @Volatile private var closed = false
     private var chunk = ByteArray(0)
@@ -46,10 +48,11 @@ internal class ElevenLabsDialogueStream(key: String, model: String, voice: Strin
                     val bytes = decodeAudio(event)
                     if (bytes != null) {
                         received += bytes.size
-                        if (received > 20 * 1024 * 1024 || !frames.offer(Frame(bytes))) {
-                            finish("ElevenLabs 音频超过缓冲限制", webSocket)
+                        if (received > 20 * 1024 * 1024) {
+                            finish("ElevenLabs 单段音频超过20MB，请缩短语音合成分段", webSocket)
                             return
                         }
+                        frames.offer(Frame(bytes))
                     }
                     if (event.optBoolean("is_final")) finish(null, webSocket)
                 }.onFailure { finish("ElevenLabs 返回无法解析的音频事件", webSocket) }
@@ -66,10 +69,7 @@ internal class ElevenLabsDialogueStream(key: String, model: String, voice: Strin
     private fun finish(error: String?, webSocket: WebSocket) {
         if (!ended.compareAndSet(false, true)) return
         if (error != null) frames.clear()
-        if (!frames.offer(Frame(error = error))) {
-            frames.clear()
-            frames.offer(Frame(error = "ElevenLabs 音频超过缓冲限制"))
-        }
+        frames.offer(Frame(error = error))
         if (error == null) webSocket.close(1000, null) else webSocket.cancel()
     }
 
