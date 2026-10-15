@@ -173,7 +173,7 @@ internal fun CompanionPresenceDialog(
                                     Text("识图回执 · $photoStatus",
                                         color = if (photoFailed) Color(0xFFAF4545)
                                             else Color(0xFF66666A), fontSize = 12.sp)
-                                    Text("这里仅显示$characterName自己的记录，不包含其他角色。",
+                                    Text("这里仅显示${characterName}自己的记录，不包含其他角色。",
                                         color = Color(0xFF8A8A90), fontSize = 11.sp)
                                 }
                             }
