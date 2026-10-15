@@ -484,6 +484,14 @@ class ProactivePerceptionWorker(
                     characterId, goalReviewId, inputData.getLong("goalReviewDueMillis", 0L))) {
                 return@runCatching Result.success()
             }
+            // At the same five-minute boundary, the existing autonomous
+            // online-expiry appraisal already reads this persisted intention.
+            // Consume only the duplicate goal check, not another paid call.
+            val expiry = CompanionOnlineStore.states.value[characterId]?.onlineUntil
+            val dueAt = Instant.ofEpochMilli(inputData.getLong("goalReviewDueMillis", 0L))
+            if (GoalFollowUpPolicy.isCoveredByOnlineExpiry(dueAt, expiry, Instant.now())) {
+                return@runCatching Result.success()
+            }
         }
         val retryEvidenceId = inputData.getString("retryEvidenceId").orEmpty()
         if (characterId != null && retryEvidenceId.isNotBlank() &&

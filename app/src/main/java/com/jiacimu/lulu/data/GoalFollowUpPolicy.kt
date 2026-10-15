@@ -48,6 +48,14 @@ internal object GoalFollowUpPolicy {
         return due.toEpochMilli() == plannedMillis && lateBy in -2L..(30L * 60L)
     }
 
+    /** The five-minute online expiry can do this same appraisal once.
+     * A separate goal worker at nearly the same deadline wastes a model call. */
+    fun isCoveredByOnlineExpiry(reviewAt: Instant, onlineUntil: Instant?, now: Instant): Boolean {
+        if (onlineUntil == null) return false
+        return kotlin.math.abs(Duration.between(reviewAt, onlineUntil).toMillis()) <= 60_000L &&
+            Duration.between(now, onlineUntil).toMillis() in -30_000L..60_000L
+    }
+
     fun hasRequestedSpace(text: String): Boolean =
         Regex("别再(给我发消息|联系我|找我|打电话)|不要再(给我发消息|联系我|找我|打电话)|先别联系我|给我点空间|让我静静").containsMatchIn(text.replace(Regex("""\s+"""), ""))
 }

@@ -41,6 +41,14 @@ class GoalFollowUpPolicyTest {
         assertFalse(GoalFollowUpPolicy.shouldBlockContact(goal, "send_private_message"))
     }
 
+    @Test fun expiryDecisionCoalescesSameFiveMinuteGoalCheck() {
+        assertTrue(GoalFollowUpPolicy.isCoveredByOnlineExpiry(
+            now, now.plusSeconds(5), now))
+        assertFalse(GoalFollowUpPolicy.isCoveredByOnlineExpiry(
+            now, now.plusSeconds(120), now))
+        assertFalse(GoalFollowUpPolicy.isCoveredByOnlineExpiry(now, null, now))
+    }
+
     @Test fun explicitSpaceMustBeRespectedWithoutInferringItFromSilence() {
         assertTrue(GoalFollowUpPolicy.hasRequestedSpace("先别联系我"))
         assertTrue(GoalFollowUpPolicy.hasRequestedSpace("让我静静"))
