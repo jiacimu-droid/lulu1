@@ -214,6 +214,11 @@ internal suspend fun runGroupReplies(
     val remaining = members.filterNot { c -> mentioned.any { it.characterId == c.characterId } }.shuffled(random).sortedBy { it.characterId == lastSpeaker }
     val first = (mentioned.shuffled(random) + remaining).first()
     val queue = mutableListOf(first)
+    // Each other member gets at most one independent chance to decide after
+    // observing the turns that have ACTUALLY been persisted. A silent choice
+    // never fabricates their speech or forces the next member to respond.
+    val yetToConsider = (mentioned + remaining).distinctBy { it.characterId }
+        .filterNot { it.characterId == first.characterId }.toMutableList()
     val replyLimit = group.maxAutoReplies.coerceIn(1, 8)
     var index = 0
 
@@ -234,6 +239,10 @@ internal suspend fun runGroupReplies(
         val prompt = buildString {
             appendLine("[这是QQ式群聊《${group.name}》，成员：${group.userGroupNickname}、$memberList。当前由你（$label）看到共享消息，只代表你自己。]")
             appendLine("[在线/看见消息≠必须说话。被@、话题与你有关、你真的有话想接时才参与；别人已说清、你没兴趣或没必要时可以继续潜水。绝不为了凑全员而轮班。]")
+            appendLine("[本人对本群其他成员和用户的可追溯看法：\\n" +
+                com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
+                    member.characterId, members.map { it.characterId } + "user"
+                ).ifBlank { "目前没有充分的关系证据，不预设亲疏" } + "]")
             appendLine("[群聊与私聊不同：这是所有成员共享的上下文，不要把别人的私聊内容带进来，也不要把对用户的一对一亲密话当成群内默认公开信息。]")
             if (quotable.isNotEmpty()) {
                 appendLine("[本轮可引用/收藏的用户消息：]")
@@ -281,8 +290,19 @@ internal suspend fun runGroupReplies(
                         candidate.characterId != member.characterId && listOf(candidate.groupNickname, characterNames[candidate.characterId].orEmpty())
                             .filter(String::isNotBlank).any { requested.equals(it, true) }
                     }
-                }?.let { next -> queue.removeAll { it.characterId == next.characterId }; queue.add(0, next) }
+                }?.let { next ->
+                    yetToConsider.removeAll { it.characterId == next.characterId }
+                    queue.removeAll { it.characterId == next.characterId }
+                    queue.add(0, next)
+                }
             }
+        }
+        // The old ensemble sent all members' turns in one LLM response.
+        // Here even if A did not nominate B, B gets to independently choose
+        // reply or silence with A's real persisted turn as fresh context.
+        if (group.allowCharacterConversation && queue.isEmpty() && index + 1 < replyLimit &&
+            yetToConsider.isNotEmpty()) {
+            queue.add(yetToConsider.removeAt(0))
         }
         index++
     }
