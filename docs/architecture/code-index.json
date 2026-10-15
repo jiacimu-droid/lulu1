@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T07:10:43.400321+00:00",
-  "commit": "4e6e416ce9d7543fe159114b212c8ff42e10102f",
+  "generatedAt": "2026-10-15T07:37:18.027672+00:00",
+  "commit": "7e002bb679c883d455ca2d5d44bde2028b8a7521",
   "branch": "main",
-  "sourceFingerprint": "8eafe8df0286ca99068c9b930e0e2cd77426f4aadcceb700f061159ba7b04d35",
+  "sourceFingerprint": "6b38d7b30adca4bbbe4c40126ec4f028063312c5a0e237a8ea89c8863e9d2d5c",
   "summary": {
     "files": 645,
-    "lines": 128113,
+    "lines": 128118,
     "symbols": 1903
   },
   "symbolIndex": {
@@ -7461,13 +7461,13 @@
     "explicitlyAwake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt",
-        "line": 10
+        "line": 11
       }
     ],
     "confirm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt",
-        "line": 16
+        "line": 22
       }
     ],
     "savedKey": [
@@ -17997,16 +17997,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt",
-      "lines": 34,
-      "sha256": "e336ac5ce9f79f88b3ed51161dd5ec26601550ee03cd1be5573a7216d0e80a8f",
+      "lines": 39,
+      "sha256": "e897e2e5b620e197b0e1c54cf66b25e790ffe2726eaf6ab647040249cfe9d6d5",
       "symbols": [
         {
           "name": "explicitlyAwake",
-          "line": 10
+          "line": 11
         },
         {
           "name": "confirm",
-          "line": 16
+          "line": 22
         }
       ]
     },
