@@ -163,6 +163,29 @@ object ProactivePerceptionScheduler {
         }
     }
 
+    /**
+     * Recover an autonomous *failed model/parse call*, not a legitimate silent
+     * decision or a failed external action. The runtime owns the persistent
+     * cooldown and will not re-enqueue this recovery if it also fails.
+     */
+    fun scheduleBackgroundFailureRecovery(context: Context, characterId: String, attemptAtMillis: Long) {
+        if (characterId.isBlank() || attemptAtMillis <= 0L) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(ProactivePerceptionRecoveryPolicy.RETRY_DELAY_MILLIS, TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("trigger", ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-autonomy-failed-recovery-$characterId-$attemptAtMillis",
+            ExistingWorkPolicy.KEEP, request,
+        )
+    }
+
     /** One location arrival -> one targeted assessment, without requiring prior online status. */
     fun scheduleWorldArrival(context: Context, characterId: String, evidenceId: String) {
         if (characterId.isBlank() || evidenceId.isBlank()) return

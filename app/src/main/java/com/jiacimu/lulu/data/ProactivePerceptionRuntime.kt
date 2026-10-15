@@ -198,7 +198,8 @@ object ProactivePerceptionRuntime {
                 }
                 // A lifestyle-review wake is not permission to disturb quiet
                 // hours just to produce a social post; unresolved cues persist.
-                if (trigger.startsWith("真实生活后续回想") &&
+                if ((trigger.startsWith("真实生活后续回想") ||
+                    trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
                     isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                 if (!force) {
                     if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
@@ -269,6 +270,31 @@ object ProactivePerceptionRuntime {
                         now,
                     )
                     if (onlineRevision != null && requiresUnread) chatBatchError = error
+                    // The ordinary two-hour clock was anchored BEFORE the failed
+                    // model call. Recover once in a bounded window instead of
+                    // treating a transport/JSON failure as deliberate solitude.
+                    val retryKey = "background_failure_retry_at_$characterId"
+                    val nowMillis = now.toEpochMilli()
+                    if (ProactivePerceptionRecoveryPolicy.shouldRetry(
+                            lastScheduledAtMillis = prefs.getLong(retryKey, 0L),
+                            nowMillis = nowMillis,
+                            trigger = trigger,
+                            isChatBatch = onlineRevision != null,
+                            enabled = policy.enabled,
+                        ) && prefs.edit().putLong(retryKey, nowMillis).commit()) {
+                        runCatching {
+                            ProactivePerceptionScheduler.scheduleBackgroundFailureRecovery(
+                                appContext, characterId, nowMillis,
+                            )
+                        }.onFailure { scheduleError ->
+                            prefs.edit().remove(retryKey).apply()
+                            CompanionPresenceStore.recordPerceptionAttempt(
+                                characterId,
+                                "主动感知恢复排程失败 · ${scheduleError.message.orEmpty().take(95)}",
+                                now,
+                            )
+                        }
+                    }
                 }
             }
             // A transient model/executor failure must not acknowledge the unread
@@ -779,7 +805,10 @@ object ProactivePerceptionRuntime {
                 // the user for a fabricated second life-reflection call.
                 throw IllegalStateException("新消息的模型决定无效，保留未读批次等待重试")
             }
-            return Action.SILENT
+            // No valid action means no autonomous choice was made. In the
+            // absence of user messages this still requires a bounded recovery
+            // rather than becoming another successful "silent" history entry.
+            throw IllegalStateException("后台主动感知未返回有效决定，等待限次恢复")
         }
         // The main appraisal may repeatedly answer "nobody wrote to me, so nothing to do".
         // One bounded second look during an online window challenges *that reason*,
