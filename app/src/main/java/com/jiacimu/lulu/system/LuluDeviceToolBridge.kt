@@ -186,6 +186,17 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
                 characterId, userEvidenceIds.takeLast(12),
             ).filter { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }
+        // Use actual role-owned deliveries in this exact conversation. User quotes,
+        // other group members and unrelated private scenes cannot become our style cues.
+        val currentSessionId = originalUserEvidence.lastOrNull()?.sessionId.orEmpty()
+        val recentCharacterReplies = if (currentSessionId.isBlank()) emptyList() else
+            com.jiacimu.lulu.data.ConversationTurnEconomy.recentOwnReplies(
+                com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 80),
+                characterId, currentSessionId, now,
+            )
+        val turnEconomyContext = com.jiacimu.lulu.data.ConversationTurnEconomy.context(
+            userText, recentCharacterReplies,
+        )
         val groundingEvidenceId = if (reconsiderationEvidenceId.isNotBlank()) reconsiderationEvidenceId
             else if (callSilence) silenceObservationId
             else if (originalUserEvidence.isNotEmpty()) originalUserEvidence.last().id
@@ -198,6 +209,12 @@ object LuluDeviceToolBridge {
                             it.content.contains(userText.trim().take(60)))
                 }
                 .lastOrNull()?.id.orEmpty()
+        val commitmentEvidence = originalUserEvidence.ifEmpty {
+            if (groundingEvidenceId.isBlank()) emptyList() else
+                com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(groundingEvidenceId))
+        }
+        val commitmentEvidenceIds = commitmentEvidence.map { it.id }
+        val commitmentSessionId = commitmentEvidence.lastOrNull()?.sessionId.orEmpty()
         if (groundingEvidenceId.isNotBlank() && !rewriting) {
             com.jiacimu.lulu.data.ConversationGroundingEngine.beforeTurn(
                 characterId, interactionKey, groundingEvidenceId, userText,
@@ -339,6 +356,8 @@ object LuluDeviceToolBridge {
             facts = buildString {
                 appendLine("当前时间：${DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(now.atZone(zone))}")
                 appendLine("当前时区：${zone.id}")
+                appendLine(com.jiacimu.lulu.data.CommitmentDecisionProtocol.context(
+                    CommitmentTaskStore.active(characterId), now, zone))
                 appendLine("当前真实互动场景：$sceneContext")
                 inWorldMoment?.let { event ->
                     appendLine("【程序刚记录的本轮数字世界小事】${event.summary}")
@@ -364,6 +383,7 @@ object LuluDeviceToolBridge {
                     appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
+                if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                 // The built-in Reality Window's Bangumi / Google News sources
                 // are not a capability inventory for the independent Xiaohongshu
                 // reader. Only an actual tool invocation can prove search outcome.
@@ -423,6 +443,7 @@ object LuluDeviceToolBridge {
                     else com.jiacimu.lulu.data.CharacterSpeechChannel.PRIVATE_CHAT
                 )}
                 $decisionFormatRule
+                ${if (!rewriting && !callSilence) com.jiacimu.lulu.data.CommitmentDecisionProtocol.instruction else ""}
                 ${if (reconsiderationEvidenceId.isNotBlank()) "这是用户要求重新考虑角色刚才那一轮表达，用户没有新增聊天正文。可选 reply 或 silent；不得重做旧工具、发起电话、发圈或另行调度活动。只重新判断该怎样表达自己刚才想说的意思，不回答旧消息，不捏造新的用户请求。" else ""}
                 $programDialogueConstraint
                 $phoneConversationConstraint
@@ -581,6 +602,16 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        val commitmentChanges = plan.commitmentChanges
+        val commitmentReceipt = if (!rewriting && !callSilence && commitmentChanges != null) {
+            runCatching {
+                com.jiacimu.lulu.data.CommitmentDecisionRuntime.apply(
+                    appContext, characterId,
+                    "$commitmentSessionId:${commitmentEvidenceIds.lastOrNull() ?: now.toEpochMilli()}:$characterId",
+                    commitmentEvidenceIds, commitmentChanges,
+                )
+            }.getOrElse { "约定保存/更新未成功：${it.message.orEmpty().take(180)}；不能声称已改好。" }
+        } else ""
         // Common voice models sometimes complete speechIntent but omit the
         // optional final text field. Fix only the missing spoken surface instead
         // of treating a usable character decision as a failed phone request.
@@ -944,6 +975,11 @@ object LuluDeviceToolBridge {
                 plan.stickerId.isNotBlank() &&
                 com.jiacimu.lulu.StickerLibraryStore.byId(appContext, plan.stickerId) != null
             val expressed = if (separateExpression && plan.speechIntent.isNotBlank() && !imageOnly) {
+                val expressionHandoff = com.jiacimu.lulu.data.CharacterDecisionProtocol.expressionContext(
+                    plan.appraisal, plan.innerLife, plan.mood,
+                    com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now),
+                    com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
+                )
                 val generated = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
@@ -954,11 +990,9 @@ object LuluDeviceToolBridge {
                             appendLine(turnContext.take(4_000))
                         }
                         appendLine("用户刚才说：$userText")
-                        appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.expressionContext(
-                            plan.appraisal, plan.innerLife, plan.mood,
-                            com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now),
-                            com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
-                        ))
+                        if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
+                        appendLine(expressionHandoff)
+                        if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now))
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                         appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
@@ -980,7 +1014,7 @@ object LuluDeviceToolBridge {
                         如果交接了「角色自己选中的具体小尝试」，就实际在发送的气泡中自然做出这件小事：一句玩笑、一个拟声或隔空的虚拟互动都可以依本人性格呈现；不要把实际尝试退化为“那你想让我做什么”“我都愿意”，也不要编造未执行的现实动作。没交接时不凭空制造亲昵举动。
                         可以按本人语气自然加入恰当的标点、颜文字或 emoji，但不要为了显得活泼而给每句都追加相同表情。模型已选中的图片表情由程序另外发送，不要在正文里编造图片标签、路径或表情ID。
                         分气泡是表达节奏，不是思想/互动动作的配额：同一件事里有两句完整而各自有作用的话，也可以分成两泡；一句短话就一泡。不要因为规划阶段只选了一个互动动作，就把三四个句子压成一个巨大气泡，也不要把半个词或未完句硬切开。
-                        $onlineChatBubbleRule
+                        只有本轮明确提供了真实用户消息ID、且确实决定引用或收藏时，才沿用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；没有准确ID就省略，不自行制造引用或收藏。
                     """.trimIndent(),
                     source = "聊天表达渲染",
                     title = title,
@@ -1003,6 +1037,8 @@ object LuluDeviceToolBridge {
                     ?: return Result.failure(IllegalStateException("表达模型没有返回完整的可发送正文"))
                 val naturalness = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
                     userText, firstBubbles, history,
+                    recentCharacterReplies = recentCharacterReplies,
+                    operationalEvidence = turnContext,
                 )
                 val rerendered = if (naturalness.needsRerender) {
                     LuluAiServices.gateway.generate(
@@ -1010,9 +1046,14 @@ object LuluDeviceToolBridge {
                         facts = buildString {
                             appendLine("真实聊天场景：${sceneContext}")
                             appendLine("用户刚才说：${userText}")
+                            if (history.isNotBlank()) appendLine("已发生的对话：\n$history")
+                            if (turnContext.isNotBlank()) appendLine("本轮程序提供的交互元信息：${turnContext.take(4_000)}")
+                            if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
+                            appendLine(expressionHandoff)
+                            if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                             appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
                             appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
-                        appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
+                            appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
                             appendLine("已经确定的内容意图：${plan.speechIntent}")
                             if (plan.socialAttempt.isNotBlank()) {
                                 appendLine("不能丢失角色自选的小尝试：${plan.socialAttempt.take(180)}；必须实际表达，不能空口承诺。")
@@ -1046,7 +1087,8 @@ object LuluDeviceToolBridge {
                     com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyBubbles(it.text)
                 }
                 val repairedNaturalness = rerenderedBubbles?.let {
-                    com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, it, history)
+                    com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(userText, it, history,
+                        recentCharacterReplies = recentCharacterReplies, operationalEvidence = turnContext)
                 }
                 val useRerender = rerendered != null && !rerenderedBubbles.isNullOrEmpty() &&
                     repairedNaturalness != null && repairedNaturalness.score < naturalness.score &&
@@ -1181,6 +1223,7 @@ object LuluDeviceToolBridge {
                     appendLine("动作前一瞬的角色状态：${plan.statusText}；动作：${plan.gesture}；心情：${plan.mood}；没说出口：${plan.innerThought}")
                 }
                 appendLine("这个动作刚刚产生的真实新结果：$toolResult")
+                if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
             },
             instruction = """
                 这是同一段连续经历中的下一刻：角色刚刚已经做完工具动作，现在只需要从动作后的新状态继续说话，不要把整段对话重新回答一遍。
@@ -1219,6 +1262,8 @@ object LuluDeviceToolBridge {
             val draftSpeech = envelope?.optString("text").orEmpty().trim()
             val quality = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
                 userText, listOf(draftSpeech), history,
+                recentCharacterReplies = recentCharacterReplies,
+                operationalEvidence = "$turnContext\n$toolResult",
             )
             if (draft != null && envelope != null && draftSpeech.isNotBlank() &&
                 quality.needsRerender) {
@@ -1227,6 +1272,7 @@ object LuluDeviceToolBridge {
                     facts = buildString {
                         appendLine("这是刚执行完工具后同一角色的即时聊天，不是新的一轮决策。")
                         appendLine("用户问：${userText.take(900)}")
+                        if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine("角色刚执行的工具：${plan.tool}")
                         appendLine("真实工具结果（最高优先级，不得变更成功失败）：${toolResult.take(1800)}")
                         appendLine("刚刚写出的回复草稿：${draftSpeech.take(1800)}")
@@ -1253,6 +1299,8 @@ object LuluDeviceToolBridge {
                 }.orEmpty().trim()
                 val revisedQuality = com.jiacimu.lulu.data.ConversationNaturalnessGate.assess(
                     userText, listOf(revisedSpeech), history,
+                    recentCharacterReplies = recentCharacterReplies,
+                    operationalEvidence = "$turnContext\n$toolResult",
                 )
                 if (revisedSpeech.isNotBlank() && revisedQuality.score < quality.score &&
                     com.jiacimu.lulu.data.ConversationNaturalnessGate.preservesSurfaceIntent(
@@ -1549,6 +1597,7 @@ object LuluDeviceToolBridge {
                 afterglow = json.optJSONObject("afterglow"),
                 intention = json.optJSONObject("intention"),
                 innerLife = json.optJSONObject("innerLife"),
+                commitmentChanges = json.optJSONArray("commitmentChanges"),
                 motiveId = json.optString("motiveId"),
                 intentionId = json.optString("intentionId").trim().take(70),
                 endCall = json.optBoolean("endCall", false),
@@ -1612,6 +1661,7 @@ private data class ToolPlan(
     val intention: JSONObject? = null,
     val afterglow: JSONObject? = null,
     val innerLife: JSONObject? = null,
+    val commitmentChanges: org.json.JSONArray? = null,
     val motiveId: String = "",
     val intentionId: String = "",
     val endCall: Boolean = false,

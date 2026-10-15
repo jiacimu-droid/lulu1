@@ -39,7 +39,7 @@ object CommitmentLexiconSync {
         }
     }
 
-    private suspend fun syncTask(task: CommitmentTask) {
+    internal suspend fun syncTask(task: CommitmentTask) {
         // Repair legacy/tool-created commitments that were persisted in the
         // execution store without any visible 辞海 entry. Write the durable
         // entry first, then link the task, so a process restart can reconcile.
@@ -59,9 +59,10 @@ object CommitmentLexiconSync {
                     ),
                 )
             }
-            CommitmentTaskStore.update(task.id) { existing ->
+            val linked = CommitmentTaskStore.update(task.id) { existing ->
                 if (existing.lexiconEntryId == null) existing.copy(lexiconEntryId = id) else existing
             }
+            if (linked != null) syncTask(linked)
             return
         }
         val lexiconId = task.lexiconEntryId

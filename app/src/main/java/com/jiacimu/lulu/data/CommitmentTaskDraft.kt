@@ -12,4 +12,5 @@ data class CommitmentTaskDraft(
     val deliveryAction: String = "send_private_message",
     val needsClarification: Boolean = false,
     val targetTaskId: String? = null,
+    val promiseKind: String? = null,
 )

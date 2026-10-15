@@ -483,7 +483,8 @@ class CompanionModelGateway(
             val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(source, request)
             // A simple conversational expression already has the planner's researched
             // intent. Recalling all stores again adds cost but no new decision authority.
-            val leanExpression = source == "聊天表达渲染" &&
+            val expressionOnly = com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)
+            val leanExpression = expressionOnly &&
                 !budget.precise && !budget.worldDetails &&
                 request.currentInput.length < 420
             val effectiveMode = if (leanExpression && contextMode == CompanionContextMode.Full)
@@ -546,7 +547,7 @@ class CompanionModelGateway(
                     }
                 }
                 if (effectiveMode != CompanionContextMode.Isolated) {
-                    if ((effectiveMode == CompanionContextMode.Full ||
+                    if (!expressionOnly && (effectiveMode == CompanionContextMode.Full ||
                         effectiveMode == CompanionContextMode.CharacterAndScenario) &&
                         !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples) &&
                         !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)) {
@@ -554,14 +555,14 @@ class CompanionModelGateway(
                         // already supplied the unified compact contract.
                         appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples)
                     }
-                    appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.promptSection())
+                    appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration(source))
                     if (effectiveMode != CompanionContextMode.Ensemble) appendLine(
                         com.jiacimu.lulu.data.CharacterSpeechIdentity.promptSection(
                         characterId,
                         // Lean chat expression intentionally skips broad memory recall, but it must
                         // still sound like the same person. Verified expression habits are bounded
                         // identity evidence, not permission to re-decide the turn.
-                        includeObserved = fullContext || source == "聊天表达渲染",
+                        includeObserved = fullContext || expressionOnly,
                         // Full mode already carries configured profile fields; reduced modes do not.
                         includeConfigured = !fullContext,
                         includeRelationship = effectiveMode == CompanionContextMode.Full ||

@@ -267,7 +267,7 @@ fun LexiconFeatureScreenV2(
                             CommitmentTaskStatus.NeedsClarification -> "待明确"
                             CommitmentTaskStatus.Scheduled -> "已安排"
                             CommitmentTaskStatus.Running -> "执行中"
-                            CommitmentTaskStatus.WaitingForFeedback -> "已触发 · 等待反馈"
+                            CommitmentTaskStatus.WaitingForFeedback -> if (task.dueAt == null) "持续跟进" else "已触发 · 等待反馈"
                             CommitmentTaskStatus.Completed -> "已完成"
                             CommitmentTaskStatus.Cancelled -> "已取消"
                             CommitmentTaskStatus.Blocked -> "执行受阻"
@@ -277,8 +277,9 @@ fun LexiconFeatureScreenV2(
                             task.timezone?.let { zone -> runCatching { ZoneId.of(zone) }.getOrNull() }
                                 ?: ZoneId.systemDefault(),
                         )?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
-                            ?: "等待确定时间"
-                        val delivery = if (task.deliveryAction == "start_call") "到点来电；正在通话时在原通话中提醒"
+                            ?: if (task.status == CommitmentTaskStatus.WaitingForFeedback) "随实际进展跟进" else "等待确定时间"
+                        val delivery = if (task.dueAt == null && task.status == CommitmentTaskStatus.WaitingForFeedback) "后续互动中持续关注"
+                            else if (task.deliveryAction == "start_call") "到点来电；正在通话时在原通话中提醒"
                             else if (task.goal.contains("叫醒") || task.goal.contains("起床"))
                                 "到点提醒；正在通话时直接语音叫醒"
                             else "到点发送私聊消息"

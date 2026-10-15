@@ -4,6 +4,33 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ConversationNaturalnessGateTest {
+    @Test fun presenceComplaintDoesNotAuthorizeInventingAMessageFailure() {
+        val result = ConversationNaturalnessGate.assess("不理我",
+            listOf("在呢在呢。刚才消息稍微卡了一下没及时回出来，让你等了，是我的错。"))
+        assertTrue(result.needsRerender)
+        assertTrue(result.reasons.any { it.contains("未经本轮程序回执") })
+        assertFalse(ConversationNaturalnessGate.assess("不理我", listOf("啊，我在呢宝宝。"))
+            .needsRerender)
+    }
+
+    @Test fun ownShortOpeningMattersWithoutTreatingUserQuotesAsTheCharactersStyle() {
+        val draft = listOf("在呢在呢，刚才没回上。我这就陪你聊会儿，先跟我说说今天发生了什么有趣的事情吧。")
+        val own = ConversationNaturalnessGate.assess("小宝宝", draft,
+            recentCharacterReplies = listOf("在呢在呢，来了！"))
+        assertTrue(own.reasons.any { it.contains("短起手式") })
+        val userQuote = ConversationNaturalnessGate.assess("小宝宝", draft,
+            recentHistory = "用户：你之前说在呢在呢")
+        assertFalse(userQuote.reasons.any { it.contains("短起手式") })
+        assertFalse(ConversationNaturalnessGate.assess("小宝宝", listOf("在呢在呢。"),
+            recentCharacterReplies = listOf("在呢在呢，来了！")).needsRerender)
+    }
+
+    @Test fun verifiedTechnicalReceiptIsNotTreatedAsAnInventedExcuse() {
+        val result = ConversationNaturalnessGate.assess("怎么回事", listOf("消息卡住了，刚才没有发出去。"),
+            operationalEvidence = "投递诊断：消息卡住，发送失败")
+        assertFalse(result.reasons.any { it.contains("未经本轮程序回执") })
+    }
+
     @Test fun fatiguePlusWhatShouldIDoIsStronglyAssistantLike() {
         val result = ConversationNaturalnessGate.assess(
             "我学习累了",

@@ -18,9 +18,9 @@ internal suspend fun applyCommitmentTaskDrafts(
     drafts.forEach { draft ->
         when (draft.action) {
             "create" -> createCommitmentTask(characterId, sourceTurnId, sourceEventIds, draft)
-            "reschedule" -> updateCommitmentTask(characterId, draft, reschedule = true)
-            "cancel" -> updateCommitmentTask(characterId, draft, cancel = true)
-            "complete" -> updateCommitmentTask(characterId, draft, complete = true)
+            "reschedule" -> updateCommitmentTask(characterId, draft, sourceEventIds, reschedule = true)
+            "cancel" -> updateCommitmentTask(characterId, draft, sourceEventIds, cancel = true)
+            "complete" -> updateCommitmentTask(characterId, draft, sourceEventIds, complete = true)
         }
     }
 }
@@ -36,8 +36,7 @@ private suspend fun createCommitmentTask(
     // may re-run, but a promised wake-up must create exactly one alarm-backed task.
     val previousFromTurn = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
         task.sourceTurnId == sourceTurnId && task.status.isActive() &&
-            (task.goal.sameTaskText(draft.goal) ||
-                (task.goal.contains("叫醒") && draft.goal.contains("叫醒")))
+            task.goal.sameTaskText(draft.goal)
     }
     if (previousFromTurn != null) return
     val existingLexicon = LuluRepositories.lexicon.snapshot(characterId)
@@ -54,42 +53,53 @@ private suspend fun createCommitmentTask(
                 section = LexiconSection.Promise,
                 title = draft.goal.take(24).ifBlank { "新的约定" },
                 content = draft.goal,
-                promiseKind = PromiseKind.Promise,
+                promiseKind = when (draft.promiseKind) {
+                    "long_term_supervision" -> PromiseKind.LongTermSupervision
+                    "responsibility" -> PromiseKind.Responsibility
+                    "reminder" -> PromiseKind.Reminder
+                    else -> PromiseKind.Promise
+                },
                 createdAt = now,
                 updatedAt = now,
             ),
         )
     }
-    val needsClarification = draft.needsClarification || draft.dueAt == null
+    val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
+    val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
     var task = CommitmentTask(
         characterId = characterId,
         lexiconEntryId = lexiconId,
         sourceEventIds = sourceEventIds,
         sourceTurnId = sourceTurnId,
         goal = draft.goal,
-        status = if (needsClarification) CommitmentTaskStatus.NeedsClarification else CommitmentTaskStatus.Scheduled,
+        status = if (needsClarification) CommitmentTaskStatus.NeedsClarification
+            else if (ongoing) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Scheduled,
         dueAt = draft.dueAt,
         timezone = draft.timezone,
         nextCheckAt = draft.dueAt,
         completionCondition = draft.completionCondition,
         steps = draft.steps,
-        deliveryAction = draft.deliveryAction.takeIf { it == "start_call" } ?: "send_private_message",
-        lastActionResult = if (needsClarification) "缺少明确时间或条件；需要在后续对话中自然追问，禁止擅自猜测" else "",
+        deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
+        lastActionResult = if (needsClarification) "缺少必要条件，需要后续自然确认"
+            else if (ongoing) "持续约定已记入辞海，结合真实进展继续跟进；没有创建固定闹钟" else "",
     )
     task = CommitmentTaskStore.save(task)
     if (task.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(task)
+    CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == task.id }?.let { CommitmentLexiconSync.syncTask(it) }
 }
 
-private fun updateCommitmentTask(
+private suspend fun updateCommitmentTask(
     characterId: String,
     draft: CommitmentTaskDraft,
+    sourceEventIds: List<String>,
     reschedule: Boolean = false,
     cancel: Boolean = false,
     complete: Boolean = false,
 ) {
     val target = findTargetTask(characterId, draft) ?: return
     target.linkedAlarmId?.let(LuluAlarmSystem::cancel)
-    val needsClarification = draft.needsClarification || draft.dueAt == null
+    val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
+    val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
     val next = CommitmentTaskStore.update(target.id) { current ->
         when {
             cancel -> current.copy(status = CommitmentTaskStatus.Cancelled, nextCheckAt = null, linkedAlarmId = null, lastActionResult = "用户取消了约定")
@@ -101,9 +111,10 @@ private fun updateCommitmentTask(
                 nextCheckAt = draft.dueAt,
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },
                 steps = draft.steps.ifEmpty { current.steps },
-                deliveryAction = if (draft.deliveryAction == "start_call") "start_call" else current.deliveryAction,
+                deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 linkedAlarmId = null,
-                status = if (needsClarification) CommitmentTaskStatus.NeedsClarification else CommitmentTaskStatus.Scheduled,
+                status = if (needsClarification) CommitmentTaskStatus.NeedsClarification
+                    else if (ongoing) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Scheduled,
                 lastActionResult = if (needsClarification) {
                     "约定已更新，但仍缺少明确时间或条件；需要自然追问，禁止猜测"
                 } else {
@@ -111,9 +122,10 @@ private fun updateCommitmentTask(
                 },
             )
             else -> current
-        }
+        }.let { it.copy(sourceEventIds = (it.sourceEventIds + sourceEventIds).distinct()) }
     }
     if (next?.status == CommitmentTaskStatus.Scheduled) scheduleTaskAlarm(next)
+    CommitmentTaskStore.snapshot(characterId).firstOrNull { it.id == target.id }?.let { CommitmentLexiconSync.syncTask(it) }
 }
 
 private fun findTargetTask(characterId: String, draft: CommitmentTaskDraft): CommitmentTask? {
@@ -125,18 +137,7 @@ private fun findTargetTask(characterId: String, draft: CommitmentTaskDraft): Com
         // silently mutate a different responsibility.
         return null
     }
-    val normalizedGoal = draft.goal.trim()
-    if (normalizedGoal.isNotBlank()) {
-        val semanticMatches = active.filter { task ->
-            task.goal.sameTaskText(normalizedGoal) ||
-                task.goal.contains(normalizedGoal, ignoreCase = true) ||
-                normalizedGoal.contains(task.goal, ignoreCase = true)
-        }
-        if (semanticMatches.size == 1) return semanticMatches.single()
-    }
-    // A short user phrase like “不用了” is safe only when there is exactly one possible active
-    // responsibility. With two or more tasks we leave state unchanged and let conversation clarify.
-    return active.singleOrNull()
+    return null // Only the model-selected exact ID may mutate an existing responsibility.
 }
 
 private fun scheduleTaskAlarm(task: CommitmentTask) {

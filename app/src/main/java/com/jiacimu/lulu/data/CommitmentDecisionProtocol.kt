@@ -1,0 +1,37 @@
+package com.jiacimu.lulu.data
+
+import org.json.JSONArray
+import java.time.Instant
+import java.time.ZoneId
+
+/** The model owns meaning; this contract only defines typed changes and concrete execution evidence. */
+internal object CommitmentDecisionProtocol {
+    val instruction = """
+        【理解与落地】理解整段对话的意思和指代，不靠某几个词决定是否记录。
+        一闪而过的想法写 innerLife.thoughts；本人持续想做的愿望写 innerLife.motives；需要留意的未解心事写 appraisal.pendingConcerns；已经向对方承担的责任写 commitmentChanges。愿望、条件句、玩笑、建议或拒绝不能冒充已接受的约定。
+        每轮额外返回 commitmentChanges 数组；没有约定变化就 []。有变化时每项为：
+        {"action":"create|reschedule|cancel|complete","targetTaskId":"修改/取消/完成旧任务必须用真实id","goal":"完整的约定内容","dueAt":"带时区ISO时间，或空字符串","timezone":"IANA时区","promiseKind":"promise|responsibility|reminder|long_term_supervision","needsClarification":false,"completionCondition":"真正完成的依据","steps":[],"deliveryAction":"send_private_message|start_call|alarm_only"}。
+        先结合当地时间、前后文和生活语境判断具体日期。凌晨未睡时“明天叫我起床”可能指这次睡醒的早晨，不机械把日历加一天；用户明确的日期优先，不确定就确认，不能编造时刻。用户纠正日期或条件时修改原id，并给出修正后的完整goal/dueAt，保留没改的条件，不能只口头认错或另建一条。
+        持续关心、学习督促等不必有固定闹钟时刻；已达成的持续约定可用long_term_supervision或responsibility且dueAt为空。真正缺少必要条件才needsClarification=true。不能把用户的日常分享都建成任务，也不要为了记录强迫用户给所有愿望定闹钟。
+        start_call代表真实来电，alarm_only仅本机闹钟。仅想打电话不等于承诺。本人答应稍后来电时自行给出合理时刻，不能由程序按词固定若干分钟。约定通过commitmentChanges落地，同一件事不要再选create_alarm重复建闹钟。记录/执行是否成功以接下来的程序回执为准，当前说话只能表达接受、意愿或必要确认，不能提前宣称已经保存或已经改好。
+    """.trimIndent()
+
+    fun context(tasks: List<CommitmentTask>, now: Instant, zone: ZoneId): String = buildString {
+        appendLine("【约定的客观依据】当前当地时间=${now.atZone(zone)}；时区=${zone.id}")
+        if (tasks.isEmpty()) appendLine("暂无现有约定；不能虚构旧任务id。")
+        tasks.forEach { task ->
+            appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}")
+        }
+    }
+
+    fun drafts(changes: JSONArray, active: List<CommitmentTask>): List<CommitmentTaskDraft> {
+        val drafts = parseCommitmentTaskDrafts(changes.toString())
+        require(drafts.size == changes.length()) { "约定变更格式不完整，未执行" }
+        drafts.forEach { draft ->
+            if (draft.action != "create") require(active.any { it.id == draft.targetTaskId }) {
+                "没有找到准确的原约定id，未修改其他约定"
+            }
+        }
+        return drafts
+    }
+}

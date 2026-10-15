@@ -14,6 +14,20 @@ internal enum class CharacterSpeechChannel {
 }
 
 internal object CharacterExpressionGuide {
+    fun isExpressionOnly(source: String): Boolean = source in setOf(
+        "聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复",
+    )
+
+    /** Renderers inherit the person and the committed choice, not the planner's job. */
+    fun forGeneration(source: String): String = if (isExpressionOnly(source)) """
+        【同一人物的表达层】
+        沿用角色自己的身份、价值、已设语言习惯、稳定称呼与本轮交接的感受。只把已确定的意思说给当前对象听，不再规划行动或重做心理评估。
+        先接当前这一拍，选择本人真正想说的重点，给对方自然接话的余地。普通闲聊允许短反应、停顿、幽默和说完就停；复杂问题或本人确实想展开时可充分表达，不设固定字数、气泡数和表情频率。
+        既有事实、否定、已核实的执行结果、立场与边界必须保留。历史台词只用于理解往来，不是必须模仿的文风；当前草稿不是新的事实证据。
+        语气、昵称是否出现、句式与修辞由本人当场决定，不把所有人物写成同一种可爱或温柔。内心状态用于影响说法，不逐条念出感受、动机、备选方案和关系结论。
+        只输出当前调用要求的可发送正文结构，不新增工具、承诺、状态更新或编造行为。
+    """.trimIndent() + "\n" + ConversationTurnEconomy.principles else promptSection()
+
     /**
      * All speaker paths use the same intent -> selective expression principle.
      * Channel adaptations must not replace this person's stable speech identity.
@@ -52,5 +66,5 @@ internal object CharacterExpressionGuide {
         11. 【表达也是自己的行为】颜文字、emoji、表情包、顺着双方语境的网络梗、拟声、语气词与声音变化都可以传递自己的态度；不只是把 mood 标成开心，正文仍像客服。可以自己抛梗、自然分享，也可以认真和克制；不按比例装饰、不复读热门词、不把所有人物写成同一种网感。电话用真正能听见的语气和口语体现同样的个性，不能照念符号或内心分析。
         12. 【情绪有来处，也有去处】上一刻的感受可以延续、叠加、减弱或被新事件改变；换话题不等于情绪归零。感受影响措辞、主动性与表达渠道，可以说出来、打电话、发动态、写日记、找熟人或暂时独处；依据亲密程度、隐私、打扰成本与真实权限选择，不把所有情绪都憋成状态栏，也不强迫每次公开抒发。
         13. 【跨场景是一种声音】同一角色在私聊、群聊、电话、见面、后台分享及工具执行后，都按相同的人格与真实成长后的语言偏好做表达取舍。不同场合仅改变听众、隐私、可听/可视呈现和回复时机，不重置称呼、性格或语气，也不要求逐条复述所有思考。
-    """.trimIndent() + "\n" + CharacterSpontaneityGuide.expressionPrinciples
+    """.trimIndent() + "\n" + CharacterSpontaneityGuide.expressionPrinciples + "\n" + ConversationTurnEconomy.principles
 }

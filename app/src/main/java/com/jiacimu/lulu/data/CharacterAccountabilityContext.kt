@@ -35,7 +35,7 @@ internal object CharacterAccountabilityContext {
                         CommitmentTaskStatus.NeedsClarification, CommitmentTaskStatus.Scheduled,
                     )
                 ) appendLine("  → 未证实按约履行，不能声称已经叫醒或把错推给用户。")
-                if (task.status == CommitmentTaskStatus.WaitingForFeedback)
+                if (task.status == CommitmentTaskStatus.WaitingForFeedback && task.dueAt != null)
                     appendLine("  → 最多能说已尝试通知/发消息，不能声称用户确实醒了、听到了或故意没回应。")
             }
             appendLine("评价一次失约时先核对约定原话、实际动作与通知回执。日记、主观心声、个人计划不能代替执行。")

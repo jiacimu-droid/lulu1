@@ -36,19 +36,14 @@ object CommitmentTurnAutomation {
                 val ids = conversations.mapTo(mutableSetOf()) { it.id }
                 jobs.keys.filterNot(ids::contains).forEach { jobs.remove(it)?.cancel() }
                 CommitmentTaskStore.snapshot()
-                    .filter { task -> task.status.isActive() && task.sourceTurnId?.substringBefore(':') !in ids }
+                    .filter { task -> task.status.isActive() && !task.sourceTurnId.isNullOrBlank() &&
+                        task.sourceTurnId.substringBefore(':').isNotBlank() && task.sourceTurnId.substringBefore(':') !in ids }
                     .forEach { task -> CommitmentTaskStore.cancel(task.id, "来源会话已被删除") }
                 conversations.forEach { conversation ->
                     if (conversation.id in jobs) return@forEach
                     jobs[conversation.id] = scope.launch {
-                        // The two streams must be independent. Rapidly changing
-                        // chat bubbles must not cancel an in-flight model call
-                        // after that call has started to create/modify a promise.
-                        launch {
-                            MigratedDomainStores.chat.messages(conversation.id).collect {
-                                retryTransientExtraction { inspectImmediateUserUpdate(conversation) }
-                            }
-                        }
+                        // Compatibility recovery only. Normal turns are handled by the
+                        // character planner itself, including its explicit empty decision.
                         // Debounce *before* calling the model, then use collect,
                         // not collectLatest: a reply's next bubble must not
                         // cancel the prior promise extraction mid-request.
@@ -71,51 +66,6 @@ object CommitmentTurnAutomation {
         } catch (_: Exception) {
             // A transient failure is not permission for three back-to-back
             // expensive calls. The next genuinely new event may retry.
-        }
-    }
-
-    private suspend fun inspectImmediateUserUpdate(conversation: LuluConversation) {
-        val messages = MigratedDomainStores.chat.messages(conversation.id).value
-        val latest = messages.lastOrNull()?.takeIf {
-            it.sender == LuluChatMessage.Sender.User && it.status == LuluChatMessage.Status.Sent
-        } ?: return
-        if (!looksLikeImmediateTaskUpdate(latest.content)) return
-
-        val candidateCharacterIds = conversation.groupChat
-            ?.members
-            ?.map(LuluGroupMember::characterId)
-            ?.distinct()
-            ?: listOf(conversation.characterId)
-        candidateCharacterIds.forEach { characterId ->
-            if (characterId.isBlank()) return@forEach
-            val active = CommitmentTaskStore.active(characterId)
-            if (active.isEmpty()) return@forEach
-            val signature = "immediate:${conversation.id}:${latest.id}:$characterId"
-            if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
-            // A real "I'm awake" acknowledgement can request a song, but
-            // receiving/answering a wake-up call alone is not such proof.
-            WakeMusicCoordinator.onExplicitWakeConfirmation(
-                context = appContext ?: return@forEach,
-                characterId = characterId,
-                text = latest.content,
-                activeTasks = active,
-            )
-            // A real message "我醒了" completes the *goal* and cancels
-            // pending call-inside-call wake alarms. Generic noise never does.
-            WakeGoalVerification.confirm(characterId, latest.content)
-            val drafts = extractCommitmentTaskDrafts(
-                characterId = characterId,
-                userText = latest.content,
-                characterText = "（角色尚未回复；这里只处理现有任务的改期、取消或完成，不得据此新建责任）",
-                activeTasks = active,
-            ).filter { draft -> draft.action in setOf("reschedule", "cancel", "complete") }
-            applyCommitmentTaskDrafts(
-                characterId = characterId,
-                sourceTurnId = "${conversation.id}:${latest.id}:$characterId:immediate",
-                sourceEventIds = listOf(latest.id),
-                drafts = drafts,
-            )
-            markProcessed(signature)
         }
     }
 
@@ -149,7 +99,9 @@ object CommitmentTurnAutomation {
         grouped.forEach { (characterId, roleReplies) ->
             if (characterId.isBlank()) return@forEach
             val characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim()
-            if (!looksLikeTaskTurn(combinedUserText, characterText)) return@forEach
+            // The ordinary planner understands every turn and records its explicit [] or changes.
+            // Only older/unstructured producers need this semantic recovery, without word gates.
+            if (CommitmentDecisionRuntime.handled(appContext ?: return@forEach, characterId, userBatch.map(LuluChatMessage::id))) return@forEach
             val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
             val signature = "commitment-turn-v2:$sourceTurnId"
             if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
@@ -160,17 +112,32 @@ object CommitmentTurnAutomation {
                 userText = combinedUserText,
                 characterText = characterText,
                 activeTasks = active,
+                recentContext = messages.take(lastCharacterIndex + 1).filter {
+                    it.status == LuluChatMessage.Status.Sent &&
+                        (it.sender == LuluChatMessage.Sender.User ||
+                            (it.sender == LuluChatMessage.Sender.Character &&
+                                (it.authorCharacterId ?: conversation.characterId) == characterId))
+                }.takeLast(8).joinToString("\n") { "${it.createdAt} ${it.sender}：${it.content.take(600)}" },
+                now = userMessage.createdAt,
             )
             val filtered = drafts.filterNot { draft ->
                 draft.action == "create" && active.any { task ->
                     task.sourceTurnId == sourceTurnId && task.goal.taskKey() == draft.goal.taskKey()
                 }
             }
-            applyCommitmentTaskDrafts(
-                characterId = characterId,
-                sourceTurnId = sourceTurnId,
-                sourceEventIds = userBatch.map(LuluChatMessage::id) + roleReplies.map(LuluChatMessage::id),
-                drafts = filtered,
+            // The recovery uses the same typed executor and receipt as the primary model.
+            CommitmentDecisionRuntime.apply(
+                appContext ?: return@forEach, characterId, sourceTurnId,
+                userBatch.map(LuluChatMessage::id), org.json.JSONArray().apply {
+                    filtered.forEach { draft -> put(org.json.JSONObject().apply {
+                        put("action", draft.action); put("goal", draft.goal)
+                        put("targetTaskId", draft.targetTaskId.orEmpty())
+                        put("dueAt", draft.dueAt?.toString().orEmpty()); put("timezone", draft.timezone.orEmpty())
+                        put("promiseKind", draft.promiseKind.orEmpty()); put("deliveryAction", draft.deliveryAction)
+                        put("needsClarification", draft.needsClarification); put("completionCondition", draft.completionCondition)
+                        put("steps", org.json.JSONArray(draft.steps))
+                    }) }
+                },
             )
             markProcessed(signature)
         }
@@ -182,7 +149,7 @@ object CommitmentTurnAutomation {
             .filter { task ->
                 task.status.isActive() &&
                     task.sourceTurnId?.startsWith("$conversationId:") == true &&
-                    task.sourceEventIds.any { sourceId -> sourceId !in liveMessageIds }
+                    task.sourceEventIds.any { sourceId -> sourceId.substringBefore(":group:") !in liveMessageIds }
             }
             .forEach { task -> CommitmentTaskStore.cancel(task.id, "来源消息已删除，约定同步取消") }
     }
@@ -207,6 +174,7 @@ object CommitmentTurnAutomation {
     }
 }
 
+/** Legacy routing hint; no longer gates model interpretation or creates tasks. */
 internal fun looksLikeTaskTurn(userText: String, characterText: String): Boolean {
     val text = "$userText\n$characterText"
     // Generic chat phrases like "我会" or "等会儿" are not enough

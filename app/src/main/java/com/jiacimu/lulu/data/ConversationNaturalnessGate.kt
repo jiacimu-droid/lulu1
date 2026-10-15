@@ -87,6 +87,8 @@ internal object ConversationNaturalnessGate {
         userText: String,
         bubbles: List<String>,
         recentHistory: String = "",
+        recentCharacterReplies: List<String> = emptyList(),
+        operationalEvidence: String = "",
     ): ConversationNaturalnessAssessment {
         val reply = bubbles.joinToString("\n").trim()
         if (reply.isBlank()) return ConversationNaturalnessAssessment(0, emptyList())
@@ -124,6 +126,19 @@ internal object ConversationNaturalnessGate {
         }
         val userLength = userText.count { !it.isWhitespace() }
         val replyLength = reply.count { !it.isWhitespace() }
+        if (ConversationTurnEconomy.hasUnsupportedDeliveryCause(reply, operationalEvidence)) {
+            score += 2
+            reasons += "把回复间隔编成了未经本轮程序回执证实的消息或网络故障；保留未及时回应的事实，省略未知原因"
+        }
+        if (userLength in 1..70 && replyLength >= 36 &&
+            ConversationTurnEconomy.repeatsOpening(reply, recentCharacterReplies, userText)) {
+            score += 2
+            reasons += "复用本人近期的短起手式后又扩写整段说明，像同一套开场模板"
+        }
+        if (ConversationTurnEconomy.overloadedClockPivot(userText, reply)) {
+            score += 2
+            reasons += "简单接话附带报时和连续新问题，偏离对方这一拍正在交流的事"
+        }
         // Explicit requests for a detailed explanation may legitimately be
         // much longer than the user's question. Length alone is not an error.
         val detailRequested = Regex(

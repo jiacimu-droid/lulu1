@@ -167,7 +167,7 @@ internal object DialogueMoveEngine {
             appendLine("唯一允许提出的候选理解：${plan.candidate}")
             appendLine("该候选仅供确认，不能当成已经理解正确。")
         }
-        appendLine("最多发送 ${plan.maxBubbles} 个气泡；请优先让单个气泡只承载一小段自然完整的话，阅读轻松。内容稍长时可以按完整语句分为两到四泡，而不是一块长文字。短回应仍然一泡就好。")
+        appendLine("只落实上面已选定的互动重点，不把背景、情绪、解释和计划逐项扩成新任务。气泡按完整意群自然划分；同一个互动动作可以分成两条完整短话，短反应一泡即可，不把规划中的动作数量当成视觉气泡配额。")
         appendLine("严禁把一个词或一句没说完的话拆到两条气泡中；不按固定字符数切，任何分段都要让阅读顺畅。")
         when (plan.type) {
             DialogueMoveType.BACKCHANNEL ->
