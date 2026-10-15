@@ -349,6 +349,30 @@ test('a late response from another query cannot satisfy the new search or show a
   assert.equal(b.snapshot('search', '', 'new').error, '');
   assert.equal(b.snapshot('search', '', 'new').items.length, 0);
 });
+test('duplicate SPA route notifications cannot erase a successfully captured search', async () => {
+  const b = browser({api: 'search/notes', state: {feed: {feeds: [row('home')]}},
+    payload: {code: 0, data: {items: [row('result')]}}});
+  b.sandbox.__luluXhsReader.beginSearch('猫');
+  await b.receive('猫');
+  assert.equal(b.snapshot('search', '', '猫').items[0].token, 'result');
+  // The site can fire a form submit followed by pushState for the same request.
+  b.sandbox.__luluXhsReader.beginSearch('猫');
+  assert.equal(b.snapshot('search', '', '猫').items[0].token, 'result');
+  b.sandbox.__luluXhsReader.beginSearch('不同关键词');
+  assert.equal(b.snapshot('search', '', '不同关键词').items.length, 0);
+});
+
+test('verified empty search response never leaks old SSR or homepage notes', async () => {
+  const b = browser({path: '/search_result?keyword=记者', api: 'search/notes',
+    state: {search: {feeds: [row('oldSSR')]}, feed: {feeds: [row('home')]}},
+    payload: {code: 0, data: {items: []}}});
+  b.sandbox.__luluXhsReader.beginSearch('记者');
+  await b.receive('记者');
+  const snapshot = b.snapshot('search', '', '记者');
+  assert.equal(snapshot.empty, true);
+  assert.equal(snapshot.items.length, 0);
+});
+
 test('an actual empty overlay search is not replaced by homepage recommendations', async () => {
   const b = browser({api: 'search/notes', state: {feed: {feeds: [row()]}}, payload: {code: 0, data: {items: []}}});
   b.sandbox.__luluXhsReader.beginSearch('记者'); await b.receive('记者');
