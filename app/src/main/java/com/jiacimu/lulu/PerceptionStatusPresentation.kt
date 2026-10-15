@@ -26,8 +26,8 @@ internal object PerceptionStatusPresentation {
         when {
             inCall -> add("通话中 · 持续在线陪伴")
             online -> {
-                add("在线中 · 本地设备状态可随时查询；没有紧急新事件时，每${if (policy.onlinePulseSeconds == 300) "5分钟" else "2分半"}尝试一次自主思考")
-                add("新的真实消息 / 重要事件会独立触发；每5分钟由角色自主决定是否继续在线")
+                add("在线中 · 新消息和真正的场景事件可触发即时感知")
+                add("不进行固定2分半轮询；本次5分钟窗口到期时由角色决定继续或休眠")
             }
             !policy.enabled -> add("自动唤醒已关闭")
             plan == null -> add("下次唤醒尚未排定")
