@@ -239,7 +239,7 @@ internal suspend fun runGroupReplies(
         val prompt = buildString {
             appendLine("[这是QQ式群聊《${group.name}》，成员：${group.userGroupNickname}、$memberList。当前由你（$label）看到共享消息，只代表你自己。]")
             appendLine("[在线/看见消息≠必须说话。被@、话题与你有关、你真的有话想接时才参与；别人已说清、你没兴趣或没必要时可以继续潜水。绝不为了凑全员而轮班。]")
-            appendLine("[本人对本群其他成员和用户的可追溯看法：\\n" +
+            appendLine("[本人对本群其他成员和用户的可追溯看法：\n" +
                 com.jiacimu.lulu.data.CharacterSocialRelationship.perspectivesFor(
                     member.characterId, members.map { it.characterId } + "user"
                 ).ifBlank { "目前没有充分的关系证据，不预设亲疏" } + "]")
@@ -254,7 +254,7 @@ internal suspend fun runGroupReplies(
                 appendLine("[$prev 刚说：${it.content.takeLast(900)}。从这一刻接，不要重启话题。]")
             }
             appendLine("[像真人即时通讯：一个表达动作一个气泡；气泡边界由系统结构化处理，不要输出 BUBBLE 或其他气泡控制串。撤回 ⟪RECALL:n⟫ 和戳用户 ⟪POKE_USER⟫ 都只能偶尔自然发生。]")
-            if (group.allowCharacterConversation) appendLine("[说完后只有当某位具体成员真的会自然接话才输出 ⟪NEXT:成员名⟫；否则输出 ⟪END⟫。不要为了让更多人出现而NEXT。]")
+            if (group.allowCharacterConversation) appendLine("[你无需替其他成员指定下一位发言者。程序会让其他真实在场者各自独立判断是否接话；你只负责自己的内容，沉默可直接选择 action=silent。]")
             append(if (index == 0) "用户刚在群里说：$pendingText" else "这轮最初由用户说：$pendingText")
         }
         var result = LuluDeviceToolBridge.respond(member.characterId, history, prompt, activeLabel,
