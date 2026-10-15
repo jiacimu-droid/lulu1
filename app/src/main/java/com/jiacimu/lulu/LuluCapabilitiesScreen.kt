@@ -102,6 +102,9 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     val activeArchive = library.archives.firstOrNull { it.id == chatArchiveId }
     val backgroundModelLabel = activeArchive?.let(com.jiacimu.lulu.ai.LuluAiServices.connectionStore::archiveLabel)
         ?: "尚未选择聊天模型"
+    val latestImageTransport = remember(refreshKey) {
+        QqChatImageModelInput.lastReadStatus(context)
+    }
     val latestPerception = presenceStates.values
         .filter { it.lastPerceptionAt != null }
         .maxByOrNull { it.lastPerceptionAt ?: Instant.EPOCH }
@@ -153,7 +156,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             item {
                 CapabilityInfoCard(
                     title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n$wakeQueueStatus\n每个角色按自己设置的间隔安排后台感知；屏幕变化和普通通知只作为下次感知的上下文。",
+                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n图片输入：$latestImageTransport\n$wakeQueueStatus\n每个角色按自己设置的间隔安排后台感知；屏幕变化和普通通知只作为下次感知的上下文。",
                 )
             }
 
