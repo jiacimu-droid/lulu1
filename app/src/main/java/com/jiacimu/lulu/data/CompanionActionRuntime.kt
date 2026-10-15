@@ -522,7 +522,7 @@ internal object CompanionActionRuntime {
                 若自己真的想继续钻研某个问题，可选 learningIntent={"topic":"具体主题","question":"自己想弄清什么","why":"读到哪一点引起了这个问题"}；它只是可暂停的学习意向，不是每段都要交的作业。
                 如果本段确实形成可延续的认识，可选 learning={"topic":"具体主题","understanding":"基于实际原文形成的暂定理解","uncertainty":"尚未确认什么","question":"还想弄清什么","applicableWhen":"以后哪些场景可能有用","revisesEvidenceId":"如明确修订同主题旧理解，填写上下文给出的旧阅读证据ID"}。没有新理解就不填；不得声称阅读一次便已学会方法。
                 真实读到具体内容后若有新的好奇，可选 curiosity={"topic":"想弄清楚的主题","question":"下一步想知道什么","why":"刚才真实读到的段落为什么引起好奇","nextStep":"能实际做什么"}。有书可继续读、也可以暂停和放下；没采取行动不声称读完或研究过。反应不是必须写给用户的报告。
-                如果因此产生或改变了持续愿望，intention 可使用当前角色上下文给出的动机格式；已有愿望的更新必须含 disposition=update、准确 id、aim、motive、reason，放下用 release。
+                如果真的产生持续愿望，写入 innerLife.motives:[{"op":"start","aim":"想做的具体事","why":"读到的依据"}]，已有愿望用 id 和 revise/pause/resume/release 变更；不要新造旧 intention。只有真实读取和执行回执才能证明实际学习或实践，收藏、分享、写日记必须另走真实动作。
                 不需要每次形成新愿望，不把书中故事当亲历。只返回 JSON，不要代码块。
             """.trimIndent(),
             source = "角色行动·连续阅读",
