@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T18:02:44.391904+00:00",
-  "commit": "4bb8f03f3b3f94d2a0df193e86daba70b48643ca",
+  "generatedAt": "2026-10-15T18:03:08.134716+00:00",
+  "commit": "60266f08387ceaafd42bcf826a7c1dbdd603d49d",
   "branch": "main",
-  "sourceFingerprint": "2f9f9592173301478c07c236e88d5b88c9e4cd475d3ec3fdac6768b6c62492d0",
+  "sourceFingerprint": "a23fe282e5b694bcf5c898389b6ca873a0ec74536d9c8bd8def4b1b0c09f2728",
   "summary": {
     "files": 656,
-    "lines": 129221,
+    "lines": 129223,
     "symbols": 1931
   },
   "symbolIndex": {
@@ -1987,7 +1987,7 @@
     "lines": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-        "line": 29
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
@@ -1997,7 +1997,7 @@
     "time": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-        "line": 33
+        "line": 35
       }
     ],
     "PerformanceFeatureScreen": [
@@ -12520,8 +12520,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-      "lines": 59,
-      "sha256": "55069984adf7884438cf88a46f94d3ce903d17e9c8189b723c257bf06e7bddb9",
+      "lines": 61,
+      "sha256": "8af00bb3a122800d3308a4bfb60b7f7bfc2a0ac36e340ea388c39a981ee50bcf",
       "symbols": [
         {
           "name": "errorFor",
@@ -12529,11 +12529,11 @@
         },
         {
           "name": "lines",
-          "line": 29
+          "line": 31
         },
         {
           "name": "time",
-          "line": 33
+          "line": 35
         }
       ]
     },
