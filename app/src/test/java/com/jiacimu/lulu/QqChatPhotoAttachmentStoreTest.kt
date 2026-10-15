@@ -40,4 +40,16 @@ class QqChatPhotoAttachmentStoreTest {
         val missing = Uri.fromFile(File(context.cacheDir, "not-a-real-image-source.png"))
         assertTrue(runCatching { QqChatPhotoAttachmentStore.import(context, missing) }.isFailure)
     }
+    @Test fun deletingCopiedPhotoCannotDeleteArbitraryGalleryFiles() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val gallery = File.createTempFile("external-gallery-", ".png", context.cacheDir)
+        val original = Uri.fromFile(gallery).toString()
+        assertFalse(QqChatPhotoAttachmentStore.deleteIfOwned(context, original))
+        assertTrue(gallery.exists())
+        val kept = QqChatPhotoAttachmentStore.import(context, Uri.fromFile(gallery))
+        assertTrue(QqChatPhotoAttachmentStore.deleteIfOwned(context, kept))
+        assertFalse(File(Uri.parse(kept).path!!).exists())
+        gallery.delete()
+    }
+
 }
