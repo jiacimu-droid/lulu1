@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T09:27:03.587239+00:00",
-  "commit": "9fcf79def1c2900b4567564a8fbb94b6d1a17553",
+  "generatedAt": "2026-10-15T15:08:23.206452+00:00",
+  "commit": "12fcdfaf7e3dc86b162d7876953f79fd76e6bc57",
   "branch": "main",
-  "sourceFingerprint": "a855e71206f2f1d2df47a098039362a86ff12950414135b296e62e7e7bc9e748",
+  "sourceFingerprint": "6821caddd003cb4c3e70ba2061140378e6478aebb94e5cb1ce411f89f229941e",
   "summary": {
     "files": 646,
-    "lines": 127952,
+    "lines": 128002,
     "symbols": 1907
   },
   "symbolIndex": {
@@ -3311,7 +3311,7 @@
     "shouldReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
-        "line": 37
+        "line": 58
       }
     ],
     "extractExplicitAddress": [
@@ -6953,7 +6953,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1649
+        "line": 1654
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -13635,8 +13635,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt",
-      "lines": 43,
-      "sha256": "12952a9530a52e211c89e08dd6e82c30e61a3044db213e75a226bc42bd4ec19b",
+      "lines": 64,
+      "sha256": "5e1390b719ab54ce2af37bfa6ba895ec17c3bab594f0a429042c2be40184880b",
       "symbols": [
         {
           "name": "pendingChoices",
@@ -13644,7 +13644,7 @@
         },
         {
           "name": "shouldReview",
-          "line": 37
+          "line": 58
         }
       ]
     },
@@ -17403,8 +17403,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1705,
-      "sha256": "f88d7a88c6b80abc14e264846d49f02f7c7260d6f5e7f39d3d68bd71a689e0d3",
+      "lines": 1710,
+      "sha256": "58fbd925a03b1a8d5b2220a0a47a37c94fcbc14ae0ea447d0970e3bac27e5237",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -17428,7 +17428,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1649
+          "line": 1654
         }
       ]
     },
@@ -21449,8 +21449,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt",
-      "lines": 57,
-      "sha256": "3330fe88fc49067e67d8f09dbb211a7d21279ddc305361717d08f4b165b8c3a8",
+      "lines": 81,
+      "sha256": "aee02999b1c01a6e569b483d9903ce12d8e301a1f503648eb85044b0ef02d691",
       "symbols": [
         {
           "name": "CharacterActionFollowThroughPolicyTest",
