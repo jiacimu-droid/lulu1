@@ -53,6 +53,50 @@ class CharacterLifeStoreTest {
         assertFalse(sameCharacterMotive("", "完成今天的英语复习计划"))
     }
 
+    @Test fun relationshipRepairGoalRetainsEvidenceAcrossTwoRealAttemptsAndUserFeedback() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        val role = "relationship-repair-goal-test"
+        CharacterLifeStore.clearHistory(role)
+        val now = java.time.Instant.now()
+        CharacterLifeStore.consider(role, JSONObject().put("aim", "认真修复刚才伤到的关系")
+            .put("motive", "自己说话太冲，想修正")
+            .put("nextStep", "先认真道歉，再依据她真实的回应调整"),
+            now)
+        val intention = CharacterLifeStore.state(role).getJSONObject("intention")
+        val goalId = intention.getString("createdAt")
+        val planned = java.time.Instant.parse(intention.getString("nextReviewAt"))
+        assertEquals(300L, java.time.Duration.between(now, planned).seconds)
+        assertFalse(CharacterLifeStore.claimGoalReview(role, goalId, planned.toEpochMilli() + 1000L,
+            planned.plusSeconds(1)))
+        assertTrue(CharacterLifeStore.markExecuting(role, goalId, "apology-1", "message"))
+        assertTrue(CharacterLifeStore.recordLinkedOutcome(role, goalId, "apology-1", "message",
+            true, "已真实发出道歉", now))
+        var pending = CharacterLifeStore.state(role).getJSONObject("intention")
+        assertEquals("following_up", pending.getString("stage"))
+        assertEquals(1, pending.getInt("unansweredContactAttempts"))
+        assertTrue(pending.has("nextReviewAt"))
+        assertTrue(CharacterLifeStore.markExecuting(role, goalId, "apology-2", "message"))
+        assertTrue(CharacterLifeStore.recordLinkedOutcome(role, goalId, "apology-2", "message",
+            true, "尝试换一种表达", now.plusSeconds(320)))
+        pending = CharacterLifeStore.state(role).getJSONObject("intention")
+        assertEquals(2, pending.getInt("unansweredContactAttempts"))
+        assertFalse(pending.has("nextReviewAt"))
+        assertTrue(GoalFollowUpPolicy.shouldBlockContact(pending, "send_private_message"))
+        // New actual user evidence resets the unanswered-contact guard,
+        // without silently equating "I replied" with forgiveness.
+        CharacterLifeStore.observeUserGoalEvidence(role, "genuine-reply", "我还想再想想", now.plusSeconds(400))
+        pending = CharacterLifeStore.state(role).getJSONObject("intention")
+        assertEquals(0, pending.getInt("unansweredContactAttempts"))
+        assertEquals("following_up", pending.getString("stage"))
+        assertEquals("genuine-reply", pending.getString("lastUserEvidenceId"))
+        CharacterLifeStore.observeUserGoalEvidence(role, "space-request", "先别联系我，让我静静",
+            now.plusSeconds(430))
+        assertEquals("paused", CharacterLifeStore.state(role)
+            .getJSONObject("intention").getString("stage"))
+        CharacterLifeStore.clearHistory(role)
+    }
+
     @Test fun pauseDuringToolExecutionPreservesTruthAndThePause() {
         val ctx = RuntimeEnvironment.getApplication() as Context
         CharacterLifeStore.initialize(ctx)
