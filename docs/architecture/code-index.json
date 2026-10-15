@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T07:06:04.863743+00:00",
-  "commit": "6f35aea530c25bbc65a106afe423375ed9277a81",
+  "generatedAt": "2026-10-15T07:10:43.400321+00:00",
+  "commit": "4e6e416ce9d7543fe159114b212c8ff42e10102f",
   "branch": "main",
-  "sourceFingerprint": "5c9e28d15c2cd5eaa29ee64b031f23689875d0a48d9c93247e2f21c98b53c29d",
+  "sourceFingerprint": "8eafe8df0286ca99068c9b930e0e2cd77426f4aadcceb700f061159ba7b04d35",
   "summary": {
     "files": 645,
-    "lines": 128089,
-    "symbols": 1902
+    "lines": 128113,
+    "symbols": 1903
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5644,10 +5644,16 @@
         "line": 38
       }
     ],
+    "isCoveredByOnlineExpiry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
+        "line": 53
+      }
+    ],
     "hasRequestedSpace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-        "line": 50
+        "line": 58
       }
     ],
     "ImportantEventBridge": [
@@ -7055,13 +7061,13 @@
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 586
+        "line": 594
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 593
+        "line": 601
       }
     ],
     "PromptContextBudget": [
@@ -15982,8 +15988,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt",
-      "lines": 54,
-      "sha256": "d0ef7e63fcacdbcd5aec1523b386360dab99e4f1c9595bacb8f23a8919be895e",
+      "lines": 62,
+      "sha256": "15976ae8fb2bb03849a3518512ed94239730be0a5ba2059920fd236e5e166e55",
       "symbols": [
         {
           "name": "outwardAction",
@@ -16006,8 +16012,12 @@
           "line": 38
         },
         {
+          "name": "isCoveredByOnlineExpiry",
+          "line": 53
+        },
+        {
           "name": "hasRequestedSpace",
-          "line": 50
+          "line": 58
         }
       ]
     },
@@ -17381,8 +17391,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 638,
-      "sha256": "6e480786a60037d5f4b91f154726f26cef142f9e5a1353679499d82e8722e125",
+      "lines": 646,
+      "sha256": "d6b101c4fbe0d18c33f08e174c7a795fc93a60acea41147910c01700e8d74182",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -17470,11 +17480,11 @@
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 586
+          "line": 594
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 593
+          "line": 601
         }
       ]
     },
@@ -21940,8 +21950,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt",
-      "lines": 51,
-      "sha256": "3796512ed543838e64621a5cf55a251d42162c8f6146da2eeb4f938af7fb7060",
+      "lines": 59,
+      "sha256": "d88cb8ff946d7a17c28873db60111d24a6f70c976d3a250ea9af741a7b65ed89",
       "symbols": [
         {
           "name": "GoalFollowUpPolicyTest",

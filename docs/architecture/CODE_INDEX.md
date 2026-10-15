@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6f35aea530c25bbc65a106afe423375ed9277a81`
+- 基准提交：`4e6e416ce9d7543fe159114b212c8ff42e10102f`
 - 分支：`main`
 - 已索引文件：645
-- 已索引代码/文本行：128089
-- 已发现符号：1902
+- 已索引代码/文本行：128113
+- 已发现符号：1903
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -276,7 +276,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1099 | 35 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 21 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 54 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 354 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 106 | 5 |
@@ -321,7 +321,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 136 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1696 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 638 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 646 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
@@ -588,7 +588,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCompetencyPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
