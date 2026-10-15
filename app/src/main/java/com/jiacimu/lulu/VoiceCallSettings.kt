@@ -16,7 +16,9 @@ import androidx.compose.ui.unit.dp
 internal fun VoiceCallSettings(provider: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE) }
-    var mode by remember(provider) { mutableStateOf(prefs.getString("voice_call_mode", "direct").orEmpty()) }
+    // Old Agent preference is retired. Existing installs use normal phone calls.
+    LaunchedEffect(provider) { if (prefs.getString("voice_call_mode", "direct") != "direct")
+        prefs.edit().putString("voice_call_mode", "direct").apply() }
     var ringing by remember { mutableStateOf(prefs.getBoolean("voice_call_ringtone_enabled", true)) }
     var threshold by remember { mutableFloatStateOf(prefs.getFloat("voice_vad_threshold", 195f)) }
     var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 2_500).toFloat().coerceIn(1_450f, 4_500f)) }
@@ -50,7 +52,7 @@ internal fun VoiceCallSettings(provider: String) {
         }
         HorizontalDivider()
         Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
-        Text("明确选择识别渠道，不自动切换。ElevenLabs 实时 Agent 使用自己的实时识别；普通电话使用这里选定的渠道。",
+        Text("明确选择识别渠道，不自动切换；电话始终使用这里选择的识别渠道。",
             style = MaterialTheme.typography.bodySmall)
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -105,7 +107,7 @@ internal fun VoiceCallSettings(provider: String) {
                     "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
                 else "普通 Scribe v2：接通后直接讲话，手机自动检测自然停顿、分段录音后上传转写；长句分段按顺序拼接，不用每句话点击录音按钮。它不是流式识别，字幕会等上传返回后出现。",
                 style = MaterialTheme.typography.bodySmall)
-            Text("两条转写线路只在此设置：实时版连续上传并显示临时字幕；普通 v2 在录音分段完成后上传。均使用 ElevenLabs API Key（无需 Voice ID），计费以账户为准。电话内无需再次选择，也无需手动发送录音；下次接通生效。Agent 模式另行配置。",
+            Text("两条转写线路只在此设置：实时版连续上传并显示临时字幕；普通 v2 在录音分段完成后上传。均使用 ElevenLabs API Key（无需 Voice ID），计费以账户为准。电话内无需再次选择，也无需手动发送录音；下次接通生效。",
                 style = MaterialTheme.typography.bodySmall)
             var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
             OutlinedTextField(value = elevenKey, onValueChange = {
@@ -131,29 +133,6 @@ internal fun VoiceCallSettings(provider: String) {
                 prefs.edit().putString("minimax_asr_endpoint", it).apply()
             }, label = { Text("自定义接口（可留空）") }, modifier = Modifier.fillMaxWidth())
         }
-        if (provider == "elevenlabs") {
-            HorizontalDivider()
-            Text(if (mode == "agent") "当前使用 Agent 实时通话"
-                else "普通 API · 露露机电话模型 + ElevenLabs Voice",
-                style = MaterialTheme.typography.bodyMedium)
-            TextButton(onClick = { advanced = !advanced }) {
-                Text(if (advanced) "收起高级通话模式" else "Agent 模式（高级）")
-            }
-            if (advanced) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(mode != "agent", {
-                        mode = "direct"
-                        prefs.edit().putString("voice_call_mode", mode).apply()
-                    }, label = { Text("普通 API") })
-                    FilterChip(mode == "agent", {
-                        mode = "agent"
-                        prefs.edit().putString("voice_call_mode", mode).apply()
-                    }, label = { Text("实时 Agent") })
-                }
-                Text("Agent 管理自己的实时收音和识别，独立计费。普通 API 才使用上面的语音识别渠道。",
-                    style = MaterialTheme.typography.bodySmall)
-            }
-        }
         HorizontalDivider()
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
@@ -162,7 +141,7 @@ internal fun VoiceCallSettings(provider: String) {
                     style = MaterialTheme.typography.bodySmall)
             }
         }
-        if (activeEngine != "system" && !CallVoiceConfiguration.usesAgent(provider, mode)) {
+        if (activeEngine != "system") {
             Text("思考停顿宽容：${silence.toInt()} 毫秒（说话断续时可调高，停下后的回复也会稍晚）")
             Slider(value = silence, onValueChange = { silence = it },
                 onValueChangeFinished = {
