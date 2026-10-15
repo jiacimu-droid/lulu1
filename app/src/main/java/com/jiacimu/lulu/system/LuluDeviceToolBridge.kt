@@ -162,15 +162,9 @@ object LuluDeviceToolBridge {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
-        if (reconsiderationEvidenceId.isBlank()) GroupEnsembleReplyEngine.respondIfApplicable(
-            context = appContext,
-            characterId = characterId,
-            history = history,
-            userText = userText,
-            title = title,
-            archiveId = archiveId,
-            sceneContext = sceneContext,
-        )?.let { return it }
+        // QQ group rounds are dispatched by runGroupReplies: one character owns
+        // each model decision, and the next character sees only persisted turns.
+        // Do not hand the whole group to GroupEnsembleReplyEngine's cached ensemble.
 
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
             .getOrElse { return Result.failure(it) }
@@ -178,7 +172,9 @@ object LuluDeviceToolBridge {
         val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
-        val interactionKey = "direct:user"
+        val interactionKey = if (sceneContext.contains("群聊《")) {
+            "group:" + sceneContext.substringAfter("群聊《").substringBefore("》")
+        } else "direct:user"
         val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
         // Real message IDs supplied by the chat transport outrank fuzzy
         // text matching. A synthetic hash is not a deletable user statement.
@@ -407,6 +403,7 @@ object LuluDeviceToolBridge {
                 ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
                 ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(
                     if (sceneContext.contains("电话")) com.jiacimu.lulu.data.CharacterSpeechChannel.PHONE
+                    else if (sceneContext.contains("群聊《")) com.jiacimu.lulu.data.CharacterSpeechChannel.GROUP_CHAT
                     else com.jiacimu.lulu.data.CharacterSpeechChannel.PRIVATE_CHAT
                 )}
                 $decisionFormatRule
