@@ -133,7 +133,7 @@ class CommitmentSemanticPersistenceTest {
         assertTrue(CommitmentTaskStore.active(role).isEmpty())
     }
 
-    @Test fun mainChatPlannerSavesASemanticAgreementWithoutAnotherExtractionRequest() = runBlocking {
+    @Test(timeout = 60_000) fun mainChatPlannerSavesASemanticAgreementWithoutAnotherExtractionRequest() = runBlocking {
         val server = MockWebServer()
         server.enqueue(response("""{"action":"reply","speechIntent":"接受以后一起面对备考低落时刻的约定","reason":"这件事我想认真放在心上","dialogueMove":{"type":"acknowledge","target":"本轮约定","contentIntent":"接受这份托付","maxBubbles":1},"commitmentChanges":[{"action":"create","goal":"备考低落时一起调整，持续关注进展","promiseKind":"long_term_supervision","needsClarification":false,"completionCondition":"在后续真实互动里持续跟进"}]}"""))
         server.enqueue(response("""{"action":"reply","bubbles":[{"text":"好，这件事我记着了。"}]}"""))
