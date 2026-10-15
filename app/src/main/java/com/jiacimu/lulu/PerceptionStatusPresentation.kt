@@ -9,6 +9,24 @@ import java.time.format.DateTimeFormatter
 
 /** The time of a saved thought and the time of a perception attempt are different facts. */
 internal object PerceptionStatusPresentation {
+    /**
+     * Only the currently selected role's last real failed/blocked operation
+     * should produce an inline error in "此刻". Normal self-chosen silence
+     * and unchanged thoughts must never be reported as crashes.
+     */
+    fun errorFor(state: CompanionPresenceState?): String? {
+        val note = state?.lastPerceptionNote?.trim().orEmpty()
+        if (note.isBlank()) return null
+        return when {
+            note.startsWith("感知失败") -> note
+            note.startsWith("动作失败") -> note
+            note.contains("排程失败") -> note
+            note.startsWith("感知暂停") -> note
+            note == "模型返回了空状态" -> "感知未完成 · 模型返回了空状态"
+            else -> null
+        }
+    }
+
     fun lines(state: CompanionPresenceState?, policy: ProactivePerceptionPolicy,
         plan: PerceptionWakePlan?, online: Boolean, inCall: Boolean,
         now: Instant, zone: ZoneId = ZoneId.systemDefault()): List<String> = buildList {
