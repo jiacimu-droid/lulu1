@@ -949,7 +949,10 @@ object ProactivePerceptionRuntime {
             if (!keptAwake && newerWindow) return Action.SILENT
         }
         // Emotion and intent are decided together in this same action call.
-        CharacterLifeStore.consider(characterId, decision.intention, now)
+        CharacterMotivationOwnership.updateLegacyIfPresent(characterId, decision.intention, now)
+        val canonicalInnerLife = CharacterMotivationOwnership.canonicalInnerLife(
+            decision.intention, decision.innerLife,
+        )
         // Capture the private state before this proposal is applied. Delta must compare two moments,
         // not compare the model proposal against a store we already mutated with that proposal.
         val privateStateBefore = CharacterInnerLifeStore.snapshot(characterId)
@@ -981,7 +984,7 @@ object ProactivePerceptionRuntime {
         if (freshStimulus && stimulus != null) CharacterInnerLifeStore.observe(
             characterId, stimulus.evidenceId,
             stimulus.description,
-            CharacterInnerLifeStore.withAfterglow(decision.innerLife, decision.afterglow, emotionalAnchor),
+            CharacterInnerLifeStore.withAfterglow(canonicalInnerLife, decision.afterglow, emotionalAnchor),
             stimulus.socialIds, now,
         )
         // Reconsidering a real, previously recorded conflict is not a new world
@@ -992,24 +995,24 @@ object ProactivePerceptionRuntime {
         val previousFeeling = privateStateBefore.optJSONObject("emotion")
         val previousEvidence = if (revisitingConflict || awakeReflection)
             previousFeeling?.optString("evidenceId").orEmpty() else ""
-        if (emotionalAnchor.isBlank() && previousEvidence.isNotBlank() && decision.innerLife != null) {
+        if (emotionalAnchor.isBlank() && previousEvidence.isNotBlank() && canonicalInnerLife != null) {
             CharacterInnerLifeStore.observe(
                 characterId, previousEvidence,
                 "针对已有情绪的后续反思：${previousFeeling?.optString("feeling").orEmpty()}；本次实际感知时间=$now",
-                decision.innerLife, if (revisitingConflict) setOf("user") else emptySet(), now,
+                canonicalInnerLife, if (revisitingConflict) setOf("user") else emptySet(), now,
             )
         }
-        if (awakeReflection && emotionalAnchor.isBlank() && previousEvidence.isBlank() && decision.innerLife != null) {
+        if (awakeReflection && emotionalAnchor.isBlank() && previousEvidence.isBlank() && canonicalInnerLife != null) {
             CharacterInnerLifeStore.observe(characterId, awakeObservationId,
                 "在线期间基于已知状态的内在变化，没有新增用户发言或虚构外部事件",
-                decision.innerLife, emptySet(), now)
+                canonicalInnerLife, emptySet(), now)
         }
         // Heart voice is a sparse projection of a real private-state delta. The model may propose
         // prose, but the program rejects a paraphrase of outward speech and generic waiting scripts
         // when nothing genuinely changed.
         val privateDelta = PrivateStateDeltaEngine.evaluate(
             previous = privateStateBefore,
-            proposal = decision.innerLife,
+            proposal = canonicalInnerLife,
             appraisal = decision.appraisal,
             basis = decision.innerThoughtBasis,
             thought = decision.innerThought,
@@ -1017,7 +1020,7 @@ object ProactivePerceptionRuntime {
         val groundedInnerThought = CharacterHeartVoicePolicy.keepOrBlank(
             thought = decision.innerThought,
             outward = decision.text,
-            innerLife = decision.innerLife,
+            innerLife = canonicalInnerLife,
             basis = decision.innerThoughtBasis,
             delta = privateDelta,
             hasFreshEvidence = freshStimulus || previousEvidence.isNotBlank() ||
@@ -1039,7 +1042,7 @@ object ProactivePerceptionRuntime {
             characterId = characterId,
             evidenceId = causalEvidenceId,
             appraisal = decision.appraisal,
-            innerLife = decision.innerLife,
+            innerLife = canonicalInnerLife,
             innerThoughtBasis = decision.innerThoughtBasis,
             selectedAction = decision.action.name.lowercase(),
             innerThought = groundedInnerThought,
@@ -1052,7 +1055,7 @@ object ProactivePerceptionRuntime {
         // a substantive inner-life change. This keeps awareness continuous without minute-by-minute
         // paraphrases of the same waiting state.
         if (freshStimulus || previousEvidence.isNotBlank() ||
-            decision.action != Action.SILENT || decision.innerLife != null) {
+            decision.action != Action.SILENT || canonicalInnerLife != null) {
             CharacterInnerLifeStore.recordInnerVoice(
                 characterId, if (awakeReflection) awakeObservationId else stimulus?.evidenceId?.let { "perception:$it" }
                     ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
@@ -1178,7 +1181,7 @@ object ProactivePerceptionRuntime {
             )
             if (emotionalAnchor.isBlank()) CharacterInnerLifeStore.observe(
                 characterId, "action-result:${now.toEpochMilli()}:${decision.action.name}",
-                execution.summary, decision.innerLife,
+                execution.summary, canonicalInnerLife,
                 if (decision.action in setOf(Action.MESSAGE, Action.KAOMOJI, Action.STICKER) && execution.success) setOf("user") else emptySet(), now,
             )
         }
@@ -1194,7 +1197,7 @@ object ProactivePerceptionRuntime {
         if (!readingUpdatedPresence && appearanceHasCause) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             val hasMeaningfulInnerUpdate = freshStimulus || previousEvidence.isNotBlank() ||
-                decision.action != Action.SILENT || decision.innerLife != null
+                decision.action != Action.SILENT || canonicalInnerLife != null
             CompanionPresenceStore.update(
                 characterId = characterId,
                 // Status is the sustained situation; gesture is the one
@@ -1226,7 +1229,7 @@ object ProactivePerceptionRuntime {
                     decision.appraisal?.optJSONObject("spontaneousBid") != null ||
                     decision.appraisal?.optJSONObject("ownActivity") != null)
                     CharacterMomentSnapshot.reflection(
-                        decision.innerLife, decision.innerThoughtBasis, decision.appraisal,
+                        canonicalInnerLife, decision.innerThoughtBasis, decision.appraisal,
                         innerThought = groundedInnerThought,
                     ) else "",
             )
@@ -1267,7 +1270,7 @@ object ProactivePerceptionRuntime {
             // A blank model reason must remain visible as a missing reason,
             // rather than disappearing from the audit as if no call happened.
             reason = CharacterBehaviorMotivation.resolve(
-                (if (decision.action == Action.TOOL) decision.tool else decision.action.name.lowercase()), decision.reason, decision.appraisal, decision.innerLife,
+                (if (decision.action == Action.TOOL) decision.tool else decision.action.name.lowercase()), decision.reason, decision.appraisal, canonicalInnerLife,
             )?.reason.orEmpty().ifBlank {
                 if (decision.action == Action.SILENT)
                     "未提供具体的沉默理由；本次没有执行外部行动"
