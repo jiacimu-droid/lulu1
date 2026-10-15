@@ -4,7 +4,12 @@ import java.time.Instant
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class GoalFollowUpPolicyTest {
     private val now = Instant.parse("2026-10-15T09:00:00Z")
 
