@@ -246,6 +246,7 @@ object ProactivePerceptionScheduler {
         val key = characterId to revision
         if (liveChatJobs[key]?.isActive == true) return
         liveChatJobs[key] = scope.launch {
+            var perceptionFailed = false
             try {
                 while (CompanionOnlineStore.isOnline(characterId) &&
                     OnlineChatBatchStore.isCurrent(app, characterId, revision)) {
@@ -270,6 +271,7 @@ object ProactivePerceptionScheduler {
                         )
                     }.onFailure { error ->
                         if (error is kotlinx.coroutines.CancellationException) throw error
+                        perceptionFailed = true
                         if (OnlineChatBatchStore.isCurrent(app, characterId, revision))
                             scheduleFailedMessageRetry(app, characterId, revision)
                     }
@@ -277,6 +279,15 @@ object ProactivePerceptionScheduler {
             } finally {
                 synchronized(this@ProactivePerceptionScheduler) {
                     liveChatJobs.remove(key)
+                    // A fresh user bubble can extend the deadline AFTER this
+                    // worker passed its wait but BEFORE it claimed perception.
+                    // Re-arm that same revision rather than leaving it waiting
+                    // for an unrelated five-minute wake.
+                    if (!perceptionFailed && foregroundChecks?.isActive == true &&
+                        CompanionOnlineStore.isOnline(characterId) &&
+                        OnlineChatBatchStore.dueAt(app, characterId, revision) != null) {
+                        ensureForegroundChatReader(app, characterId, revision, trigger)
+                    }
                 }
             }
         }
