@@ -87,7 +87,12 @@ internal object CommitmentExecutor {
             )
             val queued = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                 com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
-                    claimedTask.characterId, wording, claimedTask.id,
+                    claimedTask.characterId,
+                    "真实定时事件：现在仍在同一通已接通的电话里。这是第$attempt 次履行" +
+                        "『${claimedTask.goal}』的叫醒目标。请根据自己的人格自然地叫她起来；" +
+                        "之前已尝试过的只说明响铃或开口，不说明她醒了。" +
+                        "不要说再次拨号、电话没接通，也不要机械念闹钟回执。",
+                    claimedTask.id,
                 )
             }
             // Do not equate ringing/speaking with the goal "user awake".
