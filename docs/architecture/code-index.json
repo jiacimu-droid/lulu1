@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T06:55:21.700064+00:00",
-  "commit": "124bf39ba1d63024dbfc9e6e73ad5edc74dd38c4",
+  "generatedAt": "2026-10-15T06:57:15.551285+00:00",
+  "commit": "fac7853ed500126c61eca6a1f627950dec156c1e",
   "branch": "main",
-  "sourceFingerprint": "1ca5a42d258b44ed0c5649878c89af6c7fb384b734e23fae74a7499423757083",
+  "sourceFingerprint": "6fb50a861ae7f8bbc790b4caddbad09a8affbb6c206ffe7350916c9d39f36a90",
   "summary": {
     "files": 645,
-    "lines": 127997,
+    "lines": 128041,
     "symbols": 1902
   },
   "symbolIndex": {
@@ -251,7 +251,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 107
+        "line": 151
       }
     ],
     "updateForSpeech": [
@@ -10127,25 +10127,25 @@
     "proposal": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 123
+        "line": 167
       }
     ],
     "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 234
+        "line": 278
       }
     ],
     "legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 272
+        "line": 316
       }
     ],
     "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 314
+        "line": 358
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -21630,8 +21630,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 383,
-      "sha256": "9085a27dfc671ded0140273c84de3537b55c03f8978cba48c0e62b60eac45d7c",
+      "lines": 427,
+      "sha256": "54e8ca222753132f4177c51794d288bfb7b9eaa8283727db8b2a893bb3bb760c",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -21639,23 +21639,23 @@
         },
         {
           "name": "update",
-          "line": 107
+          "line": 151
         },
         {
           "name": "proposal",
-          "line": 123
+          "line": 167
         },
         {
           "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
-          "line": 234
+          "line": 278
         },
         {
           "name": "legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests",
-          "line": 272
+          "line": 316
         },
         {
           "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
-          "line": 314
+          "line": 358
         }
       ]
     },
