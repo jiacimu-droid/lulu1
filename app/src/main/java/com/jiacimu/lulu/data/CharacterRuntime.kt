@@ -81,7 +81,9 @@ object CharacterRuntime {
         val narrative = learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }
         val adaptive = learned.filterNot { it.kind == DevelopmentKind.NarrativeMeaning }
         return buildString {
-            appendLine(CharacterPersonalityArchitecture.promptSection(compact))
+            // The stable principles are shared in CharacterDecisionProtocol;
+            // one brief anatomy is enough even for a full context request.
+            appendLine(CharacterPersonalityArchitecture.promptSection(compact = true))
             appendLine(CompanionContactClock.context(characterId))
             appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
                 CharacterLifeStore.context(characterId, includeProfile = false))
