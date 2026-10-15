@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T02:22:40.265531+00:00",
-  "commit": "6aea6bafaf52a8b1024d3f06621222aa6aee081a",
+  "generatedAt": "2026-10-15T02:23:53.257493+00:00",
+  "commit": "4c02ddb21d33a5f257966cf3959192bf04320500",
   "branch": "main",
-  "sourceFingerprint": "f398fdfbfeb98d28aebba2ff90af45e0ee8892f77d8afb26b900861bc6e0ff3a",
+  "sourceFingerprint": "88c58cf007fb77c7b53d9881bd0b4a675a696bfe00df3d2135afa40bd2f4e742",
   "summary": {
     "files": 634,
-    "lines": 126972,
+    "lines": 127001,
     "symbols": 1878
   },
   "symbolIndex": {
@@ -10529,7 +10529,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 377
+        "line": 401
       }
     ]
   },
@@ -10566,8 +10566,8 @@
     },
     {
       "path": "app/src/main/assets/xhs-browser-route.js",
-      "lines": 83,
-      "sha256": "a036ab836727c7e29dafcf0d6bcbfc74b21492d6e12e0bcf0d085e3428f61e6e",
+      "lines": 88,
+      "sha256": "82549de580769bcd384daf2f51bda8086f975f5f5ef5300bfdb128f5f5c9eff5",
       "symbols": []
     },
     {
@@ -22307,12 +22307,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 413,
-      "sha256": "a052b1a451f6eed00ed8b33ae3d8c81db012c4b38a8f31ab70aa3fe1fa02026f",
+      "lines": 437,
+      "sha256": "050f2934a87be66904b04a2b010d1cb20e7c0363153b3508cd078c5c97a6e4bb",
       "symbols": [
         {
           "name": "XHR",
-          "line": 377
+          "line": 401
         }
       ]
     },

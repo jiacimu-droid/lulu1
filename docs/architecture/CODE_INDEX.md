@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6aea6bafaf52a8b1024d3f06621222aa6aee081a`
+- 基准提交：`4c02ddb21d33a5f257966cf3959192bf04320500`
 - 分支：`main`
 - 已索引文件：634
-- 已索引代码/文本行：126972
+- 已索引代码/文本行：127001
 - 已发现符号：1878
 
 | 文件 | 行数 | 符号数 |
@@ -13,7 +13,7 @@
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
-| `app/src/main/assets/xhs-browser-route.js` | 83 | 0 |
+| `app/src/main/assets/xhs-browser-route.js` | 88 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 369 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
@@ -638,7 +638,7 @@
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
-| `scripts/test_xhs_reader.js` | 413 | 1 |
+| `scripts/test_xhs_reader.js` | 437 | 1 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |
