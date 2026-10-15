@@ -507,6 +507,13 @@ object CharacterLifeStore {
                     .put("updatedAt", now.toString())
                 if (proposal.has("nextStep")) existing.put("nextStep", proposal.optString("nextStep").trim().take(300))
                 save(characterId, root)
+                if (transition == "resume" && existing.optBoolean("userRequestedSpace")) {
+                    // An explicit later conversation may repair the boundary,
+                    // but a timer itself cannot silently overrule user space.
+                    if (existing.optString("lastUserEvidenceId").isNotBlank())
+                        existing.remove("userRequestedSpace")
+                    save(characterId, root)
+                }
                 if (transition == "pause") cancelGoalReview(characterId)
                 else scheduleGoalReview(characterId, existing)
             }
@@ -635,6 +642,7 @@ object CharacterLifeStore {
         goal.remove("nextReviewAt")
         if (GoalFollowUpPolicy.hasRequestedSpace(text)) {
             goal.put("stage", "paused")
+                .put("userRequestedSpace", true)
                 .put("stageReason", "用户明确要求暂时不要联系，等待其主动恢复")
         }
         save(characterId, root)

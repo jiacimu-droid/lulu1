@@ -42,7 +42,10 @@ internal object GoalFollowUpPolicy {
             goal.optString("stage") in setOf("paused", "released", "completed")) return false
         val due = runCatching { Instant.parse(goal.optString("nextReviewAt")) }.getOrNull()
             ?: return false
-        return due.toEpochMilli() == plannedMillis && !due.isAfter(now.plusSeconds(2))
+        // Android may delay work; a stale promise does not license a
+        // surprise unsolicited message hours after the intended review.
+        val lateBy = Duration.between(due, now).seconds
+        return due.toEpochMilli() == plannedMillis && lateBy in -2L..(30L * 60L)
     }
 
     fun hasRequestedSpace(text: String): Boolean =

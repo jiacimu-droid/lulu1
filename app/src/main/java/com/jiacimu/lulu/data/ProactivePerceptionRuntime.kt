@@ -1083,6 +1083,7 @@ object ProactivePerceptionRuntime {
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
             goalReviewMode = trigger.startsWith("持续目标定时复盘"),
+            hasFreshUserMessage = messageStimulus != null,
             requestId = when {
                 // A new user message is a NEW decision. Never reuse the older
                 // call-end/world-event request key while the user is waiting.
@@ -1347,6 +1348,7 @@ object ProactivePerceptionRuntime {
         now: Instant,
         requestId: String,
         goalReviewMode: Boolean = false,
+        hasFreshUserMessage: Boolean = false,
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         // All autonomous external actions share this gate: no model-authored wish,
@@ -1381,6 +1383,12 @@ object ProactivePerceptionRuntime {
         // goal is not permission to send unlimited unsolicited follow-ups.
         // The cap is reset only by a genuine new user event, never by silence.
         val goal = CharacterLifeStore.state(character.characterId).optJSONObject("intention")
+        // User explicitly requested space: do not initiate another contact
+        // without a fresh user message, even if the model switches goals.
+        if (goal?.optBoolean("userRequestedSpace") == true &&
+            !hasFreshUserMessage && GoalFollowUpPolicy.outwardAction(tool)) {
+            return ActionExecution(false, "用户明确要求暂停主动联系；尊重边界，等对方主动交流")
+        }
         val pursuingThisGoal = goal != null && (goalReviewMode ||
             decision.intentionId == goal.optString("createdAt"))
         if (pursuingThisGoal && goal != null &&
