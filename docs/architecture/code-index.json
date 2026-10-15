@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T16:31:25.613990+00:00",
-  "commit": "a8ba4968c78967970df0e837c2ab1a6a4675f721",
+  "generatedAt": "2026-10-15T16:41:05.109638+00:00",
+  "commit": "3b85dcc91974ff81480a290eaf3e7ebee0ba0177",
   "branch": "main",
-  "sourceFingerprint": "1e6d586742ae569fd57cbf96e4f8b8d770944dce94755c602528fc76fd43584a",
+  "sourceFingerprint": "3789e58cc048fe56d467c028f969b1d9b05150dcbfb28f1588fe4e92ead00146",
   "summary": {
     "files": 654,
-    "lines": 128736,
+    "lines": 128751,
     "symbols": 1925
   },
   "symbolIndex": {
@@ -3135,7 +3135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-        "line": 35
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt",
@@ -3411,7 +3411,7 @@
     "permitsExternalAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-        "line": 89
+        "line": 103
       }
     ],
     "actionOnly": [
@@ -13779,8 +13779,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-      "lines": 97,
-      "sha256": "e7ad607be1326503ae4f7bf13bfc9382b72759e2366efab867ea0b6ddb8e20b2",
+      "lines": 112,
+      "sha256": "c94d639bc690da45e98f496ea2e9ed96288b7b7cdd4469ebfe1f0b3bf564a432",
       "symbols": [
         {
           "name": "Basis",
@@ -13796,11 +13796,11 @@
         },
         {
           "name": "clean",
-          "line": 35
+          "line": 36
         },
         {
           "name": "permitsExternalAction",
-          "line": 89
+          "line": 103
         }
       ]
     },
