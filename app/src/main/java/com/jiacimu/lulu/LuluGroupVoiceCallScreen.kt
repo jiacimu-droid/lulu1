@@ -120,11 +120,15 @@ internal fun LuluGroupVoiceCallScreen(
         if (phase == GroupCallPhase.Connected) {
             ChatAutoVoicePlayback.suppressAutoPlay()
             group.members.forEach { com.jiacimu.lulu.data.CompanionPresenceStore.beginCall(it.characterId) }
+            // Active call owns this group; suspend ordinary passive wake timers.
+            com.jiacimu.lulu.data.ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
         }
         onDispose {
             if (phase == GroupCallPhase.Connected) {
                 ChatAutoVoicePlayback.resumeAutoPlay()
                 group.members.forEach { com.jiacimu.lulu.data.CompanionPresenceStore.finishCall(it.characterId) }
+                // Rebuild suspended personal wake-ups even if no new message arrives.
+                com.jiacimu.lulu.data.ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
             }
         }
     }
