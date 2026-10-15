@@ -44,4 +44,33 @@ class PerceptionStatusPresentationTest {
         assertFalse(lines.any { it.contains("每5分钟尝试") || it.contains("每2分半") })
     }
 
+    @Test fun aRealModelOrExecutorFailureIsAnActionableErrorForThisRole() {
+        val failedModel = CompanionPresenceState("jiangdu",
+            lastPerceptionAt = now, lastPerceptionNote = "模型请求失败 · 超时")
+        assertEquals("模型请求失败 · 超时",
+            PerceptionStatusPresentation.errorFor(failedModel))
+        val blockedMessage = CompanionPresenceState("jiangdu",
+            lastPerceptionAt = now,
+            lastPerceptionNote = "动作失败 · message · 动机没有通过")
+        assertTrue(PerceptionStatusPresentation.errorFor(blockedMessage)!!.contains("动作失败"))
+        val callFailure = CompanionPresenceState("jiangdu",
+            lastPerceptionAt = now, lastPerceptionNote = "通话结束后的感知尚未完成：网络断开")
+        assertNotNull(PerceptionStatusPresentation.errorFor(callFailure))
+    }
+
+    @Test fun aRoleChoosingSilenceOrHavingAValidNewThoughtIsNotAFailure() {
+        val silent = CompanionPresenceState("jiangdu",
+            lastPerceptionAt = now, lastPerceptionNote = "感知成功 · silent")
+        assertNull(PerceptionStatusPresentation.errorFor(silent))
+        val normal = CompanionPresenceState("jiangdu",
+            lastPerceptionAt = now, lastPerceptionNote = "最近已更新")
+        assertNull(PerceptionStatusPresentation.errorFor(normal))
+        val otherRole = CompanionPresenceState("another-role",
+            lastPerceptionAt = now, lastPerceptionNote = "动作失败 · message")
+        // The presenter only receives its owning role's state; it never scans
+        // a global latest-event table to show another person's error.
+        assertNotNull(PerceptionStatusPresentation.errorFor(otherRole))
+        assertNull(PerceptionStatusPresentation.errorFor(normal))
+    }
+
 }
