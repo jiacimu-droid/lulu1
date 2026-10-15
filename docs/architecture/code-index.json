@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T15:35:28.872228+00:00",
-  "commit": "498df50b681c5fa998416b3d5ad827c6e1907ec4",
+  "generatedAt": "2026-10-15T15:36:11.881860+00:00",
+  "commit": "166e62aff52f4a3870f88f0ad08ad007256ad79a",
   "branch": "main",
-  "sourceFingerprint": "f87c0928aa098ec718b3fae59e53b0e3ef313f47d027de49ffd89959271689b7",
+  "sourceFingerprint": "acc0c3c0cc64a997f76b8352882d27e23ccbfcf5c13d52ff215cfe9f65be7967",
   "summary": {
     "files": 651,
     "lines": 128428,
@@ -21847,7 +21847,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt",
       "lines": 49,
-      "sha256": "3ab0902c1641b60bc6312e61286fc1020e4f3255b53f0dbb3f91a80affb979ec",
+      "sha256": "daa24ab902dc336882ce01654b535e1f818ba4dc84824a173bd513a4bdb1e2b8",
       "symbols": [
         {
           "name": "CharacterMotiveStateTest",
