@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T16:53:04.995652+00:00",
-  "commit": "4f3694487b6cf07113513f7c20473d636283c79c",
+  "generatedAt": "2026-10-15T16:53:19.100222+00:00",
+  "commit": "b13e349c81572afffe7b03fb9a955421b9f163d9",
   "branch": "main",
-  "sourceFingerprint": "434dcbb9a89e58c166fa68cc5ebeb41e5aeae24d4f374e426653f704fb032875",
+  "sourceFingerprint": "2dbce961a9e84225c2dfb4f8c8812e655ec48d73b291697ccc52d1da7bcc47b4",
   "summary": {
     "files": 654,
-    "lines": 128822,
+    "lines": 128840,
     "symbols": 1926
   },
   "symbolIndex": {
@@ -22212,8 +22212,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt",
-      "lines": 30,
-      "sha256": "1f3c8e16d8207634a93bab1bd6f6df7c432aeeec30bdd81e7b1ee044ed832ab5",
+      "lines": 48,
+      "sha256": "885fb4a2722bf6262ad32f02e3483dd77a8d4873f51d58cba94d9c15e9fc4720",
       "symbols": [
         {
           "name": "GoalDeadlinePerceptionPolicyTest",

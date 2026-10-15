@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4f3694487b6cf07113513f7c20473d636283c79c`
+- 基准提交：`b13e349c81572afffe7b03fb9a955421b9f163d9`
 - 分支：`main`
 - 已索引文件：654
-- 已索引代码/文本行：128822
+- 已索引代码/文本行：128840
 - 已发现符号：1926
 
 | 文件 | 行数 | 符号数 |
@@ -595,7 +595,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneOfferPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 30 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCompetencyPolicyTest.kt` | 24 | 1 |
