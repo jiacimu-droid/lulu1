@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T09:25:39.523090+00:00",
-  "commit": "967e57bbfe5986b469fdae50451eddc72b084e55",
+  "generatedAt": "2026-10-15T09:26:26.739334+00:00",
+  "commit": "5e68a515d68c8fa6bd6829d0fc687811af61e079",
   "branch": "main",
-  "sourceFingerprint": "c511eb0c529d8abf6ddae4c4028cbb316a64afd17c77dc7ce20cd879498bd24e",
+  "sourceFingerprint": "d1026755614a0692d734fb67fcb9bcfd001d6803776463ad1c55164af1b92e90",
   "summary": {
     "files": 646,
-    "lines": 127914,
+    "lines": 127924,
     "symbols": 1907
   },
   "symbolIndex": {
@@ -7013,79 +7013,79 @@
     "scheduleOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 322
+        "line": 332
       }
     ],
     "scheduleCoalescedLifeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 347
+        "line": 357
       }
     ],
     "scheduleOnlineExpiryDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 374
+        "line": 384
       }
     ],
     "scheduleEmotionalAftercare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 397
+        "line": 407
       }
     ],
     "scheduleLifeFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 425
+        "line": 435
       }
     ],
     "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 451
+        "line": 461
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 477
+        "line": 487
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 504
+        "line": 514
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 531
+        "line": 541
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 548
+        "line": 558
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 562
+        "line": 572
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 692
+        "line": 702
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 699
+        "line": 709
       }
     ],
     "PromptContextBudget": [
@@ -17434,8 +17434,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 744,
-      "sha256": "2d4e68bf483442b62032e5f62038f1d37137655389d984094d74d0111231f849",
+      "lines": 754,
+      "sha256": "72943d741036e7b33856d0ee67c79d6dd42d179d014f8cbecaab6d6e448b268c",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -17479,55 +17479,55 @@
         },
         {
           "name": "scheduleOnlineReflection",
-          "line": 322
+          "line": 332
         },
         {
           "name": "scheduleCoalescedLifeReview",
-          "line": 347
+          "line": 357
         },
         {
           "name": "scheduleOnlineExpiryDecision",
-          "line": 374
+          "line": 384
         },
         {
           "name": "scheduleEmotionalAftercare",
-          "line": 397
+          "line": 407
         },
         {
           "name": "scheduleLifeFollowThrough",
-          "line": 425
+          "line": 435
         },
         {
           "name": "scheduleOwnIdeaFollowThrough",
-          "line": 451
+          "line": 461
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 477
+          "line": 487
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 504
+          "line": 514
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 531
+          "line": 541
         },
         {
           "name": "cancelOnline",
-          "line": 548
+          "line": 558
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 562
+          "line": 572
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 692
+          "line": 702
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 699
+          "line": 709
         }
       ]
     },
