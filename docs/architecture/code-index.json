@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T06:35:59.378803+00:00",
-  "commit": "c1e55da5d165054ce8765b43dbf045851a606744",
+  "generatedAt": "2026-10-15T06:36:38.591481+00:00",
+  "commit": "5be51de9b636c62ce1eb355c4d4d13538bd5261f",
   "branch": "main",
-  "sourceFingerprint": "403984f44d7be237d098e1dd166568f9473f3a6d5c9faf3f41466e5a3eb41aa0",
+  "sourceFingerprint": "17a31cbaa19c5168ae261093fc06f114eea33f19d0d84a1069392376659a8125",
   "summary": {
-    "files": 642,
-    "lines": 127660,
-    "symbols": 1892
+    "files": 643,
+    "lines": 127711,
+    "symbols": 1893
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1334,6 +1334,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
         "line": 61
+      }
+    ],
+    "split": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt",
+        "line": 12
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -11568,6 +11574,17 @@
         {
           "name": "close",
           "line": 61
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt",
+      "lines": 51,
+      "sha256": "67cea661daaa497387a8a23956b9225ab8f204baee28ceeffe58a24a0dea3ff6",
+      "symbols": [
+        {
+          "name": "split",
+          "line": 12
         }
       ]
     },
