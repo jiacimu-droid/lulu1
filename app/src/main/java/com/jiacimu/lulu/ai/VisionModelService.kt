@@ -214,7 +214,7 @@ object VisionModelService {
      */
     suspend fun prepareChatImageDataUrl(context: Context, imageUri: String): Result<String> =
         withContext(Dispatchers.IO) {
-            runCatching { imageDataUrl(context, Uri.parse(imageUri), maxSide = 1536, quality = 85) }
+            runCatching { imageDataUrl(context, Uri.parse(imageUri), maxSide = 2048, quality = 92) }
         }
 
     private fun imageDataUrl(context: Context, uri: Uri, maxSide: Int = 2_048, quality: Int = 92): String {
