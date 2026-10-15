@@ -27,9 +27,12 @@ internal object QqChatImageModelInput {
     private const val DIAG_PREFS = "lulu_chat_image_transport_v1"
 
     /** Diagnostic means "pixels prepared", NOT that an API provider interpreted them. */
-    fun lastReadStatus(context: Context): String =
-        context.applicationContext.getSharedPreferences(DIAG_PREFS, Context.MODE_PRIVATE)
-            .getString("latest", "尚未记录到聊天图片准备结果").orEmpty()
+    fun lastReadStatus(context: Context, characterId: String? = null): String {
+        val key = characterId?.takeIf(String::isNotBlank)?.let { "role_$it" } ?: "latest"
+        return context.applicationContext.getSharedPreferences(DIAG_PREFS, Context.MODE_PRIVATE)
+            .getString(key, if (characterId == null) "尚未记录到聊天图片准备结果"
+                       else "这个角色尚无图片读取记录").orEmpty()
+    }
 
     private fun recordRead(context: Context, characterId: String, count: Int,
                            prepared: Int, failure: String) {
@@ -39,7 +42,8 @@ internal object QqChatImageModelInput {
             if (failure.isBlank()) "；模型是否真正识别仍取决于其视觉能力"
             else "；读取失败：${failure.take(95)}"
         context.applicationContext.getSharedPreferences(DIAG_PREFS, Context.MODE_PRIVATE)
-            .edit().putString("latest", note).apply()
+            .edit().putString("latest", note)
+            .putString("role_$characterId", note).apply()
     }
 
     suspend fun prepare(
