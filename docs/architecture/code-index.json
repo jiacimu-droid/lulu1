@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T16:41:55.821886+00:00",
-  "commit": "78ad640ce1e1fa2aed89b63b7b2e2f5679118874",
+  "generatedAt": "2026-10-15T16:42:22.315813+00:00",
+  "commit": "1602f9686c2b637476c862c96008157f3e969282",
   "branch": "main",
-  "sourceFingerprint": "e3fcb6fd434f8320c967779b739d894c3e563563d64260108028b47092359ed1",
+  "sourceFingerprint": "d0932a28f90cef265804eb9709df00c03436bc3cd0f10444f2349430065981b5",
   "summary": {
     "files": 654,
-    "lines": 128764,
+    "lines": 128765,
     "symbols": 1925
   },
   "symbolIndex": {
@@ -3411,7 +3411,7 @@
     "permitsExternalAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-        "line": 103
+        "line": 104
       }
     ],
     "actionOnly": [
@@ -13779,8 +13779,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-      "lines": 112,
-      "sha256": "c94d639bc690da45e98f496ea2e9ed96288b7b7cdd4469ebfe1f0b3bf564a432",
+      "lines": 113,
+      "sha256": "1fe39b38d3c0aff9711c21d4a28fb1b35bfa4a5c55e5c316338ae6790f64eaff",
       "symbols": [
         {
           "name": "Basis",
@@ -13800,7 +13800,7 @@
         },
         {
           "name": "permitsExternalAction",
-          "line": 103
+          "line": 104
         }
       ]
     },
