@@ -43,7 +43,9 @@ import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluMediaPlayback
 import com.jiacimu.lulu.system.LuluNotificationListenerService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -64,6 +66,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     var freshLocationLabel by remember { mutableStateOf<String?>(null) }
     var locating by remember { mutableStateOf(false) }
     var musicTestReport by remember { mutableStateOf("") }
+    var wakeQueueStatus by remember { mutableStateOf("正在读取 Android 后台任务队列…") }
     val accessibility by LuluAccessibilityService.state.collectAsState()
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
@@ -110,6 +113,12 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
         "$time · ${state.lastPerceptionNote.ifBlank { "已运行" }}"
     } ?: "安装新版后尚未留下感知运行记录"
 
+    LaunchedEffect(refreshKey, latestPerceptionLabel) {
+        wakeQueueStatus = withContext(Dispatchers.IO) {
+            com.jiacimu.lulu.data.ProactivePerceptionScheduler.backgroundWakeStatus(context)
+        }
+    }
+
     fun refreshLocation() {
         if (!snapshot.preciseLocation || locating) return
         locating = true
@@ -144,7 +153,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
             item {
                 CapabilityInfoCard(
                     title = "后台感知链路",
-                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n每个角色按自己设置的感知间隔运行；系统每2小时做一次后台守护。屏幕变化和新通知只作为下次感知的上下文，不会主动唤醒角色。",
+                    body = "当前调用：$backgroundModelLabel\n最近运行：$latestPerceptionLabel\n$wakeQueueStatus\n每个角色按自己设置的间隔安排后台感知；屏幕变化和普通通知只作为下次感知的上下文。",
                 )
             }
 
