@@ -87,4 +87,38 @@ class CharacterBehaviorMotivationTest {
         assertNull(CharacterBehaviorMotivation.resolve("digital_world", appraisal = reading))
     }
 
+
+    @Test fun selfChosenMessageCanBeDeliveredWithoutDuplicatingItsReason() {
+        val basis = CharacterBehaviorMotivation.resolve(
+            "message", chosenUtterance = "这本书的结局让我有点意外，想跟你说说",
+        )
+        assertNotNull(basis)
+        assertEquals("chosen_utterance", basis?.source)
+        assertTrue(basis!!.reason.contains("这本书的结局"))
+        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+            "message", chosenUtterance = "这本书的结局让我有点意外"))
+        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+            "group_message", chosenUtterance = "我也想说两句"))
+        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+            "kaomoji", chosenUtterance = "(๑˃ᴗ˂)"))
+        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+            "message", chosenUtterance = "嗯"))
+    }
+
+    @Test fun aChosenMessageMustNotAuthorizeAnotherTypeOfAction() {
+        for (action in listOf("reading", "digital_world", "publish_moment", "start_call",
+                "write_journal", "favorite_user_message", "read_xiaohongshu")) {
+            assertFalse("$action cannot borrow a chat message's intent",
+                CharacterBehaviorMotivation.permitsExternalAction(
+                    action, chosenUtterance = "刚刚我想说两句"))
+        }
+        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+            "message", chosenUtterance = ""))
+        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+            "message", chosenUtterance = "null"))
+        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+            "message", chosenUtterance = "..."))
+    }
+
+
 }
