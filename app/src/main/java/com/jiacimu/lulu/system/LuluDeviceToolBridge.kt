@@ -432,7 +432,7 @@ object LuluDeviceToolBridge {
                 "selfCorrection":{"realization":"新认识","nextTime":"打算修正的做法"},
                 "thoughts":[{"thought":"未说出的想法","impulse":"冲动","hesitation":"顾虑"}]}。
                 social.dimensions 只表示“这次真实互动让某个关系维度往哪边动了一点”，不是绝对好感分；没有明确证据就省略，单次变化不能定型整段关系。\n                心声与动作不是事实或承诺；冲突想法可以并存，后续需依据实际反馈改变。可选 afterglow={"feeling":"余波","impulse":"克制或行动冲动","holdHours":1到48}；
-                可选 intention={"aim":"持续目标","motive":"个人原因","nextStep":"自己愿意尝试的具体下一步"}；已有愿望用真实 id 和原因选择 disposition=decide|pause|resume|update|release。只有本次实际选中的回复或工具行动确实用于该愿望，额外填写 intentionId=现存愿望ID。motiveId 是独立的内在动机标识，不能混填。成功的工具动作也不代表长期愿望已完成。
+                【一套动机来源】新的持续愿望只在 innerLife.motives 用 op=start 写入；继续同一愿望需带已有 motiveId 并使用 revise/pause/resume/release，不能重复建档。旧的 intention 字段仅用于更新仍存在的历史兼容目标（必须有准确 id 和 disposition），不再创建另一套愿望。行动关联正在推进的动机时填写 motiveId；旧历史目标确实尚在履行才用 intentionId。工具完成不等于愿望已达成。
 
                 【已有真实手机能力】
                 调用格式：{"action":"tool","tool":"能力名","args":{...}}。读取状态：get_battery、get_location、get_current_app、read_recent_notifications(args.limit)、
