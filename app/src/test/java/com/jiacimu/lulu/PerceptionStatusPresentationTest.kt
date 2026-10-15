@@ -37,4 +37,11 @@ class PerceptionStatusPresentationTest {
         assertTrue(lines.any { it.contains("尚无完成记录") })
         assertFalse(lines.any { it.contains("下次预计醒来") || it.contains("已感知") })
     }
+    @Test fun onlineStatusMustNotPromiseTheRemovedPeriodicLifePulse() {
+        val lines = PerceptionStatusPresentation.lines(null, policy, plan, true, false, now, zone)
+        assertTrue(lines.any { it.contains("事件") && it.contains("感知") })
+        assertTrue(lines.any { it.contains("5分钟窗口") })
+        assertFalse(lines.any { it.contains("每5分钟尝试") || it.contains("每2分半") })
+    }
+
 }
