@@ -48,4 +48,16 @@ internal object QqChatPhotoAttachmentStore {
             throw error
         }
     }
+    /** Never delete arbitrary file:// paths or external gallery content. */
+    fun deleteIfOwned(context: Context, imageUri: String): Boolean {
+        val uri = runCatching { Uri.parse(imageUri) }.getOrNull() ?: return false
+        if (uri.scheme != "file") return false
+        val file = uri.path?.let(::File) ?: return false
+        val folder = File(context.applicationContext.filesDir, "qq-user-photos")
+        return runCatching {
+            if (file.canonicalFile.parentFile != folder.canonicalFile) return false
+            file.delete()
+        }.getOrDefault(false)
+    }
+
 }
