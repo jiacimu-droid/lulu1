@@ -89,7 +89,11 @@
   };
   const beginSearch = keyword => {
     const next = clean(keyword, 64);
-    if (next !== received.searchPending || received.searchKeyword) {
+    // SPA search can fire Enter, form-submit, and pushState for ONE search.
+    // The old condition cleared a *successful* matching response whenever
+    // another event announced the same keyword. That made native readers
+    // time out while the website had already loaded real search cards.
+    if (next !== received.searchPending) {
       received.search = []; received.searchKeyword = ''; received.searchEmpty = false;
       delete received.api.search;
     }
@@ -316,11 +320,17 @@
         const staleSearchState = kind === 'search' && searchPage && !searchResponse &&
           received.searchPending === keyword && !!received.searchBaseline &&
           fingerprint(stateItems) === received.searchBaseline;
-        items = searchResponse && received.search.length ? received.search :
+        // An explicit, verified empty API response is authoritative. Do not
+        // relabel stale hydrated/home cards as search hits while its actual
+        // response is empty or still pending.
+        items = searchResponse ? received.search :
           staleSearchState ? [] : stateItems;
         if (!items.length && kind !== 'search') items = received[kind];
-        // Actual note links retain the site's token/source; avoid generic links in menus.
-        if (!items.length && (kind !== 'search' || searchPage || searchResponse)) {
+        // DOM fallback is only valid after a matching search document has
+        // hydrated; a homepage overlay with an explicit empty response must
+        // NOT smuggle unrelated recommendation links into search results.
+        if (!items.length && !(kind === 'search' && searchResponse) &&
+            (kind !== 'search' || searchPage)) {
           // Classes have changed repeatedly in the live XHS SPA. Prefer its
           // actual real note links to guessed Vue internals; never scrape a
           // generic page text or invent a note ID. Only trust signed links
