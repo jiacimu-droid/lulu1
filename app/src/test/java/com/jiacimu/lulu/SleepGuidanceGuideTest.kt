@@ -24,7 +24,7 @@ class SleepGuidanceGuideTest {
             assertTrue(prompt.contains("以她的新要求为先"))
             assertTrue(prompt.contains("不凭空模拟用户回答"))
             assertTrue(prompt.contains("降低语言密度"))
-            assertTrue(prompt.contains("30 分钟只是连续无人回应后的通话结束上限"))
+            assertTrue(prompt.contains("30 分钟从最近一次确认的用户发言起算"))
         }
     }
 

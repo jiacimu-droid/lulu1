@@ -51,9 +51,9 @@ internal object VoicePerformance {
         """.trimIndent() else ""
         if (!sleepMode) return listOf(facialExpression, regular).filter(String::isNotBlank).joinToString("\n")
         val whisper = if (supportsTags(context)) """
-            当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用自然低语和特别缓慢的节奏说话，不突然兴奋或喊叫，不机械地一个字一个字拖长。音频播放层会使用 [whispers]、[slowly] 和少量 [pause]、[long pause]，偶尔用 [drawn out] 拉长一句柔和尾音；不要在模型台词里额外重复这些标签，也不要用很多语气词来填满时间。
+            当前是哄睡通话：保留角色原本低沉、磁性、自然的音色，以特别缓慢、松弛的节奏说话，句尾自然延长，不突然兴奋或喊叫，不机械地一个字一个字拖长。音频播放层以 [slowly] 为主，少量使用 [pause]、[long pause]，偶尔用 [drawn out] 拉长柔和尾音；不要在模型台词里额外重复标签，也不要用很多语气词填满时间。无需强制气声或耳语。
             内容仍要真实、有情感和个性，不是单调机械地朗读指令。可以慢一点，给听者留出自然停顿。
-            语音播放层会去掉不适合哄睡的其他情绪标签，以低密度的 [whispers] [slowly] 提醒声音保持柔和缓慢，按完整句意少量留白；正文不朗读标签。
+            语音播放层会去掉不适合哄睡的其他情绪标签，优先使用 [slowly]，按完整句意少量留白；正文不朗读标签。
         """.trimIndent() else """
             当前是哄睡通话：用短而自然的口语、放缓叙述和温柔的停顿来营造贴近的轻声陪伴。
             此语音引擎不支持英文表演标签，不要把 [whispers] 之类标记写进真实台词，也不宣称设备音色已经切换成功。
@@ -75,9 +75,9 @@ internal object VoicePerformance {
         if (!supportsTags(context) || words.isBlank()) return words
         // Eleven v4 does not support an SSML speed slider/break duration.
         // Lead with supported pacing tags; reassert sparingly only at natural
-        // sentence boundaries. The older every-comma [whispers] loop inflated
+        // sentence boundaries. The older every-comma whisper loop inflated
         // billable text and could make long bedtime audio sound breathless.
-        val result = StringBuilder("[whispers] [slowly] ")
+        val result = StringBuilder("[slowly] ")
         var sentences = 0
         var charactersSinceCue = 0
         words.forEachIndexed { index, character ->
@@ -95,10 +95,10 @@ internal object VoicePerformance {
             }
             if (pause.isNotBlank()) result.append(" ").append(pause)
             if (sentences % 20 == 0) result.append(" [drawn out]")
-            // A cue covers several sentences; don't repeat it after each
+            // A slow cue covers several sentences; don't repeat it after each
             // comma or word, which doubled billable bedtime text in testing.
             if (charactersSinceCue >= 320) {
-                result.append(" [whispers] [slowly]")
+                result.append(" [slowly]")
                 charactersSinceCue = 0
             }
             if (pause.isNotBlank() || sentences % 20 == 0 || charactersSinceCue == 0) result.append(' ')
