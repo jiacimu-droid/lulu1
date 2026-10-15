@@ -17,6 +17,25 @@ class ElevenLabsAudioContractsTest {
         assertNull(ElevenLabsDialogueStream.decodeAudio(org.json.JSONObject("""{"is_final":true}""")))
         assertArrayEquals(byteArrayOf(1, 2, 3, 4), ElevenLabsDialogueStream.decodeAudio(org.json.JSONObject("""{"audio":"AQIDBA=="}""")))
     }
+    @Test fun longBedtimeAudioSplitsWithoutLosingWordsOrPerformanceTags() {
+        val longBedtime = ("[slowly] 晚风轻轻吹过窗前，你可以安心闭上眼睛。夜晚很安静，我们慢慢讲下去。").repeat(50)
+        val segments = ElevenLabsSpeechSegments.split(longBedtime)
+        assertTrue(segments.size > 1)
+        assertTrue(segments.all { it.length <= 480 })
+        assertTrue(segments.all { it.count { char -> char == '[' } == it.count { char -> char == ']' } })
+        assertEquals(longBedtime.replace(Regex("\\s+"), ""),
+            segments.joinToString("").replace(Regex("\\s+"), ""))
+        assertEquals(listOf("你好。"), ElevenLabsSpeechSegments.split(" 你好。 "))
+        assertTrue(ElevenLabsSpeechSegments.split("   ").isEmpty())
+    }
+
+    @Test fun audioSegmentationWorksEvenWithoutSentencePunctuation() {
+        val source = "睡".repeat(1600)
+        val segments = ElevenLabsSpeechSegments.split(source)
+        assertEquals(source, segments.joinToString(""))
+        assertTrue(segments.all { it.length <= 480 })
+    }
+
     @Test fun currentModelsUseTheirSupportedTransportAndBody() {
         assertTrue(ElevenLabsModels.choices.any { it.second == "eleven_v4" })
         assertTrue(ElevenLabsModels.websocket("eleven_v4_turbo"))
