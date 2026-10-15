@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T07:38:48.875841+00:00",
-  "commit": "90908362f75281d44455036731a2b04ee041d9f5",
+  "generatedAt": "2026-10-15T07:41:49.304900+00:00",
+  "commit": "f82a71ba4bb11040299186d78459e6ab85875f17",
   "branch": "main",
-  "sourceFingerprint": "c73ec02cc00fab472e30b4a3909e4f399b06042bc18c7e3f1f4a551bef54875b",
+  "sourceFingerprint": "49206ea7b94e3bd05b43741140b4270fd4a643100acef1d71bcb0251097ae633",
   "summary": {
     "files": 645,
-    "lines": 128210,
+    "lines": 128216,
     "symbols": 1904
   },
   "symbolIndex": {
@@ -341,7 +341,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1157
+        "line": 1163
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3923,7 +3923,7 @@
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1074
+        "line": 1079
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -14070,8 +14070,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1279,
-      "sha256": "893735eb62693ce96384356ee6f69fc6ac5f80f41743a67f0a11c448d786c26b",
+      "lines": 1285,
+      "sha256": "3ea00975825017ed8768daaf518511f56511752fce34d79a7c67f0aa4197bd25",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -14099,11 +14099,11 @@
         },
         {
           "name": "compactContext",
-          "line": 1074
+          "line": 1079
         },
         {
           "name": "context",
-          "line": 1157
+          "line": 1163
         }
       ]
     },
