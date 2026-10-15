@@ -305,7 +305,7 @@ internal object AutonomousSocialRuntime {
                 8. 家园里不能凭空增加家具、房间、食物或道具；共享地点也不能创造设施或短暂环境现象。蟑螂、小生物、声音、光影、云质变化与故障只有程序事件明确提供时才存在，且不得改写其阶段或解决状态。
                 9. summary 只写这次确实发生的事实，方便双方以后记得；不要写分析、好感度数值或系统解释。
                 10. 每个 turn 可选 innerThought（这个 speaker 未说出的念头）与 innerLife={"emotion":{"feeling":"感受","cause":"本轮亲历依据","otherFeeling":"并存感受","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"愿望","why":"缘由","reason":"变化依据"}],"social":{"targetId":"现场其他真实角色ID","interpretation":"主观看法","reason":"亲历依据"}}。只更新发言角色本人，只依据此前实际相处；不把后续尚未发生的发言、他人的私人想法或私聊写成已知事实。没有变化可省略，不能统一成相同情绪。
-                ${CharacterDecisionProtocol.principles}
+                ${CharacterDecisionProtocol.runtimePrinciples}
             """.trimIndent(),
             source = "角色自主相遇",
             title = "${participantIds.joinToString("与") { characters.getValue(it).displayName }}在$location",
@@ -366,7 +366,7 @@ internal object AutonomousSocialRuntime {
                 对这次亲历如果真的产生了新疑问（例如蟑螂明明没食物怎么进来的，或者想研究角色自己喜欢的书），可以选填 curiosity={"topic":"自己关注的主题","question":"真正好奇的问题","why":"本轮真实事件怎样触发","nextStep":"可实际执行的下一步"}。这只是好奇，不等于已查到答案或已采取行动。若暂时很想分享但没立刻发，可填 appraisal.shareWish={"status":"held","why":"为何想告诉别人"}；程序会与这次真实事件ID绑定，不是发布回执。
                 6. 可选 appraisal.spontaneousBid={"spark":"这次真实现场里突然想到的小趣事","wantedMove":"想和别人发起的一次自然微互动"}；它只是意图，不能改写世界事实。若角色真的决定另做一件有程序执行能力的生活事，可选 appraisal.ownActivity={"stage":"decided","action":"solo_game|reading|digital_world","whyNow":"自己的具体理由",...真实ID参数}。不确定或只是想到时不填 decided；由统一队列等待真实回执。
                 6. 可选 innerLife={"emotion":{"feeling":"感受","cause":"当前实际事件","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},"motives":[{"op":"start|revise|pause|resume|release","id":"已有ID","aim":"个人愿望","why":"原因","reason":"变化依据"}]}。这次独处经历可以改变情绪和兴趣，不只是换一句状态；没有变化则省略，不编造与用户或其他人的互动。
-                ${CharacterDecisionProtocol.principles}
+                ${CharacterDecisionProtocol.runtimePrinciples}
             """.trimIndent(),
             source = "数字世界事件反应",
             title = "${character.displayName}在${tick.locationName}",
