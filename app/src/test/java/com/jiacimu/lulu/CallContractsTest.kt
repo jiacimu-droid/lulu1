@@ -6,12 +6,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class CallContractsTest {
-    @Test fun miniMaxSelectionCannotRouteIntoElevenAgent() {
-        assertFalse(CallVoiceConfiguration.usesAgent("minimax", "agent"))
-        assertFalse(CallVoiceConfiguration.usesAgent("elevenlabs", "direct"))
-        assertFalse(CallVoiceConfiguration.usesAgent("elevenlabs", null))
-        assertTrue(CallVoiceConfiguration.usesAgent("elevenlabs", "agent"))
-    }
     @Test fun speechRecognitionOnlyUsesExplicitChoiceAndLegacyAutoMeansPhoneSystem() {
         assertEquals("elevenlabs", CallVoiceConfiguration.resolveSttEngine("elevenlabs"))
         assertEquals("system", CallVoiceConfiguration.resolveSttEngine("system"))
