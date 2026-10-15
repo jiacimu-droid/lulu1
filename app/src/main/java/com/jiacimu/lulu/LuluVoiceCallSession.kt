@@ -563,6 +563,9 @@ internal object LuluVoiceCallSession {
             userSpeaking = false, thinking = false, speaking = false, sleepMode = false,
             statusMessage = endStatus) }
         com.jiacimu.lulu.data.CompanionPresenceStore.finishCall(current.characterId)
+        // A phone call temporarily removes this role from passive scheduling.
+        // Explicitly re-arm its next autonomous wake once call ownership ends.
+        appContext?.let(ProactivePerceptionScheduler::scheduleNextDue)
         dialJob?.cancel()
         replyGeneration++
         replyJob?.cancel()
@@ -1636,6 +1639,8 @@ internal object LuluVoiceCallSession {
     private fun startTimer() {
         timerJob?.cancel()
         com.jiacimu.lulu.data.CompanionPresenceStore.beginCall(mutableState.value.characterId)
+        // Stop the pending passive alarm while the actual call owns perception.
+        appContext?.let(ProactivePerceptionScheduler::scheduleNextDue)
         com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
         val startedAt = SystemClock.elapsedRealtime()
         lastUserActivityMillis = startedAt
