@@ -76,6 +76,11 @@ class OnlineChatExperienceTest {
         assertEquals(0, pixels.failures)
         assertEquals(1, pixels.urls.size)
         assertTrue(pixels.urls.first().startsWith("data:image/jpeg;base64,"))
+        assertTrue(com.jiacimu.lulu.QqChatImageModelInput.lastReadStatus(
+            context, role.characterId).contains("1/1 张"))
+        assertEquals("这个角色尚无图片读取记录",
+            com.jiacimu.lulu.QqChatImageModelInput.lastReadStatus(
+                context, role.characterId + "-unrelated"))
         OnlineChatBatchStore.cancel(context, role.characterId)
     }
 
