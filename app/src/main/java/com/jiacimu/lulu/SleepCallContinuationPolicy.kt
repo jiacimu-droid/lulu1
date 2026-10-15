@@ -9,8 +9,8 @@ internal object SleepCallContinuationPolicy {
     const val FIRST_QUIET_AT_MILLIS = 6 * 60_000L
     const val DEEP_QUIET_AT_MILLIS = 12 * 60_000L
     const val SPARSE_QUIET_AT_MILLIS = 20 * 60_000L
-    const val NEAR_SLEEP_AT_MILLIS = 40 * 60_000L
-    const val AUTO_END_AT_MILLIS = 45 * 60_000L
+    const val NEAR_SLEEP_AT_MILLIS = 27 * 60_000L
+    const val AUTO_END_AT_MILLIS = 30 * 60_000L
 
     fun nextPauseMillis(sinceUserReplyMillis: Long, story: Boolean = false): Long = if (story) 2_500L else when {
         sinceUserReplyMillis >= NEAR_SLEEP_AT_MILLIS -> 24_000L

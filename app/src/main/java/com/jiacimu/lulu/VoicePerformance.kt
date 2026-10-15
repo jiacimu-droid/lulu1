@@ -51,9 +51,9 @@ internal object VoicePerformance {
         """.trimIndent() else ""
         if (!sleepMode) return listOf(facialExpression, regular).filter(String::isNotBlank).joinToString("\n")
         val whisper = if (supportsTags(context)) """
-            当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用 [whispers] 气声般地轻轻说话，不能突然切换成高声、兴奋、喊叫或者戏剧化表演；不需要插入 [laughs]、[gasps] 等响亮的声音。可在自然换气处少量加入 [inhales]、[exhales]，在完整意群之间用 [pause] 或 [long pause] 拉开节奏；不要每隔两三个字就喘一次。
+            当前是哄睡通话，低语优先于上述普通电话的情绪标签规则。整轮用自然低语和特别缓慢的节奏说话，不突然兴奋或喊叫，不机械地一个字一个字拖长。音频播放层会使用 [whispers]、[slowly] 和少量 [pause]、[long pause]，偶尔用 [drawn out] 拉长一句柔和尾音；不要在模型台词里额外重复这些标签，也不要用很多语气词来填满时间。
             内容仍要真实、有情感和个性，不是单调机械地朗读指令。可以慢一点，给听者留出自然停顿。
-            语音播放层会去掉本轮其他情绪标签，并在每个自然语段补入 [whispers]，确保持续低语；正文不朗读标签。
+            语音播放层会去掉不适合哄睡的其他情绪标签，以低密度的 [whispers] [slowly] 提醒声音保持柔和缓慢，按完整句意少量留白；正文不朗读标签。
         """.trimIndent() else """
             当前是哄睡通话：用短而自然的口语、放缓叙述和温柔的停顿来营造贴近的轻声陪伴。
             此语音引擎不支持英文表演标签，不要把 [whispers] 之类标记写进真实台词，也不宣称设备音色已经切换成功。
@@ -73,32 +73,29 @@ internal object VoicePerformance {
         // Keep only spoken words; subtitles and stored transcripts stay as-is.
         val words = plain(text)
         if (!supportsTags(context) || words.isBlank()) return words
-        val result = StringBuilder("[whispers] ")
-        var sinceWhisper = 0
-        var sentenceCount = 0
-        var pauseCount = 0
+        // Eleven v4 does not support an SSML speed slider/break duration.
+        // Lead with supported pacing tags; reassert sparingly only at natural
+        // sentence boundaries. The older every-comma [whispers] loop inflated
+        // billable text and could make long bedtime audio sound breathless.
+        val result = StringBuilder("[whispers] [slowly] ")
+        var sentences = 0
+        var charactersSinceCue = 0
         words.forEachIndexed { index, character ->
             result.append(character)
-            if (!character.isWhitespace()) sinceWhisper++
-            val majorBreak = character in "。！？!?；;"
-            val naturalBreak = majorBreak || character in "，,、：:"
-            val moreSpeech = words.substring(index + 1).any { it.isLetterOrDigit() }
-            if (naturalBreak && sinceWhisper >= 2 && moreSpeech) {
-                // Reassert whisper on every natural clause. Audible breath
-                // cues are occasional, not a repetitive gasp between words.
-                if (majorBreak) sentenceCount++
-                pauseCount++
-                when {
-                    majorBreak && sentenceCount % 3 == 0 ->
-                        result.append(" [long pause] [exhales] ")
-                    majorBreak && sentenceCount % 2 == 0 ->
-                        result.append(" [pause] ")
-                    pauseCount % 5 == 0 ->
-                        result.append(" [inhales] ")
-                }
-                result.append(" [whispers] ")
-                sinceWhisper = 0
+            if (!character.isWhitespace()) charactersSinceCue++
+            val sentenceEnd = character in "。！？!?；;"
+            if (!sentenceEnd || !words.substring(index + 1).any { it.isLetterOrDigit() }) return@forEachIndexed
+            sentences++
+            if (sentences % 4 == 0) result.append(" [long pause]")
+            else if (sentences % 2 == 0) result.append(" [pause]")
+            // A drawn-out phrase is a rare accent, not a command to elongate
+            // every syllable of an entire bedtime story.
+            if (sentences % 7 == 0) result.append(" [drawn out]")
+            if (charactersSinceCue >= 70 || sentences % 4 == 0) {
+                result.append(" [whispers] [slowly]")
+                charactersSinceCue = 0
             }
+            result.append(' ')
         }
         return result.toString().trim()
     }

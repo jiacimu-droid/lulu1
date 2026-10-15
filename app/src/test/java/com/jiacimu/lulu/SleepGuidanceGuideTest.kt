@@ -12,7 +12,7 @@ class SleepGuidanceGuideTest {
         assertTrue(prompt.contains("被夸"))
         assertTrue(prompt.contains("不要求马上睡着"))
         assertTrue(prompt.contains("不是统一的催眠口播"))
-        assertTrue(prompt.contains("不是必须独占 45 分钟的单一模式"))
+        assertTrue(prompt.contains("不是必须独占 30 分钟的单一模式"))
         assertTrue(prompt.contains("不要定时轮换"))
     }
 
@@ -24,7 +24,7 @@ class SleepGuidanceGuideTest {
             assertTrue(prompt.contains("以她的新要求为先"))
             assertTrue(prompt.contains("不凭空模拟用户回答"))
             assertTrue(prompt.contains("降低语言密度"))
-            assertTrue(prompt.contains("45 分钟只是连续无人回应后的通话结束上限"))
+            assertTrue(prompt.contains("30 分钟只是连续无人回应后的通话结束上限"))
         }
     }
 
@@ -34,7 +34,7 @@ class SleepGuidanceGuideTest {
         val story = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Story, true, 8 * 60_000L)
         assertTrue(body.contains("不从头反复报身体部位"))
         assertTrue(body.contains("安静陪伴"))
-        assertTrue(affection.contains("不要一小时不停夸"))
+        assertTrue(affection.contains("不要长时间不停夸"))
         assertTrue(story.contains("不要突然暂停剧情强行插入整套练习"))
         assertTrue(story.contains("故事要记得已讲过的人物与情节"))
     }
@@ -42,7 +42,7 @@ class SleepGuidanceGuideTest {
     @Test fun laterSilenceReducesMentalEffortInsteadOfStartingNewActivities() {
         val early = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, false, 0L)
         val middle = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, true, 25 * 60_000L)
-        val late = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, true, 45 * 60_000L)
+        val late = SleepGuidanceGuide.instruction(SleepGuidanceFocus.Natural, true, 30 * 60_000L)
         assertTrue(early.contains("慢慢铺陈一个舒服的睡前主题"))
         assertTrue(middle.contains("减少追问和新话题"))
         assertTrue(late.contains("不再开新冒险"))
