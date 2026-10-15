@@ -43,6 +43,8 @@ data class CompanionUnreadSnapshot(
     val newestAt: Instant?,
     val conversationIds: Set<String> = emptySet(),
     val newestIds: Set<String> = emptySet(),
+    /** All user photos in the unread turn, not merely the latest text bubble. */
+    val imageEvidenceIds: Set<String> = emptySet(),
 )
 
 /**
@@ -334,6 +336,10 @@ object CompanionOnlineStore {
         return CompanionUnreadSnapshot(
             text, newest, events.mapTo(mutableSetOf()) { it.first.id },
             events.filter { it.second.createdAt == newest }.mapTo(mutableSetOf()) { it.second.id },
+            events.filter { (_, message) ->
+                message.sender == LuluChatMessage.Sender.User &&
+                    com.jiacimu.lulu.decodeQqChatImage(message.content)?.sticker == false
+            }.mapTo(mutableSetOf()) { it.second.id },
         )
     }
 
