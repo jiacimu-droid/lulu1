@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T08:17:29.285384+00:00",
-  "commit": "d24280dac464af74c0b52297d59bc3e9c055f8be",
+  "generatedAt": "2026-10-15T08:18:15.455645+00:00",
+  "commit": "cfd95db08f409c2b2964ded5d4768e858febab3f",
   "branch": "main",
-  "sourceFingerprint": "c2089193ae3cc6957159b81b2338d2e17c3e38826ac273c07bbe493e134e4fed",
+  "sourceFingerprint": "92118051b8630a3b6e241f6268f0b3340ab336ee4f33972610635d462aefcdc2",
   "summary": {
-    "files": 647,
-    "lines": 128382,
+    "files": 646,
+    "lines": 127738,
     "symbols": 1907
   },
   "symbolIndex": {
@@ -20630,12 +20630,6 @@
           "line": 19
         }
       ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/system/GroupEnsembleReplyEngine.kt",
-      "lines": 644,
-      "sha256": "bd0700758ddc0f366a19a999efb1f63ac8355f11ea78adde58736aace271e3e1",
-      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
