@@ -70,6 +70,12 @@ internal fun QqChatComposer(
                 importingPhoto = false
                 imported.onSuccess { imageUri = it }
                     .onFailure { photoImportError = "图片未能保存：${it.message.orEmpty().take(85)}" }
+            } else {
+                imported.getOrNull()?.let { abandoned ->
+                    withContext(Dispatchers.IO) {
+                        QqChatPhotoAttachmentStore.deleteIfOwned(context, abandoned)
+                    }
+                }
             }
         }
     }
@@ -89,11 +95,15 @@ internal fun QqChatComposer(
         imageDescription = "",
     )
 
-    fun clearAttachment() {
+    fun clearAttachment(discard: Boolean = false) {
         pickerRevision += 1
         importingPhoto = false
         photoImportError = ""
+        val detached = imageUri
         imageUri = null
+        if (discard && detached != null) scope.launch(Dispatchers.IO) {
+            QqChatPhotoAttachmentStore.deleteIfOwned(context, detached)
+        }
     }
 
     Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
@@ -139,7 +149,9 @@ internal fun QqChatComposer(
                         Text("发送后由当前聊天模型看图回复", color = QqMuted,
                             fontSize = 11.sp, lineHeight = 16.sp)
                     }
-                    IconButton(onClick = ::clearAttachment) { Icon(Icons.Outlined.Close, "移除图片", tint = QqMuted) }
+                    IconButton(onClick = { clearAttachment(discard = true) }) {
+                        Icon(Icons.Outlined.Close, "移除图片", tint = QqMuted)
+                    }
                 }
             }
         }
