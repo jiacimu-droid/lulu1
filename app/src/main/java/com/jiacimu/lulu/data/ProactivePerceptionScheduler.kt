@@ -268,6 +268,10 @@ object ProactivePerceptionScheduler {
                             onlineRevision = revision,
                             requiresUnread = true,
                         )
+                    }.onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        if (OnlineChatBatchStore.isCurrent(app, characterId, revision))
+                            scheduleFailedMessageRetry(app, characterId, revision)
                     }
                 }
             } finally {
@@ -276,6 +280,28 @@ object ProactivePerceptionScheduler {
                 }
             }
         }
+    }
+
+    private fun scheduleFailedMessageRetry(
+        app: Context, characterId: String, revision: Long,
+    ) {
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(2_000L, TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", "在线收到新消息，恢复失败的感知")
+                .putString("characterId", characterId)
+                .putBoolean("force", true)
+                .putBoolean("requireOnline", true)
+                .putLong("onlineRevision", revision)
+                .putBoolean("requiresUnread", true)
+                .build())
+            .addTag("$ONLINE_WORK-chat-$characterId")
+            .build()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "$ONLINE_WORK-recovery-$characterId-$revision",
+            ExistingWorkPolicy.KEEP, request,
+        )
     }
 
     /**
