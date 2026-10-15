@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T07:00:57.395274+00:00",
-  "commit": "6562ea3916f695293a831ecdf6d6172f2b693389",
+  "generatedAt": "2026-10-15T07:02:07.937803+00:00",
+  "commit": "276650e4348f8c22122e7b04c4dad4cbdfa7e896",
   "branch": "main",
-  "sourceFingerprint": "78cd8f83ec88fa2c9a35c17bc396b0be77a5dbd2dfee17e83fcfff439daf3939",
+  "sourceFingerprint": "31fbadd835b64323c7a4dfa5fcd1d4e876f6be026000606763d287117f915f3e",
   "summary": {
     "files": 645,
-    "lines": 128070,
+    "lines": 128075,
     "symbols": 1902
   },
   "symbolIndex": {
@@ -10301,7 +10301,7 @@
     "GoalFollowUpPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "ImmediateMemoryExtractionTest": [
@@ -21940,12 +21940,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt",
-      "lines": 46,
-      "sha256": "62bfdb9af090dfa027043411d3d93cea482840c758ae799f235efe63e7023fff",
+      "lines": 51,
+      "sha256": "3796512ed543838e64621a5cf55a251d42162c8f6146da2eeb4f938af7fb7060",
       "symbols": [
         {
           "name": "GoalFollowUpPolicyTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
