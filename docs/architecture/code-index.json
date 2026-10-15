@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T02:31:31.165579+00:00",
-  "commit": "c6e467d90dfe929624068ee30d2ea9a4ad897030",
+  "generatedAt": "2026-10-15T03:39:44.415338+00:00",
+  "commit": "2da6e4518d1b49c4f1977e6e72fa3220a9c2bd36",
   "branch": "main",
-  "sourceFingerprint": "df28c63ae6fe4f6a7cda2875c70956e15e1a958fba7bf68cbb8e20c438039870",
+  "sourceFingerprint": "0c8bea806e340716b453d96b75b156c34d7ce2fe38e57f33a44509b469f34f51",
   "summary": {
     "files": 634,
-    "lines": 127030,
+    "lines": 127036,
     "symbols": 1878
   },
   "symbolIndex": {
@@ -2541,13 +2541,13 @@
     "meetingSegment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 105
+        "line": 102
       }
     ],
     "slice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 144
+        "line": 141
       }
     ],
     "automaticAllowed": [
@@ -12628,7 +12628,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
       "lines": 44,
-      "sha256": "45d90f18e9d09045a615075e584c22a3af2c384fc2c629aef1e34aeb07254847",
+      "sha256": "13f7de5f989818c55cfc331fbdf0aede1a67bf6d916a15da998fd74cd80adfae",
       "symbols": [
         {
           "name": "nextPauseMillis",
@@ -12646,8 +12646,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
-      "lines": 88,
-      "sha256": "0c976ecf7160e8cbcd140a1b86ab161f7d39647908f0436fd26c7c3d8c00b68d",
+      "lines": 89,
+      "sha256": "a46fd7ba5b06677f2a01afe50dc216c9d0bf57537b61fdd8a689a0f0ee8307b3",
       "symbols": [
         {
           "name": "requestedFocus",
@@ -12802,7 +12802,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
       "lines": 160,
-      "sha256": "694c1c584e3969714b92a536be3efb8b7bde55ff0f2bfc1a81a5a1f7ab76d5da",
+      "sha256": "fe84e1342eebc0b12e9e83affbb1162df0754ac301ec89ab5fadc0abef92c48c",
       "symbols": []
     },
     {
@@ -12834,8 +12834,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-      "lines": 168,
-      "sha256": "c43fc7eb0426578057baae85638a02d892bf2b8fa9c21af7db59c8e6eecad864",
+      "lines": 165,
+      "sha256": "443335d437d6cedbad45240708e7ef7bfeeaf0b11592c7fb2ff5144b7209cc4f",
       "symbols": [
         {
           "name": "plain",
@@ -12863,11 +12863,11 @@
         },
         {
           "name": "meetingSegment",
-          "line": 105
+          "line": 102
         },
         {
           "name": "slice",
-          "line": 144
+          "line": 141
         }
       ]
     },
@@ -20876,7 +20876,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt",
       "lines": 59,
-      "sha256": "adeb6c9903369236341fac39e0844bf38c2074ccc16de48d8e6f427069f32c26",
+      "sha256": "d9aa2c3e348aa1800a4f6aa23d0a1f517912864fdbb9aea6f1fcb28c02d9c0c0",
       "symbols": [
         {
           "name": "SleepCallContinuationPolicyTest",
@@ -20895,7 +20895,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt",
       "lines": 62,
-      "sha256": "573421b3ee2f3df6933a43adc5500e62546767f30ca82cb1bad45302c28d3073",
+      "sha256": "da78a1789d329c13e18b90eb2f289caeb9d7b5072fe1a9b036a9e02b5ea6ff04",
       "symbols": [
         {
           "name": "SleepGuidanceGuideTest",
@@ -20960,8 +20960,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
-      "lines": 130,
-      "sha256": "05a3f03ca57e0bbd73dfbed86b4e25a69e02792d071d4b6f59c29b8a9e0c2753",
+      "lines": 138,
+      "sha256": "9627aec05860afa18e468d8fbadec755b13241df0f982fbe447750f8dfa39afe",
       "symbols": [
         {
           "name": "VoicePerformanceTest",
