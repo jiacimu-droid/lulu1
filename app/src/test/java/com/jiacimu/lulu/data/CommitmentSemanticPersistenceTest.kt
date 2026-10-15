@@ -141,6 +141,7 @@ class CommitmentSemanticPersistenceTest {
         try {
             configure(server)
             com.jiacimu.lulu.system.LuluDeviceToolBridge.initialize(context)
+            com.jiacimu.lulu.study.PostgraduateExamStores.initialize(context)
             val text = "以后低落的时候拉我一把，别让我掉队。"
             SharedExperienceTimeline.record("semantic-user", role, "私聊", "用户", text,
                 triggerExtraction = false, sessionId = "semantic-chat", source = "message",

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T18:11:54.168267+00:00",
-  "commit": "c02f82a1a144f58e37567c8d481fcb8ca018fdac",
-  "branch": "main",
-  "sourceFingerprint": "b3f1de645529d4325d55b9d282aae5489d59cb1575d46c8ab4b53abf4042c09a",
+  "generatedAt": "2026-10-15T18:17:02.399192+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "5d80fd6d8796516a99d0ea17328d59c5a0b82e10da43f08dadabae79f6ef7194",
   "summary": {
     "files": 664,
-    "lines": 129771,
+    "lines": 129780,
     "symbols": 1946
   },
   "symbolIndex": {
@@ -10443,7 +10443,7 @@
     "CommitmentDecisionProtocolTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "CommitmentSemanticPersistenceTest": [
@@ -21104,8 +21104,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1685,
-      "sha256": "72f92bbf49e70c1757b88a3ec5e39660af7f47d9e73914e85a257ffa224fc381",
+      "lines": 1688,
+      "sha256": "7547b138fe660578f486ea60bb53153e3858f1963423bee4bc3c7cbc08f08baa",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -22303,19 +22303,19 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt",
-      "lines": 37,
-      "sha256": "e9c338d2761fff8dd36fb663b6459f2e0617000d93683945dd0fdeaf722bb645",
+      "lines": 42,
+      "sha256": "973352e1baa70a4bd64aa1f79dfeb55d761d94e03cd773ec2628a650465f1626",
       "symbols": [
         {
           "name": "CommitmentDecisionProtocolTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 173,
-      "sha256": "7b298a1693e2c969234615ef83b0869f0b405734d7458bc06fc7244b4cf6066f",
+      "lines": 174,
+      "sha256": "10654bac286d43f62757c5b8519698f497caa9532f25d79237d95a96b9b1bb5a",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",

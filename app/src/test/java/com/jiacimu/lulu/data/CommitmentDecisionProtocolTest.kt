@@ -3,8 +3,13 @@ package com.jiacimu.lulu.data
 import org.json.JSONArray
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CommitmentDecisionProtocolTest {
     @Test fun interpreterChosenCalendarDateSurvivesWithoutProgramReinterpretation() {
         val changes = JSONArray("""[{"action":"create","goal":"这次睡醒时叫我","dueAt":"2026-10-16T09:00:00+08:00","timezone":"Asia/Shanghai"}]""")

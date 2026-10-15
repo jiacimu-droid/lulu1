@@ -213,7 +213,7 @@ object LuluDeviceToolBridge {
             if (groundingEvidenceId.isBlank()) emptyList() else
                 com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(groundingEvidenceId))
         }
-        val commitmentEvidenceIds = commitmentEvidence.map { it.id }
+        val commitmentEvidenceIds = userEvidenceIds.ifEmpty { commitmentEvidence.map { it.id } }
         val commitmentSessionId = commitmentEvidence.lastOrNull()?.sessionId.orEmpty()
         if (groundingEvidenceId.isNotBlank() && !rewriting) {
             com.jiacimu.lulu.data.ConversationGroundingEngine.beforeTurn(
@@ -358,6 +358,9 @@ object LuluDeviceToolBridge {
                 appendLine("当前时区：${zone.id}")
                 appendLine(com.jiacimu.lulu.data.CommitmentDecisionProtocol.context(
                     CommitmentTaskStore.active(characterId), now, zone))
+                commitmentEvidence.forEach { event ->
+                    appendLine("本轮用户原话发生时间=${event.occurredAt.atZone(zone)}；内容=${event.content.take(500)}")
+                }
                 appendLine("当前真实互动场景：$sceneContext")
                 inWorldMoment?.let { event ->
                     appendLine("【程序刚记录的本轮数字世界小事】${event.summary}")
