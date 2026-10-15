@@ -167,6 +167,7 @@ object ProactivePerceptionRuntime {
             !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
         if (onlineRevision != null && targetCharacterId != null &&
             !OnlineChatBatchStore.claim(context, targetCharacterId, onlineRevision)) return@withLock 0
+        var chatBatchError: Throwable? = null
         try {
             if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
             initialize(context)
@@ -267,13 +268,18 @@ object ProactivePerceptionRuntime {
                         "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
                         now,
                     )
+                    if (onlineRevision != null && requiresUnread) chatBatchError = error
                 }
             }
+            // A transient model/executor failure must not acknowledge the unread
+            // batch as consumed. The worker can retry the SAME revision.
+            chatBatchError?.let { throw it }
             evaluated
         } finally {
             if (onlineRevision != null && targetCharacterId != null) {
                 OnlineChatBatchStore.finish(context, targetCharacterId, onlineRevision,
-                    completed = currentCoroutineContext()[kotlinx.coroutines.Job]?.isCancelled != true)
+                    completed = chatBatchError == null &&
+                        currentCoroutineContext()[kotlinx.coroutines.Job]?.isCancelled != true)
             }
         }
     }
