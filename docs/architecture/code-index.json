@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T08:19:07.393936+00:00",
-  "commit": "c617c5238900a57c645f985e149b7bea2cd5ed1f",
+  "generatedAt": "2026-10-15T09:11:02.687666+00:00",
+  "commit": "47702a0d6759e59ce39adbc966494845bff2f2c0",
   "branch": "main",
-  "sourceFingerprint": "58335f07e85519c43c18f746116c56e9b3bfefc16682be69bf07957bbf616da2",
+  "sourceFingerprint": "8ada35f628bf931eca3e3f09f6e02b6428b39b4f1f8ac022a10685f9624fa89a",
   "summary": {
     "files": 646,
-    "lines": 127745,
+    "lines": 127750,
     "symbols": 1907
   },
   "symbolIndex": {
@@ -10181,7 +10181,7 @@
     "CharacterMotivationOwnershipTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "CharacterOpenConcernRuntimeTest": [
@@ -21719,12 +21719,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt",
-      "lines": 55,
-      "sha256": "3d6dbb9baaf34f9c002dfc62ba98bf64890ae1e2662c63fa8f1bd12357d0c4fd",
+      "lines": 60,
+      "sha256": "14cd351950efba7c463e14bf9394bb6b0d2ad1f33f3a59b82286eafa19ad1d4d",
       "symbols": [
         {
           "name": "CharacterMotivationOwnershipTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
