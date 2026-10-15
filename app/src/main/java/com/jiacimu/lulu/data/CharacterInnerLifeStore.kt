@@ -366,8 +366,14 @@ object CharacterInnerLifeStore {
                         if (op == "revise") {
                             val aim = change.optString("aim").trim().take(180)
                             val why = change.optString("why").trim().take(160)
-                            if (aim.isBlank() || why.isBlank()) continue
-                            item.put("aim", aim).put("why", why)
+                            // Revising just the next step or its wait condition must
+                            // not require rewriting a perfectly valid aim and why.
+                            // Reject half-updated identity fields instead of silently
+                            // throwing away an otherwise explicit plan change.
+                            if (aim.isNotBlank() != why.isNotBlank()) continue
+                            if (aim.isNotBlank()) {
+                                item.put("aim", aim).put("why", why)
+                            }
                         }
                         if (op == "release") records.remove(item)
                         else {
