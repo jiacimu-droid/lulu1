@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T18:01:55.996789+00:00",
-  "commit": "3688967e57001734d81496274bcb7646fb7be041",
+  "generatedAt": "2026-10-15T18:02:44.391904+00:00",
+  "commit": "4bb8f03f3b3f94d2a0df193e86daba70b48643ca",
   "branch": "main",
-  "sourceFingerprint": "1d2518bbda832ae56ea6e1ae1a5e6f96a87ef172055862f1d567876aea6c05de",
+  "sourceFingerprint": "2f9f9592173301478c07c236e88d5b88c9e4cd475d3ec3fdac6768b6c62492d0",
   "summary": {
     "files": 656,
-    "lines": 129218,
+    "lines": 129221,
     "symbols": 1931
   },
   "symbolIndex": {
@@ -1431,13 +1431,13 @@
     "refreshLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 124
+        "line": 127
       }
     ],
     "read": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-        "line": 382
+        "line": 385
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -11897,8 +11897,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
-      "lines": 462,
-      "sha256": "82e4d04a944a4dd1f27de1417da13c393afe447263d5cf9aa9cbd7206adb0954",
+      "lines": 465,
+      "sha256": "848b9a1f4807a6c3152e44bfdd6031546a533d8750e2a08cd39eff7a00cabd7c",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -11910,11 +11910,11 @@
         },
         {
           "name": "refreshLocation",
-          "line": 124
+          "line": 127
         },
         {
           "name": "read",
-          "line": 382
+          "line": 385
         }
       ]
     },
