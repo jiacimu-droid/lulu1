@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T07:38:27.277196+00:00",
-  "commit": "54af545096c5806ec5fa0dbb56250f6be0166a70",
+  "generatedAt": "2026-10-15T07:38:48.875841+00:00",
+  "commit": "90908362f75281d44455036731a2b04ee041d9f5",
   "branch": "main",
-  "sourceFingerprint": "78afb0c00c38797f2dea757952e9c6c6f6075b5e1be8de97a6c32514691076f0",
+  "sourceFingerprint": "c73ec02cc00fab472e30b4a3909e4f399b06042bc18c7e3f1f4a551bef54875b",
   "summary": {
     "files": 645,
-    "lines": 128182,
+    "lines": 128210,
     "symbols": 1904
   },
   "symbolIndex": {
@@ -10539,7 +10539,7 @@
     "WakeGoalVerificationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt",
-        "line": 5
+        "line": 6
       }
     ],
     "WakeMusicCoordinatorTest": [
@@ -22368,12 +22368,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt",
-      "lines": 21,
-      "sha256": "60b50c6cce0cabc48ac7a8d3b374ccfeed4d61ab9d524c413fd05136850d8aa9",
+      "lines": 49,
+      "sha256": "f4450bf7aef9c247987b742f69a81a28cca4cd488938987b7affade17df2b89b",
       "symbols": [
         {
           "name": "WakeGoalVerificationTest",
-          "line": 5
+          "line": 6
         }
       ]
     },
