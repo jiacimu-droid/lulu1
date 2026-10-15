@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T06:04:33.689653+00:00",
-  "commit": "bad07673edb03921471307eec6ed519ffdd1086a",
+  "generatedAt": "2026-10-15T06:23:53.886836+00:00",
+  "commit": "c4df01291243f78465b7f49690ef42e23c47310c",
   "branch": "main",
-  "sourceFingerprint": "18ea2ebfd40fb9909e961446841e5c4477e75ead50c542f8e4f3359cdddb0d8b",
+  "sourceFingerprint": "7adf23473e8e90ad5ded01a24200dde32b819e5fbb9e435470fef1ae8efa04f5",
   "summary": {
-    "files": 636,
-    "lines": 127192,
-    "symbols": 1882
+    "files": 638,
+    "lines": 127477,
+    "symbols": 1886
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -561,7 +561,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
-        "line": 23
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -621,7 +621,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 209
+        "line": 215
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -757,7 +757,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 32
+        "line": 35
       }
     ],
     "suppressAutoPlay": [
@@ -806,6 +806,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
         "line": 148
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1335,7 +1339,7 @@
     "LexiconFeatureScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-        "line": 62
+        "line": 65
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -3491,11 +3495,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 112
+        "line": 118
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 241
+        "line": 247
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -3693,7 +3697,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 170
+        "line": 179
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -4246,6 +4250,10 @@
         "line": 33
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
+        "line": 18
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
         "line": 11
       },
@@ -4629,7 +4637,7 @@
     "CommitmentLexiconSync": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
-        "line": 17
+        "line": 19
       }
     ],
     "CommitmentTask": [
@@ -4671,7 +4679,7 @@
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 163
+        "line": 172
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -5621,13 +5629,13 @@
     "invalidateSource": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 123
+        "line": 129
       }
     ],
     "InMemoryWorldBookRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 204
+        "line": 210
       }
     ],
     "callEndDescription": [
@@ -7087,6 +7095,10 @@
       }
     ],
     "draftsFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
+        "line": 48
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
         "line": 40
@@ -9505,19 +9517,19 @@
     "LuluDeviceToolBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 29
+        "line": 32
       }
     ],
     "ReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 44
+        "line": 47
       }
     ],
     "commitReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 57
+        "line": 60
       }
     ],
     "LuluLocationProvider": [
@@ -10356,6 +10368,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt",
         "line": 6
+      }
+    ],
+    "RelativeContactCommitmentParserTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt",
+        "line": 7
       }
     ],
     "RelativeWakeCommitmentParserTest": [
@@ -11525,12 +11543,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 559,
-      "sha256": "2dde705c23af0f9985cb68d1ab569220b6a9aa30e5890dd00e5f3f5eb4c8c3cf",
+      "lines": 628,
+      "sha256": "44ed12c1a7452ea9ea4b73d8e05c5e25c646c1992b8543af7814cd08892521db",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
-          "line": 62
+          "line": 65
         }
       ]
     },
@@ -14743,22 +14761,22 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 161,
-      "sha256": "c897611319b04834db4877fa23fac3dec543aac61eb8b7ca99fead03a7771a54",
+      "lines": 179,
+      "sha256": "b90959558783f2b2699d35a8851ac45ef8b299c80f7079bbf06e0ae4697e3d0d",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
-      "lines": 110,
-      "sha256": "5720100479691cc17316dbf6c389a73e2ace00376f8571955df6ff562696ff74",
+      "lines": 136,
+      "sha256": "094e8c1938cca8bd44ce16dcb658f14a89862d4d84c0403060c2e0cc4df6769c",
       "symbols": [
         {
           "name": "CommitmentLexiconSync",
-          "line": 17
+          "line": 19
         },
         {
           "name": "initialize",
-          "line": 23
+          "line": 25
         }
       ]
     },
@@ -14804,8 +14822,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 175,
-      "sha256": "cac6787758aca43230ff44d39ad46c6400d767597ce2662b4d6f6f429023eeb0",
+      "lines": 180,
+      "sha256": "85a8704a9a2c38c363d679aefc5b3733237a1bc319ba13152bb50508ac54afac",
       "symbols": []
     },
     {
@@ -14821,8 +14839,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 182,
-      "sha256": "918286809c54de232b08bee376493715b2583178c1595ca4e1a764da2c1d8fa0",
+      "lines": 191,
+      "sha256": "4946b7ead1a816985a1b5dbcf0ecc6aa27029f2158bb9d95da0d6d5036c3fa15",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -14861,12 +14879,16 @@
           "line": 138
         },
         {
+          "name": "remove",
+          "line": 153
+        },
+        {
           "name": "removeBySourceEvent",
-          "line": 163
+          "line": 172
         },
         {
           "name": "clearCharacter",
-          "line": 170
+          "line": 179
         }
       ]
     },
@@ -15857,8 +15879,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 348,
-      "sha256": "78ea9213742027ec6ddbe15157e36d1941ca0312874629e8cce5b35d1aad3442",
+      "lines": 354,
+      "sha256": "4a96b0cfdbd08a45a7d44d50dd9307b6355e288d986905ab162ad217b9cbd255",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -15878,23 +15900,23 @@
         },
         {
           "name": "snapshot",
-          "line": 112
+          "line": 118
         },
         {
           "name": "invalidateSource",
-          "line": 123
+          "line": 129
         },
         {
           "name": "InMemoryWorldBookRepository",
-          "line": 204
+          "line": 210
         },
         {
           "name": "initialize",
-          "line": 209
+          "line": 215
         },
         {
           "name": "snapshot",
-          "line": 241
+          "line": 247
         }
       ]
     },
@@ -17422,6 +17444,21 @@
         {
           "name": "apply",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
+      "lines": 81,
+      "sha256": "8b8c335bd839d2a543426682138f8a65d216c9e745ce0c202dfbc67e1623d4d1",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 18
+        },
+        {
+          "name": "draftsFor",
+          "line": 48
         }
       ]
     },
@@ -20451,24 +20488,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1593,
-      "sha256": "544fda6398648f9df4e0f4303a01a46302b2c4652c6fc5b7147482ed906d8fb0",
+      "lines": 1619,
+      "sha256": "0573afde745a81bddd83f0f887ffe6419178f958f4a378a88a926fb3242880c6",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
-          "line": 29
-        },
-        {
-          "name": "initialize",
           "line": 32
         },
         {
+          "name": "initialize",
+          "line": 35
+        },
+        {
           "name": "ReconsideredChatReply",
-          "line": 44
+          "line": 47
         },
         {
           "name": "commitReconsideredChatReply",
-          "line": 57
+          "line": 60
         }
       ]
     },
@@ -21997,6 +22034,17 @@
         {
           "name": "RelationshipPreferencesTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt",
+      "lines": 45,
+      "sha256": "a68fd8c9ac6fdaa01ad47e1d1f7aa9a7b5fefa772036b978d6a6f2f16fce2d12",
+      "symbols": [
+        {
+          "name": "RelativeContactCommitmentParserTest",
+          "line": 7
         }
       ]
     },
