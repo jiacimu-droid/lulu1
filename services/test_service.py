@@ -62,11 +62,15 @@ class DurableServiceTest(unittest.TestCase):
             self.assertEqual(db.execute('SELECT context FROM contexts WHERE character_id=?', ('b',)).fetchone()[0],
                              'another role')
 
-    def test_voice_agent_must_use_shared_core(self):
-        config = {'conversation_config': {'agent': {'first_message': '', 'prompt': {'llm': 'custom-llm', 'custom_llm': {'url': 'https://lulu.example/v1/llm/chat/completions'}}}}}
-        service.validate_voice_agent(config, 'https://lulu.example')
-        config['conversation_config']['agent']['prompt']['llm'] = 'other'
-        with self.assertRaises(ValueError): service.validate_voice_agent(config, 'https://lulu.example')
+    def test_retired_agent_endpoints_are_not_exposed(self):
+        handler = service.Handler.__new__(service.Handler)
+        handler.authorized = lambda *args: True
+        handler.body = lambda: {}
+        handler.reply = lambda code, payload: (code, payload)
+        for path in ("/v1/voice/session", "/v1/llm/chat/completions"):
+            handler.path = path
+            self.assertEqual(handler.do_POST(), (404, {"error": "Not found"}))
+
     def test_research_cannot_claim_notes_are_retrieved_sources(self):
         job = service.submit('a', 'research-request', 'research', {'notes': 'only notes'})
         with patch('lulu_service.sources_for', return_value=[]):

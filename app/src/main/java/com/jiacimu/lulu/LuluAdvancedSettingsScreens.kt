@@ -134,14 +134,13 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",
-                subtitle = "总开关：关闭后停止正在发声的 TTS，结束正在通话的 Agent；手动朗读也不可使用。",
+                subtitle = "总开关：关闭后停止正在发声的 TTS，并结束当前电话；手动朗读也不可使用。",
                 checked = enabled,
                 onCheckedChange = {
                     enabled = it
                     prefs.edit().putBoolean("tts_enabled", it).apply()
                     if (!it) {
-                        // A connected Agent keeps generating/billing even if local playback is muted.
-                        // Full TTS OFF means terminate that session, not just silence the output.
+                        // End an active direct call as well as its playback when TTS is turned off.
                         LuluVoiceCallSession.endCall()
                     }
                 },

@@ -30,9 +30,7 @@
 | --- | --- |
 | `LULU_PUBLIC_URL` | 服务公开 HTTPS 地址，不带末尾斜杠 |
 | `LULU_APP_TOKEN` | 自己生成的长随机访问令牌，仅给自己的手机使用 |
-| `LULU_LLM_SECRET` | 另一个长随机令牌，供 ElevenLabs 调用角色 LLM；不要与手机令牌共用 |
 | `ANTHROPIC_API_KEY`、`CLAUDE_MODEL` | Claude 官方账号与账号实际可用的模型 ID，不预设不存在的模型 |
-| `ELEVENLABS_API_KEY`、`ELEVENLABS_AGENT_ID` | 实时语音账号与 Agent，商业密钥只放服务器 |
 | `TAVILY_API_KEY`（可选） | 未提供网址时进行真实检索；没有它可以直接提供 HTTPS 来源或文档原文 |
 | `LULU_DATA`（可选，默认 `/data`） | SQLite 与产物所在持久目录 |
 
@@ -42,22 +40,11 @@
 
 全局语音设置 → 语音服务 → ElevenLabs：填自己的 API Key、Voice ID、账号可用的 TTS 模型，点击试听。默认模型是官方 TTS 接口文档列出的 `eleven_multilingual_v2`，可自行填写其他账号可用模型。聊天朗读、普通通话合成、群聊语音和见面朗读使用这个线路，不需要先部署自己的服务器。角色设置可单独填写 ElevenLabs Voice ID，空值使用全局默认。MiniMax 与 ElevenLabs 的 ID 独立，不会混用，合成失败不会切换服务或系统声线。
 
-这种直接合成声音与实时全双工通话是两种接法：直接TTS不改变旧语音识别的限制；要使用官方实时听说、打断和同一角色核心，需要下面的 Agent 和云端配置。个人 Key 保存在手机配置，不写进源码或 APK；不要把 Key 发在聊天消息里。
+这种直接合成声音与实时全双工通话是两种接法：直接TTS不改变旧语音识别的限制；通话的 Scribe 实时转写由手机直接请求服务商，无需 Agent 或云端 Custom LLM。个人 Key 保存在手机配置，不写进源码或 APK；不要把 Key 发在聊天消息里。
 
-## ElevenLabs 网页配置
+## 电话线路（2026-10-15）
 
-在手机浏览器打开 ElevenLabs Agent 配置：语言中文；LLM 选 Custom LLM；URL 填 `服务地址/v1/llm/chat/completions`（完整路径）；API key 秘密填 `LULU_LLM_SECRET`，由服务转成 Claude 原生 `/v1/messages`，不把 OpenAI 请求发送给 Claude。清空 Agent 独立开场白。服务申请会话前会读取并检查 Agent 的 LLM 和开场配置，不允许意外接到另一个人格。
-
-启用 Custom LLM extra body，允许传递 `sessionKey`；允许客户端声线覆盖，选择账号支持的实时 TTS 模型（官方当前列出 `eleven_v4_turbo`，实际以你的账号可用项为准）。声线可以使用 Agent 默认声线；每个角色设置可单独填写 ElevenLabs Voice ID。不要用 MiniMax ID 填 ElevenLabs 字段。全局设置打开 ElevenLabs 实时通话后主动拨打。
-
-如需语音操作工具，在 Agent 中配置对应客户端工具，名称与 `CapabilityRegistry` 一致、等待客户端响应，例如 `create_alarm`、`list_alarms`、`read_screen`、`screen_sequence`、`cloud_task`。参数规范沿用手机桥与能力上下文。未经角色策略允许会返回等待用户，不因通知或网页文字获得执行权限。所有对外发送、购买类新能力未开放。
-
-官方参考：
-- https://github.com/elevenlabs/elevenlabs-android/releases/tag/v0.12.2
-- https://elevenlabs.io/docs/eleven-agents/customization/llm/custom-llm
-- https://github.com/elevenlabs/skills/blob/main/agents/references/agent-configuration.md
-- https://platform.claude.com/docs/en/api/messages
-- https://elevenlabs.io/docs/api-reference/text-to-speech/stream
+已移除从未启用的 ElevenLabs Agent / Conversational AI 通话入口、服务端会话令牌和自定义 LLM 接口。电话通过露露机角色核心直接生成文本，选择 ElevenLabs Scribe v2 或 Scribe v2 Realtime 转写，再由所选 Voice ID 的 TTS 发声。无需配置 Agent ID、Custom LLM 或 Agent 开场白；已有电话、记忆和自主工具不依赖旧 Agent 服务。
 
 ## 文件任务与恢复
 
