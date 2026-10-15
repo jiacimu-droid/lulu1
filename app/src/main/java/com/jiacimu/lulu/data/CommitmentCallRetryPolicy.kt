@@ -18,8 +18,7 @@ internal object CommitmentCallRetryPolicy {
 
     fun isFinalCheck(task: CommitmentTask, attempt: Int, callsEnabled: Boolean): Boolean =
         when {
-            task.isWakeResponsibility() && (task.deliveryAction == "start_call" || callsEnabled) ->
-                attempt > MAX_WAKE_CALL_ATTEMPTS
+            task.isWakeResponsibility() -> attempt > MAX_WAKE_CALL_ATTEMPTS
             task.deliveryAction == "start_call" -> attempt > 1
             else -> false
         }

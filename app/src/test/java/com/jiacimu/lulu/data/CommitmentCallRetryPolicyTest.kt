@@ -9,6 +9,9 @@ class CommitmentCallRetryPolicyTest {
         assertEquals(300L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(2))
         assertEquals(150L, CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(3))
         assertNull(CommitmentCallRetryPolicy.nextInCallWakeReviewSeconds(4))
+        val messageOnlyWake = CommitmentTask(characterId = "role",
+            goal = "二十分钟后叫醒我", deliveryAction = "send_private_message")
+        assertTrue(CommitmentCallRetryPolicy.isFinalCheck(messageOnlyWake, 4, false))
     }
 
     private val phoneWake = CommitmentTask(
