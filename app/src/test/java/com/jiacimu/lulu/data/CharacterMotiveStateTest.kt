@@ -31,7 +31,7 @@ class CharacterMotiveStateTest {
     @Test fun continuityCanShareTimeAndActualWordsWithoutReinjectingMotives() {
         val state = CharacterContinuityRuntime.Snapshot(
             previousInteractionAt = Instant.parse("2026-10-01T12:00:00Z"),
-            minutesSinceInteraction = 85,
+            minutesSinceInteraction = 8L * 60,
             lastUserStatement = null,
             lastCharacterStatement = null,
             preferredAddress = "宝宝",
