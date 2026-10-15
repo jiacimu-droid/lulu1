@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T08:13:48.842590+00:00",
-  "commit": "d1c58cfbcba261527806b96d105cd50adc68e2ab",
+  "generatedAt": "2026-10-15T08:14:22.423441+00:00",
+  "commit": "3cc161c2d253cc996e42cbaea2f864aaf4811bb3",
   "branch": "main",
-  "sourceFingerprint": "6a7f00fbdff7cc36c33799de04fb204e86c02f23329c997091c5f97a7fb13c84",
+  "sourceFingerprint": "48010e79877ba1d3bb656dbef4353de2a4b56ee9694dec6d5e0cc3fd1a27f7ce",
   "summary": {
-    "files": 646,
-    "lines": 128322,
-    "symbols": 1906
+    "files": 647,
+    "lines": 128377,
+    "symbols": 1907
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10176,6 +10176,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
         "line": 18
+      }
+    ],
+    "CharacterMotivationOwnershipTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt",
+        "line": 7
       }
     ],
     "CharacterOpenConcernRuntimeTest": [
@@ -21714,6 +21720,17 @@
         {
           "name": "CharacterLifeVisibilityTest",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt",
+      "lines": 55,
+      "sha256": "18b86fea9604affafd6b246672cbbcba9d7b92849a734997c9bb664ed3aa9ccb",
+      "symbols": [
+        {
+          "name": "CharacterMotivationOwnershipTest",
+          "line": 7
         }
       ]
     },
