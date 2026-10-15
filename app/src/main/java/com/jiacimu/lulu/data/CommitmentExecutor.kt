@@ -67,6 +67,11 @@ internal object CommitmentExecutor {
             return
         }
 
+        // A confirmation can arrive while the previous attempt is still running.
+        // A completed goal must never initiate another call.
+        if (CommitmentTaskStore.snapshot().none {
+                it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running
+            }) return
         val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
         val action = if (useCall) "start_call" else "send_private_message"
         val wording = when {
@@ -105,8 +110,8 @@ internal object CommitmentExecutor {
                     "${claimedTask.goal}（叫醒结果复查）", silentCallback = true,
                 ).getOrNull()
             }
-            CommitmentTaskStore.update(claimedTask.id) { old ->
-                old.copy(
+            val updated = CommitmentTaskStore.update(claimedTask.id) { old ->
+                if (old.status != CommitmentTaskStatus.Running) old else old.copy(
                     status = if (queued) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Blocked,
                     attemptCount = attempt,
                     linkedAlarmId = nextAlarm?.id,
@@ -117,6 +122,9 @@ internal object CommitmentExecutor {
                             else "；后续提醒已到次数上限或未排成功")
                     } else "原电话中未能排入叫醒铃声与语音；没有再次拨号",
                 )
+            }
+            if (updated?.status != CommitmentTaskStatus.WaitingForFeedback) {
+                nextAlarm?.id?.let(LuluAlarmSystem::cancel)
             }
             return
         }
@@ -163,8 +171,8 @@ internal object CommitmentExecutor {
                 silentCallback = true,
             ).getOrNull()
         }
-        CommitmentTaskStore.update(claimedTask.id) { old ->
-            old.copy(
+        val updated = CommitmentTaskStore.update(claimedTask.id) { old ->
+            if (old.status != CommitmentTaskStatus.Running) old else old.copy(
                 status = if (!result.success || (wake && !notificationShown && !useCall))
                     CommitmentTaskStatus.Blocked else CommitmentTaskStatus.WaitingForFeedback,
                 attemptCount = attempt,
@@ -183,6 +191,9 @@ internal object CommitmentExecutor {
                     else append("；未安排更多自动呼叫")
                 },
             )
+        }
+        if (updated?.status != CommitmentTaskStatus.WaitingForFeedback) {
+            followUp?.id?.let(LuluAlarmSystem::cancel)
         }
         // A fast answer/reject can happen while the alarm job is still
         // persisting its result. Reconcile the actual user's action afterward.
