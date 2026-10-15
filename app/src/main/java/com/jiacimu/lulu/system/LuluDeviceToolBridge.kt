@@ -831,6 +831,11 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterConversationAgency.rememberInquiry(
                 appContext, characterId, plan.curiosity, causalEvidenceId, now,
             )
+            com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
+                characterId, causalEvidenceId, combined?.description.orEmpty(),
+                com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(canonicalInnerLife, plan.afterglow, if (callSilence) sceneContext else userText),
+                combined?.socialIds.orEmpty(), now,
+            )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordCausalTransition(
                 characterId = characterId,
                 evidenceId = causalEvidenceId,
@@ -842,11 +847,6 @@ object LuluDeviceToolBridge {
                 reason = plan.reason,
                 now = now,
                 alternatives = plan.alternatives,
-            )
-            com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
-                characterId, causalEvidenceId, combined?.description.orEmpty(),
-                com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(canonicalInnerLife, plan.afterglow, if (callSilence) sceneContext else userText),
-                combined?.socialIds.orEmpty(), now,
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
                 characterId, causalEvidenceId,
