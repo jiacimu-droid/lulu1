@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T03:39:44.415338+00:00",
-  "commit": "2da6e4518d1b49c4f1977e6e72fa3220a9c2bd36",
+  "generatedAt": "2026-10-15T03:41:48.332803+00:00",
+  "commit": "e16f107a938ecac586cb522adfef26cc13132afa",
   "branch": "main",
-  "sourceFingerprint": "0c8bea806e340716b453d96b75b156c34d7ce2fe38e57f33a44509b469f34f51",
+  "sourceFingerprint": "4d950273ffc6722bc16ee118343ebde5b15bf802f163d67a496b01405e2250a8",
   "summary": {
     "files": 634,
-    "lines": 127036,
+    "lines": 127042,
     "symbols": 1878
   },
   "symbolIndex": {
@@ -2541,13 +2541,13 @@
     "meetingSegment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 102
+        "line": 108
       }
     ],
     "slice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 141
+        "line": 147
       }
     ],
     "automaticAllowed": [
@@ -12834,8 +12834,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-      "lines": 165,
-      "sha256": "443335d437d6cedbad45240708e7ef7bfeeaf0b11592c7fb2ff5144b7209cc4f",
+      "lines": 171,
+      "sha256": "b46dc650e66030d5363daa66f288eb6021ef44cd88f74347d87a7008c1b697ca",
       "symbols": [
         {
           "name": "plain",
@@ -12863,11 +12863,11 @@
         },
         {
           "name": "meetingSegment",
-          "line": 102
+          "line": 108
         },
         {
           "name": "slice",
-          "line": 141
+          "line": 147
         }
       ]
     },
@@ -20961,7 +20961,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
       "lines": 138,
-      "sha256": "9627aec05860afa18e468d8fbadec755b13241df0f982fbe447750f8dfa39afe",
+      "sha256": "1fda49499f14e965ef14f6ce0a3700484b04e0524b269a9caec55507b9e3485f",
       "symbols": [
         {
           "name": "VoicePerformanceTest",
