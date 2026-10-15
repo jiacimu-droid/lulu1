@@ -578,10 +578,15 @@ internal object CompanionActionRuntime {
         // The committed reflection and source event are authoritative.
         // All following personal interpretation and notifications are optional.
         runCatching {
-        CharacterLifeStore.consider(character.characterId, response.optJSONObject("intention"), now)
+        CharacterMotivationOwnership.updateLegacyIfPresent(
+            character.characterId, response.optJSONObject("intention"), now,
+        )
+        val canonicalInnerLife = CharacterMotivationOwnership.canonicalInnerLife(
+            response.optJSONObject("intention"), response.optJSONObject("innerLife"),
+        )
         CharacterInnerLifeStore.observe(
             character.characterId, record.id, factualReceipt,
-            response.optJSONObject("innerLife"), emptySet(), now,
+            canonicalInnerLife, emptySet(), now,
         )
         CharacterInnerLifeStore.recordInnerVoice(
             character.characterId, record.id, reaction.innerThought, now,
