@@ -272,8 +272,18 @@ object ProactivePerceptionScheduler {
                     }.onFailure { error ->
                         if (error is kotlinx.coroutines.CancellationException) throw error
                         perceptionFailed = true
-                        if (OnlineChatBatchStore.isCurrent(app, characterId, revision))
-                            scheduleFailedMessageRetry(app, characterId, revision)
+                        if (OnlineChatBatchStore.isCurrent(app, characterId, revision)) {
+                            // Scheduling failure is visible, but must not crash
+                            // the UI just because a background retry was denied.
+                            runCatching { scheduleFailedMessageRetry(app, characterId, revision) }
+                                .onFailure { retryError ->
+                                    CompanionPresenceStore.recordPerceptionAttempt(
+                                        characterId,
+                                        "新消息重试排程失败 · ${retryError.message.orEmpty().take(90)}",
+                                        Instant.now(),
+                                    )
+                                }
+                        }
                     }
                 }
             } finally {
