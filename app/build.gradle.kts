@@ -111,7 +111,6 @@ android {
 }
 
 dependencies {
-    implementation("io.elevenlabs:elevenlabs-android:0.12.2")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // Render the OpenMoji SVG artwork bundled as text assets into local PNGs;
     // no network access or per-icon hand labeling is required at first launch.
