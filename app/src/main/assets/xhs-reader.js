@@ -330,7 +330,10 @@
         // hydrated; a homepage overlay with an explicit empty response must
         // NOT smuggle unrelated recommendation links into search results.
         if (!items.length && !(kind === 'search' && searchResponse) &&
-            (kind !== 'search' || searchPage)) {
+            (kind !== 'search' || searchPage) && !staleSearchState) {
+          // After SPA pushState, old page cards may remain visible while
+          // hydration is pending. Their visible DOM cannot prove they belong
+          // to the newly requested keyword; wait for fresh state/API evidence.
           // Classes have changed repeatedly in the live XHS SPA. Prefer its
           // actual real note links to guessed Vue internals; never scrape a
           // generic page text or invent a note ID. Only trust signed links
