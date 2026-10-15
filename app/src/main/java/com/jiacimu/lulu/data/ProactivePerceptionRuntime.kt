@@ -773,6 +773,11 @@ object ProactivePerceptionRuntime {
                         else "模型输出格式不完整，消息仍未回复，可点击「回复」重试"
                     )
                 }
+                // A malformed model output is NOT a character's deliberate
+                // choice to remain silent. Let the durable batch/foreground
+                // recovery retry the same unread evidence, without charging
+                // the user for a fabricated second life-reflection call.
+                throw IllegalStateException("新消息的模型决定无效，保留未读批次等待重试")
             }
             return Action.SILENT
         }

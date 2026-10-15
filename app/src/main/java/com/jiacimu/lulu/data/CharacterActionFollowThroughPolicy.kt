@@ -17,8 +17,29 @@ internal object CharacterActionFollowThroughPolicy {
             for (i in 0 until items.length()) {
                 val item = items.optJSONObject(i) ?: continue
                 if (item.optString("op") !in setOf("pause", "release") &&
-                    item.optString("status", "active") == "active" &&
-                    (item.optJSONArray("outcomes")?.length() ?: 0) == 0) choices += item.optString("aim")
+                    item.optString("status", "active") == "active") {
+                    val aim = item.optString("aim").trim()
+                    val outcomes = item.optJSONArray("outcomes")
+                    val last = outcomes?.optJSONObject(outcomes.length() - 1)
+                    // A failed tool receipt never resolves a still-active goal.
+                    // But a successful attempt is not a fresh untried impulse:
+                    // the full motive remains in normal continuity context.
+                    val failed = item.optString("lastAttemptOutcome") == "needs_review" ||
+                        (last?.has("success") == true && !last.optBoolean("success"))
+                    val consecutiveFailures = (0 until (outcomes?.length() ?: 0))
+                        .reversed()
+                        .takeWhile { index ->
+                            outcomes?.optJSONObject(index)?.let { receipt ->
+                                receipt.has("success") && !receipt.optBoolean("success")
+                            } == true
+                        }.count()
+                    if (aim.isNotBlank() && last == null) {
+                        choices += aim
+                    } else if (aim.isNotBlank() && failed && consecutiveFailures < 3) {
+                        val outcome = last?.optString("summary").orEmpty().trim().take(110)
+                        choices += "未完成的愿望：$aim；上次尝试失败：$outcome；请自己选择调整办法、暂缓或放弃，不要当作已经完成"
+                    }
+                }
             }
         }
         choices += afterglow?.optString("impulse").orEmpty()

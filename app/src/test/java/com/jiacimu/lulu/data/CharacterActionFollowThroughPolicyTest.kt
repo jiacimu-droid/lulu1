@@ -53,4 +53,28 @@ class CharacterActionFollowThroughPolicyTest {
         assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(null, goal, null, "").isEmpty())
     }
 
+    @Test fun failedActionReceiptRemainsAChoiceButNeverBecomesAnAutomaticExecution() {
+        val inner = JSONObject("""{"motives":[{"id":"m1","aim":"查清书里的疑问","status":"active",
+            "lastAttemptOutcome":"needs_review","outcomes":[{"success":false,"summary":"搜索超时"}]}]}""")
+        val choices = CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "")
+        assertEquals(1, choices.size)
+        assertTrue(choices.single().contains("查清书里的疑问"))
+        assertTrue(choices.single().contains("搜索超时"))
+        assertTrue(choices.single().contains("暂缓"))
+    }
+
+    @Test fun threeConsecutiveFailuresDoNotCreateUnlimitedPaidFollowUps() {
+        val inner = JSONObject("""{"motives":[{"id":"m1","aim":"研究一本书","status":"active",
+            "lastAttemptOutcome":"needs_review","outcomes":[{"success":false},{"success":false},{"success":false}]}]}""")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "").isEmpty())
+        // The active motive itself remains in long-term memory. Only the
+        // automatic silent-turn review is suppressed pending new evidence.
+    }
+
+    @Test fun aSuccessfulAttemptIsNotMistakenForAnUntriedImpulse() {
+        val inner = JSONObject("""{"motives":[{"aim":"看完一本书","status":"active",
+            "lastAttemptOutcome":"success","outcomes":[{"success":true,"summary":"读完第一章"}]}]}""")
+        assertTrue(CharacterActionFollowThroughPolicy.pendingChoices(inner, null, null, "").isEmpty())
+    }
+
 }
