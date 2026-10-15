@@ -66,6 +66,24 @@ test('same path with an old search query must not return stale results', () => {
   const b = browser({path: '/search_result?keyword=old', state: {search: {feeds: [row()]}}});
   assert.equal(b.snapshot('search', '', 'new').items.length, 0);
 });
+test('old visible links are not sufficient to finish a newly requested SPA search', () => {
+  const stale = {
+    href: 'https://www.xiaohongshu.com/explore/' + id + '?xsec_token=old-token',
+    getAttribute: () => '旧笔记',
+    innerText: '上一轮的旧笔记',
+    closest: () => null,
+    getBoundingClientRect: () => ({width: 260, height: 120}),
+  };
+  const b = browser({path: '/search_result?keyword=%E7%8C%AB',
+    elements: [stale], state: {search: {feeds: [row()]}}});
+  b.sandbox.__luluXhsReader.beginSearch('猫');
+  assert.deepEqual(b.snapshot('search', '', '猫').items, []);
+  b.sandbox.__INITIAL_STATE__.search.feeds = [{...row('real-new-token'), id: other}];
+  const found = b.snapshot('search', '', '猫').items;
+  assert.equal(found.length, 1);
+  assert.equal(found[0].id, other);
+});
+
 test('visible search links remain readable when site changes card CSS classes', () => {
   const cardLink = {
     href: 'https://www.xiaohongshu.com/explore/' + id +
@@ -188,16 +206,23 @@ test('note click avoids the website modal and preserves the token', () => {
   assert.equal(event.prevented, true); assert.equal(event.stopped, true);
   assert.equal(b.messages[0].token, 'token+/='); assert.equal(b.messages[0].kind, 'note');
 });
-test('SPA search keeps the real page alive until results are actually available', () => {
+test('SPA search keeps the real page alive until fresh results actually hydrate', () => {
   const b = navigationBrowser();
   const ticks = [];
   b.sandbox.setInterval = callback => { ticks.push(callback); return 1; };
   b.sandbox.clearInterval = () => {};
   b.sandbox.history.pushState(null, '', '/search_result?keyword=%E7%8C%AB');
   assert.deepEqual(b.messages, [{kind: 'search-start', keyword: '猫'}]);
+  // pushState may happen while OLD search cards are still mounted. Do not
+  // report search-ready or surface those cards as results for "猫".
+  ticks[0]();
+  assert.equal(b.messages.length, 1);
+  assert.equal(b.snapshot('search', '', '猫').items.length, 0);
+  // Only genuinely changed hydrated rows can complete this search.
+  b.sandbox.__INITIAL_STATE__.search.feeds = [{...row('hydrated-cat-token'), id: other}];
   ticks[0]();
   assert.deepEqual(b.messages[1], {kind: 'search-ready', keyword: '猫'});
-  assert.equal(b.snapshot('search', '', '猫').items[0].id, id);
+  assert.equal(b.snapshot('search', '', '猫').items[0].id, other);
 });
 test('second SPA search never treats first keyword SSR cards as new results', () => {
   const b = navigationBrowser();
