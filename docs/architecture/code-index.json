@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T17:42:44.910061+00:00",
-  "commit": "f180a5a16a2c144ee0cf4abe223d6a6a7684faaa",
+  "generatedAt": "2026-10-15T17:43:43.981346+00:00",
+  "commit": "ae46967b3757aade06c3f8b0bcd499ffd47e3909",
   "branch": "main",
-  "sourceFingerprint": "2b9248d7bd61691f227073cefd3e23159dd61d40d8d4aafbac0ca69a883cd0f3",
+  "sourceFingerprint": "5248e4c07d2fc9c75ccf3077b70ec213ff7d5fc219d0197c7b0d904c7577f23f",
   "summary": {
-    "files": 655,
-    "lines": 129000,
-    "symbols": 1927
+    "files": 656,
+    "lines": 129044,
+    "symbols": 1928
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9904,6 +9904,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
         "line": 6
+      }
+    ],
+    "QqChatPhotoAttachmentStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt",
+        "line": 19
       }
     ],
     "QqMessageGroupingTest": [
@@ -21321,6 +21327,17 @@
         {
           "name": "PresencePresentationTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt",
+      "lines": 44,
+      "sha256": "243912f79f71b318f0d92d439e9f2274ff0767b4d0669a2877a48b1f478e126e",
+      "symbols": [
+        {
+          "name": "QqChatPhotoAttachmentStoreTest",
+          "line": 19
         }
       ]
     },
