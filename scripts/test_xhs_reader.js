@@ -199,6 +199,23 @@ test('SPA search keeps the real page alive until results are actually available'
   assert.deepEqual(b.messages[1], {kind: 'search-ready', keyword: '猫'});
   assert.equal(b.snapshot('search', '', '猫').items[0].id, id);
 });
+test('second SPA search never treats first keyword SSR cards as new results', () => {
+  const b = navigationBrowser();
+  const ticks = [];
+  b.sandbox.setInterval = callback => { ticks.push(callback); return ticks.length; };
+  b.sandbox.clearInterval = () => {};
+  b.sandbox.history.pushState(null, '', '/search_result?keyword=旧关键词');
+  b.sandbox.history.pushState(null, '', '/search_result?keyword=新关键词');
+  assert.equal(b.sandbox.__luluXhsReader.pendingSearch('新关键词'), true);
+  assert.equal(b.snapshot('search', '', '新关键词').items.length, 0);
+  ticks.at(-1)();
+  assert.equal(b.messages.some(x => x.kind === 'search-ready' && x.keyword === '新关键词'), false);
+  b.sandbox.__INITIAL_STATE__.search.feeds = [{...row('fresh-token'), id: other}];
+  ticks.at(-1)();
+  assert.equal(b.snapshot('search', '', '新关键词').items[0].id, other);
+  assert.equal(b.messages.at(-1).kind, 'search-ready');
+});
+
 test('a stalled visible search reports a failure rather than pretending to have read notes', () => {
   const b = navigationBrowser();
   const ticks = [];
