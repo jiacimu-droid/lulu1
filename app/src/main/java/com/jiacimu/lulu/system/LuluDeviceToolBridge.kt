@@ -760,7 +760,7 @@ object LuluDeviceToolBridge {
         // A corrected visible sentence must not leave abusive hidden state behind.
         val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
         if (!invalidBlame && !rewriting) {
-            com.jiacimu.lulu.data.CharacterLifeStore.consider(characterId, plan.intention)
+            com.jiacimu.lulu.data.CharacterMotivationOwnership.updateLegacyIfPresent(characterId, plan.intention)
             val verifiedSources = originalUserEvidence.ifEmpty {
                 com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
                 .filter { userText.isNotBlank() && it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
@@ -821,6 +821,9 @@ object LuluDeviceToolBridge {
                 observedSources.lastOrNull()?.evidenceId.orEmpty()
                     .ifBlank { userSources.lastOrNull()?.evidenceId.orEmpty() }
             }
+            val canonicalInnerLife = com.jiacimu.lulu.data.CharacterMotivationOwnership.canonicalInnerLife(
+                plan.intention, plan.innerLife,
+            )
             com.jiacimu.lulu.data.CharacterConversationAgency.rememberInquiry(
                 appContext, characterId, plan.curiosity, causalEvidenceId, now,
             )
@@ -828,7 +831,7 @@ object LuluDeviceToolBridge {
                 characterId = characterId,
                 evidenceId = causalEvidenceId,
                 appraisal = plan.appraisal,
-                innerLife = plan.innerLife,
+                innerLife = canonicalInnerLife,
                 innerThoughtBasis = plan.innerThoughtBasis,
                 selectedAction = plan.action,
                 innerThought = plan.innerThought,
@@ -838,7 +841,7 @@ object LuluDeviceToolBridge {
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.observe(
                 characterId, causalEvidenceId, combined?.description.orEmpty(),
-                com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(plan.innerLife, plan.afterglow, if (callSilence) sceneContext else userText),
+                com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(canonicalInnerLife, plan.afterglow, if (callSilence) sceneContext else userText),
                 combined?.socialIds.orEmpty(), now,
             )
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInnerVoice(
