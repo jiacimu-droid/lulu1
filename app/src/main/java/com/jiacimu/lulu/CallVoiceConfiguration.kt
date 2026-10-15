@@ -7,7 +7,6 @@ import java.net.URI
 
 internal object CallVoiceConfiguration {
     fun provider(context: Context): String = context.getSharedPreferences("lulu_advanced_settings", 0).getString("tts_provider", "system").orEmpty()
-    fun usesAgent(provider: String, mode: String?): Boolean = provider == "elevenlabs" && mode == "agent"
     /** No automatic provider switching. Migrate old "auto" explicitly to phone STT. */
     fun normalizeSttMode(mode: String?): String = when (mode) {
         "system", "groq", "minimax", "elevenlabs" -> mode
@@ -49,8 +48,6 @@ internal object CallVoiceConfiguration {
         val p = context.getSharedPreferences("lulu_advanced_settings", 0)
         if (!p.getBoolean("tts_enabled", true)) return "语音服务已关闭，请在语音设置启用"
         val provider = provider(context)
-        val mode = p.getString("voice_call_mode", "direct")
-        if (usesAgent(provider, mode)) return null
         val stt = sttEngine(context)
         when (stt) {
             "system" -> if (!SpeechRecognizer.isRecognitionAvailable(context))
