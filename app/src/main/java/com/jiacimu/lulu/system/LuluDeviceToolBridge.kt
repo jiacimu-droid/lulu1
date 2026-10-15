@@ -410,7 +410,7 @@ object LuluDeviceToolBridge {
                 禁止工具动作、隐藏心声、章节总结和解释性代码块。
             """.trimIndent() else """
                 你正在以当前角色自己的立场做这轮决定，而不是担任无条件回答问题的助手。
-                ${CharacterDecisionProtocol.principles}
+                ${CharacterDecisionProtocol.runtimePrinciples}
                 ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
                 ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
                 ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(
