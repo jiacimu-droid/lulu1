@@ -37,6 +37,30 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, role.characterId)
     }
 
+    @Test fun photoFollowedByLaterTextMustRemainInTheSameVisionInputBatch() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "多消息识图回归", "收到图片再收到文字也要真正看图",
+        )
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        OnlineChatBatchStore.cancel(context, role.characterId)
+        CompanionOnlineStore.resetCharacter(role.characterId)
+        val photo = MigratedDomainStores.chat.sendUserMessage(chat.id,
+            com.jiacimu.lulu.encodeQqChatImage("content://app.test/picture/1", "宝宝你看"))
+        // This later bubble has a newer timestamp, but must never replace the
+        // image evidence attached to the SAME unread chat turn.
+        val words = MigratedDomainStores.chat.sendUserMessage(chat.id,
+            "别人对我声音的评价")
+        val unread = CompanionOnlineStore.unreadChatSnapshot(role.characterId)
+        assertTrue(unread.text.contains("别人对我声音的评价"))
+        assertTrue(photo.id in unread.imageEvidenceIds)
+        assertTrue(words.id !in unread.imageEvidenceIds)
+        assertTrue(photo.id !in unread.newestIds || photo.createdAt == words.createdAt)
+        OnlineChatBatchStore.cancel(context, role.characterId)
+    }
+
     @Test fun groupUserMessageWakesAllParticipantsIndependently() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
