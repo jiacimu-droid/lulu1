@@ -86,16 +86,22 @@ internal object VoicePerformance {
             val sentenceEnd = character in "。！？!?；;"
             if (!sentenceEnd || !words.substring(index + 1).any { it.isLetterOrDigit() }) return@forEachIndexed
             sentences++
-            if (sentences % 4 == 0) result.append(" [long pause]")
-            else if (sentences % 2 == 0) result.append(" [pause]")
-            // A drawn-out phrase is a rare accent, not a command to elongate
-            // every syllable of an entire bedtime story.
-            if (sentences % 7 == 0) result.append(" [drawn out]")
-            if (charactersSinceCue >= 70 || sentences % 4 == 0) {
+            // Punctuation already creates small natural rests. Use sparse tags
+            // so the generated audio is slow without large paid text overhead.
+            val pause = when {
+                sentences % 10 == 0 -> "[long pause]"
+                sentences % 7 == 0 -> "[pause]"
+                else -> ""
+            }
+            if (pause.isNotBlank()) result.append(" ").append(pause)
+            if (sentences % 20 == 0) result.append(" [drawn out]")
+            // A cue covers several sentences; don't repeat it after each
+            // comma or word, which doubled billable bedtime text in testing.
+            if (charactersSinceCue >= 320) {
                 result.append(" [whispers] [slowly]")
                 charactersSinceCue = 0
             }
-            result.append(' ')
+            if (pause.isNotBlank() || sentences % 20 == 0 || charactersSinceCue == 0) result.append(' ')
         }
         return result.toString().trim()
     }
