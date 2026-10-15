@@ -221,6 +221,36 @@ object ProactivePerceptionScheduler {
             OnlineChatBatchStore.unmarkEnqueued(context, characterId, batch.revision)
             throw error
         }
+        // While the app is actually foregrounded, avoid the OS WorkManager
+        // dispatch latency. The durable worker is still the fallback after
+        // process death; both contenders must claim the SAME batch revision,
+        // so only one model perception can consume the user's messages.
+        if (requiresUnread && foregroundChecks?.isActive == true) {
+            val app = context.applicationContext
+            scope.launch {
+                while (CompanionOnlineStore.isOnline(characterId) &&
+                    OnlineChatBatchStore.isCurrent(app, characterId, batch.revision)) {
+                    val due = OnlineChatBatchStore.dueAt(app, characterId, batch.revision)
+                        ?: return@launch
+                    val remaining = due - System.currentTimeMillis()
+                    if (remaining <= 0L) break
+                    delay(remaining)
+                }
+                if (CompanionOnlineStore.isOnline(characterId) &&
+                    OnlineChatBatchStore.isCurrent(app, characterId, batch.revision)) {
+                    runCatching {
+                        ProactivePerceptionRuntime.runDueCycle(
+                            context = app,
+                            trigger = trigger,
+                            targetCharacterId = characterId,
+                            force = true,
+                            onlineRevision = batch.revision,
+                            requiresUnread = true,
+                        )
+                    }
+                }
+            }
+        }
     }
 
     /**
