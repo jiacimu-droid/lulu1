@@ -173,7 +173,11 @@ object LuluDeviceToolBridge {
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
         val interactionKey = if (sceneContext.contains("群聊《")) {
-            "group:" + sceneContext.substringAfter("群聊《").substringBefore("》")
+            val exactGroupId = turnContext.substringAfter("群聊ID=", "")
+                .substringBefore("；").trim()
+            "group:" + exactGroupId.ifBlank {
+                sceneContext.substringAfter("群聊《").substringBefore("》")
+            }
         } else "direct:user"
         val interactionContext = com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now)
         // Real message IDs supplied by the chat transport outrank fuzzy
