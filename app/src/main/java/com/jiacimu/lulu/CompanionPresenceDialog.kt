@@ -125,13 +125,21 @@ internal fun CompanionPresenceDialog(
                             val lastAt = state?.lastPerceptionAt
                                 ?.atZone(ZoneId.systemDefault())
                                 ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")).orEmpty()
+                            val latestNote = state?.lastPerceptionNote.orEmpty()
                             val summary = when {
-                                perceptionError != null -> "感知异常 · ${perceptionError.take(100)}"
+                                perceptionError != null -> "感知异常 · $lastAt · ${perceptionError.take(100)}"
                                 photoFailed -> "图片读取失败 · ${photoStatus.takeLast(100)}"
-                                lastAt.isNotBlank() -> "最近感知 · $lastAt · " +
-                                    if (state?.lastPerceptionNote.orEmpty().contains("silent", true))
-                                        "本人选择安静" else "有运行记录"
-                                else -> "尚无感知运行记录"
+                                lastAt.isBlank() -> "尚无感知运行记录"
+                                latestNote.startsWith("感知成功") -> {
+                                    val chosen = latestNote.substringAfter("感知成功 · ", "")
+                                        .substringBefore(" · ").trim()
+                                    "最近感知 · $lastAt · " +
+                                        if (chosen.equals("silent", true)) "本人选择安静"
+                                        else "成功${chosen.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}"
+                                }
+                                latestNote.startsWith("感知启动") ->
+                                    "最近感知 · $lastAt · 已启动，尚无完成记录"
+                                else -> "最近感知 · $lastAt · 已更新"
                             }
                             Column(
                                 Modifier.fillMaxWidth().padding(horizontal = 3.dp, vertical = 2.dp),
