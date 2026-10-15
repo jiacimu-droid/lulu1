@@ -31,6 +31,7 @@ internal object CharacterBehaviorMotivation {
         appraisal: JSONObject? = null,
         innerLife: JSONObject? = null,
         speechIntent: String = "",
+        chosenUtterance: String = "",
     ): Basis? {
         fun clean(text: String): String = text.replace(Regex("\\s+"), " ").trim().take(240)
         val actionName = canonicalAction(action)
@@ -54,6 +55,18 @@ internal object CharacterBehaviorMotivation {
         val written = clean(reason)
         val speech = if (actionName in setOf("reply", "group_reply", "call_reply"))
             clean(speechIntent) else ""
+        // A role may choose to say one actual, nonempty message without narrating
+        // a second private reason field. That concrete same-turn utterance is
+        // already an authored conversational choice, not an inferred emotion.
+        // Never use this fallback to authorize tool calls, unsolicited phone
+        // calls, world changes, posts or fictional / empty messages.
+        val chosenWords = if (actionName in setOf(
+                "message", "group_message", "send_private_message", "send_group_message",
+            )) clean(chosenUtterance) else ""
+        val voicedChoice = chosenWords.takeIf {
+            it.length >= 2 && it.lowercase() !in
+                setOf("null", "none", "n/a", "无", "不知道", "未说明", "...")
+        }?.let { "本轮自己选择说：$it" }.orEmpty()
         val candidates = listOf(
             "chosen_reason" to written,
             "own_activity" to activityWhy,
@@ -61,6 +74,7 @@ internal object CharacterBehaviorMotivation {
             "spontaneous_wish" to playfulWhy,
             "felt_impulse" to impulse,
             "spoken_intent" to speech,
+            "chosen_utterance" to voicedChoice,
         )
         val selected = candidates.firstOrNull { (_, text) ->
             text.isNotBlank() && text.lowercase() !in setOf("null", "none", "n/a", "无", "不知道", "未说明")
@@ -91,6 +105,7 @@ internal object CharacterBehaviorMotivation {
         reason: String = "",
         appraisal: JSONObject? = null,
         innerLife: JSONObject? = null,
+        chosenUtterance: String = "",
     ): Boolean = action.equals("silent", ignoreCase = true) ||
-        resolve(action, reason, appraisal, innerLife) != null
+        resolve(action, reason, appraisal, innerLife, chosenUtterance = chosenUtterance) != null
 }
