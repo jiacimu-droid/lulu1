@@ -42,7 +42,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
             .takeIf { it.isNotEmpty() }?.joinToString("\n").orEmpty()
     }.getOrDefault("")
     return """
-        ${CharacterDecisionProtocol.principles}
+        ${CharacterDecisionProtocol.runtimePrinciples}
         ${CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)}
         ${spontaneousInnerVoiceGuide}
         ${CharacterSpontaneityGuide.autonomousPrinciples}
