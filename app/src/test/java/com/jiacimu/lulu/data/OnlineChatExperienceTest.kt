@@ -47,8 +47,18 @@ class OnlineChatExperienceTest {
         val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
         OnlineChatBatchStore.cancel(context, role.characterId)
         CompanionOnlineStore.resetCharacter(role.characterId)
+        val source = java.io.File.createTempFile("photo-before-message-", ".png", context.cacheDir)
+        val bitmap = android.graphics.Bitmap.createBitmap(
+            32, 24, android.graphics.Bitmap.Config.ARGB_8888)
+        java.io.FileOutputStream(source).use {
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+        }
+        bitmap.recycle()
+        val stable = com.jiacimu.lulu.QqChatPhotoAttachmentStore.import(
+            context, android.net.Uri.fromFile(source))
+        source.delete()
         val photo = MigratedDomainStores.chat.sendUserMessage(chat.id,
-            com.jiacimu.lulu.encodeQqChatImage("content://app.test/picture/1", "宝宝你看"))
+            com.jiacimu.lulu.encodeQqChatImage(stable, "宝宝你看"))
         // This later bubble has a newer timestamp, but must never replace the
         // image evidence attached to the SAME unread chat turn.
         val words = MigratedDomainStores.chat.sendUserMessage(chat.id,
@@ -58,6 +68,14 @@ class OnlineChatExperienceTest {
         assertTrue(photo.id in unread.imageEvidenceIds)
         assertTrue(words.id !in unread.imageEvidenceIds)
         assertTrue(photo.id !in unread.newestIds || photo.createdAt == words.createdAt)
+        val pixels = runBlocking {
+            com.jiacimu.lulu.QqChatImageModelInput.prepare(
+                context, role.characterId, unread.imageEvidenceIds)
+        }
+        assertEquals(1, pixels.count)
+        assertEquals(0, pixels.failures)
+        assertEquals(1, pixels.urls.size)
+        assertTrue(pixels.urls.first().startsWith("data:image/jpeg;base64,"))
         OnlineChatBatchStore.cancel(context, role.characterId)
     }
 
