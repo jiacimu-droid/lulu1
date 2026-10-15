@@ -1071,6 +1071,12 @@ object CharacterInnerLifeStore {
     /** Durable but focused subjective state. Full introspection stays available to
      * background deliberation, world scenes and exact continuity/reconciliation turns.
      */
+    /** Focus the model on the user and recently evidenced personal bonds, not JSON insertion order. */
+    private fun relevantBondIds(bonds: JSONObject?): List<String> =
+        bonds?.keys()?.asSequence()?.toList().orEmpty()
+            .sortedWith(compareByDescending<String> { it == "user" }
+                .thenByDescending { bonds?.optJSONObject(it)?.optString("updatedAt").orEmpty() })
+
     fun compactContext(characterId: String, now: Instant = Instant.now()): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -1123,7 +1129,7 @@ object CharacterInnerLifeStore {
                 }
             }
             if (paused.isNotEmpty()) appendLine("暂缓：${paused.takeLast(2).joinToString("、") { it.optString("aim").take(90) }}")
-            bonds?.keys()?.asSequence()?.take(4)?.forEach { id ->
+            relevantBondIds(bonds).take(4).forEach { id ->
                 val bond = bonds.optJSONObject(id) ?: return@forEach
                 appendLine("对${if (id == "user") "用户" else id}的主观看法：${bond.optString("interpretation").take(140)}；依据=${bond.optString("reason").take(110)}")
                 relationshipTrendText(bond).takeIf(String::isNotBlank)?.let {
@@ -1214,7 +1220,7 @@ object CharacterInnerLifeStore {
                     appendLine("· ${prior.optString("feeling")}，源于${prior.optString("cause")}")
                 }
             }
-            bonds?.keys()?.asSequence()?.take(8)?.forEach { id ->
+            relevantBondIds(bonds).take(8).forEach { id ->
                 val bond = bonds?.optJSONObject(id) ?: return@forEach
                 appendLine("· 对${if (id == "user") "用户" else "角色$id"}的当前私人看法：${bond.optString("interpretation")}；因为${bond.optString("reason")}；此前想法：${bond.optString("priorThought")}；累计${bond.optInt("observations")}次实际互动推断。")
                 relationshipTrendText(bond).takeIf(String::isNotBlank)?.let {
