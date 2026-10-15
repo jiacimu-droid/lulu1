@@ -43,6 +43,7 @@ class QqChatPhotoAttachmentStoreTest {
     @Test fun deletingCopiedPhotoCannotDeleteArbitraryGalleryFiles() {
         val context = RuntimeEnvironment.getApplication() as Context
         val gallery = File.createTempFile("external-gallery-", ".png", context.cacheDir)
+        gallery.writeBytes(byteArrayOf(1, 2, 3, 4))
         val original = Uri.fromFile(gallery).toString()
         assertFalse(QqChatPhotoAttachmentStore.deleteIfOwned(context, original))
         assertTrue(gallery.exists())
