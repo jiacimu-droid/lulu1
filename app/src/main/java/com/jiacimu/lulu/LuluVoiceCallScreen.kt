@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
@@ -25,6 +26,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +44,7 @@ import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
 
 private val CallInk = Color(0xFF243047)
@@ -368,12 +375,7 @@ fun LuluVoiceCallScreen(
                                 active = true,
                                 onClick = LuluVoiceCallSession::toggleSpeaker,
                             )
-                            CallControl(
-                                icon = if (state.microphoneMuted) Icons.Outlined.MicOff else Icons.Outlined.Mic,
-                                label = if (state.microphoneMuted) "麦克风已关" else "麦克风已开",
-                                active = !state.microphoneMuted,
-                                onClick = LuluVoiceCallSession::toggleMicrophone,
-                            )
+                            CallMicrophoneControl(state)
                                                         CallControl(Icons.Outlined.CallEnd, "挂断", true, danger = true, onClick = LuluVoiceCallSession::endCall)
                         }
                     }
@@ -474,6 +476,53 @@ private fun CallTopBar(
                     color = if (sleepMode) Color(0xFF9A6BB5) else CallInk, fontSize = 13.sp)
             }
         }
+    }
+}
+
+/** Tap toggles continuous input; holding a muted mic speaks temporarily.
+ * A short release grace lets STT receive the trailing syllable before capture shuts down. */
+@Composable
+private fun CallMicrophoneControl(state: LuluVoiceCallState) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier.size(68.dp)
+                .clip(CircleShape)
+                .background(if (state.microphoneMuted) Color.White.copy(alpha = .55f)
+                    else Color.White.copy(alpha = .92f))
+                .pointerInput(Unit) {
+                    detectTapGestures(onPress = {
+                        val releasedQuickly = withTimeoutOrNull(350L) { tryAwaitRelease() }
+                        if (releasedQuickly != null) {
+                            if (releasedQuickly) LuluVoiceCallSession.toggleMicrophone()
+                        } else {
+                            val temporary = LuluVoiceCallSession.state.value.microphoneMuted
+                            if (temporary) LuluVoiceCallSession.setMicrophoneMuted(false)
+                            tryAwaitRelease()
+                            if (temporary) {
+                                delay(450L)
+                                LuluVoiceCallSession.setMicrophoneMuted(true)
+                            }
+                        }
+                    })
+                }
+                .semantics {
+                    role = Role.Button
+                    onClick {
+                        LuluVoiceCallSession.toggleMicrophone()
+                        true
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                if (state.microphoneMuted) Icons.Outlined.MicOff else Icons.Outlined.Mic,
+                contentDescription = if (state.microphoneMuted) "长按临时说话，轻点持续开麦" else "轻点关闭麦克风",
+                modifier = Modifier.size(28.dp), tint = CallInk,
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(if (state.microphoneMuted) "按住说话" else "麦克风已开",
+            color = CallMuted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
