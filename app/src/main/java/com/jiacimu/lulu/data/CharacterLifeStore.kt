@@ -752,8 +752,11 @@ object CharacterLifeStore {
                     appendLine("用户已结束的愿望：${prior.optString("aim")}，不可擅自重启")
             }
             root.optJSONObject("intention")
+                ?.takeUnless { goal -> innerAims.any { aim ->
+                    sameCharacterMotive(goal.optString("aim"), aim)
+                } }
                 ?.let { goal ->
-                    appendLine("仍在意：${goal.optString("aim")}；原因：${goal.optString("motive")}；id=${goal.optString("createdAt")}；阶段=${goal.optString("stage", "considering")}")
+                    appendLine("历史兼容目标：${goal.optString("aim")}；原因：${goal.optString("motive")}；id=${goal.optString("createdAt")}；阶段=${goal.optString("stage", "considering")}")
                     val outcomes = goal.optJSONArray("outcomes")
                     if (outcomes != null && outcomes.length() > 0) {
                         val last = outcomes.optJSONObject(outcomes.length() - 1)
