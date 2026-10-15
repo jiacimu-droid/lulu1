@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T02:28:12.768450+00:00",
-  "commit": "d99e831f9fc7c400b74258ec661128b51a1fdb9f",
+  "generatedAt": "2026-10-15T02:31:31.165579+00:00",
+  "commit": "c6e467d90dfe929624068ee30d2ea9a4ad897030",
   "branch": "main",
-  "sourceFingerprint": "b5d841e7ef408db479e5cf7a6c892ead2f4c20bdd2a0c7c935ae4df39a66ac15",
+  "sourceFingerprint": "df28c63ae6fe4f6a7cda2875c70956e15e1a958fba7bf68cbb8e20c438039870",
   "summary": {
     "files": 634,
-    "lines": 127021,
+    "lines": 127030,
     "symbols": 1878
   },
   "symbolIndex": {
@@ -1073,7 +1073,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 298
+        "line": 297
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -1347,13 +1347,13 @@
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 285
+        "line": 284
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 378
+        "line": 377
       }
     ],
     "show": [
@@ -5957,19 +5957,19 @@
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 302
+        "line": 287
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 321
+        "line": 306
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 354
+        "line": 339
       }
     ],
     "MeetingProseLength": [
@@ -10529,7 +10529,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 418
+        "line": 443
       }
     ]
   },
@@ -11510,8 +11510,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 570,
-      "sha256": "7aa00383bd2773deaa2fda8efb32ac3cc5e3636d599e78b60a5307c8c7b611eb",
+      "lines": 569,
+      "sha256": "6cabf7d4d0a604f523120be983cbfc0eaf75e428e8be9f82f0eb8dcdff525a7f",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -11523,15 +11523,15 @@
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 285
+          "line": 284
         },
         {
           "name": "save",
-          "line": 298
+          "line": 297
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 378
+          "line": 377
         }
       ]
     },
@@ -16194,8 +16194,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 485,
-      "sha256": "db11b5eec0aa6c4fef89b23e331777eabf3e9a57981946571da9a5fbf6e0a023",
+      "lines": 470,
+      "sha256": "6dc435b78b25438abda5205a0b32f60d3c83b7498fa9d0b986704cce2438b191",
       "symbols": [
         {
           "name": "configured",
@@ -16219,15 +16219,15 @@
         },
         {
           "name": "XhsLoginQr",
-          "line": 302
+          "line": 287
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 321
+          "line": 306
         },
         {
           "name": "healthContext",
-          "line": 354
+          "line": 339
         }
       ]
     },
@@ -22307,12 +22307,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 454,
-      "sha256": "3f10429febe126aa353fdbcf0355979a53b7e21095e05369723a46b8f63650b2",
+      "lines": 479,
+      "sha256": "7c7344019d00aa473fa36d2c4acf440d2fd8954bee94314528095ac887f9c378",
       "symbols": [
         {
           "name": "XHR",
-          "line": 418
+          "line": 443
         }
       ]
     },
