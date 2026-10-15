@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T18:03:08.134716+00:00",
-  "commit": "60266f08387ceaafd42bcf826a7c1dbdd603d49d",
+  "generatedAt": "2026-10-15T18:03:26.697118+00:00",
+  "commit": "482f68322298c565a7aed9a0a70272e9c0ab8f11",
   "branch": "main",
-  "sourceFingerprint": "a23fe282e5b694bcf5c898389b6ca873a0ec74536d9c8bd8def4b1b0c09f2728",
+  "sourceFingerprint": "d45e872ed3eadb6bed5056a039b1e3d090fbd6093b3efe1add8f73ee435aa75c",
   "summary": {
     "files": 656,
-    "lines": 129223,
+    "lines": 129252,
     "symbols": 1931
   },
   "symbolIndex": {
@@ -21275,8 +21275,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt",
-      "lines": 48,
-      "sha256": "0abc7a671ad7362000ed587f623e0087f3df90c6fe97bb2c20007135cf30338b",
+      "lines": 77,
+      "sha256": "dfc351b88fa723060a7826d3491bd1b6269fd094fd9512f2e2c45908b4197528",
       "symbols": [
         {
           "name": "PerceptionStatusPresentationTest",
