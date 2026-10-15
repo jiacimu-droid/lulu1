@@ -19,6 +19,8 @@ internal object PerceptionStatusPresentation {
         if (note.isBlank()) return null
         return when {
             note.startsWith("感知失败") -> note
+            note.startsWith("模型请求失败") -> note
+            note.startsWith("通话结束后的感知尚未完成") -> note
             note.startsWith("动作失败") -> note
             note.contains("排程失败") -> note
             note.startsWith("感知暂停") -> note
