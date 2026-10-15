@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T06:37:42.758811+00:00",
-  "commit": "45b3806db8b7004c67e1b39e6f69983a22ed856c",
+  "generatedAt": "2026-10-15T06:38:11.733524+00:00",
+  "commit": "c5c46e97ad069a448ae00cadae6a585b55a896cd",
   "branch": "main",
-  "sourceFingerprint": "0abb0fd62a81798bbf76b5ff01e12d3c6a621ac8029a25319d3675909ff358c7",
+  "sourceFingerprint": "67b03397c2343a491220d114ea391de275b970b45731f59274b86671daa00c22",
   "summary": {
     "files": 643,
-    "lines": 127719,
+    "lines": 127740,
     "symbols": 1893
   },
   "symbolIndex": {
@@ -4643,7 +4643,7 @@
     "nextDelaySeconds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-        "line": 28
+        "line": 27
       }
     ],
     "CommitmentLexiconSync": [
@@ -14799,8 +14799,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt",
-      "lines": 48,
-      "sha256": "a1a5bdc0b3c8befaca10ff2c578b05d77c987e925c63619cc47dbd648baeab7d",
+      "lines": 47,
+      "sha256": "737dc7c7d25697e1720a2d7b488ca6390900c12dc8bbcf2eb6c47ba9f9bcfd4f",
       "symbols": [
         {
           "name": "nextInCallWakeReviewSeconds",
@@ -14812,7 +14812,7 @@
         },
         {
           "name": "nextDelaySeconds",
-          "line": 28
+          "line": 27
         }
       ]
     },
@@ -20823,8 +20823,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
-      "lines": 59,
-      "sha256": "9175bc62fb5716ddd746d51079de0dbb42dfc147fa57d9edf769aa63fa38ec30",
+      "lines": 78,
+      "sha256": "b4ab2f24959964c06368fd99a05e87e00cebdc439bc81fe70c1e260428322fb2",
       "symbols": [
         {
           "name": "ElevenLabsAudioContractsTest",
@@ -21704,8 +21704,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
-      "lines": 37,
-      "sha256": "9a81f46621d0d91040e36db355b200a0e10c23d623caed911637a7a585b9e92c",
+      "lines": 40,
+      "sha256": "682ede69037baaab5e9db8f98536943bff44dde4de6026bf0f29772b3d561377",
       "symbols": [
         {
           "name": "CommitmentCallRetryPolicyTest",

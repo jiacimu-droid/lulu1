@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`45b3806db8b7004c67e1b39e6f69983a22ed856c`
+- 基准提交：`c5c46e97ad069a448ae00cadae6a585b55a896cd`
 - 分支：`main`
 - 已索引文件：643
-- 已索引代码/文本行：127719
+- 已索引代码/文本行：127740
 - 已发现符号：1893
 
 | 文件 | 行数 | 符号数 |
@@ -233,7 +233,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt` | 139 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt` | 35 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 48 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicy.kt` | 47 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 191 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 136 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 37 | 1 |
@@ -499,7 +499,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ChatReceiptRunsTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 59 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
@@ -574,7 +574,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 22 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 37 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 182 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt` | 107 | 1 |
