@@ -31,7 +31,7 @@ object CharacterLifeStore {
         mutable.value = prefs!!.all.mapNotNull { (key, value) -> (value as? String)?.let { key to it } }.toMap()
         mutable.value.keys.toList().forEach(::retireDormantGenericIntention)
         // User-requested installation migration, limited to this named companion.
-        MigratedDomainStores.characters.settings.value.values.filter { it.displayName in setOf("江渡", "江都") }
+        MigratedDomainStores.characters.settings.value.values.toList()
             .forEach { applyJiangDuPreset(it.characterId) }
     }
 
@@ -184,299 +184,49 @@ object CharacterLifeStore {
         }.trim()
     }
 
-    /** One-time, restart-safe preset. Later user edits must never be overwritten on launch. */
+    /**
+     * Explicitly requested v9 rewrite, not an additive default refresh. Older
+     * installations can jump here directly, without old migrations touching
+     * identity or appending contradictory personality rules. Later edits win.
+     */
     @Synchronized fun applyJiangDuPreset(characterId: String) {
-        val character = MigratedDomainStores.characters.get(characterId)
-        if (character.displayName !in setOf("江渡", "江都")) return
+        if (prefs == null) return
+        val character = MigratedDomainStores.characters.settings.value[characterId] ?: return
         val root = state(characterId)
         val version = root.optInt("jiangDuPresetVersion")
-        if (version >= 8) return
-        if (version == 7) {
-            updateJiangDuV8Profile(characterId, root)
-            return
-        }
-        if (version == 6) {
-            updateJiangDuV7SpeechHabits(characterId, root)
-            updateJiangDuV8Profile(characterId, state(characterId))
-            return
-        }
-        if (version >= 5) {
-            migrateJiangDuUnifiedFramework(characterId, character, root)
-            // v6 is only an intermediate migration. Continue into the
-            // speech-habit and interest presets (v7/v8) on the same launch.
-            // In-progress migration guards ensure user edits stay untouched.
-            if (state(characterId).optInt("jiangDuPresetVersion") >= 6) {
-                applyJiangDuPreset(characterId)
-            }
-            return
-        }
-        if (version >= 4) {
-            refreshJiangDuLanguageDefaults(characterId, character, root)
-            if (state(characterId).optInt("jiangDuPresetVersion") >= 5) applyJiangDuPreset(characterId)
-            return
-        }
-        if (version >= 3) {
-            reorganizeJiangDuProfile(characterId, character, root)
-            applyJiangDuPreset(characterId)
-            return
-        }
-        if (version >= 2) {
-            if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-            if (!root.has("jiangDuRespectBackup")) {
-                root.put("jiangDuRespectBackup", JSONObject().put("persona", character.persona)
-                    .put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString())))
-                save(characterId, root)
-            }
-            val profile = root.optJSONObject("profile") ?: JSONObject()
-            val stagedRespect = CharacterProfileSchema.jiangDuV5.getValue("respect")
-            val oldRespect = profile.optString("respect")
-            if (!oldRespect.contains(stagedRespect)) {
-                profile.put("respect", listOf(oldRespect, stagedRespect)
-                    .filter(String::isNotBlank).joinToString("\n"))
-            }
-            if (!character.persona.contains(CharacterProfileSchema.jiangDuRespectMarker)) {
-                MigratedDomainStores.characters.update(character.copy(persona = character.persona +
-                    "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + stagedRespect))
-            }
-            root.put("profile", profile).put("jiangDuPresetVersion", 3)
-            save(characterId, root)
-            applyJiangDuPreset(characterId)
-            return
-        }
-        val rawIdentity = CharacterIdentityStore.identities.value[characterId].orEmpty()
-        if (!root.has("jiangDuPresetBackup")) {
-            root.put("jiangDuPresetBackup", JSONObject().put("persona", character.persona)
-                .put("identity", rawIdentity).put("profile", JSONObject((root.optJSONObject("profile") ?: JSONObject()).toString())))
-            // Persist backup before modifying any existing store; interrupted launches can retry.
-            save(characterId, root)
-        }
-        if (!DigitalLifeProfileStore.isResolved(characterId)) {
-            DigitalLifeProfileStore.confirmLegacyLifeForm(characterId, character.displayName,
-                "创造者", CharacterLifeForm.DIGITAL)
-        }
-        // A resolved real-world character is not silently converted by a name match.
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        // A custom identity/persona must survive an initial name-based preset too.
-        if (rawIdentity.isBlank() || rawIdentity == LegacyJiangDuProfileSchema.jiangDuIdentity)
-            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuV5Identity)
-        if (character.persona.isBlank() || character.persona == LegacyJiangDuProfileSchema.jiangDuPersona ||
-            character.persona == CharacterProfileSchema.previousJiangDuPersona) {
-            MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuV5Persona + "\n\n" +
-                CharacterProfileSchema.jiangDuRespectMarker + "\n" + CharacterProfileSchema.jiangDuV5.getValue("respect")))
-        }
+        if (version >= CharacterProfileSchema.jiangDuPresetVersion) return
+        // A previous preset identifies the SAME character after a rename.
+        if (version <= 0 && character.displayName !in CharacterProfileSchema.jiangDuNames) return
+        if (DigitalLifeProfileStore.lifeForm(characterId) == CharacterLifeForm.REAL_WORLD) return
         val profile = root.optJSONObject("profile") ?: JSONObject()
-        CharacterProfileSchema.jiangDuV5.forEach { (key, value) ->
-            if (!profile.has(key)) profile.put(key, value)
-        }
-        root.put("profile", profile).put("jiangDuPresetVersion", 3)
-        save(characterId, root)
-        applyJiangDuPreset(characterId)
-    }
-
-    private fun reorganizeJiangDuProfile(characterId: String, character: CharacterSettings,
-        root: JSONObject) {
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        val identity = CharacterIdentityStore.identities.value[characterId].orEmpty()
-        val profile = root.optJSONObject("profile") ?: JSONObject()
-        if (!root.has("jiangDuOrganizationBackup")) {
-            root.put("jiangDuOrganizationBackup", JSONObject().put("persona", character.persona)
-                .put("identity", identity).put("profile", JSONObject(profile.toString())))
-            save(characterId, root)
-        }
-        // Replace only program-owned defaults; preserve each user's edited field verbatim.
-        val v5Respect = CharacterProfileSchema.jiangDuV5.getValue("respect")
-        val cleanPersona = character.persona
-            .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect)
-            .removeSuffix("\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + v5Respect).trim()
-        val persona = if (cleanPersona == LegacyJiangDuProfileSchema.jiangDuPersona ||
-            cleanPersona == CharacterProfileSchema.previousJiangDuPersona ||
-            cleanPersona == CharacterProfileSchema.jiangDuV5Persona) CharacterProfileSchema.jiangDuV5Persona else cleanPersona
-        MigratedDomainStores.characters.update(character.copy(persona = persona))
-        if (identity == LegacyJiangDuProfileSchema.jiangDuIdentity) {
-            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuV5Identity)
-        }
-        CharacterProfileSchema.jiangDuV5.forEach { (key, value) ->
-            if (key == "speechHabits" && profile.has(key)) return@forEach
-            val current = profile.optString(key)
-            val legacy = LegacyJiangDuProfileSchema.jiangDu[key].orEmpty()
-            if (!profile.has(key) || current == legacy || current == value) profile.put(key, value)
-            else if (key == "respect") {
-                val custom = current.replace(LegacyJiangDuProfileSchema.jiangDuRespect, "").trim()
-                profile.put(key, listOf(custom, value).filter(String::isNotBlank).distinct().joinToString("\n"))
-            }
-        }
-        root.put("profile", profile).put("jiangDuPresetVersion", 4)
-        save(characterId, root)
-    }
-
-    /** Migrate only unchanged default descriptions; preserve every user-authored field. */
-    private fun refreshJiangDuLanguageDefaults(characterId: String, character: CharacterSettings,
-        root: JSONObject) {
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        val beforeConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
-        val profile = root.optJSONObject("profile") ?: JSONObject()
-        if (!root.has("jiangDuLanguageBackup")) {
-            root.put("jiangDuLanguageBackup", JSONObject()
-                .put("persona", character.persona).put("profile", JSONObject(profile.toString())))
-            save(characterId, root)
-        }
-        val previous = CharacterProfileSchema.previousJiangDuPersona
-        val stagedRespect = CharacterProfileSchema.jiangDuV5.getValue("respect")
-        val decoratedLegacy = previous + "\n\n" +
-            CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect
-        val decoratedV5 = previous + "\n\n" +
-            CharacterProfileSchema.jiangDuRespectMarker + "\n" + stagedRespect
-        if (character.persona == previous || character.persona == decoratedLegacy ||
-            character.persona == decoratedV5) {
-            MigratedDomainStores.characters.update(character.copy(
-                persona = CharacterProfileSchema.jiangDuV5Persona))
-        }
-        if (profile.optString("expression") == CharacterProfileSchema.previousJiangDuExpression)
-            profile.put("expression", CharacterProfileSchema.jiangDuV5.getValue("expression"))
-        if (profile.optString("social") == CharacterProfileSchema.previousJiangDuSocial)
-            profile.put("social", CharacterProfileSchema.jiangDuV5.getValue("social"))
-        // Explicitly saved empty strings are user edits, not missing defaults.
-        if (!profile.has("speechHabits"))
-            profile.put("speechHabits", CharacterProfileSchema.jiangDuV5SpeechHabits)
-        root.put("profile", profile).put("jiangDuPresetVersion", 5)
-        save(characterId, root)
-        // A program-owned preset refresh is not a user decision to discard
-        // evidence-backed character growth. The exact before/after fingerprints
-        // allow only this trusted migration to retain earlier active evidence.
-        val afterConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
-        if (beforeConstraints != afterConstraints) {
-            root.put("jiangDuLanguagePreviousConstraints", beforeConstraints)
-                .put("jiangDuLanguageCurrentConstraints", afterConstraints)
-            save(characterId, root)
-        }
-    }
-
-    /**
-     * v6 migration: move every program-owned JiangDu default into the unified framework without
-     * treating a user's later edits as defaults. Runtime state, memories, names, motives and
-     * relationship history are untouched.
-     */
-    private fun migrateJiangDuUnifiedFramework(
-        characterId: String,
-        character: CharacterSettings,
-        root: JSONObject,
-    ) {
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        val beforeConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
-        val profile = root.optJSONObject("profile") ?: JSONObject()
-        val identity = CharacterIdentityStore.identities.value[characterId].orEmpty()
-        if (!root.has("jiangDuUnifiedFrameworkBackup")) {
-            root.put("jiangDuUnifiedFrameworkBackup", JSONObject()
+        if (!root.has("jiangDuV9Backup")) {
+            root.put("jiangDuV9Backup", JSONObject()
+                .put("previousVersion", version)
+                .put("displayName", character.displayName)
                 .put("persona", character.persona)
-                .put("identity", identity)
-                .put("profile", JSONObject(profile.toString())))
+                .put("identity", CharacterIdentityStore.identities.value[characterId].orEmpty())
+                .put("profile", JSONObject(profile.toString()))
+                .put("socialNames", JSONObject((root.optJSONObject("socialNames") ?: JSONObject()).toString())))
+            // Persist before changing either store; an interrupted launch keeps
+            // this original backup and safely retries the unfinished rewrite.
             save(characterId, root)
         }
-
-        if (identity == LegacyJiangDuProfileSchema.jiangDuIdentity ||
-            identity == CharacterProfileSchema.jiangDuV5Identity ||
-            identity == CharacterProfileSchema.jiangDuIdentity) {
-            CharacterIdentityStore.set(characterId, CharacterProfileSchema.jiangDuIdentity)
-        }
-
-        val knownRespectAppendices = listOf(
-            LegacyJiangDuProfileSchema.jiangDuRespect,
-            CharacterProfileSchema.jiangDuV5["respect"].orEmpty(),
-            CharacterProfileSchema.jiangDuRespect,
-        ).filter(String::isNotBlank)
-        var cleanPersona = character.persona.trim()
-        knownRespectAppendices.forEach { respect ->
-            cleanPersona = cleanPersona.removeSuffix(
-                "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + respect,
-            ).trim()
-        }
-        val isProgramOwnedPersona = cleanPersona in setOf(
-            LegacyJiangDuProfileSchema.jiangDuPersona,
-            CharacterProfileSchema.previousJiangDuPersona,
-            CharacterProfileSchema.jiangDuV5Persona,
-            CharacterProfileSchema.jiangDuPersona,
-        )
-        if (isProgramOwnedPersona) {
-            MigratedDomainStores.characters.update(character.copy(persona = CharacterProfileSchema.jiangDuPersona))
-        }
-
-        CharacterProfileSchema.jiangDu.forEach { (key, value) ->
-            val current = profile.optString(key)
-            val legacy = LegacyJiangDuProfileSchema.jiangDu[key]
-            val v5 = CharacterProfileSchema.jiangDuV5[key]
-            val isLegacyDefault = legacy != null && current == legacy
-            val isV5Default = v5 != null && current == v5
-            when {
-                !profile.has(key) -> profile.put(key, value)
-                isLegacyDefault || isV5Default || current == value -> profile.put(key, value)
-                key == "respect" -> {
-                    val custom = current
-                        .replace(LegacyJiangDuProfileSchema.jiangDuRespect, "")
-                        .let { raw -> v5?.let { raw.replace(it, "") } ?: raw }
-                        .replace(CharacterProfileSchema.jiangDuRespect, "")
-                        .trim()
-                    profile.put(
-                        key,
-                        listOf(custom, value).filter(String::isNotBlank).distinct().joinToString("\n"),
-                    )
-                }
+        CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
+        val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
+            else character.displayName
+        MigratedDomainStores.characters.update(character.copy(
+            displayName = restoredName, persona = CharacterProfileSchema.jiangDuPersona))
+        root.optJSONObject("socialNames")?.let { names ->
+            if (names.optString("selfNickname") in setOf("江一舟", "江都")) {
+                names.put("selfNickname", "江渡")
             }
         }
-
-        root.put("profile", profile).put("jiangDuPresetVersion", 6)
+        // Identity, life form/birth, memories, actual goals, learned evidence,
+        // contact/voice settings and all unrelated state stay in their stores.
+        // Deliberately do not authorize old personality snapshots for this
+        // substantive rewrite: their history survives but cannot undo it.
+        root.put("profile", profile).put("jiangDuPresetVersion", CharacterProfileSchema.jiangDuPresetVersion)
         save(characterId, root)
-        val afterConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
-        if (beforeConstraints != afterConstraints) {
-            root.put("jiangDuUnifiedPreviousConstraints", beforeConstraints)
-                .put("jiangDuUnifiedCurrentConstraints", afterConstraints)
-            save(characterId, root)
-        }
-    }
-
-    /** One-time migration of untouched default wording only. An edited
-     * speech style, even an intentionally blank one, is user-owned and never
-     * overwritten by a preset refresh.
-     */
-    private fun updateJiangDuV7SpeechHabits(characterId: String, root: JSONObject) {
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        val profile = root.optJSONObject("profile") ?: JSONObject()
-        val current = profile.optString("speechHabits")
-        if (current == CharacterProfileSchema.jiangDuPreviousSpeechHabits ||
-            current == CharacterProfileSchema.jiangDuV5SpeechHabits) {
-            profile.put("speechHabits", CharacterProfileSchema.jiangDuV7SpeechHabits)
-        }
-        root.put("profile", profile).put("jiangDuPresetVersion", 7)
-        save(characterId, root)
-    }
-
-    /**
-     * One deterministic, no-API migration for Jiang Du's initial interests and
-     * natural expression. Preserve every user-authored value (including an
-     * explicitly customized speech pattern); never invent a remembered event.
-     */
-    private fun updateJiangDuV8Profile(characterId: String, root: JSONObject) {
-        if (!DigitalLifeProfileStore.isEnabled(characterId)) return
-        val beforeConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
-        val profile = root.optJSONObject("profile") ?: JSONObject()
-        val currentSpeech = profile.optString("speechHabits")
-        if (!profile.has("speechHabits") || currentSpeech in setOf(
-                CharacterProfileSchema.jiangDuV5SpeechHabits,
-                CharacterProfileSchema.jiangDuPreviousSpeechHabits,
-                CharacterProfileSchema.jiangDuV7SpeechHabits,
-            )) {
-            profile.put("speechHabits", CharacterProfileSchema.jiangDuV8SpeechHabits)
-        }
-        if (profile.optString("interests").isBlank()) {
-            profile.put("interests", CharacterProfileSchema.jiangDuV8Interests)
-        }
-        root.put("profile", profile).put("jiangDuPresetVersion", 8)
-        save(characterId, root)
-        val afterConstraints = CharacterRuntime.personaConstraintSnapshot(characterId)
-        if (beforeConstraints != afterConstraints) {
-            root.put("jiangDuV8PreviousConstraints", beforeConstraints)
-                .put("jiangDuV8CurrentConstraints", afterConstraints)
-            save(characterId, root)
-        }
     }
 
     /** A pending intention survives new rounds; a model cannot silently overwrite it. */

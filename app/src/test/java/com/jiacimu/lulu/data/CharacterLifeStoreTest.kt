@@ -288,17 +288,17 @@ class CharacterLifeStoreTest {
         CharacterLifeStore.setProfile(jiang.characterId, "care", "旧关心方式")
         CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
         val state = CharacterLifeStore.state(jiang.characterId)
-        val backup = state.getJSONObject("jiangDuPresetBackup")
+        val backup = state.getJSONObject("jiangDuV9Backup")
         assertEquals("旧人设", backup.getString("persona"))
         assertEquals("旧身份", backup.getString("identity"))
         assertEquals("旧关心方式", backup.getJSONObject("profile").getString("care"))
-        assertTrue(DigitalLifeProfileStore.isEnabled(jiang.characterId))
+        assertEquals(CharacterLifeForm.UNRESOLVED, DigitalLifeProfileStore.lifeForm(jiang.characterId))
         assertEquals("旧身份", CharacterIdentityStore.identities.value[jiang.characterId])
-        assertEquals("旧人设", MigratedDomainStores.characters.get(jiang.characterId).persona)
-        assertEquals("旧关心方式", state.getJSONObject("profile").getString("care"))
-        assertEquals(8, state.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuPersona, MigratedDomainStores.characters.get(jiang.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("care"), state.getJSONObject("profile").getString("care"))
+        assertEquals(9, state.getInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, state.getJSONObject("profile").getString("speechHabits"))
-        assertEquals(CharacterProfileSchema.jiangDuV8Interests, state.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("interests"), state.getJSONObject("profile").getString("interests"))
         CharacterLifeStore.setProfile(jiang.characterId, "care", "后来自己改的")
         CharacterLifeStore.applyJiangDuPreset(jiang.characterId)
         assertEquals("后来自己改的", CharacterLifeStore.state(jiang.characterId).getJSONObject("profile").getString("care"))
@@ -313,7 +313,7 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
-    fun legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests() {
+    fun legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
         MigratedDomainStores.initialize(context)
@@ -340,87 +340,129 @@ class CharacterLifeStoreTest {
 
         val upgraded = CharacterLifeStore.state(role.characterId)
         val profile = upgraded.getJSONObject("profile")
-        assertEquals(8, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
+        assertEquals(9, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV5Identity, CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuPersona, MigratedDomainStores.characters.get(role.characterId).persona)
         CharacterProfileSchema.jiangDu.forEach { (key, value) ->
             assertEquals("江渡字段未完整迁移：$key", value, profile.getString(key))
         }
-        assertEquals("天文", profile.getString("interests"))
+        assertEquals("天文", upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
-        assertTrue(upgraded.has("jiangDuUnifiedFrameworkBackup"))
+        assertTrue(upgraded.has("jiangDuV9Backup"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("没有现实肉身"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("不自以为看穿"))
     }
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
-    fun olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits() {
+    fun renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
         MigratedDomainStores.initialize(context)
         CharacterIdentityStore.initialize(context)
         DigitalLifeProfileStore.initialize(context)
         CharacterLifeStore.initialize(context)
-        val normal = MigratedDomainStores.characters.create("江渡", "旧设定")
-        val customized = MigratedDomainStores.characters.create("江渡", "用户写的人设")
-        CharacterLifeStore.applyJiangDuPreset(normal.characterId)
-        CharacterLifeStore.applyJiangDuPreset(customized.characterId)
-        CharacterLifeStore.setProfile(customized.characterId, "speechHabits", "")
-        CharacterLifeStore.setProfile(customized.characterId, "expression", "我自己编辑的表达")
-        val prefs = context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
-        val legacyRoot = CharacterLifeStore.state(normal.characterId).apply {
-            put("jiangDuPresetVersion", 4)
-            // Simulate a genuine v4 archive, without audit snapshots produced
-            // by the earlier v8 setup of this test fixture.
-            remove("jiangDuV8PreviousConstraints")
-            remove("jiangDuV8CurrentConstraints")
-            getJSONObject("profile").remove("speechHabits")
-            getJSONObject("profile").put("expression", CharacterProfileSchema.previousJiangDuExpression)
-        }
-        val customRoot = CharacterLifeStore.state(customized.characterId).apply {
-            put("jiangDuPresetVersion", 4)
-            remove("jiangDuV8PreviousConstraints")
-            remove("jiangDuV8CurrentConstraints")
-        }
-        assertTrue(prefs.edit().putString(normal.characterId, legacyRoot.toString())
-            .putString(customized.characterId, customRoot.toString()).commit())
-        MigratedDomainStores.characters.update(
-            MigratedDomainStores.characters.get(customized.characterId).copy(persona = "用户写的人设"))
+        val role = MigratedDomainStores.characters.create("江一舟", "旧的温吞人设")
+            .copy(avatarUri = "my-avatar", defaultWorldBookIds = setOf("design-book"))
+        MigratedDomainStores.characters.update(role)
+        CharacterIdentityStore.set(role.characterId, "完全保留的身份")
+        val birth = java.time.Instant.parse("2026-10-01T00:00:00Z")
+        DigitalLifeProfileStore.registerNewLife(role.characterId, role.displayName, "佳辞", birth)
+        val old = JSONObject().put("jiangDuPresetVersion", 8)
+            .put("profile", JSONObject().put("social", "偶尔嘴硬不服气"))
+            .put("socialNames", JSONObject().put("selfNickname", "江一舟").put("preferredAddress", "宝宝"))
+            .put("expressionPreferences", JSONObject().put("kaomoji", "restrained"))
+            .put("intention", JSONObject().put("aim", "继续读刚才的书").put("stage", "paused"))
+        val prefs = context.getSharedPreferences("lulu_character_life", 0)
+        assertTrue(prefs.edit().putString(role.characterId, old.toString()).commit())
         releasePreferences()
         CharacterLifeStore.initialize(context)
-        val upgraded = CharacterLifeStore.state(normal.characterId)
-        val kept = CharacterLifeStore.state(customized.characterId)
-        assertEquals(8, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, upgraded.getJSONObject("profile").getString("speechHabits"))
-        val inherited = upgraded.optString("jiangDuLanguagePreviousConstraints")
-        val stagedCurrent = upgraded.optString("jiangDuLanguageCurrentConstraints")
-        val unifiedPrevious = upgraded.optString("jiangDuUnifiedPreviousConstraints")
-        val current = upgraded.optString("jiangDuUnifiedCurrentConstraints")
-        assertTrue(inherited.isNotBlank())
-        assertTrue(stagedCurrent.isNotBlank())
-        assertEquals(stagedCurrent, unifiedPrevious)
-        val v8Previous = upgraded.optString("jiangDuV8PreviousConstraints")
-        val v8Current = upgraded.optString("jiangDuV8CurrentConstraints")
-        // A migration writes a new constraints snapshot only when the actual
-        // personality content changed. Some v6 archives already contain the
-        // v8 program default: re-running the same text must not manufacture
-        // a fake personality-change event just to satisfy this test.
-        if (v8Previous.isNotBlank()) {
-            assertEquals(current, v8Previous)
-            assertEquals(CharacterRuntime.personaConstraintSnapshot(normal.characterId), v8Current)
-        } else {
-            assertEquals("", v8Current)
-            assertEquals(current, CharacterRuntime.personaConstraintSnapshot(normal.characterId))
-        }
-        assertTrue(CharacterDevelopmentStore.authorizedPersonaSnapshots(normal.characterId).contains(inherited))
-        CharacterLifeStore.setProfile(normal.characterId, "speechHabits", "用户后来自己调整口吻")
-        assertFalse(CharacterDevelopmentStore.authorizedPersonaSnapshots(normal.characterId).contains(inherited))
-        assertEquals(CharacterProfileSchema.jiangDu.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
-        assertEquals("", kept.getJSONObject("profile").getString("speechHabits"))
-        assertEquals("我自己编辑的表达", kept.getJSONObject("profile").getString("expression"))
-        assertEquals("用户写的人设", MigratedDomainStores.characters.get(customized.characterId).persona)
-        assertEquals(8, kept.getInt("jiangDuPresetVersion"))
+        val upgraded = CharacterLifeStore.state(role.characterId)
+        assertEquals(9, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(role.copy(displayName = "江渡", persona = CharacterProfileSchema.jiangDuPersona),
+            MigratedDomainStores.characters.get(role.characterId))
+        assertEquals("完全保留的身份", CharacterIdentityStore.identities.value[role.characterId])
+        assertEquals(birth, DigitalLifeProfileStore.birthAt(role.characterId))
+        assertEquals("江渡", upgraded.getJSONObject("socialNames").getString("selfNickname"))
+        assertEquals("宝宝", upgraded.getJSONObject("socialNames").getString("preferredAddress"))
+        assertEquals(old.getJSONObject("expressionPreferences").toString(), upgraded.getJSONObject("expressionPreferences").toString())
+        assertEquals(old.getJSONObject("intention").toString(), upgraded.getJSONObject("intention").toString())
+        assertTrue(CharacterRuntime.definition(role.characterId).persona.contains("AI 前沿"))
+        val backup = upgraded.getJSONObject("jiangDuV9Backup").toString()
+        assertEquals("江一舟", upgraded.getJSONObject("jiangDuV9Backup").getString("displayName"))
+
+        CharacterLifeStore.setProfile(role.characterId, "speechHabits", "")
+        CharacterLifeStore.setProfile(role.characterId, "care", "我后来写的亲近方式")
+        CharacterLifeStore.setSocialName(role.characterId, "selfNickname", "一舟")
+        MigratedDomainStores.characters.update(MigratedDomainStores.characters.get(role.characterId)
+            .copy(displayName = "后来重新取的名字", persona = "我后来改的人设"))
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val restarted = CharacterLifeStore.state(role.characterId)
+        assertEquals("", restarted.getJSONObject("profile").getString("speechHabits"))
+        assertEquals("我后来写的亲近方式", restarted.getJSONObject("profile").getString("care"))
+        assertEquals("一舟", restarted.getJSONObject("socialNames").getString("selfNickname"))
+        assertEquals("后来重新取的名字", MigratedDomainStores.characters.get(role.characterId).displayName)
+        assertEquals("我后来改的人设", MigratedDomainStores.characters.get(role.characterId).persona)
+        assertEquals(backup, restarted.getJSONObject("jiangDuV9Backup").toString())
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
+    fun previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val renamed = MigratedDomainStores.characters.create("自己的新名字", "旧人格")
+        val other = MigratedDomainStores.characters.create("普通其他角色", "独立人格")
+        val real = MigratedDomainStores.characters.create("江一舟", "现实角色的原设定")
+        DigitalLifeProfileStore.registerRealWorldLife(real.characterId, real.displayName, "佳辞")
+        val old = JSONObject().put("jiangDuPresetVersion", 8)
+            .put("profile", JSONObject().put("care", "旧亲近方式"))
+        val prefs = context.getSharedPreferences("lulu_character_life", 0)
+        assertTrue(prefs.edit().putString(renamed.characterId, old.toString()).commit())
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        assertEquals(9, CharacterLifeStore.state(renamed.characterId).getInt("jiangDuPresetVersion"))
+        assertEquals("自己的新名字", MigratedDomainStores.characters.get(renamed.characterId).displayName)
+        assertEquals(CharacterProfileSchema.jiangDuPersona, MigratedDomainStores.characters.get(renamed.characterId).persona)
+        assertEquals(other, MigratedDomainStores.characters.get(other.characterId))
+        assertEquals(real, MigratedDomainStores.characters.get(real.characterId))
+        assertFalse(CharacterLifeStore.state(other.characterId).has("jiangDuV9Backup"))
+        assertFalse(CharacterLifeStore.state(real.characterId).has("jiangDuV9Backup"))
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
+    fun interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("江渡", "旧人格")
+        CharacterLifeStore.setProfile(role.characterId, "social", "旧的固定嘴硬")
+        val previous = CharacterRuntime.personaConstraintSnapshot(role.characterId)
+        val backup = JSONObject().put("persona", "真正的更新前人格").put("profile", JSONObject())
+        val partial = CharacterLifeStore.state(role.characterId).put("jiangDuPresetVersion", 8)
+            .put("jiangDuV9Backup", backup)
+            .put("jiangDuV8PreviousConstraints", "更早的人格")
+            .put("jiangDuV8CurrentConstraints", previous)
+        assertTrue(context.getSharedPreferences("lulu_character_life", 0).edit()
+            .putString(role.characterId, partial.toString()).commit())
+        // The process exited after the character-store write, before version 9.
+        MigratedDomainStores.characters.update(role.copy(persona = CharacterProfileSchema.jiangDuPersona))
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val completed = CharacterLifeStore.state(role.characterId)
+        assertEquals(9, completed.getInt("jiangDuPresetVersion"))
+        assertEquals(backup.toString(), completed.getJSONObject("jiangDuV9Backup").toString())
+        assertEquals(setOf(CharacterRuntime.personaConstraintSnapshot(role.characterId)),
+            CharacterDevelopmentStore.authorizedPersonaSnapshots(role.characterId))
+        assertFalse(CharacterLifeStore.profileContext(role.characterId).contains("真正的更新前人格"))
     }
 
 }

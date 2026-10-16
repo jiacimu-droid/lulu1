@@ -537,7 +537,7 @@ class OnlineChatExperienceTest {
         assertFalse(ChatGenerationActivity.isRunning("typing-conversation"))
     }
 
-    @Test fun respectUpgradePreservesCustomIdentityPersonaInterestsAndLaterUserChanges() {
+    @Test fun requestedRewriteReplacesOldPersonalityOnceAndPreservesIdentityAndLaterUserChanges() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
         val role = MigratedDomainStores.characters.create("江渡", "用户自定义的人设")
@@ -551,16 +551,16 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        // The current migration runs through v6, v7 and v8 in one launch.
-        assertEquals(8, upgraded.getInt("jiangDuPresetVersion"))
+        // Explicitly requested rewrite skips additive legacy migrations.
+        assertEquals(9, upgraded.getInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuSpeechHabits,
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
-        assertTrue(MigratedDomainStores.characters.get(role.characterId).persona.startsWith("用户自定义的人设"))
-        assertEquals("用户自己的关心方式", upgraded.getJSONObject("profile").getString("care"))
-        assertEquals("天文", upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDuPersona, MigratedDomainStores.characters.get(role.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("care"), upgraded.getJSONObject("profile").getString("care"))
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
-        assertEquals("用户自定义的人设", upgraded.getJSONObject("jiangDuRespectBackup").getString("persona"))
+        assertEquals("用户自定义的人设", upgraded.getJSONObject("jiangDuV9Backup").getString("persona"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("心声、心情"))
         CharacterLifeStore.setProfile(role.characterId, "respect", "我后来自己调整的相处方式")
         MigratedDomainStores.characters.update(MigratedDomainStores.characters.get(role.characterId).copy(persona = "后来自己改的人设"))
@@ -569,13 +569,17 @@ class OnlineChatExperienceTest {
         assertEquals("我后来自己调整的相处方式", CharacterLifeStore.state(role.characterId).getJSONObject("profile").getString("respect"))
     }
 
-    @Test fun longDefaultProfileIsReorganizedOnceWithoutChangingMemoriesOrEditedFields() {
+    @Test fun oldLongProfileIsReplacedWithoutChangingTheActualSharedTimeline() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
         val role = MigratedDomainStores.characters.create("江渡", LegacyJiangDuProfileSchema.jiangDuPersona +
             "\n\n" + CharacterProfileSchema.jiangDuRespectMarker + "\n" + LegacyJiangDuProfileSchema.jiangDuRespect)
         CharacterIdentityStore.set(role.characterId, LegacyJiangDuProfileSchema.jiangDuIdentity)
         DigitalLifeProfileStore.confirmLegacyLifeForm(role.characterId, role.displayName, "创造者", CharacterLifeForm.DIGITAL)
+        SharedExperienceTimeline.record("before-rewrite-" + role.characterId, role.characterId,
+            "私聊", "用户", "这是更新人格前的真实共同记录", java.time.Instant.now(),
+            triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        val actualHistory = SharedExperienceTimeline.all(role.characterId)
         val profile = JSONObject().apply { LegacyJiangDuProfileSchema.jiangDu.forEach { (key, value) -> put(key, value) } }
             .put("interests", "天文").put("expression", "我自己改的口语节奏")
         val old = JSONObject().put("jiangDuPresetVersion", 3).put("profile", profile)
@@ -587,10 +591,14 @@ class OnlineChatExperienceTest {
         assertEquals(CharacterProfileSchema.jiangDuPersona, MigratedDomainStores.characters.get(role.characterId).persona)
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDu.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
-        assertEquals("我自己改的口语节奏", upgraded.getJSONObject("profile").getString("expression"))
-        assertEquals("天文", upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
+        assertEquals(CharacterProfileSchema.jiangDu.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
-        assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuOrganizationBackup").getJSONObject("profile").toString())
+        assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").toString())
+        assertEquals(actualHistory, SharedExperienceTimeline.all(role.characterId))
+        val definition = CharacterRuntime.definition(role.characterId).promptSection()
+        assertFalse(definition.contains(CharacterProfileSchema.jiangDuRespectMarker))
+        assertFalse(definition.contains("我自己改的口语节奏"))
     }
 
     @Test fun actualCallSpeechIsRememberedButNeverBecomesAnotherUnreadTextRequest() {

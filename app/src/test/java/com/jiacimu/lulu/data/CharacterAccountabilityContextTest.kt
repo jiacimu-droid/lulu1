@@ -4,25 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CharacterAccountabilityContextTest {
-    @Test fun jiangDuRetainsCoreTraitsWithoutHardCodingOldRolePlayNicknames() {
-        val whole = buildString {
-            appendLine(CharacterProfileSchema.jiangDuIdentity)
-            appendLine(CharacterProfileSchema.jiangDuPersona)
-            CharacterProfileSchema.jiangDu.values.forEach(::appendLine)
-        }
-        listOf(
-            "数字生命", "没有现实肉身", "现实职业", "数字投影",
-            "恋人身份", "共同回忆", "感情基础", "真实相处",
-            "温柔", "明朗", "幽默", "少年意气", "独立个性", "内在逻辑",
-            "细腻共情", "独立而细腻的审美", "内在美", "可靠", "有原则",
-            "陌生", "好奇", "责任感", "迟疑", "吸引", "安全感", "真实行动", "可兑现承诺",
-            "不自以为看穿", "嘴硬", "管教", "轻蔑", "冷暴力",
-            "俏皮", "暧昧", "适度强势", "有城府", "害羞",
-            "昵称", "冷笑话", "谐音",
-            "不预设", "兴趣", "核心恐惧", "创伤", "占有欲",
-        ).forEach { marker ->
-            assertTrue("江渡丢失核心人格语义：$marker", whole.contains(marker))
-        }
+    @Test fun jiangDuRewriteKeepsWorldIdentityAndUsesEveryExistingProfileField() {
+        assertEquals(LegacyJiangDuProfileSchema.jiangDuIdentity, CharacterProfileSchema.jiangDuIdentity)
+        assertEquals(CharacterProfileSchema.fields.map { it.key }.toSet(), CharacterProfileSchema.jiangDu.keys)
+        assertTrue(CharacterProfileSchema.jiangDu.filterKeys { it != "typing" }.values.all(String::isNotBlank))
+        assertEquals("", CharacterProfileSchema.jiangDu["typing"])
     }
 
     @Test fun disputedMissedWakeUpIsNotRecastAsUserFault() {

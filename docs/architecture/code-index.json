@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T18:00:07.233370+00:00",
-  "commit": "5a26c585fcfef63c914381db0ac582156dfe889f",
+  "generatedAt": "2026-10-16T18:01:43.559921+00:00",
+  "commit": "1a47309ee6cd3761171bb4a11b51e010e3c05087",
   "branch": "main",
-  "sourceFingerprint": "afe48cc474d20bbd676286335b2f161655b6b70e672123718fe00d0ddfcc4238",
+  "sourceFingerprint": "137f8e0338baaddb610e2622519a392fb499e1979eb445a4df064799b24eb591",
   "summary": {
     "files": 684,
-    "lines": 133162,
-    "symbols": 2005
+    "lines": 132967,
+    "symbols": 2007
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -349,7 +349,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 769
+        "line": 519
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -4049,7 +4049,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 731
+        "line": 481
       }
     ],
     "cue": [
@@ -4153,7 +4153,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 711
+        "line": 461
       }
     ],
     "current": [
@@ -10580,16 +10580,28 @@
         "line": 278
       }
     ],
-    "legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests": [
+    "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 316
       }
     ],
-    "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits": [
+    "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 358
+      }
+    ],
+    "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 412
+      }
+    ],
+    "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 440
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -11241,7 +11253,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 475
+        "line": 494
       }
     ]
   },
@@ -14869,8 +14881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 816,
-      "sha256": "89ea5c4fc42146603583db731d81c76874818285a95020e0ae863d3849b4f3ca",
+      "lines": 566,
+      "sha256": "1deece3761fb8c7c6124e47661c8d27579626ae2084fc0205da3cc419cfc8f2b",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -14886,15 +14898,15 @@
         },
         {
           "name": "profileContext",
-          "line": 711
+          "line": 461
         },
         {
           "name": "compactContext",
-          "line": 731
+          "line": 481
         },
         {
           "name": "context",
-          "line": 769
+          "line": 519
         }
       ]
     },
@@ -15135,7 +15147,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
       "lines": 90,
-      "sha256": "6e9a3366f2f8af6eba225566ae5be34122e02c3fe0169c96d91680ff0d90282f",
+      "sha256": "cd2038715bb491bae34d409d5feafbdd702eace0e4f0f4332aed3d3c519b4913",
       "symbols": [
         {
           "name": "groupedFields",
@@ -17006,7 +17018,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt",
       "lines": 21,
-      "sha256": "21eb8b3ea67adfd39b4a0ed0fd699ed6236e982444d94f0af0465c5dfb287875",
+      "sha256": "48eeaa39f5b38c6f1ef3ecc369516546a8e532add4cec4b446138aae7466bf57",
       "symbols": []
     },
     {
@@ -22398,8 +22410,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 92,
-      "sha256": "16303bc1fb352249ad59b362d356f959702316c51704063c7a0b097dc3884475",
+      "lines": 78,
+      "sha256": "7be835f8c42c594ec76bab4ed55056a79d23597d12645b294919786418488626",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -22692,8 +22704,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 427,
-      "sha256": "54e8ca222753132f4177c51794d288bfb7b9eaa8283727db8b2a893bb3bb760c",
+      "lines": 469,
+      "sha256": "98957ada809c1cda75a0fa9e63a87c6b55c06cf4479b2dd9bfed90ed59ade1a6",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -22712,12 +22724,20 @@
           "line": 278
         },
         {
-          "name": "legacyJiangDuDefaultsUpgradeToV8AndPreserveExplicitInterests",
+          "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
           "line": 316
         },
         {
-          "name": "olderJiangDuUpgradesOnlyUnconfiguredLanguageWithoutOverwritingEdits",
+          "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
           "line": 358
+        },
+        {
+          "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
+          "line": 412
+        },
+        {
+          "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
+          "line": 440
         }
       ]
     },
@@ -23323,8 +23343,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 628,
-      "sha256": "02072409a83e735d1ce5d7c9bafa537b72626547055c2705de70f5b986e09089",
+      "lines": 636,
+      "sha256": "3a5e55dea01bdad285dc4c6cd7efe73762068ca827edbff9d7432bb73c0c3fdb",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -23878,12 +23898,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 511,
-      "sha256": "1677e8c81a971763401b552ab8e2cb034a336f155212f394d7f0a8ccb0d059b5",
+      "lines": 530,
+      "sha256": "e46e464b52c27d4938ad13546f04f517be7784a416aa1c80713851ec1ae8a885",
       "symbols": [
         {
           "name": "XHR",
-          "line": 475
+          "line": 494
         }
       ]
     },
