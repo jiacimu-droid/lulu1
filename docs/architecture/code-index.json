@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T07:25:23.505832+00:00",
-  "commit": "ccb521acf6ba89ae1b9e39327f2788297200e650",
+  "generatedAt": "2026-10-16T08:13:40.027187+00:00",
+  "commit": "d94564932ff8e6795db9218a1f283aad30edbcc8",
   "branch": "main",
-  "sourceFingerprint": "4e3e1c80f1cd33880485f0a0b9d0e044b36f961c44817d3b19ee2463485f6b95",
+  "sourceFingerprint": "875b93fed695fe15446b950556c027826c539d3d264ef06c8de21cecc9dc9f66",
   "summary": {
     "files": 681,
-    "lines": 132245,
+    "lines": 132297,
     "symbols": 1997
   },
   "symbolIndex": {
@@ -1541,43 +1541,43 @@
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 129
+        "line": 131
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 135
+        "line": 137
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 139
+        "line": 141
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 143
+        "line": 145
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 150
+        "line": 152
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 154
+        "line": 156
       }
     ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 158
+        "line": 160
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -2267,7 +2267,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 804
+        "line": 817
       }
     ],
     "import": [
@@ -4153,7 +4153,7 @@
     "favorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
-        "line": 60
+        "line": 63
       }
     ],
     "reflection": [
@@ -11545,8 +11545,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt",
-      "lines": 72,
-      "sha256": "0846a92c8ac9f9510009778842f70e2599068db73eb202883c8768b61ddd2260",
+      "lines": 74,
+      "sha256": "a5880d2d1e22c9f3973c335f5425373a97e5115f07f0f0ad092c2ebd2485666f",
       "symbols": [
         {
           "name": "CharacterMemoryFeatureScreen",
@@ -12193,8 +12193,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 634,
-      "sha256": "f5733d8863d51195dc36d9b90d92ac033d7a313c67cf5ccea688ac0b218fd4d0",
+      "lines": 650,
+      "sha256": "2c71beea5d8eda08780b9dd693bf66c24f405538a6aab4db86b1cddaf0041e5f",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -12354,8 +12354,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 448,
-      "sha256": "9044ae71edcc472aef99456ed7b83e9029e9c57ce17b0d664b6f277837e37968",
+      "lines": 455,
+      "sha256": "d2bfe6d1a77e5c1b5cf8c6d9442b5e6246ff65e70b178d87929a70cc23e019d0",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -12363,31 +12363,31 @@
         },
         {
           "name": "characterIdForConversation",
-          "line": 129
+          "line": 131
         },
         {
           "name": "selectConversationCharacter",
-          "line": 135
+          "line": 137
         },
         {
           "name": "pushRoute",
-          "line": 139
+          "line": 141
         },
         {
           "name": "openConversation",
-          "line": 143
+          "line": 145
         },
         {
           "name": "popRoute",
-          "line": 150
+          "line": 152
         },
         {
           "name": "replaceTop",
-          "line": 154
+          "line": 156
         },
         {
           "name": "openActivePomodoro",
-          "line": 158
+          "line": 160
         }
       ]
     },
@@ -12797,8 +12797,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 223,
-      "sha256": "40306c9647684485c2c29d7e67089f049c75a1b43754ddd2503c7b195db37d11",
+      "lines": 224,
+      "sha256": "7550b76296aa8679389ba9dc52d371d7feda1fa0370c883afaf761f762eb52a4",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -13195,12 +13195,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 957,
-      "sha256": "cba55b4dd2314027cf397e3faefbe167dea8742caeb1059bb8c65277a0800e1b",
+      "lines": 970,
+      "sha256": "4a1bd31846e7e2e41cd1b928f2a798386e780c436fbdf8483e4a1d6135af20b0",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 804
+          "line": 817
         }
       ]
     },
@@ -14848,8 +14848,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt",
-      "lines": 183,
-      "sha256": "e8b82e689e8e302b619151e3475a11e527038778817f5ba7ab9322246cbd93db",
+      "lines": 191,
+      "sha256": "88715d99da0209189dde9c6d88a530734547759f27fbb70bd6f7fd90fa70c886",
       "symbols": [
         {
           "name": "CharacterMessageFavorites",
@@ -14857,7 +14857,7 @@
         },
         {
           "name": "favorite",
-          "line": 60
+          "line": 63
         }
       ]
     },
@@ -22740,8 +22740,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt",
-      "lines": 97,
-      "sha256": "e0ed6e6049fed0ccffdf7691f20f909aee72062d7eecac1475d79d6c5da51e92",
+      "lines": 102,
+      "sha256": "99d73c1e02d5f1a2f720576d1496286250e58f07ef1c1b2c5cb3e1beded7949b",
       "symbols": [
         {
           "name": "CharacterSocialActionOpportunitiesTest",
