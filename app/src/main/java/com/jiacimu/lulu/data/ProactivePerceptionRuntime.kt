@@ -250,7 +250,10 @@ object ProactivePerceptionRuntime {
                         continue
                     }
                 }
-                val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false)
+                val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false) &&
+                    CharacterOpenConcernRuntime.recent(
+                        CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+                    ).isNotEmpty()
                 val effectiveTrigger = when {
                     onlineExpiryAtMillis > 0L -> trigger
                     trigger.contains("挂心") || trigger.contains("承诺") -> trigger
@@ -349,14 +352,13 @@ object ProactivePerceptionRuntime {
                 val minutesSinceUser = latestUserAt?.let {
                     Duration.between(it, now).toMinutes().coerceAtLeast(0L)
                 }
-                val hasConcern = LuluRepositories.lexicon.snapshot(characterId).any {
-                    it.section == LexiconSection.Concern &&
-                        it.status == com.jiacimu.lulu.core.LexiconStatus.Active
-                }
+                val hasConcern = CharacterOpenConcernRuntime.recent(
+                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+                ).isNotEmpty()
                 adaptivePerceptionMultiplier(
                     jitter = stableTimingVariation(characterId, anchor),
                     unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
-                    pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false),
+                    pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false) && hasConcern,
                     hasConcern = hasConcern,
                     minutesSinceUserContact = minutesSinceUser,
                 )
@@ -505,8 +507,9 @@ object ProactivePerceptionRuntime {
             "- [evidenceId=${event.id}；${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
         }
         val lexicon = LuluRepositories.lexicon.snapshot(characterId)
-        val concerns = lexicon.filter { it.section == LexiconSection.Concern && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
-            .joinToString("\n") { "- ${it.title}：${it.content.take(400)}；最近回访=${it.lastFollowUpAt}" }
+        val hasPrivateConcerns = CharacterOpenConcernRuntime.recent(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+        ).isNotEmpty()
         val commitments = lexicon.filter { it.section == LexiconSection.Promise && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
             .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
@@ -514,7 +517,7 @@ object ProactivePerceptionRuntime {
         val proactiveInitiativeContext = CharacterInitiativeRuntime.proactiveContext(
             characterId = characterId,
             recentActions = recentAutonomousActions,
-            hasConcern = concerns.isNotBlank(),
+            hasConcern = hasPrivateConcerns,
             hasCommitment = commitments.isNotBlank(),
             now = now,
         )
@@ -687,8 +690,7 @@ object ProactivePerceptionRuntime {
                     appendLine("【角色最近自己的生活记录｜旧→新】")
                     appendLine(recentLifeContext)
                 }
-                if (concerns.isNotBlank()) appendLine("【挂心】\n$concerns")
-                if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
+                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
                 val clockResponsibilities = CommitmentTaskStore.active(characterId)
                 if (clockResponsibilities.isNotEmpty()) {
                     appendLine("【已接下的约定 · 程序负责执行，绝不能以日记代替】")
@@ -737,7 +739,7 @@ object ProactivePerceptionRuntime {
                 currentInput = listOf(onlineUnread.text, salientInteraction?.content.orEmpty())
                     .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
-                recentContext = listOf(recent, recentLifeContext, pendingUserContext, concerns, commitments)
+                recentContext = listOf(recent, recentLifeContext, pendingUserContext, commitments)
                     .filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),

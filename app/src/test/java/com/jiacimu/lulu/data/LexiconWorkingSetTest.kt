@@ -35,14 +35,13 @@ class LexiconWorkingSetTest {
         MemoryWorkingSet.assemble(context, LexiconMemoryContext.select(role, query), emptyList(),
             PromptContextBudget(18, 1000, 1000, 1000, false, false, 1500, false, workingSetCharacters = 4000), "")
 
-    @Test fun relevantDiaryGetsSpaceAmongHundredsOfOpenConcerns() = runBlocking {
+    @Test fun historicalConcernsNeverEvictDiariesOrEnterCurrentMemory() = runBlocking {
         repeat(120) { LuluRepositories.lexicon.save(entry("concern-$it", LexiconSection.Concern, "挂心的事情$it。".repeat(30))) }
         LuluRepositories.lexicon.save(entry("cat-diary", LexiconSection.Diary, "橘猫在桥西等我，我看得很开心"))
         val set = working("橘猫在桥西")
         assertTrue("lexicon:cat-diary" in set.selected)
-        assertTrue(set.selected.any { it.startsWith("lexicon:concern-") })
+        assertFalse(set.selected.any { it.startsWith("lexicon:concern-") })
         assertTrue(set.sections[MemoryWorkingSet.LEXICON]!!.length <= 1500)
-        assertTrue(set.omitted.values.any { it.contains("预算") })
         assertEquals(121, LuluRepositories.lexicon.snapshot(role).size)
     }
 

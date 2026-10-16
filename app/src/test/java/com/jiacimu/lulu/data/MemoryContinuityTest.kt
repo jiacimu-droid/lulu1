@@ -74,7 +74,7 @@ class MemoryContinuityTest {
         val concern = LexiconEntry("concern", "role", LexiconSection.Concern, "等待结果", "考试结果还没出来", null, now, now)
         LuluRepositories.lexicon.save(concern)
         repeat(60) { index -> LuluRepositories.lexicon.save(LexiconEntry("diary-$index", "role", LexiconSection.Diary, "日记$index", "无关日记", null, now, now.plusSeconds(index.toLong()))) }
-        assertTrue(LexiconMemoryContext.select("role", "普通问候").any { it.id == concern.id })
+        assertFalse(LexiconMemoryContext.select("role", "普通问候").any { it.id == concern.id })
         SharedExperienceTimeline.initialize(context)
         SharedExperienceTimeline.record("event", "role", "私聊", "用户", "考试结果出来了", now,
             triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)

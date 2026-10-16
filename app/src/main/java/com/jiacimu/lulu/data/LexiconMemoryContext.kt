@@ -10,14 +10,14 @@ object LexiconMemoryContext {
         val taskEntries = CommitmentTaskStore.active(characterId).mapNotNullTo(mutableSetOf()) { it.lexiconEntryId }
         val entries = LuluRepositories.lexicon.snapshot(characterId)
             .filter { lexiconHasLiveSources(it) }
-            .filterNot { it.id in taskEntries }
+            .filterNot { it.section == LexiconSection.Concern || it.id in taskEntries }
         val terms = memorySearchTerms(RelevantMemoryRecall.focusQuery(query))
         val ranked = entries.map { entry ->
             entry to terms.intersect(memorySearchTerms("${entry.title} ${entry.content}")).size
         }.sortedWith(compareByDescending<Pair<LexiconEntry, Int>> { it.second }.thenByDescending { it.first.updatedAt })
         val active = ranked.filter { it.first.status == LexiconStatus.Active &&
-            it.first.section in setOf(LexiconSection.Promise, LexiconSection.Concern, LexiconSection.Life) }.map { it.first }
-        // Live concerns and responsibilities have their own channel; diaries cannot evict them.
+            it.first.section in setOf(LexiconSection.Promise, LexiconSection.Life) }.map { it.first }
+        // Living private concerns are recalled from innerLife, never the historical lexicon.
         var remaining = 7_000
         val related = ranked.filter { it.first !in active && it.second >= 2 }
             .map { it.first }.filter { entry ->

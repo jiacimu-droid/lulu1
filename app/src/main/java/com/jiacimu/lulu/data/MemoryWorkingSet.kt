@@ -7,7 +7,7 @@ internal object MemoryWorkingSet {
     const val RECENT = "近期原始时间线（新原话优先；旧理解不得覆盖本轮纠正）："
     const val EVIDENCE = "召回的原始依据（按证据类型理解）："
     const val SUMMARY = "往事与当前理解（摘要仅供联想，以原始依据为准）："
-    const val LEXICON = "生活记录（主观挂心、日记与收藏不证明实际行动）："
+    const val LEXICON = "生活记录（日记和收藏只证明写作或收藏；旧版挂心笔记不进入当前心理决策）："
 
     fun assemble(context: UnifiedMemoryContext, lexicon: List<LexiconEntry>,
                  auxiliary: List<Pair<String, String>>, budget: PromptContextBudget,
@@ -39,7 +39,8 @@ internal object MemoryWorkingSet {
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
             }
             lexicon.forEachIndexed { index, entry ->
-                val subjective = entry.section in setOf(LexiconSection.Concern, LexiconSection.Diary, LexiconSection.Favorite)
+                if (entry.section == LexiconSection.Concern) return@forEachIndexed
+                val subjective = entry.section in setOf(LexiconSection.Diary, LexiconSection.Favorite)
                 add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
                     "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}",
                     740 - index.coerceAtMost(80),
