@@ -554,7 +554,7 @@ internal object XhsReadingEngine {
                         val requested = Uri.parse(url)
                         val sameSearch = kind == "search" &&
                             current.host == requested.host &&
-                            current.path == requested.path &&
+                            (current.path == requested.path || current.path == "/search_result_ai") &&
                             current.getQueryParameter("keyword") == keyword
                         var triedSiteSearchInput = false
                         var openedSearchOverlayAt = 0L
@@ -754,10 +754,10 @@ internal object XhsReadingEngine {
                     page?.optBoolean("loginPrompt") == true ->
                         "网页需要重新登录，请在内置网页检查登录状态"
                     ready.isBlank() -> "页面脚本尚未运行，无法判断搜索请求是否发出"
-                    path !in setOf("/search_result", "/search", "/search/result") &&
+                    path !in setOf("/search_result", "/search_result_ai", "/search", "/search/result") &&
                         search?.optBoolean("pending") != true ->
                         "仍停留在首页，网页搜索未成功导航"
-                    api == null && path in setOf("/search_result", "/search", "/search/result") ->
+                    api == null && path in setOf("/search_result", "/search_result_ai", "/search", "/search/result") ->
                         "已进入搜索页，但未观察到搜索结果；可能是页面数据未加载或网站限制"
                     visible > 0 || hydrated > 0 ->
                         "网页含有搜索卡片但提取器未读取，请查看诊断中的页面计数"
