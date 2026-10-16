@@ -141,7 +141,7 @@ class CharacterDecisionProtocolTest {
             "先想想，正经回答好像也有道理，不过怎么都觉得少点什么。",
             "等等……我突然想到一个离谱答案。要是真说出来她会不会笑？",
             "不对不对，我好像更想看她听到以后是什么反应。算了，试一下？",
-        ).joinToString("\n\n").repeat(2)
+        ).joinToString("\n\n").repeat(4)
         val kept = CharacterHeartVoicePolicy.keepOrBlank(
             thought = thought, outward = "我有个答案。",
             basis = basis, delta = delta, hasFreshEvidence = true,
