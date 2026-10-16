@@ -701,7 +701,20 @@ internal object XhsReadingEngine {
                                         searchFormSubmitted = true
                                         stage("已经向网站搜索框提交关键词")
                                     } else if (elapsed >= 4_000L) {
-                                        error("已经打开网站搜索入口，但未显示可输入的搜索框；请在当前网页检查登录或验证")
+                                        // The website sometimes opens a decorative search
+                                        // overlay without mounting an editable input.
+                                        // This is not an account/login failure. The old
+                                        // path threw here BEFORE the official URL fallback
+                                        // could ever run, so the real-search smoke test
+                                        // failed while the homepage reader still worked.
+                                        openedSearchOverlayAt = 0L
+                                        if (!attemptedDirectFallback) {
+                                            attemptedDirectFallback = true
+                                            stage("搜索入口没有显示输入框，尝试一次官方关键词结果页")
+                                            view.loadUrl(url)
+                                        } else {
+                                            stage("搜索输入框不可用，等待官方搜索页面返回结果")
+                                        }
                                     }
                                 }
                             }
