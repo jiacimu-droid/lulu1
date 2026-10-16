@@ -93,7 +93,12 @@ internal object CharacterLifeVisibility {
             }
         CharacterGrowthTrajectory.entries(role, now).forEach { trace ->
             items += CharacterLifeVisible(trace.at,
-                if (trace.category == "学习") "探索" else if (trace.category == "行动") "行动" else "成长",
+                when (trace.category) {
+                    "学习" -> "探索"
+                    "行动" -> "行动"
+                    "成长" -> "成长"
+                    else -> "心路" // immediate feedback or reflection isn't a stable learned trait
+                },
                 trace.label, trace.detail, trace.evidenceId)
         }
         val mind = CharacterInnerLifeStore.snapshot(role)

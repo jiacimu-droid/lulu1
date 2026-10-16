@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -34,15 +36,26 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
         }
     }
     // A single evidence timeline: own actions and exploration are both lived experiences.
-    val categories = listOf("成长", "经历")
+    val categories = listOf("全部", "经历", "心路", "成长")
     val history = remember(characterId, now, life, mindRevision, developmentRevision) {
         CharacterLifeVisibility.archive(characterId, now)
     }
     val activeSection = section.coerceIn(0, categories.lastIndex)
-    val visible = history.filter { if (activeSection == 0) it.category == "成长"
-        else it.category == "行动" || it.category == "探索" }
+    val visible = history.filter { entry ->
+        when (activeSection) {
+            1 -> entry.category in setOf("行动", "探索")
+            2 -> entry.category == "心路"
+            3 -> entry.category == "成长"
+            else -> true
+        }
+    }
     Column(modifier) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        Text("历程只读取已有事实、当时心路与成长记录，不再保存一份重复的人物历史。",
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             categories.forEachIndexed { index, title ->
                 FilterChip(selected = activeSection == index, onClick = { section = index },
