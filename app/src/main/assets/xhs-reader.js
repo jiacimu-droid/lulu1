@@ -108,7 +108,14 @@
     received.searchPending = next;
     received.failures.search = '';
   };
-  const searchInputSelectors = '#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"],input[placeholder*="搜"],[role="searchbox"],[class*="search"] input';
+  // XHS uses different search controls in narrow/mobile-width layouts,
+  // including textarea and contenteditable wrappers. Only accept controls
+  // explicitly associated with search, never arbitrary login/text fields.
+  const searchInputSelectors = '#search-input,input.search-input,input[type="search"],input[name="keyword"],' +
+    'input[placeholder*="搜索"],input[placeholder*="搜"],input[placeholder*="关键词"],' +
+    'input[aria-label*="搜索"],input[aria-label*="搜"],input[enterkeyhint="search"],' +
+    '[role="searchbox"],[role="search"] input,[class*="search"] input,' +
+    '[class*="search"] textarea,[class*="search"] [contenteditable="true"]';
   const isVisibleSearchControl = el => {
     const r = el?.getBoundingClientRect?.();
     return !!el && (!r || (r.width > 2 && r.height > 2));
@@ -139,8 +146,15 @@
     const input = findSearchInput();
     if (!input) return 'input-missing';
     beginSearch(keyword);
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement?.prototype || {}, 'value')?.set;
-    if (setter) setter.call(input, keyword); else input.value = keyword;
+    const editable = input.isContentEditable === true ||
+      input.getAttribute?.('contenteditable') === 'true';
+    if (editable) input.textContent = keyword;
+    else {
+      const prototype = input.tagName === 'TEXTAREA'
+        ? window.HTMLTextAreaElement?.prototype : window.HTMLInputElement?.prototype;
+      const setter = Object.getOwnPropertyDescriptor(prototype || {}, 'value')?.set;
+      if (setter) setter.call(input, keyword); else input.value = keyword;
+    }
     input.dispatchEvent(new Event('input', {bubbles: true}));
     input.dispatchEvent(new Event('change', {bubbles: true}));
     const button = document.querySelector('.search-icon,.search-button,.search-btn,[aria-label*="搜索"],[aria-label="search"]') || input.form?.querySelector('button[type="submit"]');
