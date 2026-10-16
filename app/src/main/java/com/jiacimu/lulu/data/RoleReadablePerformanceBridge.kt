@@ -41,7 +41,7 @@ object RoleReadablePerformanceBridge {
                     val now = Instant.now()
                     val today = LocalDate.now()
                     characters.forEach { character ->
-                        LuluRepositories.memory.save(
+                        LuluRepositories.memory.upsert(
                             MemoryEntry(
                                 id = "system-duration-${character.characterId}",
                                 characterId = character.characterId,

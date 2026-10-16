@@ -34,18 +34,9 @@ internal object MemorySourceIntegrityRuntime {
     private suspend fun sweepAllCharacters() {
         MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
             LuluRepositories.memory.snapshot(characterId).forEach { memory ->
-                val sourceIds = memory.integritySourceEventIds()
-                if (sourceIds.isNotEmpty() && !memoryHasLiveSources(memory, characterId)) {
-                    LuluRepositories.memory.delete(memory.id)
-                    MemoryValidityStore.removeMemory(memory.id)
-                }
+                LuluRepositories.memory.discardIfSourcesInvalid(memory)
             }
         }
     }
 }
 
-private fun com.jiacimu.lulu.core.MemoryEntry.integritySourceEventIds(): List<String> = when {
-    source.startsWith("timeline-events:") -> source.removePrefix("timeline-events:").split('|')
-    source.startsWith("timeline-batch:") -> source.removePrefix("timeline-batch:").split('|')
-    else -> emptyList()
-}.map(String::trim).filter(String::isNotBlank).distinct()

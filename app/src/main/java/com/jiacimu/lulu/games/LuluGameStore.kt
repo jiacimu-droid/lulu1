@@ -244,7 +244,7 @@ class LuluGameStore internal constructor(context: Context) {
                 detail = "${record.summary}；得分 ${record.score}。",
                 occurredAt = record.createdAt,
                 strength = 5,
-                source = "game:${record.type.name}",
+                sourceEventIds = listOf("game-raw-${record.id}"),
             )
             val conversation = MigratedDomainStores.chat.conversations.value
                 .filter { it.characterId == record.characterId && it.parentConversationId == null && !it.id.endsWith("-study-focus") }

@@ -87,6 +87,18 @@ class MemoryLifecycleIntegrationTest {
         assertTrue(LuluRepositories.memory.snapshot("lifecycle").isEmpty())
     }
 
+    @Test fun anAutomaticRecordCannotReturnWithNewWordingAfterDeletionAndRestart() = runBlocking {
+        val context = initialize()
+        val record = memory("stable-system-record", "初始统计").copy(source = "设备统计", sourceRevisions = emptyMap())
+        LuluRepositories.memory.upsert(record)
+        LuluRepositories.memory.delete(record.id)
+        val restored = LocalMemoryRepository().apply { initialize(context) }
+        restored.upsert(record.copy(content = "更新后的统计"))
+        assertTrue(restored.snapshot("lifecycle").isEmpty())
+        restored.save(record.copy(content = "用户明确恢复的统计"))
+        assertEquals("用户明确恢复的统计", restored.snapshot("lifecycle").single().content)
+    }
+
     @Test fun extractionCannotCommitAnAnswerReadBeforeASourceEdit() = runBlocking {
         val server = MockWebServer()
         val release = CountDownLatch(1)

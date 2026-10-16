@@ -386,18 +386,21 @@ object PomodoroCompanionSessions {
             // Study duration/rewards are still recorded by the study module. Shared companion memory
             // only exists when the two of them actually interacted during this concrete session.
             if (transcript.isNotBlank()) {
+                val eventId = "pomodoro-raw-${pomodoro.activeSessionId}"
+                val occurredAt = pomodoro.sessionStartedAtEpochMillis.takeIf { it > 0L }?.let(Instant::ofEpochMilli) ?: Instant.now()
+                val detail = buildString {
+                    append("任务“$task”，实际学习 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
+                    if (rewardMessage.isNotBlank()) append("结算：$rewardMessage。")
+                }
+                // The chat already owns its exact transcript. Keep only the timer's own
+                // factual receipt here, so deleting a message cannot leave a shadow copy.
+                SharedExperienceTimeline.record(eventId, characterId, "共同番茄钟", "番茄钟记录", detail,
+                    occurredAt, sessionId = pomodoro.activeSessionId, source = "pomodoro",
+                    evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation)
                 SharedExperienceTimeline.remember(
-                    memoryId = "pomodoro-${pomodoro.activeSessionId}",
-                    characterId = characterId,
-                    label = "共同番茄钟",
-                    detail = buildString {
-                        append("任务“$task”，实际学习 ${actualMinutes.coerceAtLeast(1)} 分钟，$reason。")
-                        if (rewardMessage.isNotBlank()) append("结算：$rewardMessage。")
-                        append("期间的私聊：\n$transcript")
-                    },
-                    occurredAt = pomodoro.sessionStartedAtEpochMillis.takeIf { it > 0L }?.let(Instant::ofEpochMilli) ?: Instant.now(),
-                    strength = 6,
-                    source = "pomodoro",
+                    memoryId = "pomodoro-${pomodoro.activeSessionId}", characterId = characterId,
+                    label = "共同番茄钟", detail = detail, occurredAt = occurredAt,
+                    strength = 6, sourceEventIds = listOf(eventId),
                 )
             }
         }

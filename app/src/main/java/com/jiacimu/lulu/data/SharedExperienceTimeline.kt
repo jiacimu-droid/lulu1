@@ -393,11 +393,13 @@ object SharedExperienceTimeline {
         detail: String,
         occurredAt: Instant = Instant.now(),
         strength: Int = 5,
-        source: String = "shared-experience",
+        sourceEventIds: List<String>,
     ) {
         val cleanDetail = detail.trim()
         if (memoryId.isBlank() || characterId.isBlank() || cleanDetail.isBlank()) return
         if (!DigitalLifeProfileStore.allowsTimestamp(characterId, occurredAt)) return
+        val evidence = eventsByIds(characterId, sourceEventIds)
+        if (sourceEventIds.isEmpty() || evidence.size != sourceEventIds.distinct().size) return
         scope.launch {
             LuluRepositories.memory.upsert(
                 MemoryEntry(
@@ -405,7 +407,8 @@ object SharedExperienceTimeline {
                     characterId = characterId,
                     content = "$label：${cleanDetail.take(2_400)}",
                     kind = MemoryKind.Timeline,
-                    source = source,
+                    source = "timeline-events:${sourceEventIds.distinct().joinToString("|")}",
+                    sourceRevisions = evidence.associate { it.id to it.revision },
                     occurredAt = occurredAt,
                     createdAt = Instant.now(),
                     strength = strength.coerceIn(1, 10),

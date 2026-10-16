@@ -92,6 +92,7 @@ class LocalMemoryRepository : MemoryRepository {
                 processedMessageIds = current.processedMessageIds - characterId,
                 immediateProcessedIds = current.immediateProcessedIds - characterId,
                 forgottenSourceIds = current.forgottenSourceIds - characterId,
+                deletedMemoryIds = current.deletedMemoryIds - characterId,
                 deletedMemoryKeys = current.deletedMemoryKeys.filterNot { it.startsWith("$characterId:") }.toSet(),
             )
         }
@@ -436,7 +437,7 @@ class LocalMemoryRepository : MemoryRepository {
         synchronized(SharedExperienceTimeline) {
         if (!memoryHasLiveSources(clean, clean.characterId)) return
         mutate { current ->
-            if (!allowRestore && scopedKey in current.deletedMemoryKeys) return@mutate current
+            if (!allowRestore && (scopedKey in current.deletedMemoryKeys || clean.id in current.deletedMemoryIds[clean.characterId].orEmpty())) return@mutate current
             if (current.entries.any { it.id == clean.id && it.characterId != clean.characterId }) return@mutate current
             val index = current.entries.indexOfFirst { item -> item.id == clean.id }
             val nextEntries = if (index < 0) current.entries + clean
@@ -444,6 +445,8 @@ class LocalMemoryRepository : MemoryRepository {
             current.copy(
                 entries = nextEntries,
                 deletedMemoryKeys = if (allowRestore) current.deletedMemoryKeys - scopedKey else current.deletedMemoryKeys,
+                deletedMemoryIds = if (allowRestore) current.deletedMemoryIds +
+                    (clean.characterId to (current.deletedMemoryIds[clean.characterId].orEmpty() - clean.id)) else current.deletedMemoryIds,
             )
         }
         }
@@ -459,6 +462,8 @@ class LocalMemoryRepository : MemoryRepository {
                 entries = current.entries.filterNot { entry -> entry.id == id },
                 deletedMemoryKeys = target?.let { current.deletedMemoryKeys + it.scopedMemoryKey() }
                     ?: current.deletedMemoryKeys,
+                deletedMemoryIds = target?.let { current.deletedMemoryIds +
+                    (it.characterId to (current.deletedMemoryIds[it.characterId].orEmpty() + it.id)) } ?: current.deletedMemoryIds,
             )
         }
         target?.let {
@@ -484,6 +489,9 @@ class LocalMemoryRepository : MemoryRepository {
             current.copy(
                 entries = current.entries.filterNot { entry -> entry.memoryIdentityKey() == targetKey },
                 deletedMemoryKeys = current.deletedMemoryKeys + victims.map(MemoryEntry::scopedMemoryKey),
+                deletedMemoryIds = current.deletedMemoryIds + victims.groupBy(MemoryEntry::characterId).mapValues { (role, entries) ->
+                    current.deletedMemoryIds[role].orEmpty() + entries.map { it.id }
+                },
                 forgottenSourceIds = current.forgottenSourceIds + victims.groupBy(MemoryEntry::characterId).mapValues { (characterId, memories) ->
                     current.forgottenSourceIds[characterId].orEmpty() + memories.flatMap { it.sourceIds() }
                 },
@@ -539,6 +547,20 @@ class LocalMemoryRepository : MemoryRepository {
             characterId,
         )
         return removed
+    }
+
+    internal fun discardIfSourcesInvalid(memory: MemoryEntry) = synchronized(SharedExperienceTimeline) {
+        if (memory.sourceIds().isEmpty() || memoryHasLiveSources(memory, memory.characterId)) return@synchronized
+        var removed = false
+        mutate { current ->
+            if (memory !in current.entries) return@mutate current
+            removed = true
+            current.copy(entries = current.entries.filterNot { it == memory })
+        }
+        if (removed) {
+            MemoryValidityStore.removeMemory(memory.id)
+            CoreMemoryInjectionAudit.removeMemory(memory.characterId, memory.id)
+        }
     }
 
     suspend fun deleteDerivedFromEvent(eventId: String) = invalidateDerivedFromEvent(eventId)
@@ -809,6 +831,9 @@ class LocalMemoryRepository : MemoryRepository {
             value.immediateProcessedIds.forEach { (characterId, ids) -> put(characterId, JSONArray(ids.toList())) }
         })
         .put("deletedMemoryKeys", JSONArray(value.deletedMemoryKeys.toList()))
+        .put("deletedMemoryIds", JSONObject().apply {
+            value.deletedMemoryIds.forEach { (role, ids) -> put(role, JSONArray(ids.toList())) }
+        })
 
     private fun decode(raw: String?): MemoryStoreState {
         if (raw.isNullOrBlank()) return MemoryStoreState()
@@ -882,6 +907,12 @@ class LocalMemoryRepository : MemoryRepository {
                 immediateProcessedIds = immediateProcessed,
                 forgottenSourceIds = forgotten,
                 deletedMemoryKeys = deleted,
+                deletedMemoryIds = root.optJSONObject("deletedMemoryIds")?.let { roles ->
+                    roles.keys().asSequence().associateWith { role ->
+                        val ids = roles.optJSONArray(role) ?: JSONArray()
+                        (0 until ids.length()).map { ids.optString(it) }.filter(String::isNotBlank).toSet()
+                    }
+                }.orEmpty(),
             )
         }.getOrDefault(MemoryStoreState())
     }
@@ -960,6 +991,7 @@ private data class MemoryStoreState(
     val immediateProcessedIds: Map<String, Set<String>> = emptyMap(),
     val forgottenSourceIds: Map<String, Set<String>> = emptyMap(),
     val deletedMemoryKeys: Set<String> = emptySet(),
+    val deletedMemoryIds: Map<String, Set<String>> = emptyMap(),
 )
 
 private fun MemoryStoreState.resolvedPolicy(characterId: String): MemoryPolicy =

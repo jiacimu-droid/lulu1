@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T03:13:52.150026+00:00",
-  "commit": "58b6bcdba0cf3fdb22f68db161c6a16972d91c6a",
-  "branch": "main",
-  "sourceFingerprint": "cf6e5c58de14b3392079561b2d2ce6bdb1a9b27a1ecbdbea08fa8963b37280c3",
+  "generatedAt": "2026-10-16T03:19:46.252282+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "d32d2baa0d83ece3420cad077184c7309baba3c44a5f860dbec31f33aa417882",
   "summary": {
     "files": 669,
-    "lines": 130218,
+    "lines": 130262,
     "symbols": 1954
   },
   "symbolIndex": {
@@ -93,7 +93,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 129
+        "line": 132
       }
     ],
     "microphone": [
@@ -1599,7 +1599,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 124
+        "line": 127
       }
     ],
     "speakAndCache": [
@@ -3561,7 +3561,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 404
+        "line": 405
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -3665,7 +3665,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1029
+        "line": 1061
       }
     ],
     "DevelopmentKind": [
@@ -6021,7 +6021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 477
+        "line": 480
       }
     ],
     "LegacyLuluImportResult": [
@@ -6055,55 +6055,55 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 547
+        "line": 569
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 586
+        "line": 608
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 595
+        "line": 617
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 598
+        "line": 620
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 600
+        "line": 622
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 611
+        "line": 633
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 708
+        "line": 730
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 941
+        "line": 972
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 999
+        "line": 1031
       }
     ],
     "ApiUsageSource": [
@@ -7531,7 +7531,7 @@
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 459
+        "line": 462
       }
     ],
     "EventEvidenceKind": [
@@ -8443,7 +8443,7 @@
     "attach": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-        "line": 122
+        "line": 125
       }
     ],
     "vectorFor": [
@@ -16721,8 +16721,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1065,
-      "sha256": "56943c7ba2c8eb02c7ae67d16484a3153318806850644abd529c4af334e6d2f2",
+      "lines": 1097,
+      "sha256": "21825ba61b6787eb76d92379f36b986fae0d256e65f6c19414adc8caf0e79b1c",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -16738,47 +16738,47 @@
         },
         {
           "name": "snapshot",
-          "line": 404
+          "line": 405
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 547
+          "line": 569
         },
         {
           "name": "allowsRawRecall",
-          "line": 586
+          "line": 608
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 595
+          "line": 617
         },
         {
           "name": "pendingMessageCount",
-          "line": 598
+          "line": 620
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 600
+          "line": 622
         },
         {
           "name": "contextTimelineEvents",
-          "line": 611
+          "line": 633
         },
         {
           "name": "refreshInspection",
-          "line": 708
+          "line": 730
         },
         {
           "name": "MemoryDebugState",
-          "line": 941
+          "line": 972
         },
         {
           "name": "grams",
-          "line": 999
+          "line": 1031
         },
         {
           "name": "ids",
-          "line": 1029
+          "line": 1061
         }
       ]
     },
@@ -17283,8 +17283,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
-      "lines": 52,
-      "sha256": "ce70af0b01b1cc31bd06c6a57c325be79138c2ffe4b461a7152f6d03f296faa0",
+      "lines": 43,
+      "sha256": "b6bbf1e277da3b7f17826fed789ef14d2cb1fb5559964610defe83ddbb2e9b96",
       "symbols": [
         {
           "name": "initialize",
@@ -18205,7 +18205,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
       "lines": 89,
-      "sha256": "c2eb2e534c7877d66701119fa1a03b8c0537e62303a594a35e958ae0025167c0",
+      "sha256": "2157d2f6b70d58c80f248cc6f7ab2df73539f92962df163b06d4ca07d731ff2f",
       "symbols": [
         {
           "name": "RoleReadablePerformanceBridge",
@@ -18223,8 +18223,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 586,
-      "sha256": "3707551bbec6eca08698dc083907b756b3969f3a728ac2a02ebfd2b1542bab5c",
+      "lines": 589,
+      "sha256": "ce3d025cd7953ec862de211180d4eb5a7ce69fb9cfbe4eac26d539d51bcb160e",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -18296,11 +18296,11 @@
         },
         {
           "name": "exportBackup",
-          "line": 459
+          "line": 462
         },
         {
           "name": "importBackup",
-          "line": 477
+          "line": 480
         }
       ]
     },
@@ -19682,20 +19682,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
-      "lines": 157,
-      "sha256": "1af7f21ac87be09ae16a5a917a0403186fb6220bb3947dfeb83c998b54ff3e79",
+      "lines": 160,
+      "sha256": "29e915a3b423af8bbeabe4d08ee8ae107c9b52404aae2a099eb7c4faec94136d",
       "symbols": [
         {
           "name": "attach",
-          "line": 122
+          "line": 125
         },
         {
           "name": "speak",
-          "line": 124
+          "line": 127
         },
         {
           "name": "stop",
-          "line": 129
+          "line": 132
         }
       ]
     },
@@ -19772,7 +19772,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
       "lines": 504,
-      "sha256": "18f583755c683a3de5544c083a147643cbde031fe5c40b35e12ed0fa38693030",
+      "sha256": "3ea0f260d6d3d199632e3f30f8e1492153c676b5f8203736ad5b75a731051db0",
       "symbols": [
         {
           "name": "LuluGameType",
@@ -20122,8 +20122,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-      "lines": 406,
-      "sha256": "e3eb129507db825edb1c9851861d10c2f2ec64bf8a63e56a2923fc2b6915ae7b",
+      "lines": 409,
+      "sha256": "f2dd24d9ad0e52819d8ceb4cb178595f58d90598f1c8a55449bad97f5ed387b3",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
@@ -22691,8 +22691,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt",
-      "lines": 138,
-      "sha256": "fe992ce5cb892351566f705fda5b30d5b6b1a4cabef34781bdb2c2b368bac67f",
+      "lines": 150,
+      "sha256": "1123d82e5ac40b80be67332af87f2f14ffc534ebbc11d0da2cd3c58122c87998",
       "symbols": [
         {
           "name": "MemoryLifecycleIntegrationTest",

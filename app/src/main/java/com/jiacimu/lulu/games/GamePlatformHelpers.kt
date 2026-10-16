@@ -80,6 +80,8 @@ internal fun saveGameAsSharedMemory(
 ) {
     val record = store.state.value.records.firstOrNull { it.id == recordId } ?: return
     if (!record.playedWithCharacter) return
+    val evidence = com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(record.characterId, listOf("game-raw-${record.id}"))
+    if (evidence.isEmpty()) return
     scope.launch {
         LuluRepositories.memory.upsert(
             MemoryEntry(
@@ -87,7 +89,8 @@ internal fun saveGameAsSharedMemory(
                 characterId = record.characterId,
                 content = "共同游戏《${record.title}》：${record.summary}",
                 kind = MemoryKind.Timeline,
-                source = "game:${record.type.name}",
+                source = "timeline-events:game-raw-${record.id}",
+                sourceRevisions = evidence.associate { it.id to it.revision },
                 occurredAt = record.createdAt,
                 createdAt = Instant.now(),
                 strength = 3,
