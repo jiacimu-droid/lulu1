@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T07:20:52.312180+00:00",
-  "commit": "e3d1265642deb375d1c1067482a263c6f502b4e9",
+  "generatedAt": "2026-10-16T07:25:23.505832+00:00",
+  "commit": "ccb521acf6ba89ae1b9e39327f2788297200e650",
   "branch": "main",
-  "sourceFingerprint": "083d95f77daeb5b84a14c5653d970e774da502b12215f680cc887c88c3ef7518",
+  "sourceFingerprint": "4e3e1c80f1cd33880485f0a0b9d0e044b36f961c44817d3b19ee2463485f6b95",
   "summary": {
     "files": 681,
-    "lines": 132215,
+    "lines": 132245,
     "symbols": 1997
   },
   "symbolIndex": {
@@ -8089,7 +8089,7 @@
     "JournalStudioHero": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
-        "line": 269
+        "line": 270
       }
     ],
     "load": [
@@ -12231,8 +12231,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-      "lines": 311,
-      "sha256": "bd800de1cb56b48d9ada78d2dcf9c1df372b581fd123cc1d8b96e8a7911b66fc",
+      "lines": 340,
+      "sha256": "e040c3fa5da6173628b2fb91072acded0bc420442ed7385bc1cda04c8c4f2dc9",
       "symbols": [
         {
           "name": "LuluAppearanceScreen",
@@ -19182,8 +19182,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
-      "lines": 310,
-      "sha256": "457d8843f0af6aba8617df8cefd132ac28ad0b13fa06aa05d7088a44ba1115ac",
+      "lines": 311,
+      "sha256": "130a19c12cf3a820a32f85c1d790a69ab0534fdca2a0cc8ea33e3cb6740a4cae",
       "symbols": [
         {
           "name": "LuluAppearance",
@@ -19219,7 +19219,7 @@
         },
         {
           "name": "JournalStudioHero",
-          "line": 269
+          "line": 270
         }
       ]
     },

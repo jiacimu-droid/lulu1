@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e3d1265642deb375d1c1067482a263c6f502b4e9`
+- 基准提交：`ccb521acf6ba89ae1b9e39327f2788297200e650`
 - 分支：`main`
 - 已索引文件：681
-- 已索引代码/文本行：132215
+- 已索引代码/文本行：132245
 - 已发现符号：1997
 
 | 文件 | 行数 | 符号数 |
@@ -83,7 +83,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 634 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 311 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 136 | 3 |
@@ -375,7 +375,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 180 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 167 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt` | 310 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt` | 311 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCampaignRuntimeV5.kt` | 210 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt` | 374 | 0 |
