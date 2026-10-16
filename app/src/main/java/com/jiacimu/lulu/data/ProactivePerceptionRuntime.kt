@@ -1244,11 +1244,16 @@ object ProactivePerceptionRuntime {
             )
             // Report the decision's concrete action outcome to only the explicitly selected motive.
             // No text or reasoning can mark an action complete without an executor result.
-            CharacterInnerLifeStore.recordActionResult(
-                characterId, decision.motiveId,
-                "proactive:${now.toEpochMilli()}:${decision.action.name}",
-                decision.action.name.lowercase(), execution.success, execution.summary, now,
-            )
+            // Only an actual, role-owned executor event can count as a
+            // successful attempt. Synthetic cycle IDs are not delivery proofs.
+            if (!execution.success || actionEvidenceId.isNotBlank()) {
+                CharacterInnerLifeStore.recordActionResult(
+                    characterId, decision.motiveId,
+                    if (execution.success) actionEvidenceId else
+                        "proactive-failure:${now.toEpochMilli()}:${decision.action.name}",
+                    decision.action.name.lowercase(), execution.success, execution.summary, now,
+                )
+            }
             if (emotionalAnchor.isBlank()) CharacterInnerLifeStore.observe(
                 characterId, "action-result:${now.toEpochMilli()}:${decision.action.name}",
                 execution.summary, canonicalInnerLife,

@@ -230,6 +230,27 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+    @Test fun forgedSuccessfulActionCannotMoveAContinuousGoalIntoWaitingFeedback() {
+        start()
+        val role = "inside-test-proof"
+        CharacterInnerLifeStore.clear(role)
+        CharacterInnerLifeStore.observe(role, "saw-book", "想继续读一本书",
+            JSONObject().put("motives", JSONArray().put(JSONObject()
+                .put("op", "start").put("aim", "读完这本书")
+                .put("why", "自己好奇书中的人物"))))
+        val id = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getString("id")
+        CharacterInnerLifeStore.recordActionResult(role, id,
+            "fabricated-success", "read_book", true, "我读完了")
+        val goal = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
+        assertEquals("active", goal.getString("status"))
+        assertEquals(0, goal.getJSONArray("outcomes").length())
+        CharacterInnerLifeStore.recordActionResult(role, id,
+            "actual-attempt-failed", "read_book", false, "本次打开书失败")
+        assertEquals(1, CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            .getJSONObject(0).getJSONArray("outcomes").length())
+    }
+
     @Test fun actionProofNeedsMatchingMotiveIdAndReceiptIsIdempotent() {
         start()
         CharacterInnerLifeStore.observe("inside-test-a", "msg", "他很想继续看书",

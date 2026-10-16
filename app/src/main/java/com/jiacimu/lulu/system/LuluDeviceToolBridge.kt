@@ -1185,13 +1185,14 @@ object LuluDeviceToolBridge {
             .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
         val explicitUserToolRequest = com.jiacimu.lulu.data.CharacterInitiativeRuntime
             .isExplicitUserToolRequest(userText, plan.tool)
+        val requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}"
         val toolResult = if (plan.tool == "read_xiaohongshu" && directXhsResult != null) {
             directXhsResult // The same real receipt: no second navigation/search.
         } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
-            requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}",
+            requestId = requestId,
             userRequested = explicitUserToolRequest, intentionId = plan.intentionId)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
-        val actionReceipt = "tool:${lastUserEvent ?: now.toEpochMilli()}:${plan.tool}"
+        val actionReceipt = "tool-$characterId-$requestId"
         val executedSuccess = actual?.optBoolean("success") == true
         val executedSummary = actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) }
         com.jiacimu.lulu.data.CharacterInnerLifeStore.recordActionResult(

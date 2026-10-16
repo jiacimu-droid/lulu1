@@ -221,7 +221,8 @@ internal object CharacterSelfActivityRuntime {
             .put("result", summary.take(240)).put("finishedAt", finishedAt.toString())
         if (!prefs.edit().putString(key, prior.toString()).commit()) return
         if (attempted) CharacterInnerLifeStore.recordActionResult(
-            characterId, prior.optString("motiveId"), "self-activity-$id",
+            characterId, prior.optString("motiveId"),
+            "tool-$characterId-self-activity-$id",
             prior.optString("tool"), success, summary, finishedAt,
         )
         if (success) resolveConsideration(context, characterId, prior.optString("tool"))

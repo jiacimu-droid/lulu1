@@ -778,6 +778,12 @@ object CharacterInnerLifeStore {
         action: String, success: Boolean, summary: String, now: Instant = Instant.now(),
     ) {
         if (prefs == null || motiveId.isBlank() || receiptId.isBlank()) return
+        // A role/model-generated string is not proof of an executed action.
+        // Failed attempts are retained; success requires this role's actual
+        // action evidence, matched to the action's real tool/message type.
+        if (success && CharacterActionEvidence.resolve(characterId, receiptId)?.let {
+                CharacterActionEvidence.supports(it, action)
+            } != true) return
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: return
         val motive = (0 until motives.length()).mapNotNull(motives::optJSONObject)
