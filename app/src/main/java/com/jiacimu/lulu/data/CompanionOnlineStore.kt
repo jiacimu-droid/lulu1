@@ -67,6 +67,7 @@ object CompanionOnlineStore {
     private const val KEY_GROUP_FOCUS = "group_focus"
     private const val DELIVERY_MIGRATION_KEY = "delivered_reply_evidence_v1"
     private const val DELIVERY_KEY_PREFIX = "delivered_reply_ids:"
+    private const val DELIVERY_CURSOR_PREFIX = "delivered_reply_cursor:"
     private const val MAX_DELIVERY_EVIDENCE = 600
     private val onlineDuration: Duration = Duration.ofMinutes(5)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -79,7 +80,47 @@ object CompanionOnlineStore {
     val states: StateFlow<Map<String, CompanionOnlineState>> = mutableStates.asStateFlow()
     private var groupFocusUntil: Map<String, Instant> = emptyMap()
 
-    private fun deliveredKey(characterId: String) = "$" + "{DELIVERY_KEY_PREFIX}$" + "characterId"
+    private fun deliveredKey(characterId: String) = "${DELIVERY_KEY_PREFIX}$characterId"
+    private fun deliveryCursorKey(characterId: String, conversationId: String) =
+        "${DELIVERY_CURSOR_PREFIX}$characterId:$conversationId"
+
+    private data class DeliveryCursor(val throughMillis: Long, val idsAtBoundary: Set<String>)
+
+    private fun deliveryCursorLocked(characterId: String, conversationId: String): DeliveryCursor {
+        val json = runCatching {
+            JSONObject(prefs?.getString(deliveryCursorKey(characterId, conversationId), "{}").orEmpty())
+        }.getOrNull() ?: return DeliveryCursor(Long.MIN_VALUE, emptySet())
+        val ids = json.optJSONArray("ids")
+        return DeliveryCursor(
+            json.optLong("throughMillis", Long.MIN_VALUE),
+            (0 until (ids?.length() ?: 0)).mapNotNull { i ->
+                ids?.optString(i)?.takeIf(String::isNotBlank)
+            }.toSet(),
+        )
+    }
+
+    private fun cursorJson(cursor: DeliveryCursor) = JSONObject().apply {
+        put("throughMillis", cursor.throughMillis)
+        put("ids", JSONArray(cursor.idsAtBoundary.toList()))
+    }.toString()
+
+    private fun updatedDeliveryCursor(
+        previous: DeliveryCursor, confirmed: List<LuluChatMessage>,
+    ): DeliveryCursor {
+        if (confirmed.isEmpty()) return previous
+        val latestMillis = confirmed.maxOf { it.createdAt.toEpochMilli() }
+        return when {
+            latestMillis > previous.throughMillis -> DeliveryCursor(
+                latestMillis, confirmed.filter {
+                    it.createdAt.toEpochMilli() == latestMillis
+                }.map(LuluChatMessage::id).toSet())
+            latestMillis == previous.throughMillis -> previous.copy(
+                idsAtBoundary = previous.idsAtBoundary +
+                    confirmed.filter { it.createdAt.toEpochMilli() == latestMillis }
+                        .map(LuluChatMessage::id))
+            else -> previous
+        }
+    }
 
     private fun deliveredIdsLocked(characterId: String): List<String> {
         val raw = prefs?.getString(deliveredKey(characterId), "[]").orEmpty().ifBlank { "[]" }
@@ -106,13 +147,19 @@ object CompanionOnlineStore {
             .filter { it.id in userMessageIds &&
                 it.status == LuluChatMessage.Status.Sent &&
                 it.sender == LuluChatMessage.Sender.User }
-            .map(LuluChatMessage::id)
         if (confirmed.isEmpty()) return false
         return synchronized(lock) {
             val p = prefs ?: return@synchronized false
-            val next = (deliveredIdsLocked(characterId) + confirmed)
+            val next = (deliveredIdsLocked(characterId) + confirmed.map(LuluChatMessage::id))
                 .distinct().takeLast(MAX_DELIVERY_EVIDENCE)
-            p.edit().putString(deliveredKey(characterId), JSONArray(next).toString()).commit()
+            val cursor = updatedDeliveryCursor(
+                deliveryCursorLocked(characterId, conversationId), confirmed)
+            // The bounded ID cache is only an optimization. This durable
+            // per-conversation checkpoint prevents old answered bubbles from
+            // becoming unread again when the cache eventually evicts them.
+            p.edit().putString(deliveredKey(characterId), JSONArray(next).toString())
+                .putString(deliveryCursorKey(characterId, conversationId), cursorJson(cursor))
+                .commit()
         }
     }
 
@@ -126,6 +173,7 @@ object CompanionOnlineStore {
         val p = prefs ?: return
         if (p.getBoolean(DELIVERY_MIGRATION_KEY, false)) return
         val recovered = mutableMapOf<String, MutableList<String>>()
+        val recoveredCursors = mutableMapOf<Pair<String, String>, List<LuluChatMessage>>()
         MigratedDomainStores.chat.conversations.value.forEach { conversation ->
             val messages = MigratedDomainStores.chat.messages(conversation.id).value
             val characters = conversation.groupChat?.members?.map(LuluGroupMember::characterId)
@@ -146,12 +194,13 @@ object CompanionOnlineStore {
                 // An interleaved user turn cannot be proved handled by this old reply.
                 if (messages.subList(first + 1, last + 1).any {
                         it.sender == LuluChatMessage.Sender.User }) return@forEach
-                recovered.getOrPut(characterId) { mutableListOf() }.addAll(
-                    messages.take(first).filter {
-                        it.status == LuluChatMessage.Status.Sent &&
-                            it.sender == LuluChatMessage.Sender.User
-                    }.map(LuluChatMessage::id)
-                )
+                val answered = messages.take(first).filter {
+                    it.status == LuluChatMessage.Status.Sent &&
+                        it.sender == LuluChatMessage.Sender.User
+                }
+                recovered.getOrPut(characterId) { mutableListOf() }
+                    .addAll(answered.map(LuluChatMessage::id))
+                recoveredCursors[characterId to conversation.id] = answered
             }
         }
         val editor = p.edit()
@@ -159,6 +208,14 @@ object CompanionOnlineStore {
             val combined = (deliveredIdsLocked(characterId) + ids)
                 .distinct().takeLast(MAX_DELIVERY_EVIDENCE)
             editor.putString(deliveredKey(characterId), JSONArray(combined).toString())
+        }
+        recoveredCursors.forEach { (key, answered) ->
+            val (characterId, conversationId) = key
+            val cursor = updatedDeliveryCursor(
+                deliveryCursorLocked(characterId, conversationId), answered)
+            if (cursor.throughMillis != Long.MIN_VALUE) {
+                editor.putString(deliveryCursorKey(characterId, conversationId), cursorJson(cursor))
+            }
         }
         check(editor.putBoolean(DELIVERY_MIGRATION_KEY, true).commit()) {
             "旧聊天回复状态迁移失败"
@@ -405,6 +462,9 @@ object CompanionOnlineStore {
                     (conversation.groupChat == null && conversation.characterId == characterId && !conversation.id.endsWith("-study-focus"))
             }
             .flatMap { conversation ->
+                val deliveryCursor = synchronized(lock) {
+                    deliveryCursorLocked(characterId, conversation.id)
+                }
                 MigratedDomainStores.chat.messages(conversation.id).value.asSequence()
                     .filter { message ->
                         message.status == LuluChatMessage.Status.Sent &&
@@ -412,6 +472,9 @@ object CompanionOnlineStore {
                             message.sender != LuluChatMessage.Sender.System &&
                             message.authorCharacterId != characterId &&
                             message.id !in acknowledged &&
+                            (message.createdAt.toEpochMilli() > deliveryCursor.throughMillis ||
+                                (message.createdAt.toEpochMilli() == deliveryCursor.throughMillis &&
+                                    message.id !in deliveryCursor.idsAtBoundary)) &&
                             isUnreadAtCursor(message.id, message.createdAt, after,
                                 state?.lastSeenAt, state?.seenIdsAtLastSeenAt.orEmpty())
                     }
@@ -473,7 +536,11 @@ object CompanionOnlineStore {
                     historyFloorAt = now,
                 )
             )
-            prefs?.edit()?.remove(deliveredKey(characterId))?.commit()
+            val editor = prefs?.edit()?.remove(deliveredKey(characterId))
+            MigratedDomainStores.chat.conversations.value.forEach { conversation ->
+                editor?.remove(deliveryCursorKey(characterId, conversation.id))
+            }
+            editor?.commit()
             persistLocked()
         }
     }
