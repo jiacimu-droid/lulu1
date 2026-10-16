@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T18:23:49.758128+00:00",
-  "commit": "b5f78654ca1df361529bacaf95f3de681f3f4c0f",
+  "generatedAt": "2026-10-16T18:24:15.940224+00:00",
+  "commit": "c01fb861371b81faff66aedee99ca79515457a32",
   "branch": "main",
-  "sourceFingerprint": "ccb02c191dae757b105352ebc8e31e4eb9111707794d50969073c693a6ebc5db",
+  "sourceFingerprint": "3065ae8d8c088b8657e1dc222b6e6a6be6efb7d797260b461649065f0c569ab2",
   "summary": {
     "files": 684,
     "lines": 133021,
@@ -13436,7 +13436,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt",
       "lines": 89,
-      "sha256": "4b0808cc973138a9eac793f7bf63d1a0269443c245344de7861d2c5ee7b0a633",
+      "sha256": "76fc7707c222281edff70d44a346fe3924db26de9ad29131f3411cf7e131a2eb",
       "symbols": [
         {
           "name": "requestedFocus",
