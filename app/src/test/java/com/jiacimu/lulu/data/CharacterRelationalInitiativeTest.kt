@@ -14,103 +14,65 @@ import java.time.Instant
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterRelationalInitiativeTest {
     private val id = "relationship-initiative-test"
-    private val now = Instant.parse("2026-10-11T09:00:00Z")
+    private val now = Instant.parse("2026-10-16T09:00:00Z")
 
     private fun start(): Context {
         val context = RuntimeEnvironment.getApplication() as Context
         CharacterRelationalInitiative.initialize(context)
         CharacterRelationalInitiative.clear(id)
+        CharacterInnerLifeStore.clear(id)
         return context
     }
 
-    private fun userEvent(text: String, eventId: String, at: Instant = now): SharedTimelineEvent =
-        SharedTimelineEvent(eventId, id, "私聊", "用户", text, at,
-            evidenceKind = EventEvidenceKind.UserStatement)
+    private fun wish() = JSONObject().put("status", "ready")
+        .put("aim", "用真实读过的故事给对方一个小惊喜")
+        .put("why", "因为我确实觉得这个故事有趣")
+        .put("approach", "下次自然聊到时分享")
+        .put("deliveryAction", "message")
 
-    private fun plan(action: String = "message") = JSONObject()
-        .put("status", "ready")
-        .put("aim", "用自己读到的东西给对方一个小惊喜")
-        .put("why", "自己喜欢这个人，而且真正读过一篇有趣的故事")
-        .put("approach", "找合适的机会用自己的口吻分享")
-        .put("deliveryAction", action)
-
-    @Test fun preferencesMustBeOwnStatementsNotRoleClaimsOrOldEvents() {
-        val valid = userEvent("我喜欢有一点暧昧张力的互动", "yes")
-        val refusal = userEvent("我不喜欢反复催我回复", "no")
-        val characterGuess = valid.copy(id = "guess", content = "她喜欢我吧",
-            evidenceKind = EventEvidenceKind.CharacterStatement)
-        val stale = userEvent("我喜欢惊喜", "old", now.minusSeconds(210L * 86400))
-        val unrelated = userEvent("今天天气真好", "weather")
-        val matches = CharacterRelationalInitiative.explicitStatements(
-            listOf(valid, characterGuess, stale, unrelated, refusal), now)
-        assertEquals(listOf("no", "yes"), matches.map { it.id })
-        assertTrue(matches.none { it.id == "guess" || it.id == "old" })
-    }
-
-    @Test fun wishCanWaitButUnrelatedSuccessfulActivityCannotCompleteIt() {
-        val context = start()
-        CharacterRelationalInitiative.recordDecision(id, plan(), "silent", false, "想一想", now)
-        assertTrue(CharacterRelationalInitiative.context(id, now).contains("尚未实行的主意"))
+    @Test fun oldRelationalWishUsesCanonicalMotiveAndUnrelatedActDoesNotSettleIt() {
+        start()
+        CharacterRelationalInitiative.recordDecision(id, wish(), "silent", false, "还在考虑", now)
+        assertEquals(1, CharacterInnerLifeStore.snapshot(id).getJSONArray("motives").length())
+        assertTrue(CharacterRelationalInitiative.context(id, now).contains("目标="))
         assertTrue(CharacterRelationalInitiative.expressionHandoff(id).contains("自己此前考虑"))
-        assertFalse(CharacterRelationalInitiative.expressionHandoff(id).contains("用户原话"))
-        CharacterRelationalInitiative.recordDecision(id, plan(), "journal", true, "日记写好了", now)
-        val state = JSONObject(context.getSharedPreferences("lulu_relational_initiative_v1", 0).getString(id, "{}"))
-        assertNotNull(state.optJSONObject("pending"))
-        assertNull(state.optJSONObject("lastDelivery"))
+        CharacterRelationalInitiative.recordDecision(id, wish(), "journal", true, "日记发出了", now)
+        val goal = CharacterInnerLifeStore.snapshot(id).getJSONArray("motives").getJSONObject(0)
+        assertEquals("active", goal.getString("status"))
+        assertEquals(0, goal.getJSONArray("outcomes").length())
     }
 
-    @Test fun failedMatchingActionStaysPendingUntilRealSuccess() {
-        val context = start()
-        CharacterRelationalInitiative.recordDecision(id, plan(), "message", false, "网络请求失败", now)
-        val prefs = context.getSharedPreferences("lulu_relational_initiative_v1", 0)
-        assertTrue(JSONObject(prefs.getString(id, "{}")).getJSONObject("pending")
-            .getString("failure").contains("网络请求失败"))
-        CharacterRelationalInitiative.recordDecision(id, plan(), "message", true, "消息已经发送", now.plusSeconds(60))
-        val stored = JSONObject(prefs.getString(id, "{}"))
-        assertNull(stored.optJSONObject("pending"))
-        assertEquals("message", stored.getJSONObject("lastDelivery").getString("action"))
-        assertEquals("消息已经发送", stored.getJSONObject("lastDelivery").getString("summary"))
+    @Test fun unverifiedSentClaimCannotCompleteARealWish() {
+        start()
+        CharacterRelationalInitiative.recordDecision(id, wish(), "message", true,
+            "模型声称完成但没有送达证据", now)
+        val goal = CharacterInnerLifeStore.snapshot(id).getJSONArray("motives").getJSONObject(0)
+        assertEquals("active", goal.getString("status"))
+        assertEquals(0, goal.getJSONArray("outcomes").length())
     }
 
-    @Test fun changingStablePersonaMakesOldRelationalPlanInert() {
+    @Test fun oldLegacyPreferenceIsImportedOnlyOnce() {
         val context = start()
-        CharacterRelationalInitiative.recordDecision(id, plan(), "silent", false, "", now)
-        val prefs = context.getSharedPreferences("lulu_relational_initiative_v1", 0)
-        val root = JSONObject(prefs.getString(id, "{}"))
-        assertNotNull(root.optJSONObject("pending"))
-        root.getJSONObject("pending").put("personaSignature", "stale-persona")
-        prefs.edit().putString(id, root.toString()).commit()
-        assertFalse(CharacterRelationalInitiative.context(id, now).contains("尚未实行的主意"))
-        assertEquals("", CharacterRelationalInitiative.expressionHandoff(id))
+        context.getSharedPreferences("lulu_relational_initiative_v1", 0).edit()
+            .putString(id, JSONObject().put("pending", JSONObject()
+                .put("status", "ready").put("aim", "多听她说完")
+                .put("why", "觉得她需要时间")
+                .put("approach", "耐心接话")
+                .put("personaSignature", CharacterRuntime.personaConstraintSnapshot(id).hashCode().toString())
+                .put("evidenceId", "")).toString()).commit()
+        val first = CharacterRelationalInitiative.context(id, now)
+        assertTrue(first.contains("多听她说完"))
+        assertEquals(1, CharacterInnerLifeStore.snapshot(id).getJSONArray("motives").length())
+        CharacterRelationalInitiative.context(id, now)
+        assertEquals(1, CharacterInnerLifeStore.snapshot(id).getJSONArray("motives").length())
     }
 
-    @Test fun deletionOfSourceRetractsOnlyItsDependentPrivatePlan() {
-        val context = start()
-        val prefs = context.getSharedPreferences("lulu_relational_initiative_v1", 0)
-        val root = JSONObject()
-            .put("pending", JSONObject().put("evidenceId", "deleted-preference")
-                .put("aim", "暂时想试一个小惊喜"))
-            .put("lastDelivery", JSONObject().put("action", "message")
-                .put("summary", "曾经真实发送"))
-        prefs.edit().putString(id, root.toString()).commit()
-        CharacterRelationalInitiative.invalidateEvidence("deleted-preference")
-        val after = JSONObject(prefs.getString(id, "{}"))
-        assertNull(after.optJSONObject("pending"))
-        assertEquals("message", after.getJSONObject("lastDelivery").getString("action"))
-        CharacterRelationalInitiative.clear(id)
-    }
-
-    @Test fun canReleaseUndeliveredPlanAndRejectForgedPreferenceSource() {
-        val context = start()
-        val invalid = plan().put("evidenceId", "nonexistent-user-message")
-        CharacterRelationalInitiative.recordDecision(id, invalid, "silent", false, "", now)
-        assertFalse(CharacterRelationalInitiative.context(id, now).contains("尚未实行的主意"))
-        CharacterRelationalInitiative.recordDecision(id, plan(), "silent", false, "", now)
-        CharacterRelationalInitiative.recordDecision(id,
-            JSONObject().put("status", "released"), "silent", false, "", now)
-        val data = JSONObject(context.getSharedPreferences("lulu_relational_initiative_v1", 0)
-            .getString(id, "{}"))
-        assertNull(data.optJSONObject("pending"))
-        CharacterRelationalInitiative.clear(id)
+    @Test fun independentRolePlansNeverLeakAcrossCharacters() {
+        start()
+        val other = "other-character-goal-test"
+        CharacterInnerLifeStore.clear(other)
+        CharacterRelationalInitiative.recordDecision(id, wish(), "silent", false, "", now)
+        assertEquals(0, CharacterGoalConvergence.relationships(
+            CharacterInnerLifeStore.snapshot(other).optJSONArray("motives")).size)
     }
 }

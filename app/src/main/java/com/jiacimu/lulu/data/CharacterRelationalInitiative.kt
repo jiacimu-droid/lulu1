@@ -30,6 +30,7 @@ internal object CharacterRelationalInitiative {
         if (prefs != null && boundApplication === application) return
         boundApplication = application
         prefs = application.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        CharacterInnerLifeStore.initialize(application)
     }
 
     /** This is evidence selection, NOT a classifier that announces an inferred preference. */
@@ -66,17 +67,55 @@ internal object CharacterRelationalInitiative {
                 pending.optString("personaSignature") == personaSignature(characterId)
         }
 
+    /** One-time migration of old private relational plans into canonical motives. */
+    private fun migrateLegacy(characterId: String) {
+        val p = prefs ?: return
+        val marker = "migrated:$characterId"
+        if (p.getBoolean(marker, false)) return
+        val old = read(characterId)
+        compatiblePending(characterId, old)?.let { pending ->
+            CharacterInnerLifeStore.integrateRelationalGoal(
+                characterId, pending,
+                pending.optString("evidenceId").ifBlank { "legacy-relation:$characterId" },
+                personaSignature(characterId),
+            )
+        }
+        old.optJSONObject("lastDelivery")?.let { last ->
+            val receiptId = last.optString("evidenceId")
+            val action = last.optString("action")
+            val verified = receiptId.isNotBlank() &&
+                CharacterActionEvidence.resolve(characterId, receiptId)?.let {
+                    CharacterActionEvidence.supports(it, action)
+                } == true
+            if (verified && last.optString("aim").isNotBlank()) {
+                CharacterInnerLifeStore.integrateRelationalGoal(
+                    characterId, JSONObject().put("status", "ready")
+                        .put("aim", last.optString("aim"))
+                        .put("why", "此前真实选择为对方创造某种体验")
+                        .put("deliveryAction", action),
+                    receiptId, personaSignature(characterId), action, true,
+                    receiptId, last.optString("summary"),
+                    runCatching { Instant.parse(last.optString("at")) }.getOrDefault(Instant.now()),
+                )
+            }
+        }
+        check(p.edit().putBoolean(marker, true).commit()) { "旧关系意愿迁移未保存" }
+    }
+
     /** Used by private chat, calls, meetings and background decisions through the same personality runtime. */
     fun context(characterId: String, now: Instant = Instant.now(), proactive: Boolean = false): String {
         val timeline = SharedExperienceTimeline.recentEvents(characterId, 240)
         val recent = explicitStatements(timeline, now)
-        val saved = read(characterId)
-        val pending = compatiblePending(characterId, saved)
-        val last = saved.optJSONObject("lastDelivery")
-            ?.takeIf { delivery ->
-                val receiptId = delivery.optString("evidenceId")
-                receiptId.isBlank() || SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isNotEmpty()
-            }
+        migrateLegacy(characterId)
+        val relations = CharacterGoalConvergence.relationships(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"))
+        val pending = relations.lastOrNull { CharacterMotiveState.isActive(it) ||
+            it.optString("status") == "paused" }
+            ?.takeIf { it.optString("personaSignature") == personaSignature(characterId) }
+        val last = relations.asReversed().mapNotNull { goal ->
+            val outcomes = goal.optJSONArray("outcomes") ?: return@mapNotNull null
+            outcomes.optJSONObject(outcomes.length() - 1)
+        }.firstOrNull()
         val lastAt = last?.optString("at")?.let { runCatching { Instant.parse(it) }.getOrNull() }
         val followUp = if (lastAt == null) emptyList() else timeline.filter { event ->
             event.evidenceKind == EventEvidenceKind.UserStatement &&
@@ -95,8 +134,8 @@ internal object CharacterRelationalInitiative {
             }
             if (pending != null) {
                 appendLine("本人上次尚未实行的主意（不等于承诺，更不是已经送出惊喜）：")
-                appendLine("- 想法=${pending.optString("aim").take(150)}；自己的缘由=${pending.optString("why").take(180)}；考虑的方式=${pending.optString("approach").take(160)}")
-                appendLine("- 阶段=${pending.optString("status")}；上次未成原因=${pending.optString("failure").take(120)}；仍想做才推进，不合适可释放。")
+                appendLine("- motiveId=${pending.optString("id")}；目标=${pending.optString("aim").take(150)}；自己的缘由=${pending.optString("why").take(180)}；拟议下一步=${pending.optString("nextStep").take(160)}")
+                appendLine("- 阶段=${pending.optString("status")}；行动已送达不等于目标实现。可继续观察、调整计划、暂停或放下，不能机械重复。")
             }
             if (last != null) {
                 appendLine("最近一次相关真实行动：${last.optString("action")}；回执=${last.optString("summary").take(120)}；执行时间=${last.optString("at")}。")
@@ -120,55 +159,49 @@ internal object CharacterRelationalInitiative {
      * The primary decision step already chose whether and what to express.
      */
     fun expressionHandoff(characterId: String): String {
-        val root = read(characterId)
-        val pending = compatiblePending(characterId, root) ?: return ""
+        migrateLegacy(characterId)
+        val pending = CharacterGoalConvergence.relationships(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"))
+            .lastOrNull { CharacterMotiveState.isActive(it) &&
+                it.optString("personaSignature") == personaSignature(characterId) } ?: return ""
         return buildString {
-            appendLine("【同一角色尚未实行的私人愿望｜仅用于表达连贯，不是新回复指令】")
+            appendLine("【同一角色仍在推进的私人愿望｜仅用于表达连贯，不是新回复指令】")
             appendLine("自己此前考虑：${pending.optString("aim").take(130)}")
             appendLine("缘由：${pending.optString("why").take(150)}")
             appendLine("这是未执行的想法，不要在回复里伪装已完成，也不要覆盖本轮已确定的言语意图。")
         }.trim()
     }
 
-    /** Save an optional, bounded intention; success is only taken from the executor. */
+    /** Old-model producer compatibility; no second relational goal database. */
     @Synchronized fun recordDecision(
         characterId: String, proposal: JSONObject?, action: String, success: Boolean,
         summary: String, now: Instant = Instant.now(),
         actionEvidenceId: String = "",
     ) {
         if (prefs == null || proposal == null || characterId.isBlank()) return
-        val status = proposal.optString("status").trim().lowercase()
-        if (status !in setOf("considering", "ready", "released")) return
-        val root = read(characterId)
-        if (status == "released") {
-            root.remove("pending")
-        } else {
-            val aim = proposal.optString("aim").trim().take(160)
-            val why = proposal.optString("why").trim().take(220)
-            val evidenceId = proposal.optString("evidenceId").trim().take(180)
-            if (aim.isBlank() || why.isBlank() || !evidenceStillExists(characterId, evidenceId)) return
-            // An unrelated successful activity must not fulfill a surprise.
-            // The proposal has to explicitly link this exact action to the aim.
-            val isDelivery = action != "silent" &&
-                proposal.optString("deliveryAction").trim().lowercase() == action
-            if (isDelivery && success) {
-                root.remove("pending")
-                root.put("lastDelivery", JSONObject()
-                    .put("aim", aim).put("action", action.take(45))
-                    .put("summary", summary.take(220)).put("at", now.toString())
-                    .put("evidenceId", actionEvidenceId))
-            } else {
-                root.put("pending", JSONObject().put("aim", aim).put("why", why)
-                    .put("approach", proposal.optString("approach").take(180))
-                    .put("evidenceId", evidenceId).put("status", status)
-                    .put("personaSignature", personaSignature(characterId))
-                    .put("failure", if (isDelivery && !success) summary.take(180) else "")
-                    .put("updatedAt", now.toString()))
-            }
+        migrateLegacy(characterId)
+        val exactEvidence = proposal.optString("evidenceId").trim()
+        if (!evidenceStillExists(characterId, exactEvidence)) return
+        val status = proposal.optString("status").lowercase()
+        val effective = JSONObject(proposal.toString())
+        if (status == "released" && effective.optString("motiveId").isBlank()) {
+            val active = CharacterGoalConvergence.relationships(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"))
+                .filter(CharacterMotiveState::isActive)
+            // Old release had no id because it only supported a single pending wish.
+            if (active.size != 1) return
+            effective.put("motiveId", active.single().optString("id"))
         }
-        check(prefs?.edit()?.putString(characterId, root.toString())?.commit() == true) {
-            "角色的关系行动计划未能持久化"
-        }
+        val verified = success && actionEvidenceId.isNotBlank() &&
+            CharacterActionEvidence.resolve(characterId, actionEvidenceId)?.let {
+                CharacterActionEvidence.supports(it, action)
+            } == true
+        CharacterInnerLifeStore.integrateRelationalGoal(
+            characterId, effective,
+            exactEvidence.ifBlank { "relationship-choice:$characterId:${now.toEpochMilli()}" },
+            personaSignature(characterId), action, success,
+            if (verified) actionEvidenceId else "", summary, now,
+        )
     }
 
     @Synchronized fun invalidateEvidence(eventId: String) {
@@ -189,6 +222,6 @@ internal object CharacterRelationalInitiative {
     }
 
     @Synchronized fun clear(characterId: String) {
-        prefs?.edit()?.remove(characterId)?.commit()
+        prefs?.edit()?.remove(characterId)?.remove("migrated:$characterId")?.commit()
     }
 }
