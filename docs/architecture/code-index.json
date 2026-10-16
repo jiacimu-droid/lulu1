@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T07:18:35.543105+00:00",
-  "commit": "b231490554ffc40b61ff23d0fcfbc6d582bbb18e",
+  "generatedAt": "2026-10-16T07:19:51.129857+00:00",
+  "commit": "d2a527ce18e35b1def8ef8e0afe043f292c0c91d",
   "branch": "main",
-  "sourceFingerprint": "47bd1da9061ff8fcdf09e28539c974b81778d1a771675268aea59c8cc6a904ee",
+  "sourceFingerprint": "db2bc865020721774921bc38c360f24fbf249f1c892b755ae4455e387563cfd2",
   "summary": {
     "files": 681,
-    "lines": 132189,
+    "lines": 132215,
     "symbols": 1997
   },
   "symbolIndex": {
@@ -4909,7 +4909,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 671
+        "line": 684
       }
     ],
     "describe": [
@@ -7253,7 +7253,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1709
+        "line": 1722
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -15720,8 +15720,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 689,
-      "sha256": "8221ff4c1b4881d7129d665b0897fa17aecf84789c7db2e1de8e4bb45c4fc0f8",
+      "lines": 702,
+      "sha256": "3f14512673252837a3ef1bbff5c4de2ecbe6d7a106aa708eec640fd4695925a2",
       "symbols": [
         {
           "name": "asJson",
@@ -15733,7 +15733,7 @@
         },
         {
           "name": "world",
-          "line": 671
+          "line": 684
         }
       ]
     },
@@ -18226,8 +18226,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1765,
-      "sha256": "f4a3680152a7cc0752e7b8b3471c0b565539530b1cc79ca819aaf44ee0b36d24",
+      "lines": 1778,
+      "sha256": "8e48aa708d18ce5fc0b80aca03a4ef968b15402a902f740231d47d13b297136e",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -18251,7 +18251,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1709
+          "line": 1722
         }
       ]
     },
