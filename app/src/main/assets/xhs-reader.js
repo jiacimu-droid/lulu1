@@ -87,7 +87,7 @@
       return clean(value?.keyword, 64) || clean(new URL(url, location.href).searchParams.get('keyword'), 64) || pageKeyword();
     } catch (_) { return pageKeyword(); }
   };
-  const beginSearch = keyword => {
+  const beginSearch = (keyword, freshDocument = false) => {
     const next = clean(keyword, 64);
     // SPA search can fire Enter, form-submit, and pushState for ONE search.
     // The old condition cleared a *successful* matching response whenever
@@ -103,7 +103,12 @@
       // array visible in __INITIAL_STATE__. Never label that stale array as
       // results for the new keyword. A changed array, a confirmed response,
       // or a full SSR navigation can satisfy the new request.
-      received.searchBaseline = fingerprint(searchStateRows());
+      // On a newly loaded search-result document, SSR data already belongs
+      // to this URL. A SPA transition on the same document is different:
+      // its existing Vue list may still belong to the previous keyword.
+      // Baseline the latter only, or a fully hydrated fresh search document
+      // will incorrectly appear stale until the native timeout.
+      received.searchBaseline = freshDocument ? '' : fingerprint(searchStateRows());
     }
     received.searchPending = next;
     received.failures.search = '';
