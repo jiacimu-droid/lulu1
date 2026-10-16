@@ -247,8 +247,9 @@ fun JournalChatBubble(
     val profile = LocalLuluAppearance.current
     val surface = if (mine) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
     val border = MaterialTheme.colorScheme.outline.copy(alpha = .73f)
-    val shape = if (mine) RoundedCornerShape(17.dp, 6.dp, 16.dp, 16.dp)
-                else RoundedCornerShape(6.dp, 17.dp, 16.dp, 16.dp)
+    val radius = profile.corner.coerceIn(6, 34).dp
+    val shape = if (mine) RoundedCornerShape(radius, 6.dp, radius, radius)
+                else RoundedCornerShape(6.dp, radius, radius, radius)
     Surface(modifier = modifier,
         color = surface,
         shape = shape,

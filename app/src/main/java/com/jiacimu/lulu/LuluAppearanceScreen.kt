@@ -41,6 +41,7 @@ import com.jiacimu.lulu.design.isJournal
 fun LuluAppearanceScreen(onBack: () -> Unit) {
     val library by LuluAppearanceStore.state.collectAsState()
     var scope by remember { mutableStateOf("Home") }
+    var showBasicThemes by remember { mutableStateOf(false) }
     var copySource by remember { mutableStateOf<LuluAppearance?>(null) }
     var copyName by remember { mutableStateOf("") }
     var copyRadius by remember { mutableFloatStateOf(18f) }
@@ -187,7 +188,9 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall)
             }
-            items(library.all.sortedByDescending { it.isJournal() }, key = { it.id }) { profile ->
+            // A curated studio, not a wall of nine unpolished 'finished' themes.
+            // All existing choices remain reachable; only hand-finished themes are showcased.
+            items(library.all.filter { it.isJournal() }, key = { it.id }) { profile ->
                 AppearanceRecipeCard(
                     profile = profile,
                     selected = active.id == profile.id,
@@ -201,6 +204,32 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     onDelete = { LuluAppearanceStore.deleteUnused(profile.id) },
                     canDelete = !profile.builtIn && library.selections.values.none { it == profile.id },
                 )
+            }
+            item {
+                OutlinedButton(
+                    onClick = { showBasicThemes = !showBasicThemes },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(if (showBasicThemes) "收起基础方案"
+                         else "查看其他基础方案 · ${library.all.count { !it.isJournal() }} 套（保留旧搭配）")
+                }
+            }
+            if (showBasicThemes) {
+                items(library.all.filterNot { it.isJournal() }, key = { it.id }) { profile ->
+                    AppearanceRecipeCard(
+                        profile = profile,
+                        selected = active.id == profile.id,
+                        onApply = { LuluAppearanceStore.apply(scope, profile.id) },
+                        onSaveCopy = {
+                            copySource = profile
+                            copyName = profile.name + " · 我的版本"
+                            copyRadius = profile.corner.toFloat()
+                            accentOption = null
+                        },
+                        onDelete = { LuluAppearanceStore.deleteUnused(profile.id) },
+                        canDelete = !profile.builtIn && library.selections.values.none { it == profile.id },
+                    )
+                }
             }
         }
     }
