@@ -441,10 +441,43 @@ test('an actual empty overlay search is not replaced by homepage recommendations
   assert.equal(b.snapshot('search', '', '记者').items.length, 0);
 });
 test('alternate search paths return their real SSR results', () => {
-  for (const path of ['/search', '/search/result']) {
+  for (const path of ['/search', '/search/result', '/search_result_ai']) {
     const b = browser({path: path + '?keyword=cat', state: {search: {feeds: [row()]}}});
     assert.equal(b.snapshot('search', '', 'cat').items[0].id, id);
   }
+});
+test('AI search route only accepts the matching keyword and genuinely fresh cards', () => {
+  const b = browser({path: '/search_result_ai?keyword=%E7%8C%AB', state:
+    {search: {feeds: [row('old-token')]}, feed: {feeds: [row('home-token')]}}});
+  // A different keyword must never claim the visible cards as its search results.
+  assert.equal(b.snapshot('search', '', '狗').items.length, 0);
+  b.sandbox.__luluXhsReader.beginSearch('猫');
+  // A route transition with the old Vue state is not proof of a fresh search.
+  assert.equal(b.snapshot('search', '', '猫').items.length, 0);
+  b.sandbox.__INITIAL_STATE__.search.feeds = [{...row('new-token'), id: other}];
+  const result = b.snapshot('search', '', '猫');
+  assert.equal(result.onPage, true);
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].id, other);
+  assert.equal(result.items[0].token, 'new-token');
+  assert.equal(result.items[0].source, 'pc_search');
+});
+test('AI result route sends search-ready and associates note clicks with search cards', () => {
+  const b = navigationBrowser();
+  const ticks = [];
+  b.sandbox.setInterval = callback => { ticks.push(callback); return ticks.length; };
+  b.sandbox.clearInterval = () => {};
+  b.sandbox.history.pushState(null, '', '/search_result_ai?keyword=%E7%8C%AB');
+  assert.deepEqual(b.messages[0], {kind: 'search-start', keyword: '猫'});
+  ticks[0]();
+  assert.equal(b.messages.some(message => message.kind === 'search-ready'), false);
+  b.sandbox.__INITIAL_STATE__.search.feeds = [{...row('verified-search'), id: other}];
+  ticks[0]();
+  assert.deepEqual(b.messages.at(-1), {kind: 'search-ready', keyword: '猫'});
+  b.click('https://www.xiaohongshu.com/explore/' + other);
+  assert.equal(b.messages.at(-1).kind, 'note');
+  assert.equal(b.messages.at(-1).source, 'pc_search');
+  assert.equal(b.messages.at(-1).token, 'verified-search');
 });
 test('programmatic search uses the real input and button without a forged API request', () => {
   const b = browser(); const events = [];
