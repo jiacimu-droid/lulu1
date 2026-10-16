@@ -654,6 +654,9 @@ object ProactivePerceptionRuntime {
                     appendLine("【用户跨场景最新动态｜新→旧；收藏仅能引用这些真实用户消息ID】")
                     appendLine(recentUserActivityContext)
                 }
+                if (onlineUnread.text.isBlank()) {
+                    appendLine("【对话边界】最近聊天与用户旧照片只是已经发生的共同经历，不是新到达的待回复消息。若主动联系用户，应基于自己此刻的经历、真实兴趣或新的关心自然开口；可以有意义地追问旧事，但绝不能换个说法重新回答已经答过的旧问题。")
+                }
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
                     appendLine(onlineUnread.text.takeLast(5_000))
@@ -1153,6 +1156,7 @@ object ProactivePerceptionRuntime {
             appContext, character, decision, availableGroups, now,
             goalReviewMode = trigger.startsWith("持续目标定时复盘"),
             hasFreshUserMessage = messageStimulus != null,
+            responseEvidenceIds = onlineUnread.messageIds,
             requestId = when {
                 // A new user message is a NEW decision. Never reuse the older
                 // call-end/world-event request key while the user is waiting.
@@ -1416,6 +1420,7 @@ object ProactivePerceptionRuntime {
         requestId: String,
         goalReviewMode: Boolean = false,
         hasFreshUserMessage: Boolean = false,
+        responseEvidenceIds: Set<String> = emptySet(),
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         // All autonomous external actions share this gate: no model-authored wish,
@@ -1490,6 +1495,14 @@ object ProactivePerceptionRuntime {
             put("activityId", decision.activityId)
             put("incidentId", decision.incidentId)
             put("approach", decision.approach)
+        }
+        // Program-owned, frozen input evidence; never accept IDs authored by the
+        // model for the delivery receipt. Keep unrelated chat turns untouched.
+        args.remove("_replyEvidenceIds")
+        if (tool in setOf("send_private_message", "send_group_message",
+                "send_private_sticker", "send_group_sticker") &&
+            responseEvidenceIds.isNotEmpty()) {
+            args.put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
         }
         val resultJson = JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
             requestId = requestId, intentionId = decision.intentionId))

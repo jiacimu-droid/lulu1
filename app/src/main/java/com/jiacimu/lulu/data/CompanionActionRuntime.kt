@@ -134,6 +134,13 @@ internal object CompanionActionRuntime {
     ): CompanionActionResult = runCatching {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
+        // Only the orchestrator may supply the frozen IDs of this perception
+        // batch. The executor validates each against this role and conversation.
+        val replyEvidenceIds = args.optJSONArray("_replyEvidenceIds")?.let { ids ->
+            (0 until ids.length()).mapNotNull { index ->
+                ids.optString(index).takeIf(String::isNotBlank)
+            }.toSet()
+        }.orEmpty()
         val result = when (normalizedAction) {
             "learn_topic" -> AutonomousLearningRuntime.execute(context, characterId, args)
             "read_xiaohongshu" -> LuluExternalMcp.browse(context, characterId, args)
@@ -203,6 +210,10 @@ internal object CompanionActionRuntime {
                 CharacterInnerLifeStore.recordExpressiveDelivery(
                     characterId, delivered.id, "图片表情", sticker.name,
                 )
+                if (replyEvidenceIds.isNotEmpty()) {
+                    CompanionOnlineStore.acknowledgeDeliveredReply(
+                        characterId, conversation.id, replyEvidenceIds)
+                }
                 CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id, delivered.id)
             }
             "send_private_message" -> {
@@ -212,7 +223,8 @@ internal object CompanionActionRuntime {
                 val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
-                        com.jiacimu.lulu.parseCharacterReplyPresentation(text))
+                        com.jiacimu.lulu.parseCharacterReplyPresentation(text),
+                     actionableUserMessageIds = replyEvidenceIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
@@ -228,7 +240,8 @@ internal object CompanionActionRuntime {
                 val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
-                        com.jiacimu.lulu.parseCharacterReplyPresentation(text))
+                        com.jiacimu.lulu.parseCharacterReplyPresentation(text),
+                     actionableUserMessageIds = replyEvidenceIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()
