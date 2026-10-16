@@ -25,7 +25,15 @@ fun LuluPageScaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(title, fontWeight = FontWeight.SemiBold) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(title, fontWeight = FontWeight.SemiBold)
+                        if (LocalLuluAppearance.current.isJournal()) {
+                            JournalPressedFlower(Modifier.size(22.dp))
+                        }
+                    }
+                },
                 navigationIcon = {
                     if (onBack != null) {
                         IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
@@ -53,7 +61,10 @@ fun LuluSectionCard(
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(LuluSpacing.Large),
+            modifier = Modifier.fillMaxWidth()
+                .then(if (LocalLuluAppearance.current.isJournal())
+                    Modifier.journalPaper(LocalLuluAppearance.current) else Modifier)
+                .padding(LuluSpacing.Large),
             verticalArrangement = Arrangement.spacedBy(LuluSpacing.Small),
         ) {
             if (!title.isNullOrBlank()) Text(title, style = MaterialTheme.typography.titleMedium)

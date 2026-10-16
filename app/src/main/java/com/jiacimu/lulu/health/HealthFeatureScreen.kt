@@ -29,6 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.isJournal
+import com.jiacimu.lulu.design.journalLinen
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -110,7 +113,9 @@ fun HealthFeatureScreen(onBack: () -> Unit) {
         },
     ) {
         Scaffold(
-            containerColor = HealthPaper,
+            modifier = if (LocalLuluAppearance.current.isJournal())
+                Modifier.journalLinen(LocalLuluAppearance.current) else Modifier,
+            containerColor = if (LocalLuluAppearance.current.isJournal()) Color.Transparent else HealthPaper,
             topBar = {
                 TopAppBar(
                     title = {

@@ -18,6 +18,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.JournalPressedFlower
+import com.jiacimu.lulu.design.isJournal
+import com.jiacimu.lulu.design.journalPaper
+import com.jiacimu.lulu.design.journalLinen
 
 private val SettingsHomePaper: Color @Composable get() = MaterialTheme.colorScheme.background
 private val SettingsHomeCard: Color @Composable get() = MaterialTheme.colorScheme.surface
@@ -88,11 +93,18 @@ private fun SettingsEntryScreen(
     onOpenImage: () -> Unit,
     onOpenVision: () -> Unit,
 ) {
+    val journal = LocalLuluAppearance.current.isJournal()
     Scaffold(
-        containerColor = SettingsHomePaper,
+        modifier = if (journal) Modifier.journalLinen(LocalLuluAppearance.current) else Modifier,
+        containerColor = if (journal) Color.Transparent else SettingsHomePaper,
         topBar = {
             TopAppBar(
-                title = { Text("设置", fontWeight = FontWeight.SemiBold, color = SettingsHomeInk) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("设置", fontWeight = FontWeight.SemiBold, color = SettingsHomeInk)
+                        if (journal) JournalPressedFlower(Modifier.padding(start = 8.dp).size(22.dp))
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Outlined.ArrowBack, "返回", tint = SettingsHomeInk)
@@ -176,12 +188,16 @@ private fun SettingsEntryRow(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
+        shape = if (LocalLuluAppearance.current.isJournal())
+            RoundedCornerShape(8.dp, 20.dp, 9.dp, 18.dp) else RoundedCornerShape(18.dp),
         color = SettingsHomeCard,
         border = BorderStroke(1.dp, SettingsHomeBorder),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(15.dp),
+            modifier = Modifier.fillMaxWidth()
+                .then(if (LocalLuluAppearance.current.isJournal())
+                    Modifier.journalPaper(LocalLuluAppearance.current) else Modifier)
+                .padding(15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(shape = RoundedCornerShape(12.dp), color = SettingsHomeAccent) {

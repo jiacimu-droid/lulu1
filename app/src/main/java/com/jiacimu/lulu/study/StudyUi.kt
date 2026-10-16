@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.isJournal
+import com.jiacimu.lulu.design.journalPaper
 
 internal object StudyDesign {
     // 考研 App 只保留浅黄、白色与黑色系；不再使用土黄/深黄作为强调色。
@@ -69,7 +72,10 @@ internal fun StudyCard(
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().then(
+                if (LocalLuluAppearance.current.isJournal()) Modifier.journalPaper(LocalLuluAppearance.current)
+                else Modifier
+            ).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(9.dp),
             content = content,
         )
@@ -85,7 +91,10 @@ internal fun StudyMetric(label: String, value: String, modifier: Modifier = Modi
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
     ) {
         Column(
-            Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 8.dp),
+            Modifier.fillMaxWidth().then(
+                if (LocalLuluAppearance.current.isJournal()) Modifier.journalPaper(LocalLuluAppearance.current)
+                else Modifier
+            ).padding(vertical = 12.dp, horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)

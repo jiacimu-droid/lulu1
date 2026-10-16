@@ -35,7 +35,10 @@ object LuluAppearanceStore {
                 id = UUID.randomUUID().toString(),
                 name = safeName,
                 description = "我的自定义方案 · 可随时切回",
-                palette = source.palette.copy(accent = accent ?: source.palette.accent),
+                palette = source.palette.copy(
+                    accent = accent ?: source.palette.accent,
+                    onAccent = accent?.let(::readableTextForAccent) ?: source.palette.onAccent,
+                ),
                 corner = (corner ?: source.corner).coerceIn(0, 36),
                 builtIn = false,
             )
@@ -46,6 +49,20 @@ object LuluAppearanceStore {
     }
 
     fun deleteUnused(id: String) = update { it.remove(id) }
+
+
+    /** Pick the higher WCAG contrast of black/white for a user-selected accent. */
+    private fun readableTextForAccent(argb: Long): Long {
+        fun channel(value: Int): Double {
+            val v = value / 255.0
+            return if (v <= 0.04045) v / 12.92 else Math.pow((v + 0.055) / 1.055, 2.4)
+        }
+        val red = channel(((argb shr 16) and 255).toInt())
+        val green = channel(((argb shr 8) and 255).toInt())
+        val blue = channel((argb and 255).toInt())
+        val luminance = red * 0.2126 + green * 0.7152 + blue * 0.0722
+        return if (luminance >= 0.179) 0xFF231D1BL else 0xFFFFFFFFL
+    }
 
     private fun update(transform: (LuluAppearanceLibrary) -> LuluAppearanceLibrary) {
         synchronized(lock) {

@@ -4,6 +4,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
+import androidx.compose.material3.Shapes
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -69,8 +71,18 @@ fun LuluAppearanceTheme(profile: LuluAppearance, content: @Composable () -> Unit
         labelLarge = LuluTypography.labelLarge.copy(fontFamily = family),
         labelMedium = LuluTypography.labelMedium.copy(fontFamily = family),
     )
+    val radius = profile.corner.coerceIn(4, 32)
+    val shapes = if (profile.isJournal()) Shapes(
+        small = RoundedCornerShape(radius.dp, (radius / 2).dp, radius.dp, (radius / 2).dp),
+        medium = RoundedCornerShape(radius.dp, (radius / 2).dp, radius.dp, (radius / 2).dp),
+        large = RoundedCornerShape((radius + 6).dp, radius.dp, radius.dp, (radius + 6).dp),
+    ) else Shapes(
+        small = RoundedCornerShape((radius / 2).dp),
+        medium = RoundedCornerShape(radius.dp),
+        large = RoundedCornerShape((radius + 6).coerceAtMost(40).dp),
+    )
     CompositionLocalProvider(LocalLuluAppearance provides profile) {
-        MaterialTheme(colorScheme = scheme, typography = styled, content = content)
+        MaterialTheme(colorScheme = scheme, typography = styled, shapes = shapes, content = content)
     }
 }
 
