@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T14:11:49.159867+00:00",
-  "commit": "e6b30290341c87297e192776a32465ec8de7b324",
+  "generatedAt": "2026-10-16T14:13:21.690758+00:00",
+  "commit": "1dc5c012b4a5200300eff5479cae27472158a0cb",
   "branch": "main",
-  "sourceFingerprint": "b50478fafbacfd99c7d830bfbbaf2c256f39583824a8b5bba55892df537eb254",
+  "sourceFingerprint": "92ea54d25969f1504783aa42bb5a8ebe5b52bc93f42f09f11eae4fa8efd6a967",
   "summary": {
     "files": 683,
-    "lines": 132704,
-    "symbols": 2001
+    "lines": 132734,
+    "symbols": 2002
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4922,10 +4922,28 @@
         "line": 24
       }
     ],
+    "normalized": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
+        "line": 306
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
+        "line": 14
+      }
+    ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 684
+        "line": 696
       }
     ],
     "describe": [
@@ -6772,20 +6790,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 37
-      }
-    ],
-    "normalized": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 50
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 36
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
-        "line": 14
       }
     ],
     "LuluConversation": [
@@ -11555,8 +11559,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt",
-      "lines": 89,
-      "sha256": "aef5f1d905064e54033b35fc03e8a3bc5685f87affd616f57f606f810dcf4f4f",
+      "lines": 102,
+      "sha256": "6aa9a6224d69131ddac892aba60ab70a471b300a2ad65fddcf436a6633033b4a",
       "symbols": []
     },
     {
@@ -14874,8 +14878,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 202,
-      "sha256": "e5b2eaa44ac77bb1d97d353253f258b34510c069fe6d4f9383e285bef4d71b7e",
+      "lines": 207,
+      "sha256": "44c315944f833c5ec4caea98dfd2be6734457034ad0074846f12592d56e3e8ba",
       "symbols": [
         {
           "name": "current",
@@ -15761,8 +15765,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 702,
-      "sha256": "3f14512673252837a3ef1bbff5c4de2ecbe6d7a106aa708eec640fd4695925a2",
+      "lines": 714,
+      "sha256": "72c8afd47f82253812ac236ff605d8b8f7a2aaa37ea178f95f695765f1c35759",
       "symbols": [
         {
           "name": "asJson",
@@ -15773,8 +15777,12 @@
           "line": 43
         },
         {
+          "name": "normalized",
+          "line": 306
+        },
+        {
           "name": "world",
-          "line": 684
+          "line": 696
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e6b30290341c87297e192776a32465ec8de7b324`
+- 基准提交：`1dc5c012b4a5200300eff5479cae27472158a0cb`
 - 分支：`main`
 - 已索引文件：683
-- 已索引代码/文本行：132704
-- 已发现符号：2001
+- 已索引代码/文本行：132734
+- 已发现符号：2002
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -31,7 +31,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 70 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 143 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 89 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 265 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
@@ -212,7 +212,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 518 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 248 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 816 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 202 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 207 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 191 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 132 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotivationOwnership.kt` | 48 | 2 |
@@ -255,7 +255,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 191 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 208 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 702 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 714 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 747 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 470 | 15 |
