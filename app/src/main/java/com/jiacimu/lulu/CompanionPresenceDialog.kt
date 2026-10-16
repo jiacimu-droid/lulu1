@@ -399,6 +399,41 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
 
     val canonicalGoals = (0 until (motives?.length() ?: 0))
         .mapNotNull { motives?.optJSONObject(it) }
+    val currentGoals = canonicalGoals.filter {
+        it.optString("aim").isNotBlank() &&
+            (CharacterMotiveState.isActive(it) || it.optString("status") == "paused")
+    }
+    val pastGoals = canonicalGoals.filter {
+        it.optString("aim").isNotBlank() &&
+            it.optString("status") in setOf("achieved", "released")
+    }.takeLast(2)
+    // Live wishes first: finished history must not push current motivations
+    // off the front page. Show old closures only when inspecting older items.
+    (currentGoals.takeLast(6).asReversed() +
+        if (showOlder) pastGoals.asReversed() else emptyList()).forEach { m ->
+            val stage = when (m.optString("status", "active")) {
+                "waiting_feedback" -> "已尝试 · 等待效果反馈"
+                "paused" -> "暂缓"
+                "released" -> "本人已放下"
+                "achieved" -> "有证据确认达成"
+                else -> "仍想推进"
+            }
+            val outcomes = m.optJSONArray("outcomes")
+            val last = outcomes?.optJSONObject(outcomes.length() - 1)
+            ideas += LifeThoughtEntry(
+                "持续意愿", m.optString("aim"), stage,
+                listOfNotNull(
+                    m.optString("why").takeIf(String::isNotBlank)?.let { "心里的缘由：$it" },
+                    m.optString("nextStep").takeIf(String::isNotBlank)?.let { "考虑下一步：$it" },
+                    last?.optString("summary")?.takeIf(String::isNotBlank)
+                        ?.let { "实际尝试：$it" },
+                    m.optString("waitingFor").takeIf(String::isNotBlank)
+                        ?.let { "仍待确认：$it" },
+                    m.optString("closedBecause").takeIf(String::isNotBlank)
+                        ?.let { "结束原因：$it" },
+                ).joinToString("\n"),
+            )
+        }
     // Legacy intention is only a backward-compatible projection. If the same
     // desire already has a canonical motive, never show a duplicate card.
     goal?.takeIf { legacy ->
@@ -479,31 +514,6 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                 ideas += LifeThoughtEntry("正在探索", t.optString("topic"), "已有真实尝试",
                     last.optString("receipt").take(240), factual = true)
             }
-        }
-    canonicalGoals.filter { it.optString("aim").isNotBlank() }
-        .takeLast(6).asReversed().forEach { m ->
-            val stage = when (m.optString("status", "active")) {
-                "waiting_feedback" -> "已尝试 · 等待效果反馈"
-                "paused" -> "暂缓"
-                "released" -> "本人已放下"
-                "achieved" -> "有证据确认达成"
-                else -> "仍想推进"
-            }
-            val outcomes = m.optJSONArray("outcomes")
-            val last = outcomes?.optJSONObject(outcomes.length() - 1)
-            ideas += LifeThoughtEntry(
-                "持续意愿", m.optString("aim"), stage,
-                listOfNotNull(
-                    m.optString("why").takeIf(String::isNotBlank)?.let { "心里的缘由：$it" },
-                    m.optString("nextStep").takeIf(String::isNotBlank)?.let { "考虑下一步：$it" },
-                    last?.optString("summary")?.takeIf(String::isNotBlank)
-                        ?.let { "实际尝试：$it" },
-                    m.optString("waitingFor").takeIf(String::isNotBlank)
-                        ?.let { "仍待确认：$it" },
-                    m.optString("closedBecause").takeIf(String::isNotBlank)
-                        ?.let { "结束原因：$it" },
-                ).joinToString("\n"),
-            )
         }
     evidence.forEach { record ->
         ideas += LifeThoughtEntry("还想分享", record.optString("fact").take(200),
