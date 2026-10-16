@@ -90,13 +90,13 @@ internal object VoicePerformance {
             // A run of punctuation such as "？！" represents a single ending.
             // Don't place repeated tags between those marks or at the very end.
             val next = words.substring(index + 1).firstOrNull {
-                !it.isWhitespace() && it !in "”’\\\"'」』）)"
+                !it.isWhitespace() && it !in "”’」』）)"
             }
             if (next == null || next in "。！？!?；;" ||
                 !words.substring(index + 1).any { it.isLetterOrDigit() }) return@forEachIndexed
             sentences++
-            // Punctuation already creates small natural rests. Use sparse tags
-            // so the generated audio is slow without large paid text overhead.
+            // Punctuation supplies the frequent whisper boundaries; longer
+            // rests remain occasional so the bedtime passage keeps flowing.
             val pause = when {
                 sentences % 10 == 0 -> "[long pause]"
                 sentences % 7 == 0 -> "[pause]"
