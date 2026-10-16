@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cadcf67baeb82427db9a02b9052a8995c4338b65`
+- 基准提交：`ef4fe0363b20871f4c866daa872ff75b6de3e67f`
 - 分支：`main`
-- 已索引文件：675
-- 已索引代码/文本行：130699
-- 已发现符号：1961
+- 已索引文件：680
+- 已索引代码/文本行：131488
+- 已发现符号：1986
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -83,6 +83,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 634 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 297 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 136 | 3 |
@@ -90,7 +91,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 494 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 231 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 438 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 448 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 373 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 205 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
@@ -110,9 +111,9 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 603 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 904 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 222 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 446 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 96 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 223 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 452 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 97 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 331 | 0 |
@@ -301,6 +302,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1089 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 107 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 129 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 470 | 8 |
@@ -369,6 +372,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 767 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 168 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |
@@ -618,6 +622,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 79 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 70 | 6 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
