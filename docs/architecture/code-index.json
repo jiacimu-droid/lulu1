@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T11:43:44.831554+00:00",
-  "commit": "9ca2625aa5d645585a7ef48b06cf1037c25ecff7",
+  "generatedAt": "2026-10-16T11:45:51.762669+00:00",
+  "commit": "e4cd7d02ba9f1ac1235466c4f165464389b21a2d",
   "branch": "main",
-  "sourceFingerprint": "dd2f9f14158899982e9d19454d53619c9a0f25286d3cd80f3c21ce9d36d573c3",
+  "sourceFingerprint": "e13f62e36577564a275b8cc15cc3b059bd507013f455af6fe40b591967d68b29",
   "summary": {
     "files": 683,
-    "lines": 132526,
+    "lines": 132523,
     "symbols": 2001
   },
   "symbolIndex": {
@@ -357,7 +357,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-        "line": 70
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
@@ -4381,7 +4381,7 @@
     "expressionHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-        "line": 122
+        "line": 161
       }
     ],
     "invalidate": [
@@ -14405,7 +14405,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 158,
-      "sha256": "5d1aae924b763542ff03f58b71dcbab372d32008d8afc1823152c873ec98cbd7",
+      "sha256": "2b273c98b7f3209937cd63cc7fac375330012219909bf8b9fee69c0ddef99154",
       "symbols": [
         {
           "name": "expressionContext",
@@ -15130,16 +15130,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt",
-      "lines": 195,
-      "sha256": "80ed59db9f71e9818e20a88a7f90b78298c09fd6adab128aa6d9c78e9f79cb94",
+      "lines": 228,
+      "sha256": "977f6de496c7d7a158230c13c2d78153b17c176669adf85580ce18d273f777ee",
       "symbols": [
         {
           "name": "context",
-          "line": 70
+          "line": 106
         },
         {
           "name": "expressionHandoff",
-          "line": 122
+          "line": 161
         }
       ]
     },
@@ -18157,8 +18157,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 109,
-      "sha256": "46b8d020c5fb679fd93a168dff0d4eee1dcec19e80f40b52140710cabf70a5d7",
+      "lines": 111,
+      "sha256": "f90f11572cef2c8d13c61644d74fe21b665212fedb0607fbc72eb00c3d1e177a",
       "symbols": []
     },
     {
@@ -22770,8 +22770,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt",
-      "lines": 117,
-      "sha256": "d8fbca8fd17d9aace403455004933db0d20d933592275274986e0b447886bc90",
+      "lines": 79,
+      "sha256": "1728d1848c961f7c2ecfb59a5b57bec000b451aee95d41133dd89b93261e340d",
       "symbols": [
         {
           "name": "CharacterRelationalInitiativeTest",
