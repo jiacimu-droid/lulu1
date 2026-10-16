@@ -39,7 +39,13 @@ internal object MemoryWorkingSet {
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
             }
             lexicon.forEachIndexed { index, entry ->
-                if (entry.section == LexiconSection.Concern) return@forEachIndexed
+                if (entry.section == LexiconSection.Concern) {
+                    add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
+                        "- [旧版关心笔记/仅供历史参考，非当前挂心、非用户现状、非行动指令] ${entry.title}：${entry.content}",
+                        360 - index.coerceAtMost(80), payload = entry.content,
+                        sources = entry.sourceEventIds.toSet(), derivedSummary = true))
+                    return@forEachIndexed
+                }
                 val subjective = entry.section in setOf(LexiconSection.Diary, LexiconSection.Favorite)
                 add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
                     "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}",

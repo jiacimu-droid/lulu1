@@ -11,7 +11,7 @@
 
 ## 旧版挂心的安全收拢
 
-原 `LexiconSection.Concern` 包含用户生活近况和角色可能想关心的事情，不能未经主观判断就迁移为角色已经挂心。`ChatLexiconAutomation` 现在只写 `LexiconSection.Life` 真实生活近况，不再创建新 `Concern`，旧模型返回 concern 也被忽略，旧条目不再自动触发计划。原有 Concern 不清空，仍在生活近况作为**旧版关心笔记**可查、可编辑、可删除，明确不授权自主行动。当前挂心只在「此刻」读取心理中心的 `openConcerns`。手动添加近况时只写 Life。
+原 `LexiconSection.Concern` 包含用户生活近况和角色可能想关心的事情，不能未经主观判断就迁移为角色已经挂心。`ChatLexiconAutomation` 现在只写 `LexiconSection.Life` 真实生活近况，不再创建新 `Concern`，旧模型返回 concern 也被忽略，旧条目不再自动触发计划；仅话题高度相关时才作为有明确历史标签的线索召回，不是当前心理状态。原有 Concern 不清空，仍在生活近况作为**旧版关心笔记**可查、可编辑、可删除，明确不授权自主行动。当前挂心只在「此刻」读取心理中心的 `openConcerns`。手动添加近况时只写 Life。
 
 ## 成长归属
 

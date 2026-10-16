@@ -10,7 +10,9 @@ object LexiconMemoryContext {
         val taskEntries = CommitmentTaskStore.active(characterId).mapNotNullTo(mutableSetOf()) { it.lexiconEntryId }
         val entries = LuluRepositories.lexicon.snapshot(characterId)
             .filter { lexiconHasLiveSources(it) }
-            .filterNot { it.section == LexiconSection.Concern || it.id in taskEntries }
+            .filterNot { it.id in taskEntries }
+            // Legacy concern notes are never ACTIVE psychological state;
+            // relevant ones may appear only as explicitly labeled history.
         val terms = memorySearchTerms(RelevantMemoryRecall.focusQuery(query))
         val ranked = entries.map { entry ->
             entry to terms.intersect(memorySearchTerms("${entry.title} ${entry.content}")).size
