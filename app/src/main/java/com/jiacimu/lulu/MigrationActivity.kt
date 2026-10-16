@@ -135,6 +135,7 @@ class MigrationActivity : ComponentActivity() {
         val appContext = applicationContext
         UserDataUpgradeGuard.protectBeforeStoresInitialize(appContext)
         LuluAppPreferencesStore.initialize(appContext)
+        com.jiacimu.lulu.data.LuluAppearanceStore.initialize(appContext)
         UserProfileContext.initialize(appContext)
         DigitalLifeProfileStore.initialize(appContext)
         LuluRepositories.initialize(appContext)

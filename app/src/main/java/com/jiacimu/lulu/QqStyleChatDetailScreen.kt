@@ -36,15 +36,15 @@ import java.time.Duration
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-internal val QqPage = Color(0xFFFFFFFF)
-internal val QqHeader = Color(0xFFFCFCFC)
-internal val QqMine = Color(0xFF292929)
-internal val QqMineInk = Color(0xFFFFFFFF)
-internal val QqOther = Color(0xFFF4F4F4)
-internal val QqMuted = Color(0xFF7A7A7E)
-internal val QqInk = Color(0xFF1D1D1F)
-internal val QqBorder = Color(0xFFE7E7E7)
-internal val QqIconSurface = Color(0xFFF4F4F4)
+internal val QqPage: Color @Composable get() = MaterialTheme.colorScheme.background
+internal val QqHeader: Color @Composable get() = MaterialTheme.colorScheme.surface
+internal val QqMine: Color @Composable get() = MaterialTheme.colorScheme.primary
+internal val QqMineInk: Color @Composable get() = MaterialTheme.colorScheme.onPrimary
+internal val QqOther: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+internal val QqMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+internal val QqInk: Color @Composable get() = MaterialTheme.colorScheme.onSurface
+internal val QqBorder: Color @Composable get() = MaterialTheme.colorScheme.outline
+internal val QqIconSurface: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable

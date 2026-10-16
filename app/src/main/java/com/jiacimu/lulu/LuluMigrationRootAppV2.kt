@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
+import com.jiacimu.lulu.data.LuluAppearanceStore
+import com.jiacimu.lulu.design.LuluAppearanceTheme
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
@@ -242,12 +244,14 @@ fun LuluMigrationRootAppV2(
         )
     }
 
+    val appearanceLibrary by LuluAppearanceStore.state.collectAsState()
     CompositionLocalProvider(LocalDensity provides preferredDensity) {
         MaterialTheme(
             colorScheme = LuluLightColorScheme,
             typography = LuluTypography,
         ) {
-            Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
+            LuluAppearanceTheme(appearanceLibrary.active(if (route == MigrationRoute.ChatDetail) "Chat" else route.name)) {
+            Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize()) {
                     if (chatSessionStarted) {
                         Box(
@@ -289,7 +293,7 @@ fun LuluMigrationRootAppV2(
                     }
 
                     if (route != MigrationRoute.ChatDetail) {
-                        Surface(Modifier.fillMaxSize(), color = LuluColors.Paper) {
+                        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                             when (route) {
                                 MigrationRoute.Home -> MigrationHomeV2(
                                     onOpen = { target ->
@@ -392,12 +396,14 @@ fun LuluMigrationRootAppV2(
                                     onBack = ::popRoute,
                                 )
                                 MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
+                                MigrationRoute.Appearance -> LuluAppearanceScreen(::popRoute)
                                 MigrationRoute.ChatDetail -> Unit
                             }
                         }
                     }
 
                     // Drawn above every route, including Theater, Games and Study.
+                    LuluAppearanceTheme(appearanceLibrary.active("Phone")) {
                     LuluCallFloatingWindow(modifier = Modifier.fillMaxSize())
                     if (callExpanded && currentCall.hasSession &&
                         currentCall.phase != CallPhase.Ended) {
@@ -408,9 +414,11 @@ fun LuluMigrationRootAppV2(
                             onDismiss = LuluCallWindowController::minimize,
                         )
                     }
+                    }
 
                     val pomodoroActive = pomodoroCompanion.activeSessionId.isNotBlank() && !pomodoroCompanion.completionHandled
                     if (pomodoroActive && !pomodoroFocusVisible) {
+                        LuluAppearanceTheme(appearanceLibrary.active("Pomodoro")) {
                         PomodoroMiniWindow(
                             studyState = studyState,
                             companion = pomodoroCompanion,
@@ -429,8 +437,10 @@ fun LuluMigrationRootAppV2(
                                 )
                             },
                         )
+                        }
                     }
                 }
+            }
             }
         }
     }

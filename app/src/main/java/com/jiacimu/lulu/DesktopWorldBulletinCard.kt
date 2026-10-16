@@ -59,9 +59,9 @@ internal fun DesktopWorldBulletinCard() {
     val latest = notices.firstOrNull()
     Surface(
         modifier = Modifier.fillMaxWidth().height(110.dp),
-        color = Color(0xFFFCFCFC),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         shadowElevation = 1.dp,
         onClick = {
             opened = true
@@ -74,31 +74,31 @@ internal fun DesktopWorldBulletinCard() {
             Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = Color(0xFF343436))
+            Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("数字世界 · 公告栏", color = Color(0xFF1D1D1F),
+                    Text("数字世界 · 公告栏", color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     if (unread > 0) {
                         Spacer(Modifier.width(8.dp))
-                        Surface(color = Color(0xFF3B3B3E), shape = RoundedCornerShape(99.dp)) {
+                        Surface(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(99.dp)) {
                             Text("${unread.coerceAtMost(99)} 新动态",
-                                color = Color.White, fontSize = 9.sp,
+                                color = MaterialTheme.colorScheme.onPrimary, fontSize = 9.sp,
                                 modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
                         }
                     }
                 }
                 Text(latest?.title ?: "世界暂时没有新公告",
-                    color = Color(0xFF303033), fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(latest?.detail ?: "新居民、地点和重要建设会在这里出现。",
-                    color = Color(0xFF77777B), fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp,
                     maxLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 15.sp)
             }
             Spacer(Modifier.width(6.dp))
             Icon(Icons.Outlined.ChevronRight, "查看世界公告", Modifier.size(20.dp),
-                tint = Color(0xFF89898E))
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 
@@ -106,7 +106,7 @@ internal fun DesktopWorldBulletinCard() {
         AlertDialog(
             onDismissRequest = { opened = false },
             title = { Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Campaign, null, tint = Color(0xFF303033))
+                Icon(Icons.Outlined.Campaign, null, tint = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.width(9.dp))
                 Text("数字世界公告", fontSize = 20.sp)
             } },
@@ -114,15 +114,15 @@ internal fun DesktopWorldBulletinCard() {
                 Column(Modifier.fillMaxWidth().heightIn(max = 490.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("以下动态均来自已保存的世界状态，尚未发生的提案不会被公布。",
-                        fontSize = 11.sp, color = Color(0xFF77777B))
+                        fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (notices.isEmpty()) {
                         Text("世界仍在慢慢生长，还没有值得公告的大事。",
-                            fontSize = 13.sp, color = Color(0xFF77777B))
+                            fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     notices.forEach { notice ->
                         Surface(
-                            color = Color(0xFFF5F5F5), shape = RoundedCornerShape(14.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE8E8E8)),
+                            color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(14.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                         ) {
                             Column(Modifier.fillMaxWidth().padding(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -131,9 +131,9 @@ internal fun DesktopWorldBulletinCard() {
                                         fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                                     Text(notice.occurredAt.atZone(ZoneId.systemDefault())
                                         .format(DateTimeFormatter.ofPattern("M/d HH:mm")),
-                                        color = Color(0xFF89898E), fontSize = 10.sp)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                                 }
-                                Text(notice.detail, color = Color(0xFF4C4C50),
+                                Text(notice.detail, color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 12.sp, lineHeight = 18.sp)
                             }
                         }

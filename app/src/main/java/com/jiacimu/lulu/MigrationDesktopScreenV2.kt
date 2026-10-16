@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.design.LuluAppearancePattern
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -57,21 +58,23 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("games", "游戏", Icons.Outlined.SportsEsports, MigrationRoute.Games),
     DesktopV2Launcher("apocalypse", "末世求生", Icons.Outlined.Map, MigrationRoute.ApocalypseSurvival),
     DesktopV2Launcher("settings", "设置", Icons.Outlined.Settings, MigrationRoute.Settings),
+    DesktopV2Launcher("appearance", "美化", Icons.Outlined.Palette, MigrationRoute.Appearance),
 )
 
 private const val DESKTOP_COLUMNS = 4
 private const val DESKTOP_ROWS = 4
 private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
 
-private val DesktopPaper = Color(0xFFFFFFFF)
-private val DesktopSoft = Color(0xFFF7F7F7)
-private val DesktopIconSurface = Color(0xFFF4F4F4)
-private val DesktopCard = Color(0xFFFCFCFC)
-private val DesktopLine = Color(0xFFE7E7E7)
-private val DesktopAccent = Color(0xFF292929)
-private val DesktopInk = Color(0xFF1D1D1F)
-private val DesktopMuted = Color(0xFF7A7A7E)
-private val DesktopIcon = Color(0xFF303033)
+// Resolve colors inside each composable, from the chosen desktop recipe.
+private val DesktopPaper: Color @Composable get() = MaterialTheme.colorScheme.background
+private val DesktopSoft: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+private val DesktopIconSurface: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+private val DesktopCard: Color @Composable get() = MaterialTheme.colorScheme.surface
+private val DesktopLine: Color @Composable get() = MaterialTheme.colorScheme.outline
+private val DesktopAccent: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val DesktopInk: Color @Composable get() = MaterialTheme.colorScheme.onBackground
+private val DesktopMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val DesktopIcon: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 
 @Composable
 internal fun MigrationHomeV2(
@@ -119,6 +122,8 @@ internal fun MigrationHomeV2(
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
+        Box(Modifier.fillMaxSize()) {
+            LuluAppearancePattern(Modifier.fillMaxSize())
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -202,6 +207,7 @@ internal fun MigrationHomeV2(
                 },
                 onOpen = onOpen,
             )
+        }
         }
     }
 }

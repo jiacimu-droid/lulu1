@@ -22,7 +22,7 @@ fun LuluPageScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
-        containerColor = LuluColors.Paper,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(title, fontWeight = FontWeight.SemiBold) },
@@ -32,7 +32,7 @@ fun LuluPageScaffold(
                     }
                 },
                 actions = actions,
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
         content = content,
@@ -48,16 +48,16 @@ fun LuluSectionCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
-        border = BorderStroke(1.dp, LuluColors.Border),
-        shape = RoundedCornerShape(LuluRadii.Large),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(LuluSpacing.Large),
             verticalArrangement = Arrangement.spacedBy(LuluSpacing.Small),
         ) {
             if (!title.isNullOrBlank()) Text(title, style = MaterialTheme.typography.titleMedium)
-            if (!subtitle.isNullOrBlank()) Text(subtitle, color = LuluColors.Muted, style = MaterialTheme.typography.bodySmall)
+            if (!subtitle.isNullOrBlank()) Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
             content()
         }
     }
@@ -75,10 +75,10 @@ fun LuluPrimaryButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(LuluRadii.Medium),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = LuluColors.Wheat,
-            contentColor = LuluColors.OnWheat,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
     ) {
         if (icon != null) {
@@ -105,10 +105,10 @@ fun LuluTextInput(
         modifier = modifier.fillMaxWidth(),
         singleLine = singleLine,
         minLines = minLines,
-        shape = RoundedCornerShape(LuluRadii.Medium),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = LuluColors.Wheat,
-            unfocusedBorderColor = LuluColors.Border,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
         ),
     )
 }
@@ -126,11 +126,11 @@ fun LuluEmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(LuluSpacing.Medium),
     ) {
-        Surface(shape = RoundedCornerShape(LuluRadii.Large), color = LuluColors.CardStrong) {
-            Icon(icon, null, modifier = Modifier.padding(LuluSpacing.Large).size(34.dp), tint = LuluColors.BlueGray)
+        Surface(shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+            Icon(icon, null, modifier = Modifier.padding(LuluSpacing.Large).size(34.dp), tint = MaterialTheme.colorScheme.secondary)
         }
         Text(title, style = MaterialTheme.typography.titleMedium)
-        Text(description, color = LuluColors.Muted, style = MaterialTheme.typography.bodyMedium)
+        Text(description, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
         action?.invoke()
     }
 }
@@ -147,7 +147,7 @@ fun LuluSettingRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(title, fontWeight = FontWeight.SemiBold)
-                Text(subtitle, color = LuluColors.Muted, style = MaterialTheme.typography.bodySmall)
+                Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
             }
             Switch(checked = checked, enabled = enabled, onCheckedChange = onCheckedChange)
         }

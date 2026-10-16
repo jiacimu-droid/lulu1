@@ -19,13 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val SettingsHomePaper = Color.White
-private val SettingsHomeCard = Color(0xFFFCFCFC)
-private val SettingsHomeBorder = Color(0xFFE7E7E7)
-private val SettingsHomeMuted = Color(0xFF7A7A7E)
-private val SettingsHomeInk = Color(0xFF1D1D1F)
-private val SettingsHomeAccent = Color(0xFFF4F4F4)
-private val SettingsHomeAccentStrong = Color(0xFF292929)
+private val SettingsHomePaper: Color @Composable get() = MaterialTheme.colorScheme.background
+private val SettingsHomeCard: Color @Composable get() = MaterialTheme.colorScheme.surface
+private val SettingsHomeBorder: Color @Composable get() = MaterialTheme.colorScheme.outline
+private val SettingsHomeMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val SettingsHomeInk: Color @Composable get() = MaterialTheme.colorScheme.onSurface
+private val SettingsHomeAccent: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+private val SettingsHomeAccentStrong: Color @Composable get() = MaterialTheme.colorScheme.primary
 
 @Composable
 fun LuluSettingsHomeScreen(onBack: () -> Unit) {

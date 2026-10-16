@@ -35,17 +35,17 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 
-private val HealthPaper = Color(0xFFFFFAFB)
-private val HealthCard = Color.White
-private val HealthSoft = Color(0xFFFFF1F4)
-private val HealthSelected = Color(0xFFFFDDE6)
-private val HealthPredicted = Color(0xFFF5E7EC)
-private val HealthAccent = Color(0xFFBC657E)
-private val HealthAccentDark = Color(0xFFA9536D)
-private val HealthAccentDeep = Color(0xFF94475F)
-private val HealthInk = Color(0xFF292225)
-private val HealthMuted = Color(0xFF81767A)
-private val HealthLine = Color(0xFFECE0E4)
+private val HealthPaper: Color @Composable get() = MaterialTheme.colorScheme.background
+private val HealthCard: Color @Composable get() = MaterialTheme.colorScheme.surface
+private val HealthSoft: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+private val HealthSelected: Color @Composable get() = MaterialTheme.colorScheme.primaryContainer
+private val HealthPredicted: Color @Composable get() = MaterialTheme.colorScheme.secondaryContainer
+private val HealthAccent: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val HealthAccentDark: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val HealthAccentDeep: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val HealthInk: Color @Composable get() = MaterialTheme.colorScheme.onSurface
+private val HealthMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val HealthLine: Color @Composable get() = MaterialTheme.colorScheme.outline
 
 private enum class HealthSection(val label: String) {
     Cycle("经期"),

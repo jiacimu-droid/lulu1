@@ -38,6 +38,7 @@ enum class MigrationRoute {
     // Director-driven long-form story game is a desktop app, not a sub-page of the games hub.
     ApocalypseSurvival,
     Settings,
+    Appearance,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
