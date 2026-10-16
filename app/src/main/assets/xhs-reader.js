@@ -286,11 +286,12 @@
     const url = new URL(location.href), path = url.pathname;
     const searchResponse = kind === 'search' && !!keyword && received.searchKeyword === keyword;
     const searchPage = kind === 'search' &&
-      ['/search_result','/search','/search/result'].includes(path) &&
+      ['/search_result','/search_result_ai','/search','/search/result'].includes(path) &&
       url.searchParams.get('keyword') === keyword;
     // A native/website search may remain marked pending forever when the site
-    // changes its request transport. The real search_result URL and its own
-    // state/DOM must remain readable independently of fetch/XHR interception.
+    // changes its request transport. Both /search_result and the live
+    // /search_result_ai route must be read from their own verified query
+    // and fresh SSR/Vue/DOM data, independently of fetch/XHR interception.
     const onPage = kind === 'search' ? searchResponse || searchPage
       : kind === 'note' ? new RegExp('^/(explore|discovery/item)/' + id + '/?$').test(path)
       : path === '/' || path === '/explore';
