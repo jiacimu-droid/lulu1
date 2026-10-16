@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T14:16:49.498128+00:00",
-  "commit": "e2934709f894bfb7605dedadcb26cc0d7951100f",
+  "generatedAt": "2026-10-16T14:20:10.865747+00:00",
+  "commit": "905b56602b1cccd903761aa41720eceaf02e8286",
   "branch": "main",
-  "sourceFingerprint": "90c5a412f723d50c9a9b7515cef1f6dc6f95baa216889bb61aa18844b6e53167",
+  "sourceFingerprint": "30d65e2ca7af27b8185fbcfdf6eb3946fee0d2f67d26d470e6a055145c4ad3fd",
   "summary": {
     "files": 683,
-    "lines": 132736,
+    "lines": 132751,
     "symbols": 2002
   },
   "symbolIndex": {
@@ -17008,8 +17008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
-      "lines": 43,
-      "sha256": "161562b2c17ae54b812b2963514a46faae2e5f23348d75e224f3da656b97dfed",
+      "lines": 45,
+      "sha256": "32ea30b69cfea6dbb1be24c1e4fd7cc5092caf696c69cb2a0c1299a1659b1137",
       "symbols": [
         {
           "name": "LexiconMemoryContext",
@@ -17755,8 +17755,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 62,
-      "sha256": "5e31a3f6ae3c49e80a637dab769177985df5743757611f5fdfd538dc8d57a9df",
+      "lines": 68,
+      "sha256": "95d59e286971ba8e1eedf136e595a91cfd9983077858441b3aeeda6f000cf0bf",
       "symbols": [
         {
           "name": "assemble",
@@ -23198,8 +23198,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt",
-      "lines": 89,
-      "sha256": "8a34bc12ac0d35b549209db3fdd2281a1a3fa839b3fec8bfe18ac0762151ca55",
+      "lines": 96,
+      "sha256": "9925618671a536954c1b40ffffac6f49c8e32758da5fc7fbbe85a5fcc56b1f79",
       "symbols": [
         {
           "name": "MemoryContinuityTest",
