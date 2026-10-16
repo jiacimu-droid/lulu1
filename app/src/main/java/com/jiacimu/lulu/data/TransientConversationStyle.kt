@@ -23,7 +23,11 @@ internal object TransientConversationStyle {
     // one feeling, and a casual "为什么" only asks for the relevant reason.
     private val conciseRequest = Regex("别.{0,4}(?:小作文|长篇|啰嗦|详细)|不要.{0,4}(?:小作文|长篇|详细)|不用.{0,4}(?:展开|解释那么多)|简单说|简短|简洁|一句话|少说点|说重点|留白")
     private val detailRequest = Regex("详细|展开(?:讲|说|聊|分析)|仔细(?:讲|说|分析)|深入(?:聊|讲|分析)|解释清楚|说清楚|深度分析|分析原因|逐[个项条].{0,4}(?:解释|分析|说明)|完整.{0,4}(?:讲|解释|方案)|教程|步骤|排查|多说(?:点|一些)|慢慢说|畅所欲言")
-    private val substantiveTask = Regex("(?:怎么|如何).{0,16}(?:调整|安排|规划|制定|解决|实现)|(?:帮我|请|能不能|给我).{0,14}(?:分析|对比|比较|计划|方案|讲解)")
+    private val substantiveTask = Regex(
+        "(?:怎么|如何).{0,16}(?:调整|安排|规划|制定|解决|实现)|" +
+            "(?:帮我|请|能不能|给我|替我).{0,14}(?:分析|对比|比较|计划|方案|讲解|写|取.{0,6}名|起.{0,6}名|列出|列举|整理)"
+    )
+    private val listRequest = Regex("(?:给|列|取|起|想).{0,5}(?:一批|几个|多些|[两三四五六七八九十\\d]+个).{0,4}(?:名字|例子|方案|建议)")
     private val narrativeRequest = Regex("(?:讲|说|写|续|继续).{0,12}(?:故事|小说|剧情)|(?:故事|小说|剧情).{0,8}(?:继续|接着)|哄睡|续讲")
     private val declinedNarrative = Regex("(?:不想|不要|别|不用).{0,5}(?:故事|小说|剧情|哄睡|续讲)")
     private val continuationRequest = Regex("^(?:继续(?:吧|讲|说|呀)?|接着(?:讲|说)?|然后呢|还有呢|说下去)[。！!～~？?\\s]*$")
@@ -32,6 +36,7 @@ internal object TransientConversationStyle {
         val text = userText.replace('\n', ' ').trim()
         if (conciseRequest.containsMatchIn(text)) return false
         return detailRequest.containsMatchIn(text) || substantiveTask.containsMatchIn(text) ||
+            listRequest.containsMatchIn(text) ||
             continuationRequest.matches(text) ||
             (narrativeRequest.containsMatchIn(text) && !declinedNarrative.containsMatchIn(text))
     }

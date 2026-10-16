@@ -63,4 +63,11 @@ class TransientConversationStyleTest {
         assertFalse(TransientConversationStyle.context(text, includeExamples = false)
             .contains("虚构的多轮节奏示例"))
     }
+
+    @Test fun requestedWritingAndListsAreCompleteTasksRatherThanCasualReactions() {
+        listOf("帮我写一篇作文", "替我写封邮件", "再给我一批名字", "列三个方案", "帮我整理考点").forEach { input ->
+            assertTrue(input, TransientConversationStyle.allowsExpansion(input))
+        }
+        assertFalse(TransientConversationStyle.allowsExpansion("这三个名字里你喜欢哪个？"))
+    }
 }

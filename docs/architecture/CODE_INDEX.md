@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`dedbc72a0cded3a91ebc3b875dd9767b9057feca`
+- 基准提交：`334fe50a08fd64eae4a4cbb6c117d680b68a2949`
 - 分支：`main`
 - 已索引文件：683
-- 已索引代码/文本行：132857
+- 已索引代码/文本行：132869
 - 已发现符号：2003
 
 | 文件 | 行数 | 符号数 |
@@ -354,7 +354,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 125 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 115 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 120 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 255 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 156 | 0 |
@@ -658,7 +658,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 67 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 37 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 253 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T15:07:01.283201+00:00",
-  "commit": "dedbc72a0cded3a91ebc3b875dd9767b9057feca",
+  "generatedAt": "2026-10-16T15:09:24.140021+00:00",
+  "commit": "334fe50a08fd64eae4a4cbb6c117d680b68a2949",
   "branch": "main",
-  "sourceFingerprint": "18ac614b06258d15844eeb72fe52701ba44d723ec4d8330e9f966141237930d8",
+  "sourceFingerprint": "079dd2d19c657d5a1057a25d530355c348c2d17b1bd9981634e36134370c4757",
   "summary": {
     "files": 683,
-    "lines": 132857,
+    "lines": 132869,
     "symbols": 2003
   },
   "symbolIndex": {
@@ -385,7 +385,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-        "line": 74
+        "line": 79
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
@@ -7681,13 +7681,13 @@
     "allowsExpansion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-        "line": 30
+        "line": 34
       }
     ],
     "analyze": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-        "line": 38
+        "line": 43
       }
     ],
     "UnifiedMemoryRequest": [
@@ -18747,20 +18747,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
-      "lines": 115,
-      "sha256": "4d526d9acfbbcb00a23b3a7a9ff8cb7913b8e3398b0a69028cf8aa7b5ba0192c",
+      "lines": 120,
+      "sha256": "e8ebfae7557db9d5ac778238187757c5a09dd46b9307f797f98b693ce3fc0b0c",
       "symbols": [
         {
           "name": "allowsExpansion",
-          "line": 30
+          "line": 34
         },
         {
           "name": "analyze",
-          "line": 38
+          "line": 43
         },
         {
           "name": "context",
-          "line": 74
+          "line": 79
         }
       ]
     },
@@ -23535,8 +23535,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
-      "lines": 67,
-      "sha256": "26bdcfb46334723a7ec0b4a7f0a72171a9ad8eef89f5739693ea2410c733851d",
+      "lines": 74,
+      "sha256": "f1caf4bd935bdd74fe811f0f2486ffa9af2fb4fb1e7b4a705c82dde6d741cc0b",
       "symbols": [
         {
           "name": "TransientConversationStyleTest",
