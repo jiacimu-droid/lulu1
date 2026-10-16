@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T11:13:41.624174+00:00",
-  "commit": "67fc7b79aa4facc3511fa6f6766f461e3d002d56",
+  "generatedAt": "2026-10-16T11:43:44.831554+00:00",
+  "commit": "9ca2625aa5d645585a7ef48b06cf1037c25ecff7",
   "branch": "main",
-  "sourceFingerprint": "a6ebab7655bbeb435fd531aa36a3e12d967194c0165dede61a3062be6d8b4839",
+  "sourceFingerprint": "dd2f9f14158899982e9d19454d53619c9a0f25286d3cd80f3c21ce9d36d573c3",
   "summary": {
-    "files": 681,
-    "lines": 132348,
-    "symbols": 1997
+    "files": 683,
+    "lines": 132526,
+    "symbols": 2001
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -341,7 +341,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1177
+        "line": 1222
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3251,7 +3251,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1072
+        "line": 1115
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -3888,6 +3888,28 @@
         "line": 6
       }
     ],
+    "relationships": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt",
+        "line": 10
+      }
+    ],
+    "applyRelationship": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt",
+        "line": 15
+      }
+    ],
+    "result": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
+        "line": 60
+      }
+    ],
     "feedbackTopic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
@@ -3999,31 +4021,31 @@
     "needsPostOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 97
+        "line": 115
       }
     ],
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 129
+        "line": 147
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 487
+        "line": 526
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 650
+        "line": 689
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1094
+        "line": 1137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -4260,12 +4282,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
         "line": 40
-      }
-    ],
-    "result": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
-        "line": 60
       }
     ],
     "recordOutcome": [
@@ -10476,6 +10492,12 @@
         "line": 14
       }
     ],
+    "CharacterGoalConvergenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt",
+        "line": 8
+      }
+    ],
     "CharacterGrowthTrajectoryLedgerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt",
@@ -14581,6 +14603,25 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt",
+      "lines": 80,
+      "sha256": "06ce4e224068d13a59e76c18f3b16d8413f9903fccb0dcbc6e5626c3f3b832f8",
+      "symbols": [
+        {
+          "name": "relationships",
+          "line": 10
+        },
+        {
+          "name": "applyRelationship",
+          "line": 15
+        },
+        {
+          "name": "result",
+          "line": 22
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
       "lines": 203,
       "sha256": "b40e66d1fe04b948982cd8ae8d2cf1eb888c1aa10bfaa53bb93d05d8fa577e25",
@@ -14655,8 +14696,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1299,
-      "sha256": "e9973f22fb3f4c357a3544e9e13c9b316f4b1c907b2e9c6774348f6eb7b46cbc",
+      "lines": 1346,
+      "sha256": "cbe00319f1194dbbad4e1c397e8248ac060e522b0889a98ad3f6250e470d191a",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -14664,31 +14705,31 @@
         },
         {
           "name": "needsPostOnlineReflection",
-          "line": 97
+          "line": 115
         },
         {
           "name": "backedBy",
-          "line": 129
+          "line": 147
         },
         {
           "name": "interactionContext",
-          "line": 487
+          "line": 526
         },
         {
           "name": "groundingContext",
-          "line": 650
+          "line": 689
         },
         {
           "name": "normalize",
-          "line": 1072
+          "line": 1115
         },
         {
           "name": "compactContext",
-          "line": 1094
+          "line": 1137
         },
         {
           "name": "context",
-          "line": 1177
+          "line": 1222
         }
       ]
     },
@@ -14933,7 +14974,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
       "lines": 30,
-      "sha256": "0c84ff0ca6e76a419c5678b128464416de04a599df241e0f7e3df145e83c9461",
+      "sha256": "af4afe692bdc2cb37302660e80b6f110c39eccfc5e49369c31bd198067e853d7",
       "symbols": [
         {
           "name": "isActive",
@@ -22527,6 +22568,17 @@
         {
           "name": "CharacterExpressionGuideTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt",
+      "lines": 51,
+      "sha256": "151c214421a3698a4d759f69e22da1595c7a8d0ac07cfe12e2cdd04e6735c773",
+      "symbols": [
+        {
+          "name": "CharacterGoalConvergenceTest",
+          "line": 8
         }
       ]
     },
