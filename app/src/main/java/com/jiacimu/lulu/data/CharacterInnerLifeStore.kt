@@ -376,7 +376,8 @@ object CharacterInnerLifeStore {
                             .optJSONObject("intention")?.optString("aim").orEmpty()
                         if (aim.isBlank() || why.isBlank() ||
                             CharacterStaleGoalPolicy.isGenericOrientation(aim) ||
-                            records.size >= 6 ||
+                            records.count { CharacterMotiveState.isActive(it) ||
+                                it.optString("status") == "paused" } >= 6 ||
                             sameCharacterMotive(legacyAim, aim) ||
                             records.any { sameCharacterMotive(it.optString("aim"), aim) }) continue
                         records += JSONObject().put("id", UUID.randomUUID().toString())
@@ -1255,9 +1256,10 @@ object CharacterInnerLifeStore {
             appendLine("连续人格链：真实记忆与现有信念 → 多种同时存在的感受 → 内在愿望和实际限制 → 本轮可以执行/克制的选择 → 言语和动作 → 真实后果 → 下轮反思。")
             appendLine("不要把心理状态列表念给用户；它应暗中影响自然的停顿、措辞、话题偏爱、行动选择、相处边界和对失败的态度。")
             appendLine("可以有私心、好奇、无聊、得意、嘴硬或反悔，必须对应个人设定与实际触发。不同性格的人反应方式不同，不要统一撒娇或每轮强烈心动。")
-            if (motives.length() == 0) appendLine("尚无明确长期小目标，不能为了填满生活编造。")
-            for (i in 0 until motives.length()) {
-                val m = motives.optJSONObject(i) ?: continue
+            if (active.isEmpty()) appendLine("当前没有需要推进的长期小目标，不能为了填满生活编造。")
+            // Finished and released goals remain archived, but may not consume
+            // the character's limited present-tense deliberation context.
+            for (m in (active + paused).distinctBy { it.optString("id") }.take(6)) {
                 appendLine("· 动机 id=${m.optString("id")}；${m.optString("status")}；优先级${m.optInt("priority")}；目标${m.optString("aim")}；缘由${m.optString("why")}")
                 CharacterMotiveProgress.brief(m).takeIf(String::isNotBlank)
                     ?.let { appendLine("  $it（仅是本人可调整的计划，不是自动执行命令）") }

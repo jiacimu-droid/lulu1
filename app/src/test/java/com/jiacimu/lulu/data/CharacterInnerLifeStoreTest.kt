@@ -76,6 +76,34 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+    @Test fun endedWishesDoNotExhaustCapacityOrPolluteCurrentDeliberation() {
+        start()
+        val role = "inside-test-closed-goal-capacity"
+        CharacterInnerLifeStore.clear(role)
+        for (i in 1..6) {
+            CharacterInnerLifeStore.observe(role, "new-chapter-$i", "看到了不同的悬念",
+                JSONObject().put("motives", JSONArray().put(JSONObject()
+                    .put("op", "start").put("aim", "读完第${i}章节中的故事")
+                    .put("why", "想知道人物在第${i}章的选择"))))
+            val all = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+            val id = all.getJSONObject(i - 1).getString("id")
+            CharacterInnerLifeStore.observe(role, "end-chapter-$i", "读完后转移了兴趣",
+                JSONObject().put("motives", JSONArray().put(JSONObject()
+                    .put("op", "release").put("id", id).put("reason", "不再关注这一章节"))))
+        }
+        CharacterInnerLifeStore.observe(role, "next-book", "开始阅读另一个故事",
+            JSONObject().put("motives", JSONArray().put(JSONObject()
+                .put("op", "start").put("aim", "读完新发现的长篇小说")
+                .put("why", "故事的新角色引起了兴趣"))))
+        val all = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+        assertEquals(7, all.length())
+        assertEquals(1, CharacterMotiveState.active(all).size)
+        val current = CharacterInnerLifeStore.context(role)
+        assertTrue(current.contains("读完新发现的长篇小说"))
+        assertFalse(current.contains("读完第1章节中的故事"))
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun distinctWishesPersistAndOneCanBePausedWithoutDeletingOthers() {
         start()
         val proposals = JSONObject().put("motives", JSONArray()
