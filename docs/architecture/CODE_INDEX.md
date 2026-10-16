@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`96fb2efc9957451df1c428c1ce771597796ad240`
+- 基准提交：`232091997cea918cd76553725e025d5e337a05cf`
 - 分支：`main`
 - 已索引文件：683
-- 已索引代码/文本行：132689
+- 已索引代码/文本行：132672
 - 已发现符号：2001
 
 | 文件 | 行数 | 符号数 |
@@ -81,7 +81,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 166 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 650 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 632 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
@@ -599,7 +599,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 22 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt` | 175 | 1 |
