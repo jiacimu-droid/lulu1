@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T18:02:06.139488+00:00",
-  "commit": "30f7aa2ed144d389d0390eff190a2f4ea5a56830",
+  "generatedAt": "2026-10-16T18:14:59.119522+00:00",
+  "commit": "2091b27969a0ef9f17daf466b0c6738964232d39",
   "branch": "main",
-  "sourceFingerprint": "137f8e0338baaddb610e2622519a392fb499e1979eb445a4df064799b24eb591",
+  "sourceFingerprint": "311d51077df02f13a30db29fe9c336a28d2b80463880d90fbe1c70869e468316",
   "summary": {
     "files": 684,
-    "lines": 132967,
+    "lines": 132969,
     "symbols": 2007
   },
   "symbolIndex": {
@@ -11290,14 +11290,14 @@
     },
     {
       "path": "app/src/main/assets/xhs-browser-route.js",
-      "lines": 88,
-      "sha256": "82549de580769bcd384daf2f51bda8086f975f5f5ef5300bfdb128f5f5c9eff5",
+      "lines": 89,
+      "sha256": "565792a5caf01fc3b640ca63484e7362997f283c484ed57a48dc7022cc27a84e",
       "symbols": []
     },
     {
       "path": "app/src/main/assets/xhs-reader.js",
-      "lines": 403,
-      "sha256": "e374f462c39e5f04f4e6bbcdf8808465343bf234b8395778ac655893d71ee21e",
+      "lines": 404,
+      "sha256": "b54068b0fdd22173bf524ab5235b696b75908a24230f886b95dee218811b38ab",
       "symbols": []
     },
     {
@@ -19097,7 +19097,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
       "lines": 806,
-      "sha256": "6ad7c59951967d6f2b0c602d214df514166d50094671de586fad38b00c2b58ef",
+      "sha256": "d834105006b6dfb6689e4f6676ca8d062b2cd158071b992fbea5da3d696017bc",
       "symbols": [
         {
           "name": "url",
