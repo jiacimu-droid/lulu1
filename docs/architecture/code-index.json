@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T18:16:14.197165+00:00",
-  "commit": "f959f97365819ce66618e597d487f300bf4caa22",
+  "generatedAt": "2026-10-16T18:16:29.820612+00:00",
+  "commit": "6081da58368c7a0d4f7db06a8eb619653fa6d3f1",
   "branch": "main",
-  "sourceFingerprint": "14d0c56b044a6b8773ba7227ec82fd1b255d6231c8b1951d8b9a9f864a898ac0",
+  "sourceFingerprint": "74977a083be33b7a46e4abe7c6220c0e3ec271b6ff5219e291b1082bd6ba1208",
   "summary": {
     "files": 684,
-    "lines": 133009,
+    "lines": 133020,
     "symbols": 2007
   },
   "symbolIndex": {
@@ -11253,7 +11253,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 527
+        "line": 538
       }
     ]
   },
@@ -23898,12 +23898,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 563,
-      "sha256": "019f7451c4e9591abf08545f2dc92c5e14b41921b2beaee842f0afd41184b8dc",
+      "lines": 574,
+      "sha256": "bd85f12ca64e3c81309a86854192108400d06627efd4db0db2ef11d59b7dbbce",
       "symbols": [
         {
           "name": "XHR",
-          "line": 527
+          "line": 538
         }
       ]
     },
