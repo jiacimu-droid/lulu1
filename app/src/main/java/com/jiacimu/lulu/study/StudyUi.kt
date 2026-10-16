@@ -64,9 +64,9 @@ internal fun StudyCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = StudyDesign.card),
-        border = BorderStroke(1.dp, StudyDesign.border),
-        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -80,16 +80,16 @@ internal fun StudyCard(
 internal fun StudyMetric(label: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = StudyDesign.card),
-        border = BorderStroke(1.dp, StudyDesign.border),
-        shape = RoundedCornerShape(17.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
     ) {
         Column(
             Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = StudyDesign.ink)
-            Text(label, color = StudyDesign.muted, fontSize = 12.sp)
+            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
         }
     }
 }
@@ -106,16 +106,16 @@ internal fun StudySectionChips(selected: StudySection, onSelect: (StudySection) 
                 onClick = { onSelect(section) },
                 label = { Text(section.label, fontWeight = if (section == selected) FontWeight.Bold else FontWeight.Medium) },
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = StudyDesign.card,
-                    labelColor = StudyDesign.muted,
-                    selectedContainerColor = StudyDesign.dark,
-                    selectedLabelColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = section == selected,
-                    borderColor = StudyDesign.border,
-                    selectedBorderColor = StudyDesign.dark,
+                    borderColor = MaterialTheme.colorScheme.outline,
+                    selectedBorderColor = MaterialTheme.colorScheme.primary,
                 ),
             )
         }
@@ -127,13 +127,13 @@ internal fun StudyMessage(text: String, error: Boolean = false) {
     if (text.isBlank()) return
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = if (error) Color(0xFFF7E6E2) else StudyDesign.wheatSoft,
+        color = if (error) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
         shape = RoundedCornerShape(15.dp),
     ) {
         Text(
             text,
             Modifier.padding(13.dp),
-            color = if (error) StudyDesign.error else StudyDesign.ink,
+            color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -143,8 +143,8 @@ internal fun StudyProgress(progress: Float) {
     LinearProgressIndicator(
         progress = { progress.coerceIn(0f, 1f) },
         modifier = Modifier.fillMaxWidth().height(8.dp),
-        color = StudyDesign.wheatSoft,
-        trackColor = Color(0xFFF0E8DA),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        trackColor = MaterialTheme.colorScheme.surfaceVariant,
     )
 }
 

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LocalLuluAppearance
 import kotlin.math.roundToInt
 
 /**
@@ -45,7 +46,18 @@ internal fun PomodoroMiniWindow(
     val density = LocalDensity.current
     var offsetX by rememberSaveable { mutableStateOf(0f) }
     var offsetY by rememberSaveable { mutableStateOf(0f) }
-    val palette = remember(companion.skin) { miniPalette(companion.skin) }
+    val legacyPalette = remember(companion.skin) { miniPalette(companion.skin) }
+    val appearance = LocalLuluAppearance.current
+    val colors = MaterialTheme.colorScheme
+    val palette = if (appearance.id == "paper") legacyPalette else MiniPalette(
+        surface = colors.surface.copy(alpha = .97f),
+        text = colors.onSurface,
+        muted = colors.onSurfaceVariant,
+        accent = colors.primary,
+        border = colors.outline,
+        stop = colors.error,
+    )
+    val windowShape = RoundedCornerShape(if (appearance.id == "paper") 22.dp else appearance.corner.dp)
     val running = if (companion.timerMode == PomodoroTimerMode.CountUp) {
         companion.countUpRunning
     } else {
@@ -66,7 +78,7 @@ internal fun PomodoroMiniWindow(
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = 14.dp, vertical = 24.dp)
                 .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
-                .shadow(12.dp, RoundedCornerShape(22.dp))
+                .shadow(12.dp, windowShape)
                 .pointerInput(horizontalLimit, verticalLimit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
@@ -74,7 +86,7 @@ internal fun PomodoroMiniWindow(
                         offsetY = (offsetY + dragAmount.y).coerceIn(-verticalLimit, 0f)
                     }
                 },
-            shape = RoundedCornerShape(22.dp),
+            shape = windowShape,
             color = palette.surface,
             contentColor = palette.text,
             border = BorderStroke(1.dp, palette.border),

@@ -224,7 +224,7 @@ private fun DesktopCompanionCard(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = DesktopCard,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
         border = BorderStroke(1.dp, DesktopLine),
         shadowElevation = 2.dp,
         onClick = onClick,
@@ -281,7 +281,7 @@ private fun DesktopMomentCard(
     Surface(
         modifier = Modifier.fillMaxWidth().height(108.dp),
         color = DesktopCard,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
         border = BorderStroke(1.dp, DesktopLine),
         shadowElevation = 1.dp,
         onClick = onClick,
@@ -399,7 +399,7 @@ private fun DesktopV2LauncherItem(
         verticalArrangement = Arrangement.Top,
     ) {
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
             color = DesktopIconSurface,
             border = BorderStroke(1.dp, DesktopLine),
             shadowElevation = 1.dp,

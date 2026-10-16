@@ -59,9 +59,9 @@ fun PostgraduateExamApp(
         onDispose { onPomodoroVisibilityChanged(false) }
     }
 
-    // Study owns a white Material theme with wheat-yellow accents so every sheet, dialog and menu
-    // stays inside the study visual language without falling back to black/yellow surfaces.
-    MaterialTheme(colorScheme = StudyColorScheme) {
+    // Keep legacy study colors only while the untouched default appearance is selected.
+    // Any explicitly chosen app recipe must be allowed to color the whole study UI.
+    MaterialTheme(colorScheme = if (com.jiacimu.lulu.design.LocalLuluAppearance.current.id == "paper") StudyColorScheme else MaterialTheme.colorScheme) {
         when {
             probabilityDesignerOpen -> StudyGachaProbabilityScreen(
                 state = state,
@@ -75,7 +75,7 @@ fun PostgraduateExamApp(
                 onOpenConversation = onOpenConversation,
             )
             else -> Scaffold(
-                containerColor = StudyDesign.paper,
+                containerColor = MaterialTheme.colorScheme.background,
                 topBar = {
                     TopAppBar(
                         title = {
@@ -83,13 +83,13 @@ fun PostgraduateExamApp(
                                 Text("今天也向目标靠近一点", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                                 Text(
                                     LocalDate.now().format(DateTimeFormatter.ofPattern("M月d日 EEEE")),
-                                    color = StudyDesign.muted,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 12.sp,
                                 )
                             }
                         },
                         navigationIcon = { IconButton(onClick = ::stepBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = StudyDesign.paper),
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                     )
                 },
             ) { padding ->

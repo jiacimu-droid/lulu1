@@ -53,7 +53,7 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (visible.isEmpty()) item(key = "empty") {
-                Text("还没有可追溯的记录。", color = Color(0xFF7A7A7E))
+                Text("还没有可追溯的记录。", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             else itemsIndexed(visible, key = { index, entry ->
                 entry.category + ":" + entry.title + ":" + entry.at.toString() + ":" +
@@ -61,23 +61,23 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
             }) { _, entry ->
                 Surface(color = Color.White,
                     shape = RoundedCornerShape(15.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE7E7E7))) {
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)) {
                     Column(Modifier.fillMaxWidth().padding(14.dp),
                         verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         Text(entry.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF262629))
+                            color = MaterialTheme.colorScheme.onSurface)
                         Text(entry.detail, fontSize = 13.sp, lineHeight = 19.sp,
-                            color = Color(0xFF49494E))
+                            color = MaterialTheme.colorScheme.onSurface)
                         Text(entry.at.atZone(ZoneId.systemDefault())
                             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                            color = Color(0xFF818187), fontSize = 11.sp)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                         if (entry.evidenceId.isNotBlank()) {
                             var showSource by remember(entry.evidenceId) { mutableStateOf(false) }
                             TextButton(onClick = { showSource = !showSource }) { Text(if (showSource) "收起依据" else "查看依据") }
                             if (showSource) {
                                 val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(entry.evidenceId)).firstOrNull()
                                 Text(source?.content ?: "原始依据已撤回", fontSize = 12.sp,
-                                    color = Color(0xFF818187))
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

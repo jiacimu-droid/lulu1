@@ -141,7 +141,7 @@ fun CharacterSettingsScreenV2(
 
     Scaffold(
         modifier = Modifier.focusRequester(pageFocusRequester).focusable(),
-        containerColor = LuluColors.Paper,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("${original.displayName}的设置", fontWeight = FontWeight.SemiBold) },
@@ -151,7 +151,7 @@ fun CharacterSettingsScreenV2(
                         Icon(Icons.Outlined.DeleteOutline, "清空经历与记忆", tint = MaterialTheme.colorScheme.error)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
     ) { padding ->
@@ -224,7 +224,7 @@ fun CharacterSettingsScreenV2(
                 CharacterV2Card {
                     Text("生命形态", fontWeight = FontWeight.Bold, fontSize = 19.sp)
                     if (!digitalLife.isResolved) {
-                        Text("这个角色创建时还没有生命形态选项。请确认一次；现有聊天、记忆、辞海和原始时间线都会保留，确认后不可更改。", color = LuluColors.Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                        Text("这个角色创建时还没有生命形态选项。请确认一次；现有聊天、记忆、辞海和原始时间线都会保留，确认后不可更改。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, lineHeight = 18.sp)
                         OutlinedButton(onClick = { pendingLifeForm = CharacterLifeForm.DIGITAL }, modifier = Modifier.fillMaxWidth()) {
                             Icon(Icons.Outlined.Cloud, null)
                             Spacer(Modifier.width(7.dp))
@@ -240,7 +240,7 @@ fun CharacterSettingsScreenV2(
                         digitalLife.bornAt?.let { bornAt ->
                             val day = (Duration.between(bornAt, Instant.now()).toDays() + 1L).coerceAtLeast(1L)
                             val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(bornAt)
-                            Text("生命记录 · 第${day}天 · 可追溯起点 ${bornLabel}", color = LuluColors.Muted, fontSize = 11.sp)
+                            Text("生命记录 · 第${day}天 · 可追溯起点 ${bornLabel}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                         }
                     } else {
                         Text("现实角色", fontWeight = FontWeight.SemiBold)
@@ -277,7 +277,7 @@ fun CharacterSettingsScreenV2(
                             },
                             onUnitChange = { unit -> ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) } },
                         )
-                        Text("在线期间自主思考间隔 · 新消息与真实事件不受此间隔限制", color = LuluColors.Muted, fontSize = 12.sp)
+                        Text("在线期间自主思考间隔 · 新消息与真实事件不受此间隔限制", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = {
                                 ProactivePerceptionPolicyStore.update(characterId) { it.copy(onlinePulseSeconds = 150) }
@@ -286,11 +286,11 @@ fun CharacterSettingsScreenV2(
                                 ProactivePerceptionPolicyStore.update(characterId) { it.copy(onlinePulseSeconds = 300) }
                             }) { Text(if (perceptionPolicy.onlinePulseSeconds == 300) "✓ 5分钟" else "5分钟") }
                         }
-                        Text("使用同一角色聊天模型；生活后续感知合并排队，避免重复花费。", color = LuluColors.Muted, fontSize = 11.sp)
+                        Text("使用同一角色聊天模型；生活后续感知合并排队，避免重复花费。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                     }
                     if (perceptionPolicy.enabled) wakePlans[characterId]?.let { plan ->
                         Text("下次预计醒来 · ${plan.dueAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))} · 本轮 ${plan.intervalMinutes} 分钟",
-                            color = LuluColors.Muted, fontSize = 12.sp)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     }
                     if (perceptionPolicy.enabled && perceptionPolicy.quietHoursEnabled) {
                         CharacterV2TimeRow(label = "勿扰开始", minutesOfDay = perceptionPolicy.quietStartMinutesOfDay) { minutes ->
@@ -367,7 +367,7 @@ fun CharacterSettingsScreenV2(
                         Spacer(Modifier.width(6.dp))
                         Text(if (clearingRecords) "正在清除…" else "清除所有记录")
                     }
-                    if (recordNotice.isNotBlank()) Text(recordNotice, color = LuluColors.Muted, fontSize = 12.sp)
+                    if (recordNotice.isNotBlank()) Text(recordNotice, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
             }
             item { Text("角色世界书", fontWeight = FontWeight.Bold, fontSize = 19.sp) }
@@ -377,7 +377,7 @@ fun CharacterSettingsScreenV2(
                 items(worldBooks, key = { it.id }) { book ->
                     CharacterV2Card {
                         Text(book.title, fontWeight = FontWeight.Bold)
-                        Text(if (book.globalEnabled) "全局默认：开启" else "全局默认：关闭", color = LuluColors.Muted, fontSize = 12.sp)
+                        Text(if (book.globalEnabled) "全局默认：开启" else "全局默认：关闭", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                         val selected = book.characterOverrides[characterId]
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             CharacterV2WorldChoice("跟随全局", selected == null, Modifier.weight(1f)) { scope.launch { LuluRepositories.worldBook.setCharacterOverride(book.id, characterId, null) } }
@@ -493,13 +493,13 @@ private fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int)
         modifier = Modifier.fillMaxWidth().clickable {
             TimePickerDialog(context, { _, selectedHour, selectedMinute -> onChange(selectedHour * 60 + selectedMinute) }, hour, minute, true).show()
         },
-        color = LuluColors.Paper,
+        color = MaterialTheme.colorScheme.background,
         shape = RoundedCornerShape(14.dp),
-        border = BorderStroke(1.dp, LuluColors.Border),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(label, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            Text(String.format(Locale.getDefault(), "%02d:%02d", hour, minute), color = LuluColors.Muted)
+            Text(String.format(Locale.getDefault(), "%02d:%02d", hour, minute), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -512,7 +512,7 @@ private fun CharacterV2Switch(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, fontWeight = FontWeight.SemiBold, color = if (enabled) LocalContentColor.current else LuluColors.Muted, modifier = Modifier.weight(1f).padding(end = 10.dp))
+        Text(title, fontWeight = FontWeight.SemiBold, color = if (enabled) LocalContentColor.current else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f).padding(end = 10.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }
@@ -526,8 +526,8 @@ private fun CharacterV2WorldChoice(text: String, selected: Boolean, modifier: Mo
 private fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
-        border = BorderStroke(1.dp, LuluColors.Border),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         shape = RoundedCornerShape(20.dp),
     ) {
         Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)

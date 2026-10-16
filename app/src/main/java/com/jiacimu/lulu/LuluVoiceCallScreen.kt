@@ -47,12 +47,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
 
-private val CallInk = Color(0xFF243047)
-private val CallMuted = Color(0xFF6F7890)
-private val CallDanger = Color(0xFFEE5963)
-private val CallBlue = Color(0xFF6C91D8)
-private val CallGlass = Color(0xEFFFFFFF)
-private val CallLine = Color(0xFFDDE3F0)
+private val CallInk: Color @Composable get() = MaterialTheme.colorScheme.onSurface
+private val CallMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val CallDanger: Color @Composable get() = MaterialTheme.colorScheme.error
+private val CallBlue: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val CallGlass: Color @Composable get() = MaterialTheme.colorScheme.surface.copy(alpha = .96f)
+private val CallLine: Color @Composable get() = MaterialTheme.colorScheme.outline
 
 @Composable
 fun LuluVoiceCallScreen(
@@ -130,7 +130,7 @@ fun LuluVoiceCallScreen(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        listOf(Color(0xFFFAFBFC), Color(0xFFF2F4F7), Color(0xFFFAFBFC)),
+                        listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.background),
                     ),
                 ),
         ) {
@@ -330,7 +330,7 @@ fun LuluVoiceCallScreen(
                             subtitle = "默认跟随私聊，可单独选择", activeLabel =
                                 if (library.voiceCallFollowsChat) "跟随私聊 · $activeLabel" else activeLabel,
                             icon = Icons.Outlined.Tune, accent = CallBlue, textColor = CallInk,
-                            background = Color(0xFFF3F6FF), muted = CallMuted, border = CallLine,
+                            background = MaterialTheme.colorScheme.primaryContainer, muted = CallMuted, border = CallLine,
                         )
                         FilledIconButton(
                             onClick = {
@@ -349,7 +349,7 @@ fun LuluVoiceCallScreen(
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = CallBlue,
                                 contentColor = Color.White,
-                                disabledContainerColor = Color(0xFFBCC5D7),
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             ),
                         ) {
                             Icon(Icons.Outlined.Call, "拨打电话", modifier = Modifier.size(30.dp))
@@ -407,7 +407,7 @@ private fun CallCaptionLines(speaker: String, content: String, mine: Boolean, li
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 Text(
                     "$speaker：",
-                    color = if (mine) CallBlue else Color(0xFF9A6BB5),
+                    color = if (mine) CallBlue else MaterialTheme.colorScheme.tertiary,
                     fontWeight = FontWeight.Bold,
                     fontSize = if (live) 13.sp else 14.sp,
                 )
@@ -469,11 +469,11 @@ private fun CallTopBar(
         if (connected) {
             TextButton(onClick = onToggleSleep) {
                 Icon(Icons.Outlined.NightsStay, contentDescription = null,
-                    tint = if (sleepMode) Color(0xFF9A6BB5) else CallMuted,
+                    tint = if (sleepMode) MaterialTheme.colorScheme.tertiary else CallMuted,
                     modifier = Modifier.size(19.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(if (sleepMode) "结束哄睡" else "哄睡",
-                    color = if (sleepMode) Color(0xFF9A6BB5) else CallInk, fontSize = 13.sp)
+                    color = if (sleepMode) MaterialTheme.colorScheme.tertiary else CallInk, fontSize = 13.sp)
             }
         }
     }
