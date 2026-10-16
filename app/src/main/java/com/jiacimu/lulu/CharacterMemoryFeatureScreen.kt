@@ -30,7 +30,7 @@ fun CharacterMemoryFeatureScreen(
     }
     var area by rememberSaveable(startInRecords, startInCore) { mutableIntStateOf(if (startInRecords) 1 else 0) }
     val navigation: @Composable () -> Unit = {
-        CharacterSectionTabs(listOf("记住的事", "生活记录", "学习与成长"), area, onSelect = { area = it })
+        CharacterSectionTabs(listOf("记住的事", "生活记录", "学习记录"), area, onSelect = { area = it })
     }
     when (area) {
         0 -> MemoryFeatureScreen(onBack, personalCharacterId, startInCore,

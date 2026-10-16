@@ -14,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
+import com.jiacimu.lulu.data.CharacterDevelopmentStore
+import com.jiacimu.lulu.data.DevelopmentMaturity
 import com.jiacimu.lulu.data.CharacterAddressPreference
 import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.ModelStructuredOutput
@@ -28,6 +30,11 @@ internal fun CharacterLifeSettings(
     seedIdentity: String = "",
 ) {
     val states by CharacterLifeStore.states.collectAsState()
+    val growthRevision by CharacterDevelopmentStore.revisions.collectAsState()
+    val growth = remember(characterId, growthRevision) {
+        CharacterDevelopmentStore.active(characterId)
+            .sortedWith(compareBy({ it.kind.label }, { it.slot }))
+    }
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
@@ -51,21 +58,15 @@ internal fun CharacterLifeSettings(
         autofillPrefs.edit().putBoolean(key, true).apply()
         autofillPending = true
         try {
-            val observedInterests = com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
-                .filter { it.kind == com.jiacimu.lulu.data.DevelopmentKind.Interest }
-                .takeLast(5).joinToString("；") { it.content }
-            val observedExpression = com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId)
-                .filter { it.kind == com.jiacimu.lulu.data.DevelopmentKind.ExpressionHabit }
-                .takeLast(4).joinToString("；") { it.content }
+            // Growth is adaptive and evidence-backed, not part of user-editable
+            // original persona. Never silently copy learned habits into seed data.
             val response = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = """用户原始人格：${seedPersona.take(2300)}
 身份事实：${seedIdentity.take(900)}
-已验证形成的兴趣：$observedInterests
-已验证形成的表达习惯：$observedExpression
 要整理的字段：${missingFields.joinToString("、")}""",
                 instruction = """
-                    仅从给出的角色设定和已验证成长提取字段；只输出 {"speechHabits":"...","interests":"..."}。
+                    仅从用户原始角色设定提取明确的初始偏好；后天成长留在适应层，不得回写原始资料。只输出 {"speechHabits":"...","interests":"..."}。
                     speechHabits 用自然的个人语言习惯与小癖好描述，不生成固定台词；颜文字和图片表情包允许按已有角色风格自然使用，不要求每回合卖萌或发图。没有证据就不要发明口头禅。
                     interests 只写角色确有的兴趣／倾向，区分曾经接触和确实喜欢；若没有明确兴趣依据，保持空字符串，不编造书名、爱好、往事。
                     不修改原始人格，不给角色添加虚构职业、成长史或经历，不写心理报告。每项至多 170 字。
@@ -132,6 +133,37 @@ internal fun CharacterLifeSettings(
                 }
                 HorizontalDivider()
             }
+        }
+        HorizontalDivider()
+        Text("后天形成的倾向", style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold)
+        Text("角色经真实经历形成的兴趣、习惯、判断和相处方式。它们参与以后的表现，但不修改上方的原始设定。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (growth.isEmpty()) {
+            Text("尚无足够证据形成长期倾向。即时心声、念头或一次行动不自动算成长。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        growth.forEach { entry ->
+            var showEvidence by remember(characterId, entry.id) { mutableStateOf(false) }
+            Column(Modifier.fillMaxWidth().clickable { showEvidence = !showEvidence }
+                .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("${entry.kind.label} · ${if (entry.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary)
+                Text(entry.content, style = MaterialTheme.typography.bodyMedium)
+                Text("真实依据 ${entry.evidence.size} 条 · ${if (showEvidence) "收起" else "查看依据"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (showEvidence) {
+                    Text("来源：${entry.evidence.keys.joinToString("、").take(480)}" +
+                        if (entry.counterEvidence.isNotEmpty()) "\n反例：${entry.counterEvidence.keys.joinToString("、").take(240)}" else "",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            HorizontalDivider()
         }
         // Short-lived mental states belong to 此刻, not the stable persona.
     }
