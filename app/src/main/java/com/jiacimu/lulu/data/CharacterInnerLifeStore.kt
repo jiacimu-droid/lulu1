@@ -73,6 +73,24 @@ object CharacterInnerLifeStore {
         revisionState.value += 1L
     }
 
+    /** Legacy relational initiatives enter the one canonical motive collection. */
+    @Synchronized fun integrateRelationalGoal(
+        characterId: String, proposal: JSONObject, originId: String,
+        persona: String, action: String = "silent", success: Boolean = false,
+        verifiedReceiptId: String = "", summary: String = "",
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || characterId.isBlank()) return
+        val root = snapshot(characterId)
+        val before = root.optJSONArray("motives")
+        val after = CharacterGoalConvergence.applyRelationship(
+            before, proposal, originId, persona, action, success, verifiedReceiptId, summary, now)
+        if (after.toString() != (before ?: JSONArray()).toString()) {
+            root.put("motives", after)
+            save(characterId, root)
+        }
+    }
+
     /** The user may stop a pending thought without erasing the role's other life threads. */
     @Synchronized fun stopMotive(characterId: String, motiveId: String) {
         if (prefs == null || motiveId.isBlank()) return
@@ -166,8 +184,16 @@ object CharacterInnerLifeStore {
                         (key == "decisions" && (backedBy(entry.optString("causalEvidenceId")) ||
                             backedBy(entry.optString("signature")) || backedBy(entry.optString("id"))))
                     if (linked) changed = true else {
-                        if (key == "motives" &&
-                            CharacterMotiveProgress.invalidatePlanIfSourceDeleted(entry, eventId)) changed = true
+                        if (key == "motives") {
+                            if (CharacterMotiveProgress.invalidatePlanIfSourceDeleted(entry, eventId)) changed = true
+                            if (entry.optString("closureEvidenceId") == eventId) {
+                                if (entry.optString("status") == "achieved") entry.put("status", "active")
+                                entry.remove("closureEvidenceId")
+                                entry.remove("closedAt")
+                                entry.remove("closedBecause")
+                                changed = true
+                            }
+                        }
                         next.put(entry)
                     }
                 }
@@ -361,8 +387,19 @@ object CharacterInnerLifeStore {
                             .put("creationRef", change.optString("ref").trim().take(60))
                             .also { CharacterMotiveProgress.applyPlan(it, change, evidenceId, now) }
                     }
-                    "revise", "pause", "resume", "release" -> {
+                    "revise", "pause", "resume", "release", "achieve" -> {
                         if (item == null || reason.isBlank()) continue
+                        if (op == "achieve") {
+                            val proofId = change.optString("outcomeEvidenceId").trim()
+                            val proof = SharedExperienceTimeline.eventsByIds(characterId, listOf(proofId))
+                                .firstOrNull { it.id == proofId && it.evidenceKind in
+                                    setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
+                            if (proof == null || !CharacterMotiveState.isActive(item)) continue
+                            item.put("status", "achieved").put("closedAt", now.toString())
+                                .put("closedBecause", reason).put("closureEvidenceId", proofId)
+                                .remove("waitingFor")
+                            continue
+                        }
                         if (op == "revise") {
                             val aim = change.optString("aim").trim().take(180)
                             val why = change.optString("why").trim().take(160)
@@ -375,8 +412,10 @@ object CharacterInnerLifeStore {
                                 item.put("aim", aim).put("why", why)
                             }
                         }
-                        if (op == "release") records.remove(item)
-                        else {
+                        if (op == "release") {
+                            item.put("status", "released").put("closedAt", now.toString())
+                                .put("closedBecause", reason).put("closureEvidenceId", evidenceId)
+                        } else {
                             if (op != "revise") item.put("status", if (op == "pause") "paused" else "active")
                             CharacterMotiveProgress.applyPlan(item, change, evidenceId, now)
                             item.put("changedBecause", reason).put("updatedAt", now.toString())
@@ -745,8 +784,12 @@ object CharacterInnerLifeStore {
             .firstOrNull { it.optString("id") == motiveId } ?: return
         val previous = motive.optJSONArray("outcomes") ?: JSONArray()
         if ((0 until previous.length()).any { previous.optJSONObject(it)?.optString("id") == receiptId }) return
-        motive.put("lastAttemptOutcome", if (success) "success" else "needs_review")
+        motive.put("lastAttemptOutcome", if (success) "delivered_waiting_feedback" else "needs_review")
         motive.put("lastAttemptAt", now.toString())
+        if (success && CharacterMotiveState.isActive(motive)) {
+            motive.put("status", "waiting_feedback")
+            motive.put("waitingFor", "动作已送达，等待实际效果或后续反馈")
+        }
         motive.put("outcomes", JSONArray().apply {
             for (i in maxOf(0, previous.length() - 7) until previous.length()) put(previous.opt(i))
             put(JSONObject().put("id", receiptId).put("action", action).put("success", success)
@@ -1138,6 +1181,8 @@ object CharacterInnerLifeStore {
                     if (outcomes != null && outcomes.length() > 0) {
                         val last = outcomes.optJSONObject(outcomes.length() - 1)
                         append("；最近行动=${last?.optString("summary")?.take(150)}")
+                    if (m.optString("status") == "waiting_feedback")
+                        append("；目标仍待真实效果确认")
                     }
                     appendLine()
                 }
@@ -1207,6 +1252,8 @@ object CharacterInnerLifeStore {
                     ?.let { appendLine("  $it（仅是本人可调整的计划，不是自动执行命令）") }
                 if (m.optString("lastAttemptOutcome") == "needs_review")
                     appendLine("  此愿望上次行动没做成：应按真实失败原因决定复试、暂停、求助或放弃，不得装成已经成功。")
+                if (m.optString("status") == "waiting_feedback")
+                    appendLine("  上次动作已有回执，愿望尚未验证达成；依据后续真实反馈再调整或决定结束。")
                 val history = m.optJSONArray("outcomes") ?: JSONArray()
                 if (history.length() > 0) {
                     val last = history.optJSONObject(history.length() - 1)

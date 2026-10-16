@@ -11,7 +11,7 @@ import org.json.JSONObject
  */
 internal object CharacterMotiveState {
     fun isActive(motive: JSONObject): Boolean =
-        motive.optString("status", "active").equals("active", ignoreCase = true) &&
+        motive.optString("status", "active").lowercase() in setOf("active", "waiting_feedback") &&
             motive.optString("op").lowercase() !in setOf("pause", "release") &&
             motive.optString("aim").isNotBlank()
 
