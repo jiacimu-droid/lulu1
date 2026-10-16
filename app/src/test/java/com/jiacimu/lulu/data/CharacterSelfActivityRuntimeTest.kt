@@ -116,11 +116,24 @@ class CharacterSelfActivityRuntimeTest {
         val action = JSONObject().put("id", "planned-reading-1").put("status", "running")
             .put("motiveId", id).put("tool", "read_book").put("whyNow", "真想看下去")
         prefs.edit().putString("activity:$role", action.toString()).commit()
+        // An actual executor record (not a manually asserted success) is required
+        // before the motive may recognize this attempt.
+        SharedExperienceTimeline.initialize(context)
+        val receiptId = "tool-$role-self-activity-planned-reading-1"
+        val executor = JSONObject().put("tool", "read_book").put("status", "succeeded")
+            .put("result", JSONObject().put("success", true)
+                .put("summary", "确实读到了第二章").toString())
+        SharedExperienceTimeline.record(receiptId, role, "实际工具执行", "执行器",
+            executor.toString(), triggerExtraction = false,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        assertTrue(CharacterActionEvidence.resolve(role, receiptId)?.let {
+            CharacterActionEvidence.supports(it, "read_book")
+        } == true)
         CharacterSelfActivityRuntime.markResult(context, role, "planned-reading-1", true, "确实读到了第二章")
         val result = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
             .getJSONObject(0).getJSONArray("outcomes")
         assertEquals(1, result.length())
-        assertEquals("self-activity-planned-reading-1", result.getJSONObject(0).getString("id"))
+        assertEquals(receiptId, result.getJSONObject(0).getString("id"))
         assertTrue(result.getJSONObject(0).getBoolean("success"))
         CharacterSelfActivityRuntime.markResult(context, role, "planned-reading-1", true, "重复回执")
         assertEquals(1, CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")

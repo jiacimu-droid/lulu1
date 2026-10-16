@@ -4,8 +4,13 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterGoalConvergenceTest {
     private val now = Instant.parse("2026-10-16T08:00:00Z")
     private fun wish() = JSONObject().put("status", "ready")
