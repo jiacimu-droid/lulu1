@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T14:09:42.047497+00:00",
-  "commit": "232091997cea918cd76553725e025d5e337a05cf",
+  "generatedAt": "2026-10-16T14:11:49.159867+00:00",
+  "commit": "e6b30290341c87297e192776a32465ec8de7b324",
   "branch": "main",
-  "sourceFingerprint": "a48ed183551acf7251a99fe8008eeb682c13c09076bf31ab6ad517dcd9fc3cff",
+  "sourceFingerprint": "b50478fafbacfd99c7d830bfbbaf2c256f39583824a8b5bba55892df537eb254",
   "summary": {
     "files": 683,
-    "lines": 132672,
+    "lines": 132704,
     "symbols": 2001
   },
   "symbolIndex": {
@@ -11561,14 +11561,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt",
-      "lines": 233,
-      "sha256": "e4baf59af3f73bac400ae5a8ac10a73a6b45909d81a2591a2cb83c8c8198f8d6",
+      "lines": 265,
+      "sha256": "2ccede85738e40f06a5b7a2d470245a5ffbc2cdc6ba0a1acc0e10a0eb21e377b",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt",
       "lines": 74,
-      "sha256": "a5880d2d1e22c9f3973c335f5425373a97e5115f07f0f0ad092c2ebd2485666f",
+      "sha256": "365ee21e83e5573f834d513d0e8af99e438eaa39c236aa54d7c2d882a284e76d",
       "symbols": [
         {
           "name": "CharacterMemoryFeatureScreen",

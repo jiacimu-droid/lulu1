@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`232091997cea918cd76553725e025d5e337a05cf`
+- 基准提交：`e6b30290341c87297e192776a32465ec8de7b324`
 - 分支：`main`
 - 已索引文件：683
-- 已索引代码/文本行：132672
+- 已索引代码/文本行：132704
 - 已发现符号：2001
 
 | 文件 | 行数 | 符号数 |
@@ -32,7 +32,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 143 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 89 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 233 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 265 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 536 | 3 |
