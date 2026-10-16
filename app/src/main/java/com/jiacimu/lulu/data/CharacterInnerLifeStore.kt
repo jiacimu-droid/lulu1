@@ -982,8 +982,13 @@ object CharacterInnerLifeStore {
             }
             // All authored changes from one decision are applied atomically to the
             // SAME state snapshot; separate thoughts never overwrite each other.
+            val goals = root.optJSONArray("motives")
+            val validGoalIds = (CharacterMotiveState.active(goals) +
+                CharacterMotiveState.paused(goals)).mapTo(hashSetOf()) {
+                    it.optString("id")
+                }
             root.put("openConcerns", CharacterOpenConcernRuntime.update(
-                open, appraisal, evidenceId, now,
+                open, appraisal, evidenceId, now, validGoalIds,
             ))
         }
         save(characterId, root)

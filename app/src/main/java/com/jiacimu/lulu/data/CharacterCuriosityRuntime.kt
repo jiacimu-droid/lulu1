@@ -46,6 +46,16 @@ internal object CharacterCuriosityRuntime {
             p.optString("nextStep").trim().take(180))
     }
 
+    private fun linkedMotiveId(characterId: String, proposal: JSONObject?): String {
+        val id = proposal?.optString("motiveId").orEmpty().trim()
+        if (id.isBlank()) return ""
+        return id.takeIf { requested ->
+            CharacterMotiveState.active(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")
+            ).any { it.optString("id") == requested }
+        }.orEmpty()
+    }
+
     /** A genuine observed situation may make the character wonder; it is NOT progress. */
     @Synchronized fun recordInquiry(
         characterId: String, proposal: JSONObject?, observedId: String,
@@ -78,6 +88,7 @@ internal object CharacterCuriosityRuntime {
         }.takeLast(MAX_QUESTIONS - 1)
         val item = JSONObject().put("topic", fields[0]).put("question", fields[1])
             .put("why", fields[2]).put("nextStep", fields[3])
+            .put("motiveId", linkedMotiveId(characterId, proposal))
             .put("observedId", observedId).put("observed", observedText.take(220))
             .put("at", now.toString())
         root.put("questions", JSONArray().apply {
@@ -121,6 +132,8 @@ internal object CharacterCuriosityRuntime {
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status))
         current.put("topic", fields[0]).put("steps", kept)
+            .put("motiveId", linkedMotiveId(characterId, proposal)
+                .ifBlank { current.optString("motiveId") })
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status)
             .put("updatedAt", now.toString())

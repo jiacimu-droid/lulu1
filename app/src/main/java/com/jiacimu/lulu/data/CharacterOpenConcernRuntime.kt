@@ -43,18 +43,20 @@ internal object CharacterOpenConcernRuntime {
     fun update(
         previous: JSONArray?, appraisal: JSONObject?, evidenceId: String,
         now: Instant = Instant.now(),
+        activeMotiveIds: Set<String> = emptySet(),
     ): JSONArray {
         // An unresolved question may fall quiet without having been solved. Keep the
         // thread, but stop treating old worries as live impulses after 48 hours.
         var current = previous
         for (proposal in proposals(appraisal)) {
-            current = updateOne(current, proposal, evidenceId, now)
+            current = updateOne(current, proposal, evidenceId, now, activeMotiveIds)
         }
         return JSONArray().apply { retained(current).forEach(::put) }
     }
 
     private fun updateOne(
         previous: JSONArray?, proposal: JSONObject, evidenceId: String, now: Instant,
+        activeMotiveIds: Set<String>,
     ): JSONArray {
         val existing = retained(previous).toMutableList()
         fun result() = JSONArray().apply { existing.takeLast(MAX_OPEN).forEach(::put) }
@@ -95,10 +97,17 @@ internal object CharacterOpenConcernRuntime {
         val priority = if (proposal.has("priority")) proposal.optInt("priority", 2).coerceIn(1, 3)
             else prior?.optInt("priority", 2) ?: 2
         val topicKey = topic.ifBlank { prior?.optString("topicKey").orEmpty() }
+        // A concern is a subjective tension, not a second long-term goal.
+        // A link is only accepted when that exact motive exists and is open.
+        val requestedMotive = proposal.optString("motiveId").trim()
+        val motiveId = if (requestedMotive.isNotBlank() && requestedMotive in activeMotiveIds)
+            requestedMotive else prior?.optString("motiveId").orEmpty()
+                .takeIf { it in activeMotiveIds }.orEmpty()
         if (prior != null) {
             val unchanged = focus == prior.optString("focus") && why == prior.optString("whyItMatters") &&
                 hesitation == prior.optString("hesitation") && nextStep == prior.optString("possibleNextStep") &&
-                priority == prior.optInt("priority", 2) && topicKey == prior.optString("topicKey")
+                priority == prior.optInt("priority", 2) && topicKey == prior.optString("topicKey") &&
+                motiveId == prior.optString("motiveId")
             val sameEvidence = prior.optString("evidenceId") == evidenceId ||
                 (0 until (prior.optJSONArray("journey")?.length() ?: 0)).any { i ->
                     prior.optJSONArray("journey")?.optJSONObject(i)?.optString("evidenceId") == evidenceId
@@ -117,7 +126,7 @@ internal object CharacterOpenConcernRuntime {
             .put("id", id).put("focus", focus).put("whyItMatters", why)
             .put("hesitation", hesitation).put("possibleNextStep", nextStep)
             .put("priority", priority).put("topicKey", topicKey)
-            .put("evidenceId", evidenceId)
+            .put("motiveId", motiveId).put("evidenceId", evidenceId)
             .put("createdAt", prior?.optString("createdAt").orEmpty().ifBlank { now.toString() })
             .put("updatedAt", now.toString())
             .put("journey", JSONArray().apply {
@@ -256,7 +265,7 @@ internal object CharacterOpenConcernRuntime {
                     .take(4).forEach { entry ->
                     val at = runCatching { Instant.parse(entry.optString("updatedAt")) }.getOrNull()
                     val elapsed = at?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) }
-                    appendLine("- threadId=${entry.optString("id")}；重要度=${entry.optInt("priority", 2)}；在意=${entry.optString("focus")}" +
+                    appendLine("- threadId=${entry.optString("id")}；${entry.optString("motiveId").takeIf(String::isNotBlank)?.let { "关联意愿=$it；" }.orEmpty()}重要度=${entry.optInt("priority", 2)}；在意=${entry.optString("focus")}" +
                         "；为什么在意=${entry.optString("whyItMatters")}" +
                         "；犹豫=${entry.optString("hesitation")}" +
                         "；曾考虑=${entry.optString("possibleNextStep")}" +

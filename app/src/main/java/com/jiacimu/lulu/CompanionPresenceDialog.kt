@@ -397,7 +397,14 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
         if (entry.title == "还在挂心") ideas += LifeThoughtEntry("持续牵挂", entry.detail.take(240), "仍在意")
     }
 
-    goal?.takeIf { it.optString("aim").isNotBlank() }?.let { g ->
+    val canonicalGoals = (0 until (motives?.length() ?: 0))
+        .mapNotNull { motives?.optJSONObject(it) }
+    // Legacy intention is only a backward-compatible projection. If the same
+    // desire already has a canonical motive, never show a duplicate card.
+    goal?.takeIf { legacy ->
+        legacy.optString("aim").isNotBlank() &&
+            canonicalGoals.none { sameCharacterMotive(it.optString("aim"), legacy.optString("aim")) }
+    }?.let { g ->
         val stage = when {
             g.optBoolean("userRequestedSpace") -> "尊重你的空间 · 暂停主动联系"
             g.optString("stage") in setOf("decided", "executing") -> "打算去做"
@@ -473,12 +480,30 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                     last.optString("receipt").take(240), factual = true)
             }
         }
-    (0 until (motives?.length() ?: 0)).mapNotNull { motives?.optJSONObject(it) }
-        .takeLast(3).asReversed().forEach { m ->
-            m.optString("aim").takeIf(String::isNotBlank)?.let { aim ->
-                ideas += LifeThoughtEntry("心里的动力", aim, "内在动机",
-                    m.optString("why").ifBlank { m.optString("reason") })
+    canonicalGoals.filter { it.optString("aim").isNotBlank() }
+        .takeLast(6).asReversed().forEach { m ->
+            val stage = when (m.optString("status", "active")) {
+                "waiting_feedback" -> "已尝试 · 等待效果反馈"
+                "paused" -> "暂缓"
+                "released" -> "本人已放下"
+                "achieved" -> "有证据确认达成"
+                else -> "仍想推进"
             }
+            val outcomes = m.optJSONArray("outcomes")
+            val last = outcomes?.optJSONObject(outcomes.length() - 1)
+            ideas += LifeThoughtEntry(
+                "持续意愿", m.optString("aim"), stage,
+                listOfNotNull(
+                    m.optString("why").takeIf(String::isNotBlank)?.let { "心里的缘由：$it" },
+                    m.optString("nextStep").takeIf(String::isNotBlank)?.let { "考虑下一步：$it" },
+                    last?.optString("summary")?.takeIf(String::isNotBlank)
+                        ?.let { "实际尝试：$it" },
+                    m.optString("waitingFor").takeIf(String::isNotBlank)
+                        ?.let { "仍待确认：$it" },
+                    m.optString("closedBecause").takeIf(String::isNotBlank)
+                        ?.let { "结束原因：$it" },
+                ).joinToString("\n"),
+            )
         }
     evidence.forEach { record ->
         ideas += LifeThoughtEntry("还想分享", record.optString("fact").take(200),
@@ -487,7 +512,12 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                 ?.let { "为什么想说：$it" }.orEmpty())
     }
     val unique = ideas.filter { it.title.isNotBlank() }
-        .distinctBy { it.title.replace(Regex("\\s+"), "").take(80) }
+        .distinctBy { item ->
+            // Multiple parallel motives must remain separately visible.
+            // The previous title-only key silently collapsed all of them.
+            if (item.title == "持续意愿") item.title + ":" + item.detail.trim()
+            else item.title.replace(Regex("\\s+"), "").take(80)
+        }
     val visible = if (showOlder) unique else unique.take(4)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {

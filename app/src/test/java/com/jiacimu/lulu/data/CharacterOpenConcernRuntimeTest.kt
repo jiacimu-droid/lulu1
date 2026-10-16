@@ -12,6 +12,22 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterOpenConcernRuntimeTest {
+    @Test fun concernMayLinkAnExistingGoalButNeverCreatesOne() {
+        val at = java.time.Instant.parse("2026-10-16T09:00:00Z")
+        val proposal = org.json.JSONObject().put("pendingConcerns",
+            org.json.JSONArray().put(org.json.JSONObject()
+                .put("status", "open").put("topicKey", "unresolved")
+                .put("focus", "还不确定她愿不愿继续聊")
+                .put("whyItMatters", "想修复刚才的误会")
+                .put("motiveId", "real-motive")))
+        val ignored = CharacterOpenConcernRuntime.update(
+            null, proposal, "source", at, emptySet())
+        assertEquals("", ignored.getJSONObject(0).getString("motiveId"))
+        val linked = CharacterOpenConcernRuntime.update(
+            null, proposal, "source", at, setOf("real-motive"))
+        assertEquals("real-motive", linked.getJSONObject(0).getString("motiveId"))
+    }
+
     private val now = Instant.parse("2026-10-11T18:00:00Z")
     private val first = JSONObject().put("pendingConcern", JSONObject()
         .put("status", "open")
