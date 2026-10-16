@@ -29,6 +29,8 @@ import com.jiacimu.lulu.data.LuluAppearanceCatalog
 import com.jiacimu.lulu.data.LuluAppearanceStore
 import com.jiacimu.lulu.design.LuluAppearancePattern
 import com.jiacimu.lulu.design.LuluAppearanceTheme
+import com.jiacimu.lulu.design.JournalStudioHero
+import com.jiacimu.lulu.design.isJournal
 
 /**
  * Theme studio: every app has its own choice and every recipe remains reusable.
@@ -180,12 +182,12 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                 }
             }
             item {
-                Text("主题画廊", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text("从简洁到浓烈，不只是换配色。纹理、轮廓、字体和构图一起变化。",
+                Text("主题工坊 · 精修进度", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("先把「奶油布艺手账」做成完整视觉。其他方案保留供切换，后续逐套精修。",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall)
             }
-            items(library.all, key = { it.id }) { profile ->
+            items(library.all.sortedByDescending { it.isJournal() }, key = { it.id }) { profile ->
                 AppearanceRecipeCard(
                     profile = profile,
                     selected = active.id == profile.id,
@@ -225,7 +227,10 @@ private fun AppearanceRecipeCard(
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             ) {
-                Box(Modifier.fillMaxWidth().height(134.dp)) {
+                Box(Modifier.fillMaxWidth().height(if (profile.isJournal()) 210.dp else 134.dp)) {
+                    if (profile.isJournal()) {
+                        JournalStudioHero(Modifier.fillMaxSize())
+                    } else {
                     LuluAppearancePattern(Modifier.fillMaxSize())
                     Row(
                         Modifier.fillMaxSize().padding(17.dp),
@@ -269,8 +274,17 @@ private fun AppearanceRecipeCard(
                             }
                         }
                     }
+                    }
                 }
             }
+        }
+        if (profile.isJournal()) {
+            Text("✿  精装修样板 · 手账布艺", color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+        } else {
+            Text("基础主题 · 后续逐套精修",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelSmall)
         }
         Row(
             Modifier.fillMaxWidth(),

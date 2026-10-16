@@ -48,6 +48,9 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.JournalChatBubble
+import com.jiacimu.lulu.design.isJournal
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.ReadingChatReceiptFormatter
 import com.jiacimu.lulu.data.MeetingExperienceStore
@@ -234,13 +237,8 @@ internal fun QqMessageRow(
                 bubbles.filter(String::isNotBlank).forEachIndexed { index, bubble ->
                     val isLastBubble = index == bubbles.lastIndex
                     MessageLineWithTime(mine, showTime && isLastBubble, timeText) { bubbleModifier ->
-                        Surface(
-                            modifier = bubbleModifier.combinedClickable(onClick = {}, onLongClick = onLongClick),
-                            color = if (mine) QqMine else QqOther,
-                            shape = RoundedCornerShape(15.dp),
-                            border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                            shadowElevation = 0.dp,
-                        ) {
+                        val journal = LocalLuluAppearance.current.isJournal()
+                        val bubbleContent: @Composable () -> Unit = {
                             Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                                 repliedMessageContent?.let { quoted ->
                                     Surface(
@@ -250,19 +248,35 @@ internal fun QqMessageRow(
                                         Text(
                                             quoted,
                                             Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp),
-                                            color = if (mine) QqMineInk.copy(alpha = 0.72f) else QqMuted,
+                                            color = if (mine && !journal) QqMineInk.copy(alpha = 0.72f) else QqMuted,
                                             fontSize = 11.sp,
                                             maxLines = 2,
                                         )
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                Text(bubble, color = if (mine) QqMineInk else QqInk, fontSize = 15.sp, lineHeight = 22.sp)
+                                Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = 15.sp, lineHeight = 22.sp)
                                 if (message.favorite && isLastBubble) {
                                     Spacer(Modifier.height(4.dp))
-                                    Text("★ 已收藏", color = if (mine) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
+                                    Text("★ 已收藏", color = if (mine && !journal) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
                                 }
                             }
+                        }
+                        val interactiveModifier = bubbleModifier.combinedClickable(
+                            onClick = {}, onLongClick = onLongClick,
+                        )
+                        if (journal) {
+                            JournalChatBubble(mine = mine, modifier = interactiveModifier) {
+                                bubbleContent()
+                            }
+                        } else {
+                            Surface(
+                                modifier = interactiveModifier,
+                                color = if (mine) QqMine else QqOther,
+                                shape = RoundedCornerShape(15.dp),
+                                border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+                                shadowElevation = 0.dp,
+                            ) { bubbleContent() }
                         }
                     }
                     if (!isLastBubble) Spacer(Modifier.height(5.dp))

@@ -4,8 +4,19 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.jiacimu.lulu.design.isJournal
 
 class LuluAppearanceLibraryTest {
+    @Test
+    fun handcraftedJournalVisualsOnlyApplyToJournalFamily() {
+        val journal = LuluAppearanceCatalog.builtIns.first { it.id == "journal" }
+        val copy = journal.copy(id = "my-linen", builtIn = false)
+        val manga = LuluAppearanceCatalog.builtIns.first { it.id == "manga" }
+        assertTrue(journal.isJournal())
+        assertTrue(copy.isJournal())
+        assertFalse(manga.isJournal())
+    }
+
     @Test
     fun switchingOneAppDoesNotChangeOtherApps() {
         val base = LuluAppearanceLibrary()

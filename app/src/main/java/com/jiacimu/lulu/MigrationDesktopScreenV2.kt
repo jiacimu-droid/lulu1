@@ -30,6 +30,13 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluAppearancePattern
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.JournalPatchIcon
+import com.jiacimu.lulu.design.JournalPressedFlower
+import com.jiacimu.lulu.design.JournalWashiTape
+import com.jiacimu.lulu.design.isJournal
+import com.jiacimu.lulu.design.journalLinen
+import com.jiacimu.lulu.design.journalPaper
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -82,6 +89,8 @@ internal fun MigrationHomeV2(
     onOpenConversation: (String) -> Unit,
 ) {
     val context = LocalContext.current
+    val appearance = LocalLuluAppearance.current
+    val journal = appearance.isJournal()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val shortcutConversation = conversations
@@ -123,10 +132,11 @@ internal fun MigrationHomeV2(
 
     Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
         Box(Modifier.fillMaxSize()) {
-            LuluAppearancePattern(Modifier.fillMaxSize())
+            if (!journal) LuluAppearancePattern(Modifier.fillMaxSize())
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .then(if (journal) Modifier.journalLinen(appearance) else Modifier)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp),
@@ -138,20 +148,24 @@ internal fun MigrationHomeV2(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "$greeting，主人",
+                        if (journal) "$greeting，亲爱的" else "$greeting，主人",
                         color = DesktopInk,
-                        fontSize = 31.sp,
+                        fontSize = if (journal) 28.sp else 31.sp,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = (-0.5).sp,
                     )
                     Spacer(Modifier.height(3.dp))
                     Text(dateText, color = DesktopMuted, fontSize = 11.sp, letterSpacing = 0.8.sp)
+                    if (journal) Text("✦ A LITTLE PAGE OF TODAY", color = DesktopAccent,
+                        fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .6.sp)
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(Modifier.size(5.dp), CircleShape, DesktopAccent) {}
                         Spacer(Modifier.width(7.dp))
-                        Text("DAY MODE", color = DesktopMuted, fontSize = 9.sp, letterSpacing = 1.5.sp)
+                        Text(if (journal) "HAND MADE" else "DAY MODE",
+                            color = DesktopMuted, fontSize = 9.sp, letterSpacing = 1.5.sp)
+                        if (journal) JournalPressedFlower(Modifier.size(30.dp))
                     }
                 }
             }
@@ -171,7 +185,15 @@ internal fun MigrationHomeV2(
             )
 
             Spacer(Modifier.height(10.dp))
-            DesktopWorldBulletinCard()
+            if (journal) {
+                Box {
+                    DesktopWorldBulletinCard()
+                    JournalWashiTape(Modifier.align(Alignment.TopCenter).offset(y = (-5).dp)
+                        .width(62.dp).height(14.dp))
+                }
+            } else {
+                DesktopWorldBulletinCard()
+            }
 
             Spacer(Modifier.height(14.dp))
             Row(
@@ -183,7 +205,7 @@ internal fun MigrationHomeV2(
                 Surface(Modifier.weight(1f).height(1.dp), color = DesktopLine) {}
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    "APPS",
+                    if (journal) "✿  我的拼贴收藏  /  APPS" else "APPS",
                     color = DesktopMuted,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Medium,
@@ -221,6 +243,8 @@ private fun DesktopCompanionCard(
     recentMessage: String,
     onClick: () -> Unit,
 ) {
+    val journal = LocalLuluAppearance.current.isJournal()
+    val appearance = LocalLuluAppearance.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = DesktopCard,
@@ -229,8 +253,11 @@ private fun DesktopCompanionCard(
         shadowElevation = 2.dp,
         onClick = onClick,
     ) {
+        Box {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 15.dp),
+            modifier = Modifier.fillMaxWidth()
+                .then(if (journal) Modifier.journalPaper(appearance) else Modifier)
+                .padding(horizontal = 17.dp, vertical = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             DesktopV2Avatar(avatarFallback, 72, avatarUri)
@@ -267,6 +294,11 @@ private fun DesktopCompanionCard(
                 tint = DesktopMuted,
                 modifier = Modifier.size(20.dp),
             )
+        }
+        if (journal) {
+            JournalWashiTape(Modifier.align(Alignment.TopEnd).padding(end = 18.dp)
+                .offset(y = (-2).dp).width(58.dp).height(13.dp))
+        }
         }
     }
 }
@@ -393,6 +425,10 @@ private fun DesktopV2LauncherItem(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
+    if (LocalLuluAppearance.current.isJournal()) {
+        JournalPatchIcon(launcher.title, launcher.icon, modifier, onClick)
+        return
+    }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

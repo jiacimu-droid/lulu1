@@ -37,8 +37,8 @@ object LuluAppearanceCatalog {
             0xFFFFFFFF, 0xFFFCFCFC, 0xFFF4F4F4, 0xFF1D1D1F, 0xFF737378, 0xFFE7E7E7,
             0xFF292929, 0xFFFFFFFF, 0xFFF1F1F1), LuluAppearanceMotif.CLEAN),
         LuluAppearance("journal", "奶油布艺手账", "布纹 · 缝线 · 纸片与暖色拼贴", LuluAppearancePalette(
-            0xFFF7EDE1, 0xFFFFF9EE, 0xFFEAD7C9, 0xFF4E3934, 0xFF866B62, 0xFFCDAFA6,
-            0xFFAD675C, 0xFFFFFFFF, 0xFFF4DDD4), LuluAppearanceMotif.STITCH, LuluAppearanceFont.SERIF, 12),
+            0xFFF7EDE1, 0xFFFFF9EE, 0xFFEAD7C9, 0xFF4E3934, 0xFF7C5C54, 0xFFCDAFA6,
+            0xFF9F5E52, 0xFFFFFFFF, 0xFFF4DDD4), LuluAppearanceMotif.STITCH, LuluAppearanceFont.SERIF, 12),
         LuluAppearance("phantom", "怪盗漫画", "P5 灵感 · 不规则黑红视觉冲击", LuluAppearancePalette(
             0xFF16151A, 0xFF29262C, 0xFF413238, 0xFFFFFFFF, 0xFFCFC8CA, 0xFF73646B,
             0xFFF32D42, 0xFFFFFFFF, 0xFF3E1E28), LuluAppearanceMotif.SLASH, LuluAppearanceFont.SANS, 4, true),

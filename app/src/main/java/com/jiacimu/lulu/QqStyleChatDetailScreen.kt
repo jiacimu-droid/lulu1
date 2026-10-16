@@ -24,6 +24,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.isJournal
+import com.jiacimu.lulu.design.journalLinen
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
@@ -640,7 +643,9 @@ fun QqStyleChatDetailScreen(
     ) { padding ->
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding)
+                .then(if (LocalLuluAppearance.current.isJournal())
+                    Modifier.journalLinen(LocalLuluAppearance.current) else Modifier),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
