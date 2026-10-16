@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T06:45:16.538914+00:00",
-  "commit": "c11995e388138d5612df9db1793bacce8fad7dd7",
+  "generatedAt": "2026-10-16T07:11:19.958021+00:00",
+  "commit": "6c998d88f2abd0c03839ef895d1e7c3448798181",
   "branch": "main",
-  "sourceFingerprint": "7237cc27f001864f4b4099222732def3b48fcdcab800a8aab96cfad5dece71e3",
+  "sourceFingerprint": "d8324868a794d7cd43bd31de8fb58060fcfa51e08bd13fdce34f5e45b8a9d482",
   "summary": {
-    "files": 680,
-    "lines": 131500,
-    "symbols": 1986
+    "files": 681,
+    "lines": 131890,
+    "symbols": 1996
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1401,7 +1401,7 @@
     "LuluAppearanceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-        "line": 39
+        "line": 41
       }
     ],
     "show": [
@@ -2267,7 +2267,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 790
+        "line": 804
       }
     ],
     "import": [
@@ -2285,67 +2285,67 @@
     "QqStyleChatDetailScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 51
+        "line": 54
       }
     ],
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 162
+        "line": 165
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 174
+        "line": 177
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 180
+        "line": 183
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 187
+        "line": 190
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 191
+        "line": 194
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 214
+        "line": 217
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 227
+        "line": 230
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 235
+        "line": 238
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 260
+        "line": 263
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 344
+        "line": 347
       }
     ],
     "ScheduleFeatureScreen": [
@@ -6244,6 +6244,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
         "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 40
       }
     ],
     "LuluAppearanceCatalog": [
@@ -8034,6 +8038,52 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt",
         "line": 57
+      }
+    ],
+    "Modifier": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 47
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 85
+      }
+    ],
+    "JournalWashiTape": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 127
+      }
+    ],
+    "JournalPressedFlower": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 143
+      }
+    ],
+    "JournalPaperCard": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 169
+      }
+    ],
+    "JournalPatchIcon": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 198
+      }
+    ],
+    "JournalChatBubble": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 242
+      }
+    ],
+    "JournalStudioHero": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+        "line": 269
       }
     ],
     "load": [
@@ -10735,37 +10785,43 @@
     "LuluAppearanceLibraryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 7
+        "line": 8
+      }
+    ],
+    "handcraftedJournalVisualsOnlyApplyToJournalFamily": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
+        "line": 11
       }
     ],
     "switchingOneAppDoesNotChangeOtherApps": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 10
+        "line": 21
       }
     ],
     "recentlyUsedRecipesStayAvailableToSwitchBack": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 22
+        "line": 33
       }
     ],
     "savedCopyDoesNotMutateItsSourceRecipe": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 33
+        "line": 44
       }
     ],
     "activeOrBuiltInRecipeCannotBeDeleted": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 50
+        "line": 61
       }
     ],
     "unknownRecipeNeverDestroysAnExistingBinding": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-        "line": 64
+        "line": 75
       }
     ],
     "MeetingLocationRenderingTest": [
@@ -12169,12 +12225,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-      "lines": 297,
-      "sha256": "1ada2d54026343ee37e3890570b2649ca3bb0db2b9a1e8743702bc8cb92ae5af",
+      "lines": 311,
+      "sha256": "bd800de1cb56b48d9ada78d2dcf9c1df372b581fd123cc1d8b96e8a7911b66fc",
       "symbols": [
         {
           "name": "LuluAppearanceScreen",
-          "line": 39
+          "line": 41
         }
       ]
     },
@@ -12746,8 +12802,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 452,
-      "sha256": "b155f74642af0964551c9568917343a82ac831e62b5d8a1593d4d1eb00d324e8",
+      "lines": 488,
+      "sha256": "149a6d0750b478257b03a5b633782b4f759fa2211641e8db06c21da485dd3639",
       "symbols": []
     },
     {
@@ -13133,12 +13189,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 943,
-      "sha256": "23755ec45772653c213578999f70f90b1177d76f09e769e467b9e21d2f8516f2",
+      "lines": 957,
+      "sha256": "cba55b4dd2314027cf397e3faefbe167dea8742caeb1059bb8c65277a0800e1b",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 790
+          "line": 804
         }
       ]
     },
@@ -13195,52 +13251,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 880,
-      "sha256": "7dc42ef77340de1014fef85686db80a489efb48cd297a7e9d7d4c8be535bbd20",
+      "lines": 885,
+      "sha256": "33ce9356c6a7b642677275e6d5b488a9d3d05633b86f5419d4b1e508edbae4cc",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
-          "line": 51
+          "line": 54
         },
         {
           "name": "messageLabel",
-          "line": 162
+          "line": 165
         },
         {
           "name": "repliedPreview",
-          "line": 174
+          "line": 177
         },
         {
           "name": "beginReply",
-          "line": 180
+          "line": 183
         },
         {
           "name": "toggleSelected",
-          "line": 187
+          "line": 190
         },
         {
           "name": "buildForwardPayload",
-          "line": 191
+          "line": 194
         },
         {
           "name": "appendDraft",
-          "line": 214
+          "line": 217
         },
         {
           "name": "stopReceiving",
-          "line": 227
+          "line": 230
         },
         {
           "name": "wakeOnline",
-          "line": 235
+          "line": 238
         },
         {
           "name": "sendAndReceive",
-          "line": 260
+          "line": 263
         },
         {
           "name": "regenerateLatestReply",
-          "line": 344
+          "line": 347
         }
       ]
     },
@@ -17054,7 +17110,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
       "lines": 107,
-      "sha256": "72d310562a57d448435ccd63ef7df99b3e06606434845701e084dfe3af61d24c",
+      "sha256": "ef0400843d20f15b531c2c5f30916ca5a8cdc1a706b450784bf8376a8922f5bc",
       "symbols": [
         {
           "name": "LuluAppearancePalette",
@@ -19111,6 +19167,49 @@
         {
           "name": "LuluMotionTokens",
           "line": 57
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
+      "lines": 310,
+      "sha256": "457d8843f0af6aba8617df8cefd132ac28ad0b13fa06aa05d7088a44ba1115ac",
+      "symbols": [
+        {
+          "name": "LuluAppearance",
+          "line": 40
+        },
+        {
+          "name": "Modifier",
+          "line": 47
+        },
+        {
+          "name": "Modifier",
+          "line": 85
+        },
+        {
+          "name": "JournalWashiTape",
+          "line": 127
+        },
+        {
+          "name": "JournalPressedFlower",
+          "line": 143
+        },
+        {
+          "name": "JournalPaperCard",
+          "line": 169
+        },
+        {
+          "name": "JournalPatchIcon",
+          "line": 198
+        },
+        {
+          "name": "JournalChatBubble",
+          "line": 242
+        },
+        {
+          "name": "JournalStudioHero",
+          "line": 269
         }
       ]
     },
@@ -22961,32 +23060,36 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt",
-      "lines": 70,
-      "sha256": "cc84e022e48ccff8e035ed0b09c9d9201e94450b12a8d0bb3dc2595d1d57747a",
+      "lines": 81,
+      "sha256": "67169c5d05b8e75407e70f3b2443e4f2f175d86df1052f739af43b1974f12477",
       "symbols": [
         {
           "name": "LuluAppearanceLibraryTest",
-          "line": 7
+          "line": 8
+        },
+        {
+          "name": "handcraftedJournalVisualsOnlyApplyToJournalFamily",
+          "line": 11
         },
         {
           "name": "switchingOneAppDoesNotChangeOtherApps",
-          "line": 10
+          "line": 21
         },
         {
           "name": "recentlyUsedRecipesStayAvailableToSwitchBack",
-          "line": 22
-        },
-        {
-          "name": "savedCopyDoesNotMutateItsSourceRecipe",
           "line": 33
         },
         {
+          "name": "savedCopyDoesNotMutateItsSourceRecipe",
+          "line": 44
+        },
+        {
           "name": "activeOrBuiltInRecipeCannotBeDeleted",
-          "line": 50
+          "line": 61
         },
         {
           "name": "unknownRecipeNeverDestroysAnExistingBinding",
-          "line": 64
+          "line": 75
         }
       ]
     },

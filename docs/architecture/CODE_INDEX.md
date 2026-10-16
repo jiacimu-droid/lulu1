@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c11995e388138d5612df9db1793bacce8fad7dd7`
+- 基准提交：`6c998d88f2abd0c03839ef895d1e7c3448798181`
 - 分支：`main`
-- 已索引文件：680
-- 已索引代码/文本行：131500
-- 已发现符号：1986
+- 已索引文件：681
+- 已索引代码/文本行：131890
+- 已发现符号：1996
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -83,7 +83,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 634 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 297 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 311 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 136 | 3 |
@@ -112,7 +112,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 904 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 223 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 452 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 488 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 97 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 116 | 1 |
@@ -138,7 +138,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 120 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 943 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 957 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 64 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 346 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
@@ -146,7 +146,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 880 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 885 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
@@ -375,6 +375,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 168 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt` | 310 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCampaignRuntimeV5.kt` | 210 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseCastIdentityV5.kt` | 374 | 0 |
@@ -622,7 +623,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 79 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 70 | 6 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 81 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 64 | 1 |
