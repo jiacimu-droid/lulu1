@@ -44,7 +44,7 @@
     if (event.target?.querySelector?.(searchSelector)) submitSearch(event);
   }, true);
   const searchResultPaths = ['/search_result', '/search_result_ai', '/search', '/search/result'];
-  const route = () => {
+  const route = (freshDocument = false) => {
     if (searchResultPaths.includes(location.pathname)) {
       const keyword = new URL(location.href).searchParams.get('keyword') || '';
       if (!keyword) return;
@@ -52,7 +52,7 @@
       // baseline BEFORE asynchronous Vue hydration. Repeated events for the
       // same query must not erase a verified API response.
       if (!window.__luluXhsReader?.pendingSearch(keyword))
-        window.__luluXhsReader?.beginSearch(keyword);
+        window.__luluXhsReader?.beginSearch(keyword, freshDocument);
       send({kind: 'search-start', keyword});
       watchResults(keyword);
     }
@@ -84,5 +84,7 @@
         title: card?.title || a.innerText || '', author: card?.author || ''});
     } catch (_) {}
   }, true);
-  route();
+  // The initial document can arrive with real SSR search results already
+  // hydrated. Later SPA navigation must continue rejecting stale cards.
+  route(true);
 })();
