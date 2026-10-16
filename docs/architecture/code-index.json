@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T03:20:07.963964+00:00",
-  "commit": "a59185d3accb9c5ca4d5fc5123b627e7313fd812",
+  "generatedAt": "2026-10-16T03:23:43.862499+00:00",
+  "commit": "5cad074441c6b7b8d05a15db8314c116b7777eb7",
   "branch": "main",
-  "sourceFingerprint": "d32d2baa0d83ece3420cad077184c7309baba3c44a5f860dbec31f33aa417882",
+  "sourceFingerprint": "55ad2def19ca081209d1374b377a1e9b463545b4c37a9524c85946604fd17267",
   "summary": {
     "files": 669,
-    "lines": 130262,
+    "lines": 130261,
     "symbols": 1954
   },
   "symbolIndex": {
@@ -17283,8 +17283,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
-      "lines": 43,
-      "sha256": "b6bbf1e277da3b7f17826fed789ef14d2cb1fb5559964610defe83ddbb2e9b96",
+      "lines": 42,
+      "sha256": "98615e1d43498b1b7e32967aa051191e2238ca5da7d783a816f2a066aa4a0856",
       "symbols": [
         {
           "name": "initialize",
