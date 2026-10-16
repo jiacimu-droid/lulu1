@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T18:24:34.461393+00:00",
-  "commit": "a3d1814ae5b5dfaac7298d2cf40c3036d667ca8e",
+  "generatedAt": "2026-10-16T18:25:05.176750+00:00",
+  "commit": "9e47e131b1a5193d7b77c27ba4d75dc714e3aac3",
   "branch": "main",
-  "sourceFingerprint": "778fdfeb4f387304b99d1a61c5b531bc90e09be349bfa03964f91a05b3fe63de",
+  "sourceFingerprint": "4ee184ea1f8a040614ae2aa90916eb004674c1b6993ae04273bad0dd5f5a01ef",
   "summary": {
     "files": 684,
-    "lines": 133021,
+    "lines": 133045,
     "symbols": 2007
   },
   "symbolIndex": {
@@ -22244,8 +22244,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
-      "lines": 142,
-      "sha256": "615ad315af96ef0ada7ea3f30cf6c11e7c7c5fe0ef13caddeb407c1eece98f5d",
+      "lines": 166,
+      "sha256": "aa391acf2958748c06a1d6a2a4ea27cea41ef54bdb5005aefb04f17df7828103",
       "symbols": [
         {
           "name": "VoicePerformanceTest",

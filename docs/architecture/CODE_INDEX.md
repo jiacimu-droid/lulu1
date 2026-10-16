@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a3d1814ae5b5dfaac7298d2cf40c3036d667ca8e`
+- 基准提交：`9e47e131b1a5193d7b77c27ba4d75dc714e3aac3`
 - 分支：`main`
 - 已索引文件：684
-- 已索引代码/文本行：133021
+- 已索引代码/文本行：133045
 - 已发现符号：2007
 
 | 文件 | 行数 | 符号数 |
@@ -545,7 +545,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 142 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
