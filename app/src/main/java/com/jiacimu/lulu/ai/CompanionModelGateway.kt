@@ -577,6 +577,7 @@ class CompanionModelGateway(
                         appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
                     }
                     appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
+                    appendLine("本轮用户明确纠正与较新的原始依据优先于旧记忆、日记和总结；保留当时与现在的区别，不能用旧摘要反驳新原话。临时情绪和假设不自动改写稳定事实。")
                     appendLine("人设背景不是进入露露机后的亲历；主观想法、日记、自述不证明行动成功。无法找到依据时承认记不清，不补造事实。")
                     appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
                     appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其设定真正会说的话。")
@@ -656,49 +657,32 @@ class CompanionModelGateway(
             else if (leanExpression && contextMode == CompanionContextMode.Full && request.actionContext.isNotBlank())
                 com.jiacimu.lulu.data.CharacterLearningLedger.context(characterId, request.actionContext, compact = true)
             else ""
-            val systemPrompt = listOf(
-                baseRules,
-                identitySection,
-                personaSection,
-                userProfileSection,
-                globalWorldBookSection,
-                roleWorldBookSection,
-                presenceSection,
-                developmentSection,
-                continuitySection,
-                learningSection,
-                currentWorld,
-                timelineSection,
-                deliveredCoreSection,
-                memorySection,
-                memoryEvidenceSection,
-                lexiconSection,
-            ).filter(String::isNotBlank).joinToString("\n\n")
-            unifiedMemory.recordActualPrompt(renderedMemories)
+            val auxiliary = listOf("当前状态" to presenceSection, "跨场景连续性锚点" to continuitySection,
+                "成长与持续动机" to developmentSection, "已读材料与可修订的理解" to learningSection)
+            val working = if (fullContext) com.jiacimu.lulu.data.MemoryWorkingSet.assemble(
+                unifiedMemory, lexicon, auxiliary, budget, deliveredCoreSection) else null
+            val memorySections = if (working != null) listOf(
+                "核心记忆" to deliveredCoreSection,
+                "未完成责任" to unifiedMemory.activeTaskContext,
+            ) + working.sections.toList() else listOf(
+                "当前状态" to presenceSection, "成长与持续动机" to developmentSection,
+                "跨场景连续性锚点" to continuitySection, "已读材料与可修订的理解" to learningSection,
+                "近期时间线/未完成责任" to timelineSection, "核心记忆" to deliveredCoreSection,
+                "召回记忆摘要" to memorySection, "召回原始证据" to memoryEvidenceSection, "辞海" to lexiconSection)
+            val fixedSections = listOf(
+                "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
+                "角色人设" to personaSection, "用户资料" to userProfileSection,
+                "全局世界书" to globalWorldBookSection, "角色世界书/设计书" to roleWorldBookSection,
+                "数字世界权威状态" to currentWorld)
+            val systemSections = fixedSections + memorySections
+            val systemPrompt = systemSections.map { it.second }.filter(String::isNotBlank).joinToString("\n\n")
+            if (working == null) unifiedMemory.recordActualPrompt(renderedMemories)
             val userPrompt = if (effectiveMode == CompanionContextMode.Isolated) {
                 "本次独立任务素材：\n${facts.trim()}"
             } else {
                 "真实事实：\n${facts.trim()}"
             }
-            val sections = listOf(
-                "任务规则/工具协议" to baseRules,
-                "角色身份" to identitySection,
-                "角色人设" to personaSection,
-                "用户资料" to userProfileSection,
-                "全局世界书" to globalWorldBookSection,
-                "角色世界书/设计书" to roleWorldBookSection,
-                "当前状态" to presenceSection,
-                "成长与持续动机" to developmentSection,
-                "跨场景连续性锚点" to continuitySection,
-                "已读材料与可修订的理解" to learningSection,
-                "数字世界权威状态" to currentWorld,
-                "近期时间线/未完成责任" to timelineSection,
-                "核心记忆" to deliveredCoreSection,
-                "召回记忆摘要" to memorySection,
-                "召回原始证据" to memoryEvidenceSection,
-                "辞海" to lexiconSection,
-                "本次感知/聊天素材" to userPrompt,
-            )
+            val sections = systemSections + ("本次感知/聊天素材" to userPrompt)
             val breakdown = sections.filter { it.second.isNotBlank() }
                 .map { (label, content) -> tokenBreakdown(label, content.length) } +
                 tokenBreakdown("段落分隔", (systemPrompt.length + userPrompt.length - sections.sumOf { it.second.length }).coerceAtLeast(0))

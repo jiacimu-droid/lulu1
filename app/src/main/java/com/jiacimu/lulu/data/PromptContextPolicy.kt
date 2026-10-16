@@ -12,6 +12,7 @@ data class PromptContextBudget(
     val richInnerLife: Boolean,
     val lexiconCharacters: Int,
     val precise: Boolean,
+    val workingSetCharacters: Int = if (precise) 23_000 else if (richInnerLife) 19_000 else 12_000,
 )
 
 internal object PromptContextPolicy {

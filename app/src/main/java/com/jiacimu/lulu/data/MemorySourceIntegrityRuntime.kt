@@ -33,11 +33,9 @@ internal object MemorySourceIntegrityRuntime {
 
     private suspend fun sweepAllCharacters() {
         MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
-            val liveIds = SharedExperienceTimeline.all(characterId)
-                .mapTo(mutableSetOf(), SharedTimelineEvent::id)
             LuluRepositories.memory.snapshot(characterId).forEach { memory ->
                 val sourceIds = memory.integritySourceEventIds()
-                if (sourceIds.isNotEmpty() && sourceIds.any { it !in liveIds }) {
+                if (sourceIds.isNotEmpty() && !memoryHasLiveSources(memory, characterId)) {
                     LuluRepositories.memory.delete(memory.id)
                     MemoryValidityStore.removeMemory(memory.id)
                 }

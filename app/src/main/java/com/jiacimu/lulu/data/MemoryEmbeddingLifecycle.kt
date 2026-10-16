@@ -61,7 +61,7 @@ internal object MemoryEmbeddingLifecycle {
     private suspend fun sync(characterId: String, memories: List<MemoryEntry>) = indexMutex.withLock {
         val active = memories.filter { memory ->
             memory.canRecallProactively &&
-                MemoryValidityStore.isActive(memory.id) &&
+                MemoryValidityStore.isActive(memory.id) && memoryHasLiveSources(memory, characterId) &&
                 DigitalLifeProfileStore.allowsTimestamp(characterId, memory.occurredAt ?: memory.createdAt)
         }
         val previous = signatures[characterId].orEmpty()
@@ -90,11 +90,12 @@ internal object MemoryEmbeddingLifecycle {
                 ?.takeIf { it.size == missing.size }
                 ?: return@forEach
             missing.forEachIndexed { index, memory ->
-                MemoryEmbeddingIndex.put(
-                    MemoryEmbeddingIndex.key(connection, memory),
-                    memory.id,
-                    vectors[index],
-                )
+                synchronized(SharedExperienceTimeline) {
+                    if (memoryHasLiveSources(memory, characterId) && MemoryValidityStore.isActive(memory.id) &&
+                        LuluRepositories.memory.snapshot(characterId).any { it == memory }) {
+                        MemoryEmbeddingIndex.put(MemoryEmbeddingIndex.key(connection, memory), memory.id, vectors[index])
+                    }
+                }
             }
         }
         signatures[characterId] = current.filterKeys { id ->

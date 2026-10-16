@@ -58,6 +58,8 @@ data class MemoryEntry(
     val tier: MemoryTier = if (kind == MemoryKind.Fact) MemoryTier.Stable else MemoryTier.Episode,
     val subject: String = "",
     val slot: String = "",
+    /** Revisions of the exact evidence read by the extractor; empty for legacy/manual entries. */
+    val sourceRevisions: Map<String, Long> = emptyMap(),
 )
 
 data class MemoryPolicy(
@@ -99,6 +101,7 @@ data class LexiconEntry(
     val status: LexiconStatus = LexiconStatus.Active,
     val sourceEventIds: List<String> = emptyList(),
     val lastFollowUpAt: Instant? = null,
+    val sourceRevisions: Map<String, Long> = emptyMap(),
 )
 
 interface LexiconRepository {

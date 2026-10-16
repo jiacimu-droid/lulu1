@@ -329,23 +329,23 @@ fun LuluMigrationRootAppV2(
                                     },
                                 )
 
-                                MigrationRoute.Memory -> MemoryFeatureScreen(
+                                MigrationRoute.Memory -> CharacterMemoryFeatureScreen(
                                     onBack = ::popRoute,
                                     personalCharacterId = selectedCharacterId.takeIf { personalMemory },
                                 )
                                 // Old saved navigation stacks may still contain CoreMemory.
                                 // Keep routing it into the Memory page without a desktop icon.
-                                MigrationRoute.CoreMemory -> MemoryFeatureScreen(
+                                MigrationRoute.CoreMemory -> CharacterMemoryFeatureScreen(
                                     onBack = ::popRoute,
                                     personalCharacterId = null,
                                     startInCore = true,
                                 )
-                                MigrationRoute.Lexicon -> LexiconFeatureScreenV2(
+                                MigrationRoute.Lexicon -> CharacterMemoryFeatureScreen(
                                     onBack = ::popRoute,
-                                    initialCharacterId = selectedCharacterId,
+                                    personalCharacterId = selectedCharacterId,
                                     initialDiaryTitle = lexiconInitialDiaryTitle,
                                     initialSectionName = lexiconInitialSection,
-                                    personal = true,
+                                    startInRecords = true,
                                 )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
                                     initialCharacterId = selectedCharacterId,

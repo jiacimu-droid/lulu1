@@ -541,7 +541,7 @@ fun QqStyleChatDetailScreen(
                                 IconButton(onClick = { moreExpanded = true }) { Icon(Icons.Outlined.MoreHoriz, "更多", tint = QqInk) }
                                 DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
                                     DropdownMenuItem(text = { Text("角色设置") }, onClick = { moreExpanded = false; onCharacterSettings() })
-                                    DropdownMenuItem(text = { Text("辞海") }, onClick = { moreExpanded = false; onLexicon() })
+                                    DropdownMenuItem(text = { Text("此刻") }, onClick = { moreExpanded = false; presenceCharacterId = characterId })
                                     DropdownMenuItem(text = { Text("记忆") }, onClick = { moreExpanded = false; onMemory() })
                                     DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
                                 }

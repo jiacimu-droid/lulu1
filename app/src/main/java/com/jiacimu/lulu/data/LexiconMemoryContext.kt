@@ -7,7 +7,10 @@ import com.jiacimu.lulu.core.LexiconStatus
 
 object LexiconMemoryContext {
     fun select(characterId: String, query: String): List<LexiconEntry> {
+        val taskEntries = CommitmentTaskStore.active(characterId).mapNotNullTo(mutableSetOf()) { it.lexiconEntryId }
         val entries = LuluRepositories.lexicon.snapshot(characterId)
+            .filter { lexiconHasLiveSources(it) }
+            .filterNot { it.id in taskEntries }
         val active = entries.filter { it.status == LexiconStatus.Active && it.section in setOf(LexiconSection.Promise, LexiconSection.Concern, LexiconSection.Life) }
         // Live concerns and responsibilities have their own channel; diaries cannot evict them.
         val terms = memorySearchTerms(RelevantMemoryRecall.focusQuery(query))
@@ -22,4 +25,11 @@ object LexiconMemoryContext {
             }.take(96)
         return active + related
     }
+}
+
+internal fun lexiconHasLiveSources(entry: LexiconEntry): Boolean {
+    val live = SharedExperienceTimeline.eventsByIds(entry.characterId, entry.sourceEventIds).associateBy { it.id }
+    return entry.sourceEventIds.all { id -> live[id]?.let { event ->
+        entry.sourceRevisions[id]?.let { it == event.revision } ?: true
+    } == true }
 }

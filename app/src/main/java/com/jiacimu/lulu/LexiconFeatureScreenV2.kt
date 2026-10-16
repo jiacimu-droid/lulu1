@@ -69,6 +69,9 @@ fun LexiconFeatureScreenV2(
     initialSectionName: String? = null,
     embedded: Boolean = false,
     personal: Boolean = false,
+    onCharacterSelected: (String) -> Unit = {},
+    areaNavigation: @Composable () -> Unit = {},
+    pageTitle: String = "辞海",
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
@@ -187,7 +190,7 @@ fun LexiconFeatureScreenV2(
         topBar = {
             TopAppBar(
                 title = { Column {
-                    Text("辞海", fontWeight = FontWeight.SemiBold)
+                    Text(pageTitle, fontWeight = FontWeight.SemiBold)
                     if (personal) Text(characters[selectedCharacterId]?.displayName.orEmpty(),
                         fontSize = 12.sp, color = LuluColors.Muted)
                 } },
@@ -215,6 +218,7 @@ fun LexiconFeatureScreenV2(
                                     text = { Text(character.displayName) },
                                     onClick = {
                                         selectedCharacterId = character.characterId
+                                        onCharacterSelected(character.characterId)
                                         characterMenuExpanded = false
                                     },
                                 )
@@ -230,6 +234,7 @@ fun LexiconFeatureScreenV2(
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
+            areaNavigation()
             CharacterSectionTabs(LexiconV2Sections.map { it.second } + "历程", sectionIndex.coerceIn(0, LIFE_AUDIT_INDEX),
                 onSelect = { sectionIndex = it; editing = null; creating = false })
 

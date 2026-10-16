@@ -88,10 +88,26 @@ class InMemoryLexiconRepository : LexiconRepository {
         } else {
             entry.copy(promiseKind = null)
         }
-        mutate { current ->
-            val index = current.indexOfFirst { item -> item.id == normalized.id }
-            if (index < 0) current + normalized else current.toMutableList().apply { set(index, normalized) }
+        synchronized(SharedExperienceTimeline) {
+            if (!lexiconHasLiveSources(normalized)) return
+            mutate { current ->
+                if (current.any { it.id == normalized.id && it.characterId != normalized.characterId }) return@mutate current
+                val index = current.indexOfFirst { item -> item.id == normalized.id }
+                if (index < 0) current + normalized else current.toMutableList().apply { set(index, normalized) }
+            }
         }
+    }
+
+    /** Optimistic update: a user edit/delete while a model runs always wins. */
+    internal fun saveDerived(entry: LexiconEntry, expected: LexiconEntry?): Boolean = synchronized(SharedExperienceTimeline) {
+        if (!lexiconHasLiveSources(entry)) return@synchronized false
+        var saved = false
+        mutate { current ->
+            if (current.firstOrNull { it.id == entry.id } != expected) return@mutate current
+            saved = true
+            current.filterNot { it.id == entry.id } + entry
+        }
+        saved
     }
 
     override suspend fun delete(id: String) {
@@ -138,8 +154,8 @@ class InMemoryLexiconRepository : LexiconRepository {
     private fun mutate(transform: (List<LexiconEntry>) -> List<LexiconEntry>) {
         synchronized(lock) {
             val next = transform(entries.value)
+            prefs?.let { check(it.edit().putString(KEY_ENTRIES, encode(next).toString()).commit()) { "记录保存失败" } }
             entries.value = next
-            prefs?.edit()?.putString(KEY_ENTRIES, encode(next).toString())?.apply()
         }
     }
 
@@ -154,6 +170,7 @@ class InMemoryLexiconRepository : LexiconRepository {
                     .put("content", entry.content)
                     .put("status", entry.status.name)
                     .put("sourceEventIds", JSONArray(entry.sourceEventIds))
+                    .put("sourceRevisions", JSONObject(entry.sourceRevisions))
                     .put("lastFollowUpAt", entry.lastFollowUpAt?.toString() ?: JSONObject.NULL)
                     .put("promiseKind", entry.promiseKind?.name ?: JSONObject.NULL)
                     .put("createdAt", entry.createdAt.toString())
@@ -183,6 +200,9 @@ class InMemoryLexiconRepository : LexiconRepository {
                             id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                             characterId = item.optString("characterId").ifBlank { "lulu" },
                             section = section,
+                            sourceRevisions = item.optJSONObject("sourceRevisions")?.let { revisions ->
+                                revisions.keys().asSequence().associateWith { revisions.optLong(it) }
+                            }.orEmpty(),
                             title = title,
                             content = content,
                             promiseKind = if (section == LexiconSection.Promise) {
@@ -290,8 +310,8 @@ class InMemoryWorldBookRepository : WorldBookRepository {
     private fun mutate(transform: (List<WorldBookEntry>) -> List<WorldBookEntry>) {
         synchronized(lock) {
             val next = transform(entries.value)
+            prefs?.let { check(it.edit().putString(KEY_ENTRIES, encode(next).toString()).commit()) { "记录保存失败" } }
             entries.value = next
-            prefs?.edit()?.putString(KEY_ENTRIES, encode(next).toString())?.apply()
         }
     }
 

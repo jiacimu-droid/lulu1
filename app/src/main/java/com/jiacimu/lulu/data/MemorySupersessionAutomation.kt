@@ -136,9 +136,12 @@ internal object MemorySupersessionAutomation {
         ).getOrNull() ?: return false
         val allowed = candidates.mapTo(mutableSetOf(), MemoryEntry::id)
         val ids = parseIds(result.text)?.filter(allowed::contains) ?: return false
-        val current = LuluRepositories.memory.snapshot(characterId).mapTo(mutableSetOf(), MemoryEntry::id)
-        if (newFact.id !in current || !memoryHasLiveSources(newFact, characterId)) return false
-        if (ids.isNotEmpty()) MemoryValidityStore.markSuperseded(ids.filter(current::contains), newFact.id)
+        synchronized(SharedExperienceTimeline) {
+            val current = LuluRepositories.memory.snapshot(characterId)
+            if (newFact !in current || !memoryHasLiveSources(newFact, characterId)) return false
+            val valid = ids.filter { id -> candidates.any { it.id == id && it in current && memoryHasLiveSources(it, characterId) } }
+            if (valid.isNotEmpty()) MemoryValidityStore.markSuperseded(valid, newFact.id)
+        }
         return true
     }
 
@@ -156,6 +159,9 @@ internal object MemorySupersessionAutomation {
         }.distinct()
     }.getOrNull()
 
+    internal fun rememberInspected(memoryId: String) = rememberProcessed(listOf(memoryId))
+
+    @Synchronized
     private fun rememberProcessed(ids: Collection<String>) {
         if (ids.isEmpty()) return
         val current = prefs?.getStringSet(KEY_PROCESSED, emptySet()).orEmpty().toMutableList()

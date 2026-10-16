@@ -60,12 +60,14 @@ internal fun CharacterExecutionSettings(characterId: String) {
 
 /** Character growth and self-learning belong to companionship, not device permission management. */
 @Composable
-internal fun CharacterLearningSettings(characterId: String) {
+internal fun CharacterLearningSettings(characterId: String, showConfiguration: Boolean = true, showRecords: Boolean = true) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("学习与成长", style = MaterialTheme.typography.titleLarge, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
+        Text(if (showConfiguration) "学习设置" else "学习与成长", style = MaterialTheme.typography.titleLarge, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
         com.jiacimu.lulu.data.CharacterLearningAgenda.initialize(context)
+        val learningRevision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
+        if (showConfiguration) {
         var learningLimit by remember(characterId) {
             mutableStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10))
         }
@@ -80,12 +82,13 @@ internal fun CharacterLearningSettings(characterId: String) {
                 }) { Text("增加") }
             }
         }
-        val learningRevision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
         val todayBudget = remember(characterId, learningRevision, learningLimit) {
             com.jiacimu.lulu.data.CharacterLearningAgenda.budget(characterId)
         }
         Text("今日已用 ${todayBudget.used} 步 · 剩余 ${todayBudget.remaining} 步",
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (showRecords) {
         val learningGoals = remember(characterId, learningRevision) {
             com.jiacimu.lulu.data.CharacterLearningAgenda.goals(characterId)
                 .filter { it.optString("status") != "dropped" }
@@ -134,5 +137,6 @@ internal fun CharacterLearningSettings(characterId: String) {
             }
         }
         if (records.none { it.active }) Text("暂无成长记录")
+        }
     }
 }

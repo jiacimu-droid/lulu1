@@ -203,7 +203,8 @@ object ChatLexiconAutomation {
         val allowed = existing.associateBy(LexiconEntry::id)
         val existingKeys = LuluRepositories.lexicon.snapshot(characterId).mapTo(mutableSetOf(), LexiconEntry::automationDedupeKey)
         val liveSources = SharedExperienceTimeline.eventsByIds(characterId, sourceEventIds)
-        if (liveSources.size != sourceEventIds.distinct().size) return false
+        if (liveSources.size != sourceEventIds.distinct().size ||
+            context.any { before -> liveSources.none { it.id == before.id && it.revision == before.revision } }) return false
         var hasConcern = false
         for (index in 0 until rows.length()) {
             val item = rows.optJSONObject(index) ?: return false
@@ -228,7 +229,8 @@ object ChatLexiconAutomation {
                 if (!existingKeys.add(new.automationDedupeKey())) continue
                 new.copy(sourceEventIds = sourceEventIds)
             }
-            LuluRepositories.lexicon.save(entry)
+            val revised = entry.copy(sourceRevisions = entry.sourceRevisions + context.associate { it.id to it.revision })
+            if (!LuluRepositories.lexicon.saveDerived(revised, old)) continue
             if (entry.section == LexiconSection.Concern && entry.status == LexiconStatus.Active) hasConcern = true
         }
         if (hasConcern) appContext?.let { ProactivePerceptionScheduler.scheduleConcernPromise(it, characterId) }

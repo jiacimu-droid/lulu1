@@ -161,7 +161,7 @@ fun CharacterSettingsScreenV2(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                CharacterSectionTabs(listOf("资料", "人格", "成长", "陪伴", "管理"),
+                CharacterSectionTabs(listOf("资料", "人格", "学习", "陪伴", "管理"),
                     selected = when (section) { 4 -> 2; 2 -> 3; 3 -> 4; else -> section },
                     onSelect = { index ->
                         pageFocusManager.clearFocus(force = true)
@@ -170,7 +170,7 @@ fun CharacterSettingsScreenV2(
                     })
             }
             if (section == 4) item {
-                CharacterV2Card { CharacterLearningSettings(characterId) }
+                CharacterV2Card { CharacterLearningSettings(characterId, showRecords = false) }
             }
 
             if (section == 1) item {

@@ -78,11 +78,14 @@ private enum class MemoryPageSection(val label: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
-                        startInCore: Boolean = false) {
+                        startInCore: Boolean = false,
+                        initialCharacterId: String? = null,
+                        onCharacterSelected: (String) -> Unit = {},
+                        areaNavigation: @Composable () -> Unit = {}) {
     val repository = LuluRepositories.memory
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    var selectedCharacterId by rememberSaveable(personalCharacterId) {
-        mutableStateOf(personalCharacterId ?: characters.keys.firstOrNull() ?: "lulu")
+    var selectedCharacterId by rememberSaveable(personalCharacterId, initialCharacterId) {
+        mutableStateOf(personalCharacterId ?: initialCharacterId ?: characters.keys.firstOrNull() ?: "lulu")
     }
     val policy by repository.observePolicy(selectedCharacterId).collectAsState(initial = MemoryPolicy())
     val memories by repository.observeMemories(selectedCharacterId).collectAsState(initial = emptyList())
@@ -176,6 +179,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            areaNavigation()
             if (personalCharacterId == null) Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -188,6 +192,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         selected = selectedCharacterId == character.characterId,
                         onClick = {
                             selectedCharacterId = character.characterId
+                            onCharacterSelected(character.characterId)
                         },
                         label = { Text(character.displayName) },
                         leadingIcon = {

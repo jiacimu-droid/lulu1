@@ -225,28 +225,15 @@ object SharedExperienceTimeline {
                     characterId, eventId, channel, clean, occurredAt,
                 )
             }
-            if (!triggerExtraction) scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
+            LuluRepositories.lexicon.invalidateSource(eventId)
+            LuluRepositories.memory.invalidateDerivedFromEvent(eventId)
         }
         if (triggerExtraction && SharedTimelineEvent(eventId, characterId, channel, speaker, clean, occurredAt,
                 sessionId, source, evidenceKind).supportsDevelopmentReflection()) {
             CharacterDevelopmentRuntime.request(characterId)
         }
         if (triggerExtraction) {
-            // Persist the recovery job before any asynchronous model work starts. A crash, process
-            // kill or network failure after this point therefore cannot make the event disappear
-            // from the automatic-memory queue.
-            val job = MemoryExtractionJobStore.enqueue(characterId, sourceReplyId = eventId)
-            scope.launch {
-                if (previous != null) LuluRepositories.memory.deleteDerivedFromEvent(eventId)
-                val policy = LuluRepositories.memory.observePolicy(characterId).first()
-                if (!policy.autoSummarize) {
-                    MemoryExtractionJobStore.complete(job.id)
-                    return@launch
-                }
-                runCatching { LuluRepositories.memory.summarizeNow(characterId) }
-                    .onSuccess { MemoryExtractionJobStore.complete(job.id) }
-                    .onFailure { error -> MemoryExtractionJobStore.failed(job.id, error) }
-            }
+            ChatMemoryAutomation.request(characterId, eventId)
         }
     }
 
@@ -322,7 +309,7 @@ object SharedExperienceTimeline {
         MemoryExtractionJobStore.removeBySourceEvent(eventId)
         LuluRepositories.lexicon.invalidateSource(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
-        scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(eventId) }
+        LuluRepositories.memory.invalidateDerivedFromEvent(eventId)
     }
 
     /** Clear the raw ledger, including records hidden by an earlier birth boundary. */
@@ -545,8 +532,10 @@ object SharedExperienceTimeline {
             CharacterLifeStore.invalidateReceipt(id)
             MemoryExtractionJobStore.removeBySourceEvent(id)
             CommitmentTaskStore.removeBySourceEvent(id)
-            scope.launch { LuluRepositories.memory.deleteDerivedFromEvent(id) }
+            LuluRepositories.lexicon.invalidateSource(id)
+            LuluRepositories.memory.invalidateDerivedFromEvent(id)
         }
+        validated.map { it.getString("character_id") }.distinct().forEach { ChatMemoryAutomation.request(it) }
     }
 
     private val EVENT_COLUMNS = arrayOf("id", "character_id", "channel", "speaker", "content", "occurred_at",

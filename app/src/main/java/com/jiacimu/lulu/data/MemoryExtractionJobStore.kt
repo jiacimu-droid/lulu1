@@ -10,6 +10,7 @@ data class MemoryExtractionJob(
     val characterId: String,
     val conversationId: String = "",
     val sourceReplyId: String = "",
+    val revision: Long = 1,
     val attempts: Int = 0,
     val lastError: String = "",
     val createdAt: Instant = Instant.now(),
@@ -26,7 +27,12 @@ internal object MemoryExtractionJobStore {
     fun initialize(context: Context) {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        jobs = decode(prefs?.getString(KEY_JOBS, null))
+        jobs = decode(prefs?.getString(KEY_JOBS, null)).groupBy { it.characterId }.map { (characterId, old) ->
+            val latest = old.maxBy { it.updatedAt }
+            latest.copy(id = "memory:$characterId", revision = old.sumOf { it.revision },
+                createdAt = old.minOf { it.createdAt })
+        }
+        persist()
     }
 
     @Synchronized
@@ -34,15 +40,22 @@ internal object MemoryExtractionJobStore {
 
     @Synchronized
     fun enqueue(characterId: String, conversationId: String = "", sourceReplyId: String = ""): MemoryExtractionJob {
-        val id = listOf(characterId, conversationId, sourceReplyId).joinToString(":")
-        jobs.firstOrNull { it.id == id }?.let { return it }
+        require(characterId.isNotBlank())
+        val old = jobs.firstOrNull { it.characterId == characterId }
+        val now = Instant.now()
         val job = MemoryExtractionJob(
-            id = id,
+            id = "memory:$characterId",
             characterId = characterId,
             conversationId = conversationId,
             sourceReplyId = sourceReplyId,
+            revision = (old?.revision ?: 0) + 1,
+            attempts = old?.attempts ?: 0,
+            lastError = old?.lastError.orEmpty(),
+            createdAt = old?.createdAt ?: now,
+            // A new event does not erase a failing extractor's backoff.
+            updatedAt = old?.updatedAt ?: now,
         )
-        jobs = jobs + job
+        jobs = jobs.filterNot { it.characterId == characterId } + job
         persist()
         return job
     }
@@ -60,23 +73,16 @@ internal object MemoryExtractionJobStore {
     }
 
     @Synchronized
-    fun complete(id: String) {
-        jobs = jobs.filterNot { it.id == id }
+    fun complete(id: String, revision: Long? = null) {
+        jobs = jobs.filterNot { it.id == id && (revision == null || it.revision == revision) }
         persist()
     }
 
     @Synchronized
     fun removeBySourceEvent(eventId: String) {
         if (eventId.isBlank()) return
-        val next = jobs.filterNot { job ->
-            job.sourceReplyId == eventId ||
-                job.sourceReplyId.startsWith("$eventId:group:") ||
-                eventId.startsWith("${job.sourceReplyId}:group:")
-        }
-        if (next.size != jobs.size) {
-            jobs = next
-            persist()
-        }
+        // A coalesced job may contain changes from many sources. Removing the latest
+        // source must not discard other pending work; source validity is checked at commit.
     }
 
     @Synchronized
@@ -87,19 +93,20 @@ internal object MemoryExtractionJobStore {
 
     private fun persist() {
         val array = JSONArray().apply {
-            jobs.takeLast(300).forEach { job ->
+            jobs.forEach { job ->
                 put(JSONObject()
                     .put("id", job.id)
                     .put("characterId", job.characterId)
                     .put("conversationId", job.conversationId)
                     .put("sourceReplyId", job.sourceReplyId)
+                    .put("revision", job.revision)
                     .put("attempts", job.attempts)
                     .put("lastError", job.lastError)
                     .put("createdAt", job.createdAt.toString())
                     .put("updatedAt", job.updatedAt.toString()))
             }
         }
-        prefs?.edit()?.putString(KEY_JOBS, array.toString())?.commit()
+        prefs?.let { check(it.edit().putString(KEY_JOBS, array.toString()).commit()) { "记忆整理队列保存失败" } }
     }
 
     private fun decode(raw: String?): List<MemoryExtractionJob> {
@@ -114,6 +121,7 @@ internal object MemoryExtractionJobStore {
                     add(MemoryExtractionJob(
                         id = item.optString("id").ifBlank { "$characterId:${item.optString("sourceReplyId")}" },
                         characterId = characterId,
+                        revision = item.optLong("revision", 1),
                         conversationId = item.optString("conversationId"),
                         sourceReplyId = item.optString("sourceReplyId"),
                         attempts = item.optInt("attempts", 0),

@@ -62,12 +62,13 @@ internal object MemoryInspectionStore {
     }
 
     fun recordInjection(characterId: String, traceId: String, injected: List<String>,
-                        omitted: Map<String, String>, truncated: List<String> = emptyList()) {
+                        omitted: Map<String, String>, truncated: List<String> = emptyList(),
+                        extraNotes: List<String> = emptyList()) {
         if (traceId.isBlank()) return
         recalls.computeIfPresent(characterId) { _, current ->
             if (current.traceId != traceId) current else current.copy(
                 injected = injected.distinct(), omitted = current.omitted + omitted,
-                notes = current.notes + truncated.distinct().map { "原始内容保留，本次上下文缩略：$it" },
+                notes = current.notes + extraNotes + truncated.distinct().map { "原始内容保留，本次上下文缩略：$it" },
                 promptRecorded = true)
         }
         changeListener?.invoke(characterId)

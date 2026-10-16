@@ -141,37 +141,41 @@ class LocalMemoryRepository : MemoryRepository {
             }.toSet()
             val context = events.filterIndexed { index, _ -> index in contextIds }
             val allowed = context.mapTo(mutableSetOf(), SharedTimelineEvent::id)
+            val prior = currentUnderstandingCandidates(characterId, context.joinToString(" ") { it.content })
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
-                facts = context.joinToString("\n") { "[事件ID=${it.id}] [${it.occurredAt}] ${it.speaker}：${it.evidenceContent}" },
+                facts = context.joinToString("\n") { "[事件ID=${it.id}] [${it.occurredAt}] ${it.speaker}：${it.evidenceContent}" } + renderPriorUnderstanding(prior),
                 instruction = """
                     判断目标用户事件 ${targetIds.joinToString("|")} 是否包含应立即保存的稳定事实、明确偏好、边界或重要长期安排。
                     信号词只用于筛选：必须结合上下文理解，反问、假设、引用、角色台词、虚构故事、临时状态都不能当成长期事实。
                     只返回 JSON 数组；没有则返回 []。每项：
-                    {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位"}
+                    {"kind":"Fact","content":"一至两句完整中文事实","sourceEventIds":["直接支持的事件ID"],"occurredAt":"ISO-8601或空","strength":1到10,"tier":"Core|Stable","subject":"事实对象","slot":"偏好/称呼边界/长期安排等具体槽位","supersedes":[]}
                     每条来源必须包含至少一个目标用户事件。Core 用于用户郑重要求持续遵守或长期牢记的稳定事实，包括重要边界、关系、安排及明确要求始终记住的偏好；普通喜好用 Stable。
                     相处中的条件约定要保留完整触发条件和表达要求，例如“做某种互动时要带上指定拟声”；不能摘要成笼统的“喜欢亲密”而丢掉具体要求。用户反复强调、明确拒绝的相处方式与稳定称呼应进入 Core。
                     ‘今天不吃辣’不是‘以后不喜欢辣’；‘记住’后面的临时提醒交给责任系统，不保存为长期核心事实。
                     只保存真实明确内容，不猜测、不扩写，不把角色答应行动当作完成。
+                    ${understandingUpdateInstruction()}
                 """.trimIndent(),
                 source = "记忆", title = "重要信息即时记忆", maxTokens = 3_200,
                 contextMode = CompanionContextMode.Isolated, connectionOverride = extractionConnection(),
             ).getOrThrow()
-            val parsed = parseMemoryArray(result.text, characterId, allowed).filter { memory ->
-                memory.kind == MemoryKind.Fact && memory.sourceIds().any(targetIds::contains)
+            val parsed = parseMemoryArray(result.text, characterId, allowed).filter { update ->
+                update.memory.kind == MemoryKind.Fact && update.memory.sourceIds().any(targetIds::contains)
             }
-            val expectedRevisions = context.associate { it.id to it.revision }
-            val liveIds = SharedExperienceTimeline.eventsByIds(characterId, allowed)
-                .filter { expectedRevisions[it.id] == it.revision }
-                .mapTo(mutableSetOf(), SharedTimelineEvent::id)
-            mutate { current ->
-                if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
-                val valid = parsed.filter { it.sourceIds().all(liveIds::contains) }
-                current.copy(entries = mergeExtractedEntries(current, valid),
-                    immediateProcessedIds = current.immediateProcessedIds +
-                        (characterId to (current.immediateProcessedIds[characterId].orEmpty() + targetIds.intersect(liveIds))))
+            synchronized(SharedExperienceTimeline) {
+                val liveIds = liveRevisionIds(characterId, context.associate { it.id to it.revision })
+                mutate { current ->
+                    if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
+                    val valid = parsed.map { it.memory }.filter { it.sourceIds().all(liveIds::contains) }.map { memory ->
+                        memory.copy(sourceRevisions = context.filter { it.id in memory.sourceIds() }.associate { it.id to it.revision })
+                    }
+                    current.copy(entries = mergeExtractedEntries(current, valid),
+                        immediateProcessedIds = current.immediateProcessedIds +
+                            (characterId to (current.immediateProcessedIds[characterId].orEmpty() + targetIds.intersect(liveIds))))
+                }
             }
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
+            applyUnderstandingUpdates(characterId, parsed, prior, context.associate { it.id to it.revision })
             maintain(characterId, silent = true)
         }
     }
@@ -223,18 +227,19 @@ class LocalMemoryRepository : MemoryRepository {
             )
 
             val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
-            val expectedRevisions = SharedExperienceTimeline.eventsByIds(characterId, batchIds).associate { it.id to it.revision }
-            val facts = batch.joinToString("\n") { message ->
-                val sender = if (message.sender == LuluChatMessage.Sender.User) "用户" else "角色"
-                "[事件ID=${message.id}] [${message.createdAt}] $sender：${message.content}"
+            val batchEvents = SharedExperienceTimeline.eventsByIds(characterId, batchIds)
+            val expectedRevisions = batchEvents.associate { it.id to it.revision }
+            val facts = batchEvents.joinToString("\n") { event ->
+                "[事件ID=${event.id}] [版本=${event.revision}] [${event.occurredAt}] ${event.speaker}：${event.evidenceContent}"
             }
+            val prior = currentUnderstandingCandidates(characterId, facts)
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
-                facts = facts,
+                facts = facts + renderPriorUnderstanding(prior),
                 instruction = """
                     从给定真实对话与原始事件中提取值得长期保留的记忆。只返回 JSON 数组，不要代码块。
                     每项格式：
-                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空"}
+                    {"kind":"Fact|Emotion|Timeline","content":"包含人物、事件、原因、结果与必要语境的完整中文记忆","sourceEventIds":["直接支持该记忆的事件ID"],"occurredAt":"ISO-8601时间或空字符串","strength":1到10,"tier":"Core|Stable|Episode","subject":"事实对象","slot":"具体事实槽位或空","supersedes":[]}
                     规则：
                     0. 保留记录的证据类型。日记、心声、朋友圈和聊天仅证明表达过，不能把其中自述直接提取成客观亲历；虚构剧情不得合并为数字主世界经历。旧摘要与执行记录冲突时，以执行记录和当前世界状态为准。
                     1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
@@ -249,6 +254,7 @@ class LocalMemoryRepository : MemoryRepository {
                     10. 日常寒暄、同义重复不要重复写入；电话和哄睡的普通陪伴、气音、反复夸奖、呼吸与全身放松引导、虚构睡前故事、角色单方面续讲，都不自动转为长期记忆。若用户在通话中明确透露真实重要事实、长期偏好、关系变化，仍按事实证据选择性提取；故事情节仅属于故事而非两人的现实经历。没有值得保存的内容时返回 []。
                     11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
                     12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
+                    ${understandingUpdateInstruction()}
                 """.trimIndent(),
                 source = "记忆",
                 title = "连续记忆提取",
@@ -290,50 +296,36 @@ class LocalMemoryRepository : MemoryRepository {
                 throw IllegalStateException("模型记忆格式无效，批次保留等待重试", error)
             }
 
-            // Revalidate after the model returns. Deleted source events are never accepted back into
-            // memory even when an older extraction request finishes late.
-            val liveBatchIds = SharedExperienceTimeline.eventsByIds(characterId, batchIds)
-                .filter { expectedRevisions[it.id] == it.revision }
-                .mapTo(mutableSetOf(), SharedTimelineEvent::id)
-            val provenance = "timeline-batch:${liveBatchIds.joinToString("|")}"
-            val snapshot = state.value
-            val existingKeys = snapshot.entries
-                .filter { entry -> entry.characterId == characterId }
-                .mapTo(mutableSetOf()) { entry -> entry.dedupeKey() }
-            val deletedKeys = snapshot.deletedMemoryKeys
-            val unique = parsed.getOrThrow()
-                .filter { entry ->
-                    val sourceIds = entry.memorySourceEventIds()
-                    sourceIds.isNotEmpty() && sourceIds.all { sourceId -> sourceId in liveBatchIds }
+            var liveBatchIds: Set<String> = emptySet()
+            var added = 0
+            synchronized(SharedExperienceTimeline) {
+                liveBatchIds = liveRevisionIds(characterId, expectedRevisions)
+                mutate { current ->
+                    if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
+                    val valid = parsed.getOrThrow().map { it.memory }.filter { entry -> entry.sourceIds().all(liveBatchIds::contains) }
+                        .map { entry -> entry.copy(sourceRevisions = expectedRevisions.filterKeys { it in entry.sourceIds() }) }
+                    val merged = mergeExtractedEntries(current, valid)
+                    added = (merged.size - current.entries.size).coerceAtLeast(0)
+                    current.copy(
+                        entries = merged,
+                        processedMessageIds = current.processedMessageIds +
+                            (characterId to (current.processedMessageIds[characterId].orEmpty() + liveBatchIds)),
+                    )
                 }
-                .filter { entry -> entry.scopedMemoryKey() !in deletedKeys }
-                .filter { entry -> existingKeys.add(entry.dedupeKey()) }
-                .map { entry ->
-                    if (entry.source.startsWith("timeline-events:")) entry else entry.copy(source = provenance)
-                }
-
-            mutate { current ->
-                // A reset can race the gap between source revalidation and this atomic save.
-                if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
-                val currentProcessed = current.processedMessageIds[characterId].orEmpty()
-                current.copy(
-                    entries = mergeExtractedEntries(current, parsed.getOrThrow().filter { entry -> entry.sourceIds().all(liveBatchIds::contains) }),
-                    processedMessageIds = current.processedMessageIds +
-                        (characterId to (currentProcessed + liveBatchIds)),
-                )
             }
 
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
+            applyUnderstandingUpdates(characterId, parsed.getOrThrow(), prior, expectedRevisions)
             processedThisRun += liveBatchIds.size
-            extractedThisRun += unique.size
+            extractedThisRun += added
             val freshReadable = readableMessages(characterId, policy, flushTail)
             val freshProcessed = state.value.processedMessageIds[characterId].orEmpty()
             val remaining = freshReadable.count { it.id !in freshProcessed }
             refreshDebug(
                 message = if (remaining >= threshold) {
-                    "第 $batchStart-$batchEnd 条整理完成，新增 ${unique.size} 条记忆；继续下一批"
+                    "第 $batchStart-$batchEnd 条整理完成，新增 ${added} 条记忆；继续下一批"
                 } else {
-                    "本批读取 ${liveBatchIds.size} 条仍有效消息，新增 ${unique.size} 条记忆"
+                    "本批读取 ${liveBatchIds.size} 条仍有效消息，新增 ${added} 条记忆"
                 },
                 characterId = characterId,
                 readableCount = freshReadable.size,
@@ -344,6 +336,50 @@ class LocalMemoryRepository : MemoryRepository {
             )
         }
     }
+
+    private data class ExtractedMemoryUpdate(val memory: MemoryEntry, val supersedes: List<String>?)
+
+    private fun currentUnderstandingCandidates(characterId: String, query: String): List<MemoryEntry> {
+        val terms = memorySearchTerms(query)
+        return snapshot(characterId).filter { it.kind == MemoryKind.Fact && MemoryValidityStore.isActive(it.id) &&
+            memoryHasLiveSources(it, characterId) }
+            .sortedByDescending { terms.intersect(memorySearchTerms(it.content)).size }
+            .let { selectMemoryWithinBudget(it, characterBudget = 6_000, safetyLimit = 20) }
+    }
+
+    private fun renderPriorUnderstanding(prior: List<MemoryEntry>): String = if (prior.isEmpty()) "" else
+        "\n已有当前理解（不是新的原始依据）：\n" + prior.joinToString("\n") {
+            "memoryId=${it.id}；subject=${it.subject}；slot=${it.slot}；${it.content}"
+        }
+
+    private fun understandingUpdateInstruction(): String =
+        "新事实明确纠正或更新同一槽位时，在 supersedes 中填已有理解的真实 memoryId；主题相关、补充细节、临时状态或过去情绪都不算替代。不确定返回空数组。旧理解只能作比较，不能当作新事件的来源。"
+
+    /** Versioned current understanding is a projection of existing memories, never a second fact DB. */
+    private fun applyUnderstandingUpdates(characterId: String, updates: List<ExtractedMemoryUpdate>, prior: List<MemoryEntry>, expected: Map<String, Long>) {
+        synchronized(SharedExperienceTimeline) {
+            val current = state.value.entries.filter { it.characterId == characterId }
+            val priorById = prior.associateBy { it.id }
+            val liveIds = liveRevisionIds(characterId, expected)
+            updates.forEach { update ->
+                if (update.memory.sourceIds().any { it !in liveIds }) return@forEach
+                val memory = current.firstOrNull { it.dedupeKey() == update.memory.dedupeKey() } ?: return@forEach
+                if (!memoryHasLiveSources(memory, characterId)) return@forEach
+                val proposed = update.supersedes ?: return@forEach
+                val oldIds = proposed.filter { id ->
+                    val before = priorById[id]
+                    before != null && before.kind == MemoryKind.Fact && memory.kind == MemoryKind.Fact &&
+                        before.id != memory.id && current.any { it == before } && memoryHasLiveSources(before, characterId)
+                }
+                MemoryValidityStore.markSuperseded(oldIds, memory.id)
+                MemorySupersessionAutomation.rememberInspected(memory.id)
+            }
+        }
+    }
+
+    private fun liveRevisionIds(characterId: String, expected: Map<String, Long>): Set<String> =
+        SharedExperienceTimeline.eventsByIds(characterId, expected.keys)
+            .filter { expected[it.id] == it.revision }.mapTo(mutableSetOf()) { it.id }
 
     private fun mergeExtractedEntries(current: MemoryStoreState, incoming: List<MemoryEntry>): List<MemoryEntry> {
         val entries = current.entries.toMutableList()
@@ -395,8 +431,11 @@ class LocalMemoryRepository : MemoryRepository {
             strength = entry.strength.coerceIn(1, 10),
         )
         val scopedKey = clean.scopedMemoryKey()
+        synchronized(SharedExperienceTimeline) {
+        if (!memoryHasLiveSources(clean, clean.characterId)) return
         mutate { current ->
             if (!allowRestore && scopedKey in current.deletedMemoryKeys) return@mutate current
+            if (current.entries.any { it.id == clean.id && it.characterId != clean.characterId }) return@mutate current
             val index = current.entries.indexOfFirst { item -> item.id == clean.id }
             val nextEntries = if (index < 0) current.entries + clean
             else current.entries.toMutableList().apply { set(index, clean) }
@@ -405,6 +444,8 @@ class LocalMemoryRepository : MemoryRepository {
                 deletedMemoryKeys = if (allowRestore) current.deletedMemoryKeys - scopedKey else current.deletedMemoryKeys,
             )
         }
+        }
+        MemoryEmbeddingIndex.removeMemory(entry.id)
         refreshDebug("记忆已保存", entry.characterId)
     }
 
@@ -418,7 +459,10 @@ class LocalMemoryRepository : MemoryRepository {
                     ?: current.deletedMemoryKeys,
             )
         }
-        target?.let { CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id) }
+        target?.let {
+            CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
+            MemoryValidityStore.removeMemory(it.id)
+        }
         refreshDebug("记忆已删除")
     }
 
@@ -443,7 +487,10 @@ class LocalMemoryRepository : MemoryRepository {
                 },
             )
         }
-        removedEntries.forEach { CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id) }
+        removedEntries.forEach {
+            CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
+            MemoryValidityStore.removeMemory(it.id)
+        }
         refreshDebug(if (removed > 1) "已删除 $removed 个角色中的同内容记忆" else "记忆已删除")
         return removed
     }
@@ -492,7 +539,10 @@ class LocalMemoryRepository : MemoryRepository {
         return removed
     }
 
-    suspend fun deleteDerivedFromEvent(eventId: String) {
+    suspend fun deleteDerivedFromEvent(eventId: String) = invalidateDerivedFromEvent(eventId)
+
+    /** Called synchronously under the timeline lock on edit/delete, before another recall can read. */
+    fun invalidateDerivedFromEvent(eventId: String) {
         if (eventId.isBlank()) return
         var removedEntries = emptyList<MemoryEntry>()
         mutate { current ->
@@ -503,7 +553,10 @@ class LocalMemoryRepository : MemoryRepository {
                 immediateProcessedIds = current.immediateProcessedIds.mapValues { (_, ids) -> ids - eventId },
             )
         }
-        removedEntries.forEach { CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id) }
+        removedEntries.forEach {
+            CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
+            MemoryValidityStore.removeMemory(it.id)
+        }
         refreshDebug("已撤销由删除内容产生的派生记忆")
     }
 
@@ -537,6 +590,9 @@ class LocalMemoryRepository : MemoryRepository {
                 (!memory.canRecallProactively || !MemoryValidityStore.isActive(memory.id)) && event.id in memory.sourceIds()
         }
     }
+
+    fun hasUnprocessedEvents(characterId: String): Boolean = memoryEligibleTimelineEvents(characterId)
+        .any { it.id !in state.value.processedMessageIds[characterId].orEmpty() }
 
     fun pendingMessageCount(characterId: String): Int = pendingTimelineEvents(characterId).size
 
@@ -582,7 +638,7 @@ class LocalMemoryRepository : MemoryRepository {
             }
             .dropLast(if (flushTail) 0 else policy.excludedRecentMessages.coerceAtLeast(0))
 
-    private fun parseMemoryArray(raw: String, characterId: String, allowedSourceIds: Set<String>): List<MemoryEntry> {
+    private fun parseMemoryArray(raw: String, characterId: String, allowedSourceIds: Set<String>): List<ExtractedMemoryUpdate> {
         val array = decodeMemoryResponseArray(raw)
         val liveAllowedIds = SharedExperienceTimeline.eventsByIds(characterId, allowedSourceIds)
             .mapTo(mutableSetOf(), SharedTimelineEvent::id)
@@ -614,7 +670,7 @@ class LocalMemoryRepository : MemoryRepository {
                 val attributedContent = if (evidence.isNotEmpty() && evidence.all {
                     it.evidenceLabel.startsWith("主观表达") || it.evidenceLabel.startsWith("对话记录")
                 }) "[表达记录的摘要，非独立执行事实] $content" else content
-                add(
+                add(ExtractedMemoryUpdate(
                     MemoryEntry(
                         id = UUID.randomUUID().toString(),
                         characterId = characterId,
@@ -630,7 +686,10 @@ class LocalMemoryRepository : MemoryRepository {
                         subject = item.optString("subject").trim().take(100),
                         slot = item.optString("slot").trim().take(100),
                     ),
-                )
+                    item.optJSONArray("supersedes")?.let { ids ->
+                        (0 until ids.length()).map { ids.optString(it) }.filter(String::isNotBlank).distinct()
+                    },
+                ))
             }
         }
     }
@@ -850,6 +909,7 @@ class LocalMemoryRepository : MemoryRepository {
         .put("tier", entry.tier.name)
         .put("subject", entry.subject)
         .put("slot", entry.slot)
+        .put("sourceRevisions", JSONObject(entry.sourceRevisions))
 
     private fun decodeEntry(item: JSONObject): MemoryEntry = MemoryEntry(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -865,6 +925,9 @@ class LocalMemoryRepository : MemoryRepository {
         tier = parseMemoryTier(item.optString("tier"), runCatching { MemoryKind.valueOf(item.optString("kind")) }.getOrDefault(MemoryKind.Fact)),
         subject = item.optString("subject"),
         slot = item.optString("slot"),
+        sourceRevisions = item.optJSONObject("sourceRevisions")?.let { revisions ->
+            revisions.keys().asSequence().associateWith { revisions.optLong(it) }
+        }.orEmpty(),
     )
 
     private companion object {
@@ -954,6 +1017,7 @@ private fun mergeMemory(primary: MemoryEntry, duplicate: MemoryEntry): MemoryEnt
         slot = primary.slot.ifBlank { duplicate.slot },
         canRecallProactively = primary.canRecallProactively || duplicate.canRecallProactively,
         source = mergeMemoryProvenance(primary.source, duplicate.source),
+        sourceRevisions = primary.sourceRevisions + duplicate.sourceRevisions,
         occurredAt = listOfNotNull(primary.occurredAt, duplicate.occurredAt).minOrNull(),
         createdAt = minOf(primary.createdAt, duplicate.createdAt),
     )
