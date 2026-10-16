@@ -3,7 +3,7 @@
   if (window.__luluXhsRouting) return;
   window.__luluXhsRouting = true;
   const send = value => window.luluXhsNavigation?.postMessage(JSON.stringify(value));
-  const searchSelector = '#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"]';
+  const searchSelector = '#search-input,input.search-input,input[type="search"],input[name="keyword"],input[placeholder*="搜索"],input[placeholder*="搜"],[role="searchbox"],[class*="search"] input';
   const searchInput = () => document.querySelector(searchSelector);
   // Search is a live SPA operation. Never cover the visible WebView while
   // its data is pending. Hand off only real cards found in this document.
@@ -43,8 +43,9 @@
   document.addEventListener('submit', event => {
     if (event.target?.querySelector?.(searchSelector)) submitSearch(event);
   }, true);
+  const searchResultPaths = ['/search_result', '/search_result_ai', '/search', '/search/result'];
   const route = () => {
-    if (['/search_result', '/search', '/search/result'].includes(location.pathname)) {
+    if (searchResultPaths.includes(location.pathname)) {
       const keyword = new URL(location.href).searchParams.get('keyword') || '';
       if (!keyword) return;
       // A history.pushState from a different search must clear the old SSR
@@ -72,7 +73,7 @@
       const match = u.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})$/i);
       if (!match) return;
       const source = u.searchParams.get('xsec_source') || '';
-      const kind = location.pathname === '/search_result' ? 'search' : 'feed';
+      const kind = searchResultPaths.includes(location.pathname) ? 'search' : 'feed';
       const keyword = new URL(location.href).searchParams.get('keyword') || '';
       const cards = JSON.parse(window.__luluXhsReader?.snapshot(kind, '', keyword) || '{}').items || [];
       const card = cards.find(card => card.id === match[1]);
