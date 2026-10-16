@@ -462,6 +462,17 @@ test('AI search route only accepts the matching keyword and genuinely fresh card
   assert.equal(result.items[0].token, 'new-token');
   assert.equal(result.items[0].source, 'pc_search');
 });
+test('fresh AI search document trusts its own SSR data without trusting stale SPA cards', () => {
+  const b = navigationBrowser('/search_result_ai?keyword=%E7%8C%AB');
+  assert.deepEqual(b.messages[0], {kind: 'search-start', keyword: '猫'});
+  // This is a newly loaded document, so its hydrated SSR search data is
+  // first-party page data rather than a stale pre-navigation feed.
+  const result = b.snapshot('search', '', '猫');
+  assert.equal(result.onPage, true);
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].id, id);
+  assert.equal(b.snapshot('search', '', '狗').items.length, 0);
+});
 test('AI result route sends search-ready and associates note clicks with search cards', () => {
   const b = navigationBrowser();
   const ticks = [];
