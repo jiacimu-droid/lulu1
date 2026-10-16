@@ -62,6 +62,25 @@ test('when XHS hides its search input, only its real search opener is clicked', 
   b.sandbox.document.querySelector = () => null;
   assert.equal(b.sandbox.__luluXhsReader.openSearchBox(), 'opener-missing');
 });
+test('narrow XHS search widget accepts a visible contenteditable search field', () => {
+  const b = browser();
+  const events = [];
+  const field = {tagName: 'DIV', isContentEditable: true, textContent: '',
+    getBoundingClientRect: () => ({width: 300, height: 48}),
+    dispatchEvent: event => { events.push(event.type); return true; },
+    blur() {}};
+  b.sandbox.document.querySelectorAll = selector =>
+    selector.includes('contenteditable="true"') ? [field] : [];
+  b.sandbox.document.querySelector = () => null;
+  b.sandbox.Event = class {constructor(type) {this.type = type;}};
+  b.sandbox.KeyboardEvent = class extends b.sandbox.Event {};
+  assert.equal(b.sandbox.__luluXhsReader.startSearch('猫咪'), 'submitted');
+  assert.equal(field.textContent, '猫咪');
+  assert.deepEqual(events.slice(0, 2), ['input', 'change']);
+  assert.equal(events.includes('keydown'), true);
+  assert.equal(b.sandbox.__luluXhsReader.pendingSearch('猫咪'), true);
+});
+
 test('same path with an old search query must not return stale results', () => {
   const b = browser({path: '/search_result?keyword=old', state: {search: {feeds: [row()]}}});
   assert.equal(b.snapshot('search', '', 'new').items.length, 0);
