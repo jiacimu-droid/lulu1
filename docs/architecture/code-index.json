@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T08:13:40.027187+00:00",
-  "commit": "d94564932ff8e6795db9218a1f283aad30edbcc8",
+  "generatedAt": "2026-10-16T11:12:59.624321+00:00",
+  "commit": "25db707a8e15d2c7e5a983d6566dd528ac3262ab",
   "branch": "main",
-  "sourceFingerprint": "875b93fed695fe15446b950556c027826c539d3d264ef06c8de21cecc9dc9f66",
+  "sourceFingerprint": "bcd6de07cc5492860b9c910bb9fb69c0636bf4974b54b28534cd8498357d55b9",
   "summary": {
     "files": 681,
-    "lines": 132297,
+    "lines": 132348,
     "symbols": 1997
   },
   "symbolIndex": {
@@ -341,7 +341,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1175
+        "line": 1177
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3251,7 +3251,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1070
+        "line": 1072
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -4023,7 +4023,7 @@
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1092
+        "line": 1094
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -14655,8 +14655,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1297,
-      "sha256": "7ee9102387aa603d219f71644addc5379947fa2ebaf03d0feaac981c1d33d9ed",
+      "lines": 1299,
+      "sha256": "e9973f22fb3f4c357a3544e9e13c9b316f4b1c907b2e9c6774348f6eb7b46cbc",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -14680,15 +14680,15 @@
         },
         {
           "name": "normalize",
-          "line": 1070
+          "line": 1072
         },
         {
           "name": "compactContext",
-          "line": 1092
+          "line": 1094
         },
         {
           "name": "context",
-          "line": 1175
+          "line": 1177
         }
       ]
     },
@@ -15041,8 +15041,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt",
-      "lines": 142,
-      "sha256": "e6d4c8f5014565cca10b5f39e566d7c539bac499625233c9c67043caff3c85f2",
+      "lines": 152,
+      "sha256": "0fb641c8f6dfc9e900fe55f02b1dc197415e2075e970d790676988ee4f2a7271",
       "symbols": [
         {
           "name": "promptSection",
@@ -18117,7 +18117,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 109,
-      "sha256": "ec6100444af3db90dd5834ac7b6a2102f79eecb2cf529cfebe25547ca463ae9d",
+      "sha256": "46b8d020c5fb679fd93a168dff0d4eee1dcec19e80f40b52140710cabf70a5d7",
       "symbols": []
     },
     {
@@ -18649,8 +18649,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 25,
-      "sha256": "5d173ca7ddc638ec4c093a10178e165694efd0780e8327802d2b2e1df60e8233",
+      "lines": 28,
+      "sha256": "3f953c9657195388e40ac52f1f1f1fe52ac3849189a12c9b86ca3aafd8089e19",
       "symbols": []
     },
     {
@@ -22466,8 +22466,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 135,
-      "sha256": "e5498bd02744c4d781051e7282bacaa3957acc71350bdca80d324d2760c7d299",
+      "lines": 168,
+      "sha256": "90c1f58fe43dfcede5e243243a9593fb75605632fd2ce070fca608218e0688b6",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
@@ -22521,8 +22521,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 233,
-      "sha256": "6186f87dcded190af862f52056f250dcdc7733cd332d2e922e77a5aeb3ab916c",
+      "lines": 236,
+      "sha256": "1064aef26d08feb70d25f7b1ae0ee61693daef477d789a4ea15422c1f04d88e5",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
