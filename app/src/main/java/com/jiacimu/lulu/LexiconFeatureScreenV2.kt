@@ -67,6 +67,7 @@ fun LexiconFeatureScreenV2(
     initialCharacterId: String? = null,
     initialDiaryTitle: String? = null,
     initialSectionName: String? = null,
+    initialFavoriteEntryId: String? = null,
     embedded: Boolean = false,
     personal: Boolean = false,
     onCharacterSelected: (String) -> Unit = {},
@@ -179,6 +180,15 @@ fun LexiconFeatureScreenV2(
         val title = initialDiaryTitle?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
         if (section != LexiconSection.Diary) return@LaunchedEffect
         val targetIndex = entries.indexOfFirst { it.title == title }
+        if (targetIndex >= 0) {
+            if (targetIndex >= visibleCount) visibleCount = targetIndex + 1
+            listState.scrollToItem(targetIndex)
+        }
+    }
+    LaunchedEffect(initialFavoriteEntryId, selectedCharacterId, section, entries) {
+        val requested = initialFavoriteEntryId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
+        if (section != LexiconSection.Favorite) return@LaunchedEffect
+        val targetIndex = entries.indexOfFirst { it.id == requested }
         if (targetIndex >= 0) {
             if (targetIndex >= visibleCount) visibleCount = targetIndex + 1
             listState.scrollToItem(targetIndex)
@@ -332,6 +342,7 @@ fun LexiconFeatureScreenV2(
                             LexiconSection.Favorite -> FavoriteEntryCard(
                                 entry = entry,
                                 characterName = characters[entry.characterId]?.displayName ?: "角色",
+                                highlighted = entry.id == initialFavoriteEntryId,
                                 onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
                             )
                             else -> LexiconV2Card {
@@ -431,6 +442,7 @@ fun LexiconFeatureScreenV2(
 private fun FavoriteEntryCard(
     entry: LexiconEntry,
     characterName: String,
+    highlighted: Boolean = false,
     onDelete: () -> Unit,
 ) {
     val parts = remember(entry.id, entry.content) {
@@ -442,7 +454,7 @@ private fun FavoriteEntryCard(
                 entry.content.substring(index + FAVORITE_REASON_SEPARATOR.length).trim()
         }
     }
-    LexiconV2Card {
+    LexiconV2Card(highlighted = highlighted) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                 Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -617,11 +629,15 @@ private fun LexiconEditorDialogV2(
 }
 
 @Composable
-private fun LexiconV2Card(content: @Composable ColumnScope.() -> Unit) {
+private fun LexiconV2Card(
+    highlighted: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = LuluColors.Card),
-        border = BorderStroke(1.dp, LuluColors.Border),
+        colors = CardDefaults.cardColors(containerColor = if (highlighted) LuluColors.CardStrong else LuluColors.Card),
+        border = BorderStroke(if (highlighted) 2.dp else 1.dp,
+            if (highlighted) LuluColors.Ink else LuluColors.Border),
         shape = RoundedCornerShape(22.dp),
     ) {
         Column(

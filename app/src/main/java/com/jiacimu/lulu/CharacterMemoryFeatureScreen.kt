@@ -22,6 +22,7 @@ fun CharacterMemoryFeatureScreen(
     startInRecords: Boolean = false,
     initialDiaryTitle: String? = null,
     initialSectionName: String? = null,
+    initialFavoriteEntryId: String? = null,
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     var characterId by rememberSaveable(personalCharacterId) {
@@ -36,6 +37,7 @@ fun CharacterMemoryFeatureScreen(
             initialCharacterId = characterId, onCharacterSelected = { characterId = it }, areaNavigation = navigation)
         1 -> LexiconFeatureScreenV2(onBack, initialCharacterId = characterId,
             initialDiaryTitle = initialDiaryTitle, initialSectionName = initialSectionName,
+            initialFavoriteEntryId = initialFavoriteEntryId,
             personal = personalCharacterId != null, onCharacterSelected = { characterId = it },
             areaNavigation = navigation, pageTitle = "记忆")
         else -> Scaffold(

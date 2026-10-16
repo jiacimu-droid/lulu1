@@ -41,6 +41,7 @@ fun LuluMigrationRootAppV2(
     initialTargetCharacterId: String? = null,
     initialDiaryTitle: String? = null,
     initialLexiconSection: String? = null,
+    initialFavoriteEntryId: String? = null,
     initialReadingTitle: String? = null,
     initialMeetingInvitationText: String? = null,
     initialMeetingLocation: String? = null,
@@ -89,6 +90,7 @@ fun LuluMigrationRootAppV2(
     var personalMemory by rememberSaveable { mutableStateOf(false) }
     var lexiconInitialDiaryTitle by rememberSaveable(initialDiaryTitle) { mutableStateOf(initialDiaryTitle) }
     var lexiconInitialSection by rememberSaveable(initialLexiconSection) { mutableStateOf(initialLexiconSection) }
+    var lexiconInitialFavoriteId by rememberSaveable(initialFavoriteEntryId) { mutableStateOf(initialFavoriteEntryId) }
     var readingInitialTitle by rememberSaveable(initialReadingTitle) { mutableStateOf(initialReadingTitle) }
     var initialGameId by rememberSaveable { mutableStateOf<String?>(null) }
     var meetingInviteCharacterId by rememberSaveable(initialRouteName, initialTargetCharacterId) {
@@ -177,6 +179,7 @@ fun LuluMigrationRootAppV2(
         initialTargetCharacterId,
         initialDiaryTitle,
         initialLexiconSection,
+        initialFavoriteEntryId,
         initialReadingTitle,
     ) {
         val requestedConversationId = initialConversationId?.takeIf(String::isNotBlank)
@@ -201,6 +204,7 @@ fun LuluMigrationRootAppV2(
         }
         lexiconInitialDiaryTitle = initialDiaryTitle
         lexiconInitialSection = initialLexiconSection
+        lexiconInitialFavoriteId = initialFavoriteEntryId
         readingInitialTitle = initialReadingTitle
     }
 
@@ -276,6 +280,7 @@ fun LuluMigrationRootAppV2(
                                         selectConversationCharacter()
                                         lexiconInitialDiaryTitle = null
                                         lexiconInitialSection = null
+                                        lexiconInitialFavoriteId = null
                                         pushRoute(MigrationRoute.Lexicon)
                                     },
                                     onMemory = {
@@ -303,6 +308,7 @@ fun LuluMigrationRootAppV2(
                                             selectedCharacterId = "lulu"
                                             lexiconInitialDiaryTitle = null
                                             lexiconInitialSection = null
+                                            lexiconInitialFavoriteId = null
                                         }
                                         if (target == MigrationRoute.Reading) readingInitialTitle = null
                                         pushRoute(target)
@@ -349,6 +355,7 @@ fun LuluMigrationRootAppV2(
                                     personalCharacterId = selectedCharacterId,
                                     initialDiaryTitle = lexiconInitialDiaryTitle,
                                     initialSectionName = lexiconInitialSection,
+                                    initialFavoriteEntryId = lexiconInitialFavoriteId,
                                     startInRecords = true,
                                 )
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(

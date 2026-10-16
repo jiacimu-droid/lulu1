@@ -208,6 +208,7 @@ class MigrationActivity : ComponentActivity() {
                 initialTargetCharacterId = requestedNavigation?.getStringExtra("open_character_id"),
                 initialDiaryTitle = requestedNavigation?.getStringExtra("open_diary_title"),
                 initialLexiconSection = requestedNavigation?.getStringExtra("open_lexicon_section"),
+                initialFavoriteEntryId = requestedNavigation?.getStringExtra("open_favorite_entry_id"),
                 initialReadingTitle = requestedNavigation?.getStringExtra("open_reading_title"),
                 initialMeetingInvitationText = requestedNavigation?.getStringExtra("open_meeting_invitation_text"),
                 initialMeetingLocation = requestedNavigation?.getStringExtra("open_meeting_location"),

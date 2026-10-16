@@ -54,6 +54,11 @@ class CharacterSocialActionOpportunitiesTest {
             .any { it.id == "message-${voice.id}" && it.content.contains(voice.content) })
         assertFalse(CharacterSocialActionOpportunities.prompt(character.characterId)
             .contains("messageId=${voice.id}"))
+        val receipts = MigratedDomainStores.chat.messages(conversation.id).value
+            .filter { it.sender == LuluChatMessage.Sender.System &&
+                it.content.contains("收藏了一条消息") }
+        assertEquals(1, receipts.size)
+        assertTrue(receipts.single().content.contains("[收藏记录|message-${voice.id}]"))
     }
 
     @Test fun onlyRealUnfinishedPhoneFavoriteWishBecomesAConcern() {

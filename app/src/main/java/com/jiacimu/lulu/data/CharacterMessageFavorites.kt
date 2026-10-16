@@ -55,6 +55,9 @@ object CharacterMessageFavorites {
             content = "收藏了用户真实发出的消息：${message.content.take(600)}；原因：${reason.take(180)}",
             occurredAt = now, triggerExtraction = false, source = "favorite:own",
             evidenceKind = EventEvidenceKind.CharacterStatement)
+        // Explicit autonomous/phone favorites previously never generated chat receipts.
+        // The authoritative entry must exist before announcing the actual success.
+        appendSavedFavoriteNotice(characterId, id, character.displayName)
         return evidenceId
     }
 
@@ -118,16 +121,21 @@ object CharacterMessageFavorites {
                     content = "收藏了主人在聊天中的一条消息：$messageText\n收藏理由：$reason",
                     occurredAt = actionNow,
                 )
-                val conversation = MigratedDomainStores.chat.conversations.value.firstOrNull { it.id == conversationId }
-                if (conversation?.groupChat == null) {
-                    MigratedDomainStores.chat.appendSystemMessage(conversationId, "[共同活动] 收藏了一条消息。")
-                } else {
-                    MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "收藏了一条消息。")
-                }
+                appendSavedFavoriteNotice(characterId, entryId, character.displayName)
             } finally {
                 synchronized(lock) { pendingEntryIds -= entryId }
             }
         }
+    }
+
+    /** Success-only, compact private receipt for ALL real character favorite routes. */
+    private fun appendSavedFavoriteNotice(characterId: String, entryId: String, characterName: String) {
+        if (LuluRepositories.lexicon.snapshot(characterId).none {
+                it.id == entryId && it.section == LexiconSection.Favorite }) return
+        MigratedDomainStores.chat.appendPrivateActivityNotice(
+            characterId,
+            "[收藏记录|$entryId] $characterName 收藏了一条消息 · 查看收藏",
+        )
     }
 
     private suspend fun generateFavoriteReason(

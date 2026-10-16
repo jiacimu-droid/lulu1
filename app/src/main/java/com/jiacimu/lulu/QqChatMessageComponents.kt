@@ -440,14 +440,24 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
             )
         }
 
+    Regex("^\\[收藏记录\\|([^\\]]+)]\\s*(.*)$", RegexOption.DOT_MATCHES_ALL)
+        .find(rawVisible)?.let { match ->
+            val entryId = match.groupValues[1].trim()
+            val compact = match.groupValues[2].trim().ifBlank {
+                "收藏了一条消息 · 查看收藏"
+            }.take(90)
+            val start = compact.indexOf("查看收藏")
+            return SystemActivityNotice(
+                compact, SystemActivityLink(SystemActivityType.Favorite, entryId),
+                start, if (start >= 0) start + 4 else -1,
+            )
+        }
     if (rawVisible.contains("收藏了一条消息")) {
-        val compact = "收藏了一条消息"
-        val start = compact.indexOf("收藏")
+        val compact = "收藏了一条消息 · 查看收藏"
+        val start = compact.indexOf("查看收藏")
         return SystemActivityNotice(
-            compact,
-            SystemActivityLink(SystemActivityType.Favorite, ""),
-            start,
-            start + 2,
+            compact, SystemActivityLink(SystemActivityType.Favorite, ""),
+            start, start + 4,
         )
     }
     Regex("在自己的家中构建了[“\"]([^”\"]+)[”\"]").find(rawVisible)?.let { match ->
@@ -575,6 +585,9 @@ private fun openSystemActivity(context: Context, message: LuluChatMessage, link:
                 putExtra("open_route", MigrationRoute.Lexicon.name)
                 putExtra("open_character_id", characterId)
                 putExtra("open_lexicon_section", "Favorite")
+                link.targetTitle.takeIf(String::isNotBlank)?.let {
+                    putExtra("open_favorite_entry_id", it)
+                }
             }
         }
     }
