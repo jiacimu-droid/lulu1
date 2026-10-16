@@ -28,9 +28,10 @@ class VoicePerformanceTest {
             "不着急回答，听着我的声音就好。每件事情都可以等到明天。").repeat(15)
         val economicalAudio = VoicePerformance.sleepAudio(context, longBedtime, true)
         assertEquals(longBedtime, VoicePerformance.plain(economicalAudio).filterNot(Char::isWhitespace))
-        assertTrue("耳语提示仍应有间隔，不在每个逗号后重复", economicalAudio.length < longBedtime.length * 1.55)
+        assertTrue("每句耳语也应避免逐字插标签", economicalAudio.length < longBedtime.length * 2.9)
         assertTrue(economicalAudio.contains("[drawn out]"))
-        assertTrue("长段哄睡需要多次重新提示气声", Regex("\\[whispers\\]").findAll(economicalAudio).count() >= 3)
+        assertEquals("整段每个完整句子都应该保持气声",
+            longBedtime.count { it == '。' }, Regex("\\[whispers\\]").findAll(economicalAudio).count())
         assertTrue(economicalAudio.contains("[long pause]"))
         prefs.edit().putString("eleven_tts_model", "eleven_flash_v2_5").commit()
         assertFalse(VoicePerformance.phoneNeedsWholeTurn(context))
@@ -84,6 +85,29 @@ class VoicePerformanceTest {
         assertEquals(words, VoicePerformance.sleepAudio(context, words, true))
         assertEquals(VoicePerformance.plain(erratic), VoicePerformance.sleepAudio(context, erratic, true))
         assertFalse(VoicePerformance.sleepAudio(context, longStory, true).contains("[whispers]"))
+        prefs.edit().putString("tts_provider", "system").commit()
+    }
+
+    @Test fun sleepWhispersAfterEachFullSentenceButNotCommasOrRepeatedPunctuation() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
+        prefs.edit().putString("tts_provider", "elevenlabs")
+            .putString("eleven_tts_model", "eleven_v4_turbo").commit()
+        val words = "宝宝，别着急。今天慢慢来！轻轻呼吸，慢慢放松。再听一会儿，就好。"
+        val output = VoicePerformance.sleepAudio(context, words, true)
+        assertEquals(words, VoicePerformance.plain(output).filterNot(Char::isWhitespace))
+        assertEquals(4, Regex("\\[whispers\\]").findAll(output).count())
+        assertTrue(output.contains("别着急。 [whispers]"))
+        assertTrue(output.contains("慢慢来！ [whispers]"))
+        assertFalse(output.contains("宝宝， [whispers]"))
+        assertFalse(output.contains("[whispers] [whispers]"))
+        val emphatic = VoicePerformance.sleepAudio(context, "嘘？！没关系。慢慢放松。", true)
+        assertEquals(3, Regex("\\[whispers\\]").findAll(emphatic).count())
+        assertFalse(emphatic.contains("嘘？ [whispers]"))
+        assertEquals("嘘？！没关系。慢慢放松。",
+            VoicePerformance.plain(emphatic).filterNot(Char::isWhitespace))
+        prefs.edit().putString("eleven_tts_model", "eleven_flash_v2_5").commit()
+        assertEquals(words, VoicePerformance.sleepAudio(context, words, true))
         prefs.edit().putString("tts_provider", "system").commit()
     }
 
