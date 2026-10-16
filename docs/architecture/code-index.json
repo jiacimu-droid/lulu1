@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T11:52:27.210717+00:00",
-  "commit": "4129db9ff05ce6cec4e53805ef1c882d31075db2",
+  "generatedAt": "2026-10-16T12:07:43.999400+00:00",
+  "commit": "358a78aeb0f9ba25fde23a3aa09dd18f86df3e1b",
   "branch": "main",
-  "sourceFingerprint": "63ddd49f6598d082fb9fdf7b879fd2dafb79dc6e692e9b97bd12a9a9ad6df192",
+  "sourceFingerprint": "e5a98769c66fa257d3880e8b3f3535e0ea29cd49bfee268134555e75adbcd4bb",
   "summary": {
     "files": 683,
-    "lines": 132631,
+    "lines": 132649,
     "symbols": 2001
   },
   "symbolIndex": {
@@ -10495,7 +10495,7 @@
     "CharacterGoalConvergenceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "CharacterGrowthTrajectoryLedgerTest": [
@@ -22573,12 +22573,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt",
-      "lines": 51,
-      "sha256": "151c214421a3698a4d759f69e22da1595c7a8d0ac07cfe12e2cdd04e6735c773",
+      "lines": 56,
+      "sha256": "b23533bd1716feaccd4af7882c7bdddf5b943b988b5185320d79e610cb10e249",
       "symbols": [
         {
           "name": "CharacterGoalConvergenceTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
@@ -22781,8 +22781,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 152,
-      "sha256": "392756afb113e77779d2e5e034a9f1852e81cb2c97bd51b1a6d0c9ff42083a40",
+      "lines": 165,
+      "sha256": "5db1728ad6755e17cd1933ec5399b42463704a13917a96be969b6c1efb8bf2fb",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
