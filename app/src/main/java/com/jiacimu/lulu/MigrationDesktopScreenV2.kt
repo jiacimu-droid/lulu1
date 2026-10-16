@@ -148,7 +148,7 @@ internal fun MigrationHomeV2(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (journal) "$greeting，亲爱的" else "$greeting，主人",
+                        "$greeting，主人",
                         color = DesktopInk,
                         fontSize = if (journal) 28.sp else 31.sp,
                         fontWeight = FontWeight.SemiBold,
