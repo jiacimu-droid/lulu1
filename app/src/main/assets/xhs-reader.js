@@ -77,7 +77,7 @@
   };
   // Only normalized list/body fields stay in this document's bounded memory.
   const received = {feed: [], search: [], notes: new Map(), failures: {}, api: {},
-    searchKeyword: '', searchPending: '', searchEmpty: false, searchBaseline: ''};
+    searchKeyword: '', searchPending: '', searchRequested: '', searchEmpty: false, searchBaseline: ''};
   const searchStateRows = () => list(unwrap(unwrap(window.__INITIAL_STATE__)?.search)?.feeds, 'pc_search');
   const fingerprint = rows => rows.map(row => row.id + ':' + row.token).join('|');
   const pageKeyword = () => clean(new URL(location.href).searchParams.get('keyword') || window.__luluXhsSearchKeyword?.(), 64);
@@ -95,6 +95,7 @@
     // time out while the website had already loaded real search cards.
     if (next !== received.searchPending) {
       received.search = []; received.searchKeyword = ''; received.searchEmpty = false;
+      received.searchRequested = '';
       delete received.api.search;
     }
     if (received.searchPending !== next) {
@@ -143,12 +144,16 @@
     input.dispatchEvent(new Event('input', {bubbles: true}));
     input.dispatchEvent(new Event('change', {bubbles: true}));
     const button = document.querySelector('.search-icon,.search-button,.search-btn,[aria-label*="搜索"],[aria-label="search"]') || input.form?.querySelector('button[type="submit"]');
-    if (input.form?.requestSubmit) input.form.requestSubmit();
-    else if (button) button.click();
-    else {
-      input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}));
-      input.dispatchEvent(new KeyboardEvent('keyup', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}));
+    // The desktop site's magnifier can merely focus/open its input. Its Vue
+    // handler listens for Enter; clicking that icon and reporting "submitted"
+    // left character searches on the homepage. Use ONE submission mechanism.
+    if (typeof KeyboardEvent === 'function') {
+      input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true}));
+      input.dispatchEvent(new KeyboardEvent('keyup', {key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true}));
     }
+    else if (input.form?.requestSubmit) input.form.requestSubmit();
+    else if (button) button.click();
+    else return 'submit-unavailable';
     input.blur?.();
     return 'submitted';
   };
@@ -203,6 +208,9 @@
     const keyword = kind === 'search' ? (args[1]?.body !== undefined || typeof args[0] === 'string'
       ? Promise.resolve(requestKeyword(url, args[1]?.body))
       : args[0].clone().text().then(body => requestKeyword(url, body))) : Promise.resolve('');
+    if (kind === 'search') keyword.then(value => {
+      if (value && value === received.searchPending) received.searchRequested = value;
+    }).catch(() => {});
     return nativeFetch.apply(this, args).then(response => {
       if (kind) response.clone().text().then(async text => {
         if (text.length <= 1500000) try { capture(kind, JSON.parse(text), response.status, await keyword); } catch (_) { invalidResponse(kind, response.status, await keyword); }
@@ -213,7 +221,14 @@
   const xhr = window.XMLHttpRequest?.prototype;
   if (xhr) {
     const open = xhr.open, send = xhr.send;
-    xhr.send = function (body) { if (this.__luluSearchUrl) this.__luluSearchKeyword = requestKeyword(this.__luluSearchUrl, body); return send.call(this, body); };
+    xhr.send = function (body) {
+      if (this.__luluSearchUrl) {
+        this.__luluSearchKeyword = requestKeyword(this.__luluSearchUrl, body);
+        if (this.__luluSearchKeyword && this.__luluSearchKeyword === received.searchPending)
+          received.searchRequested = this.__luluSearchKeyword;
+      }
+      return send.call(this, body);
+    };
     xhr.open = function (method, url, ...rest) {
       const kind = category(url);
       this.__luluSearchUrl = kind === 'search' ? url : '';
@@ -245,7 +260,9 @@
         stateCards: hydrated.length, visibleCards, hasSearchInput: !!findSearchInput(),
         loginPrompt: /扫码登录|请先登录|登录后查看/.test(bodyText),
         verificationPrompt: /滑块验证|安全验证|访问异常|IP at risk|300012|300017/.test(bodyText)},
-      search: {pending: !!received.searchPending, responseMatched: received.searchKeyword === received.searchPending && !!received.searchKeyword, count: received.search.length, empty: received.searchEmpty}, viewport: {width, height,
+      search: {pending: !!received.searchPending,
+        requestObserved: !!received.searchRequested && received.searchRequested === received.searchPending,
+        responseMatched: received.searchKeyword === received.searchPending && !!received.searchKeyword, count: received.search.length, empty: received.searchEmpty}, viewport: {width, height,
       visualHeight: window.visualViewport?.height ?? null,
       documentHeight: document.documentElement?.clientHeight ?? null,
       lowerElement: hit ? String(hit.tagName || '') + '.' + String(hit.className || '').slice(0, 100) : '',

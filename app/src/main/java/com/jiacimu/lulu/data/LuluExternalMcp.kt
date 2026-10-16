@@ -143,7 +143,10 @@ internal object LuluExternalMcp {
                 if (fromShare) {
                     listOf(XhsReadingEngine.cardForSharedLink(context, sharedLink))
                 } else {
-                    XhsReadingEngine.list(context, keyword).filter { it.token.isNotBlank() }.also {
+                    // The attached logged-in browser can open a real DOM note
+                    // link without a token. Only the optional MCP needs one.
+                    XhsReadingEngine.list(context, keyword)
+                        .filter { it.provider == "webview" || it.token.isNotBlank() }.also {
                         if (it.isEmpty()) error(if (keyword.isBlank())
                             "首页没有返回可打开的笔记" else "网页没有返回关键词的真实搜索结果")
                     }

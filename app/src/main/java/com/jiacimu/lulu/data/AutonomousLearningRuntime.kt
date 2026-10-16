@@ -14,8 +14,8 @@ internal object AutonomousLearningRuntime {
         CharacterLearningAgenda.initialize(context)
         val budget = CharacterLearningAgenda.budget(role)
         return """- learn_topic：按本人问题真实学习，不训练底座权重。args={"op":"start","topic":"具体主题","question":"想改善/弄清什么","why":"本人动机","sourceEvidenceId":"真实观察/用户原话ID"}先保存意向。
-            后续 args={"op":"search|study|understand|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"}。study可直接检索并读取正文、形成暂定理解，不必先search；search只发现候选，不算已读。已有正文但尚未理解时选understand复用材料，不重复联网。无搜索API时使用百科；不支持登录网页。今日上限${budget.limit}步、已用${budget.used}步、剩余${budget.remaining}步；失败也计入。额度为零时运用已有理解或稍后继续，勿重复请求学习工具。
-            可用 op=attach、goalId、sourceEvidenceId 把本人已存在的reading:阅读理解接入目标，未读书籍仍须read_book执行。学习成果可以在后续互动里自选learningApplication，真实用户反馈才是对用户效果的证据。
+            后续 args={"op":"search|study|understand|practice|review|pause|resume|drop","goalId":"已有ID","query":"具体检索词","url":"可选公开HTTPS网页"}。study可直接检索并读取公开正文、形成暂定理解，不必先search；search只发现候选，不算已读。已有正文但尚未理解时选understand复用材料，不重复联网。通用网页读取不处理登录网站；小红书用独立 read_xiaohongshu 的 keyword 自主搜索并打开真实笔记，取得阅读回执 evidenceId 后接入目标。无通用搜索API时使用百科。今日上限${budget.limit}步、已用${budget.used}步、剩余${budget.remaining}步；失败也计入。额度为零时运用已有理解或稍后继续，勿重复请求学习工具。
+            可用 op=attach、goalId、sourceEvidenceId 关联本人实际已读的书籍、小红书或网页材料；已有理解直接练习，只有原文时用understand，不再重复搜索或下载。未读书籍仍须read_book执行，搜索标题不算材料。学习成果可以在后续互动里自选learningApplication，真实用户反馈才是对用户效果的证据。
             ${CharacterLearningAgenda.prompt(role)}
         """.trimIndent()
     }
@@ -41,14 +41,17 @@ internal object AutonomousLearningRuntime {
         if (op == "attach") {
             require(goal.optString("status") !in setOf("running", "paused", "dropped")) { "先恢复可用学习意向" }
             val source = SharedExperienceTimeline.eventsByIds(role, listOf(args.optString("sourceEvidenceId")))
-                .firstOrNull { it.source.startsWith("reading:") } ?: error("只能关联本人实际已读的阅读证据")
-            require(CharacterLearningLedger.hasInsight(role, source.id)) { "该段尚没有保存可练习的理解，可先继续阅读" }
+                .firstOrNull { CharacterLearningLedger.isMaterialEvidence(role, it.id) }
+                ?: error("只能关联本人实际已读且仍存在的材料，搜索标题或角色自述不算原文")
+            val understood = CharacterLearningLedger.hasInsight(role, source.id)
             CharacterLearningAgenda.update(role, id) {
-                it.put("materialId", source.id).put("status", "practice")
+                it.put("materialId", source.id).put("status", if (understood) "practice" else "research")
                     .put("materialRevision", source.revision)
                     .put("reviewAt", LearningCyclePolicy.reviewAt(now, 0).toString())
             }
-            return CompanionActionResult(true, "已关联真实阅读记录，可选择练习；书中内容不是本人亲历", evidenceId = source.id)
+            return CompanionActionResult(true, if (understood)
+                "已关联真实材料与暂定理解，可选择练习；外部内容不是本人亲历"
+                else "已关联真实原文，尚未形成理解；可用understand继续，不重复搜索下载", evidenceId = source.id)
         }
         if (op in setOf("pause", "resume", "drop")) {
             require(goal.optString("status") != "running") { "学习正在执行，完成后再改变意向" }

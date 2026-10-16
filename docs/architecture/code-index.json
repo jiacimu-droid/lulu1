@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T15:10:06.627396+00:00",
-  "commit": "2a337b82b7ff54daf2125667c266961b4d4cc994",
+  "generatedAt": "2026-10-16T17:04:15.137290+00:00",
+  "commit": "a738844d2a1ccec365f9a02e4c3c08b94340c6cd",
   "branch": "main",
-  "sourceFingerprint": "079dd2d19c657d5a1057a25d530355c348c2d17b1bd9981634e36134370c4757",
+  "sourceFingerprint": "6bfb7fc8a2a8ed441fbab1690b95ef8d6739f123a076687efc13ebec034d9a58",
   "summary": {
-    "files": 683,
-    "lines": 132869,
-    "symbols": 2003
+    "files": 684,
+    "lines": 133135,
+    "symbols": 2005
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2457,7 +2457,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 393
+        "line": 397
       }
     ],
     "wordsToSubmitOnMute": [
@@ -2623,13 +2623,13 @@
     "meetingSegment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 108
+        "line": 119
       }
     ],
     "slice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-        "line": 147
+        "line": 158
       }
     ],
     "automaticAllowed": [
@@ -3773,7 +3773,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 321
+        "line": 325
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4090,10 +4090,16 @@
         "line": 180
       }
     ],
+    "isMaterialEvidence": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
+        "line": 58
+      }
+    ],
     "matchingActionFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 464
+        "line": 468
       }
     ],
     "register": [
@@ -5995,7 +6001,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 515
+        "line": 540
       }
     ],
     "retryAt": [
@@ -6017,7 +6023,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 235
+        "line": 267
       }
     ],
     "stale": [
@@ -6371,19 +6377,19 @@
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 287
+        "line": 290
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 306
+        "line": 309
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 339
+        "line": 342
       }
     ],
     "MeetingProseLength": [
@@ -7273,7 +7279,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1729
+        "line": 1727
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -7889,103 +7895,103 @@
     "url": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 38
+        "line": 39
       }
     ],
     "attachBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 85
+        "line": 98
       }
     ],
     "detachBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 89
+        "line": 108
       }
     ],
     "parkBrowser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 97
+        "line": 118
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 100
+        "line": 121
       }
     ],
     "lastDiagnosticSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 181
+        "line": 203
       }
     ],
     "lastDiagnostic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 183
+        "line": 205
       }
     ],
     "recordToolStage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 193
+        "line": 215
       }
     ],
     "requestVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 209
+        "line": 231
       }
     ],
     "visibleReadTestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 212
+        "line": 234
       }
     ],
     "consumeVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 214
+        "line": 236
       }
     ],
     "mcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 219
+        "line": 241
       }
     ],
     "setMcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 222
+        "line": 244
       }
     ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 224
+        "line": 246
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 225
+        "line": 247
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 227
+        "line": 249
       }
     ],
     "pause": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 228
+        "line": 253
       }
     ],
     "parseDirect": [
@@ -11112,6 +11118,12 @@
         "line": 14
       }
     ],
+    "XhsAutonomousReadingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt",
+        "line": 36
+      }
+    ],
     "XhsBrowserSessionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt",
@@ -11229,7 +11241,7 @@
     "XHR": [
       {
         "path": "scripts/test_xhs_reader.js",
-        "line": 443
+        "line": 475
       }
     ]
   },
@@ -11272,8 +11284,8 @@
     },
     {
       "path": "app/src/main/assets/xhs-reader.js",
-      "lines": 372,
-      "sha256": "4d47c770987d1cad3ab4389bd6348a28ecd11897573d6ba7647923d1db68e0f5",
+      "lines": 389,
+      "sha256": "ef05e56e74f51a8ea4b6625556eee8928c069d177069d41518c53be1b48b9674",
       "symbols": []
     },
     {
@@ -13599,8 +13611,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt",
-      "lines": 171,
-      "sha256": "d4e8a28dfe182f963c2bd70339676f838bc20121e6a8b47954cc7c333b6427fa",
+      "lines": 182,
+      "sha256": "4e08086de9cc77690b807768654e62a872ab549997fd82c0002945623a4c4a7c",
       "symbols": [
         {
           "name": "plain",
@@ -13628,11 +13640,11 @@
         },
         {
           "name": "meetingSegment",
-          "line": 108
+          "line": 119
         },
         {
           "name": "slice",
-          "line": 147
+          "line": 158
         }
       ]
     },
@@ -14118,8 +14130,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt",
-      "lines": 244,
-      "sha256": "b5de8c87b7f15934d104fad2d7f66289863e920a0cd579033bb602193f781c01",
+      "lines": 247,
+      "sha256": "4de6164124a177774e4f08eed6a8d619f2ecc156c4c21e0e2863f6317afa9571",
       "symbols": [
         {
           "name": "capabilityContext",
@@ -14783,20 +14795,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 518,
-      "sha256": "fa9d7c88ce2123510d60978af75690b2cb9218415673bf95a82a79e00739f870",
+      "lines": 522,
+      "sha256": "4ce785e8f01d630b06030e60687d24e17d3552e05f31361e659f521ec9598218",
       "symbols": [
         {
+          "name": "isMaterialEvidence",
+          "line": 58
+        },
+        {
           "name": "invalidateEvidence",
-          "line": 321
+          "line": 325
         },
         {
           "name": "score",
-          "line": 393
+          "line": 397
         },
         {
           "name": "matchingActionFeedback",
-          "line": 464
+          "line": 468
         }
       ]
     },
@@ -15772,7 +15788,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 714,
-      "sha256": "72c8afd47f82253812ac236ff605d8b8f7a2aaa37ea178f95f695765f1c35759",
+      "sha256": "e85a61d4010bf9fa644173a93659bb68abbd5c3375ea19bfee0773d8c7496bcb",
       "symbols": [
         {
           "name": "asJson",
@@ -17281,8 +17297,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 470,
-      "sha256": "6dc435b78b25438abda5205a0b32f60d3c83b7498fa9d0b986704cce2438b191",
+      "lines": 473,
+      "sha256": "a38e943d571f8d5479c49b0e2e66185e91a896f5cb56a48fab85bbe70e3120c4",
       "symbols": [
         {
           "name": "configured",
@@ -17306,15 +17322,15 @@
         },
         {
           "name": "XhsLoginQr",
-          "line": 287
+          "line": 290
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 306
+          "line": 309
         },
         {
           "name": "healthContext",
-          "line": 339
+          "line": 342
         }
       ]
     },
@@ -18281,8 +18297,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1785,
-      "sha256": "37f15c34898085095bacf9842bd2f74dae7895b55c045807c9ec2b4d2359a9c1",
+      "lines": 1783,
+      "sha256": "4d0e0373e0c61d2899e8b2863e4379f17755882ca40e300bbab004b7c7ae11d1",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -18306,7 +18322,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1729
+          "line": 1727
         }
       ]
     },
@@ -19068,84 +19084,84 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 767,
-      "sha256": "12ea58a9eb0cfddb11fba099c66813b5b31753555aa6cd1d0e7afcf571070b14",
+      "lines": 793,
+      "sha256": "eb97defa8a0d26df00d268cb245df2e64589fed57185ac700ae3d3d4076803e8",
       "symbols": [
         {
           "name": "url",
-          "line": 38
+          "line": 39
         },
         {
           "name": "attachBrowser",
-          "line": 85
+          "line": 98
         },
         {
           "name": "detachBrowser",
-          "line": 89
+          "line": 108
         },
         {
           "name": "parkBrowser",
-          "line": 97
+          "line": 118
         },
         {
           "name": "controls",
-          "line": 100
+          "line": 121
         },
         {
           "name": "lastDiagnosticSummary",
-          "line": 181
+          "line": 203
         },
         {
           "name": "lastDiagnostic",
-          "line": 183
+          "line": 205
         },
         {
           "name": "recordToolStage",
-          "line": 193
+          "line": 215
         },
         {
           "name": "requestVisibleReadTest",
-          "line": 209
+          "line": 231
         },
         {
           "name": "visibleReadTestPending",
-          "line": 212
+          "line": 234
         },
         {
           "name": "consumeVisibleReadTest",
-          "line": 214
+          "line": 236
         },
         {
           "name": "mcpFallbackEnabled",
-          "line": 219
+          "line": 241
         },
         {
           "name": "setMcpFallbackEnabled",
-          "line": 222
+          "line": 244
         },
         {
           "name": "localEnabled",
-          "line": 224
+          "line": 246
         },
         {
           "name": "setLocalEnabled",
-          "line": 225
+          "line": 247
         },
         {
           "name": "resume",
-          "line": 227
+          "line": 249
         },
         {
           "name": "pause",
-          "line": 228
+          "line": 253
         },
         {
           "name": "available",
-          "line": 235
+          "line": 267
         },
         {
           "name": "stage",
-          "line": 515
+          "line": 540
         }
       ]
     },
@@ -22216,8 +22232,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt",
-      "lines": 139,
-      "sha256": "c76bb955a1fe03f1fb3e0c77cd1895b32e67e5e99510ea934c26ec05c083bc72",
+      "lines": 142,
+      "sha256": "615ad315af96ef0ada7ea3f30cf6c11e7c7c5fe0ef13caddeb407c1eece98f5d",
       "symbols": [
         {
           "name": "VoicePerformanceTest",
@@ -22352,8 +22368,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
-      "lines": 221,
-      "sha256": "382bce4d888db5372102da72f428ba20683a1643cc3b620cd60f85259244c3d5",
+      "lines": 250,
+      "sha256": "1b7b02782a884d904e8a2b71fd21ce142249820ade8f13c83a64a2b5e4c9c1dc",
       "symbols": [
         {
           "name": "AutonomousLearningRuntimeTest",
@@ -23626,6 +23642,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt",
+      "lines": 140,
+      "sha256": "0280529774985e28e4b364ead938b6c4cc98de34b99df418c0af71403c3374e2",
+      "symbols": [
+        {
+          "name": "XhsAutonomousReadingTest",
+          "line": 36
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt",
       "lines": 267,
       "sha256": "a6c0e5bf147f571b3e8380c2baa094ae52d11bef3da0a90a3e1377c6f0009da5",
@@ -23851,12 +23878,12 @@
     },
     {
       "path": "scripts/test_xhs_reader.js",
-      "lines": 479,
-      "sha256": "7c7344019d00aa473fa36d2c4acf440d2fd8954bee94314528095ac887f9c378",
+      "lines": 511,
+      "sha256": "1677e8c81a971763401b552ab8e2cb034a336f155212f394d7f0a8ccb0d059b5",
       "symbols": [
         {
           "name": "XHR",
-          "line": 443
+          "line": 475
         }
       ]
     },

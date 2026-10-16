@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.app.Activity
 import android.content.Context
 import android.net.Uri
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -36,7 +37,9 @@ internal data class XhsCard(
     val sharedUrl: String = "",
 ) {
     fun url(): String = sharedUrl.ifBlank { Uri.Builder().scheme("https").authority("www.xiaohongshu.com")
-        .appendPath("explore").appendPath(id).appendQueryParameter("xsec_token", token)
+        .appendPath("explore").appendPath(id).apply {
+            if (token.isNotBlank()) appendQueryParameter("xsec_token", token)
+        }
         .appendQueryParameter("xsec_source", source).build().toString() }
 }
 
@@ -57,8 +60,18 @@ internal data class XhsArticle(
 internal object XhsReadingEngine {
     @Volatile private var owner: WeakReference<Activity>? = null
     private val navigation = Mutex()
-    private var visibleBrowser: WeakReference<WebView>? = null
+    @Volatile private var visibleBrowser: WeakReference<WebView>? = null
+    @Volatile private var foregroundReady = false
+    @Volatile private var browserAttached = false
     private var controlledBrowser: WebView? = null
+    private val attachmentListener = object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(view: View) {
+            if (visibleBrowser?.get() === view) browserAttached = true
+        }
+        override fun onViewDetachedFromWindow(view: View) {
+            if (visibleBrowser?.get() === view) browserAttached = false
+        }
+    }
     // Cache belongs to the ACTUAL WebView session, not just Android cookies.
     // Nothing here is persisted: detail tokens and article text are discarded
     // on browser replacement and cannot leak across account switches.
@@ -83,23 +96,32 @@ internal object XhsReadingEngine {
         while (map.size > limit) map.remove(map.keys.first())
     }
     fun attachBrowser(view: WebView) {
-        if (visibleBrowser?.get() !== view) resetSession()
+        if (visibleBrowser?.get() !== view) {
+            visibleBrowser?.get()?.removeOnAttachStateChangeListener(attachmentListener)
+            resetSession()
+        }
         visibleBrowser = WeakReference(view)
+        view.removeOnAttachStateChangeListener(attachmentListener)
+        view.addOnAttachStateChangeListener(attachmentListener)
+        browserAttached = view.isAttachedToWindow
     }
     fun detachBrowser(view: WebView) {
         if (visibleBrowser?.get() === view) {
             visibleBrowser = null
+            browserAttached = false
+            view.removeOnAttachStateChangeListener(attachmentListener)
             resetSession()
         }
     }
-    /** A screen can temporarily park the Activity-owned WebView; keep verified
-     * cache, but attachedBrowser() must refuse requests until reattached. */
+    /** Parking retains the same session; attach/detach events publish whether
+     * the foreground slot can actually service a request. */
     fun parkBrowser(view: WebView) {
         if (visibleBrowser?.get() === view) controlledBrowser = null
     }
     fun controls(view: WebView?): Boolean = view != null && controlledBrowser === view
     /** A foreground, attached WebView is mandatory for native reading.
      * Do not synthesize a second invisible reader under another screen. */
+    @androidx.annotation.MainThread
     private fun attachedBrowser(): WebView? =
         visibleBrowser?.get()?.takeIf { it.isAttachedToWindow && !it.isDestroyedXhs() }
     private fun WebView.isDestroyedXhs(): Boolean =
@@ -224,17 +246,26 @@ internal object XhsReadingEngine {
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
-    fun resume(activity: Activity) { owner = WeakReference(activity) }
+    fun resume(activity: Activity) {
+        owner = WeakReference(activity)
+        foregroundReady = !activity.isDestroyed && !activity.isFinishing
+    }
     fun pause(activity: Activity) {
         if (owner?.get() === activity) {
+            foregroundReady = false
             owner = null
             // Do not destroy an Activity-owned browser. Its screen owns
             // attachment and disposal; stop advertising offline reading.
         }
     }
-    fun available(context: Context): Boolean =
-        (localEnabled(context) && owner?.get()?.let { !it.isDestroyed && !it.isFinishing } == true &&
-            attachedBrowser() != null) ||
+    // Decision and tool calls run on IO/Default. Never inspect WebView settings
+    // there: Android's thread check used to be swallowed as "browser destroyed",
+    // hiding a perfectly usable session from the character. The UI publishes
+    // readiness; loadPage revalidates the actual view on Main before navigation.
+    private fun localAvailable(context: Context): Boolean = localEnabled(context) &&
+        foregroundReady && browserAttached && owner?.get() != null && visibleBrowser?.get() != null
+
+    fun available(context: Context): Boolean = localAvailable(context) ||
             (mcpFallbackEnabled(context) && LuluExternalMcp.configured(context, "xiaohongshu"))
 
     /**
@@ -245,9 +276,7 @@ internal object XhsReadingEngine {
     suspend fun list(context: Context, keyword: String, onProgress: (String) -> Unit = {},
                      localOnly: Boolean = false, forceRefresh: Boolean = false): List<XhsCard> {
         val query = keyword.trim().take(64)
-        val canUseLocal = localEnabled(context) &&
-            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
-            attachedBrowser() != null
+        val canUseLocal = localAvailable(context)
         // A saved 127.0.0.1 address does NOT mean Termux is running.
         // Native reading is primary; optional MCP fallback is explicit and
         // OFF by default so a dead localhost server cannot double the wait.
@@ -346,9 +375,7 @@ internal object XhsReadingEngine {
      * user-shared note, instead of searching for a similarly titled stranger's post. */
     internal suspend fun cardForSharedLink(context: Context, rawUrl: String): XhsCard {
         val link = XhsSharedLinkResolver.resolve(rawUrl)
-        val canReadLocally = localEnabled(context) &&
-            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
-            attachedBrowser() != null
+        val canReadLocally = localAvailable(context)
         val canReadViaMcp = mcpFallbackEnabled(context) &&
             LuluExternalMcp.configured(context, "xiaohongshu")
         require(canReadLocally || (canReadViaMcp && link.token.isNotBlank())) {
@@ -369,9 +396,7 @@ internal object XhsReadingEngine {
         if (localOnly) require(target.provider == "webview") {
             "该笔记并非来自内置浏览器，不能算内置浏览器测试成功"
         }
-        if (!forceRefresh && target.provider == "webview" &&
-            owner?.get()?.let { !it.isFinishing && !it.isDestroyed } == true &&
-            attachedBrowser() != null) {
+        if (!forceRefresh && target.provider == "webview" && localAvailable(context)) {
             cachedNote(target)?.let {
                 onProgress("复用当前会话已经验证的笔记正文")
                 return it
@@ -498,7 +523,7 @@ internal object XhsReadingEngine {
         var latestReport = JSONObject()
         try {
             // The deadline also covers waiting for another reading to release the session.
-            withTimeout(if (kind == "search") 25_000L else 35_000L) {
+            withTimeout(if (kind == "search") 40_000L else 35_000L) {
                 navigation.withLock {
                     val activity = owner?.get()?.takeIf { !it.isFinishing && !it.isDestroyed }
                         ?: error("本机阅读需露露机保持前台")
@@ -654,6 +679,7 @@ internal object XhsReadingEngine {
                             // wait, never fire two navigations simultaneously.
                             if (kind == "search" && siteSearchStarted &&
                                 !attemptedDirectFallback &&
+                                latestReport.optJSONObject("search")?.optBoolean("requestObserved") != true &&
                                 System.currentTimeMillis() - navigationStartedAt >= 8_000L &&
                                 Uri.parse(view.url.orEmpty()).path in setOf("/", "/explore") &&
                                 (root.optJSONArray("items")?.length() ?: 0) == 0 &&

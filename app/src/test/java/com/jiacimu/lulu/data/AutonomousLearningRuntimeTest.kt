@@ -217,4 +217,33 @@ class AutonomousLearningRuntimeTest {
         assertTrue(CharacterLearningAgenda.prompt(role, now.plusSeconds(602)).contains("上次学习中断"))
         assertEquals("", CharacterLearningLedger.context(role, "幽默"))
     }
+
+    @Test fun anActualXhsReadingCanJoinTheSameLearningGoalWithoutSearchingAgain() = runBlocking {
+        val id = goal().getString("id")
+        val source = "xhs-read-for-learning"
+        SharedExperienceTimeline.record(source, role, "小红书阅读", "外部平台",
+            JSONObject().put("title", "短铺垫与反转")
+                .put("url", "https://www.xiaohongshu.com/explore/1234567890abcdef12345678")
+                .put("text", "作者以一个简短铺垫和一个意外结尾讲解表达方法。")
+                .put("discoveryMode", "search").toString(), now,
+            source = "xiaohongshu-webview", triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.Observation)
+        val attached = AutonomousLearningRuntime.execute(context, role,
+            args(id, "attach").put("sourceEvidenceId", source),
+            materialLoader = { _, _ -> error("已有小红书原文不能再次下载") },
+            understand = { _, _ -> error("关联材料时不额外调用模型") })
+        assertTrue(attached.summary, attached.success)
+        assertEquals("research", CharacterLearningAgenda.get(role, id)!!.optString("status"))
+        assertFalse(CharacterLearningLedger.hasInsight(role, source))
+        val result = AutonomousLearningRuntime.execute(context, role, args(id, "understand"),
+            materialLoader = { _, _ -> error("已有小红书原文不能再次下载") },
+            understand = { facts, _ -> assertTrue(facts.contains("简短铺垫")); note })
+        assertTrue(result.summary, result.success)
+        assertEquals(source, result.evidenceId)
+        assertTrue(CharacterLearningLedger.hasInsight(role, source))
+        assertEquals("practice", CharacterLearningAgenda.get(role, id)!!.optString("status"))
+        SharedExperienceTimeline.deleteEvent(source)
+        assertFalse(CharacterLearningLedger.hasInsight(role, source))
+        assertTrue(CharacterLearningAgenda.get(role, id)!!.optString("materialId").isBlank())
+    }
 }

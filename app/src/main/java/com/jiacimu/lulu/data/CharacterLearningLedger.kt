@@ -54,6 +54,10 @@ internal object CharacterLearningLedger {
             payload.optString("text").length >= 120 && payload.optString("url").startsWith("https://")
     }
 
+    /** Same evidence rules for attaching already-read material and later recall. */
+    fun isMaterialEvidence(characterId: String, evidenceId: String): Boolean =
+        source(characterId, evidenceId)?.let { materialSource(characterId, it) } == true
+
     private fun valid(
         characterId: String, item: JSONObject, all: List<JSONObject> = records(characterId),
         visited: Set<String> = emptySet(),

@@ -439,6 +439,38 @@ test('programmatic search uses the real input and button without a forged API re
   assert.equal(b.sandbox.__luluXhsReader.pendingSearch('记者'), true);
 });
 
+test('character search presses Enter rather than a magnifier that only focuses the input', () => {
+  const b = browser(); const events = [];
+  let searches = 0, clicks = 0, formSubmits = 0;
+  b.sandbox.Event = class {constructor(type, options) {this.type = type; Object.assign(this, options);}};
+  b.sandbox.KeyboardEvent = b.sandbox.Event;
+  const input = {value: '', blur() {}, form: {requestSubmit() {formSubmits++;}},
+    dispatchEvent(event) {
+      events.push(event.type);
+      if (event.type === 'keydown' && event.key === 'Enter' && input.value === '记者') searches++;
+    }};
+  b.sandbox.document.querySelector = selector => selector.includes('#search-input') ? input : {click() {clicks++;}};
+  assert.equal(b.sandbox.__luluXhsReader.startSearch('记者'), 'submitted');
+  assert.equal(searches, 1);
+  assert.equal(clicks, 0); assert.equal(formSubmits, 0);
+  assert.deepEqual(events, ['input', 'change', 'keydown', 'keyup']);
+  // Submitting an input is not evidence that a network request was made.
+  assert.equal(b.snapshot('search', '', '记者').diagnostics.search.requestObserved, false);
+});
+
+test('a pending real search request is distinguished from merely setting a keyword', () => {
+  const b = xhrFixture();
+  b.sandbox.__luluXhsReader.beginSearch('cat');
+  assert.equal(b.snapshot('search', '', 'cat').diagnostics.search.requestObserved, false);
+  b.request('cat');
+  const state = b.snapshot('search', '', 'cat').diagnostics.search;
+  assert.equal(state.requestObserved, true);
+  assert.equal(state.responseMatched, false);
+  b.sandbox.__luluXhsReader.beginSearch('dog');
+  b.request('cat');
+  assert.equal(b.snapshot('search', '', 'dog').diagnostics.search.requestObserved, false);
+});
+
 function xhrFixture() {
   class XHR {
     constructor() {this.listeners = {}; this.responseType = 'json'; this.status = 200;}

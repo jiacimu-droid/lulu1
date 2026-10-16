@@ -69,9 +69,9 @@ internal object CompanionActionRuntime {
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine(CharacterSocialActionOpportunities.prompt(characterId))
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
-        if (XhsReadingEngine.available(context) &&
-            CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
+        if (CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
             appendLine("- read_xiaohongshu：读用户分享的指定笔记时传 args={\"url\":\"聊天里实际分享的官方链接\"}；自己寻找资料时才传 args={\"keyword\":\"自己好奇的具体主题，可留空看推荐\"}。不能把关键词搜索到的另一篇当成用户分享的原帖；要真实打开正文并取得回执后才声称已读。可以形成独立兴趣与感想；是否分享给用户/朋友圈须另选真实发送动作。博主经历不是自己的经历。")
+            appendLine("  当前可复用阅读会话=${XhsReadingEngine.available(context)}；这是本轮运行条件，不是有无搜索能力。只有真实回执证明搜到、读到或形成理解；会话不可用时保留兴趣，不反复盲目重试。已有学习目标可用 learn_topic 的 attach 关联阅读回执 evidenceId，复用原文与理解。")
         }
         if (LuluExternalMcp.configured(context, "health") &&
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {

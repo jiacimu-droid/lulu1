@@ -97,3 +97,11 @@
 - 第三方代码能否迁入，由对应许可证决定，不由 README 的措辞决定。
 - 无法确认来源时，宁可重新实现，也不模糊处理。
 - 每次迁移前先读取源仓库当前默认分支的最新提交；历史代码只能作为历史资料，不得覆盖当前产品规则。
+
+## 2026-10-17：小红书自主搜索与哄睡气声
+
+- 目标路径：`XhsReadingEngine.kt`、`xhs-reader.js`、`LuluExternalMcp.kt`、自主学习衔接及 `VoicePerformance.kt`。
+- 标签：REWRITE；依据本仓现有实现及用户明确需求独立修订，未复制外部实现或引入第三方依赖。
+- 研究参考：xpzouying/xiaohongshu-mcp 当前 `xiaohongshu/search.go` 的真实网页搜索/状态读取；imoonkey/openweb 的 `src/sites/xiaohongshu/DOC.md` 搜索→详情流程；Android `WebView.getSettings()` 的 UI 线程校验；ElevenLabs 官方音频标签文档的 `[whispers]`。
+- 链接：https://github.com/xpzouying/xiaohongshu-mcp/blob/main/xiaohongshu/search.go 、https://github.com/imoonkey/openweb/blob/main/src/sites/xiaohongshu/DOC.md 、https://github.com/aosp-mirror/platform_frameworks_base/blob/main/core/java/android/webkit/WebView.java 、https://elevenlabs.io/docs/help-center/product/core-capabilities/text-to-speech/how-do-audio-tags-work-with-eleven-v3-and-v4 。
+- 验证边界：网页夹具、线程约束的 Android 工具整链路回归和 APK 构建分别验证；不以模拟页面通过冒充用户手机登录会话的实网验证，也不承诺操作系统后台持续渲染网页。
