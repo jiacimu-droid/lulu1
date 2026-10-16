@@ -229,11 +229,12 @@ object DigitalWorldStore {
         args: JSONObject,
         now: Instant = Instant.now(),
     ): DigitalWorldActionResult = runCatching {
+        val normalizedAction = normalizeWorldAction(action)
         require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命能在后台自主建设和游览数字世界" }
         val character = MigratedDomainStores.characters.get(characterId)
         ensureHome(characterId, character.displayName, now)
         val summary = synchronized(lock) {
-            when (action.trim().lowercase()) {
+            when (normalizedAction) {
                 "go_home" -> {
                     setLocationLocked(characterId, homeLocation(characterId))
                     "${character.displayName}回到了自己的空中家园。"
@@ -349,12 +350,12 @@ object DigitalWorldStore {
                 else -> error("未知数字世界动作：$action")
             }
         }
-        if (action !in setOf("use_home_item", "use_location")) DigitalWorldActivityStateStore.endActivity(characterId)
+        if (normalizedAction !in setOf("use_home_item", "use_location")) DigitalWorldActivityStateStore.endActivity(characterId)
         synchronized(lock) {
-            appendEventLocked(characterId, action, summary, now)
+            appendEventLocked(characterId, normalizedAction, summary, now)
             persistLocked()
         }
-        val evidenceId = if (action == "handle_incident")
+        val evidenceId = if (normalizedAction == "handle_incident")
             "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}"
         else "world-fact-${UUID.randomUUID()}"
         SharedExperienceTimeline.record(
@@ -368,7 +369,7 @@ object DigitalWorldStore {
             // does not independently trigger another paid memory/reaction pass.
             // Meaningful incidents, furniture changes and concrete discoveries
             // retain the existing evidence-driven follow-through.
-            triggerExtraction = action.trim().lowercase() !in setOf(
+            triggerExtraction = normalizedAction !in setOf(
                 "visit_public_place", "visit_cloud_meadow", "go_home",
                 "use_location", "use_home_item",
             ),

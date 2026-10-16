@@ -33,14 +33,16 @@ internal object MemoryWorkingSet {
             }
             context.memories.forEach { memory ->
                 add(MemoryPromptCandidate("memory:${memory.id}", SUMMARY,
-                    "- [${memory.occurredAt ?: memory.createdAt}] memoryId=${memory.id} ${memory.content}",
-                    650, payload = memory.content, sources = memory.sourceIds().toSet(), derivedSummary = true))
+                    "- [${memory.occurredAt ?: memory.createdAt}] [${memory.kind}] memoryId=${memory.id} ${memory.content}" +
+                        if (memory.kind == com.jiacimu.lulu.core.MemoryKind.Emotion) "（当时的情绪印象，不代表此刻状态）" else "",
+                    650, payload = memory.content, sources = memory.sourceIds().toSet(),
+                    derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
             }
-            lexicon.forEach { entry ->
+            lexicon.forEachIndexed { index, entry ->
                 val subjective = entry.section in setOf(LexiconSection.Concern, LexiconSection.Diary, LexiconSection.Favorite)
                 add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
                     "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}",
-                    if (entry.section == LexiconSection.Concern) 730 else 620,
+                    740 - index.coerceAtMost(80),
                     payload = entry.content, sources = entry.sourceEventIds.toSet(), derivedSummary = !subjective))
             }
         }

@@ -343,7 +343,7 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已发起真实来电", conversation.id)
             }
             "digital_world_action" -> {
-                val worldAction = args.optString("worldAction").trim().lowercase()
+                val worldAction = normalizeWorldAction(args.optString("worldAction"))
                 if (worldAction == "visit_public_place" && args.optString("locationCode").isBlank()) {
                     args.put("locationCode", args.optString("location").trim())
                 }

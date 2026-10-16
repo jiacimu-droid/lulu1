@@ -11,19 +11,26 @@ object LexiconMemoryContext {
         val entries = LuluRepositories.lexicon.snapshot(characterId)
             .filter { lexiconHasLiveSources(it) }
             .filterNot { it.id in taskEntries }
-        val active = entries.filter { it.status == LexiconStatus.Active && it.section in setOf(LexiconSection.Promise, LexiconSection.Concern, LexiconSection.Life) }
-        // Live concerns and responsibilities have their own channel; diaries cannot evict them.
         val terms = memorySearchTerms(RelevantMemoryRecall.focusQuery(query))
-        var remaining = 7_000
-        val related = entries.filterNot { it in active }.map { entry ->
+        val ranked = entries.map { entry ->
             entry to terms.intersect(memorySearchTerms("${entry.title} ${entry.content}")).size
-        }.filter { it.second >= 2 }
-            .sortedWith(compareByDescending<Pair<LexiconEntry, Int>> { it.second }.thenByDescending { it.first.updatedAt })
+        }.sortedWith(compareByDescending<Pair<LexiconEntry, Int>> { it.second }.thenByDescending { it.first.updatedAt })
+        val active = ranked.filter { it.first.status == LexiconStatus.Active &&
+            it.first.section in setOf(LexiconSection.Promise, LexiconSection.Concern, LexiconSection.Life) }.map { it.first }
+        // Live concerns and responsibilities have their own channel; diaries cannot evict them.
+        var remaining = 7_000
+        val related = ranked.filter { it.first !in active && it.second >= 2 }
             .map { it.first }.filter { entry ->
                 val cost = entry.title.length + entry.content.length + 60
                 if (cost <= remaining) { remaining -= cost; true } else false
             }.take(96)
-        return active + related
+        return buildList {
+            active.firstOrNull()?.let(::add)
+            for (index in 0 until maxOf(active.size - 1, related.size).coerceAtLeast(0)) {
+                related.getOrNull(index)?.let(::add)
+                active.getOrNull(index + 1)?.let(::add)
+            }
+        }
     }
 }
 

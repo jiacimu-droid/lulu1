@@ -96,7 +96,12 @@ object UnifiedMemoryOrchestrator {
     ): UnifiedMemoryContext {
         if (characterId.isBlank()) return empty()
         val recentEvents = if (localOnly) emptyList() else LuluRepositories.memory.contextTimelineEvents(characterId)
-        val recentIds = recentEvents.mapTo(mutableSetOf(), SharedTimelineEvent::id)
+        val seenInChat = request.recentContext.replace(Regex("\\s+"), " ")
+        val promptRecentEvents = recentEvents.filterNot { event ->
+            val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
+            text.length >= 36 && seenInChat.contains(text)
+        }
+        val seenIds = (recentEvents - promptRecentEvents.toSet()).mapTo(mutableSetOf()) { it.id }
         val query = request.retrievalQuery()
         val core = CoreMemoryDelivery.active(characterId)
         val coreIds = core.mapTo(mutableSetOf(), MemoryEntry::id)
@@ -106,7 +111,7 @@ object UnifiedMemoryOrchestrator {
             .filter { memory -> memoryHasLiveSources(memory, characterId) }
         val memories = selectMemoryWithinBudget(recalled.filterNot { it.id in coreIds }.filter { memory ->
             val sourceIds = memory.sourceEventIds()
-            sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in recentIds }
+            sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in seenIds }
         }, characterBudget = memoryCharacterBudget.coerceAtLeast(0), safetyLimit = recallLimit)
         val directSourceEvents = (RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
@@ -114,27 +119,23 @@ object UnifiedMemoryOrchestrator {
             memories = memories,
             limit = evidenceLimit,
         ) + RawTimelineMemoryRecall.find(characterId, query, limit = 16))
-            .distinctBy(SharedTimelineEvent::id).filterNot { event -> event.id in recentIds }
+            .distinctBy(SharedTimelineEvent::id).filterNot { event -> event.id in seenIds }
         val liveEvents = SharedExperienceTimeline.all(characterId).filter { LuluRepositories.memory.allowsRawRecall(it) }
         val sourceEvents = MemoryEvidenceSelection.expand(directSourceEvents, liveEvents, evidenceLimit)
-            .filterNot { it.id in recentIds }
+            .filterNot { it.id in seenIds }
         val activeTasks = if (localOnly) "" else renderActiveCommitmentTasks(characterId)
         val retained = memories.mapTo(mutableSetOf(), MemoryEntry::id)
         val eligibleIds = recalled.mapTo(mutableSetOf(), MemoryEntry::id)
         val omissions = recall.excluded + recall.candidates.filterNot { it.id in retained }.associate { memory -> memory.id to when {
             memory.id !in eligibleIds -> "来源无效/召回名额上限"
-            memory.sourceIds().isNotEmpty() && memory.sourceIds().all { it in recentIds } -> "原话已在近期窗口，不重复注入摘要"
+            memory.id in coreIds -> "已在独立核心通道"
+            memory.sourceIds().isNotEmpty() && memory.sourceIds().all { it in seenIds } -> "原话已在本轮聊天素材，不重复注入摘要"
             else -> "摘要字数预算"
         } }
         val inspectionId = MemoryInspectionStore.recordRecall(characterId, query, memories, sourceEvents,
             recall.candidates, recall.reasons, omissions, recall.notes)
         // The chat window already contains these exact words. Preserve the originals
         // in the authoritative timeline; only remove this duplicate prompt copy.
-        val seenInChat = request.recentContext
-        val promptRecentEvents = recentEvents.filterNot { event ->
-            val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
-            text.length >= 36 && seenInChat.contains(text.take(65))
-        }
         return UnifiedMemoryContext(
             memories = memories,
             coreMemories = core,
@@ -169,7 +170,7 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
     val tasks = CommitmentTaskStore.active(characterId)
     return buildString {
         appendLine("【责任连续性规则｜持久化任务优先于随口生成】")
-        appendLine("- 如果你准备接受叫醒、提醒、监督或其他未来责任，但用户没有说清多久、几点、日期或必要完成条件，必须先自然追问缺失信息；不能替用户猜一个时间再答应。")
+        appendLine("- 定时责任缺少必要时间时自然问清，不能猜测；持续关心、监督等责任可以没有固定时刻，不强行要求用户设置闹钟。")
         appendLine("- 已经接受的责任不能因为换页面、聊天变多或普通后台感知而失效；任务完成只能依据程序执行结果和用户明确反馈。没有回复只代表尚未确认。")
         if (tasks.isEmpty()) {
             append("当前没有未完成责任。")

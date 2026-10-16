@@ -4,6 +4,7 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
+import java.util.UUID
 
 data class MemoryExtractionJob(
     val id: String,
@@ -29,7 +30,8 @@ internal object MemoryExtractionJobStore {
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         jobs = decode(prefs?.getString(KEY_JOBS, null)).groupBy { it.characterId }.map { (characterId, old) ->
             val latest = old.maxBy { it.updatedAt }
-            latest.copy(id = "memory:$characterId", revision = old.sumOf { it.revision },
+            latest.copy(id = latest.id.takeIf { old.size == 1 && it.startsWith("memory:$characterId") }
+                ?: "memory:$characterId:${UUID.randomUUID()}", revision = old.sumOf { it.revision },
                 createdAt = old.minOf { it.createdAt })
         }
         persist()
@@ -44,7 +46,7 @@ internal object MemoryExtractionJobStore {
         val old = jobs.firstOrNull { it.characterId == characterId }
         val now = Instant.now()
         val job = MemoryExtractionJob(
-            id = "memory:$characterId",
+            id = old?.id ?: "memory:$characterId:${UUID.randomUUID()}",
             characterId = characterId,
             conversationId = conversationId,
             sourceReplyId = sourceReplyId,
@@ -61,9 +63,9 @@ internal object MemoryExtractionJobStore {
     }
 
     @Synchronized
-    fun failed(id: String, error: Throwable) {
+    fun failed(id: String, error: Throwable, revision: Long? = null) {
         jobs = jobs.map { job ->
-            if (job.id != id) job else job.copy(
+            if (job.id != id || (revision != null && revision != job.revision)) job else job.copy(
                 attempts = job.attempts + 1,
                 lastError = error.message.orEmpty().take(500),
                 updatedAt = Instant.now(),
@@ -78,11 +80,18 @@ internal object MemoryExtractionJobStore {
         persist()
     }
 
+    fun complete(expected: MemoryExtractionJob) = complete(expected.id, expected.revision)
+    fun failed(expected: MemoryExtractionJob, error: Throwable) = failed(expected.id, error, expected.revision)
+
     @Synchronized
     fun removeBySourceEvent(eventId: String) {
         if (eventId.isBlank()) return
-        // A coalesced job may contain changes from many sources. Removing the latest
-        // source must not discard other pending work; source validity is checked at commit.
+        val next = jobs.map { job ->
+            val matches = job.sourceReplyId == eventId || job.sourceReplyId.startsWith("$eventId:group:") ||
+                (job.sourceReplyId.isNotBlank() && eventId.startsWith("${job.sourceReplyId}:group:"))
+            if (matches) job.copy(sourceReplyId = "", revision = job.revision + 1) else job
+        }
+        if (next != jobs) { jobs = next; persist() }
     }
 
     @Synchronized

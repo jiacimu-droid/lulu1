@@ -82,6 +82,14 @@ object ToolRouter {
             execution.put("status", parsed.optString("status").ifBlank { if (parsed.optBoolean("success")) "succeeded" else "failed" })
                 .put("result", confirmedResult).put("finishedAt", Instant.now().toString())
             check(prefs.edit().putString(key, execution.toString()).commit())
+            if (!parsed.optBoolean("success")) {
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "角色行动",
+                    title = "${MigratedDomainStores.characters.get(characterId).displayName} · $name",
+                    message = "角色ID=$characterId；执行ID=$requestId\n" +
+                        parsed.optString("summary").ifBlank { parsed.optString("error").ifBlank { "执行器未确认成功" } },
+                )
+            }
             SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
             val outcome = parsed

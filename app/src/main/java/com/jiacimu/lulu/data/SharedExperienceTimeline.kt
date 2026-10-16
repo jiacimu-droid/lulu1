@@ -241,7 +241,9 @@ object SharedExperienceTimeline {
         query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
 
     fun eventsByIds(characterId: String, eventIds: Collection<String>): List<SharedTimelineEvent> {
-        val ids = eventIds.map(String::trim).filter(String::isNotBlank).distinct().take(120)
+        val ids = eventIds.map(String::trim).filter(String::isNotBlank).distinct()
+        if (ids.size > 120) return ids.chunked(120).flatMap { eventsByIds(characterId, it) }
+            .sortedBy(SharedTimelineEvent::occurredAt)
         val database = helper?.readableDatabase ?: return emptyList()
         if (characterId.isBlank() || ids.isEmpty()) return emptyList()
         val placeholders = ids.joinToString(",") { "?" }
@@ -274,6 +276,17 @@ object SharedExperienceTimeline {
                 }
             }
         }
+    }
+
+    /** Validate every event the model read, including contextual neighbours, and commit under the
+     * same monitor as edits/deletes. No network work is allowed inside this callback. */
+    @Synchronized
+    internal fun commitIfEvidenceUnchanged(characterId: String, expected: List<SharedTimelineEvent>, commit: () -> Unit): Boolean {
+        if (expected.isEmpty() || expected.any { it.characterId != characterId }) return false
+        val live = eventsByIds(characterId, expected.map { it.id }).associateBy { it.id }
+        if (expected.any { live[it.id] != it }) return false
+        commit()
+        return true
     }
 
     @Synchronized

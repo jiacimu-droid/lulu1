@@ -59,9 +59,10 @@ class MemoryLifecycleIntegrationTest {
         MemoryExtractionJobStore.removeBySourceEvent("second")
         MemoryTestEnvironment.release()
         MemoryExtractionJobStore.initialize(context)
-        assertEquals(second.revision, MemoryExtractionJobStore.pending().single().revision)
+        val refreshed = MemoryExtractionJobStore.pending().single()
+        assertTrue(refreshed.revision > second.revision)
         assertEquals(1, MemoryExtractionJobStore.pending().single().attempts)
-        MemoryExtractionJobStore.complete(second.id, second.revision)
+        MemoryExtractionJobStore.complete(refreshed)
         assertTrue(MemoryExtractionJobStore.pending().isEmpty())
     }
 
@@ -118,12 +119,13 @@ class MemoryLifecycleIntegrationTest {
             initialize(server)
             LuluRepositories.memory.updatePolicy("lifecycle", MemoryPolicy(0, 1))
             event("我住在成都")
-            val extraction = async(Dispatchers.IO) { LuluRepositories.memory.summarizeNow("lifecycle") }
+            val extraction = async(Dispatchers.IO) { runCatching { LuluRepositories.memory.summarizeNow("lifecycle") } }
             assertNotNull(server.takeRequest(5, TimeUnit.SECONDS))
             event("我住在杭州")
             release.countDown()
-            withTimeout(15_000) { extraction.await() }
+            assertTrue(withTimeout(15_000) { extraction.await() }.isFailure)
             assertTrue(LuluRepositories.memory.snapshot("lifecycle").isEmpty())
+            LuluRepositories.memory.summarizeNow("lifecycle") // Durable retry reads the new revision.
             assertEquals(2, server.requestCount)
         } finally { release.countDown(); server.shutdown() }
     }

@@ -143,7 +143,6 @@ class LocalMemoryRepository : MemoryRepository {
                 ((index - 5).coerceAtLeast(0)..(index + 3).coerceAtMost(events.lastIndex)).toList()
             }.toSet()
             val context = events.filterIndexed { index, _ -> index in contextIds }
-            val allowed = context.mapTo(mutableSetOf(), SharedTimelineEvent::id)
             val prior = currentUnderstandingCandidates(characterId, context.joinToString(" ") { it.content })
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -162,23 +161,22 @@ class LocalMemoryRepository : MemoryRepository {
                 source = "记忆", title = "重要信息即时记忆", maxTokens = 3_200,
                 contextMode = CompanionContextMode.Isolated, connectionOverride = extractionConnection(),
             ).getOrThrow()
-            val parsed = parseMemoryArray(result.text, characterId, allowed).filter { update ->
+            val parsed = parseMemoryArray(result.text, characterId, context).filter { update ->
                 update.memory.kind == MemoryKind.Fact && update.memory.sourceIds().any(targetIds::contains)
             }
-            synchronized(SharedExperienceTimeline) {
-                val liveIds = liveRevisionIds(characterId, context.associate { it.id to it.revision })
+            check(SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, context) {
                 mutate { current ->
                     if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
-                    val valid = parsed.map { it.memory }.filter { it.sourceIds().all(liveIds::contains) }.map { memory ->
+                    val valid = parsed.map { it.memory }.map { memory ->
                         memory.copy(sourceRevisions = context.filter { it.id in memory.sourceIds() }.associate { it.id to it.revision })
                     }
                     current.copy(entries = mergeExtractedEntries(current, valid),
                         immediateProcessedIds = current.immediateProcessedIds +
-                            (characterId to (current.immediateProcessedIds[characterId].orEmpty() + targetIds.intersect(liveIds))))
+                            (characterId to (current.immediateProcessedIds[characterId].orEmpty() + targetIds)))
                 }
-            }
+                applyUnderstandingUpdates(characterId, parsed, prior, context.associate { it.id to it.revision })
+            }) { "原始上下文已改变，重要信息保留等待重新理解" }
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
-            applyUnderstandingUpdates(characterId, parsed, prior, context.associate { it.id to it.revision })
             maintain(characterId, silent = true)
         }
     }
@@ -283,7 +281,7 @@ class LocalMemoryRepository : MemoryRepository {
             }
 
             val reply = result.getOrThrow()
-            val parsed = runCatching { parseMemoryArray(reply.text, characterId, batchIds) }
+            val parsed = runCatching { parseMemoryArray(reply.text, characterId, batchEvents) }
             if (parsed.isFailure) {
                 val error = parsed.exceptionOrNull()
                 refreshDebug(
@@ -299,10 +297,9 @@ class LocalMemoryRepository : MemoryRepository {
                 throw IllegalStateException("模型记忆格式无效，批次保留等待重试", error)
             }
 
-            var liveBatchIds: Set<String> = emptySet()
+            val liveBatchIds = batchEvents.mapTo(mutableSetOf()) { it.id }
             var added = 0
-            synchronized(SharedExperienceTimeline) {
-                liveBatchIds = liveRevisionIds(characterId, expectedRevisions)
+            check(SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, batchEvents) {
                 mutate { current ->
                     if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
                     val valid = parsed.getOrThrow().map { it.memory }.filter { entry -> entry.sourceIds().all(liveBatchIds::contains) }
@@ -315,10 +312,10 @@ class LocalMemoryRepository : MemoryRepository {
                             (characterId to (current.processedMessageIds[characterId].orEmpty() + liveBatchIds)),
                     )
                 }
-            }
+                applyUnderstandingUpdates(characterId, parsed.getOrThrow(), prior, expectedRevisions)
+            }) { "原始上下文已改变，整批保留等待重新理解" }
 
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
-            applyUnderstandingUpdates(characterId, parsed.getOrThrow(), prior, expectedRevisions)
             processedThisRun += liveBatchIds.size
             extractedThisRun += added
             val freshReadable = readableMessages(characterId, policy, flushTail)
@@ -662,10 +659,9 @@ class LocalMemoryRepository : MemoryRepository {
             }
             .dropLast(if (flushTail) 0 else policy.excludedRecentMessages.coerceAtLeast(0))
 
-    private fun parseMemoryArray(raw: String, characterId: String, allowedSourceIds: Set<String>): List<ExtractedMemoryUpdate> {
+    private fun parseMemoryArray(raw: String, characterId: String, evidenceSnapshot: List<SharedTimelineEvent>): List<ExtractedMemoryUpdate> {
         val array = decodeMemoryResponseArray(raw)
-        val liveAllowedIds = SharedExperienceTimeline.eventsByIds(characterId, allowedSourceIds)
-            .mapTo(mutableSetOf(), SharedTimelineEvent::id)
+        val allowedSourceIds = evidenceSnapshot.mapTo(mutableSetOf()) { it.id }
         return buildList {
             for (index in 0 until array.length()) {
                 val item = requireNotNull(array.optJSONObject(index)) { "记忆数组包含非对象项" }
@@ -680,17 +676,12 @@ class LocalMemoryRepository : MemoryRepository {
                 val occurredAt = item.optString("occurredAt").trim()
                     .takeIf(String::isNotBlank)
                     ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() }
-                val sourceIds = buildList {
-                    val sourceArray = item.optJSONArray("sourceEventIds") ?: JSONArray()
-                    for (sourceIndex in 0 until sourceArray.length()) {
-                        sourceArray.optString(sourceIndex)
-                            .takeIf { it in allowedSourceIds && it in liveAllowedIds }
-                            ?.let(::add)
-                    }
-                }.distinct().take(6)
-                require(sourceIds.isNotEmpty() || liveAllowedIds.isEmpty()) { "记忆缺少有效来源事件，批次保留" }
-                if (sourceIds.isEmpty()) continue
-                val evidence = SharedExperienceTimeline.eventsByIds(characterId, sourceIds)
+                val sourceArray = item.optJSONArray("sourceEventIds") ?: error("记忆缺少来源事件，批次保留")
+                val sourceIds = (0 until sourceArray.length()).map { sourceArray.getString(it).trim() }.distinct()
+                require(sourceIds.isNotEmpty() && sourceIds.size <= 6 && sourceIds.all(allowedSourceIds::contains)) {
+                    "记忆包含不存在或跨批次来源，批次保留"
+                }
+                val evidence = evidenceSnapshot.filter { it.id in sourceIds }
                 val attributedContent = if (evidence.isNotEmpty() && evidence.all {
                     it.evidenceLabel.startsWith("主观表达") || it.evidenceLabel.startsWith("对话记录")
                 }) "[表达记录的摘要，非独立执行事实] $content" else content

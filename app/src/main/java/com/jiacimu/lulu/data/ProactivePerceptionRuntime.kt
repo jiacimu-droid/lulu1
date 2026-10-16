@@ -1583,7 +1583,7 @@ object ProactivePerceptionRuntime {
             groupId = json.optString("groupId").trim(),
             gameId = json.optString("gameId").trim(),
             readingBookId = json.optString("readingBookId").trim(),
-            worldAction = json.optString("worldAction").trim(),
+            worldAction = normalizeWorldAction(json.optString("worldAction")),
             itemId = json.optString("itemId").trim(),
             itemType = json.optString("itemType").trim(),
             itemName = json.optString("itemName").ifBlank { json.optString("name") }.trim(),

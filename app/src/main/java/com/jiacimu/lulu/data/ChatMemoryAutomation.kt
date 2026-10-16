@@ -63,7 +63,7 @@ object ChatMemoryAutomation {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                MemoryExtractionJobStore.failed(job.id, error)
+                MemoryExtractionJobStore.failed(job, error)
                 return
             }
         }
