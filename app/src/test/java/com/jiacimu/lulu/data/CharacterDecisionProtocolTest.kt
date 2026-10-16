@@ -125,6 +125,39 @@ class CharacterDecisionProtocolTest {
             delta = delta, hasFreshEvidence = true)
         assertTrue(quick.length <= 141)
     }
+    @Test fun aGenuinePlayfulInnerSceneCanUnfoldWithoutTurningIntoAnAnswer() {
+        val basis = JSONObject()
+            .put("focus", "对方抛来一个无厘头的问题")
+            .put("change", "从惊讶到试着接梗")
+            .put("unsaidWhy", "心里还在权衡一个没说出来的小玩笑")
+            .put("spontaneousTurn", "先认真想了想，又突然有个调皮的念头，自己觉得好笑")
+        val delta = PrivateStateDelta(
+            focusChanged = true, appraisalChanged = false, emotionChanged = false,
+            motiveChanged = false, conflictChanged = false, commonGroundChanged = false,
+            privateResidue = true, fingerprint = "funny-pivot",
+        )
+        val thought = listOf(
+            "哎这个问题真能问出来。怎么想到的？",
+            "先想想，正经回答好像也有道理，不过怎么都觉得少点什么。",
+            "等等……我突然想到一个离谱答案。要是真说出来她会不会笑？",
+            "不对不对，我好像更想看她听到以后是什么反应。算了，试一下？",
+        ).joinToString("\n\n").repeat(2)
+        val kept = CharacterHeartVoicePolicy.keepOrBlank(
+            thought = thought, outward = "我有个答案。",
+            basis = basis, delta = delta, hasFreshEvidence = true,
+        )
+        assertTrue(kept.length > 320)
+        assertTrue(kept.length <= 600)
+        assertTrue(kept.contains("\n\n"))
+        val unchanged = CharacterHeartVoicePolicy.keepOrBlank(
+            thought = thought, outward = "我有个答案.", basis = basis,
+            delta = delta.copy(focusChanged = false, privateResidue = true,
+                appraisalChanged = false, emotionChanged = false),
+            hasFreshEvidence = true,
+        )
+        assertEquals("", unchanged)
+    }
+
     @Test fun imageOnlyReplyIsAValidDecisionButStillNeedsARealStickerId() {
         assertEquals("reply", CharacterDecisionProtocol.chatAction(JSONObject()
             .put("action", "reply").put("stickerOnly", true).put("stickerId", "actual-shelf-id")))

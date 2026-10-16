@@ -19,6 +19,9 @@ class CharacterExpressionGuideTest {
         assertTrue(prompt.contains("不能将发言换种措辞复述一遍"))
         assertTrue(prompt.contains("如果没有，就返回空字符串"))
         assertTrue(prompt.contains("同一件事有不同的外在表达和内在想法"))
+        assertTrue(prompt.contains("活着的内心语感"))
+        assertTrue(prompt.contains("spontaneousTurn"))
+        assertTrue(prompt.contains("不是模型工作推理的展示"))
     }
 
     @Test fun decisionHandoffDoesNotPreWriteTheCharactersStyle() {

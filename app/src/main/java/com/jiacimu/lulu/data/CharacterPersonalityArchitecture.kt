@@ -60,14 +60,24 @@ internal object CharacterHeartVoicePolicy {
         delta: PrivateStateDelta? = null,
         hasFreshEvidence: Boolean,
     ): String {
-        // A routine fleeting thought stays short. A genuine, newly relevant
-        // inner conflict may need more room than the old hard 140-character cap;
-        // this is not a license to write a second, narrated assistant reply.
+        // The character's *authored* private speech can sometimes be an
+        // unfolding small scene, not always a 140-character mood caption.
+        // A substantiated, new spontaneous turn earns room without purchasing
+        // a second model call. Ordinary/waiting/repeated thoughts stay short.
         val layeredConflict = basis?.optString("conflict")?.isNotBlank() == true &&
             (delta?.conflictChanged == true ||
                 (innerLife?.optJSONArray("thoughts")?.length() ?: 0) >= 2 ||
                 innerLife?.optJSONObject("emotion")?.optString("otherFeeling")?.isNotBlank() == true)
-        val clean = compactThought(thought, if (layeredConflict) 320 else 140)
+        val spontaneousTurn = basis?.optString("spontaneousTurn")?.trim().orEmpty()
+        val unfolding = spontaneousTurn.isNotBlank() &&
+            hasCausalBasis(basis) &&
+            (delta?.meaningful == true || (delta == null && hasStructuredDelta(innerLife))) &&
+            thought.length > 140
+        val clean = compactThought(thought, when {
+            unfolding -> 600
+            layeredConflict -> 320
+            else -> 140
+        })
         if (clean.isBlank()) return ""
         val structuredDelta = delta?.meaningful ?: hasStructuredDelta(innerLife)
         val causalBasis = hasCausalBasis(basis)
@@ -125,7 +135,7 @@ internal object CharacterHeartVoicePolicy {
     private fun compactThought(value: String, maxCharacters: Int): String {
         val clean = value.replace("\r\n", "\n")
             .replace(Regex("[ \\t]+"), " ")
-            .replace(Regex("\\n+"), " ")
+            .replace(Regex("\\n{3,}"), "\n\n")
             .trim()
         if (clean.length <= maxCharacters) return clean
         val head = clean.take(maxCharacters)
