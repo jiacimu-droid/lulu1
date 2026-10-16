@@ -45,9 +45,9 @@ private const val LIFE_AUDIT_INDEX = 4
 private const val FAVORITE_REASON_SEPARATOR = "\n\n收藏理由："
 
 private val LexiconV2Sections = listOf(
-    // One inbox for user circumstances and unresolved concern, without two
-    // competing copies of the same life event or separate extraction stores.
-    LexiconSection.Concern to "近况与挂心",
+    // New inner concerns are read in 此刻; Lexicon retains life facts and
+    // historical compatibility notes instead of a second current concern.
+    LexiconSection.Concern to "生活近况",
     LexiconSection.Promise to "约定",
     LexiconSection.Diary to "日记",
     LexiconSection.Favorite to "收藏",
@@ -126,18 +126,6 @@ fun LexiconFeatureScreenV2(
     val lifeEntries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, LexiconSection.Life)
         .collectAsState(initial = emptyList())
-    val mindRevision by com.jiacimu.lulu.data.CharacterInnerLifeStore.revisions.collectAsState()
-    val recentPrivateConcerns = remember(selectedCharacterId, mindRevision) {
-        com.jiacimu.lulu.data.CharacterOpenConcernRuntime.recent(
-            com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(selectedCharacterId)
-                .optJSONArray("openConcerns"),
-        ).filter { item ->
-            val evidence = item.optString("evidenceId")
-            evidence.isNotBlank() &&
-                com.jiacimu.lulu.data.SharedExperienceTimeline
-                    .eventsByIds(selectedCharacterId, listOf(evidence)).isNotEmpty()
-        }.distinctBy { it.optString("id") }
-    }
     // TaskStore is authoritative: an alarm may already be scheduled even if
     // the async 辞海 materialization has not created a LexiconEntry yet.
     val persistedTasks by CommitmentTaskStore.tasks.collectAsState()
@@ -154,8 +142,10 @@ fun LexiconFeatureScreenV2(
     }
     val entries = remember(currentSectionEntries, lifeEntries, section, taskLinkedEntryIds) {
         when (section) {
-            LexiconSection.Concern -> (currentSectionEntries + lifeEntries)
-                .distinctBy { it.id }.sortedByDescending { it.updatedAt }
+            LexiconSection.Concern -> (lifeEntries + currentSectionEntries)
+                .distinctBy { it.id }
+                .sortedWith(compareBy<LexiconEntry> { it.section == LexiconSection.Concern }
+                    .thenByDescending { it.updatedAt })
             LexiconSection.Promise -> currentSectionEntries
                 .filterNot { it.id in taskLinkedEntryIds }
             else -> currentSectionEntries
@@ -256,21 +246,10 @@ fun LexiconFeatureScreenV2(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (section == LexiconSection.Concern && !isLifeAudit && recentPrivateConcerns.isNotEmpty()) {
-                    item(key = "character-private-current-concerns-title") {
-                        Text("角色当前真实在意的事", fontWeight = FontWeight.SemiBold)
-                    }
-                    items(recentPrivateConcerns.size, key = { index ->
-                        "inner-concern:" + recentPrivateConcerns[index].optString("id")
-                    }) { index ->
-                        val concern = recentPrivateConcerns[index]
-                        LexiconV2Card {
-                            Text(concern.optString("focus"), fontWeight = FontWeight.SemiBold)
-                            Text(concern.optString("whyItMatters"),
-                                fontSize = 13.sp, color = LuluColors.Muted)
-                            Text("来自角色亲自形成的想法 · 随后续感知更新（不是用户承诺）",
-                                fontSize = 11.sp, color = LuluColors.Muted)
-                        }
+                if (section == LexiconSection.Concern) {
+                    item(key = "unified-life-note-guidance") {
+                        Text("这里记录生活事实。角色当前的私人挂心只在「此刻」展示；旧版关心笔记保留供查阅，不再单独触发主动联系。",
+                            fontSize = 12.sp, color = LuluColors.Muted)
                     }
                 }
                 if (section == LexiconSection.Promise && scheduledTasks.isNotEmpty()) {
@@ -322,8 +301,7 @@ fun LexiconFeatureScreenV2(
                         }
                     }
                 }
-                if (entries.isEmpty() && scheduledTasks.isEmpty() &&
-                    (section != LexiconSection.Concern || recentPrivateConcerns.isEmpty())) {
+                if (entries.isEmpty() && scheduledTasks.isEmpty()) {
                     item {
                         LexiconV2Card {
                             Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
@@ -350,7 +328,11 @@ fun LexiconFeatureScreenV2(
                                     Column(Modifier.weight(1f)) {
                                         Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
                                         if (entry.section == LexiconSection.Life) {
-                                            Text("生活近况", color = LuluColors.Muted, fontSize = 11.sp)
+                                            Text("生活事实整理", color = LuluColors.Muted, fontSize = 11.sp)
+                                        }
+                                        if (entry.section == LexiconSection.Concern) {
+                                            Text("旧版关心笔记 · 历史兼容，不代表角色当前挂心或应主动联系",
+                                                color = LuluColors.Muted, fontSize = 11.sp)
                                         }
                                         if (entry.section == LexiconSection.Promise) {
                                             Text(
@@ -363,7 +345,7 @@ fun LexiconFeatureScreenV2(
                                             )
                                         }
                                         Text(entry.content, color = LuluColors.Muted)
-                                        if (entry.section in setOf(LexiconSection.Life, LexiconSection.Concern)) {
+                                        if (entry.section == LexiconSection.Life) {
                                             TextButton(onClick = { scope.launch {
                                                 LuluRepositories.lexicon.save(entry.copy(
                                                     status = if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) com.jiacimu.lulu.core.LexiconStatus.Resolved else com.jiacimu.lulu.core.LexiconStatus.Active,
@@ -408,7 +390,7 @@ fun LexiconFeatureScreenV2(
     val dialogEntry = editing ?: LexiconEntry(
         id = UUID.randomUUID().toString(),
         characterId = selectedCharacterId,
-        section = section,
+        section = if (section == LexiconSection.Concern) LexiconSection.Life else section,
         title = "",
         content = "",
         promiseKind = if (section == LexiconSection.Promise) PromiseKind.Promise else null,

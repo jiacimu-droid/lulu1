@@ -133,7 +133,7 @@ object ChatLexiconAutomation {
         if (!listOf("好了", "解决", "结束", "不用", "取消", "不再", "已经").any(message.content::contains)) return
         val ids = conversation.groupChat?.members?.map { it.characterId } ?: listOf(conversation.characterId)
         ids.distinct().forEach { characterId ->
-            if (LuluRepositories.lexicon.snapshot(characterId).none { it.status == LexiconStatus.Active && it.section in setOf(LexiconSection.Life, LexiconSection.Concern) }) return@forEach
+            if (LuluRepositories.lexicon.snapshot(characterId).none { it.status == LexiconStatus.Active && it.section == LexiconSection.Life }) return@forEach
             val signature = "lexicon-update:${message.id}:$characterId"
             if (isProcessed(signature)) return@forEach
             val lock = synchronized(characterLocks) { characterLocks.getOrPut(characterId) { Mutex() } }
@@ -155,7 +155,7 @@ object ChatLexiconAutomation {
         sourceEventIds: List<String>,
     ): Boolean {
         val active = LuluRepositories.lexicon.snapshot(characterId).filter {
-            it.status == LexiconStatus.Active && it.section in setOf(LexiconSection.Life, LexiconSection.Concern)
+            it.status == LexiconStatus.Active && it.section == LexiconSection.Life
         }
         val terms = memorySearchTerms(userText + " " + characterText)
         val relevant = active.filter { terms.intersect(memorySearchTerms(it.title + it.content)).isNotEmpty() }
@@ -167,26 +167,26 @@ object ChatLexiconAutomation {
             facts = buildString {
                 groupName?.let { appendLine("场景：群聊《$it》，当前判断对象是这个角色。") }
                 appendLine("用户：$userText")
-                appendLine("已有生活与挂心（只能更新这些真实ID）：")
+                appendLine("已有生活近况（只允许更新真实生活条目，不含角色的私人挂心）：")
                 existing.forEach { appendLine("entryId=${it.id}；${it.section}；${it.title}：${it.content}；上次回访=${it.lastFollowUpAt}") }
                 appendLine("角色完整回复（可能由多个气泡组成）：")
                 append(characterText)
             },
             instruction = """
-                检查这一整轮对话（用户输入 + 当前角色全部回复气泡），提取值得进入当前角色辞海的 life 或 concern，并更新已有条目的状态。
-                约定、提醒、监督、责任由独立 CommitmentTask 系统处理，这里不要再生成 promise，避免两套正文和重复执行。
+                检查这一整轮对话（用户输入 + 当前角色全部回复气泡），仅提取具有真实来源的生活近况 life。
+                私人挂心由统一心理状态 innerLife.openConcerns 唯一管理，不要输出 concern；承诺由 CommitmentTaskStore 唯一管理，不要输出 promise。用户说担心不代表角色本人产生了挂心。
                 只返回 JSON 数组，不要代码块；没有内容时返回 []。
                 每项格式：
-                {"section":"life|concern","kind":"","title":"简短标题","content":"可脱离聊天理解的内容","existingId":"更新时填已有entryId，否则空","status":"Active|Resolved","followedUp":false}
+                {"section":"life","kind":"","title":"简短标题","content":"可脱离聊天理解的生活近况","existingId":"更新时填已有entryId，否则空","status":"Active|Resolved","followedUp":false}
 
                 规则：
                 1. life 保存会影响日常陪伴的当前生活安排、作息、学习任务或现实处境；长期稳定身份与偏好交给记忆系统。
-                2. concern 保存尚未解决、以后值得当前角色主动关心或自然回访的问题；角色回复中主动表达“我有点挂心/之后想问问”也可以成为 concern。
+                2. 本提取器不能建立另一份角色心事、待办或自动回访计划；那些由同一次角色心理决策以及正式责任链路处理。
                 3. 必须看完整轮次，不能只根据用户消息判断；第二、第三个回复气泡里的新信息同样有效。
                 4. 群聊只记录属于当前角色主观关注的内容，不替其他角色承担挂心。
                 5. 不编造时间、频率、病情、结果或用户未提供的状态；已经明确解决的小情绪不要长期挂心。
                 6. 用户明确说问题解决、安排结束或取消时，更新对应 existingId 为 Resolved；未回复、角色安慰、推测好转不代表解决。临时变化与长期事实区分。
-                7. 同一问题有新进展时更新已有条目，不重复创建。角色实际在本轮询问对应问题时 followedUp=true；知道刚问过就避免短时间重复回访。
+                7. 同一生活近况有新进展时更新已有条目，不重复创建。followedUp 只是已实际问过的记录，不授权再次主动联系。
                 8. 角色完整回复为空时，只允许更新或解决已有条目，不新增；归属不明确就不改。
                 9. title 不超过 12 个汉字，content 说明关注对象、当前未解决点和已知回访条件（没有条件就不要猜）。
             """.trimIndent(),
@@ -205,9 +205,11 @@ object ChatLexiconAutomation {
         val liveSources = SharedExperienceTimeline.eventsByIds(characterId, sourceEventIds)
         if (liveSources.size != sourceEventIds.distinct().size ||
             context.any { before -> liveSources.none { it.id == before.id && it.revision == before.revision } }) return false
-        var hasConcern = false
         for (index in 0 until rows.length()) {
             val item = rows.optJSONObject(index) ?: return false
+            // Ignore old-model concern proposals; never persist a competing
+            // subjective concern in the life-facts extractor.
+            if (item.optString("section").trim().lowercase() !in setOf("life", "生活")) continue
             val existingId = item.optString("existingId").trim()
             val old = allowed[existingId]
             if (existingId.isNotBlank() && old == null) continue
@@ -225,15 +227,13 @@ object ChatLexiconAutomation {
             } else {
                 if (characterText.isBlank()) continue
                 val parsed = runCatching { parseLexiconEntries(JSONArray().put(item).toString(), characterId) }.getOrElse { return false }
-                val new = parsed.singleOrNull()?.takeIf { it.section != LexiconSection.Promise } ?: continue
+                val new = parsed.singleOrNull()?.takeIf { it.section == LexiconSection.Life } ?: continue
                 if (!existingKeys.add(new.automationDedupeKey())) continue
                 new.copy(sourceEventIds = sourceEventIds)
             }
             val revised = entry.copy(sourceRevisions = entry.sourceRevisions + context.associate { it.id to it.revision })
             if (!LuluRepositories.lexicon.saveDerived(revised, old)) continue
-            if (entry.section == LexiconSection.Concern && entry.status == LexiconStatus.Active) hasConcern = true
         }
-        if (hasConcern) appContext?.let { ProactivePerceptionScheduler.scheduleConcernPromise(it, characterId) }
         return true
     }
 
@@ -268,9 +268,9 @@ internal fun looksLikeCommitmentRequest(text: String): Boolean {
 internal fun looksLikeLexiconCandidate(text: String): Boolean {
     val clean = text.trim()
     if (clean.isBlank()) return false
-    // This extractor only owns LIFE/CONCERN. Generic "我会"/"以后"
-    // belongs to commitment handling and is not a reason to bill lexicon AI.
-    return (LifeSignals + ConcernSignals).any { signal -> clean.contains(signal, ignoreCase = true) }
+    // Private concerns are decided and stored in the character's one inner
+    // life system, not extracted a second time with another paid model call.
+    return LifeSignals.any { signal -> clean.contains(signal, ignoreCase = true) }
 }
 
 internal fun parseCommitmentEntries(raw: String, characterId: String): List<LexiconEntry> {

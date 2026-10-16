@@ -12,10 +12,11 @@ class ChatAutomationRoutingTest {
         assertFalse(looksLikeLexiconCandidate("我会想你的"))
     }
 
-    @Test fun genuineFutureObligationAndRelationshipConcernRemainEligible() {
+    @Test fun genuineFutureObligationAndFactualLifeNotesRemainEligible() {
         assertTrue(looksLikeTaskTurn("明天8点叫我起床", "好，我会叫醒你"))
         assertTrue(looksLikeTaskTurn("你等会儿给我打电话", "好"))
         assertTrue(looksLikeLexiconCandidate("我今天要准备考试"))
-        assertTrue(looksLikeLexiconCandidate("我担心这件事"))
+        assertFalse(looksLikeLexiconCandidate("我担心这件事"))
+        assertTrue(looksLikeLexiconCandidate("我最近搬家了"))
     }
 }
