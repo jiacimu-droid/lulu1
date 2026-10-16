@@ -480,8 +480,9 @@ object ProactivePerceptionRuntime {
         }
         val onlineUnread = CompanionOnlineStore.unreadChatSnapshot(characterId)
         val userActivities = collectUserActivities(characterId)
-        val pendingUserContext = userActivities.filter(UserActivity::awaitingReply)
-            .take(12).joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
+        val pendingUserContext = userActivities.filter {
+            it.awaitingReply && it.message.id in onlineUnread.messageIds
+        }.take(12).joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
         val recentUserActivityContext = userActivities.take(12)
             .joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
         val recent = messages.filterNot { it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动]") }.takeLast(20).joinToString("\n") { message ->
@@ -700,8 +701,8 @@ object ProactivePerceptionRuntime {
                     appendLine("incidentId=${it.incidentId}；status=${it.status}；stage=${it.stage}；anchorItemId=${it.anchorItemId}")
                 }
                 if (pendingUserContext.isNotBlank()) {
-                    appendLine("【历史上还没实际回复的用户消息｜不是每轮的新通知】")
-                    appendLine("以下内容可能早已看过并自主决定暂不答复；它们仍属于历史上的未回复事实，但不是每次在线生活感知都必须优先处理的指令。若有真正的新消息，下面的新消息列表会单独列出。")
+                    appendLine("【本轮仍未回应的真实新消息】")
+                    appendLine("仅依据本轮确实未读的消息来决定要不要回复。更早的聊天、照片与已送达回答只是共同历史，不得作为新通知重新回答。")
                     appendLine(pendingUserContext)
                 }
                 if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
@@ -747,6 +748,16 @@ object ProactivePerceptionRuntime {
             throw error
         }
         currentCoroutineContext().ensureActive()
+        // A manual reply or another worker may have delivered an answer while
+        // this model was thinking. Never send a second reply to evidence that
+        // is no longer unread; genuinely newer messages get their own batch.
+        if (onlineUnread.messageIds.isNotEmpty() &&
+            !CompanionOnlineStore.hasOriginalUnreadEvidence(
+                onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) {
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId, "旧消息已由其他回复处理，本次不重复发言", Instant.now())
+            return Action.SILENT
+        }
         // A call takes ownership immediately; a finished awake window cannot execute stale decisions.
         if (CompanionPresenceStore.isInCall(characterId) ||
             (awakeReflection && !CompanionOnlineStore.isOnline(characterId)) ||

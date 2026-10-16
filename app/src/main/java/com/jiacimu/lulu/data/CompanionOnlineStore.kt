@@ -45,6 +45,8 @@ data class CompanionUnreadSnapshot(
     val newestIds: Set<String> = emptySet(),
     /** All user photos in the unread turn, not merely the latest text bubble. */
     val imageEvidenceIds: Set<String> = emptySet(),
+    /** Actual evidence in this frozen snapshot, not only IDs at its last timestamp. */
+    val messageIds: Set<String> = emptySet(),
 )
 
 /**
@@ -63,6 +65,9 @@ object CompanionOnlineStore {
     private const val PREFS_NAME = "lulu_companion_online_v1"
     private const val KEY_STATES = "states"
     private const val KEY_GROUP_FOCUS = "group_focus"
+    private const val DELIVERY_MIGRATION_KEY = "delivered_reply_evidence_v1"
+    private const val DELIVERY_KEY_PREFIX = "delivered_reply_ids:"
+    private const val MAX_DELIVERY_EVIDENCE = 600
     private val onlineDuration: Duration = Duration.ofMinutes(5)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val expiryJobs = mutableMapOf<String, Job>()
@@ -73,6 +78,97 @@ object CompanionOnlineStore {
     private val mutableStates = MutableStateFlow<Map<String, CompanionOnlineState>>(emptyMap())
     val states: StateFlow<Map<String, CompanionOnlineState>> = mutableStates.asStateFlow()
     private var groupFocusUntil: Map<String, Instant> = emptyMap()
+
+    private fun deliveredKey(characterId: String) = "$" + "{DELIVERY_KEY_PREFIX}$" + "characterId"
+
+    private fun deliveredIdsLocked(characterId: String): List<String> {
+        val raw = prefs?.getString(deliveredKey(characterId), "[]").orEmpty().ifBlank { "[]" }
+        val json = runCatching { JSONArray(raw) }.getOrNull() ?: return emptyList()
+        return (0 until json.length()).mapNotNull { index ->
+            json.optString(index).takeIf(String::isNotBlank)
+        }.distinct()
+    }
+
+    /**
+     * Confirm only the concrete user bubbles frozen at the start of a reply.
+     * A newer bubble arriving while the character is typing MUST remain unread,
+     * even when it appears between two delivered semantic bubbles.
+     */
+    internal fun acknowledgeDeliveredReply(
+        characterId: String, conversationId: String, userMessageIds: Set<String>,
+    ): Boolean {
+        if (characterId.isBlank() || userMessageIds.isEmpty()) return false
+        val conversation = MigratedDomainStores.chat.conversations.value
+            .firstOrNull { it.id == conversationId } ?: return false
+        if (conversation.groupChat?.members?.any { it.characterId == characterId } != true &&
+            (conversation.groupChat != null || conversation.characterId != characterId)) return false
+        val confirmed = MigratedDomainStores.chat.messages(conversationId).value
+            .filter { it.id in userMessageIds &&
+                it.status == LuluChatMessage.Status.Sent &&
+                it.sender == LuluChatMessage.Sender.User }
+            .map(LuluChatMessage::id)
+        if (confirmed.isEmpty()) return false
+        return synchronized(lock) {
+            val p = prefs ?: return@synchronized false
+            val next = (deliveredIdsLocked(characterId) + confirmed)
+                .distinct().takeLast(MAX_DELIVERY_EVIDENCE)
+            p.edit().putString(deliveredKey(characterId), JSONArray(next).toString()).commit()
+        }
+    }
+
+    /**
+     * Pre-upgrade replies were delivered before explicit evidence receipts existed.
+     * Backfill conservatively only the user messages before the FIRST bubble of
+     * the last completed role turn. Never swallow user bubbles interleaved into
+     * that outgoing multi-bubble turn or those sent after it.
+     */
+    private fun migrateDeliveredRepliesLocked() {
+        val p = prefs ?: return
+        if (p.getBoolean(DELIVERY_MIGRATION_KEY, false)) return
+        val recovered = mutableMapOf<String, MutableList<String>>()
+        MigratedDomainStores.chat.conversations.value.forEach { conversation ->
+            val messages = MigratedDomainStores.chat.messages(conversation.id).value
+            val characters = conversation.groupChat?.members?.map(LuluGroupMember::characterId)
+                ?: listOf(conversation.characterId)
+            characters.distinct().filter(String::isNotBlank).forEach { characterId ->
+                val last = messages.indexOfLast {
+                    it.status == LuluChatMessage.Status.Sent &&
+                        it.sender == LuluChatMessage.Sender.Character &&
+                        (it.authorCharacterId ?: conversation.characterId) == characterId
+                }
+                if (last < 0) return@forEach
+                val batchId = messages[last].replyBatchId
+                val first = if (!batchId.isNullOrBlank()) messages.indexOfFirst {
+                    it.replyBatchId == batchId &&
+                        it.sender == LuluChatMessage.Sender.Character &&
+                        (it.authorCharacterId ?: conversation.characterId) == characterId
+                }.takeIf { it in 0..last } ?: last else last
+                // An interleaved user turn cannot be proved handled by this old reply.
+                if (messages.subList(first + 1, last + 1).any {
+                        it.sender == LuluChatMessage.Sender.User }) return@forEach
+                recovered.getOrPut(characterId) { mutableListOf() }.addAll(
+                    messages.take(first).filter {
+                        it.status == LuluChatMessage.Status.Sent &&
+                            it.sender == LuluChatMessage.Sender.User
+                    }.map(LuluChatMessage::id)
+                )
+            }
+        }
+        val editor = p.edit()
+        recovered.forEach { (characterId, ids) ->
+            val combined = (deliveredIdsLocked(characterId) + ids)
+                .distinct().takeLast(MAX_DELIVERY_EVIDENCE)
+            editor.putString(deliveredKey(characterId), JSONArray(combined).toString())
+        }
+        check(editor.putBoolean(DELIVERY_MIGRATION_KEY, true).commit()) {
+            "旧聊天回复状态迁移失败"
+        }
+    }
+
+    /** The original messages must still be pending after an asynchronous model call. */
+    internal fun hasOriginalUnreadEvidence(
+        original: CompanionUnreadSnapshot, current: CompanionUnreadSnapshot,
+    ): Boolean = original.messageIds.any { it in current.messageIds }
 
     fun initialize(context: Context) {
         synchronized(lock) {
@@ -93,6 +189,7 @@ object CompanionOnlineStore {
                 )
             }
             mutableStates.value = loaded
+            migrateDeliveredRepliesLocked()
             loaded.values.filter { it.isOnline(now) }.forEach { scheduleLifePulseLocked(it.characterId) }
             groupFocusUntil = decodeGroupFocus(prefs?.getString(KEY_GROUP_FOCUS, null))
                 .filterValues { it.isAfter(now) }
@@ -299,6 +396,7 @@ object CompanionOnlineStore {
         (timestamp == after && cursorAt == after && id !in seenIds)
 
     fun unreadChatSnapshot(characterId: String, limit: Int = 30): CompanionUnreadSnapshot {
+        val acknowledged = synchronized(lock) { deliveredIdsLocked(characterId).toHashSet() }
         val state = mutableStates.value[characterId]
         val after = listOfNotNull(state?.lastSeenAt, state?.historyFloorAt).maxOrNull()
         val events = MigratedDomainStores.chat.conversations.value.asSequence()
@@ -313,6 +411,7 @@ object CompanionOnlineStore {
                             !message.id.startsWith("voice-") &&
                             message.sender != LuluChatMessage.Sender.System &&
                             message.authorCharacterId != characterId &&
+                            message.id !in acknowledged &&
                             isUnreadAtCursor(message.id, message.createdAt, after,
                                 state?.lastSeenAt, state?.seenIdsAtLastSeenAt.orEmpty())
                     }
@@ -340,6 +439,7 @@ object CompanionOnlineStore {
                 message.sender == LuluChatMessage.Sender.User &&
                     com.jiacimu.lulu.decodeQqChatImage(message.content)?.sticker == false
             }.mapTo(mutableSetOf()) { it.second.id },
+            events.mapTo(mutableSetOf()) { it.second.id },
         )
     }
 
@@ -373,6 +473,7 @@ object CompanionOnlineStore {
                     historyFloorAt = now,
                 )
             )
+            prefs?.edit()?.remove(deliveredKey(characterId))?.commit()
             persistLocked()
         }
     }

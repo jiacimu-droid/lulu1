@@ -407,6 +407,47 @@ class OnlineChatExperienceTest {
         assertFalse(next.text.contains("第一个气泡"))
     }
 
+    @Test fun deliveredReplyAcknowledgesOnlyTheOriginalUserBubbles() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "已回复消息去重回归", "已聊完的照片不能在下一次主动上线时再次当新消息",
+        )
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        CompanionOnlineStore.resetCharacter(role.characterId)
+        val photo = MigratedDomainStores.chat.sendUserMessage(chat.id, "这是我房间的照片")
+        val frozen = CompanionOnlineStore.unreadChatSnapshot(role.characterId)
+        assertTrue(photo.id in frozen.messageIds)
+        val later = MigratedDomainStores.chat.sendUserMessage(chat.id, "还有一个新的问题")
+        MigratedDomainStores.chat.appendCharacterMessage(chat.id, "我看见你的房间了", role.characterId)
+        assertTrue(CompanionOnlineStore.acknowledgeDeliveredReply(
+            role.characterId, chat.id, frozen.messageIds))
+        val pending = CompanionOnlineStore.unreadChatSnapshot(role.characterId)
+        assertFalse(pending.text.contains("这是我房间的照片"))
+        assertTrue(pending.text.contains("还有一个新的问题"))
+        assertTrue(later.id in pending.messageIds)
+        assertFalse(CompanionOnlineStore.hasOriginalUnreadEvidence(frozen, pending))
+        OnlineChatBatchStore.cancel(context, role.characterId)
+    }
+
+    @Test fun deliveredGroupReplyDoesNotAcknowledgeAnotherCharactersMessage() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val first = MigratedDomainStores.characters.create("只确认自己已答", "群聊甲").characterId
+        val second = MigratedDomainStores.characters.create("不吞别人未读", "群聊乙").characterId
+        val group = MigratedDomainStores.chat.createGroupConversation("各自确认群聊消息", listOf(first, second))
+        CompanionOnlineStore.resetCharacter(first)
+        CompanionOnlineStore.resetCharacter(second)
+        val sent = MigratedDomainStores.chat.sendUserMessage(group.id, "两位看一下")
+        assertTrue(CompanionOnlineStore.acknowledgeDeliveredReply(first, group.id, setOf(sent.id)))
+        assertFalse(CompanionOnlineStore.unreadChatSnapshot(first).messageIds.contains(sent.id))
+        assertTrue(CompanionOnlineStore.unreadChatSnapshot(second).messageIds.contains(sent.id))
+        OnlineChatBatchStore.cancel(context, first)
+        OnlineChatBatchStore.cancel(context, second)
+    }
+
     @Test fun timestampCollisionDoesNotLoseMessageIdsNotInEarlierSnapshot() {
         val instant = java.time.Instant.parse("2026-10-09T12:00:00Z")
         assertFalse(CompanionOnlineStore.isUnreadAtCursor(

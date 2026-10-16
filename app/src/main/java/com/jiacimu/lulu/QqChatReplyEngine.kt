@@ -148,7 +148,16 @@ internal suspend fun appendRoleReplyWithPacing(
         if (presentation.recallBubbleNumber == index + 1) {
             delay(roleRecallDelayMillis(characterId))
             if (currentCoroutineContext().isActive) MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)
-        } else spoken += created
+        } else {
+            spoken += created
+            // A persisted outgoing reply is the real receipt. Do not wait for
+            // the entire background decision (which may be cancelled afterward).
+            if (spoken.size == 1 && !actionableUserMessageIds.isNullOrEmpty()) {
+                com.jiacimu.lulu.data.CompanionOnlineStore.acknowledgeDeliveredReply(
+                    characterId, conversationId, actionableUserMessageIds,
+                )
+            }
+        }
         if (index < bubbles.lastIndex) delay(roleBubbleDelayMillis(characterId, visibleBubble, index))
     }
     if (spoken.size == bubbles.size) spoken.lastOrNull()?.let { last ->
