@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`62e1dbecb1dba039a711d70d5d7f5158a55d7d32`
+- 基准提交：`b231490554ffc40b61ff23d0fcfbc6d582bbb18e`
 - 分支：`main`
 - 已索引文件：681
-- 已索引代码/文本行：132119
-- 已发现符号：1996
+- 已索引代码/文本行：132189
+- 已发现符号：1997
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -93,7 +93,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 448 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 373 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 205 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 221 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 473 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
@@ -303,7 +303,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 476 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 107 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 129 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 146 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 470 | 8 |
@@ -372,8 +372,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 767 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 168 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 156 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 180 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 167 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt` | 310 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt` | 307 | 0 |
@@ -443,7 +443,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 666 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 577 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 582 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 191 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
@@ -481,7 +481,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/StudyShopScreenV2.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStateCodec.kt` | 253 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 61 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 156 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt` | 165 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt` | 46 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterChapterCompletion.kt` | 57 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterChapterPlanRecovery.kt` | 61 | 1 |

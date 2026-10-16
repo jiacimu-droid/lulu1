@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T07:16:46.738296+00:00",
-  "commit": "62e1dbecb1dba039a711d70d5d7f5158a55d7d32",
+  "generatedAt": "2026-10-16T07:18:35.543105+00:00",
+  "commit": "b231490554ffc40b61ff23d0fcfbc6d582bbb18e",
   "branch": "main",
-  "sourceFingerprint": "8260dd919788d0425aca627249c862e43407c887ee0c2debe408494714de4da1",
+  "sourceFingerprint": "47bd1da9061ff8fcdf09e28539c974b81778d1a771675268aea59c8cc6a904ee",
   "summary": {
     "files": 681,
-    "lines": 132119,
-    "symbols": 1996
+    "lines": 132189,
+    "symbols": 1997
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1583,7 +1583,7 @@
     "LuluSettingsHomeScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-        "line": 31
+        "line": 36
       }
     ],
     "LuluSettingsScreen": [
@@ -6277,7 +6277,13 @@
     "deleteUnused": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt",
-        "line": 47
+        "line": 50
+      }
+    ],
+    "channel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt",
+        "line": 56
       }
     ],
     "LuluBackupManager": [
@@ -7965,13 +7971,13 @@
     "LuluAppearanceTheme": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt",
-        "line": 26
+        "line": 28
       }
     ],
     "LuluAppearancePattern": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt",
-        "line": 82
+        "line": 94
       }
     ],
     "LuluPageScaffold": [
@@ -7983,31 +7989,31 @@
     "LuluSectionCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-        "line": 43
+        "line": 51
       }
     ],
     "LuluPrimaryButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-        "line": 67
+        "line": 78
       }
     ],
     "LuluTextInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-        "line": 93
+        "line": 104
       }
     ],
     "LuluEmptyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-        "line": 117
+        "line": 128
       }
     ],
     "LuluSettingRow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-        "line": 139
+        "line": 150
       }
     ],
     "LuluColors": [
@@ -8945,13 +8951,13 @@
     "HealthFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 57
+        "line": 60
       }
     ],
     "changeReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-        "line": 172
+        "line": 177
       }
     ],
     "clock": [
@@ -12393,12 +12399,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 205,
-      "sha256": "a2b415c64cdba8e9f4d664acb74533f5d79d012529ed2e9dc512cbb324a5f8b8",
+      "lines": 221,
+      "sha256": "88d9d2eb3802d4e1ddb6e432977f452d55d55f6a8e3c683fd177cd25f144197b",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
-          "line": 31
+          "line": 36
         }
       ]
     },
@@ -17160,8 +17166,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt",
-      "lines": 129,
-      "sha256": "b72a5a8ed936f998d3d95434ae10b90bebf6b884c79ad69af06db94d19f57ffb",
+      "lines": 146,
+      "sha256": "760b81af67ae964bd2c7a9fc45e44dd1229b2d5f882c4f62fabcaf0da5d08fa4",
       "symbols": [
         {
           "name": "LuluAppearanceStore",
@@ -17181,7 +17187,11 @@
         },
         {
           "name": "deleteUnused",
-          "line": 47
+          "line": 50
+        },
+        {
+          "name": "channel",
+          "line": 56
         }
       ]
     },
@@ -19099,23 +19109,23 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt",
-      "lines": 168,
-      "sha256": "61c0fb9afa32dc71378987cdab9a56c1e6f2d69250d01b2a2608bd7abb3af63e",
+      "lines": 180,
+      "sha256": "ee1111857ad12c38b9a06a983dd3f42fff52424242c02472f27b01e4da26bfc6",
       "symbols": [
         {
           "name": "LuluAppearanceTheme",
-          "line": 26
+          "line": 28
         },
         {
           "name": "LuluAppearancePattern",
-          "line": 82
+          "line": 94
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt",
-      "lines": 156,
-      "sha256": "695663d3539cac46e2221d7a406b572dad053837225294b0b2776a10a2384e32",
+      "lines": 167,
+      "sha256": "6f6561155fb9ad6d235cecf640a5e68ff5234f353f3faa508113f033610a36ba",
       "symbols": [
         {
           "name": "LuluPageScaffold",
@@ -19123,23 +19133,23 @@
         },
         {
           "name": "LuluSectionCard",
-          "line": 43
+          "line": 51
         },
         {
           "name": "LuluPrimaryButton",
-          "line": 67
+          "line": 78
         },
         {
           "name": "LuluTextInput",
-          "line": 93
+          "line": 104
         },
         {
           "name": "LuluEmptyState",
-          "line": 117
+          "line": 128
         },
         {
           "name": "LuluSettingRow",
-          "line": 139
+          "line": 150
         }
       ]
     },
@@ -20438,16 +20448,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt",
-      "lines": 577,
-      "sha256": "caaf992fbc5e25c5f56b3e4cd6e4305c88a9e0dbb79de179fa2d23018187f92a",
+      "lines": 582,
+      "sha256": "12e2cf523be06117c4f1ba846297ce7a71d703fba8810a5818aa3db2980ae30a",
       "symbols": [
         {
           "name": "HealthFeatureScreen",
-          "line": 57
+          "line": 60
         },
         {
           "name": "changeReminder",
-          "line": 172
+          "line": 177
         }
       ]
     },
@@ -21390,8 +21400,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
-      "lines": 156,
-      "sha256": "c906b8af2084755bece38fb34e9f67dd2624869e4636d775f77c842f9518b3ee",
+      "lines": 165,
+      "sha256": "346cc4b72bb5e0ad5bf82ae7279266d55370577560f404dac8e8eb8b97360ec2",
       "symbols": []
     },
     {
