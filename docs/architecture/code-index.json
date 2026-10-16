@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T06:35:57.497457+00:00",
-  "commit": "ef4fe0363b20871f4c866daa872ff75b6de3e67f",
+  "generatedAt": "2026-10-16T06:45:16.538914+00:00",
+  "commit": "c11995e388138d5612df9db1793bacce8fad7dd7",
   "branch": "main",
-  "sourceFingerprint": "fae042a4b1836c03298635143c31b74640b898f1bcc04103734d1e2d50c85831",
+  "sourceFingerprint": "7237cc27f001864f4b4099222732def3b48fcdcab800a8aab96cfad5dece71e3",
   "summary": {
     "files": 680,
-    "lines": 131488,
+    "lines": 131500,
     "symbols": 1986
   },
   "symbolIndex": {
@@ -11472,7 +11472,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt",
       "lines": 89,
-      "sha256": "b4cbd807ebb25eb43bfcc2ae87b63749fae99ab6c8373196ebebce5515b71bf9",
+      "sha256": "aef5f1d905064e54033b35fc03e8a3bc5685f87affd616f57f606f810dcf4f4f",
       "symbols": []
     },
     {
@@ -11501,7 +11501,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 536,
-      "sha256": "a4a2d999e94397bdc0c3f9eee8e113c720ab524cab309db64ed20bb3ba11353d",
+      "sha256": "51076baee1fb59d1a87e908fe5402052bf10f06d388f52fc1cffe79e466aa22c",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -12420,7 +12420,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
       "lines": 571,
-      "sha256": "a40fff5d7fd76f2a52311d2106a25790dae68f862053064cdc7bc3b7306c4626",
+      "sha256": "31902f2de8fdc5bd0cc32c7dee5caa9a256357795ab0216031fae6a6088c6aca",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -12747,7 +12747,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
       "lines": 452,
-      "sha256": "c204999fe34cb1e6aa4030b54200a6c615556ea45ead5b26e8df4b3346c77e85",
+      "sha256": "b155f74642af0964551c9568917343a82ac831e62b5d8a1593d4d1eb00d324e8",
       "symbols": []
     },
     {
@@ -20537,14 +20537,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt",
-      "lines": 170,
-      "sha256": "9ea70101196aa8c668716b23cb9ac9a24f05910008d2c022bb04e3fe2c312931",
+      "lines": 182,
+      "sha256": "e889e886c82a3946e66182e3e72cf5063a87f7e085acef925a1fac42b8a46fa2",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt",
       "lines": 126,
-      "sha256": "0ecfd32f29803e75df12f2efa4e2fdb5217a3dea7815e35622ad14e18925f00b",
+      "sha256": "22ccc7d394d7b1059fd862292db561d1c786e65ff47ab36be757c7e5b568e67e",
       "symbols": [
         {
           "name": "PostgraduateExamApp",
@@ -21292,7 +21292,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyUi.kt",
       "lines": 156,
-      "sha256": "b1dda12dc677542f845a5c35042c21703697e257e542cd363079e5187d8ef732",
+      "sha256": "c906b8af2084755bece38fb34e9f67dd2624869e4636d775f77c842f9518b3ee",
       "symbols": []
     },
     {
