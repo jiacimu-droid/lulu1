@@ -11,10 +11,12 @@ import java.time.format.DateTimeFormatter
 internal object CharacterAccountabilityContext {
     private val time = DateTimeFormatter.ofPattern("M月d日 HH:mm")
 
-    fun prompt(characterId: String, now: Instant = Instant.now()): String {
+    fun prompt(characterId: String, now: Instant = Instant.now(), includeActiveDetails: Boolean = true): String {
         val tasks = CommitmentTaskStore.snapshot(characterId)
             .filter { it.status != CommitmentTaskStatus.Cancelled }
+            .filter { includeActiveDetails || !it.status.isActive() }
             .take(12)
+        if (tasks.isEmpty() && !includeActiveDetails) return "未结责任及其真实回执已由统一责任上下文提供；没有回执不能宣称履行，日记与心声不能代替行动。"
         if (tasks.isEmpty()) return """
             【承诺责任事实】
             本轮没有可验证的结构化任务回执。不能仅因为角色记得自己想叫醒用户、写了日记、

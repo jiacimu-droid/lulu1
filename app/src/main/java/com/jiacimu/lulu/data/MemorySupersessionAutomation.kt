@@ -53,7 +53,7 @@ internal object MemorySupersessionAutomation {
                     if (characterId in jobs) return@forEach
                     jobs[characterId] = scope.launch {
                         LuluRepositories.memory.observeMemories(characterId).collect { memories ->
-                            inspectionLock.withLock { inspect(characterId, memories) }
+                            inspectLatest(characterId)
                         }
                     }
                 }
@@ -63,9 +63,15 @@ internal object MemorySupersessionAutomation {
 
     private suspend fun retryPending() {
         MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
-            val memories = LuluRepositories.memory.observeMemories(characterId)
-            val snapshot = memories.first()
-            inspectionLock.withLock { inspect(characterId, snapshot) }
+            inspectLatest(characterId)
+        }
+    }
+
+    private suspend fun inspectLatest(characterId: String) = inspectionLock.withLock {
+        // Let the extractor commit its same-request replacement decision first.
+        // Observing an intermediate Flow emission must not launch a duplicate paid review.
+        LuluRepositories.memory.withCharacterMemoryLock(characterId) {
+            inspect(characterId, LuluRepositories.memory.observeMemories(characterId).first())
         }
     }
 

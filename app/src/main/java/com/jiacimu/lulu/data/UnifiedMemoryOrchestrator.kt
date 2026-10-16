@@ -177,7 +177,7 @@ private fun renderActiveCommitmentTasks(characterId: String): String {
         }
         appendLine("以下是当前全部未完成责任，直接来自任务 Store，不依赖语义召回或辞海数量：")
         tasks.forEach { task ->
-            append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal.take(300)}")
+            append("- taskId=${task.id}；revision=${task.revision}；status=${task.status.name}；目标=${task.goal.take(300)}；动作=${task.deliveryAction}；系统闹钟=${if (task.linkedAlarmId == null) "无当前记录" else "有记录"}")
             task.dueAt?.let { append("；dueAt=$it") }
             task.timezone?.takeIf(String::isNotBlank)?.let { append("；timezone=$it") }
             task.nextCheckAt?.let { append("；nextCheckAt=$it") }

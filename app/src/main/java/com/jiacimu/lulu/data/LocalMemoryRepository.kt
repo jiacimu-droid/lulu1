@@ -100,12 +100,14 @@ class LocalMemoryRepository : MemoryRepository {
         refreshDebug("经历与记忆已清空，角色资料与记忆设置保留", characterId)
     }
 
+    internal suspend fun <T> withCharacterMemoryLock(characterId: String, block: suspend () -> T): T {
+        val mutex = synchronized(extractionLocks) { extractionLocks.getOrPut(characterId) { Mutex() } }
+        return mutex.withLock { block() }
+    }
+
     override suspend fun summarizeNow(characterId: String) {
         require(characterId.isNotBlank()) { "角色不能为空" }
-        val extractionLock = synchronized(extractionLocks) {
-            extractionLocks.getOrPut(characterId) { Mutex() }
-        }
-        extractionLock.withLock {
+        withCharacterMemoryLock(characterId) {
             extractImmediateMemories(characterId)
             summarizeContinuously(characterId, flushTail = shouldFlushMemoryTail(memoryEligibleTimelineEvents(characterId).lastOrNull()?.occurredAt))
         }

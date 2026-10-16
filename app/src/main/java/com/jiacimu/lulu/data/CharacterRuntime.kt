@@ -77,6 +77,7 @@ object CharacterRuntime {
         compact: Boolean = false,
         interactionKey: String? = null,
         query: String = "",
+        includeActiveCommitments: Boolean = true,
     ): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         val narrative = CharacterDevelopmentRecall.select(
@@ -100,7 +101,7 @@ object CharacterRuntime {
             // proposed stable personality mutation and not an assumed apology.
             CharacterGrowthTrajectory.context(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
-            appendLine(CharacterAccountabilityContext.prompt(characterId))
+            appendLine(CharacterAccountabilityContext.prompt(characterId, includeActiveDetails = includeActiveCommitments))
             CharacterCuriosityRuntime.briefContext(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             // Same recent personal scene is visible in chat, telephone and
@@ -140,7 +141,7 @@ object CharacterRuntime {
         CharacterRelationalInitiative.expressionHandoff(characterId)
 
     /** Backward-compatible entry for callers that do not have a live conversation key. */
-    fun developmentContext(characterId: String, compact: Boolean = false, query: String = ""): String =
-        personalityRuntimeContext(characterId, compact = compact, query = query)
+    fun developmentContext(characterId: String, compact: Boolean = false, query: String = "", includeActiveCommitments: Boolean = true): String =
+        personalityRuntimeContext(characterId, compact = compact, query = query, includeActiveCommitments = includeActiveCommitments)
 
 }

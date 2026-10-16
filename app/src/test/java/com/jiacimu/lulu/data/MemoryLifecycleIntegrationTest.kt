@@ -34,6 +34,7 @@ class MemoryLifecycleIntegrationTest {
                 .putString("memory_extract_model", "test").commit()
         }
         LuluRepositories.initialize(context)
+        LuluRepositories.lexicon.initialize(context)
         SharedExperienceTimeline.initialize(context)
         LuluAiServices.initialize(context)
         return context

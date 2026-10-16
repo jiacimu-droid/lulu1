@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.design.LuluColors
 
 /** Navigation only: original stores, record IDs and editing/deletion remain authoritative. */
 @Composable
