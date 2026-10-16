@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-16T14:13:21.690758+00:00",
-  "commit": "1dc5c012b4a5200300eff5479cae27472158a0cb",
+  "generatedAt": "2026-10-16T14:16:49.498128+00:00",
+  "commit": "e2934709f894bfb7605dedadcb26cc0d7951100f",
   "branch": "main",
-  "sourceFingerprint": "92ea54d25969f1504783aa42bb5a8ebe5b52bc93f42f09f11eae4fa8efd6a967",
+  "sourceFingerprint": "90c5a412f723d50c9a9b7515cef1f6dc6f95baa216889bb61aa18844b6e53167",
   "summary": {
     "files": 683,
-    "lines": 132734,
+    "lines": 132736,
     "symbols": 2002
   },
   "symbolIndex": {
@@ -7273,7 +7273,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1727
+        "line": 1729
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -17009,7 +17009,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
       "lines": 43,
-      "sha256": "d9088f843923bc6c208a6978d384d3dcbc9aaa2544974c2b4f97167bebecc5bb",
+      "sha256": "161562b2c17ae54b812b2963514a46faae2e5f23348d75e224f3da656b97dfed",
       "symbols": [
         {
           "name": "LexiconMemoryContext",
@@ -17755,8 +17755,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 61,
-      "sha256": "11d8057d4edd5baf1f773a570c1e35a70e6a0b6a828b7769c84f95628f7c74df",
+      "lines": 62,
+      "sha256": "5e31a3f6ae3c49e80a637dab769177985df5743757611f5fdfd538dc8d57a9df",
       "symbols": [
         {
           "name": "assemble",
@@ -18275,8 +18275,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1783,
-      "sha256": "f7915f434080e79ff518dbdede185f01460c7648ed0a34f280b812f438ee3383",
+      "lines": 1785,
+      "sha256": "37f15c34898085095bacf9842bd2f74dae7895b55c045807c9ec2b4d2359a9c1",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -18300,7 +18300,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1727
+          "line": 1729
         }
       ]
     },
@@ -23119,8 +23119,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt",
-      "lines": 79,
-      "sha256": "0ab74a97d7e2e653c23f2b02427432b0d293fd0e21ea2c34886519cae5ed6020",
+      "lines": 78,
+      "sha256": "b7f815b70128d4189306c9cc9af283453d3c590c7ab6456c93a84ab2f38cdee6",
       "symbols": [
         {
           "name": "LexiconWorkingSetTest",
@@ -23199,7 +23199,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt",
       "lines": 89,
-      "sha256": "00da671f2cf2893402eca3e4002da29c266984d3be21f545022d3d9ade4132f4",
+      "sha256": "8a34bc12ac0d35b549209db3fdd2281a1a3fa839b3fec8bfe18ac0762151ca55",
       "symbols": [
         {
           "name": "MemoryContinuityTest",
