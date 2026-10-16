@@ -47,6 +47,7 @@ class ConversationExpressionGatewayTest {
                 val system = request.getJSONArray("messages").getJSONObject(0).getString("content")
                 if (CharacterExpressionGuide.isExpressionOnly(source)) {
                     assertTrue(system.contains("【同一人物的表达层】"))
+                    assertTrue(system.contains("旁支理由和联想供你取舍"))
                     assertTrue(system.contains("熟悉时说话干脆，会接冷笑话"))
                     assertFalse(system.contains("【统一角色决策协议】"))
                     assertFalse(system.contains("【人物的基本原则"))
@@ -54,6 +55,8 @@ class ConversationExpressionGatewayTest {
                     assertTrue(system.contains("【统一角色决策协议】"))
                     assertFalse(system.contains("【同一人物的表达层】"))
                 }
+                assertTrue(system.contains("【含蓄与留白】"))
+                assertTrue(system.contains("哄睡连续故事按实际需要充分表达"))
             }
             assertEquals(sources.size, server.requestCount)
         } finally { server.shutdown() }

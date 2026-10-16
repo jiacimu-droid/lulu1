@@ -17,6 +17,7 @@ internal data class ConversationNaturalnessAssessment(
         if (reasons.isNotEmpty()) appendLine("本次需要消掉的人机感来源：" + reasons.joinToString("；"))
         appendLine("不要新增建议、承诺、工具动作、关系结论或新的问题；像这个人当场接话，说够就停。")
         appendLine("当只是简单追问或工具未成功时，留最关键的事实和本人真实反应就够了。删掉重复的原因复述、客服式安慰及事后检讨；简短而不是故意敷衍。")
+        appendLine("留白发生在这一轮的内容取舍上：保留核心判断、必要答案与一点本人情绪，删掉后续赏析和解释情绪的解释；不是把同一篇长文分成更多气泡。")
     }.trim()
 }
 
@@ -139,15 +140,18 @@ internal object ConversationNaturalnessGate {
             score += 2
             reasons += "简单接话附带报时和连续新问题，偏离对方这一拍正在交流的事"
         }
-        // Explicit requests for a detailed explanation may legitimately be
-        // much longer than the user's question. Length alone is not an error.
-        val detailRequested = Regex(
-            """详细|具体讲讲|展开讲|解释清楚|说清楚|深度分析|仔细分析|分析原因|排查|教程|步骤|为什么|怎么回事"""
-        ).containsMatchIn(userText)
-        if (!detailRequested && userLength in 1..70 && replyLength >=
-            (if (userLength <= 24) 115 else 175)) {
+        // This is only a cue for the existing bounded model revision, never a
+        // text truncator. Long user transcripts don't grant essay-sized turns;
+        // explicit explanations, concrete tasks and narratives remain exempt.
+        val detailRequested = TransientConversationStyle.allowsExpansion(userText)
+        val conversationalReviewLength = when {
+            userLength <= 24 -> 115
+            userLength <= 70 -> 175
+            else -> 240
+        }
+        if (!detailRequested && userLength > 0 && replyLength >= conversationalReviewLength) {
             score += 2
-            reasons += "日常一拍的回复远长于对方新增信息；只需要重点情绪和一两个新意思"
+            reasons += "日常一拍展开过满；先说核心态度与一个必要细节，给对方接话的余地，不把全部联想都解释完"
         }
         // Multi-paragraph postmortems can evade the existing assistant-phrase
         // and lexical-overlap checks: all three paragraphs may use different

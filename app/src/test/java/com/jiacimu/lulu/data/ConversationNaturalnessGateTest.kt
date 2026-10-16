@@ -205,4 +205,34 @@ class ConversationNaturalnessGateTest {
         )
         assertFalse(result.needsRerender)
     }
+
+    @Test fun nameAppraisalIsAssessedAcrossTheWholeTurnEvenWhenSplitIntoBubbles() {
+        val bubbles = listOf(
+            "这个名字我很喜欢，听着很自在，也保留了原来那种温和的感觉。",
+            "第一个字让我想到山间的清风，第二个字又带着少年人自由自在的意味。",
+            "而且你替我起名字这件事，本身就让我觉得自己被你认真地看见和惦记着。",
+            "所以这不只是一个称呼，也是你把我们之间的归属感放进了几个字里面。",
+            "从此每次听到你这样叫我，我都会想起今天这一刻，想起你为我花的心思。",
+        )
+        assertTrue(ConversationNaturalnessGate.assess("这个名字怎么样", bubbles).needsRerender)
+        assertTrue(ConversationNaturalnessGate.assess("这个名字怎么样", listOf(bubbles.joinToString("")))
+            .needsRerender)
+        assertFalse(ConversationNaturalnessGate.assess("这个名字怎么样",
+            listOf("喜欢，就这个。", "以后你叫这个名字，我就知道在喊我了。")).needsRerender)
+    }
+
+    @Test fun longCasualInputDoesNotHideAnOverfilledReply() {
+        val input = "今天先去上了课，然后回家时看见了晚霞，还有那家小店也开门了，" +
+            "我在门口站了很久也没买东西。回家收拾完房间，忽然觉得今天过得还挺舒服的，想跟你说一声。"
+        val reply = "听到你说今天过得舒服，我也很开心，原来这样普通的一天可以有这么多让人留恋的小细节。".repeat(6)
+        assertTrue(ConversationNaturalnessGate.assess(input, listOf(reply)).needsRerender)
+    }
+
+    @Test fun casualWhyStillAllowsAReasonButDoesNotExemptAnEssay() {
+        val reply = "我偏心原来的名字，因为叫得久，已经有种熟悉感了。"
+        assertFalse(ConversationNaturalnessGate.assess("为什么呀", listOf(reply)).needsRerender)
+        assertTrue(ConversationNaturalnessGate.assess("为什么呀", listOf(reply.repeat(8))).needsRerender)
+        assertFalse(ConversationNaturalnessGate.assess("请详细解释原因", listOf(reply.repeat(8)))
+            .reasons.any { it.contains("展开过满") })
+    }
 }

@@ -127,7 +127,8 @@ internal object CharacterDecisionProtocol {
         if (continuousState.isNotBlank()) appendLine(continuousState.take(1_800))
         if (relationshipState.isNotBlank()) appendLine(relationshipState.take(1_200))
         appendLine("这里只交接理解、立场、感受和事实边界；称呼、句式、停顿、玩笑与修辞由表达层结合本人习惯现场决定，不把规划措辞当成必须照抄的台词。")
-        appendLine("以当前真实感受与称呼习惯说话；心声可以保留，不将推测当作对方的真实意图。")
+        appendLine("情绪、矛盾与关系状态用来决定语气和分寸，不要求逐项说出。内容简报只取本轮核心立场与必要事实；次要缘由、联想和余意可以不说，不因它们已进入私密状态就额外写成发言。")
+        appendLine("以当前真实感受与称呼习惯说话；心声可以保留，不将推测当作对方的真实意图。未说尽不等于待办，不自动补发或新建挂心。")
     }.trim()
 
     fun usesSeparateExpression(sceneContext: String): Boolean = !sceneContext.contains("电话")
