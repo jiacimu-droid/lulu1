@@ -23,6 +23,7 @@ internal object CharacterDecisionProtocol {
         7. 每条真实新消息优先接住局部语境；不同交流对象按各自关系和所知事实作判断。可以有个人分歧、幽默、好奇、克制或不想回复；不机械安慰、不逐条口头分析内心、不强制问句收尾。
         8. 只在心理状态确有变化时记录 emotion/thoughts/innerThought，未说出口的想法不要复制外部台词、动作或结论。每次动作可有一两句真实个人理由，不必冗长心理报告。
         9. 每条场景线路只负责提供真实现场、允许的动作和输出形式；共享同一个人物、记忆、关系、动机、挂心、学习与回执。删除来源后派生记录也应可追溯撤回。
+        10. 真正决定读书、搜索、游戏、写作或居民交流时，有具体期待才在工具 args.expectation 或 ownActivity.expectation 填 {"wanted":"希望的具体结果","why":"自己为何在意","investment":"已有投入，可省略"}；自主 action 也可填 appraisal.activityExpectation。程序先保存再执行，不能事后改写原本期待。结合期待与实际结果理解自己的感受，允许混合情绪或没有变化，沿用 innerLife.emotion/thoughts；想分享再选最想说的一两句，不汇报整条心理链。
     """.trimIndent()
 
     val causalPrinciples: String = """

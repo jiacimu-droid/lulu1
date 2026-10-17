@@ -56,7 +56,7 @@ internal object CharacterLifeFollowThroughStore {
      * unified timeline. Repeat receipts cannot generate another "new life".
      */
     fun register(characterId: String, evidenceId: String, channel: String,
-                 summary: String, at: Instant = Instant.now()): Boolean = synchronized(lock) {
+                 summary: String, at: Instant = Instant.now(), sourceEvidenceId: String = ""): Boolean = synchronized(lock) {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank() || summary.isBlank()) {
             return@synchronized false
         }
@@ -66,6 +66,7 @@ internal object CharacterLifeFollowThroughStore {
             .put("fact", summary.take(340)).put("occurredAt", at.toString())
             .put("shareStatus", "open").put("curiosityStatus", "open")
             .put("createdAt", Instant.now().toString())
+            .put("sourceEvidenceId", sourceEvidenceId)
         all += event
         save(characterId, all)
         // Wake the already existing shared decision pipeline once for an
@@ -94,7 +95,8 @@ internal object CharacterLifeFollowThroughStore {
         prefs?.all?.keys?.filter { it.startsWith("character:") }?.forEach { key ->
             val role = key.removePrefix("character:")
             val old = records(role)
-            val remaining = old.filterNot { it.optString("id") == evidenceId }.map { item ->
+            val remaining = old.filterNot { it.optString("id") == evidenceId ||
+                it.optString("sourceEvidenceId") == evidenceId }.map { item ->
                 val restored = JSONObject(item.toString())
                 if (restored.optString("shareReceiptId") == evidenceId) {
                     restored.put("shareStatus", if (restored.optString("shareWhy").isNotBlank())

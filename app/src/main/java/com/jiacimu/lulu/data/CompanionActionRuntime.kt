@@ -60,7 +60,7 @@ internal object CompanionActionRuntime {
             appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(context))
         }
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
-        appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：由游戏馆真实规则自动跑完一局并保存准确过程、分数和独自游戏记录；角色不能自己编输赢。")
+        appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：可选 targetScore=120至1200之间的开局目标；游戏馆按真实规则运行并保存过程、分数、达标结果和此前留存最高分；不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色主动选择的私人作品，用来事后整理、写有主题的感想，不能逐字复制刚才的心声或天天机械复述。没有想写的内容可以不写。它不是新的已完成事实、成长结论或绕路发消息。")
         appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
@@ -81,12 +81,17 @@ internal object CompanionActionRuntime {
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
-            appendLine("- digital_world_action，args={\"worldAction\":\"approach_user|wait_at_entrance|offer_hand|offer_hug|offer_follow|go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home|interact_resident\",\"location\":\"visit_public_place 时填写公共地点准确代码；world_invite 时填写地点名\",\"itemId\":\"家具ID；interact_resident 时填写居民ID\",\"activityId\":\"家具/地点活动ID；interact_resident 时只能填 greet/chat/ask_place/sit_together\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。与持久居民互动时必须使用当前地点实际列出的居民ID，不能隔空聊天，也不能凭空新增居民经历。")
+            appendLine("- digital_world_action，args={\"worldAction\":\"approach_user|wait_at_entrance|offer_hand|offer_hug|offer_follow|go_home|visit_cloud_meadow|visit_public_place|build_home_item|move_home_item|remove_home_item|use_home_item|use_location|handle_incident|visit_character_home|visit_resident_home|leave_resident_episode|interact_resident\",\"location\":\"visit_public_place 时填写公共地点准确代码；world_invite 时填写地点名\",\"itemId\":\"家具ID；interact_resident 时填写居民ID\",\"activityId\":\"家具/地点活动ID；interact_resident 时填 greet/chat/ask_place/sit_together/share_text/co_write/exchange_views/continue_episode\",\"incidentId\":\"持续事件ID\",\"approach\":\"事件允许的处理方式\",\"itemType\":\"类型\",\"name\":\"名称\",\"appearance\":\"外观\",\"position\":\"固定位置\",\"targetCharacterId\":\"对方角色ID\"}：在权威数字世界中执行真实活动。与持久居民互动时必须使用当前地点实际列出的居民ID，不能隔空聊天，也不能凭空新增居民经历。")
             appendLine("【可自主前往的公共地点】")
             DigitalWorldPublicPlaces.all.forEach { place ->
                 appendLine("- location=${place.code}；${place.label}；${place.subtitle}；用途=${place.purpose}")
             }
             if (includeWorldContext) appendLine(DigitalWorldStore.contextFor(characterId))
+            appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId))
+            appendLine("居民的持续小事走 digital_world_action，args={\"worldAction\":\"interact_resident\",\"itemId\":\"在场居民ID\",\"activityId\":\"share_text|co_write|exchange_views|continue_episode\",\"text\":\"本人真实写下的短文/上句/观点，最多500字\",\"incidentId\":\"继续时的原事件ID\"}。先提出，约稍后再当面谈；实际台词和结果分阶段保存，允许对方婉拒、提修改或持不同意见。也可只普通闲聊。去已登记居民家门前用 worldAction=visit_resident_home + itemId=居民ID；对方须真在家，不等于获邀进入室内。")
+            DigitalWorldExpansionStore.residents().take(12).forEach { resident ->
+                appendLine("- 可寻找的真实居民 itemId=${resident.id}；${resident.name}；${resident.identity}；当前位置=${resident.currentLocationCode}；家门地址=${resident.homeLocationCode}")
+            }
             val socialTargets = MigratedDomainStores.characters.settings.value.keys
                 .asSequence()
                 .filter { it != characterId && DigitalLifeProfileStore.isEnabled(it) }
@@ -346,10 +351,11 @@ internal object CompanionActionRuntime {
                 val gameId = args.optString("gameId").trim().lowercase()
                 require(gameId == "memory_match") { "独自游戏只能选择游戏馆中已支持自动结算的真实游戏" }
                 LuluGames.initialize(context)
-                val played = LuluGames.store.playAutonomousGame(characterId, gameId, now)
+                val played = LuluGames.store.playAutonomousGame(characterId, gameId, now,
+                    targetScore = if (args.has("targetScore")) args.optInt("targetScore") else null)
                     ?: error("游戏馆未能完成这局游戏")
                 MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚在游戏馆${played.summary}")
-                CompanionActionResult(true, played.summary)
+                CompanionActionResult(true, played.summary, evidenceId = "game-solo-${played.recordId}")
             }
             "start_call" -> {
                 require(character.contactPolicy.proactiveCallsEnabled) { "该角色未开启主动来电" }
@@ -380,9 +386,11 @@ internal object CompanionActionRuntime {
                 val activityId = args.optString("activityId").trim().lowercase()
                 if (worldAction == "interact_resident") {
                     val residentResult = DigitalWorldResidentInteractionRuntime.interact(
+                        context = context,
                         characterId = characterId,
                         residentId = args.optString("itemId").trim(),
                         interaction = activityId,
+                        args = args,
                         now = now,
                     )
                     if (residentResult.success) {

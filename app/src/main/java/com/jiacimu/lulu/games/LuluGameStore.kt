@@ -4,6 +4,7 @@ import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.EventEvidenceKind
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -267,6 +268,8 @@ class LuluGameStore internal constructor(context: Context) {
                     if (record.detailsJson != "{}") append("\n真实过程数据：${record.detailsJson}")
                 },
                 occurredAt = record.createdAt,
+                source = "solo-game",
+                evidenceKind = EventEvidenceKind.ToolResult,
             )
         }
         return record.id
@@ -276,9 +279,14 @@ class LuluGameStore internal constructor(context: Context) {
         characterId: String,
         gameId: String,
         now: Instant = Instant.now(),
+        targetScore: Int? = null,
     ): AutonomousGameResult? {
         if (characterId.isBlank()) return null
+        require(targetScore == null || targetScore in 120..1200) { "目标分数必须在真实游戏的120至1200分范围内" }
         val normalized = gameId.trim().lowercase()
+        val previousBest = mutableState.value.records.filter {
+            it.characterId == characterId && !it.playedWithCharacter && it.type == LuluGameType.MemoryMatch
+        }.maxOfOrNull { it.score }
         val random = Random("$characterId:$normalized:${now.toEpochMilli()}".hashCode())
         val played = when (normalized) {
             "memory_match" -> {
@@ -318,11 +326,18 @@ class LuluGameStore internal constructor(context: Context) {
                     type = LuluGameType.MemoryMatch,
                     title = "记忆配对",
                     score = score,
-                    summary = "独自完成一局记忆配对：用 $moves 轮找齐 6 对卡片，得分 $score。",
+                    summary = buildString {
+                        append("独自完成一局记忆配对：用 $moves 轮找齐 6 对卡片，得分 $score。")
+                        targetScore?.let { append("开局前目标 $it 分，${if (score >= it) "达到目标" else "未达到目标，还差${it - score}分"}。") }
+                        previousBest?.let { append("此前留存记录中个人最高 $it 分，${if (score > it) "这次超过了它" else "这次没有超过"}。") }
+                    },
                     detailsJson = JSONObject()
                         .put("game", "memory_match")
                         .put("cards", JSONArray(cards))
                         .put("turns", turns)
+                        .put("targetScore", targetScore ?: JSONObject.NULL)
+                        .put("targetReached", targetScore?.let { score >= it } ?: JSONObject.NULL)
+                        .put("previousBest", previousBest ?: JSONObject.NULL)
                         .toString(),
                 )
             }

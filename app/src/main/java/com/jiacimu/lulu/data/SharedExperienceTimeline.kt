@@ -46,6 +46,7 @@ object SharedExperienceTimeline {
         CharacterRelationshipPreferences.invalidate()
         MemoryExtractionJobStore.initialize(application)
         CharacterLifeFollowThroughStore.initialize(application)
+        DigitalWorldResidentEpisodeStore.initialize(application)
         CharacterLearningLedger.initialize(application)
         CharacterLearningAgenda.initialize(application)
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(application)
@@ -199,6 +200,7 @@ object SharedExperienceTimeline {
         // the role's possible future sharing and curiosity. Chat claims,
         // fictional stories, and mere model intentions never enter this queue.
         val verifiedLifeEvent = source in setOf("xiaohongshu-webview", "xiaohongshu-mcp") ||
+            CharacterPerceptionContext.personalOutcome(source, clean) != null ||
             source == "digital-world" ||
             source.startsWith("reading:") ||
             (channel.startsWith("独自") && source !in setOf("legacy", "message")) ||
@@ -207,7 +209,8 @@ object SharedExperienceTimeline {
             evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
                 EventEvidenceKind.UserStatement, EventEvidenceKind.Inference)) {
             CharacterLifeFollowThroughStore.register(
-                characterId, eventId, channel, clean, occurredAt,
+                characterId, eventId, channel, CharacterPerceptionContext.personalOutcome(source, clean) ?: clean, occurredAt,
+                sourceEvidenceId = CharacterPerceptionContext.outcomeEvidenceId(source, clean).orEmpty(),
             )
         }
         if (previous != null) {
@@ -222,7 +225,8 @@ object SharedExperienceTimeline {
                 evidenceKind !in setOf(EventEvidenceKind.CharacterStatement,
                     EventEvidenceKind.UserStatement, EventEvidenceKind.Inference)) {
                 CharacterLifeFollowThroughStore.register(
-                    characterId, eventId, channel, clean, occurredAt,
+                    characterId, eventId, channel, CharacterPerceptionContext.personalOutcome(source, clean) ?: clean, occurredAt,
+                    sourceEvidenceId = CharacterPerceptionContext.outcomeEvidenceId(source, clean).orEmpty(),
                 )
             }
             LuluRepositories.lexicon.invalidateSource(eventId)

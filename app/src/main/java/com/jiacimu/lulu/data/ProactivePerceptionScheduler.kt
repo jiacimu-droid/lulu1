@@ -485,6 +485,19 @@ object ProactivePerceptionScheduler {
      * event. A queue can collect multiple events without creating a model call
      * per ambient sound, and the user is never auto-contacted by this scheduler.
      */
+    fun scheduleResidentEpisodeReview(context: Context, characterId: String, episodeId: String, readyAt: Instant) {
+        if (!ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val work = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay((readyAt.toEpochMilli() - System.currentTimeMillis()).coerceAtLeast(0), TimeUnit.MILLISECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder().putString("characterId", characterId)
+                .putString("residentEpisodeId", episodeId)
+                .putString("trigger", "居民小事到了可以再谈的时候，读取仍存在的真实进度，自主决定继续、暂缓或做别的；没有自动生成对方回复，也不强制联系用户。")
+                .putBoolean("force", true).putBoolean("preserveOffline", true).build()).build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-resident-episode-$characterId-$episodeId", ExistingWorkPolicy.REPLACE, work)
+    }
+
     fun scheduleLifeFollowThrough(context: Context, characterId: String) {
         if (characterId.isBlank() ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return
@@ -637,6 +650,11 @@ class ProactivePerceptionWorker(
         val preserveOffline = inputData.getBoolean("preserveOffline", false)
         val onlineExpiryAtMillis = inputData.getLong("onlineExpiryAtMillis", 0L)
         val goalReviewId = inputData.getString("goalReviewId").orEmpty()
+        val residentEpisodeId = inputData.getString("residentEpisodeId").orEmpty()
+        if (residentEpisodeId.isNotBlank() && (characterId == null ||
+                !DigitalWorldResidentEpisodeStore.isReady(characterId, residentEpisodeId, Instant.now()))) {
+            return@runCatching Result.success()
+        }
         if (goalReviewId.isNotBlank()) {
             if (characterId == null ||
                 CompanionPresenceStore.isInCall(characterId) ||
@@ -661,7 +679,7 @@ class ProactivePerceptionWorker(
         }
         if (preserveOffline && onlineExpiryAtMillis == 0L &&
             (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
-                !CharacterInnerLifeStore.needsPostOnlineReflection(characterId) ||
+                (residentEpisodeId.isBlank() && !CharacterInnerLifeStore.needsPostOnlineReflection(characterId)) ||
                 !ProactivePerceptionPolicyStore.get(characterId).enabled)) {
             return@runCatching Result.success()
         }

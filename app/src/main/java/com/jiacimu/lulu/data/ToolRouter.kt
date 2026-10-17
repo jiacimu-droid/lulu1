@@ -46,6 +46,9 @@ object ToolRouter {
                             CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, receiptId,
                                 name, result.optBoolean("success"),
                                 result.optString("summary").ifBlank { result.optString("error") })
+                            CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
+                                result.optString("evidenceId").ifBlank { receiptId }, result.optBoolean("success"),
+                                result.optString("summary").ifBlank { result.optString("error") })
                         }
                     }
                 }
@@ -58,6 +61,9 @@ object ToolRouter {
         CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
         val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
             .put("tool", name).put("fingerprint", fingerprint).put("status", "running").put("startedAt", Instant.now().toString())
+        CharacterInnerLifeStore.initialize(context)
+        CharacterInnerLifeStore.beginActivityExpectation(characterId, goalReceiptId, name,
+            args.optJSONObject("expectation"))
         check(prefs.edit().putString(key, execution.toString()).commit())
         // Once accepted, complete and persist the actual effect even if speech is interrupted.
         withContext(NonCancellable) {
@@ -92,6 +98,9 @@ object ToolRouter {
             }
             SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                 execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
+            CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
+                parsed.optString("evidenceId").ifBlank { receiptId },
+                parsed.optBoolean("success"), parsed.optString("summary").ifBlank { parsed.optString("error") })
             val outcome = parsed
             // A delivered chat bubble does not automatically buy another five-minute
             // online lease. Only the character's next expiry decision can do that.

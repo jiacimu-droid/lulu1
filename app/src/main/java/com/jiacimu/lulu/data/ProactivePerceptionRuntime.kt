@@ -69,6 +69,7 @@ object ProactivePerceptionRuntime {
         val concernId: String = "",
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
+        val targetScore: Int? = null,
         val intention: JSONObject? = null,
         val afterglow: JSONObject? = null,
         val innerLife: JSONObject? = null,
@@ -214,6 +215,7 @@ object ProactivePerceptionRuntime {
                 // A lifestyle-review wake is not permission to disturb quiet
                 // hours just to produce a social post; unresolved cues persist.
                 if ((trigger.startsWith("真实生活后续回想") ||
+                    trigger.startsWith("居民小事到了") ||
                     trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
                     isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                 if (!force) {
@@ -231,6 +233,7 @@ object ProactivePerceptionRuntime {
                     trigger.startsWith("真实生活后续回想") ||
                     trigger.startsWith("角色自己先前有过") ||
                     trigger.startsWith("角色自己刚完成") ||
+                    trigger.startsWith("居民小事到了") ||
                     trigger.startsWith("强烈情绪的后续整理")
                 if (lowUrgencyLifeReview && onlineExpiryAtMillis == 0L) {
                     val previousAt = prefs.getLong("last_evaluation_$characterId", 0L)
@@ -600,6 +603,12 @@ object ProactivePerceptionRuntime {
                     appendLine("先理解可见细节如何改变自己的注意、情绪和愿望，再选行动。可以疑惑、期待、好奇她在做什么或想分享，但这些是自己的私人解释，不能断言用户尚未表达的心思；也不必每次强行反省或采取行动。")
                 }
                 appendLine(affordances)
+                if (digital) {
+                    appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId, now))
+                    DigitalWorldExpansionStore.residents().take(12).forEach { resident ->
+                        appendLine("可寻找的登记居民 itemId=${resident.id}；${resident.name}；身份=${resident.identity}；当前位置=${resident.currentLocationCode}；住宅=${resident.homeLocationCode}。若真在家，可 visit_resident_home 到门前；公共地点则用现有准确 location 前往。")
+                    }
+                }
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
                 WorldLifeEpisodeStore.initialize(appContext)
                 // Music is a REAL device action, not an imagined soundtrack
@@ -879,6 +888,7 @@ object ProactivePerceptionRuntime {
         val routineHeartbeat = listOf(
             "在线持续感知", "合并后的自主生活回顾", "真实生活后续回想",
             "角色自己先前有过", "角色自己刚完成", "强烈情绪的后续整理",
+            "居民小事到了",
         ).any { trigger.startsWith(it) }
         val shouldReview = !routineHeartbeat && (followThroughReview || (!ownActivityAlreadyExecutable && !activityInFlight && awakeReflection &&
             now.toEpochMilli() - lastAgencyReview >= 20 * 60_000L &&
@@ -1480,6 +1490,7 @@ object ProactivePerceptionRuntime {
             put("nickname", decision.nickname)
             put("groupId", decision.groupId)
             put("gameId", decision.gameId)
+            decision.targetScore?.let { put("targetScore", it) }
             put("title", decision.journalTitle)
             put("content", decision.journalContent.ifBlank { if (decision.action == Action.JOURNAL) decision.text else "" })
             put("readingBookId", decision.readingBookId)
@@ -1503,6 +1514,7 @@ object ProactivePerceptionRuntime {
         }
         // Program-owned, frozen input evidence; never accept IDs authored by the
         // model for the delivery receipt. Keep unrelated chat turns untouched.
+        decision.appraisal?.optJSONObject("activityExpectation")?.let { args.put("expectation", it) }
         args.remove("_replyEvidenceIds")
         if (tool in setOf("send_private_message", "send_group_message",
                 "send_private_sticker", "send_group_sticker") &&
@@ -1628,6 +1640,7 @@ object ProactivePerceptionRuntime {
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
             toolArgs = json.optJSONObject("args") ?: JSONObject(),
+            targetScore = if (json.has("targetScore")) json.optInt("targetScore") else null,
             intention = json.optJSONObject("intention"),
             afterglow = json.optJSONObject("afterglow"),
             innerLife = json.optJSONObject("innerLife"),

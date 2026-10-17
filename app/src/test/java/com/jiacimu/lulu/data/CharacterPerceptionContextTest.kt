@@ -2,9 +2,34 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class CharacterPerceptionContextTest {
+    @Test fun personalReceiptsEnterPerceptionWithoutMistakingRoutineMovementOrClaimsForNewExperience() {
+        val now = Instant.parse("2026-10-16T12:00:00Z")
+        fun receipt(tool: String, action: String = "", status: String = "succeeded") = org.json.JSONObject()
+            .put("tool", tool).put("status", status)
+            .put("fingerprint", "$tool:" + org.json.JSONObject().put("worldAction", action))
+            .put("result", org.json.JSONObject().put("success", status == "succeeded")
+                .put("summary", "实际结算840分，未达到开局900分目标").put("evidenceId", "game-fact").toString()).toString()
+        val game = SharedTimelineEvent("real-tool", "role", "实际工具执行", "执行器", receipt("play_solo_game"), now,
+            source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        val read = game.copy(id = "read", source = "reading:real", content = "真实正文进度",
+            evidenceKind = EventEvidenceKind.Observation)
+        val move = game.copy(id = "move", content = receipt("digital_world_action", "go_home"))
+        val thinking = game.copy(id = "not-done", content = receipt("play_solo_game", status = "running"))
+        val claim = game.copy(id = "claim", source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+        assertEquals(listOf("real-tool", "read"), CharacterPerceptionContext.selectRecent(
+            listOf(game, read, move, thinking, claim), now).map { it.id })
+        assertTrue(CharacterPerceptionContext.stimulus(game).description.contains("840分"))
+        assertEquals("game-fact", CharacterPerceptionContext.outcomeEvidenceId(game.source, game.content))
+        assertNull(CharacterPerceptionContext.personalOutcome("message", game.content))
+    }
     @Test fun observedCallEndIsAnEventNotAnInferenceAboutUserEmotion() {
         val now = Instant.parse("2026-10-11T00:00:00Z")
         val call = SharedTimelineEvent(

@@ -12,6 +12,20 @@ import org.robolectric.annotation.Config
 class CharacterSelfActivityRuntimeTest {
     private val available = setOf("real-book-7")
 
+    @Test fun personalNpcChoicesAndPreGameTargetsReachTheSameRealExecutor() {
+        val idea = JSONObject().put("stage", "decided").put("action", "digital_world")
+            .put("worldAction", "interact_resident").put("itemId", "actual-npc")
+            .put("activityId", "share_text").put("text", "今天自己写的上句")
+        val parsed = CharacterSelfActivityRuntime.parse(idea, available, true)!!
+        assertEquals("interact_resident", parsed.args.getString("worldAction"))
+        assertEquals("今天自己写的上句", parsed.args.getString("text"))
+        assertNull(CharacterSelfActivityRuntime.parse(JSONObject(idea.toString()).put("text", ""), available, true))
+        assertNull(CharacterSelfActivityRuntime.parse(JSONObject(idea.toString()).put("activityId", "invented_npc_event"), available, true))
+        val game = CharacterSelfActivityRuntime.parse(JSONObject().put("stage", "decided")
+            .put("action", "solo_game").put("gameId", "memory_match").put("targetScore", 900), available, true)!!
+        assertEquals(900, game.args.getInt("targetScore"))
+    }
+
     @Test fun realReceiptConsumesOnlyTheMatchingConsideration() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)

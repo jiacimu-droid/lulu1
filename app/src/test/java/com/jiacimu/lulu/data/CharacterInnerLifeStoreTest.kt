@@ -20,6 +20,32 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear("inside-test-b")
     }
 
+    @Test fun preActionExpectationsAndLaterAppraisalUseOneStateAndDeletionRetractsBoth() {
+        start()
+        val role = "inside-test-expectation-result"
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-16T12:00:00Z")
+        CharacterInnerLifeStore.beginActivityExpectation(role, "tool-expected", "play_solo_game",
+            JSONObject().put("wanted", "超过900分").put("why", "想进步一点"), now)
+        CharacterInnerLifeStore.resolveActivityExpectation(role, "tool-expected", "missing-game", true, "得了840分", now)
+        assertEquals("awaiting_result", CharacterInnerLifeStore.snapshot(role)
+            .getJSONArray("activityExpectations").getJSONObject(0).getString("status"))
+        val source = "real-game-for-expectation"
+        SharedExperienceTimeline.record(source, role, "独自游戏", "游戏馆", "实际得分840，没达开局目标900分", now,
+            triggerExtraction = false, source = "solo-game", evidenceKind = EventEvidenceKind.ToolResult)
+        CharacterInnerLifeStore.resolveActivityExpectation(role, "tool-expected", source, true, "得了840分", now)
+        assertNull(CharacterInnerLifeStore.snapshot(role).optJSONObject("emotion"))
+        CharacterInnerLifeStore.observe(role, source, "实际得分840", JSONObject().put("emotion", JSONObject()
+            .put("feeling", "有点不服气，也觉得好笑").put("cause", "没达自己定的900分目标")), now = now)
+        assertTrue(CharacterInnerLifeStore.compactContext(role, now).contains("超过900分"))
+        SharedExperienceTimeline.deleteEvent(source)
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role).getJSONArray("activityExpectations").length())
+        assertNull(CharacterInnerLifeStore.snapshot(role).optJSONObject("emotion"))
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun strongRecordedRegretSurvivesFiveMinutePresenceWindowForAftercare() {
         start()
         val id = "inside-test-aftercare"

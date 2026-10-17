@@ -54,7 +54,7 @@ internal object AutonomousAffordanceContext {
                 appendLine("- 眼前真正存在的居民，可由自己选择是否交流：")
                 currentResidents.take(5).forEach { (id, name, identity) ->
                     appendLine("  · action=digital_world；worldAction=interact_resident；itemId=" +
-                        id + "；activityId=greet|chat|ask_place|sit_together；居民=" +
+                        id + "；activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views；后三者需 text=本人原文；居民=" +
                         name.take(50) + "；身份=" + identity.take(90))
                 }
             } else {

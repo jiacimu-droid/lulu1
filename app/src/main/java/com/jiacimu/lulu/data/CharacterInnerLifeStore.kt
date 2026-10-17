@@ -73,6 +73,24 @@ object CharacterInnerLifeStore {
         revisionState.value += 1L
     }
 
+    @Synchronized internal fun beginActivityExpectation(characterId: String, receiptId: String,
+        tool: String, proposal: JSONObject?, now: Instant = Instant.now()) {
+        if (prefs == null) return
+        val root = snapshot(characterId)
+        val next = CharacterActivityExpectation.begin(root.optJSONArray("activityExpectations"),
+            receiptId, tool, proposal, now) ?: return
+        root.put("activityExpectations", next)
+        save(characterId, root)
+    }
+
+    @Synchronized internal fun resolveActivityExpectation(characterId: String, receiptId: String,
+        evidenceId: String, success: Boolean, result: String, now: Instant = Instant.now()) {
+        if (prefs == null || SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).isEmpty()) return
+        val root = snapshot(characterId)
+        if (CharacterActivityExpectation.resolve(root.optJSONArray("activityExpectations"), receiptId,
+                evidenceId, success, result, now)) save(characterId, root)
+    }
+
     /** Legacy relational initiatives enter the one canonical motive collection. */
     @Synchronized fun integrateRelationalGoal(
         characterId: String, proposal: JSONObject, originId: String,
@@ -143,6 +161,7 @@ object CharacterInnerLifeStore {
         WorldLifeEpisodeStore.invalidateEvidence(eventId)
         CharacterRelationalInitiative.invalidateEvidence(eventId)
         CharacterLifeFollowThroughStore.invalidateEvidence(eventId)
+        DigitalWorldResidentEpisodeStore.invalidateEvidence(eventId)
         val ids = prefs?.all?.keys.orEmpty()
         fun backedBy(value: String): Boolean =
             value == eventId || value.contains(":$eventId:")
@@ -172,12 +191,13 @@ object CharacterInnerLifeStore {
                 }
                 root.put("emotionHistory", retained)
             }
-            listOf("motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries", "decisions").forEach { key ->
+            listOf("activityExpectations", "motives", "corrections", "voice", "innerVoices", "thoughts", "causalTransitions", "groundingEvents", "openConcerns", "closedConcerns", "expressiveDeliveries", "decisions").forEach { key ->
                 val values = root.optJSONArray(key) ?: return@forEach
                 val next = JSONArray()
                 for (i in 0 until values.length()) {
                     val entry = values.optJSONObject(i) ?: continue
                     val linked = backedBy(entry.optString("evidenceId")) ||
+                        (key == "activityExpectations" && backedBy(entry.optString("id"))) ||
                         (key in setOf("openConcerns", "closedConcerns") &&
                             CharacterOpenConcernRuntime.dependsOnEvidence(entry, eventId)) ||
                         (key in setOf("voice", "expressiveDeliveries") && backedBy(entry.optString("id"))) ||
@@ -1158,6 +1178,7 @@ object CharacterInnerLifeStore {
         val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
+            appendLine(CharacterActivityExpectation.context(root.optJSONArray("activityExpectations"), now))
             if (emotion != null) {
                 val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
                 val elapsed = started?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
@@ -1245,6 +1266,7 @@ object CharacterInnerLifeStore {
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
             appendLine("【角色持续内在生活｜主观状态而非客观事实】")
+            appendLine(CharacterActivityExpectation.context(root.optJSONArray("activityExpectations"), now))
             val active = CharacterMotiveState.active(motives)
             val paused = CharacterMotiveState.paused(motives)
             if (active.size > 1) {

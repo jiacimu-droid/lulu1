@@ -102,6 +102,7 @@ object DigitalWorldStore {
         DigitalWorldLifeEventStore.initialize(context.applicationContext)
         DigitalWorldActivityStateStore.initialize(context.applicationContext)
         WorldLifeEpisodeStore.initialize(context.applicationContext)
+        DigitalWorldResidentEpisodeStore.initialize(context.applicationContext)
     }
 
     fun homeLocation(characterId: String): String = "home:$characterId"
@@ -330,6 +331,14 @@ object DigitalWorldStore {
                         approach = approach,
                         now = now,
                     ).summary
+                }
+                "leave_resident_episode" -> DigitalWorldResidentEpisodeStore.leave(characterId, args.optString("incidentId"), now)
+                "visit_resident_home" -> {
+                    val resident = DigitalWorldExpansionStore.residents().firstOrNull { it.id == args.optString("itemId") }
+                        ?: error("没有这位已登记居民")
+                    require(resident.currentLocationCode == resident.homeLocationCode) { "居民此刻不在家，请根据真实位置前往" }
+                    setLocationLocked(characterId, resident.homeLocationCode)
+                    "${character.displayName}来到${resident.name}的家门前，尚未进入室内，也未假定对方同意交谈。"
                 }
                 "visit_character_home" -> {
                     val targetId = args.optString("targetCharacterId").trim()
@@ -819,6 +828,7 @@ object DigitalWorldStore {
         WorldLifeEpisodeStore.clear(characterId)
         DigitalWorldActivityStateStore.clearCharacter(characterId)
         DigitalWorldLifeEventStore.clearCharacter(characterId)
+        DigitalWorldResidentEpisodeStore.clearCharacter(characterId)
         synchronized(lock) {
             mutable.value = mutable.value.copy(
                 homes = mutable.value.homes - characterId,

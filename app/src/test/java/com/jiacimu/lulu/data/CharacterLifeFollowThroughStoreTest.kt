@@ -16,6 +16,16 @@ class CharacterLifeFollowThroughStoreTest {
     private val context: Context = RuntimeEnvironment.getApplication()
     private val now = Instant.parse("2026-10-11T12:00:00Z")
 
+    @Test fun deletingTheNativeOutcomeAlsoWithdrawsItsToolReceiptSharingProjection() {
+        CharacterLifeFollowThroughStore.initialize(context)
+        val role = "native-receipt-projection"
+        CharacterLifeFollowThroughStore.register(role, "tool-wrapper-for-native", "实际工具执行",
+            "居民实际提了修改意见", now, sourceEvidenceId = "native-dialogue-for-wrapper")
+        assertTrue(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, "tool-wrapper-for-native"))
+        CharacterLifeFollowThroughStore.invalidateEvidence("native-dialogue-for-wrapper")
+        assertFalse(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, "tool-wrapper-for-native"))
+    }
+
     @Test fun verifiedShareAndReadingReceiptsRollBackWhenDeleted() {
         SharedExperienceTimeline.initialize(context)
         CharacterLifeFollowThroughStore.initialize(context)

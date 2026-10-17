@@ -45,14 +45,35 @@ internal object CharacterSelfActivityRuntime {
             }
             "solo_game" -> {
                 if (input.optString("gameId") != "memory_match") null
-                else Proposal("play_solo_game", JSONObject().put("gameId", "memory_match"), "独自玩一局记忆配对")
+                else Proposal("play_solo_game", JSONObject().put("gameId", "memory_match").apply {
+                    if (input.has("targetScore")) put("targetScore", input.optInt("targetScore"))
+                }, "独自玩一局记忆配对")
             }
             "digital_world" -> {
                 if (!digitalLife) return null
                 val action = input.optString("worldAction").trim()
                 if (action !in setOf("go_home", "visit_cloud_meadow", "visit_public_place",
-                    "use_home_item", "use_location", "handle_incident")) return null
+                    "use_home_item", "use_location", "handle_incident", "interact_resident", "visit_resident_home", "leave_resident_episode")) return null
                 val args = JSONObject().put("worldAction", action)
+                if (action == "leave_resident_episode") {
+                    val id = input.optString("incidentId").trim()
+                    if (id.isBlank()) return null
+                    args.put("incidentId", id)
+                }
+                if (action in setOf("interact_resident", "visit_resident_home")) {
+                    val residentId = input.optString("itemId").trim()
+                    if (residentId.isBlank()) return null
+                    args.put("itemId", residentId)
+                    if (action == "interact_resident") {
+                        val interaction = input.optString("activityId").trim()
+                        if (interaction !in setOf("greet", "chat", "ask_place", "sit_together") +
+                            DigitalWorldResidentEpisodeStore.interactions) return null
+                        if (interaction == "continue_episode" && input.optString("incidentId").isBlank()) return null
+                        if (interaction in DigitalWorldResidentEpisodeStore.starts && input.optString("text").isBlank()) return null
+                        args.put("activityId", interaction).put("text", input.optString("text"))
+                            .put("incidentId", input.optString("incidentId"))
+                    }
+                }
                 if (action == "handle_incident") {
                     val incidentId = input.optString("incidentId").trim()
                     val approach = input.optString("approach").trim().lowercase()
@@ -109,6 +130,7 @@ internal object CharacterSelfActivityRuntime {
         ) { incidentId, approach ->
             DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach)
         } ?: return false
+        intended.optJSONObject("expectation")?.let { candidate.args.put("expectation", it) }
         val selected = if (candidate.tool == "read_book") {
             val title = available.firstOrNull { it.id == intended.optString("readingBookId") }?.title
                 ?: return false
