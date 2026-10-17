@@ -80,7 +80,7 @@ class BackgroundMessageDeliveryTest {
         assertEquals(0, notifications().single().flags and Notification.FLAG_ONLY_ALERT_ONCE)
         MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "第二句", role.characterId, replyBatchId = "turn1")
         assertTrue(notifications().single().flags and Notification.FLAG_ONLY_ALERT_ONCE != 0)
-        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "过一会的新话题", role.characterId, replyBatchId = "turn2")
+        MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "[游戏邀约|memory_match|翻牌] 过一会的新话题", role.characterId, replyBatchId = "turn2")
         assertEquals(0, notifications().single().flags and Notification.FLAG_ONLY_ALERT_ONCE)
         assertEquals("过一会的新话题", notifications().single().extras.getString(Notification.EXTRA_TEXT))
         MigratedDomainStores.chat.markConversationRead(conversation.id)

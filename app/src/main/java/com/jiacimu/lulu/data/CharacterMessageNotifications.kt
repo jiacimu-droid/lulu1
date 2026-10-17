@@ -54,7 +54,8 @@ internal object CharacterMessageNotifications {
             prefs.getString("last_batch_${conversation.id}", null) == message.replyBatchId
         val actor = MigratedDomainStores.characters.get(message.authorCharacterId ?: conversation.characterId).displayName
         val title = conversation.groupChat?.name?.let { "$actor · $it" } ?: actor
-        val text = qqForwardContextText(message.content).take(600)
+        val text = qqForwardContextText(message.content)
+            .replace(Regex("^\\[(?:游戏邀约|见面邀约)\\|[^]]+]\\s*"), "").take(600)
         val open = PendingIntent.getActivity(context, conversation.id.hashCode(),
             Intent(context, MigrationActivity::class.java)
                 .putExtra("open_conversation_id", conversation.id)
