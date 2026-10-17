@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.provider.AlarmClock
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -13,16 +12,12 @@ import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jiacimu.lulu.MigrationActivity
-import com.jiacimu.lulu.data.CommitmentExecutor
+import com.jiacimu.lulu.data.CommitmentAlarmTiming
 import com.jiacimu.lulu.data.CommitmentTaskStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 data class LuluAlarm(
@@ -33,6 +28,7 @@ data class LuluAlarm(
     val label: String,
     val createdAt: Instant = Instant.now(),
     val silentCallback: Boolean = false,
+    val commitmentTaskId: String? = null,
 )
 
 object LuluAlarmSystem {
@@ -41,6 +37,7 @@ object LuluAlarmSystem {
     private const val CHANNEL_ID = "lulu_alarm"
     private var context: Context? = null
 
+    @Synchronized
     fun initialize(appContext: Context) {
         context = appContext.applicationContext
         createChannel(appContext)
@@ -53,6 +50,7 @@ object LuluAlarmSystem {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || manager.canScheduleExactAlarms()
     }
 
+    @Synchronized
     fun create(
         characterId: String,
         characterName: String,
@@ -60,6 +58,7 @@ object LuluAlarmSystem {
         label: String,
         id: String = UUID.randomUUID().toString(),
         silentCallback: Boolean = false,
+        commitmentTaskId: String? = null,
     ): Result<LuluAlarm> = runCatching {
         val appContext = context ?: error("闹钟系统尚未初始化")
         list(appContext).firstOrNull { it.id == id }?.let { existing ->
@@ -74,76 +73,61 @@ object LuluAlarmSystem {
             triggerAt = triggerAt,
             label = label.trim().ifBlank { "该起床啦" },
             silentCallback = silentCallback,
+            commitmentTaskId = commitmentTaskId,
         )
-        if (silentCallback) {
-            scheduleBestEffortCallback(appContext, alarm)
-        } else if (canScheduleExact()) {
-            schedule(appContext, alarm)
-        } else {
-            // Never unexpectedly open an OEM Clock confirmation page.
-            // Without exact-alarm access we can only offer an inexact local callback.
-            // The tool receipt explicitly asks for one-time exact-alarm permission.
-            scheduleBestEffortCallback(appContext, alarm)
-        }
+        register(appContext, alarm)
         save(appContext, list(appContext).filterNot { it.id == alarm.id } + alarm)
+        CommitmentAlarmDelivery.scheduleBackup(appContext, alarm)
         alarm
     }
 
     fun list(): List<LuluAlarm> {
         val appContext = context ?: return emptyList()
-        val future = list(appContext).filter { it.triggerAt.isAfter(Instant.now()) }.sortedBy { it.triggerAt }
-        save(appContext, future)
-        return future
+        // A read must not erase the one-shot token while its OS callback is being delivered.
+        return list(appContext).filter { it.triggerAt.isAfter(Instant.now()) }.sortedBy { it.triggerAt }
     }
 
+    @Synchronized
     fun cancel(id: String): Boolean {
         val appContext = context ?: return false
         val alarms = list(appContext)
         val target = alarms.firstOrNull { it.id == id } ?: return false
         appContext.getSystemService(AlarmManager::class.java).cancel(pendingIntent(appContext, target))
-        dismissSystemClockAlarm(appContext, target)
         save(appContext, alarms.filterNot { it.id == id })
+        CommitmentAlarmDelivery.cancelBackup(appContext, id)
         return true
     }
 
-    internal fun markTriggered(context: Context, id: String) {
-        save(context, list(context).filterNot { it.id == id })
+    internal fun find(context: Context, id: String): LuluAlarm? = list(context).firstOrNull { it.id == id }
+
+    /** Receiver and durable fallback race for the same persisted token, never two calls. */
+    @Synchronized
+    internal fun takeForDelivery(context: Context, id: String, now: Instant): LuluAlarm? {
+        val alarms = list(context)
+        val alarm = alarms.firstOrNull { it.id == id } ?: return null
+        if (alarm.triggerAt.isAfter(now)) return null
+        save(context, alarms.filterNot { it.id == id })
+        return alarm
     }
 
+    @Synchronized
     internal fun restoreFutureAlarms(context: Context) {
         val now = Instant.now()
-        val future = list(context).filter { it.triggerAt.isAfter(now) }
-        future.forEach { alarm ->
-            runCatching {
-                if (!alarm.silentCallback && canScheduleExact()) schedule(context, alarm)
-                else scheduleBestEffortCallback(context, alarm)
-            }
+        // Briefly due alarms may be the reason this process was started. Re-registering their
+        // original timestamp asks Android to dispatch now; no Activity must be required first.
+        list(context).filterNot { CommitmentAlarmTiming.expired(it.triggerAt, now) }.forEach { alarm ->
+            runCatching { register(context, alarm) }
+                .onFailure { android.util.Log.w("LuluAlarm", "Alarm restore failed: ${alarm.id}", it) }
+            CommitmentAlarmDelivery.scheduleBackup(context, alarm)
         }
-        save(context, future)
     }
 
-    private fun setSystemClockAlarm(context: Context, alarm: LuluAlarm) {
-        val localTime = alarm.triggerAt.atZone(java.time.ZoneId.systemDefault())
-        val now = java.time.ZonedDateTime.now()
-        var nextAtSameTime = now.withHour(localTime.hour).withMinute(localTime.minute).withSecond(0).withNano(0)
-        if (!nextAtSameTime.isAfter(now)) nextAtSameTime = nextAtSameTime.plusDays(1)
-        val requested = localTime.withSecond(0).withNano(0)
-        require(kotlin.math.abs(ChronoUnit.MINUTES.between(nextAtSameTime, requested)) <= 1) {
-            "手机系统时钟只能直接创建未来 24 小时内下一次出现的时刻"
-        }
-        val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            putExtra(AlarmClock.EXTRA_HOUR, localTime.hour)
-            putExtra(AlarmClock.EXTRA_MINUTES, localTime.minute)
-            putExtra(AlarmClock.EXTRA_MESSAGE, systemLabel(alarm))
-            putExtra(AlarmClock.EXTRA_VIBRATE, true)
-            putExtra(AlarmClock.EXTRA_SKIP_UI, true)
-        }
-        try {
-            context.startActivity(intent)
-        } catch (_: android.content.ActivityNotFoundException) {
-            error("手机里没有支持创建系统闹钟的时钟应用")
-        }
+    private fun register(context: Context, alarm: LuluAlarm) {
+        if (!canScheduleExact()) scheduleBestEffortCallback(context, alarm)
+        // These are user-facing, accepted wake/reminder commitments. "Silent" only suppresses
+        // the duplicate generic notification, not precise wake delivery. Allow-while-idle alarms
+        // can be throttled beyond the promised five-minute wake retry while the phone dozes.
+        else schedule(context, alarm)
     }
 
     private fun scheduleBestEffortCallback(context: Context, alarm: LuluAlarm) {
@@ -154,18 +138,6 @@ object LuluAlarmSystem {
             pendingIntent(context, alarm),
         )
     }
-
-    private fun dismissSystemClockAlarm(context: Context, alarm: LuluAlarm) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
-        val intent = Intent(AlarmClock.ACTION_DISMISS_ALARM).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            putExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE, AlarmClock.ALARM_SEARCH_MODE_LABEL)
-            putExtra(AlarmClock.EXTRA_MESSAGE, systemLabel(alarm))
-        }
-        runCatching { context.startActivity(intent) }
-    }
-
-    private fun systemLabel(alarm: LuluAlarm): String = "${alarm.characterName} · ${alarm.label}"
 
     private fun schedule(context: Context, alarm: LuluAlarm) {
         val manager = context.getSystemService(AlarmManager::class.java)
@@ -216,6 +188,7 @@ object LuluAlarmSystem {
                             label = item.optString("label").ifBlank { "该起床啦" },
                             createdAt = runCatching { Instant.parse(item.optString("createdAt")) }.getOrDefault(Instant.now()),
                             silentCallback = item.optBoolean("silentCallback", false),
+                            commitmentTaskId = item.optString("commitmentTaskId").takeIf { it.isNotBlank() && it != "null" },
                         ),
                     )
                 }
@@ -234,12 +207,13 @@ object LuluAlarmSystem {
                         .put("triggerAt", alarm.triggerAt.toString())
                         .put("label", alarm.label)
                         .put("createdAt", alarm.createdAt.toString())
-                        .put("silentCallback", alarm.silentCallback),
+                        .put("silentCallback", alarm.silentCallback)
+                        .put("commitmentTaskId", alarm.commitmentTaskId ?: JSONObject.NULL),
                 )
             }
         }
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_ALARMS, array.toString()).apply()
+            .edit().putString(KEY_ALARMS, array.toString()).commit().also { check(it) { "闹钟记录未能保存" } }
     }
 
     private fun createChannel(context: Context) {
@@ -288,51 +262,29 @@ object LuluAlarmSystem {
     }
 }
 
-private val alarmExecutionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
 class LuluAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getStringExtra("alarm_id").orEmpty()
-        val characterId = intent.getStringExtra("character_id").orEmpty().ifBlank { "lulu" }
-        val characterName = intent.getStringExtra("character_name").orEmpty().ifBlank { "露露" }
-        val label = intent.getStringExtra("label").orEmpty().ifBlank { "该起床啦" }
-        val silentCallback = intent.getBooleanExtra("silent_callback", false)
-        LuluAlarmSystem.initialize(context.applicationContext)
-        CommitmentTaskStore.initialize(context.applicationContext)
-        LuluAlarmSystem.markTriggered(context, id)
-
-        // Local notification is immediate/offline. The task-backed online follow-up is claimed once
-        // and finished asynchronously under BroadcastReceiver.goAsync().
-        val task = CommitmentTaskStore.claimAlarmExecution(id)
-        val notificationsAvailable = androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
-        val shown = notificationsAvailable && (silentCallback || runCatching {
-            LuluAlarmSystem.showAlarmNotification(context, id, characterId, characterName, label)
-        }.isSuccess)
-        if (task != null) {
-            val pendingResult = goAsync()
-            val appContext = context.applicationContext
-            alarmExecutionScope.launch {
-                try {
-                    // Load persisted roles after goAsync; a cold process has no Activity bootstrap.
-                    com.jiacimu.lulu.data.MigratedDomainStores.initialize(appContext)
-                    com.jiacimu.lulu.data.SharedExperienceTimeline.initialize(appContext)
-                    CommitmentExecutor.onAlarm(appContext, task, characterName, notificationShown = shown)
-                } catch (error: Exception) {
-                    CommitmentTaskStore.update(task.id) { old -> old.copy(
-                        status = com.jiacimu.lulu.data.CommitmentTaskStatus.Blocked,
-                        lastActionResult = "到点任务执行失败：${error.message.orEmpty().take(160)}",
-                    ) }
-                } finally {
-                    pendingResult.finish()
-                }
-            }
+        if (id.isBlank() || LuluAlarmSystem.find(context, id) == null) return
+        // Exact alarms may start this short foreground service from a cold/background process.
+        // It has no microphone dependency; the microphone service starts only after answering.
+        val started = runCatching {
+            ContextCompat.startForegroundService(context,
+                Intent(context, CommitmentAlarmService::class.java).putExtra("alarm_id", id))
+        }.isSuccess
+        if (!started) {
+            // Inexact alarms may not have foreground-start privileges. A persistent expedited
+            // worker is the fallback, rather than a coroutine that outlives BroadcastReceiver.
+            CommitmentAlarmDelivery.enqueueNow(context, id)
         }
     }
 }
 
 class LuluBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+        if (intent.action in setOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED,
+                AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
+                Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED)) {
             LuluAlarmSystem.initialize(context.applicationContext)
             CommitmentTaskStore.initialize(context.applicationContext)
             CommitmentTaskStore.reconcileAfterRestart()

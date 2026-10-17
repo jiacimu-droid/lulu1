@@ -64,6 +64,15 @@ internal fun ProactiveIncomingCallOverlay() {
     }
 
     val visiblePending = pending?.takeIf { it.active() }
+    DisposableEffect(visiblePending != null) {
+        val activity = context as? android.app.Activity
+        activity?.setShowWhenLocked(visiblePending != null)
+        activity?.setTurnScreenOn(visiblePending != null)
+        onDispose {
+            activity?.setShowWhenLocked(false)
+            activity?.setTurnScreenOn(false)
+        }
+    }
     LaunchedEffect(pending?.createdAt, pending?.expiresAt) {
         val active = pending ?: return@LaunchedEffect
         val millis = java.time.Duration.between(java.time.Instant.now(), active.expiresAt)

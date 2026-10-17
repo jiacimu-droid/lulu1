@@ -23,6 +23,11 @@ data class CommitmentTask(
     val lastActionResult: String = "",
     val revision: Long = 1L,
     val linkedAlarmId: String? = null,
+    val executionToken: String? = null,
+    /** Actual OS/worker dispatch, separate from a promise or the user answering. */
+    val lastAlarmScheduledAt: Instant? = null,
+    val lastAlarmReceivedAt: Instant? = null,
+    val lastAlarmDeliverySource: String = "",
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
 )

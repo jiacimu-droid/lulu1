@@ -21,7 +21,7 @@ internal object CommitmentExecutor {
         ProactiveIncomingCallStore.initialize(appContext)
         ProactiveIncomingCallStore.reconcileExpired(now)
         if (CommitmentTaskStore.snapshot().none {
-            it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running
+            it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running && it.executionToken == claimedTask.executionToken
         }) return
 
         // A directly requested device alarm is only a local alarm. It may
@@ -70,7 +70,7 @@ internal object CommitmentExecutor {
         // A confirmation can arrive while the previous attempt is still running.
         // A completed goal must never initiate another call.
         if (CommitmentTaskStore.snapshot().none {
-                it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running
+                it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running && it.executionToken == claimedTask.executionToken
             }) return
         val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
         val action = if (useCall) "start_call" else "send_private_message"
@@ -108,10 +108,11 @@ internal object CommitmentExecutor {
                 LuluAlarmSystem.create(
                     claimedTask.characterId, characterName, now.plusSeconds(seconds),
                     "${claimedTask.goal}（叫醒结果复查）", silentCallback = true,
+                    commitmentTaskId = claimedTask.id,
                 ).getOrNull()
             }
             val updated = CommitmentTaskStore.update(claimedTask.id) { old ->
-                if (old.status != CommitmentTaskStatus.Running) old else old.copy(
+                if (old.status != CommitmentTaskStatus.Running || old.executionToken != claimedTask.executionToken) old else old.copy(
                     status = if (queued) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Blocked,
                     attemptCount = attempt,
                     linkedAlarmId = nextAlarm?.id,
@@ -143,11 +144,11 @@ internal object CommitmentExecutor {
             args = args,
             now = now,
         )
-        if (useCall && result.success && result.conversationId != null) {
+        val deliveryNotificationShown = if (useCall && result.success && result.conversationId != null) {
             ProactivePerceptionRuntime.showPromisedCallNotification(
                 appContext, claimedTask.characterId, result.conversationId, wording,
             )
-        }
+        } else notificationShown
         val musicResult = when {
             !wake -> ""
             useCall && result.success -> "等通话结束后放歌"
@@ -161,7 +162,7 @@ internal object CommitmentExecutor {
             )
         }
 
-        val afterSeconds = if (result.success && (notificationShown || useCall))
+        val afterSeconds = if (result.success && (deliveryNotificationShown || useCall))
             CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled) else null
         val retryAt = afterSeconds?.let(now::plusSeconds)
         val followUp = retryAt?.let { at ->
@@ -169,11 +170,12 @@ internal object CommitmentExecutor {
                 claimedTask.characterId, characterName, at,
                 "${claimedTask.goal}（后续确认）",
                 silentCallback = true,
+                commitmentTaskId = claimedTask.id,
             ).getOrNull()
         }
         val updated = CommitmentTaskStore.update(claimedTask.id) { old ->
-            if (old.status != CommitmentTaskStatus.Running) old else old.copy(
-                status = if (!result.success || (wake && !notificationShown && !useCall))
+            if (old.status != CommitmentTaskStatus.Running || old.executionToken != claimedTask.executionToken) old else old.copy(
+                status = if (!result.success || (wake && !deliveryNotificationShown && !useCall))
                     CommitmentTaskStatus.Blocked else CommitmentTaskStatus.WaitingForFeedback,
                 attemptCount = attempt,
                 nextCheckAt = followUp?.triggerAt,
@@ -185,7 +187,7 @@ internal object CommitmentExecutor {
                         else "提醒发出不代表用户已经醒来"
                         else "执行失败：${result.summary.take(150)}")
                     if (musicResult.isNotBlank()) append("；音乐：$musicResult")
-                    if (!notificationShown) append("；提醒通知没有得到确认")
+                    if (!deliveryNotificationShown) append("；提醒通知没有得到确认")
                     if (followUp != null) append("；未收到反馈时，已安排有限后续尝试或结果检查")
                     else if (retryAt != null) append("；后续调度失败，已停止继续呼叫")
                     else append("；未安排更多自动呼叫")

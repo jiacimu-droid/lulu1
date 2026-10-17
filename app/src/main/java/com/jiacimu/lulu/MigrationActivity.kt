@@ -78,6 +78,9 @@ class MigrationActivity : ComponentActivity() {
         setIntent(intent)
         navigationIntent.value = intent
         navigationRequestSerial.longValue += 1L
+        val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
+        setShowWhenLocked(incomingCall)
+        setTurnScreenOn(incomingCall)
         incomingXhsText(intent)?.let { incomingSharedNote.value = it }
     }
 
@@ -107,6 +110,7 @@ class MigrationActivity : ComponentActivity() {
         // Returning from Android's exact-alarm permission screen upgrades pending wake-ups
         // from best-effort to exact without requiring a reboot or changing the original time.
         com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
+        CommitmentTaskStore.reconcileAfterRestart()
         // Android may suspend the UI ticker in the background. The saved deadline, not
         // the number of delivered ticks, determines the remaining time on return.
         val studyStore = PostgraduateExamStores.main
@@ -156,6 +160,9 @@ class MigrationActivity : ComponentActivity() {
         com.jiacimu.lulu.data.PerceptionStimulusLedger.initialize(appContext)
         CompanionOnlineStore.initialize(appContext)
         ProactiveIncomingCallStore.initialize(appContext)
+        val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
+        setShowWhenLocked(incomingCall)
+        setTurnScreenOn(incomingCall)
         MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)

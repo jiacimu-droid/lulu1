@@ -13,6 +13,7 @@ object CommitmentTaskStore {
 
     private var prefs: android.content.SharedPreferences? = null
     private val mutableTasks = MutableStateFlow<List<CommitmentTask>>(emptyList())
+    private val inFlight = mutableMapOf<String, String>()
     val tasks: StateFlow<List<CommitmentTask>> = mutableTasks.asStateFlow()
 
     @Synchronized
@@ -58,28 +59,32 @@ object CommitmentTaskStore {
      * App/boot recovery only. Do not call this from the alarm receiver itself: a receiver may be the
      * process entry point exactly when a due alarm fires, and must get a chance to claim that token.
      *
-     * A missed scheduled step is historical failure, not permission to pretend a late rescue was on
-     * time. A process that died after atomically claiming a step is left Blocked instead of replaying
-     * the action, because duplicate calls/messages are worse than asking for explicit confirmation.
+     * Opening the Activity is not proof of process death. Keep live executions and briefly due
+     * tokens intact, including when a full-screen call notification starts that Activity.
+     * An abandoned claimed step is blocked rather than blindly dialing twice.
      */
     @Synchronized
     fun reconcileAfterRestart(now: Instant = Instant.now()) {
         var changed = false
         val next = mutableTasks.value.map { task ->
             when {
-                task.status == CommitmentTaskStatus.Running -> {
+                task.status == CommitmentTaskStatus.Running &&
+                    (task.executionToken == null || inFlight[task.id] != task.executionToken) -> {
                     changed = true
+                    val pending = ProactiveIncomingCallStore.pending.value
+                        ?.takeIf { it.commitmentTaskId == task.id && it.active(now) }
                     task.copy(
-                        status = CommitmentTaskStatus.Blocked,
+                        status = if (pending != null) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Blocked,
                         nextCheckAt = null,
                         linkedAlarmId = null,
                         revision = task.revision + 1L,
                         updatedAt = now,
-                        lastActionResult = "应用上次在任务动作已领取后中断；无法确认附加消息/来电是否完成，为避免重复执行已停止自动重放，等待用户反馈",
+                        lastActionResult = if (pending != null) "已恢复此前实际发出的来电，等待接听；没有重新拨号"
+                            else "应用上次在任务动作已领取后中断；无法确认附加消息/来电是否完成，为避免重复执行已停止自动重放，等待用户反馈",
                     )
                 }
                 task.status == CommitmentTaskStatus.Scheduled &&
-                    task.dueAt?.isAfter(now) == false -> {
+                    task.dueAt?.let { CommitmentAlarmTiming.expired(it, now) } == true -> {
                     task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
@@ -88,12 +93,12 @@ object CommitmentTaskStore {
                         linkedAlarmId = null,
                         revision = task.revision + 1L,
                         updatedAt = now,
-                        lastActionResult = "应用恢复时发现约定时点已经错过；不能把恢复后的补救冒充准时履约",
+                        lastActionResult = "恢复时已超出定时执行窗口，未收到本次到点执行回执；未补拨，也未记作履约",
                     )
                 }
                 task.status == CommitmentTaskStatus.WaitingForFeedback &&
                     task.nextCheckAt != null &&
-                    !task.nextCheckAt.isAfter(now) &&
+                    CommitmentAlarmTiming.expired(task.nextCheckAt, now) &&
                     task.linkedAlarmId != null -> {
                     task.linkedAlarmId.let(LuluAlarmSystem::cancel)
                     changed = true
@@ -118,20 +123,50 @@ object CommitmentTaskStore {
      * cannot execute the same task revision again.
      */
     @Synchronized
-    fun claimAlarmExecution(alarmId: String): CommitmentTask? {
+    fun claimAlarmExecution(
+        alarmId: String,
+        scheduledAt: Instant? = null,
+        receivedAt: Instant = Instant.now(),
+        deliverySource: String = "系统闹钟",
+    ): CommitmentTask? {
         if (alarmId.isBlank()) return null
         val current = mutableTasks.value.firstOrNull {
             it.linkedAlarmId == alarmId && it.status.isActive()
         } ?: return null
+        val deadline = scheduledAt ?: current.nextCheckAt ?: current.dueAt
+        if (deadline != null && !CommitmentAlarmTiming.due(deadline, receivedAt)) {
+            if (CommitmentAlarmTiming.expired(deadline, receivedAt)) update(current.id) { old -> old.copy(
+                status = CommitmentTaskStatus.Expired, linkedAlarmId = null, nextCheckAt = null,
+                lastAlarmScheduledAt = deadline, lastAlarmReceivedAt = receivedAt,
+                lastAlarmDeliverySource = deliverySource,
+                lastActionResult = "系统回调迟于约定超过两分钟；未补拨，未记作准时履约",
+            ) }
+            return null
+        }
         val claimed = current.copy(
             status = CommitmentTaskStatus.Running,
             linkedAlarmId = null,
+            executionToken = alarmId,
             revision = current.revision + 1L,
-            updatedAt = Instant.now(),
+            updatedAt = receivedAt,
+            lastAlarmScheduledAt = deadline,
+            lastAlarmReceivedAt = receivedAt,
+            lastAlarmDeliverySource = deliverySource,
             lastActionResult = "到期步骤已领取，正在执行",
         )
-        persist(listOf(claimed) + mutableTasks.value.filterNot { it.id == current.id })
+        inFlight[current.id] = alarmId
+        try {
+            persist(listOf(claimed) + mutableTasks.value.filterNot { it.id == current.id })
+        } catch (error: Exception) {
+            inFlight.remove(current.id)
+            throw error
+        }
         return claimed
+    }
+
+    @Synchronized
+    internal fun finishAlarmExecution(taskId: String, token: String?) {
+        if (inFlight[taskId] == token) inFlight.remove(taskId)
     }
 
     @Synchronized
@@ -184,7 +219,7 @@ object CommitmentTaskStore {
 
     private fun persist(values: List<CommitmentTask>) {
         val next = values.sortedByDescending(CommitmentTask::updatedAt)
+        prefs?.let { check(it.edit().putString(KEY_TASKS, encodeCommitmentTasks(next)).commit()) { "定时约定未能保存" } }
         mutableTasks.value = next
-        prefs?.edit()?.putString(KEY_TASKS, encodeCommitmentTasks(next))?.commit()
     }
 }

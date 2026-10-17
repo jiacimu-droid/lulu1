@@ -1742,9 +1742,13 @@ object ProactivePerceptionRuntime {
         characterId: String,
         conversationId: String,
         reason: String,
-    ) {
+    ): Boolean {
         val title = MigratedDomainStores.characters.get(characterId).displayName
-        showCallNotification(context.applicationContext, conversationId, title, reason)
+        return showCallNotification(context.applicationContext, conversationId, title, reason)
+    }
+
+    internal fun cancelCallNotification(context: Context, conversationId: String) {
+        context.getSystemService(NotificationManager::class.java).cancel(("call-$conversationId").hashCode())
     }
 
     private fun showCallNotification(
@@ -1752,11 +1756,17 @@ object ProactivePerceptionRuntime {
         conversationId: String,
         title: String,
         text: String,
-    ) {
+    ): Boolean {
+        // A deadline receiver can be the very first process entry point after reboot.
+        // Channel setup must not depend on MigrationActivity having run already.
+        createNotificationChannels(context)
         if (
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) return
+        ) return false
+        val manager = context.getSystemService(NotificationManager::class.java)
+        if (!androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled() ||
+            manager.getNotificationChannel(CALL_CHANNEL_ID)?.importance == NotificationManager.IMPORTANCE_NONE) return false
         val pending = conversationIntent(context, conversationId)
         val notification = NotificationCompat.Builder(context, CALL_CHANNEL_ID)
             .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
@@ -1765,14 +1775,15 @@ object ProactivePerceptionRuntime {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setAutoCancel(true)
+            .setVisibility(android.app.Notification.VISIBILITY_PUBLIC)
+            .setTimeoutAfter(120_000L)
             .setContentIntent(pending)
             .setFullScreenIntent(pending, true)
             .build()
-        context.getSystemService(NotificationManager::class.java)
-            .notify(("call-$conversationId-$nowMarker").hashCode(), notification)
+        return runCatching {
+            manager.notify(("call-$conversationId").hashCode(), notification)
+        }.isSuccess
     }
-
-    private val nowMarker: Long get() = System.currentTimeMillis() / 10_000L
 }
 
 /** Soft adjustments respond to observed interaction, without quotas or reward for action spam. */

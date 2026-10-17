@@ -41,7 +41,7 @@ object ProactiveIncomingCallStore {
         if (mutablePending.value == null) prefs?.edit()?.remove(KEY_PENDING)?.apply()
     }
 
-    fun offer(
+    @Synchronized fun offer(
         context: Context,
         characterId: String,
         conversationId: String,
@@ -60,8 +60,8 @@ object ProactiveIncomingCallStore {
             expiresAt = now.plus(lifetime),
             commitmentTaskId = commitmentTaskId,
         )
+        check(prefs?.edit()?.putString(KEY_PENDING, encode(call))?.commit() == true) { "来电状态未能保存" }
         mutablePending.value = call
-        prefs?.edit()?.putString(KEY_PENDING, encode(call))?.apply()
         com.jiacimu.lulu.LuluCallRingtone.startIncoming(context, call.conversationId + ":" + call.createdAt.toEpochMilli(), lifetime.toMillis())
         return call
     }
@@ -95,11 +95,12 @@ object ProactiveIncomingCallStore {
         WakeMusicCoordinator.onMissedCall(application, call.characterId, call.commitmentTaskId)
     }
 
-    fun clear(call: ProactiveIncomingCall? = null) {
+    @Synchronized fun clear(call: ProactiveIncomingCall? = null) {
         val current = mutablePending.value
         if (call != null && current != null && current != call) return
         mutablePending.value = null
-        prefs?.edit()?.remove(KEY_PENDING)?.apply()
+        prefs?.edit()?.remove(KEY_PENDING)?.commit()
+        current?.let { active -> application?.let { ProactivePerceptionRuntime.cancelCallNotification(it, active.conversationId) } }
         com.jiacimu.lulu.LuluCallRingtone.stopIncoming()
     }
 

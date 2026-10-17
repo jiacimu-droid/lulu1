@@ -1400,6 +1400,7 @@ object LuluDeviceToolBridge {
                     triggerAt = trigger,
                     label = args.optString("label").ifBlank { "${characterName}提醒你" },
                     id = "tool-$characterId-$requestId",
+                    commitmentTaskId = "tool-task-tool-$characterId-$requestId",
                 ).getOrThrow()
                 CommitmentTaskStore.initialize(context)
                 CommitmentTaskStore.save(

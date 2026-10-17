@@ -273,6 +273,7 @@ fun LexiconFeatureScreenV2(
                         )?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
                             ?: if (task.status == CommitmentTaskStatus.WaitingForFeedback) "随实际进展跟进" else "等待确定时间"
                         val delivery = if (task.dueAt == null && task.status == CommitmentTaskStatus.WaitingForFeedback) "后续互动中持续关注"
+                            else if (task.deliveryAction == "alarm_only") "到点触发本机闹钟"
                             else if (task.deliveryAction == "start_call") "到点来电；正在通话时在原通话中提醒"
                             else if (task.goal.contains("叫醒") || task.goal.contains("起床"))
                                 "到点提醒；正在通话时直接语音叫醒"
@@ -282,6 +283,17 @@ fun LexiconFeatureScreenV2(
                             Text("$whenText · $status", fontSize = 13.sp,
                                 color = LuluColors.Muted)
                             Text(delivery, fontSize = 12.sp, color = LuluColors.Muted)
+                            task.lastAlarmReceivedAt?.let { received ->
+                                val zone = task.timezone?.let { runCatching { ZoneId.of(it) }.getOrNull() }
+                                    ?: ZoneId.systemDefault()
+                                val time = received.atZone(zone).format(DateTimeFormatter.ofPattern("M月d日 HH:mm:ss"))
+                                val delay = task.lastAlarmScheduledAt?.let {
+                                    java.time.Duration.between(it, received).seconds.coerceAtLeast(0)
+                                } ?: 0L
+                                Text("${task.lastAlarmDeliverySource.ifBlank { "系统回调" }} $time" +
+                                    if (delay > 1) " · 较计划晚${delay}秒" else "",
+                                    fontSize = 12.sp, color = LuluColors.Muted)
+                            }
                             if (task.lastActionResult.isNotBlank())
                                 Text("执行记录：${task.lastActionResult}", fontSize = 12.sp,
                                     color = LuluColors.Muted)

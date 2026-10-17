@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T02:45:28.789730+00:00",
-  "commit": "3414328a35fe3d0d4547747825e5df40afe4fa6c",
+  "generatedAt": "2026-10-17T03:09:42.963466+00:00",
+  "commit": "1dda1e3e161b1e22075d50ebbc50d74743a54c7a",
   "branch": "main",
-  "sourceFingerprint": "24a4858a7e9fb14ffc5259ad6c7e3c6f66dfa31fc8653bf24138745a749cbc20",
+  "sourceFingerprint": "c5d64c9a1f82ae9168ba143593ebe98b54182e4e2ea9260e045e9fc96297d8cc",
   "summary": {
-    "files": 689,
-    "lines": 133845,
-    "symbols": 2018
+    "files": 693,
+    "lines": 134411,
+    "symbols": 2024
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -163,11 +163,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 138
+        "line": 173
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 98
+        "line": 91
       }
     ],
     "consumeWhenReady": [
@@ -235,7 +235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 44
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -587,7 +587,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 19
+        "line": 20
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
@@ -779,7 +779,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 43
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
@@ -835,7 +835,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 153
+        "line": 188
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -1117,7 +1117,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 32
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -1247,7 +1247,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 91
+        "line": 83
       }
     ],
     "flush": [
@@ -2887,7 +2887,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 55
+        "line": 54
       }
     ],
     "CompanionModelGateway": [
@@ -3593,7 +3593,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 24
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
@@ -3759,7 +3759,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 28
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -3823,7 +3823,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 179
+        "line": 214
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -4532,10 +4532,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
         "line": 112
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 43
       }
     ],
     "latestConsideration": [
@@ -4854,6 +4850,18 @@
         "line": 131
       }
     ],
+    "expired": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentAlarmTiming.kt",
+        "line": 8
+      }
+    ],
+    "due": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentAlarmTiming.kt",
+        "line": 11
+      }
+    ],
     "onResponse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
@@ -4929,19 +4937,19 @@
     "reconcileAfterRestart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 66
+        "line": 67
       }
     ],
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 121
+        "line": 126
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 172
+        "line": 207
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -7208,40 +7216,6 @@
         "line": 68
       }
     ],
-    "clear": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-        "line": 97
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
-        "line": 70
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 133
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 196
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 63
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 143
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
-        "line": 110
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
-        "line": 16
-      }
-    ],
     "ProactiveMessageAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt",
@@ -8224,6 +8198,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
         "line": 186
+      }
+    ],
+    "clear": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 133
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
+        "line": 196
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 143
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 110
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
+        "line": 16
       }
     ],
     "promptForDirector": [
@@ -9984,6 +9988,36 @@
         "line": 19
       }
     ],
+    "scheduleBackup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
+        "line": 38
+      }
+    ],
+    "cancelBackup": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
+        "line": 48
+      }
+    ],
+    "enqueueNow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
+        "line": 55
+      }
+    ],
+    "CommitmentAlarmWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
+        "line": 135
+      }
+    ],
+    "CommitmentAlarmService": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt",
+        "line": 23
+      }
+    ],
     "LuluAccessibilityService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -10017,31 +10051,31 @@
     "LuluAlarm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 27
+        "line": 22
       }
     ],
     "LuluAlarmSystem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 37
+        "line": 33
       }
     ],
     "canScheduleExact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 49
+        "line": 46
       }
     ],
     "LuluAlarmReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 292
+        "line": 264
       }
     ],
     "LuluBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 332
+        "line": 282
       }
     ],
     "LuluDeviceToolBridge": [
@@ -10738,6 +10772,12 @@
         "line": 5
       }
     ],
+    "CommitmentAlarmRecoveryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
+        "line": 31
+      }
+    ],
     "CommitmentCallRetryPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt",
@@ -11322,8 +11362,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 136,
-      "sha256": "9787c7c6ef0b86d1b30caa133a472f3e646e6595246e1e82d6cdd0e894e3ab65",
+      "lines": 145,
+      "sha256": "d4977e6c3b47b7c4e8566d34f5056a451093081b0fb4566d0820c90cc145272b",
       "symbols": []
     },
     {
@@ -11633,8 +11673,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 143,
-      "sha256": "1298fea98e3d4af10f134f5249867adcb730ac9c6b9035041741f9a83beb6dd3",
+      "lines": 168,
+      "sha256": "9002d5b94d9cf31fcc6ea2808fa62e9388b23657c78470599400b9b67d05ab70",
       "symbols": []
     },
     {
@@ -12305,8 +12345,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 632,
-      "sha256": "6ca311ab4b16cf3cdba402e49018250b4d1f7d6c333bcdba1383ae615c7c467f",
+      "lines": 644,
+      "sha256": "cc8fcb9a8ad97c08e01c45cb3572dcd1b1419d0185fb4653ee6df0f94f8b77d2",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -12909,8 +12949,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 224,
-      "sha256": "7550b76296aa8679389ba9dc52d371d7feda1fa0370c883afaf761f762eb52a4",
+      "lines": 231,
+      "sha256": "2ea8385b2523725710099f232036c50decf4415326e2260c92f099940ce12010",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -13223,8 +13263,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-      "lines": 194,
-      "sha256": "ea542606dd62afa8e07673322f3e21afe9a9e09e5f2aa2ec8ffceebed75e931c",
+      "lines": 203,
+      "sha256": "aee020b49051ff5e1eaae7d2b18fddfbb19c8789c798de5766e4bda8cc282107",
       "symbols": [
         {
           "name": "connect",
@@ -15673,6 +15713,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentAlarmTiming.kt",
+      "lines": 14,
+      "sha256": "f9d6c6c58e783611a1c91d9842222fe2f23369c0612a7c45409c0c087e4dc0f2",
+      "symbols": [
+        {
+          "name": "expired",
+          "line": 8
+        },
+        {
+          "name": "due",
+          "line": 11
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
       "lines": 35,
       "sha256": "3b2ed4e9019f106f571a487ef2e67f52a67f4194316824ad080d35d8aaf989e1",
@@ -15734,8 +15789,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 207,
-      "sha256": "7e08bcfece5a1cd9db46db8a825ce1031983f577da4c80f756e4f3441385b121",
+      "lines": 209,
+      "sha256": "38125330c8b360fc5add6f9cf00f8ef1c4cfe0e79db8cc36eb653de120597b2f",
       "symbols": []
     },
     {
@@ -15755,8 +15810,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 37,
-      "sha256": "ea79c43db780169b9125367422164a23b3f8a685639e04c5083a445b10d5ef28",
+      "lines": 42,
+      "sha256": "06c135153c1d542f37628025d4eb7c8b21727e753033be01aa17aa88aba813ca",
       "symbols": [
         {
           "name": "CommitmentTask",
@@ -15766,14 +15821,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 199,
-      "sha256": "b2e2083707ee782364aa4004054b92854c9b90f77dd26f323099c5ce2469cb48",
+      "lines": 205,
+      "sha256": "57d119c1cf24d416bb7793b09627670f8a03369f0b5fbbb70191f19e150d0199",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
-      "lines": 62,
-      "sha256": "28f148c962c7f5bbb832b83caa74b280f8c7c53488cb7ba8eca4a8152af00812",
+      "lines": 66,
+      "sha256": "dd7b3f6a276e404dd338c9585a537b046e6128ac71557278ad045b3ff85451e1",
       "symbols": []
     },
     {
@@ -15789,8 +15844,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
-      "lines": 32,
-      "sha256": "5d89b91d143ac37e1aa21d1e5077b4566cf6263d1824c64b0cfd9cf6838bdd26",
+      "lines": 36,
+      "sha256": "38f065c0abcc6fb361ea57ff2bc27bd7459d6c57c82338b5aec0ce302e5001a6",
       "symbols": []
     },
     {
@@ -15812,8 +15867,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 191,
-      "sha256": "4946b7ead1a816985a1b5dbcf0ecc6aa27029f2158bb9d95da0d6d5036c3fa15",
+      "lines": 226,
+      "sha256": "a7055df5019c30369ca71819324ded6010c8480c20e6071e6c5b4b633ba40d77",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -15821,47 +15876,47 @@
         },
         {
           "name": "initialize",
-          "line": 19
+          "line": 20
         },
         {
           "name": "snapshot",
-          "line": 24
+          "line": 25
         },
         {
           "name": "active",
-          "line": 28
+          "line": 29
         },
         {
           "name": "save",
-          "line": 32
+          "line": 33
         },
         {
           "name": "update",
-          "line": 44
+          "line": 45
         },
         {
           "name": "reconcileAfterRestart",
-          "line": 66
+          "line": 67
         },
         {
           "name": "claimAlarmExecution",
-          "line": 121
+          "line": 126
         },
         {
           "name": "cancel",
-          "line": 138
+          "line": 173
         },
         {
           "name": "remove",
-          "line": 153
+          "line": 188
         },
         {
           "name": "removeBySourceEvent",
-          "line": 172
+          "line": 207
         },
         {
           "name": "clearCharacter",
-          "line": 179
+          "line": 214
         }
       ]
     },
@@ -18299,8 +18354,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
-      "lines": 131,
-      "sha256": "f249189e5740346dae7e55fac6f32d427ae6d2685d1e789ee8e651c1567d381c",
+      "lines": 132,
+      "sha256": "4e61e15eb19f933573659cc659146aa0a9b1eec863edb585bee058a8a8bc3983",
       "symbols": [
         {
           "name": "ProactiveIncomingCall",
@@ -18319,16 +18374,8 @@
           "line": 34
         },
         {
-          "name": "offer",
-          "line": 43
-        },
-        {
           "name": "activeFor",
           "line": 68
-        },
-        {
-          "name": "clear",
-          "line": 97
         }
       ]
     },
@@ -18403,8 +18450,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1796,
-      "sha256": "7edaf128530a9c675a955c99288c90ad23302bebcdcbd941d4147555dcd4c936",
+      "lines": 1807,
+      "sha256": "4ec6032f151c5759dc7c2eeb327af188b4e2bb896a647861d391f449c52619b3",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -21702,6 +21749,40 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt",
+      "lines": 162,
+      "sha256": "2ebf7cd7a215c6e20c9f55e55df7fb7256009bb3707583972e6ec20f8a2c7a84",
+      "symbols": [
+        {
+          "name": "scheduleBackup",
+          "line": 38
+        },
+        {
+          "name": "cancelBackup",
+          "line": 48
+        },
+        {
+          "name": "enqueueNow",
+          "line": 55
+        },
+        {
+          "name": "CommitmentAlarmWorker",
+          "line": 135
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt",
+      "lines": 91,
+      "sha256": "12fea516564e019bdb49ace589fededff31682fb2c6790444c8b34b518ff89a2",
+      "symbols": [
+        {
+          "name": "CommitmentAlarmService",
+          "line": 23
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
       "lines": 100,
       "sha256": "a89cf338d18484e2728409e82d308434b2ff075c397a815c2cc187a1e7ad7fe2",
@@ -21738,51 +21819,51 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-      "lines": 342,
-      "sha256": "bf00d5ad43c7bc8c8c95791f6511590d6402afdae7c610fc93d1c7429d8eba15",
+      "lines": 294,
+      "sha256": "d5a320116b26f192891e7aac59cc3d8c723b3496c9ac4edca91586249199a62f",
       "symbols": [
         {
           "name": "LuluAlarm",
-          "line": 27
+          "line": 22
         },
         {
           "name": "LuluAlarmSystem",
-          "line": 37
+          "line": 33
         },
         {
           "name": "initialize",
-          "line": 43
+          "line": 41
         },
         {
           "name": "canScheduleExact",
-          "line": 49
+          "line": 46
         },
         {
           "name": "create",
-          "line": 55
+          "line": 54
         },
         {
           "name": "list",
-          "line": 91
+          "line": 83
         },
         {
           "name": "cancel",
-          "line": 98
+          "line": 91
         },
         {
           "name": "LuluAlarmReceiver",
-          "line": 292
+          "line": 264
         },
         {
           "name": "LuluBootReceiver",
-          "line": 332
+          "line": 282
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1692,
-      "sha256": "de6b3f39393c9d3fbe76e496937acf801ef1a38a1872492168555d6b87ebcc0c",
+      "lines": 1693,
+      "sha256": "793ae7f43b0589a15b3b5c91b86ebe0be34e46b9ae6f19279b4deeec933986d5",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -23020,6 +23101,17 @@
         {
           "name": "ChatAutomationRoutingTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
+      "lines": 216,
+      "sha256": "d4019a9558f6639aa185f704a7653dd23e993f78b4313c0a95de786302772586",
+      "symbols": [
+        {
+          "name": "CommitmentAlarmRecoveryTest",
+          "line": 31
         }
       ]
     },

@@ -113,6 +113,11 @@ private suspend fun updateCommitmentTask(
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
                 linkedAlarmId = null,
+                lastAlarmScheduledAt = null,
+                executionToken = null,
+                lastAlarmReceivedAt = null,
+                lastAlarmDeliverySource = "",
+                attemptCount = 0,
                 status = if (needsClarification) CommitmentTaskStatus.NeedsClarification
                     else if (ongoing) CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Scheduled,
                 lastActionResult = if (needsClarification) {
@@ -165,7 +170,8 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
         }
         return
     }
-    val result = LuluAlarmSystem.create(task.characterId, character.displayName, dueAt, task.goal)
+    val result = LuluAlarmSystem.create(task.characterId, character.displayName, dueAt, task.goal,
+        commitmentTaskId = task.id)
     result.onSuccess { alarm ->
         CommitmentTaskStore.update(task.id) { current ->
             current.copy(
