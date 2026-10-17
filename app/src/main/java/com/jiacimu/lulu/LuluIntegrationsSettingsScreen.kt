@@ -54,12 +54,11 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         HorizontalDivider()
-        Text("小红书内置阅读优先 · MCP 是可选备用", style = MaterialTheme.typography.titleMedium)
-        Text("先使用内置小红书网页登录、阅读和下方的真实读帖测试，不需要安装 Termux。" +
-            "只有希望后台稳定阅读或本机网页确实不可用时，才考虑可选的外部 MCP。",
+        Text("小红书 · 本机阅读 / 独立云端阅读", style = MaterialTheme.typography.titleMedium)
+        Text("本机网页登录仍可手动浏览；想让角色关掉小红书页面后也能访问，就连接常驻云端 MCP 并选“云端优先”。云端浏览器不依赖本机 WebView，安卓后台唤醒仍需单独验证。",
             style = MaterialTheme.typography.bodySmall)
         val scope = rememberCoroutineScope()
-        listOf("xiaohongshu" to "小红书阅读（内置网页）", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
+        listOf("xiaohongshu" to "小红书独立阅读线路", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
             var mcpUrl by remember(service) { mutableStateOf(LuluExternalMcp.endpoint(context, service)) }
             var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
             var mcpStatus by remember(service) { mutableStateOf("") }
@@ -82,11 +81,13 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            var optionalMcpExpanded by remember(service) { mutableStateOf(false) }
+            var optionalMcpExpanded by remember(service) {
+                mutableStateOf(service == "xiaohongshu" && LuluExternalMcp.configured(context, service))
+            }
             if (service == "xiaohongshu") {
                 TextButton(onClick = { optionalMcpExpanded = !optionalMcpExpanded }) {
-                    Text(if (optionalMcpExpanded) "收起备用 MCP 设置"
-                        else "备用方案：外部 MCP（可选，不影响内置网页）")
+                    Text(if (optionalMcpExpanded) "收起独立 MCP 设置"
+                        else "配置独立云端 MCP / 本机 Termux")
                 }
             }
             if (service != "xiaohongshu" || optionalMcpExpanded) {
@@ -94,15 +95,34 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                     var fallbackOn by remember(service) {
                         mutableStateOf(XhsReadingEngine.mcpFallbackEnabled(context))
                     }
+                    var remotePrimary by remember(service) {
+                        mutableStateOf(XhsReadingEngine.mcpPrimaryEnabled(context))
+                    }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("内置网页失败后自动尝试 MCP", modifier = Modifier.weight(1f))
-                        Switch(fallbackOn, { enabled ->
-                            if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled))
-                                fallbackOn = enabled
+                        Text("角色自主阅读：优先使用独立 MCP", modifier = Modifier.weight(1f))
+                        Switch(remotePrimary, { enabled ->
+                            val saved = runCatching {
+                                XhsReadingEngine.setMcpPrimaryEnabled(context, enabled)
+                            }
+                            if (saved.getOrDefault(false)) {
+                                remotePrimary = enabled
+                                fallbackOn = XhsReadingEngine.mcpFallbackEnabled(context)
+                                mcpStatus = if (enabled) "已设为云端优先；请务必测试登录和真实读帖。" else "已恢复内置网页优先"
+                            } else mcpStatus = saved.exceptionOrNull()?.message.orEmpty().ifBlank { "保存失败" }
                         })
                     }
-                    Text("默认关闭。只有外部服务确实在线时才建议开启，" +
-                        "否则保存了 127.0.0.1 地址也只会额外等待超时。",
+                    Text("打开后，角色无论在聊天还是后台执行，都会先使用独立 MCP 搜索；不再等内置网页超时。本机手动浏览入口仍然保留。",
+                        style = MaterialTheme.typography.bodySmall)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("本机网页失败后尝试 MCP 备用", modifier = Modifier.weight(1f))
+                        Switch(fallbackOn, { enabled ->
+                            if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled)) {
+                                fallbackOn = enabled
+                                remotePrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+                            }
+                        })
+                    }
+                    Text("两种模式都需要外部 MCP 真正在线；单纯保存地址不会启动服务端。",
                         style = MaterialTheme.typography.bodySmall)
                 }
                 if (service == "xiaohongshu") OutlinedButton(onClick = {
@@ -115,7 +135,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 }) { Text("一键使用本机 Termux · 免费") }
             OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS 地址 / Termux 本机 127.0.0.1") },
                 singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-            OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（可留空；建议服务端开启鉴权）") },
+            OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（云端必须填写，勿公开）") },
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -145,7 +165,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
             if (service == "xiaohongshu") {
                 HorizontalDivider()
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
-                Text("先用“测试服务”确认本机 MCP 在线；这一步不启动浏览器。下面的“检查小红书登录”才会启动 Chromium，第一次较慢，若它超时请检查 Termux 浏览器运行库或网页加载。",
+                Text("先测试 MCP 服务，再检查独立 Chromium 的登录状态，最后测试真实搜索和正文。服务在线不代表已登录，已登录也不代表能读到笔记。",
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
                     mcpStatus = "正在启动浏览器并检查小红书登录，请稍候…"
@@ -156,9 +176,14 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                         }.fold({ it.take(260) }, { "登录检查失败：" + it.message.orEmpty().take(180) })
                     }
                 }) { Text("检查小红书登录") }
-                OutlinedButton(onClick = {
-                    links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-termux/README.md")
-                }) { Text("查看手机安装教程") }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = {
+                        links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-cloud/README.md")
+                    }) { Text("手机部署云端教程") }
+                    OutlinedButton(onClick = {
+                        links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-termux/README.md")
+                    }) { Text("Termux 教程") }
+                }
                 Text("先确保已连接可用的 MCP（云端或兼容的 Termux 本机服务）。按下面按钮生成登录码、保存到相册，然后在小红书的扫一扫中从相册选择图片。返回这里检查登录状态；二维码可能很快过期。",
                     style = MaterialTheme.typography.bodySmall)
                 var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
