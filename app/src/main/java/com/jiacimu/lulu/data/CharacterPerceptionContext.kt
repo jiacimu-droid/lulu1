@@ -72,7 +72,8 @@ internal object CharacterPerceptionContext {
     fun selectRecent(events: List<SharedTimelineEvent>, now: Instant): List<SharedTimelineEvent> =
         events.filter { event ->
             ((event.evidenceKind == EventEvidenceKind.Observation &&
-                (event.source in setOf("digital-world", "digital-environment", "meeting", InteractionSignalBridge.SOURCE) ||
+                (event.source in setOf("digital-world", "digital-environment", "meeting", InteractionSignalBridge.SOURCE,
+                    "xiaohongshu-webview", "xiaohongshu-mcp") ||
                     event.source.startsWith("reading:") || event.channel.startsWith("数字世界事件"))) ||
                 (event.evidenceKind == EventEvidenceKind.ToolResult &&
                     (personalOutcome(event.source, event.content) != null ||

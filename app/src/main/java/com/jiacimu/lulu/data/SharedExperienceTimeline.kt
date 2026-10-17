@@ -214,6 +214,7 @@ object SharedExperienceTimeline {
             )
         }
         if (previous != null) {
+            withdrawDependentPersonalReceipts(eventId)
             CharacterDevelopmentStore.invalidateEvidence(characterId, eventId)
             CharacterLearningLedger.invalidateEvidence(eventId)
             CharacterLearningAgenda.invalidateEvidence(eventId)
@@ -313,6 +314,7 @@ object SharedExperienceTimeline {
         } finally {
             database.endTransaction()
         }
+        withdrawDependentPersonalReceipts(eventId)
         CharacterRelationshipPreferences.invalidate()
         // Deletion invalidates every downstream owner immediately: retry job, executable promise
         // and derived memory/vector lifecycle. Late model responses are additionally checked by the
@@ -327,6 +329,23 @@ object SharedExperienceTimeline {
         LuluRepositories.lexicon.invalidateSource(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
         LuluRepositories.memory.invalidateDerivedFromEvent(eventId)
+    }
+
+    /** A copied executor summary must not outlive the native experience it references. */
+    private fun withdrawDependentPersonalReceipts(eventId: String) {
+        val database = helper?.readableDatabase ?: return
+        val dependents = database.query("timeline_events", arrayOf("id", "content"),
+            "source = ? AND content LIKE ?", arrayOf("tool-router", "%$eventId%"),
+            null, null, null).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    val id = cursor.getString(0)
+                    if (id != eventId && CharacterPerceptionContext.outcomeEvidenceId("tool-router", cursor.getString(1)) == eventId)
+                        add(id)
+                }
+            }
+        }
+        dependents.forEach(::deleteEvent)
     }
 
     /** Clear the raw ledger, including records hidden by an earlier birth boundary. */

@@ -648,7 +648,12 @@ object DigitalWorldStore {
             val start = (targetIndex downTo 0).firstOrNull { current.turns[it].speakerId == null } ?: targetIndex
             val end = ((start + 1) until current.turns.size)
                 .firstOrNull { current.turns[it].speakerId == null } ?: current.turns.size
-            val removedTurns = if (target.speakerId == "system") {
+            val residentExchange = target.exchangeId?.takeIf { exchangeId ->
+                current.turns.any { it.exchangeId == exchangeId && it.speakerId?.startsWith("resident:") == true }
+            }
+            val removedTurns = if (residentExchange != null) {
+                current.turns.filter { it.exchangeId == residentExchange }
+            } else if (target.speakerId == "system") {
                 listOf(target)
             } else {
                 current.turns.subList(start, end)
@@ -709,13 +714,19 @@ object DigitalWorldStore {
     ) {
         turns.forEach { turn ->
             participantIds.forEach { characterId ->
-                listOf("turn", "arrival", "move").forEach { kind ->
+                listOf("turn", "arrival", "move", "resident-turn").forEach { kind ->
                     SharedExperienceTimeline.deleteEventsByIdPrefix(
                         characterId,
                         "meeting-$sessionId-$kind-${turn.id}-",
                     )
                 }
             }
+        }
+        if (turns.any { it.speakerId?.startsWith("resident:") == true }) {
+            participantIds.forEach { characterId ->
+                SharedExperienceTimeline.deleteEvent("meeting-$sessionId-resident-summary-viewer-$characterId")
+            }
+            CompanionPresenceStore.rollbackMeetingProvenance(setOf("meeting-$sessionId-presence-resident"), emptyMap())
         }
     }
 

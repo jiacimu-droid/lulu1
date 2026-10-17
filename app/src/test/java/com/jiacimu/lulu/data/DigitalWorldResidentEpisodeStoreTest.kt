@@ -18,6 +18,10 @@ class DigitalWorldResidentEpisodeStoreTest {
     private val now = Instant.parse("2026-10-16T12:00:00Z")
 
     @Before fun initialize() {
+        // Robolectric creates a new Application per test; production reuses
+        // one process context. Bind the singleton to THIS test's preferences.
+        DigitalWorldResidentEpisodeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }
+            .set(DigitalWorldResidentEpisodeStore, null)
         SharedExperienceTimeline.initialize(context)
         DigitalWorldResidentEpisodeStore.initialize(context)
         DigitalWorldResidentEpisodeStore.clearCharacter(role)
