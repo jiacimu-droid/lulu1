@@ -163,6 +163,33 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
             }
             if (mcpStatus.isNotBlank()) Text(mcpStatus, style = MaterialTheme.typography.bodySmall)
             if (service == "xiaohongshu") {
+                var probeKeyword by remember(service) { mutableStateOf("") }
+                var probeBusy by remember(service) { mutableStateOf(false) }
+                OutlinedTextField(
+                    value = probeKeyword, onValueChange = { probeKeyword = it.take(64) },
+                    label = { Text("真实读帖测试关键词") }, singleLine = true,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                )
+                OutlinedButton(
+                    enabled = !probeBusy && mcpUrl.isNotBlank() && probeKeyword.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        probeBusy = true
+                        mcpStatus = "正在通过独立 MCP 搜索并打开真实笔记…"
+                        scope.launch {
+                            try {
+                                require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
+                                mcpStatus = LuluExternalMcp.testXhsReading(context, probeKeyword)
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (error: Exception) {
+                                mcpStatus = "独立 MCP 真实读帖失败：" + error.message.orEmpty().take(230)
+                            } finally {
+                                probeBusy = false
+                            }
+                        }
+                    },
+                ) { Text(if (probeBusy) "正在检验搜索与详情…" else "测试云端搜索 → 真正读一篇笔记") }
                 HorizontalDivider()
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
                 Text("先测试 MCP 服务，再检查独立 Chromium 的登录状态，最后测试真实搜索和正文。服务在线不代表已登录，已登录也不代表能读到笔记。",
