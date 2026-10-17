@@ -242,7 +242,20 @@ internal object XhsReadingEngine {
     fun mcpFallbackEnabled(context: Context): Boolean =
         prefs(context).getBoolean("xiaohongshu:mcp-fallback-enabled", false)
     fun setMcpFallbackEnabled(context: Context, enabled: Boolean): Boolean =
-        prefs(context).edit().putBoolean("xiaohongshu:mcp-fallback-enabled", enabled).commit()
+        prefs(context).edit().putBoolean("xiaohongshu:mcp-fallback-enabled", enabled)
+            .apply { if (!enabled) putBoolean("xiaohongshu:mcp-primary", false) }.commit()
+    /** An explicitly configured remote browser can be the primary source for
+     * autonomous searches; manual UI probes can still force localOnly=true.
+     * Never silently promote an unreachable saved localhost into primary mode. */
+    fun mcpPrimaryEnabled(context: Context): Boolean =
+        prefs(context).getBoolean("xiaohongshu:mcp-primary", false)
+    fun setMcpPrimaryEnabled(context: Context, enabled: Boolean): Boolean {
+        require(!enabled || LuluExternalMcp.configured(context, "xiaohongshu")) {
+            "先保存可访问的 MCP 地址和 Token，再开启远端优先"
+        }
+        return prefs(context).edit().putBoolean("xiaohongshu:mcp-primary", enabled)
+            .apply { if (enabled) putBoolean("xiaohongshu:mcp-fallback-enabled", true) }.commit()
+    }
     fun localEnabled(context: Context): Boolean = prefs(context).getBoolean("xiaohongshu:local", true)
     fun setLocalEnabled(context: Context, enabled: Boolean): Boolean =
         prefs(context).edit().putBoolean("xiaohongshu:local", enabled).commit()
@@ -282,11 +295,12 @@ internal object XhsReadingEngine {
         // OFF by default so a dead localhost server cannot double the wait.
         val canUseMcp = !localOnly && mcpFallbackEnabled(context) &&
             LuluExternalMcp.configured(context, "xiaohongshu")
+        val preferMcp = canUseMcp && mcpPrimaryEnabled(context)
         if (localOnly && !canUseLocal) {
             error("内置浏览器当前没有显示。请进入露露机「小红书 · 列表」再试；浏览器会话已保留")
         }
         var localFailure = ""
-        if (canUseLocal) {
+        if (canUseLocal && !preferMcp) {
             if (!forceRefresh) cachedFeed(query)?.let {
                 onProgress("复用当前阅读会话最近取得的笔记")
                 return it
