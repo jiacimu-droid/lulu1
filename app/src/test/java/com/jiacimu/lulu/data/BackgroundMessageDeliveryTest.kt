@@ -88,7 +88,8 @@ class BackgroundMessageDeliveryTest {
     }
 
     @Test fun mutedGroupDoesNotPopupButUnmutedGroupUsesItsActualConversation() {
-        val group = MigratedDomainStores.chat.createGroupConversation("朋友们", listOf(role.characterId))
+        val friend = MigratedDomainStores.characters.create("群聊测试朋友")
+        val group = MigratedDomainStores.chat.createGroupConversation("朋友们", listOf(role.characterId, friend.characterId))
         MigratedDomainStores.chat.updateGroupConversation(group.id, group.groupChat!!.copy(muted = true))
         MigratedDomainStores.chat.appendCharacterMessage(group.id, "静音消息", role.characterId)
         assertTrue(notifications().isEmpty())
