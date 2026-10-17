@@ -35,6 +35,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.CompanionPresenceStore
@@ -70,6 +74,18 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
     val accessibility by LuluAccessibilityService.state.collectAsState()
     val notificationConnected by LuluNotificationListenerService.isConnected.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
+    val companionStatus by com.jiacimu.lulu.data.BackgroundCompanionControl.status.collectAsState()
+    var companionEnabled by remember(refreshKey) {
+        mutableStateOf(com.jiacimu.lulu.data.BackgroundCompanionControl.enabled(context))
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) refreshKey++
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     remember(context) {
         GadgetbridgeHealthStore.initialize(context.applicationContext)
@@ -277,8 +293,36 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     "主动消息、来电和闹钟提醒",
                     snapshot.notifications,
                 ) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !snapshot.notifications) {
                         runtimeLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                    } else open(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+                }
+            }
+            item {
+                val channel = com.jiacimu.lulu.data.CharacterMessageNotifications.channelId(context)
+                val importance = context.getSystemService(android.app.NotificationManager::class.java)
+                    .getNotificationChannel(channel)?.importance ?: 0
+                CapabilityRow(Icons.Outlined.ChatBubbleOutline, "角色消息弹窗", "消息横幅、声音与锁屏提醒",
+                    snapshot.notifications && importance >= android.app.NotificationManager.IMPORTANCE_HIGH) {
+                    open(Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        .putExtra(Settings.EXTRA_CHANNEL_ID, channel))
+                }
+            }
+            item {
+                Surface(shape = RoundedCornerShape(18.dp), color = CapabilityCard,
+                    border = BorderStroke(1.dp, CapabilityBorder)) {
+                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("后台陪伴常驻", color = CapabilityInk, fontWeight = FontWeight.Bold)
+                            Text(if (companionEnabled) companionStatus.note else "已关闭，保留系统后台任务",
+                                color = CapabilityMuted, fontSize = 12.sp)
+                        }
+                        Switch(checked = companionEnabled, onCheckedChange = {
+                            com.jiacimu.lulu.data.BackgroundCompanionControl.setEnabled(context, it)
+                            companionEnabled = it
+                        })
                     }
                 }
             }
@@ -389,7 +433,8 @@ private data class CapabilitySnapshot(
             val notification = notificationConnected || context.hasNotificationListenerAccess()
             val accessibility = accessibilityConnected || context.hasAccessibilityAccess()
             val overlay = Settings.canDrawOverlays(context)
-            val notifications = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || context.granted(Manifest.permission.POST_NOTIFICATIONS)
+            val notifications = NotificationManagerCompat.from(context).areNotificationsEnabled() &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || context.granted(Manifest.permission.POST_NOTIFICATIONS))
             val power = context.getSystemService(PowerManager::class.java)
             val ignored = power.isIgnoringBatteryOptimizations(context.packageName)
             val batteryIntent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -409,7 +454,7 @@ private data class CapabilitySnapshot(
                 overlay = overlay,
                 notifications = notifications,
                 ignoreBatteryOptimizations = ignored,
-                batteryOptimizationLabel = if (ignored) "已允许后台稳定运行" else "建议开启，避免主动感知和手环数据刷新被系统延后",
+                batteryOptimizationLabel = if (ignored) "已解除电池优化限制" else "允许后台耗电，减少锁屏后的感知延迟",
                 batteryPercent = percent,
                 charging = charging,
             )

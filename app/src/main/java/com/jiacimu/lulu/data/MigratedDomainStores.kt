@@ -321,6 +321,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
         deleted.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
         discardDeletedChatPhotos(deleted.second)
+        appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
         return true
     }
 
@@ -339,6 +340,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
         cleared.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
         discardDeletedChatPhotos(cleared.second)
+        appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
         return true
     }
 
@@ -419,8 +421,15 @@ class InMemoryLuluChatStore : LuluChatStore {
             replyToMessageId = effectiveReplyId,
             replyBatchId = effectiveBatchId,
         ).also { message ->
-            append(conversationId, message, incrementUnread = false)
+            val visible = CharacterMessageNotifications.visibleConversation(conversationId)
+            append(conversationId, message, incrementUnread = !visible, durable = !visible)
             CompanionPresenceStore.bindDeliveredMessage(effectiveAuthorId, message.id, message.createdAt)
+            appContext?.let { context ->
+                conversationState.value.firstOrNull { it.id == conversationId }?.let { savedConversation ->
+                    runCatching { CharacterMessageNotifications.onSaved(context, savedConversation, message) }
+                        .onFailure { android.util.Log.w("LuluMessages", "Chat saved; notification failed", it) }
+                }
+            }
         }
         favoriteTarget?.let { target ->
             CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
@@ -484,6 +493,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             }
             persistLocked()
         }
+        appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
     }
 
     override fun editMessage(messageId: String, content: String): Boolean {
@@ -600,7 +610,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         true
     }
 
-    private fun append(conversationId: String, message: LuluChatMessage, incrementUnread: Boolean) {
+    private fun append(conversationId: String, message: LuluChatMessage, incrementUnread: Boolean, durable: Boolean = false) {
         lateinit var appendedConversation: LuluConversation
         synchronized(lock) {
             val current = conversationState.value.firstOrNull { conversation -> conversation.id == conversationId }
@@ -615,7 +625,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             )
             conversationState.value = (listOf(updated) + conversationState.value.filterNot { it.id == conversationId })
                 .sortedWith(conversationOrdering())
-            persistLocked()
+            persistLocked(durable)
             SharedExperienceTimeline.recordConversationMessage(current, message)
         }
         CompanionOnlineStore.onConversationMessage(appendedConversation, message)
@@ -650,11 +660,12 @@ class InMemoryLuluChatStore : LuluChatStore {
         }.sortedWith(conversationOrdering())
     }
 
-    private fun persistLocked() {
-        prefs?.edit()?.putString(
+    private fun persistLocked(durable: Boolean = false) {
+        val editor = prefs?.edit()?.putString(
             CHAT_STATE,
             encode(conversationState.value, messageStates.mapValues { (_, state) -> state.value }).toString(),
-        )?.apply()
+        ) ?: return
+        if (durable) check(editor.commit()) { "消息未能保存到手机" } else editor.apply()
     }
 
     private fun encode(

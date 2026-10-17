@@ -82,7 +82,10 @@ object ProactivePerceptionPolicyStore {
         val next = transform(get(cleanId)).normalized()
         mutablePolicies.value = mutablePolicies.value + (cleanId to next)
         persist()
-        appContext?.let { context -> ProactivePerceptionScheduler.scheduleNextDue(context) }
+        appContext?.let { context ->
+            ProactivePerceptionScheduler.scheduleNextDue(context)
+            if (UserInteractionPresenceStore.state.value.appVisible == true) BackgroundCompanionControl.refresh(context)
+        }
     }
 
     private fun persist() {

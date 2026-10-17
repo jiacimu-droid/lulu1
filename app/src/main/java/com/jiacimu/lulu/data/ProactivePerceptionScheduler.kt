@@ -10,6 +10,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -54,6 +55,9 @@ object ProactivePerceptionScheduler {
     @Synchronized fun startForegroundChecks(context: Context) {
         if (foregroundChecks?.isActive == true) return
         val app = context.applicationContext
+        // Force-stop and some OEM task cleaners remove alarms without removing our preferences.
+        // A real user reopen must rebuild the registration, even if its saved due time is unchanged.
+        PerceptionNativeWake.invalidate(app)
         foregroundChecks = scope.launch {
             while (true) {
                 scheduleNextDue(app)
@@ -118,9 +122,10 @@ object ProactivePerceptionScheduler {
     fun schedule(context: Context) {
         val appContext = context.applicationContext
         val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-        val watchdog = PeriodicWorkRequestBuilder<ProactivePerceptionWorker>(2, TimeUnit.HOURS)
+        // Cheap local due check, not a fifteen-minute paid model cadence.
+        val watchdog = PeriodicWorkRequestBuilder<ProactivePerceptionWorker>(15, TimeUnit.MINUTES)
             .setConstraints(constraints)
-            .setInputData(Data.Builder().putString("trigger", "后台两小时守护").build())
+            .setInputData(Data.Builder().putString("trigger", "后台调度守护").build())
             .build()
         WorkManager.getInstance(appContext).enqueueUniquePeriodicWork(
             WATCHDOG_WORK,
@@ -131,6 +136,18 @@ object ProactivePerceptionScheduler {
         restoreGoalReviews(appContext)
     }
 
+    /** Receivers hand off durable work before returning; no cold Activity/store assumptions. */
+    internal fun enqueueWake(context: Context, restoreSchedule: Boolean = false) {
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setInputData(Data.Builder().putString("trigger", "角色时间间隔")
+                .putBoolean("restoreSchedule", restoreSchedule).build()).build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            if (restoreSchedule) "lulu-perception-restore" else "lulu-perception-native-wake",
+            ExistingWorkPolicy.KEEP, request).result.get(8, TimeUnit.SECONDS)
+    }
+
     fun scheduleNextDue(context: Context) {
         val appContext = context.applicationContext
         scope.launch {
@@ -138,13 +155,18 @@ object ProactivePerceptionScheduler {
                 // WorkManager queries run off the UI thread. Never replace a running perception.
                 val manager = WorkManager.getInstance(appContext)
                 val due = ProactivePerceptionRuntime.nextDueAt(appContext)
-                val jobs = manager.getWorkInfosByTag(DUE_TAG).get().filterNot { it.state.isFinished }
-                val legacy = manager.getWorkInfosForUniqueWork(NEXT_DUE_WORK).get().filterNot { it.state.isFinished }
+                val nativeError = runCatching { PerceptionNativeWake.schedule(appContext, due) }
+                    .exceptionOrNull()?.let { "系统唤醒登记失败，保留任务队列：${it.message.orEmpty().take(80)}" }.orEmpty()
+                if (due != null && UserInteractionPresenceStore.state.value.appVisible == true) {
+                    BackgroundCompanionControl.refresh(appContext)
+                }
+                val jobs = manager.getWorkInfosByTag(DUE_TAG).get(10, TimeUnit.SECONDS).filterNot { it.state.isFinished }
+                val legacy = manager.getWorkInfosForUniqueWork(NEXT_DUE_WORK).get(10, TimeUnit.SECONDS).filterNot { it.state.isFinished }
                 val dueTag = due?.let { "wake-at-${it.toEpochMilli()}" }
                 (jobs + legacy).filter { it.state != WorkInfo.State.RUNNING &&
                     (dueTag == null || dueTag !in it.tags) }.forEach { manager.cancelWorkById(it.id) }
                 if (due == null || jobs.any { dueTag != null && dueTag in it.tags }) {
-                    PerceptionWakePlanStore.recordSchedulingError("")
+                    PerceptionWakePlanStore.recordSchedulingError(nativeError)
                     return@withLock
                 }
                 val delayMillis = Duration.between(Instant.now(), due).toMillis().coerceAtLeast(0L)
@@ -154,8 +176,8 @@ object ProactivePerceptionScheduler {
                     .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                     .setInputData(Data.Builder().putString("trigger", "角色时间间隔").build())
                     .build()
-                manager.enqueueUniqueWork("$NEXT_DUE_WORK-${due.toEpochMilli()}", ExistingWorkPolicy.KEEP, request).result.get()
-                PerceptionWakePlanStore.recordSchedulingError("")
+                manager.enqueueUniqueWork("$NEXT_DUE_WORK-${due.toEpochMilli()}", ExistingWorkPolicy.KEEP, request).result.get(10, TimeUnit.SECONDS)
+                PerceptionWakePlanStore.recordSchedulingError(nativeError)
             } } catch (error: Exception) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 PerceptionWakePlanStore.recordSchedulingError("自动唤醒排程未完成：${error.message.orEmpty().take(100)}")
@@ -183,7 +205,7 @@ object ProactivePerceptionScheduler {
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
             "lulu-autonomy-failed-recovery-$characterId-$attemptAtMillis",
             ExistingWorkPolicy.KEEP, request,
-        )
+        ).result.get(10, TimeUnit.SECONDS)
     }
 
     /**
@@ -195,9 +217,9 @@ object ProactivePerceptionScheduler {
         kotlinx.coroutines.withContext(Dispatchers.IO) {
             runCatching {
                 val manager = WorkManager.getInstance(context.applicationContext)
-                val dueWork = manager.getWorkInfosByTag(DUE_TAG).get()
+                val dueWork = manager.getWorkInfosByTag(DUE_TAG).get(10, TimeUnit.SECONDS)
                     .filter { !it.state.isFinished }
-                val watchdog = manager.getWorkInfosForUniqueWork(WATCHDOG_WORK).get()
+                val watchdog = manager.getWorkInfosForUniqueWork(WATCHDOG_WORK).get(10, TimeUnit.SECONDS)
                     .filter { !it.state.isFinished }
                 val next = ProactivePerceptionRuntime.nextDueAt(context.applicationContext)
                 val nextText = next?.atZone(java.time.ZoneId.systemDefault())
@@ -211,8 +233,9 @@ object ProactivePerceptionScheduler {
                     else -> "未发现已排队的定时任务（可能正在重排，建议刷新）"
                 }
                 val watchdogStatus = if (watchdog.isNotEmpty()) "守护任务已登记"
-                    else "未发现两小时守护任务"
-                "下次预定：$nextText；系统排程：$dueStatus；$watchdogStatus。Android 省电/后台限制可能推迟实际执行。"
+                    else "未发现后台守护任务"
+                val resident = BackgroundCompanionControl.status.value.note
+                "后台陪伴：$resident；下次预定：$nextText；系统排程：$dueStatus；$watchdogStatus。"
             }.getOrElse { "系统排程读取失败：${it.message.orEmpty().take(100)}" }
         }
 
@@ -640,9 +663,16 @@ class ProactivePerceptionWorker(
     appContext: Context,
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParameters) {
+    override suspend fun getForegroundInfo() = BackgroundCompanionService.workerForegroundInfo(applicationContext)
+
     override suspend fun doWork(): Result = runCatching {
         initializeBackgroundRuntime(applicationContext)
         ProactivePerceptionRuntime.initialize(applicationContext)
+        AutonomousPerceptionAttempts.recoverInterrupted(applicationContext)
+        if (inputData.getBoolean("restoreSchedule", false)) {
+            ProactivePerceptionScheduler.schedule(applicationContext)
+            return@runCatching Result.success()
+        }
         val trigger = inputData.getString("trigger").orEmpty().ifBlank { "角色时间间隔" }
         val characterId = inputData.getString("characterId")?.takeIf(String::isNotBlank)
         val force = inputData.getBoolean("force", false)
@@ -766,24 +796,40 @@ class ProactivePerceptionWorker(
     }.getOrElse {
         if (it is kotlinx.coroutines.CancellationException) throw it
         if (runAttemptCount < 2) Result.retry() else Result.failure()
+    }.also {
+        // Even a transient transport error must leave the next native/WorkManager wake intact.
+        ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
     }
 }
 
-/** Old pending alarms no longer trigger a model call; they only rebuild the next due schedule. */
+/** The OS can enter here with no Activity and no initialized in-memory stores. */
 class ProactivePerceptionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
+        PerceptionNativeWake.invalidate(context.applicationContext)
+        handOffPerceptionWake(context, goAsync(), restoreSchedule = false)
     }
 }
 
 /** Rebuild the durable watchdog and per-character timer after reboot or cover-install. */
 class ProactivePerceptionBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
-            initializeBackgroundRuntime(context.applicationContext)
-            ProactivePerceptionRuntime.initialize(context.applicationContext)
-            ProactivePerceptionScheduler.schedule(context.applicationContext)
+        if (intent.action in setOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED,
+                Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED)) {
+            PerceptionNativeWake.invalidate(context.applicationContext)
+            if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+                BackgroundCompanionControl.refresh(context.applicationContext)
+            }
+            handOffPerceptionWake(context, goAsync(), restoreSchedule = true)
         }
+    }
+}
+
+private fun handOffPerceptionWake(context: Context, pending: BroadcastReceiver.PendingResult?, restoreSchedule: Boolean) {
+    val app = context.applicationContext
+    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+        try { ProactivePerceptionScheduler.enqueueWake(app, restoreSchedule) }
+        catch (error: Exception) { android.util.Log.w("LuluPerception", "Background wake handoff failed", error) }
+        finally { pending?.finish() }
     }
 }
 

@@ -32,7 +32,6 @@ import java.util.Locale
 /** Per-character autonomous perception used by background life and short online sessions. */
 object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
-    private const val MESSAGE_CHANNEL_ID = "lulu_proactive_messages"
     private const val CALL_CHANNEL_ID = "lulu_proactive_calls"
     private const val ACTION_HISTORY_SIZE = 10
     private val cycleMutex = Mutex()
@@ -263,16 +262,22 @@ object ProactivePerceptionRuntime {
                     pendingConcern -> "挂心/承诺待回看"
                     else -> trigger
                 }
-                prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).apply()
+                check(prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).commit()) {
+                    "感知时间未保存"
+                }
                 if (!preserveOffline && (!force || !CompanionOnlineStore.isOnline(characterId, now))) {
                     CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
                 }
                 CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
+                val attempt = if (onlineRevision == null && policy.enabled) {
+                    AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now)
+                } else null
                 val result = runCatching {
                     evaluateCharacter(appContext, conversation, effectiveTrigger, now,
                         requiredInteractionEvidenceId, onlineExpiryAtMillis)
                 }
                 result.onSuccess { action ->
+                    AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
                     evaluated += 1
                     CharacterDevelopmentRuntime.request(characterId)
                     val actionKey = "action_history_$characterId"
@@ -284,38 +289,19 @@ object ProactivePerceptionRuntime {
                         .remove("silent_count_$characterId")
                         .apply()
                 }.onFailure { error ->
-                    if (error is kotlinx.coroutines.CancellationException) throw error
+                    // This persists recovery even when JobScheduler cancels the coroutine.
+                    // Interrupted tool execution is never blindly replayed as a new action.
+                    AutonomousPerceptionAttempts.finish(appContext, attempt, failed = true)
+                    if (error is kotlinx.coroutines.CancellationException) {
+                        CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知中断；保留已保存的执行记录", Instant.now())
+                        throw error
+                    }
                     CompanionPresenceStore.recordPerceptionAttempt(
                         characterId,
                         "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
                         now,
                     )
                     if (onlineRevision != null && requiresUnread) chatBatchError = error
-                    // The ordinary two-hour clock was anchored BEFORE the failed
-                    // model call. Recover once in a bounded window instead of
-                    // treating a transport/JSON failure as deliberate solitude.
-                    val retryKey = "background_failure_retry_at_$characterId"
-                    val nowMillis = now.toEpochMilli()
-                    if (ProactivePerceptionRecoveryPolicy.shouldRetry(
-                            lastScheduledAtMillis = prefs.getLong(retryKey, 0L),
-                            nowMillis = nowMillis,
-                            trigger = trigger,
-                            isChatBatch = onlineRevision != null,
-                            enabled = policy.enabled,
-                        ) && prefs.edit().putLong(retryKey, nowMillis).commit()) {
-                        runCatching {
-                            ProactivePerceptionScheduler.scheduleBackgroundFailureRecovery(
-                                appContext, characterId, nowMillis,
-                            )
-                        }.onFailure { scheduleError ->
-                            prefs.edit().remove(retryKey).apply()
-                            CompanionPresenceStore.recordPerceptionAttempt(
-                                characterId,
-                                "主动感知恢复排程失败 · ${scheduleError.message.orEmpty().take(95)}",
-                                now,
-                            )
-                        }
-                    }
                 }
             }
             // A transient model/executor failure must not acknowledge the unread
@@ -1162,6 +1148,7 @@ object ProactivePerceptionRuntime {
         ).joinToString("|").hashCode().toUInt().toString(16)
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
         val actionStartedAt = Instant.now()
+        AutonomousPerceptionAttempts.beforeAction(appContext, characterId)
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
             goalReviewMode = trigger.startsWith("持续目标定时复盘"),
@@ -1528,24 +1515,8 @@ object ProactivePerceptionRuntime {
             return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
         }
         when (decision.action) {
-            Action.MESSAGE, Action.KAOMOJI, Action.STICKER -> result.conversationId?.let {
-                showMessageNotification(appContext, it, character.displayName,
-                    if (decision.action == Action.STICKER) result.summary else decision.text)
-            }
-            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER -> {
-                val target = availableGroups.firstOrNull { it.id == result.conversationId }
-                result.conversationId?.let {
-                    showMessageNotification(
-                        appContext,
-                        it,
-                        "${character.displayName} · ${target?.groupChat?.name.orEmpty()}",
-                        if (decision.action == Action.GROUP_STICKER) result.summary else decision.text,
-                    )
-                }
-            }
-            Action.GAME_INVITE, Action.WORLD_INVITE -> result.conversationId?.let {
-                showMessageNotification(appContext, it, character.displayName, result.summary)
-            }
+            // Chat notifications originate from committed messages, including action=tool,
+            // rather than a subset of model action labels. Do not notify the same reply twice.
             Action.CALL -> result.conversationId?.let {
                 showCallNotification(appContext, it, character.displayName, decision.text)
             }
@@ -1694,9 +1665,7 @@ object ProactivePerceptionRuntime {
     private fun createNotificationChannels(context: Context) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) return
         val manager = context.getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(
-            NotificationChannel(MESSAGE_CHANNEL_ID, "角色主动消息", NotificationManager.IMPORTANCE_DEFAULT),
-        )
+        CharacterMessageNotifications.channelId(context)
         manager.createNotificationChannel(
             NotificationChannel(CALL_CHANNEL_ID, "角色主动来电", NotificationManager.IMPORTANCE_HIGH),
         )
@@ -1712,28 +1681,6 @@ object ProactivePerceptionRuntime {
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-    }
-
-    private fun showMessageNotification(
-        context: Context,
-        conversationId: String,
-        title: String,
-        text: String,
-    ) {
-        if (
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) return
-        val notification = NotificationCompat.Builder(context, MESSAGE_CHANNEL_ID)
-            .setSmallIcon(com.jiacimu.lulu.R.drawable.lulu_exact_icon)
-            .setContentTitle(title)
-            .setContentText(text.take(180))
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text.take(600)))
-            .setAutoCancel(true)
-            .setContentIntent(conversationIntent(context, conversationId))
-            .build()
-        context.getSystemService(NotificationManager::class.java)
-            .notify((conversationId + text).hashCode(), notification)
     }
 
     /** Reuse the same full-screen incoming-call notification for alarm-backed promises. */

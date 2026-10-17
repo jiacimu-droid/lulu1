@@ -105,6 +105,7 @@ class MigrationActivity : ComponentActivity() {
         }
         com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
+        com.jiacimu.lulu.data.BackgroundCompanionControl.refresh(applicationContext)
         ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
         // Returning from Android's exact-alarm permission screen upgrades pending wake-ups
         // from best-effort to exact without requiring a reboot or changing the original time.

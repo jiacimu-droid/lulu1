@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`e5f0baba4cf42981cf0734a3ae6b9b20640f7e37`
+- 基准提交：`ac4553b76e2ef1530317dbe1a0511f02cced1ab0`
 - 分支：`main`
-- 已索引文件：693
-- 已索引代码/文本行：134433
-- 已发现符号：2024
+- 已索引文件：699
+- 已索引代码/文本行：135162
+- 已发现符号：2036
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 138 | 0 |
-| `app/src/main/AndroidManifest.xml` | 145 | 0 |
+| `app/src/main/AndroidManifest.xml` | 160 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
@@ -87,7 +87,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 136 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 465 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 510 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 494 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 231 | 0 |
@@ -111,7 +111,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 603 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 904 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 229 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 230 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 488 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 97 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
@@ -180,7 +180,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 74 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 82 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 247 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 606 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 56 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 112 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 56 | 2 |
@@ -215,6 +217,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 566 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 207 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 191 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 84 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt` | 132 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotivationOwnership.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt` | 69 | 5 |
@@ -327,21 +330,22 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 68 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1021 | 48 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1032 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 257 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 898 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 122 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 44 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 58 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 111 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 132 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 136 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 139 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1807 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 825 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1754 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 871 | 25 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
@@ -565,6 +569,8 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousGameOutcomeTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt` | 250 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt` | 70 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 126 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionEvidenceTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFeedbackTest.kt` | 52 | 1 |
