@@ -101,6 +101,22 @@ class CharacterDecisionProtocolTest {
         assertTrue(handoff.contains("不乱许诺"))
         assertTrue(handoff.contains("日常称呼=宝宝"))
     }
+    @Test fun focusedExpressionKeepsPersonalFeelingWithoutReceivingPsychologicalAnalysisAsAnAssignment() {
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            JSONObject().put("meaning", "完整的心理归因")
+                .put("responseAim", "消除她所有的焦虑")
+                .put("commonGroundUpdate", "需要逐项回应的关系分析")
+                .put("uncertainty", "不能确定她是否想听建议"),
+            JSONObject().put("emotion", JSONObject().put("feeling", "有些担心")
+                .put("restraint", "不替她做决定")), "", "", "", includeAppraisalDetails = false)
+        assertTrue(handoff.contains("有些担心"))
+        assertTrue(handoff.contains("不替她做决定"))
+        assertTrue(handoff.contains("不能确定她是否想听建议"))
+        assertFalse(handoff.contains("完整的心理归因"))
+        assertFalse(handoff.contains("消除她所有的焦虑"))
+        assertFalse(handoff.contains("需要逐项回应的关系分析"))
+        assertFalse(handoff.contains("可选 appraisal.expression"))
+    }
     @Test fun complicatedUnspokenConflictCanRemainLayeredWithoutForcingEveryThoughtLong() {
         val basis = JSONObject().put("focus", "刚才的玩笑") 
             .put("conflict", "想接梗，但又怕她刚才不高兴")

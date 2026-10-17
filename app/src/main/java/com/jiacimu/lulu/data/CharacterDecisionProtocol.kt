@@ -89,16 +89,16 @@ internal object CharacterDecisionProtocol {
     fun expressionContext(
         appraisal: JSONObject?, innerLife: JSONObject?, mood: String,
         continuousState: String, relationshipState: String,
+        includeAppraisalDetails: Boolean = true,
     ): String = buildString {
-        appendLine(CharacterExpressionContinuity.playfulGuide)
         appendLine("【决策层传给表达层的当下状态｜只影响说法，不逐项复述】")
-        appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
+        if (includeAppraisalDetails) appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
             appendLine("对这轮输入的理解：${it.take(240)}")
         }
-        appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
+        if (includeAppraisalDetails) appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
             appendLine("表达目的：${it.take(180)}")
         }
-        appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
+        if (includeAppraisalDetails) appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
             appendLine("这轮共同语境更新：${it.take(220)}")
         }
         appraisal?.optString("uncertainty")?.takeIf(String::isNotBlank)?.let {

@@ -70,4 +70,16 @@ class TransientConversationStyleTest {
         }
         assertFalse(TransientConversationStyle.allowsExpansion("这三个名字里你喜欢哪个？"))
     }
+
+    @Test fun everydayLengthGuidanceAppliesToTheWholeTurnAndExemptsDetailedTasks() {
+        val brief = TransientConversationStyle.context("不读书就没钱，")
+        assertTrue(brief.contains("所有气泡合计"))
+        assertTrue(brief.contains("不是输出截断"))
+        assertTrue(brief.contains("不默认追加呼吸指导"))
+        val normal = TransientConversationStyle.context("我今天走了好远的路，还去逛了昨天跟你说的那家店")
+        assertTrue(normal.contains("所有气泡合计"))
+        listOf("帮我分析学习计划怎么调整", "继续讲故事哄我睡", "详细解释原因").forEach { input ->
+            assertFalse(input, TransientConversationStyle.context(input).contains("所有气泡合计"))
+        }
+    }
 }

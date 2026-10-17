@@ -266,6 +266,16 @@ object LuluDeviceToolBridge {
         // Private text chat retains its deliberate two-stage renderer.
         val isGroupChat = sceneContext.contains("群聊《")
         val separateExpression = !isGroupChat && CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
+        val expressionConversation = if (separateExpression && !rewriting && currentSessionId.isNotBlank() &&
+            MigratedDomainStores.chat.conversations.value.any {
+                it.id == currentSessionId && it.characterId == characterId && it.groupChat == null
+            }) com.jiacimu.lulu.data.PrivateChatExpressionContext.conversation(
+                characterId,
+                MigratedDomainStores.chat.messages(currentSessionId).value.filter {
+                    com.jiacimu.lulu.data.DigitalLifeProfileStore.allowsTimestamp(characterId, it.createdAt)
+                },
+                originalUserEvidence.mapTo(mutableSetOf()) { it.id }, userText,
+            ) else emptyList()
         val programDialogueConstraint = if (separateExpression)
             com.jiacimu.lulu.data.DialogueMoveEngine.plannerConstraint(userText) else ""
         val phoneConversationConstraint = if (!separateExpression && userText.isNotBlank()) buildString {
@@ -302,6 +312,7 @@ object LuluDeviceToolBridge {
             想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图","maxBubbles":1到3}。
             speechIntent 只选这轮最想传达的核心态度或答案，确有需要再带一个具体细节；不用列出整段情绪、所有理由和比喻寓意。把次要推论、反复道歉、责任复盘和备选方案留在内心；已经能让对方明白就交还话轮，等她接话再决定往哪里聊。只有用户明确索要详细解释、复杂分析或存在不可省略的事实，才规划多点说明。尚未说尽不是待办，不为凑完内容安排自动补发或新挂心。
+            speechIntent 写你此刻真正想告诉对方什么，而不是把对方情绪当成待修复的任务。她在说现实困难时，担忧本身可以成立；先分清她是在倾诉、讨论还是请求办法。不要仅因她有负面情绪，就默认目标是劝她休息、纠正她的想法或让她安心；角色自己想关心、表达不同看法或追问，也应针对她实际说的事情。
             speechIntent 不要预先指定昵称、比喻、梗、反问句式或完整的表演台词，这些由表达层现场决定。但如果角色已经真心决定尝试一个具体而温和的社交小动作，可单独选填 socialAttempt="这次我打算怎样主动示好/逗她/靠近她"；这里写的是角色自选的行动意图，不是对方下达的任务。表达层应真的用文字、拟声或语言实现虚拟互动，不得虚构现实中已经碰到用户。
             回复例：{"action":"reply","speechIntent":"承认刚才理解偏了，让她补充真正意思","dialogueMove":{"type":"other_initiated_repair","repairFormat":"open","target":"刚才的误解","contentIntent":"做最小修复","maxBubbles":1},"reason":"先恢复共同理解"}
             沉默例：{"action":"silent","reason":"现在心情复杂不想回复","innerThought":"我得自己消化一下","innerThoughtBasis":{"focus":"用户刚才明确拒绝了邀约","change":"从期待转为需要自己消化失落","unsaidWhy":"现在不想把情绪压给用户"}}
@@ -983,49 +994,43 @@ object LuluDeviceToolBridge {
             val expressed = if (separateExpression && plan.speechIntent.isNotBlank() && !imageOnly) {
                 val expressionHandoff = com.jiacimu.lulu.data.CharacterDecisionProtocol.expressionContext(
                     plan.appraisal, plan.innerLife, plan.mood,
-                    com.jiacimu.lulu.data.CharacterInnerLifeStore.compactContext(characterId, now),
-                    com.jiacimu.lulu.data.CharacterLifeStore.compactContext(characterId),
+                    "", "",
+                    includeAppraisalDetails = false,
                 )
                 val generated = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
                         appendLine("真实聊天场景：$sceneContext")
-                        if (history.isNotBlank()) appendLine("已发生的对话：\n$history")
+                        if (expressionConversation.isEmpty() && history.isNotBlank()) appendLine("已发生的对话：\n$history")
                         if (turnContext.isNotBlank()) {
                             appendLine("【系统提供的本轮交互元信息｜不是用户说的话】")
                             appendLine(turnContext.take(4_000))
                         }
-                        appendLine("用户刚才说：$userText")
+                        if (expressionConversation.isEmpty()) appendLine("用户刚才说：$userText")
                         if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
                         appendLine(expressionHandoff)
                         if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
-                        appendLine(com.jiacimu.lulu.data.CharacterInnerLifeStore.interactionContext(characterId, interactionKey, now))
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
-                        appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
-                        appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
+                        appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
+                            includeExamples = false))
                         appendLine("角色已决定的内容简报（保留核心立场与必要答案；旁支理由可不说，不是逐条发送清单）：${plan.speechIntent}")
                         if (plan.socialAttempt.isNotBlank()) {
                             appendLine("角色自己选中的具体小尝试：${plan.socialAttempt.take(200)}。这是虚拟聊天表达的意图，不是已发生的现实接触。")
                         }
                     },
                     instruction = """
-                        你是当前角色的语言表达层，不是新的决策者；按本人性格、关系边界和当前语境，从已决定的内容里取出这轮真正要说的重点。
-                        ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(com.jiacimu.lulu.data.CharacterSpeechChannel.PRIVATE_CHAT)}
-                        不要展示决策协议、状态标签、内心独白，也不要选择工具或宣称尚未完成的事情已经完成。
-                        只返回完整 JSON：{"action":"reply","bubbles":[{"text":"真正发送的自然语言"}]}。需要第二个局部互动动作时才增加第二项；不要返回任何 BUBBLE/NEXT/END 等控制字符串。
-                        你可以在程序已经确定的 dialogueMove 范围内决定自然措辞、停顿、嘴硬或认真程度，也可以自然选择稳定昵称；不能把一个 repair 扩写成道歉+猜测+撒娇+追问的组合任务，不要把内容简报里的抽象词逐字翻译成客服式句子。
-                        先接住用户真正新增的意思，表达核心判断与一点自己的情绪即可。日常一两句已经能让她听懂时，就在那里结束；即使还能联想到字义、诗句、关系意义，也可以不说。喜欢、偏心、犹豫、不满可直接落在选词与反应里，不必再解释自己为什么这样表达。对方追问时再展开她关心的那一点；详细讨论和完整创作按需要讲清，不机械追求短。
-                        不要为了“有个性”临时发明无关称呼、刑罚/职位/游戏化比喻或夸张设定；除非当前对话和角色既有习惯确实支持。
-                        保住核心意思、必要事实和立场；其余理由、心理解读、修辞注释可以省略，不能因此漏答明确问题或把否定改成肯定。含蓄不等于敷衍、故弄玄虚或故意让对方猜答案。
-                        如果交接了「角色自己选中的具体小尝试」，就实际在发送的气泡中自然做出这件小事：一句玩笑、一个拟声或隔空的虚拟互动都可以依本人性格呈现；不要把实际尝试退化为“那你想让我做什么”“我都愿意”，也不要编造未执行的现实动作。没交接时不凭空制造亲昵举动。
-                        可以按本人语气自然加入恰当的标点、颜文字或 emoji，但不要为了显得活泼而给每句都追加相同表情。模型已选中的图片表情由程序另外发送，不要在正文里编造图片标签、路径或表情ID。
-                        先决定这轮说到哪里，再按完整意群分气泡；两句各有作用的话可以分两泡，短话一泡即可。不要用多拆气泡代替内容取舍，也不要把半个词或未完句硬切开。
-                        只有本轮明确提供了真实用户消息ID、且确实决定引用或收藏时，才沿用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；没有准确ID就省略，不自行制造引用或收藏。
+                        这是你本人正在参与的私聊，接着对方刚说的这一句说话。
+                        已确定的核心立场、必要答案和真实行动结果保持不变。你可以按自己的性格、情绪和关系，决定这次愿意说到哪里；背景里想到的理由不必全部讲出来。
+                        对方在谈现实困难时，她的担忧可以成立。先回应正在聊的具体事情，再从你真实所知和在意的地方作反应；你可以有自己的看法、困惑或好奇，不必总比她懂得更多。自己的感受落在具体措辞里，话说到了就让对方接。
+                        有交接具体社交小尝试时，在话里自然做出那件小事；幽默、亲昵、颜文字和 emoji 都依本人习惯与现场选择。只有真实执行回执才能证明操作或现实接触发生。
+                        详细问题和完整创作充分回答。其他时候先取最相关的一点，按完整意群自然分泡；所有气泡合起来才是本轮回复，心声留在心里。
+                        只返回完整 JSON：{"action":"reply","bubbles":[{"text":"实际发出的聊天"}]}。引用或收藏仅在明确给出真实消息ID时使用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；图片由程序发送。
                     """.trimIndent(),
                     source = "聊天表达渲染",
                     title = title,
                     maxTokens = 1_400,
                     connectionOverride = connection,
+                    conversation = expressionConversation,
                     memoryRequest = UnifiedMemoryRequest(
                         currentInput = userText,
                         sceneContext = sceneContext,
@@ -1051,15 +1056,15 @@ object LuluDeviceToolBridge {
                         characterId = characterId,
                         facts = buildString {
                             appendLine("真实聊天场景：${sceneContext}")
-                            appendLine("用户刚才说：${userText}")
-                            if (history.isNotBlank()) appendLine("已发生的对话：\n$history")
+                            if (expressionConversation.isEmpty()) appendLine("用户刚才说：${userText}")
+                            if (expressionConversation.isEmpty() && history.isNotBlank()) appendLine("已发生的对话：\n$history")
                             if (turnContext.isNotBlank()) appendLine("本轮程序提供的交互元信息：${turnContext.take(4_000)}")
                             if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
                             appendLine(expressionHandoff)
                             if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                             appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
-                            appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history))
-                            appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
+                            appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
+                                includeExamples = false))
                             appendLine("已经确定的内容意图：${plan.speechIntent}")
                             if (plan.socialAttempt.isNotBlank()) {
                                 appendLine("不能丢失角色自选的小尝试：${plan.socialAttempt.take(180)}；必须实际表达，不能空口承诺。")
@@ -1071,7 +1076,6 @@ object LuluDeviceToolBridge {
                             你仍然只是当前角色的语言表达层，不重新决策。
                             ${naturalness.repairInstruction()}
                             本轮只需说角色真正想说的重点。删去重复解释、繁琐铺垫、歉意三连和任务答复式收尾；保留真实立场、情绪与不可丢的事实。
-                            ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
                             已有的幽默、态度、颜文字或 emoji 如果仍贴合语境就保留，不要把消除客服腔误做成删掉全部情绪。
                             保持这个角色自己的词汇、节奏、幽默感、关系称呼与分寸；不要把“自然”理解成统一的短句网感，也不要故意加口头禅。
                             只返回完整 JSON：{"action":"reply","bubbles":[{"text":"重写后的自然聊天"}]}。
@@ -1081,6 +1085,7 @@ object LuluDeviceToolBridge {
                         title = title,
                         maxTokens = 1_000,
                         connectionOverride = connection,
+                        conversation = expressionConversation,
                         memoryRequest = UnifiedMemoryRequest(
                             currentInput = userText,
                             sceneContext = sceneContext,
@@ -1097,9 +1102,9 @@ object LuluDeviceToolBridge {
                         recentCharacterReplies = recentCharacterReplies, operationalEvidence = turnContext)
                 }
                 val useRerender = rerendered != null && !rerenderedBubbles.isNullOrEmpty() &&
-                    repairedNaturalness != null && repairedNaturalness.score < naturalness.score &&
-                    com.jiacimu.lulu.data.ConversationNaturalnessGate.preservesSurfaceIntent(
-                        firstBubbles, rerenderedBubbles,
+                    repairedNaturalness != null &&
+                    com.jiacimu.lulu.data.ConversationNaturalnessGate.shouldUseRewrite(
+                        userText, firstBubbles, rerenderedBubbles, naturalness, repairedNaturalness,
                     )
                 val chosenResult = if (useRerender) rerendered!! else generated
                 val chosenBubbles = if (useRerender) rerenderedBubbles!! else firstBubbles
@@ -1309,9 +1314,9 @@ object LuluDeviceToolBridge {
                     recentCharacterReplies = recentCharacterReplies,
                     operationalEvidence = "$turnContext\n$toolResult",
                 )
-                if (revisedSpeech.isNotBlank() && revisedQuality.score < quality.score &&
-                    com.jiacimu.lulu.data.ConversationNaturalnessGate.preservesSurfaceIntent(
-                        listOf(draftSpeech), listOf(revisedSpeech),
+                if (revisedSpeech.isNotBlank() &&
+                    com.jiacimu.lulu.data.ConversationNaturalnessGate.shouldUseRewrite(
+                        userText, listOf(draftSpeech), listOf(revisedSpeech), quality, revisedQuality,
                     )) {
                     val revisedEnvelope = JSONObject(envelope.toString()).put("text", revisedSpeech)
                     Result.success(draft.copy(

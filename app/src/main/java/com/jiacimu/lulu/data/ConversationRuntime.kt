@@ -179,7 +179,7 @@ internal object DialogueMoveEngine {
             DialogueMoveType.ASK ->
                 appendLine("只问当前最有信息增量的问题；通常一个问题就够，不连发访谈式追问。")
             DialogueMoveType.REASSURE ->
-                appendLine("安抚只落在当前具体担忧上；不要为了显得深情扩大成永久承诺或完整情感宣言。")
+                appendLine("安抚只落在当前具体担忧上，像这个熟人当场接话；无需在一轮内消除对方全部焦虑。对方没有请求指导时，不把关心扩成呼吸练习、分析心理、讲人生道理再劝她别扛的一整套流程；不要为了显得深情扩大成永久承诺或完整情感宣言。")
             DialogueMoveType.TEASE ->
                 appendLine("玩笑落地就停；不要解释笑点、补免责声明或再接一段温柔总结。")
             DialogueMoveType.DISAGREE ->

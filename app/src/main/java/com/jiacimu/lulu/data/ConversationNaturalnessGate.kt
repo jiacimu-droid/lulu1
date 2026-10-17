@@ -18,6 +18,7 @@ internal data class ConversationNaturalnessAssessment(
         appendLine("不要新增建议、承诺、工具动作、关系结论或新的问题；像这个人当场接话，说够就停。")
         appendLine("当只是简单追问或工具未成功时，留最关键的事实和本人真实反应就够了。删掉重复的原因复述、客服式安慰及事后检讨；简短而不是故意敷衍。")
         appendLine("留白发生在这一轮的内容取舍上：保留核心判断、必要答案与一点本人情绪，删掉后续赏析和解释情绪的解释；不是把同一篇长文分成更多气泡。")
+        appendLine("如果是在安慰，只接当前最相关的担忧，不负责一次把所有情绪劝好；去掉额外的呼吸指导、心理归因和人生道理，不把它们换词后重新写一遍。用户明确要求的指导与必要的求助信息仍须保留。")
     }.trim()
 }
 
@@ -37,6 +38,49 @@ internal object ConversationNaturalnessGate {
     private val metaAssistant = Regex(
         """(?:作为(?:一个)?(?:ai|AI|助手|模型)|根据你的需求|下面我(?:来|会)|我将为你)"""
     )
+    // Independent rhetorical moves, counted across the whole turn. A compact
+    // four-step counselling script can sound unnatural below any length limit;
+    // a single sincere reassurance is not a defect.
+    private val comfortScriptMoves = listOf(
+        Regex("""(?:先.{0,5}(?:深呼吸|深吸.{0,3}气|冷静)|把心跳.{0,5}(?:缓|稳)|放松.{0,3}(?:身体|肩膀))"""),
+        Regex("""(?:我(?:知道|理解|明白|懂).{0,8}你.{0,8}(?:心里|害怕|恐慌|焦虑|压力)|听起来你.{0,12}(?:压力|焦虑|害怕))"""),
+        Regex("""(?:(?:不等于|不代表|绝不等于).{0,8}(?:放弃|失败)|人不是.{0,8}(?:机器|铁)|天塌不下来|不要把.{0,18}极端)"""),
+        Regex("""(?:(?:别|不要|不用).{0,5}(?:一个人扛|独自扛|自己扛)|(?:到|来).{0,5}我身边.{0,10}(?:缓|歇))"""),
+    )
+    private val requestedCalmingGuidance = Regex(
+        """(?:怎么.{0,5}(?:缓解|放松|冷静)|(?:教我|带我|帮我).{0,8}(?:呼吸|放松|冷静)|一步一步)"""
+    )
+
+    private fun conversationalReviewLength(userText: String): Int =
+        when (TransientConversationStyle.analyze(userText).pace) {
+            TransientConversationStyle.Pace.BRIEF -> 90
+            TransientConversationStyle.Pace.NORMAL -> 160
+            TransientConversationStyle.Pace.EXPANSIVE -> Int.MAX_VALUE
+        }
+
+    /** Select a model-written revision, never trim or replace it with stock text. */
+    fun shouldUseRewrite(
+        userText: String,
+        original: List<String>,
+        rewritten: List<String>,
+        originalAssessment: ConversationNaturalnessAssessment,
+        rewrittenAssessment: ConversationNaturalnessAssessment,
+    ): Boolean {
+        if (!originalAssessment.needsRerender || rewritten.all(String::isBlank) ||
+            !preservesSurfaceIntent(original, rewritten)) return false
+        // A lower total must not hide a newly introduced assistant-like habit.
+        if (rewrittenAssessment.reasons.any { it !in originalAssessment.reasons }) return false
+        if (rewrittenAssessment.score < originalAssessment.score) return true
+        if (rewrittenAssessment.score != originalAssessment.score ||
+            TransientConversationStyle.allowsExpansion(userText)) return false
+        val beforeLength = original.sumOf { it.count { char -> !char.isWhitespace() } }
+        val afterLength = rewritten.sumOf { it.count { char -> !char.isWhitespace() } }
+        // Discrete flags can remain identical after substantial improvement.
+        // Accept a materially lighter turn when it adds no new flagged problem
+        // and preserves facts; otherwise the old verbose draft would win a tie.
+        return beforeLength >= conversationalReviewLength(userText) &&
+            afterLength <= beforeLength * 3 / 4
+    }
 
     fun preservesSurfaceIntent(original: List<String>, rewritten: List<String>): Boolean {
         if (rewritten.isEmpty()) return false
@@ -144,12 +188,7 @@ internal object ConversationNaturalnessGate {
         // text truncator. Long user transcripts don't grant essay-sized turns;
         // explicit explanations, concrete tasks and narratives remain exempt.
         val detailRequested = TransientConversationStyle.allowsExpansion(userText)
-        val conversationalReviewLength = when {
-            userLength <= 24 -> 115
-            userLength <= 70 -> 175
-            else -> 240
-        }
-        if (!detailRequested && userLength > 0 && replyLength >= conversationalReviewLength) {
+        if (!detailRequested && userLength > 0 && replyLength >= conversationalReviewLength(userText)) {
             score += 2
             reasons += "日常一拍展开过满；先说核心态度与一个必要细节，给对方接话的余地，不把全部联想都解释完"
         }
@@ -168,6 +207,11 @@ internal object ConversationNaturalnessGate {
                 (replyLength >= 180 && longBubbles >= 1))) {
             score += 2
             reasons += "简单追问被写成多段事后说明，缺乏真实对话的轻重取舍"
+        }
+        if (!detailRequested && !requestedCalmingGuidance.containsMatchIn(userText) &&
+            comfortScriptMoves.count { it.containsMatchIn(reply) } >= 3) {
+            score += 2
+            reasons += "把倾诉扩成呼吸指导、心理归因、说理与保证的安慰流程；只回应眼前担忧，给对方接话的余地"
         }
         // A three-beat apology / excuse / reassurance is a mini incident report,
         // even when it is short enough to evade the length threshold.

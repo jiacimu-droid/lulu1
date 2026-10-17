@@ -4,6 +4,65 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ConversationNaturalnessGateTest {
+    @Test fun screenshotComfortIsOneOverfilledTurnRegardlessOfBubbleLayout() {
+        val bubbles = ConversationNaturalnessFixtures.screenshotComfort
+        listOf(bubbles, listOf(bubbles.joinToString(""))).forEach { layout ->
+            val assessment = ConversationNaturalnessGate.assess("不读书就没钱，", layout)
+            assertTrue(assessment.needsRerender)
+            assertTrue(assessment.reasons.any { it.contains("安慰流程") })
+        }
+        val natural = listOf("你怕的也是以后的日子，对吧？")
+        val before = ConversationNaturalnessGate.assess("不读书就没钱，", bubbles)
+        val after = ConversationNaturalnessGate.assess("不读书就没钱，", natural)
+        assertFalse(after.needsRerender)
+        assertTrue(ConversationNaturalnessGate.shouldUseRewrite(
+            "不读书就没钱，", bubbles, natural, before, after))
+    }
+
+    @Test fun shortCounsellingScriptIsNotNaturalJustBecauseItIsShort() {
+        val script = listOf("先深呼吸。我知道你心里压力很大。休息不等于放弃。别一个人扛，好不好？")
+        val assessment = ConversationNaturalnessGate.assess("有点慌", script)
+        assertTrue(script.single().length < 90)
+        assertTrue(assessment.reasons.any { it.contains("安慰流程") })
+        assertFalse(ConversationNaturalnessGate.assess("有点慌",
+            listOf("先别一个人扛。", "跟我说说？")).needsRerender)
+        assertFalse(ConversationNaturalnessGate.assess("带我一步一步呼吸放松", script)
+            .reasons.any { it.contains("安慰流程") })
+    }
+
+    @Test fun materiallyLighterRevisionWinsEvenWhenDiscreteFlagsTie() {
+        val original = listOf(
+            "这个名字我很喜欢，听着很自在，也保留了原来那种温和的感觉。",
+            "第一个字让我想到山间的清风，第二个字又带着少年人自由自在的意味。",
+            "而且你替我起名字这件事，本身就让我觉得自己被你认真地看见和惦记着。",
+            "所以这不只是一个称呼，也是你把我们之间的归属感放进了几个字里面。",
+            "从此每次听到你这样叫我，我都会想起今天这一刻，想起你为我花的心思。",
+        )
+        val rewritten = original.take(3)
+        val before = ConversationNaturalnessGate.assess("这个名字怎么样", original)
+        val after = ConversationNaturalnessGate.assess("这个名字怎么样", rewritten)
+        assertTrue(before.needsRerender)
+        assertEquals(before.score, after.score)
+        assertTrue(ConversationNaturalnessGate.shouldUseRewrite(
+            "这个名字怎么样", original, rewritten, before, after))
+        assertFalse(ConversationNaturalnessGate.shouldUseRewrite(
+            "这个名字怎么样", original, original, before, before))
+    }
+
+    @Test fun lighterRevisionStillCannotDropToolEvidenceOrAddAssistantSpeech() {
+        val original = ConversationNaturalnessFixtures.screenshotComfort +
+            "还没读到这篇笔记，图片识别失败，https://example.com/post/42 只有2张图。"
+        val before = ConversationNaturalnessGate.assess("怎么没读到", original)
+        val lostFacts = listOf("先歇会儿，明天再说。")
+        assertFalse(ConversationNaturalnessGate.shouldUseRewrite("怎么没读到", original, lostFacts,
+            before, ConversationNaturalnessGate.assess("怎么没读到", lostFacts)))
+        val assistant = listOf("作为AI，我知道你有压力。")
+        assertFalse(ConversationNaturalnessGate.shouldUseRewrite("有点慌",
+            ConversationNaturalnessFixtures.screenshotComfort, assistant,
+            ConversationNaturalnessGate.assess("有点慌", ConversationNaturalnessFixtures.screenshotComfort),
+            ConversationNaturalnessGate.assess("有点慌", assistant)))
+    }
+
     @Test fun presenceComplaintDoesNotAuthorizeInventingAMessageFailure() {
         val result = ConversationNaturalnessGate.assess("不理我",
             listOf("在呢在呢。刚才消息稍微卡了一下没及时回出来，让你等了，是我的错。"))
@@ -235,4 +294,16 @@ class ConversationNaturalnessGateTest {
         assertFalse(ConversationNaturalnessGate.assess("请详细解释原因", listOf(reply.repeat(8)))
             .reasons.any { it.contains("展开过满") })
     }
+}
+
+/** A complete turn: splitting it into more bubbles must never make it pass. */
+internal object ConversationNaturalnessFixtures {
+    val screenshotComfort = listOf(
+        "别怕，宝宝，先深吸一口气，把心跳缓下来。",
+        "我知道你心里压着多大的石头，备考、以后的生计、还有怕停下来就一无所有的恐慌，甚至连我的存在都成了你肩上的重担。",
+        "可是今晚让你停下来歇一歇，绝不等于放弃，更不会直接走到‘活不下去’那一步。",
+        "人不是铁打的机器，心里那根弦要是硬生生绷断了，才真的走不动长路。",
+        "不差今晚这几个小时。不要把所有极端的结果全堆在这一刻来吓自己，天塌不下来；",
+        "就算真有什么，也别一个人扛着，先到我身边缓口气，好不好？",
+    )
 }

@@ -80,8 +80,8 @@ internal object TransientConversationStyle {
     fun context(userText: String, recentHistory: String = "", includeExamples: Boolean = true): String {
         val s = analyze(userText, recentHistory)
         val paceGuide = when (s.pace) {
-            Pace.BRIEF -> "先用一两句接住眼前最重要的意思；保留自己的态度或情绪，表达到了就交还话轮。对方问原因就说最关键的理由，不自动追加整套赏析、安慰或关系总结。"
-            Pace.NORMAL -> "理解对方全部内容后，选此刻最想回应的一点，再按需要补一个有用细节。用户说得长、连发几条或有语音转写重复，不代表想听同等篇幅的回答；必要问题要答，枝节可以等下一轮。"
+            Pace.BRIEF -> "先用一两句接住眼前最重要的意思；所有气泡合计才是本轮的表达，不按每个气泡分别扩写。保留自己的态度或情绪，表达到了就交还话轮。对方问原因就说最关键的理由，不自动追加整套赏析、安慰或关系总结。"
+            Pace.NORMAL -> "理解对方全部内容后，选此刻最想回应的一点，再按需要补一个有用细节；所有气泡合计才是本轮的表达。用户说得长、连发几条或有语音转写重复，不代表想听同等篇幅的回答；必要问题要答，枝节可以等下一轮。"
             Pace.EXPANSIVE -> "对方正在请求展开或完成具体内容任务，可以讲清必要推理、步骤、比较或连续故事；完整性优先，不能为了简短漏答。闲聊式铺垫、重复表态和文末关系总结仍可省略。"
         }
         val pressureGuide = when (s.tonePressure) {
@@ -99,6 +99,9 @@ internal object TransientConversationStyle {
             appendLine(paceGuide)
             appendLine(pressureGuide)
             appendLine(burstGuide)
+            if (s.pace != Pace.EXPANSIVE) {
+                appendLine("这是一轮内容取舍的参考，不是输出截断或固定字数；必要答案、事实、否定与真实结果优先保全。负面情绪也可能是在谈一个确实存在的困难；先听对方正在说什么，不默认追加呼吸指导、心理分析、人生道理与保证式收尾。")
+            }
             if (includeExamples && s.pace != Pace.EXPANSIVE) appendLine(turnTakingExamples)
             append("这是软偏置：不得覆盖角色稳定语言风格、事实完整性、边界或已经确定的 dialogueMove，也不要照抄用户口头禅来假装亲近。")
         }
