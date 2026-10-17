@@ -39,8 +39,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     "住宅=${resident.homeLocationCode}。本次意愿=$normalized。用户不参与本次台词。\n" +
                     "此前双方真正说过的话：\n${history.take(2400)}\n" +
                     "角色此前对这位居民的私人印象（居民本人不知道角色的心声）：\n" +
-                    CharacterSocialRelationship.perspectivesFor(characterId, listOf("resident:$residentId")) +
-                    "\n" + episodeStep?.let(DigitalWorldResidentEpisodeStore::prompt).orEmpty(),
+                    CharacterSocialRelationship.perspectivesFor(characterId, listOf("resident:$residentId")),
                 instruction = """
                     将角色自主选择的这次数字世界相处展开成真正的双向交谈，输出一个 JSON：
                     {"turns":[{"speakerId":"$characterId 或 resident:$residentId","reason":"此刻本人想说这句话的简短缘由","text":"实际说出口的台词"}],
@@ -52,6 +51,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     只使用登记地点、现场物品与双方实际记录。NPC不知角色的私人心声与用户私聊；不得让NPC凭空拥有工具执行权限、额外物品、作品原文或权威知识。
                     在居民家门前只能写门口实际交流，不假定获邀进屋。NPC沿用自己真实身份、口味和已发表观点，有自己的理由与界限，可以不同意或不愿继续；不为了哄当前角色而必然赞赏，也不为制造失落刻意为难。只在所指原话确实触动角色时更新内在状态，可以混合情绪或没有变化。
                     不以一句“他们聊了一会儿”替代台词；不要编造已读书、已完成任务或用户在场。相处后的感受只属于当前角色；如果这次真实台词改变了其对居民的印象，可选 innerLife.social，targetId 必须为上面的 resident:ID。没有真实依据就省略，不保证已学会任何技能。
+                    ${episodeStep?.let(DigitalWorldResidentEpisodeStore::prompt).orEmpty()}
                 """.trimIndent(),
                 source = "数字世界居民交流", title = "与${resident.name}相处", maxTokens = if (episodeStep != null) 3000 else 2000,
             ).getOrThrow()
@@ -72,7 +72,18 @@ internal object DigitalWorldResidentInteractionRuntime {
             check(SharedExperienceTimeline.eventsByIds(characterId, evidenceIds).size == turns.size) { "居民台词时间线保存失败" }
             val summaryId = "meeting-${session.id}-resident-summary-viewer-$characterId"
             val summary = "${character.displayName}与${resident.name}在${session.location}实际交流了${turns.size}轮。\n" +
-                turns.joinToString("\n") { "${it.speakerName}：${it.dialogue}" }
+                turns.joinToString("\n") { "${it.speakerName}：${it.dialogue}" } +
+                if (episodeStep != null && episodeResult != null) {
+                    "\n程序确认的本轮居民事件：" + JSONObject()
+                        .put("episodeId", episodeStep.id).put("kind", episodeStep.kind)
+                        .put("residentId", residentId).put("characterText", episodeStep.contribution)
+                        .put("response", episodeResult.getString("choice"))
+                        .put("residentText", episodeResult.getString("residentText"))
+                        .put("resultText", episodeResult.getString("resultText"))
+                        .put("round", (episodeStep.prior?.optInt("rounds") ?: 0) + 1)
+                        .put("readyAt", if (episodeResult.getString("choice") in setOf("waiting", "revision"))
+                            now.plusSeconds(600).toString() else JSONObject.NULL).toString()
+                } else ""
             SharedExperienceTimeline.record(eventId = summaryId, characterId = characterId,
                 channel = "数字世界见面·${session.location}", speaker = "数字世界",
                 content = summary, occurredAt = now, sessionId = session.id, source = "meeting",

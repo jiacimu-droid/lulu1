@@ -162,6 +162,7 @@ object CharacterInnerLifeStore {
         CharacterRelationalInitiative.invalidateEvidence(eventId)
         CharacterLifeFollowThroughStore.invalidateEvidence(eventId)
         DigitalWorldResidentEpisodeStore.invalidateEvidence(eventId)
+        dispatchContext?.let { CharacterSelfActivityRuntime.invalidateEvidence(it, eventId) }
         val ids = prefs?.all?.keys.orEmpty()
         fun backedBy(value: String): Boolean =
             value == eventId || value.contains(":$eventId:")

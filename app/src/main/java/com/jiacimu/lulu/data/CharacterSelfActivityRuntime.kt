@@ -219,6 +219,24 @@ internal object CharacterSelfActivityRuntime {
             .getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
 
+    /** Removing an origin revokes queued intent; removing its tool receipt
+     * also removes the cached completed summary from future model context. */
+    internal fun invalidateEvidence(context: Context, evidenceId: String) {
+        if (evidenceId.isBlank()) return
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        prefs.all.keys.filter { it.startsWith("activity:") || it.startsWith("considering:") }.forEach { key ->
+            val entry = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
+                ?: return@forEach
+            val origin = entry.optString("evidenceId")
+            val role = key.substringAfter(':')
+            if (origin == evidenceId || origin.contains(":$evidenceId:") ||
+                key.startsWith("activity:") && "tool-$role-self-activity-${entry.optString("id")}" == evidenceId)
+                editor.remove(key)
+        }
+        editor.commit()
+    }
+
     internal fun markRunning(context: Context, characterId: String, id: String) {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val key = "activity:$characterId"

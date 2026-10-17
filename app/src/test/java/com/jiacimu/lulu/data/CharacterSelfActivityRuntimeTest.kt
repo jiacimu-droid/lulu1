@@ -12,6 +12,23 @@ import org.robolectric.annotation.Config
 class CharacterSelfActivityRuntimeTest {
     private val available = setOf("real-book-7")
 
+    @Test fun deletingAnOriginOrReceiptWithdrawsTheLinkedQueuedIdeaOrCompletedSummary() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
+        prefs.edit().putString("activity:delete-pending", JSONObject().put("id", "first")
+            .put("status", "pending").put("evidenceId", "deleted-origin").toString())
+            .putString("considering:delete-pending", JSONObject().put("evidenceId", "deleted-origin")
+                .put("createdAt", System.currentTimeMillis()).toString())
+            .putString("activity:keep-other", JSONObject().put("id", "second")
+                .put("status", "completed").put("evidenceId", "another-origin").toString()).commit()
+        CharacterSelfActivityRuntime.invalidateEvidence(context, "deleted-origin")
+        assertNull(CharacterSelfActivityRuntime.latest(context, "delete-pending"))
+        assertNull(CharacterSelfActivityRuntime.latestConsideration(context, "delete-pending"))
+        assertNotNull(CharacterSelfActivityRuntime.latest(context, "keep-other"))
+        CharacterSelfActivityRuntime.invalidateEvidence(context, "tool-keep-other-self-activity-second")
+        assertNull(CharacterSelfActivityRuntime.latest(context, "keep-other"))
+    }
+
     @Test fun personalNpcChoicesAndPreGameTargetsReachTheSameRealExecutor() {
         val idea = JSONObject().put("stage", "decided").put("action", "digital_world")
             .put("worldAction", "interact_resident").put("itemId", "actual-npc")
