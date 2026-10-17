@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0cd71c1058538f7663e8e51eaa1315b9b85898e1`
+- 基准提交：`f579a1bf766b593e4b05b2a6216a025a4ddcdd81`
 - 分支：`main`
 - 已索引文件：701
-- 已索引代码/文本行：135462
-- 已发现符号：2039
+- 已索引代码/文本行：135476
+- 已发现符号：2041
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -378,7 +378,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt` | 24 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 831 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 845 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 180 | 2 |
