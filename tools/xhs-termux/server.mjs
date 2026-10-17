@@ -5,7 +5,7 @@
  * No publish/comment/like/favorite code is imported or callable.
  */
 import express from "express";
-import { randomUUID } from "node:crypto";
+import { randomUUID, timingSafeEqual } from "node:crypto";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
@@ -16,8 +16,27 @@ import { searchFeeds } from "@the-thing/xiaohongshu-mcp/src/xhs/search.js";
 import { getRecommendFeeds } from "@the-thing/xiaohongshu-mcp/src/xhs/feeds.js";
 import { getFeedDetail } from "@the-thing/xiaohongshu-mcp/src/xhs/detail.js";
 
-const PORT = Number(process.env.LULU_XHS_PORT || "18060");
-const HOST = "127.0.0.1";
+const PORT = Number(process.env.LULU_XHS_PORT || process.env.PORT || "18060");
+const HOST = process.env.LULU_XHS_BIND_HOST || "127.0.0.1";
+const LOOPBACK = new Set(["127.0.0.1", "::1", "localhost"]);
+const REMOTE = !LOOPBACK.has(HOST);
+const AUTH_TOKEN = process.env.AUTH_TOKEN || "";
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+  throw new Error("Invalid LULU_XHS_PORT / PORT");
+}
+// Never expose the read-only tool endpoint (including its login QR) anonymously.
+// Local Termux keeps the previous loopback-only no-token behavior.
+if (REMOTE && Buffer.byteLength(AUTH_TOKEN) < 32) {
+  throw new Error("Cloud MCP requires a random AUTH_TOKEN of at least 32 UTF-8 bytes");
+}
+function authorized(req) {
+  if (!REMOTE && !AUTH_TOKEN) return true;
+  const header = req.get("authorization") || "";
+  if (!header.startsWith("Bearer ")) return false;
+  const offered = Buffer.from(header.slice(7), "utf8");
+  const expected = Buffer.from(AUTH_TOKEN, "utf8");
+  return offered.length === expected.length && timingSafeEqual(offered, expected);
+}
 const LOGIN_SEL = ".main-container .user .link-wrapper .channel";
 const QR_SEL = ".login-container .qrcode-img, .qrcode-container img, img[class*='qrcode'], [class*='qrcode'] img";
 function assertXhsAccess(page) {
@@ -90,7 +109,7 @@ async function qrLogin() {
     login.timerDeadline = setTimeout(() => expireLogin(login), TTL);
     // Clear the deadline together with interval in expireLogin.
     return { content: [
-      { type:"text", text:"登录二维码已生成，4 分钟内请保存到手机相册，再在小红书 App 的扫一扫中从相册选取。扫码后返回露露机测试连接；二维码和 Cookie 不上传至云端。" },
+      { type:"text", text:"登录二维码已生成，4 分钟内请保存到手机相册，再在小红书 App 的扫一扫中从相册选取。扫码后返回露露机测试连接；二维码仅用于本次登录，登录 Cookie 保存在当前服务端的数据目录中。" },
       { type:"image", mimeType:"image/png", data:shot.toString("base64") }
     ] };
   } catch (e) {
@@ -179,7 +198,16 @@ function newServer() {
 const app=express();
 app.disable("x-powered-by");
 app.use(express.json({limit:"32kb"}));
-app.get("/health",(_req,res)=>res.json({ready:true,local:true,readOnly:true}));
+app.get("/health",(_req,res)=>res.json({ready:true,local:!REMOTE,readOnly:true}));
+// Important: the upstream Node package is never exposed directly; only these five
+// allowlisted tools are registered, and remote MCP/QR calls require a bearer token.
+app.use("/mcp",(req,res,next)=>{
+  if (!authorized(req)) {
+    res.set("WWW-Authenticate", 'Bearer realm="lulu-xhs"');
+    return res.status(401).json({error:"Unauthorized"});
+  }
+  next();
+});
 const sessions=new Map();
 app.post("/mcp",async(req,res)=>{
   try{
