@@ -352,6 +352,41 @@ internal object LuluExternalMcp {
     internal suspend fun xhsRead(context: Context, name: String, args: JSONObject): String =
         call(context, "xiaohongshu", name, args)
 
+    /**
+     * A real, no-side-effects cloud integration probe: search -> matching note
+     * token -> detail. Do not add a character memory, pretend that an image
+     * URL was understood, or silently switch to local WebView on failure.
+     */
+    suspend fun testXhsReading(context: Context, keyword: String): String =
+        withContext(Dispatchers.IO) {
+            val query = keyword.trim().take(64)
+            require(query.isNotBlank()) { "请输入要测试的真实搜索关键词" }
+            require(configured(context, "xiaohongshu")) { "请先保存 MCP 地址和 Token" }
+            val rows = JSONObject(xhsRead(context, "search_feeds", JSONObject().put("keyword", query)))
+            val cards = XhsReadingEngine.parseMcpCards(rows, query)
+            require(cards.isNotEmpty()) { "MCP 搜索请求已返回，但没有可识别的真实笔记" }
+            val possible = cards.filter { it.token.isNotBlank() }.take(3)
+            require(possible.isNotEmpty()) { "有搜索结果，但缺少笔记详情令牌 xsec_token" }
+            var lastError = ""
+            for (card in possible) {
+                try {
+                    val article = XhsReadingEngine.read(context, card, forceRefresh = true)
+                    require(article.body.isNotBlank() || article.images.isNotEmpty()) {
+                        "详情页没有任何可读取的正文或图片"
+                    }
+                    return@withContext "云端搜索成功：关键词「${query}」，返回${cards.size}条；" +
+                        "打开真实笔记《${article.title.take(60)}》，正文${article.body.length}字，" +
+                        "图片链接${article.images.size}张（未进行视觉理解）。这次测试不写入角色记忆。"
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (e: Exception) {
+                    lastError = e.message.orEmpty().take(160)
+                    if (listOf("登录", "限制访问", "验证码", "验证").any { it in lastError }) break
+                }
+            }
+            error("MCP 已返回${cards.size}条搜索结果，但真实笔记详情读取失败：${lastError.ifBlank { "无可读内容" }}")
+        }
+
     private suspend fun call(context: Context, service: String, name: String, arguments: JSONObject): String {
         val result = callResult(context, service, name, arguments)
         val content = result.optJSONArray("content") ?: error("MCP 结果缺少内容")
