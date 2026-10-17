@@ -94,7 +94,7 @@ class CommitmentAlarmRecoveryTest {
         writeAlarm(task)
         detach(LuluAlarmSystem, "context")
         LuluAlarmReceiver().onReceive(context, Intent("app.lulu.ALARM_TRIGGER").putExtra("alarm_id", "alarm"))
-        val started = shadowOf(RuntimeEnvironment.getApplication()).nextStartedService
+        val started = requireNotNull(shadowOf(RuntimeEnvironment.getApplication<android.app.Application>()).nextStartedService)
         assertEquals(CommitmentAlarmService::class.java.name, started.component!!.className)
         assertEquals("alarm", started.getStringExtra("alarm_id"))
         assertEquals(CommitmentTaskStatus.Scheduled, current(task).status)
@@ -144,7 +144,7 @@ class CommitmentAlarmRecoveryTest {
         writeAlarm(task)
         CommitmentTaskStore.cancel(task.id, "取消叫醒")
         LuluAlarmReceiver().onReceive(context, Intent().putExtra("alarm_id", "alarm"))
-        assertNull(shadowOf(RuntimeEnvironment.getApplication()).nextStartedService)
+        assertNull(shadowOf(RuntimeEnvironment.getApplication<android.app.Application>()).nextStartedService)
         assertNull(LuluAlarmSystem.find(context, "alarm"))
     }
 
@@ -153,7 +153,7 @@ class CommitmentAlarmRecoveryTest {
         val alarm = LuluAlarmSystem.create("role", "角色", due, "叫醒结果复查", silentCallback = true).getOrThrow()
         LuluAlarmSystem.initialize(context)
         assertEquals(alarm.id, LuluAlarmSystem.list().single().id)
-        assertEquals(due.toEpochMilli(), context.getSystemService(AlarmManager::class.java).nextAlarmClock.triggerTime)
+        assertEquals(due.toEpochMilli(), context.getSystemService(AlarmManager::class.java).nextAlarmClock!!.triggerTime)
         assertEquals(1, shadowOf(context.getSystemService(AlarmManager::class.java)).scheduledAlarms.size)
     }
 

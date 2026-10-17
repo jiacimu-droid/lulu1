@@ -24,6 +24,7 @@ class CommitmentAlarmService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val deliveries = mutableMapOf<String, Job>()
     private var wakeLock: PowerManager.WakeLock? = null
+    private var deadlineJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -32,9 +33,7 @@ class CommitmentAlarmService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         wakeLock = getSystemService(PowerManager::class.java)
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Lulu:CommitmentAlarm")
-            .apply { setReferenceCounted(false); acquire(165_000L) }
-        // Stop before Android's three-minute short-service timeout, on older Android too.
-        scope.launch { delay(160_000L); stopSelf() }
+            .apply { setReferenceCounted(false) }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -50,16 +49,32 @@ class CommitmentAlarmService : Service() {
             .setContentTitle("${alarm?.characterName ?: "角色"}的定时约定")
             .setContentText(alarm?.label ?: "正在处理到点任务")
             .setContentIntent(open).setOngoing(true).setSilent(true).build()
-        if (Build.VERSION.SDK_INT >= 34) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
-        else startForeground(NOTIFICATION_ID, notification)
+        try {
+            if (Build.VERSION.SDK_INT >= 34) startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
+            else startForeground(NOTIFICATION_ID, notification)
+        } catch (error: Exception) {
+            android.util.Log.w("LuluAlarm", "Foreground delivery unavailable, using persistent worker", error)
+            CommitmentAlarmDelivery.enqueueNow(applicationContext, id)
+            if (deliveries.isEmpty()) stopSelf()
+            return START_NOT_STICKY
+        }
         if (alarm == null) {
             if (deliveries.isEmpty()) stopSelf()
             return START_NOT_STICKY
         }
         if (id !in deliveries) {
+            wakeLock?.acquire(165_000L)
+            deadlineJob?.cancel()
+            // Each newly delivered alarm renews the short-service window. An earlier alarm must
+            // not stop a second call that has just begun ringing in the same service instance.
+            deadlineJob = scope.launch { delay(160_000L); stopSelf() }
             // Start lazily so completion cannot remove an entry before it is inserted.
             val job = scope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
                 try { CommitmentAlarmDelivery.execute(applicationContext, id, "系统闹钟") }
+                catch (error: Exception) {
+                    if (error is kotlinx.coroutines.CancellationException) throw error
+                    android.util.Log.e("LuluAlarm", "Deadline delivery failed: $id", error)
+                }
                 finally {
                     deliveries.remove(id)
                     if (deliveries.isEmpty()) stopSelf()
