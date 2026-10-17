@@ -571,3 +571,88 @@ test('changing SPA URL cannot relabel stale SSR feeds while a new search is pend
   await b.receive('new');
   assert.equal(b.snapshot('search', '', 'new').items[0].token, 'new-response');
 });
+
+test('Chinese search results survive the website double-encoding its keyword', () => {
+  for (const path of ['/search_result', '/search_result_ai']) {
+    const b = browser({path: path + '?keyword=' + encodeURIComponent(encodeURIComponent('与电影夜奔')),
+      state: {search: {feeds: [row('real-search-token')]}}});
+    assert.equal(b.snapshot('search', '', '与电影夜奔').items[0]?.id, id);
+    assert.equal(b.snapshot('search', '', '别的词').items.length, 0);
+  }
+});
+test('double-encoded SPA route keeps the typed Chinese query and its real response together', async () => {
+  const b = browser({path: '/search_result?keyword=' + encodeURIComponent(encodeURIComponent('猫咪')),
+    api: 'search/notes', payload: {code: 0, data: {items: [row('matched')]}}});
+  b.sandbox.__luluXhsReader.beginSearch('猫咪');
+  // A transport that cannot inspect the request body falls back to the URL.
+  await b.receive();
+  assert.equal(b.snapshot('search', '', '猫咪').items[0]?.token, 'matched');
+  const routed = navigationBrowser('/search_result?keyword=' + encodeURIComponent(encodeURIComponent('猫咪')));
+  assert.equal(routed.messages[0]?.keyword, '猫咪');
+});
+test('search_result note links are real cards and route to exact note reading', () => {
+  const href = `https://www.xiaohongshu.com/search_result/${id}?xsec_token=signed%2B%2F%3D&xsec_source=pc_search`;
+  const anchor = {href, innerText: '搜索结果', getAttribute: () => null, closest: () => null,
+    getBoundingClientRect: () => ({width: 280, height: 180})};
+  const b = browser({path: '/search_result?keyword=cat', elements: [anchor]});
+  assert.equal(b.snapshot('search', '', 'cat').items[0]?.token, 'signed+/=');
+  const routed = navigationBrowser('/search_result?keyword=cat');
+  assert.equal(routed.click(href).prevented, true);
+  assert.equal(routed.messages.at(-1).kind, 'note');
+  assert.equal(routed.messages.at(-1).id, id);
+  const detail = browser({path: '/search_result/' + id,
+    state: {note: {noteDetailMap: {[id]: {note: {noteId: id, desc: '搜索原帖的正文'}}}}}});
+  assert.equal(detail.snapshot('note', id).note?.body, '搜索原帖的正文');
+});
+test('live DOM search results are usable when the old SSR search array never updates', () => {
+  const b = browser({path: '/search_result?keyword=cat', state: {search: {feeds: [row('old-ssr')]}}});
+  b.sandbox.__luluXhsReader.beginSearch('cat');
+  const link = {href: `https://www.xiaohongshu.com/search_result/${other}?xsec_token=fresh&xsec_source=pc_search`,
+    innerText: '实际新结果', getAttribute: () => null, closest: () => null,
+    getBoundingClientRect: () => ({width: 280, height: 180})};
+  b.sandbox.document.querySelectorAll = selector => selector.includes('a[href') ? [link] : [];
+  const result = b.snapshot('search', '', 'cat');
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].id, other);
+});
+test('the note media sibling and CSS background images are read without avatars', () => {
+  const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
+    noteId: id, desc: '短正文'}}}}}});
+  const media = {style: {backgroundImage: 'url("https://sns-webpic-qc.xhscdn.com/real-image?sig=a%2Fb")'},
+    getAttribute: () => null};
+  const root = {querySelectorAll: selector => selector.includes('background') ? [media] : [],
+    querySelector: () => null};
+  b.sandbox.document.querySelector = selector => selector.includes('#noteContainer') ? root : null;
+  const detail = b.snapshot('note', id).note;
+  assert.equal(detail.body, '短正文');
+  assert.equal(detail.images[0]?.url, 'https://sns-webpic-qc.xhscdn.com/real-image?sig=a%2Fb');
+});
+test('hydrated Vue image refs and protocol-relative CDN addresses keep their real images', () => {
+  const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
+    noteId: id, desc: '真实图文', imageList: {_value: [{_value: {
+      urlDefault: '//sns-webpic-qc.xhscdn.com/real', width: 1200, height: 1600}}]}}}}}}});
+  const detail = b.snapshot('note', id).note;
+  assert.equal(detail.images[0]?.url, 'https://sns-webpic-qc.xhscdn.com/real');
+  assert.equal(detail.images[0]?.width, 1200);
+});
+
+test('state and carousel variants of the same photos are not sent to vision twice', () => {
+  const b = browser({path: '/explore/' + id, state: {note: {noteDetailMap: {[id]: {note: {
+    noteId: id, desc: '真实正文', imageList: [{urlDefault: 'https://sns-webpic-qc.xhscdn.com/photo!large'}]}}}}}});
+  const image = {currentSrc: 'https://sns-webpic-qc.xhscdn.com/photo!small'};
+  const root = {querySelectorAll: () => [image], querySelector: () => null};
+  b.sandbox.document.querySelector = selector => selector.includes('#noteContainer') ? root : null;
+  const note = b.snapshot('note', id).note;
+  assert.equal(note.images.length, 1);
+  assert.equal(note.images[0].url, 'https://sns-webpic-qc.xhscdn.com/photo!large');
+});
+test('search-related words inside a note do not prematurely complete an empty search', () => {
+  const b = browser({path: '/explore/' + id, text: '作者说当时显示暂无搜索结果',
+    state: {note: {noteDetailMap: {[id]: {note: {noteId: id, desc: '作者的真实内容'}}}}}});
+  assert.equal(b.snapshot('note', id).empty, false);
+});
+test('without a native bridge, note taps retain ordinary browser navigation', () => {
+  const b = navigationBrowser();
+  delete b.sandbox.luluXhsNavigation;
+  assert.equal(b.click(`https://www.xiaohongshu.com/explore/${id}?xsec_token=actual`).prevented, false);
+});

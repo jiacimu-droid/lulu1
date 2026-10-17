@@ -154,8 +154,8 @@ internal object XhsReadingEngine {
         val p = state?.optJSONObject("page")
         val path = p?.optString("path").orEmpty()
         val location = when {
+            Regex("""^/(?:explore|discovery/item|search_result)/[a-zA-Z0-9]+""").containsMatchIn(path) -> "笔记详情页"
             path.startsWith("/search") -> "搜索页"
-            Regex("""^/(?:explore|discovery/item)/[a-zA-Z0-9]+""").containsMatchIn(path) -> "笔记详情页"
             path == "/explore" || path == "/" -> "首页推荐"
             path.isBlank() -> "尚未取得网页地址"
             else -> "其他页面"
@@ -493,6 +493,19 @@ internal object XhsReadingEngine {
             .appendQueryParameter("source", "web_explore_feed").build().toString()
     }
 
+    internal fun searchKeywordMatches(raw: String?, keyword: String): Boolean {
+        var value = raw.orEmpty()
+        repeat(3) {
+            if (value == keyword) return true
+            if (!Regex("%[a-fA-F0-9]{2}").containsMatchIn(value)) return false
+            value = runCatching {
+                // Uri.decode preserves literal '+' characters in search terms.
+                Uri.decode(value)
+            }.getOrDefault(value)
+        }
+        return value == keyword
+    }
+
     /**
      * UI search/home buttons share the SAME navigation mutex as the role's
      * verified reads. A tap cannot stop an in-flight note acquisition and
@@ -533,6 +546,7 @@ internal object XhsReadingEngine {
                         context.assets.open("xhs-reader.js").bufferedReader().use { it.readText() }
                     }
                     val shared = view
+                    val noteReadiness = XhsNoteReadiness()
                     controlledBrowser = view
                     var mainError = ""
                     // Do not overwrite the screen's own WebViewClient. That
@@ -555,7 +569,7 @@ internal object XhsReadingEngine {
                         val sameSearch = kind == "search" &&
                             current.host == requested.host &&
                             (current.path == requested.path || current.path == "/search_result_ai") &&
-                            current.getQueryParameter("keyword") == keyword
+                            searchKeywordMatches(current.getQueryParameter("keyword"), keyword)
                         var triedSiteSearchInput = false
                         var openedSearchOverlayAt = 0L
                         var searchFormSubmitted = false
@@ -565,7 +579,7 @@ internal object XhsReadingEngine {
                         // Close that detail by returning to the known real home
                         // route first; only then try the site's search control.
                         val wasOnNote = kind == "search" && current.path.orEmpty()
-                            .matches(Regex("^/(?:explore|discovery/item)/[a-zA-Z0-9]{12,40}/?$"))
+                            .matches(Regex("^/(?:explore|discovery/item|search_result)/[a-zA-Z0-9]{12,40}/?$"))
                         if (wasOnNote) {
                             stage("先退出笔记详情，再搜索关键词")
                             view.loadUrl("https://www.xiaohongshu.com/explore")
@@ -626,7 +640,18 @@ internal object XhsReadingEngine {
                             check(!reason.startsWith("api:")) { "小红书接口失败（${reason.removePrefix("api:")}）" }
                             check(reason != "network") { "小红书数据请求连接失败" }
                             check(reason != "invalid") { "小红书返回的数据无法解析" }
-                            if (root.optJSONObject("note") != null || (root.optJSONArray("items")?.length() ?: 0) > 0 || root.optBoolean("empty"))
+                            val foundNote = root.optJSONObject("note")
+                            if (foundNote != null) {
+                                val photos = foundNote.optJSONArray("images")
+                                val urls = (0 until (photos?.length() ?: 0)).map {
+                                    photos?.optJSONObject(it)?.optString("url").orEmpty()
+                                }.filter(String::isNotBlank)
+                                if (noteReadiness.ready(foundNote.optString("body"), urls,
+                                        foundNote.optInt("expectedImageCount"), android.os.SystemClock.elapsedRealtime()))
+                                    return@withLock root
+                                stage(if (urls.isEmpty()) "正文已出现，等待笔记图片加载" else "已取得图文，等待页面内容稳定")
+                            }
+                            if ((root.optJSONArray("items")?.length() ?: 0) > 0 || root.optBoolean("empty"))
                                 return@withLock root
                             check(reason != "login") { "请先在小红书网页完成登录" }
                             // Some XHS sessions redirect a direct search URL
@@ -757,10 +782,10 @@ internal object XhsReadingEngine {
                     path !in setOf("/search_result", "/search_result_ai", "/search", "/search/result") &&
                         search?.optBoolean("pending") != true ->
                         "仍停留在首页，网页搜索未成功导航"
-                    api == null && path in setOf("/search_result", "/search_result_ai", "/search", "/search/result") ->
-                        "已进入搜索页，但未观察到搜索结果；可能是页面数据未加载或网站限制"
                     visible > 0 || hydrated > 0 ->
                         "网页含有搜索卡片但提取器未读取，请查看诊断中的页面计数"
+                    api == null && path in setOf("/search_result", "/search_result_ai", "/search", "/search/result") ->
+                        "已进入搜索页，但未观察到搜索结果；可能是页面数据未加载或网站限制"
                     api != null -> "搜索数据已响应，但当前没有可识别的笔记卡片"
                     else -> "页面未完成搜索，未确认是网络失败还是网页脚本未加载"
                 }

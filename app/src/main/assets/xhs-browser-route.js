@@ -46,7 +46,7 @@
   const searchResultPaths = ['/search_result', '/search_result_ai', '/search', '/search/result'];
   const route = (freshDocument = false) => {
     if (searchResultPaths.includes(location.pathname)) {
-      const keyword = new URL(location.href).searchParams.get('keyword') || '';
+      const keyword = window.__luluXhsReader?.pageKeyword() || '';
       if (!keyword) return;
       // A history.pushState from a different search must clear the old SSR
       // baseline BEFORE asynchronous Vue hydration. Repeated events for the
@@ -70,14 +70,15 @@
     try {
       const u = new URL(a.href, location.href);
       if (u.protocol !== 'https:' || !['www.xiaohongshu.com', 'xiaohongshu.com'].includes(u.hostname)) return;
-      const match = u.pathname.match(/^\/(?:explore|discovery\/item)\/([a-z0-9]{12,40})$/i);
+      const match = u.pathname.match(/^\/(?:explore|discovery\/item|search_result)\/([a-z0-9]{12,40})\/?$/i);
       if (!match) return;
       const source = u.searchParams.get('xsec_source') || '';
       const kind = searchResultPaths.includes(location.pathname) ? 'search' : 'feed';
-      const keyword = new URL(location.href).searchParams.get('keyword') || '';
+      const keyword = window.__luluXhsReader?.pageKeyword() || '';
       const cards = JSON.parse(window.__luluXhsReader?.snapshot(kind, '', keyword) || '{}').items || [];
       const card = cards.find(card => card.id === match[1]);
       const token = u.searchParams.get('xsec_token') || card?.token || '';
+      if (!window.luluXhsNavigation) return;
       // Never invoke the broken website detail modal for an actual note tap.
       event.preventDefault(); event.stopImmediatePropagation();
       send({kind: 'note', id: match[1], token, source: source || card?.source || (kind === 'search' ? 'pc_search' : 'pc_feed'),

@@ -212,6 +212,15 @@ class XhsBrowserSessionTest {
         assertEquals("https://www.xiaohongshu.com/explore", XhsReadingEngine.searchUrl(""))
     }
 
+    @Test fun doubleEncodedChineseSearchStillMatchesWithoutChangingLiteralPlus() {
+        assertTrue(XhsReadingEngine.searchKeywordMatches("%E7%8C%AB%E5%92%AA", "猫咪"))
+        assertTrue(XhsReadingEngine.searchKeywordMatches("猫咪", "猫咪"))
+        assertFalse(XhsReadingEngine.searchKeywordMatches("%E7%8C%AB%E5%92%AA", "电影"))
+        assertTrue(XhsReadingEngine.searchKeywordMatches("C++", "C++"))
+        assertFalse(XhsReadingEngine.searchKeywordMatches("C++", "C  "))
+        assertFalse(XhsReadingEngine.searchKeywordMatches("invalid%", "猫咪"))
+    }
+
     @Test fun nativeSearchKeepsTheAttachedLoginBrowserAndItsClientAlive() {
         val controller = Robolectric.buildActivity(Activity::class.java).setup()
         val activity = controller.get()

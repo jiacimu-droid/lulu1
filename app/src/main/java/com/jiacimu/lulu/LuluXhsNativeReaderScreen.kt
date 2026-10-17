@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import org.json.JSONObject
 
 /** Manual browsing and character tools use the same session, extraction and failure handling. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,7 +172,7 @@ internal fun LuluXhsNativeReaderScreen(
         visionText = ""
         visionLoading = false
         loading = false
-        if (card.token.isBlank()) {
+        if (card.provider != "webview" && card.token.isBlank()) {
             message = "这篇笔记没有详情令牌，无法读取正文。"
             return
         }
@@ -188,10 +189,53 @@ internal fun LuluXhsNativeReaderScreen(
         }
     }
 
+    fun browserNavigation(view: WebView, payload: String, origin: android.net.Uri, mainFrame: Boolean) {
+        if (!mainFrame || embeddedView !== view || XhsReadingEngine.controls(view) ||
+            origin.scheme != "https" || origin.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return
+        val value = runCatching { JSONObject(payload) }.getOrNull() ?: return
+        when (value.optString("kind")) {
+            "note" -> {
+                val id = value.optString("id")
+                if (!Regex("[a-zA-Z0-9]{12,40}").matches(id)) return
+                showWebPreview = false
+                readNote(XhsCard(id, value.optString("token").take(512),
+                    value.optString("title").take(200).ifBlank { "小红书笔记" },
+                    value.optString("author").take(120),
+                    value.optString("source").takeIf {
+                        it in setOf("pc_feed", "pc_search", "pc_user", "pc_share", "pc_board")
+                    } ?: "pc_feed"))
+            }
+            "search-start" -> {
+                keyword = value.optString("keyword").take(64)
+                message = "网页正在搜索…"
+            }
+            "search-ready" -> message = "搜索结果已就绪，可点开笔记阅读"
+            "search-stalled" -> message = when (value.optString("reason")) {
+                "login" -> "搜索需要登录，请在当前网页完成登录"
+                "restricted" -> "搜索需要网站验证，请查看当前网页"
+                else -> "搜索尚未完成，可从菜单查看读取诊断"
+            }
+        }
+    }
+
+    DisposableEffect(appBrowser, useEmbeddedBrowser) {
+        // The Activity installs the JS bridge once; this actual settings route
+        // must attach its handler too, not only the retired browser probe page.
+        if (useEmbeddedBrowser) appBrowser?.setNavigationHandler(::browserNavigation)
+        onDispose { if (useEmbeddedBrowser) appBrowser?.setNavigationHandler(null) }
+    }
+
     fun nativeBrowserClient(): WebViewClient = object : WebViewClient() {
         override fun shouldOverrideUrlLoading(
             view: WebView?, request: WebResourceRequest?): Boolean {
             val uri = request?.url ?: return true
+            if (request.isForMainFrame && !XhsReadingEngine.controls(view) && xhsBrowserIsNoteUrl(uri.toString())) {
+                val id = uri.path.orEmpty().trimEnd('/').substringAfterLast('/')
+                showWebPreview = false
+                readNote(XhsCard(id, uri.getQueryParameter("xsec_token").orEmpty(), "小红书笔记", "",
+                    uri.getQueryParameter("xsec_source").orEmpty().ifBlank { "pc_feed" }))
+                return true
+            }
             return uri.scheme != "https" ||
                 uri.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")
         }
@@ -205,6 +249,13 @@ internal fun LuluXhsNativeReaderScreen(
         }
         override fun onPageFinished(view: WebView?, url: String?) {
             if (!webReady) webReady = true
+            if (view != null && android.net.Uri.parse(url.orEmpty()).host in
+                setOf("www.xiaohongshu.com", "xiaohongshu.com")) {
+                val script = listOf("xhs-reader.js", "xhs-browser-route.js").joinToString("\n") {
+                    context.assets.open(it).bufferedReader().use { reader -> reader.readText() }
+                }
+                view.evaluateJavascript(script, null)
+            }
         }
     }
 
@@ -223,7 +274,7 @@ internal fun LuluXhsNativeReaderScreen(
             // Check home and search independently. A blocked search is NOT
             // evidence that the character cannot read real home-feed posts.
             val result = try {
-                withTimeout(115_000L) {
+                withTimeout(150_000L) {
                     val homeReport = try {
                         message = "第 1 / 2 步：验证首页推荐与真实笔记正文…"
                         val home = XhsReadingEngine.list(context, "",
@@ -231,18 +282,15 @@ internal fun LuluXhsNativeReaderScreen(
                             localOnly = true, forceRefresh = true)
                         if (current != sequence) return@withTimeout ""
                         cards = home
-                        val chosen = home.firstOrNull { it.provider == "webview" && it.token.isNotBlank() }
-                            ?: error("首页有 ${home.size} 篇笔记，但没有可用的详情令牌")
+                        val chosen = home.firstOrNull { it.provider == "webview" }
+                            ?: error("首页没有可打开的笔记")
                         val article = XhsReadingEngine.read(context, chosen,
                             onProgress = { if (current == sequence) message = "首页正文 · $it" },
                             localOnly = true)
                         require(article.body.isNotBlank() || article.images.isNotEmpty()) {
                             "首页笔记没有可验证的图文"
                         }
-                        val quality = if (article.body.length < 250 && article.images.size <= 1)
-                            "图文样本偏少，只能确认打开一篇笔记，不能证明完整评论或长图文可读"
-                            else "已验证这一篇笔记的实际图文（不能代表所有列表笔记）"
-                        "首页列表：找到${home.size}篇候选；实际读取1篇：正文${article.body.length}字、图片链接${article.images.size}张。$quality"
+                        "首页列表：${home.size}篇候选；实际读取1篇，正文${article.body.length}字、图片链接${article.images.size}张。"
                     } catch (cancelled: CancellationException) {
                         throw cancelled
                     } catch (error: Exception) {
@@ -251,24 +299,30 @@ internal fun LuluXhsNativeReaderScreen(
                     if (current != sequence) return@withTimeout ""
                     message = "$homeReport\n第 2 / 2 步：验证关键词搜索…"
                     val searchReport = try {
-                        val result = XhsReadingEngine.list(context, "猫咪",
+                        val result = XhsReadingEngine.list(context, keyword.trim().ifBlank { "猫咪" },
                             onProgress = { if (current == sequence) message = "$homeReport\n搜索 · $it" },
                             localOnly = true, forceRefresh = true)
                         require(result.isNotEmpty()) { "网页没有返回可确认的搜索笔记" }
                         if (current == sequence) cards = result
-                        "搜索通过：${result.size} 篇真实笔记"
+                        val opened = XhsReadingEngine.read(context, result.first(),
+                            onProgress = { if (current == sequence) message = "搜索正文 · $it" },
+                            localOnly = true, forceRefresh = true)
+                        val pixels = opened.images.firstOrNull()?.let {
+                            XhsImageLoader.bitmap(it.url).also { bitmap -> bitmap.recycle() }
+                            true
+                        } ?: false
+                        "搜索通过：${result.size} 篇候选；实际打开《${opened.title.take(30)}》，" +
+                            "正文${opened.body.length}字、图片链接${opened.images.size}张" +
+                            if (pixels) "，首张图片下载成功" else ""
                     } catch (cancelled: CancellationException) {
                         throw cancelled
                     } catch (error: Exception) {
                         "搜索未通过：${error.message.orEmpty().take(180)}"
                     }
-                    "$homeReport\n$searchReport\n未使用 MCP，未伪造已读记录。" +
-                        if (homeReport.startsWith("首页列表：") && !searchReport.startsWith("搜索通过"))
-                            "\n首页与搜索是两项独立验证。失败的搜索不能用首页笔记冒充；这次没有确认搜索可用。"
-                        else ""
+                    "$homeReport\n$searchReport"
                 }
             } catch (error: TimeoutCancellationException) {
-                "检测总时间超过 115 秒。\n${message.take(240)}\n网页保持在本页，可直接看网页状态和读取诊断。"
+                "检测总时间超过 150 秒。\n${message.take(240)}\n可从菜单查看读取诊断。"
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -590,10 +644,18 @@ internal fun LuluXhsNativeReaderScreen(
                             CookieManager.getInstance().setAcceptCookie(true)
                             CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
                             if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
-                                val script = ctx.assets.open("xhs-reader.js").bufferedReader()
-                                    .use { it.readText() }
+                                val script = listOf("xhs-reader.js", "xhs-browser-route.js").joinToString("\n") {
+                                    ctx.assets.open(it).bufferedReader().use { reader -> reader.readText() }
+                                }
                                 WebViewCompat.addDocumentStartJavaScript(this, script,
                                     setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com"))
+                            }
+                            if (appBrowser == null && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+                                WebViewCompat.addWebMessageListener(this, "luluXhsNavigation",
+                                    setOf("https://www.xiaohongshu.com", "https://xiaohongshu.com")) {
+                                        view, value, origin, mainFrame, _ ->
+                                    browserNavigation(view, value.data.orEmpty(), origin, mainFrame)
+                                }
                             }
                             webViewClient = nativeBrowserClient()
                             embeddedView = this
@@ -725,7 +787,7 @@ private fun XhsNoteTile(card: XhsCard, modifier: Modifier = Modifier, onClick: (
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f))
-                    Text(if (card.token.isBlank()) "预览" else "阅读 ›",
+                    Text(if (card.provider != "webview" && card.token.isBlank()) "预览" else "阅读 ›",
                         style = MaterialTheme.typography.labelSmall,
                         color = Color(0xFFE7535B), fontWeight = FontWeight.SemiBold)
                 }

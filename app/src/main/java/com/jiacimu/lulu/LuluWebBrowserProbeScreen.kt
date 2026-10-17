@@ -41,7 +41,7 @@ private const val XHS_PROBE_URL = "https://www.xiaohongshu.com/explore"
 internal fun xhsBrowserIsNoteUrl(raw: String): Boolean {
     val url = runCatching { Uri.parse(raw) }.getOrNull() ?: return false
     if (url.scheme != "https" || url.host !in setOf("www.xiaohongshu.com", "xiaohongshu.com")) return false
-    return Regex("""^/(?:explore|discovery/item)/[a-zA-Z0-9]{12,40}/?$""")
+    return Regex("""^/(?:explore|discovery/item|search_result)/[a-zA-Z0-9]{12,40}/?$""")
         .matches(url.path.orEmpty())
 }
 
@@ -186,7 +186,7 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
             // through the in-document reader's search-ready signal.
             return false
         }
-        val id = Regex("/(?:explore|discovery/item)/([a-zA-Z0-9]{12,40})/?")
+        val id = Regex("/(?:explore|discovery/item|search_result)/([a-zA-Z0-9]{12,40})/?")
             .matchEntire(target.path.orEmpty())?.groupValues?.get(1) ?: return false
         readerCard = XhsCard(id, target.getQueryParameter("xsec_token").orEmpty(), "笔记", "",
             target.getQueryParameter("xsec_source").orEmpty().ifBlank { "pc_feed" })

@@ -20,7 +20,7 @@ internal object XhsSharedLinkResolver {
     private val allowedHosts = setOf(
         "www.xiaohongshu.com", "xiaohongshu.com", "www.xhslink.com", "xhslink.com",
     )
-    private val notePath = Regex("""^/(?:explore|discovery/item)/([a-zA-Z0-9]{12,40})/?$""")
+    private val notePath = Regex("""^/(?:explore|discovery/item|search_result)/([a-zA-Z0-9]{12,40})/?$""")
 
     private fun safeUri(raw: String): URI {
         val candidate = raw.trim().trimEnd('。', '，', ',', ')', '】', ';')

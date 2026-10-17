@@ -28,6 +28,15 @@ class XhsSharedLinkResolverTest {
         assertNull(XhsSharedLinkResolver.parseDirect("https://xhslink.com/abc123"))
     }
 
+    @Test fun searchResultCardLinkPreservesItsExactNoteAndSignedToken() {
+        val link = XhsSharedLinkResolver.parseDirect(
+            "https://www.xiaohongshu.com/search_result/$id?xsec_token=abc%2Bdef%2F%3D&xsec_source=pc_search",
+        )!!
+        assertEquals(id, link.id)
+        assertEquals("abc+def/=", link.token)
+        assertEquals("pc_search", link.source)
+    }
+
     @Test fun rejectThirdPartyUserInfoAndUnsafeScheme() {
         listOf(
             "http://www.xiaohongshu.com/explore/$id",
