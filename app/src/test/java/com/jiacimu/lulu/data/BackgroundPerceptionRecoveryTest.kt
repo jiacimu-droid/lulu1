@@ -84,7 +84,8 @@ class BackgroundPerceptionRecoveryTest {
         PerceptionNativeWake.schedule(context, due)
         assertEquals(1, shadow.scheduledAlarms.size)
         assertNull(manager.nextAlarmClock) // Ordinary perception never impersonates a wake-up alarm clock.
-        manager.cancel(shadow.scheduledAlarms.single().operation)
+        assertTrue(shadow.scheduledAlarms.single().isAllowWhileIdle)
+        manager.cancel(requireNotNull(shadow.scheduledAlarms.single().operation))
         assertTrue(shadow.scheduledAlarms.isEmpty())
         PerceptionNativeWake.invalidate(context)
         PerceptionNativeWake.schedule(context, due)

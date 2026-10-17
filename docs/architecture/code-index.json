@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T13:43:11.993822+00:00",
-  "commit": "d2109d8ab8c5220a5e4673299a90986771bf454e",
+  "generatedAt": "2026-10-17T13:46:40.844662+00:00",
+  "commit": "0c7b1e0a3ea118c37b41b92dd29528287a1b917b",
   "branch": "main",
-  "sourceFingerprint": "3474c04d6aa2bd3d19e0479a83e31a6cca373b0460bfbdf42d152f7951646059",
+  "sourceFingerprint": "16f537f97902efba3e68993e65f309bc0edabac0d2ef88d0f3e9cf55e8b276de",
   "summary": {
     "files": 699,
-    "lines": 135162,
+    "lines": 135163,
     "symbols": 2036
   },
   "symbolIndex": {
@@ -22742,8 +22742,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
-      "lines": 103,
-      "sha256": "2ffb8455635f3bd8839685fe7727c992e47b796225b477d752e30a24230bb07d",
+      "lines": 104,
+      "sha256": "22fb08f7d44964a5e04a9e7727a37eac95291b14b730f07992029b254477c734",
       "symbols": [
         {
           "name": "BackgroundPerceptionRecoveryTest",
