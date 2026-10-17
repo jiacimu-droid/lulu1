@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T03:18:45.475814+00:00",
-  "commit": "9dd6827fbec9d55f530ddc9ff7e7cdd5a35de765",
+  "generatedAt": "2026-10-17T03:23:57.525674+00:00",
+  "commit": "bcfc525338d6a14edd2ec7969d993e2287c0bf2b",
   "branch": "main",
-  "sourceFingerprint": "6d4f1e39c3ef2a4c889135e4db8e4fa72326a5d844a47fb2b333b5aec6b71f1c",
+  "sourceFingerprint": "26a16f4b240008c0b8275e2f55759af36db05fe8321436fb139a4134ec12825b",
   "summary": {
     "files": 693,
-    "lines": 134426,
+    "lines": 134433,
     "symbols": 2024
   },
   "symbolIndex": {
@@ -12949,8 +12949,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 231,
-      "sha256": "2ea8385b2523725710099f232036c50decf4415326e2260c92f099940ce12010",
+      "lines": 229,
+      "sha256": "323b4f27a719fbfe9be8631b0b8a109de1b315a1ce73d988b8904e485284e6c6",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -13263,8 +13263,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-      "lines": 203,
-      "sha256": "aee020b49051ff5e1eaae7d2b18fddfbb19c8789c798de5766e4bda8cc282107",
+      "lines": 212,
+      "sha256": "c93793a30113e192fb8dd2126cf2e8e90c2a313c16b435c0cd809f3d2811161e",
       "symbols": [
         {
           "name": "connect",

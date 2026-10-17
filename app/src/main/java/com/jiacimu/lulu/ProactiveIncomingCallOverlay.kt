@@ -66,12 +66,8 @@ internal fun ProactiveIncomingCallOverlay() {
     val visiblePending = pending?.takeIf { it.active() }
     DisposableEffect(visiblePending != null) {
         val activity = context as? android.app.Activity
-        activity?.setShowWhenLocked(visiblePending != null)
-        activity?.setTurnScreenOn(visiblePending != null)
-        onDispose {
-            activity?.setShowWhenLocked(false)
-            activity?.setTurnScreenOn(false)
-        }
+        activity?.setIncomingCallWindow(visiblePending != null)
+        onDispose { activity?.setIncomingCallWindow(false) }
     }
     LaunchedEffect(pending?.createdAt, pending?.expiresAt) {
         val active = pending ?: return@LaunchedEffect
@@ -176,6 +172,19 @@ internal fun ProactiveIncomingCallOverlay() {
     }
 
 
+}
+
+/** The app still supports Android 8.0 (API 26), before Activity's lock-screen methods existed. */
+internal fun android.app.Activity.setIncomingCallWindow(enabled: Boolean) {
+    if (android.os.Build.VERSION.SDK_INT >= 27) {
+        setShowWhenLocked(enabled)
+        setTurnScreenOn(enabled)
+    } else {
+        @Suppress("DEPRECATION")
+        val flags = android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+            android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        if (enabled) window.addFlags(flags) else window.clearFlags(flags)
+    }
 }
 
 @Composable

@@ -79,8 +79,7 @@ class MigrationActivity : ComponentActivity() {
         navigationIntent.value = intent
         navigationRequestSerial.longValue += 1L
         val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
-        setShowWhenLocked(incomingCall)
-        setTurnScreenOn(incomingCall)
+        setIncomingCallWindow(incomingCall)
         incomingXhsText(intent)?.let { incomingSharedNote.value = it }
     }
 
@@ -161,8 +160,7 @@ class MigrationActivity : ComponentActivity() {
         CompanionOnlineStore.initialize(appContext)
         ProactiveIncomingCallStore.initialize(appContext)
         val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
-        setShowWhenLocked(incomingCall)
-        setTurnScreenOn(incomingCall)
+        setIncomingCallWindow(incomingCall)
         MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
         LuluAiServices.initialize(appContext)

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9dd6827fbec9d55f530ddc9ff7e7cdd5a35de765`
+- 基准提交：`bcfc525338d6a14edd2ec7969d993e2287c0bf2b`
 - 分支：`main`
 - 已索引文件：693
-- 已索引代码/文本行：134426
+- 已索引代码/文本行：134433
 - 已发现符号：2024
 
 | 文件 | 行数 | 符号数 |
@@ -111,7 +111,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 603 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 904 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 231 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 229 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 488 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 97 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
@@ -132,7 +132,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 43 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 203 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 480 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 268 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
