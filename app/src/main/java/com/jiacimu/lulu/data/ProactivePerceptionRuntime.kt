@@ -667,7 +667,13 @@ object ProactivePerceptionRuntime {
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
                     if (privateDialogue.isEmpty()) appendLine(onlineUnread.text.takeLast(5_000))
-                    else appendLine("这是后面真实对话末尾的用户新消息；本轮可引用/收藏的真实消息ID：${onlineUnread.messageIds.joinToString()}。")
+                    else {
+                        appendLine("后面真实对话末尾是用户新消息；下面仅用于引用/收藏时核对消息ID与原话，不是另一批新消息：")
+                        messages.filter { it.id in onlineUnread.messageIds }.forEach { message ->
+                            appendLine(JSONObject().put("messageId", message.id)
+                                .put("text", qqForwardContextText(message.content)).toString())
+                        }
+                    }
                 }
                 appendLine("\n【长期上下文层】")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)

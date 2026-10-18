@@ -214,6 +214,8 @@ class ConversationExpressionGatewayTest {
             assertEquals(current.content, messages.getJSONObject(3).getString("content"))
             val system = messages.getJSONObject(0).getString("content")
             assertTrue(system.contains("此刻是在和对方继续一段私聊"))
+            assertTrue(system.contains(JSONObject().put("messageId", current.id)
+                .put("text", current.content).toString()))
             assertTrue(system.contains("担忧本身可以成立"))
             assertTrue(system.contains("无需总比她懂得更多"))
             assertTrue(MigratedDomainStores.chat.messages(chat.id).value.any {
