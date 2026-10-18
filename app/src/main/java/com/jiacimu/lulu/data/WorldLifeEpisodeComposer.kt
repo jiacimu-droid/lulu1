@@ -15,6 +15,11 @@ internal data class WorldLifeSceneDraft(
     val unresolvedThread: String = "",
 )
 
+internal data class WorldLifeComposeOutcome(
+    val draft: WorldLifeSceneDraft? = null,
+    val failureReason: String = "",
+)
+
 internal object WorldLifeEpisodeComposer {
     /** Block the old canned prose and empty reflection masquerading as a short story.
      * Not a global chat-length rule: applies ONLY to autonomous literary scenes. */
@@ -31,6 +36,33 @@ internal object WorldLifeEpisodeComposer {
     }
 
     /**
+     * A fully closed scene field is usable even if the model ran out of tokens
+     * while writing optional metadata. Never accept an unfinished scene.
+     * Some providers return prose instead of the requested JSON envelope.
+     */
+    internal fun parseModelScene(raw: String, suppliedTitle: String): WorldLifeSceneDraft? {
+        val structured = ModelStructuredOutput.objectOrNull(raw)
+        val completeSceneField = Regex(""""scene"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"""")
+            .find(raw)?.groupValues?.getOrNull(1)
+        val recoveredScene = completeSceneField?.let { encoded ->
+            runCatching { org.json.JSONObject("""{"scene":"${encoded}"}""").optString("scene") }
+                .getOrNull()
+        }.orEmpty()
+        val plain = raw.trim().removePrefix("```text").removePrefix("```")
+            .removeSuffix("```").trim()
+        val plainScene = if (plain.startsWith("{") || plain.contains("\"scene\"")) "" else plain
+        val scene = structured?.optString("scene").orEmpty().ifBlank { recoveredScene }
+            .ifBlank { structured?.optString("text").orEmpty() }.ifBlank { plainScene }.trim()
+        if (!readableScene(scene)) return null
+        return WorldLifeSceneDraft(
+            title = structured?.optString("title").orEmpty().trim().take(70)
+                .ifBlank { suppliedTitle.trim().take(70).ifBlank { "一段独处时光" } },
+            scene = scene.take(1_800),
+            unresolvedThread = structured?.optString("unresolvedThread").orEmpty().trim().take(220),
+        )
+    }
+
+    /**
      * The autonomous planner provides only a motive / plot seed.
      * A separate literary pass AFTER the executor's receipt owns prose.
      * On model failure do not invent a fake "life goes on" story as a receipt.
@@ -41,7 +73,7 @@ internal object WorldLifeEpisodeComposer {
         confirmedAction: String,
         suppliedTitle: String,
         suppliedScene: String,
-    ): WorldLifeSceneDraft? {
+    ): WorldLifeComposeOutcome {
         val character = MigratedDomainStores.characters.get(characterId)
         val locationName = when (location) {
             DigitalWorldStore.ARRIVAL -> "世界入口"
@@ -53,9 +85,10 @@ internal object WorldLifeEpisodeComposer {
             .joinToString("；") { "${it.name}（${it.position.take(65)}）" }
         val prior = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
         val now = Instant.now()
+        var firstFailure = ""
         val model = try {
-            withTimeoutOrNull(45_000L) {
-                LuluAiServices.gateway.generate(
+            withTimeoutOrNull(63_000L) {
+                val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
                         appendLine("【唯一已执行、可以当作客观事实的世界动作】$confirmedAction")
@@ -85,29 +118,70 @@ internal object WorldLifeEpisodeComposer {
                         【不可越过的世界事实边界】只有程序已执行的动作和提供的世界状态是真正发生过的。禁止编造NPC在场/说话、新物品、获得奖励、开始读一本未核验的书、另一地点的到访、手机来电、他人对角色的回应或其他未执行的世界事件。若希望与居民真实相遇，下一轮应由决策层执行相应动作，故事不能代替执行器。
                         如上一次有主观未解心事，可发展人物态度，但不能复述前文或预言别人会怎样。内心的情节张力与客观地图事实保持区分。
                         小说叙述适合文学细节；私聊的即时接话仍是简短活人的语言，两种风格不能互相污染。
-                        只返回完整JSON：{"title":"有情境特点的小标题","scene":"完整的第三人称场景正文","unresolvedThread":"具体尚未解决的本人内在问题或下一次想做的事；如已解决留空"}。
+                        只返回完整JSON：{"scene":"完整的第三人称场景正文","title":"有情境特点的小标题","unresolvedThread":"具体尚未解决的本人内在问题或下一次想做的事；如已解决留空"}。先完整输出scene，随后再填可选元信息，以免输出上限截断正文。
                         unresolvedThread 仅为角色私人的主观线索，不得包含未经执行的客观事件结果。
                     """.trimIndent(),
                     source = "数字世界·独处小说",
                     title = "${character.displayName}的独处小剧场",
                     maxTokens = 1_800,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
-                    readTimeoutMillis = 42_000,
-                ).getOrNull()?.text
+                    readTimeoutMillis = 55_000,
+                )
+                firstFailure = response.exceptionOrNull()?.javaClass?.simpleName.orEmpty()
+                response.getOrNull()?.text
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            firstFailure = error.javaClass.simpleName
             null
         }
-        val parsed = ModelStructuredOutput.objectOrNull(model.orEmpty()) ?: return null
-        val scene = parsed.optString("scene").trim()
-        if (!readableScene(scene)) return null
-        return WorldLifeSceneDraft(
-            title = parsed.optString("title").trim().take(70)
-                .ifBlank { suppliedTitle.trim().take(70).ifBlank { "一段独处时光" } },
-            scene = scene.take(1_800),
-            unresolvedThread = parsed.optString("unresolvedThread").trim().take(220),
-        )
+        parseModelScene(model.orEmpty(), suppliedTitle)?.let { return WorldLifeComposeOutcome(draft = it) }
+
+        // Retry ONLY a failed generation, never an already committed world action.
+        // Keep the retry short so autonomous perception is not blocked by a second long chapter.
+        var retryFailure = ""
+        val retry = try {
+            withTimeoutOrNull(36_000L) {
+                val response = LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = buildString {
+                        appendLine("唯一已执行世界动作：$confirmedAction")
+                        appendLine("真实地点：$locationName（$location）")
+                        appendLine("已登记现场物件：${items.ifBlank { "无" }}")
+                        appendLine("角色：${character.displayName}")
+                        appendLine("角色已有内在状态：${CharacterInnerLifeStore.compactContext(characterId, Instant.now()).take(900)}")
+                        appendLine("旧片段：${prior?.scene?.take(200).orEmpty()}；不可照抄")
+                        appendLine("私人情节种子（不是事实）：${suppliedScene.take(160)}")
+                    },
+                    instruction = """
+                        写一篇约250至450汉字、具有画面感、人物欲望、阻力、转折和余韵的第三人称独处短篇。
+                        必须围绕已执行的真实动作展开。可以刻画内心矛盾和猜想，不得捏造世界中新增的NPC、
+                        交谈、道具、读书、来电、移动或其他实际发生的事情。别写生活哲理报告。
+                        优先完整返回scene正文。只输出JSON：
+                        {"scene":"第三人称完整正文","title":"具体短标题","unresolvedThread":"尚未解决的私人想法，可为空"}
+                    """.trimIndent(),
+                    source = "数字世界·独处小说补写",
+                    title = "${character.displayName}的独处片段补写",
+                    maxTokens = 1_250,
+                    contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
+                    readTimeoutMillis = 30_000,
+                )
+                retryFailure = response.exceptionOrNull()?.javaClass?.simpleName.orEmpty()
+                response.getOrNull()?.text
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            retryFailure = error.javaClass.simpleName
+            null
+        }
+        parseModelScene(retry.orEmpty(), suppliedTitle)?.let { return WorldLifeComposeOutcome(draft = it) }
+        return WorldLifeComposeOutcome(failureReason = when {
+            model.isNullOrBlank() && retry.isNullOrBlank() && firstFailure.isBlank() && retryFailure.isBlank() -> "两次请求超时或空响应"
+            retryFailure.isNotBlank() -> "补写请求失败：$retryFailure"
+            firstFailure.isNotBlank() && retry.isNullOrBlank() -> "模型请求失败：$firstFailure"
+            else -> "模型正文不完整或格式不合格"
+        })
     }
 }

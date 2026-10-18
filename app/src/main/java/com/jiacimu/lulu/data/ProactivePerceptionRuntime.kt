@@ -478,6 +478,12 @@ object ProactivePerceptionRuntime {
             onlineUnread,
         )
         val privateInput = privateDialogue.lastOrNull()?.content.orEmpty()
+        val lastUserPrivateAt = messages.filter {
+            it.sender == LuluChatMessage.Sender.User && it.createdAt <= now
+        }.maxByOrNull { it.createdAt }?.createdAt
+        val minutesSinceLastPrivateUser = lastUserPrivateAt?.let {
+            Duration.between(it, now).toMinutes().coerceAtLeast(0)
+        }
         val userActivities = collectUserActivities(characterId)
         val pendingUserContext = userActivities.filter {
             it.awaitingReply && it.message.id in onlineUnread.messageIds
@@ -663,6 +669,9 @@ object ProactivePerceptionRuntime {
                 }
                 if (onlineUnread.text.isBlank()) {
                     appendLine("【对话边界】最近聊天与用户旧照片只是已经发生的共同经历，不是新到达的待回复消息。若主动联系用户，应基于自己此刻的经历、真实兴趣或新的关心自然开口；可以有意义地追问旧事，但绝不能换个说法重新回答已经答过的旧问题。")
+                    if (minutesSinceLastPrivateUser != null && minutesSinceLastPrivateUser >= 120) {
+                        appendLine("【时间已推进】距离用户上次私聊已约${minutesSinceLastPrivateUser}分钟，现在是$localTimeText。过期的早晨叫醒、睡前安慰或当时即时回应不能当作此刻刚接到的请求；除非有仍在执行的真实定时承诺或新的用户证据，否则不要继续对旧话发即时指令，例如下午仍说‘刚醒就伸懒腰’。想联系可以选择完全新的、有当前起因的话题。")
+                    }
                 }
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")

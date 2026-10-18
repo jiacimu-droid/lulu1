@@ -2,8 +2,33 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 
 class WorldLifeEpisodeComposerTest {
+    @Test fun completedSceneFieldSurvivesMissingOptionalMetadata() {
+        val prose = ("他打开灯，光落在桌角。想把没做完的小事搁置，又不甘心。" +
+            "迟疑了一会儿，他换了个姿势，重新审视刚才的选择。" +
+            "窗外很静，他决定把那个问题留给明天，今晚先睡一会儿。").repeat(3)
+        val raw = "{\"scene\":" + org.json.JSONObject.quote(prose) +
+            ",\"title\":\"台灯亮起\",\"unresolvedThread\":\"没有结束"
+        val result = WorldLifeEpisodeComposer.parseModelScene(raw, "晚上")
+        assertEquals(prose, result?.scene)
+        assertEquals("晚上", result?.title)
+    }
+
+    @Test fun proseOnlyModelResponseCanBeKeptIfComplete() {
+        val prose = ("台灯亮起后他却迟迟没坐下。旧念头不合时宜地出现。" +
+            "他想装作没看见，手却停在椅背上。最后他收起了那份急躁，" +
+            "决定给自己一点时间，把话想明白再开口。").repeat(4)
+        assertEquals(prose, WorldLifeEpisodeComposer.parseModelScene(prose, "夜间片刻")?.scene)
+        assertNull(WorldLifeEpisodeComposer.parseModelScene("{\"scene\":\"半句话", "片段"))
+    }
+
     @Test fun literarySceneNeedsActualDramaticMovementNotAReport() {
         val scripted = "江渡在家中停下来。" +
             "这里确实发生的，只有已经记录下来的活动；至于心里究竟在想什么，没有人替他宣布答案。" +
