@@ -491,15 +491,45 @@ private fun ChatHubV2Profile(onFavorites: () -> Unit) {
                 Button(
                     onClick = {
                         name = name.trim().ifBlank { "我" }
-                        prefs.edit()
+                        val previousAvatar = prefs.getString("avatar_uri", null).orEmpty()
+                        val previousName = prefs.getString("display_name", "我").orEmpty()
+                        val previousBio = prefs.getString("bio", "").orEmpty()
+                        val saved = prefs.edit()
                             .putString("avatar_uri", avatarUri)
                             .putString("display_name", name)
                             .putString("preferred_name", preferredName.trim())
                             .putString("birthday", birthday.trim())
                             .putString("location", location.trim())
                             .putString("bio", bio.trim())
-                            .apply()
-                        notice = "个人资料已保存"
+                            .commit()
+                        if (saved) {
+                            val observed = buildList {
+                                if (previousAvatar != avatarUri.orEmpty())
+                                    add("用户更新了露露机里的头像；尚未读取图片画面，不能宣称知道头像长什么样。")
+                                if (previousName != name)
+                                    add("用户将应用内显示名称更新为“$name”。")
+                                if (previousBio != bio.trim())
+                                    add("用户修改了自己的个人介绍；变更内容需要从真实资料读取，不能猜测。")
+                            }
+                            if (observed.isNotEmpty()) {
+                                val changeId = java.util.UUID.randomUUID().toString()
+                                val changeAt = java.time.Instant.now()
+                                MigratedDomainStores.characters.settings.value.keys.forEach { roleId ->
+                                    com.jiacimu.lulu.data.SharedExperienceTimeline.record(
+                                        eventId = "user-profile-change-$changeId-$roleId",
+                                        characterId = roleId,
+                                        channel = "用户资料",
+                                        speaker = "用户资料变动",
+                                        content = observed.joinToString(" "),
+                                        occurredAt = changeAt,
+                                        triggerExtraction = false,
+                                        source = "user-profile-edit",
+                                        evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.Observation,
+                                    )
+                                }
+                            }
+                        }
+                        notice = if (saved) "个人资料已保存" else "保存失败，请重试"
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = LuluColors.Wheat, contentColor = LuluColors.OnWheat),
