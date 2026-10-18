@@ -1021,14 +1021,20 @@ object LuluDeviceToolBridge {
                     instruction = """
                         这是你本人正在参与的私聊，接着对方刚说的这一句说话。
                         已确定的核心立场、必要答案和真实行动结果保持不变。你可以按自己的性格、情绪和关系，决定这次愿意说到哪里；背景里想到的理由不必全部讲出来。
-                        对方在谈现实困难时，她的担忧可以成立。先回应正在聊的具体事情，再从你真实所知和在意的地方作反应；你可以有自己的看法、困惑或好奇，不必总比她懂得更多。自己的感受落在具体措辞里，话说到了就让对方接。
+                        辨清她是在陈述现实、吐槽、试探、开玩笑，还是确实求安慰与建议。譬如一句“不读书就没钱”未必是恐慌求助；可以认同、不同意、心疼、逗她一句或给出自己的具体想法，但不要擅自替她升级成全面心理危机。
+                        普通聊天只兑现本轮一个最在意的回应，必要时补一个细节；不要照着“深呼吸→代她分析压力→讲人生道理→保证陪伴”的心理咨询流程拼出六段同义安慰。可以有独立判断与轻微分歧，不必总比她懂得更多，也不必解释自己为什么温柔。
+                        情绪表达落在真实措辞、语气、停顿或具体反应里，不用连续堆“石头、重担、绷紧的弦、长路、天塌”等修辞换词表达同一恐惧。只要一句已经说到心坎，就留给她下一轮接话。
                         有交接具体社交小尝试时，在话里自然做出那件小事；幽默、亲昵、颜文字和 emoji 都依本人习惯与现场选择。只有真实执行回执才能证明操作或现实接触发生。
-                        详细问题和完整创作充分回答。其他时候先取最相关的一点，按完整意群自然分泡；所有气泡合起来才是本轮回复，心声留在心里。
+                        独处小说另有专属文学表达层，不把小说里的心理旁白和剧情评价照搬进即时聊天。详细问题、求助步骤和完整创作则应充分回答。按完整意群自然分泡；所有气泡合起来才是本轮回复，心声留在心里。
                         只返回完整 JSON：{"action":"reply","bubbles":[{"text":"实际发出的聊天"}]}。引用或收藏仅在明确给出真实消息ID时使用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；图片由程序发送。
                     """.trimIndent(),
                     source = "聊天表达渲染",
                     title = title,
-                    maxTokens = 1_400,
+                    maxTokens = when (com.jiacimu.lulu.data.TransientConversationStyle.analyze(userText, history).pace) {
+                        com.jiacimu.lulu.data.TransientConversationStyle.Pace.BRIEF -> 600
+                        com.jiacimu.lulu.data.TransientConversationStyle.Pace.NORMAL -> 950
+                        com.jiacimu.lulu.data.TransientConversationStyle.Pace.EXPANSIVE -> 1_400
+                    },
                     connectionOverride = connection,
                     conversation = expressionConversation,
                     memoryRequest = UnifiedMemoryRequest(
