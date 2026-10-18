@@ -8,12 +8,13 @@ import java.time.format.DateTimeFormatter
 /** Real contact timestamps, not fabricated offline life or a permanent relationship score. */
 internal object CompanionContactClock {
     fun context(characterId: String, now: Instant = Instant.now()): String {
-        val times = SharedExperienceTimeline.all(characterId).filter { event ->
+        val events = SharedExperienceTimeline.all(characterId)
+        val times = events.filter { event ->
             event.evidenceKind == EventEvidenceKind.UserStatement &&
                 (event.channel == "私聊" || event.channel.contains("群聊") ||
                     event.channel.contains("电话") || event.channel.contains("见面"))
         }.map { it.occurredAt }
-        val rhythm = RelationshipRhythmPerception.context(SharedExperienceTimeline.all(characterId), now)
+        val rhythm = RelationshipRhythmPerception.context(events, now)
         return listOf(describe(times, now), rhythm).filter(String::isNotBlank).joinToString("\n")
     }
 
