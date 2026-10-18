@@ -10,6 +10,17 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE, sdk = [28])
 
 class WorldLifeEpisodeComposerTest {
+    @Test fun modelFailureReasonUsesStableHttpStatusNotObfuscatedClassName() {
+        assertEquals("模型接口鉴权或权限失败（HTTP 401）",
+            WorldLifeEpisodeComposer.failureSummary(IllegalStateException("请求失败（401）：unauthorized")))
+        assertTrue(WorldLifeEpisodeComposer.permanentFailure(IllegalStateException("HTTP 401")))
+        assertEquals("模型接口限流（HTTP 429）",
+            WorldLifeEpisodeComposer.failureSummary(IllegalStateException("HTTP 429")))
+        assertFalse(WorldLifeEpisodeComposer.permanentFailure(IllegalStateException("HTTP 429")))
+        assertEquals("模型响应超时",
+            WorldLifeEpisodeComposer.failureSummary(IllegalStateException("read timeout")))
+    }
+
     @Test fun completedSceneFieldSurvivesMissingOptionalMetadata() {
         val prose = ("他打开灯，光落在桌角。想把没做完的小事搁置，又不甘心。" +
             "迟疑了一会儿，他换了个姿势，重新审视刚才的选择。" +
