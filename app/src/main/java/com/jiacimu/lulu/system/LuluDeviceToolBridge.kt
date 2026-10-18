@@ -162,6 +162,11 @@ object LuluDeviceToolBridge {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
+        val externalCallResult = if (callSilence)
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(silenceObservationId))
+                .firstOrNull { it.source == "tool-router" &&
+                    it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.ToolResult }
+        else null
         // QQ group rounds are dispatched by runGroupReplies: one character owns
         // each model decision, and the next character sees only persisted turns.
         // Do not hand the whole group to GroupEnsembleReplyEngine's cached ensemble.
@@ -304,7 +309,8 @@ object LuluDeviceToolBridge {
             不要把一种可能的修复方式写成必做规则、擅自认定用户已原谅或强制连发道歉。
             不能为了凑结构创造情绪、心声或未发生的事件，禁止重复执行工具。
         """.trimIndent() else if (callSilence) """
-            这是电话中没有新增用户发言的自主观察，可选择 silent 或 reply；不允许工具动作。
+            这是电话中的真实观察，没有新增用户发言；观察可能是安静陪伴，也可能是此前工具刚返回的结果。
+            依据本轮程序提供的观察内容，可选择 silent 或 reply；不允许重复工具动作。
             安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
             真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
         """.trimIndent() else if (separateExpression) """
@@ -820,7 +826,10 @@ object LuluDeviceToolBridge {
                         it.content.contains(userText.trim().take(60))) }.takeLast(12)
             }
             val userSources = if (callSilence) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
-                silenceObservationId, "电话持续接通；本轮没有新增用户发言", setOf("user"))) else verifiedSources.map {
+                silenceObservationId,
+                externalCallResult?.let { "本人此前查询刚收到的真实执行回执：${it.content.take(2_600)}" }
+                    ?: "电话持续接通；本轮没有新增用户发言",
+                if (externalCallResult == null) setOf("user") else emptySet())) else verifiedSources.map {
                 com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"))
             }.ifEmpty { if (userText.isBlank()) emptyList() else listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }

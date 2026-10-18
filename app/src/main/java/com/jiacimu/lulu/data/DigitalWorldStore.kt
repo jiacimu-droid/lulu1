@@ -451,7 +451,10 @@ object DigitalWorldStore {
         synchronized(lock) {
             val current = mutable.value.meetings.firstOrNull { it.id == sessionId } ?: error("见面记录不存在")
             require(current.endedAt == null) { "见面已经结束" }
-            val updated = current.copy(turns = (current.turns + turn).takeLast(240))
+            require(turn.speakerId == null || turn.speakerId in setOf("user", "system") || turn.speakerId in current.participantIds) {
+                "发言角色已不在这份见面记录中，本次迟到的回复没有保存"
+            }
+            val updated = current.copy(turns = current.turns + turn)
             mutable.value = mutable.value.copy(
                 meetings = mutable.value.meetings.map { if (it.id == sessionId) updated else it },
             )
@@ -555,7 +558,7 @@ object DigitalWorldStore {
             )
             val next = current.copy(
                 location = cleanDestination,
-                turns = (current.turns + systemTurn).takeLast(240),
+                turns = current.turns + systemTurn,
             )
             val locationCode = meetingLocationCode(cleanDestination)
             mutable.value = mutable.value.copy(
@@ -846,7 +849,10 @@ object DigitalWorldStore {
                 items = mutable.value.items.filterNot { it.ownerCharacterId == characterId },
                 characterLocations = mutable.value.characterLocations - characterId,
                 events = mutable.value.events.filterNot { it.characterId == characterId },
-                meetings = mutable.value.meetings.filterNot { characterId in it.participantIds },
+                meetings = mutable.value.meetings.mapNotNull { session ->
+                    val remaining = session.participantIds.filterNot { it == characterId }
+                    if (remaining.isEmpty()) null else session.copy(participantIds = remaining)
+                },
             )
             persistLocked()
         }

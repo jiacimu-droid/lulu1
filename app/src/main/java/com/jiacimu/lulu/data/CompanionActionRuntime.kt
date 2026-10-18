@@ -430,33 +430,15 @@ internal object CompanionActionRuntime {
                         recentEpisode == null && worldResult.evidenceId.isNotBlank()
                     // The world receipt is already durable. Writing is a separate
                     // best-effort task; failures must never reverse the real action.
-                    val composition = if (shouldWriteScene) WorldLifeEpisodeComposer.compose(
-                        characterId, locationAfter, worldResult.summary,
-                        args.optString("lifeSceneTitle"), args.optString("lifeScene"),
-                    ) else null
-                    val episode = composition?.draft?.let { draft ->
+                    if (shouldWriteScene) {
                         runCatching {
-                            WorldLifeEpisodeStore.record(
-                                characterId, locationAfter, draft.title, draft.scene,
-                                worldResult.summary, worldResult.evidenceId, now,
-                                unresolvedThread = draft.unresolvedThread,
-                            )
-                        }.getOrNull()
-                    }
-                    // Still persist EVERY true world action in its own world
-                    // timeline. The chat activity pane groups the routine
-                    // follow-up actions underneath the original episode.
-                    if (episode != null) {
-                        MigratedDomainStores.chat.appendPrivateActivityNotice(
-                            characterId,
-                            "[独处片段|${episode.id}] ${character.displayName}的《${episode.title}》 · 查看片段",
-                        )
-                    } else if (shouldWriteScene) {
-                        // No fabricated boilerplate when the prose model fails.
-                        // The actual world action was successful and remains saved.
-                        MigratedDomainStores.chat.appendPrivateActivityNotice(
-                            characterId, "${worldResult.summary} · 独处片段未完成（${composition?.failureReason?.take(55)?.ifBlank { "保存失败" } ?: "保存失败"}）",
-                        )
+                            WorldLifeEpisodeWorker.enqueue(context, characterId, locationAfter,
+                                worldResult.evidenceId, args.optString("lifeSceneTitle"), args.optString("lifeScene"))
+                        }.onFailure { error ->
+                            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                                source = "独处写作", title = "后台写作排程未完成",
+                                message = error.message.orEmpty().take(160))
+                        }
                     } else if (worldAction !in leisureActions) {
                         MigratedDomainStores.chat.appendPrivateActivityNotice(
                             characterId, worldResult.summary,
@@ -472,7 +454,7 @@ internal object CompanionActionRuntime {
                         now = now,
                     )
                 }
-                CompanionActionResult(worldResult.success, worldResult.summary)
+                CompanionActionResult(worldResult.success, worldResult.summary, evidenceId = worldResult.evidenceId)
             }
             "grant_sleep_reward" -> {
                 val observation = HealthRolePerception.recordLatestSleep(characterId)

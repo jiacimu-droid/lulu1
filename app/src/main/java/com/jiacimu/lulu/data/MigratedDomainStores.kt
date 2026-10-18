@@ -239,6 +239,8 @@ class InMemoryLuluChatStore : LuluChatStore {
                         eventId = "group-removed-${conversation.id}-$characterId-${Instant.now().toEpochMilli()}",
                         characterId = characterId,
                         channel = "群聊·${normalized.name}",
+                        sessionId = conversation.id,
+                        source = "group-membership",
                         speaker = "系统事件",
                         content = "用户将你移出了群聊《${normalized.name}》。你保留此前真实经历，但不再是群成员，也不会读取或参与此后的群聊消息。",
                         occurredAt = Instant.now(),
@@ -283,6 +285,8 @@ class InMemoryLuluChatStore : LuluChatStore {
                     eventId = "group-joined-${conversation.id}-${member.characterId}-${conversation.updatedAt.toEpochMilli()}",
                     characterId = member.characterId,
                     channel = "群聊·${group.name}",
+                    sessionId = conversation.id,
+                    source = "group-membership",
                     speaker = "系统事件",
                     content = "用户把你拉进了群聊《${group.name}》。群成员：$memberSummary。你知道自己现在是这个群的成员，可以阅读并参与群内对话。",
                     occurredAt = conversation.updatedAt,
@@ -435,6 +439,14 @@ class InMemoryLuluChatStore : LuluChatStore {
             CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
         }
         return created
+    }
+
+    internal fun appendSystemReceipt(conversationId: String, eventId: String, content: String): LuluChatMessage = synchronized(lock) {
+        messageStates[conversationId]?.value?.firstOrNull { it.id == eventId }?.let { return@synchronized it }
+        val message = LuluChatMessage(id = eventId, conversationId = conversationId,
+            sender = LuluChatMessage.Sender.System, content = content.trim())
+        append(conversationId, message, incrementUnread = false, durable = true)
+        message
     }
 
     override fun appendSystemMessage(conversationId: String, content: String): LuluChatMessage {

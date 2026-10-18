@@ -97,7 +97,6 @@ data class MeetingExperienceState(
 object MeetingExperienceStore {
     private const val PREFS_NAME = "lulu_meeting_experience"
     private const val KEY_STATE = "state_v1"
-    private const val MAX_EXCHANGES = 320
     private const val MAX_INVITATIONS = 120
 
     private val mutable = MutableStateFlow(MeetingExperienceState())
@@ -175,7 +174,7 @@ object MeetingExperienceStore {
         )
         synchronized(lock) {
             mutable.value = mutable.value.copy(
-                exchanges = (mutable.value.exchanges.filterNot { it.id == exchangeId } + record).takeLast(MAX_EXCHANGES)
+                exchanges = mutable.value.exchanges.filterNot { it.id == exchangeId } + record
             )
             persistLocked()
         }
@@ -258,11 +257,20 @@ object MeetingExperienceStore {
     }
 
     fun clearCharacterHistory(characterId: String, sessionIds: Set<String>) {
+        val shared = DigitalWorldStore.state.value.meetings.filter { session ->
+            session.id in sessionIds && session.participantIds.any { it != characterId }
+        }.mapTo(hashSetOf()) { it.id }
+        val ownedOnly = sessionIds - shared
         synchronized(lock) {
             mutable.value = mutable.value.copy(
-                exchanges = mutable.value.exchanges.filterNot { it.sessionId in sessionIds },
-                scenes = mutable.value.scenes - sessionIds,
-                sessionOrigins = mutable.value.sessionOrigins - sessionIds,
+                exchanges = mutable.value.exchanges.filterNot { it.sessionId in ownedOnly }.map { exchange ->
+                    if (exchange.sessionId in shared) exchange.copy(beforePresence = exchange.beforePresence - characterId)
+                    else exchange
+                },
+                scenes = mutable.value.scenes - ownedOnly,
+                sessionOrigins = (mutable.value.sessionOrigins - ownedOnly).mapValues { (sessionId, origins) ->
+                    if (sessionId in shared) origins - characterId else origins
+                },
                 invitations = mutable.value.invitations.filterNot { it.characterId == characterId },
             )
             persistLocked()

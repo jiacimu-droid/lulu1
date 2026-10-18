@@ -11,6 +11,22 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class VoiceCallModelSelectionTest {
+    @Test fun removingAConfigurationRemovesItsArchivesBeforeAndAfterReload() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val store = ModelConnectionStore.create(context)
+        val a = store.saveConfiguration(null, "remove-a", "https://a.test/v1", "test")
+        val b = store.saveConfiguration(null, "keep-b", "https://b.test/v1", "test")
+        val gone = store.addArchive(a.id, "phone-a")
+        val kept = store.addArchive(b.id, "phone-b")
+        store.selectArchive(gone.id, ModelUsage.VoiceCall)
+        store.selectArchive(gone.id)
+        store.deleteConfiguration(a.id)
+        assertFalse(store.library.value.archives.any { it.id == gone.id })
+        assertEquals(kept.id, store.selectedArchiveId(ModelUsage.VoiceCall))
+        assertEquals("phone-b", store.resolveConnection(store.selectedArchiveId(ModelUsage.VoiceCall)).model)
+        assertEquals(store.library.value, ModelConnectionStore.create(context).library.value)
+    }
+
     @Test fun phoneFollowsChangedChatAndIndependentChoiceSurvivesReload() {
         val context = RuntimeEnvironment.getApplication() as Context
         val prefs = context.getSharedPreferences("lulu_model_connection", 0)

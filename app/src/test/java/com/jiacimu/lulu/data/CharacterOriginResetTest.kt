@@ -18,6 +18,39 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterOriginResetTest {
+    @Test fun clearingOnePersonKeepsTheOtherPersonsSharedMeetingAndFullText() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.characters.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        MeetingExperienceStore.initialize(context)
+        CompanionPresenceStore.initialize(context)
+        val a = MigratedDomainStores.characters.create("清空本人", "原有人格")
+        val b = MigratedDomainStores.characters.create("共同见面者", "另外的人格")
+        val at = Instant.now().minusSeconds(60)
+        DigitalLifeProfileStore.registerNewLife(a.characterId, a.displayName, "用户", at.minusSeconds(60))
+        DigitalLifeProfileStore.registerNewLife(b.characterId, b.displayName, "用户", at.minusSeconds(60))
+        val session = DigitalWorldStore.startMeeting(listOf(a.characterId, b.characterId), "云眠原", now = at)
+        val exchange = MeetingExperienceStore.beginExchange(session, "一起聊天", now = at)
+        val turn = MeetingTurn("shared-turn", a.characterId, a.displayName, "", "共同经历中的原话", at)
+        DigitalWorldStore.appendMeetingTurn(session.id, turn)
+        val bSources = SharedExperienceTimeline.all(b.characterId)
+        CharacterRecordReset.clearAll(a.characterId, at.plusSeconds(30))
+        val retained = DigitalWorldStore.state.value.meetings.single { it.id == session.id }
+        assertEquals(listOf(b.characterId), retained.participantIds)
+        assertEquals(listOf(turn), retained.turns)
+        assertNotNull(MeetingExperienceStore.exchange(exchange.id))
+        assertEquals(bSources, SharedExperienceTimeline.all(b.characterId))
+        try {
+            DigitalWorldStore.appendMeetingTurn(session.id, turn.copy(id = "late-old-turn"))
+            fail("Old person's delayed response must not rejoin a cleared meeting")
+        } catch (_: IllegalArgumentException) { }
+    }
+
     // Robolectric reuses the SDK sandbox between classes, while each test has a fresh app DB.
     // Release this test's singleton connection so the migration test opens its own seeded DB.
     @Before fun before() { releaseTimelineDatabase() }

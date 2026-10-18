@@ -372,35 +372,32 @@ object SharedExperienceTimeline {
         ids.forEach(::deleteEvent)
     }
 
+    private fun escapedPrefix(value: String): String = value.replace("\\", "\\\\")
+        .replace("%", "\\%").replace("_", "\\_") + "%"
+
     fun deleteConversationMessage(conversation: LuluConversation, messageId: String) {
-        val group = conversation.groupChat
-        if (group == null) {
-            deleteEvent(messageId)
-        } else {
-            group.members.map(LuluGroupMember::characterId).distinct().forEach { memberId ->
-                deleteEvent("$messageId:group:$memberId")
-            }
-        }
+        if (conversation.groupChat == null) { deleteEvent(messageId); return }
+        val database = helper?.readableDatabase ?: return
+        // Perspectives belong to the membership AT DELIVERY, including people
+        // who have since left. Current members cannot define deletion scope.
+        val ids = database.query("timeline_events", arrayOf("id"),
+            "id = ? OR id LIKE ? ESCAPE '\\'", arrayOf(messageId, escapedPrefix("$messageId:group:")),
+            null, null, null).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
+        ids.forEach(::deleteEvent)
     }
 
     fun deleteConversationData(conversation: LuluConversation, messages: List<LuluChatMessage>) {
         messages.forEach { message -> deleteConversationMessage(conversation, message.id) }
-        val group = conversation.groupChat ?: return
-        val database = helper?.writableDatabase ?: return
-        val channels = arrayOf("群聊·${group.name}", "群聊电话·${group.name}")
-        group.members.map(LuluGroupMember::characterId).distinct().forEach { characterId ->
-            val ids = database.query(
-                "timeline_events",
-                arrayOf("id"),
-                "character_id = ? AND channel IN (?, ?)",
-                arrayOf(characterId, channels[0], channels[1]),
-                null,
-                null,
-                null,
-            ).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
-            ids.forEach(::deleteEvent)
-            deleteEvent("group-joined-${conversation.id}-$characterId")
-        }
+        if (conversation.groupChat == null) return
+        val database = helper?.readableDatabase ?: return
+        // Names can be duplicated or changed. The immutable conversation id
+        // owns messages, membership changes and newly recorded group calls.
+        val ids = database.query("timeline_events", arrayOf("id"),
+            "session_id = ? OR id LIKE ? ESCAPE '\\' OR id LIKE ? ESCAPE '\\' OR id = ?",
+            arrayOf(conversation.id, escapedPrefix("group-joined-${conversation.id}-"),
+                escapedPrefix("group-removed-${conversation.id}-"), "group-joined-${conversation.id}"),
+            null, null, null).use { cursor -> buildList { while (cursor.moveToNext()) add(cursor.getString(0)) } }
+        ids.forEach(::deleteEvent)
     }
 
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =

@@ -29,4 +29,9 @@ class XhsExplicitReadIntentTest {
         assertNotNull(request)
         assertEquals("", request!!.keyword)
     }
+
+    @Test fun decliningOrCancellingAReadNeverStartsAnotherSearch() {
+        listOf("你不要去小红书搜猫咪", "先别去小红书看看", "不用帮我搜索小红书了", "取消去小红书搜索猫咪")
+            .forEach { assertNull(it, XhsExplicitReadIntent.parse(it)) }
+    }
 }

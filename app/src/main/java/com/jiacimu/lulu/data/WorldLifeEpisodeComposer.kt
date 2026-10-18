@@ -73,6 +73,7 @@ internal object WorldLifeEpisodeComposer {
         confirmedAction: String,
         suppliedTitle: String,
         suppliedScene: String,
+        witnessedItems: String? = null,
     ): WorldLifeComposeOutcome {
         val character = MigratedDomainStores.characters.get(characterId)
         val locationName = when (location) {
@@ -81,7 +82,7 @@ internal object WorldLifeEpisodeComposer {
             else -> DigitalWorldPublicPlaces.label(location)
                 ?: if (location.startsWith("home:")) "角色家中" else "已登记的数字世界地点"
         }
-        val items = DigitalWorldStore.itemsAtLocation(characterId).take(9)
+        val items = witnessedItems ?: DigitalWorldStore.itemsAtLocation(characterId).take(9)
             .joinToString("；") { "${it.name}（${it.position.take(65)}）" }
         val prior = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
         val now = Instant.now()

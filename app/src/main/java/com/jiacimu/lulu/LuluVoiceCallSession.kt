@@ -166,6 +166,37 @@ internal object LuluVoiceCallSession {
         return true
     }
 
+    private var externalResultJob: Job? = null
+    private val externalResults = linkedSetOf<String>()
+    private val externalResultSeen = mutableSetOf<String>()
+
+    internal fun onExternalToolResult(role: String, callId: String, evidenceId: String): Boolean {
+        val current = mutableState.value
+        if (!current.connected || current.characterId != role || current.callExperienceId != callId ||
+            evidenceId.isBlank() || !externalResultSeen.add(evidenceId)) return false
+        externalResults.add(evidenceId)
+        if (externalResultJob?.isActive == true) return true
+        externalResultJob = scope.launch {
+            while (externalResults.isNotEmpty()) {
+                val live = mutableState.value
+                if (!live.connected || live.characterId != role || live.callExperienceId != callId) break
+                if (!CallExternalResultPolicy.canDeliver(role, callId, live.characterId, live.callExperienceId,
+                        live.connected, live.opening, live.thinking, live.speaking,
+                        live.userSpeaking || confirmedSpeechInProgress(), speechQueue?.hasPendingAudio == true)) {
+                    delay(400L)
+                    continue
+                }
+                val id = externalResults.first()
+                externalResults.remove(id)
+                val evidence = com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(role, listOf(id))
+                    .firstOrNull() ?: continue
+                handleUserSpeech("", autonomousSilence = true, externalToolResult = evidence)
+                delay(400L)
+            }
+        }
+        return true
+    }
+
     fun isActiveForChat(conversationId: String): Boolean {
         val call = mutableState.value
         return call.connected && call.conversationId == conversationId
@@ -540,6 +571,10 @@ internal object LuluVoiceCallSession {
         incomingChatJob?.cancel()
         incomingChatJob = null
         incomingChatDrafts.clear()
+        externalResultJob?.cancel()
+        externalResultJob = null
+        externalResults.clear()
+        externalResultSeen.clear()
         sleepFailures = 0
         replyIsSilence = false
         silenceAudioPending = false
@@ -1087,12 +1122,13 @@ internal object LuluVoiceCallSession {
         alreadyPersisted: Boolean = false,
         autonomousSleep: Boolean = false,
         autonomousSilence: Boolean = false,
+        externalToolResult: com.jiacimu.lulu.data.SharedTimelineEvent? = null,
     ) {
         val current = mutableState.value
         if (!current.connected || (!opening && !autonomousSleep && !autonomousSilence && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
             (autonomousSleep && (!current.sleepMode || confirmedSpeechInProgress() || current.thinking ||
                 current.speaking || speechQueue?.hasPendingAudio == true || current.opening))) return
-        if (autonomousSilence && (current.sleepMode || userSpeechInProgress || current.thinking ||
+        if (autonomousSilence && ((current.sleepMode && externalToolResult == null) || userSpeechInProgress || current.thinking ||
             current.speaking || speechQueue?.hasPendingAudio == true || current.opening)) return
         sleepContinuationJob?.cancel()
         if (!opening && !autonomousSleep && !autonomousSilence &&
@@ -1131,42 +1167,7 @@ internal object LuluVoiceCallSession {
         val phoneXhsRequest = if (!opening && !autonomousSleep && !autonomousSilence &&
             spoken.isNotBlank())
             com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(spoken) else null
-        val xhsDispatched = if (phoneXhsRequest != null) {
-            val key = phoneXhsRequest.url.ifBlank { "keyword:" + phoneXhsRequest.keyword }
-            val now = SystemClock.elapsedRealtime()
-            if (lastPhoneXhsRequest == key && now - lastPhoneXhsRequestAt in 0L..18_000L) false
-            else {
-                lastPhoneXhsRequest = key
-                lastPhoneXhsRequestAt = now
-                val app = appContext
-                if (app != null) scope.launch(Dispatchers.IO) {
-                    // Never hold the microphone, voice generation or interruption
-                    // loop while a real WebView search waits on website navigation.
-                    val args = org.json.JSONObject()
-                    if (phoneXhsRequest.url.isNotBlank()) args.put("url", phoneXhsRequest.url)
-                    else args.put("keyword", phoneXhsRequest.keyword)
-                    val raw = com.jiacimu.lulu.data.ToolRouter.execute(
-                        app, current.characterId, "read_xiaohongshu", args,
-                        requestId = "call-xhs-" + current.callExperienceId + "-" + generation,
-                        userRequested = true,
-                    )
-                    val result = runCatching { org.json.JSONObject(raw) }.getOrNull()
-                    val success = result?.optBoolean("success") == true
-                    val detail = result?.optString("summary").orEmpty()
-                        .ifBlank { result?.optString("error").orEmpty() }
-                        .replace(Regex("""\s+"""), " ").trim().take(160)
-                        .ifBlank { if (success) "已取得真实阅读结果" else "本次网页没有返回可验证的结果" }
-                    // Leave ONE compact factual note, not a fake character
-                    // performance or a verbose raw JSON receipt.
-                    MigratedDomainStores.chat.appendSystemMessage(
-                        current.conversationId,
-                        if (success) "小红书 · 实际已读：$detail"
-                        else "小红书 · 本次未读到：$detail",
-                    )
-                }
-                app != null
-            }
-        } else false
+        var xhsDispatched = false
         replyJob?.cancel()
         replyIsSilence = autonomousSilence
         silenceAudioPending = false
@@ -1175,6 +1176,24 @@ internal object LuluVoiceCallSession {
             resetSystemRecognitionTurn()
             if (!alreadyPersisted) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
                 "voice-${current.callExperienceId}-user-$generation", spoken, false)
+        }
+        val turnUserEvidenceId = if (opening || autonomousSleep || autonomousSilence) ""
+        else if (!alreadyPersisted) "voice-${current.callExperienceId}-user-$generation"
+        else MigratedDomainStores.chat.messages(current.conversationId).value.lastOrNull {
+            it.sender == LuluChatMessage.Sender.User && it.content.isNotBlank() &&
+                spoken.contains(it.content) && it.createdAt.isAfter(Instant.now().minusSeconds(300))
+        }?.id.orEmpty()
+        if (phoneXhsRequest != null && turnUserEvidenceId.isNotBlank()) {
+            val key = phoneXhsRequest.url.ifBlank { "keyword:" + phoneXhsRequest.keyword }
+            val at = SystemClock.elapsedRealtime()
+            if (lastPhoneXhsRequest != key || at - lastPhoneXhsRequestAt !in 0L..18_000L) {
+                xhsDispatched = appContext?.let { app ->
+                    runCatching { com.jiacimu.lulu.data.PhoneXhsReadWorker.enqueue(app, current.characterId,
+                        current.conversationId, current.callExperienceId, turnUserEvidenceId, phoneXhsRequest) }
+                        .getOrDefault(false)
+                } == true
+                if (xhsDispatched) { lastPhoneXhsRequest = key; lastPhoneXhsRequestAt = at }
+            }
         }
         mutableState.update { it.copy(thinking = true, userSpeaking = false, opening = opening, partialTranscript = "", errorMessage = "", statusMessage = if (autonomousSilence) "${current.characterName} 正陪着你" else "${current.characterName} 正在想怎么回答") }
         // Keep a second recognition window alive while the model thinks.
@@ -1298,11 +1317,11 @@ internal object LuluVoiceCallSession {
                 SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis, latest.microphoneMuted) else ""
             // Stable milestones: silence can be reconsidered without inventing
             // a brand-new external event on every timer pulse.
-            val observationId = if (autonomousSilence)
+            val observationId = externalToolResult?.id ?: if (autonomousSilence)
                 "call-silence-${latest.callExperienceId}-${confirmedUserSpeechCount}-${CallSilencePolicy.observationMilestone(
                     (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L)
                 )}" else ""
-            if (autonomousSilence) InteractionSignalBridge.recordCallQuiet(
+            if (autonomousSilence && externalToolResult == null) InteractionSignalBridge.recordCallQuiet(
                 characterId = latest.characterId,
                 callId = latest.callExperienceId,
                 observationId = observationId,
@@ -1316,10 +1335,14 @@ internal object LuluVoiceCallSession {
                 title = activeLabel,
                 archiveId = archiveId,
                 silenceObservationId = observationId,
-                turnContext = if (scheduledWakeReason != null)
+                userEvidenceIds = listOf(turnUserEvidenceId).filter(String::isNotBlank),
+                turnContext = if (externalToolResult != null)
+                    "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
+                else if (scheduledWakeReason != null)
                     "真实事件：电话已经接通，先前约定的叫醒时间刚刚到了；$scheduledWakeReason。这不是用户发言，也不是电话结束指令。"
                 else if (opening) "真实事件：本通电话刚接通；来电缘由=${latest.incomingReason}。这不是用户说的话。" else "",
                 sceneContext = (when {
+                    externalToolResult != null -> "一对一电话仍然接通，先前请求的小红书检索刚刚返回真实结果。用户没有新增发言。结合最近对话与本人的情绪，决定是否自然接一句结果或暂时不说；成功才说读到了，失败只依据真实回执，不编造权限原因，不复述工具字段或重复搜索。"
                     autonomousSilence -> silenceContext
                     autonomousSleep -> """
                         【哄睡长段续讲】一次输出完整连续的一段，不要分多次重复开头或总结。
@@ -1334,7 +1357,7 @@ internal object LuluVoiceCallSession {
                     alreadyPersisted -> "你正在与用户通话，用户此刻没有通过麦克风说这段话，而是在同一个人的私聊窗口打字发给你。你确实能看见这些文字，并且可以在电话里自然开口回应；不要假装从麦克风听见了打字声。始终沿用这个角色的稳定人格、真实经历、关系称呼与连续状态，只根据电话这个媒介调整表达节奏。不要重复发一条独立的私聊回复。"
                     else -> "你正在和用户进行一对一实时电话。你能意识到电话已经接通，听见的是用户刚刚在电话里说的话；具体关系与称呼必须服从你的人设。回复要像真实通话，口语自然，别像客服确认工单。先理解用户这段话的重点、情绪和说话是否已经结束，再依角色自己的个性、关系和兴趣自然回应。简单的事可以轻快接话，甚至只哼一声、笑一下、接个梗；值得深谈的事可以认真讲清。可以自然主动提起自己真实经历的一件小事或先前没说完的念头，但它必须与此刻有关系，不把每次通话做成主动生活报告。不要固定每轮几句话，不要机械复述、每句都追问或习惯性附和。角色可以有自己的判断、幽默、沉默与不同意见，但不得编造已经发生的事情。不要朗读说明文字。"
                 }) + if (xhsDispatched)
-                    "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果稍后写入私聊。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
+                    "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果将留在私聊，电话空下来时也会收到同一份回执。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
                 onCharacterHangup = ({
                     if (sameReply() && !autonomousSleep && !wakeOpening)

@@ -31,7 +31,6 @@ internal data class WorldLifeEpisode(
 
 internal object WorldLifeEpisodeStore {
     private const val PREFS = "lulu_world_life_episodes_v1"
-    private const val MAX_PER_CHARACTER = 80
     private var prefs: android.content.SharedPreferences? = null
     private val mutable = MutableStateFlow<Map<String, List<WorldLifeEpisode>>>(emptyMap())
     val state = mutable.asStateFlow()
@@ -61,7 +60,7 @@ internal object WorldLifeEpisodeStore {
         }
 
     /** Called only after the world executor has committed its actual action. */
-    @Synchronized fun record(
+    fun record(
         characterId: String,
         location: String,
         title: String,
@@ -70,8 +69,26 @@ internal object WorldLifeEpisodeStore {
         evidenceId: String,
         now: Instant = Instant.now(),
         unresolvedThread: String = "",
+        expectedSource: SharedTimelineEvent? = null,
     ): WorldLifeEpisode? {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return null
+        val source = expectedSource ?: SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
+            .firstOrNull() ?: return null
+        if (source.characterId != characterId || source.id != evidenceId) return null
+        var saved: WorldLifeEpisode? = null
+        // Always take the timeline monitor before this store, matching deleteEvent.
+        // A model that returns after deletion, an edit, or a life reset cannot commit.
+        SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, listOf(source)) {
+            synchronized(this) {
+                saved = recordLocked(characterId, location, title, prose, actualAction,
+                    evidenceId, now, unresolvedThread)
+            }
+        }
+        return saved
+    }
+
+    private fun recordLocked(characterId: String, location: String, title: String, prose: String,
+        actualAction: String, evidenceId: String, now: Instant, unresolvedThread: String): WorldLifeEpisode? {
         val scene = prose.trim().replace(Regex("\\n{4,}"), "\n\n").take(1_800)
         if (scene.length < 100 || actualAction.isBlank()) return null
         val prior = episodes(characterId)
@@ -83,7 +100,7 @@ internal object WorldLifeEpisodeStore {
             scene = scene, actualAction = actualAction.take(280),
             evidenceId = evidenceId, unresolvedThread = unresolvedThread.trim().take(220),
         )
-        val next = (prior + episode).takeLast(MAX_PER_CHARACTER)
+        val next = (prior + episode).sortedBy { it.occurredAt }
         check(prefs?.edit()?.putString(characterId, encode(next))?.commit() == true) {
             "角色个人生活片段尚未保存"
         }
@@ -157,6 +174,6 @@ internal object WorldLifeEpisodeStore {
                 e.optString("title"), e.optString("scene"),
                 e.optString("actualAction"), e.optString("evidenceId"),
                 e.optString("unresolvedThread"))
-        }.takeLast(MAX_PER_CHARACTER)
+        }.sortedBy { it.occurredAt }
     }.getOrDefault(emptyList())
 }

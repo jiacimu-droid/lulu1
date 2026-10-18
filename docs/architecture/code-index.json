@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T13:07:38.775513+00:00",
-  "commit": "25632cee498e18f28b0d2897ca45bacb30477677",
+  "generatedAt": "2026-10-18T14:49:40.407614+00:00",
+  "commit": "705432b6e213a5d8c7cbb8ca3fda92b3fdf55bbf",
   "branch": "main",
-  "sourceFingerprint": "ab9210f23d0e554970931ede5c406b99eaf80608e8619a09b4d1ecf1e57d9271",
+  "sourceFingerprint": "1039da6b04466ab7bbb04b8504dd0de4ae72d8a51997eebd6af8027a4a96ae5b",
   "summary": {
-    "files": 705,
-    "lines": 136292,
-    "symbols": 2050
+    "files": 714,
+    "lines": 137001,
+    "symbols": 2065
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -184,6 +184,12 @@
         "line": 50
       }
     ],
+    "canDeliver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt",
+        "line": 5
+      }
+    ],
     "shouldWait": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt",
@@ -255,7 +261,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 873
+        "line": 885
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -357,7 +363,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1256
+        "line": 1279
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -543,7 +549,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1114
+        "line": 1117
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -667,7 +673,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 109
+        "line": 108
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
@@ -707,11 +713,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 865
+        "line": 877
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1010
+        "line": 1022
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -731,7 +737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 110
+        "line": 108
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -1515,7 +1521,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 992
+        "line": 1004
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -1553,7 +1559,7 @@
     "closeCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-        "line": 150
+        "line": 152
       }
     ],
     "LuluMigrationRootAppV2": [
@@ -1683,19 +1689,19 @@
     "isActiveForChat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 168
+        "line": 199
       }
     ],
     "onTextChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 173
+        "line": 204
       }
     ],
     "prepare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 313
+        "line": 344
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -1705,91 +1711,91 @@
     "dial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 330
+        "line": 361
       }
     ],
     "cancelDial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 380
+        "line": 411
       }
     ],
     "toggleMicrophone": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 384
+        "line": 415
       }
     ],
     "setMicrophoneMuted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 388
+        "line": 419
       }
     ],
     "toggleSleepMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 442
+        "line": 473
       }
     ],
     "selectSleepFocus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 463
+        "line": 494
       }
     ],
     "toggleSpeaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 515
+        "line": 546
       }
     ],
     "reportPermissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 519
+        "line": 550
       }
     ],
     "endCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 523
+        "line": 554
       }
     ],
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1216
+        "line": 1235
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1218
+        "line": 1237
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1234
+        "line": 1253
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1473
+        "line": 1496
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1624
+        "line": 1647
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1762
+        "line": 1785
       }
     ],
     "returnToList": [
@@ -2893,7 +2899,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 881
+        "line": 893
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -2921,19 +2927,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 961
+        "line": 964
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 973
+        "line": 976
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1104
+        "line": 1107
       }
     ],
     "ModelConversationMessage": [
@@ -3293,7 +3299,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1148
+        "line": 1171
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -3383,7 +3389,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 50
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -3897,7 +3903,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 837
+        "line": 840
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -3942,6 +3948,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 63
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
@@ -4037,7 +4047,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 901
+        "line": 913
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -4073,7 +4083,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 891
+        "line": 903
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -4105,31 +4115,31 @@
     "needsPostOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 133
+        "line": 156
       }
     ],
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 167
+        "line": 190
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 548
+        "line": 571
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 711
+        "line": 734
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1170
+        "line": 1193
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -4358,6 +4368,68 @@
         "line": 62
       }
     ],
+    "from": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 23
+      }
+    ],
+    "pending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 84
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 41
+      }
+    ],
+    "eligibleAt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 39
+      }
+    ],
+    "quiet": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 41
+      }
+    ],
+    "schedule": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
+        "line": 122
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
+        "line": 801
+      }
+    ],
+    "restore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 78
+      }
+    ],
+    "CharacterMotiveReviewWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 85
+      }
+    ],
     "isActive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
@@ -4450,16 +4522,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
         "line": 71
-      }
-    ],
-    "pending": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 84
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 41
       }
     ],
     "stimulus": [
@@ -4587,7 +4649,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
-        "line": 17
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -4705,7 +4767,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 999
+        "line": 1011
       }
     ],
     "realtimeVoiceId": [
@@ -4900,20 +4962,6 @@
         "line": 108
       }
     ],
-    "schedule": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
-        "line": 122
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 121
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
-        "line": 801
-      }
-    ],
     "CloudTaskWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
@@ -5059,7 +5107,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 716
+        "line": 698
       }
     ],
     "describe": [
@@ -5905,71 +5953,71 @@
     "commitResidentEncounter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 464
+        "line": 467
       }
     ],
     "meetingLocationOptions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 490
+        "line": 493
       },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 523
-      }
-    ],
-    "invitationLocationOptions": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 516
-      }
-    ],
-    "moveMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 526
       }
     ],
+    "invitationLocationOptions": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 519
+      }
+    ],
+    "moveMeeting": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
+        "line": 529
+      }
+    ],
     "endMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 582
+        "line": 585
       }
     ],
     "deleteMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 607
+        "line": 610
       }
     ],
     "deleteMeetingExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 634
+        "line": 637
       }
     ],
     "rewindMeetingExchanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 672
+        "line": 675
       }
     ],
     "pruneEmptyMeetings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 732
+        "line": 735
       }
     ],
     "recordMeetingTimeline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 739
+        "line": 742
       }
     ],
     "meetingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-        "line": 768
+        "line": 771
       }
     ],
     "qualifies": [
@@ -6215,7 +6263,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 516
+        "line": 513
       }
     ],
     "LegacyLuluImportResult": [
@@ -6243,7 +6291,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 259
+        "line": 258
       }
     ],
     "invalidateDerivedFromEvent": [
@@ -6577,145 +6625,145 @@
     "writingPreferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 115
+        "line": 114
       }
     ],
     "updateWriting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 117
+        "line": 116
       }
     ],
     "sceneFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 129
+        "line": 128
       }
     ],
     "updateScene": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 136
+        "line": 135
       }
     ],
     "registerSessionOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 144
+        "line": 143
       }
     ],
     "sessionOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 155
+        "line": 154
       }
     ],
     "beginExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 158
+        "line": 157
       }
     ],
     "markRunning": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 184
+        "line": 183
       }
     ],
     "completeExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 186
+        "line": 185
       }
     ],
     "checkpointExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 205
+        "line": 204
       }
     ],
     "failExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 217
+        "line": 216
       }
     ],
     "exchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 221
+        "line": 220
       }
     ],
     "exchangeForTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 223
+        "line": 222
       }
     ],
     "discardExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 226
+        "line": 225
       }
     ],
     "pendingForSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 233
+        "line": 232
       }
     ],
     "completedForSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 237
+        "line": 236
       }
     ],
     "recordsFrom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 242
+        "line": 241
       }
     ],
     "removeRecords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 248
+        "line": 247
       }
     ],
     "removeSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 271
+        "line": 279
       }
     ],
     "createInvitation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 282
+        "line": 290
       }
     ],
     "invitation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 306
+        "line": 314
       }
     ],
     "acceptInvitation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 311
+        "line": 319
       }
     ],
     "rejectInvitation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 314
+        "line": 322
       }
     ],
     "expireInvitations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-        "line": 331
+        "line": 339
       }
     ],
     "expand": [
@@ -7037,67 +7085,67 @@
     "migrateUserFavorites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 595
+        "line": 607
       }
     ],
     "removeUserFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 604
+        "line": 616
       }
     ],
     "defaultConversations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 811
+        "line": 823
       }
     ],
     "defaultMessages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 820
+        "line": 832
       }
     ],
     "CharacterContactPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 832
+        "line": 844
       }
     ],
     "CharacterSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 850
+        "line": 862
       }
     ],
     "CharacterSettingsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 859
+        "line": 871
       }
     ],
     "defaultSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 972
+        "line": 984
       }
     ],
     "CharacterWorldBookRule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 982
+        "line": 994
       }
     ],
     "CharacterWorldBookRuleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 988
+        "line": 1000
       }
     ],
     "MigratedDomainStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1005
+        "line": 1017
       }
     ],
     "objectOrNull": [
@@ -7274,6 +7322,12 @@
         "line": 25
       }
     ],
+    "PhoneXhsReadWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
+        "line": 18
+      }
+    ],
     "unreadConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
@@ -7349,31 +7403,31 @@
     "ProactivePerceptionRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 33
+        "line": 31
       }
     ],
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 118
+        "line": 116
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 126
+        "line": 124
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 135
+        "line": 133
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1715
+        "line": 1735
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -7397,127 +7451,127 @@
     "scheduleNextDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 150
+        "line": 151
       }
     ],
     "scheduleBackgroundFailureRecovery": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 193
+        "line": 194
       }
     ],
     "scheduleWorldArrival": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 243
+        "line": 244
       }
     ],
     "scheduleSoon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 260
+        "line": 261
       }
     ],
     "scheduleConcernPromise": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 263
+        "line": 264
       }
     ],
     "scheduleManual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 267
+        "line": 268
       }
     ],
     "scheduleOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 275
+        "line": 276
       }
     ],
     "scheduleOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 408
+        "line": 409
       }
     ],
     "scheduleCoalescedLifeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 433
+        "line": 434
       }
     ],
     "scheduleOnlineExpiryDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 460
+        "line": 461
       }
     ],
     "scheduleEmotionalAftercare": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 483
+        "line": 484
       }
     ],
     "scheduleResidentEpisodeReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 511
+        "line": 512
       }
     ],
     "scheduleLifeFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 523
+        "line": 524
       }
     ],
     "scheduleOwnIdeaFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 550
+        "line": 551
       }
     ],
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 576
+        "line": 577
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 603
+        "line": 604
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 630
+        "line": 631
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 647
+        "line": 648
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 661
+        "line": 662
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 806
+        "line": 807
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 814
+        "line": 815
       }
     ],
     "PromptContextBudget": [
@@ -7729,41 +7783,41 @@
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 374
+        "line": 377
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 385
+        "line": 388
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 405
+        "line": 402
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 408
+        "line": 405
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 93
+        "line": 110
       }
     ],
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 424
+        "line": 421
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 498
+        "line": 495
       }
     ],
     "EventEvidenceKind": [
@@ -7775,13 +7829,13 @@
     "ToolRouter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 14
+        "line": 12
       }
     ],
     "rejected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 20
+        "line": 22
       }
     ],
     "allowsExpansion": [
@@ -7983,13 +8037,19 @@
     "episodes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 47
+        "line": 46
       }
     ],
     "recentAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 57
+        "line": 56
+      }
+    ],
+    "WorldLifeEpisodeWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
+        "line": 15
       }
     ],
     "ready": [
@@ -10256,6 +10316,12 @@
         "line": 7
       }
     ],
+    "CallExternalResultPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
+        "line": 5
+      }
+    ],
     "CallHangupGracePolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt",
@@ -10818,6 +10884,12 @@
         "line": 13
       }
     ],
+    "CharacterMotiveReviewTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt",
+        "line": 15
+      }
+    ],
     "CharacterMotiveStateTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt",
@@ -10923,13 +10995,13 @@
     "response": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 83
+        "line": 92
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 86
+        "line": 95
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -11034,10 +11106,22 @@
         "line": 13
       }
     ],
+    "GroupTimelineDeletionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt",
+        "line": 17
+      }
+    ],
     "ImmediateMemoryExtractionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
         "line": 24
+      }
+    ],
+    "KeyedWorkMutexTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/KeyedWorkMutexTest.kt",
+        "line": 11
       }
     ],
     "LearningCompetencyPolicyTest": [
@@ -11365,7 +11449,7 @@
     "WorldLifeEpisodeStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt",
-        "line": 14
+        "line": 16
       }
     ],
     "XhsAutonomousReadingTest": [
@@ -11504,8 +11588,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 138,
-      "sha256": "d62b7f795c6de2ce5ea3c519d7a78f140eddedc1c053a2ad1e79420973a4c223",
+      "lines": 141,
+      "sha256": "32c13b75b46298e1e06b563385c39cd99631053602e9ab75ff483e1806b410de",
       "symbols": []
     },
     {
@@ -11649,6 +11733,17 @@
         {
           "name": "consumeWhenReady",
           "line": 50
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt",
+      "lines": 11,
+      "sha256": "aa8a58037ea1526e4608153963a6738a1c9c0b9726d1e4852892226c63488083",
+      "symbols": [
+        {
+          "name": "canDeliver",
+          "line": 5
         }
       ]
     },
@@ -12633,8 +12728,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
-      "lines": 494,
-      "sha256": "5e27b992bedb8b4ebf326626ca2c9b50fbb01b782a233619fa799612ec6bfb7a",
+      "lines": 496,
+      "sha256": "d8f35b3d79317bdf7f3980a76562c84252253de24506981b5d9145f47e23d8d3",
       "symbols": [
         {
           "name": "saveGroupCall",
@@ -12642,7 +12737,7 @@
         },
         {
           "name": "closeCall",
-          "line": 150
+          "line": 152
         }
       ]
     },
@@ -12699,8 +12794,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 221,
-      "sha256": "88d9d2eb3802d4e1ddb6e432977f452d55d55f6a8e3c683fd177cd25f144197b",
+      "lines": 225,
+      "sha256": "75e19e4333d9ff0db23ee608e823066895e6daf23f538c027e1db45a885a9080",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
@@ -12792,8 +12887,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 1848,
-      "sha256": "8b0bd48b8ab43ec66f63c9dcaf466eea4a6c3840e6830040e309cb63926b5ef2",
+      "lines": 1871,
+      "sha256": "e08259b749b306d899373bc5d5138753fd90c2c45895ad2d235cb12a62879d02",
       "symbols": [
         {
           "name": "announceScheduledReminder",
@@ -12801,75 +12896,75 @@
         },
         {
           "name": "isActiveForChat",
-          "line": 168
+          "line": 199
         },
         {
           "name": "onTextChatMessage",
-          "line": 173
+          "line": 204
         },
         {
           "name": "prepare",
-          "line": 313
+          "line": 344
         },
         {
           "name": "dial",
-          "line": 330
+          "line": 361
         },
         {
           "name": "cancelDial",
-          "line": 380
+          "line": 411
         },
         {
           "name": "toggleMicrophone",
-          "line": 384
+          "line": 415
         },
         {
           "name": "setMicrophoneMuted",
-          "line": 388
+          "line": 419
         },
         {
           "name": "toggleSleepMode",
-          "line": 442
+          "line": 473
         },
         {
           "name": "selectSleepFocus",
-          "line": 463
+          "line": 494
         },
         {
           "name": "toggleSpeaker",
-          "line": 515
+          "line": 546
         },
         {
           "name": "reportPermissionDenied",
-          "line": 519
+          "line": 550
         },
         {
           "name": "endCall",
-          "line": 523
+          "line": 554
         },
         {
           "name": "sameReply",
-          "line": 1216
+          "line": 1235
         },
         {
           "name": "clearWhenHeard",
-          "line": 1218
+          "line": 1237
         },
         {
           "name": "enqueueSpoken",
-          "line": 1234
+          "line": 1253
         },
         {
           "name": "sameSession",
-          "line": 1473
+          "line": 1496
         },
         {
           "name": "retryListening",
-          "line": 1624
+          "line": 1647
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1762
+          "line": 1785
         }
       ]
     },
@@ -13993,8 +14088,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1122,
-      "sha256": "8cee4f760d9cdafa590d64cf0ad7189c0dba519d58dc6fe2afca2a88b23c6abb",
+      "lines": 1125,
+      "sha256": "6d34f056bcf873d90e54578195db1e26f6d2c6bdf9952823c65cdbe9adc9ddd9",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -14086,19 +14181,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 961
+          "line": 964
         },
         {
           "name": "consumeEvent",
-          "line": 973
+          "line": 976
         },
         {
           "name": "LuluAiServices",
-          "line": 1104
+          "line": 1107
         },
         {
           "name": "initialize",
-          "line": 1114
+          "line": 1117
         }
       ]
     },
@@ -15054,8 +15149,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1382,
-      "sha256": "2d00e0573b5071dc77f88fd4efccb5dadedb2c69ef5a51997beeab196ad2b8e3",
+      "lines": 1405,
+      "sha256": "84de69b037ca2dc6328ee15e00f3ee78ca2823776de9b461f304b97831bcd41d",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -15063,31 +15158,31 @@
         },
         {
           "name": "needsPostOnlineReflection",
-          "line": 133
+          "line": 156
         },
         {
           "name": "backedBy",
-          "line": 167
+          "line": 190
         },
         {
           "name": "interactionContext",
-          "line": 548
+          "line": 571
         },
         {
           "name": "groundingContext",
-          "line": 711
+          "line": 734
         },
         {
           "name": "normalize",
-          "line": 1148
+          "line": 1171
         },
         {
           "name": "compactContext",
-          "line": 1170
+          "line": 1193
         },
         {
           "name": "context",
-          "line": 1256
+          "line": 1279
         }
       ]
     },
@@ -15349,6 +15444,41 @@
         {
           "name": "invalidatePlanIfSourceDeleted",
           "line": 62
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+      "lines": 114,
+      "sha256": "da25fd4ebce775938514cdeae2d74dc38dbc6f71c4e1ffd4ad283da81c78bbbe",
+      "symbols": [
+        {
+          "name": "from",
+          "line": 23
+        },
+        {
+          "name": "pending",
+          "line": 34
+        },
+        {
+          "name": "eligibleAt",
+          "line": 39
+        },
+        {
+          "name": "quiet",
+          "line": 41
+        },
+        {
+          "name": "schedule",
+          "line": 61
+        },
+        {
+          "name": "restore",
+          "line": 78
+        },
+        {
+          "name": "CharacterMotiveReviewWorker",
+          "line": 85
         }
       ]
     },
@@ -16165,8 +16295,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 734,
-      "sha256": "dba763496fd0ac566b308548342b1889251055cd724bb97a28d4ece1078c87a2",
+      "lines": 716,
+      "sha256": "ff3dd4d502e52dd72dc5aaebe2aef8403b2950f9293405cb394664c0d9c189d3",
       "symbols": [
         {
           "name": "asJson",
@@ -16182,7 +16312,7 @@
         },
         {
           "name": "world",
-          "line": 716
+          "line": 698
         }
       ]
     },
@@ -17006,8 +17136,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
-      "lines": 1121,
-      "sha256": "772cee0483066962eb70d46e3f810c4eb9f53bf20653027a6e0dfaf381a4c1f2",
+      "lines": 1127,
+      "sha256": "5058618618594108e65f1da0149b9616175244db4844c2440e58b31ad89ca35e",
       "symbols": [
         {
           "name": "MeetingReality",
@@ -17099,55 +17229,55 @@
         },
         {
           "name": "commitResidentEncounter",
-          "line": 464
+          "line": 467
         },
         {
           "name": "meetingLocationOptions",
-          "line": 490
+          "line": 493
         },
         {
           "name": "invitationLocationOptions",
-          "line": 516
+          "line": 519
         },
         {
           "name": "meetingLocationOptions",
-          "line": 523
-        },
-        {
-          "name": "moveMeeting",
           "line": 526
         },
         {
+          "name": "moveMeeting",
+          "line": 529
+        },
+        {
           "name": "endMeeting",
-          "line": 582
+          "line": 585
         },
         {
           "name": "deleteMeeting",
-          "line": 607
+          "line": 610
         },
         {
           "name": "deleteMeetingExchange",
-          "line": 634
+          "line": 637
         },
         {
           "name": "rewindMeetingExchanges",
-          "line": 672
+          "line": 675
         },
         {
           "name": "pruneEmptyMeetings",
-          "line": 732
+          "line": 735
         },
         {
           "name": "recordMeetingTimeline",
-          "line": 739
+          "line": 742
         },
         {
           "name": "meetingContext",
-          "line": 768
+          "line": 771
         },
         {
           "name": "clearCharacter",
-          "line": 837
+          "line": 840
         }
       ]
     },
@@ -17304,6 +17434,12 @@
           "line": 78
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt",
+      "lines": 27,
+      "sha256": "751d50afce65623726aa1025711f4388fd53f1d10dcdb47260909ef4238dcc86",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt",
@@ -17729,8 +17865,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
-      "lines": 605,
-      "sha256": "f71e0c304bf34e037e0e71bc0839837f7c35d898d07604d833f2c0bcb896d551",
+      "lines": 613,
+      "sha256": "29777d9786ea0c770fbadd50d596a44a53f3c97d8d09cac4a2cb6f374354dc20",
       "symbols": [
         {
           "name": "MeetingProseLength",
@@ -17782,107 +17918,107 @@
         },
         {
           "name": "initialize",
-          "line": 109
+          "line": 108
         },
         {
           "name": "writingPreferences",
-          "line": 115
+          "line": 114
         },
         {
           "name": "updateWriting",
-          "line": 117
+          "line": 116
         },
         {
           "name": "sceneFor",
-          "line": 129
+          "line": 128
         },
         {
           "name": "updateScene",
-          "line": 136
+          "line": 135
         },
         {
           "name": "registerSessionOrigin",
-          "line": 144
+          "line": 143
         },
         {
           "name": "sessionOrigin",
-          "line": 155
+          "line": 154
         },
         {
           "name": "beginExchange",
-          "line": 158
+          "line": 157
         },
         {
           "name": "markRunning",
-          "line": 184
+          "line": 183
         },
         {
           "name": "completeExchange",
-          "line": 186
+          "line": 185
         },
         {
           "name": "checkpointExchange",
-          "line": 205
+          "line": 204
         },
         {
           "name": "failExchange",
-          "line": 217
+          "line": 216
         },
         {
           "name": "exchange",
-          "line": 221
+          "line": 220
         },
         {
           "name": "exchangeForTurn",
-          "line": 223
+          "line": 222
         },
         {
           "name": "discardExchange",
-          "line": 226
+          "line": 225
         },
         {
           "name": "pendingForSession",
-          "line": 233
+          "line": 232
         },
         {
           "name": "completedForSession",
-          "line": 237
+          "line": 236
         },
         {
           "name": "recordsFrom",
-          "line": 242
+          "line": 241
         },
         {
           "name": "removeRecords",
-          "line": 248
+          "line": 247
         },
         {
           "name": "clearCharacterHistory",
-          "line": 259
+          "line": 258
         },
         {
           "name": "removeSession",
-          "line": 271
+          "line": 279
         },
         {
           "name": "createInvitation",
-          "line": 282
+          "line": 290
         },
         {
           "name": "invitation",
-          "line": 306
-        },
-        {
-          "name": "acceptInvitation",
-          "line": 311
-        },
-        {
-          "name": "rejectInvitation",
           "line": 314
         },
         {
+          "name": "acceptInvitation",
+          "line": 319
+        },
+        {
+          "name": "rejectInvitation",
+          "line": 322
+        },
+        {
           "name": "expireInvitations",
-          "line": 331
+          "line": 339
         }
       ]
     },
@@ -18196,8 +18332,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 1032,
-      "sha256": "a4baf61d6ddce4ded4e8ccf552c468a14c7cc418aac795238cf4dfe35a1da894",
+      "lines": 1044,
+      "sha256": "8436f0cdd1fe098bae887a0e86806957eaefcaf6befa3c4ddb2d9a3def5931a3",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -18317,79 +18453,79 @@
         },
         {
           "name": "migrateUserFavorites",
-          "line": 595
+          "line": 607
         },
         {
           "name": "removeUserFavorite",
-          "line": 604
+          "line": 616
         },
         {
           "name": "defaultConversations",
-          "line": 811
+          "line": 823
         },
         {
           "name": "defaultMessages",
-          "line": 820
-        },
-        {
-          "name": "CharacterContactPolicy",
           "line": 832
         },
         {
+          "name": "CharacterContactPolicy",
+          "line": 844
+        },
+        {
           "name": "CharacterSettings",
-          "line": 850
+          "line": 862
         },
         {
           "name": "CharacterSettingsStore",
-          "line": 859
+          "line": 871
         },
         {
           "name": "initialize",
-          "line": 865
+          "line": 877
         },
         {
           "name": "update",
-          "line": 873
+          "line": 885
         },
         {
           "name": "create",
-          "line": 881
+          "line": 893
         },
         {
           "name": "delete",
-          "line": 891
+          "line": 903
         },
         {
           "name": "get",
-          "line": 901
+          "line": 913
         },
         {
           "name": "defaultSettings",
-          "line": 972
+          "line": 984
         },
         {
           "name": "CharacterWorldBookRule",
-          "line": 982
+          "line": 994
         },
         {
           "name": "CharacterWorldBookRuleStore",
-          "line": 988
+          "line": 1000
         },
         {
           "name": "setEnabled",
-          "line": 992
+          "line": 1004
         },
         {
           "name": "isEnabled",
-          "line": 999
+          "line": 1011
         },
         {
           "name": "MigratedDomainStores",
-          "line": 1005
+          "line": 1017
         },
         {
           "name": "initialize",
-          "line": 1010
+          "line": 1022
         }
       ]
     },
@@ -18585,6 +18721,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
+      "lines": 74,
+      "sha256": "c5b0269fd8f2cb263c289bda6d976bd128daf72eedf40cf2704c47eb921ce5f7",
+      "symbols": [
+        {
+          "name": "PhoneXhsReadWorker",
+          "line": 18
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
       "lines": 59,
       "sha256": "6caf2a6a7fc7a0b52c66f8842ac892c12f57268f41698534474507f717fb2bd7",
@@ -18653,8 +18800,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-      "lines": 139,
-      "sha256": "70820dc0919d3b404ffbfebe51b0ca7dd2d43f184bfff5f3f28a3f83bc363071",
+      "lines": 141,
+      "sha256": "69d3bd13e7914e1afd939b6b5eb0c4d3b7ac6d49ddac5dd592e62a11b3d1d998",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -18703,39 +18850,39 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1782,
-      "sha256": "dd032f3739f717940f218b9c595d174a88cddb3ba02f61a8505ca06ff587af1f",
+      "lines": 1802,
+      "sha256": "709692fa96c0c8c66c512b08b89b35f775ce788bbb5df1e1a344a8c4254bb8ce",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
-          "line": 33
+          "line": 31
         },
         {
           "name": "initialize",
-          "line": 110
+          "line": 108
         },
         {
           "name": "markConcernPromisePending",
-          "line": 118
+          "line": 116
         },
         {
           "name": "wakePlanFor",
-          "line": 126
+          "line": 124
         },
         {
           "name": "nextDueAt",
-          "line": 135
+          "line": 133
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1715
+          "line": 1735
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 871,
-      "sha256": "9cd8b837e836635b9aed63e562743b4c5fd9c5003a384dd0685bd4d58c911f54",
+      "lines": 872,
+      "sha256": "d55358b57df2a2edbdff46cbd8b396707efceba1496b8753bdddafa9362b666f",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -18751,91 +18898,91 @@
         },
         {
           "name": "schedule",
-          "line": 121
+          "line": 122
         },
         {
           "name": "scheduleNextDue",
-          "line": 150
+          "line": 151
         },
         {
           "name": "scheduleBackgroundFailureRecovery",
-          "line": 193
+          "line": 194
         },
         {
           "name": "scheduleWorldArrival",
-          "line": 243
+          "line": 244
         },
         {
           "name": "scheduleSoon",
-          "line": 260
+          "line": 261
         },
         {
           "name": "scheduleConcernPromise",
-          "line": 263
+          "line": 264
         },
         {
           "name": "scheduleManual",
-          "line": 267
+          "line": 268
         },
         {
           "name": "scheduleOnline",
-          "line": 275
+          "line": 276
         },
         {
           "name": "scheduleOnlineReflection",
-          "line": 408
+          "line": 409
         },
         {
           "name": "scheduleCoalescedLifeReview",
-          "line": 433
+          "line": 434
         },
         {
           "name": "scheduleOnlineExpiryDecision",
-          "line": 460
+          "line": 461
         },
         {
           "name": "scheduleEmotionalAftercare",
-          "line": 483
+          "line": 484
         },
         {
           "name": "scheduleResidentEpisodeReview",
-          "line": 511
+          "line": 512
         },
         {
           "name": "scheduleLifeFollowThrough",
-          "line": 523
+          "line": 524
         },
         {
           "name": "scheduleOwnIdeaFollowThrough",
-          "line": 550
+          "line": 551
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 576
+          "line": 577
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 603
+          "line": 604
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 630
+          "line": 631
         },
         {
           "name": "cancelOnline",
-          "line": 647
+          "line": 648
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 661
+          "line": 662
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 806
+          "line": 807
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 814
+          "line": 815
         }
       ]
     },
@@ -19047,8 +19194,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 625,
-      "sha256": "e7044e946f70e92436a77ef429b012278aeb705c4e84916a8317f2905ff2a700",
+      "lines": 622,
+      "sha256": "301079ea1ff7c58f974cae0e737de19e2862ec84c5004bf3a66342c9500f86d9",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -19100,31 +19247,31 @@
         },
         {
           "name": "deleteConversationMessage",
-          "line": 374
+          "line": 377
         },
         {
           "name": "deleteConversationData",
-          "line": 385
+          "line": 388
         },
         {
           "name": "recentEvents",
-          "line": 405
+          "line": 402
         },
         {
           "name": "recentContext",
-          "line": 408
+          "line": 405
         },
         {
           "name": "remember",
-          "line": 424
+          "line": 421
         },
         {
           "name": "exportBackup",
-          "line": 498
+          "line": 495
         },
         {
           "name": "importBackup",
-          "line": 516
+          "line": 513
         }
       ]
     },
@@ -19158,16 +19305,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 134,
-      "sha256": "a410901fd3b464ece2b0d1559e4139690d91843bfeb6d0355b7dbf5e991e7d6a",
+      "lines": 137,
+      "sha256": "598e6c06f076bc01c876f280db86e9403611ca01066a901b7099dabf6b1f0f17",
       "symbols": [
         {
           "name": "ToolRouter",
-          "line": 14
+          "line": 12
         },
         {
           "name": "rejected",
-          "line": 20
+          "line": 22
         }
       ]
     },
@@ -19443,41 +19590,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt",
-      "lines": 188,
-      "sha256": "363333a2bd17d5eb7d87ff8aaf56780950ee6f8ce67b6e47a33f2126f2067cbc",
+      "lines": 189,
+      "sha256": "fff7935d065b0eec0cc2ddb04378fc5e0589c56869c959ea3ba0a1c7df434fa8",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-      "lines": 163,
-      "sha256": "99567285179c8a1c2617f12b58f155860c45ad1498008529b56e3ff0111916cf",
+      "lines": 180,
+      "sha256": "f4a2038dc33df640f4f18c3b6891d9c2463a7d021327627a3bd7dfd253eb5553",
       "symbols": [
         {
           "name": "episodes",
-          "line": 47
+          "line": 46
         },
         {
           "name": "find",
-          "line": 50
+          "line": 49
         },
         {
           "name": "recentAt",
-          "line": 57
+          "line": 56
+        },
+        {
+          "name": "record",
+          "line": 63
         },
         {
           "name": "recentContext",
-          "line": 93
+          "line": 110
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
+      "lines": 76,
+      "sha256": "4284c916ca2c14c4c625b15e9b97f2fafaebef15bd48cc6a60bbac8d48440079",
+      "symbols": [
+        {
+          "name": "WorldLifeEpisodeWorker",
+          "line": 15
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
-      "lines": 30,
-      "sha256": "6928f51566c0365d25f4e352d2b555bd1d0f76ca718448715f971a7a1ae31f2b",
+      "lines": 31,
+      "sha256": "272e09a245d1bace01197c42219792171d5ec6679089b6aa3b3fe9efeec2b672",
       "symbols": [
         {
           "name": "parse",
-          "line": 17
+          "line": 18
         }
       ]
     },
@@ -22134,8 +22296,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1704,
-      "sha256": "cd98476ab9ad2cd53ac616b802bc83b86ed411ce73364e71558ceb65928cb83f",
+      "lines": 1713,
+      "sha256": "48e08893198b035db30f19d86597753a884dfc4ebffc5ea1355205c05ae7b0ea",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -22293,6 +22455,17 @@
         {
           "name": "CallContractsTest",
           "line": 7
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
+      "lines": 28,
+      "sha256": "6f6dfa8b773417640c7406b41c23b00eb061c5720ce970fc1c5d15c87169122c",
+      "symbols": [
+        {
+          "name": "CallExternalResultPolicyTest",
+          "line": 5
         }
       ]
     },
@@ -22750,8 +22923,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt",
-      "lines": 57,
-      "sha256": "807718d94b242e504f5610e22bca71137565714301e0012bafd9842d634207bd",
+      "lines": 73,
+      "sha256": "9a8407fb8e76c0c57071bdae63f0ba70e3be6939d30913d6ab6edfafce5b176f",
       "symbols": [
         {
           "name": "VoiceCallModelSelectionTest",
@@ -23259,6 +23432,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt",
+      "lines": 68,
+      "sha256": "69a1b7f48ae8aceb58237a49aa31687245a30a0d321b35b7e351faa3a60930a6",
+      "symbols": [
+        {
+          "name": "CharacterMotiveReviewTest",
+          "line": 15
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt",
       "lines": 49,
       "sha256": "daa24ab902dc336882ce01654b535e1f818ba4dc84824a173bd513a4bdb1e2b8",
@@ -23282,8 +23466,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
-      "lines": 99,
-      "sha256": "6d82f1cc1b5f8c9864fdaf42538c93eac9171dbe8b06eaeada70479f200cd996",
+      "lines": 132,
+      "sha256": "fbbc8421dd94254300c1b783cbb9f935986797a49cdf670293ba35ce67dc74d8",
       "symbols": [
         {
           "name": "CharacterOriginResetTest",
@@ -23444,8 +23628,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 231,
-      "sha256": "e93564c2a45062caed1de119c865e3e2a6208f985a4a32c988c55913354c957a",
+      "lines": 240,
+      "sha256": "1c9e1b11805ac08cf335d53f4e30b6b397d3d95cb5b57f7d5c770daeede08fd8",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -23453,11 +23637,11 @@
         },
         {
           "name": "response",
-          "line": 83
+          "line": 92
         },
         {
           "name": "bubbles",
-          "line": 86
+          "line": 95
         }
       ]
     },
@@ -23649,6 +23833,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt",
+      "lines": 51,
+      "sha256": "deafee0b719e369b9909e41750a23eeb695ef7655df6c05a23eab2b2c8799361",
+      "symbols": [
+        {
+          "name": "GroupTimelineDeletionTest",
+          "line": 17
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateMemoryExtractionTest.kt",
       "lines": 59,
       "sha256": "9ba88d20d9dc06627ffa33873245fe56bbe307a5f37248e3eed2b38c48abea3c",
@@ -23656,6 +23851,17 @@
         {
           "name": "ImmediateMemoryExtractionTest",
           "line": 24
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/KeyedWorkMutexTest.kt",
+      "lines": 41,
+      "sha256": "0baeee7826b55bf37f30eabb4017cc3bcda25606bf37d33e6dd6ee8b5645982f",
+      "symbols": [
+        {
+          "name": "KeyedWorkMutexTest",
+          "line": 11
         }
       ]
     },
@@ -23839,8 +24045,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt",
-      "lines": 29,
-      "sha256": "f9472165ae2c34db8b5989c249ae3d59217d6fba443ba04c38655c16f764af69",
+      "lines": 30,
+      "sha256": "ca985512abee79e5d0d4fbdf86a5001c3155371a77a0baa122d05ae0f73935ad",
       "symbols": [
         {
           "name": "release",
@@ -24203,12 +24409,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt",
-      "lines": 89,
-      "sha256": "ba0c0bcc40c832d26cc8e818d0b71791bcb162b04a76d806ad1395d0d0c29728",
+      "lines": 127,
+      "sha256": "c842bd03bf9db30b8eeb5b3c578a19e320d21a80720990dbbe001294790ce22c",
       "symbols": [
         {
           "name": "WorldLifeEpisodeStoreTest",
-          "line": 14
+          "line": 16
         }
       ]
     },
@@ -24236,8 +24442,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt",
-      "lines": 33,
-      "sha256": "488f8c616e32ab8ba01f468d9f4a5b9a7dd6d76f323221e71b5f822ca8294d78",
+      "lines": 38,
+      "sha256": "598b3424a6f6b17238bfda8e6325b752023c28fd4649f51be50aba8e6af9f388",
       "symbols": [
         {
           "name": "XhsExplicitReadIntentTest",

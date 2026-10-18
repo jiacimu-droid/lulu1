@@ -34,6 +34,12 @@ class ConversationExpressionGatewayTest {
         LuluAiServices.initialize(context)
         val role = MigratedDomainStores.characters.create("表达通道回归角色", "说话直接，有冷幽默")
         CharacterLifeStore.setProfile(role.characterId, "speechHabits", "熟悉时说话干脆，会接冷笑话")
+        LuluRepositories.worldBook.save(com.jiacimu.lulu.core.WorldBookEntry(
+            "stable-global-rule", "共同规则", "全局表达约束甲", true, emptyMap()))
+        LuluRepositories.worldBook.save(com.jiacimu.lulu.core.WorldBookEntry(
+            "stable-role-rule", "本人规则", "仅本人表达约束乙", false, mapOf(role.characterId to true)))
+        LuluRepositories.worldBook.save(com.jiacimu.lulu.core.WorldBookEntry(
+            "other-role-rule", "别人的规则", "别人的私有规则丙", false, mapOf("another-role" to true)))
         val sources = listOf("聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复", "普通角色决定")
         val server = MockWebServer()
         repeat(sources.size) { server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
@@ -48,6 +54,9 @@ class ConversationExpressionGatewayTest {
                     .getOrThrow()
                 val request = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
                 val system = request.getJSONArray("messages").getJSONObject(0).getString("content")
+                assertTrue(system.contains("全局表达约束甲"))
+                assertTrue(system.contains("仅本人表达约束乙"))
+                assertFalse(system.contains("别人的私有规则丙"))
                 if (CharacterExpressionGuide.isExpressionOnly(source)) {
                     assertTrue(system.contains("【同一人物的表达层】"))
                     assertTrue(system.contains("旁支理由和联想供你取舍"))

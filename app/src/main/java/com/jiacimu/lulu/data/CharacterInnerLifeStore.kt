@@ -66,11 +66,34 @@ object CharacterInnerLifeStore {
         if (prefs?.edit()?.remove(characterId)?.commit() == true) revisionState.value += 1L
     }
 
+    @Synchronized internal fun characterIds(): Set<String> = prefs?.all?.keys.orEmpty().toSet()
+
+    @Synchronized internal fun claimMotiveReview(role: String, id: String, token: String,
+        now: Instant = Instant.now(), coalesceDue: Boolean = true): Boolean {
+        val root = snapshot(role)
+        val entries = root.optJSONArray("motives") ?: return false
+        val motive = (0 until entries.length()).mapNotNull(entries::optJSONObject)
+            .firstOrNull { it.optString("id") == id } ?: return false
+        val plan = CharacterMotiveReview.from(motive) ?: return false
+        if (plan.token != token || now.isBefore(plan.dueAt)) return false
+        // One appraisal sees all currently due goals, not one paid call per goal.
+        (0 until entries.length()).mapNotNull(entries::optJSONObject).forEach { item ->
+            val pending = CharacterMotiveReview.from(item) ?: return@forEach
+            if (pending.id == id || (coalesceDue && !pending.dueAt.isAfter(now)))
+                item.put("reviewedPlan", pending.token).put("reviewedAt", now.toString())
+        }
+        save(role, root)
+        return true
+    }
+
     private fun save(id: String, state: JSONObject) {
         check(prefs?.edit()?.putString(id, state.toString())?.commit() == true) {
             "内在生活状态尚未初始化或保存失败"
         }
         revisionState.value += 1L
+        dispatchContext?.let { context ->
+            runCatching { CharacterMotiveReviewScheduler.schedule(context, id, state) }
+        }
     }
 
     @Synchronized internal fun beginActivityExpectation(characterId: String, receiptId: String,

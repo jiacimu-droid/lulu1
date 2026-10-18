@@ -140,7 +140,7 @@ class ModelConnectionStore private constructor(context: Context) {
         val removedArchiveIds = current.archives
             .filter { it.configurationId == id }
             .mapTo(mutableSetOf()) { it.id }
-        val archives = current.archives.filterNot { it.id == id }
+        val archives = current.archives.filterNot { it.configurationId == id }
         val active = current.activeArchiveId?.takeUnless { it in removedArchiveIds }
         persist(
             current.copy(
@@ -520,7 +520,10 @@ class CompanionModelGateway(
             val recentSharedTimeline = unifiedMemory.recentTimeline
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
             val lexicon = if (fullContext) com.jiacimu.lulu.data.LexiconMemoryContext.select(characterId, request.retrievalQuery()) else emptyList()
-            val allWorldBooks = if (fullContext) LuluRepositories.worldBook.snapshot() else emptyList()
+            // Stable world rules constrain the SAME person even in a lean renderer.
+            // Cross-world fiction and isolated tools retain their explicit boundary.
+            val allWorldBooks = if (fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario)
+                LuluRepositories.worldBook.snapshot() else emptyList()
             val globalWorldBooks = allWorldBooks.filter { entry ->
                 entry.globalEnabled && entry.characterOverrides[characterId] != false
             }

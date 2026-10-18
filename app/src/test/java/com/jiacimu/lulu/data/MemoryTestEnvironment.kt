@@ -16,6 +16,7 @@ internal object MemoryTestEnvironment {
         clear(LuluRepositories.memory, "prefs", "advancedPrefs")
         clear(LuluRepositories.lexicon, "prefs")
         clear(MemoryExtractionJobStore, "prefs")
+        clear(WorldLifeEpisodeStore, "prefs")
         clear(CharacterLearningAgenda, "prefs")
         clear(CharacterLearningLedger, "prefs")
         clear(com.jiacimu.lulu.study.ReadingReflectionStore, "prefs", "application")

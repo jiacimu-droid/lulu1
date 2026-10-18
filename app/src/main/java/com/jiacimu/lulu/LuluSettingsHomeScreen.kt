@@ -120,6 +120,10 @@ private fun SettingsEntryScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
+                Text("露露机 ${BuildConfig.VERSION_NAME} · ${BuildConfig.BUILD_REVISION}",
+                    color = SettingsHomeMuted, fontSize = 12.sp)
+            }
+            item {
                 SettingsEntryRow(
                     icon = Icons.Outlined.Api,
                     title = "API 设置",

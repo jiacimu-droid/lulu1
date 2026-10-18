@@ -83,6 +83,8 @@ object ProactivePerceptionPolicyStore {
         mutablePolicies.value = mutablePolicies.value + (cleanId to next)
         persist()
         appContext?.let { context ->
+            CharacterMotiveReviewScheduler.schedule(context, cleanId,
+                CharacterInnerLifeStore.snapshot(cleanId), force = true)
             ProactivePerceptionScheduler.scheduleNextDue(context)
             if (UserInteractionPresenceStore.state.value.appVisible == true) BackgroundCompanionControl.refresh(context)
         }

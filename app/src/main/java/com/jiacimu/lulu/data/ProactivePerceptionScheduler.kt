@@ -107,6 +107,7 @@ object ProactivePerceptionScheduler {
 
     /** Restore still-valid intentions after process death or an APK upgrade. */
     private fun restoreGoalReviews(context: Context) {
+        CharacterMotiveReviewScheduler.restore(context)
         CharacterLifeStore.states.value.keys.forEach { characterId ->
             val goal = CharacterLifeStore.state(characterId).optJSONObject("intention")
                 ?: return@forEach

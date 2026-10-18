@@ -19,8 +19,6 @@ import com.jiacimu.lulu.qqForwardContextText
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
@@ -34,7 +32,7 @@ object ProactivePerceptionRuntime {
     private const val PREFS_NAME = "lulu_proactive_runtime_v2"
     private const val CALL_CHANNEL_ID = "lulu_proactive_calls"
     private const val ACTION_HISTORY_SIZE = 10
-    private val cycleMutex = Mutex()
+    private val cycleMutex = KeyedWorkMutex()
 
     private enum class Action { MESSAGE, GROUP_MESSAGE, STICKER, GROUP_STICKER, KAOMOJI, GROUP_KAOMOJI, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, USER_REMARK, SELF_NICKNAME, TOOL, SILENT }
 
@@ -163,156 +161,178 @@ object ProactivePerceptionRuntime {
         preserveOffline: Boolean = false,
         requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
-    ): Int = cycleMutex.withLock {
-        currentCoroutineContext().ensureActive()
-        // The live expiry coroutine and the durable worker race safely:
-        // exactly one owns the *actual* online deadline. New chat wakes win.
-        if (onlineExpiryAtMillis > 0L &&
-            (targetCharacterId == null ||
-                !CompanionOnlineStore.claimOnlineExpiry(
-                    targetCharacterId, onlineExpiryAtMillis, Instant.now(),
-                ))) return@withLock 0
-        // Mark the event finished only when a *decision* is recorded. A process
-        // may die after the private appraisal is committed but before action.
-        if (targetCharacterId != null && !requiredInteractionEvidenceId.isNullOrBlank() &&
-            CharacterCausalAppraisalStage.hasCompletedDecision(targetCharacterId, requiredInteractionEvidenceId)) {
-            return@withLock 0
-        }
-        if (onlineRevision != null && targetCharacterId != null &&
-            !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
-        if (onlineRevision != null && targetCharacterId != null &&
-            !OnlineChatBatchStore.claim(context, targetCharacterId, onlineRevision)) return@withLock 0
-        var chatBatchError: Throwable? = null
-        try {
-            if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
+        motiveReviewId: String = "",
+        motiveReviewToken: String = "",
+    ): Int {
+        // The passive sweep releases ownership between people. A new message
+        // for B can run even while A is waiting for a model or website.
+        if (targetCharacterId == null) {
             initialize(context)
-            val appContext = context.applicationContext
-            val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val targets = latestPrivateConversations().filter { targetCharacterId == null || it.characterId == targetCharacterId }
-            var evaluated = 0
-            for (conversation in targets) {
-                val characterId = conversation.characterId.ifBlank { "lulu" }
-                // The connected call owns perception and expression, including quiet pulses.
-                // General background decisions must not start a second call or send competing chat.
-                if (CompanionPresenceStore.isInCall(characterId)) continue
-                val policy = ProactivePerceptionPolicyStore.get(characterId)
-                // A passive scheduler may never bypass a disabled role's autonomy switch.
-                // An explicit user wake or a live user message still deserves a response.
-                val explicitUserWake = trigger.contains("用户手动唤醒") ||
-                    (onlineRevision != null && (requiresUnread ||
-                        trigger.contains("私聊新消息") || trigger.contains("群聊出现新消息")))
-                if (!policy.enabled && !explicitUserWake) continue
-                // One PRIMARY online chat-batch owner should handle unread
-                // content. Opportunistic world/life/timer ticks are NOT
-                // alternative reply workers. Without this guard they could
-                // all pay for the same 30K-token recall while the user waits.
-                if (onlineRevision == null &&
-                    CompanionOnlineStore.isOnline(characterId, now) &&
-                    CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
-                    continue
-                }
-                // A lifestyle-review wake is not permission to disturb quiet
-                // hours just to produce a social post; unresolved cues persist.
-                if ((trigger.startsWith("真实生活后续回想") ||
-                    trigger.startsWith("居民小事到了") ||
-                    trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
-                    isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
-                if (!force) {
-                    if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
-                            CommitmentTaskStore.snapshot(characterId), now)) continue
-                    val due = dueAtFor(appContext, conversation, policy, prefs, now)
-                    if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
-                    if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
-                }
-                // A single expensive model owns subjective continuity. Repeated low-priority
-                // life, thought and activity follow-through calls share its next eligible slot.
-                // Fresh direct messages / call-ended / world-arrival evidence are not throttled.
-                val lowUrgencyLifeReview = trigger.startsWith("在线持续感知") ||
-                    trigger.startsWith("合并后的自主生活回顾") ||
-                    trigger.startsWith("真实生活后续回想") ||
-                    trigger.startsWith("角色自己先前有过") ||
-                    trigger.startsWith("角色自己刚完成") ||
-                    trigger.startsWith("居民小事到了") ||
-                    trigger.startsWith("强烈情绪的后续整理")
-                if (lowUrgencyLifeReview && onlineExpiryAtMillis == 0L) {
-                    val previousAt = prefs.getLong("last_evaluation_$characterId", 0L)
-                    val eligibleAt = previousAt + policy.onlinePulseSeconds * 1_000L
-                    val nowMs = now.toEpochMilli()
-                    if (previousAt > 0L && nowMs < eligibleAt) {
-                        // Online has its own pulse/expiry clock. Re-enqueueing a
-                        // deferred worker here can wake alongside the expiry
-                        // decision and pay for the very same empty observation.
-                        if (!trigger.startsWith("在线持续感知")) {
-                            ProactivePerceptionScheduler.scheduleCoalescedLifeReview(
-                                appContext, characterId, eligibleAt - nowMs + 250L,
-                                onlineOnly = false,
-                                eligibleAtMillis = eligibleAt,
-                            )
-                        }
+            var total = 0
+            for (id in latestPrivateConversations().map { it.characterId }.distinct()) {
+                total += runDueCycle(context, trigger, id, force, now, onlineRevision,
+                    requiresUnread, preserveOffline, requiredInteractionEvidenceId, onlineExpiryAtMillis,
+                    motiveReviewId, motiveReviewToken)
+            }
+            return total
+        }
+        return cycleMutex.withLock(targetCharacterId) {
+            currentCoroutineContext().ensureActive()
+            // The live expiry coroutine and the durable worker race safely:
+            // exactly one owns the *actual* online deadline. New chat wakes win.
+            if (onlineExpiryAtMillis > 0L &&
+                (targetCharacterId == null ||
+                    !CompanionOnlineStore.claimOnlineExpiry(
+                        targetCharacterId, onlineExpiryAtMillis, Instant.now(),
+                    ))) return@withLock 0
+            // Mark the event finished only when a *decision* is recorded. A process
+            // may die after the private appraisal is committed but before action.
+            if (targetCharacterId != null && !requiredInteractionEvidenceId.isNullOrBlank() &&
+                CharacterCausalAppraisalStage.hasCompletedDecision(targetCharacterId, requiredInteractionEvidenceId)) {
+                return@withLock 0
+            }
+            if (onlineRevision != null && targetCharacterId != null &&
+                !OnlineChatBatchStore.isCurrent(context, targetCharacterId, onlineRevision)) return@withLock 0
+            if (onlineRevision != null && targetCharacterId != null &&
+                !OnlineChatBatchStore.claim(context, targetCharacterId, onlineRevision)) return@withLock 0
+            var chatBatchError: Throwable? = null
+            try {
+                if (requiresUnread && targetCharacterId != null && CompanionOnlineStore.unreadChatSnapshot(targetCharacterId).text.isBlank()) return@withLock 0
+                initialize(context)
+                val appContext = context.applicationContext
+                val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                val targets = latestPrivateConversations().filter { targetCharacterId == null || it.characterId == targetCharacterId }
+                var evaluated = 0
+                for (conversation in targets) {
+                    val characterId = conversation.characterId.ifBlank { "lulu" }
+                    // The connected call owns perception and expression, including quiet pulses.
+                    // General background decisions must not start a second call or send competing chat.
+                    if (CompanionPresenceStore.isInCall(characterId)) continue
+                    if (motiveReviewId.isNotBlank() &&
+                        CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) continue
+                    val policy = ProactivePerceptionPolicyStore.get(characterId)
+                    if (motiveReviewId.isNotBlank() &&
+                        isQuietNow(policy, Instant.now().atZone(ZoneId.systemDefault()).toLocalTime())) continue
+                    // A passive scheduler may never bypass a disabled role's autonomy switch.
+                    // An explicit user wake or a live user message still deserves a response.
+                    val explicitUserWake = trigger.contains("用户手动唤醒") ||
+                        (onlineRevision != null && (requiresUnread ||
+                            trigger.contains("私聊新消息") || trigger.contains("群聊出现新消息")))
+                    if (!policy.enabled && !explicitUserWake) continue
+                    // One PRIMARY online chat-batch owner should handle unread
+                    // content. Opportunistic world/life/timer ticks are NOT
+                    // alternative reply workers. Without this guard they could
+                    // all pay for the same 30K-token recall while the user waits.
+                    if (onlineRevision == null &&
+                        CompanionOnlineStore.isOnline(characterId, now) &&
+                        CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank()) {
                         continue
                     }
-                }
-                val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false) &&
-                    CharacterOpenConcernRuntime.recent(
-                        CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
-                    ).isNotEmpty()
-                val effectiveTrigger = when {
-                    onlineExpiryAtMillis > 0L -> trigger
-                    trigger.contains("挂心") || trigger.contains("承诺") -> trigger
-                    pendingConcern -> "挂心/承诺待回看"
-                    else -> trigger
-                }
-                check(prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).commit()) {
-                    "感知时间未保存"
-                }
-                if (!preserveOffline && (!force || !CompanionOnlineStore.isOnline(characterId, now))) {
-                    CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
-                }
-                CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
-                val attempt = if (onlineRevision == null && policy.enabled) {
-                    AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now)
-                } else null
-                val result = runCatching {
-                    evaluateCharacter(appContext, conversation, effectiveTrigger, now,
-                        requiredInteractionEvidenceId, onlineExpiryAtMillis)
-                }
-                result.onSuccess { action ->
-                    AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
-                    evaluated += 1
-                    CharacterDevelopmentRuntime.request(characterId)
-                    val actionKey = "action_history_$characterId"
-                    val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
-                        .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)
-                    prefs.edit()
-                        .putString(actionKey, actionHistory.joinToString(","))
-                        .putBoolean("pending_concern_promise_$characterId", false)
-                        .remove("silent_count_$characterId")
-                        .apply()
-                }.onFailure { error ->
-                    // This persists recovery even when JobScheduler cancels the coroutine.
-                    // Interrupted tool execution is never blindly replayed as a new action.
-                    AutonomousPerceptionAttempts.finish(appContext, attempt, failed = true)
-                    if (error is kotlinx.coroutines.CancellationException) {
-                        CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知中断；保留已保存的执行记录", Instant.now())
-                        throw error
+                    // A lifestyle-review wake is not permission to disturb quiet
+                    // hours just to produce a social post; unresolved cues persist.
+                    if ((trigger.startsWith("真实生活后续回想") ||
+                        trigger.startsWith("居民小事到了") ||
+                        trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
+                        isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
+                    if (!force) {
+                        if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
+                                CommitmentTaskStore.snapshot(characterId), now)) continue
+                        val due = dueAtFor(appContext, conversation, policy, prefs, now)
+                        if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
+                        if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                     }
-                    CompanionPresenceStore.recordPerceptionAttempt(
-                        characterId,
-                        "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
-                        now,
-                    )
-                    if (onlineRevision != null && requiresUnread) chatBatchError = error
+                    // A single expensive model owns subjective continuity. Repeated low-priority
+                    // life, thought and activity follow-through calls share its next eligible slot.
+                    // Fresh direct messages / call-ended / world-arrival evidence are not throttled.
+                    val lowUrgencyLifeReview = trigger.startsWith("在线持续感知") ||
+                        trigger.startsWith("合并后的自主生活回顾") ||
+                        trigger.startsWith("真实生活后续回想") ||
+                        trigger.startsWith("角色自己先前有过") ||
+                        trigger.startsWith("角色自己刚完成") ||
+                        trigger.startsWith("居民小事到了") ||
+                        trigger.startsWith("强烈情绪的后续整理")
+                    if (lowUrgencyLifeReview && onlineExpiryAtMillis == 0L) {
+                        val previousAt = prefs.getLong("last_evaluation_$characterId", 0L)
+                        val eligibleAt = previousAt + policy.onlinePulseSeconds * 1_000L
+                        val nowMs = now.toEpochMilli()
+                        if (previousAt > 0L && nowMs < eligibleAt) {
+                            // Online has its own pulse/expiry clock. Re-enqueueing a
+                            // deferred worker here can wake alongside the expiry
+                            // decision and pay for the very same empty observation.
+                            if (!trigger.startsWith("在线持续感知")) {
+                                ProactivePerceptionScheduler.scheduleCoalescedLifeReview(
+                                    appContext, characterId, eligibleAt - nowMs + 250L,
+                                    onlineOnly = false,
+                                    eligibleAtMillis = eligibleAt,
+                                )
+                            }
+                            continue
+                        }
+                    }
+                    val pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false) &&
+                        CharacterOpenConcernRuntime.recent(
+                            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+                        ).isNotEmpty()
+                    val effectiveTrigger = when {
+                        onlineExpiryAtMillis > 0L -> trigger
+                        trigger.contains("挂心") || trigger.contains("承诺") -> trigger
+                        pendingConcern -> "挂心/承诺待回看"
+                        else -> trigger
+                    }
+                    if (motiveReviewId.isNotBlank() && !CharacterInnerLifeStore.claimMotiveReview(
+                            characterId, motiveReviewId, motiveReviewToken, Instant.now())) continue
+                    check(prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).commit()) {
+                        "感知时间未保存"
+                    }
+                    if (!preserveOffline && (!force || !CompanionOnlineStore.isOnline(characterId, now))) {
+                        CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception, effectiveTrigger, false, now)
+                    }
+                    CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
+                    val attempt = if (onlineRevision == null && policy.enabled) {
+                        AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now)
+                    } else null
+                    val result = runCatching {
+                        evaluateCharacter(appContext, conversation, effectiveTrigger, now,
+                            requiredInteractionEvidenceId, onlineExpiryAtMillis)
+                    }
+                    result.onSuccess { action ->
+                        AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
+                        evaluated += 1
+                        CharacterDevelopmentRuntime.request(characterId)
+                        val actionKey = "action_history_$characterId"
+                        val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
+                            .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)
+                        prefs.edit()
+                            .putString(actionKey, actionHistory.joinToString(","))
+                            .putBoolean("pending_concern_promise_$characterId", false)
+                            .remove("silent_count_$characterId")
+                            .apply()
+                    }.onFailure { error ->
+                        // This persists recovery even when JobScheduler cancels the coroutine.
+                        // Interrupted tool execution is never blindly replayed as a new action.
+                        AutonomousPerceptionAttempts.finish(appContext, attempt, failed = true)
+                        if (error is kotlinx.coroutines.CancellationException) {
+                            CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知中断；保留已保存的执行记录", Instant.now())
+                            throw error
+                        }
+                        CompanionPresenceStore.recordPerceptionAttempt(
+                            characterId,
+                            "感知失败 · ${error.message.orEmpty().ifBlank { error::class.java.simpleName }.take(120)}",
+                            now,
+                        )
+                        if (onlineRevision != null && requiresUnread) chatBatchError = error
+                    }
                 }
-            }
-            // A transient model/executor failure must not acknowledge the unread
-            // batch as consumed. The worker can retry the SAME revision.
-            chatBatchError?.let { throw it }
-            evaluated
-        } finally {
-            if (onlineRevision != null && targetCharacterId != null) {
-                OnlineChatBatchStore.finish(context, targetCharacterId, onlineRevision,
-                    completed = chatBatchError == null &&
-                        currentCoroutineContext()[kotlinx.coroutines.Job]?.isCancelled != true)
+                // A transient model/executor failure must not acknowledge the unread
+                // batch as consumed. The worker can retry the SAME revision.
+                chatBatchError?.let { throw it }
+                evaluated
+            } finally {
+                if (onlineRevision != null && targetCharacterId != null) {
+                    OnlineChatBatchStore.finish(context, targetCharacterId, onlineRevision,
+                        completed = chatBatchError == null &&
+                            currentCoroutineContext()[kotlinx.coroutines.Job]?.isCancelled != true)
+                }
             }
         }
     }

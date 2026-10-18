@@ -141,6 +141,8 @@ internal fun LuluGroupVoiceCallScreen(
                 eventId = "group-call-$callId-${member.characterId}",
                 characterId = member.characterId,
                 channel = "群聊电话·${group.name}",
+                sessionId = conversationId,
+                source = "group-call",
                 speaker = "共同通话",
                 content = "和用户及群成员进行了一次约 ${elapsedSeconds.coerceAtLeast(1)} 秒的群聊电话。",
                 occurredAt = occurredAt,

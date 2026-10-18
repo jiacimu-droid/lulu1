@@ -4,6 +4,8 @@ import android.content.Context
 import java.time.Instant
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -15,10 +17,22 @@ class WorldLifeEpisodeStoreTest {
     private val context get() = RuntimeEnvironment.getApplication() as Context
     private val role = "unit-test-solo-life"
 
+    @Before fun before() {
+        MemoryTestEnvironment.release()
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+    }
+    @After fun after() { MemoryTestEnvironment.release() }
+    private fun fact(id: String, at: Instant) {
+        SharedExperienceTimeline.record(id, role, "数字世界", "执行器", "真实世界动作已完成", at,
+            triggerExtraction = false)
+    }
+
     @Test fun followupActionsAtSamePlaceShareOneEpisode() {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)
         val start = Instant.parse("2026-10-14T09:00:00Z")
+        fact("world-evidence-42", start)
         val prose = "他在自己实际到达的地点度过一段时间，想着没说出口的话。".repeat(5)
         try {
             assertNull(WorldLifeEpisodeStore.recentAt(role, "shared:cloud_meadow", start))
@@ -43,6 +57,7 @@ class WorldLifeEpisodeStoreTest {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)
         val whenHappened = Instant.now().minusSeconds(120)
+        fact("evidence-night-2", whenHappened)
         val prose = "他在家里想起刚刚发生的那句话。".repeat(12)
         try {
             val entry = WorldLifeEpisodeStore.record(
@@ -66,6 +81,7 @@ class WorldLifeEpisodeStoreTest {
     @Test fun verifiedWorldActionCanBecomeOneDurableClickThroughButTextAloneCannot() {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)
+        fact("real-world-evidence-id", Instant.parse("2026-10-14T06:00:00Z"))
         val prose = "他踏上真正已经存在的长椅旁的路，慢慢留意午后光影。" .repeat(6)
         try {
             assertNull(WorldLifeEpisodeStore.record(role, "garden", "午后", prose,
@@ -85,4 +101,26 @@ class WorldLifeEpisodeStoreTest {
             WorldLifeEpisodeStore.clear(role)
         }
     }
+    @Test fun lateProseCannotSurviveSourceEditingDeletionOrHistoryReset() {
+        WorldLifeEpisodeStore.initialize(context)
+        WorldLifeEpisodeStore.clear(role)
+        val at = Instant.now()
+        fact("late-scene-source", at)
+        val expected = SharedExperienceTimeline.eventsByIds(role, listOf("late-scene-source")).single()
+        SharedExperienceTimeline.record(expected.id, role, "数字世界", "执行器", "已更正的实际动作", at,
+            triggerExtraction = false)
+        assertNull(WorldLifeEpisodeStore.record(role, "garden", "过期", "一段完整的个人叙事。".repeat(20),
+            expected.content, expected.id, at, expectedSource = expected))
+        SharedExperienceTimeline.deleteEvent(expected.id)
+        assertNull(WorldLifeEpisodeStore.record(role, "garden", "迟到", "一段完整的个人叙事。".repeat(20),
+            expected.content, expected.id, at))
+        assertTrue(WorldLifeEpisodeStore.episodes(role).isEmpty())
+        fact("reset-source", at)
+        val beforeReset = SharedExperienceTimeline.eventsByIds(role, listOf("reset-source")).single()
+        SharedExperienceTimeline.deleteCharacterEvents(role)
+        WorldLifeEpisodeStore.clear(role)
+        assertNull(WorldLifeEpisodeStore.record(role, "garden", "旧生活", "一段完整的个人叙事。".repeat(20),
+            beforeReset.content, beforeReset.id, at, expectedSource = beforeReset))
+    }
+
 }

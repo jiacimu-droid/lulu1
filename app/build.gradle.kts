@@ -36,8 +36,11 @@ android {
         applicationId = "app.lulu"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        val releaseNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.coerceIn(1, 2_000_000_000) ?: 1
+        val revision = System.getenv("GITHUB_SHA")?.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) }?.take(12) ?: "local"
+        versionCode = releaseNumber
+        versionName = "1.0.$releaseNumber"
+        buildConfigField("String", "BUILD_REVISION", "\"$revision\"")
     }
 
     sourceSets {
