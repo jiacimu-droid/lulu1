@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
@@ -10,6 +11,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.CancellationException
+import java.util.concurrent.TimeUnit
 
 /** Literary work follows an already committed fact; it never holds the live reply lock. */
 class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -23,7 +25,7 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 ?: return@withLock Result.success()
             if (source.revision != inputData.getLong("revision", -1L)) return@withLock Result.success()
             if (WorldLifeEpisodeStore.episodes(role).any { it.evidenceId == id } ||
-                WorldLifeEpisodeStore.recentAt(role, location, source.occurredAt) != null)
+                WorldLifeEpisodeStore.nearbyAt(role, location, source.occurredAt) != null)
                 return@withLock Result.success()
             val composition = try {
                 WorldLifeEpisodeComposer.compose(role, location, source.content,
@@ -34,20 +36,42 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
             } catch (error: Exception) {
                 WorldLifeComposeOutcome(failureReason = error.message.orEmpty().take(55))
             }
-            val episode = composition.draft?.let { draft ->
-                WorldLifeEpisodeStore.record(role, location, draft.title, draft.scene,
-                    source.content, id, source.occurredAt, draft.unresolvedThread, expectedSource = source)
-            }
-            // A removed/edited fact has no late prose or misleading failure notice.
+            // Source deletion, editing or an old outstanding job must never
+            // publish a ghost scene or a bogus failure message.
             if (SharedExperienceTimeline.eventsByIds(role, listOf(id)).firstOrNull() != source)
                 return@withLock Result.success()
-            if (episode != null) {
+            if (composition.draft == null) {
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "独处写作",
+                    title = "独处片段补写 · 第${runAttemptCount + 1}次",
+                    message = composition.failureReason.take(160).ifBlank { "没有得到完整正文" },
+                )
+                // The former Result.success() permanently discarded every
+                // interrupted/failed novel; keep the same original receipt
+                // and try it again later, without executing a second world action.
+                if (runAttemptCount < 2 && composition.retryable) return@withLock Result.retry()
+                // One concise final notice only after retry exhaustion, rather
+                // than a string of failure notices inside the character chat.
+                MigratedDomainStores.chat.appendPrivateActivityNotice(
+                    role, "独处片段暂未补写成功 · 真实世界动作已保存，可查看模型请求日志")
+                return@withLock Result.success()
+            }
+            val draft = composition.draft
+            val episode = try {
+                WorldLifeEpisodeStore.record(role, location, draft.title, draft.scene,
+                    source.content, id, source.occurredAt, draft.unresolvedThread, expectedSource = source)
+            } catch (error: Exception) {
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "独处写作", title = "独处片段持久化失败",
+                    message = error.message.orEmpty().take(140))
+                if (runAttemptCount < 2) return@withLock Result.retry()
+                return@withLock Result.failure()
+            }
+            if (episode != null &&
+                SharedExperienceTimeline.eventsByIds(role, listOf(id)).firstOrNull() == source) {
                 val name = MigratedDomainStores.characters.get(role).displayName
                 MigratedDomainStores.chat.appendPrivateActivityNotice(role,
                     "[独处片段|${episode.id}] ${name}的《${episode.title}》 · 查看片段")
-            } else if (composition.draft == null) {
-                MigratedDomainStores.chat.appendPrivateActivityNotice(role,
-                    "${source.content.take(180)} · 独处片段未完成（${composition.failureReason.take(55).ifBlank { "正文未完成" }}）")
             }
             Result.success()
         }
@@ -63,13 +87,14 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 .joinToString("；") { "${it.name}（${it.position.take(65)}）" }.take(900)
             val request = OneTimeWorkRequestBuilder<WorldLifeEpisodeWorker>()
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 2, TimeUnit.MINUTES)
                 .setInputData(Data.Builder().putString("characterId", characterId)
                     .putString("location", location).putString("evidenceId", evidenceId)
                     .putLong("revision", source.revision).putString("items", items)
                     .putString("title", title.take(70)).putString("seed", seed.take(500)).build())
                 .build()
             WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
-                "lulu-world-prose-$characterId-$location", ExistingWorkPolicy.KEEP, request)
+                "lulu-world-prose-$characterId-$evidenceId", ExistingWorkPolicy.KEEP, request)
         }
     }
 }
