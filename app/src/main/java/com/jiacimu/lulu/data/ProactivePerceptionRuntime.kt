@@ -470,11 +470,21 @@ object ProactivePerceptionRuntime {
             it.groupChat?.members?.any { member -> member.characterId == characterId } == true
         }
         val onlineUnread = CompanionOnlineStore.unreadChatSnapshot(characterId)
+        // Normal live chat is generated here, in the same paid decision call.
+        // Do not leave conversational context only on the legacy chat-page path.
+        val privateDialogue = PrivateChatExpressionContext.unreadConversation(
+            characterId, conversation.id,
+            messages.filter { DigitalLifeProfileStore.allowsTimestamp(characterId, it.createdAt) },
+            onlineUnread,
+        )
+        val privateInput = privateDialogue.lastOrNull()?.content.orEmpty()
         val userActivities = collectUserActivities(characterId)
         val pendingUserContext = userActivities.filter {
             it.awaitingReply && it.message.id in onlineUnread.messageIds
         }.take(12).joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
-        val recentUserActivityContext = userActivities.take(12)
+        val recentUserActivityContext = userActivities.filter {
+            privateDialogue.isEmpty() || it.message.id !in onlineUnread.messageIds
+        }.take(12)
             .joinToString("\n") { formatUserActivity(it, zoneId) }.take(4_000)
         val recent = messages.filterNot { it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[共同活动]") }.takeLast(20).joinToString("\n") { message ->
             val speaker = when (message.sender) {
@@ -656,11 +666,12 @@ object ProactivePerceptionRuntime {
                 }
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
-                    appendLine(onlineUnread.text.takeLast(5_000))
+                    if (privateDialogue.isEmpty()) appendLine(onlineUnread.text.takeLast(5_000))
+                    else appendLine("这是后面真实对话末尾的用户新消息；本轮可引用/收藏的真实消息ID：${onlineUnread.messageIds.joinToString()}。")
                 }
                 appendLine("\n【长期上下文层】")
                 if (continuityContext.isNotBlank()) appendLine(continuityContext)
-                appendLine(CharacterExpressionContinuity.guide())
+                if (privateDialogue.isEmpty()) appendLine(CharacterExpressionContinuity.guide())
                 // The same persistent concerns that private chat and calls use:
                 // a chosen quiet interval must not wipe an unfinished thought.
                 appendLine(CharacterOpenConcernRuntime.context(
@@ -699,14 +710,15 @@ object ProactivePerceptionRuntime {
                     appendLine(it.summary)
                     appendLine("incidentId=${it.incidentId}；status=${it.status}；stage=${it.stage}；anchorItemId=${it.anchorItemId}")
                 }
-                if (pendingUserContext.isNotBlank()) {
+                if (privateDialogue.isEmpty() && pendingUserContext.isNotBlank()) {
                     appendLine("【本轮仍未回应的真实新消息】")
                     appendLine("仅依据本轮确实未读的消息来决定要不要回复。更早的聊天、照片与已送达回答只是共同历史，不得作为新通知重新回答。")
                     appendLine(pendingUserContext)
                 }
-                if (recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
+                if (privateDialogue.isEmpty() && recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
             instruction = proactiveDecisionInstruction(characterId) + "\n" +
+                (if (privateDialogue.isNotEmpty()) privateConversationInstruction(privateInput, recent) + "\n" else "") +
                 (if (onlineExpiryAtMillis > 0L) """
                     【五分钟自主续醒决定｜本轮必须回答】
                     你的原在线窗口已经到期。这次仍使用平时同一套人格、记忆、情绪、挂心、决策与行动能力。
@@ -729,8 +741,9 @@ object ProactivePerceptionRuntime {
             // Headroom keeps a final JSON brace from being cut off.
             maxTokens = 3_000,
             connectionOverride = connection,
+            conversation = privateDialogue,
             memoryRequest = UnifiedMemoryRequest(
-                currentInput = listOf(onlineUnread.text, salientInteraction?.content.orEmpty())
+                currentInput = listOf(privateInput.ifBlank { onlineUnread.text }, salientInteraction?.content.orEmpty())
                     .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
                 recentContext = listOf(recent, recentLifeContext, pendingUserContext, commitments)

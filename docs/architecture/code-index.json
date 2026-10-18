@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T18:02:21.166379+00:00",
-  "commit": "fb4290ffff527920acfe710871b70d9ed2336e3f",
-  "branch": "main",
-  "sourceFingerprint": "64444c91a4834772ec3289b6df8ae9de2d2aff194e84cb103d8c589e71b1dada",
+  "generatedAt": "2026-10-18T01:43:59.707372+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "73a882a8cdd0a3b74e078fd0fb22a47607461d7302f738acbb76f33d6fecf062",
   "summary": {
     "files": 704,
-    "lines": 135941,
-    "symbols": 2048
+    "lines": 136061,
+    "symbols": 2049
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -543,7 +543,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1110
+        "line": 1114
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2921,19 +2921,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 957
+        "line": 961
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 969
+        "line": 973
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1100
+        "line": 1104
       }
     ],
     "ModelConversationMessage": [
@@ -7274,10 +7274,16 @@
         "line": 25
       }
     ],
+    "unreadConversation": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
+        "line": 10
+      }
+    ],
     "conversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
-        "line": 9
+        "line": 22
       }
     ],
     "ProactiveIncomingCall": [
@@ -7367,7 +7373,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1687
+        "line": 1700
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -13981,8 +13987,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1118,
-      "sha256": "1b1769d3f643c759d58fe1683df036ff8c3856cc7ba5baa064dc432d93a660c9",
+      "lines": 1122,
+      "sha256": "8cee4f760d9cdafa590d64cf0ad7189c0dba519d58dc6fe2afca2a88b23c6abb",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -14074,19 +14080,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 957
+          "line": 961
         },
         {
           "name": "consumeEvent",
-          "line": 969
+          "line": 973
         },
         {
           "name": "LuluAiServices",
-          "line": 1100
+          "line": 1104
         },
         {
           "name": "initialize",
-          "line": 1110
+          "line": 1114
         }
       ]
     },
@@ -18574,19 +18580,23 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
-      "lines": 45,
-      "sha256": "d5020b392eb8f1c56d74ec0d525a0568998e69124b3953609f8e42f082e13e22",
+      "lines": 59,
+      "sha256": "6caf2a6a7fc7a0b52c66f8842ac892c12f57268f41698534474507f717fb2bd7",
       "symbols": [
         {
+          "name": "unreadConversation",
+          "line": 10
+        },
+        {
           "name": "conversation",
-          "line": 9
+          "line": 22
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 111,
-      "sha256": "8f615bc2ed5cfaf6f01768205c0439ffbf5e3ecf950321f5b2e9a3f020236714",
+      "lines": 121,
+      "sha256": "d7e627b1d762247b8e039cd275052591bca504c4943e2a6b69213fbf844dd565",
       "symbols": []
     },
     {
@@ -18687,8 +18697,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1754,
-      "sha256": "44ccac05e12c5931805e4fa56b712f7b31158c3b7a0de395849ff29fb1758a6c",
+      "lines": 1767,
+      "sha256": "3e63fd050bacd883563c2361e470c5026d5f28ab073eace26f1924fe939a36a7",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -18712,7 +18722,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1687
+          "line": 1700
         }
       ]
     },
@@ -23428,8 +23438,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 165,
-      "sha256": "a054e8f9a82004f4cbe4ce4bec36af4976c6ce2683f45b1df0591b3d15b0899a",
+      "lines": 229,
+      "sha256": "7db7ddd83c34d4e26b4f1548aaf0bee1310ee2d3775a0491d1875dcc3a47808a",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -23922,8 +23932,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt",
-      "lines": 53,
-      "sha256": "5dbf57ea917e1b80bb6ba08251d5c3f5e8ab577aac976520a52c4bd1ecef3e00",
+      "lines": 68,
+      "sha256": "e091b50b81f740038a65cc7e9a3afe02b9d1cdaa1d4504497af4c1b2d3ca7000",
       "symbols": [
         {
           "name": "PrivateChatExpressionContextTest",

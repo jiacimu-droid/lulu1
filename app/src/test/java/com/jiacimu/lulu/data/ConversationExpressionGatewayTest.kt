@@ -161,4 +161,68 @@ class ConversationExpressionGatewayTest {
             assertEquals(2, server.requestCount)
         } finally { server.shutdown() }
     }
+
+    @Test(timeout = 60_000) fun normalOnlineReplyUsesTheActualConversationInOneDecisionAndReallyDelivers() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        listOf("prefs", "appContext").forEach { name ->
+            CompanionOnlineStore.javaClass.getDeclaredField(name).apply { isAccessible = true }
+                .set(CompanionOnlineStore, null)
+        }
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        CompanionOnlineStore.initialize(context)
+        LuluAiServices.initialize(context)
+        com.jiacimu.lulu.study.PostgraduateExamStores.initialize(context)
+        com.jiacimu.lulu.study.StarWishStores.initialize(context)
+        val role = MigratedDomainStores.characters.create("日常在线回复入口回归", "有自己的判断，认真听人说话")
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, "test")
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "还得接着读。")
+        MigratedDomainStores.chat.appendCharacterMessage(chat.id, "你在担心什么？", role.characterId)
+        CompanionOnlineStore.markSeen(role.characterId, CompanionOnlineStore.unreadChatSnapshot(role.characterId))
+        val current = MigratedDomainStores.chat.sendUserMessage(chat.id, "不读书就没钱，")
+        OnlineChatBatchStore.cancel(context, role.characterId)
+        val batch = OnlineChatBatchStore.onUserBubble(context, role.characterId,
+            atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
+        val spoken = "你是在担心以后的生活，对吗？"
+        val answer = JSONObject().put("choices", JSONArray().put(JSONObject().put("message",
+            JSONObject().put("content", JSONObject().put("action", "message").put("text", spoken)
+                .put("reason", "想确认她现在真正担心的事").toString())).put("finish_reason", "stop"))).toString()
+        val server = MockWebServer()
+        server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
+            override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest) = MockResponse()
+                .setHeader("Content-Type", "application/json").setBody(answer)
+        }
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test", server.url("/").toString(), "test-only")
+            LuluAiServices.connectionStore.addArchive(config.id, "test")
+            assertEquals(1, ProactivePerceptionRuntime.runDueCycle(context, "私聊新消息", role.characterId,
+                force = true, onlineRevision = batch.revision, requiresUnread = true))
+            assertEquals(1, server.requestCount)
+            val body = JSONObject(server.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8())
+            val messages = body.getJSONArray("messages")
+            assertEquals(4, messages.length())
+            assertEquals("还得接着读。", messages.getJSONObject(1).getString("content"))
+            assertEquals("assistant", messages.getJSONObject(2).getString("role"))
+            assertEquals("你在担心什么？", messages.getJSONObject(2).getString("content"))
+            assertEquals("user", messages.getJSONObject(3).getString("role"))
+            assertEquals(current.content, messages.getJSONObject(3).getString("content"))
+            val system = messages.getJSONObject(0).getString("content")
+            assertTrue(system.contains("此刻是在和对方继续一段私聊"))
+            assertTrue(system.contains("担忧本身可以成立"))
+            assertTrue(system.contains("无需总比她懂得更多"))
+            assertTrue(MigratedDomainStores.chat.messages(chat.id).value.any {
+                it.sender == LuluChatMessage.Sender.Character && it.content == spoken
+            })
+            assertFalse(current.id in CompanionOnlineStore.unreadChatSnapshot(role.characterId).messageIds)
+        } finally {
+            OnlineChatBatchStore.cancel(context, role.characterId)
+            server.shutdown()
+        }
+    }
 }

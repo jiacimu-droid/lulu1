@@ -49,4 +49,19 @@ class PrivateChatExpressionContextTest {
         assertEquals(listOf("最近的回复", current), result.map { it.content })
         assertTrue(PrivateChatExpressionContext.conversation("role", messages, setOf("missing"), current).isEmpty())
     }
+
+    @Test fun onlineUnreadConversationUsesOnlyOnePrivateSceneAndActualUserSenders() {
+        val messages = listOf(
+            message("a", LuluChatMessage.Sender.Character, "刚才的话", "role"),
+            message("b", LuluChatMessage.Sender.User, "不读书就没钱，"),
+        )
+        val unread = CompanionUnreadSnapshot("有场景和时间包装的原始快照", null,
+            conversationIds = setOf("private"), messageIds = setOf("b"))
+        val result = PrivateChatExpressionContext.unreadConversation("role", "private", messages, unread)
+        assertEquals("不读书就没钱，", result.last().content)
+        assertTrue(PrivateChatExpressionContext.unreadConversation("role", "private", messages,
+            unread.copy(conversationIds = setOf("private", "group"))).isEmpty())
+        assertTrue(PrivateChatExpressionContext.unreadConversation("role", "private", messages,
+            unread.copy(messageIds = setOf("a"))).isEmpty())
+    }
 }

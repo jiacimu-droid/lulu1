@@ -6,6 +6,20 @@ import com.jiacimu.lulu.recalledMessageIds
 
 /** Build dialogue only from the current private chat's persisted messages, never parse a transcript. */
 internal object PrivateChatExpressionContext {
+    /** Mixed scenes stay in the autonomous multi-scene path; never attribute a group turn to the user. */
+    fun unreadConversation(
+        characterId: String,
+        conversationId: String,
+        messages: List<LuluChatMessage>,
+        unread: CompanionUnreadSnapshot,
+    ): List<ModelConversationMessage> {
+        if (unread.conversationIds != setOf(conversationId) || unread.messageIds.isEmpty()) return emptyList()
+        val pending = messages.filter { it.id in unread.messageIds && it.sender == LuluChatMessage.Sender.User }
+        if (pending.mapTo(mutableSetOf()) { it.id } != unread.messageIds) return emptyList()
+        return conversation(characterId, messages, unread.messageIds,
+            pending.joinToString("\n") { qqForwardContextText(it.content) })
+    }
+
     fun conversation(
         characterId: String,
         messages: List<LuluChatMessage>,
