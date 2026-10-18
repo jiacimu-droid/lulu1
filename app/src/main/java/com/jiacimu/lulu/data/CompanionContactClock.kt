@@ -13,7 +13,8 @@ internal object CompanionContactClock {
                 (event.channel == "私聊" || event.channel.contains("群聊") ||
                     event.channel.contains("电话") || event.channel.contains("见面"))
         }.map { it.occurredAt }
-        return describe(times, now)
+        val rhythm = RelationshipRhythmPerception.context(SharedExperienceTimeline.all(characterId), now)
+        return listOf(describe(times, now), rhythm).filter(String::isNotBlank).joinToString("\n")
     }
 
     fun describe(times: List<Instant>, now: Instant): String {
