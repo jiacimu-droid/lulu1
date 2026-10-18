@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T01:46:43.720027+00:00",
-  "commit": "0d28d7508cf9483a0385a4e0e7c1b90b23a3f2cf",
+  "generatedAt": "2026-10-18T01:47:37.879149+00:00",
+  "commit": "fa3c0def43b7c57f273f17d46e86b3a812699adf",
   "branch": "main",
-  "sourceFingerprint": "4ad40cebf1378790024e8330c3c9760c98cfbf084cfddd057a6ce1e98377ed3a",
+  "sourceFingerprint": "6cd83a5ef57d6de4aad89f8479c35dd165d5d6c1db807a2c728ec7a6242c3e86",
   "summary": {
     "files": 704,
-    "lines": 136062,
+    "lines": 136069,
     "symbols": 2049
   },
   "symbolIndex": {
@@ -3383,7 +3383,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 48
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -7751,7 +7751,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 90
+        "line": 93
       }
     ],
     "remember": [
@@ -7983,13 +7983,13 @@
     "episodes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 45
+        "line": 47
       }
     ],
     "recentAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 55
+        "line": 57
       }
     ],
     "ready": [
@@ -19443,24 +19443,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-      "lines": 156,
-      "sha256": "2fc95929f9ee472fae9713104c53bcd1ab43bc78959a167f2568d5daba0163c8",
+      "lines": 163,
+      "sha256": "99567285179c8a1c2617f12b58f155860c45ad1498008529b56e3ff0111916cf",
       "symbols": [
         {
           "name": "episodes",
-          "line": 45
+          "line": 47
         },
         {
           "name": "find",
-          "line": 48
+          "line": 50
         },
         {
           "name": "recentAt",
-          "line": 55
+          "line": 57
         },
         {
           "name": "recentContext",
-          "line": 90
+          "line": 93
         }
       ]
     },
