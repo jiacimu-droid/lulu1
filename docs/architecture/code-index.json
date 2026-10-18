@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T17:05:46.022251+00:00",
-  "commit": "24b41edc54a4ca893a0bad6607c115029a5330b5",
+  "generatedAt": "2026-10-18T17:32:44.896380+00:00",
+  "commit": "eaedf7ca36e9eb3a14af31ba8ad481a287925ca7",
   "branch": "main",
-  "sourceFingerprint": "e36806be378cd7d4e98bd8ea9903c15eea85bd5ad0db5ee671f95736e4c3a0dc",
+  "sourceFingerprint": "a5da010556c0aed36d06fc4657a8bb36844203e112159faddc3a910afc278695",
   "summary": {
     "files": 717,
-    "lines": 137283,
+    "lines": 137308,
     "symbols": 2075
   },
   "symbolIndex": {
@@ -8103,7 +8103,7 @@
     "WorldLifeEpisodeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "ready": [
@@ -19716,12 +19716,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
-      "lines": 76,
-      "sha256": "4284c916ca2c14c4c625b15e9b97f2fafaebef15bd48cc6a60bbac8d48440079",
+      "lines": 101,
+      "sha256": "7a3c9e81d2be9dc049d861ef981be6a96a244125a13c457808bfe93cec9aac4f",
       "symbols": [
         {
           "name": "WorldLifeEpisodeWorker",
-          "line": 15
+          "line": 17
         }
       ]
     },
