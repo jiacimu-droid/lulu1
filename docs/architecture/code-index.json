@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T17:03:27.678001+00:00",
-  "commit": "ea716ee5b1f010f60eb4c5ffde76c58014acfa85",
+  "generatedAt": "2026-10-18T17:04:15.274559+00:00",
+  "commit": "34a66281e734659e1ee3815b59f6ba2dc883fea0",
   "branch": "main",
-  "sourceFingerprint": "0156287e9f969124639586fdf76442d757032567bfe2df7371f9c12c28afbffd",
+  "sourceFingerprint": "4bac4f2d76cb3b442fb5cc6aa78048b180000c87a8c5fdc56e98511952851e39",
   "summary": {
-    "files": 716,
-    "lines": 137194,
-    "symbols": 2074
+    "files": 717,
+    "lines": 137252,
+    "symbols": 2075
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11404,6 +11404,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt",
         "line": 6
+      }
+    ],
+    "RelationshipRhythmPerceptionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt",
+        "line": 7
       }
     ],
     "RelativeContactCommitmentParserTest": [
@@ -24347,6 +24353,17 @@
         {
           "name": "RelationshipPreferencesTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt",
+      "lines": 58,
+      "sha256": "8cf6c152fdce2811eaf9e04c7f67f26bf32a5ccfd358e698e58d70187dde5e7c",
+      "symbols": [
+        {
+          "name": "RelationshipRhythmPerceptionTest",
+          "line": 7
         }
       ]
     },
