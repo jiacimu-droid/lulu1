@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T01:49:25.727082+00:00",
-  "commit": "cda592283836c88480ba88c46ccd893f7a14e20e",
+  "generatedAt": "2026-10-18T01:50:32.529240+00:00",
+  "commit": "75b9b8c5a398b7be9396b09e4ec4ec7f007f8b82",
   "branch": "main",
-  "sourceFingerprint": "6d7745d94c5083a9d535dff7a6a6ca10e676f5cf292a1ee6e08ee05bfd7b7567",
+  "sourceFingerprint": "c18d458037137b83b81e1ec2b6c4a844360ff67ea6d03fe20b538ac3b5ae203d",
   "summary": {
-    "files": 704,
-    "lines": 136114,
-    "symbols": 2049
+    "files": 705,
+    "lines": 136145,
+    "symbols": 2050
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11354,6 +11354,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt",
         "line": 16
+      }
+    ],
+    "WorldLifeEpisodeComposerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt",
+        "line": 5
       }
     ],
     "WorldLifeEpisodeStoreTest": [
@@ -24181,6 +24187,17 @@
         {
           "name": "WorldInteractionRegressionTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt",
+      "lines": 31,
+      "sha256": "e0f344fb84947860221418b1c9d76b5bf2dfb46e8236ba51c1e0aa9044424e3e",
+      "symbols": [
+        {
+          "name": "WorldLifeEpisodeComposerTest",
+          "line": 5
         }
       ]
     },
