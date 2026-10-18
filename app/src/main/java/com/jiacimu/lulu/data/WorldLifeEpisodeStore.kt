@@ -25,6 +25,8 @@ internal data class WorldLifeEpisode(
     val scene: String,
     val actualAction: String,
     val evidenceId: String,
+    /** A subjective, unresolved inner question for the NEXT chapter; not a world fact. */
+    val unresolvedThread: String = "",
 )
 
 internal object WorldLifeEpisodeStore {
@@ -67,6 +69,7 @@ internal object WorldLifeEpisodeStore {
         actualAction: String,
         evidenceId: String,
         now: Instant = Instant.now(),
+        unresolvedThread: String = "",
     ): WorldLifeEpisode? {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return null
         val scene = prose.trim().replace(Regex("\\n{4,}"), "\n\n").take(1_800)
@@ -78,7 +81,7 @@ internal object WorldLifeEpisodeStore {
             occurredAt = now, location = location.take(100),
             title = title.trim().take(70).ifBlank { "一个人的片刻" },
             scene = scene, actualAction = actualAction.take(280),
-            evidenceId = evidenceId,
+            evidenceId = evidenceId, unresolvedThread = unresolvedThread.trim().take(220),
         )
         val next = (prior + episode).takeLast(MAX_PER_CHARACTER)
         check(prefs?.edit()?.putString(characterId, encode(next))?.commit() == true) {
@@ -98,6 +101,9 @@ internal object WorldLifeEpisodeStore {
         else "今天较早时真实经历过一段独处（约${elapsed}分钟前；不可当作刚发生）：") +
             "${episode.title}；唯一核实的世界动作：${episode.actualAction}。" +
             "当时的主观叙事（不是新世界事实）：${episode.scene.take(260)}。" +
+            episode.unresolvedThread.takeIf(String::isNotBlank)?.let {
+                "人物仍有的主观疑问（不是已发生的客观事件）：${it}。"
+            }.orEmpty() +
             (if (recentEnoughForContinuation)
                 "同一地点的日常动作应接着这段时间继续，不要隔几分钟重复生成走路、坐下的小回执。"
             else "你可以因此产生自己的回味或新决定，但不要复演原剧情、把主观想象说成世界事实。")
@@ -134,7 +140,7 @@ internal object WorldLifeEpisodeStore {
                 .put("occurredAt", e.occurredAt.toString())
                 .put("location", e.location).put("title", e.title)
                 .put("scene", e.scene).put("actualAction", e.actualAction)
-                .put("evidenceId", e.evidenceId))
+                .put("evidenceId", e.evidenceId).put("unresolvedThread", e.unresolvedThread))
         }
     }.toString()
 
@@ -149,7 +155,8 @@ internal object WorldLifeEpisodeStore {
             if (id.isBlank() || characterId.isBlank()) return@mapNotNull null
             WorldLifeEpisode(id, characterId, time, e.optString("location"),
                 e.optString("title"), e.optString("scene"),
-                e.optString("actualAction"), e.optString("evidenceId"))
+                e.optString("actualAction"), e.optString("evidenceId"),
+                e.optString("unresolvedThread"))
         }.takeLast(MAX_PER_CHARACTER)
     }.getOrDefault(emptyList())
 }
