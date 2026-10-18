@@ -121,6 +121,7 @@ internal object LuluVoiceCallSession {
     // Text typed in the private chat during a call is the same conversation,
     // not a second online-chat request or an invented microphone transcript.
     private val incomingChatDrafts = mutableListOf<String>()
+    private val incomingChatEvidenceIds = mutableListOf<String>()
     private var incomingChatJob: Job? = null
 
     /**
@@ -202,10 +203,11 @@ internal object LuluVoiceCallSession {
         return call.connected && call.conversationId == conversationId
     }
 
-    fun onTextChatMessage(conversationId: String, content: String): Boolean {
+    fun onTextChatMessage(conversationId: String, content: String, evidenceId: String): Boolean {
         if (!isActiveForChat(conversationId) || content.isBlank()) return false
         val callId = mutableState.value.callExperienceId
         incomingChatDrafts.add(content.trim())
+        incomingChatEvidenceIds.add(evidenceId)
         incomingChatJob?.cancel()
         incomingChatJob = scope.launch {
             // A cluster of QQ chat bubbles is one human turn, not N rapid phone replies.
@@ -214,9 +216,12 @@ internal object LuluVoiceCallSession {
                 mutableState.value.opening) delay(250L)
             if (!isActiveForChat(conversationId) || mutableState.value.callExperienceId != callId) return@launch
             val typed = incomingChatDrafts.joinToString("\n").trim()
+            val evidenceIds = incomingChatEvidenceIds.toList()
             incomingChatDrafts.clear()
+            incomingChatEvidenceIds.clear()
             if (typed.isBlank()) return@launch
-            handleUserSpeech(typed, allowWhileMuted = true, alreadyPersisted = true)
+            handleUserSpeech(typed, allowWhileMuted = true, alreadyPersisted = true,
+                persistedUserEvidenceIds = evidenceIds)
         }
         return true
     }
@@ -571,6 +576,7 @@ internal object LuluVoiceCallSession {
         incomingChatJob?.cancel()
         incomingChatJob = null
         incomingChatDrafts.clear()
+        incomingChatEvidenceIds.clear()
         externalResultJob?.cancel()
         externalResultJob = null
         externalResults.clear()
@@ -1123,6 +1129,7 @@ internal object LuluVoiceCallSession {
         autonomousSleep: Boolean = false,
         autonomousSilence: Boolean = false,
         externalToolResult: com.jiacimu.lulu.data.SharedTimelineEvent? = null,
+        persistedUserEvidenceIds: List<String> = emptyList(),
     ) {
         val current = mutableState.value
         if (!current.connected || (!opening && !autonomousSleep && !autonomousSilence && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
@@ -1166,7 +1173,13 @@ internal object LuluVoiceCallSession {
             CallOpeningTurn.isWakeCallReason(current.incomingReason))
         val phoneXhsRequest = if (!opening && !autonomousSleep && !autonomousSilence &&
             spoken.isNotBlank())
-            com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(spoken) else null
+            com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(spoken)?.let { combined ->
+                if (!alreadyPersisted) combined else
+                    com.jiacimu.lulu.data.PhoneReadRequestEvidence.capture(current.characterId,
+                        current.conversationId, persistedUserEvidenceIds.distinct())?.mapNotNull {
+                        com.jiacimu.lulu.data.XhsExplicitReadIntent.parse(it.content)
+                    }?.lastOrNull() ?: combined
+            } else null
         var xhsDispatched = false
         replyJob?.cancel()
         replyIsSilence = autonomousSilence
@@ -1177,19 +1190,16 @@ internal object LuluVoiceCallSession {
             if (!alreadyPersisted) MigratedDomainStores.chat.appendVoiceMessage(current.conversationId,
                 "voice-${current.callExperienceId}-user-$generation", spoken, false)
         }
-        val turnUserEvidenceId = if (opening || autonomousSleep || autonomousSilence) ""
-        else if (!alreadyPersisted) "voice-${current.callExperienceId}-user-$generation"
-        else MigratedDomainStores.chat.messages(current.conversationId).value.lastOrNull {
-            it.sender == LuluChatMessage.Sender.User && it.content.isNotBlank() &&
-                spoken.contains(it.content) && it.createdAt.isAfter(Instant.now().minusSeconds(300))
-        }?.id.orEmpty()
-        if (phoneXhsRequest != null && turnUserEvidenceId.isNotBlank()) {
+        val turnUserEvidenceIds = if (opening || autonomousSleep || autonomousSilence) emptyList()
+        else if (!alreadyPersisted) listOf("voice-${current.callExperienceId}-user-$generation")
+        else persistedUserEvidenceIds.distinct()
+        if (phoneXhsRequest != null && turnUserEvidenceIds.isNotEmpty()) {
             val key = phoneXhsRequest.url.ifBlank { "keyword:" + phoneXhsRequest.keyword }
             val at = SystemClock.elapsedRealtime()
             if (lastPhoneXhsRequest != key || at - lastPhoneXhsRequestAt !in 0L..18_000L) {
                 xhsDispatched = appContext?.let { app ->
                     runCatching { com.jiacimu.lulu.data.PhoneXhsReadWorker.enqueue(app, current.characterId,
-                        current.conversationId, current.callExperienceId, turnUserEvidenceId, phoneXhsRequest) }
+                        current.conversationId, current.callExperienceId, turnUserEvidenceIds, phoneXhsRequest) }
                         .getOrDefault(false)
                 } == true
                 if (xhsDispatched) { lastPhoneXhsRequest = key; lastPhoneXhsRequestAt = at }
@@ -1335,7 +1345,7 @@ internal object LuluVoiceCallSession {
                 title = activeLabel,
                 archiveId = archiveId,
                 silenceObservationId = observationId,
-                userEvidenceIds = listOf(turnUserEvidenceId).filter(String::isNotBlank),
+                userEvidenceIds = turnUserEvidenceIds,
                 turnContext = if (externalToolResult != null)
                     "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
                 else if (scheduledWakeReason != null)

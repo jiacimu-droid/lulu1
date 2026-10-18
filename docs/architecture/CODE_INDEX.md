@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1108931c24f023b792e67604f5463cc2d0657bc0`
+- 基准提交：`1ab1b0c`
 - 分支：`main`
-- 已索引文件：714
-- 已索引代码/文本行：137001
-- 已发现符号：2065
+- 已索引文件：715
+- 已索引代码/文本行：137097
+- 已发现符号：2069
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -100,7 +100,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 571 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1871 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1881 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -343,7 +343,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 58 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 74 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 59 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 122 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 132 | 5 |
@@ -671,6 +671,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 39 | 1 |

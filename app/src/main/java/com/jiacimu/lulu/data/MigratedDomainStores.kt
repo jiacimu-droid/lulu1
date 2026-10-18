@@ -377,7 +377,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             replyToMessageId = replyToMessageId,
         ).also { message ->
             append(conversationId, message, incrementUnread = false)
-            com.jiacimu.lulu.LuluVoiceCallSession.onTextChatMessage(conversationId, message.content)
+            com.jiacimu.lulu.LuluVoiceCallSession.onTextChatMessage(conversationId, message.content, message.id)
         }
     }
 
