@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T17:03:15.732467+00:00",
-  "commit": "acd0232a05a2edd9b9ce24e020256db1a5650e3b",
+  "generatedAt": "2026-10-18T17:03:27.678001+00:00",
+  "commit": "ea716ee5b1f010f60eb4c5ffde76c58014acfa85",
   "branch": "main",
-  "sourceFingerprint": "f0ff4674f1e8ea9e0dca273cfde43571e9d6cc23818a5e57715ed3b35e1813e7",
+  "sourceFingerprint": "0156287e9f969124639586fdf76442d757032567bfe2df7371f9c12c28afbffd",
   "summary": {
     "files": 716,
-    "lines": 137193,
+    "lines": 137194,
     "symbols": 2074
   },
   "symbolIndex": {
@@ -5117,7 +5117,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 18
+        "line": 19
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
@@ -5127,7 +5127,7 @@
     "age": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 22
+        "line": 23
       }
     ],
     "CompanionOnlineReason": [
@@ -16366,8 +16366,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-      "lines": 50,
-      "sha256": "665e2e29509980087420588fec44df031ebdca588c1416f7798198175528cd32",
+      "lines": 51,
+      "sha256": "8de4e78032277e5fd579ad90e78650769937daed215ecac1864cc07cbef111ef",
       "symbols": [
         {
           "name": "context",
@@ -16375,11 +16375,11 @@
         },
         {
           "name": "describe",
-          "line": 18
+          "line": 19
         },
         {
           "name": "age",
-          "line": 22
+          "line": 23
         }
       ]
     },
