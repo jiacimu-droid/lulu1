@@ -47,6 +47,14 @@ class WorldLifeEpisodeStoreTest {
                 role, "shared:arrival", start.plusSeconds(6 * 60)))
             assertNull(WorldLifeEpisodeStore.recentAt(
                 role, "shared:cloud_meadow", start.plusSeconds(37 * 60)))
+            // Work can finish out of sequence: both older and newer receipts
+            // belong to the same outing, never create two chapters.
+            assertEquals(first?.id, WorldLifeEpisodeStore.nearbyAt(
+                role, "shared:cloud_meadow", start.minusSeconds(4 * 60))?.id)
+            assertEquals(first?.id, WorldLifeEpisodeStore.nearbyAt(
+                role, "shared:cloud_meadow", start.plusSeconds(5 * 60))?.id)
+            assertNull(WorldLifeEpisodeStore.nearbyAt(
+                role, "shared:cloud_meadow", start.plusSeconds(38 * 60)))
         } finally {
             WorldLifeEpisodeStore.clear(role)
         }
