@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T14:56:24.497825+00:00",
-  "commit": "259166d08595633883cc06833d6399e78e43717a",
+  "generatedAt": "2026-10-18T17:03:15.732467+00:00",
+  "commit": "acd0232a05a2edd9b9ce24e020256db1a5650e3b",
   "branch": "main",
-  "sourceFingerprint": "144d064bb095c11d674b3901f4fbe7f27fe7aed6805c46ef7c8fb0770ee447af",
+  "sourceFingerprint": "f0ff4674f1e8ea9e0dca273cfde43571e9d6cc23818a5e57715ed3b35e1813e7",
   "summary": {
-    "files": 715,
-    "lines": 137097,
-    "symbols": 2069
+    "files": 716,
+    "lines": 137193,
+    "symbols": 2074
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7692,6 +7692,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt",
         "line": 5
+      }
+    ],
+    "isOld": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
+        "line": 20
+      }
+    ],
+    "median": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
+        "line": 21
+      }
+    ],
+    "callMinute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
+        "line": 22
+      }
+    ],
+    "formatMinute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
+        "line": 27
+      }
+    ],
+    "durations": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
+        "line": 72
       }
     ],
     "draftsFor": [
@@ -19143,6 +19173,33 @@
         {
           "name": "apply",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt",
+      "lines": 96,
+      "sha256": "4c275c8d7e95e46cc821e513c1a30aafd3cdaed36082d548458ab69c7b61adfe",
+      "symbols": [
+        {
+          "name": "isOld",
+          "line": 20
+        },
+        {
+          "name": "median",
+          "line": 21
+        },
+        {
+          "name": "callMinute",
+          "line": 22
+        },
+        {
+          "name": "formatMinute",
+          "line": 27
+        },
+        {
+          "name": "durations",
+          "line": 72
         }
       ]
     },
