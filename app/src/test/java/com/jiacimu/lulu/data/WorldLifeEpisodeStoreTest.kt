@@ -38,6 +38,31 @@ class WorldLifeEpisodeStoreTest {
         }
     }
 
+
+    @Test fun subjectiveStoryQuestionSurvivesReloadButIsNotAWorldAction() {
+        WorldLifeEpisodeStore.initialize(context)
+        WorldLifeEpisodeStore.clear(role)
+        val whenHappened = Instant.now().minusSeconds(120)
+        val prose = "他在家里想起刚刚发生的那句话。".repeat(12)
+        try {
+            val entry = WorldLifeEpisodeStore.record(
+                role, "home:test", "夜里的迟疑", prose, "角色真实回家并停留",
+                "evidence-night-2", whenHappened,
+                unresolvedThread = "明天是否要解释自己刚才那句话",
+            )
+            assertNotNull(entry)
+            assertEquals("明天是否要解释自己刚才那句话", entry?.unresolvedThread)
+            val contextText = WorldLifeEpisodeStore.recentContext(role, whenHappened.plusSeconds(60))
+            assertTrue(contextText.contains("人物仍有的主观疑问"))
+            assertTrue(contextText.contains("不是已发生的客观事件"))
+            assertTrue(contextText.contains("角色真实回家并停留"))
+            WorldLifeEpisodeStore.invalidateEvidence("evidence-night-2")
+            assertNull(WorldLifeEpisodeStore.find(entry!!.id))
+        } finally {
+            WorldLifeEpisodeStore.clear(role)
+        }
+    }
+
     @Test fun verifiedWorldActionCanBecomeOneDurableClickThroughButTextAloneCannot() {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)
