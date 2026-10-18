@@ -426,16 +426,22 @@ internal object CompanionActionRuntime {
                     val recentEpisode = WorldLifeEpisodeStore.recentAt(
                         characterId, locationAfter, now,
                     )
-                    val episode = if (worldAction in leisureActions &&
-                        recentEpisode == null && worldResult.evidenceId.isNotBlank()) {
-                        val (title, story) = WorldLifeEpisodeComposer.compose(
+                    val shouldWriteScene = worldAction in leisureActions &&
+                        recentEpisode == null && worldResult.evidenceId.isNotBlank()
+                    val episode = if (shouldWriteScene) {
+                        // The committed world receipt is authoritative. The story is
+                        // separately authored fiction about the character's INNER life,
+                        // never a substitute for a real NPC encounter or new item.
+                        WorldLifeEpisodeComposer.compose(
                             characterId, locationAfter, worldResult.summary,
                             args.optString("lifeSceneTitle"), args.optString("lifeScene"),
-                        )
-                        WorldLifeEpisodeStore.record(
-                            characterId, locationAfter, title, story,
-                            worldResult.summary, worldResult.evidenceId, now,
-                        )
+                        )?.let { draft ->
+                            WorldLifeEpisodeStore.record(
+                                characterId, locationAfter, draft.title, draft.scene,
+                                worldResult.summary, worldResult.evidenceId, now,
+                                unresolvedThread = draft.unresolvedThread,
+                            )
+                        }
                     } else null
                     // Still persist EVERY true world action in its own world
                     // timeline. The chat activity pane groups the routine
@@ -444,6 +450,12 @@ internal object CompanionActionRuntime {
                         MigratedDomainStores.chat.appendPrivateActivityNotice(
                             characterId,
                             "[独处片段|${episode.id}] ${character.displayName}的《${episode.title}》 · 查看片段",
+                        )
+                    } else if (shouldWriteScene) {
+                        // No fabricated boilerplate when the prose model fails.
+                        // The actual world action was successful and remains saved.
+                        MigratedDomainStores.chat.appendPrivateActivityNotice(
+                            characterId, "${worldResult.summary} · 本次独处小剧场未生成，可下次继续",
                         )
                     } else if (worldAction !in leisureActions) {
                         MigratedDomainStores.chat.appendPrivateActivityNotice(
