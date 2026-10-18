@@ -42,7 +42,7 @@ internal object WorldLifeEpisodeComposer {
      */
     internal fun parseModelScene(raw: String, suppliedTitle: String): WorldLifeSceneDraft? {
         val structured = ModelStructuredOutput.objectOrNull(raw)
-        val completeSceneField = Regex(""""scene"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"""")
+        val completeSceneField = Regex(""""scene"\s*:\s*"((?:[^"\\]|\\.)*)"""")
             .find(raw)?.groupValues?.getOrNull(1)
         val recoveredScene = completeSceneField?.let { encoded ->
             runCatching { org.json.JSONObject("""{"scene":"${encoded}"}""").optString("scene") }
