@@ -18,9 +18,38 @@ internal data class WorldLifeSceneDraft(
 internal data class WorldLifeComposeOutcome(
     val draft: WorldLifeSceneDraft? = null,
     val failureReason: String = "",
+    val retryable: Boolean = true,
 )
 
 internal object WorldLifeEpisodeComposer {
+    // Release builds obfuscate exception class names ("r", "a", etc.).
+    // Prefer stable HTTP / transport reasons. Detailed provider responses are
+    // already logged by the shared model gateway, not leaked into chat.
+    internal fun failureSummary(error: Throwable): String {
+        val description = error.message.orEmpty()
+        val http = Regex("""(?<!\d)(400|401|403|404|408|413|429|500|502|503|504)(?!\d)""")
+            .find(description)?.value
+        return when (http) {
+            "400", "413" -> "模型接口拒绝请求（HTTP $http）"
+            "401", "403" -> "模型接口鉴权或权限失败（HTTP $http）"
+            "404" -> "模型接口或模型名称不存在（HTTP 404）"
+            "429" -> "模型接口限流（HTTP 429）"
+            "408", "500", "502", "503", "504" -> "模型服务暂时不可用（HTTP $http）"
+            else -> when {
+                description.contains("timeout", true) || description.contains("超时") ->
+                    "模型响应超时"
+                description.contains("连接", true) || description.contains("connection", true) ->
+                    "模型网络连接失败"
+                description.contains("模型", true) && description.contains("配置") ->
+                    "模型配置不可用"
+                else -> "模型请求异常（请查看模型请求日志）"
+            }
+        }
+    }
+
+    internal fun permanentFailure(error: Throwable): Boolean =
+        Regex("""(?<!\d)(400|401|403|404|413)(?!\d)""").containsMatchIn(error.message.orEmpty())
+
     /** Block the old canned prose and empty reflection masquerading as a short story.
      * Not a global chat-length rule: applies ONLY to autonomous literary scenes. */
     internal fun readableScene(scene: String): Boolean {
@@ -87,6 +116,7 @@ internal object WorldLifeEpisodeComposer {
         val prior = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
         val now = Instant.now()
         var firstFailure = ""
+        var firstPermanent = false
         val model = try {
             withTimeoutOrNull(63_000L) {
                 val response = LuluAiServices.gateway.generate(
@@ -128,20 +158,27 @@ internal object WorldLifeEpisodeComposer {
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                     readTimeoutMillis = 55_000,
                 )
-                firstFailure = response.exceptionOrNull()?.javaClass?.simpleName.orEmpty()
+                response.exceptionOrNull()?.let { error ->
+                    firstFailure = failureSummary(error)
+                    firstPermanent = permanentFailure(error)
+                }
                 response.getOrNull()?.text
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            firstFailure = error.javaClass.simpleName
+            firstFailure = failureSummary(error)
+            firstPermanent = permanentFailure(error)
             null
         }
         parseModelScene(model.orEmpty(), suppliedTitle)?.let { return WorldLifeComposeOutcome(draft = it) }
+        if (firstPermanent) return WorldLifeComposeOutcome(
+            failureReason = firstFailure, retryable = false)
 
         // Retry ONLY a failed generation, never an already committed world action.
         // Keep the retry short so autonomous perception is not blocked by a second long chapter.
         var retryFailure = ""
+        var retryPermanent = false
         val retry = try {
             withTimeoutOrNull(36_000L) {
                 val response = LuluAiServices.gateway.generate(
@@ -168,17 +205,21 @@ internal object WorldLifeEpisodeComposer {
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                     readTimeoutMillis = 30_000,
                 )
-                retryFailure = response.exceptionOrNull()?.javaClass?.simpleName.orEmpty()
+                response.exceptionOrNull()?.let { error ->
+                    retryFailure = failureSummary(error)
+                    retryPermanent = permanentFailure(error)
+                }
                 response.getOrNull()?.text
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (error: Exception) {
-            retryFailure = error.javaClass.simpleName
+            retryFailure = failureSummary(error)
+            retryPermanent = permanentFailure(error)
             null
         }
         parseModelScene(retry.orEmpty(), suppliedTitle)?.let { return WorldLifeComposeOutcome(draft = it) }
-        return WorldLifeComposeOutcome(failureReason = when {
+        return WorldLifeComposeOutcome(retryable = !retryPermanent, failureReason = when {
             model.isNullOrBlank() && retry.isNullOrBlank() && firstFailure.isBlank() && retryFailure.isBlank() -> "两次请求超时或空响应"
             retryFailure.isNotBlank() -> "补写请求失败：$retryFailure"
             firstFailure.isNotBlank() && retry.isNullOrBlank() -> "模型请求失败：$firstFailure"
