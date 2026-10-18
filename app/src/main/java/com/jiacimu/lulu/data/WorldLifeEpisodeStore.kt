@@ -59,6 +59,14 @@ internal object WorldLifeEpisodeStore {
                 java.time.Duration.between(episode.occurredAt, now).toMinutes() in 0..35
         }
 
+    /** A queued scene can finish out of order. Check both time directions so
+     * an older queued action cannot create a second chapter for the same outing. */
+    fun nearbyAt(characterId: String, location: String, at: Instant): WorldLifeEpisode? =
+        episodes(characterId).lastOrNull { episode ->
+            episode.location == location &&
+                kotlin.math.abs(java.time.Duration.between(episode.occurredAt, at).toMinutes()) <= 35L
+        }
+
     /** Called only after the world executor has committed its actual action. */
     fun record(
         characterId: String,
