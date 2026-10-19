@@ -212,23 +212,26 @@ object CharacterLifeStore {
             save(characterId, root)
         }
         if (version < 9) {
-            // Older presets are upgraded fully, but do not touch real life or memory.
+            // Original replacement preset for legacy roles, with the latest
+            // compact relationship contract. No factual history is rewritten.
             CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
-            CharacterProfileSchema.jiangDuV10Overrides.forEach { (key, value) -> profile.put(key, value) }
+            CharacterProfileSchema.jiangDuV11Overrides.forEach { (key, value) -> profile.put(key, value) }
         } else {
-            // From v9 onward, respect any handwritten role customisations.
-            CharacterProfileSchema.jiangDuV10Overrides.forEach { (key, value) ->
-                if (profile.optString(key).isBlank() ||
-                    profile.optString(key) == CharacterProfileSchema.jiangDu[key]) {
-                    profile.put(key, value)
-                }
+            // Upgrade only known prior defaults. Even an intentionally blank
+            // field or user-authored custom text is preserved as an override.
+            CharacterProfileSchema.jiangDuV11Overrides.forEach { (key, value) ->
+                val previous = profile.optString(key)
+                val knownDefault = previous == CharacterProfileSchema.jiangDu[key] ||
+                    previous == CharacterProfileSchema.jiangDuV10Overrides[key]
+                if (!profile.has(key) || knownDefault) profile.put(key, value)
             }
         }
         val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
             else character.displayName
-        val updatedPersona = if (version < 9 ||
-            character.persona == CharacterProfileSchema.jiangDuPersona)
-            CharacterProfileSchema.jiangDuV10Persona else character.persona
+        val updatedPersona = if (version < 9 || character.persona in setOf(
+                CharacterProfileSchema.jiangDuPersona,
+                CharacterProfileSchema.jiangDuV10Persona
+            )) CharacterProfileSchema.jiangDuV11Persona else character.persona
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = updatedPersona))
         root.optJSONObject("socialNames")?.let { names ->

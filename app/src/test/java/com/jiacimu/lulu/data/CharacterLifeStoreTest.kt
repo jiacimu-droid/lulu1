@@ -294,9 +294,9 @@ class CharacterLifeStoreTest {
         assertEquals("旧关心方式", backup.getJSONObject("profile").getString("care"))
         assertEquals(CharacterLifeForm.UNRESOLVED, DigitalLifeProfileStore.lifeForm(jiang.characterId))
         assertEquals("旧身份", CharacterIdentityStore.identities.value[jiang.characterId])
-        assertEquals(CharacterProfileSchema.jiangDuV10Persona, MigratedDomainStores.characters.get(jiang.characterId).persona)
-        assertEquals(CharacterProfileSchema.jiangDuV10Overrides.getValue("care"), state.getJSONObject("profile").getString("care"))
-        assertEquals(10, state.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV11Persona, MigratedDomainStores.characters.get(jiang.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuV11Overrides.getValue("care"), state.getJSONObject("profile").getString("care"))
+        assertEquals(11, state.getInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, state.getJSONObject("profile").getString("speechHabits"))
         assertEquals(CharacterProfileSchema.jiangDu.getValue("interests"), state.getJSONObject("profile").getString("interests"))
         CharacterLifeStore.setProfile(jiang.characterId, "care", "后来自己改的")
@@ -340,11 +340,11 @@ class CharacterLifeStoreTest {
 
         val upgraded = CharacterLifeStore.state(role.characterId)
         val profile = upgraded.getJSONObject("profile")
-        assertEquals(10, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(11, upgraded.getInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuV5Identity, CharacterIdentityStore.identities.value[role.characterId])
-        assertEquals(CharacterProfileSchema.jiangDuV10Persona, MigratedDomainStores.characters.get(role.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuV11Persona, MigratedDomainStores.characters.get(role.characterId).persona)
         CharacterProfileSchema.jiangDu.forEach { (key, value) ->
-            val expected = CharacterProfileSchema.jiangDuV10Overrides[key] ?: value
+            val expected = CharacterProfileSchema.jiangDuV11Overrides[key] ?: value
             assertEquals("江渡字段未完整迁移：$key", expected, profile.getString(key))
         }
         assertEquals("天文", upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").getString("interests"))
@@ -379,8 +379,8 @@ class CharacterLifeStoreTest {
         releasePreferences()
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        assertEquals(10, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(role.copy(displayName = "江渡", persona = CharacterProfileSchema.jiangDuV10Persona),
+        assertEquals(11, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(role.copy(displayName = "江渡", persona = CharacterProfileSchema.jiangDuV11Persona),
             MigratedDomainStores.characters.get(role.characterId))
         assertEquals("完全保留的身份", CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(birth, DigitalLifeProfileStore.birthAt(role.characterId))
@@ -427,9 +427,9 @@ class CharacterLifeStoreTest {
         assertTrue(prefs.edit().putString(renamed.characterId, old.toString()).commit())
         releasePreferences()
         CharacterLifeStore.initialize(context)
-        assertEquals(10, CharacterLifeStore.state(renamed.characterId).getInt("jiangDuPresetVersion"))
+        assertEquals(11, CharacterLifeStore.state(renamed.characterId).getInt("jiangDuPresetVersion"))
         assertEquals("自己的新名字", MigratedDomainStores.characters.get(renamed.characterId).displayName)
-        assertEquals(CharacterProfileSchema.jiangDuV10Persona, MigratedDomainStores.characters.get(renamed.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuV11Persona, MigratedDomainStores.characters.get(renamed.characterId).persona)
         assertEquals(other, MigratedDomainStores.characters.get(other.characterId))
         assertEquals(real, MigratedDomainStores.characters.get(real.characterId))
         assertFalse(CharacterLifeStore.state(other.characterId).has("jiangDuV9Backup"))
@@ -459,7 +459,7 @@ class CharacterLifeStoreTest {
         releasePreferences()
         CharacterLifeStore.initialize(context)
         val completed = CharacterLifeStore.state(role.characterId)
-        assertEquals(10, completed.getInt("jiangDuPresetVersion"))
+        assertEquals(11, completed.getInt("jiangDuPresetVersion"))
         assertEquals(backup.toString(), completed.getJSONObject("jiangDuV9Backup").toString())
         assertEquals(setOf(CharacterRuntime.personaConstraintSnapshot(role.characterId)),
             CharacterDevelopmentStore.authorizedPersonaSnapshots(role.characterId))
