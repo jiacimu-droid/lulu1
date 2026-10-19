@@ -123,7 +123,7 @@ internal object CompanionActionRuntime {
             appendLine("角色所在群聊：")
             groups.forEach { conversation -> appendLine("- groupId=${conversation.id}；群名=${conversation.groupChat?.name}") }
         }
-        val books = ReadingBackgroundBridge.availableBooks(context, characterId).take(24)
+        val books = ReadingBackgroundBridge.theaterBooks(context, characterId).take(24)
         if (books.isNotEmpty()) {
             appendLine("可真实继续阅读的内容：")
             books.forEach { book ->
@@ -418,7 +418,7 @@ internal object CompanionActionRuntime {
                         require(DigitalWorldActivityCatalog.locationOptions(DigitalWorldStore.locationOf(characterId)).any { it.first == activityId }) { "当前位置不支持这种阅读活动" }
                     }
                     val bookId = args.optString("readingBookId").trim()
-                    require(bookId.isNotBlank()) { "请选择阅读 App 中的真实 readingBookId" }
+                    require(bookId.isNotBlank()) { "请选择真实存在的阅读内容ID" }
                     return@runCatching readBook(context, character, bookId, now)
                 }
                 val previousLocation = DigitalWorldStore.locationOf(characterId)
@@ -535,7 +535,7 @@ internal object CompanionActionRuntime {
         val readingResponse = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
-                appendLine("程序实际提供阅读 App 中《${slice.book.title}》的下一段，尚未提交阅读结果。")
+                appendLine("程序实际提供《${slice.book.title}》的下一段，尚未提交阅读结果。")
                 if (station != null) appendLine("真实世界阅读地点：${station.summary}；地点依据ID=${station.evidenceId}。")
                 appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。")
                 appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
