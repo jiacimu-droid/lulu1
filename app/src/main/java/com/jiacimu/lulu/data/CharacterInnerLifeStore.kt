@@ -132,6 +132,69 @@ object CharacterInnerLifeStore {
         return removed
     }
 
+    /**
+     * A later, explicit USER reconciliation is a new fact, not an apology receipt.
+     * Retire only active, user-directed repair concerns and matching repair motives;
+     * keep the original dispute, independent wishes and self-corrections intact.
+     * Calling twice for the same source evidence must be idempotent.
+     */
+    @Synchronized fun observeExplicitRepairSettlement(
+        characterId: String, userEvidenceId: String, userText: String,
+        now: Instant = Instant.now(),
+    ) {
+        if (prefs == null || userEvidenceId.isBlank() ||
+            !RelationshipRepairContinuity.userExplicitlySettled(userText)) return
+        val root = snapshot(characterId)
+        val open = root.optJSONArray("openConcerns") ?: JSONArray()
+        val kept = JSONArray()
+        val closed = root.optJSONArray("closedConcerns") ?: JSONArray()
+        var changed = false
+        for (i in 0 until open.length()) {
+            val concern = open.optJSONObject(i) ?: continue
+            val shouldClose = RelationshipRepairContinuity.isRepairConcern(
+                concern.optString("focus")) &&
+                RelationshipRepairContinuity.eligiblePriorState(
+                    concern.optString("createdAt"), now)
+            if (!shouldClose) {
+                kept.put(concern)
+                continue
+            }
+            val alreadyClosed = (0 until closed.length()).any {
+                closed.optJSONObject(it)?.optString("id") == concern.optString("id")
+            }
+            if (!alreadyClosed) {
+                closed.put(JSONObject(concern.toString())
+                    .put("closedAs", "settled")
+                    .put("closedAt", now.toString())
+                    .put("closureEvidenceId", userEvidenceId)
+                    .put("resolution", "用户明确反馈本次争执已说开；保留经历与反思，不再以未和好为由追着道歉"))
+            }
+            changed = true
+        }
+        if (changed) {
+            root.put("openConcerns", kept)
+            root.put("closedConcerns", JSONArray().apply {
+                for (i in maxOf(0, closed.length() - 12) until closed.length()) put(closed.opt(i))
+            })
+        }
+        val motives = root.optJSONArray("motives") ?: JSONArray()
+        for (i in 0 until motives.length()) {
+            val motive = motives.optJSONObject(i) ?: continue
+            if (!CharacterMotiveState.isActive(motive) &&
+                motive.optString("status") != "paused") continue
+            if (!RelationshipRepairContinuity.isRepairGoal(motive.optString("aim")) ||
+                !RelationshipRepairContinuity.eligiblePriorState(
+                    motive.optString("createdAt"), now)) continue
+            motive.put("status", "achieved")
+                .put("closedAt", now.toString())
+                .put("closedBecause", "用户明确反馈关系争执已说开；后续以实际相处体现")
+                .put("closureEvidenceId", userEvidenceId)
+                .remove("waitingFor")
+            changed = true
+        }
+        if (changed) save(characterId, root)
+    }
+
     @Synchronized fun clearSubjectiveThoughts(characterId: String) {
         if (prefs == null) return
         val root = snapshot(characterId)
