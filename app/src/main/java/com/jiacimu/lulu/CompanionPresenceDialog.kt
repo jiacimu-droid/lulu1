@@ -405,6 +405,7 @@ private fun PresenceDialogSection(title: String, content: String, onDelete: (() 
 private data class LifeThoughtEntry(
     val section: String, val title: String, val status: String,
     val detail: String = "", val factual: Boolean = false,
+    val onDelete: (() -> Unit)? = null,
 )
 
 @Composable
@@ -431,10 +432,19 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
     thoughtMoment?.momentReflection?.takeIf(String::isNotBlank)?.let { reflection ->
         val date = thoughtMoment.updatedAt.atZone(ZoneId.systemDefault())
             .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
-        ideas += LifeThoughtEntry("想法与顾虑", reflection.take(250), "记录于 $date")
+        ideas += LifeThoughtEntry("想法与顾虑", reflection.take(250), "记录于 $date",
+            onDelete = { CompanionPresenceStore.deleteMoment(characterId, thoughtMoment.updatedAt); Unit })
     }
     CharacterLifeVisibility.current(characterId, now).forEach { entry ->
-        if (entry.title == "还在挂心") ideas += LifeThoughtEntry("持续牵挂", entry.detail.take(240), "仍在意")
+        if (entry.title == "还在挂心") {
+            val concern = (0 until (mind.optJSONArray("openConcerns")?.length() ?: 0))
+                .mapNotNull { mind.optJSONArray("openConcerns")?.optJSONObject(it) }
+                .lastOrNull { it.optString("focus").isNotBlank() && entry.detail.contains(it.optString("focus")) }
+            ideas += LifeThoughtEntry("持续牵挂", entry.detail.take(240), "仍在意",
+                onDelete = concern?.optString("id")?.takeIf(String::isNotBlank)?.let { id ->
+                    { CharacterInnerLifeStore.deletePrivateConcern(characterId, id); Unit }
+                })
+        }
     }
 
     val canonicalGoals = (0 until (motives?.length() ?: 0))
@@ -472,6 +482,9 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                     m.optString("closedBecause").takeIf(String::isNotBlank)
                         ?.let { "结束原因：$it" },
                 ).joinToString("\n"),
+                onDelete = m.optString("id").takeIf(String::isNotBlank)?.let { id ->
+                    { CharacterInnerLifeStore.deletePrivateMotive(characterId, id); Unit }
+                },
             )
         }
     // Legacy intention is only a backward-compatible projection. If the same
@@ -508,7 +521,8 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                 g.optString("lastUserEvidenceAt").takeIf(String::isNotBlank)?.let {
                     "已记录你的新回复，旧定时复查已取消；等待依据内容调整目标"
                 },
-            ).joinToString("\n"))
+            ).joinToString("\n"),
+            onDelete = { CharacterLifeStore.deleteCurrentIntention(characterId); Unit })
     }
     pending?.optString("action")?.takeIf(String::isNotBlank)?.let { name ->
         ideas += LifeThoughtEntry("一闪而过的小打算", name, "尚未执行",
