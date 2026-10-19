@@ -63,7 +63,7 @@ internal object CompanionActionRuntime {
         appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：可选 targetScore=120至1200之间的开局目标；游戏馆按真实规则运行并保存过程、分数、达标结果和此前留存最高分；不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色主动选择的私人作品，用来事后整理、写有主题的感想，不能逐字复制刚才的心声或天天机械复述。没有想写的内容可以不写。它不是新的已完成事实、成长结论或绕路发消息。")
-        appendLine("- start_call，args={\"text\":\"为什么此刻想打电话\"}：仅在角色已允许主动来电时发起真正的来电。会进入待接听状态并触发来电通知，不再伪装成一条聊天消息。")
+        appendLine("- start_call，args={\"text\":\"电话接通后你想亲口说的第一句话\"}：仅在角色已允许主动来电时发起真正的来电。text 是你接通后会真实说出、朗读并记入私聊通话记录的原话；写自然的口语，不要填写内心动机说明、系统指令或尚未发生的对话。接听前仅响铃，不显示或发送这句话；拒接不算说过。")
         appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到辞海，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
