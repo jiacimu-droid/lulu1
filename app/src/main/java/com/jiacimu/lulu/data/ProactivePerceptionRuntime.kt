@@ -1003,10 +1003,37 @@ object ProactivePerceptionRuntime {
             onlineChoiceReason = parsed.onlineChoiceReason,
         ) ?: parsed
         val fallbackDecision = resolved.withPresenceFallback(character)
-        val decision = fallbackDecision.copy(innerThought =
+        // Last-resort continuity safeguard, never a chat-text rewrite:
+        // a previously settled disagreement must not be re-opened by an idle
+        // autonomous tick. New unread user feedback and fresh world/call events
+        // always bypass this guard. The role's independent life remains free.
+        val lastUserTurns = SharedExperienceTimeline.recentEvents(characterId, 100)
+            .filter { it.evidenceKind == EventEvidenceKind.UserStatement &&
+                !it.occurredAt.isAfter(now) }
+        val explicitSettlement = lastUserTurns.lastOrNull {
+            RelationshipRepairContinuity.userExplicitlySettled(it.content) &&
+                !it.occurredAt.isBefore(now.minus(Duration.ofHours(24)))
+        }
+        val laterDispute = explicitSettlement != null && lastUserTurns.any {
+            it.occurredAt.isAfter(explicitSettlement.occurredAt) &&
+                CharacterGrowthTrajectory.feedbackTopic(it.content) != null
+        }
+        val repeatingResolvedApology = fallbackDecision.action == Action.MESSAGE &&
+            onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
+            salientInteraction == null && worldTick == null && !laterDispute &&
+            explicitSettlement != null &&
+            RelationshipRepairContinuity.isReopenedApology(fallbackDecision.text)
+        val continuityChecked = if (repeatingResolvedApology) fallbackDecision.copy(
+            action = Action.SILENT, text = "",
+            reason = "用户已经明确表示这次争执说开了，不能凭旧挂心再次道歉",
+            innerThought = "", innerThoughtBasis = null,
+            innerLife = null, appraisal = null, intention = null,
+            afterglow = null, relationshipInitiative = null,
+        ) else fallbackDecision
+        val decision = continuityChecked.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
-                fallbackDecision.innerThought,
+                continuityChecked.innerThought,
             ))
         // The very SAME autonomous decision chooses attention and outward action.
         // Commit the online choice first so a chosen message is sent while awake;
