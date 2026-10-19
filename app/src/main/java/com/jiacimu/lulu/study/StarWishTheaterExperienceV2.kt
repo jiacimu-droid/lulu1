@@ -585,7 +585,7 @@ private fun TheaterReaderV2(
                 item {
                     Text(chapter.title, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     Spacer(Modifier.height(19.dp))
-                    Text(chapter.content, fontSize = 17.sp, lineHeight = 31.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f))
+                    TheaterReadingComments(chapter = chapter, theaterTitle = seed.title)
                     if (selectedIndex == chapters.lastIndex && !generating && !planning) {
                         TextButton(onClick = {
                             generationManager.enqueue(seed.title, "", repairChapterId = chapter.id)
