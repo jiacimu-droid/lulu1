@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:23:31.878624+00:00",
-  "commit": "acdd05f40d87056497652920f1a36641e640e4c8",
+  "generatedAt": "2026-10-19T08:47:57.708698+00:00",
+  "commit": "d433de3148044cd7055a70c3e4a7c967cc6ba293",
   "branch": "main",
-  "sourceFingerprint": "58b640ffeeea69385afac0cadc8590dc7ff25bffe2ec5d97a7ee61d8d7801288",
+  "sourceFingerprint": "d83a812836ea06c31274518748b3c62ca977e1f005014362e9d56ec17ccc53a5",
   "summary": {
     "files": 740,
-    "lines": 141107,
-    "symbols": 2149
+    "lines": 141234,
+    "symbols": 2150
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2486,6 +2486,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
         "line": 108
+      }
+    ],
+    "star": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt",
+        "line": 114
       }
     ],
     "pending": [
@@ -14306,9 +14312,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt",
-      "lines": 65,
-      "sha256": "64fb661848720d43792ec45f943c7ef1a35249703c491b65137ccee74d37ad8c",
-      "symbols": []
+      "lines": 192,
+      "sha256": "fdf8e6a8a50a743a3cb01820a0b59c56a6db77223ae6bc9feecc542641f00692",
+      "symbols": [
+        {
+          "name": "star",
+          "line": 114
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt",

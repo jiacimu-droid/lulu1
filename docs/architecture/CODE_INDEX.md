@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`acdd05f40d87056497652920f1a36641e640e4c8`
+- 基准提交：`d433de3148044cd7055a70c3e4a7c967cc6ba293`
 - 分支：`main`
 - 已索引文件：740
-- 已索引代码/文本行：141107
-- 已发现符号：2149
+- 已索引代码/文本行：141234
+- 已发现符号：2150
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -160,7 +160,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 325 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 402 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 65 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 192 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 311 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 256 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 472 | 8 |
