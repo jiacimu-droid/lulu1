@@ -435,6 +435,16 @@ object CharacterLifeStore {
         save(characterId, root)
     }
 
+    /** Forget a manually rejected private plan without erasing factual receipts. */
+    @Synchronized fun deleteCurrentIntention(characterId: String): Boolean {
+        val root = state(characterId)
+        if (!root.has("intention")) return false
+        root.remove("intention")
+        cancelGoalReview(characterId)
+        save(characterId, root)
+        return true
+    }
+
     @Synchronized fun clearHistory(characterId: String) {
         cancelGoalReview(characterId)
         val root = state(characterId)
