@@ -35,14 +35,14 @@ internal fun DigitalWorldSocialGraphDialog(
     val world by DigitalWorldStore.state.collectAsState()
     val revision by CharacterInnerLifeStore.revisions.collectAsState()
     val relationData by CharacterLifeStore.states.collectAsState()
-    var editingRelation by remember(focusId, selectedId) { mutableStateOf(false) }
-    var relationshipTitle by remember(focusId, selectedId) { mutableStateOf("") }
-    var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
     val participants = settings.values.toList().sortedBy { it.displayName }
     var focusId by remember(initialCharacterId, participants) {
         mutableStateOf(initialCharacterId?.takeIf { it in settings } ?: participants.firstOrNull()?.characterId.orEmpty())
     }
     var selectedId by remember(focusId) { mutableStateOf<String?>(null) }
+    var editingRelation by remember(focusId, selectedId) { mutableStateOf(false) }
+    var relationshipTitle by remember(focusId, selectedId) { mutableStateOf("") }
+    var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
     // Read the existing evidence-backed bonds and genuine encounters; no extra
     // social score or fabricated "friendship" database is introduced.
     val nodes = remember(focusId, settings, world.meetings, revision) {
