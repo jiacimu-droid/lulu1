@@ -520,6 +520,20 @@ object ProactivePerceptionRuntime {
             }
             "${message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))} $speaker：${qqForwardContextText(message.content).take(500)}"
         }
+        // The last actually delivered turns are authoritative witnessed speech.
+        // During autonomous re-entry (no unread input) this must not vanish behind
+        // only-topic-relevant recall or become a NEW message needing a reply.
+        val witnessedDialogue = messages.asSequence()
+            .filter { it.sender in setOf(LuluChatMessage.Sender.User, LuluChatMessage.Sender.Character) }
+            .filter { !it.createdAt.isAfter(now) }
+            .takeLast(10)
+            .joinToString("\n") { message ->
+                val who = if (message.sender == LuluChatMessage.Sender.User)
+                    "用户" else character.displayName
+                val words = qqForwardContextText(message.content)
+                    .replace(Regex("\\s+"), " ").take(360)
+                "${message.createdAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("HH:mm"))} $who：$words"
+            }
         val recentLifeEvents = SharedExperienceTimeline.all(characterId)
             .filter { event ->
                 event.channel.startsWith("数字世界") ||
@@ -632,6 +646,16 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                val futurePlans = RoleDayScheduleStore.plannedContext(appContext, characterId, now)
+                if (futurePlans.isNotBlank()) {
+                    appendLine("【本人的未来日程｜来源是实际存档，可维持、改期、取消，不要重复建立】")
+                    appendLine(futurePlans)
+                }
+                if (witnessedDialogue.isNotBlank()) {
+                    appendLine("【紧接上一轮的双方实际言语｜旧→新，已发出就是已发出】")
+                    appendLine(witnessedDialogue)
+                    appendLine("这些都是已送达的过去原话，不是未读新请求。亲亲、安慰、拒绝、玩笑等如果已经在这里发生，不要失忆般重新索要或重新声明尚未发生；若之后有新的请求或拒绝，按后来的消息更新。")
+                }
                 val duePlans = RoleDayScheduleStore.dueContext(appContext, characterId, now)
                 if (duePlans.isNotBlank()) {
                     appendLine("【自己先前真正安排、现在待处理的日程】")
