@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T11:10:22.379106+00:00",
-  "commit": "7ed8534b5c3fa1901ec5d51182a8fbd56bf02b74",
+  "generatedAt": "2026-10-19T11:11:15.128399+00:00",
+  "commit": "66573790049ae26d5cf643d4b6b4ed2b09cce888",
   "branch": "main",
-  "sourceFingerprint": "a3db8827b39ee2c87c5e470994790db38248f7ebd5d137a7a3c7f1b5dbd8489c",
+  "sourceFingerprint": "e1f30980bfba06d1ef0e4cbd58761fa5dcc1e5635e8e3a3e5ef8fcb6de899baa",
   "summary": {
     "files": 743,
-    "lines": 142177,
+    "lines": 142179,
     "symbols": 2154
   },
   "symbolIndex": {
@@ -1517,7 +1517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
-        "line": 98
+        "line": 100
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -14290,8 +14290,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
-      "lines": 630,
-      "sha256": "62d7250b6a75e44f61ea8707e6a7a16a23f50c9d742b33a0cec7a7b939c26324",
+      "lines": 632,
+      "sha256": "1cb5bfffeea12e1c86ae8a416743e8890b2b6b9f48a1467e069eee44885ca192",
       "symbols": [
         {
           "name": "state",
@@ -14307,14 +14307,14 @@
         },
         {
           "name": "open",
-          "line": 98
+          "line": 100
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt",
       "lines": 114,
-      "sha256": "bfaace537588c44b70d15e6443544edf2bf431bd111f45c13366c50d0020dd00",
+      "sha256": "c2de33d78d684fb4a6db8273e08ca7690e07be429e7d63183d8f1f89ab300509",
       "symbols": []
     },
     {
