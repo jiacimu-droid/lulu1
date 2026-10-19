@@ -344,13 +344,14 @@ class CharacterLifeStoreTest {
         assertEquals(CharacterProfileSchema.jiangDuV5Identity, CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV10Persona, MigratedDomainStores.characters.get(role.characterId).persona)
         CharacterProfileSchema.jiangDu.forEach { (key, value) ->
-            assertEquals("江渡字段未完整迁移：$key", value, profile.getString(key))
+            val expected = CharacterProfileSchema.jiangDuV10Overrides[key] ?: value
+            assertEquals("江渡字段未完整迁移：$key", expected, profile.getString(key))
         }
         assertEquals("天文", upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertTrue(upgraded.has("jiangDuV9Backup"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("没有现实肉身"))
-        assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("不自以为看穿"))
+        assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("敬重"))
     }
 
     @Test
@@ -379,7 +380,7 @@ class CharacterLifeStoreTest {
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
         assertEquals(10, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(role.copy(displayName = "江渡", persona = CharacterProfileSchema.jiangDuPersona),
+        assertEquals(role.copy(displayName = "江渡", persona = CharacterProfileSchema.jiangDuV10Persona),
             MigratedDomainStores.characters.get(role.characterId))
         assertEquals("完全保留的身份", CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(birth, DigitalLifeProfileStore.birthAt(role.characterId))
