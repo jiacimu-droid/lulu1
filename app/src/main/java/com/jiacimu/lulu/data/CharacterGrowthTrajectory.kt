@@ -72,6 +72,12 @@ internal object CharacterGrowthTrajectory {
                 (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) &&
                 !it.occurredAt.isAfter(now)
         }
+        val subsequentDialogue = SharedExperienceTimeline.all(characterId).filter {
+            it.evidenceKind in setOf(EventEvidenceKind.UserStatement,
+                EventEvidenceKind.CharacterStatement) &&
+                (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) &&
+                !it.occurredAt.isAfter(now)
+        }
         var unresolved = false
         return buildString {
             appendLine("【关系反馈的真实演进｜过去的不满并不自动代表现在仍在争执】")
@@ -86,6 +92,15 @@ internal object CharacterGrowthTrajectory {
                 if (resolution == null) {
                     unresolved = true
                     appendLine("- 待核对后续：时间=${event.occurredAt}；证据ID=${event.id}；主题=${feedbackTopic(event.content)}；用户原话=${event.content.take(220)}。这是当时的不满，不能在未核对后续聊天前断言她现在仍生气。")
+                    val followUp = subsequentDialogue.filter {
+                        it.occurredAt.isAfter(event.occurredAt) &&
+                            it.occurredAt <= event.occurredAt.plus(java.time.Duration.ofDays(3))
+                    }.takeLast(3)
+                    if (followUp.isNotEmpty()) appendLine(
+                        "  后续真实对话（按发生顺序，不可抹去）： " + followUp.joinToString(" → ") {
+                            "${if (it.evidenceKind == EventEvidenceKind.UserStatement) "用户" else "角色"}：${it.content.take(140)}"
+                        }
+                    )
                 } else {
                     appendLine("- 已有后续转折：${feedbackTopic(event.content)}；当时的具体意见=${event.content.take(180)}；后来用户在${resolution.occurredAt}明确表示=${resolution.content.take(180)}（真实证据ID=${resolution.id}）。这一轮争执已说开，保留反思但不得以旧不满为由重新道歉或索取原谅。")
                 }
