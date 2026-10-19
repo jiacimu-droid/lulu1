@@ -18,6 +18,15 @@ class WorldLifeEpisodeParagraphsTest {
             paragraphs.map { it.kind })
         assertEquals("“好吧。”", paragraphs.last().text)
     }
+    @Test fun preservesStandaloneLegacyMindAndDialogueLabels() {
+        val paragraphs = WorldLifeEpisodeParagraphs.parse(
+            "【心声】\n他也不知道为什么突然想起那件事。\n\n【对白】\n“再试一次。”"
+        )
+        assertEquals(listOf(WorldLifeParagraphKind.THOUGHT, WorldLifeParagraphKind.SPEECH),
+            paragraphs.map { it.kind })
+        assertEquals("再试一次。", paragraphs.last().text.trim('“', '”'))
+    }
+
     @Test fun naturallyQuotedParagraphIsDialogueButInlineQuoteStaysNarration() {
         val paragraphs = WorldLifeEpisodeParagraphs.parse("他说：“好吧。”\n\n“要试试看吗？”")
         assertEquals(WorldLifeParagraphKind.NARRATION, paragraphs.first().kind)
