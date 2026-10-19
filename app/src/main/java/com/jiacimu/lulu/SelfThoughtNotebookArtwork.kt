@@ -84,7 +84,7 @@ internal fun SelfThoughtNotebookArtwork(
                         style = Stroke(width = 1.4f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(11f, 12f))),
                     )
                     // Horizontal writing guides are extremely faint, not fake prewritten text.
-                    for (y in 475..1195 step 58) {
+                    for (y in 340..1195 step 58) {
                         drawLine(Color(0xFF8BA8A3).copy(alpha = .080f),
                             Offset(135f, y.toFloat()), Offset(858f, y.toFloat()), 1.4f)
                     }
@@ -97,6 +97,8 @@ internal fun SelfThoughtNotebookArtwork(
                         center = Offset(810f, 290f))
 
                     // A sun orbit, two trails, and hand-drawn small stars near the heading.
+                    // Keep the ornament delicate and clear of the first writing line.
+                    withTransform({ scale(.67f, .67f, pivot = Offset.Zero) }) {
                     val orbit = Path().apply {
                         moveTo(110f, 276f)
                         cubicTo(178f, 128f, 344f, 113f, 433f, 198f)
@@ -110,6 +112,7 @@ internal fun SelfThoughtNotebookArtwork(
                     drawCircle(coral, radius = 5f, center = Offset(435f, 202f))
                     drawCircle(ink.copy(alpha = .5f), radius = 5f, center = Offset(137f, 325f))
                     drawCircle(coral.copy(alpha = .6f), radius = 3.5f, center = Offset(389f, 334f))
+                    }
                     // Tiny original 4-point twinkles, repeated sparingly.
                     fun star(x: Float, y: Float, length: Float, color: Color) {
                         drawLine(color, Offset(x - length, y), Offset(x + length, y), 2.5f)
@@ -123,21 +126,6 @@ internal fun SelfThoughtNotebookArtwork(
                     // A minimal celestial crescent - a different language from floral decoration.
                     drawCircle(ink.copy(alpha = .22f), 31f, Offset(760f, 1037f))
                     drawCircle(paper, 28f, Offset(772f, 1028f))
-
-                    // Paper label reserved for actual interactive date at upper-right.
-                    drawRoundRect(
-                        brush = Brush.linearGradient(
-                            listOf(Color(0xFFF0F8F4), Color(0xFFDFEEE9)),
-                            start = Offset(563f, 96f), end = Offset(903f, 270f)),
-                        topLeft = Offset(555f, 99f), size = Size(354f, 170f),
-                        cornerRadius = CornerRadius(42f),
-                    )
-                    drawRoundRect(
-                        ink.copy(alpha = .20f),
-                        topLeft = Offset(555f, 99f), size = Size(354f, 170f),
-                        cornerRadius = CornerRadius(42f),
-                        style = Stroke(2.1f),
-                    )
 
                     // Original paper boat and two soft wave lines in the lower-right margin.
                     val boat = Path().apply {
