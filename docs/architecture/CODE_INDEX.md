@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f2dceb8b818eb97fc4b2a62fdb66f70d996fa27c`
+- 基准提交：`fd7484778788978bb5143f252614cd9712092b01`
 - 分支：`main`
 - 已索引文件：723
-- 已索引代码/文本行：139262
-- 已发现符号：2105
+- 已索引代码/文本行：139296
+- 已发现符号：2106
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -111,7 +111,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 633 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 904 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 924 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 230 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 487 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 98 | 2 |
@@ -353,7 +353,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 141 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 1811 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 872 | 25 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 881 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
@@ -364,7 +364,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 236 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 241 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 622 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 28 | 0 |
