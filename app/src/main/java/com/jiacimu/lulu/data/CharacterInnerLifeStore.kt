@@ -154,7 +154,7 @@ object CharacterInnerLifeStore {
             val shouldClose = RelationshipRepairContinuity.isRepairConcern(
                 concern.optString("focus")) &&
                 RelationshipRepairContinuity.eligiblePriorState(
-                    concern.optString("createdAt"), now)
+                    concern.optString("createdAt"), concern.optString("updatedAt"), now)
             if (!shouldClose) {
                 kept.put(concern)
                 continue
@@ -184,7 +184,7 @@ object CharacterInnerLifeStore {
                 motive.optString("status") != "paused") continue
             if (!RelationshipRepairContinuity.isRepairGoal(motive.optString("aim")) ||
                 !RelationshipRepairContinuity.eligiblePriorState(
-                    motive.optString("createdAt"), now)) continue
+                    motive.optString("createdAt"), motive.optString("updatedAt"), now)) continue
             motive.put("status", "achieved")
                 .put("closedAt", now.toString())
                 .put("closedBecause", "用户明确反馈关系争执已说开；后续以实际相处体现")
