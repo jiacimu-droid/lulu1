@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T03:34:22.069071+00:00",
-  "commit": "a5429e966a6fc36528cd2150ff21c07f33ea3b1e",
+  "generatedAt": "2026-10-19T03:34:48.113950+00:00",
+  "commit": "9b60906a268cf9afe65351d02b59da58e3990a7d",
   "branch": "main",
-  "sourceFingerprint": "f4108f816f4576c007add881d1ad12f0e8fbb7f2f1a076389a874037e839823b",
+  "sourceFingerprint": "358f84500b7bdc15f9a4917311d086567b26a72d8d3603e808184d1c65a7cf55",
   "summary": {
     "files": 719,
-    "lines": 137775,
-    "symbols": 2079
+    "lines": 137817,
+    "symbols": 2080
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2493,7 +2493,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 397
+        "line": 439
       }
     ],
     "wordsToSubmitOnMute": [
@@ -3869,7 +3869,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 325
+        "line": 367
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -4190,16 +4190,22 @@
         "line": 208
       }
     ],
+    "InsightRow": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
+        "line": 25
+      }
+    ],
     "isMaterialEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 58
+        "line": 100
       }
     ],
     "matchingActionFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 468
+        "line": 510
       }
     ],
     "register": [
@@ -15314,24 +15320,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 522,
-      "sha256": "4ce785e8f01d630b06030e60687d24e17d3552e05f31361e659f521ec9598218",
+      "lines": 564,
+      "sha256": "97519863e0b8e4cf9f3c02850f60aed02930889c752667215b1cc9bbcfe95667",
       "symbols": [
         {
+          "name": "InsightRow",
+          "line": 25
+        },
+        {
           "name": "isMaterialEvidence",
-          "line": 58
+          "line": 100
         },
         {
           "name": "invalidateEvidence",
-          "line": 325
+          "line": 367
         },
         {
           "name": "score",
-          "line": 397
+          "line": 439
         },
         {
           "name": "matchingActionFeedback",
-          "line": 468
+          "line": 510
         }
       ]
     },
