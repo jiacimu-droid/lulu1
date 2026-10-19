@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import androidx.compose.ui.text.font.FontWeight
+
 import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
