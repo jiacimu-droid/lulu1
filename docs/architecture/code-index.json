@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:12:50.785354+00:00",
-  "commit": "f5021ef96e92eccb89bb7506d6e2ea7cde9b89db",
+  "generatedAt": "2026-10-19T05:13:14.774637+00:00",
+  "commit": "a2fb9845362e28b776900be237f6467100ca5bbb",
   "branch": "main",
-  "sourceFingerprint": "01de450727c112a8b47debbbe7e0759acc24fedd2eb0cd6229787cc02ddbaea9",
+  "sourceFingerprint": "62580fe739fe3303c8b155cf615ed217cdddf043bd9788bf15bd46b08472dca9",
   "summary": {
     "files": 719,
-    "lines": 138130,
-    "symbols": 2085
+    "lines": 138161,
+    "symbols": 2087
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2204,16 +2204,28 @@
         "line": 40
       }
     ],
+    "liveLines": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 97
+      }
+    ],
+    "emit": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
+        "line": 103
+      }
+    ],
     "captionRows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 91
+        "line": 122
       }
     ],
     "format": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-        "line": 94
+        "line": 125
       }
     ],
     "pauseBeforeNextLine": [
@@ -13000,7 +13012,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 1902,
-      "sha256": "556ae513fcb80086d71eb4d0c9bc22a5f4bcb1403f597419ba577d705f3f4ee9",
+      "sha256": "0caaec48a24f1e189e6647d2b8039e201ada906fc6d4a23905c837efe86c88b4",
       "symbols": [
         {
           "name": "announceScheduledReminder",
@@ -13550,8 +13562,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
-      "lines": 97,
-      "sha256": "a3cf089ec495559f24ee7bcff538166fb33d9bb9e02c733f988706d87f6fcd0d",
+      "lines": 128,
+      "sha256": "51e09bebe0ab5d9860656bc11b81475f56c6ef32803d6bdd6b14b6ca0a9358f0",
       "symbols": [
         {
           "name": "lines",
@@ -13570,12 +13582,20 @@
           "line": 40
         },
         {
+          "name": "liveLines",
+          "line": 97
+        },
+        {
+          "name": "emit",
+          "line": 103
+        },
+        {
           "name": "captionRows",
-          "line": 91
+          "line": 122
         },
         {
           "name": "format",
-          "line": 94
+          "line": 125
         }
       ]
     },
