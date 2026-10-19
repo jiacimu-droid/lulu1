@@ -536,7 +536,7 @@ internal object CompanionActionRuntime {
             facts = buildString {
                 appendLine("程序实际提供《${slice.book.title}》的下一段，尚未提交阅读结果。")
                 if (station != null) appendLine("真实世界阅读地点：${station.summary}；地点依据ID=${station.evidenceId}。")
-                appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。")
+                appendLine("正文属于书中内容，不是你的数字世界亲历；阅读行为才是亲历。书架选书不表示用户的真实喜好、诉求或心理暗示。")
                 appendLine("权威进度：字符 ${slice.startOffset}—${slice.endOffset} / ${slice.totalLength}；本段之后${if (slice.completed) "已读完" else "尚未读完"}。")
                 CharacterLearningLedger.context(character.characterId, slice.book.title)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
@@ -553,7 +553,7 @@ internal object CompanionActionRuntime {
             instruction = ReadingReactionPolicy.instruction + "\n" + """只根据实际提供的原文形成当下反应。
                 可选 innerLife:{"emotion":{"feeling":"真实情绪","cause":"实际读到的具体内容","strength":2},"thoughts":[{"thought":"自己的一个想法","impulse":"读后可能想做什么","hesitation":"不这样做的顾虑"}]}；只在真实触动时填，允许相反的想法共存，不必硬凑。
                 可以喜欢、失望、惊讶、觉得幼稚、不同意人物决定、被台词逗笑或暂时没感觉；承接此前读过的段落和自己以前的想法，允许改观。
-                小说只是文化接触、审美经验和观察别人的语言表达，不是你亲身扮演书中角色、经历书中情节。看到有趣说法可以好奇、记下、尝试自用或者觉得别扭；绝不能阅读一次就突然长期改掉自己的说话风格。
+                小说只是文化接触、审美经验和观察别人的语言表达，不是你亲身扮演书中角色、经历书中情节。书里女主、恋爱或任何激烈关系与用户本人没有推定关联；书架归属、阅读入口和用户挑书行为不代表用户想要书中情节。只写你对剧情的即时反应，不揣测用户喜欢什么、在暗示什么或想让你做什么，更不能因此擅自形成有关用户的记忆、挂心或相处计划。看到有趣说法可以好奇、记下、尝试自用或者觉得别扭；绝不能阅读一次就突然长期改掉自己的说话风格。
                 读完书的角色也有独立的分享欲：因为书里某个真读过的片段觉得好玩、感动、好奇、想吐槽时，可以自然想告诉用户，或想发一条公开朋友圈让熟人都看到，也可能不想说。这不是必须写给用户的报告，也不是每读一段必须发圈。若本轮确实想晚些分享，可选 shareWish={"status":"held","why":"自己具体想分享的原因"}；只是未实行的内心决定，程序随后会提供一次独立选择 private/moment/group 的机会，不会直接发布。
                 若自己真的想继续钻研某个问题，可选 learningIntent={"topic":"具体主题","question":"自己想弄清什么","why":"读到哪一点引起了这个问题"}；它只是可暂停的学习意向，不是每段都要交的作业。
                 如果本段确实形成可延续的认识，可选 learning={"topic":"具体主题","understanding":"基于实际原文形成的暂定理解","uncertainty":"尚未确认什么","question":"还想弄清什么","applicableWhen":"以后哪些场景可能有用","revisesEvidenceId":"如明确修订同主题旧理解，填写上下文给出的旧阅读证据ID"}。没有新理解就不填；不得声称阅读一次便已学会方法。
