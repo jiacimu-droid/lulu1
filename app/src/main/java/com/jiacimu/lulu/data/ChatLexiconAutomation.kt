@@ -166,6 +166,10 @@ object ChatLexiconAutomation {
             characterId = characterId,
             facts = buildString {
                 groupName?.let { appendLine("场景：群聊《$it》，当前判断对象是这个角色。") }
+                appendLine("原始发言发生时间（本机时区）：")
+                context.take(8).forEach { event ->
+                    appendLine("- ${event.occurredAt.atZone(java.time.ZoneId.systemDefault())} · ${event.speaker}")
+                }
                 appendLine("用户：$userText")
                 appendLine("已有生活近况（只允许更新真实生活条目，不含角色的私人挂心）：")
                 existing.forEach { appendLine("entryId=${it.id}；${it.section}；${it.title}：${it.content}；上次回访=${it.lastFollowUpAt}") }
@@ -189,6 +193,8 @@ object ChatLexiconAutomation {
                 7. 同一生活近况有新进展时更新已有条目，不重复创建。followedUp 只是已实际问过的记录，不授权再次主动联系。
                 8. 角色完整回复为空时，只允许更新或解决已有条目，不新增；归属不明确就不改。
                 9. title 不超过 12 个汉字，content 说明关注对象、当前未解决点和已知回访条件（没有条件就不要猜）。
+                10. 对作息、睡觉、起床和学习进度等有明确时间的生活事实，结合原始发言时间记录可核实的日期/时刻；相对词「昨晚」相对该发言发生日理解，不等于角色此刻的「昨晚」。不确定具体日期就保留原说法，不伪造。
+                11. 让后来能比较前后变化：例如之前真实说过凌晨两点睡，今天确实更早睡，可以自然地提一句；不能把一次作息当长期习惯，也不主动创造用户未说的新进展。
             """.trimIndent(),
             source = "辞海",
             title = "辞海自动整理",
@@ -361,6 +367,8 @@ private val LifeSignals = listOf(
     "我最近", "我今天", "我明天", "我这周", "我每天", "我的作息", "我要考试", "我要考研",
     "我在备考", "我住在", "我搬到", "我开始上班", "我开始上学", "我的计划", "接下来我要",
     "今天要", "明天要", "最近在", "接下来", "准备去", "准备开始",
+    "昨晚", "昨夜", "昨天睡", "凌晨", "点睡", "我睡了", "睡到", "睡得", "起床",
+    "早睡", "熬夜", "今晚睡", "今天睡",
 )
 
 private val ConcernSignals = listOf(
