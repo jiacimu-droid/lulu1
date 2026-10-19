@@ -27,6 +27,14 @@ class WorldLifeEpisodeParagraphsTest {
         assertEquals("再试一次。", paragraphs.last().text.trim('“', '”'))
     }
 
+    @Test fun longNarrationBreaksOnlyBetweenSentencesWithoutDroppingWords() {
+        val original = "夜色慢慢落下来。".repeat(30)
+        val pieces = WorldLifeEpisodeParagraphs.parse(original)
+        assertTrue(pieces.size > 1)
+        assertEquals(original, pieces.joinToString("") { it.text })
+        assertTrue(pieces.all { it.kind == WorldLifeParagraphKind.NARRATION })
+    }
+
     @Test fun naturallyQuotedParagraphIsDialogueButInlineQuoteStaysNarration() {
         val paragraphs = WorldLifeEpisodeParagraphs.parse("他说：“好吧。”\n\n“要试试看吗？”")
         assertEquals(WorldLifeParagraphKind.NARRATION, paragraphs.first().kind)
