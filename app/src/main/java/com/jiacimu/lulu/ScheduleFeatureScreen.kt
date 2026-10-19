@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.RoleDayScheduleStore
-import com.jiacimu.lulu.data.SharedExperienceTimeline
-import com.jiacimu.lulu.data.SharedTimelineEvent
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -38,7 +36,6 @@ fun ScheduleFeatureScreen(
         mutableStateOf(initialCharacterId.ifBlank { characters.keys.firstOrNull().orEmpty() })
     }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var showHistory by remember { mutableStateOf(false) }
     var characterMenuExpanded by remember { mutableStateOf(false) }
     var cancelId by remember { mutableStateOf<String?>(null) }
     var error by remember { mutableStateOf("") }
@@ -50,15 +47,7 @@ fun ScheduleFeatureScreen(
     val plans = remember(selectedCharacterId, selectedDate, revisions) {
         if (selectedCharacterId.isBlank()) emptyList() else
             RoleDayScheduleStore.plans(context, selectedCharacterId)
-                .filter { it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate &&
-                    it.status != "cancelled" }
-    }
-    val events = remember(selectedCharacterId, selectedDate, characters, showHistory) {
-        if (!showHistory || selectedCharacterId.isBlank()) emptyList() else
-            SharedExperienceTimeline.all(selectedCharacterId)
-                .filter { it.occurredAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate }
-                .filter(::isScheduleActivity)
-                .sortedBy(SharedTimelineEvent::occurredAt)
+                .filter { it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate }
     }
     val name = characters[selectedCharacterId]?.displayName.orEmpty()
     Scaffold(
@@ -109,12 +98,9 @@ fun ScheduleFeatureScreen(
                     Icon(Icons.Outlined.ChevronRight, "后一天")
                 }
             }
-            TabRow(selectedTabIndex = if (showHistory) 1 else 0) {
-                Tab(selected = !showHistory, onClick = { showHistory = false },
-                    text = { Text("自己的安排") })
-                Tab(selected = showHistory, onClick = { showHistory = true },
-                    text = { Text("经历") })
-            }
+            Text("只看本人亲自安排的事 · 执行依据保留在原始时间线",
+                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
             if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(16.dp))
             LazyColumn(
@@ -122,61 +108,54 @@ fun ScheduleFeatureScreen(
                 contentPadding = PaddingValues(horizontal = 19.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (!showHistory) {
-                    if (plans.isEmpty()) item {
-                        Text("这一天还没有安排。",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 30.dp))
+                if (plans.isEmpty()) item {
+                    Text("这一天还没有本人安排的活动。",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 30.dp))
+                }
+                items(plans, key = { it.id }) { plan ->
+                    val finished = plan.status in setOf("completed", "cancelled")
+                    val stateLabel = when (plan.status) {
+                        "completed" -> "已完成 · 有真实执行依据"
+                        "cancelled" -> "本人已取消"
+                        "due" -> "时间已到 · 待本人决定"
+                        else -> "本人安排 · 等待到时"
                     }
-                    items(plans, key = { it.id }) { plan ->
-                        Surface(
-                            shape = RoundedCornerShape(18.dp),
-                            color = MaterialTheme.colorScheme.surface,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                        ) {
-                            Row(Modifier.fillMaxWidth().padding(16.dp),
-                                verticalAlignment = Alignment.Top) {
-                                Text(plan.dueAt.atZone(ZoneId.systemDefault())
-                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
-                                    fontSize = 13.sp, color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.width(55.dp))
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text(plan.title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                                    Text(plan.intent, fontSize = 13.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(if (plan.status == "due") "已到时间 · 等待本人选择"
-                                        else "本人安排 · 等待到时",
-                                        fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                IconButton(onClick = { cancelId = plan.id }) {
-                                    Icon(Icons.Outlined.Close, "取消安排",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if (events.isEmpty()) item {
-                        Text("这一天还没有留下活动记录。",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 30.dp))
-                    }
-                    items(events, key = SharedTimelineEvent::id) { event ->
-                        Surface(
-                            shape = RoundedCornerShape(18.dp),
-                            color = MaterialTheme.colorScheme.surface,
-                        ) {
-                            Row(Modifier.fillMaxWidth().padding(16.dp)) {
-                                Text(event.occurredAt.atZone(ZoneId.systemDefault())
-                                    .format(DateTimeFormatter.ofPattern("HH:mm")),
-                                    fontSize = 12.sp, modifier = Modifier.width(56.dp),
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = if (finished) MaterialTheme.colorScheme.surfaceVariant
+                            else MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Row(Modifier.fillMaxWidth().padding(16.dp),
+                            verticalAlignment = Alignment.Top) {
+                            Text(plan.dueAt.atZone(ZoneId.systemDefault())
+                                .format(DateTimeFormatter.ofPattern("HH:mm")),
+                                fontSize = 13.sp, color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.width(56.dp))
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                Text(plan.title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                Text(plan.intent, fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text(event.channel, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                    Text(event.content, fontSize = 13.sp,
+                                Text(stateLabel, fontSize = 11.sp,
+                                    color = if (plan.status == "completed") MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurfaceVariant)
+                                if (plan.rescheduleCount > 0) Text("曾由本人改期 ${plan.rescheduleCount} 次",
+                                    fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                if (plan.resultSummary.isNotBlank()) {
+                                    Text(plan.resultSummary, fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
+                            if (!finished) IconButton(onClick = { cancelId = plan.id }) {
+                                Icon(Icons.Outlined.Close, "取消安排",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            } else Icon(
+                                if (plan.status == "completed") Icons.Outlined.CheckCircleOutline
+                                    else Icons.Outlined.RemoveCircleOutline,
+                                stateLabel, modifier = Modifier.padding(8.dp).size(19.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -199,10 +178,3 @@ fun ScheduleFeatureScreen(
     }
 }
 
-private fun isScheduleActivity(event: SharedTimelineEvent): Boolean =
-    event.channel == "角色日程" ||
-        event.id.startsWith("game-raw-") ||
-        event.channel.startsWith("共同阅读《") ||
-        event.channel.startsWith("独自阅读《") ||
-        event.channel.startsWith("群聊电话·") ||
-        event.channel == "私人日记"
