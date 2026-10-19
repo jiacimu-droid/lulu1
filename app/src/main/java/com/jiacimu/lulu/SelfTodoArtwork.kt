@@ -153,79 +153,96 @@ internal fun TodoListHeading(title: String, caption: String) {
     }
 }
 
+/**
+ * Dense task row: one compact title line + contextual metadata and optional short note.
+ * The full title, long note and recurrence editor are still available on tap.
+ */
 @Composable
 internal fun TodoTaskCard(
     occurrence: TodoOccurrence, today: LocalDate, checked: Boolean,
     onCheck: () -> Unit, onEdit: () -> Unit,
 ) {
+    val task = occurrence.task
     val overdue = occurrence.date.isBefore(today)
-    val tomorrow = occurrence.date == today.plusDays(1)
     val tint = when {
         overdue -> TodoInk.coral
-        tomorrow -> TodoInk.sage
+        occurrence.date == today.plusDays(1) -> TodoInk.sage
         else -> TodoInk.violet
     }
+    val dayLabel = when {
+        overdue -> "逾期 · " + occurrence.date.format(todoVisualDate)
+        occurrence.date == today -> "今天"
+        occurrence.date == today.plusDays(1) -> "明天"
+        else -> occurrence.date.format(todoVisualDate)
+    }
+    val timeText = task.minutes?.let {
+        String.format(Locale.getDefault(), "%02d:%02d", it / 60, it % 60)
+    }
+    val recurrence = when (task.repeat) {
+        TodoRepeat.DAILY -> "每天"
+        TodoRepeat.WEEKLY -> "每周"
+        TodoRepeat.ONCE -> ""
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = TodoInk.paper, shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, TodoInk.line), shadowElevation = 1.dp,
+        color = TodoInk.paper,
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, TodoInk.line),
     ) {
-        Row(Modifier.fillMaxWidth().padding(start = 15.dp, end = 6.dp,
-            top = 13.dp, bottom = 13.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(onClick = onCheck, modifier = Modifier.size(43.dp),
-                color = if (checked) TodoInk.sage else Color.White,
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.5.dp, if (checked) TodoInk.sage else tint.copy(alpha = .56f))) {
-                Box(contentAlignment = Alignment.Center) {
-                    if (checked) Icon(Icons.Outlined.Check, "完成", Modifier.size(24.dp),
-                        tint = Color.White)
-                }
-            }
-            Spacer(Modifier.width(13.dp))
-            Column(Modifier.weight(1f).clickable(onClick = onEdit).padding(vertical = 5.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Text(occurrence.task.title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                    color = TodoInk.title, maxLines = 3, overflow = TextOverflow.Ellipsis,
-                    textDecoration = if (checked) TextDecoration.LineThrough else null)
-                if (occurrence.task.note.isNotBlank()) {
-                    Text(occurrence.task.note, fontSize = 12.sp, color = TodoInk.secondary,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(7.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    val dayLabel = when {
-                        overdue -> "已逾期 · " + occurrence.date.format(todoVisualDate)
-                        occurrence.date == today -> "今天"
-                        tomorrow -> "明天"
-                        else -> occurrence.date.format(todoVisualDate)
-                    }
-                    Surface(color = when {
-                            overdue -> TodoInk.coralLight
-                            tomorrow -> TodoInk.sageLight
-                            else -> TodoInk.violetLight
-                        }, shape = RoundedCornerShape(8.dp)) {
-                        Text(dayLabel, Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
-                            fontSize = 10.sp, color = tint, fontWeight = FontWeight.Medium)
-                    }
-                    Text(occurrence.task.minutes?.let {
-                        String.format(Locale.getDefault(), "%02d:%02d", it / 60, it % 60)
-                    } ?: "不设时间", color = TodoInk.secondary, fontSize = 11.sp)
-                }
-                if (occurrence.task.repeat != TodoRepeat.ONCE) {
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Icon(Icons.Outlined.EventRepeat, null, Modifier.size(13.dp),
-                            tint = TodoInk.secondary)
-                        Text(if (occurrence.task.repeat == TodoRepeat.DAILY) "每天" else "每周",
-                            fontSize = 11.sp, color = TodoInk.secondary)
+        Row(
+            Modifier.fillMaxWidth().padding(start = 12.dp, end = 6.dp,
+                top = 9.dp, bottom = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // 36dp mark inside a comfortable 44dp hit target.
+            Box(Modifier.size(44.dp).clickable(onClick = onCheck),
+                contentAlignment = Alignment.Center) {
+                Surface(
+                    modifier = Modifier.size(33.dp),
+                    color = if (checked) TodoInk.sage else Color.White,
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.5.dp,
+                        if (checked) TodoInk.sage else tint.copy(alpha = .6f)),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        if (checked) Icon(Icons.Outlined.Check, "完成",
+                            modifier = Modifier.size(20.dp), tint = Color.White)
                     }
                 }
             }
-            Surface(onClick = onEdit, modifier = Modifier.size(43.dp),
+            Spacer(Modifier.width(9.dp))
+            Column(
+                Modifier.weight(1f).clickable(onClick = onEdit).padding(vertical = 1.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    task.title, color = TodoInk.title, fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold, maxLines = 2,
+                    lineHeight = 19.sp, overflow = TextOverflow.Ellipsis,
+                    textDecoration = if (checked) TextDecoration.LineThrough else null,
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    Text(dayLabel, fontSize = 10.sp, color = tint,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (timeText != null) Text(timeText, fontSize = 10.sp,
+                        color = TodoInk.secondary)
+                    if (recurrence.isNotEmpty()) Text("↻ $recurrence",
+                        fontSize = 10.sp, color = TodoInk.secondary)
+                }
+                if (task.note.isNotBlank()) Text(
+                    task.note, fontSize = 11.sp, color = TodoInk.secondary,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Surface(onClick = onEdit, modifier = Modifier.size(40.dp),
                 shape = CircleShape, color = Color.Transparent) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Outlined.ArrowForward, "编辑待办",
-                        Modifier.size(17.dp), tint = TodoInk.secondary)
+                    Icon(Icons.Outlined.ArrowForward, "查看待办",
+                        modifier = Modifier.size(16.dp), tint = TodoInk.secondary)
                 }
             }
         }
