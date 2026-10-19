@@ -40,6 +40,16 @@ class CharacterAccountabilityContextTest {
             CharacterAccountabilityContext.guardUnfoundedInnerBlame("今天的法律题很难", "她说这道题不对，我真的不同意。"))
     }
 
+    @Test fun neutralWakeFeedbackIsNotTreatedAsUserBlame() {
+        val feedback = "你声音比较温柔，所以叫不醒我"
+        assertTrue(CharacterAccountabilityContext.isWakeExplanation(feedback))
+        val response = CharacterAccountabilityContext.guardUnfairBlame(
+            feedback, "这甩锅的理由找得挺齐全呀，怎么还嘴硬。")
+        assertFalse(response.contains("甩锅的理由"))
+        assertTrue(response.contains("客观情况"))
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains("主人"))
+    }
+
     @Test fun obviousRoleBlameIsStoppedOnlyInMissedCommitmentContext() {
         val unfair = "憋了四个小时，就憋出这一句倒打一耙？"
         val repaired = CharacterAccountabilityContext.guardUnfairBlame("那你也没十点叫我啊", unfair)
