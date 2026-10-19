@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
@@ -120,27 +121,54 @@ internal fun CompanionPresenceDialog(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     item(key = "header") {
-                        Surface(color = Color(0xFFF8F6F7),
-                            shape = RoundedCornerShape(19.dp),
-                            border = BorderStroke(1.dp, Color(0xFFF0ECEE))) {
-                            Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
-                                verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Text("PERSONAL MOMENT  ·  这一刻", color = Color(0xFF93868D),
-                                    fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                Text(characterName, color = Color(0xFF1D1D1F),
-                                    fontWeight = FontWeight.Bold, fontSize = 23.sp)
-                                Text(if (messageAnchor != null) "这条消息发出时的状态与心声"
-                                     else "状态是此刻的，想法与行动在相邻页继续",
-                                    color = Color(0xFF7A7A7E), fontSize = 11.sp)
-                            }
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(start = 4.dp, end = 36.dp, top = 3.dp, bottom = 2.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp),
+                        ) {
+                            Text(
+                                if (messageAnchor == null) "这一刻" else "消息发出时",
+                                fontSize = 11.sp, color = Color(0xFF989398),
+                            )
+                            Text(
+                                characterName, fontSize = 25.sp, fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF222124),
+                            )
                         }
                     }
                     item(key = "tabs") {
-                        CharacterSectionTabs(if (messageAnchor == null) listOf("此刻", "想法与行动", "心声历史") else listOf("此刻", "心声历史"), selectedTab) { selectedTab = it }
-
+                        PresenceMomentTabs(
+                            if (messageAnchor == null)
+                                listOf("此刻", "想法与行动", "心声历史")
+                            else listOf("此刻", "心声历史"),
+                            selectedTab,
+                        ) { selectedTab = it }
                     }
 
                     if (selectedTab == 0) {
+                        item(key = "current") {
+                            if (displayState == null) {
+                                Text(
+                                    if (messageAnchor == null) "还没有留下心情或心声。"
+                                    else "这条消息之前还没有状态记录。",
+                                    color = Color(0xFF8C888C), fontSize = 14.sp,
+                                    modifier = Modifier.padding(vertical = 18.dp),
+                                )
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    PresenceStateContent(displayState, latestHeartMoment)
+                                    if (messageAnchor == null) {
+                                        TextButton(
+                                            onClick = { deleteCurrentConfirm = true },
+                                            modifier = Modifier.align(Alignment.End),
+                                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
+                                        ) {
+                                            Text("删除记录", color = Color(0xFF9C9297), fontSize = 11.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         if (messageAnchor == null) item(key = "character-perception") {
                             val perceptionError = PerceptionStatusPresentation.errorFor(state)
                             val photoStatus = QqChatImageModelInput.lastReadStatus(context, characterId)
@@ -149,111 +177,71 @@ internal fun CompanionPresenceDialog(
                                 ?.atZone(ZoneId.systemDefault())
                                 ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")).orEmpty()
                             val latestNote = state?.lastPerceptionNote.orEmpty()
-                            val summary = when {
-                                perceptionError != null -> "感知异常 · $lastAt · ${perceptionError.take(100)}"
-                                photoFailed -> "图片读取失败 · ${photoStatus.takeLast(100)}"
-                                lastAt.isBlank() -> "尚无感知运行记录"
-                                latestNote.startsWith("感知成功") -> {
-                                    val chosen = latestNote.substringAfter("感知成功 · ", "")
-                                        .substringBefore(" · ").trim()
-                                    "最近感知 · $lastAt · " +
-                                        if (chosen.equals("silent", true)) "本人选择安静"
-                                        else "成功${chosen.takeIf(String::isNotBlank)?.let { " · $it" }.orEmpty()}"
-                                }
-                                latestNote.startsWith("感知启动") ->
-                                    "最近感知 · $lastAt · 已启动，尚无完成记录"
-                                else -> "最近感知 · $lastAt · 已更新"
+                            val failed = perceptionError != null || photoFailed ||
+                                latestNote.contains("失败") || latestNote.contains("未完成")
+                            val shortStatus = when {
+                                failed -> "异常"
+                                lastAt.isBlank() -> "暂无记录"
+                                latestNote.startsWith("感知启动") -> "进行中"
+                                else -> "已更新"
                             }
                             Column(
-                                Modifier.fillMaxWidth().padding(horizontal = 3.dp, vertical = 2.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(summary,
-                                        modifier = Modifier.weight(1f),
-                                        fontSize = 12.sp,
-                                        color = if (perceptionError != null || photoFailed)
-                                            Color(0xFFAF4545) else Color(0xFF7A7A7E),
-                                        maxLines = 3,
+                                HorizontalDivider(color = Color(0xFFEEECEE), thickness = 1.dp)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text("最近感知", fontSize = 12.sp, color = Color(0xFF8C888C))
+                                    Spacer(Modifier.weight(1f))
+                                    Text(
+                                        listOf(lastAt, shortStatus).filter(String::isNotBlank).joinToString("  ·  "),
+                                        fontSize = 11.sp,
+                                        color = if (failed) Color(0xFFB15B5B) else Color(0xFF969196),
                                     )
-                                    TextButton(onClick = { diagnosticsExpanded = !diagnosticsExpanded },
-                                        contentPadding = PaddingValues(horizontal = 6.dp)) {
-                                        Text(if (diagnosticsExpanded) "收起" else "详情", fontSize = 12.sp)
+                                    TextButton(
+                                        onClick = { diagnosticsExpanded = !diagnosticsExpanded },
+                                        contentPadding = PaddingValues(start = 9.dp, end = 2.dp),
+                                    ) {
+                                        Text(
+                                            if (diagnosticsExpanded) "收起" else "详情",
+                                            color = Color(0xFF757077), fontSize = 11.sp,
+                                        )
                                     }
                                 }
                                 if (diagnosticsExpanded) {
+                                    val issue = perceptionError ?: if (photoFailed) photoStatus else ""
+                                    if (issue.isNotBlank()) {
+                                        Text(issue, color = Color(0xFFB15B5B),
+                                            fontSize = 12.sp, lineHeight = 18.sp)
+                                    }
                                     PerceptionStatusPresentation.lines(
                                         state, policy, plans[characterId],
                                         onlineStates[characterId]?.isOnline(now) == true,
                                         CompanionPresenceStore.isInCall(characterId), now,
                                     ).forEach { line ->
-                                        Text(line, color = Color(0xFF66666A), fontSize = 12.sp)
+                                        Text(line, color = Color(0xFF858086),
+                                            fontSize = 11.sp, lineHeight = 17.sp)
                                     }
                                     state?.lastPerceptionNote?.takeIf(String::isNotBlank)?.let {
-                                        Text("感知回执 · ${it.take(180)}",
-                                            color = Color(0xFF66666A), fontSize = 12.sp)
+                                        Text("运行记录 · " + it.take(180),
+                                            color = Color(0xFF858086), fontSize = 11.sp)
                                     }
-                                    Text("识图回执 · $photoStatus",
-                                        color = if (photoFailed) Color(0xFFAF4545)
-                                            else Color(0xFF66666A), fontSize = 12.sp)
-                                    Text("这里仅显示${characterName}自己的记录，不包含其他角色。",
-                                        color = Color(0xFF8A8A90), fontSize = 11.sp)
-                                }
-                            }
-                        }
-                        if (messageAnchor == null) item(key = "recent-interaction-awareness") {
-                            // Show factual perception progress without fabricating a new
-                            // feeling or heart voice when the character chose silence.
-                            val latestCallEnd = SharedExperienceTimeline.recentEvents(characterId, 80)
-                                .lastOrNull { event ->
-                                    event.id.startsWith("interaction-call-end-") &&
-                                        !event.occurredAt.isAfter(now) &&
-                                        Duration.between(event.occurredAt, now) <= Duration.ofHours(2)
-                                }
-                            latestCallEnd?.let { event ->
-                                val completed = CharacterCausalAppraisalStage.hasCompletedDecision(characterId, event.id)
-                                val failed = state?.lastPerceptionAt?.let { !it.isBefore(event.occurredAt) } == true &&
-                                    state?.lastPerceptionNote.orEmpty().let { note ->
-                                        note.contains("失败") || note.contains("不完整") ||
-                                            note.contains("暂停") || note.contains("未完成")
+                                    Text("图片读取 · " + photoStatus,
+                                        color = Color(0xFF858086), fontSize = 11.sp)
+                                    TextButton(
+                                        onClick = {
+                                            ProactivePerceptionScheduler.scheduleManual(context, characterId)
+                                            manualCheckRequested = true
+                                        },
+                                        enabled = !manualCheckRequested,
+                                        contentPadding = PaddingValues(horizontal = 2.dp),
+                                    ) {
+                                        Text(if (manualCheckRequested) "已请求唤醒" else "唤醒一下",
+                                            fontSize = 12.sp)
                                     }
-                                val label = when {
-                                    completed -> "这通电话结束后已完成一次感知与选择；没有新心声也属于有效结果"
-                                    failed -> "电话结束后的感知尚未完成，可在下方查看最近感知状态"
-                                    else -> "已记录电话结束，正在等待角色的感知结果"
-                                }
-                                Text(label, fontSize = 12.sp, color = Color(0xFF7A7A7E),
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
-                            }
-                        }
-                        item(key = "current") {
-                            if (displayState == null) {
-                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    Text(if (messageAnchor == null) "还没有留下心情或心声。" else "这条消息之前还没有形成可查看的此刻状态。",
-                                        color = Color(0xFF7A7A7E))
-
-                                }
-                            } else {
-                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    PresenceStateContent(displayState, latestHeartMoment)
-                                    if (messageAnchor == null) {
-                                        TextButton(onClick = { deleteCurrentConfirm = true }) {
-                                            Text("删除这一刻的状态与心声", color = MaterialTheme.colorScheme.error)
-                                        }
-                                    }
-                                    // A structured consideration is NOT a second heart voice.
-                                    // Show it only when materially different, with its own label.
-                                    val reflection = latestThinkingMoment?.momentReflection.orEmpty()
-                                    if (reflection.isNotBlank() &&
-                                        !CharacterHeartVoicePolicy.sameMeaning(
-                                            reflection, latestHeartMoment?.innerThought.orEmpty(),
-                                        )) {
-                                        val whenThought = latestThinkingMoment?.updatedAt
-                                            ?.atZone(ZoneId.systemDefault())
-                                            ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")).orEmpty()
-                                        PresenceDialogSection("最近的想法 · $whenThought", reflection)
-                                    }
-
                                 }
                             }
                         }
@@ -307,21 +295,6 @@ internal fun CompanionPresenceDialog(
                         }
                     }
 
-                    if (messageAnchor == null && selectedTab == 0) {
-                        item(key = "manual-check") {
-                            OutlinedButton(
-                                onClick = {
-                                    ProactivePerceptionScheduler.scheduleManual(context, characterId)
-                                    manualCheckRequested = true
-                                },
-                                enabled = !manualCheckRequested,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                            ) {
-                                Text(if (manualCheckRequested) "已请求唤醒" else "唤醒一下")
-                            }
-                        }
-                    }
                 }
 
                 IconButton(
@@ -336,38 +309,105 @@ internal fun CompanionPresenceDialog(
 }
 
 @Composable
+private fun PresenceMomentTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+    ) {
+        labels.forEachIndexed { index, label ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                TextButton(
+                    onClick = { onSelect(index) },
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 7.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = if (index == selected) Color(0xFF242225)
+                        else Color(0xFF969196),
+                    ),
+                ) {
+                    Text(
+                        label, fontSize = 14.sp,
+                        fontWeight = if (index == selected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                }
+                Box(
+                    Modifier.width(22.dp).height(2.dp)
+                        .background(if (index == selected) Color(0xFF333033) else Color.Transparent)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PresenceMomentLine(label: String, value: String) {
+    if (value.isBlank()) return
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(label, modifier = Modifier.width(30.dp), fontSize = 11.sp,
+            color = Color(0xFFA09AA0), lineHeight = 21.sp)
+        Text(value, modifier = Modifier.weight(1f), fontSize = 14.sp,
+            lineHeight = 22.sp, color = Color(0xFF5B575B))
+    }
+}
+
+@Composable
 private fun PresenceStateContent(
     state: CompanionPresenceState,
     heartMoment: CompanionPresenceState?,
 ) {
-    // Keep the active action/status separate from the most recent *authored*
-    // inner voice. An old thought may be the latest one, but it must retain its
-    // original time, never be falsely attributed to today's state update.
-    // "PresencePresentation.status" already contains mood, which used to
-    // duplicate the mood exactly as in the reported screenshot. Show stable
-    // state, mood and gesture as DIFFERENT fields; do not concatenate them.
-    // The same cleanup serves this live page and other presence projections.
-    // Never present the same emotional words as three separate state fields.
-    val visibleFields = PresencePresentation.stateFields(state)
-    visibleFields.forEach { (label, value) ->
-        Text("$label · $value", color = Color(0xFF7A7A7E),
-            fontSize = 13.sp, lineHeight = 19.sp)
-    }
+    // The same source of truth as the other projections: deduplicate mood,
+    // ongoing state and gestures without changing the character's saved data.
+    val fields = PresencePresentation.stateFields(state).toMap()
+    val mood = fields["心情"].orEmpty()
+    val status = fields["状态"].orEmpty()
+    val gesture = fields["动作"].orEmpty()
     val voice = heartMoment?.innerThought.orEmpty()
-    if (voice.isNotBlank()) {
-        val time = heartMoment!!.updatedAt.atZone(ZoneId.systemDefault())
-            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
-        val label = if (heartMoment.updatedAt == state.updatedAt) "心声"
-            else "最近一次心声 · $time"
-        PresenceDialogSection(label, voice)
-    }
-    // A chosen life activity is a real queued executor request, never merely
-    // the model's private prose. Only show its receipt on the live tab, not a
-    // historical message's anchored state.
-    if (visibleFields.isEmpty() && voice.isBlank()) {
-        Text("这一刻还没有留下心声或动作。", color = Color(0xFF7A7A7E))
-    }
 
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = 7.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        if (mood.isNotBlank()) {
+            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("心情", fontSize = 11.sp, color = Color(0xFFA09AA0))
+                Text(mood, fontSize = 19.sp, lineHeight = 27.sp,
+                    fontWeight = FontWeight.Medium, color = Color(0xFF292529))
+            }
+        }
+        if (status.isNotBlank() || gesture.isNotBlank()) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                PresenceMomentLine("状态", status)
+                PresenceMomentLine("动作", gesture)
+            }
+        }
+        if (voice.isNotBlank()) {
+            val time = heartMoment!!.updatedAt.atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+            val label = if (heartMoment.updatedAt == state.updatedAt) "心声" else "心声 · " + time
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color(0xFFF8F7F6),
+                shape = RoundedCornerShape(18.dp),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 17.dp),
+                    verticalArrangement = Arrangement.spacedBy(11.dp),
+                ) {
+                    Text(label, fontSize = 11.sp, color = Color(0xFF8D858B),
+                        fontWeight = FontWeight.Medium)
+                    Text(voice, fontSize = 15.sp, lineHeight = 25.sp,
+                        color = Color(0xFF292629))
+                }
+            }
+        }
+        if (fields.isEmpty() && voice.isBlank()) {
+            Text("这一刻还没有留下状态或心声。",
+                color = Color(0xFF8C888C), fontSize = 14.sp)
+        }
+    }
 }
 
 /**
