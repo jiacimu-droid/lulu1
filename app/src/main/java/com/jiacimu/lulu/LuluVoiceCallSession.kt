@@ -1286,7 +1286,7 @@ internal object LuluVoiceCallSession {
                                 recentlyPlayedAgentAtMillis = SystemClock.elapsedRealtime()
                                 silenceAudioPending = false
                                 subtitleRevealJob?.cancel()
-                                val lines = PhoneSubtitleLayout.lines(plainSpeech)
+                                val lines = PhoneSubtitleLayout.liveLines(plainSpeech)
                                 if (lines.isNotEmpty()) {
                                     mutableState.update { it.copy(playingTranscript = lines.first()) }
                                     subtitleRevealJob = scope.launch {
