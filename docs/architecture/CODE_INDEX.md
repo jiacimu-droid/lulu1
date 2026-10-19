@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fdce64013c9ca27e42273d1008d70a61e007e75c`
+- 基准提交：`cc53591eb96e50446b1e22a210a2d11ec1de3016`
 - 分支：`main`
 - 已索引文件：722
-- 已索引代码/文本行：139003
+- 已索引代码/文本行：139002
 - 已发现符号：2104
 
 | 文件 | 行数 | 符号数 |
@@ -472,7 +472,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 1168 | 37 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 172 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 74 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 73 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt` | 150 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt` | 78 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/RollingStudyPlan.kt` | 249 | 1 |

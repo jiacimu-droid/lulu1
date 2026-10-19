@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:18:52.792122+00:00",
-  "commit": "fdce64013c9ca27e42273d1008d70a61e007e75c",
+  "generatedAt": "2026-10-19T06:20:05.154995+00:00",
+  "commit": "cc53591eb96e50446b1e22a210a2d11ec1de3016",
   "branch": "main",
-  "sourceFingerprint": "af826266eb3062ae7f5e590849fffaa6f9e44bf1233d1843e9fd52b1edf4249f",
+  "sourceFingerprint": "1b4eee12d029df982ac9099202421b364355aecdd9bd7a8f74b076a34a3c431a",
   "summary": {
     "files": 722,
-    "lines": 139003,
+    "lines": 139002,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -4719,7 +4719,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 38
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
@@ -9869,13 +9869,13 @@
     "encodeMoments": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 62
+        "line": 61
       }
     ],
     "decodeMoments": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 67
+        "line": 66
       }
     ],
     "ReadingReflectionRecord": [
@@ -21902,8 +21902,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-      "lines": 74,
-      "sha256": "9ce48e9ddaf49b2daf4b9d441d87351678202d8631d3bd5b8444371a3405dc08",
+      "lines": 73,
+      "sha256": "fb2fb93d62de62c8fd38940b9771bc975a1fbb0d0ef3844203f5c91d0a2756e3",
       "symbols": [
         {
           "name": "ReadingMoment",
@@ -21919,15 +21919,15 @@
         },
         {
           "name": "parse",
-          "line": 38
+          "line": 37
         },
         {
           "name": "encodeMoments",
-          "line": 62
+          "line": 61
         },
         {
           "name": "decodeMoments",
-          "line": 67
+          "line": 66
         }
       ]
     },
