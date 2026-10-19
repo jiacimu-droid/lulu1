@@ -55,13 +55,21 @@ internal object ReadingBackgroundBridge {
     fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
         books(context).let { books ->
             books.filter { book ->
-                book.source == "小剧场章节" && progress(context, characterId, book) < book.content.length &&
+                progress(context, characterId, book) < book.content.length &&
                     (book.seriesId.isBlank() || books.none { earlier ->
                         earlier.seriesId == book.seriesId && earlier.chapterNumber < book.chapterNumber &&
                             progress(context, characterId, earlier) < earlier.content.length
                     })
             }
         }
+
+    /**
+     * New autonomous selections come from the Theater. The compatibility
+     * [availableBooks] and [nextSlice] still allow previously uploaded material
+     * and legacy reading records to be resolved without deleting user data.
+     */
+    fun theaterBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
+        availableBooks(context, characterId).filter { it.source == "小剧场章节" }
 
     fun progressLabel(context: Context, characterId: String, book: BackgroundReadingBook): String {
         val offset = progress(context, characterId, book)
