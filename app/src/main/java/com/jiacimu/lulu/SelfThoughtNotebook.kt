@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -124,17 +125,79 @@ internal fun SelfThoughtNotebookScreen(
     }
 
     var drag by remember { mutableFloatStateOf(0f) }
-    SelfThoughtNotebookArtwork(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
-        // All controls are placed inside the book's paper, rather than a screen-level toolbar.
-        IconButton(
-            onClick = { if (writing) writing = false else onBack() },
-            modifier = Modifier.align(Alignment.TopStart).padding(start = 16.dp, top = 38.dp).size(40.dp),
-        ) { Icon(if (writing) Icons.Outlined.Close else Icons.Outlined.ArrowBack,
-            contentDescription = if (writing) "取消编辑" else "返回自序", tint = BookInk) }
-
-        // Image contains an empty washi-taped date label here. This is its functional overlay.
+    Column(
+        Modifier.fillMaxSize()
+            .background(Brush.verticalGradient(
+                listOf(Color(0xFFFAF7F2), Color(0xFFF1E8DE))))
+            .statusBarsPadding().navigationBarsPadding()
+            .padding(horizontal = 12.dp),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = { if (writing) writing = false else onBack() },
+                modifier = Modifier.size(44.dp)) {
+                Icon(if (writing) Icons.Outlined.Close else Icons.Outlined.ArrowBack,
+                    contentDescription = if (writing) "取消写作" else "返回自序",
+                    tint = BookInk, modifier = Modifier.size(22.dp))
+            }
+            Spacer(Modifier.width(7.dp))
+            Column(Modifier.weight(1f)) {
+                Text("A LITTLE BOOK OF THOUGHTS", color = BookMuted, fontSize = 9.sp,
+                    letterSpacing = 1.3.sp)
+                Spacer(Modifier.height(3.dp))
+                Text("所思", color = BookInk, fontSize = 27.sp,
+                    fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp)
+            }
+            Surface(
+                onClick = {
+                    editTarget = null
+                    title = ""
+                    body = ""
+                    mood = ""
+                    weather = ""
+                    writing = true
+                },
+                enabled = !writing,
+                color = Color(0xFFEAD9C8),
+                shape = RoundedCornerShape(99.dp),
+                border = BorderStroke(1.dp, Color(0xFFDAC6B1)),
+            ) {
+                Row(Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Outlined.Edit, null, tint = BookInk,
+                        modifier = Modifier.size(16.dp))
+                    Text("新的一页", color = BookInk, fontSize = 12.sp)
+                }
+            }
+        }
+        Row(
+            Modifier.fillMaxWidth().padding(start = 52.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(Modifier.width(20.dp).height(1.dp)
+                .background(Color(0xFFB99A7C)))
+            Spacer(Modifier.width(10.dp))
+            Text(
+                if (pages.isEmpty()) "留一页空白，等故事发生"
+                else "写过 ${pages.map { it.date }.distinct().size} 天  ·  留下 ${pages.size} 页",
+                color = BookMuted, fontSize = 11.sp,
+            )
+        }
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            // A book follows paper proportions, not the 9:16 device proportions.
+            val bookWidth = minOf(maxWidth - 2.dp, (maxHeight - 4.dp) * .70f)
+            val bookHeight = bookWidth / .70f
+            SelfThoughtNotebookArtwork(Modifier.width(bookWidth).height(bookHeight)) {
+        // Date stays inside the upper-right paper label.
         Column(
-            Modifier.align(Alignment.TopEnd).padding(top = 58.dp, end = 35.dp),
+            Modifier.align(Alignment.TopEnd).padding(
+                top = bookHeight * .087f, end = bookWidth * .080f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(date.year.toString(), fontSize = 10.sp, color = BookMuted)
@@ -155,11 +218,16 @@ internal fun SelfThoughtNotebookScreen(
         }
 
         Column(
-            Modifier.fillMaxSize().padding(start = 40.dp, end = 39.dp, top = 178.dp, bottom = 46.dp),
+            Modifier.fillMaxSize().padding(
+                start = bookWidth * .135f,
+                end = bookWidth * .102f,
+                top = bookHeight * .275f,
+                bottom = bookHeight * .077f,
+            ),
         ) {
             if (writing) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("写下这一页", color = BookMuted, fontSize = 12.sp)
+                    Text("写在纸上的心事", color = BookMuted, fontSize = 12.sp)
                     Spacer(Modifier.weight(1f))
                     Text("${body.length} 字", color = BookMuted, fontSize = 11.sp)
                 }
@@ -241,13 +309,21 @@ internal fun SelfThoughtNotebookScreen(
                     val shownNumber = slice.getOrNull(1)?.toIntOrNull() ?: 0
                     val page = thoughtPagesOn(pages, shownDate).getOrNull(shownNumber)
                     if (page == null) {
-                        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center) {
-                            Text("✿", color = BookAccent, fontSize = 30.sp)
-                            Spacer(Modifier.height(8.dp))
-                            Text("这一天，还没有落笔", color = BookInk, fontSize = 17.sp)
-                            Spacer(Modifier.height(8.dp))
-                            TextButton(onClick = { write() }) { Text("写下第一页", color = BookAccent) }
+                        Column(Modifier.fillMaxSize()) {
+                            Spacer(Modifier.height(18.dp))
+                            Text("今天，想记点什么？", color = BookInk, fontSize = 19.sp,
+                                fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.height(11.dp))
+                            Text("一件小事、一点心情，或一个突然闪过的念头。",
+                                color = BookMuted, fontSize = 12.sp, lineHeight = 21.sp)
+                            Spacer(Modifier.height(17.dp))
+                            TextButton(onClick = { write() },
+                                contentPadding = PaddingValues(0.dp)) {
+                                Icon(Icons.Outlined.Edit, null, tint = BookAccent,
+                                    modifier = Modifier.size(16.dp))
+                                Spacer(Modifier.width(7.dp))
+                                Text("写下第一笔", color = BookAccent, fontSize = 13.sp)
+                            }
                         }
                     } else Column(Modifier.fillMaxSize()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -278,9 +354,9 @@ internal fun SelfThoughtNotebookScreen(
                         Icon(Icons.Outlined.ChevronLeft, "上一页", tint = BookInk)
                     }
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("第 ${if (dayPages.isEmpty()) 0 else pageNumber + 1} / ${dayPages.size} 页",
-                            fontSize = 11.sp, color = BookInk)
-                        Text("轻扫纸页翻动", fontSize = 10.sp, color = BookMuted)
+                        Text(if (dayPages.isEmpty()) "空白页"
+                            else "${pageNumber + 1} / ${dayPages.size}",
+                            fontSize = 12.sp, color = BookInk)
                     }
                     IconButton(onClick = { turn(true) },
                         enabled = pageNumber < dayPages.lastIndex || pages.any { it.date.isAfter(date) },
@@ -293,6 +369,9 @@ internal fun SelfThoughtNotebookScreen(
                 }
             }
         }
+            }
+        }
+        Spacer(Modifier.height(7.dp))
     }
     if (chooseDate) {
         val picker = rememberDatePickerState(
