@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +32,7 @@ import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.WorldLifeEpisodeStore
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CommitmentTaskStatus
 import com.jiacimu.lulu.data.isActive
@@ -41,7 +44,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private const val LEXICON_PAGE_SIZE = 40
-private const val LIFE_AUDIT_INDEX = 4
+private const val LIFE_STORY_INDEX = 4
 private const val FAVORITE_REASON_SEPARATOR = "\n\n收藏理由："
 
 private val LexiconV2Sections = listOf(
@@ -96,7 +99,8 @@ fun LexiconFeatureScreenV2(
         LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0)
     }
     val requestedSectionIndex = remember(initialSectionName) {
-        if (initialSectionName in listOf("足迹", "历程", "audit", "life-audit")) LIFE_AUDIT_INDEX
+        if (initialSectionName in listOf("小剧场", "story", "scene", "life-story")) LIFE_STORY_INDEX
+        else if (initialSectionName in listOf("足迹", "历程", "audit", "life-audit")) 0
         else if (initialSectionName.equals("Life", ignoreCase = true)) 0
         else LexiconV2Sections.indexOfFirst { (section, _) ->
             section.name.equals(initialSectionName.orEmpty(), ignoreCase = true)
@@ -112,13 +116,21 @@ fun LexiconFeatureScreenV2(
         sectionIndex = if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex
     }
 
-    // Saved tabs from older APKs included a separate Life tab and used index 5
-    // for the audit. Normalize before reading the new compact tab list.
+    // Legacy section indices and '历程' deep links now fall back to life facts;
+    // no historical records are deleted.
     LaunchedEffect(sectionIndex) {
-        if (sectionIndex > LIFE_AUDIT_INDEX) sectionIndex = LIFE_AUDIT_INDEX
+        if (sectionIndex > LIFE_STORY_INDEX) sectionIndex = 0
         if (sectionIndex < 0) sectionIndex = 0
     }
-    val isLifeAudit = sectionIndex >= LIFE_AUDIT_INDEX
+    val isLifeStory = sectionIndex == LIFE_STORY_INDEX
+    val context = LocalContext.current
+    LaunchedEffect(Unit) { WorldLifeEpisodeStore.initialize(context) }
+    val lifeStories by WorldLifeEpisodeStore.state.collectAsState()
+    val storyEntries = remember(selectedCharacterId, lifeStories) {
+        lifeStories[selectedCharacterId].orEmpty().sortedByDescending { it.occurredAt }
+    }
+    var selectedEpisodeId by remember { mutableStateOf<String?>(null) }
+    var sectionPickerExpanded by remember { mutableStateOf(false) }
     val section = LexiconV2Sections.getOrNull(sectionIndex)?.first ?: LexiconSection.Life
     val currentSectionEntries by LuluRepositories.lexicon
         .observeEntries(selectedCharacterId, section)
@@ -160,7 +172,7 @@ fun LexiconFeatureScreenV2(
     var characterMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(sectionIndex) {
-        if (isLifeAudit || section == LexiconSection.Favorite) {
+        if (isLifeStory || section == LexiconSection.Favorite) {
             creating = false
             editing = null
         }
@@ -225,7 +237,7 @@ fun LexiconFeatureScreenV2(
                             }
                         }
                     }
-                    if (!isLifeAudit && section != LexiconSection.Favorite) {
+                    if (!isLifeStory && section != LexiconSection.Favorite) {
                         IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
                     }
                 },
@@ -235,11 +247,88 @@ fun LexiconFeatureScreenV2(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             areaNavigation()
-            CharacterSectionTabs(LexiconV2Sections.map { it.second } + "历程", sectionIndex.coerceIn(0, LIFE_AUDIT_INDEX),
-                onSelect = { sectionIndex = it; editing = null; creating = false })
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("生活记录", fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = LuluColors.Ink)
+                    Text("独处故事、近况与真正留下的生活痕迹",
+                        fontSize = 11.sp, color = LuluColors.Muted)
+                }
+                Box {
+                    OutlinedButton(onClick = { sectionPickerExpanded = true },
+                        shape = RoundedCornerShape(13.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
+                        Text(if (isLifeStory) "小剧场" else LexiconV2Sections[sectionIndex].second,
+                            fontSize = 13.sp)
+                        Spacer(Modifier.width(4.dp))
+                        Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.size(17.dp))
+                    }
+                    DropdownMenu(expanded = sectionPickerExpanded,
+                        onDismissRequest = { sectionPickerExpanded = false }) {
+                        (LexiconV2Sections.map { it.second } + "小剧场").forEachIndexed { index, label ->
+                            DropdownMenuItem(text = { Text(label) }, onClick = {
+                                sectionIndex = index
+                                sectionPickerExpanded = false
+                                editing = null
+                                creating = false
+                            })
+                        }
+                    }
+                }
+            }
 
-            if (isLifeAudit) {
-                CharacterLifeAuditScreen(selectedCharacterId, Modifier.weight(1f))
+            if (isLifeStory) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 42.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    item(key = "story-intro") {
+                        Column(Modifier.padding(bottom = 9.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Text("一个人的时光", fontSize = 25.sp, fontWeight = FontWeight.SemiBold,
+                                color = LuluColors.Ink)
+                            Text("从真实行动生长出的私人故事 · ${storyEntries.size} 篇",
+                                fontSize = 12.sp, color = LuluColors.Muted)
+                        }
+                    }
+                    if (storyEntries.isEmpty()) {
+                        item(key = "no-stories") {
+                            LexiconV2Card {
+                                Text("还没有独处小剧场", fontWeight = FontWeight.SemiBold)
+                                Text("角色完成一次真实的独处行动后，才会产生可阅读的故事；这里不会虚构生成记录。",
+                                    fontSize = 12.sp, color = LuluColors.Muted)
+                            }
+                        }
+                    } else {
+                        items(storyEntries, key = { "story:" + it.id }) { episode ->
+                            Surface(
+                                modifier = Modifier.fillMaxWidth().clickable { selectedEpisodeId = episode.id },
+                                color = Color(0xFFFCF9F3),
+                                shape = RoundedCornerShape(19.dp),
+                                border = BorderStroke(1.dp, Color(0xFFE8E0D6)),
+                            ) {
+                                Column(Modifier.padding(horizontal = 21.dp, vertical = 22.dp),
+                                    verticalArrangement = Arrangement.spacedBy(11.dp)) {
+                                    Text(episode.occurredAt.atZone(ZoneId.systemDefault())
+                                        .format(DateTimeFormatter.ofPattern("yyyy / MM / dd    HH:mm")),
+                                        fontSize = 11.sp, color = Color(0xFF968575))
+                                    Text(episode.title, fontSize = 21.sp,
+                                        lineHeight = 30.sp, fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF302A28))
+                                    Text(WorldLifeEpisodeParagraphs.parse(episode.scene).firstOrNull()
+                                        ?.text.orEmpty().take(100),
+                                        fontSize = 13.sp, lineHeight = 22.sp,
+                                        color = Color(0xFF6A625B), maxLines = 3)
+                                    Text("阅读全文  →", fontSize = 12.sp,
+                                        color = Color(0xFF947E68), fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
+                    }
+                }
             } else LazyColumn(
                 state = listState,
                 modifier = Modifier.weight(1f),
@@ -247,6 +336,25 @@ fun LexiconFeatureScreenV2(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (section == LexiconSection.Concern) {
+                    item(key = "story-library-entrance") {
+                        Surface(
+                            color = Color(0xFFFCF9F3),
+                            shape = RoundedCornerShape(18.dp),
+                            border = BorderStroke(1.dp, Color(0xFFE8E0D6)),
+                            modifier = Modifier.fillMaxWidth().clickable { sectionIndex = LIFE_STORY_INDEX },
+                        ) {
+                            Row(Modifier.padding(horizontal = 20.dp, vertical = 19.dp),
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                    Text("独处小剧场", fontSize = 19.sp,
+                                        fontWeight = FontWeight.SemiBold, color = LuluColors.Ink)
+                                    Text("在一整页里读角色自己的故事 · ${storyEntries.size} 篇",
+                                        fontSize = 12.sp, color = LuluColors.Muted)
+                                }
+                                Text("去阅读  →", fontSize = 12.sp, color = Color(0xFF947E68))
+                            }
+                        }
+                    }
                     item(key = "unified-life-note-guidance") {
                         Text("这里记录生活事实。角色当前的私人挂心只在「此刻」展示；旧版关心笔记保留供查阅，不再单独触发主动联系。",
                             fontSize = 12.sp, color = LuluColors.Muted)
@@ -399,6 +507,12 @@ fun LexiconFeatureScreenV2(
         }
     }
 
+    selectedEpisodeId?.let { id ->
+        WorldLifeEpisodeStore.find(id)?.let { episode ->
+            WorldLifeEpisodeFullscreenDialog(episode, onClose = { selectedEpisodeId = null })
+        }
+    }
+
     val dialogEntry = editing ?: LexiconEntry(
         id = UUID.randomUUID().toString(),
         characterId = selectedCharacterId,
@@ -408,7 +522,7 @@ fun LexiconFeatureScreenV2(
         promiseKind = if (section == LexiconSection.Promise) PromiseKind.Promise else null,
         createdAt = Instant.now(),
         updatedAt = Instant.now(),
-    ).takeIf { creating && !isLifeAudit && section != LexiconSection.Favorite }
+    ).takeIf { creating && !isLifeStory && section != LexiconSection.Favorite }
 
     dialogEntry?.let { entry ->
         LexiconEditorDialogV2(
