@@ -192,16 +192,16 @@ internal fun TodoTaskCard(
     ) {
         Row(
             Modifier.fillMaxWidth().padding(start = 12.dp, end = 6.dp,
-                top = 9.dp, bottom = 9.dp),
+                top = 13.dp, bottom = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // 36dp mark inside a comfortable 44dp hit target.
             Box(Modifier.size(44.dp).clickable(onClick = onCheck),
                 contentAlignment = Alignment.Center) {
                 Surface(
-                    modifier = Modifier.size(33.dp),
+                    modifier = Modifier.size(28.dp),
                     color = if (checked) TodoInk.sage else Color.White,
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(8.dp),
                     border = BorderStroke(1.5.dp,
                         if (checked) TodoInk.sage else tint.copy(alpha = .6f)),
                 ) {
