@@ -22,7 +22,7 @@ internal object AutonomousAffordanceContext {
         appendLine("- 想自己找消遣：solo_game + gameId=memory_match 能运行真实的一局游戏；无须用户陪同。")
         appendLine("- 如果某句真实用户原话打动了自己，可在聊天原始ID可核实的前提下选择 tool=favorite_user_message 保存到辞海收藏；不能凭空收藏。")
         if (books.isNotEmpty()) {
-            appendLine("- 阅读 App 可实际读取的书（未知后续内容只能读后知道）：")
+            appendLine("- 剧场已生成、现在可以真实读取的章节（未知后续内容只能读后知道）：")
             books.take(5).forEach { appendLine("  · action=reading；readingBookId=" +
                 it.id.take(100) + "；" + it.title.take(100)) }
         }
