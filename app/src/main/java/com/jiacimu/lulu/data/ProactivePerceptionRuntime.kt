@@ -1667,7 +1667,11 @@ object ProactivePerceptionRuntime {
             stickerId = json.optString("stickerId").trim(),
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
-            toolArgs = json.optJSONObject("args") ?: JSONObject(),
+            toolArgs = (json.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()).apply {
+                // Direct autonomous actions can attach planId at the top level or
+                // inside args; both must reach the same verifiable executor receipt.
+                json.optString("planId").takeIf(String::isNotBlank)?.let { put("planId", it) }
+            },
             targetScore = if (json.has("targetScore")) json.optInt("targetScore") else null,
             intention = json.optJSONObject("intention"),
             afterglow = json.optJSONObject("afterglow"),
