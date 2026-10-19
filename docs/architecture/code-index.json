@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:34:18.971638+00:00",
-  "commit": "153a84bba7ce8027263f2f16c838a3e6206b7954",
+  "generatedAt": "2026-10-19T05:36:26.509069+00:00",
+  "commit": "eca31afa5365bbdb2c6e5c870916358f04785e53",
   "branch": "main",
-  "sourceFingerprint": "25aca65414d1bcad0341791eda5ed93a3a5a5297ef46eade1638128df5e1f30e",
+  "sourceFingerprint": "20de6894f2b5694dd4f17ea7e9883b4d180afae761c55cf10be718a6d4cd44aa",
   "summary": {
     "files": 720,
-    "lines": 138427,
-    "symbols": 2091
+    "lines": 138446,
+    "symbols": 2092
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1606,16 +1606,22 @@
         "line": 152
       }
     ],
-    "replaceTop": [
+    "closeChatDetail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
         "line": 156
       }
     ],
+    "replaceTop": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
+        "line": 164
+      }
+    ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 160
+        "line": 168
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -2019,7 +2025,7 @@
     "MigrationEmptyScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-        "line": 46
+        "line": 47
       }
     ],
     "accept": [
@@ -2347,61 +2353,61 @@
     "messageLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 165
+        "line": 166
       }
     ],
     "repliedPreview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 177
+        "line": 178
       }
     ],
     "beginReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 183
+        "line": 184
       }
     ],
     "toggleSelected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 190
+        "line": 191
       }
     ],
     "buildForwardPayload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 194
+        "line": 195
       }
     ],
     "appendDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 217
+        "line": 218
       }
     ],
     "stopReceiving": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 230
+        "line": 231
       }
     ],
     "wakeOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 238
+        "line": 239
       }
     ],
     "sendAndReceive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 263
+        "line": 264
       }
     ],
     "regenerateLatestReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-        "line": 347
+        "line": 348
       }
     ],
     "ScheduleFeatureScreen": [
@@ -12893,8 +12899,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 455,
-      "sha256": "d2bfe6d1a77e5c1b5cf8c6d9442b5e6246ff65e70b178d87929a70cc23e019d0",
+      "lines": 472,
+      "sha256": "79875f9440688c24ff74384b88088922b038a85c0172c9f878af9f3ea1de878d",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -12921,12 +12927,16 @@
           "line": 152
         },
         {
-          "name": "replaceTop",
+          "name": "closeChatDetail",
           "line": 156
         },
         {
+          "name": "replaceTop",
+          "line": 164
+        },
+        {
           "name": "openActivePomodoro",
-          "line": 160
+          "line": 168
         }
       ]
     },
@@ -13351,14 +13361,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 488,
-      "sha256": "42d9048196f9f8bd9c514bff3c9595f30166612e5c63ba854a10434e014ac03d",
+      "lines": 487,
+      "sha256": "e4b9b025b7fd0dfe3c32d405d4448243dfe1fa3174ad52a3f85766b8f67e6aea",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-      "lines": 97,
-      "sha256": "79e891d5d823a408e1c7962649c36a330a400502bf4592cc9c565b72fbc1e1fd",
+      "lines": 98,
+      "sha256": "740be2b0867ebaa5802abfd699303ace4db3d7f5f7798035ca232cc67902bbe5",
       "symbols": [
         {
           "name": "MigrationRoute",
@@ -13366,7 +13376,7 @@
         },
         {
           "name": "MigrationEmptyScreen",
-          "line": 46
+          "line": 47
         }
       ]
     },
@@ -13808,8 +13818,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 885,
-      "sha256": "33ce9356c6a7b642677275e6d5b488a9d3d05633b86f5419d4b1e508edbae4cc",
+      "lines": 887,
+      "sha256": "9fdf52e66fd70ef186ce63e00180ac3a86d57b3baf4da92330a4297c74f2fb89",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -13817,43 +13827,43 @@
         },
         {
           "name": "messageLabel",
-          "line": 165
+          "line": 166
         },
         {
           "name": "repliedPreview",
-          "line": 177
+          "line": 178
         },
         {
           "name": "beginReply",
-          "line": 183
+          "line": 184
         },
         {
           "name": "toggleSelected",
-          "line": 190
+          "line": 191
         },
         {
           "name": "buildForwardPayload",
-          "line": 194
+          "line": 195
         },
         {
           "name": "appendDraft",
-          "line": 217
+          "line": 218
         },
         {
           "name": "stopReceiving",
-          "line": 230
+          "line": 231
         },
         {
           "name": "wakeOnline",
-          "line": 238
+          "line": 239
         },
         {
           "name": "sendAndReceive",
-          "line": 263
+          "line": 264
         },
         {
           "name": "regenerateLatestReply",
-          "line": 347
+          "line": 348
         }
       ]
     },
