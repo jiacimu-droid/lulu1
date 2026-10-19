@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T10:19:59.815232+00:00",
-  "commit": "b6301bd0cff44f0c52d1e5cce216df18cf0b8431",
+  "generatedAt": "2026-10-19T10:21:27.802861+00:00",
+  "commit": "0acdbb55fd20143136946b553d25af68bf199ee2",
   "branch": "main",
-  "sourceFingerprint": "440f6c41e92a3ac9cf62e6b4a7b6d22b423b8b844feb3a5fb15dc3ef0b036769",
+  "sourceFingerprint": "c32c9ec5a1f72514560311f6e483243f7cb2287502f733dd1dd7f9248e474562",
   "summary": {
     "files": 742,
-    "lines": 142084,
-    "symbols": 2154
+    "lines": 142046,
+    "symbols": 2153
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5316,28 +5316,10 @@
         "line": 24
       }
     ],
-    "normalized": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 316
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 50
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 36
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
-        "line": 14
-      }
-    ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 745
+        "line": 707
       }
     ],
     "describe": [
@@ -7184,6 +7166,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 37
+      }
+    ],
+    "normalized": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
+        "line": 14
       }
     ],
     "LuluConversation": [
@@ -17041,8 +17037,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 763,
-      "sha256": "58b5c7cc8e58d294de967894f7be50342050b0742aaab05c4dbfc0c059fd323e",
+      "lines": 725,
+      "sha256": "eae25cd59f0900789d475fa05b6fe28e07936f56f0a3cf44c97c421cdc65d98a",
       "symbols": [
         {
           "name": "asJson",
@@ -17053,12 +17049,8 @@
           "line": 43
         },
         {
-          "name": "normalized",
-          "line": 316
-        },
-        {
           "name": "world",
-          "line": 745
+          "line": 707
         }
       ]
     },
