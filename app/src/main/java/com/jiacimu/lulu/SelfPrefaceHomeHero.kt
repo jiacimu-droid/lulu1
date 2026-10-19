@@ -36,28 +36,28 @@ internal fun SelfPrefaceHomeHero(modifier: Modifier = Modifier) {
             delay(60_000L)
         }
     }
-    val dark = Color(0xFF34575C)
-    val muted = Color(0xFF708F8A)
+    val dark = SelfPrefacePalette.ink
+    val muted = SelfPrefacePalette.muted
     Box(modifier.fillMaxWidth().height(184.dp)) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(27.dp),
             shadowElevation = 3.dp,
-            color = Color(0xFFF1F8F4),
+            color = SelfPrefacePalette.paper,
         ) {
             Box(
                 Modifier.fillMaxSize().background(
                     Brush.linearGradient(
-                        listOf(Color(0xFFE0F0EB), Color(0xFFF1F8F4), Color(0xFFEEF5F2)),
+                        listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.paper, SelfPrefacePalette.sageLight),
                     )
                 )
             ) {
                 Canvas(Modifier.fillMaxSize()) {
                     val w = size.width
                     val h = size.height
-                    val plum = Color(0xFF789E9A)
-                    val rose = Color(0xFFA8C4B9)
-                    // A broad orbital line and restrained stars, not a downloaded banner.
+                    val plum = SelfPrefacePalette.seaGlass
+                    val rose = SelfPrefacePalette.honey
+                    // Diary-inspired hand-drawn orbit and tiny warm-gold stars; no bitmap.
                     val orbit = Path().apply {
                         moveTo(w * .65f, h * 1.04f)
                         cubicTo(w * .77f, h * .68f, w * .74f, h * .20f, w * 1.01f, h * .08f)
