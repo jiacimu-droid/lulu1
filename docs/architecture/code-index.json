@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T10:25:57.518195+00:00",
-  "commit": "f403cb862980dec3b16701f15057be5ad4ceb04a",
+  "generatedAt": "2026-10-19T10:26:46.986909+00:00",
+  "commit": "e8c118a429671008db7fbdc52dbfa8e8cd766044",
   "branch": "main",
-  "sourceFingerprint": "08caffbe0603c63bb08db6d1f0f7ddb58e495567e210d80103c784384adebe5a",
+  "sourceFingerprint": "63ae54e077db135da2075d4ed66acfbafc2fb4b298f15f9d5a59fc07e2e40c64",
   "summary": {
     "files": 742,
-    "lines": 142121,
+    "lines": 142146,
     "symbols": 2154
   },
   "symbolIndex": {
@@ -23859,8 +23859,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt",
-      "lines": 36,
-      "sha256": "a1551c7cb1fce59e5a81a613e3ac1cfaf83247ad68288d6a8bda796fa8ac8918",
+      "lines": 44,
+      "sha256": "d3bce26c721b32abb0a395850f4f1fed5d6dabd3b5faf06e6317f6bb0571eb25",
       "symbols": [
         {
           "name": "WorldLifeEpisodeParagraphsTest",
@@ -25308,8 +25308,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 45,
-      "sha256": "e4266e0389934e04f10176561891d2d2ccc4167a471c588354ad5dd2e5a290d8",
+      "lines": 62,
+      "sha256": "c5b348a2c6aba4e4e9eaa65421be55d10a863515244a5678ed062dbbd071d0cd",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
