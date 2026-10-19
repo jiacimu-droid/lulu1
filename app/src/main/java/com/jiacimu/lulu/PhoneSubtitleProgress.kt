@@ -6,10 +6,11 @@ package com.jiacimu.lulu
  */
 internal object PhoneSubtitleProgress {
     fun pauseBeforeNextLine(line: String): Long {
-        // A more natural Chinese speech rhythm (about 4.3 characters/second).
-        // The old 155 ms/character and 3.9 s cap revealed later lines long
-        // before slower, expressive voices actually reached them.
+        // Natural speech is slower than text streaming, especially with emotional
+        // pauses. Do not rush through five sentences while audio is on sentence two.
         val count = line.count { !it.isWhitespace() }
-        return (count * 230L).coerceIn(650L, 12_000L)
+        val punctuationPause = line.count { it in "。！？!?；;" } * 260L +
+            line.count { it in "，," } * 110L
+        return (count * 270L + punctuationPause).coerceIn(700L, 16_000L)
     }
 }
