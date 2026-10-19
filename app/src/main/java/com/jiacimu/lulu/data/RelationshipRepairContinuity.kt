@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.data
 
+import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
 
@@ -62,6 +64,31 @@ internal object RelationshipRepairContinuity {
         if (updatedAt.isBlank()) return true
         val changed = runCatching { Instant.parse(updatedAt) }.getOrNull() ?: return false
         return !changed.isAfter(resolvedAt)
+    }
+
+    /**
+     * A model may still suggest a new repair concern on the very message in
+     * which the USER has already explicitly settled it. Keep independent
+     * thoughts and explicit closures, but do not reopen that old disagreement.
+     */
+    fun reconcileConcernProposals(appraisal: JSONObject?, confirmedUserWords: String): JSONObject? {
+        if (appraisal == null || !userExplicitlySettled(confirmedUserWords)) return appraisal
+        fun staleRepair(p: JSONObject): Boolean =
+            p.optString("status", "open").lowercase() in setOf("open", "revise") &&
+                isRepairConcern(p.optString("focus"))
+        val clean = JSONObject(appraisal.toString())
+        appraisal.optJSONArray("pendingConcerns")?.let { proposals ->
+            clean.put("pendingConcerns", JSONArray().apply {
+                for (i in 0 until proposals.length()) {
+                    val entry = proposals.optJSONObject(i) ?: continue
+                    if (!staleRepair(entry)) put(entry)
+                }
+            })
+        }
+        appraisal.optJSONObject("pendingConcern")?.let {
+            if (staleRepair(it)) clean.remove("pendingConcern")
+        }
+        return clean
     }
 
     /** Used only for unsolicited autonomous messages, never for direct user replies. */
