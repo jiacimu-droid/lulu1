@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:15:57.758291+00:00",
-  "commit": "b848536bec5ac8ad3dddcc49e869eddeced18382",
+  "generatedAt": "2026-10-19T06:16:27.032362+00:00",
+  "commit": "6014aa009b0326e1796ca5453c7f14e8f363680d",
   "branch": "main",
-  "sourceFingerprint": "a18eab2c514726fd906894904f9a8d756adb691ee43eafb86e07a9bad44d216c",
+  "sourceFingerprint": "e22cdd26b420c8cd1746b769e651461afd1fd7f2193e4b724f7a2c76c019f6a1",
   "summary": {
     "files": 722,
-    "lines": 139016,
+    "lines": 139022,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -3337,7 +3337,7 @@
     "normalize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-        "line": 35
+        "line": 36
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
@@ -4735,19 +4735,19 @@
     "latestConsideration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 196
+        "line": 201
       }
     ],
     "latest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 216
+        "line": 221
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 271
+        "line": 276
       }
     ],
     "concern": [
@@ -14716,12 +14716,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
-      "lines": 88,
-      "sha256": "e40e7c5f98369aff79a0409b30a6dd6159db08b6333550181125c2b90bad49cb",
+      "lines": 89,
+      "sha256": "047417cbb58b621264e8dd50173923807bf6d8fe0d90abe85a47b0af23332b61",
       "symbols": [
         {
           "name": "normalize",
-          "line": 35
+          "line": 36
         }
       ]
     },
@@ -14817,7 +14817,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 56,
-      "sha256": "d4f287d62d562099fdf856169f56bcb05ba7b29184277de3abda7890b8a2f632",
+      "sha256": "be7b49ee3fa96563907923140e18e64104c6abada2228e3389767db147b35adf",
       "symbols": [
         {
           "name": "Capability",
@@ -15999,8 +15999,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 343,
-      "sha256": "2d220a28c38ebbfedad48cc476e0e0fcd2385dc98e8c4c177d1342345bf174b9",
+      "lines": 348,
+      "sha256": "469a28569b9fe8b0d47f1f56400384ce8284e85ba5b3bb2adf023e4c203a6e50",
       "symbols": [
         {
           "name": "parse",
@@ -16012,15 +16012,15 @@
         },
         {
           "name": "latestConsideration",
-          "line": 196
+          "line": 201
         },
         {
           "name": "latest",
-          "line": 216
+          "line": 221
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 271
+          "line": 276
         }
       ]
     },
