@@ -556,7 +556,7 @@ object ProactivePerceptionRuntime {
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         val lastReading = com.jiacimu.lulu.study.ReadingReflectionStore.records.value
             .filter { it.characterId == characterId }.maxByOrNull { it.occurredAt }
-        val readingBooks = ReadingBackgroundBridge.availableBooks(appContext, characterId)
+        val readingBooks = ReadingBackgroundBridge.theaterBooks(appContext, characterId)
             .sortedByDescending { book -> book.id == lastReading?.bookId ||
                 (book.seriesId.isNotBlank() && lastReading?.bookTitle?.startsWith("《${book.seriesId}》") == true) }
         val digital = DigitalLifeProfileStore.isEnabled(characterId)
@@ -632,6 +632,12 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                val duePlans = RoleDayScheduleStore.dueContext(appContext, characterId, now)
+                if (duePlans.isNotBlank()) {
+                    appendLine("【自己先前真正安排、现在待处理的日程】")
+                    appendLine(duePlans)
+                    appendLine("对待办只能选：①实际执行并在本次动作 args.planId 传入准确 ID（需成功的真实回执）；② action=tool,tool=reschedule_personal_activity,args={planId,dueAt,reason}；③ action=tool,tool=cancel_personal_activity,args={planId,reason}。允许没想好暂时留着。说一句做完了不会自动结案。")
+                }
                 WorldLifeEpisodeStore.initialize(appContext)
                 // Music is a REAL device action, not an imagined soundtrack
                 // in the character's digital home. The role must have opted-in
@@ -671,7 +677,7 @@ object ProactivePerceptionRuntime {
                     appendLine("最近自主选择（旧→新，仅作为生活历史，不用于惩罚重复）：${recentAutonomousActions.joinToString(" → ")}")
                 }
                 if (readingBooks.isNotEmpty()) {
-                    appendLine("阅读 App 中可独自阅读的内容：")
+                    appendLine("剧场里可实际阅读的已生成章节：")
                     readingBooks.forEach {
                         appendLine("- readingBookId=${it.id}；${it.title}；来源=${it.source}；${ReadingBackgroundBridge.progressLabel(appContext, characterId, it)}")
                     }
@@ -1546,6 +1552,9 @@ object ProactivePerceptionRuntime {
             put("activityId", decision.activityId)
             put("incidentId", decision.incidentId)
             put("approach", decision.approach)
+        }
+        if (decision.action != Action.TOOL) {
+            decision.toolArgs.optString("planId").takeIf(String::isNotBlank)?.let { args.put("planId", it) }
         }
         // Program-owned, frozen input evidence; never accept IDs authored by the
         // model for the delivery receipt. Keep unrelated chat turns untouched.
