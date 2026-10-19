@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2f9adda06c504adeedbddef361e5ef4b90f259e3`
+- 基准提交：`e273b1bd8ecf843ff0c661a386ac79f29638f8b6`
 - 分支：`main`
 - 已索引文件：742
-- 已索引代码/文本行：142062
+- 已索引代码/文本行：142084
 - 已发现符号：2154
 
 | 文件 | 行数 | 符号数 |
@@ -37,7 +37,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 265 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt` | 11 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt` | 42 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 260 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 282 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 536 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 242 | 1 |
