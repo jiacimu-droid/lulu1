@@ -40,10 +40,12 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     var characterId by rememberSaveable(personalCharacterId, initialCharacterId) {
         mutableStateOf(personalCharacterId ?: initialCharacterId ?: characters.keys.firstOrNull() ?: "lulu")
     }
-    var area by rememberSaveable(startInTimeline) { mutableIntStateOf(if (startInTimeline) 1 else 0) }
+    var area by rememberSaveable(startInTimeline, startInCore) {
+        mutableIntStateOf(if (startInTimeline) 2 else if (startInCore) 1 else 0)
+    }
     var search by rememberSaveable(characterId) { mutableStateOf("") }
     var characterMenu by remember { mutableStateOf(false) }
-    var management by remember { mutableStateOf(startInCore) }
+    var management by remember { mutableStateOf(false) }
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
     var editingNote by remember { mutableStateOf<LexiconEntry?>(null) }
     var deletingEvent by remember { mutableStateOf<SharedTimelineEvent?>(null) }
@@ -69,6 +71,9 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val remembered = if (rememberedState.first == characterId) rememberedState.second.filter {
         search.isBlank() || (it.title + it.content).contains(search.trim(), true)
     } else emptyList()
+    val coreRemembered = remembered.filter { it.memory?.isCoreMemory() == true }
+    val activeCoreCount = memories.count { it.isCoreMemory() &&
+        MemoryValidityStore.isActive(it.id) && memoryHasLiveSources(it, characterId) }
     val timelineState by produceState("" to emptyList<SharedTimelineEvent>(), characterId, timelineRevision) {
         value = characterId to withContext(Dispatchers.IO) { SharedExperienceTimeline.all(characterId).asReversed() }
     }
@@ -106,17 +111,34 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
             }, colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            CharacterSectionTabs(listOf("记住的事", "原始时间线"), area, onSelect = { area = it })
+            CharacterSectionTabs(listOf("记住的事", "核心记忆", "原始时间线"), area, onSelect = { area = it })
             OutlinedTextField(value = search, onValueChange = { search = it }, singleLine = true,
-                placeholder = { Text(if (area == 0) "搜索记忆" else "搜索原始记录") },
+                placeholder = { Text(if (area == 2) "搜索原始记录" else "搜索记忆") },
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
             LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(18.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (area == 0) {
-                    if (remembered.isEmpty()) item { Text("还没有匹配的记忆", color = LuluColors.Muted) }
-                    items(remembered.take(count), key = { it.id }) { row ->
+                if (area != 2) {
+                    val rows = if (area == 1) coreRemembered else remembered
+                    if (area == 1) item(key = "core-intro") {
+                        Surface(color = Color(0xFFE8F3EF),
+                            shape = RoundedCornerShape(17.dp)) {
+                            Column(Modifier.fillMaxWidth().padding(15.dp)) {
+                                Text("核心记忆 · $activeCoreCount 条常驻",
+                                    color = Color(0xFF315C57), fontWeight = FontWeight.SemiBold)
+                                Text("直接进入每次角色请求的固定上下文，不依靠话题检索。" +
+                                    "点一条记忆的「查看来源与影响」可编辑、取消核心或删除。",
+                                    fontSize = 12.sp, lineHeight = 19.sp,
+                                    color = Color(0xFF607F77))
+                            }
+                        }
+                    }
+                    if (rows.isEmpty()) item {
+                        Text(if (area == 1) "还没有核心记忆，点右上角 + 创建或把已有记忆设为核心"
+                            else "还没有匹配的记忆", color = LuluColors.Muted)
+                    }
+                    items(rows.take(count), key = { it.id }) { row ->
                         RememberedItemCard(row, characterId, onEdit = {
                             editingMemory = row.memory; editingNote = row.note
                         }, onDelete = { scope.launch {
@@ -132,7 +154,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         CharacterOriginalEventCard(event, onDelete = { deletingEvent = event })
                     }
                 }
-                val total = if (area == 0) remembered.size else timeline.size
+                val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; else -> timeline.size }
                 if (total > count) item { TextButton(onClick = { count += 40 }, modifier = Modifier.fillMaxWidth()) {
                     Text("继续加载 · 还有 ${total - count} 条")
                 } }
