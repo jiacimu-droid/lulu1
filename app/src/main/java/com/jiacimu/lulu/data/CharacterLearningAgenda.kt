@@ -96,6 +96,34 @@ internal object CharacterLearningAgenda {
         }
         return JSONObject(goal.toString())
     }
+    /** A real deletion, not the merely hidden "dropped" status. */
+    @Synchronized fun deleteGoal(role: String, id: String): Boolean {
+        if (id.isBlank() || prefs == null) return false
+        val all = items(role)
+        val target = all.firstOrNull { it.optString("id") == id } ?: return false
+        if (target.optString("status") == "running") return false
+        save(role, all.filterNot { it.optString("id") == id })
+        return true
+    }
+
+    /** Source is still a real reading, but deleted subjective learning must not
+     * remain as a completed knowledge stage in the learning agenda. */
+    @Synchronized fun withdrawInsight(role: String, materialIds: Set<String>) {
+        if (materialIds.isEmpty() || prefs == null) return
+        val all = items(role)
+        var changed = false
+        all.forEach { goal ->
+            if (goal.optString("materialId") in materialIds &&
+                goal.optString("status") !in setOf("running", "dropped")) {
+                goal.put("status", "research")
+                goal.remove("reviewAt")
+                goal.remove("nextStep")
+                changed = true
+            }
+        }
+        if (changed) save(role, all)
+    }
+
     @Synchronized fun update(role: String, id: String, change: (JSONObject) -> Unit): JSONObject {
         val all = items(role)
         val goal = all.firstOrNull { it.optString("id") == id && valid(role, it) }
