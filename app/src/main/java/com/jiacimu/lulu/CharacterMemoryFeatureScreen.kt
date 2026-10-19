@@ -39,11 +39,11 @@ fun CharacterMemoryFeatureScreen(
             initialDiaryTitle = initialDiaryTitle, initialSectionName = initialSectionName,
             initialFavoriteEntryId = initialFavoriteEntryId,
             personal = personalCharacterId != null, onCharacterSelected = { characterId = it },
-            areaNavigation = navigation, pageTitle = "记忆")
+            areaNavigation = navigation, pageTitle = "生活记录")
         else -> Scaffold(
             containerColor = LuluColors.Paper,
             topBar = {
-                TopAppBar(title = { Text("记忆", fontWeight = FontWeight.SemiBold) },
+                TopAppBar(title = { Text("学习记录", fontWeight = FontWeight.SemiBold) },
                     navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                     actions = {
                         if (personalCharacterId == null) {
@@ -65,7 +65,7 @@ fun CharacterMemoryFeatureScreen(
             Column(Modifier.fillMaxSize().padding(padding)) {
                 navigation()
                 LazyColumn(contentPadding = PaddingValues(16.dp), modifier = Modifier.fillMaxSize()) {
-                    item(key = characterId) { CharacterLearningSettings(characterId, showConfiguration = false) }
+                    item(key = characterId) { CharacterLearningSettings(characterId, showConfiguration = false, showGrowthRecords = false) }
                 }
             }
         }
