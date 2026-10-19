@@ -33,6 +33,8 @@ data class SharedTimelineEvent(
 
 /** Durable, raw, chronological record shared by every companion feature. */
 object SharedExperienceTimeline {
+    private val changes = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val revisions: kotlinx.coroutines.flow.StateFlow<Long> = changes
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var helper: TimelineDatabase? = null
     internal fun isInitialized(): Boolean = helper != null
@@ -177,6 +179,7 @@ object SharedExperienceTimeline {
             if (metadata.size() > 0) {
                 database.update("timeline_events", metadata, "id = ? AND character_id = ?", arrayOf(eventId, characterId))
                 CharacterRelationshipPreferences.invalidate()
+                changes.value += 1
             }
             return
         }
@@ -194,6 +197,7 @@ object SharedExperienceTimeline {
             put("revision", (previous?.revision ?: 0) + 1)
         }
         database.insertWithOnConflict("timeline_events", null, values, SQLiteDatabase.CONFLICT_REPLACE)
+        changes.value += 1
         if (evidenceKind == EventEvidenceKind.UserStatement || previous?.isUserMemoryStatement() == true ||
             evidenceKind == EventEvidenceKind.Legacy) CharacterRelationshipPreferences.invalidate()
         // This is the single canonical gate from REAL timeline events to
@@ -329,6 +333,7 @@ object SharedExperienceTimeline {
         LuluRepositories.lexicon.invalidateSource(eventId)
         CommitmentTaskStore.removeBySourceEvent(eventId)
         LuluRepositories.memory.invalidateDerivedFromEvent(eventId)
+        changes.value += 1
     }
 
     /** A copied executor summary must not outlive the native experience it references. */
@@ -572,6 +577,7 @@ object SharedExperienceTimeline {
             LuluRepositories.memory.invalidateDerivedFromEvent(id)
         }
         validated.map { it.getString("character_id") }.distinct().forEach { ChatMemoryAutomation.request(it) }
+        changes.value += 1
     }
 
     private val EVENT_COLUMNS = arrayOf("id", "character_id", "channel", "speaker", "content", "occurred_at",

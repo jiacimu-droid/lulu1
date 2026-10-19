@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.data.MigratedDomainStores
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.WorldLifeEpisode
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

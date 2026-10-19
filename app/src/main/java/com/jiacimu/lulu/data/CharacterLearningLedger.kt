@@ -23,18 +23,37 @@ internal object CharacterLearningLedger {
         if (prefs?.edit()?.remove(characterId)?.commit() == true) changes.value += 1
     }
 
-    data class InsightRow(val sourceEvidenceId: String, val topic: String, val understanding: String)
+    data class InsightRow(
+        val sourceEvidenceId: String,
+        val topic: String,
+        val understanding: String,
+        val occurredAt: Instant = Instant.EPOCH,
+        val uncertainty: String = "",
+        val question: String = "",
+        val applicableWhen: String = "",
+    )
+
+    /** UI and recall use the same current, source-validated understanding.
+     * Revised conclusions remain in the ledger but cannot compete with their replacement. */
+    private fun activeRecords(characterId: String): List<JSONObject> {
+        val all = records(characterId)
+        val valid = all.filter { valid(characterId, it, all) }
+        val replaced = valid.mapTo(hashSetOf()) { it.optString("revisesEvidenceId") }
+        return valid.filterNot { it.optString("sourceEvidenceId") in replaced }
+    }
 
     /** Material text and real source stay intact; this only erases this role's
      * interpretation and all revisions that depended on it. */
     @Synchronized fun listInsights(characterId: String): List<InsightRow> {
-        val all = records(characterId)
-        return all.filter { valid(characterId, it, all) }.takeLast(90).asReversed()
+        return activeRecords(characterId).asReversed()
             .mapNotNull { entry ->
                 val id = entry.optString("sourceEvidenceId")
                 if (id.isBlank()) null else InsightRow(
                     id, entry.optString("topic"),
-                    entry.optString("understanding").ifBlank { entry.optString("question") })
+                    entry.optString("understanding").ifBlank { entry.optString("question") },
+                    source(characterId, id)?.occurredAt ?: Instant.EPOCH,
+                    entry.optString("uncertainty"), entry.optString("question"),
+                    entry.optString("applicableWhen"))
             }
     }
 
@@ -304,10 +323,13 @@ internal object CharacterLearningLedger {
     }
 
     /** Read-only audit projection. Never award mastery for an unverified idea. */
-    @Synchronized fun growthTrace(characterId: String, now: Instant = Instant.now()): List<CharacterGrowthTrace> {
+    @Synchronized fun growthTrace(characterId: String, now: Instant = Instant.now(),
+        sourceEvidenceId: String? = null): List<CharacterGrowthTrace> {
         val items = records(characterId)
         return buildList {
-            items.filter { valid(characterId, it, items) }.takeLast(28).forEach { record ->
+            items.filter { valid(characterId, it, items) &&
+                (sourceEvidenceId == null || it.optString("sourceEvidenceId") == sourceEvidenceId) }
+                .let { if (sourceEvidenceId == null) it.takeLast(28) else it }.forEach { record ->
                 val read = source(characterId, record.optString("sourceEvidenceId")) ?: return@forEach
                 if (read.occurredAt.isAfter(now)) return@forEach
                 add(CharacterGrowthTrace(read.occurredAt, "读后形成暂定理解",
@@ -429,11 +451,7 @@ internal object CharacterLearningLedger {
 
     /** All Full-context routes use this bounded topical recall; old relevant evidence can win. */
     @Synchronized fun context(characterId: String, query: String, compact: Boolean = true): String {
-        val stored = records(characterId)
-        val validItems = stored.filter { valid(characterId, it, stored) }
-        val active = validItems.filter { old ->
-            validItems.none { it.optString("revisesEvidenceId") == old.optString("sourceEvidenceId") }
-        }
+        val active = activeRecords(characterId)
         if (active.isEmpty()) return ""
         val text = query.lowercase().take(2500)
         fun score(item: JSONObject): Int {
@@ -471,13 +489,13 @@ internal object CharacterLearningLedger {
                         "自评=${payload?.optString("selfAssessment")?.take(160)}。不是已发给用户或用户好评")
                 }
                 val challenges = item.optJSONArray("challenges") ?: JSONArray()
-                val open = (0 until challenges.length()).mapNotNull(challenges::optJSONObject)
+                val openChallenges = (0 until challenges.length()).mapNotNull(challenges::optJSONObject)
                     .filter { issue ->
                         val event = source(characterId, issue.optString("evidenceId"))
                         event?.revision == issue.optLong("revision", -1L) &&
                             event.evidenceKind == EventEvidenceKind.UserStatement
                     }.takeLast(2)
-                open.forEach { issue ->
+                openChallenges.forEach { issue ->
                     appendLine("  用户提出的反证ID=" + issue.optString("evidenceId") +
                         "；原话=" + issue.optString("userQuote") +
                         "；待核对的争议=" + issue.optString("issue") +

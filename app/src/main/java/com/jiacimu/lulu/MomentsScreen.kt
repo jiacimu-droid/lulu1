@@ -34,9 +34,12 @@ import com.jiacimu.lulu.data.MomentsStore
 import com.jiacimu.lulu.design.LuluColors
 
 @Composable
-fun MomentsScreen() {
+fun MomentsScreen(characterId: String? = null) {
     val context = LocalContext.current
-    val posts by MomentsStore.posts.collectAsState()
+    val allPosts by MomentsStore.posts.collectAsState()
+    val posts = remember(allPosts, characterId) {
+        if (characterId == null) allPosts else allPosts.filter { it.authorCharacterId == characterId }
+    }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val prefs = remember { context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE) }
     val userName = remember { prefs.getString("display_name", "我").orEmpty().ifBlank { "我" } }
@@ -58,7 +61,7 @@ fun MomentsScreen() {
         }
     }
 
-    LaunchedEffect(Unit) { MomentsStore.markCharacterPostsSeen() }
+    LaunchedEffect(characterId, posts.size) { MomentsStore.markCharacterPostsSeen(characterId) }
 
     if (composing) {
         MomentsComposePage(
@@ -76,7 +79,7 @@ fun MomentsScreen() {
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 96.dp),
         ) {
-            item(key = "moments-header") {
+            if (characterId == null) item(key = "moments-header") {
                 MomentsHeader(
                     userName = userName,
                     userAvatar = userAvatar,
@@ -128,7 +131,7 @@ fun MomentsScreen() {
             }
         }
 
-        ExtendedFloatingActionButton(
+        if (characterId == null) ExtendedFloatingActionButton(
             onClick = { composing = true },
             modifier = Modifier.align(Alignment.BottomEnd).padding(18.dp).navigationBarsPadding(),
             containerColor = LuluColors.Wheat,

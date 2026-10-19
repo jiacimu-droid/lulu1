@@ -1144,6 +1144,36 @@ object CharacterInnerLifeStore {
      * Auditable choices. Deliberating is not an external event: outcome is supplied by the
      * action executor only, and skipped choices are never recorded as actions.
      */
+    @Synchronized fun forgetDecision(characterId: String, decisionId: String): Boolean {
+        if (prefs == null || decisionId.isBlank()) return false
+        val root = snapshot(characterId)
+        val prior = root.optJSONArray("decisions") ?: return false
+        val kept = JSONArray()
+        for (i in 0 until prior.length()) {
+            val item = prior.optJSONObject(i) ?: continue
+            if (item.optString("id") != decisionId) kept.put(item)
+        }
+        if (prior.length() == kept.length()) return false
+        root.put("decisions", kept)
+        save(characterId, root)
+        return true
+    }
+
+    @Synchronized fun forgetTransition(characterId: String, evidenceId: String, at: Instant): Boolean {
+        if (prefs == null || evidenceId.isBlank()) return false
+        val root = snapshot(characterId)
+        val previous = root.optJSONArray("causalTransitions") ?: return false
+        val kept = JSONArray()
+        for (i in 0 until previous.length()) {
+            val item = previous.optJSONObject(i) ?: continue
+            if (item.optString("evidenceId") != evidenceId || item.optString("at") != at.toString()) kept.put(item)
+        }
+        if (previous.length() == kept.length()) return false
+        root.put("causalTransitions", kept)
+        save(characterId, root)
+        return true
+    }
+
     @Synchronized fun recordDecision(
         characterId: String,
         decisionId: String,

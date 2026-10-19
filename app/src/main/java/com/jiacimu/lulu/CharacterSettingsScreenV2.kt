@@ -161,16 +161,13 @@ fun CharacterSettingsScreenV2(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                CharacterSectionTabs(listOf("资料", "人格", "学习", "陪伴", "管理"),
-                    selected = when (section) { 4 -> 2; 2 -> 3; 3 -> 4; else -> section },
+                CharacterSectionTabs(listOf("资料", "人格", "陪伴", "管理"),
+                    selected = if (section == 4) 3 else section,
                     onSelect = { index ->
                         pageFocusManager.clearFocus(force = true)
                         keyboard?.hide()
-                        section = when (index) { 2 -> 4; 3 -> 2; 4 -> 3; else -> index }
+                        section = index
                     })
-            }
-            if (section == 4) item {
-                CharacterV2Card { CharacterLearningSettings(characterId, showRecords = false) }
             }
 
             if (section == 1) item {
@@ -187,6 +184,8 @@ fun CharacterSettingsScreenV2(
                     )
 
                     CharacterLifeSettings(characterId, seedPersona = persona, seedIdentity = identity)
+                    HorizontalDivider()
+                    CharacterDevelopmentSettings(characterId)
                 }
             }
             if (section == 0) {
@@ -352,7 +351,8 @@ fun CharacterSettingsScreenV2(
                 }
             }
             }
-            if (section == 3) {
+            if (section == 3 || section == 4) {
+            item { CharacterV2Card { CharacterLearningSettings(characterId) } }
             item {
                 CharacterV2Card {
                     CharacterExecutionSettings(characterId)

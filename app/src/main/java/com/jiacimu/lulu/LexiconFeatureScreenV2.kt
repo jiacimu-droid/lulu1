@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,6 +33,7 @@ import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CharacterRecordDestination
 import com.jiacimu.lulu.data.WorldLifeEpisodeStore
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CommitmentTaskStatus
@@ -44,25 +46,14 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private const val LEXICON_PAGE_SIZE = 40
-private const val LIFE_STORY_INDEX = 4
+private const val LIFE_STORY_INDEX = 2
 private const val FAVORITE_REASON_SEPARATOR = "\n\n收藏理由："
-
-private val LexiconV2Sections = listOf(
-    // New inner concerns are read in 此刻; Lexicon retains life facts and
-    // historical compatibility notes instead of a second current concern.
-    LexiconSection.Concern to "生活近况",
-    LexiconSection.Promise to "约定",
-    LexiconSection.Diary to "日记",
-    LexiconSection.Favorite to "收藏",
-)
-
 private val LexiconV2PromiseKinds = listOf(
-    PromiseKind.Promise to "承诺",
-    PromiseKind.Responsibility to "责任",
-    PromiseKind.Reminder to "提醒",
-    PromiseKind.LongTermSupervision to "长期监督",
+    PromiseKind.Promise to "承诺", PromiseKind.Responsibility to "责任",
+    PromiseKind.Reminder to "提醒", PromiseKind.LongTermSupervision to "长期监督",
 )
 
+/** Personal expressions live here; factual notes and learning belong to memory. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LexiconFeatureScreenV2(
@@ -74,213 +65,98 @@ fun LexiconFeatureScreenV2(
     embedded: Boolean = false,
     personal: Boolean = false,
     onCharacterSelected: (String) -> Unit = {},
-    areaNavigation: @Composable () -> Unit = {},
-    pageTitle: String = "辞海",
+    pageTitle: String = "生活记录",
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
-    val sortedCharacters = remember(characters) { characters.values.sortedBy { it.displayName } }
-    var selectedCharacterId by rememberSaveable(initialCharacterId) {
-        mutableStateOf(
-            initialCharacterId?.takeIf { personal || it in characters }
-                ?: characters.keys.firstOrNull()
-                ?: "lulu",
-        )
+    var characterId by rememberSaveable(initialCharacterId) {
+        mutableStateOf(initialCharacterId ?: characters.keys.firstOrNull() ?: "lulu")
     }
-    LaunchedEffect(characters.keys, selectedCharacterId, initialCharacterId) {
-        val requestedCharacterId = initialCharacterId?.takeIf { it.isNotBlank() && (personal || it in characters) }
-        if (requestedCharacterId != null && selectedCharacterId != requestedCharacterId) {
-            selectedCharacterId = requestedCharacterId
-        } else if (!personal && selectedCharacterId !in characters && characters.isNotEmpty()) {
-            selectedCharacterId = characters.keys.first()
+    val requested = remember(initialSectionName, initialDiaryTitle, initialFavoriteEntryId) {
+        when (CharacterRecordDestination.fromLegacy(initialSectionName, initialDiaryTitle, initialFavoriteEntryId)) {
+            CharacterRecordDestination.Diary -> 0
+            CharacterRecordDestination.Favorites -> 1
+            CharacterRecordDestination.Stories -> 2
+            CharacterRecordDestination.Moments -> 3
+            else -> -1
         }
     }
-
-    val diarySectionIndex = remember {
-        LexiconV2Sections.indexOfFirst { it.first == LexiconSection.Diary }.coerceAtLeast(0)
-    }
-    val requestedSectionIndex = remember(initialSectionName) {
-        if (initialSectionName in listOf("小剧场", "story", "scene", "life-story")) LIFE_STORY_INDEX
-        else if (initialSectionName in listOf("足迹", "历程", "audit", "life-audit")) 0
-        else if (initialSectionName.equals("Life", ignoreCase = true)) 0
-        else LexiconV2Sections.indexOfFirst { (section, _) ->
-            section.name.equals(initialSectionName.orEmpty(), ignoreCase = true)
-        }.takeIf { it >= 0 } ?: 0
-    }
-    var sectionIndex by rememberSaveable(initialDiaryTitle, initialSectionName) {
-        mutableIntStateOf(
-            if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex,
-        )
-    }
-
-    LaunchedEffect(initialDiaryTitle, initialSectionName) {
-        sectionIndex = if (!initialDiaryTitle.isNullOrBlank()) diarySectionIndex else requestedSectionIndex
-    }
-
-    // Legacy section indices and '历程' deep links now fall back to life facts;
-    // no historical records are deleted.
-    LaunchedEffect(sectionIndex) {
-        if (sectionIndex > LIFE_STORY_INDEX) sectionIndex = 0
-        if (sectionIndex < 0) sectionIndex = 0
-    }
+    var sectionIndex by rememberSaveable(initialSectionName, initialDiaryTitle, initialFavoriteEntryId) { mutableIntStateOf(requested) }
+    val isHome = sectionIndex < 0
     val isLifeStory = sectionIndex == LIFE_STORY_INDEX
+    val section = if (sectionIndex == 1) LexiconSection.Favorite else LexiconSection.Diary
     val context = LocalContext.current
     LaunchedEffect(Unit) { WorldLifeEpisodeStore.initialize(context) }
+    LaunchedEffect(characters.keys, personal) {
+        if (!personal && characterId !in characters && characters.isNotEmpty()) characterId = characters.keys.first()
+    }
     val lifeStories by WorldLifeEpisodeStore.state.collectAsState()
+    val selectedCharacterId = characterId
     val storyEntries = remember(selectedCharacterId, lifeStories) {
         lifeStories[selectedCharacterId].orEmpty().sortedByDescending { it.occurredAt }
     }
-    var selectedEpisodeId by remember { mutableStateOf<String?>(null) }
-    var sectionPickerExpanded by remember { mutableStateOf(false) }
-    val section = LexiconV2Sections.getOrNull(sectionIndex)?.first ?: LexiconSection.Life
-    val currentSectionEntries by LuluRepositories.lexicon
-        .observeEntries(selectedCharacterId, section)
-        .collectAsState(initial = emptyList())
-    val lifeEntries by LuluRepositories.lexicon
-        .observeEntries(selectedCharacterId, LexiconSection.Life)
-        .collectAsState(initial = emptyList())
-    // TaskStore is authoritative: an alarm may already be scheduled even if
-    // the async 辞海 materialization has not created a LexiconEntry yet.
-    val persistedTasks by CommitmentTaskStore.tasks.collectAsState()
-    val scheduledTasks = remember(persistedTasks, selectedCharacterId, section) {
-        if (section == LexiconSection.Promise)
-            persistedTasks.filter { it.characterId == selectedCharacterId }
-                .sortedWith(compareByDescending<com.jiacimu.lulu.data.CommitmentTask> {
-                    it.status.isActive()
-                }.thenByDescending { it.updatedAt })
-        else emptyList()
-    }
-    val taskLinkedEntryIds = remember(scheduledTasks) {
-        scheduledTasks.mapNotNull { it.lexiconEntryId }.toSet()
-    }
-    val entries = remember(currentSectionEntries, lifeEntries, section, taskLinkedEntryIds) {
-        when (section) {
-            LexiconSection.Concern -> (lifeEntries + currentSectionEntries)
-                .distinctBy { it.id }
-                .sortedWith(compareBy<LexiconEntry> { it.section == LexiconSection.Concern }
-                    .thenByDescending { it.updatedAt })
-            LexiconSection.Promise -> currentSectionEntries
-                .filterNot { it.id in taskLinkedEntryIds }
-            else -> currentSectionEntries
-        }
-    }
-    var visibleCount by rememberSaveable(selectedCharacterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
-    val visibleEntries = remember(entries, visibleCount) { entries.take(visibleCount) }
+    val collectedEntries by LuluRepositories.lexicon.observeEntries(characterId, section).collectAsState(initial = emptyList())
+    val collectedFavorites by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Favorite).collectAsState(initial = emptyList())
+    val entries = collectedEntries.filter { it.characterId == characterId && it.section == section }
+    val favorites = collectedFavorites.filter { it.characterId == characterId }
+    var visibleCount by rememberSaveable(characterId, section) { mutableIntStateOf(LEXICON_PAGE_SIZE) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    var selectedEpisodeId by remember { mutableStateOf<String?>(null) }
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
-    var characterMenuExpanded by remember { mutableStateOf(false) }
-
-    LaunchedEffect(sectionIndex) {
-        if (isLifeStory || section == LexiconSection.Favorite) {
-            creating = false
-            editing = null
+    var characterMenu by remember { mutableStateOf(false) }
+    val title = when (sectionIndex) { 0 -> "日记"; 1 -> "收藏"; 2 -> "小剧场"; 3 -> "朋友圈"; else -> pageTitle }
+    val back = { if (isHome) onBack() else { sectionIndex = -1; Unit } }
+    androidx.activity.compose.BackHandler(enabled = !isHome) { sectionIndex = -1 }
+    LaunchedEffect(characterId, section, entries, initialDiaryTitle, initialFavoriteEntryId) {
+        val index = entries.indexOfFirst {
+            (!initialDiaryTitle.isNullOrBlank() && it.title == initialDiaryTitle) ||
+                (!initialFavoriteEntryId.isNullOrBlank() && it.id == initialFavoriteEntryId)
         }
+        if (index >= 0) { visibleCount = maxOf(visibleCount, index + 1); listState.scrollToItem(index) }
     }
-
-    LaunchedEffect(initialDiaryTitle, selectedCharacterId, section, entries) {
-        val title = initialDiaryTitle?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
-        if (section != LexiconSection.Diary) return@LaunchedEffect
-        val targetIndex = entries.indexOfFirst { it.title == title }
-        if (targetIndex >= 0) {
-            if (targetIndex >= visibleCount) visibleCount = targetIndex + 1
-            listState.scrollToItem(targetIndex)
-        }
-    }
-    LaunchedEffect(initialFavoriteEntryId, selectedCharacterId, section, entries) {
-        val requested = initialFavoriteEntryId?.takeIf(String::isNotBlank) ?: return@LaunchedEffect
-        if (section != LexiconSection.Favorite) return@LaunchedEffect
-        val targetIndex = entries.indexOfFirst { it.id == requested }
-        if (targetIndex >= 0) {
-            if (targetIndex >= visibleCount) visibleCount = targetIndex + 1
-            listState.scrollToItem(targetIndex)
-        }
-    }
-
-    Scaffold(
-        containerColor = LuluColors.Paper,
-        topBar = {
-            TopAppBar(
-                title = { Column {
-                    Text(pageTitle, fontWeight = FontWeight.SemiBold)
-                    if (personal) Text(characters[selectedCharacterId]?.displayName.orEmpty(),
-                        fontSize = 12.sp, color = LuluColors.Muted)
-                } },
-                navigationIcon = {
-                    if (!embedded) {
-                        IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
+    Scaffold(containerColor = LuluColors.Paper, topBar = {
+        TopAppBar(title = { Column {
+            Text(title, fontWeight = FontWeight.SemiBold)
+            if (personal) Text(characters[characterId]?.displayName.orEmpty(), fontSize = 12.sp, color = LuluColors.Muted)
+        } }, navigationIcon = { if (!embedded) IconButton(onClick = back) { Icon(Icons.Outlined.ArrowBack, "返回") } },
+            actions = {
+                if (!personal) Box {
+                    TextButton(onClick = { characterMenu = true }) {
+                        Text(characters[characterId]?.displayName ?: "选择角色")
+                        Icon(Icons.Outlined.KeyboardArrowDown, null, Modifier.size(17.dp))
                     }
-                },
-                actions = {
-                    if (!personal) Box {
-                        TextButton(onClick = { characterMenuExpanded = true }) {
-                            Text(
-                                characters[selectedCharacterId]?.displayName.orEmpty().ifBlank { "选择角色" },
-                                color = LuluColors.Ink,
-                                maxLines = 1,
-                            )
-                            Icon(Icons.Outlined.KeyboardArrowDown, "展开角色列表", modifier = Modifier.size(18.dp))
-                        }
-                        DropdownMenu(
-                            expanded = characterMenuExpanded,
-                            onDismissRequest = { characterMenuExpanded = false },
-                        ) {
-                            sortedCharacters.forEach { character ->
-                                DropdownMenuItem(
-                                    text = { Text(character.displayName) },
-                                    onClick = {
-                                        selectedCharacterId = character.characterId
-                                        onCharacterSelected(character.characterId)
-                                        characterMenuExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
-                    if (!isLifeStory && section != LexiconSection.Favorite) {
-                        IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新增条目") }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-            )
-        },
-    ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-            areaNavigation()
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("生活记录", fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = LuluColors.Ink)
-                    Text("独处故事、近况与真正留下的生活痕迹",
-                        fontSize = 11.sp, color = LuluColors.Muted)
-                }
-                Box {
-                    OutlinedButton(onClick = { sectionPickerExpanded = true },
-                        shape = RoundedCornerShape(13.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-                        Text(if (isLifeStory) "小剧场" else LexiconV2Sections.getOrNull(sectionIndex)?.second ?: "生活近况",
-                            fontSize = 13.sp)
-                        Spacer(Modifier.width(4.dp))
-                        Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.size(17.dp))
-                    }
-                    DropdownMenu(expanded = sectionPickerExpanded,
-                        onDismissRequest = { sectionPickerExpanded = false }) {
-                        (LexiconV2Sections.map { it.second } + "小剧场").forEachIndexed { index, label ->
-                            DropdownMenuItem(text = { Text(label) }, onClick = {
-                                sectionIndex = index
-                                sectionPickerExpanded = false
-                                editing = null
-                                creating = false
+                    DropdownMenu(characterMenu, onDismissRequest = { characterMenu = false }) {
+                        characters.values.sortedBy { it.displayName }.forEach { character ->
+                            DropdownMenuItem(text = { Text(character.displayName) }, onClick = {
+                                characterId = character.characterId; onCharacterSelected(characterId); characterMenu = false
                             })
                         }
                     }
                 }
-            }
-
-            if (isLifeStory) {
+                if (sectionIndex == 0) IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "写日记") }
+            }, colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper))
+    }) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
+            if (isHome) {
+                LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    items(listOf("小剧场" to 2, "日记" to 0, "收藏" to 1, "朋友圈" to 3), key = { it.second }) { (label, index) ->
+                        Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
+                            border = BorderStroke(1.dp, LuluColors.Border),
+                            modifier = Modifier.fillMaxWidth().clickable { sectionIndex = index }) {
+                            Row(Modifier.padding(horizontal = 21.dp, vertical = 25.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text(label, fontSize = 20.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+                                val number = when (index) { 2 -> storyEntries.size; 0 -> entries.size; 1 -> favorites.size; else -> null }
+                                if (number != null) Text(number.toString(), fontSize = 12.sp, color = LuluColors.Muted)
+                                Spacer(Modifier.width(12.dp))
+                                Icon(Icons.Outlined.ChevronRight, "打开$label", tint = LuluColors.Muted)
+                            }
+                        }
+                    }
+                }
+            } else if (sectionIndex == 3) {
+                MomentsScreen(characterId = characterId)
+            } else if (isLifeStory) {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 42.dp),
@@ -329,220 +205,35 @@ fun LexiconFeatureScreenV2(
                         }
                     }
                 }
-            } else LazyColumn(
-                state = listState,
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                if (section == LexiconSection.Concern) {
-                    item(key = "story-library-entrance") {
-                        Surface(
-                            color = Color(0xFFFCF9F3),
-                            shape = RoundedCornerShape(18.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE8E0D6)),
-                            modifier = Modifier.fillMaxWidth().clickable { sectionIndex = LIFE_STORY_INDEX },
-                        ) {
-                            Row(Modifier.padding(horizontal = 20.dp, vertical = 19.dp),
-                                verticalAlignment = Alignment.CenterVertically) {
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                    Text("独处小剧场", fontSize = 19.sp,
-                                        fontWeight = FontWeight.SemiBold, color = LuluColors.Ink)
-                                    Text("在一整页里读角色自己的故事 · ${storyEntries.size} 篇",
-                                        fontSize = 12.sp, color = LuluColors.Muted)
-                                }
-                                Text("去阅读  →", fontSize = 12.sp, color = Color(0xFF947E68))
-                            }
-                        }
+            } else {
+                LazyColumn(state = listState, modifier = Modifier.weight(1f), contentPadding = PaddingValues(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (entries.isEmpty()) item { Text("还没有$title", color = LuluColors.Muted) }
+                    items(entries.take(visibleCount), key = LexiconEntry::id) { entry ->
+                        if (section == LexiconSection.Diary) DiaryEntryCard(entry,
+                            characters[characterId]?.displayName ?: "角色",
+                            highlighted = entry.title == initialDiaryTitle,
+                            onEdit = { editing = entry }, onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } })
+                        else FavoriteEntryCard(entry, characters[characterId]?.displayName ?: "角色",
+                            highlighted = entry.id == initialFavoriteEntryId,
+                            onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } })
                     }
-                    item(key = "unified-life-note-guidance") {
-                        Text("这里记录生活事实。角色当前的私人挂心只在「此刻」展示；旧版关心笔记保留供查阅，不再单独触发主动联系。",
-                            fontSize = 12.sp, color = LuluColors.Muted)
-                    }
-                }
-                if (section == LexiconSection.Promise && scheduledTasks.isNotEmpty()) {
-                    item(key = "scheduled-commitments-heading") {
-                        Text("真实定时约定 · 直接来自执行任务", fontWeight = FontWeight.SemiBold)
-                    }
-                    items(scheduledTasks, key = { "scheduled-commitment:" + it.id }) { task ->
-                        val status = when (task.status) {
-                            CommitmentTaskStatus.NeedsClarification -> "待明确"
-                            CommitmentTaskStatus.Scheduled -> "已安排"
-                            CommitmentTaskStatus.Running -> "执行中"
-                            CommitmentTaskStatus.WaitingForFeedback -> if (task.dueAt == null) "持续跟进" else "已触发 · 等待反馈"
-                            CommitmentTaskStatus.Completed -> "已完成"
-                            CommitmentTaskStatus.Cancelled -> "已取消"
-                            CommitmentTaskStatus.Blocked -> "执行受阻"
-                            CommitmentTaskStatus.Expired -> "已过期"
-                        }
-                        val whenText = task.dueAt?.atZone(
-                            task.timezone?.let { zone -> runCatching { ZoneId.of(zone) }.getOrNull() }
-                                ?: ZoneId.systemDefault(),
-                        )?.format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))
-                            ?: if (task.status == CommitmentTaskStatus.WaitingForFeedback) "随实际进展跟进" else "等待确定时间"
-                        val delivery = if (task.dueAt == null && task.status == CommitmentTaskStatus.WaitingForFeedback) "后续互动中持续关注"
-                            else if (task.deliveryAction == "alarm_only") "到点触发本机闹钟"
-                            else if (task.deliveryAction == "start_call") "到点来电；正在通话时在原通话中提醒"
-                            else if (task.goal.contains("叫醒") || task.goal.contains("起床"))
-                                "到点提醒；正在通话时直接语音叫醒"
-                            else "到点发送私聊消息"
-                        LexiconV2Card {
-                            Text(task.goal, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("$whenText · $status", fontSize = 13.sp,
-                                color = LuluColors.Muted)
-                            Text(delivery, fontSize = 12.sp, color = LuluColors.Muted)
-                            task.lastAlarmReceivedAt?.let { received ->
-                                val zone = task.timezone?.let { runCatching { ZoneId.of(it) }.getOrNull() }
-                                    ?: ZoneId.systemDefault()
-                                val time = received.atZone(zone).format(DateTimeFormatter.ofPattern("M月d日 HH:mm:ss"))
-                                val delay = task.lastAlarmScheduledAt?.let {
-                                    java.time.Duration.between(it, received).seconds.coerceAtLeast(0)
-                                } ?: 0L
-                                Text("${task.lastAlarmDeliverySource.ifBlank { "系统回调" }} $time" +
-                                    if (delay > 1) " · 较计划晚${delay}秒" else "",
-                                    fontSize = 12.sp, color = LuluColors.Muted)
-                            }
-                            if (task.lastActionResult.isNotBlank())
-                                Text("执行记录：${task.lastActionResult}", fontSize = 12.sp,
-                                    color = LuluColors.Muted)
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                                if (task.status.isActive()) {
-                                    TextButton(onClick = {
-                                        CommitmentTaskStore.cancel(task.id, "用户从辞海取消定时约定")
-                                    }) { Text("取消约定") }
-                                }
-                                TextButton(onClick = {
-                                    CommitmentTaskStore.remove(task.id)
-                                    task.lexiconEntryId?.let { id ->
-                                        scope.launch { LuluRepositories.lexicon.delete(id) }
-                                    }
-                                }) { Text("删除记录") }
-                            }
-                        }
-                    }
-                }
-                if (entries.isEmpty() && scheduledTasks.isEmpty()) {
-                    item {
-                        LexiconV2Card {
-                            Text("还没有${LexiconV2Sections.getOrNull(sectionIndex)?.second ?: "生活"}记录", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                } else {
-                    items(visibleEntries, key = LexiconEntry::id) { entry ->
-                        when (entry.section) {
-                            LexiconSection.Diary -> DiaryEntryCard(
-                                entry = entry,
-                                characterName = characters[entry.characterId]?.displayName ?: "角色",
-                                highlighted = !initialDiaryTitle.isNullOrBlank() && entry.title == initialDiaryTitle,
-                                onEdit = { editing = entry },
-                                onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
-                            )
-                            LexiconSection.Favorite -> FavoriteEntryCard(
-                                entry = entry,
-                                characterName = characters[entry.characterId]?.displayName ?: "角色",
-                                highlighted = entry.id == initialFavoriteEntryId,
-                                onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) } },
-                            )
-                            else -> LexiconV2Card {
-                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                                    Column(Modifier.weight(1f)) {
-                                        Text(entry.title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                                        if (entry.section == LexiconSection.Life) {
-                                            Text("生活事实整理", color = LuluColors.Muted, fontSize = 11.sp)
-                                        }
-                                        if (entry.section == LexiconSection.Concern) {
-                                            Text("旧版关心笔记 · 历史兼容，不代表角色当前挂心或应主动联系",
-                                                color = LuluColors.Muted, fontSize = 11.sp)
-                                        }
-                                        if (entry.section == LexiconSection.Promise) {
-                                            Text(
-                                                LexiconV2PromiseKinds
-                                                    .firstOrNull { (kind, _) -> kind == entry.promiseKind }
-                                                    ?.second
-                                                    ?: "承诺",
-                                                color = LuluColors.Muted,
-                                                fontSize = 11.sp,
-                                            )
-                                        }
-                                        Text(entry.content, color = LuluColors.Muted)
-                                        if (entry.section == LexiconSection.Life) {
-                                            TextButton(onClick = { scope.launch {
-                                                LuluRepositories.lexicon.save(entry.copy(
-                                                    status = if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) com.jiacimu.lulu.core.LexiconStatus.Resolved else com.jiacimu.lulu.core.LexiconStatus.Active,
-                                                    updatedAt = java.time.Instant.now(),
-                                                ))
-                                            } }) { Text(if (entry.section == LexiconSection.Life)
-                                                (if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) "记为已过去" else "恢复为当前近况")
-                                                else (if (entry.status == com.jiacimu.lulu.core.LexiconStatus.Active) "标记已解决" else "已解决 · 重新挂心")) }
-                                        }
-                                    }
-                                    IconButton(onClick = { editing = entry }) {
-                                        Icon(Icons.Outlined.Edit, "编辑")
-                                    }
-                                    IconButton(onClick = {
-                                        scope.launch { LuluRepositories.lexicon.delete(entry.id) }
-                                    }) {
-                                        Icon(
-                                            Icons.Outlined.DeleteOutline,
-                                            "删除",
-                                            tint = MaterialTheme.colorScheme.error,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (visibleEntries.size < entries.size) {
-                        item(key = "load-more") {
-                            OutlinedButton(
-                                onClick = { visibleCount = (visibleCount + LEXICON_PAGE_SIZE).coerceAtMost(entries.size) },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text("继续加载（${entries.size - visibleEntries.size}）")
-                            }
-                        }
-                    }
+                    if (visibleCount < entries.size) item { TextButton(onClick = { visibleCount += LEXICON_PAGE_SIZE },
+                        modifier = Modifier.fillMaxWidth()) { Text("继续加载") } }
                 }
             }
         }
     }
-
-    selectedEpisodeId?.let { id ->
-        WorldLifeEpisodeStore.find(id)?.let { episode ->
-            WorldLifeEpisodeFullscreenDialog(episode, onClose = { selectedEpisodeId = null })
-        }
-    }
-
-    val dialogEntry = editing ?: LexiconEntry(
-        id = UUID.randomUUID().toString(),
-        characterId = selectedCharacterId,
-        section = if (section == LexiconSection.Concern) LexiconSection.Life else section,
-        title = "",
-        content = "",
-        promiseKind = if (section == LexiconSection.Promise) PromiseKind.Promise else null,
-        createdAt = Instant.now(),
-        updatedAt = Instant.now(),
-    ).takeIf { creating && !isLifeStory && section != LexiconSection.Favorite }
-
+    selectedEpisodeId?.let { id -> WorldLifeEpisodeStore.find(id)?.let { episode ->
+        WorldLifeEpisodeFullscreenDialog(episode, onClose = { selectedEpisodeId = null })
+    } }
+    val dialogEntry = editing ?: LexiconEntry(UUID.randomUUID().toString(), characterId, LexiconSection.Diary,
+        "", "", createdAt = Instant.now(), updatedAt = Instant.now()).takeIf { creating }
     dialogEntry?.let { entry ->
-        LexiconEditorDialogV2(
-            entry = entry,
-            isNew = creating,
-            onDismiss = {
-                editing = null
-                creating = false
-            },
-            onSave = { saved ->
-                scope.launch { LuluRepositories.lexicon.save(saved) }
-                editing = null
-                creating = false
-            },
-            onDelete = {
-                scope.launch { LuluRepositories.lexicon.delete(entry.id) }
-                editing = null
-                creating = false
-            },
-        )
+        LexiconEditorDialogV2(entry, isNew = creating,
+            onDismiss = { editing = null; creating = false },
+            onSave = { scope.launch { LuluRepositories.lexicon.save(it) }; editing = null; creating = false },
+            onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) }; editing = null; creating = false })
     }
 }
 
@@ -654,7 +345,7 @@ private fun DiaryEntryCard(
 private val DiaryTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm")
 
 @Composable
-private fun LexiconEditorDialogV2(
+internal fun LexiconEditorDialogV2(
     entry: LexiconEntry,
     isNew: Boolean,
     onDismiss: () -> Unit,

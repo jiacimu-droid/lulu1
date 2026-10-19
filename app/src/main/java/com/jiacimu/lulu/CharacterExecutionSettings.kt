@@ -85,132 +85,26 @@ internal fun CharacterExecutionSettings(characterId: String) {
     }
 }
 
-/** Character growth and self-learning belong to companionship, not device permission management. */
+/** Configuration only: knowledge is in memory, active questions are in 此刻. */
 @Composable
-internal fun CharacterLearningSettings(characterId: String, showConfiguration: Boolean = true, showRecords: Boolean = true, showGrowthRecords: Boolean = true) {
+internal fun CharacterLearningSettings(characterId: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
+    var limit by remember(characterId) { mutableIntStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10)) }
+    val revision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
+    val budget = remember(characterId, revision, limit) { com.jiacimu.lulu.data.CharacterLearningAgenda.budget(characterId) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(if (showConfiguration) "学习设置" else "读过、学过、试过", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-        if (!showConfiguration) Text("只展示角色真实接触过的材料、理解与尝试；不是重复的成长历程。",
+        Text("学习与探索", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text("每日学习步骤上限 · $limit", Modifier.weight(1f))
+            TextButton(enabled = limit > 0, onClick = {
+                limit--; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
+            }) { Text("减少") }
+            TextButton(enabled = limit < 10, onClick = {
+                limit++; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
+            }) { Text("增加") }
+        }
+        Text("今日已用 ${budget.used} 步 · 剩余 ${budget.remaining} 步",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        com.jiacimu.lulu.data.CharacterLearningAgenda.initialize(context)
-        val learningRevision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
-        if (showConfiguration) {
-        var learningLimit by remember(characterId) {
-            mutableStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10))
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("每日学习步骤上限 · $learningLimit", modifier = Modifier.weight(1f))
-            Row {
-                TextButton(enabled = learningLimit > 0, onClick = {
-                    learningLimit--; prefs.edit().putInt("$characterId:learning_daily_limit", learningLimit).commit()
-                }) { Text("减少") }
-                TextButton(enabled = learningLimit < 10, onClick = {
-                    learningLimit++; prefs.edit().putInt("$characterId:learning_daily_limit", learningLimit).commit()
-                }) { Text("增加") }
-            }
-        }
-        val todayBudget = remember(characterId, learningRevision, learningLimit) {
-            com.jiacimu.lulu.data.CharacterLearningAgenda.budget(characterId)
-        }
-        Text("今日已用 ${todayBudget.used} 步 · 剩余 ${todayBudget.remaining} 步",
-            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        if (showRecords) {
-        val learningGoals = remember(characterId, learningRevision) {
-            com.jiacimu.lulu.data.CharacterLearningAgenda.goals(characterId)
-                .filter { it.optString("status") != "dropped" }
-        }
-        learningGoals.forEach { goal ->
-            HorizontalDivider()
-            val stage = when (goal.optString("status")) {
-                "planned" -> "待开始"; "running" -> "正在学习"; "failed" -> "待调整"
-                "paused" -> "暂缓"; "research" -> "待核实"; else -> "待实践／复习"
-            }
-            Text("${goal.optString("topic")} · $stage")
-            goal.optString("error").takeIf(String::isNotBlank)?.let {
-                Text(it, style = MaterialTheme.typography.bodySmall)
-            }
-            Row {
-                TextButton(enabled = goal.optString("status") != "running", onClick = {
-                    com.jiacimu.lulu.data.CharacterLearningAgenda.update(characterId, goal.optString("id")) {
-                        it.put("status", if (it.optString("status") == "paused")
-                            if (it.optString("materialId").isBlank()) "planned"
-                            else if (!com.jiacimu.lulu.data.CharacterLearningLedger.hasInsight(characterId, it.optString("materialId"))) "research"
-                            else "practice" else "paused")
-                    }
-                }) { Text(if (goal.optString("status") == "paused") "恢复" else "暂缓") }
-                TextButton(enabled = goal.optString("status") != "running", onClick = {
-                    com.jiacimu.lulu.data.CharacterLearningAgenda.update(characterId, goal.optString("id")) {
-                        it.put("status", "dropped")
-                    }
-                }) { Text("放下") }
-                TextButton(enabled = goal.optString("status") != "running",
-                    onClick = {
-                        com.jiacimu.lulu.data.CharacterLearningAgenda.deleteGoal(
-                            characterId, goal.optString("id"))
-                    }) { Text("删除记录", color = MaterialTheme.colorScheme.error) }
-            }
-        }
-        val insightRevision by com.jiacimu.lulu.data.CharacterLearningLedger.revisions.collectAsState()
-        val insights = remember(characterId, insightRevision) {
-            com.jiacimu.lulu.data.CharacterLearningLedger.listInsights(characterId)
-        }
-        if (learningGoals.isEmpty() && insights.isEmpty()) {
-            Surface(color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp)) {
-                Column(Modifier.fillMaxWidth().padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("还没有可追溯的学习记录", fontWeight = FontWeight.SemiBold)
-                    Text("角色真实阅读、探索、练习后，留下理解或问题才会显示在这里。空白不代表角色没有人格或生活。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        }
-        if (insights.isNotEmpty()) {
-            Text("读后理解与学习笔记", style = MaterialTheme.typography.titleMedium)
-            insights.take(30).forEach { insight ->
-                HorizontalDivider()
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column(Modifier.weight(1f)) {
-                        Text(insight.topic, fontWeight = FontWeight.Medium)
-                        Text(insight.understanding.take(220),
-                            style = MaterialTheme.typography.bodySmall)
-                    }
-                    TextButton(onClick = {
-                        com.jiacimu.lulu.data.CharacterLearningLedger.deleteInsight(
-                            characterId, insight.sourceEvidenceId)
-                    }) { Text("删除", color = MaterialTheme.colorScheme.error) }
-                }
-            }
-        }
-        if (showGrowthRecords) {
-        Text("可追溯成长", style = MaterialTheme.typography.titleMedium)
-        val revision by CharacterDevelopmentStore.revisions.collectAsState()
-        val records = remember(characterId, revision) { CharacterDevelopmentStore.active(characterId) }
-        records.takeLast(15).asReversed().forEach { record ->
-            HorizontalDivider()
-            Text(record.kind.label, style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(record.content, modifier = Modifier.weight(1f))
-                TextButton(onClick = { CharacterDevelopmentStore.retire(characterId, record.id) }) {
-                    Text("删除变化", color = MaterialTheme.colorScheme.error)
-                }
-            }
-            var showingEvidence by remember(characterId, record.id) { mutableStateOf(false) }
-            TextButton(onClick = { showingEvidence = !showingEvidence }) { Text(if (showingEvidence) "收起依据" else "查看依据") }
-            if (showingEvidence) {
-            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, record.evidence.keys).take(3).forEach { event ->
-                Text("依据：${event.channel} · ${event.content.take(100)}", style = MaterialTheme.typography.bodySmall)
-            }
-            TextButton(onClick = { CharacterDevelopmentStore.retire(characterId, record.id) }) { Text("撤销变化") }
-            }
-        }
-        if (records.none { it.active }) Text("暂无成长记录")
-        }
-        }
     }
 }

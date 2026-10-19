@@ -99,7 +99,7 @@ object CharacterDevelopmentStore {
         val events = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds)
         val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds)
         if (events.size != evidenceIds.distinct().size || counters.size != counterIds.distinct().size) return false
-        val factual = events.filter { it.isDevelopmentExposure() }.distinctBy { if (it.evidenceKind == EventEvidenceKind.UserStatement) it.id else it.sessionId.ifBlank { it.id } }
+        val factual = independentDevelopmentExposures(events)
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
@@ -200,8 +200,7 @@ object CharacterDevelopmentStore {
         } ?: return false
         val counters = SharedExperienceTimeline.eventsByIds(characterId, counterIds.distinct())
         if (counters.size != counterIds.distinct().size) return false
-        val factualCounters = counters.filter { it.isDevelopmentExposure() }
-            .distinctBy { event -> event.sessionId.ifBlank { event.id } }
+        val factualCounters = independentDevelopmentExposures(counters)
         if (factualCounters.size < DevelopmentPolicy.counterExamplesToRetire(current.maturity)) return false
         val mergedCounters = current.counterEvidence + factualCounters.associate { it.id to it.revision }
         save(records.map { record ->

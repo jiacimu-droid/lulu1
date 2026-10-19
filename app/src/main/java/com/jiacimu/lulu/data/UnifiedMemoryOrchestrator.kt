@@ -36,6 +36,8 @@ data class UnifiedMemoryContext(
     private val recentCharacterBudget: Int = 7_000,
     val characterId: String = "",
     val inspectionId: String = "",
+    /** A learned understanding is part of this person's memory, not a second biography. */
+    val understandingContext: String = "",
 ) {
     val coreMemorySection: String get() = CoreMemoryDelivery.render(coreMemories)
 
@@ -67,16 +69,18 @@ data class UnifiedMemoryContext(
     }
 
     fun compactPromptSection(characterBudget: Int = 4_800): String {
-        if (coreMemories.isEmpty() && memories.isEmpty() && sourceEvents.isEmpty() && recentEvents.isEmpty() && activeTaskContext.isBlank()) return ""
+        if (coreMemories.isEmpty() && memories.isEmpty() && sourceEvents.isEmpty() && recentEvents.isEmpty() && activeTaskContext.isBlank() && understandingContext.isBlank()) return ""
         val safeBudget = characterBudget.coerceAtLeast(900)
-        val recentBudget = (safeBudget * 0.42).toInt()
-        val evidenceBudget = (safeBudget * 0.36).toInt()
-        val summaryBudget = (safeBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
+        val knowledgeBudget = if (understandingContext.isBlank()) 0 else (safeBudget * 0.25).toInt()
+        val remainingBudget = safeBudget - knowledgeBudget
+        val recentBudget = (remainingBudget * 0.42).toInt()
+        val evidenceBudget = (remainingBudget * 0.36).toInt()
+        val summaryBudget = (remainingBudget - recentBudget - evidenceBudget).coerceAtLeast(120)
         val summary = PromptMemoryRenderer.renderWithTrace(memories, summaryBudget)
         recordActualPrompt(summary, evidenceBudget, recentBudget)
         return listOf(coreMemorySection, activeTaskContext,
             recentRendered(recentBudget).text.takeIf(String::isNotBlank)?.let { "这个角色最近亲历的原始时间线：\n$it" }.orEmpty(),
-            evidenceRendered(evidenceBudget).text, summary.text,
+            evidenceRendered(evidenceBudget).text, summary.text, understandingContext.take(knowledgeBudget),
         ).filter(String::isNotBlank).joinToString("\n")
     }
 }
@@ -146,6 +150,8 @@ object UnifiedMemoryOrchestrator {
             recentCharacterBudget = recentCharacterBudget,
             characterId = characterId,
             inspectionId = inspectionId,
+            understandingContext = CharacterLearningLedger.context(characterId, query,
+                compact = memoryCharacterBudget < 6_000),
         )
     }
 

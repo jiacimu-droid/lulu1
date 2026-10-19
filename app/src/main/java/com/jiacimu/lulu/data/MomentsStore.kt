@@ -79,9 +79,13 @@ object MomentsStore {
         resumeImageUnderstanding()
     }
 
-    fun markCharacterPostsSeen() {
-        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet())?.apply()
-        mutableUnreadCharacterPosts.value = 0
+    fun markCharacterPostsSeen(characterId: String? = null) {
+        val remaining = if (characterId == null) emptySet() else {
+            val visibleIds = mutablePosts.value.filter { it.authorCharacterId == characterId }.mapTo(hashSetOf()) { it.id }
+            prefs?.getStringSet(KEY_UNREAD_CHARACTER_IDS, emptySet()).orEmpty().filterNot { it in visibleIds }.toSet()
+        }
+        prefs?.edit()?.putStringSet(KEY_UNREAD_CHARACTER_IDS, remaining)?.apply()
+        mutableUnreadCharacterPosts.value = remaining.size
     }
 
     fun publishUser(

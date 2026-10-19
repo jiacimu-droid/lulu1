@@ -17,6 +17,7 @@ import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluAppearanceStore
 import com.jiacimu.lulu.design.LuluAppearanceTheme
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CharacterRecordDestination
 import com.jiacimu.lulu.design.LuluColors
 import com.jiacimu.lulu.design.LuluLightColorScheme
 import com.jiacimu.lulu.design.LuluTypography
@@ -362,14 +363,21 @@ fun LuluMigrationRootAppV2(
                                     personalCharacterId = null,
                                     startInCore = true,
                                 )
-                                MigrationRoute.Lexicon -> CharacterMemoryFeatureScreen(
-                                    onBack = ::popRoute,
-                                    personalCharacterId = selectedCharacterId,
-                                    initialDiaryTitle = lexiconInitialDiaryTitle,
-                                    initialSectionName = lexiconInitialSection,
-                                    initialFavoriteEntryId = lexiconInitialFavoriteId,
-                                    startInRecords = true,
-                                )
+                                MigrationRoute.Lexicon -> when (CharacterRecordDestination.fromLegacy(
+                                    lexiconInitialSection, lexiconInitialDiaryTitle, lexiconInitialFavoriteId)) {
+                                    CharacterRecordDestination.Memory, CharacterRecordDestination.Timeline ->
+                                        MemoryFeatureScreen(onBack = ::popRoute, personalCharacterId = selectedCharacterId,
+                                            startInTimeline = CharacterRecordDestination.fromLegacy(lexiconInitialSection) ==
+                                                CharacterRecordDestination.Timeline)
+                                    CharacterRecordDestination.Schedule -> ScheduleFeatureScreen(
+                                        onBack = ::popRoute, initialCharacterId = selectedCharacterId, personal = true)
+                                    else -> LexiconFeatureScreenV2(
+                                        onBack = ::popRoute, initialCharacterId = selectedCharacterId,
+                                        initialDiaryTitle = lexiconInitialDiaryTitle,
+                                        initialSectionName = lexiconInitialSection,
+                                        initialFavoriteEntryId = lexiconInitialFavoriteId,
+                                        personal = true)
+                                }
                                 MigrationRoute.WorldBook -> CharacterWorldBookScreenV2(
                                     initialCharacterId = selectedCharacterId,
                                     onBack = ::popRoute,

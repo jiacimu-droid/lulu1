@@ -84,7 +84,7 @@ object CharacterDevelopmentRuntime {
             timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
                 it.source in setOf("journal:own", "moment:self") }.takeLast(8))
             .distinctBy { it.id }.sortedBy { it.occurredAt }
-        if (events.count { it.isDevelopmentExposure() } < 2) return
+        if (independentDevelopmentExposures(events).size < 2) return
         val fingerprint = persona + "\n" + events.joinToString("|") { "${it.id}:${it.revision}" }
         if (fingerprint == p.getString("batch:$characterId", "")) return
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()

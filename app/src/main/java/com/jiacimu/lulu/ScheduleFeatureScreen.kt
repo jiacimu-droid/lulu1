@@ -17,6 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.RoleDayScheduleStore
+import com.jiacimu.lulu.data.CommitmentTaskStore
+import com.jiacimu.lulu.data.isActive
+import com.jiacimu.lulu.core.LexiconSection
+import com.jiacimu.lulu.core.LexiconStatus
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -50,6 +54,17 @@ fun ScheduleFeatureScreen(
                 .filter { it.dueAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate }
     }
     val name = characters[selectedCharacterId]?.displayName.orEmpty()
+    val commitments by CommitmentTaskStore.tasks.collectAsState()
+    val promiseNotes by LuluRepositories.lexicon.observeEntries(selectedCharacterId, LexiconSection.Promise)
+        .collectAsState(initial = emptyList())
+    val tasks = commitments.filter { task ->
+        task.characterId == selectedCharacterId && (task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
+            ?.let { it == selectedDate } ?: (task.status.isActive() && selectedDate == LocalDate.now()))
+    }
+    val linkedNotes = commitments.filter { it.characterId == selectedCharacterId }.mapNotNull { it.lexiconEntryId }.toSet()
+    val legacyPromises = promiseNotes.filter { entry -> entry.characterId == selectedCharacterId && entry.id !in linkedNotes &&
+        (if (entry.status == LexiconStatus.Active) selectedDate == LocalDate.now()
+            else entry.updatedAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate) }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -98,9 +113,6 @@ fun ScheduleFeatureScreen(
                     Icon(Icons.Outlined.ChevronRight, "后一天")
                 }
             }
-            Text("只看本人亲自安排的事 · 执行依据保留在原始时间线",
-                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
             if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(16.dp))
             LazyColumn(
@@ -108,11 +120,13 @@ fun ScheduleFeatureScreen(
                 contentPadding = PaddingValues(horizontal = 19.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (plans.isEmpty()) item {
-                    Text("这一天还没有本人安排的活动。",
+                if (plans.isEmpty() && tasks.isEmpty() && legacyPromises.isEmpty()) item {
+                    Text("这一天还没有安排。",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 30.dp))
                 }
+                items(tasks, key = { "commitment:${it.id}" }) { task -> ScheduledCommitmentCard(task) }
+                items(legacyPromises, key = { "promise:${it.id}" }) { entry -> LegacyPromiseCard(entry) }
                 items(plans, key = { it.id }) { plan ->
                     val finished = plan.status in setOf("completed", "cancelled")
                     val stateLabel = when (plan.status) {
