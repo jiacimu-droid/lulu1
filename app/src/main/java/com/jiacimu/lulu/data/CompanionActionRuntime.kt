@@ -77,7 +77,10 @@ internal object CompanionActionRuntime {
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
             appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
         }
-        appendLine("- plan_personal_activity，args={\"title\":\"自己准备做的事\",\"intent\":\"真实想做的原因\",\"dueAt\":\"2026-10-20T09:00:00+08:00\"}：自主为未来两周内的某个时刻安排一个自己的活动；到时系统会唤醒你重新判断，而不是自动向用户发消息或假定已完成。不要给每次普通聊天排日程；可以按自己兴趣安排读剧场、学习或玩游戏。")
+        appendLine("- plan_personal_activity，args={\"title\":\"自己准备做的事\",\"intent\":\"真实想做的原因\",\"dueAt\":\"2026-10-20T09:00:00+08:00\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|write_journal|publish_moment\"}：自主为未来两周安排一件真的想做的事。activityAction 可省略，若填写则约束未来完成该计划的真实工具类型。到点唤醒本人选择而不是假定完成，不要为普通聊天排日程。")
+        appendLine("- reschedule_personal_activity，args={\"planId\":\"已有本人日程ID\",\"dueAt\":\"新的ISO时间\",\"reason\":\"自己为什么改期\"}：可在到点前或到点后主动改期，不算已经执行。")
+        appendLine("- cancel_personal_activity，args={\"planId\":\"已有本人日程ID\",\"reason\":\"自己为什么放下这件事\"}：真的改变想法时取消，不必装成完成。")
+        appendLine("【日程闭环】只有实际完成读书、独自游戏、数字世界活动、写日记或发布动态时，才在该真实行动的 args 中附上 planId；工具成功且返回原始证据才会完成日程。发私聊或仅声称做了不算。没有按原定计划行动，可以改期/取消或继续保留待办，不要为清空列表虚报。")
         appendLine(RoleDayScheduleStore.dueContext(context, characterId))
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取剧场已经生成的真实章节。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。划句感想直接保存在剧场对应章节，角色若想分享须另外选择并发送自然消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
@@ -352,9 +355,27 @@ internal object CompanionActionRuntime {
                 val due = java.time.Instant.parse(args.getString("dueAt").trim())
                 val plan = RoleDayScheduleStore.arrange(
                     context, characterId, args.optString("title"), args.optString("intent"), due, now,
+                    activityAction = args.optString("activityAction"),
                 )
                 CompanionActionResult(true, "已为本人安排「${plan.title}」，到时再决定如何行动",
                     evidenceId = "own-plan-${plan.id}")
+            }
+            "reschedule_personal_activity" -> {
+                val due = java.time.Instant.parse(args.getString("dueAt").trim())
+                val plan = RoleDayScheduleStore.reschedule(context, characterId,
+                    args.optString("planId"), due, args.optString("reason"), now)
+                CompanionActionResult(true, "已将「${plan.title}」改期至 ${plan.dueAt}；原安排仍属于本人",
+                    evidenceId = "own-plan-${plan.id}")
+            }
+            "cancel_personal_activity" -> {
+                val reason = args.optString("reason").trim()
+                require(reason.length >= 3) { "主动取消日程需要自己的理由" }
+                val id = args.optString("planId")
+                require(RoleDayScheduleStore.cancel(context, characterId, id, reason, now)) {
+                    "未找到可取消的本人日程"
+                }
+                CompanionActionResult(true, "本人已决定取消这项安排：${reason.take(100)}",
+                    evidenceId = "own-plan-$id")
             }
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
             "play_solo_game" -> {
@@ -483,7 +504,22 @@ internal object CompanionActionRuntime {
             }
             else -> error("未知露露机动作：$action")
         }
-        if (result.success && normalizedAction !in setOf("digital_world_action", "play_solo_game", "read_health_mcp")) {
+        // A scheduled activity is resolved ONLY by the real executor's verified receipt.
+        // Failure, a chat message or an unverified intention must leave it pending.
+        if (result.success && normalizedAction in RoleDayScheduleStore.verifiableActions &&
+            args.optString("planId").isNotBlank() && result.evidenceId.isNotBlank()) {
+            runCatching {
+                RoleDayScheduleStore.completeFromReceipt(context, characterId, args.optString("planId"),
+                    normalizedAction, result.evidenceId, result.summary, now)
+            }.onFailure {
+                android.util.Log.w("RoleDaySchedule", "Real action succeeded; plan closure pending", it)
+            }
+        }
+        if (result.success && normalizedAction !in setOf(
+                "digital_world_action", "play_solo_game", "read_health_mcp", "read_book",
+                "write_journal", "plan_personal_activity", "reschedule_personal_activity",
+                "cancel_personal_activity",
+            )) {
             SharedExperienceTimeline.record(
                 eventId = "character-activity-${UUID.randomUUID()}",
                 characterId = characterId,
