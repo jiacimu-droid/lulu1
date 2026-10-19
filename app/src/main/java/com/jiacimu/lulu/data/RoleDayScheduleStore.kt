@@ -226,9 +226,14 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             ?: return Result.success()
         if (current.status !in setOf("planned", "due")) return Result.success()
         if (Instant.now().isBefore(current.dueAt)) return Result.retry()
-        RoleDayScheduleStore.markDue(applicationContext, role, planId) ?: return Result.success()
+        val plan = RoleDayScheduleStore.markDue(applicationContext, role, planId)
+            ?: return Result.success()
         return runCatching {
-            ProactivePerceptionScheduler.scheduleManual(applicationContext, role)
+            // The app may be completely closed when this WorkManager job fires.
+            // Initialize role stores and the online executor before dispatching.
+            initializeBackgroundRuntime(applicationContext)
+            ProactivePerceptionRuntime.initialize(applicationContext)
+            ProactivePerceptionScheduler.scheduleSelfPlanned(applicationContext, role, plan.title)
             Result.success()
         }.getOrElse { Result.retry() }
     }
