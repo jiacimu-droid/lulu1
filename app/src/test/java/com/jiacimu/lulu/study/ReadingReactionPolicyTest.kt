@@ -37,6 +37,24 @@ class ReadingReactionPolicyTest {
         response.getJSONArray("moments").getJSONObject(0).put("occurrence", 3)
         assertTrue(ReadingReactionPolicy.parse(response, text, 0).moments.isEmpty())
     }
+    @Test fun manyDifferentHighlightedSentencesAreKeptWithoutInventingQuotesOrRepeats() {
+        val lines = (1..9).map { "第${it}次敲门。" }
+        val source = lines.joinToString("")
+        val proposed = JSONArray()
+        lines.forEachIndexed { index, quote ->
+            proposed.put(JSONObject().put("quote", quote).put("reaction", "我对第${index + 1}句有点想法"))
+        }
+        // Do not waste every entry on the same sentence; eight honest anchors fit.
+        proposed.put(JSONObject().put("quote", lines[0]).put("reaction", "重复的同一句"))
+        proposed.put(JSONObject().put("quote", "从未出现的句子。").put("reaction", "不应保存"))
+        val result = ReadingReactionPolicy.parse(JSONObject().put("moments", proposed), source, 100)
+        assertEquals(8, result.moments.size)
+        assertEquals(8, result.moments.map { it.startOffset }.toSet().size)
+        result.moments.forEach { moment ->
+            assertEquals(moment.quote, source.substring(moment.startOffset - 100, moment.endOffset - 100))
+        }
+    }
+
     @Test fun momentsSurviveThePersistenceCodecWithoutTurningIntoAFormalReview() {
         val moment = ReadingMoment("门开了。", "卧槽。", 25, 29, "吓了一跳")
         assertEquals(listOf(moment), ReadingReactionPolicy.decodeMoments(ReadingReactionPolicy.encodeMoments(listOf(moment))))
