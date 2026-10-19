@@ -25,7 +25,6 @@ import com.jiacimu.lulu.games.ApocalypseSurvivalAppV5
 import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
-import com.jiacimu.lulu.study.LuluReadingScreen
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
 import com.jiacimu.lulu.study.PomodoroMiniWindow
 import com.jiacimu.lulu.study.PomodoroTimerMode
@@ -385,9 +384,9 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.SelfPreface -> SelfPrefaceScreen(::popRoute)
                                 MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
                                 MigrationRoute.Health -> HealthFeatureScreen(::popRoute)
-                                MigrationRoute.Reading -> LuluReadingScreen(
+                                MigrationRoute.Reading -> StarWishTheaterApp(
                                     onBack = ::popRoute,
-                                    initialBookTitle = readingInitialTitle,
+                                    initialReadingTarget = readingInitialTitle,
                                 )
                                 MigrationRoute.Scroll -> StarWishScrollApp(onBack = ::popRoute)
                                 MigrationRoute.Theater -> StarWishTheaterApp(onBack = ::popRoute)
