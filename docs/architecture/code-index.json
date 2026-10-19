@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:21:44.854145+00:00",
-  "commit": "35a1a605bd18b7e2b83c095373a34d271b662592",
+  "generatedAt": "2026-10-19T06:22:42.106364+00:00",
+  "commit": "129c2ef6ca3ff7d6f4fd408323df1ed9a1487a13",
   "branch": "main",
-  "sourceFingerprint": "a78270afa5cdd5db854634bcdb3147fdae0fb6ee8f44235e058b0e5b4148d393",
+  "sourceFingerprint": "fadbe9661c3a91fe11c1a1eefd55c81c2e5ec45a3a8def8d9a2b03635ef19a17",
   "summary": {
     "files": 722,
-    "lines": 139033,
+    "lines": 139113,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -14298,8 +14298,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt",
-      "lines": 107,
-      "sha256": "f155aec68d154375cb45a5e2e4908f211923c7210726c434f50fe3cf14307006",
+      "lines": 187,
+      "sha256": "094fb805145c8c3679e48a5ce7caf0008c1ae2df9638eb82e9cf2d85ad21a5c8",
       "symbols": []
     },
     {
