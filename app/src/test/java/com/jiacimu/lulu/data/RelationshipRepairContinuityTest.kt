@@ -35,6 +35,31 @@ class RelationshipRepairContinuityTest {
         assertFalse(RelationshipRepairContinuity.isReopenedApology("来看看我刚发现的书吧"))
     }
 
+    @Test fun aSettlementTurnCannotReopenAnAlreadyClosedRepairConcern() {
+        val proposal = JSONObject().put("pendingConcerns", JSONArray()
+            .put(JSONObject().put("status", "open").put("focus", "怎么再次向她道歉")
+                .put("whyItMatters", "此前争执"))
+            .put(JSONObject().put("status", "open").put("focus", "想继续读自己的书")
+                .put("whyItMatters", "个人兴趣")))
+        val filtered = RelationshipRepairContinuity.reconcileConcernProposals(
+            proposal, "我们已经说开了")
+        val remaining = filtered!!.getJSONArray("pendingConcerns")
+        assertEquals(1, remaining.length())
+        assertEquals("想继续读自己的书", remaining.getJSONObject(0).getString("focus"))
+        assertEquals(2, RelationshipRepairContinuity.reconcileConcernProposals(
+            proposal, "我还没原谅你")!!.getJSONArray("pendingConcerns").length())
+    }
+
+    @Test fun historicalUserWordsMustNotOverwriteNewerGoalChanges() {
+        val at = Instant.parse("2026-10-19T08:00:00Z")
+        assertTrue(RelationshipRepairContinuity.eligiblePriorState(
+            "2026-10-19T07:30:00Z", "2026-10-19T07:45:00Z", at))
+        assertFalse(RelationshipRepairContinuity.eligiblePriorState(
+            "2026-10-19T07:30:00Z", "2026-10-19T08:30:00Z", at))
+        assertFalse(RelationshipRepairContinuity.eligiblePriorState(
+            "2026-10-19T09:00:00Z", "", at))
+    }
+
     @Test fun explicitSettlementClosesOnlyRelatedPendingStateAndPreservesHistory() {
         val app = RuntimeEnvironment.getApplication() as Context
         CharacterInnerLifeStore.initialize(app)
