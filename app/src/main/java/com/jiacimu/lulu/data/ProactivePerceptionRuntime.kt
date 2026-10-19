@@ -1020,7 +1020,8 @@ object ProactivePerceptionRuntime {
         }
         val repeatingResolvedApology = fallbackDecision.action == Action.MESSAGE &&
             onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
-            salientInteraction == null && worldTick == null && !laterDispute &&
+            salientInteraction == null && observedWorld.isEmpty() &&
+            worldTick == null && !laterDispute &&
             explicitSettlement != null &&
             RelationshipRepairContinuity.isReopenedApology(fallbackDecision.text)
         val continuityChecked = if (repeatingResolvedApology) fallbackDecision.copy(
