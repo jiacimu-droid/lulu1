@@ -26,6 +26,8 @@ import java.time.format.DateTimeFormatter
 internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = Modifier) {
     var section by rememberSaveable(characterId) { mutableIntStateOf(0) }
     var now by remember(characterId) { mutableStateOf(Instant.now()) }
+    var deletion by remember(characterId) { mutableStateOf<CharacterLifeVisible?>(null) }
+    var refresh by remember(characterId) { mutableIntStateOf(0) }
     val life by CharacterLifeStore.states.collectAsState()
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val developmentRevision by CharacterDevelopmentStore.revisions.collectAsState()
@@ -37,7 +39,7 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
     }
     // A single evidence timeline: own actions and exploration are both lived experiences.
     val categories = listOf("全部", "经历", "心路", "成长")
-    val history = remember(characterId, now, life, mindRevision, developmentRevision) {
+    val history = remember(characterId, now, life, mindRevision, developmentRevision, refresh) {
         CharacterLifeVisibility.archive(characterId, now)
     }
     val activeSection = section.coerceIn(0, categories.lastIndex)
@@ -48,6 +50,19 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
             3 -> entry.category == "成长"
             else -> true
         }
+    }
+    deletion?.let { target ->
+        AlertDialog(
+            onDismissRequest = { deletion = null },
+            title = { Text("删除这条历程的原始依据？") },
+            text = { Text("将删除对应的真实原始记录，并撤回由它产生的派生记忆、学习和状态。其他聊天内容不会自动删除。此操作不可撤销。") },
+            confirmButton = { TextButton(onClick = {
+                SharedExperienceTimeline.deleteEvent(target.evidenceId)
+                refresh += 1
+                deletion = null
+            }) { Text("确认删除", color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { deletion = null }) { Text("取消") } },
+        )
     }
     Column(modifier) {
         Text("历程只读取已有事实、当时心路与成长记录，不再保存一份重复的人物历史。",
@@ -77,8 +92,16 @@ internal fun CharacterLifeAuditScreen(characterId: String, modifier: Modifier = 
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)) {
                     Column(Modifier.fillMaxWidth().padding(14.dp),
                         verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                        Text(entry.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface)
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Text(entry.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                            val sourceAvailable = entry.evidenceId.isNotBlank() &&
+                                SharedExperienceTimeline.eventsByIds(characterId,
+                                    listOf(entry.evidenceId)).isNotEmpty()
+                            if (sourceAvailable) TextButton(onClick = { deletion = entry }) {
+                                Text("删除", color = MaterialTheme.colorScheme.error)
+                            }
+                        }
                         Text(entry.detail, fontSize = 13.sp, lineHeight = 19.sp,
                             color = MaterialTheme.colorScheme.onSurface)
                         Text(entry.at.atZone(ZoneId.systemDefault())
