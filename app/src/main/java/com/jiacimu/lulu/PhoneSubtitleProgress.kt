@@ -6,11 +6,12 @@ package com.jiacimu.lulu
  */
 internal object PhoneSubtitleProgress {
     fun pauseBeforeNextLine(line: String): Long {
-        // Natural speech is slower than text streaming, especially with emotional
-        // pauses. Do not rush through five sentences while audio is on sentence two.
+        // Reveal each sentence at a conversational pace. Sentence-level segmentation
+        // (PhoneSubtitleLayout.liveLines) prevents revealing sentence five during
+        // sentence two; slightly leading the voice is acceptable.
         val count = line.count { !it.isWhitespace() }
-        val punctuationPause = line.count { it in "。！？!?；;" } * 260L +
-            line.count { it in "，," } * 110L
-        return (count * 270L + punctuationPause).coerceIn(700L, 16_000L)
+        val punctuationPause = line.count { it in "。！？!?；;" } * 200L +
+            line.count { it in "，," } * 100L
+        return (count * 240L + punctuationPause).coerceIn(650L, 14_000L)
     }
 }
