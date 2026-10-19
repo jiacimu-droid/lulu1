@@ -53,6 +53,8 @@ internal fun CompanionPresenceDialog(
     LaunchedEffect(messageAnchor?.messageAt) { selectedTab = 0 }
     var manualCheckRequested by remember { mutableStateOf(false) }
     var diagnosticsExpanded by remember(characterId) { mutableStateOf(false) }
+    var deleteCurrentConfirm by remember(characterId) { mutableStateOf(false) }
+    var deletionTarget by remember(characterId) { mutableStateOf<Instant?>(null) }
     val plans by PerceptionWakePlanStore.plans.collectAsState()
     val policies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val onlineStates by CompanionOnlineStore.states.collectAsState()
@@ -77,6 +79,27 @@ internal fun CompanionPresenceDialog(
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
         onDismiss()
+    }
+
+    if (deleteCurrentConfirm || deletionTarget != null) {
+        AlertDialog(
+            onDismissRequest = { deleteCurrentConfirm = false; deletionTarget = null },
+            title = { Text("删除这条状态记录？") },
+            text = { Text("将删除选中的此刻状态、相关心声快照及派生状态记录，不删除原始聊天消息。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    val at = deletionTarget ?: displayState?.updatedAt
+                    if (at != null) CompanionPresenceStore.deleteMoment(characterId, at)
+                    deleteCurrentConfirm = false
+                    deletionTarget = null
+                }) { Text("确认删除", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteCurrentConfirm = false; deletionTarget = null }) {
+                    Text("取消")
+                }
+            },
+        )
     }
 
     Dialog(onDismissRequest = dismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
@@ -213,6 +236,11 @@ internal fun CompanionPresenceDialog(
                             } else {
                                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                     PresenceStateContent(displayState, latestHeartMoment)
+                                    if (messageAnchor == null) {
+                                        TextButton(onClick = { deleteCurrentConfirm = true }) {
+                                            Text("删除这一刻的状态与心声", color = MaterialTheme.colorScheme.error)
+                                        }
+                                    }
                                     // A structured consideration is NOT a second heart voice.
                                     // Show it only when materially different, with its own label.
                                     val reflection = latestThinkingMoment?.momentReflection.orEmpty()
@@ -247,9 +275,15 @@ internal fun CompanionPresenceDialog(
                                     border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
                                 ) {
                                     Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Text(item.updatedAt.atZone(ZoneId.systemDefault())
-                                            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-                                            color = Color(0xFF7A7A7E), fontSize = 11.sp)
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(item.updatedAt.atZone(ZoneId.systemDefault())
+                                                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+                                                color = Color(0xFF7A7A7E), fontSize = 11.sp,
+                                                modifier = Modifier.weight(1f))
+                                            TextButton(onClick = { deletionTarget = item.updatedAt }) {
+                                                Text("删除", color = MaterialTheme.colorScheme.error)
+                                            }
+                                        }
                                         if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}",
                                             color = Color(0xFF1D1D1F), fontSize = 14.sp)
                                         // This is a separate structured reflection, NOT a
@@ -342,7 +376,7 @@ private fun PresenceStateContent(
  * feedback message means the character has already learned.
  */
 @Composable
-private fun PresenceDialogSection(title: String, content: String) {
+private fun PresenceDialogSection(title: String, content: String, onDelete: (() -> Unit)? = null) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color(0xFFF4F4F4),
@@ -350,7 +384,13 @@ private fun PresenceDialogSection(title: String, content: String) {
         border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
     ) {
         Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(title, color = Color(0xFF7A7A7E), fontSize = 11.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, color = Color(0xFF7A7A7E), fontSize = 11.sp,
+                    modifier = Modifier.weight(1f))
+                if (onDelete != null) TextButton(onClick = onDelete) {
+                    Text("删除", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+            }
             Text(content, color = Color(0xFF1D1D1F), fontSize = 15.sp, lineHeight = 21.sp)
         }
     }
@@ -639,12 +679,19 @@ private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
                     entry.optString("thought").takeIf(String::isNotBlank),
                     entry.optString("hesitation").takeIf(String::isNotBlank)?.let { "当时顾虑：$it" },
                 ).filterNotNull().joinToString("\n")
-                if (details.isNotBlank()) PresenceDialogSection("曾经的念头 · $time", details)
+                if (details.isNotBlank()) PresenceDialogSection("曾经的念头 · $time", details,
+                    onDelete = {
+                        CharacterInnerLifeStore.forgetExactThought(characterId, entry.optString("thought"))
+                    })
             }
             priorEmotions.forEach { entry ->
                 val detail = listOf(entry.optString("feeling"), entry.optString("cause"))
                     .filter(String::isNotBlank).joinToString(" · ")
-                if (detail.isNotBlank()) PresenceDialogSection("曾经的感受", detail)
+                if (detail.isNotBlank()) PresenceDialogSection("曾经的感受", detail,
+                    onDelete = {
+                        CharacterInnerLifeStore.forgetPrivateEmotion(characterId,
+                            entry.optString("startedAt"), entry.optString("feeling"))
+                    })
             }
             olderConcerns.forEach { entry ->
                 val journey = entry.optJSONArray("journey")
@@ -663,11 +710,17 @@ private fun PresenceMentalHistory(characterId: String, cutoff: Instant?) {
                 ).filterNotNull().joinToString("\n")
                 if (detail.isNotBlank()) PresenceDialogSection(
                     "仍放在心上的事 · 重要度${entry.optInt("priority", 2)}", detail,
+                    onDelete = {
+                        CharacterInnerLifeStore.deletePrivateConcern(characterId, entry.optString("id"))
+                    },
                 )
             }
             ended.forEach { entry ->
                 val result = entry.optString("resolution").ifBlank { "后来放下了" }
-                PresenceDialogSection("一段心事的结束", entry.optString("focus") + "\n" + result)
+                PresenceDialogSection("一段心事的结束", entry.optString("focus") + "\n" + result,
+                    onDelete = {
+                        CharacterInnerLifeStore.forgetClosedConcern(characterId, entry.optString("id"))
+                    })
             }
         }
     }
