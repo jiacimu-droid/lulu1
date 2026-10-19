@@ -82,7 +82,7 @@ internal fun resolveTheaterReadingDestination(
         ?: extracted?.takeIf { it in theaterChapters }
         ?: theaterChapters.keys.filter { text.contains(it) }.maxByOrNull { it.length }
         ?: return null
-    val requestedNumber = Regex("""第\\s*(\\d+)\\s*章""").find(text)
+    val requestedNumber = Regex("""第\s*(\d+)\s*章""").find(text)
         ?.groupValues?.get(1)?.toIntOrNull()
     val chapterId = requestedNumber?.let { n ->
         theaterChapters[title]?.firstOrNull { it.chapter == n }?.id
