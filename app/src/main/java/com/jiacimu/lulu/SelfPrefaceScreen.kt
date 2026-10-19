@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -29,6 +30,11 @@ import java.util.UUID
 private data class SelfPageEntry(
     val id: String, val area: String, val title: String, val body: String,
     val done: Boolean, val updated: Long,
+    // Compatible with v1 records: newly written pages retain their own date/order on edit.
+    val createdAt: Long = updated,
+    val entryDate: String = "",
+    val mood: String = "",
+    val weather: String = "",
 )
 
 /** Private user-authored pages; never mixed into a character's memory or life logs. */
@@ -43,8 +49,11 @@ private object SelfPageStore {
         (0 until array.length()).mapNotNull { index ->
             val obj = array.optJSONObject(index) ?: return@mapNotNull null
             val id = obj.optString("id").takeIf(String::isNotBlank) ?: return@mapNotNull null
+            val updated = obj.optLong("updated")
             SelfPageEntry(id, obj.optString("area", "所思"), obj.optString("title"),
-                obj.optString("body"), obj.optBoolean("done"), obj.optLong("updated"))
+                obj.optString("body"), obj.optBoolean("done"), updated,
+                obj.optLong("createdAt", updated), obj.optString("entryDate", ""),
+                obj.optString("mood", ""), obj.optString("weather", ""))
         }.sortedByDescending { it.updated }
     }.getOrDefault(emptyList())
 
@@ -53,7 +62,9 @@ private object SelfPageStore {
         entries.forEach { item ->
             array.put(JSONObject().put("id", item.id).put("area", item.area)
                 .put("title", item.title).put("body", item.body)
-                .put("done", item.done).put("updated", item.updated))
+                .put("done", item.done).put("updated", item.updated)
+                .put("createdAt", item.createdAt).put("entryDate", item.entryDate)
+                .put("mood", item.mood).put("weather", item.weather))
         }
         return prefs(context).edit().putString(KEY, array.toString()).commit()
     }
@@ -71,7 +82,7 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
     var error by remember { mutableStateOf("") }
-    BackHandler(enabled = !overview && area != "所行") { overview = true }
+    BackHandler(enabled = !overview && area != "所行" && area != "所思") { overview = true }
 
     // The five sections have independent screens and no shared switcher.
     // Migrate existing "所行" notes into the dedicated persistent todo store.
@@ -93,6 +104,40 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
         records = next.sortedByDescending { it.updated }
         error = ""
         return true
+    }
+
+    // 所思 now IS the full-page journal. Reuse the v1 store instead of cloning a second
+    // notebook database. Old "日记" and "所思" records are both visible and remain editable.
+    if (!overview && area == "所思") {
+        val thoughtPages = records.asSequence()
+            .filter { it.area == "所思" || it.area == "日记" }
+            .map { entry ->
+                val originalDate = runCatching { LocalDate.parse(entry.entryDate) }.getOrNull()
+                    ?: Instant.ofEpochMilli(entry.updated).atZone(ZoneId.systemDefault()).toLocalDate()
+                SelfThoughtPage(entry.id, originalDate, entry.title, entry.body,
+                    entry.createdAt, entry.updated, entry.mood, entry.weather)
+            }.toList()
+        SelfThoughtNotebookScreen(
+            pages = thoughtPages,
+            onBack = { overview = true },
+            onSave = { page ->
+                save(records.filterNot { it.id == page.id } + SelfPageEntry(
+                    id = page.id,
+                    area = "所思",
+                    title = page.title,
+                    body = page.body,
+                    done = false,
+                    updated = page.updatedAt,
+                    createdAt = page.createdAt,
+                    entryDate = page.date.toString(),
+                    mood = page.mood,
+                    weather = page.weather,
+                ))
+            },
+            onDelete = { page -> save(records.filterNot { it.id == page.id }) },
+            error = error,
+        )
+        return
     }
 
     Scaffold(
@@ -138,7 +183,7 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SelfPrefaceCategory("所思", "灵感 · 想法 · 思考", Icons.Outlined.EditNote,
+                    SelfPrefaceCategory("所思", "日记 · 灵感 · 思考", Icons.Outlined.EditNote,
                         Modifier.weight(1f)) { area = "所思"; overview = false }
                     SelfPrefaceCategory("所重", "价值观 · 人生原则", Icons.Outlined.FavoriteBorder,
                         Modifier.weight(1f)) { area = "所重"; overview = false }
@@ -148,25 +193,6 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                         Modifier.weight(1f)) { area = "所愿"; overview = false }
                     SelfPrefaceCategory("所行", "待办 · 目标 · 行动", Icons.Outlined.CheckCircleOutline,
                         Modifier.weight(1f)) { area = "所行"; overview = false }
-                }
-                Surface(
-                    onClick = { area = "日记"; overview = false },
-                    shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Icon(Icons.Outlined.MenuBook, null)
-                        Column(Modifier.weight(1f)) {
-                            Text("日记", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                            Text("日常、心情，以及想要记住的日子",
-                                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.Outlined.ChevronRight, null, Modifier.size(18.dp))
-                    }
                 }
             }
         } else Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)) {
