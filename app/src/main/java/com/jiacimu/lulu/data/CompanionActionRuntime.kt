@@ -62,7 +62,6 @@ internal object CompanionActionRuntime {
         appendLine("- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"邀请语\"}：在角色私聊中发送可点击的游戏邀请。")
         appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：可选 targetScore=120至1200之间的开局目标；游戏馆按真实规则运行并保存过程、分数、达标结果和此前留存最高分；不能自己编输赢。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是公开分享日常。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
-        appendLine("- write_journal，args={\"title\":\"标题\",\"content\":\"正文\"}：日记是角色主动选择的私人作品，用来事后整理、写有主题的感想，不能逐字复制刚才的心声或天天机械复述。没有想写的内容可以不写。它不是新的已完成事实、成长结论或绕路发消息。")
         appendLine("- start_call，args={\"text\":\"电话接通后你想亲口说的第一句话\"}：仅在角色已允许主动来电时发起真正的来电。text 是你接通后会真实说出、朗读并记入私聊通话记录的原话；写自然的口语，不要填写内心动机说明、系统指令或尚未发生的对话。接听前仅响铃，不显示或发送这句话；拒接不算说过。")
         appendLine("- favorite_user_message，args={\"messageId\":\"真实用户消息ID\",\"reason\":\"具体想珍藏的原因\"}：收藏已收到的用户消息到辞海，必须是真实仍存在、该角色确实能看到的用户原话。不用额外调用模型写理由。")
         appendLine("- set_user_remark，args={\"nickname\":\"给用户的专属备注\"}：角色自行在联系人里保存给用户的备注，不更改用户资料；应有真实的关系动机。")
@@ -77,10 +76,10 @@ internal object CompanionActionRuntime {
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
             appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
         }
-        appendLine("- plan_personal_activity，args={\"title\":\"自己准备做的事\",\"intent\":\"真实想做的原因\",\"dueAt\":\"${java.time.OffsetDateTime.now().plusDays(1).withHour(9).withMinute(0).withSecond(0).withNano(0).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)}\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|write_journal|publish_moment\"}：自主为未来两周安排一件真的想做的事。activityAction 可省略，若填写则约束未来完成该计划的真实工具类型。到点唤醒本人选择而不是假定完成，不要为普通聊天排日程。")
+        appendLine("- plan_personal_activity，args={\"title\":\"自己真想安排的具体活动\",\"intent\":\"本人动机\",\"dueAt\":\"${java.time.OffsetDateTime.now().plusDays(1).withHour(9).withMinute(0).withSecond(0).withNano(0).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)}\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|publish_moment|send_private_message\",\"repeat\":\"once|daily\"}：可以为了自己的阅读、游戏、数字世界生活，也可为了确实想提醒用户学习而给自己安排。每天重复用 repeat=daily；不需每日重新计划，不要为了表演主动性机械排满日程。安排用户提醒时以 send_private_message 为验证动作，未来真正发送并带 planId 才算兑现。")
         appendLine("- reschedule_personal_activity，args={\"planId\":\"已有本人日程ID\",\"dueAt\":\"新的ISO时间\",\"reason\":\"自己为什么改期\"}：可在到点前或到点后主动改期，不算已经执行。")
         appendLine("- cancel_personal_activity，args={\"planId\":\"已有本人日程ID\",\"reason\":\"自己为什么放下这件事\"}：真的改变想法时取消，不必装成完成。")
-        appendLine("【日程闭环】只有实际完成读书、独自游戏、数字世界活动、写日记或发布动态时，才在该真实行动的 args 中附上 planId；工具成功且返回原始证据才会完成日程。发私聊或仅声称做了不算。没有按原定计划行动，可以改期/取消或继续保留待办，不要为清空列表虚报。")
+        appendLine("【日程闭环】按本人真实欲望选择行动，已计划事项也可以在下一次醒来后重新评估、改期或取消。对方已在学习、睡觉或不希望被打扰时可晚点提醒或不提醒；绝不为了打卡硬打电话。阅读、游戏、真实数字世界、朋友圈及私聊提醒必须由动作真实成功并带 planId，收到执行回执才算完成。普通口头声称不算；每天重复任务只在真的完成后顺延次日。")
         appendLine(RoleDayScheduleStore.dueContext(context, characterId))
         appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取剧场已经生成的真实章节。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。划句感想直接保存在剧场对应章节，角色若想分享须另外选择并发送自然消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
@@ -310,46 +309,9 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已发布朋友圈", evidenceId = "moment-${post.id}-$characterId")
             }
             "write_journal" -> {
-                val content = args.optString("content").trim().take(2_000)
-                require(content.isNotBlank()) { "日记正文不能为空" }
-                val title = args.optString("title").trim().ifBlank { "没写完的一页" }.take(30)
-                fun normalized(text: String) = text.lowercase().replace(Regex("\\s+"), "")
-                val innerVoices = CharacterInnerLifeStore.snapshot(characterId).optJSONArray("innerVoices")
-                val latestVoice = innerVoices?.optJSONObject(innerVoices.length() - 1)
-                    ?.optString("thought").orEmpty()
-                require(normalized(content) != normalized(latestVoice)) {
-                    "这一段只是重复刚才的心声；日记需要角色主动重新整理"
-                }
-                require(LuluRepositories.lexicon.snapshot(characterId)
-                    .filter { it.section == LexiconSection.Diary }.takeLast(5)
-                    .none { normalized(it.content) == normalized(content) }) {
-                    "相同日记正文已经保存，不能机械重写"
-                }
-                val diaryId = UUID.randomUUID().toString()
-                LuluRepositories.lexicon.save(
-                    LexiconEntry(
-                        id = diaryId,
-                        characterId = characterId,
-                        section = LexiconSection.Diary,
-                        title = title,
-                        content = content,
-                        createdAt = now,
-                        updatedAt = now,
-                    ),
-                )
-                SharedExperienceTimeline.record(
-                    eventId = "lexicon-diary-$diaryId",
-                    characterId = characterId,
-                    channel = "私人日记",
-                    speaker = character.displayName,
-                    content = "$title\n$content",
-                    occurredAt = now,
-                    source = "journal:own",
-                    evidenceKind = EventEvidenceKind.CharacterStatement,
-                )
-                MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚写了一篇日记《$title》。")
-                CompanionActionResult(true, "已写入日记《$title》",
-                    evidenceId = "lexicon-diary-$diaryId")
+                // The user's current design retires diary writing. Legacy entries and
+                // their original timeline evidence are retained without mutation.
+                error("角色日记已停用；可以选择朋友圈、私聊或真正的数字世界活动来表达")
             }
             "plan_personal_activity" -> {
                 val due = java.time.Instant.parse(args.getString("dueAt").trim())
