@@ -237,6 +237,14 @@ object SharedExperienceTimeline {
             LuluRepositories.lexicon.invalidateSource(eventId)
             LuluRepositories.memory.invalidateDerivedFromEvent(eventId)
         }
+        // One authoritative gate for later USER relationship feedback, whether
+        // it arrived in private chat, a voice call or a digital-world meeting.
+        // This never treats the character's apology or a tool receipt as forgiveness.
+        // Backfilled older statements cannot settle a newer repair goal.
+        if (evidenceKind == EventEvidenceKind.UserStatement &&
+            (channel == "私聊" || channel.contains("电话") || channel.contains("见面"))) {
+            CharacterLifeStore.observeUserGoalEvidence(characterId, eventId, clean, occurredAt)
+        }
         if (triggerExtraction && SharedTimelineEvent(eventId, characterId, channel, speaker, clean, occurredAt,
                 sessionId, source, evidenceKind).supportsDevelopmentReflection()) {
             CharacterDevelopmentRuntime.request(characterId)
