@@ -5,11 +5,14 @@ import android.content.SharedPreferences
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
+import kotlinx.coroutines.flow.asStateFlow
 
 /** Evidence-linked material insights, exercises and actual feedback. */
 internal object CharacterLearningLedger {
     private var prefs: SharedPreferences? = null
     private const val CAP = 320
+    private val changes = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val revisions = changes.asStateFlow()
 
     @Synchronized fun initialize(context: Context) {
         if (prefs == null) prefs = context.applicationContext
@@ -17,7 +20,45 @@ internal object CharacterLearningLedger {
     }
 
     @Synchronized fun clearCharacter(characterId: String) {
-        prefs?.edit()?.remove(characterId)?.commit()
+        if (prefs?.edit()?.remove(characterId)?.commit() == true) changes.value += 1
+    }
+
+    data class InsightRow(val sourceEvidenceId: String, val topic: String, val understanding: String)
+
+    /** Material text and real source stay intact; this only erases this role's
+     * interpretation and all revisions that depended on it. */
+    @Synchronized fun listInsights(characterId: String): List<InsightRow> {
+        val all = records(characterId)
+        return all.filter { valid(characterId, it, all) }.takeLast(90).asReversed()
+            .mapNotNull { entry ->
+                val id = entry.optString("sourceEvidenceId")
+                if (id.isBlank()) null else InsightRow(
+                    id, entry.optString("topic"),
+                    entry.optString("understanding").ifBlank { entry.optString("question") })
+            }
+    }
+
+    @Synchronized fun deleteInsight(characterId: String, sourceEvidenceId: String): Boolean {
+        if (prefs == null || sourceEvidenceId.isBlank()) return false
+        val all = records(characterId)
+        val removed = mutableSetOf(sourceEvidenceId)
+        var previousSize: Int
+        var remaining = all.toList()
+        do {
+            previousSize = remaining.size
+            remaining = remaining.filterNot { item ->
+                val id = item.optString("sourceEvidenceId")
+                val direct = id in removed || item.optString("revisesEvidenceId") in removed
+                if (direct) removed += id
+                direct
+            }
+        } while (remaining.size < previousSize)
+        if (remaining.size == all.size) return false
+        save(characterId, remaining)
+        // Only the learning stage is reset; original sources remain available as
+        // genuinely read material without the rejected model conclusion.
+        CharacterLearningAgenda.withdrawInsight(characterId, removed)
+        return true
     }
 
     private fun records(characterId: String): MutableList<JSONObject> {
@@ -31,6 +72,7 @@ internal object CharacterLearningLedger {
         check(prefs!!.edit().putString(characterId, value.toString()).commit()) {
             "学习记录未能保存"
         }
+        changes.value += 1
     }
 
     private fun source(characterId: String, id: String): SharedTimelineEvent? =
