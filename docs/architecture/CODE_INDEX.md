@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d25502734de79fcf78ad3827ced72ca488eea607`
+- 基准提交：`d9fc61c69989c3cdbbdb308cab717917f99764b3`
 - 分支：`main`
 - 已索引文件：741
-- 已索引代码/文本行：141909
+- 已索引代码/文本行：141897
 - 已发现符号：2154
 
 | 文件 | 行数 | 符号数 |
@@ -161,7 +161,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 630 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 364 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 408 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 192 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 311 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 256 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 472 | 8 |
