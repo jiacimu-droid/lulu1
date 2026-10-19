@@ -1,6 +1,9 @@
 package com.jiacimu.lulu.study
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -9,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -32,18 +36,25 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
     val revision = remember(chapter.id, chapter.content) {
         readingRevision(BackgroundReadingBook(bookId, chapter.title, chapter.content, "小剧场章节"))
     }
-    val matching = remember(records, bookId, revision) {
-        records.filter { it.bookId == bookId && it.revision == revision }
-    }
-    val comments = remember(matching, characters) {
+    val matching = remember(records, bookId) { records.filter { it.bookId == bookId } }
+    val comments = remember(matching, characters, chapter.content, revision) {
         matching.flatMap { record ->
-            record.moments.map { moment ->
-                ReaderComment(
+            record.moments.mapNotNull { moment ->
+                // Old offsets are only valid for their original revision. After
+                // chapter edits, remap an exact UNIQUE surviving quote, otherwise
+                // hide the outdated anchor rather than pointing at a wrong line.
+                val newEnd = if (record.revision == revision &&
+                    moment.startOffset >= 0 && moment.endOffset <= chapter.content.length &&
+                    chapter.content.substring(moment.startOffset, moment.endOffset) == moment.quote
+                ) moment.endOffset else {
+                    val index = chapter.content.indexOf(moment.quote)
+                    if (index >= 0 && index == chapter.content.lastIndexOf(moment.quote))
+                        index + moment.quote.length else -1
+                }
+                if (newEnd < 0) null else ReaderComment(
                     author = characters[record.characterId]?.displayName ?: "角色",
-                    quote = moment.quote,
-                    reaction = moment.reaction,
-                    feeling = moment.feeling,
-                    at = moment.endOffset,
+                    quote = moment.quote, reaction = moment.reaction,
+                    feeling = moment.feeling, at = newEnd,
                 )
             }
         }.sortedBy(ReaderComment::at)
@@ -79,15 +90,20 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
                         }
                         sentenceStart = sentenceEnd
                         Text(
-                            sentence, fontSize = 17.sp, lineHeight = 31.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = .92f),
+                            sentence,
+                            modifier = if (anchored.isNotEmpty()) Modifier.clickable { chosen = anchored } else Modifier,
+                            fontSize = 17.sp, lineHeight = 31.sp,
+                            fontWeight = if (anchored.isNotEmpty()) FontWeight.Medium else FontWeight.Normal,
+                            textDecoration = if (anchored.isNotEmpty()) TextDecoration.Underline else TextDecoration.None,
+                            color = if (anchored.isNotEmpty()) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurface.copy(alpha = .92f),
                         )
                         if (anchored.isNotEmpty()) {
                             Surface(
                                 onClick = { chosen = anchored },
                                 modifier = Modifier.padding(start = 2.dp, end = 5.dp, top = 4.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(9.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f),
+                                shape = RoundedCornerShape(8.dp),
                             ) {
                                 Row(
                                     Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
@@ -96,9 +112,9 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
                                 ) {
                                     Icon(Icons.Outlined.ChatBubbleOutline, "查看划句感想",
                                         Modifier.size(14.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        tint = MaterialTheme.colorScheme.primary)
                                     Text(anchored.size.toString(), fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        color = MaterialTheme.colorScheme.primary)
                                 }
                             }
                         }
@@ -109,7 +125,8 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
 
         // Older successful reads may only have an overall reflection and no
         // source-anchored moments. Preserve their real records without inventing anchors.
-        matching.filter { it.moments.isEmpty() && it.reflection.isNotBlank() }.forEach { record ->
+        matching.filter { it.revision == revision && it.moments.isEmpty() &&
+            it.reflection.isNotBlank() }.forEach { record ->
             Surface(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(16.dp),
@@ -127,17 +144,30 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
     if (chosen.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = { chosen = emptyList() },
-            title = { Text("划句感想", fontWeight = FontWeight.SemiBold) },
+            title = { Text("随手划的 · ${chosen.size} 条", fontWeight = FontWeight.SemiBold) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(
+                    modifier = Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
                     chosen.forEach { comment ->
-                        Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                            Text(comment.author, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                            Text("“${comment.quote}”", fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(comment.reaction, fontSize = 15.sp, lineHeight = 23.sp)
-                            if (comment.feeling.isNotBlank()) Text(comment.feeling, fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .65f),
+                            shape = RoundedCornerShape(14.dp),
+                        ) {
+                            Column(
+                                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
+                                verticalArrangement = Arrangement.spacedBy(7.dp),
+                            ) {
+                                Text(comment.author, fontWeight = FontWeight.SemiBold,
+                                    fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                                // The highlighted sentence is visible behind the dialog.
+                                // Do not quote the same source again inside its comment.
+                                Text(comment.reaction, fontSize = 15.sp, lineHeight = 23.sp)
+                                if (comment.feeling.isNotBlank())
+                                    Text(comment.feeling, fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
                 }
