@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:02:10.862384+00:00",
-  "commit": "f20b0cf8dd977613bf091cdab9b10f1d2eae8a3c",
+  "generatedAt": "2026-10-19T08:02:59.994243+00:00",
+  "commit": "14e1da654856c9cd0184672509a4e400bcaaf5df",
   "branch": "main",
-  "sourceFingerprint": "06c3a298c62a49cbf108dec020ac42b32f3c4900d0df88463c07f98f4879940a",
+  "sourceFingerprint": "c62e9a5f81085a15e6067347abd57c0fcca1ccd1c8531a5ed3a95b56b21144dd",
   "summary": {
-    "files": 738,
-    "lines": 140620,
-    "symbols": 2140
+    "files": 739,
+    "lines": 140688,
+    "symbols": 2145
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7894,6 +7894,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt",
         "line": 5
+      }
+    ],
+    "userExplicitlySettled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
+        "line": 30
+      }
+    ],
+    "isRepairConcern": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
+        "line": 39
+      }
+    ],
+    "isRepairGoal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
+        "line": 50
+      }
+    ],
+    "eligiblePriorState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
+        "line": 52
+      }
+    ],
+    "isReopenedApology": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
+        "line": 60
       }
     ],
     "isOld": [
@@ -19774,6 +19804,33 @@
         {
           "name": "apply",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
+      "lines": 68,
+      "sha256": "c018c4967b3cc8fd5256b1eac018dedb6d4d5b540a4e42e7ea6007054e7061e7",
+      "symbols": [
+        {
+          "name": "userExplicitlySettled",
+          "line": 30
+        },
+        {
+          "name": "isRepairConcern",
+          "line": 39
+        },
+        {
+          "name": "isRepairGoal",
+          "line": 50
+        },
+        {
+          "name": "eligiblePriorState",
+          "line": 52
+        },
+        {
+          "name": "isReopenedApology",
+          "line": 60
         }
       ]
     },

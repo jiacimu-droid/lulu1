@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f20b0cf8dd977613bf091cdab9b10f1d2eae8a3c`
+- 基准提交：`14e1da654856c9cd0184672509a4e400bcaaf5df`
 - 分支：`main`
-- 已索引文件：738
-- 已索引代码/文本行：140620
-- 已发现符号：2140
+- 已索引文件：739
+- 已索引代码/文本行：140688
+- 已发现符号：2145
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -372,6 +372,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 46 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 68 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 96 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
