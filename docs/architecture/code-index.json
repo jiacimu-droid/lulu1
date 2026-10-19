@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:20:05.154995+00:00",
-  "commit": "cc53591eb96e50446b1e22a210a2d11ec1de3016",
+  "generatedAt": "2026-10-19T06:20:52.564524+00:00",
+  "commit": "b50dd6e7c35b5aed21e11dedef7f78eec3545329",
   "branch": "main",
-  "sourceFingerprint": "1b4eee12d029df982ac9099202421b364355aecdd9bd7a8f74b076a34a3c431a",
+  "sourceFingerprint": "db191093bd2100902123c8d993543fc987d34df553288179d6c3aa60f5d4b72c",
   "summary": {
     "files": 722,
-    "lines": 139002,
+    "lines": 139032,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -22548,8 +22548,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterReadingComments.kt",
-      "lines": 151,
-      "sha256": "ae36a115c660d2dc957de3e03b2a28f330adc9220c3dd5a89bacb9653087e797",
+      "lines": 181,
+      "sha256": "db801c4d34f78ce2eebd01f065d330297d7af260d571010241226198017f679f",
       "symbols": []
     },
     {
