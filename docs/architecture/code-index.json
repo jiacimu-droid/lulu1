@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:08:31.923676+00:00",
-  "commit": "f90e9364431d5c5336a6e5926b85acb97e8f6378",
+  "generatedAt": "2026-10-19T05:08:46.858918+00:00",
+  "commit": "f1c1ff155c00415e438dfb205add9ae4d70c1e71",
   "branch": "main",
-  "sourceFingerprint": "8bfc9e47354b5683e9bc3c30ca397d83c4ed1b474b9d0faaa043d1b7bc61be57",
+  "sourceFingerprint": "ddd64dbbd1b4acc4c06bcb23787075b491710a1a87d087a3ec62ae835bf53eca",
   "summary": {
     "files": 719,
-    "lines": 138103,
+    "lines": 138086,
     "symbols": 2085
   },
   "symbolIndex": {
@@ -2253,7 +2253,7 @@
     "connect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-        "line": 41
+        "line": 40
       }
     ],
     "pauseCapture": [
@@ -13622,12 +13622,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
-      "lines": 212,
-      "sha256": "c93793a30113e192fb8dd2126cf2e8e90c2a313c16b435c0cd809f3d2811161e",
+      "lines": 195,
+      "sha256": "20ed3c3a82313d0a8d4101b31b0c029927f2e2e416988c47ab1be810b14d3715",
       "symbols": [
         {
           "name": "connect",
-          "line": 41
+          "line": 40
         }
       ]
     },
