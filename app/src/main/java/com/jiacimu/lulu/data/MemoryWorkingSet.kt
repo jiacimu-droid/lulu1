@@ -48,7 +48,9 @@ internal object MemoryWorkingSet {
                 }
                 val subjective = entry.section in setOf(LexiconSection.Diary, LexiconSection.Favorite)
                 add(MemoryPromptCandidate("lexicon:${entry.id}", LEXICON,
-                    "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}",
+                    if (entry.section == LexiconSection.Life)
+                        "- [真实生活近况/收录于${entry.updatedAt}，不代表每日习惯] ${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}；只有新旧时间及事实明确时才自然比较变化，不臆测结果"
+                    else "- ${entry.section}/${entry.title} [${entry.status}] entryId=${entry.id}：${entry.content}",
                     740 - index.coerceAtMost(80),
                     payload = entry.content, sources = entry.sourceEventIds.toSet(), derivedSummary = !subjective))
             }
