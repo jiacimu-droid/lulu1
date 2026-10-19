@@ -43,7 +43,8 @@ internal object RelationshipRepairContinuity {
             "解开误会", "弥补", "补偿", "求她", "让她不生气",
             "她还在生气", "她还委屈", "惹她不开心", "她还难过",
             "跟她说开", "和她说开", "恢复信任", "重新获得信任")
-        return repair.any(s::contains) &&
+        return (repair.any(s::contains) ||
+            Regex("修复.{0,12}关系|弥补.{0,12}伤害|取得.{0,8}原谅|处理.{0,6}(争吵|矛盾)").containsMatchIn(s)) &&
             // An unrelated NPC's dispute is not resolved by the user's words.
             !listOf("群友", "居民", "npc", "同事", "朋友之间").any(s::contains)
     }
