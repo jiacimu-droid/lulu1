@@ -144,4 +144,27 @@ class ReadingGrowthTheaterTest {
         val disk = JSONObject(java.io.File(context.filesDir, "starwish/state_v2.json").readText())
         assertFalse(disk.toString().contains("旧结果"))
     }
+    @Test fun readingReceiptRoutesToExactTheaterChapterWithoutAttributingFiction() {
+        val first = StarWishTheaterChapter(id = "theater-one", theater = "云中信", chapter = 1,
+            title = "第一章", content = "开篇", userInfluence = "")
+        val second = StarWishTheaterChapter(id = "theater-two", theater = "云中信", chapter = 2,
+            title = "第二章", content = "转折", userInfluence = "")
+        val chapters = mapOf("云中信" to listOf(first, second))
+        val record = ReadingReflectionRecord(
+            id = "read-second", characterId = "role-a", bookId = "theater-chapter:theater-two",
+            bookTitle = "《云中信》·第2章 第二章", chapterTitle = "第二章",
+            revision = "test", startOffset = 0, endOffset = 2,
+            reflection = "这剧情好刺激", occurredAt = Instant.EPOCH,
+        )
+        assertEquals(TheaterReadingDestination("云中信", "theater-two", "read-second"),
+            resolveTheaterReadingDestination("reading-record:read-second", chapters, listOf(record)))
+        // Old chat receipts did not carry a record id; honor an explicit chapter number.
+        assertEquals(TheaterReadingDestination("云中信", "theater-two", null),
+            resolveTheaterReadingDestination("《云中信》·第2章", chapters, emptyList()))
+        assertNull(resolveTheaterReadingDestination("reading-record:deleted", chapters, listOf(record)))
+        assertNull(resolveTheaterReadingDestination("reading-record:read-second",
+            mapOf("云中信" to listOf(first)), listOf(record)))
+        assertNull(resolveTheaterReadingDestination("《其他小说》", chapters, emptyList()))
+    }
+
 }
