@@ -1158,9 +1158,16 @@ object CharacterInnerLifeStore {
             for (i in maxOf(0, past.length() - 95) until past.length()) put(past.opt(i))
             put(entry)
         })
-        if (CharacterOpenConcernRuntime.hasProposals(appraisal)) {
+        val userConfirmedSettlement = SharedExperienceTimeline.eventsByIds(
+            characterId, listOf(evidenceId)).firstOrNull {
+                it.evidenceKind == EventEvidenceKind.UserStatement &&
+                    RelationshipRepairContinuity.userExplicitlySettled(it.content)
+            }?.content.orEmpty()
+        val concernAppraisal = RelationshipRepairContinuity.reconcileConcernProposals(
+            appraisal, userConfirmedSettlement)
+        if (CharacterOpenConcernRuntime.hasProposals(concernAppraisal)) {
             val open = root.optJSONArray("openConcerns")
-            val closures = CharacterOpenConcernRuntime.closures(open, appraisal, evidenceId, now)
+            val closures = CharacterOpenConcernRuntime.closures(open, concernAppraisal, evidenceId, now)
             if (closures.isNotEmpty()) {
                 val pastClosures = root.optJSONArray("closedConcerns") ?: JSONArray()
                 root.put("closedConcerns", JSONArray().apply {
@@ -1176,7 +1183,7 @@ object CharacterInnerLifeStore {
                     it.optString("id")
                 }
             root.put("openConcerns", CharacterOpenConcernRuntime.update(
-                open, appraisal, evidenceId, now, validGoalIds,
+                open, concernAppraisal, evidenceId, now, validGoalIds,
             ))
         }
         save(characterId, root)
