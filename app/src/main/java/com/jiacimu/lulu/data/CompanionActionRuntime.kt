@@ -600,7 +600,8 @@ internal object CompanionActionRuntime {
             """.trimIndent(),
             source = "角色行动·连续阅读",
             title = "${character.displayName}继续读《${slice.book.title}》",
-            maxTokens = 1_000,
+            // Several small honest highlights need room; don't truncate the JSON mid-comment.
+            maxTokens = 1_700,
         ).getOrThrow().text.trim()
         // The source text really reached the role. Optional malformed reflection
         // metadata must not rewind a read or flood chat with failure notices.
