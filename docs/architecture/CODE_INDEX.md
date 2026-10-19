@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3348b187cdfb0eda3c4dec1aba895b0bf5a393b0`
+- 基准提交：`62927a68980f858163491b54076c085ecb8c3552`
 - 分支：`main`
 - 已索引文件：725
-- 已索引代码/文本行：139984
+- 已索引代码/文本行：139992
 - 已发现符号：2123
 
 | 文件 | 行数 | 符号数 |
@@ -153,8 +153,8 @@
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 181 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 296 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 574 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 299 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 579 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 89 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
