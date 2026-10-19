@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T07:28:59.686360+00:00",
-  "commit": "168a2fa83d8e4d176f280d7bde779fdf4f810a21",
+  "generatedAt": "2026-10-19T07:31:00.601455+00:00",
+  "commit": "242c9c2235e5d069c62470d3376269667b234a1c",
   "branch": "main",
-  "sourceFingerprint": "b23c9cc3c0b8d17d80cc7e5d184441ffb1bf9de5896016401f6034f69a9481a8",
+  "sourceFingerprint": "5fb1174989926def2586032f1b6aa49b361000ad46b1f15208bbe75b89b6b891",
   "summary": {
-    "files": 735,
-    "lines": 140118,
-    "symbols": 2139
+    "files": 736,
+    "lines": 140151,
+    "symbols": 2140
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10802,6 +10802,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
         "line": 79
+      }
+    ],
+    "SelfThoughtNotebookTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt",
+        "line": 7
       }
     ],
     "SelfTodoCalendarTest": [
@@ -23513,6 +23519,17 @@
         {
           "name": "receive",
           "line": 79
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt",
+      "lines": 33,
+      "sha256": "a670b686278af1c2e56c4bf0746bc7debc132ae8618743e69aa966613934ce6a",
+      "symbols": [
+        {
+          "name": "SelfThoughtNotebookTest",
+          "line": 7
         }
       ]
     },
