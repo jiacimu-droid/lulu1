@@ -55,7 +55,7 @@ internal object ReadingBackgroundBridge {
     fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
         books(context).let { books ->
             books.filter { book ->
-                progress(context, characterId, book) < book.content.length &&
+                book.source == "小剧场章节" && progress(context, characterId, book) < book.content.length &&
                     (book.seriesId.isBlank() || books.none { earlier ->
                         earlier.seriesId == book.seriesId && earlier.chapterNumber < book.chapterNumber &&
                             progress(context, characterId, earlier) < earlier.content.length
