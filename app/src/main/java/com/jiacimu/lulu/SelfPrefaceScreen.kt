@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -70,6 +71,8 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
     var error by remember { mutableStateOf("") }
+    BackHandler(enabled = !overview && area != "所行") { overview = true }
+
     // The five sections have independent screens and no shared switcher.
     // Migrate existing "所行" notes into the dedicated persistent todo store.
     if (!overview && area == "所行") {
