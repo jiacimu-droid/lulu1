@@ -188,13 +188,15 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = SelfPrefacePalette.background,
         topBar = {
             TopAppBar(
-                title = { Text(if (overview) "自序" else area, fontWeight = FontWeight.SemiBold) },
+                title = { Text(if (overview) "自序" else area, fontWeight = FontWeight.SemiBold,
+                    color = SelfPrefacePalette.ink) },
                 navigationIcon = {
                     IconButton(onClick = { if (overview) onBack() else overview = true }) {
-                        Icon(Icons.Outlined.ArrowBack, if (overview) "返回桌面" else "返回自序")
+                        Icon(Icons.Outlined.ArrowBack, if (overview) "返回桌面" else "返回自序",
+                            tint = SelfPrefacePalette.ink)
                     }
                 },
                 actions = {
@@ -202,12 +204,13 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                         Icon(Icons.Outlined.Add, "新建")
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SelfPrefacePalette.background),
             )
         },
         floatingActionButton = {
             if (!overview) FloatingActionButton(
                 onClick = { editing = null; creating = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                containerColor = SelfPrefacePalette.sageLight,
             ) { Icon(Icons.Outlined.Edit, "写一点") }
         },
     ) { padding ->
@@ -340,12 +343,12 @@ private fun SelfPrefaceCategory(
 ) {
     // One coherent sea-glass palette. Differentiation comes from icons and tone,
     // rather than four unrelated pastel colors.
-    val accent = Color(0xFF496E70)
+    val accent = SelfPrefacePalette.sageDeep
     val backgroundColors = when (title) {
-        "所思" -> listOf(Color(0xFFE4F0ED), Color(0xFFF4F8F5))
-        "所重" -> listOf(Color(0xFFEAF2EF), Color(0xFFF7FAF7))
-        "所愿" -> listOf(Color(0xFFE6F0EF), Color(0xFFF4F8F8))
-        else -> listOf(Color(0xFFE9F1ED), Color(0xFFF7F9F6))
+        "所思" -> listOf(SelfPrefacePalette.sageLight, SelfPrefacePalette.paperBright)
+        "所重" -> listOf(SelfPrefacePalette.honeyLight, SelfPrefacePalette.paperBright)
+        "所愿" -> listOf(SelfPrefacePalette.sageMist, SelfPrefacePalette.paper)
+        else -> listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.sageLight)
     }
     Surface(
         onClick = onClick,
@@ -371,14 +374,14 @@ private fun SelfPrefaceCategory(
                 val p1 = Offset(w * .32f, h * .34f)
                 val p2 = Offset(w * .65f, h * .73f)
                 drawLine(accent.copy(alpha = .17f), p1, p2, 1.2.dp.toPx())
-                drawCircle(accent.copy(alpha = .38f), radius = 2.4.dp.toPx(), center = p2)
+                drawCircle(SelfPrefacePalette.honey.copy(alpha = .75f), radius = 2.4.dp.toPx(), center = p2)
             }
             Column(
                 Modifier.fillMaxSize().padding(17.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Surface(
-                    color = Color.White.copy(alpha = .69f),
+                    color = SelfPrefacePalette.paperBright.copy(alpha = .81f),
                     shape = RoundedCornerShape(13.dp),
                 ) {
                     Box(Modifier.size(42.dp), contentAlignment = Alignment.Center) {
