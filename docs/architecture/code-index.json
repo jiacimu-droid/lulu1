@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T04:06:27.549525+00:00",
-  "commit": "a3288790a07c55c40d692569857ed38da4e40093",
+  "generatedAt": "2026-10-19T04:24:15.217344+00:00",
+  "commit": "725042583164047df0ff25e0ff4e0bb4c311b861",
   "branch": "main",
-  "sourceFingerprint": "9563fa30e1a5954a13336109af672e31cf40e02f0054b64e9880c2b65ba8d96a",
+  "sourceFingerprint": "4cd1d653caa2d2becc5803d6185c489f604cb4f0b22b7cdfa27a7e2215e70372",
   "summary": {
     "files": 719,
-    "lines": 137915,
-    "symbols": 2080
+    "lines": 138043,
+    "symbols": 2084
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -371,7 +371,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 547
+        "line": 579
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -3536,6 +3536,10 @@
         "line": 14
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 71
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
         "line": 10
       },
@@ -3659,7 +3663,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 48
+        "line": 92
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -4149,7 +4153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 509
+        "line": 541
       }
     ],
     "cue": [
@@ -4253,13 +4257,13 @@
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 169
+        "line": 190
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 489
+        "line": 521
       }
     ],
     "current": [
@@ -4609,37 +4613,37 @@
     "definitionChanges": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 52
+        "line": 41
       }
     ],
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 80
+        "line": 69
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 90
+        "line": 79
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 151
+        "line": 140
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 156
+        "line": 145
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 160
+        "line": 149
       }
     ],
     "parse": [
@@ -4724,34 +4728,52 @@
         "line": 36
       }
     ],
-    "CharacterSocialRelationship": [
+    "SocialRelationshipAgreement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
         "line": 46
       }
     ],
+    "CharacterSocialRelationship": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 54
+      }
+    ],
+    "agreement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 59
+      }
+    ],
+    "setAgreement": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 68
+      }
+    ],
     "perspective": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 99
+        "line": 145
       }
     ],
     "perspectivesFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 122
+        "line": 168
       }
     ],
     "knowsEachOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 138
+        "line": 184
       }
     ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 141
+        "line": 187
       }
     ],
     "isGenericOrientation": [
@@ -12518,8 +12540,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt",
-      "lines": 210,
-      "sha256": "d69677fe4a4cf1d8c7bf522150107ed55cea3af97f3f68bf3c64bd2c0bd864ed",
+      "lines": 257,
+      "sha256": "27781811f946da4654669515c5a3c4eb0d6a218d8a4c64c8b58ed595056fc561",
       "symbols": []
     },
     {
@@ -15398,8 +15420,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 594,
-      "sha256": "8463784bff0749367fea80ffeeac490235a7a9fbb7b9618f44874a15be9b5e96",
+      "lines": 626,
+      "sha256": "774eb7c4438c590611cb396cc02542af6a4f55efb005cad0e380463273d5ac09",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -15411,19 +15433,19 @@
         },
         {
           "name": "afterglowContext",
-          "line": 169
+          "line": 190
         },
         {
           "name": "profileContext",
-          "line": 489
+          "line": 521
         },
         {
           "name": "compactContext",
-          "line": 509
+          "line": 541
         },
         {
           "name": "context",
-          "line": 547
+          "line": 579
         }
       ]
     },
@@ -15725,8 +15747,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 114,
-      "sha256": "8457c34394b84917529e63b13be9cc99f6fb7be420c992a43375bebecc5400ab",
+      "lines": 128,
+      "sha256": "ba8699f0797f0ecfbcce629f5844e269768fde8fe26b4ada6120a48e3a1de566",
       "symbols": [
         {
           "name": "groupedFields",
@@ -15781,8 +15803,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 164,
-      "sha256": "9fcd1c2a02e84785596fcaf5528380655f1b94cc0b44d9ad3f86534eec288cac",
+      "lines": 153,
+      "sha256": "94ee7e298eef5a4928e04b97ab1ae417879ab66bd3aef498c7f5a2529994ed0b",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -15806,27 +15828,27 @@
         },
         {
           "name": "definitionChanges",
-          "line": 52
+          "line": 41
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 80
+          "line": 69
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 90
+          "line": 79
         },
         {
           "name": "learningContext",
-          "line": 151
+          "line": 140
         },
         {
           "name": "leanExpressionContext",
-          "line": 156
+          "line": 145
         },
         {
           "name": "developmentContext",
-          "line": 160
+          "line": 149
         }
       ]
     },
@@ -15874,8 +15896,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 170,
-      "sha256": "aa992b90b8bfadee01e34b5c5b63134fab87d0c1269d1d8bcca19dc432e16667",
+      "lines": 216,
+      "sha256": "d4928f30470a22ea6585dafb1c57c2482af16057bb2134eaa974e5c856ca717e",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -15890,28 +15912,44 @@
           "line": 36
         },
         {
-          "name": "CharacterSocialRelationship",
+          "name": "SocialRelationshipAgreement",
           "line": 46
         },
         {
+          "name": "CharacterSocialRelationship",
+          "line": 54
+        },
+        {
+          "name": "agreement",
+          "line": 59
+        },
+        {
+          "name": "setAgreement",
+          "line": 68
+        },
+        {
+          "name": "promptSection",
+          "line": 71
+        },
+        {
           "name": "snapshot",
-          "line": 48
+          "line": 92
         },
         {
           "name": "perspective",
-          "line": 99
+          "line": 145
         },
         {
           "name": "perspectivesFor",
-          "line": 122
+          "line": 168
         },
         {
           "name": "knowsEachOther",
-          "line": 138
+          "line": 184
         },
         {
           "name": "contextForGroup",
-          "line": 141
+          "line": 187
         }
       ]
     },
@@ -23529,7 +23567,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
       "lines": 470,
-      "sha256": "d7ec669544d4957e6a6d52791af71e14d1043b966d1520eedf019d38be9df3d1",
+      "sha256": "ca808ee06fdc7b7883be9339ccec6eec632a877e1ac0f8cfa2a2942548e93967",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -24235,7 +24273,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 636,
-      "sha256": "26f374170393e0819f85a07c5fe9961907a43e286850f4ffec6c208bd694b801",
+      "sha256": "ba5d4b091869bcd53d8e3291f7a84c5178dc513537e2e8ac1b7ac79e5e70d564",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
