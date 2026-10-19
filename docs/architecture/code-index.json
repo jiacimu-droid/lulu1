@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:42:32.062461+00:00",
-  "commit": "8b79ace1b5f7f8fc82b4c7a57405936ed3fcdadd",
+  "generatedAt": "2026-10-19T05:44:11.437888+00:00",
+  "commit": "59fc2d758ebb8c094cbc81ad97839177028846b5",
   "branch": "main",
-  "sourceFingerprint": "8ff3dc1d20e74955ac7b35cf691bf8ab6cd6d86236a8f68106e65fa1f98e559f",
+  "sourceFingerprint": "fbc7ae4883d35798b536b57c03d9be56df831b0732947542eb7d5af5670b2dc7",
   "summary": {
     "files": 722,
-    "lines": 138816,
+    "lines": 138899,
     "symbols": 2101
   },
   "symbolIndex": {
@@ -1135,7 +1135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 74
+        "line": 75
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -13971,8 +13971,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 236,
-      "sha256": "48c22b3c6854a4621cea3eb6d118ff622daa9dcdbaec7c7073a54cf798f59e6f",
+      "lines": 319,
+      "sha256": "de0821f66fdf94c6c54fbd806f406fde1e47a82d4db40220a4e40e17b50f25a7",
       "symbols": [
         {
           "name": "read",
@@ -13988,7 +13988,7 @@
         },
         {
           "name": "save",
-          "line": 74
+          "line": 75
         }
       ]
     },
