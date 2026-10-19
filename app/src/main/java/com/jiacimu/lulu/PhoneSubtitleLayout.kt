@@ -89,6 +89,37 @@ internal object PhoneSubtitleLayout {
         return result
     }
 
+    /**
+     * Live phone captions advance one spoken sentence at a time. Completed
+     * transcript bubbles remain grouped by lines(), independently of playback.
+     * In particular, five short sentences must never become one early caption.
+     */
+    fun liveLines(raw: String): List<String> {
+        val result = mutableListOf<String>()
+        val endStops = "。！？!?；;"
+        val closers = "”’）)】]"
+        raw.lines().forEach { paragraph ->
+            val current = StringBuilder()
+            fun emit() {
+                val line = current.toString().trim()
+                if (line.isNotBlank()) result += line
+                current.clear()
+            }
+            paragraph.forEachIndexed { index, ch ->
+                current.append(ch)
+                val next = paragraph.getOrNull(index + 1)
+                when {
+                    ch in endStops && (next == null || (next !in closers && next != '"')) -> emit()
+                    (ch in closers || ch == '"') && index > 0 &&
+                        paragraph[index - 1] in endStops -> emit()
+                    ch in "，," && current.length >= 26 -> emit()
+                }
+            }
+            emit()
+        }
+        return result
+    }
+
     fun captionRows(raw: String, speaker: String): List<String> =
         lines(raw).map { "$speaker：$it" }
 
