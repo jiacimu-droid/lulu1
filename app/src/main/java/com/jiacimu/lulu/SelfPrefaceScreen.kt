@@ -3,6 +3,11 @@ package com.jiacimu.lulu
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clip
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +18,10 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -205,22 +214,11 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     ) { padding ->
         if (overview) {
             Column(
-                Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
+                Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(23.dp),
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 9.dp),
-                ) {
-                    Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Text("MY LIFE JOURNAL", letterSpacing = 1.2.sp, fontSize = 10.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("自序", fontSize = 28.sp, fontWeight = FontWeight.SemiBold)
-                        Text("人生由我落笔，故事尚在途中。", fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
+                SelfPrefaceHomeHero(Modifier.padding(top = 7.dp, bottom = 11.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     SelfPrefaceCategory("所思", "日记 · 灵感 · 思考", Icons.Outlined.EditNote,
                         Modifier.weight(1f)) { area = "所思"; overview = false }
@@ -341,22 +339,64 @@ private fun SelfPrefaceCategory(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val accent = when (title) {
+        "所思" -> Color(0xFF507D79)
+        "所重" -> Color(0xFFBC777D)
+        "所愿" -> Color(0xFF8576B0)
+        else -> Color(0xFF9B783F)
+    }
+    val backgroundColors = when (title) {
+        "所思" -> listOf(Color(0xFFE6F3F0), Color(0xFFF4F9F5))
+        "所重" -> listOf(Color(0xFFFBEAEF), Color(0xFFFFF7F5))
+        "所愿" -> listOf(Color(0xFFEEEAF9), Color(0xFFF8F4FC))
+        else -> listOf(Color(0xFFF8F0DF), Color(0xFFFFFAF0))
+    }
     Surface(
         onClick = onClick,
-        modifier = modifier.height(124.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(18.dp),
+        modifier = modifier.height(145.dp),
+        color = backgroundColors.last(),
+        shape = RoundedCornerShape(23.dp),
+        border = BorderStroke(1.dp, accent.copy(alpha = .15f)),
+        shadowElevation = 1.dp,
     ) {
-        Column(
-            Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
+        Box(
+            Modifier.fillMaxSize().background(
+                Brush.linearGradient(backgroundColors)
+            )
         ) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                Text(subtitle, fontSize = 10.sp, maxLines = 2,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Canvas(Modifier.align(Alignment.TopEnd).size(96.dp)) {
+                val w = size.width
+                val h = size.height
+                drawCircle(accent.copy(alpha = .07f), radius = w * .45f,
+                    center = Offset(w * .92f, h * .03f))
+                drawCircle(accent.copy(alpha = .17f), radius = w * .30f,
+                    center = Offset(w * .92f, h * .03f),
+                    style = Stroke(1.dp.toPx()))
+                val p1 = Offset(w * .32f, h * .34f)
+                val p2 = Offset(w * .65f, h * .73f)
+                drawLine(accent.copy(alpha = .17f), p1, p2, 1.2.dp.toPx())
+                drawCircle(accent.copy(alpha = .38f), radius = 2.4.dp.toPx(), center = p2)
+            }
+            Column(
+                Modifier.fillMaxSize().padding(17.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Surface(
+                    color = Color.White.copy(alpha = .69f),
+                    shape = RoundedCornerShape(13.dp),
+                ) {
+                    Box(Modifier.size(42.dp), contentAlignment = Alignment.Center) {
+                        Icon(icon, title, tint = accent,
+                            modifier = Modifier.size(25.dp))
+                    }
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(title, color = accent, fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp, letterSpacing = 1.sp)
+                    Text(subtitle, color = accent.copy(alpha = .79f),
+                        fontSize = 11.sp, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                }
             }
         }
     }
