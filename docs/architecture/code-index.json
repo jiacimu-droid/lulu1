@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:40:37.893352+00:00",
-  "commit": "3850c2910a16228eedb63fe469b2c2be19195d15",
+  "generatedAt": "2026-10-19T05:42:16.262102+00:00",
+  "commit": "e1848cdc6c846b4f8261c27d2bc5858d7f2e623b",
   "branch": "main",
-  "sourceFingerprint": "17305ac5107498a09bd011bda7e67515362364e0385570b96f97635ba093865a",
+  "sourceFingerprint": "124ec5f9eebfb2e20e5549330ccaf775ab3189137be22a3331961d9332f36795",
   "summary": {
-    "files": 721,
-    "lines": 138665,
+    "files": 722,
+    "lines": 138816,
     "symbols": 2101
   },
   "symbolIndex": {
@@ -22517,6 +22517,12 @@
           "line": 13
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterReadingComments.kt",
+      "lines": 151,
+      "sha256": "ae36a115c660d2dc957de3e03b2a28f330adc9220c3dd5a89bacb9653087e797",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt",
