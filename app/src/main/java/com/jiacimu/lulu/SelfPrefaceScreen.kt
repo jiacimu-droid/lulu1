@@ -338,17 +338,14 @@ private fun SelfPrefaceCategory(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val accent = when (title) {
-        "所思" -> Color(0xFF507D79)
-        "所重" -> Color(0xFFBC777D)
-        "所愿" -> Color(0xFF8576B0)
-        else -> Color(0xFF9B783F)
-    }
+    // One coherent sea-glass palette. Differentiation comes from icons and tone,
+    // rather than four unrelated pastel colors.
+    val accent = Color(0xFF496E70)
     val backgroundColors = when (title) {
-        "所思" -> listOf(Color(0xFFE6F3F0), Color(0xFFF4F9F5))
-        "所重" -> listOf(Color(0xFFFBEAEF), Color(0xFFFFF7F5))
-        "所愿" -> listOf(Color(0xFFEEEAF9), Color(0xFFF8F4FC))
-        else -> listOf(Color(0xFFF8F0DF), Color(0xFFFFFAF0))
+        "所思" -> listOf(Color(0xFFE4F0ED), Color(0xFFF4F8F5))
+        "所重" -> listOf(Color(0xFFEAF2EF), Color(0xFFF7FAF7))
+        "所愿" -> listOf(Color(0xFFE6F0EF), Color(0xFFF4F8F8))
+        else -> listOf(Color(0xFFE9F1ED), Color(0xFFF7F9F6))
     }
     Surface(
         onClick = onClick,
