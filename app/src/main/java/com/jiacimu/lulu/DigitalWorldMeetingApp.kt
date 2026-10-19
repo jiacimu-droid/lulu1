@@ -334,32 +334,8 @@ fun DigitalWorldMeetingApp(
     }
 
     selectedLifeEpisodeId?.let { selectedId ->
-        val episode = WorldLifeEpisodeStore.find(selectedId)
-        if (episode != null) {
-            AlertDialog(
-                onDismissRequest = { selectedLifeEpisodeId = null },
-                title = { Text(episode.title, fontWeight = FontWeight.SemiBold) },
-                text = {
-                    Column(Modifier.heightIn(max = 540.dp).verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            "${MigratedDomainStores.characters.get(episode.characterId).displayName} · " +
-                                episode.occurredAt.atZone(java.time.ZoneId.systemDefault())
-                                    .format(java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm")),
-                            color = LuluColors.Muted, fontSize = 12.sp,
-                        )
-                        Text("实际世界动作：${episode.actualAction}",
-                            color = LuluColors.Muted, fontSize = 12.sp)
-                        HorizontalDivider()
-                        WorldLifeEpisodeReader(episode.scene)
-                        Text("这是角色个人生活片段；未执行的居民对话、物品或游戏结果不作为客观事实。",
-                            color = LuluColors.Muted, fontSize = 11.sp)
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { selectedLifeEpisodeId = null }) { Text("收起") }
-                },
-            )
+        WorldLifeEpisodeStore.find(selectedId)?.let { episode ->
+            WorldLifeEpisodeFullscreenDialog(episode, onClose = { selectedLifeEpisodeId = null })
         }
     }
 
