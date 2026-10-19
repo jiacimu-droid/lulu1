@@ -246,16 +246,12 @@ internal fun SelfThoughtNotebookScreen(
                     })
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(mood, { mood = it.take(18) }, singleLine = true,
-                        placeholder = { Text("心情", fontSize = 12.sp) }, modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(fontSize = 12.sp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BookAccent, unfocusedBorderColor = BookMuted.copy(alpha = .4f)))
-                    OutlinedTextField(weather, { weather = it.take(18) }, singleLine = true,
-                        placeholder = { Text("天气", fontSize = 12.sp) }, modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(fontSize = 12.sp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BookAccent, unfocusedBorderColor = BookMuted.copy(alpha = .4f)))
+                    NotebookTagField(
+                        value = mood, onValueChange = { mood = it.take(18) },
+                        placeholder = "今天的心情", modifier = Modifier.weight(1f))
+                    NotebookTagField(
+                        value = weather, onValueChange = { weather = it.take(18) },
+                        placeholder = "窗外的天气", modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(14.dp))
                 BasicTextField(body, { body = it }, modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -426,5 +422,38 @@ internal fun SelfThoughtNotebookScreen(
                 if (onDelete(selected)) deleting = null
             }) { Text("删除") } },
             dismissButton = { TextButton(onClick = { deleting = null }) { Text("取消") } })
+    }
+}
+
+/** Small pastel stationery tabs, instead of Material's heavy outlined input boxes. */
+@Composable
+private fun NotebookTagField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = Color(0xFFEAF3EF).copy(alpha = .88f),
+        shape = RoundedCornerShape(13.dp),
+        border = BorderStroke(1.dp, Color(0xFFB9D4CF).copy(alpha = .66f)),
+    ) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            textStyle = TextStyle(color = BookInk, fontSize = 12.sp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+            decorationBox = { field ->
+                Box {
+                    if (value.isEmpty()) {
+                        Text(placeholder, color = BookMuted, fontSize = 11.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    field()
+                }
+            },
+        )
     }
 }
