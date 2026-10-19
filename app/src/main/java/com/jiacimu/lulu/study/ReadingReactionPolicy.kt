@@ -41,7 +41,7 @@ internal object ReadingReactionPolicy {
             for (i in 0 until array.length()) {
                 val item = array.optJSONObject(i) ?: continue
                 val quote = item.optString("quote").trim()
-                val reaction = item.optString("reaction").trim().take(400)
+                val reaction = item.optString("reaction").trim().take(240)
                 if (quote.length !in 2..240 || reaction.isBlank()) continue
                 val occurrence = item.optInt("occurrence", 1)
                 if (occurrence !in 1..20) continue
@@ -55,7 +55,7 @@ internal object ReadingReactionPolicy {
                 if (size == 8) break
             }
         }.distinctBy { it.startOffset }
-        return ReadingReaction(response.optString("reflection").trim().take(1_200), moments,
+        return ReadingReaction(response.optString("reflection").trim().take(180), moments,
             response.optString("innerThought").trim().take(220), response.optString("mood").trim().take(80))
     }
 
