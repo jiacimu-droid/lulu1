@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`342a280b528db182fddb30d1197407a6f9aeef9c`
+- 基准提交：`ba5f73484e0a9c47397b3ad258741ce0d695a4c3`
 - 分支：`main`
-- 已索引文件：717
-- 已索引代码/文本行：137376
-- 已发现符号：2076
+- 已索引文件：719
+- 已索引代码/文本行：137523
+- 已发现符号：2077
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -167,6 +167,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 183 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 107 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 189 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1125 | 26 |
@@ -380,8 +381,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 102 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 230 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 188 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 233 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 190 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 101 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
@@ -567,6 +568,7 @@
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 73 | 1 |
@@ -696,7 +698,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldInteractionRegressionTest.kt` | 133 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 67 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt` | 135 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T17:34:48.941435+00:00",
-  "commit": "342a280b528db182fddb30d1197407a6f9aeef9c",
+  "generatedAt": "2026-10-19T01:56:12.616705+00:00",
+  "commit": "ba5f73484e0a9c47397b3ad258741ce0d695a4c3",
   "branch": "main",
-  "sourceFingerprint": "32116d34fc609f447748e889258e6d3be1fe06a2d992816864be96f83c13c3f5",
+  "sourceFingerprint": "b76c7f91d8053292a80a0e99c87519d73793354e6fc52590fc35b5f1d50cb273",
   "summary": {
-    "files": 717,
-    "lines": 137376,
-    "symbols": 2076
+    "files": 719,
+    "lines": 137523,
+    "symbols": 2077
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7859,7 +7859,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "remember": [
@@ -10610,6 +10610,12 @@
         "line": 18
       }
     ],
+    "WorldLifeEpisodeParagraphsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt",
+        "line": 5
+      }
+    ],
     "ModelResponsePayloadTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt",
@@ -12406,7 +12412,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
       "lines": 685,
-      "sha256": "a6e337220dca0f1478ee2e56c5f0dbad2eaa2e9885a2294a2d37760d811a566b",
+      "sha256": "82a30e8c9540e0d4d5d55945771c56ed7db589e4be7c51798175aa238d8deebe",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -14104,6 +14110,12 @@
           "line": 46
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt",
+      "lines": 107,
+      "sha256": "f155aec68d154375cb45a5e2e4908f211923c7210726c434f50fe3cf14307006",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
@@ -19689,14 +19701,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt",
-      "lines": 230,
-      "sha256": "88392727f23aabeb01d941b3f5a3e55d7677f5df7374b5ef19908dd3906d3516",
+      "lines": 233,
+      "sha256": "b7166ad5869d51e2e23bf0f4acd852a6842774d9ab370a4f998abcf344989824",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-      "lines": 188,
-      "sha256": "9c7764030074d8fd62bf397d71bd3f1a2f0c2ab3972ff8a07fd2566ba63c2f16",
+      "lines": 190,
+      "sha256": "0e6e2d7a13f98244e702bd856caa17d3406bf244fb855982bb6444e4f40952c0",
       "symbols": [
         {
           "name": "episodes",
@@ -19720,7 +19732,7 @@
         },
         {
           "name": "recentContext",
-          "line": 118
+          "line": 120
         }
       ]
     },
@@ -23003,6 +23015,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt",
+      "lines": 27,
+      "sha256": "30ae23b03a66cf6bc7ad58087370b3d48fe2c8b6eceb14ed7715e8412abddc01",
+      "symbols": [
+        {
+          "name": "WorldLifeEpisodeParagraphsTest",
+          "line": 5
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt",
       "lines": 55,
       "sha256": "b4c3ff67ddc67f6cd9ec7c673857b27fb481e53969db678024e1412daf61d16c",
@@ -24523,8 +24546,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposerTest.kt",
-      "lines": 67,
-      "sha256": "dcdeeffbda9ee3252abbfed23adacaa1a551b5bcf2f99e4c4ccd067e3092be81",
+      "lines": 75,
+      "sha256": "c458b54ea21db8e34df18140e4556e26e18938c1980ce165ea8930e4952cab9f",
       "symbols": [
         {
           "name": "WorldLifeEpisodeComposerTest",
