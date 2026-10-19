@@ -1338,6 +1338,27 @@ internal object LuluVoiceCallSession {
                 secondsSinceUserActivity = (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1000L,
                 microphoneMuted = latest.microphoneMuted,
             )
+            // Incoming calls already carry the character's first spoken line.
+            // Play it through the SAME call queue used for model replies: real PCM
+            // starts the subtitles, and successful playback saves one voice
+            // transcript in the private conversation. Do not make the model
+            // paraphrase this line or create an extra opening on top of it.
+            if (opening && latest.incomingReason.isNotBlank()) {
+                val firstLine = latest.incomingReason.trim()
+                finalText = VoicePerformance.plain(firstLine)
+                mutableState.update {
+                    it.copy(thinking = false, opening = true,
+                        generatedTranscript = "",
+                        statusMessage = "${latest.characterName} 正准备开口")
+                }
+                enqueueSpoken(listOf(firstLine))
+                if (speechQueue?.hasPendingAudio != true) {
+                    // A non-speakable empty line must not lock the opening gate.
+                    mutableState.update { it.copy(opening = false) }
+                    scheduleListening(220)
+                }
+                return@launch
+            }
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
