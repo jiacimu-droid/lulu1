@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:31:19.663187+00:00",
-  "commit": "f383d39900dd1df49eb45dba1f5d473da1c8b677",
+  "generatedAt": "2026-10-19T06:32:00.454315+00:00",
+  "commit": "938c447f4496e8f0531093c1807eb549e4414790",
   "branch": "main",
-  "sourceFingerprint": "40716bb326e1759507349751868ca1bb009e71a113de628e5d8c310d1f3a38c2",
+  "sourceFingerprint": "2fa5560c8bedef812f4e470d53e0f1252ddafb815e6c710c39e3e78cc0db29f0",
   "summary": {
     "files": 723,
     "lines": 139319,
@@ -21919,7 +21919,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
       "lines": 73,
-      "sha256": "9f675139b9bdca3dec814d88967015def688f143dc4d37ed63c8d58a2cf687cc",
+      "sha256": "d3408332dbc3f83f0a7e8437356b6a30459449e031351c54fa813714d40aaf23",
       "symbols": [
         {
           "name": "ReadingMoment",
