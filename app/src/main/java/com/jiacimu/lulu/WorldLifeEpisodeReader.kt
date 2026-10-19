@@ -58,17 +58,17 @@ internal object WorldLifeEpisodeParagraphs {
                         else -> if (clean.startsWith('“') && clean.endsWith('”'))
                             WorldLifeParagraphKind.SPEECH else WorldLifeParagraphKind.NARRATION
                     }
-                    // Legacy stories sometimes arrive as one huge paragraph.
-                    // Break only on full stops, not at arbitrary character positions.
-                    val passages = if (kind == WorldLifeParagraphKind.NARRATION && clean.length > 260) {
+                    // Every mode can arrive as an overlong unbroken block. Break only
+                    // after complete Chinese/English sentences, preserving every word.
+                    val passages = if (clean.length > 155) {
                         val output = mutableListOf<String>()
                         var part = ""
-                        Regex("(?<=[。！？])").split(clean).forEach { sentence ->
-                            part += sentence
-                            if (part.length >= 140) {
+                        Regex("(?<=[。！？!?])").split(clean).forEach { sentence ->
+                            if (part.length >= 92 && sentence.isNotBlank()) {
                                 output.add(part.trim())
                                 part = ""
                             }
+                            part += sentence
                         }
                         if (part.isNotBlank()) output.add(part.trim())
                         output
@@ -88,24 +88,27 @@ private val StoryAccent = Color(0xFFA38B74)
 @Composable
 internal fun WorldLifeEpisodeReader(scene: String) {
     val paragraphs = remember(scene) { WorldLifeEpisodeParagraphs.parse(scene) }
-    Column(verticalArrangement = Arrangement.spacedBy(21.dp)) {
-        paragraphs.forEachIndexed { index, paragraph ->
+    Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+        paragraphs.forEach { paragraph ->
+            // Chinese literary typesetting: real paragraph breaks and first-line
+            // indentation. The stored story stays untouched and searchable.
+            val displayed = "　　" + paragraph.text.trimStart()
             when (paragraph.kind) {
                 WorldLifeParagraphKind.NARRATION ->
-                    Text(paragraph.text, color = StoryInk, fontSize = 16.sp, lineHeight = 31.sp,
+                    Text(displayed, color = StoryInk, fontSize = 16.sp, lineHeight = 30.sp,
                         modifier = Modifier.fillMaxWidth())
                 WorldLifeParagraphKind.THOUGHT ->
                     Row(Modifier.fillMaxWidth().padding(start = 9.dp),
                         horizontalArrangement = Arrangement.spacedBy(15.dp)) {
                         Box(Modifier.width(2.dp).heightIn(min = 44.dp).background(StoryAccent.copy(alpha = .65f)))
-                        Text(paragraph.text, color = Color(0xFF716154), fontSize = 16.sp,
+                        Text(displayed, color = Color(0xFF716154), fontSize = 16.sp,
                             fontStyle = FontStyle.Italic, lineHeight = 30.sp,
                             modifier = Modifier.weight(1f))
                     }
                 WorldLifeParagraphKind.SPEECH ->
-                    Text(paragraph.text, color = Color(0xFF56483F), fontSize = 16.sp,
+                    Text(displayed, color = Color(0xFF56483F), fontSize = 16.sp,
                         lineHeight = 30.sp, fontWeight = FontWeight.Medium,
-                        modifier = Modifier.fillMaxWidth().padding(start = 18.dp))
+                        modifier = Modifier.fillMaxWidth().padding(start = 3.dp))
             }
         }
     }
