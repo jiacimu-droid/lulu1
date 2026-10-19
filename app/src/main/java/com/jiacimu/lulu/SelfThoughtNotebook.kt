@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import java.time.format.TextStyle as JavaTextStyle
+import java.util.Locale
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -62,11 +64,7 @@ private val BookMuted = Color(0xFF7B9393)
 private val BookAccent = Color(0xFFC9796A)
 private val BookDate = DateTimeFormatter.ofPattern("M月d日")
 
-/**
- * Real image-backed journal, not a series of grey cards or a screenshot of fake text.
- * Outer page is completely occupied by the book; even the date picker is ON its paper.
- * Only the user's own date, text and page controls are live Compose surfaces.
- */
+/** Drawn notebook with a date navigator outside the paper and full-width editable pages. */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 internal fun SelfThoughtNotebookScreen(
@@ -137,7 +135,7 @@ internal fun SelfThoughtNotebookScreen(
             .padding(horizontal = 12.dp),
     ) {
         Row(
-            Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 6.dp),
+            Modifier.fillMaxWidth().padding(top = 23.dp, bottom = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = { if (writing) writing = false else onBack() },
@@ -177,55 +175,51 @@ internal fun SelfThoughtNotebookScreen(
                 }
             }
         }
-        Row(
-            Modifier.fillMaxWidth().padding(start = 52.dp, bottom = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        // Navigation is OUTSIDE the paper so its top can be used for actual writing.
+        Surface(
+            color = Color(0xFFE7F1ED),
+            shape = RoundedCornerShape(18.dp),
+            border = BorderStroke(1.dp, Color(0xFFC9DDD6)),
+            modifier = Modifier.fillMaxWidth().padding(start = 6.dp, end = 6.dp, bottom = 7.dp),
         ) {
-            Box(Modifier.width(20.dp).height(1.dp)
-                .background(Color(0xFF92B1AC)))
-            Spacer(Modifier.width(10.dp))
-            Text(
-                if (pages.isEmpty()) "留一页空白，等故事发生"
-                else "写过 ${pages.map { it.date }.distinct().size} 天  ·  留下 ${pages.size} 页",
-                color = BookMuted, fontSize = 11.sp,
-            )
+            Row(
+                Modifier.fillMaxWidth().height(49.dp).padding(horizontal = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = { day(-1) }, enabled = !writing,
+                    modifier = Modifier.size(42.dp)) {
+                    Icon(Icons.Outlined.ChevronLeft, "前一天", tint = BookInk)
+                }
+                TextButton(onClick = { chooseDate = true }, enabled = !writing,
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 0.dp)) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
+                            color = BookInk, fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold)
+                        Text(date.dayOfWeek.getDisplayName(JavaTextStyle.FULL, Locale.SIMPLIFIED_CHINESE),
+                            color = BookMuted, fontSize = 10.sp)
+                    }
+                }
+                IconButton(onClick = { day(1) }, enabled = !writing,
+                    modifier = Modifier.size(42.dp)) {
+                    Icon(Icons.Outlined.ChevronRight, "后一天", tint = BookInk)
+                }
+            }
         }
         BoxWithConstraints(
             modifier = Modifier.fillMaxWidth().weight(1f),
             contentAlignment = Alignment.Center,
         ) {
             // A book follows paper proportions, not the 9:16 device proportions.
-            val bookWidth = minOf(maxWidth, (maxHeight - 6.dp) * .66f)
-            val bookHeight = bookWidth / .66f
+            val bookWidth = minOf(maxWidth, (maxHeight - 4.dp) * .615f)
+            val bookHeight = bookWidth / .615f
             SelfThoughtNotebookArtwork(Modifier.width(bookWidth).height(bookHeight)) {
-        // Date stays inside the upper-right paper label.
-        Column(
-            Modifier.align(Alignment.TopEnd).padding(
-                top = bookHeight * .087f, end = bookWidth * .080f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(date.year.toString(), fontSize = 10.sp, color = BookMuted)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { day(-1) }, enabled = !writing, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Outlined.ChevronLeft, "前一天", tint = BookInk, modifier = Modifier.size(20.dp))
-                }
-                TextButton(onClick = { chooseDate = true }, enabled = !writing,
-                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
-                    modifier = Modifier.height(26.dp)) {
-                    Text(date.format(BookDate), fontSize = 12.sp, color = BookInk,
-                        fontWeight = FontWeight.SemiBold)
-                }
-                IconButton(onClick = { day(1) }, enabled = !writing, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Outlined.ChevronRight, "后一天", tint = BookInk, modifier = Modifier.size(20.dp))
-                }
-            }
-        }
-
         Column(
             Modifier.fillMaxSize().padding(
                 start = bookWidth * .135f,
                 end = bookWidth * .102f,
-                top = bookHeight * .275f,
+                top = bookHeight * .192f,
                 bottom = bookHeight * .077f,
             ),
         ) {
@@ -244,16 +238,7 @@ internal fun SelfThoughtNotebookScreen(
                             field()
                         }
                     })
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    NotebookTagField(
-                        value = mood, onValueChange = { mood = it.take(18) },
-                        placeholder = "今天的心情", modifier = Modifier.weight(1f))
-                    NotebookTagField(
-                        value = weather, onValueChange = { weather = it.take(18) },
-                        placeholder = "窗外的天气", modifier = Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(16.dp))
                 BasicTextField(body, { body = it }, modifier = Modifier.weight(1f).fillMaxWidth(),
                     textStyle = TextStyle(color = BookInk, fontSize = 15.sp, lineHeight = 26.sp),
                     decorationBox = { field ->
@@ -366,10 +351,6 @@ internal fun SelfThoughtNotebookScreen(
                                     modifier = Modifier.size(18.dp))
                             }
                         }
-                        if (page.mood.isNotBlank() || page.weather.isNotBlank()) {
-                            Text(listOf(page.weather, page.mood).filter { it.isNotBlank() }.joinToString("  ·  "),
-                                fontSize = 12.sp, color = BookMuted)
-                        }
                         Spacer(Modifier.height(14.dp))
                         Text(page.body, color = BookInk, fontSize = 15.sp, lineHeight = 26.sp,
                             modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()))
@@ -422,38 +403,5 @@ internal fun SelfThoughtNotebookScreen(
                 if (onDelete(selected)) deleting = null
             }) { Text("删除") } },
             dismissButton = { TextButton(onClick = { deleting = null }) { Text("取消") } })
-    }
-}
-
-/** Small pastel stationery tabs, instead of Material's heavy outlined input boxes. */
-@Composable
-private fun NotebookTagField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        color = Color(0xFFEAF3EF).copy(alpha = .88f),
-        shape = RoundedCornerShape(13.dp),
-        border = BorderStroke(1.dp, Color(0xFFB9D4CF).copy(alpha = .66f)),
-    ) {
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            singleLine = true,
-            textStyle = TextStyle(color = BookInk, fontSize = 12.sp),
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
-            decorationBox = { field ->
-                Box {
-                    if (value.isEmpty()) {
-                        Text(placeholder, color = BookMuted, fontSize = 11.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                    field()
-                }
-            },
-        )
     }
 }
