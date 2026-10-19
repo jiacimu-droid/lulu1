@@ -274,6 +274,15 @@ object ProactivePerceptionScheduler {
         )
     }
 
+    /** A character's own appointment is NOT a manual wake initiated by the user. */
+    fun scheduleSelfPlanned(context: Context, characterId: String, title: String) {
+        CompanionOnlineStore.wakeCharacter(
+            characterId = characterId,
+            reason = CompanionOnlineReason.BackgroundPerception,
+            trigger = "本人日程到点：${title.take(80)}；请自行决定真实执行、改期或放弃",
+        )
+    }
+
     fun scheduleOnline(context: Context, characterId: String, trigger: String,
         collectMessages: Boolean = false, requiresUnread: Boolean = false,
         delayMillis: Long = 0L) {
