@@ -62,19 +62,37 @@ internal object CharacterGrowthTrajectory {
             .sortedBy(SharedTimelineEvent::occurredAt)
     }
 
-    /** Sent unchanged to chat, phone, meeting and autonomous personas. */
+    /** Sent unchanged to chat, phone, meeting and autonomous personas.
+     * Every old complaint is presented together with later user evidence. */
     fun context(characterId: String, now: Instant = Instant.now()): String {
         val recent = relevantFeedback(characterId, now).takeLast(4)
         if (recent.isEmpty()) return ""
+        val realUserTurns = SharedExperienceTimeline.all(characterId).filter {
+            it.evidenceKind == EventEvidenceKind.UserStatement &&
+                (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面")) &&
+                !it.occurredAt.isAfter(now)
+        }
+        var unresolved = false
         return buildString {
-            appendLine("【来自用户、已真实说出口的重要关系反馈｜不等于你已改变】")
+            appendLine("【关系反馈的真实演进｜过去的不满并不自动代表现在仍在争执】")
             recent.forEach { event ->
-                appendLine("- 反馈时间=${event.occurredAt}；证据ID=${event.id}；主题=${feedbackTopic(event.content)}；用户原话=${event.content.take(220)}")
+                // A reconciliation is tied to its later USER evidence. A model
+                // apology or silent time passing can never become a settlement.
+                val resolution = realUserTurns.lastOrNull { later ->
+                    later.occurredAt.isAfter(event.occurredAt) &&
+                        later.occurredAt <= event.occurredAt.plus(java.time.Duration.ofDays(3)) &&
+                        RelationshipRepairContinuity.userExplicitlySettled(later.content)
+                }
+                if (resolution == null) {
+                    unresolved = true
+                    appendLine("- 待核对后续：时间=${event.occurredAt}；证据ID=${event.id}；主题=${feedbackTopic(event.content)}；用户原话=${event.content.take(220)}。这是当时的不满，不能在未核对后续聊天前断言她现在仍生气。")
+                } else {
+                    appendLine("- 已有后续转折：${feedbackTopic(event.content)}；当时的具体意见=${event.content.take(180)}；后来用户在${resolution.occurredAt}明确表示=${resolution.content.take(180)}（真实证据ID=${resolution.id}）。这一轮争执已说开，保留反思但不得以旧不满为由重新道歉或索取原谅。")
+                }
             }
-            appendLine("这些是真实反馈，尤其要严肃看待被弱化、不受尊重、缺少安全感等感受；不要把用户说自己不舒服重述为用户软弱或需要你替她做主。")
-            appendLine("不要宣称已经理解、改正、兑现承诺或对方原谅了自己。按自己的稳定人格真实理解与回应；如果当时仍有分歧，可以诚实表达，不得把未完成的修复当作成功。")
-            appendLine("涉及交流方式的直接反馈要在下一次自然聊天与电话表达中尝试体现，但不是固定改写角色性格；用户拒绝的说法先收住，角色可保留自己的立场。")
-            appendLine("后续实质变化应通过真实行为、反馈及有来源的内心修订体现，不靠一次道歉自动改写稳定人格。")
+            appendLine("用户当时的不满需要认真对待；它应转化为将来的相处方式，不是每次上线重新开庭。")
+            if (unresolved) appendLine("没有明确后续结论的事项也不能靠模型自行宣布被原谅；结合最新实际对话和未结状态判断，不能凭历史片段假设她此刻仍委屈。")
+            appendLine("真正改进要由后续言行和反馈体现，不复述忏悔，不把已经和解的事重新变成待修复任务。")
         }.trim()
     }
 
