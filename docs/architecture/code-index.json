@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T17:26:01.738357+00:00",
-  "commit": "f32e829fe699e5af31c55ebc4633df95b45f39d3",
+  "generatedAt": "2026-10-19T17:26:25.330975+00:00",
+  "commit": "461d4b8c3f98ace3c2c2bbeb47de5081bfac3a33",
   "branch": "main",
-  "sourceFingerprint": "999bbf88bb797b1fc510cf1cbfa0f759bfcb33d08e15259831b9fd8c123c6625",
+  "sourceFingerprint": "94ae50e7f0838279d26771543565bd7b6810977992d363415ca18b06ba2980df",
   "summary": {
     "files": 743,
-    "lines": 142269,
+    "lines": 142292,
     "symbols": 2154
   },
   "symbolIndex": {
@@ -25524,8 +25524,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
-      "lines": 148,
-      "sha256": "48aa3b944fc5f3cebf4d768c783885f139eb9d399f210e08544fb37a082ba0c9",
+      "lines": 171,
+      "sha256": "8fcf9f17e36bc1a5c2f98239fc5b18a59aa35b4b4d33cb2d0988b178bc577240",
       "symbols": [
         {
           "name": "ReadingGrowthTheaterTest",
