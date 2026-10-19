@@ -77,7 +77,9 @@ internal object CompanionActionRuntime {
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
             appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
         }
-        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取阅读 App 的真实正文。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。完整感想在阅读页，角色若想分享须另外选择并发送自然消息。")
+        appendLine("- plan_personal_activity，args={\"title\":\"自己准备做的事\",\"intent\":\"真实想做的原因\",\"dueAt\":\"2026-10-20T09:00:00+08:00\"}：自主为未来两周内的某个时刻安排一个自己的活动；到时系统会唤醒你重新判断，而不是自动向用户发消息或假定已完成。不要给每次普通聊天排日程；可以按自己兴趣安排读剧场、学习或玩游戏。")
+        appendLine(RoleDayScheduleStore.dueContext(context, characterId))
+        appendLine("- read_book，args={\"readingBookId\":\"阅读内容ID\"}：数字生命先真实走到家中已登记书架旁（没有书架则停止），再读取剧场已经生成的真实章节。只有进度、读后感和原始证据都提交成功才在私聊显示简洁的可点击阅读记录；准备读书和执行失败不冒充已读。划句感想直接保存在剧场对应章节，角色若想分享须另外选择并发送自然消息。")
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             appendLine("- send_world_invite，args={\"location\":\"准确地点名\",\"text\":\"邀请语\"}：邀请用户到指定数字世界地点见面；私聊中会出现标明地点的可点击邀请卡片。")
             appendLine("  可选邀请地点：${DigitalWorldStore.invitationLocationOptions(characterId).joinToString("、")}；发起邀请的你必须主动选定其中一个。")
@@ -345,6 +347,14 @@ internal object CompanionActionRuntime {
                 MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, "刚刚写了一篇日记《$title》。")
                 CompanionActionResult(true, "已写入日记《$title》",
                     evidenceId = "lexicon-diary-$diaryId")
+            }
+            "plan_personal_activity" -> {
+                val due = java.time.Instant.parse(args.getString("dueAt").trim())
+                val plan = RoleDayScheduleStore.arrange(
+                    context, characterId, args.optString("title"), args.optString("intent"), due, now,
+                )
+                CompanionActionResult(true, "已为本人安排「${plan.title}」，到时再决定如何行动",
+                    evidenceId = "own-plan-${plan.id}")
             }
             "read_book" -> readBook(context, character, args.optString("readingBookId").trim(), now)
             "play_solo_game" -> {
