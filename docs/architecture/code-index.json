@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T10:22:14.052677+00:00",
-  "commit": "99edaad266b0a8557aadc4b712e6ca30e76f61f7",
+  "generatedAt": "2026-10-19T10:22:28.784026+00:00",
+  "commit": "a04785cf5809f50b3299091ceb65d4806c5ee665",
   "branch": "main",
-  "sourceFingerprint": "01d1420f075472f3ffde24257fab35658fa851b5a2c824ca1c2e26abd450ee95",
+  "sourceFingerprint": "ec6b13572208ceb722b6a3d345f1cddeb7e60ece4e1fac7674eee79e89c7b143",
   "summary": {
     "files": 742,
-    "lines": 142084,
+    "lines": 142085,
     "symbols": 2154
   },
   "symbolIndex": {
@@ -5319,7 +5319,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 707
+        "line": 708
       }
     ],
     "describe": [
@@ -17043,8 +17043,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 725,
-      "sha256": "eae25cd59f0900789d475fa05b6fe28e07936f56f0a3cf44c97c421cdc65d98a",
+      "lines": 726,
+      "sha256": "d18024d6163192bc16b63a12a8cae90c6c010e64832b5807b47ffd79ba992820",
       "symbols": [
         {
           "name": "asJson",
@@ -17056,7 +17056,7 @@
         },
         {
           "name": "world",
-          "line": 707
+          "line": 708
         }
       ]
     },
@@ -20011,7 +20011,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
       "lines": 279,
-      "sha256": "69b174558c63f780b79ceeca5c8155555048d9f242cdcdf14e886bcfe4fa9b51",
+      "sha256": "785b4b06bdf9eed4f9e546aca751adbda8ad12b1df57ddd4f837ae133c2373f3",
       "symbols": [
         {
           "name": "RoleDayPlan",
