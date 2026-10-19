@@ -52,15 +52,14 @@ private data class DesktopV2Launcher(
 
 private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("chat", "聊天", Icons.Outlined.ChatBubbleOutline, MigrationRoute.Chat),
+    DesktopV2Launcher("selfpreface", "自序", Icons.Outlined.EditNote, MigrationRoute.SelfPreface),
     DesktopV2Launcher("memory", "记忆", Icons.Outlined.Psychology, MigrationRoute.Memory),
     DesktopV2Launcher("worldbook", "世界书", Icons.Outlined.Public, MigrationRoute.WorldBook),
     DesktopV2Launcher("performance", "性能监测", Icons.Outlined.MonitorHeart, MigrationRoute.Performance),
     DesktopV2Launcher("health", "健康", Icons.Outlined.FavoriteBorder, MigrationRoute.Health),
-    DesktopV2Launcher("reading", "阅读", Icons.Outlined.AutoStories, MigrationRoute.Reading),
     DesktopV2Launcher("scroll", "画卷", Icons.Outlined.Collections, MigrationRoute.Scroll),
     DesktopV2Launcher("theater", "剧场", Icons.Outlined.AutoStories, MigrationRoute.Theater),
     DesktopV2Launcher("study", "考研", Icons.Outlined.School, MigrationRoute.Study),
-    DesktopV2Launcher("schedule", "日程", Icons.Outlined.CalendarMonth, MigrationRoute.Schedule),
     DesktopV2Launcher("meeting", "见面", Icons.Outlined.Cloud, MigrationRoute.Meeting),
     DesktopV2Launcher("games", "游戏", Icons.Outlined.SportsEsports, MigrationRoute.Games),
     DesktopV2Launcher("apocalypse", "末世求生", Icons.Outlined.Map, MigrationRoute.ApocalypseSurvival),
