@@ -151,6 +151,9 @@ fun ScheduleFeatureScreen(
                                 Text(plan.title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                                 Text(plan.intent, fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                if (plan.repeat == "daily") Text("↻ 每天重复 · 角色可主动改期或取消",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.primary)
                                 Text(stateLabel, fontSize = 11.sp,
                                     color = if (plan.status == "completed") MaterialTheme.colorScheme.primary
                                         else MaterialTheme.colorScheme.onSurfaceVariant)
