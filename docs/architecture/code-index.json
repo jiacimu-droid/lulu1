@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:16:16.732717+00:00",
-  "commit": "08d91ef2254aeb0fc496550a479d2a3e48728c9e",
+  "generatedAt": "2026-10-19T08:17:40.829040+00:00",
+  "commit": "ad9bcdc111a24327527d558ad1c240ac24a9cfb3",
   "branch": "main",
-  "sourceFingerprint": "65df2676c06011df23290a173403e85626c12a546658b730d11aa4c78f4953c8",
+  "sourceFingerprint": "f078c099c6ecfc8e10c67104f93ca1059bb74fdcdf13f211d0f936ecb5606325",
   "summary": {
     "files": 740,
-    "lines": 141105,
+    "lines": 141106,
     "symbols": 2149
   },
   "symbolIndex": {
@@ -7647,7 +7647,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1775
+        "line": 1776
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -15472,7 +15472,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 161,
-      "sha256": "43cf5de2997e2f6badc21f822c0f1f19f9cd556fbcec203fcb673e9a11ab3c0d",
+      "sha256": "fd737bec4e762aa25c92f64757649a840ddb21b524945e3840d986889419b6ce",
       "symbols": [
         {
           "name": "expressionContext",
@@ -19458,7 +19458,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 122,
-      "sha256": "87cba1f9ae00cecf63f01613640342d23907c23dfe99875026c87eedfb74fbc8",
+      "sha256": "2efd0cd8077555d71f71887411f35490da4742bfa5338a50c52100d21cfa2915",
       "symbols": []
     },
     {
@@ -19559,8 +19559,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1842,
-      "sha256": "aa858aec1728888520aacf0a3940db8b99c8399b83be4089715a24c3886827f1",
+      "lines": 1843,
+      "sha256": "037cc41cdf049367a7676e16359e23d0712ac735181a222e5cf6f0f5acd3e5ba",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -19584,7 +19584,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1775
+          "line": 1776
         }
       ]
     },
