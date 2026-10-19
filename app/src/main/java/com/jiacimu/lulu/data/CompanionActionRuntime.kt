@@ -77,7 +77,7 @@ internal object CompanionActionRuntime {
             CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
             appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
         }
-        appendLine("- plan_personal_activity，args={\"title\":\"自己准备做的事\",\"intent\":\"真实想做的原因\",\"dueAt\":\"2026-10-20T09:00:00+08:00\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|write_journal|publish_moment\"}：自主为未来两周安排一件真的想做的事。activityAction 可省略，若填写则约束未来完成该计划的真实工具类型。到点唤醒本人选择而不是假定完成，不要为普通聊天排日程。")
+        appendLine("- plan_personal_activity，args={\"title\":\"自己准备做的事\",\"intent\":\"真实想做的原因\",\"dueAt\":\"${java.time.OffsetDateTime.now().plusDays(1).withHour(9).withMinute(0).withSecond(0).withNano(0).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)}\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|write_journal|publish_moment\"}：自主为未来两周安排一件真的想做的事。activityAction 可省略，若填写则约束未来完成该计划的真实工具类型。到点唤醒本人选择而不是假定完成，不要为普通聊天排日程。")
         appendLine("- reschedule_personal_activity，args={\"planId\":\"已有本人日程ID\",\"dueAt\":\"新的ISO时间\",\"reason\":\"自己为什么改期\"}：可在到点前或到点后主动改期，不算已经执行。")
         appendLine("- cancel_personal_activity，args={\"planId\":\"已有本人日程ID\",\"reason\":\"自己为什么放下这件事\"}：真的改变想法时取消，不必装成完成。")
         appendLine("【日程闭环】只有实际完成读书、独自游戏、数字世界活动、写日记或发布动态时，才在该真实行动的 args 中附上 planId；工具成功且返回原始证据才会完成日程。发私聊或仅声称做了不算。没有按原定计划行动，可以改期/取消或继续保留待办，不要为清空列表虚报。")
