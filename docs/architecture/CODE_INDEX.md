@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bf800c277784f83d8e580949f3a1a7959565080f`
+- 基准提交：`9875dd68df0240261214eae0a03ec4df058c0350`
 - 分支：`main`
-- 已索引文件：739
-- 已索引代码/文本行：140905
-- 已发现符号：2145
+- 已索引文件：740
+- 已索引代码/文本行：141000
+- 已发现符号：2146
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -159,7 +159,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 67 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 325 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 402 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 405 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 52 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 311 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 256 | 0 |
@@ -704,6 +704,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 119 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |

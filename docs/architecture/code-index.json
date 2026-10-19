@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:09:07.583623+00:00",
-  "commit": "bf800c277784f83d8e580949f3a1a7959565080f",
+  "generatedAt": "2026-10-19T08:09:54.142815+00:00",
+  "commit": "9875dd68df0240261214eae0a03ec4df058c0350",
   "branch": "main",
-  "sourceFingerprint": "dca21c313ea0ce49700388d392a0433d9870b09d81f783713a47b8dfeb20049d",
+  "sourceFingerprint": "6afea64626f00c1c9e363ad5215572fcd3ce2a97499b1a29c4aec939086b03ed",
   "summary": {
-    "files": 739,
-    "lines": 140905,
-    "symbols": 2145
+    "files": 740,
+    "lines": 141000,
+    "symbols": 2146
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -429,7 +429,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
-        "line": 118
+        "line": 121
       }
     ],
     "explicitlyEndsOwnCall": [
@@ -2479,13 +2479,13 @@
     "day": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
-        "line": 98
+        "line": 101
       }
     ],
     "turn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
-        "line": 105
+        "line": 108
       }
     ],
     "pending": [
@@ -11786,6 +11786,12 @@
         "line": 6
       }
     ],
+    "RelationshipRepairContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt",
+        "line": 16
+      }
+    ],
     "RelationshipRhythmPerceptionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt",
@@ -14265,20 +14271,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
-      "lines": 402,
-      "sha256": "cfaa202dd334fa4b3aa5fc6d3463783be885c7e1a08465e0a7500409baae33bb",
+      "lines": 405,
+      "sha256": "7e19993836ea49d536c354806e9ec1705cb4438fbd059818232f7cd70ec3ded5",
       "symbols": [
         {
           "name": "day",
-          "line": 98
+          "line": 101
         },
         {
           "name": "turn",
-          "line": 105
+          "line": 108
         },
         {
           "name": "write",
-          "line": 118
+          "line": 121
         }
       ]
     },
@@ -25154,6 +25160,17 @@
         {
           "name": "RelationshipPreferencesTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt",
+      "lines": 92,
+      "sha256": "6892f1fa044b0bb8b69d45d8b8886db2cc7fca2769b08804684e0d31fad9d9cd",
+      "symbols": [
+        {
+          "name": "RelationshipRepairContinuityTest",
+          "line": 16
         }
       ]
     },
