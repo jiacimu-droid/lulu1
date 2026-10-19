@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -116,22 +115,6 @@ internal fun ProactiveIncomingCallOverlay() {
                     Text(character.displayName, fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color(0xFF25262A))
                     Spacer(Modifier.height(7.dp))
                     Text("语音来电", color = Color(0xFF72757C), fontSize = 14.sp)
-                    if (call.reason.isNotBlank()) {
-                        Spacer(Modifier.height(14.dp))
-                        Surface(
-                            color = Color.White.copy(alpha = .62f),
-                            shape = RoundedCornerShape(18.dp),
-                        ) {
-                            Text(
-                                call.reason,
-                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
-                                color = Color(0xFF4B4E55),
-                                fontSize = 13.sp,
-                                lineHeight = 19.sp,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                    }
                     if (notice.isNotBlank()) {
                         Spacer(Modifier.height(10.dp))
                         Text(notice, color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
