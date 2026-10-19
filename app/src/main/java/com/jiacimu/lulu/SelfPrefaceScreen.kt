@@ -27,7 +27,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-private data class SelfPageEntry(
+internal data class SelfPageEntry(
     val id: String, val area: String, val title: String, val body: String,
     val done: Boolean, val updated: Long,
     // Compatible with v1 records: newly written pages retain their own date/order on edit.
@@ -35,6 +35,10 @@ private data class SelfPageEntry(
     val entryDate: String = "",
     val mood: String = "",
     val weather: String = "",
+    val guide: String = "",
+    val nextStep: String = "",
+    val state: String = "",
+    val starred: Boolean = false,
 )
 
 /** Private user-authored pages; never mixed into a character's memory or life logs. */
@@ -53,7 +57,9 @@ private object SelfPageStore {
             SelfPageEntry(id, obj.optString("area", "所思"), obj.optString("title"),
                 obj.optString("body"), obj.optBoolean("done"), updated,
                 obj.optLong("createdAt", updated), obj.optString("entryDate", ""),
-                obj.optString("mood", ""), obj.optString("weather", ""))
+                obj.optString("mood", ""), obj.optString("weather", ""),
+                obj.optString("guide", ""), obj.optString("nextStep", ""),
+                obj.optString("state", ""), obj.optBoolean("starred", false))
         }.sortedByDescending { it.updated }
     }.getOrDefault(emptyList())
 
@@ -64,7 +70,9 @@ private object SelfPageStore {
                 .put("title", item.title).put("body", item.body)
                 .put("done", item.done).put("updated", item.updated)
                 .put("createdAt", item.createdAt).put("entryDate", item.entryDate)
-                .put("mood", item.mood).put("weather", item.weather))
+                .put("mood", item.mood).put("weather", item.weather)
+                .put("guide", item.guide).put("nextStep", item.nextStep)
+                .put("state", item.state).put("starred", item.starred))
         }
         return prefs(context).edit().putString(KEY, array.toString()).commit()
     }
@@ -82,7 +90,7 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
     var error by remember { mutableStateOf("") }
-    BackHandler(enabled = !overview && area != "所行" && area != "所思") { overview = true }
+    BackHandler(enabled = overview) { onBack() }
 
     // The five sections have independent screens and no shared switcher.
     // Migrate existing "所行" notes into the dedicated persistent todo store.
@@ -135,6 +143,37 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                 ))
             },
             onDelete = { page -> save(records.filterNot { it.id == page.id }) },
+            error = error,
+        )
+        return
+    }
+
+    // Separate, purpose-built screens. Old user pages remain in the same local store.
+    if (!overview && (area == "所重" || area == "所愿")) {
+        SelfCompassScreen(
+            area = area,
+            pages = records.filter { it.area == area },
+            onBack = { overview = true },
+            onSave = { page -> save(records.filterNot { it.id == page.id } + page) },
+            onDelete = { page -> save(records.filterNot { it.id == page.id }) },
+            onCreateTodo = { wish ->
+                val step = wish.nextStep.trim()
+                if (wish.area != "所愿" || step.isBlank()) false
+                else {
+                    val id = SelfCompassRules.todoId(wish)
+                    val existing = SelfTodoStore.read(context)
+                    if (existing.any { it.id == id }) true
+                    else SelfTodoStore.save(context, existing + TodoTask(
+                        id = id,
+                        title = step,
+                        note = "来自「所愿」：" + wish.title.ifBlank { "我的心愿" },
+                        firstDate = LocalDate.now(),
+                        minutes = null,
+                        repeat = TodoRepeat.ONCE,
+                        createdAt = System.currentTimeMillis(),
+                    ))
+                }
+            },
             error = error,
         )
         return
