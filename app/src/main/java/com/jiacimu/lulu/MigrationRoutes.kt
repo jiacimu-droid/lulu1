@@ -18,6 +18,7 @@ enum class MigrationRoute {
     Home,
     Chat,
     ChatDetail,
+    SelfPreface,
     CharacterSettings,
     Memory,
     // Keep legacy route for existing saved navigation stacks; no desktop shortcut.
