@@ -236,6 +236,9 @@ internal fun SelfTodoScreen(
     var showEditor by remember { mutableStateOf(false) }
     var toDelete by remember { mutableStateOf<TodoTask?>(null) }
     var error by remember { mutableStateOf("") }
+    // Keep a just-completed row in composition briefly for its exit animation,
+    // while the completion itself has already been committed to storage.
+    var exiting by remember { mutableStateOf<Map<String, TodoOccurrence>>(emptyMap()) }
 
     BackHandler {
         if (showingHistory) showingHistory = false else onBack()
@@ -260,6 +263,11 @@ internal fun SelfTodoScreen(
     }
 
     val pending = remember(tasks, today) { SelfTodoCalendar.allPending(tasks, today) }
+    val visiblePending = (pending + exiting.values).distinctBy { it.task.id + "@" + it.date }
+        .sortedWith(compareBy<TodoOccurrence> { it.date }
+            .thenBy { it.task.minutes ?: Int.MAX_VALUE }
+            .thenBy { it.task.createdAt }
+            .thenBy { it.task.id })
     val completed = remember(tasks) {
         tasks.flatMap { task -> task.completions.map { task to it } }
             .sortedByDescending { it.second.completedAt }
@@ -277,7 +285,7 @@ internal fun SelfTodoScreen(
                 },
                 actions = {
                     if (!showingHistory) {
-                        IconButton(onClick = { showingHistory = true }) {
+                        IconButton(onClick = { exiting = emptyMap(); showingHistory = true }) {
                             Icon(Icons.Outlined.History, "查看已完成历史")
                         }
                         IconButton(onClick = { editing = null; showEditor = true }) {
@@ -336,7 +344,7 @@ internal fun SelfTodoScreen(
                     }
                 }
             } else {
-                if (pending.isEmpty()) {
+                if (visiblePending.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -353,16 +361,24 @@ internal fun SelfTodoScreen(
                 } else LazyColumn(
                     contentPadding = PaddingValues(top = 8.dp, bottom = 110.dp),
                 ) {
-                    items(pending, key = { it.task.id + "@" + it.date }) { occurrence ->
+                    items(visiblePending, key = { it.task.id + "@" + it.date }) { occurrence ->
                         TodoPendingRow(
                             occurrence = occurrence, today = today,
                             onEdit = { editing = occurrence.task; showEditor = true },
                             onComplete = {
-                                save(tasks.map { current ->
+                                val success = save(tasks.map { current ->
                                     if (current.id == occurrence.task.id) {
                                         SelfTodoCalendar.complete(current, occurrence.date, System.currentTimeMillis())
                                     } else current
                                 })
+                                if (success) {
+                                    val key = occurrence.task.id + "@" + occurrence.date
+                                    exiting = exiting + (key to occurrence)
+                                }
+                                success
+                            },
+                            onFaded = {
+                                exiting = exiting - (occurrence.task.id + "@" + occurrence.date)
                             },
                         )
                     }
@@ -495,12 +511,13 @@ private fun TodoPendingRow(
     today: LocalDate,
     onEdit: () -> Unit,
     onComplete: () -> Boolean,
+    onFaded: () -> Unit,
 ) {
     var hiding by remember(occurrence.task.id, occurrence.date) { mutableStateOf(false) }
     LaunchedEffect(hiding) {
         if (hiding) {
-            delay(210L)
-            if (!onComplete()) hiding = false
+            delay(220L)
+            onFaded()
         }
     }
     AnimatedVisibility(
@@ -513,7 +530,7 @@ private fun TodoPendingRow(
         ) {
             Checkbox(
                 checked = hiding,
-                onCheckedChange = { if (!hiding) hiding = true },
+                onCheckedChange = { if (!hiding && onComplete()) hiding = true },
                 modifier = Modifier.padding(end = 7.dp),
             )
             Surface(
