@@ -236,10 +236,10 @@ internal fun SelfThoughtNotebookScreen(
                 }
                 Spacer(Modifier.height(10.dp))
                 BasicTextField(title, { title = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(color = BookInk, fontSize = 22.sp, fontWeight = FontWeight.SemiBold),
+                    textStyle = TextStyle(color = BookInk, fontSize = 20.sp, fontWeight = FontWeight.SemiBold),
                     decorationBox = { field ->
                         Box {
-                            if (title.isBlank()) Text("这一页的标题", color = BookMuted.copy(alpha = .65f), fontSize = 22.sp)
+                            if (title.isBlank()) Text("这一页的标题", color = BookMuted.copy(alpha = .65f), fontSize = 20.sp)
                             field()
                         }
                     })
@@ -258,10 +258,10 @@ internal fun SelfThoughtNotebookScreen(
                 }
                 Spacer(Modifier.height(14.dp))
                 BasicTextField(body, { body = it }, modifier = Modifier.weight(1f).fillMaxWidth(),
-                    textStyle = TextStyle(color = BookInk, fontSize = 16.sp, lineHeight = 29.sp),
+                    textStyle = TextStyle(color = BookInk, fontSize = 15.sp, lineHeight = 26.sp),
                     decorationBox = { field ->
                         Box {
-                            if (body.isBlank()) Text("今天想留下些什么……", color = BookMuted, fontSize = 16.sp)
+                            if (body.isBlank()) Text("今天想留下些什么……", color = BookMuted, fontSize = 15.sp)
                             field()
                         }
                     })
@@ -331,7 +331,7 @@ internal fun SelfThoughtNotebookScreen(
                     } else Column(Modifier.fillMaxSize()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(page.title.ifBlank { "没有标题的一页" }, modifier = Modifier.weight(1f),
-                                color = BookInk, fontSize = 23.sp, fontWeight = FontWeight.SemiBold,
+                                color = BookInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
                                 maxLines = 2, overflow = TextOverflow.Ellipsis)
                             IconButton(onClick = { write(page) }, modifier = Modifier.size(33.dp)) {
                                 Icon(Icons.Outlined.Edit, "编辑本页", tint = BookAccent, modifier = Modifier.size(18.dp))
@@ -346,7 +346,7 @@ internal fun SelfThoughtNotebookScreen(
                                 fontSize = 12.sp, color = BookMuted)
                         }
                         Spacer(Modifier.height(14.dp))
-                        Text(page.body, color = BookInk, fontSize = 16.sp, lineHeight = 29.sp,
+                        Text(page.body, color = BookInk, fontSize = 15.sp, lineHeight = 26.sp,
                             modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()))
                     }
                 }
@@ -365,9 +365,6 @@ internal fun SelfThoughtNotebookScreen(
                         enabled = pageNumber < dayPages.lastIndex || pages.any { it.date.isAfter(date) },
                         modifier = Modifier.size(35.dp)) {
                         Icon(Icons.Outlined.ChevronRight, "下一页", tint = BookInk)
-                    }
-                    IconButton(onClick = { write() }, modifier = Modifier.size(38.dp)) {
-                        Icon(Icons.Outlined.Create, "写新的一页", tint = BookAccent)
                     }
                 }
             }
