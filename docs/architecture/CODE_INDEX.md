@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`00848623f6f2b5c5f49618d5b9641955e0cbe690`
+- 基准提交：`d4ca767ea53f423428138126a403acb51e26b022`
 - 分支：`main`
-- 已索引文件：737
-- 已索引代码/文本行：140488
+- 已索引文件：738
+- 已索引代码/文本行：140744
 - 已发现符号：2140
 
 | 文件 | 行数 | 符号数 |
@@ -162,6 +162,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 323 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 52 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 311 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 256 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 596 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 89 | 2 |
