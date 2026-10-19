@@ -28,7 +28,7 @@ class CharacterRecordArchitectureTest {
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
         CharacterInnerLifeStore.initialize(context)
-        CharacterInnerLifeStore.clearCharacter(role)
+        CharacterInnerLifeStore.clear(role)
         CharacterDevelopmentStore.initialize(context)
         CharacterDevelopmentStore.clearCharacter(role)
         CharacterLearningLedger.clearCharacter(role)
@@ -37,7 +37,7 @@ class CharacterRecordArchitectureTest {
 
     @After fun finish() {
         CharacterDevelopmentStore.clearCharacter(role)
-        CharacterInnerLifeStore.clearCharacter(role)
+        CharacterInnerLifeStore.clear(role)
         MemoryTestEnvironment.release()
     }
 
@@ -103,6 +103,15 @@ class CharacterRecordArchitectureTest {
             triggerExtraction = false, source = "message", evidenceKind = EventEvidenceKind.UserStatement)
         CharacterInnerLifeStore.recordDecision(role, "history-decision", "silent", "她刚开始专心学习",
             "", null, "没有发送消息", true, now = now, causalEvidenceId = "history-user")
+        val innerLife = JSONObject().put("thoughts", JSONArray()
+            .put(JSONObject().put("thought", "先安静地陪着"))
+            .put(JSONObject().put("thought", "和她一起保持专注")))
+        CharacterInnerLifeStore.observe(role, "history-user", "她刚开始专心学习", innerLife, now = now)
+        CharacterInnerLifeStore.recordCausalTransition(role, "history-user",
+            appraisal = JSONObject().put("tension", "想陪她，也想让她专心"),
+            innerLife = innerLife,
+            innerThoughtBasis = null, selectedAction = "silent", innerThought = "先安静地陪着",
+            reason = "她刚开始专心学习", now = now)
         val state = CompanionPresenceState(role, innerThought = "先安静地陪着", mood = "安定",
             updatedAt = now, provenanceId = "history-user")
         val rows = CharacterStateHistory.entries(role, listOf(state), now.plusSeconds(1))
@@ -111,6 +120,9 @@ class CharacterRecordArchitectureTest {
         assertEquals("暂时保持安静", rows.single().decisions.single().action)
         CharacterStateHistory.delete(role, rows.single())
         assertTrue(CharacterRecordProjection.decisions(role, now.plusSeconds(1)).isEmpty())
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role).optJSONArray("causalTransitions")?.length() ?: 0)
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role).optJSONArray("thoughts")?.length() ?: 0)
+        assertTrue(CharacterStateHistory.entries(role, emptyList(), now.plusSeconds(1)).isEmpty())
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf("history-user")).size)
     }
 

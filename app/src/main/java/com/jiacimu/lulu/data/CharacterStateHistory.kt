@@ -9,6 +9,7 @@ internal data class CharacterStateHistoryRow(
     val decisions: List<CharacterRecordProjection.DecisionMoment> = emptyList(),
     val evidenceIds: List<String> = emptyList(),
     val deletionKind: String = "", val deletionKey: String = "",
+    val extraDeletions: List<Pair<String, String>> = emptyList(),
 )
 
 /** One chronological view of the original snapshots, thoughts and decisions. No new persistence. */
@@ -64,7 +65,8 @@ internal object CharacterStateHistory {
                 val row = rows[existing]
                 val added = parts.filterNot { part -> row.detail.contains(part) }
                 rows[existing] = row.copy(detail = (listOf(row.detail) + added)
-                    .filter(String::isNotBlank).joinToString("\n"), evidenceIds = (row.evidenceIds + evidenceId).distinct())
+                    .filter(String::isNotBlank).joinToString("\n"), evidenceIds = (row.evidenceIds + evidenceId).distinct(),
+                    extraDeletions = (row.extraDeletions + ("transition" to evidenceId)).distinct())
             } else rows += CharacterStateHistoryRow("transition:$at:$index", at, "当时的感想与取舍",
                 parts.joinToString("\n"), evidenceIds = listOf(evidenceId),
                 deletionKind = "transition", deletionKey = evidenceId)
@@ -82,8 +84,17 @@ internal object CharacterStateHistory {
                         listOf(evidence)).isEmpty()) continue
                 val (title, detail) = describe(item)
                 if (detail.isBlank()) continue
-                val compact = detail.filterNot(Char::isWhitespace)
-                if (rows.any { it.at == at && it.detail.filterNot(Char::isWhitespace).contains(compact) }) continue
+                val existing = rows.indexOfFirst { it.at == at }
+                if (existing >= 0) {
+                    val row = rows[existing]
+                    val compact = detail.filterNot(Char::isWhitespace)
+                    rows[existing] = row.copy(
+                        detail = if (row.detail.filterNot(Char::isWhitespace).contains(compact)) row.detail
+                            else listOf(row.detail, "$title：$detail").filter(String::isNotBlank).joinToString("\n"),
+                        evidenceIds = (row.evidenceIds + evidence).filter(String::isNotBlank).distinct(),
+                        extraDeletions = (row.extraDeletions + (kind to item.optString(keyField))).distinct())
+                    continue
+                }
                 rows += CharacterStateHistoryRow("$kind:$at:$index", at, title, detail,
                     evidenceIds = listOf(evidence).filter(String::isNotBlank),
                     deletionKind = kind, deletionKey = item.optString(keyField))
@@ -107,13 +118,15 @@ internal object CharacterStateHistory {
 
     fun delete(characterId: String, row: CharacterStateHistoryRow) {
         row.decisions.forEach { CharacterInnerLifeStore.forgetDecision(characterId, it.id) }
-        when (row.deletionKind) {
+        fun remove(kind: String, key: String) { when (kind) {
             "moment" -> row.moment?.let { CompanionPresenceStore.deleteMoment(characterId, it.updatedAt) }
-            "thought" -> CharacterInnerLifeStore.forgetExactThought(characterId, row.deletionKey)
-            "emotion" -> CharacterInnerLifeStore.forgetPrivateEmotion(characterId, row.at.toString(), row.deletionKey)
-            "concern" -> CharacterInnerLifeStore.deletePrivateConcern(characterId, row.deletionKey)
-            "closure" -> CharacterInnerLifeStore.forgetClosedConcern(characterId, row.deletionKey)
-            "transition" -> CharacterInnerLifeStore.forgetTransition(characterId, row.deletionKey, row.at)
-        }
+            "thought" -> CharacterInnerLifeStore.forgetExactThought(characterId, key)
+            "emotion" -> CharacterInnerLifeStore.forgetPrivateEmotion(characterId, row.at.toString(), key)
+            "concern" -> CharacterInnerLifeStore.deletePrivateConcern(characterId, key)
+            "closure" -> CharacterInnerLifeStore.forgetClosedConcern(characterId, key)
+            "transition" -> CharacterInnerLifeStore.forgetTransition(characterId, key, row.at)
+        } }
+        row.extraDeletions.forEach { (kind, key) -> remove(kind, key) }
+        remove(row.deletionKind, row.deletionKey)
     }
 }

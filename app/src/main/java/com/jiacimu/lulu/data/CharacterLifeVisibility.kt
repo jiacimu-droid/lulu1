@@ -32,8 +32,8 @@ internal object CharacterLifeVisibility {
     /** Avatar is current inner life, never the entire historic audit. */
     fun current(role: String, now: Instant = Instant.now()): List<CharacterLifeVisible> = buildList {
         // 此刻 is a snapshot of active mental changes, not a task inbox.
-        // Persisted goals remain available to the planner and the read-only
-        // 经历 archive; do not duplicate a stale "想继续做" on every avatar open.
+        // Persisted goals remain available to the planner and their original
+        // stores; do not duplicate a stale "想继续做" on every avatar open.
         val mind = CharacterInnerLifeStore.snapshot(role)
         CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
             .lastOrNull { source(role, it.optString("evidenceId")) != null }
@@ -69,7 +69,7 @@ internal object CharacterLifeVisibility {
                         "\n上次行动：" + step.optString("receipt").take(140)))
             }
         // Held shares are past possibilities, not perpetual *current* feelings.
-        // They remain in the evidence-backed archive and may be reconsidered
+        // They remain in their original follow-through store and may be reconsidered
         // through the shared decision runtime without being pinned to 此刻.
     }
 

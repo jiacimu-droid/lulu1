@@ -50,31 +50,26 @@ class CharacterLifeVisibilityTest {
             "用户提到了故事", time)
         assertTrue(CharacterLifeVisibility.current(role, time.plusSeconds(2))
             .any { it.title.contains("尚未实践的好奇") })
-        assertTrue(CharacterLifeVisibility.archive(role, time.plusSeconds(2))
-            .any { it.title.contains("尚未行动") && it.evidenceId == original })
         SharedExperienceTimeline.deleteEvent(original)
         assertFalse(CharacterLifeVisibility.current(role, time.plusSeconds(3))
             .any { it.title.contains("尚未实践的好奇") })
-        assertFalse(CharacterLifeVisibility.archive(role, time.plusSeconds(3))
-            .any { it.evidenceId == original })
         CharacterCuriosityRuntime.clear(role)
     }
 
-    @Test fun aReadingClaimWithoutCommittedTimelineCannotShowAReadingReceipt() {
+    @Test fun readingStaysInOriginalTimelineWithoutInventingAStateMoment() {
         val role = "reading-visibility-proof-test"
         val sourceId = "actual-reading-source-test"
-        assertFalse(CharacterLifeVisibility.archive(role).any { it.evidenceId == sourceId })
+        CharacterInnerLifeStore.clear(role)
+        assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(sourceId)).isEmpty())
         SharedExperienceTimeline.record(sourceId, role, "独自阅读《测试书》", "角色",
             "阅读《测试书》字符 0—300/900，下次从300继续\n阅读感想：这段开头有点意思。",
             Instant.now(), triggerExtraction = false, source = "reading:test-book",
             evidenceKind = EventEvidenceKind.Observation)
-        val entry = CharacterLifeVisibility.archive(role)
-            .first { it.evidenceId == sourceId && it.title.contains("确实读过") }
-        assertTrue(entry.detail.contains("这段开头有点意思"))
+        val entry = SharedExperienceTimeline.eventsByIds(role, listOf(sourceId)).single()
+        assertTrue(CharacterRecordProjection.eventText(entry).contains("这段开头有点意思"))
+        assertTrue(CharacterStateHistory.entries(role, emptyList(), Instant.now().plusSeconds(1)).isEmpty())
         SharedExperienceTimeline.deleteEvent(sourceId)
-        assertFalse(CharacterLifeVisibility.archive(role).any {
-            it.evidenceId == sourceId && it.title.contains("确实读过")
-        })
+        assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(sourceId)).isEmpty())
     }
 
     @Test fun unverifiedSharingIsNotReportedAsAnActualPublishedPost() {
@@ -90,25 +85,25 @@ class CharacterLifeVisibilityTest {
         CharacterLifeFollowThroughStore.recordShareWish(role,
             JSONObject().put("experienceId", origin)
                 .put("status", "held").put("why", "想分享一个有趣的结尾"))
-        val planned = CharacterLifeVisibility.archive(role, time.plusSeconds(2))
-            .first { it.evidenceId == origin && it.title == "真实经历的后续变化" }
-        assertTrue(planned.detail.contains("还没有发"))
+        fun followThrough() = CharacterLifeFollowThroughStore.auditSnapshot(role)
+            .single { it.optString("id") == origin }
+        assertEquals("held", followThrough().optString("shareStatus"))
         CharacterLifeFollowThroughStore.recordAction(role, origin, "moment", true,
             "说自己发了朋友圈", "not-an-actual-post")
-        assertFalse(CharacterLifeVisibility.archive(role, time.plusSeconds(2))
-            .first { it.evidenceId == origin && it.title == "真实经历的后续变化" }
-            .detail.contains("确实已经分享"))
+        assertEquals("held", followThrough().optString("shareStatus"))
+        assertEquals("", followThrough().optString("shareReceiptId"))
         val post = "visibility-genuine-post"
         SharedExperienceTimeline.record(post, role, "朋友圈", "角色",
             "看到有趣的故事了", time.plusSeconds(1), triggerExtraction = false,
             source = "moment:self", evidenceKind = EventEvidenceKind.CharacterStatement)
         CharacterLifeFollowThroughStore.recordAction(role, origin, "moment", true,
             "朋友圈已发布", post)
-        assertTrue(CharacterLifeVisibility.archive(role, Instant.now().plusSeconds(5))
-            .any { it.evidenceId == origin && it.detail.contains("确实已经分享") })
+        assertEquals("shared", followThrough().optString("shareStatus"))
+        assertEquals(post, followThrough().optString("shareReceiptId"))
         SharedExperienceTimeline.deleteEvent(post)
-        assertFalse(CharacterLifeVisibility.archive(role, Instant.now().plusSeconds(5))
-            .any { it.evidenceId == origin && it.detail.contains("确实已经分享") })
+        assertEquals("held", followThrough().optString("shareStatus"))
+        assertEquals("", followThrough().optString("shareReceiptId"))
         SharedExperienceTimeline.deleteEvent(origin)
+        assertTrue(CharacterLifeFollowThroughStore.auditSnapshot(role).isEmpty())
     }
 }
