@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9875dd68df0240261214eae0a03ec4df058c0350`
+- 基准提交：`72bd87b62ecfd8fa4c08f937b30be37660f3ec55`
 - 分支：`main`
 - 已索引文件：740
-- 已索引代码/文本行：141000
-- 已发现符号：2146
+- 已索引代码/文本行：141008
+- 已发现符号：2147
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -372,14 +372,14 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 46 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 69 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 76 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 96 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 241 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 636 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 637 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 28 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
