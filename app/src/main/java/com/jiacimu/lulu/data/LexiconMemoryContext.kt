@@ -14,8 +14,14 @@ object LexiconMemoryContext {
             // Legacy concern notes are never ACTIVE psychological state;
             // relevant ones may appear only as explicitly labeled history.
         val terms = memorySearchTerms(RelevantMemoryRecall.focusQuery(query))
+        val sleepTopic = listOf("睡", "作息", "熬夜", "起床", "休息").any { it in query }
         val ranked = entries.map { entry ->
-            entry to terms.intersect(memorySearchTerms("${entry.title} ${entry.content}")).size
+            val relevance = terms.intersect(memorySearchTerms("${entry.title} ${entry.content}")).size
+            val routine = entry.section == LexiconSection.Life &&
+                listOf("睡", "作息", "熬夜", "起床", "休息").any {
+                    it in (entry.title + entry.content)
+                }
+            entry to (relevance + if (sleepTopic && routine) 3 else 0)
         }.sortedWith(compareByDescending<Pair<LexiconEntry, Int>> { it.second }.thenByDescending { it.first.updatedAt })
         val active = ranked.filter { it.first.status == LexiconStatus.Active &&
             it.first.section in setOf(LexiconSection.Promise, LexiconSection.Life) }.map { it.first }
