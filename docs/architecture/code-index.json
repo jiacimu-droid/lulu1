@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:32:00.454315+00:00",
-  "commit": "938c447f4496e8f0531093c1807eb549e4414790",
+  "generatedAt": "2026-10-19T06:32:20.014559+00:00",
+  "commit": "38fd5b33a6f2efe0d5303fbbc1ca3f72ee4a5deb",
   "branch": "main",
-  "sourceFingerprint": "2fa5560c8bedef812f4e470d53e0f1252ddafb815e6c710c39e3e78cc0db29f0",
+  "sourceFingerprint": "1c471f5020e24baedbc16125b4b0c1474b23a76d923505886b690ee72e740fca",
   "summary": {
     "files": 723,
-    "lines": 139319,
+    "lines": 139331,
     "symbols": 2106
   },
   "symbolIndex": {
@@ -23306,8 +23306,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt",
-      "lines": 27,
-      "sha256": "30ae23b03a66cf6bc7ad58087370b3d48fe2c8b6eceb14ed7715e8412abddc01",
+      "lines": 36,
+      "sha256": "a1551c7cb1fce59e5a81a613e3ac1cfaf83247ad68288d6a8bda796fa8ac8918",
       "symbols": [
         {
           "name": "WorldLifeEpisodeParagraphsTest",
@@ -23993,8 +23993,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt",
-      "lines": 23,
-      "sha256": "86efc0746a97b2d6a91f14b40dda1e030ca20e92fef01fd01cd7f3ceb89c2dae",
+      "lines": 26,
+      "sha256": "891c13986aa0c6b086976ce2e4dd492655f9890fee24fecce4250244ba6cde2a",
       "symbols": [
         {
           "name": "ChatAutomationRoutingTest",

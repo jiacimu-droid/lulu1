@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`938c447f4496e8f0531093c1807eb549e4414790`
+- 基准提交：`38fd5b33a6f2efe0d5303fbbc1ca3f72ee4a5deb`
 - 分支：`main`
 - 已索引文件：723
-- 已索引代码/文本行：139319
+- 已索引代码/文本行：139331
 - 已发现符号：2106
 
 | 文件 | 行数 | 符号数 |
@@ -571,7 +571,7 @@
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 90 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 27 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 73 | 1 |
@@ -628,7 +628,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicyTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt` | 46 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterXhsReadPermissionTest.kt` | 38 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 23 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ChatAutomationRoutingTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 216 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 42 | 1 |
