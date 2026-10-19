@@ -51,12 +51,52 @@ internal fun theaterChapterIndexAfterSwipe(current: Int, count: Int, distance: F
 
 private enum class TheaterV2Mode { BOOKSHELF, READER, PLANNER, BIBLE, WORLD_BOOK, GENERATOR }
 
+/** Reading receipts open the original chapter; no separate Reading app is required. */
+internal data class TheaterReadingDestination(
+    val theaterTitle: String,
+    val chapterId: String?,
+    val recordId: String?,
+)
+
+internal fun resolveTheaterReadingDestination(
+    target: String?,
+    theaterChapters: Map<String, List<StarWishTheaterChapter>>,
+    records: List<ReadingReflectionRecord>,
+): TheaterReadingDestination? {
+    if (target.isNullOrBlank()) return null
+    val recordId = target.takeIf { it.startsWith("reading-record:") }
+        ?.removePrefix("reading-record:")
+    val record = recordId?.let { id -> records.firstOrNull { it.id == id } }
+    if (recordId != null && record == null) return null
+    // The stable chapter id wins over human-readable titles (which may change).
+    if (record?.bookId?.startsWith("theater-chapter:") == true) {
+        val id = record.bookId.removePrefix("theater-chapter:")
+        theaterChapters.forEach { (title, chapters) ->
+            if (chapters.any { it.id == id }) return TheaterReadingDestination(title, id, record.id)
+        }
+        return null // Deleted chapter: never silently open an unrelated chapter.
+    }
+    val text = record?.bookTitle ?: target
+    val extracted = Regex("《([^》]+)》").find(text)?.groupValues?.get(1)
+    val title = theaterChapters.keys.firstOrNull { it == text }
+        ?: extracted?.takeIf { it in theaterChapters }
+        ?: theaterChapters.keys.filter { text.contains(it) }.maxByOrNull { it.length }
+        ?: return null
+    val requestedNumber = Regex("""第\\s*(\\d+)\\s*章""").find(text)
+        ?.groupValues?.get(1)?.toIntOrNull()
+    val chapterId = requestedNumber?.let { n ->
+        theaterChapters[title]?.firstOrNull { it.chapter == n }?.id
+    }
+    return TheaterReadingDestination(title, chapterId, record?.id)
+}
+
 @Composable
 internal fun StarWishTheaterContentV2(
     state: StarWishState,
     studyState: StudyState,
     store: StarWishStore,
     onExit: () -> Unit,
+    initialReadingTarget: String? = null,
 ) {
     val context = LocalContext.current
     val customLibrary = remember { StarWishCustomTheaterLibrary.get(context) }
@@ -76,6 +116,19 @@ internal fun StarWishTheaterContentV2(
         (customTheaters + StarWishRules.theaters).distinctBy { it.title }.filterNot { it.title in hiddenTitles }
     }
     val openedSeed = allTheaters.firstOrNull { it.title == openedTitle }
+    val readingDestination = remember(initialReadingTarget, state.theaterChapters) {
+        resolveTheaterReadingDestination(initialReadingTarget, state.theaterChapters,
+            ReadingReflectionStore.records.value)
+    }
+    var readingLinkConsumed by rememberSaveable(initialReadingTarget) { mutableStateOf(false) }
+    LaunchedEffect(readingDestination) {
+        if (!readingLinkConsumed && readingDestination != null &&
+            allTheaters.any { it.title == readingDestination.theaterTitle }) {
+            openedTitle = readingDestination.theaterTitle
+            mode = TheaterV2Mode.READER
+            readingLinkConsumed = true
+        }
+    }
 
     BackHandler {
         mode = when (mode) {
@@ -109,6 +162,8 @@ internal fun StarWishTheaterContentV2(
                 generationManager = generationManager,
                 task = generationTasks[openedSeed.title],
                 planning = planGenerationTasks[openedSeed.title]?.active == true,
+                initialChapterId = readingDestination?.takeIf { it.theaterTitle == openedSeed.title }?.chapterId,
+                focusedRecordId = readingDestination?.takeIf { it.theaterTitle == openedSeed.title }?.recordId,
                 onBack = { mode = TheaterV2Mode.BOOKSHELF },
                 onPlanner = { mode = TheaterV2Mode.PLANNER },
                 onBible = { mode = TheaterV2Mode.BIBLE },
@@ -388,6 +443,8 @@ private fun TheaterReaderV2(
     generationManager: StarWishTheaterGenerationManager,
     task: StarWishTheaterTask?,
     planning: Boolean,
+    initialChapterId: String?,
+    focusedRecordId: String?,
     onBack: () -> Unit,
     onPlanner: () -> Unit,
     onBible: () -> Unit,
@@ -398,7 +455,13 @@ private fun TheaterReaderV2(
     val context = LocalContext.current
     val readerPrefs = remember { context.getSharedPreferences("lulu_theater_reader", 0) }
     val chapters = state.theaterChapters[seed.title].orEmpty()
-    var selectedIndex by rememberSaveable(seed.title) { mutableIntStateOf(readerPrefs.getInt("chapter:${seed.title}", 0).coerceIn(0, (chapters.size - 1).coerceAtLeast(0))) }
+    var selectedIndex by rememberSaveable(seed.title, initialChapterId) {
+        mutableIntStateOf(
+            chapters.indexOfFirst { it.id == initialChapterId }.takeIf { it >= 0 }
+                ?: readerPrefs.getInt("chapter:${seed.title}", 0)
+                    .coerceIn(0, (chapters.size - 1).coerceAtLeast(0))
+        )
+    }
     var influence by rememberSaveable(seed.title) { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var pendingStoryExport by remember { mutableStateOf<String?>(null) }
@@ -585,7 +648,8 @@ private fun TheaterReaderV2(
                 item {
                     Text(chapter.title, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     Spacer(Modifier.height(19.dp))
-                    TheaterReadingComments(chapter = chapter, theaterTitle = seed.title)
+                    TheaterReadingComments(chapter = chapter, theaterTitle = seed.title,
+                        focusedRecordId = focusedRecordId)
                     if (selectedIndex == chapters.lastIndex && !generating && !planning) {
                         TextButton(onClick = {
                             generationManager.enqueue(seed.title, "", repairChapterId = chapter.id)
