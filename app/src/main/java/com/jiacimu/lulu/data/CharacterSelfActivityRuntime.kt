@@ -131,6 +131,11 @@ internal object CharacterSelfActivityRuntime {
             DigitalWorldLifeEventStore.canHandle(characterId, incidentId, approach)
         } ?: return false
         intended.optJSONObject("expectation")?.let { candidate.args.put("expectation", it) }
+        // Keep an explicit scheduled-plan link even when this activity is executed
+        // later via the shared private-life worker rather than a direct tool call.
+        intended.optString("planId").takeIf(String::isNotBlank)?.let {
+            candidate.args.put("planId", it)
+        }
         val selected = if (candidate.tool == "read_book") {
             val title = available.firstOrNull { it.id == intended.optString("readingBookId") }?.title
                 ?: return false
