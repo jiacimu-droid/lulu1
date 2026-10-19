@@ -526,7 +526,7 @@ object ProactivePerceptionRuntime {
         val witnessedDialogue = messages.asSequence()
             .filter { it.sender in setOf(LuluChatMessage.Sender.User, LuluChatMessage.Sender.Character) }
             .filter { !it.createdAt.isAfter(now) }
-            .takeLast(10)
+            .toList().takeLast(10)
             .joinToString("\n") { message ->
                 val who = if (message.sender == LuluChatMessage.Sender.User)
                     "用户" else character.displayName
