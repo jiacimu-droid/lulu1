@@ -50,18 +50,21 @@ internal object WorldLifeEpisodeComposer {
     internal fun permanentFailure(error: Throwable): Boolean =
         Regex("""(?<!\d)(400|401|403|404|413)(?!\d)""").containsMatchIn(error.message.orEmpty())
 
-    /** Block the old canned prose and empty reflection masquerading as a short story.
-     * Not a global chat-length rule: applies ONLY to autonomous literary scenes. */
+    /** Publication is not a writing contest. In particular, word count, number
+     * of periods, tone and optional metadata must never discard real prose.
+     * Only reject blank/error/obviously unfinished non-scenes.
+     */
     internal fun readableScene(scene: String): Boolean {
         val text = scene.trim()
-        if (text.length < 200) return false
-        if (listOf(
-                "这里确实发生的，只有已经记录下来的活动",
+        if (text.length < 28) return false
+        if (text.startsWith("{") || text.startsWith("[" + "\"" + "scene")) return false
+        if (listOf("这里确实发生的，只有已经记录下来的活动",
                 "至于心里究竟在想什么，没有人替他宣布答案",
                 "为了证明生活还在继续",
-                "等到下次真的遇见新东西",
-            ).any(text::contains)) return false
-        return text.count { it == '。' || it == '！' || it == '？' } >= 3
+                "等到下次真的遇见新东西").any(text::contains)) return false
+        if (Regex("""^(?:error|http\\s*[45]\\d\\d|请求失败|生成失败|模型调用失败)""",
+                RegexOption.IGNORE_CASE).containsMatchIn(text)) return false
+        return true
     }
 
     /**
@@ -77,8 +80,8 @@ internal object WorldLifeEpisodeComposer {
             runCatching { org.json.JSONObject("""{"scene":"${encoded}"}""").optString("scene") }
                 .getOrNull()
         }.orEmpty()
-        val plain = raw.trim().removePrefix("```text").removePrefix("```")
-            .removeSuffix("```").trim()
+        val plain = raw.trim().removePrefix("```text").removePrefix("```markdown")
+            .removePrefix("```").removeSuffix("```").trim()
         val plainScene = if (plain.startsWith("{") || plain.contains("\"scene\"")) "" else plain
         val scene = structured?.optString("scene").orEmpty().ifBlank { recoveredScene }
             .ifBlank { structured?.optString("text").orEmpty() }.ifBlank { plainScene }.trim()
@@ -86,7 +89,7 @@ internal object WorldLifeEpisodeComposer {
         return WorldLifeSceneDraft(
             title = structured?.optString("title").orEmpty().trim().take(70)
                 .ifBlank { suppliedTitle.trim().take(70).ifBlank { "一段独处时光" } },
-            scene = scene.take(1_800),
+            scene = scene.take(4_000),
             unresolvedThread = structured?.optString("unresolvedThread").orEmpty().trim().take(220),
         )
     }
@@ -149,8 +152,9 @@ internal object WorldLifeEpisodeComposer {
                         【不可越过的世界事实边界】只有程序已执行的动作和提供的世界状态是真正发生过的。禁止编造NPC在场/说话、新物品、获得奖励、开始读一本未核验的书、另一地点的到访、手机来电、他人对角色的回应或其他未执行的世界事件。若希望与居民真实相遇，下一轮应由决策层执行相应动作，故事不能代替执行器。
                         如上一次有主观未解心事，可发展人物态度，但不能复述前文或预言别人会怎样。内心的情节张力与客观地图事实保持区分。
                         小说叙述适合文学细节；私聊的即时接话仍是简短活人的语言，两种风格不能互相污染。
-                        只返回完整JSON：{"scene":"完整的第三人称场景正文","title":"有情境特点的小标题","unresolvedThread":"具体尚未解决的本人内在问题或下一次想做的事；如已解决留空"}。先完整输出scene，随后再填可选元信息，以免输出上限截断正文。
-                        unresolvedThread 仅为角色私人的主观线索，不得包含未经执行的客观事件结果。
+                        直接输出自然语言小说正文，按阅读节奏分段，绝对不用JSON包装；标题可有可无。
+                        可以在独立段落前自由添加【叙述】【心声】【对白】标记，分别表达环境/动作叙述、角色本人的私下想法、已实际说出口的话；不要为满足标签而生造对白，也无需每段都加。
+                        格式不是成功条件，不要为此牺牲人物和故事。私人猜想不等于发生过的世界动作，任何对白不得伪造其他角色的真实回应。
                     """.trimIndent(),
                     source = "数字世界·独处小说",
                     title = "${character.displayName}的独处小剧场",
@@ -196,8 +200,7 @@ internal object WorldLifeEpisodeComposer {
                         写一篇约250至450汉字、具有画面感、人物欲望、阻力、转折和余韵的第三人称独处短篇。
                         必须围绕已执行的真实动作展开。可以刻画内心矛盾和猜想，不得捏造世界中新增的NPC、
                         交谈、道具、读书、来电、移动或其他实际发生的事情。别写生活哲理报告。
-                        优先完整返回scene正文。只输出JSON：
-                        {"scene":"第三人称完整正文","title":"具体短标题","unresolvedThread":"尚未解决的私人想法，可为空"}
+                        只输出自然语言小说正文，合理分段，不用JSON。需要时可用【叙述】【心声】【对白】给独立段落做可选标记，绝不可为了标记编造事实。
                     """.trimIndent(),
                     source = "数字世界·独处小说补写",
                     title = "${character.displayName}的独处片段补写",

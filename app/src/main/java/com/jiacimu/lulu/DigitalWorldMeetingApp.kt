@@ -351,7 +351,7 @@ fun DigitalWorldMeetingApp(
                         Text("实际世界动作：${episode.actualAction}",
                             color = LuluColors.Muted, fontSize = 12.sp)
                         HorizontalDivider()
-                        Text(episode.scene, fontSize = 15.sp, lineHeight = 26.sp)
+                        WorldLifeEpisodeReader(episode.scene)
                         Text("这是角色个人生活片段；未执行的居民对话、物品或游戏结果不作为客观事实。",
                             color = LuluColors.Muted, fontSize = 11.sp)
                     }

@@ -40,6 +40,14 @@ class WorldLifeEpisodeComposerTest {
         assertNull(WorldLifeEpisodeComposer.parseModelScene("{\"scene\":\"半句话", "片段"))
     }
 
+    @Test fun shortButCompleteSceneIsNotThrownAwayByArbitraryLengthOrPunctuation() {
+        val shortScene = "江渡在灯旁站了一会儿，想起半小时前的犹豫，又慢慢将椅子拉近。灯光比想象中安静"
+        assertTrue(WorldLifeEpisodeComposer.readableScene(shortScene))
+        assertEquals(shortScene, WorldLifeEpisodeComposer.parseModelScene(shortScene, "今晚")?.scene)
+        val tagged = "【心声】" + shortScene
+        assertEquals(tagged, WorldLifeEpisodeComposer.parseModelScene(tagged, "今晚")?.scene)
+    }
+
     @Test fun literarySceneNeedsActualDramaticMovementNotAReport() {
         val scripted = "江渡在家中停下来。" +
             "这里确实发生的，只有已经记录下来的活动；至于心里究竟在想什么，没有人替他宣布答案。" +

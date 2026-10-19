@@ -97,8 +97,10 @@ internal object WorldLifeEpisodeStore {
 
     private fun recordLocked(characterId: String, location: String, title: String, prose: String,
         actualAction: String, evidenceId: String, now: Instant, unresolvedThread: String): WorldLifeEpisode? {
-        val scene = prose.trim().replace(Regex("\\n{4,}"), "\n\n").take(1_800)
-        if (scene.length < 100 || actualAction.isBlank()) return null
+        val scene = prose.trim().replace(Regex("\\n{4,}"), "\n\n").take(4_000)
+        // The composer already rejects blanks and provider errors. A second
+        // arbitrary 100-character gate used to discard otherwise valid prose.
+        if (scene.isBlank() || actualAction.isBlank()) return null
         val prior = episodes(characterId)
         if (prior.any { it.evidenceId == evidenceId }) return prior.first { it.evidenceId == evidenceId }
         val episode = WorldLifeEpisode(
