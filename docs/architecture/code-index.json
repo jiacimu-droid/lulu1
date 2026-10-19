@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T03:26:19.834017+00:00",
-  "commit": "6b003446c260b735ebd448acce76b692ab143ff5",
+  "generatedAt": "2026-10-19T03:28:01.094017+00:00",
+  "commit": "ad87bbc2c36352de556c33b92fe50337e43b62d5",
   "branch": "main",
-  "sourceFingerprint": "66f9d4c82088691ad5aacf2cb537684753ea2e7f6474d9cbc509c6cf0f774c33",
+  "sourceFingerprint": "87ed8b0a678810698ddb06d74024829b44245d31a215af5f4815e2b13c128f79",
   "summary": {
     "files": 719,
-    "lines": 137539,
-    "symbols": 2078
+    "lines": 137613,
+    "symbols": 2079
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -363,7 +363,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1279
+        "line": 1328
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -3299,7 +3299,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1171
+        "line": 1220
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -3897,7 +3897,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 343
+        "line": 368
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -4121,31 +4121,31 @@
     "needsPostOnlineReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 156
+        "line": 205
       }
     ],
     "backedBy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 190
+        "line": 239
       }
     ],
     "interactionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 571
+        "line": 620
       }
     ],
     "groundingContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 734
+        "line": 783
       }
     ],
     "compactContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1193
+        "line": 1242
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
@@ -5294,6 +5294,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 314
+      }
+    ],
+    "deleteMoment": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
+        "line": 345
       }
     ],
     "repairInstruction": [
@@ -15231,8 +15237,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1405,
-      "sha256": "84de69b037ca2dc6328ee15e00f3ee78ca2823776de9b461f304b97831bcd41d",
+      "lines": 1454,
+      "sha256": "85ffe7cd04a012f488438fb4016f0883469cc2d551fbc166180d8ae6b90bd84e",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -15240,31 +15246,31 @@
         },
         {
           "name": "needsPostOnlineReflection",
-          "line": 156
+          "line": 205
         },
         {
           "name": "backedBy",
-          "line": 190
+          "line": 239
         },
         {
           "name": "interactionContext",
-          "line": 571
+          "line": 620
         },
         {
           "name": "groundingContext",
-          "line": 734
+          "line": 783
         },
         {
           "name": "normalize",
-          "line": 1171
+          "line": 1220
         },
         {
           "name": "compactContext",
-          "line": 1193
+          "line": 1242
         },
         {
           "name": "context",
-          "line": 1279
+          "line": 1328
         }
       ]
     },
@@ -16494,8 +16500,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 470,
-      "sha256": "ca0ecc5b25179207a02e6a35ad0da266c4a7a95893dec2bf7718ae8948f947ee",
+      "lines": 495,
+      "sha256": "6e7f927cd1efdf5a2a2f7ab0ac82f7eb794f61f3df989f8742ac31927ed89c72",
       "symbols": [
         {
           "name": "CompanionPresenceState",
@@ -16554,8 +16560,12 @@
           "line": 314
         },
         {
+          "name": "deleteMoment",
+          "line": 345
+        },
+        {
           "name": "clearCharacter",
-          "line": 343
+          "line": 368
         }
       ]
     },
