@@ -66,6 +66,7 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var records by remember { mutableStateOf(SelfPageStore.read(context)) }
     var area by remember { mutableStateOf("所思") }
+    var overview by remember { mutableStateOf(true) }
     var editing by remember { mutableStateOf<SelfPageEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
@@ -87,23 +88,75 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = { Text("自序", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回桌面") }
+                    IconButton(onClick = { if (overview) onBack() else overview = true }) {
+                        Icon(Icons.Outlined.ArrowBack, if (overview) "返回桌面" else "返回自序")
+                    }
                 },
                 actions = {
-                    IconButton(onClick = { editing = null; creating = true }) {
+                    if (!overview) IconButton(onClick = { editing = null; creating = true }) {
                         Icon(Icons.Outlined.Add, "新建")
                     }
                 },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            if (!overview) FloatingActionButton(
                 onClick = { editing = null; creating = true },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
             ) { Icon(Icons.Outlined.Edit, "写一点") }
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)) {
+        if (overview) {
+            Column(
+                Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(23.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 9.dp),
+                ) {
+                    Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                        Text("MY LIFE JOURNAL", letterSpacing = 1.2.sp, fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("自序", fontSize = 28.sp, fontWeight = FontWeight.SemiBold)
+                        Text("人生由我落笔，故事尚在途中。", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SelfPrefaceCategory("所思", "灵感 · 想法 · 思考", Icons.Outlined.EditNote,
+                        Modifier.weight(1f)) { area = "所思"; overview = false }
+                    SelfPrefaceCategory("所重", "价值观 · 人生原则", Icons.Outlined.FavoriteBorder,
+                        Modifier.weight(1f)) { area = "所重"; overview = false }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SelfPrefaceCategory("所愿", "理想 · 心愿 · 长期计划", Icons.Outlined.AutoAwesome,
+                        Modifier.weight(1f)) { area = "所愿"; overview = false }
+                    SelfPrefaceCategory("所行", "待办 · 目标 · 行动", Icons.Outlined.CheckCircleOutline,
+                        Modifier.weight(1f)) { area = "所行"; overview = false }
+                }
+                Surface(
+                    onClick = { area = "日记"; overview = false },
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Icon(Icons.Outlined.MenuBook, null)
+                        Column(Modifier.weight(1f)) {
+                            Text("日记", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text("日常、心情，以及想要记住的日子",
+                                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.Outlined.ChevronRight, null, Modifier.size(18.dp))
+                    }
+                }
+            }
+        } else Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)) {
             Text("人生由我落笔，故事尚在途中。", fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 13.dp))
@@ -210,6 +263,7 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                         )
                         if (save(records.filterNot { it.id == entry.id } + entry)) {
                             area = chosenArea
+                            overview = false
                             creating = false
                         }
                     },
@@ -231,5 +285,34 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
             },
             dismissButton = { TextButton(onClick = { deleting = null }) { Text("取消") } },
         )
+    }
+}
+
+@Composable
+private fun SelfPrefaceCategory(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(124.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Column(
+            Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(subtitle, fontSize = 10.sp, maxLines = 2,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
     }
 }
