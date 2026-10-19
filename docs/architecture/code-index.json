@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:07:48.303181+00:00",
-  "commit": "140f9a33f7bcd5e2d4ea613d3a6a9d87ea6e1a3c",
+  "generatedAt": "2026-10-19T08:09:07.583623+00:00",
+  "commit": "bf800c277784f83d8e580949f3a1a7959565080f",
   "branch": "main",
-  "sourceFingerprint": "46864d2457ae5fff30b5382704ee0b73c3539b38bf4cf455a4b6835f8e179cca",
+  "sourceFingerprint": "dca21c313ea0ce49700388d392a0433d9870b09d81f783713a47b8dfeb20049d",
   "summary": {
     "files": 739,
-    "lines": 140904,
+    "lines": 140905,
     "symbols": 2145
   },
   "symbolIndex": {
@@ -7911,19 +7911,19 @@
     "isRepairGoal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "eligiblePriorState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "isReopenedApology": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
-        "line": 60
+        "line": 61
       }
     ],
     "isOld": [
@@ -19809,8 +19809,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt",
-      "lines": 68,
-      "sha256": "c018c4967b3cc8fd5256b1eac018dedb6d4d5b540a4e42e7ea6007054e7061e7",
+      "lines": 69,
+      "sha256": "3e96d4713e4e001eb16b58ad1cd050e0cbdd33cf7fcf7eda3f8cd6d0907f9d1e",
       "symbols": [
         {
           "name": "userExplicitlySettled",
@@ -19822,15 +19822,15 @@
         },
         {
           "name": "isRepairGoal",
-          "line": 50
+          "line": 51
         },
         {
           "name": "eligiblePriorState",
-          "line": 52
+          "line": 53
         },
         {
           "name": "isReopenedApology",
-          "line": 60
+          "line": 61
         }
       ]
     },
