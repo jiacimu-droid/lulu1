@@ -19,7 +19,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 
 private data class ReaderComment(
     val author: String, val quote: String, val reaction: String, val feeling: String,
-    val at: Int,
+    val at: Int, val recordId: String,
 )
 
 /**
@@ -29,7 +29,11 @@ private data class ReaderComment(
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitle: String) {
+internal fun TheaterReadingComments(
+    chapter: StarWishTheaterChapter,
+    theaterTitle: String,
+    focusedRecordId: String? = null,
+) {
     val records by ReadingReflectionStore.records.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val bookId = "theater-chapter:${chapter.id}"
@@ -54,7 +58,7 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
                 if (newEnd < 0) null else ReaderComment(
                     author = characters[record.characterId]?.displayName ?: "角色",
                     quote = moment.quote, reaction = moment.reaction,
-                    feeling = moment.feeling, at = newEnd,
+                    feeling = moment.feeling, at = newEnd, recordId = record.id,
                 )
             }
         }.sortedBy(ReaderComment::at)
@@ -62,6 +66,20 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
     var chosen by remember(chapter.id) { mutableStateOf<List<ReaderComment>>(emptyList()) }
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        if (comments.isNotEmpty()) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(17.dp),
+                    tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(7.dp))
+                Text("本章 ${comments.size} 处划句评论", fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f))
+                val focused = comments.filter { it.recordId == focusedRecordId }
+                TextButton(onClick = { chosen = if (focused.isNotEmpty()) focused else comments }) {
+                    Text(if (focused.isNotEmpty()) "查看本次评论" else "查看全部评论")
+                }
+            }
+        }
         var paragraphStart = 0
         val paragraphs = chapter.content.split('\n')
         paragraphs.forEachIndexed { idx, paragraph ->
@@ -93,7 +111,7 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
                             sentence,
                             modifier = if (anchored.isNotEmpty()) Modifier.clickable { chosen = anchored } else Modifier,
                             fontSize = 17.sp, lineHeight = 31.sp,
-                            fontWeight = if (anchored.isNotEmpty()) FontWeight.Medium else FontWeight.Normal,
+                            fontWeight = if (anchored.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
                             textDecoration = if (anchored.isNotEmpty()) TextDecoration.Underline else TextDecoration.None,
                             color = if (anchored.isNotEmpty()) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.onSurface.copy(alpha = .92f),
@@ -102,18 +120,18 @@ internal fun TheaterReadingComments(chapter: StarWishTheaterChapter, theaterTitl
                             Surface(
                                 onClick = { chosen = anchored },
                                 modifier = Modifier.padding(start = 2.dp, end = 5.dp, top = 4.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f),
+                                color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(8.dp),
                             ) {
                                 Row(
-                                    Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                                    Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(3.dp),
                                 ) {
                                     Icon(Icons.Outlined.ChatBubbleOutline, "查看划句感想",
-                                        Modifier.size(14.dp),
+                                        Modifier.size(16.dp),
                                         tint = MaterialTheme.colorScheme.primary)
-                                    Text(anchored.size.toString(), fontSize = 10.sp,
+                                    Text("${anchored.size} 条评", fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary)
                                 }
                             }
