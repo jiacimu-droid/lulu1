@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -56,9 +57,9 @@ internal fun nextThoughtDate(pages: List<SelfThoughtPage>, date: LocalDate, forw
     pages.asSequence().map { it.date }.filter { if (forward) it.isAfter(date) else it.isBefore(date) }
         .let { if (forward) it.minOrNull() else it.maxOrNull() }
 
-private val BookInk = Color(0xFF4D362A)
-private val BookMuted = Color(0xFF8D7463)
-private val BookAccent = Color(0xFF866751)
+private val BookInk = Color(0xFF284C52)
+private val BookMuted = Color(0xFF7B9393)
+private val BookAccent = Color(0xFFC9796A)
 private val BookDate = DateTimeFormatter.ofPattern("M月d日")
 
 /**
@@ -131,7 +132,7 @@ internal fun SelfThoughtNotebookScreen(
     Column(
         Modifier.fillMaxSize()
             .background(Brush.verticalGradient(
-                listOf(Color(0xFFFAF7F2), Color(0xFFF1E8DE))))
+                listOf(Color(0xFFF8FCFB), Color(0xFFEAF4F1))))
             .statusBarsPadding().navigationBarsPadding()
             .padding(horizontal = 12.dp),
     ) {
@@ -147,7 +148,7 @@ internal fun SelfThoughtNotebookScreen(
             }
             Spacer(Modifier.width(7.dp))
             Column(Modifier.weight(1f)) {
-                Text("A LITTLE BOOK OF THOUGHTS", color = BookMuted, fontSize = 9.sp,
+                Text("NOTES TO MYSELF", color = BookMuted, fontSize = 9.sp,
                     letterSpacing = 1.3.sp)
                 Spacer(Modifier.height(3.dp))
                 Text("所思", color = BookInk, fontSize = 27.sp,
@@ -163,9 +164,9 @@ internal fun SelfThoughtNotebookScreen(
                     writing = true
                 },
                 enabled = !writing,
-                color = Color(0xFFEAD9C8),
+                color = Color(0xFFE3F0EC),
                 shape = RoundedCornerShape(99.dp),
-                border = BorderStroke(1.dp, Color(0xFFDAC6B1)),
+                border = BorderStroke(1.dp, Color(0xFFC3D9D4)),
             ) {
                 Row(Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -181,7 +182,7 @@ internal fun SelfThoughtNotebookScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.width(20.dp).height(1.dp)
-                .background(Color(0xFFB99A7C)))
+                .background(Color(0xFF92B1AC)))
             Spacer(Modifier.width(10.dp))
             Text(
                 if (pages.isEmpty()) "留一页空白，等故事发生"
@@ -194,8 +195,8 @@ internal fun SelfThoughtNotebookScreen(
             contentAlignment = Alignment.Center,
         ) {
             // A book follows paper proportions, not the 9:16 device proportions.
-            val bookWidth = minOf(maxWidth - 2.dp, (maxHeight - 4.dp) * .70f)
-            val bookHeight = bookWidth / .70f
+            val bookWidth = minOf(maxWidth, (maxHeight - 6.dp) * .66f)
+            val bookHeight = bookWidth / .66f
             SelfThoughtNotebookArtwork(Modifier.width(bookWidth).height(bookHeight)) {
         // Date stays inside the upper-right paper label.
         Column(
@@ -312,20 +313,48 @@ internal fun SelfThoughtNotebookScreen(
                     val shownNumber = slice.getOrNull(1)?.toIntOrNull() ?: 0
                     val page = thoughtPagesOn(pages, shownDate).getOrNull(shownNumber)
                     if (page == null) {
-                        Column(Modifier.fillMaxSize()) {
-                            Spacer(Modifier.height(18.dp))
+                        Column(Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center) {
+                            Canvas(Modifier.size(width = 125.dp, height = 62.dp)) {
+                                val inkPath = androidx.compose.ui.graphics.Path().apply {
+                                    moveTo(size.width * .08f, size.height * .75f)
+                                    cubicTo(size.width * .25f, size.height * .22f,
+                                        size.width * .34f, size.height * .95f,
+                                        size.width * .49f, size.height * .55f)
+                                    cubicTo(size.width * .63f, size.height * .19f,
+                                        size.width * .68f, size.height * .83f,
+                                        size.width * .88f, size.height * .22f)
+                                }
+                                drawPath(inkPath, BookMuted,
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(2.3.dp.toPx(),
+                                        cap = androidx.compose.ui.graphics.StrokeCap.Round))
+                                drawCircle(BookAccent, radius = 3.dp.toPx(),
+                                    center = androidx.compose.ui.geometry.Offset(
+                                        size.width * .92f, size.height * .16f))
+                            }
+                            Spacer(Modifier.height(6.dp))
                             Text("今天，想记点什么？", color = BookInk, fontSize = 19.sp,
                                 fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(11.dp))
-                            Text("一件小事、一点心情，或一个突然闪过的念头。",
-                                color = BookMuted, fontSize = 12.sp, lineHeight = 21.sp)
-                            Spacer(Modifier.height(17.dp))
-                            TextButton(onClick = { write() },
-                                contentPadding = PaddingValues(0.dp)) {
-                                Icon(Icons.Outlined.Edit, null, tint = BookAccent,
-                                    modifier = Modifier.size(16.dp))
-                                Spacer(Modifier.width(7.dp))
-                                Text("写下第一笔", color = BookAccent, fontSize = 13.sp)
+                            Text("写给自己的几句话，也值得被珍藏。",
+                                color = BookMuted, fontSize = 12.sp, lineHeight = 21.sp,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Spacer(Modifier.height(19.dp))
+                            Surface(
+                                onClick = { write() },
+                                color = Color(0xFFE0EEE9),
+                                shape = RoundedCornerShape(50),
+                                border = BorderStroke(1.dp, Color(0xFFBED8D2)),
+                            ) {
+                                Row(Modifier.padding(horizontal = 19.dp, vertical = 11.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.Edit, null, tint = BookInk,
+                                        modifier = Modifier.size(15.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("写下第一笔", color = BookInk, fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold)
+                                }
                             }
                         }
                     } else Column(Modifier.fillMaxSize()) {
