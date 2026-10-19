@@ -34,6 +34,23 @@ class RoleDayScheduleStoreTest {
             "actual-read", after))
     }
 
+    @Test fun futureDailyRemindersKeepOriginalSlotAndSkipMissedDays() {
+        val dayLater = RoleDayScheduleStore.nextDailyDue(due, due.plusSeconds(120))
+        assertEquals(due.plusSeconds(86400), dayLater)
+        val threeDaysLater = RoleDayScheduleStore.nextDailyDue(due, due.plusSeconds(3 * 86400L + 80))
+        assertEquals(due.plusSeconds(4 * 86400L), threeDaysLater)
+    }
+
+    @Test fun onlyRealDeliveredMessageCanCloseScheduledStudyPrompt() {
+        val reminder = plan.copy(activityAction = "send_private_message", repeat = "daily")
+        assertTrue(RoleDayScheduleStore.canComplete(reminder, "role-a", "send_private_message",
+            "delivered-message-id", after))
+        assertFalse(RoleDayScheduleStore.canComplete(reminder, "role-a", "send_private_message",
+            "", after))
+        assertFalse(RoleDayScheduleStore.canComplete(reminder, "role-a", "start_call",
+            "outgoing-call", after))
+    }
+
     @Test fun legacyUnrestrictedPlansStillDemandActualEvidenceAndAllowedActions() {
         val legacy = plan.copy(activityAction = "")
         assertTrue(RoleDayScheduleStore.canComplete(legacy, "role-a", "play_solo_game",
