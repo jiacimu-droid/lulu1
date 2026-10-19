@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T07:26:00.713469+00:00",
-  "commit": "bc6e34c82b98be5a36d928b18143f35e83fb34cc",
+  "generatedAt": "2026-10-19T07:26:26.752958+00:00",
+  "commit": "6a15fdb04b453121f200a7290defaeaa89e8f60b",
   "branch": "main",
-  "sourceFingerprint": "850a3a69e2acd049d64e56ed8184123ad01cfbdb9755c37949b704cc83e69536",
+  "sourceFingerprint": "1eb98a818dbcef2e41a8c5ce9873986405ac87883244ecad25cdf8fe9129f521",
   "summary": {
     "files": 733,
-    "lines": 139723,
-    "symbols": 2134
+    "lines": 139743,
+    "symbols": 2136
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -856,6 +856,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
         "line": 148
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
+        "line": 121
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -4145,7 +4149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "CharacterIdentityStore": [
@@ -4205,7 +4209,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 107
+        "line": 118
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -4929,7 +4933,7 @@
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 72
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -11232,6 +11236,12 @@
         "line": 18
       }
     ],
+    "followThrough": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
+        "line": 88
+      }
+    ],
     "CharacterMotivationOwnershipTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt",
@@ -15829,7 +15839,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
       "lines": 77,
-      "sha256": "15a32fbd852640e03cf7dc417aa96eef86a98f20b34f204a55c9e1adf2c719b7",
+      "sha256": "a8a64e1ecdfaa8ab3f0a36377aae089328580e8c0b546afa566e41c76f7809ce",
       "symbols": [
         {
           "name": "current",
@@ -16395,20 +16405,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 120,
-      "sha256": "751f477971eed63f80a9415bdc543cafb4fc7f2f1db463202a352f246f82061b",
+      "lines": 133,
+      "sha256": "ebd760888eed747e2b8199d9f36b62fad054364bd170c702700d3e2bff8044a1",
       "symbols": [
         {
           "name": "entries",
-          "line": 16
+          "line": 17
         },
         {
           "name": "collect",
-          "line": 72
+          "line": 74
         },
         {
           "name": "delete",
-          "line": 107
+          "line": 118
+        },
+        {
+          "name": "remove",
+          "line": 121
         }
       ]
     },
@@ -24149,12 +24163,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
-      "lines": 115,
-      "sha256": "0d38fcce0ea171d4432324d5de79f34fd6e8cdf206a0c9d5e78327b8ac1f23ee",
+      "lines": 110,
+      "sha256": "e47f7a6f597575575977fd92d58ab7d864f5129b5b431183a791708c612a2dca",
       "symbols": [
         {
           "name": "CharacterLifeVisibilityTest",
           "line": 18
+        },
+        {
+          "name": "followThrough",
+          "line": 88
         }
       ]
     },
@@ -24245,8 +24263,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 131,
-      "sha256": "cb8e658bdd76e9b4c68ea12647a3cd1dd9f75644c20a6e8d97c7c7a15eeb72c8",
+      "lines": 143,
+      "sha256": "db364263e8e8c270647aa50241e99e78f6b63cc94674c50071c38234486edb3e",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
