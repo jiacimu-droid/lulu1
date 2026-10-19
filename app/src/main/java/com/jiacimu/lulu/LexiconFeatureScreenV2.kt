@@ -73,7 +73,7 @@ fun LexiconFeatureScreenV2(
     }
     val requested = remember(initialSectionName, initialDiaryTitle, initialFavoriteEntryId) {
         when (CharacterRecordDestination.fromLegacy(initialSectionName, initialDiaryTitle, initialFavoriteEntryId)) {
-            CharacterRecordDestination.Diary -> 0
+            CharacterRecordDestination.Diary -> -1 // old diary deep-links open the safe life-record home
             CharacterRecordDestination.Favorites -> 1
             CharacterRecordDestination.Stories -> 2
             CharacterRecordDestination.Moments -> 3
@@ -134,13 +134,13 @@ fun LexiconFeatureScreenV2(
                         }
                     }
                 }
-                if (sectionIndex == 0) IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "写日记") }
+                // Diary entry creation is retired; existing private entries stay in local storage.
             }, colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             if (isHome) {
                 LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    items(listOf("小剧场" to 2, "日记" to 0, "收藏" to 1, "朋友圈" to 3), key = { it.second }) { (label, index) ->
+                    items(listOf("小剧场" to 2, "收藏" to 1, "朋友圈" to 3), key = { it.second }) { (label, index) ->
                         Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
                             border = BorderStroke(1.dp, LuluColors.Border),
                             modifier = Modifier.fillMaxWidth().clickable { sectionIndex = index }) {
