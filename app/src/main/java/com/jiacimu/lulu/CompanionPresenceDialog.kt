@@ -256,36 +256,49 @@ internal fun CompanionPresenceDialog(
                             }
                         } else {
                             items(past, key = { it.state.updatedAt.toEpochMilli() }) { entry ->
-                                val item = entry.state
+                                val moment = entry.state
                                 Surface(
-                                    color = Color(0xFFF7F7F7),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color(0xFFF8F7F6),
                                     shape = RoundedCornerShape(18.dp),
-                                    border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
                                 ) {
-                                    Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 15.dp),
+                                        verticalArrangement = Arrangement.spacedBy(9.dp),
+                                    ) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(item.updatedAt.atZone(ZoneId.systemDefault())
-                                                .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
-                                                color = Color(0xFF7A7A7E), fontSize = 11.sp,
-                                                modifier = Modifier.weight(1f))
-                                            TextButton(onClick = { deletionTarget = item.updatedAt }) {
-                                                Text("删除", color = MaterialTheme.colorScheme.error)
+                                            Text(
+                                                moment.updatedAt.atZone(ZoneId.systemDefault())
+                                                    .format(DateTimeFormatter.ofPattern("MM-dd HH:mm")),
+                                                color = Color(0xFF979197), fontSize = 11.sp,
+                                                modifier = Modifier.weight(1f),
+                                            )
+                                            TextButton(
+                                                onClick = { deletionTarget = moment.updatedAt },
+                                                contentPadding = PaddingValues(horizontal = 4.dp),
+                                            ) {
+                                                Text("删除", color = Color(0xFF9C9297), fontSize = 11.sp)
                                             }
                                         }
-                                        if (item.innerThought.isNotBlank()) Text("心声 · ${item.innerThought}",
-                                            color = Color(0xFF1D1D1F), fontSize = 14.sp)
-                                        // This is a separate structured reflection, NOT a
-                                        // second paragraph of the character's heart voice.
-                                        if (item.momentReflection.isNotBlank() &&
-                                            !CharacterHeartVoicePolicy.sameMeaning(item.momentReflection, item.innerThought))
-                                            Text("当时的想法 · ${item.momentReflection}",
-                                                color = Color(0xFF5F5F63), fontSize = 13.sp)
-                                        if (entry.gesture.isNotBlank()) Text("动作 · ${entry.gesture}",
-                                            color = Color(0xFF5F5F63), fontSize = 13.sp)
-                                        if (entry.status.isNotBlank()) Text("状态 · ${entry.status}",
-                                            color = Color(0xFF7A7A7E), fontSize = 12.sp)
-                                        if (entry.mood.isNotBlank()) Text("心情 · ${entry.mood}",
-                                            color = Color(0xFF7A7A7E), fontSize = 12.sp)
+                                        if (entry.mood.isNotBlank()) {
+                                            Text(entry.mood, fontSize = 16.sp, lineHeight = 23.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = Color(0xFF2D292D))
+                                        }
+                                        if (moment.innerThought.isNotBlank()) {
+                                            Text("心声", fontSize = 11.sp,
+                                                color = Color(0xFF999198))
+                                            Text(moment.innerThought, fontSize = 14.sp,
+                                                lineHeight = 23.sp, color = Color(0xFF292629))
+                                        }
+                                        if (moment.momentReflection.isNotBlank() &&
+                                            !CharacterHeartVoicePolicy.sameMeaning(
+                                                moment.momentReflection, moment.innerThought,
+                                            )) {
+                                            PresenceMomentLine("想法", moment.momentReflection)
+                                        }
+                                        PresenceMomentLine("状态", entry.status)
+                                        PresenceMomentLine("动作", entry.gesture)
                                     }
                                 }
                             }
@@ -627,8 +640,6 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
         Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text("心里的那些事", fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF28282A))
-            Text("想法不等于行动；只有真实执行后才会出现结果。",
-                fontSize = 12.sp, color = Color(0xFF88868A))
         }
         if (visible.isEmpty()) {
             Text("现在没有特别想做或正在琢磨的事。",
@@ -667,9 +678,6 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                             HorizontalDivider(color = Color(0xFFE5E2E2))
                             Text(item.detail, fontSize = 13.sp, lineHeight = 20.sp,
                                 color = Color(0xFF67656B))
-                        } else {
-                            Text("轻点查看缘由与进展", color = Color(0xFFA29FA3),
-                                fontSize = 11.sp)
                         }
                     }
                 }
