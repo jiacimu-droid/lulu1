@@ -154,6 +154,14 @@ fun LuluMigrationRootAppV2(
         if (routeStack.size > 1) routeStack = routeStack.dropLast(1)
     }
 
+    fun closeChatDetail() {
+        navigationFocusManager.clearFocus(force = true)
+        navigationKeyboard?.hide()
+        val parentChat = routeStack.indexOfLast { it == MigrationRoute.Chat.name }
+        routeStack = if (parentChat >= 0) routeStack.take(parentChat + 1)
+            else listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name)
+    }
+
     fun replaceTop(target: MigrationRoute) {
         routeStack = routeStack.dropLast(1) + target.name
     }
@@ -169,7 +177,7 @@ fun LuluMigrationRootAppV2(
     )
 
     BackHandler(enabled = routeStack.size > 1) {
-        popRoute()
+        if (route == MigrationRoute.ChatDetail) closeChatDetail() else popRoute()
     }
 
     LaunchedEffect(
@@ -267,7 +275,11 @@ fun LuluMigrationRootAppV2(
                                 QqStyleChatDetailScreen(
                                     conversationId = selectedConversationId,
                                     routeVisible = route == MigrationRoute.ChatDetail,
-                                    onBack = ::popRoute,
+                                    onBack = ::closeChatDetail,
+                                    onSchedule = {
+                                        selectConversationCharacter()
+                                        pushRoute(MigrationRoute.Schedule)
+                                    },
                                     onCharacterSettings = {
                                         selectConversationCharacter()
                                         pushRoute(MigrationRoute.CharacterSettings)
@@ -362,6 +374,7 @@ fun LuluMigrationRootAppV2(
                                     initialCharacterId = selectedCharacterId,
                                     onBack = ::popRoute,
                                 )
+                                MigrationRoute.SelfPreface -> SelfPrefaceScreen(::popRoute)
                                 MigrationRoute.Performance -> OptimizedPerformanceFeatureScreen(::popRoute)
                                 MigrationRoute.Health -> HealthFeatureScreen(::popRoute)
                                 MigrationRoute.Reading -> LuluReadingScreen(
@@ -377,7 +390,11 @@ fun LuluMigrationRootAppV2(
                                     openPomodoroRequest = openPomodoroRequest,
                                     onPomodoroVisibilityChanged = { pomodoroFocusVisible = it },
                                 )
-                                MigrationRoute.Schedule -> ScheduleFeatureScreen(::popRoute)
+                                MigrationRoute.Schedule -> ScheduleFeatureScreen(
+                                    onBack = ::popRoute,
+                                    initialCharacterId = selectedCharacterId,
+                                    personal = routeStack.contains(MigrationRoute.ChatDetail.name),
+                                )
                                 MigrationRoute.Meeting -> DigitalWorldMeetingApp(
                                     onBack = ::popRoute,
                                     invitedCharacterId = meetingInviteCharacterId,
