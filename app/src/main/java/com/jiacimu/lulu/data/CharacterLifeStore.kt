@@ -433,9 +433,30 @@ object CharacterLifeStore {
     @Synchronized fun observeUserGoalEvidence(characterId: String, evidenceId: String,
         text: String, now: Instant = Instant.now()) {
         if (evidenceId.isBlank()) return
+        // A user-confirmed ending is a later fact. Apply it to the SAME inner-life
+        // stores before evaluating any legacy goal, even when no legacy goal exists.
+        val explicitlySettled = RelationshipRepairContinuity.userExplicitlySettled(text)
+        if (explicitlySettled) {
+            CharacterInnerLifeStore.observeExplicitRepairSettlement(
+                characterId, evidenceId, text, now)
+        }
         val root = state(characterId)
         val goal = root.optJSONObject("intention") ?: return
         if (goal.optString("lastUserEvidenceId") == evidenceId) return
+        if (explicitlySettled &&
+            RelationshipRepairContinuity.isRepairGoal(goal.optString("aim")) &&
+            RelationshipRepairContinuity.eligiblePriorState(
+                goal.optString("createdAt"), now)) {
+            root.put("previousIntention", JSONObject(goal.toString())
+                .put("stage", "completed")
+                .put("endedAt", now.toString())
+                .put("completionEvidenceId", evidenceId)
+                .put("releaseReason", "用户明确表示本次关系矛盾已说开"))
+            root.remove("intention")
+            save(characterId, root)
+            cancelGoalReview(characterId)
+            return
+        }
         goal.put("lastUserEvidenceId", evidenceId)
             .put("lastUserEvidenceAt", now.toString())
             .put("unansweredContactAttempts", 0)
