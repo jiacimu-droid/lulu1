@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T11:14:55.326900+00:00",
-  "commit": "69835a6d3abf5d42f33fe2833df7c008b1b759c4",
+  "generatedAt": "2026-10-19T17:25:14.900420+00:00",
+  "commit": "2a2e00866125e643a44e765607495a9768163983",
   "branch": "main",
-  "sourceFingerprint": "cb062ed35dbcb64a7694b43bb811bd9d1bc1033faae456d66750a811dbb4ddad",
+  "sourceFingerprint": "30d467e3ad954cfc1e4e552ef2c2dabbccf50635d8f728fa445c89396368f491",
   "summary": {
     "files": 743,
-    "lines": 142185,
+    "lines": 142269,
     "symbols": 2154
   },
   "symbolIndex": {
@@ -1611,55 +1611,55 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 39
+        "line": 38
       }
     ],
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 132
+        "line": 131
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 138
+        "line": 137
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 142
+        "line": 141
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 146
+        "line": 145
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 153
+        "line": 152
       }
     ],
     "closeChatDetail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 157
+        "line": 156
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 165
+        "line": 164
       }
     ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 169
+        "line": 168
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -4855,7 +4855,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 37
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
@@ -10057,13 +10057,13 @@
     "encodeMoments": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 61
+        "line": 63
       }
     ],
     "decodeMoments": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 66
+        "line": 68
       }
     ],
     "ReadingReflectionRecord": [
@@ -10239,25 +10239,25 @@
     "generateNextChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 449
+        "line": 512
       }
     ],
     "appendOneChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 794
+        "line": 858
       }
     ],
     "appendThreeChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 801
+        "line": 865
       }
     ],
     "attemptBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-        "line": 808
+        "line": 872
       }
     ],
     "saveProgress": [
@@ -13260,44 +13260,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 480,
-      "sha256": "fc3e0f19865acf9c5df548fd75c7747fa3629b36a5773e91ade238d8b47e32ba",
+      "lines": 479,
+      "sha256": "8d06703091318542ce47a448c36b554d4975d0b1b38a3e0e0ba8d9bbfb9dfa7f",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 39
+          "line": 38
         },
         {
           "name": "characterIdForConversation",
-          "line": 132
+          "line": 131
         },
         {
           "name": "selectConversationCharacter",
-          "line": 138
+          "line": 137
         },
         {
           "name": "pushRoute",
-          "line": 142
+          "line": 141
         },
         {
           "name": "openConversation",
-          "line": 146
+          "line": 145
         },
         {
           "name": "popRoute",
-          "line": 153
+          "line": 152
         },
         {
           "name": "closeChatDetail",
-          "line": 157
+          "line": 156
         },
         {
           "name": "replaceTop",
-          "line": 165
+          "line": 164
         },
         {
           "name": "openActivePomodoro",
-          "line": 169
+          "line": 168
         }
       ]
     },
@@ -17050,7 +17050,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 726,
-      "sha256": "d18024d6163192bc16b63a12a8cae90c6c010e64832b5807b47ffd79ba992820",
+      "sha256": "01153c0de5b9136090c89820eabaa35a6fa337bb92acd690078824b851fdc565",
       "symbols": [
         {
           "name": "asJson",
@@ -22423,8 +22423,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-      "lines": 73,
-      "sha256": "d3408332dbc3f83f0a7e8437356b6a30459449e031351c54fa813714d40aaf23",
+      "lines": 75,
+      "sha256": "b92a0ab8b2e0fd99d82ff8659b18f6f4212ec4d0466fd923508ef8cb15e91435",
       "symbols": [
         {
           "name": "ReadingMoment",
@@ -22440,15 +22440,15 @@
         },
         {
           "name": "parse",
-          "line": 37
+          "line": 39
         },
         {
           "name": "encodeMoments",
-          "line": 61
+          "line": 63
         },
         {
           "name": "decodeMoments",
-          "line": 66
+          "line": 68
         }
       ]
     },
@@ -22599,8 +22599,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt",
-      "lines": 70,
-      "sha256": "a66995a9d9dfc385832e9cc224dceda5c1f0724ff4f03ccd4813bc3363ef8a23",
+      "lines": 71,
+      "sha256": "71bd41233365a584a5e778254508a814250d4d3c103e4ec5ea64a92fd3996ada",
       "symbols": []
     },
     {
@@ -22654,24 +22654,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt",
-      "lines": 1449,
-      "sha256": "05e23fbd36bc3357f4b20c2ed8d30baa0dd78c495ba931638d877e3915ef25e9",
+      "lines": 1513,
+      "sha256": "8f9b083ebf0c8648cf19491fe1361cde751563461984aab613457acfc6aba0fa",
       "symbols": [
         {
           "name": "generateNextChapter",
-          "line": 449
+          "line": 512
         },
         {
           "name": "appendOneChapter",
-          "line": 794
+          "line": 858
         },
         {
           "name": "appendThreeChapters",
-          "line": 801
+          "line": 865
         },
         {
           "name": "attemptBack",
-          "line": 808
+          "line": 872
         }
       ]
     },
@@ -23069,8 +23069,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterReadingComments.kt",
-      "lines": 181,
-      "sha256": "db801c4d34f78ce2eebd01f065d330297d7af260d571010241226198017f679f",
+      "lines": 199,
+      "sha256": "0c519954bd4460eadf93ad84acaadaa5028eda8f777d95ac45a789832ede5e76",
       "symbols": []
     },
     {
