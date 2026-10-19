@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:23:51.298424+00:00",
-  "commit": "9598e6547fa43b149cfc6b76dee99362dea85b6b",
+  "generatedAt": "2026-10-19T06:24:08.378288+00:00",
+  "commit": "663be8d9e5895403d91f5a45746533e10f71ae68",
   "branch": "main",
-  "sourceFingerprint": "a973c17e514378490236b7d1813228508c48143e6a6f8f08618dec202c54ab8b",
+  "sourceFingerprint": "37950aaca65ea15d47d1bd141827bb37239e0e81fd2d3da484cbf1911dc086de",
   "summary": {
     "files": 723,
-    "lines": 139115,
+    "lines": 139133,
     "symbols": 2105
   },
   "symbolIndex": {
@@ -24948,8 +24948,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt",
-      "lines": 46,
-      "sha256": "0e41be2dd9a6630ae02fede656a68b5a48009c00d97bcbeb719101e2016931b6",
+      "lines": 64,
+      "sha256": "d5463bc1b0c58edee5cbf763c0bca6bf366da697fb094d3fc70b99a4daf90617",
       "symbols": [
         {
           "name": "ReadingReactionPolicyTest",
