@@ -91,6 +91,14 @@ object RoleDayScheduleStore {
 
     private val schedulableActions = verifiableActions - "write_journal"
 
+    /** Preserve the role's selected wall-clock slot in UTC calendar days.
+     * Skipped occurrences never create a backlog of automatic messages. */
+    internal fun nextDailyDue(originalDue: Instant, now: Instant): Instant {
+        val seconds = Duration.between(originalDue, now.plusSeconds(60)).seconds
+        val days = (seconds / Duration.ofDays(1).seconds + 1L).coerceAtLeast(1L)
+        return originalDue.plus(Duration.ofDays(days))
+    }
+
     fun plannedContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
         plans(context, characterId).filter {
             it.status in setOf("planned", "due") &&
@@ -200,9 +208,7 @@ object RoleDayScheduleStore {
         // Evidence always remains in the authoritative timeline; the next occurrence
         // cannot be completed using the previous day's receipt.
         val follow = if (plan.repeat == "daily") {
-            val nextAt = generateSequence(plan.dueAt.plus(Duration.ofDays(1))) {
-                it.plus(Duration.ofDays(1))
-            }.first { it.isAfter(now.plusSeconds(60)) }
+            val nextAt = nextDailyDue(plan.dueAt, now)
             plan.copy(status = "planned", dueAt = nextAt, resolvedAt = now,
                 resultEvidenceId = evidenceId, resultSummary = summary.take(180))
         } else plan.copy(status = "completed",
