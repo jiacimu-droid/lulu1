@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T07:13:57.965743+00:00",
-  "commit": "f143b24ec92706d10a688253e89eea0dfc0341f7",
+  "generatedAt": "2026-10-19T07:14:32.912776+00:00",
+  "commit": "3348b187cdfb0eda3c4dec1aba895b0bf5a393b0",
   "branch": "main",
-  "sourceFingerprint": "e934ecbbe7b58852449c3ff4bd94827720824cddc3ae80ee3dabfe117c3ebf88",
+  "sourceFingerprint": "32350d67f5817e26f0428c763311c1e40df54e4dcc733c060d4869ef722fe84f",
   "summary": {
-    "files": 724,
-    "lines": 139882,
-    "symbols": 2114
+    "files": 725,
+    "lines": 139984,
+    "symbols": 2123
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10730,6 +10730,60 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt",
         "line": 79
+      }
+    ],
+    "SelfTodoCalendarTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 8
+      }
+    ],
+    "oneTimeUndatedTaskRemainsVisibleUntilCompleted": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 24
+      }
+    ],
+    "dailyTaskDisappearsTodayAndReturnsTomorrow": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 34
+      }
+    ],
+    "weeklyTaskRepeatsOnlyInNextWeeklyCycle": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 43
+      }
+    ],
+    "upcomingOneOffDeadlinesStayInPendingList": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 52
+      }
+    ],
+    "timeHasPriorityAndUntimedTasksKeepInsertionOrder": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 61
+      }
+    ],
+    "undoRestoresAnOldRecurringOccurrenceEvenIfTodayIsDone": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 73
+      }
+    ],
+    "restoringOneOffMovesItBackToPendingAndOutOfHistory": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 87
+      }
+    ],
+    "completedOneTimeTaskDoesNotReappearAfterDateChanges": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+        "line": 96
       }
     ],
     "SleepCallContinuationPolicyTest": [
@@ -23260,6 +23314,49 @@
         {
           "name": "receive",
           "line": 79
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt",
+      "lines": 102,
+      "sha256": "756cf76368b10c2e30c0389bb6a807d787ce7ad8fc61452d43a6c2a1213a6ddd",
+      "symbols": [
+        {
+          "name": "SelfTodoCalendarTest",
+          "line": 8
+        },
+        {
+          "name": "oneTimeUndatedTaskRemainsVisibleUntilCompleted",
+          "line": 24
+        },
+        {
+          "name": "dailyTaskDisappearsTodayAndReturnsTomorrow",
+          "line": 34
+        },
+        {
+          "name": "weeklyTaskRepeatsOnlyInNextWeeklyCycle",
+          "line": 43
+        },
+        {
+          "name": "upcomingOneOffDeadlinesStayInPendingList",
+          "line": 52
+        },
+        {
+          "name": "timeHasPriorityAndUntimedTasksKeepInsertionOrder",
+          "line": 61
+        },
+        {
+          "name": "undoRestoresAnOldRecurringOccurrenceEvenIfTodayIsDone",
+          "line": 73
+        },
+        {
+          "name": "restoringOneOffMovesItBackToPendingAndOutOfHistory",
+          "line": 87
+        },
+        {
+          "name": "completedOneTimeTaskDoesNotReappearAfterDateChanges",
+          "line": 96
         }
       ]
     },
