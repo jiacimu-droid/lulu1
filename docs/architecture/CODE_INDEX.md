@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`59fc2d758ebb8c094cbc81ad97839177028846b5`
+- 基准提交：`7e33056eba7560359427e3e1c1f54776f15077e3`
 - 分支：`main`
 - 已索引文件：722
-- 已索引代码/文本行：138899
-- 已发现符号：2101
+- 已索引代码/文本行：138907
+- 已发现符号：2102
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -471,7 +471,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 182 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamApp.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/PostgraduateExamStore.kt` | 1168 | 37 |
-| `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 164 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 172 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 74 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt` | 150 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt` | 78 | 1 |

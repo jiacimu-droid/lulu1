@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:44:11.437888+00:00",
-  "commit": "59fc2d758ebb8c094cbc81ad97839177028846b5",
+  "generatedAt": "2026-10-19T05:53:25.767476+00:00",
+  "commit": "7e33056eba7560359427e3e1c1f54776f15077e3",
   "branch": "main",
-  "sourceFingerprint": "fbc7ae4883d35798b536b57c03d9be56df831b0732947542eb7d5af5670b2dc7",
+  "sourceFingerprint": "b52a20ce1e0f8c9941073026647a971decb348dea23888e34beff5250ee8044a",
   "summary": {
     "files": 722,
-    "lines": 138899,
-    "symbols": 2101
+    "lines": 138907,
+    "symbols": 2102
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3971,7 +3971,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 104
+        "line": 112
       }
     ],
     "guide": [
@@ -9820,22 +9820,28 @@
         "line": 54
       }
     ],
+    "theaterBooks": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
+        "line": 71
+      }
+    ],
     "progressLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 65
+        "line": 73
       }
     ],
     "nextSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 76
+        "line": 84
       }
     ],
     "commitSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 97
+        "line": 105
       }
     ],
     "ReadingMoment": [
@@ -14712,7 +14718,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 74,
-      "sha256": "e55bd07bd775a6aaeeeab52c65a77f64d643fea6edf4d04ef40587b307af27c3",
+      "sha256": "af30ea36d90cbe26b0aa55863185ef15abda97b0b9664a4fa7c798ecb648d39d",
       "symbols": [
         {
           "name": "render",
@@ -16561,7 +16567,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 726,
-      "sha256": "1c61bae2a7325b56493ad77ccfc666fc05aeadaf6c4b6ebb21685cce78ee8457",
+      "sha256": "eaa6958ea89582d2d91562cba6b5444d368abf7e69dbc04a872a76760cea4ba6",
       "symbols": [
         {
           "name": "asJson",
@@ -21843,8 +21849,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 164,
-      "sha256": "7b9138d86ca9cd1181a149503cf1d572ad391ab182b8c052893aa65983a94d56",
+      "lines": 172,
+      "sha256": "1edf52f39bf2aeacb33ae39f074c9a3d3aecbf80e7f6b7c1a478a53648d880e2",
       "symbols": [
         {
           "name": "books",
@@ -21855,20 +21861,24 @@
           "line": 54
         },
         {
+          "name": "theaterBooks",
+          "line": 71
+        },
+        {
           "name": "progressLabel",
-          "line": 65
+          "line": 73
         },
         {
           "name": "nextSlice",
-          "line": 76
+          "line": 84
         },
         {
           "name": "commitSlice",
-          "line": 97
+          "line": 105
         },
         {
           "name": "clearCharacter",
-          "line": 104
+          "line": 112
         }
       ]
     },
