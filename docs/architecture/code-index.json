@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:14:45.355744+00:00",
-  "commit": "e45ce13fdde74f6332e37044ab25301635d0e818",
+  "generatedAt": "2026-10-19T06:15:57.758291+00:00",
+  "commit": "b848536bec5ac8ad3dddcc49e869eddeced18382",
   "branch": "main",
-  "sourceFingerprint": "13bb944639ff81fa8958c4589cfa2ecb26fcde65692fb01f011fb0a17c3abfff",
+  "sourceFingerprint": "a18eab2c514726fd906894904f9a8d756adb691ee43eafb86e07a9bad44d216c",
   "summary": {
     "files": 722,
-    "lines": 138980,
+    "lines": 139016,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -5173,7 +5173,7 @@
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 313
+        "line": 316
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -5191,7 +5191,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 708
+        "line": 744
       }
     ],
     "describe": [
@@ -16576,8 +16576,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 726,
-      "sha256": "eaa6958ea89582d2d91562cba6b5444d368abf7e69dbc04a872a76760cea4ba6",
+      "lines": 762,
+      "sha256": "0f987facfe9da9069f71a95ef3a298e1bdcefb6b247ac7226755fbf6215c8cd0",
       "symbols": [
         {
           "name": "asJson",
@@ -16589,11 +16589,11 @@
         },
         {
           "name": "normalized",
-          "line": 313
+          "line": 316
         },
         {
           "name": "world",
-          "line": 708
+          "line": 744
         }
       ]
     },
