@@ -58,7 +58,6 @@ private object SelfPageStore {
     }
 }
 
-private val SelfAreas = listOf("所思", "所重", "所愿", "所行", "日记")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +70,17 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
     var error by remember { mutableStateOf("") }
+    // The five sections have independent screens and no shared switcher.
+    // Migrate existing "所行" notes into the dedicated persistent todo store.
+    if (!overview && area == "所行") {
+        SelfTodoScreen(
+            legacy = records.filter { it.area == "所行" }.map {
+                LegacySelfTodo(it.id, it.title, it.body, it.done, it.updated)
+            },
+            onBack = { overview = true },
+        )
+        return
+    }
     val filtered = records.filter { it.area == area }
     fun save(next: List<SelfPageEntry>): Boolean {
         if (!SelfPageStore.persist(context, next)) {
@@ -86,7 +96,7 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("自序", fontWeight = FontWeight.SemiBold) },
+                title = { Text(if (overview) "自序" else area, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = { if (overview) onBack() else overview = true }) {
                         Icon(Icons.Outlined.ArrowBack, if (overview) "返回桌面" else "返回自序")
@@ -157,24 +167,12 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                 }
             }
         } else Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)) {
-            Text("人生由我落笔，故事尚在途中。", fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 13.dp))
-            ScrollableTabRow(
-                selectedTabIndex = SelfAreas.indexOf(area), edgePadding = 0.dp,
-                divider = {}, containerColor = MaterialTheme.colorScheme.background,
-            ) {
-                SelfAreas.forEach { tab ->
-                    Tab(selected = area == tab, onClick = { area = tab },
-                        text = { Text(tab, fontWeight = if (area == tab) FontWeight.SemiBold else FontWeight.Normal) })
-                }
-            }
+            Spacer(Modifier.height(12.dp))
             if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp))
             if (filtered.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(if (area == "所行") "还有什么想要完成？" else "写下第一笔吧",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("写下第一笔吧", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 LazyColumn(
@@ -192,16 +190,6 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                         ) {
                             Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                                 verticalAlignment = Alignment.Top) {
-                                if (area == "所行") {
-                                    Checkbox(
-                                        checked = entry.done,
-                                        onCheckedChange = { checked ->
-                                            save(records.map {
-                                                if (it.id == entry.id) it.copy(done = checked, updated = System.currentTimeMillis()) else it
-                                            })
-                                        },
-                                    )
-                                }
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                                     Text(entry.title.ifBlank { "未命名" }, fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
@@ -231,21 +219,11 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
         val original = editing
         var title by remember(original?.id, area) { mutableStateOf(original?.title.orEmpty()) }
         var body by remember(original?.id, area) { mutableStateOf(original?.body.orEmpty()) }
-        var chosenArea by remember(original?.id, area) { mutableStateOf(original?.area ?: area) }
         AlertDialog(
             onDismissRequest = { creating = false },
-            title = { Text(if (original == null) "写在「$chosenArea」" else "修改记录") },
+            title = { Text(if (original == null) "写在「$area」" else "修改记录") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ScrollableTabRow(
-                        selectedTabIndex = SelfAreas.indexOf(chosenArea).coerceAtLeast(0),
-                        edgePadding = 0.dp, divider = {},
-                    ) {
-                        SelfAreas.forEach { tab ->
-                            Tab(selected = chosenArea == tab, onClick = { chosenArea = tab },
-                                text = { Text(tab, fontSize = 12.sp) })
-                        }
-                    }
                     OutlinedTextField(title, { title = it }, label = { Text("标题") },
                         singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(body, { body = it }, label = { Text("内容") },
@@ -258,11 +236,10 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                     onClick = {
                         val entry = SelfPageEntry(
                             original?.id ?: UUID.randomUUID().toString(),
-                            chosenArea, title.trim(), body.trim(), original?.done ?: false,
+                            area, title.trim(), body.trim(), original?.done ?: false,
                             System.currentTimeMillis(),
                         )
                         if (save(records.filterNot { it.id == entry.id } + entry)) {
-                            area = chosenArea
                             overview = false
                             creating = false
                         }
