@@ -30,7 +30,7 @@ internal fun StarWishScrollApp(onBack: () -> Unit) {
 }
 
 @Composable
-internal fun StarWishTheaterApp(onBack: () -> Unit) {
+internal fun StarWishTheaterApp(onBack: () -> Unit, initialReadingTarget: String? = null) {
     val store = remember { StarWishStores.main }
     val studyStore = remember { PostgraduateExamStores.main }
     val state by store.state.collectAsState()
@@ -43,6 +43,7 @@ internal fun StarWishTheaterApp(onBack: () -> Unit) {
                 studyState = studyState,
                 store = store,
                 onExit = onBack,
+                initialReadingTarget = initialReadingTarget,
             )
         }
     }
