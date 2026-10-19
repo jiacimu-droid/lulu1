@@ -191,7 +191,7 @@ internal fun SelfThoughtNotebookScreen(
         }
         BoxWithConstraints(
             modifier = Modifier.fillMaxWidth().weight(1f),
-            contentAlignment = Alignment.TopCenter,
+            contentAlignment = Alignment.Center,
         ) {
             // A book follows paper proportions, not the 9:16 device proportions.
             val bookWidth = minOf(maxWidth - 2.dp, (maxHeight - 4.dp) * .70f)
