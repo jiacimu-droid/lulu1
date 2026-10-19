@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T07:11:18.017157+00:00",
-  "commit": "7910c3a86c69df49d3ca4b766dccdfe83fa7f911",
+  "generatedAt": "2026-10-19T07:12:43.642622+00:00",
+  "commit": "1c1ec94fd0c93d44b7a2f9322e1e9957e31ac0cf",
   "branch": "main",
-  "sourceFingerprint": "7ffdc10e8f0dad01dedbb64898b12746cb74063897c7ae34b77768317a46ba8a",
+  "sourceFingerprint": "33008f2d11e38f9e163400f39c2cf30c5157400368b48c87270edab0bc646552",
   "summary": {
     "files": 724,
-    "lines": 139903,
+    "lines": 139880,
     "symbols": 2114
   },
   "symbolIndex": {
@@ -1135,7 +1135,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 75
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -2465,7 +2465,7 @@
     "SelfPrefaceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 65
+        "line": 64
       }
     ],
     "pending": [
@@ -14037,8 +14037,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 319,
-      "sha256": "de0821f66fdf94c6c54fbd806f406fde1e47a82d4db40220a4e40e17b50f25a7",
+      "lines": 296,
+      "sha256": "800e99b0283012893bde46ab9e756a6a320bdb210bc2cfdef8022ac11360a719",
       "symbols": [
         {
           "name": "read",
@@ -14050,11 +14050,11 @@
         },
         {
           "name": "SelfPrefaceScreen",
-          "line": 65
+          "line": 64
         },
         {
           "name": "save",
-          "line": 75
+          "line": 85
         }
       ]
     },
