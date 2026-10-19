@@ -278,7 +278,7 @@ internal fun SelfTodoScreen(
         topBar = {
             Surface(color = TodoInk.background) {
                 Row(
-                    Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 9.dp),
+                    Modifier.fillMaxWidth().statusBarsPadding().height(64.dp).padding(horizontal = 9.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = {
@@ -306,9 +306,9 @@ internal fun SelfTodoScreen(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 10.dp,
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp,
                 bottom = if (showingHistory) 35.dp else 112.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (error.isNotBlank()) {
                 item(key = "todo_error") {
@@ -317,12 +317,7 @@ internal fun SelfTodoScreen(
                 }
             }
             if (!showingHistory) {
-                item(key = "todo_hero") {
-                    TodoHero(today, pending.size, completed.size,
-                        onHistory = { exiting = emptyMap(); showingHistory = true })
-                }
                 item(key = "todo_heading") {
-                    Spacer(Modifier.height(10.dp))
                     TodoListHeading("待办清单", pending.size.toString() + " 件未完成")
                 }
                 if (visiblePending.isEmpty()) {
