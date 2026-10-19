@@ -46,6 +46,13 @@ internal object CharacterAccountabilityContext {
         }
     }
 
+    fun isWakeExplanation(text: String): Boolean {
+        val compact = text.replace(Regex("\\s+"), "").take(600)
+        val voice = listOf("声音", "语气", "温柔", "太轻", "太柔", "说话").any(compact::contains)
+        val wake = listOf("叫醒", "叫不醒", "唤醒", "喊醒", "起不来", "醒不过来", "没醒", "睡得").any(compact::contains)
+        return voice && wake
+    }
+
     fun isUnmetPromiseChallenge(text: String): Boolean {
         if (text.isBlank()) return false
         val compact = text.replace(Regex("\\s+"), "").take(500)
@@ -62,14 +69,20 @@ internal object CharacterAccountabilityContext {
      * a model nevertheless accuses the user of wrongdoing without any action receipt.
      */
     fun guardUnfairBlame(userText: String, roleReply: String): String {
-        if (!isUnmetPromiseChallenge(userText)) return roleReply
+        val factualWake = isWakeExplanation(userText)
+        if (!isUnmetPromiseChallenge(userText) && !factualWake) return roleReply
         val condensed = roleReply.replace(Regex("\\s+"), "")
         val blatantlyUnfair = listOf("倒打一耙", "明知理亏", "故意转移话题", "失联了还",
-            "怎么跟我交代", "还敢质问", "还敢怪我").any(condensed::contains)
+            "怎么跟我交代", "还敢质问", "还敢怪我", "甩锅", "找借口", "嘴硬", "还敢狡辩").any(condensed::contains)
         if (!blatantlyUnfair) return roleReply
         // The model may itself explicitly reject that accusation; don't censor a correction.
         if (listOf("不是你倒打一耙", "不能说你倒打一耙", "不该说你倒打一耙",
-            "你没有倒打一耙", "我不该怪你").any(condensed::contains)) return roleReply
+            "你没有倒打一耙", "我不该怪你", "不是你甩锅", "你不是甩锅",
+            "不是你找借口", "我误会你了").any(condensed::contains)) return roleReply
+        if (factualWake && !isUnmetPromiseChallenge(userText)) {
+            return "你说的是客观情况。声音温柔确实可能很难把睡得沉的人叫醒。" +
+                "我刚才不该把你的解释硬理解成在找借口，更不该反过来指责你。"
+        }
         return "等等，你说得对。是我答应按时叫醒你，不是让你醒来以后向我交代。" +
             "我没有证据证明当时真的叫醒了你，却反过来怪你，这话说得不对。" +
             "对不起。我得先把自己答应的事做好，而不是拿玩笑把责任带过去。"
