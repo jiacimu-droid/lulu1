@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -235,6 +236,10 @@ internal fun SelfTodoScreen(
     var showEditor by remember { mutableStateOf(false) }
     var toDelete by remember { mutableStateOf<TodoTask?>(null) }
     var error by remember { mutableStateOf("") }
+
+    BackHandler {
+        if (showingHistory) showingHistory = false else onBack()
+    }
 
     // The screen can stay open across midnight; process-restored screens also read today's date.
     LaunchedEffect(Unit) {
