@@ -242,6 +242,7 @@ object SharedExperienceTimeline {
         // This never treats the character's apology or a tool receipt as forgiveness.
         // Backfilled older statements cannot settle a newer repair goal.
         if (evidenceKind == EventEvidenceKind.UserStatement &&
+            RelationshipRepairContinuity.userExplicitlySettled(clean) &&
             (channel == "私聊" || channel.contains("电话") || channel.contains("见面"))) {
             CharacterLifeStore.observeUserGoalEvidence(characterId, eventId, clean, occurredAt)
         }
