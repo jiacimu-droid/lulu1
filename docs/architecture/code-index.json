@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T03:40:25.763374+00:00",
-  "commit": "6aa7720c40ea5dc2caaee0ee13a00be1d5f27383",
+  "generatedAt": "2026-10-19T03:45:48.407719+00:00",
+  "commit": "55f0c55538bf3eda765ef8bbee7c6f23146dc860",
   "branch": "main",
-  "sourceFingerprint": "1da5eb74eeba5422f65d810cae825bdcd51fbe62b520797dadb9ab95c231ad3e",
+  "sourceFingerprint": "67eefeef52d5b515a18c77dd6b891ee14d0816e5149149b80e58995b03cb1126",
   "summary": {
     "files": 719,
-    "lines": 137896,
+    "lines": 137897,
     "symbols": 2080
   },
   "symbolIndex": {
@@ -10929,19 +10929,19 @@
     "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 358
+        "line": 359
       }
     ],
     "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 412
+        "line": 413
       }
     ],
     "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 440
+        "line": 441
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -23528,8 +23528,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 469,
-      "sha256": "71d002d5ce8dca9ea99d829a655ddd910bdf54a15ea1fc17859548ed54ccacc7",
+      "lines": 470,
+      "sha256": "8d5f07b9cf06fbd32610379ace09980553baf9be6417f38076b579fed63e117f",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -23553,15 +23553,15 @@
         },
         {
           "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 358
+          "line": 359
         },
         {
           "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 412
+          "line": 413
         },
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 440
+          "line": 441
         }
       ]
     },
@@ -24235,7 +24235,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 636,
-      "sha256": "eab1de7009327c79774b14b1a1821e77c999cff13a26ed854b2cfe2c4a87f606",
+      "sha256": "601c51e5df0de25b2a34c1de241d712383a3d2d5d178e804af81568e632bd5aa",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
