@@ -209,7 +209,7 @@ internal fun TodoTaskCard(
                     }
                     Text(occurrence.task.minutes?.let {
                         String.format(Locale.getDefault(), "%02d:%02d", it / 60, it % 60)
-                    } ?: "全天", color = TodoInk.secondary, fontSize = 11.sp)
+                    } ?: "不设时间", color = TodoInk.secondary, fontSize = 11.sp)
                 }
                 if (occurrence.task.repeat != TodoRepeat.ONCE) {
                     Row(verticalAlignment = Alignment.CenterVertically,
