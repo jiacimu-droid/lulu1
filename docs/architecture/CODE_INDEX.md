@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`17c730f933abaa29f759cc3fecbea7d4ae7b8325`
+- 基准提交：`7b087a2f0d33efbbcdd23ebe00217b8b9cbbbdaa`
 - 分支：`main`
-- 已索引文件：740
-- 已索引代码/文本行：141292
-- 已发现符号：2150
+- 已索引文件：741
+- 已索引代码/文本行：141922
+- 已发现符号：2154
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -158,6 +158,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 195 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 67 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 630 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 325 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 460 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 192 | 1 |

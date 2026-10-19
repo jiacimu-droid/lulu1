@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:53:14.216813+00:00",
-  "commit": "17c730f933abaa29f759cc3fecbea7d4ae7b8325",
+  "generatedAt": "2026-10-19T08:56:49.368502+00:00",
+  "commit": "7b087a2f0d33efbbcdd23ebe00217b8b9cbbbdaa",
   "branch": "main",
-  "sourceFingerprint": "8afbcc28e6f5d87152fc1a515a79dd8205b1b2becf9f4a8f4bcfd3053221b77b",
+  "sourceFingerprint": "2fb3fdd347bb7730fbf957783254cc072ff10da727bc78454ac3dea023efba9e",
   "summary": {
-    "files": 740,
-    "lines": 141292,
-    "symbols": 2150
+    "files": 741,
+    "lines": 141922,
+    "symbols": 2154
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -948,6 +948,10 @@
         "line": 31
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 45
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
         "line": 56
       },
@@ -1510,6 +1514,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
         "line": 104
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -2464,6 +2472,42 @@
         "line": 37
       }
     ],
+    "select": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
+        "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
+        "line": 87
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
+        "line": 34
+      }
+    ],
+    "todoId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 59
+      }
+    ],
     "persist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3110,32 +3154,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
         "line": 11
-      }
-    ],
-    "select": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 43
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
-        "line": 8
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
-        "line": 87
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-        "line": 25
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt",
-        "line": 34
       }
     ],
     "VisionModelService": [
@@ -14265,6 +14283,29 @@
         {
           "name": "sendFailure",
           "line": 37
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+      "lines": 630,
+      "sha256": "1cc8ffa3312bd6f8ba7032c165fc181ead369a86d13143975b8b6df0c1e4d445",
+      "symbols": [
+        {
+          "name": "state",
+          "line": 45
+        },
+        {
+          "name": "select",
+          "line": 50
+        },
+        {
+          "name": "todoId",
+          "line": 59
+        },
+        {
+          "name": "open",
+          "line": 98
         }
       ]
     },
