@@ -4,10 +4,12 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,15 +39,25 @@ internal fun SelfThoughtNotebookArtwork(
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
         }.getOrNull()
     }
-    Box(modifier.background(Color(0xFFE8DFD2))) {
-        image?.let {
-            Image(
-                bitmap = it,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds,
-            )
+    // The offline artwork is pre-cropped to a real 420:603 book aspect ratio.
+    // No device-sized stretching and no repainting bitmap on every page turn.
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = Color(0xFFF4E9D8),
+        shadowElevation = 8.dp,
+        border = BorderStroke(0.6.dp, Color(0xFFD5BBA0).copy(alpha = .45f)),
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            image?.let {
+                Image(
+                    bitmap = it,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillBounds,
+                )
+            }
+            content()
         }
-        content()
     }
 }
