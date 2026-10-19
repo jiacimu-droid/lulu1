@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:23:08.963840+00:00",
-  "commit": "8ab400ce2ab68412e05603d6b41dc6db69f7350a",
+  "generatedAt": "2026-10-19T06:23:33.015538+00:00",
+  "commit": "1e24944e5267b4fab4ecbc7e4482eb8cb9ebd3ba",
   "branch": "main",
-  "sourceFingerprint": "4610900d179d222d1ba75e2fee679a0d92cd6947d94ec79853d303275d8764ee",
+  "sourceFingerprint": "0599a29a165044619756083e84a680820ef47efcabcda3030eca7c304d829b7a",
   "summary": {
     "files": 722,
-    "lines": 139062,
+    "lines": 139070,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -3967,7 +3967,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 204
+        "line": 212
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -7887,25 +7887,25 @@
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 165
+        "line": 174
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 180
+        "line": 188
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 192
+        "line": 200
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 210
+        "line": 218
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -19499,8 +19499,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 228,
-      "sha256": "a039d08b3ca09e441f4fa7bf1f3eb7f99f6e8a8d36c0ff4ecca21330fd96f6e1",
+      "lines": 236,
+      "sha256": "2ebdc3d2959df6f0aa9c91f795cd9596257883a6a0f8a37917433800d9a5c73f",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -19528,23 +19528,23 @@
         },
         {
           "name": "completeFromReceipt",
-          "line": 165
+          "line": 174
         },
         {
           "name": "markDue",
-          "line": 180
+          "line": 188
         },
         {
           "name": "dueContext",
-          "line": 192
+          "line": 200
         },
         {
           "name": "clearCharacter",
-          "line": 204
+          "line": 212
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 210
+          "line": 218
         }
       ]
     },
@@ -21903,7 +21903,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
       "lines": 73,
-      "sha256": "fb2fb93d62de62c8fd38940b9771bc975a1fbb0d0ef3844203f5c91d0a2756e3",
+      "sha256": "9f675139b9bdca3dec814d88967015def688f143dc4d37ed63c8d58a2cf687cc",
       "symbols": [
         {
           "name": "ReadingMoment",
