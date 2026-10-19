@@ -73,6 +73,8 @@ internal data class TodoOccurrence(val task: TodoTask, val date: LocalDate)
  */
 internal object SelfTodoCalendar {
     fun pending(task: TodoTask, today: LocalDate): List<TodoOccurrence> {
+        // A one-off item remains completed even when its date is edited later.
+        if (task.repeat == TodoRepeat.ONCE && task.completions.isNotEmpty()) return emptyList()
         val completed = task.completions.map { it.date }.toSet()
         val due = when (task.repeat) {
             TodoRepeat.ONCE -> task.firstDate
