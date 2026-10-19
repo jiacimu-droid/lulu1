@@ -142,6 +142,32 @@ internal fun CharacterLearningSettings(characterId: String, showConfiguration: B
                         it.put("status", "dropped")
                     }
                 }) { Text("放下") }
+                TextButton(enabled = goal.optString("status") != "running",
+                    onClick = {
+                        com.jiacimu.lulu.data.CharacterLearningAgenda.deleteGoal(
+                            characterId, goal.optString("id"))
+                    }) { Text("删除记录", color = MaterialTheme.colorScheme.error) }
+            }
+        }
+        val insightRevision by com.jiacimu.lulu.data.CharacterLearningLedger.revisions.collectAsState()
+        val insights = remember(characterId, insightRevision) {
+            com.jiacimu.lulu.data.CharacterLearningLedger.listInsights(characterId)
+        }
+        if (insights.isNotEmpty()) {
+            Text("读后理解与学习笔记", style = MaterialTheme.typography.titleMedium)
+            insights.take(30).forEach { insight ->
+                HorizontalDivider()
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(Modifier.weight(1f)) {
+                        Text(insight.topic, fontWeight = FontWeight.Medium)
+                        Text(insight.understanding.take(220),
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                    TextButton(onClick = {
+                        com.jiacimu.lulu.data.CharacterLearningLedger.deleteInsight(
+                            characterId, insight.sourceEvidenceId)
+                    }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+                }
             }
         }
         Text("可追溯成长", style = MaterialTheme.typography.titleMedium)
@@ -151,7 +177,12 @@ internal fun CharacterLearningSettings(characterId: String, showConfiguration: B
             HorizontalDivider()
             Text(record.kind.label, style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(record.content)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(record.content, modifier = Modifier.weight(1f))
+                TextButton(onClick = { CharacterDevelopmentStore.retire(characterId, record.id) }) {
+                    Text("删除变化", color = MaterialTheme.colorScheme.error)
+                }
+            }
             var showingEvidence by remember(characterId, record.id) { mutableStateOf(false) }
             TextButton(onClick = { showingEvidence = !showingEvidence }) { Text(if (showingEvidence) "收起依据" else "查看依据") }
             if (showingEvidence) {
