@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:36:26.509069+00:00",
-  "commit": "eca31afa5365bbdb2c6e5c870916358f04785e53",
+  "generatedAt": "2026-10-19T05:38:02.515874+00:00",
+  "commit": "73eda0a82192b07015bbfb58bce667db61571300",
   "branch": "main",
-  "sourceFingerprint": "20de6894f2b5694dd4f17ea7e9883b4d180afae761c55cf10be718a6d4cd44aa",
+  "sourceFingerprint": "65be5b163e34796c38d99a9cf7062cd3e19de38e2db5cad70cee30eccb0e44b7",
   "summary": {
-    "files": 720,
-    "lines": 138446,
-    "symbols": 2092
+    "files": 721,
+    "lines": 138601,
+    "symbols": 2101
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -172,6 +172,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 173
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 102
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -3960,6 +3964,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
         "line": 76
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -7840,6 +7848,48 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
         "line": 242
+      }
+    ],
+    "RoleDayPlan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 17
+      }
+    ],
+    "RoleDayScheduleStore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 29
+      }
+    ],
+    "plans": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 37
+      }
+    ],
+    "arrange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 70
+      }
+    ],
+    "markDue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 114
+      }
+    ],
+    "dueContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 124
+      }
+    ],
+    "RoleScheduleWakeWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+        "line": 139
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -19428,6 +19478,49 @@
         {
           "name": "formatForPrompt",
           "line": 242
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
+      "lines": 155,
+      "sha256": "79ff497b7df3f2594db09b17a2271f8495ff05d7278f4ad8de8e480c2ce8efea",
+      "symbols": [
+        {
+          "name": "RoleDayPlan",
+          "line": 17
+        },
+        {
+          "name": "RoleDayScheduleStore",
+          "line": 29
+        },
+        {
+          "name": "plans",
+          "line": 37
+        },
+        {
+          "name": "arrange",
+          "line": 70
+        },
+        {
+          "name": "cancel",
+          "line": 102
+        },
+        {
+          "name": "markDue",
+          "line": 114
+        },
+        {
+          "name": "dueContext",
+          "line": 124
+        },
+        {
+          "name": "clearCharacter",
+          "line": 133
+        },
+        {
+          "name": "RoleScheduleWakeWorker",
+          "line": 139
         }
       ]
     },
