@@ -39,19 +39,22 @@ import java.util.Locale
 
 /** App-scoped palette. No changes to the desktop or character screen themes. */
 internal object TodoInk {
-    val background = Color(0xFFF8F8FA)
-    val paper = Color.White
-    val title = Color(0xFF272837)
-    val secondary = Color(0xFF81808C)
-    val line = Color(0xFFEAE8EF)
-    val violet = Color(0xFF645889)
-    val violetLight = Color(0xFFF0ECF9)
-    val lavender = Color(0xFFE6DFFA)
-    val sage = Color(0xFF648579)
-    val sageLight = Color(0xFFEAF3EF)
-    val coral = Color(0xFFBE7868)
-    val coralLight = Color(0xFFFAF0EA)
+    val background = SelfPrefacePalette.background
+    val paper = SelfPrefacePalette.paperBright
+    val title = SelfPrefacePalette.ink
+    val secondary = SelfPrefacePalette.muted
+    val line = SelfPrefacePalette.outline
+    // Legacy names remain internal API aliases for the existing UI components.
+    val violet = SelfPrefacePalette.seaGlass
+    val violetLight = SelfPrefacePalette.sageLight
+    val lavender = SelfPrefacePalette.outline
+    val sage = SelfPrefacePalette.sage
+    val sageLight = SelfPrefacePalette.sageMist
+    val coral = SelfPrefacePalette.honey
+    val coralLight = SelfPrefacePalette.creamLight
+    val overdue = SelfPrefacePalette.overdue
 }
+
 
 internal val todoVisualDate = DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.SIMPLIFIED_CHINESE)
 
@@ -98,12 +101,12 @@ internal fun TodoHero(date: LocalDate, count: Int, completedCount: Int, onHistor
             .shadow(5.dp, RoundedCornerShape(26.dp))
             .clip(RoundedCornerShape(26.dp))
             .background(Brush.linearGradient(
-                colors = listOf(Color(0xFFE8E1F8), Color(0xFFF2E6EB), Color(0xFFFAF4F1)),
+                colors = listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.sageLight, SelfPrefacePalette.paper),
                 start = Offset.Zero, end = Offset(1200f, 900f),
             )),
     ) {
         TodoBotanical(Modifier.align(Alignment.CenterEnd).size(166.dp, 190.dp),
-            Color(0xFF8B79AC).copy(alpha = .38f))
+            SelfPrefacePalette.sage.copy(alpha = .34f))
         Column(
             Modifier.fillMaxSize().padding(start = 23.dp, top = 22.dp, bottom = 19.dp),
             verticalArrangement = Arrangement.SpaceBetween,
@@ -165,7 +168,7 @@ internal fun TodoTaskCard(
     val task = occurrence.task
     val overdue = occurrence.date.isBefore(today)
     val tint = when {
-        overdue -> TodoInk.coral
+        overdue -> TodoInk.overdue
         occurrence.date == today.plusDays(1) -> TodoInk.sage
         else -> TodoInk.violet
     }
