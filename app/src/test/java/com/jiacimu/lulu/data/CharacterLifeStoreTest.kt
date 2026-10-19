@@ -313,6 +313,42 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
+    fun relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val person = MigratedDomainStores.characters.create("江渡", "以前的默认性格")
+        CharacterLifeStore.applyJiangDuPreset(person.characterId)
+        val id = person.characterId
+        val initial = CharacterSocialRelationship.agreement(id, "user")
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationTitle, initial?.title)
+        assertTrue(CharacterRuntime.definition(id).promptSection().contains("运营与维护者"))
+        assertEquals(CharacterProfileSchema.jiangDuV12Persona,
+            MigratedDomainStores.characters.get(id).persona)
+
+        // The SAME relationship read by the graph is read by the model.
+        assertTrue(CharacterSocialRelationship.setAgreement(id, "user",
+            "一起学习的搭档", "双方决定改成平等的共同探索关系"))
+        assertEquals("一起学习的搭档",
+            CharacterSocialRelationship.agreement(id, "user")?.title)
+        val changed = CharacterRuntime.definition(id).promptSection()
+        assertTrue(changed.contains("一起学习的搭档"))
+        assertTrue(changed.contains("双方决定改成平等的共同探索关系"))
+        assertFalse(changed.contains(CharacterProfileSchema.jiangDuOwnerRelationContext))
+        assertEquals(CharacterProfileSchema.jiangDuV12Persona,
+            MigratedDomainStores.characters.get(id).persona)
+        // Explicitly clearing is a real edit; a later preset pass must not re-seed it.
+        assertTrue(CharacterSocialRelationship.setAgreement(id, "user", "", ""))
+        CharacterLifeStore.applyJiangDuPreset(id)
+        assertNull(CharacterSocialRelationship.agreement(id, "user"))
+        assertFalse(CharacterRuntime.definition(id).promptSection().contains("双方决定改成平等的共同探索关系"))
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
     fun legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
@@ -351,7 +387,7 @@ class CharacterLifeStoreTest {
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertTrue(upgraded.has("jiangDuV9Backup"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("没有现实肉身"))
-        assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("敬重"))
+        assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("人物关系网络"))
     }
 
     @Test
