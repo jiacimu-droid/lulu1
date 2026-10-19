@@ -443,10 +443,17 @@ object CharacterLifeStore {
         val root = state(characterId)
         val goal = root.optJSONObject("intention") ?: return
         if (goal.optString("lastUserEvidenceId") == evidenceId) return
+        val startedAt = runCatching { Instant.parse(goal.optString("createdAt")) }.getOrNull()
+        val latestFeedbackAt = runCatching {
+            Instant.parse(goal.optString("lastUserEvidenceAt"))
+        }.getOrNull()
+        // Backfilled older replies cannot cancel a current goal review.
+        if ((startedAt != null && now.isBefore(startedAt)) ||
+            (latestFeedbackAt != null && now.isBefore(latestFeedbackAt))) return
         if (explicitlySettled &&
             RelationshipRepairContinuity.isRepairGoal(goal.optString("aim")) &&
             RelationshipRepairContinuity.eligiblePriorState(
-                goal.optString("createdAt"), now)) {
+                goal.optString("createdAt"), goal.optString("updatedAt"), now)) {
             root.put("previousIntention", JSONObject(goal.toString())
                 .put("stage", "completed")
                 .put("endedAt", now.toString())
