@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`aeadc9d6a4f83c0a69f3af9698768f4b32d8e491`
+- 基准提交：`f2dceb8b818eb97fc4b2a62fdb66f70d996fa27c`
 - 分支：`main`
 - 已索引文件：723
-- 已索引代码/文本行：139247
+- 已索引代码/文本行：139262
 - 已发现符号：2105
 
 | 文件 | 行数 | 符号数 |
@@ -30,7 +30,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 70 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 201 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 217 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeAuditScreen.kt` | 125 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 265 | 0 |
@@ -147,7 +147,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 887 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 886 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:25:08.098848+00:00",
-  "commit": "aeadc9d6a4f83c0a69f3af9698768f4b32d8e491",
+  "generatedAt": "2026-10-19T06:26:15.148741+00:00",
+  "commit": "f2dceb8b818eb97fc4b2a62fdb66f70d996fa27c",
   "branch": "main",
-  "sourceFingerprint": "cdcae4b8bc9d0f31d6915507fd7d8ebde55c3a9fca6ca5ca0926fc87cd0cc436",
+  "sourceFingerprint": "197410418ecf64c487d58dce40e8855909409e20d40761e86aa4a7cc4e9b3eaf",
   "summary": {
     "files": 723,
-    "lines": 139247,
+    "lines": 139262,
     "symbols": 2105
   },
   "symbolIndex": {
@@ -12138,8 +12138,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 201,
-      "sha256": "0c4629543590959ac6b34b7a6f31fd8415d0136c3d83c0fcd688ad44bd0bd250",
+      "lines": 217,
+      "sha256": "bc45ef32141805109d9039bf10c748754492f6563e13e6a7739c23bf31fb345a",
       "symbols": []
     },
     {
@@ -12163,7 +12163,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt",
       "lines": 74,
-      "sha256": "365ee21e83e5573f834d513d0e8af99e438eaa39c236aa54d7c2d882a284e76d",
+      "sha256": "aafdfc3bc47ccc90237b132364f4b5f4c0b5cea67a099bac0336bc787ddb3c5c",
       "symbols": [
         {
           "name": "CharacterMemoryFeatureScreen",
@@ -13890,8 +13890,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 887,
-      "sha256": "9fdf52e66fd70ef186ce63e00180ac3a86d57b3baf4da92330a4297c74f2fb89",
+      "lines": 886,
+      "sha256": "89478a47ceef1a3554276172591a116c3f650d5b4f3859e847e29a0a9c6bb1dc",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
