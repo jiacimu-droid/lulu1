@@ -318,6 +318,7 @@ internal object CompanionActionRuntime {
                 val plan = RoleDayScheduleStore.arrange(
                     context, characterId, args.optString("title"), args.optString("intent"), due, now,
                     activityAction = args.optString("activityAction"),
+                    repeat = args.optString("repeat", "once").lowercase(),
                 )
                 CompanionActionResult(true, "已为本人安排「${plan.title}」，到时再决定如何行动",
                     evidenceId = "own-plan-${plan.id}")
