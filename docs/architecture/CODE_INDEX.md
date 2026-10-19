@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`3ed7bbeca5d9bb274182e6d576fd30fafb082d70`
+- 基准提交：`7910c3a86c69df49d3ca4b766dccdfe83fa7f911`
 - 分支：`main`
-- 已索引文件：723
-- 已索引代码/文本行：139331
-- 已发现符号：2106
+- 已索引文件：724
+- 已索引代码/文本行：139903
+- 已发现符号：2114
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -154,6 +154,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 181 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 319 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 572 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 89 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |

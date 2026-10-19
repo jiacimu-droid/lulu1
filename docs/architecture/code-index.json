@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:32:41.354442+00:00",
-  "commit": "3ed7bbeca5d9bb274182e6d576fd30fafb082d70",
+  "generatedAt": "2026-10-19T07:11:18.017157+00:00",
+  "commit": "7910c3a86c69df49d3ca4b766dccdfe83fa7f911",
   "branch": "main",
-  "sourceFingerprint": "9a1c39c402a68157db48edbac66c50edb60cfb6c13487cbf5cf55e5fb96d3a06",
+  "sourceFingerprint": "7ffdc10e8f0dad01dedbb64898b12746cb74063897c7ae34b77768317a46ba8a",
   "summary": {
-    "files": 723,
-    "lines": 139331,
-    "symbols": 2106
+    "files": 724,
+    "lines": 139903,
+    "symbols": 2114
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1138,6 +1138,14 @@
         "line": 75
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 182
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 244
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
         "line": 33
       },
@@ -1508,6 +1516,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
         "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -2454,6 +2466,56 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
         "line": 65
+      }
+    ],
+    "pending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 75
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 84
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 41
+      }
+    ],
+    "allPending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 92
+      }
+    ],
+    "complete": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 101
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 78
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 82
+      }
+    ],
+    "undo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 108
+      }
+    ],
+    "loadWithLegacy": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 185
       }
     ],
     "nextPauseMillis": [
@@ -4434,20 +4496,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
         "line": 23
-      }
-    ],
-    "pending": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 34
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 84
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 41
       }
     ],
     "eligibleAt": [
@@ -6904,16 +6952,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
         "line": 8
-      }
-    ],
-    "complete": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 78
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 82
       }
     ],
     "MemoryRecallInspection": [
@@ -14017,6 +14055,45 @@
         {
           "name": "save",
           "line": 75
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+      "lines": 572,
+      "sha256": "6b7bfc4280e9d497a989606ce94c7598f74f874455e90474b08adda53d3d3401",
+      "symbols": [
+        {
+          "name": "pending",
+          "line": 75
+        },
+        {
+          "name": "allPending",
+          "line": 92
+        },
+        {
+          "name": "complete",
+          "line": 101
+        },
+        {
+          "name": "undo",
+          "line": 108
+        },
+        {
+          "name": "read",
+          "line": 129
+        },
+        {
+          "name": "save",
+          "line": 182
+        },
+        {
+          "name": "loadWithLegacy",
+          "line": 185
+        },
+        {
+          "name": "save",
+          "line": 244
         }
       ]
     },
