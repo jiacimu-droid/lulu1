@@ -612,6 +612,11 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
                         Spacer(Modifier.weight(1f))
                         Text(item.status, color = if (item.factual) Color(0xFF3C7C65)
                             else Color(0xFF969197), fontSize = 10.5.sp)
+                        item.onDelete?.let { delete ->
+                            TextButton(onClick = delete) {
+                                Text("删除", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+                            }
+                        }
                     }
                     Text(item.title, fontSize = 15.sp, fontWeight = FontWeight.Medium,
                         color = Color(0xFF242326), lineHeight = 23.sp,
