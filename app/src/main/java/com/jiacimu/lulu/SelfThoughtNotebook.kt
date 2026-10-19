@@ -59,9 +59,9 @@ internal fun nextThoughtDate(pages: List<SelfThoughtPage>, date: LocalDate, forw
     pages.asSequence().map { it.date }.filter { if (forward) it.isAfter(date) else it.isBefore(date) }
         .let { if (forward) it.minOrNull() else it.maxOrNull() }
 
-private val BookInk = Color(0xFF284C52)
-private val BookMuted = Color(0xFF7B9393)
-private val BookAccent = Color(0xFFC9796A)
+private val BookInk = SelfPrefacePalette.ink
+private val BookMuted = SelfPrefacePalette.muted
+private val BookAccent = SelfPrefacePalette.honey
 private val BookDate = DateTimeFormatter.ofPattern("M月d日")
 
 /** Drawn notebook with a date navigator outside the paper and full-width editable pages. */
@@ -130,7 +130,7 @@ internal fun SelfThoughtNotebookScreen(
     Column(
         Modifier.fillMaxSize()
             .background(Brush.verticalGradient(
-                listOf(Color(0xFFF8FCFB), Color(0xFFEAF4F1))))
+                listOf(SelfPrefacePalette.background, SelfPrefacePalette.sageLight)))
             .statusBarsPadding().navigationBarsPadding()
             .padding(horizontal = 12.dp),
     ) {
@@ -162,9 +162,9 @@ internal fun SelfThoughtNotebookScreen(
                     writing = true
                 },
                 enabled = !writing,
-                color = Color(0xFFE3F0EC),
+                color = SelfPrefacePalette.sageLight,
                 shape = RoundedCornerShape(99.dp),
-                border = BorderStroke(1.dp, Color(0xFFC3D9D4)),
+                border = BorderStroke(1.dp, SelfPrefacePalette.outline),
             ) {
                 Row(Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -177,9 +177,9 @@ internal fun SelfThoughtNotebookScreen(
         }
         // Navigation is OUTSIDE the paper so its top can be used for actual writing.
         Surface(
-            color = Color(0xFFE7F1ED),
+            color = SelfPrefacePalette.sageLight,
             shape = RoundedCornerShape(18.dp),
-            border = BorderStroke(1.dp, Color(0xFFC9DDD6)),
+            border = BorderStroke(1.dp, SelfPrefacePalette.outline),
             modifier = Modifier.fillMaxWidth().padding(start = 6.dp, end = 6.dp, bottom = 7.dp),
         ) {
             Row(
@@ -324,9 +324,9 @@ internal fun SelfThoughtNotebookScreen(
                             Spacer(Modifier.height(19.dp))
                             Surface(
                                 onClick = { write() },
-                                color = Color(0xFFE0EEE9),
+                                color = SelfPrefacePalette.sageLight,
                                 shape = RoundedCornerShape(50),
-                                border = BorderStroke(1.dp, Color(0xFFBED8D2)),
+                                border = BorderStroke(1.dp, SelfPrefacePalette.outline),
                             ) {
                                 Row(Modifier.padding(horizontal = 19.dp, vertical = 11.dp),
                                     verticalAlignment = Alignment.CenterVertically) {
