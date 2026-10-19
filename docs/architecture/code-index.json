@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:22:42.106364+00:00",
-  "commit": "129c2ef6ca3ff7d6f4fd408323df1ed9a1487a13",
+  "generatedAt": "2026-10-19T06:23:08.963840+00:00",
+  "commit": "8ab400ce2ab68412e05603d6b41dc6db69f7350a",
   "branch": "main",
-  "sourceFingerprint": "fadbe9661c3a91fe11c1a1eefd55c81c2e5ec45a3a8def8d9a2b03635ef19a17",
+  "sourceFingerprint": "4610900d179d222d1ba75e2fee679a0d92cd6947d94ec79853d303275d8764ee",
   "summary": {
     "files": 722,
-    "lines": 139113,
+    "lines": 139062,
     "symbols": 2104
   },
   "symbolIndex": {
@@ -12561,8 +12561,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 685,
-      "sha256": "82a30e8c9540e0d4d5d55945771c56ed7db589e4be7c51798175aa238d8deebe",
+      "lines": 661,
+      "sha256": "9975fcf8a7036e2db5033db3b951e46c55f7266c0168098409cad57ead206b8b",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -13822,8 +13822,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 970,
-      "sha256": "4a1bd31846e7e2e41cd1b928f2a798386e780c436fbdf8483e4a1d6135af20b0",
+      "lines": 943,
+      "sha256": "d7db0a473f0a05145389a3b81fc76b9ea41b66daa9766df0e3c2eeffbbe47f01",
       "symbols": [
         {
           "name": "openReceiptLink",

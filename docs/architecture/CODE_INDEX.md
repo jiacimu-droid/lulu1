@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`129c2ef6ca3ff7d6f4fd408323df1ed9a1487a13`
+- 基准提交：`8ab400ce2ab68412e05603d6b41dc6db69f7350a`
 - 分支：`main`
 - 已索引文件：722
-- 已索引代码/文本行：139113
+- 已索引代码/文本行：139062
 - 已发现符号：2104
 
 | 文件 | 行数 | 符号数 |
@@ -63,7 +63,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1516 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 743 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 685 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 661 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 415 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 411 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 837 | 1 |
@@ -139,7 +139,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 120 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 970 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 943 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 64 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 355 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
