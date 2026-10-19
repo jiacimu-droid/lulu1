@@ -123,7 +123,7 @@ internal object CharacterSelfActivityRuntime {
             return consider(context, characterId, intended, evidenceId, linkedMotiveId)
         }
         val available = if (intended.optString("action") == "reading")
-            ReadingBackgroundBridge.availableBooks(context, characterId) else emptyList()
+            ReadingBackgroundBridge.theaterBooks(context, characterId) else emptyList()
         val books = available.mapTo(hashSetOf()) { it.id }
         val candidate = parse(
             intended, books, DigitalLifeProfileStore.isEnabled(characterId),
