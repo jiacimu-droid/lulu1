@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c73840be7e69cebd75c4b3b802f7ee231da2d331`
+- 基准提交：`c0a12cc6f7a12118b99f797e70a67cfc4c26b087`
 - 分支：`main`
 - 已索引文件：739
-- 已索引代码/文本行：140817
+- 已索引代码/文本行：140896
 - 已发现符号：2145
 
 | 文件 | 行数 | 符号数 |
@@ -159,7 +159,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 67 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 325 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 323 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 402 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 52 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 311 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 256 | 0 |
