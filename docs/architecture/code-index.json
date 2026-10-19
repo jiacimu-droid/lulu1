@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T07:26:41.937409+00:00",
-  "commit": "bb4dad9760d117eb6ea456a7d4fa9ff34da6f04f",
+  "generatedAt": "2026-10-19T07:28:59.686360+00:00",
+  "commit": "168a2fa83d8e4d176f280d7bde779fdf4f810a21",
   "branch": "main",
-  "sourceFingerprint": "4b171b1d263b38927011340637d7cbd91f5dd38b7a1a8d0b38df4bdf04e63435",
+  "sourceFingerprint": "b23c9cc3c0b8d17d80cc7e5d184441ffb1bf9de5896016401f6034f69a9481a8",
   "summary": {
-    "files": 734,
-    "lines": 139795,
-    "symbols": 2136
+    "files": 735,
+    "lines": 140118,
+    "symbols": 2139
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -426,6 +426,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
+        "line": 117
       }
     ],
     "explicitlyEndsOwnCall": [
@@ -2470,6 +2474,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
         "line": 65
+      }
+    ],
+    "day": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
+        "line": 97
+      }
+    ],
+    "turn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
+        "line": 104
       }
     ],
     "pending": [
@@ -14208,6 +14224,25 @@
         {
           "name": "save",
           "line": 88
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
+      "lines": 323,
+      "sha256": "0cccd25c8126103d32ac94f8a0df007ed9ab4088e054fa97384baf7ebc54135f",
+      "symbols": [
+        {
+          "name": "day",
+          "line": 97
+        },
+        {
+          "name": "turn",
+          "line": 104
+        },
+        {
+          "name": "write",
+          "line": 117
         }
       ]
     },
