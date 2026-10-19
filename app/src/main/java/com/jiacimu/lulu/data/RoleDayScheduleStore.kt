@@ -160,15 +160,23 @@ object RoleDayScheduleStore {
         return revised
     }
 
+    /** Pure eligibility gate: a plan cannot be 'completed' by prose, another role,
+     * the wrong action, or a tool result before its scheduled time. */
+    internal fun canComplete(plan: RoleDayPlan, characterId: String, action: String,
+        evidenceId: String, now: Instant): Boolean =
+        plan.characterId == characterId && evidenceId.isNotBlank() &&
+            action in verifiableActions &&
+            (plan.activityAction.isBlank() || plan.activityAction == action) &&
+            (plan.status == "due" || (plan.status == "planned" && !plan.dueAt.isAfter(now)))
+
     /** Status projection only; the execution evidence remains in the canonical raw timeline. */
     @Synchronized
     fun completeFromReceipt(context: Context, characterId: String, planId: String,
         action: String, evidenceId: String, summary: String, now: Instant = Instant.now()): Boolean {
         if (planId.isBlank() || evidenceId.isBlank() || action !in verifiableActions) return false
         val previous = all(context)
-        val plan = previous.firstOrNull { it.id == planId && it.characterId == characterId &&
-            it.status == "due" && (it.activityAction.isBlank() || it.activityAction == action) }
-            ?: return false
+        val plan = previous.firstOrNull { it.id == planId &&
+            canComplete(it, characterId, action, evidenceId, now) } ?: return false
         // Duplicate tool receipts and replies cannot repeatedly complete a plan.
         persist(context, previous.map { if (it.id == plan.id) it.copy(status = "completed",
             resolvedAt = now, resultEvidenceId = evidenceId, resultSummary = summary.take(180)) else it })
