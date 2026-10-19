@@ -18,5 +18,8 @@ class ChatAutomationRoutingTest {
         assertTrue(looksLikeLexiconCandidate("我今天要准备考试"))
         assertFalse(looksLikeLexiconCandidate("我担心这件事"))
         assertTrue(looksLikeLexiconCandidate("我最近搬家了"))
+        assertTrue(looksLikeLexiconCandidate("昨晚两点睡，今天早一点"))
+        assertTrue(looksLikeLexiconCandidate("我凌晨两点才睡"))
+        assertTrue(looksLikeLexiconCandidate("我今天起床了"))
     }
 }
