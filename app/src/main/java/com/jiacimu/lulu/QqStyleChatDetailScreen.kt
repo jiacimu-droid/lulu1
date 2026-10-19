@@ -548,7 +548,6 @@ fun QqStyleChatDetailScreen(
                                     DropdownMenuItem(text = { Text("此刻") }, onClick = { moreExpanded = false; presenceCharacterId = characterId })
                                     DropdownMenuItem(text = { Text("日程") }, onClick = { moreExpanded = false; onSchedule() })
                                     DropdownMenuItem(text = { Text("记忆") }, onClick = { moreExpanded = false; onMemory() })
-                                    DropdownMenuItem(text = { Text("角色世界书") }, onClick = { moreExpanded = false; onWorldBook() })
                                 }
                             }
                         } else {
