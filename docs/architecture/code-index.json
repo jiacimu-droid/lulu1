@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:13:40.757908+00:00",
-  "commit": "3ff1f72cc2486129350f6226ea3c3bcd5d3195fa",
+  "generatedAt": "2026-10-19T05:13:56.439039+00:00",
+  "commit": "ec635660e784be7e30d559fc49a783491c19ba35",
   "branch": "main",
-  "sourceFingerprint": "dfd725808b94dced807d4e68bea670a4cd1dcdd47132a4a7eaea2547f3bb0148",
+  "sourceFingerprint": "cf9c1cff791f7e78b937563497cedd3a37364f3a6b7354026cfe8217f923351c",
   "summary": {
     "files": 719,
-    "lines": 138162,
+    "lines": 138190,
     "symbols": 2087
   },
   "symbolIndex": {
@@ -12248,8 +12248,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 787,
-      "sha256": "854eaa8fc0cc7af84cd8f94dfa294429d410c8f2e82da922a59434d7d299b069",
+      "lines": 795,
+      "sha256": "fa2405d9cdfd2fed68b8b1c54426703cb6af54a512da5808cb07345c1dae66ea",
       "symbols": []
     },
     {
@@ -22889,8 +22889,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt",
-      "lines": 17,
-      "sha256": "2ece6baeeea5b993eb70a0486b1887b8facb02dfb3e581ba3d9dcc4ef5ac709d",
+      "lines": 37,
+      "sha256": "101dcab21aa7df5a53d1d7bf2dd6a4c44ac2a279fb777485e446e6672de80bcd",
       "symbols": [
         {
           "name": "PhoneSubtitleProgressTest",
