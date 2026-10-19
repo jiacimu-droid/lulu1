@@ -66,12 +66,14 @@ private data class CompassColors(
     val accent: Color, val pale: Color, val hero: Color, val line: Color,
 )
 private val ValuesInk = CompassColors(
-    Color(0xFFFCF8F2), Color(0xFF47362F), Color(0xFF90796D),
-    Color(0xFF946A59), Color(0xFFF3E5D8), Color(0xFFECDBCF), Color(0xFFE9DCD1),
+    SelfPrefacePalette.paper, SelfPrefacePalette.ink, SelfPrefacePalette.muted,
+    SelfPrefacePalette.sageDeep, SelfPrefacePalette.honeyLight,
+    SelfPrefacePalette.creamLight, SelfPrefacePalette.outline,
 )
 private val WishesInk = CompassColors(
-    Color(0xFFF8FAFE), Color(0xFF354058), Color(0xFF8792AA),
-    Color(0xFF617AA4), Color(0xFFE9EFFB), Color(0xFFDCE7F5), Color(0xFFE0E6F0),
+    SelfPrefacePalette.background, SelfPrefacePalette.ink, SelfPrefacePalette.muted,
+    SelfPrefacePalette.seaGlass, SelfPrefacePalette.sageLight,
+    SelfPrefacePalette.sageMist, SelfPrefacePalette.outline,
 )
 private val compassDate = DateTimeFormatter.ofPattern("yyyy.MM.dd")
 
