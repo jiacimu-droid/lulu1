@@ -28,6 +28,7 @@ data class RoleDayPlan(
     val resultEvidenceId: String = "",
     val resultSummary: String = "",
     val rescheduleCount: Int = 0,
+    val repeat: String = "once",
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -55,7 +56,8 @@ object RoleDayScheduleStore {
                     o.optString("activityAction"),
                     o.optString("resolvedAt").takeIf(String::isNotBlank)?.let(Instant::parse),
                     o.optString("resultEvidenceId"), o.optString("resultSummary"),
-                    o.optInt("rescheduleCount", 0))
+                    o.optInt("rescheduleCount", 0),
+                    o.optString("repeat", "once"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -72,7 +74,8 @@ object RoleDayScheduleStore {
                 .put("resolvedAt", p.resolvedAt?.toString().orEmpty())
                 .put("resultEvidenceId", p.resultEvidenceId)
                 .put("resultSummary", p.resultSummary)
-                .put("rescheduleCount", p.rescheduleCount))
+                .put("rescheduleCount", p.rescheduleCount)
+                .put("repeat", p.repeat))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -83,7 +86,20 @@ object RoleDayScheduleStore {
     /** Only real, independently verifiable actions can settle a plan. */
     val verifiableActions = setOf(
         "read_book", "play_solo_game", "digital_world_action", "write_journal", "publish_moment",
+        "send_private_message",
     )
+
+    private val schedulableActions = verifiableActions - "write_journal"
+
+    fun plannedContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
+        plans(context, characterId).filter {
+            it.status in setOf("planned", "due") &&
+                it.dueAt.isAfter(now.minus(Duration.ofDays(1)))
+        }.take(8).joinToString("\\n") { plan ->
+            "planId=${plan.id}，${plan.title}，${plan.dueAt}，" +
+                "动机=${plan.intent}，重复=${plan.repeat}，" +
+                "状态=${plan.status}，动作=${plan.activityAction}。"
+        }
 
     private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant) {
         val delay = Duration.between(now, plan.dueAt).toMillis().coerceAtLeast(1_000L)
@@ -98,7 +114,8 @@ object RoleDayScheduleStore {
 
     @Synchronized
     fun arrange(context: Context, characterId: String, title: String, intent: String,
-        dueAt: Instant, now: Instant = Instant.now(), activityAction: String = ""): RoleDayPlan {
+        dueAt: Instant, now: Instant = Instant.now(), activityAction: String = "",
+        repeat: String = "once"): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
@@ -106,13 +123,15 @@ object RoleDayScheduleStore {
         require(dueAt.isAfter(now.plusSeconds(60)) &&
             dueAt.isBefore(now.plus(Duration.ofDays(14)))) { "请选择未来两周内的时间" }
         val action = activityAction.trim().lowercase()
-        require(action.isBlank() || action in verifiableActions) { "这项日程尚无可验证的执行动作" }
+        require(action.isBlank() || action in schedulableActions) { "这项日程尚无可验证的执行动作" }
+        require(repeat in setOf("once", "daily")) { "只支持单次或每日重复" }
+        require(repeat != "daily" || action.isNotBlank()) { "每日计划需要明确真实执行动作" }
         val existing = all(context)
         require(existing.count { it.characterId == characterId && it.status in setOf("planned", "due") } < 12) {
             "当前日程过多，请先完成或取消此前的安排"
         }
         val plan = RoleDayPlan(UUID.randomUUID().toString(), characterId,
-            title.trim(), intent.trim(), dueAt, now, activityAction = action)
+            title.trim(), intent.trim(), dueAt, now, activityAction = action, repeat = repeat)
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
@@ -177,10 +196,28 @@ object RoleDayScheduleStore {
         val previous = all(context)
         val plan = previous.firstOrNull { it.id == planId &&
             canComplete(it, characterId, action, evidenceId, now) } ?: return false
-        // Duplicate tool receipts and replies cannot repeatedly complete a plan.
-        persist(context, previous.map { if (it.id == plan.id) it.copy(status = "completed",
-            resolvedAt = now, resultEvidenceId = evidenceId, resultSummary = summary.take(180)) else it })
-        WorkManager.getInstance(context.applicationContext).cancelUniqueWork("role-own-plan-$planId")
+        // A daily plan is a single durable intention, not a new duplicate every morning.
+        // Evidence always remains in the authoritative timeline; the next occurrence
+        // cannot be completed using the previous day's receipt.
+        val follow = if (plan.repeat == "daily") {
+            val nextAt = generateSequence(plan.dueAt.plus(Duration.ofDays(1))) {
+                it.plus(Duration.ofDays(1))
+            }.first { it.isAfter(now.plusSeconds(60)) }
+            plan.copy(status = "planned", dueAt = nextAt, resolvedAt = now,
+                resultEvidenceId = evidenceId, resultSummary = summary.take(180))
+        } else plan.copy(status = "completed",
+            resolvedAt = now, resultEvidenceId = evidenceId, resultSummary = summary.take(180))
+        persist(context, previous.map { if (it.id == plan.id) follow else it })
+        if (plan.repeat == "daily") {
+            try {
+                scheduleWake(context, follow, now)
+            } catch (failure: Exception) {
+                // Never falsely count a due reminder as scheduled if the OS rejects it.
+                persist(context, previous)
+                throw failure
+            }
+        } else WorkManager.getInstance(context.applicationContext)
+            .cancelUniqueWork("role-own-plan-$planId")
         return true
     }
 
@@ -204,6 +241,7 @@ object RoleDayScheduleStore {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
                     "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}。" +
                     "想做就执行真实工具并把 planId 放入同一次 args；只有成功回执才算完成。" +
+                    "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +
                     "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +
                     "仅想一想、聊天、失败、没有证据都不能冒充完成。"
             }
