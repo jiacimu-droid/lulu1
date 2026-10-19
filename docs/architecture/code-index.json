@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:38:02.515874+00:00",
-  "commit": "73eda0a82192b07015bbfb58bce667db61571300",
+  "generatedAt": "2026-10-19T05:39:06.663149+00:00",
+  "commit": "e0e9508925bd92b9b8a1aacc69371be4595c64ba",
   "branch": "main",
-  "sourceFingerprint": "65be5b163e34796c38d99a9cf7062cd3e19de38e2db5cad70cee30eccb0e44b7",
+  "sourceFingerprint": "2eff509002c793ecd5074b938ae0eb055e812b014fe3e21685d45f759a65ee0d",
   "summary": {
     "files": 721,
-    "lines": 138601,
+    "lines": 138655,
     "symbols": 2101
   },
   "symbolIndex": {
@@ -2417,7 +2417,7 @@
     "ScheduleFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-        "line": 31
+        "line": 28
       }
     ],
     "serverEvent": [
@@ -13937,12 +13937,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-      "lines": 155,
-      "sha256": "f2eac782e1004985913c7d82c00271430676672a40ea39c974d52e58ff7c7dde",
+      "lines": 209,
+      "sha256": "03c5feadcdc636151af01d76c48528464201cbad526e8274b6b69ef381b64d82",
       "symbols": [
         {
           "name": "ScheduleFeatureScreen",
-          "line": 31
+          "line": 28
         }
       ]
     },
