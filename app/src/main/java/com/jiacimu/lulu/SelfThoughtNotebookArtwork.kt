@@ -34,7 +34,7 @@ internal fun SelfThoughtNotebookArtwork(
 ) {
     Surface(
         modifier = modifier,
-        color = Color(0xFFF9FCFA),
+        color = SelfPrefacePalette.paper,
         shape = RoundedCornerShape(25.dp),
         shadowElevation = 9.dp,
     ) {
@@ -43,11 +43,11 @@ internal fun SelfThoughtNotebookArtwork(
                 val sx = size.width / 1000f
                 val sy = size.height / 1500f
                 withTransform({ scale(sx, sy, pivot = Offset.Zero) }) {
-                    val ink = Color(0xFF477B80)
-                    val pale = Color(0xFFBBD5D0)
-                    val coral = Color(0xFFD9907E)
-                    val gold = Color(0xFFE1BDA0)
-                    val paper = Color(0xFFFFFDF8)
+                    val ink = SelfPrefacePalette.seaGlass
+                    val pale = SelfPrefacePalette.sageLight
+                    val coral = SelfPrefacePalette.honey
+                    val gold = SelfPrefacePalette.honeyLight
+                    val paper = SelfPrefacePalette.paperBright
                     // Staggered pages and a slim binding: silhouettes are part of the illustration.
                     drawRoundRect(
                         color = Color(0xFFCEDDD8),
@@ -91,7 +91,7 @@ internal fun SelfThoughtNotebookArtwork(
                     // A cloud of translucent watercolor-like circles, clean crisp edges.
                     drawCircle(Color(0xFFE0EEE9).copy(alpha = .44f), radius = 140f,
                         center = Offset(83f, 1240f))
-                    drawCircle(Color(0xFFF9E4DC).copy(alpha = .46f), radius = 91f,
+                    drawCircle(SelfPrefacePalette.creamLight.copy(alpha = .46f), radius = 91f,
                         center = Offset(860f, 1335f))
                     drawCircle(Color(0xFFD6E8E4).copy(alpha = .40f), radius = 83f,
                         center = Offset(810f, 290f))
@@ -105,7 +105,7 @@ internal fun SelfThoughtNotebookArtwork(
                         cubicTo(479f, 242f, 449f, 291f, 402f, 295f)
                     }
                     drawPath(orbit, ink.copy(alpha = .48f), style = Stroke(width = 3.2f))
-                    drawCircle(Color(0xFFFDF7E8), radius = 54f,
+                    drawCircle(SelfPrefacePalette.creamLight, radius = 54f,
                         center = Offset(226f, 227f))
                     drawCircle(gold.copy(alpha = .85f), radius = 54f,
                         center = Offset(226f, 227f), style = Stroke(2.5f))
@@ -142,7 +142,7 @@ internal fun SelfThoughtNotebookArtwork(
                         moveTo(807f, 1099f); lineTo(807f, 1195f)
                         lineTo(748f, 1189f); close()
                     }
-                    drawPath(sail, color = Color(0xFFEED5C7).copy(alpha = .40f))
+                    drawPath(sail, color = SelfPrefacePalette.honeyLight.copy(alpha = .40f))
                     drawPath(sail, color = coral, style = Stroke(width = 3f))
                     val littleSail = Path().apply {
                         moveTo(821f, 1113f); lineTo(821f, 1196f)
