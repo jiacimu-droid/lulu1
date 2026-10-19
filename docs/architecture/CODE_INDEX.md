@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bd45f3f44393d4ca25fbc0f7d04bd906481e0972`
+- 基准提交：`f403cb862980dec3b16701f15057be5ad4ceb04a`
 - 分支：`main`
 - 已索引文件：742
-- 已索引代码/文本行：142115
+- 已索引代码/文本行：142121
 - 已发现符号：2154
 
 | 文件 | 行数 | 符号数 |
@@ -379,7 +379,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 279 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 285 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 637 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 28 | 0 |
