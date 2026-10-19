@@ -274,93 +274,65 @@ internal fun SelfTodoScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = TodoInk.background,
         topBar = {
-            TopAppBar(
-                title = { Text(if (showingHistory) "已完成" else "所行", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = {
+            Surface(color = TodoInk.background) {
+                Row(
+                    Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     IconButton(onClick = {
                         if (showingHistory) showingHistory = false else onBack()
-                    }) { Icon(Icons.Outlined.ArrowBack, "返回") }
-                },
-                actions = {
+                    }) {
+                        Icon(Icons.Outlined.ArrowBack, "返回", tint = TodoInk.title)
+                    }
+                    Text(if (showingHistory) "已完成" else "所行",
+                        fontWeight = FontWeight.Bold, fontSize = 20.sp,
+                        color = TodoInk.title, modifier = Modifier.weight(1f))
                     if (!showingHistory) {
                         IconButton(onClick = { exiting = emptyMap(); showingHistory = true }) {
-                            Icon(Icons.Outlined.History, "查看已完成历史")
-                        }
-                        IconButton(onClick = { editing = null; showEditor = true }) {
-                            Icon(Icons.Outlined.Add, "添加待办")
+                            Icon(Icons.Outlined.History, "查看已完成历史", tint = TodoInk.violet)
                         }
                     }
-                },
-            )
+                }
+            }
         },
         floatingActionButton = {
-            if (!showingHistory) FloatingActionButton(onClick = {
+            if (!showingHistory) TodoAddButton {
                 editing = null
                 showEditor = true
-            }, containerColor = MaterialTheme.colorScheme.primaryContainer) {
-                Icon(Icons.Outlined.Add, "添加待办")
             }
         },
     ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 10.dp,
+                bottom = if (showingHistory) 35.dp else 112.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(
-                Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 18.dp),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Text(if (showingHistory) "完成记录" else "待办清单",
-                    fontWeight = FontWeight.SemiBold, fontSize = 23.sp,
-                    modifier = Modifier.weight(1f))
-                Text(
-                    (if (showingHistory) completed.size else pending.size).toString() + " 项",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
-                )
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            if (error.isNotBlank()) Text(error,
-                color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 8.dp))
-            if (showingHistory) {
-                if (completed.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("还没有完成记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                } else LazyColumn(
-                    contentPadding = PaddingValues(top = 8.dp, bottom = 28.dp),
-                ) {
-                    items(completed, key = { (task, log) -> task.id + "@" + log.date }) { (task, log) ->
-                        TodoHistoryRow(
-                            task = task,
-                            completion = log,
-                            onRestore = {
-                                save(tasks.map { current ->
-                                    if (current.id == task.id) SelfTodoCalendar.undo(current, log.date, today)
-                                    else current
-                                })
-                            },
-                        )
-                    }
+            if (error.isNotBlank()) {
+                item(key = "todo_error") {
+                    Text(error, color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(8.dp))
                 }
-            } else {
+            }
+            if (!showingHistory) {
+                item(key = "todo_hero") {
+                    TodoHero(today, pending.size, completed.size,
+                        onHistory = { exiting = emptyMap(); showingHistory = true })
+                }
+                item(key = "todo_heading") {
+                    Spacer(Modifier.height(10.dp))
+                    TodoListHeading("待办清单", pending.size.toString() + " 件未完成")
+                }
                 if (visiblePending.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                            Icon(Icons.Outlined.CheckCircleOutline, null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(35.dp))
-                            Text("眼前的事项都完成了",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            TextButton(onClick = { editing = null; showEditor = true }) {
-                                Text("添加待办")
-                            }
+                    item(key = "todo_empty") {
+                        TodoEmptyState(history = false) {
+                            editing = null
+                            showEditor = true
                         }
                     }
-                } else LazyColumn(
-                    contentPadding = PaddingValues(top = 8.dp, bottom = 110.dp),
-                ) {
+                } else {
                     items(visiblePending, key = { it.task.id + "@" + it.date }) { occurrence ->
                         TodoPendingRow(
                             occurrence = occurrence, today = today,
@@ -368,7 +340,9 @@ internal fun SelfTodoScreen(
                             onComplete = {
                                 val success = save(tasks.map { current ->
                                     if (current.id == occurrence.task.id) {
-                                        SelfTodoCalendar.complete(current, occurrence.date, System.currentTimeMillis())
+                                        SelfTodoCalendar.complete(
+                                            current, occurrence.date, System.currentTimeMillis(),
+                                        )
                                     } else current
                                 })
                                 if (success) {
@@ -383,124 +357,88 @@ internal fun SelfTodoScreen(
                         )
                     }
                 }
+            } else {
+                item(key = "history_hero") {
+                    Surface(
+                        shape = RoundedCornerShape(26.dp),
+                        color = TodoInk.sageLight,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Box(Modifier.fillMaxWidth().height(138.dp)) {
+                            TodoBotanical(
+                                modifier = Modifier.align(Alignment.CenterEnd)
+                                    .size(143.dp, 138.dp),
+                                ink = TodoInk.sage.copy(alpha = .36f),
+                            )
+                            Column(Modifier.align(Alignment.CenterStart)
+                                .padding(horizontal = 23.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("THE LITTLE THINGS I'VE DONE", color = TodoInk.sage,
+                                    fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 1.sp)
+                                Text("完成的足迹", color = TodoInk.title,
+                                    fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                                Text("每件事，都算数。", color = TodoInk.secondary,
+                                    fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+                item(key = "history_heading") {
+                    Spacer(Modifier.height(9.dp))
+                    TodoListHeading("完成记录", completed.size.toString() + " 件")
+                }
+                if (completed.isEmpty()) {
+                    item(key = "history_empty") { TodoEmptyState(history = true) }
+                } else {
+                    items(completed, key = { (task, log) -> task.id + "@" + log.date }) {
+                        (task, log) ->
+                        TodoHistoryCard(
+                            task = task, completion = log,
+                            onRestore = {
+                                save(tasks.map { current ->
+                                    if (current.id == task.id) {
+                                        SelfTodoCalendar.undo(current, log.date, today)
+                                    } else current
+                                })
+                            },
+                        )
+                    }
+                }
             }
         }
     }
 
     if (showEditor) {
         val original = editing
-        var title by remember(showEditor, original?.id) { mutableStateOf(original?.title.orEmpty()) }
-        var note by remember(showEditor, original?.id) { mutableStateOf(original?.note.orEmpty()) }
-        var firstDate by remember(showEditor, original?.id) {
-            mutableStateOf(original?.firstDate ?: LocalDate.now())
-        }
-        var minute by remember(showEditor, original?.id) { mutableStateOf(original?.minutes) }
-        var repeat by remember(showEditor, original?.id) {
-            mutableStateOf(original?.repeat ?: TodoRepeat.ONCE)
-        }
-        AlertDialog(
-            onDismissRequest = { showEditor = false },
-            title = { Text(if (original == null) "新建待办" else "编辑待办") },
-            text = {
-                Column(
-                    Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(13.dp),
-                ) {
-                    OutlinedTextField(
-                        value = title, onValueChange = { title = it },
-                        label = { Text("要做什么？") }, singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    OutlinedTextField(
-                        value = note, onValueChange = { note = it },
-                        label = { Text("备注（选填）") }, minLines = 2, maxLines = 3,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Text("重复", fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf(
-                            TodoRepeat.ONCE to "仅一次",
-                            TodoRepeat.DAILY to "每天",
-                            TodoRepeat.WEEKLY to "每周",
-                        ).forEach { (option, label) ->
-                            FilterChip(selected = repeat == option, onClick = { repeat = option },
-                                label = { Text(label, fontSize = 12.sp) })
-                        }
-                    }
-                    Text(
-                        if (repeat == TodoRepeat.ONCE) "日期 / 截止日期"
-                        else if (repeat == TodoRepeat.DAILY) "开始日期" else "每周执行日（首次日期）",
-                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    OutlinedButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            DatePickerDialog(
-                                context,
-                                { _, year, month, day -> firstDate = LocalDate.of(year, month + 1, day) },
-                                firstDate.year, firstDate.monthValue - 1, firstDate.dayOfMonth,
-                            ).show()
-                        },
-                    ) { Text(firstDate.format(todoDateFormatter)) }
-                    OutlinedButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            val initial = minute ?: 9 * 60
-                            TimePickerDialog(
-                                context,
-                                { _, hour, minutes -> minute = hour * 60 + minutes },
-                                initial / 60, initial % 60, true,
-                            ).show()
-                        },
-                    ) {
-                        Text(if (minute == null) "不设具体时间  ·  选择时间" else
-                            String.format(Locale.getDefault(), "%02d:%02d", minute!! / 60, minute!! % 60))
-                    }
-                    if (minute != null) {
-                        TextButton(onClick = { minute = null }) { Text("清除时间") }
-                    }
-                }
+        TodoEditorDialog(
+            original = original,
+            onDismiss = { showEditor = false },
+            onDelete = { target ->
+                showEditor = false
+                toDelete = target
             },
-            confirmButton = {
-                TextButton(
-                    enabled = title.isNotBlank(),
-                    onClick = {
-                        val updated = TodoTask(
-                            id = original?.id ?: UUID.randomUUID().toString(),
-                            title = title.trim(), note = note.trim(), firstDate = firstDate,
-                            minutes = minute, repeat = repeat,
-                            createdAt = original?.createdAt ?: System.currentTimeMillis(),
-                            completions = original?.completions.orEmpty(),
-                            reopened = original?.reopened.orEmpty(),
-                        )
-                        if (save(tasks.filterNot { it.id == updated.id } + updated)) showEditor = false
-                    },
-                ) { Text("保存") }
-            },
-            dismissButton = {
-                Row {
-                    if (original != null) TextButton(onClick = {
-                        showEditor = false
-                        toDelete = original
-                    }) { Text("删除", color = MaterialTheme.colorScheme.error) }
-                    TextButton(onClick = { showEditor = false }) { Text("取消") }
-                }
+            onSave = { title, note, firstDate, minute, repeat ->
+                val updated = TodoTask(
+                    id = original?.id ?: UUID.randomUUID().toString(),
+                    title = title, note = note, firstDate = firstDate,
+                    minutes = minute, repeat = repeat,
+                    createdAt = original?.createdAt ?: System.currentTimeMillis(),
+                    completions = original?.completions.orEmpty(),
+                    reopened = original?.reopened.orEmpty(),
+                )
+                save(tasks.filterNot { it.id == updated.id } + updated)
             },
         )
     }
 
     toDelete?.let { task ->
-        AlertDialog(
-            onDismissRequest = { toDelete = null },
-            title = { Text("删除待办？") },
-            text = { Text("将一并删除这项待办的完成历史，且无法恢复。") },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (save(tasks.filterNot { it.id == task.id })) toDelete = null
-                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+        TodoDeleteDialog(
+            task = task,
+            onDismiss = { toDelete = null },
+            onConfirm = {
+                if (save(tasks.filterNot { it.id == task.id })) toDelete = null
             },
-            dismissButton = { TextButton(onClick = { toDelete = null }) { Text("取消") } },
         )
     }
 }
@@ -516,80 +454,18 @@ private fun TodoPendingRow(
     var hiding by remember(occurrence.task.id, occurrence.date) { mutableStateOf(false) }
     LaunchedEffect(hiding) {
         if (hiding) {
-            delay(220L)
+            delay(230L)
             onFaded()
         }
     }
     AnimatedVisibility(
         visible = !hiding,
-        exit = fadeOut(tween(190)) + shrinkVertically(tween(190)),
+        exit = fadeOut(tween(205)) + shrinkVertically(tween(205)),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Checkbox(
-                checked = hiding,
-                onCheckedChange = { if (!hiding && onComplete()) hiding = true },
-                modifier = Modifier.padding(end = 7.dp),
-            )
-            Surface(
-                onClick = onEdit,
-                color = MaterialTheme.colorScheme.background,
-                modifier = Modifier.weight(1f),
-            ) {
-                Column(Modifier.padding(top = 9.dp, bottom = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(occurrence.task.title, fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium, maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                        textDecoration = if (hiding) TextDecoration.LineThrough else null)
-                    if (occurrence.task.note.isNotBlank()) {
-                        Text(occurrence.task.note,
-                            fontSize = 12.sp,
-                            maxLines = 2, overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Text(
-                        todoDateLabel(occurrence.date, today, occurrence.task.minutes) +
-                            when (occurrence.task.repeat) {
-                                TodoRepeat.ONCE -> ""
-                                TodoRepeat.DAILY -> "  ·  每天"
-                                TodoRepeat.WEEKLY -> "  ·  每周"
-                            },
-                        fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            IconButton(onClick = onEdit, modifier = Modifier.size(42.dp)) {
-                Icon(Icons.Outlined.Edit, "编辑待办",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp))
-            }
-        }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        TodoTaskCard(
+            occurrence = occurrence, today = today, checked = hiding,
+            onCheck = { if (!hiding && onComplete()) hiding = true },
+            onEdit = onEdit,
+        )
     }
-}
-
-@Composable
-private fun TodoHistoryRow(
-    task: TodoTask,
-    completion: TodoCompletion,
-    onRestore: () -> Unit,
-) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = true, onCheckedChange = { if (!it) onRestore() })
-        Column(Modifier.weight(1f).padding(start = 7.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(task.title, fontSize = 15.sp, textDecoration = TextDecoration.LineThrough,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            val dateLabel = completion.date.format(todoDateFormatter)
-            val doneTime = Instant.ofEpochMilli(completion.completedAt).atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("M月d日 HH:mm", Locale.SIMPLIFIED_CHINESE))
-            Text(dateLabel + " · 完成于 " + doneTime,
-                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
