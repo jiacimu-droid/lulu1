@@ -339,6 +339,31 @@ object CompanionPresenceStore {
         persist()
     }
 
+    /** Delete one real presence record, its private snapshot and its derived
+     * timeline entry; never remove the user's original chat message. */
+    @Synchronized
+    fun deleteMoment(characterId: String, at: Instant): Boolean {
+        val history = mutableHistories.value[characterId].orEmpty()
+        val moments = history.filter { it.updatedAt == at }
+        val current = mutableStates.value[characterId]?.takeIf { it.updatedAt == at }
+        if (moments.isEmpty() && current == null) return false
+        mutableHistories.value = mutableHistories.value +
+            (characterId to history.filterNot { it.updatedAt == at })
+        if (current != null) mutableStates.value = mutableStates.value - characterId
+        messageMoments.entries.removeAll { it.value.characterId == characterId && it.value.updatedAt == at }
+        if (selectedMessageAnchor?.characterId == characterId &&
+            selectedMessageAnchor?.state?.updatedAt == at) selectedMessageAnchor = null
+        persist()
+        (moments + listOfNotNull(current)).distinctBy { it.updatedAt }.forEach { moment ->
+            val eventId = moment.provenanceId.takeIf(String::isNotBlank)
+                ?.let { "presence-$it-$characterId" }
+                ?: "presence-$characterId-${moment.updatedAt.toEpochMilli()}"
+            SharedExperienceTimeline.deleteEvent(eventId)
+            CharacterInnerLifeStore.forgetExactThought(characterId, moment.innerThought)
+        }
+        return true
+    }
+
     @Synchronized
     fun clearCharacter(characterId: String) {
         if (characterId.isBlank()) return

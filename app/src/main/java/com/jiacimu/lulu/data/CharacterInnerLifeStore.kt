@@ -66,6 +66,55 @@ object CharacterInnerLifeStore {
         if (prefs?.edit()?.remove(characterId)?.commit() == true) revisionState.value += 1L
     }
 
+    /** Target one thought only: do not erase unrelated motives, commitments,
+     * messages or the source observation that prompted it. */
+    @Synchronized fun forgetExactThought(characterId: String, thought: String): Boolean {
+        val target = thought.trim()
+        if (target.isBlank() || prefs == null) return false
+        val root = snapshot(characterId)
+        val old = root.optJSONArray("thoughts") ?: return false
+        val retained = JSONArray()
+        var removed = false
+        for (i in 0 until old.length()) {
+            val item = old.optJSONObject(i) ?: continue
+            if (item.optString("thought").trim() == target) removed = true
+            else retained.put(item)
+        }
+        if (removed) {
+            root.put("thoughts", retained)
+            save(characterId, root)
+        }
+        return removed
+    }
+
+    @Synchronized fun deletePrivateMotive(characterId: String, id: String): Boolean =
+        deletePrivateArrayItem(characterId, "motives", id)
+
+    @Synchronized fun deletePrivateConcern(characterId: String, id: String): Boolean =
+        deletePrivateArrayItem(characterId, "openConcerns", id)
+
+    private fun deletePrivateArrayItem(characterId: String, key: String, id: String): Boolean {
+        if (id.isBlank() || prefs == null) return false
+        val root = snapshot(characterId)
+        val old = root.optJSONArray(key) ?: return false
+        val retained = JSONArray()
+        var removed = false
+        for (i in 0 until old.length()) {
+            val item = old.optJSONObject(i) ?: continue
+            if (item.optString("id") == id) removed = true else retained.put(item)
+        }
+        if (removed) { root.put(key, retained); save(characterId, root) }
+        return removed
+    }
+
+    @Synchronized fun clearSubjectiveThoughts(characterId: String) {
+        if (prefs == null) return
+        val root = snapshot(characterId)
+        listOf("thoughts", "emotion", "emotionHistory", "openConcerns", "decisions")
+            .forEach(root::remove)
+        save(characterId, root)
+    }
+
     @Synchronized internal fun characterIds(): Set<String> = prefs?.all?.keys.orEmpty().toSet()
 
     @Synchronized internal fun claimMotiveReview(role: String, id: String, token: String,
