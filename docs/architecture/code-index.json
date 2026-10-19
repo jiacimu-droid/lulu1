@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:14:10.154984+00:00",
-  "commit": "539936be4d33777af6b78d973bc5d04f801647f6",
+  "generatedAt": "2026-10-19T05:26:43.388775+00:00",
+  "commit": "d6d525b59a0b62c49ffa06186bc842b3b1ec2d1d",
   "branch": "main",
-  "sourceFingerprint": "cf9c1cff791f7e78b937563497cedd3a37364f3a6b7354026cfe8217f923351c",
+  "sourceFingerprint": "50fb539bd56d834107ddedb4a59bf026934c59ccfb1b92b77f02ab662ae02e12",
   "summary": {
     "files": 719,
-    "lines": 138190,
+    "lines": 138191,
     "symbols": 2087
   },
   "symbolIndex": {
@@ -13601,8 +13601,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt",
-      "lines": 17,
-      "sha256": "d51ba2a6268461af7a0c6d9364f1a21366043bf4ae7df8ddaa1f4e0273b22c6b",
+      "lines": 18,
+      "sha256": "db3a26ec0b1a4937cdf0cfd69544df2c9778b6937c83833014c340c467515bd8",
       "symbols": [
         {
           "name": "pauseBeforeNextLine",
@@ -22890,7 +22890,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt",
       "lines": 37,
-      "sha256": "101dcab21aa7df5a53d1d7bf2dd6a4c44ac2a279fb777485e446e6672de80bcd",
+      "sha256": "2e983c6df69e19e56002c51a487f5fb99ce0f7abc60e85db73697d6196abb28c",
       "symbols": [
         {
           "name": "PhoneSubtitleProgressTest",
