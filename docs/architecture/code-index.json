@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T08:56:49.368502+00:00",
-  "commit": "7b087a2f0d33efbbcdd23ebe00217b8b9cbbbdaa",
+  "generatedAt": "2026-10-19T08:57:38.001353+00:00",
+  "commit": "4bb85c94eb922487add22beb4afdb647870e25af",
   "branch": "main",
-  "sourceFingerprint": "2fb3fdd347bb7730fbf957783254cc072ff10da727bc78454ac3dea023efba9e",
+  "sourceFingerprint": "d9f1e34381fbdb895209b186f0abd96371aeef819db023c906b434ff0afdd52b",
   "summary": {
     "files": 741,
-    "lines": 141922,
+    "lines": 141961,
     "symbols": 2154
   },
   "symbolIndex": {
@@ -1153,7 +1153,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 99
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -1537,7 +1537,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 46
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -2511,13 +2511,13 @@
     "persist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 59
+        "line": 65
       }
     ],
     "SelfPrefaceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 76
+        "line": 84
       }
     ],
     "day": [
@@ -14311,24 +14311,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 325,
-      "sha256": "a16bb2cb92a2e9ccdcc5033a6f4b4271004b027137c4cd10b0ce7a310579cd2a",
+      "lines": 364,
+      "sha256": "2af4d960456d92cddcd0da9002e7d424c66d0b7a19bcff2b0bbde4420d025168",
       "symbols": [
         {
           "name": "read",
-          "line": 46
+          "line": 50
         },
         {
           "name": "persist",
-          "line": 59
+          "line": 65
         },
         {
           "name": "SelfPrefaceScreen",
-          "line": 76
+          "line": 84
         },
         {
           "name": "save",
-          "line": 99
+          "line": 107
         }
       ]
     },
