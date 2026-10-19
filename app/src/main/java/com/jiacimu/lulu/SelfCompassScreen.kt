@@ -123,7 +123,7 @@ internal fun SelfCompassScreen(
             topBar = {
                 Surface(color = colors.bg) {
                     Row(
-                        Modifier.fillMaxWidth().height(62.dp).padding(horizontal = 8.dp),
+                        Modifier.fillMaxWidth().statusBarsPadding().height(62.dp).padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         IconButton(onClick = onBack) {
@@ -494,7 +494,7 @@ private fun CompassEditor(
         containerColor = colors.bg,
         topBar = {
             Row(
-                Modifier.fillMaxWidth().height(62.dp).padding(horizontal = 8.dp),
+                Modifier.fillMaxWidth().statusBarsPadding().height(62.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = onCancel) {
