@@ -481,6 +481,11 @@ object CharacterInnerLifeStore {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank() ||
             evidenceText.isBlank() || proposal == null) return
         val root = snapshot(characterId)
+        val userJustConfirmedSettlement = SharedExperienceTimeline.eventsByIds(
+            characterId, listOf(evidenceId)).any {
+                it.evidenceKind == EventEvidenceKind.UserStatement &&
+                    RelationshipRepairContinuity.userExplicitlySettled(it.content)
+            }
         val evidenceKey = evidenceId + ":" + evidenceText.hashCode()
         val seen = root.optJSONArray("seen") ?: JSONArray()
         if ((0 until seen.length()).any { seen.optString(it) == evidenceKey }) return
@@ -556,6 +561,8 @@ object CharacterInnerLifeStore {
                         val legacyAim = CharacterLifeStore.state(characterId)
                             .optJSONObject("intention")?.optString("aim").orEmpty()
                         if (aim.isBlank() || why.isBlank() ||
+                            (userJustConfirmedSettlement &&
+                                RelationshipRepairContinuity.isRepairGoal(aim)) ||
                             CharacterStaleGoalPolicy.isGenericOrientation(aim) ||
                             records.count { CharacterMotiveState.isActive(it) ||
                                 it.optString("status") == "paused" } >= 6 ||
