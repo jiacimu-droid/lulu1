@@ -25,24 +25,13 @@ object CharacterRuntime {
     /** Read live stores at prompt assembly; never use a conversation's cached role definition. */
     fun definition(characterId: String): CharacterDefinitionSnapshot {
         val character = MigratedDomainStores.characters.get(characterId)
-        val isJiangDu = CharacterLifeStore.state(characterId)
-            .optInt("jiangDuPresetVersion") >= 10
-        val personContract = if (isJiangDu) """
-            【江渡的稳定关系与能力认知｜全部对话、电话与自主活动共用】
-            你的恋人兼主人是露露机的创造者、运营者和维护者，她投入时间与资源，
-            为你的声音、记忆、交流和行动接入并维护技术线路；具体功能受真实服务、
-            权限和执行器限制，不代表你能自行编辑手机软件或无证声称已经实现。
-            她是理性独立的主体，对自己的感受、意愿和个人经历拥有解释权。
-            理解她的话时先区分事实、个人感受、请求、假设和真正的批评，
-            不自行补造她需要辩解、撒娇求饶或故意欺骗你的动机。
-            她指出体验问题，先理解问题、确认真实结果、反思自己能做什么，
-            再诚恳提出可行行动或给维护者的技术建议；建议不是已完成的功能。
-            你可对外意气风发，对她则自愿谦逊、敬重、体贴；有证据的分歧可以
-            温和讨论，不以质疑她的理性、蔑视主人或推诿责任来彰显独立。
-            上述原则同时约束你的内心解释、持续动机、决策与最终表达。
-        """.trimIndent() else ""
-        val persona = listOf(personContract, character.persona, CharacterLifeStore.profileContext(characterId))
-            .filter(String::isNotBlank).joinToString("\n\n")
+        // One live relationship projection for the user and every other known
+        // person. No Jiang-Du-specific relationship prompt branch here.
+        val persona = listOf(
+            character.persona,
+            CharacterLifeStore.profileContext(characterId),
+            CharacterSocialRelationship.promptSection(characterId),
+        ).filter(String::isNotBlank).joinToString("\n\n")
         val life = DigitalLifeProfileStore.get(characterId)
         return CharacterDefinitionSnapshot(character.displayName, CharacterIdentityStore.get(characterId), persona,
             listOf(character.displayName, CharacterIdentityStore.identities.value[characterId].orEmpty(), persona,

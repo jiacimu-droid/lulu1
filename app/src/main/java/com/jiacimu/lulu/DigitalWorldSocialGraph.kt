@@ -34,6 +34,10 @@ internal fun DigitalWorldSocialGraphDialog(
     val settings by MigratedDomainStores.characters.settings.collectAsState()
     val world by DigitalWorldStore.state.collectAsState()
     val revision by CharacterInnerLifeStore.revisions.collectAsState()
+    val relationData by CharacterLifeStore.states.collectAsState()
+    var editingRelation by remember(focusId, selectedId) { mutableStateOf(false) }
+    var relationshipTitle by remember(focusId, selectedId) { mutableStateOf("") }
+    var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
     val participants = settings.values.toList().sortedBy { it.displayName }
     var focusId by remember(initialCharacterId, participants) {
         mutableStateOf(initialCharacterId?.takeIf { it in settings } ?: participants.firstOrNull()?.characterId.orEmpty())
@@ -63,6 +67,9 @@ internal fun DigitalWorldSocialGraphDialog(
         }
     }
     val selectedNode = nodes.firstOrNull { it.id == selectedId }
+    val agreement = selectedNode?.let { CharacterSocialRelationship.agreement(focusId, it.id) }
+    // Reading this state ensures explicit relationship edits refresh this dialog.
+    val relationStateKey = relationData[focusId].orEmpty()
     val focalName = settings[focusId]?.displayName ?: "角色"
     val forward = selectedNode?.let { CharacterSocialRelationship.perspective(focusId, it.id) }
     val backward = selectedNode?.takeIf { it.kind == "角色" }
@@ -71,6 +78,34 @@ internal fun DigitalWorldSocialGraphDialog(
         ?.let { CharacterSocialRelationship.snapshot(focusId, it.id) }
     val displayed = nodes.take(7)
 
+    if (editingRelation && selectedNode != null) {
+        AlertDialog(
+            onDismissRequest = { editingRelation = false },
+            title = { Text("编辑与${selectedNode.label}的关系") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(value = relationshipTitle,
+                        onValueChange = { relationshipTitle = it.take(70) },
+                        label = { Text("身份与关系（如：朋友、恋人、主人）") },
+                        modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = relationshipDetails,
+                        onValueChange = { relationshipDetails = it.take(1600) },
+                        label = { Text("共同约定与已确认的关系事实") },
+                        modifier = Modifier.fillMaxWidth(), minLines = 4, maxLines = 9)
+                    Text("清空并保存可撤销原约定；角色的主观感受仍由实际经历变化。",
+                        style = MaterialTheme.typography.labelSmall)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    CharacterSocialRelationship.setAgreement(focusId, selectedNode.id,
+                        relationshipTitle, relationshipDetails)
+                    editingRelation = false
+                }) { Text("保存关系") }
+            },
+            dismissButton = { TextButton(onClick = { editingRelation = false }) { Text("取消") } },
+        )
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("人物关系网络", fontWeight = FontWeight.SemiBold) },
@@ -166,6 +201,18 @@ internal fun DigitalWorldSocialGraphDialog(
                         Text("${focalName} 与 ${selectedNode.label}",
                             fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         if (shared != null) Text(shared.shortContext(), fontSize = 11.sp)
+                        Text("当前约定（可随双方确认修改）", fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp)
+                        Text(agreement?.title?.takeIf(String::isNotBlank) ?: "尚未设定身份约定",
+                            fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                        agreement?.details?.takeIf(String::isNotBlank)?.let {
+                            Text(it, fontSize = 12.sp)
+                        }
+                        TextButton(onClick = {
+                            relationshipTitle = agreement?.title.orEmpty()
+                            relationshipDetails = agreement?.details.orEmpty()
+                            editingRelation = true
+                        }) { Text("编辑这段关系的身份与约定") }
                         if (selectedNode.kind == "原住民") {
                             val count = world.meetings.count { session ->
                                 focusId in session.participantIds &&

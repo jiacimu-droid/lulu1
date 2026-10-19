@@ -44,7 +44,53 @@ data class SocialPerspective(
     val updatedAt: String,
 )
 
+data class SocialRelationshipAgreement(
+    val fromId: String,
+    val towardId: String,
+    val title: String,
+    val details: String,
+    val updatedAt: String,
+)
+
 object CharacterSocialRelationship {
+    /** Explicit user-editable relationship agreement in the existing character
+     * state. Dynamic, evidence-backed subjective views remain in bonds.
+     */
+    fun agreement(fromId: String, towardId: String): SocialRelationshipAgreement? {
+        val item = CharacterLifeStore.state(fromId)
+            .optJSONObject("relationshipAgreements")?.optJSONObject(towardId) ?: return null
+        val title = item.optString("title").trim()
+        val details = item.optString("details").trim()
+        if (title.isBlank() && details.isBlank()) return null
+        return SocialRelationshipAgreement(
+            fromId, towardId, title, details, item.optString("updatedAt"))
+    }
+
+    fun setAgreement(fromId: String, towardId: String, title: String, details: String): Boolean =
+        CharacterLifeStore.setRelationshipAgreement(fromId, towardId, title, details)
+
+    fun promptSection(characterId: String): String {
+        val items = CharacterLifeStore.state(characterId)
+            .optJSONObject("relationshipAgreements") ?: return ""
+        val keys = items.keys().asSequence().toList()
+            .sortedWith(compareByDescending<String> { it == "user" }.thenBy { it }).take(8)
+        val active = keys.mapNotNull { agreement(characterId, it) }
+        if (active.isEmpty()) return ""
+        return buildString {
+            appendLine("【人物关系网络｜当前明确关系约定；具体相处可随证据与当事人调整】")
+            active.forEach { bond ->
+                val name = if (bond.towardId == "user") "用户" else
+                    runCatching { MigratedDomainStores.characters.get(bond.towardId).displayName }
+                        .getOrDefault(bond.towardId)
+                appendLine("- 与$name：${bond.title}；${bond.details}")
+            }
+            append("关系中的身份、约定与界限以当前编辑的内容为准；" +
+                "对他人的主观印象、暂时心情和信任趋势以真实经历为据，可改变，不能伪装成永远不变的事实。" +
+                "你对某人的内心变化不能替对方决定其感受。")
+        }
+    }
+
+
     fun snapshot(firstCharacterId: String, secondCharacterId: String): CharacterSocialRelationshipSnapshot {
         val first = firstCharacterId.trim()
         val second = secondCharacterId.trim()

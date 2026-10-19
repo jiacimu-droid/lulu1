@@ -62,6 +62,27 @@ object CharacterLifeStore {
         }
     }
 
+    /** User-authored per-person relationship baseline. It is separate from the
+     * evidence-backed, changeable subjective bonds in CharacterInnerLifeStore.
+     * An empty saved entry is intentional and must not be reseeded on launch.
+     */
+    @Synchronized fun setRelationshipAgreement(
+        characterId: String, targetId: String, title: String, details: String,
+    ): Boolean {
+        val target = targetId.trim()
+        if (target.isBlank() || target == characterId || target.length > 120) return false
+        val root = state(characterId)
+        val all = root.optJSONObject("relationshipAgreements") ?: JSONObject()
+        val entry = JSONObject()
+            .put("title", title.trim().take(70))
+            .put("details", details.trim().take(1600))
+            .put("updatedAt", Instant.now().toString())
+        all.put(target, entry)
+        root.put("relationshipAgreements", all)
+        save(characterId, root)
+        return true
+    }
+
     @Synchronized fun setProfile(characterId: String, key: String, value: String) {
         require(CharacterProfileSchema.fields.any { it.key == key })
         val root = state(characterId)
@@ -212,26 +233,37 @@ object CharacterLifeStore {
             save(characterId, root)
         }
         if (version < 9) {
-            // Original replacement preset for legacy roles, with the latest
-            // compact relationship contract. No factual history is rewritten.
+            // Legacy explicit rewrite; facts and actual life history remain intact.
             CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
-            CharacterProfileSchema.jiangDuV11Overrides.forEach { (key, value) -> profile.put(key, value) }
+            CharacterProfileSchema.jiangDuV12Overrides.forEach { (key, value) -> profile.put(key, value) }
         } else {
-            // Upgrade only known prior defaults. Even an intentionally blank
-            // field or user-authored custom text is preserved as an override.
-            CharacterProfileSchema.jiangDuV11Overrides.forEach { (key, value) ->
+            // Only defaults written by our previous migrations are replaced;
+            // even deliberately blank user-edited fields stay untouched.
+            CharacterProfileSchema.jiangDuV12Overrides.forEach { (key, value) ->
                 val previous = profile.optString(key)
                 val knownDefault = previous == CharacterProfileSchema.jiangDu[key] ||
-                    previous == CharacterProfileSchema.jiangDuV10Overrides[key]
+                    previous == CharacterProfileSchema.jiangDuV10Overrides[key] ||
+                    previous == CharacterProfileSchema.jiangDuV11Overrides[key]
                 if (!profile.has(key) || knownDefault) profile.put(key, value)
             }
         }
+        // Ownership, operator facts and the specific romantic/service bond
+        // live next to ALL other relationships in the single relation registry.
+        val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
+        if (!relations.has("user")) {
+            relations.put("user", JSONObject()
+                .put("title", CharacterProfileSchema.jiangDuOwnerRelationTitle)
+                .put("details", CharacterProfileSchema.jiangDuOwnerRelationContext)
+                .put("updatedAt", Instant.now().toString()))
+        }
+        root.put("relationshipAgreements", relations)
         val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
             else character.displayName
         val updatedPersona = if (version < 9 || character.persona in setOf(
                 CharacterProfileSchema.jiangDuPersona,
-                CharacterProfileSchema.jiangDuV10Persona
-            )) CharacterProfileSchema.jiangDuV11Persona else character.persona
+                CharacterProfileSchema.jiangDuV10Persona,
+                CharacterProfileSchema.jiangDuV11Persona
+            )) CharacterProfileSchema.jiangDuV12Persona else character.persona
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = updatedPersona))
         root.optJSONObject("socialNames")?.let { names ->
