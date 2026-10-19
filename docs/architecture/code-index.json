@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:09:51.945798+00:00",
-  "commit": "37d56b0bc90485683dcda99df33d0417a0b70215",
+  "generatedAt": "2026-10-19T05:11:11.508830+00:00",
+  "commit": "a289a49fc679ac5af6c1fb4ade23c77d4f4b09d4",
   "branch": "main",
-  "sourceFingerprint": "a9c6e7aceaeff3ae1543c1a4e31db717104f0d5f156ca28120dce81c4498be2d",
+  "sourceFingerprint": "eec5f6ad387a2b59316cc8076f650c8fabebd9242a500af57176df5dfd835973",
   "summary": {
     "files": 719,
-    "lines": 138089,
+    "lines": 138090,
     "symbols": 2085
   },
   "symbolIndex": {
@@ -13581,8 +13581,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt",
-      "lines": 15,
-      "sha256": "5af57b9f1bec61dce3d42ed762ee9885a6e0b45e5b8a5c19dd145448985a7f56",
+      "lines": 16,
+      "sha256": "e2d6fead936d00ec9039c9493125479b5e4d9d93f9a954c6716ac4a36e8b4490",
       "symbols": [
         {
           "name": "pauseBeforeNextLine",
