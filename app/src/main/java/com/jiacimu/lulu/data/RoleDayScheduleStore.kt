@@ -95,7 +95,7 @@ object RoleDayScheduleStore {
         plans(context, characterId).filter {
             it.status in setOf("planned", "due") &&
                 it.dueAt.isAfter(now.minus(Duration.ofDays(1)))
-        }.take(8).joinToString("\\n") { plan ->
+        }.take(8).joinToString("\n") { plan ->
             "planId=${plan.id}，${plan.title}，${plan.dueAt}，" +
                 "动机=${plan.intent}，重复=${plan.repeat}，" +
                 "状态=${plan.status}，动作=${plan.activityAction}。"
