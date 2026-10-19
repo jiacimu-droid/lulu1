@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T06:23:33.015538+00:00",
-  "commit": "1e24944e5267b4fab4ecbc7e4482eb8cb9ebd3ba",
+  "generatedAt": "2026-10-19T06:23:51.298424+00:00",
+  "commit": "9598e6547fa43b149cfc6b76dee99362dea85b6b",
   "branch": "main",
-  "sourceFingerprint": "0599a29a165044619756083e84a680820ef47efcabcda3030eca7c304d829b7a",
+  "sourceFingerprint": "a973c17e514378490236b7d1813228508c48143e6a6f8f08618dec202c54ab8b",
   "summary": {
-    "files": 722,
-    "lines": 139070,
-    "symbols": 2104
+    "files": 723,
+    "lines": 139115,
+    "symbols": 2105
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11590,6 +11590,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt",
         "line": 12
+      }
+    ],
+    "RoleDayScheduleStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
+        "line": 6
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -24708,6 +24714,17 @@
         {
           "name": "ReplyReplacementTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
+      "lines": 45,
+      "sha256": "e4266e0389934e04f10176561891d2d2ccc4167a471c588354ad5dd2e5a290d8",
+      "symbols": [
+        {
+          "name": "RoleDayScheduleStoreTest",
+          "line": 6
         }
       ]
     },
