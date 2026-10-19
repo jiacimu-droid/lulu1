@@ -199,7 +199,7 @@ internal fun TodoEditorDialog(
                         }
                     } else {
                         IconButton(onClick = { onDelete(original) }) {
-                            Icon(Icons.Outlined.DeleteOutline, "删除待办", tint = TodoInk.coral)
+                            Icon(Icons.Outlined.DeleteOutline, "删除待办", tint = TodoInk.overdue)
                         }
                     }
                     Spacer(Modifier.weight(1f))
@@ -235,7 +235,7 @@ internal fun TodoDeleteDialog(task: TodoTask, onDismiss: () -> Unit, onConfirm: 
         shape = RoundedCornerShape(25.dp), containerColor = TodoInk.paper,
         icon = {
             Icon(Icons.Outlined.DeleteOutline, null,
-                tint = TodoInk.coral, modifier = Modifier.size(30.dp))
+                tint = TodoInk.overdue, modifier = Modifier.size(30.dp))
         },
         title = { Text("删除这件待办？",
             color = TodoInk.title, fontWeight = FontWeight.SemiBold) },
@@ -244,7 +244,7 @@ internal fun TodoDeleteDialog(task: TodoTask, onDismiss: () -> Unit, onConfirm: 
         confirmButton = {
             Button(onClick = onConfirm,
                 shape = RoundedCornerShape(13.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = TodoInk.coral)) {
+                colors = ButtonDefaults.buttonColors(containerColor = TodoInk.overdue)) {
                 Text("确认删除")
             }
         },
