@@ -87,11 +87,13 @@ internal fun CharacterExecutionSettings(characterId: String) {
 
 /** Character growth and self-learning belong to companionship, not device permission management. */
 @Composable
-internal fun CharacterLearningSettings(characterId: String, showConfiguration: Boolean = true, showRecords: Boolean = true) {
+internal fun CharacterLearningSettings(characterId: String, showConfiguration: Boolean = true, showRecords: Boolean = true, showGrowthRecords: Boolean = true) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(if (showConfiguration) "学习设置" else "学习与成长", style = MaterialTheme.typography.titleLarge, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
+        Text(if (showConfiguration) "学习设置" else "读过、学过、试过", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+        if (!showConfiguration) Text("只展示角色真实接触过的材料、理解与尝试；不是重复的成长历程。",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         com.jiacimu.lulu.data.CharacterLearningAgenda.initialize(context)
         val learningRevision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
         if (showConfiguration) {
@@ -155,6 +157,18 @@ internal fun CharacterLearningSettings(characterId: String, showConfiguration: B
         val insights = remember(characterId, insightRevision) {
             com.jiacimu.lulu.data.CharacterLearningLedger.listInsights(characterId)
         }
+        if (learningGoals.isEmpty() && insights.isEmpty()) {
+            Surface(color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp)) {
+                Column(Modifier.fillMaxWidth().padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("还没有可追溯的学习记录", fontWeight = FontWeight.SemiBold)
+                    Text("角色真实阅读、探索、练习后，留下理解或问题才会显示在这里。空白不代表角色没有人格或生活。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
         if (insights.isNotEmpty()) {
             Text("读后理解与学习笔记", style = MaterialTheme.typography.titleMedium)
             insights.take(30).forEach { insight ->
@@ -172,6 +186,7 @@ internal fun CharacterLearningSettings(characterId: String, showConfiguration: B
                 }
             }
         }
+        if (showGrowthRecords) {
         Text("可追溯成长", style = MaterialTheme.typography.titleMedium)
         val revision by CharacterDevelopmentStore.revisions.collectAsState()
         val records = remember(characterId, revision) { CharacterDevelopmentStore.active(characterId) }
@@ -195,6 +210,7 @@ internal fun CharacterLearningSettings(characterId: String, showConfiguration: B
             }
         }
         if (records.none { it.active }) Text("暂无成长记录")
+        }
         }
     }
 }
