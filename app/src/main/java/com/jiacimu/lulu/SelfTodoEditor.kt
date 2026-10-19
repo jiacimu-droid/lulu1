@@ -104,7 +104,7 @@ internal fun TodoEditorDialog(
                 Box(
                     Modifier.fillMaxWidth().height(100.dp)
                         .background(Brush.horizontalGradient(
-                            listOf(TodoInk.violetLight, Color(0xFFF8EAF0), Color(0xFFFAF4F1)))),
+                            listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.sageLight, SelfPrefacePalette.paper))),
                 ) {
                     TodoBotanical(Modifier.align(Alignment.CenterEnd).size(102.dp, 104.dp),
                         ink = TodoInk.violet.copy(alpha = .26f))
