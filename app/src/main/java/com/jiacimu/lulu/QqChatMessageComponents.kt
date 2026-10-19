@@ -831,34 +831,7 @@ internal fun QqSystemReceiptRow(message: LuluChatMessage) {
         }
         selectedLifeEpisodeId?.let { id ->
             WorldLifeEpisodeStore.find(id)?.let { episode ->
-                AlertDialog(
-                    onDismissRequest = { selectedLifeEpisodeId = null },
-                    title = { Text(episode.title, fontWeight = FontWeight.SemiBold) },
-                    text = {
-                        Column(
-                            Modifier.heightIn(max = 540.dp).verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            val characterName = MigratedDomainStores.characters.settings.value[episode.characterId]
-                                ?.displayName ?: "角色"
-                            Text(
-                                "$characterName · " + episode.occurredAt.atZone(ZoneId.systemDefault())
-                                    .format(DateTimeFormatter.ofPattern("M月d日 HH:mm")),
-                                fontSize = 12.sp, color = Color(0xFF777777),
-                            )
-                            Text("实际世界动作：${episode.actualAction}", fontSize = 12.sp, color = Color(0xFF777777))
-                            HorizontalDivider()
-                            Text(episode.scene, fontSize = 15.sp, lineHeight = 26.sp)
-                            Text(
-                                "这是角色个人生活片段；未实际执行的行为不作为世界事实。",
-                                fontSize = 11.sp, color = Color(0xFF777777),
-                            )
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { selectedLifeEpisodeId = null }) { Text("收起") }
-                    },
-                )
+                WorldLifeEpisodeFullscreenDialog(episode, onClose = { selectedLifeEpisodeId = null })
             }
         }
         if (episodeUnavailable) {
