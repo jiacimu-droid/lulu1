@@ -100,6 +100,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     var threshold by remember(policy.readableThreshold) { mutableStateOf(policy.readableThreshold.toString()) }
     var autoSummarize by remember(policy.autoSummarize) { mutableStateOf(policy.autoSummarize) }
     var showSettings by remember { mutableStateOf(false) }
+    var memorySectionPickerExpanded by remember { mutableStateOf(false) }
     var editingMemory by remember { mutableStateOf<MemoryEntry?>(null) }
     var creatingMemory by remember { mutableStateOf(false) }
     var organizing by remember { mutableStateOf(false) }
@@ -313,18 +314,37 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 shape = RoundedCornerShape(18.dp),
             )
 
-            if (section != MemoryPageSection.Core) ScrollableTabRow(
-                selectedTabIndex = section.ordinal - 1,
-                containerColor = FeatureCard,
-                edgePadding = 8.dp,
-                modifier = Modifier.padding(top = 10.dp),
-            ) {
-                MemoryPageSection.entries.filterNot { it == MemoryPageSection.Core }.forEach { item ->
-                    Tab(
-                        selected = section == item,
-                        onClick = { section = item },
-                        text = { Text(item.label, maxLines = 1) },
-                    )
+            if (section != MemoryPageSection.Core) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("浏览", fontSize = 12.sp, color = FeatureBlueGray)
+                    Spacer(Modifier.width(10.dp))
+                    Box {
+                        OutlinedButton(
+                            onClick = { memorySectionPickerExpanded = true },
+                            shape = RoundedCornerShape(13.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                        ) {
+                            Text(section.label)
+                            Spacer(Modifier.width(5.dp))
+                            Icon(Icons.Outlined.KeyboardArrowDown, "切换记忆分类",
+                                modifier = Modifier.size(17.dp))
+                        }
+                        DropdownMenu(
+                            expanded = memorySectionPickerExpanded,
+                            onDismissRequest = { memorySectionPickerExpanded = false },
+                        ) {
+                            MemoryPageSection.entries.filterNot { it == MemoryPageSection.Core }
+                                .forEach { item ->
+                                    DropdownMenuItem(text = { Text(item.label) }, onClick = {
+                                        section = item
+                                        memorySectionPickerExpanded = false
+                                    })
+                                }
+                        }
+                    }
                 }
             }
 
