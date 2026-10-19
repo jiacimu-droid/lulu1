@@ -211,11 +211,26 @@ object CharacterLifeStore {
             // this original backup and safely retries the unfinished rewrite.
             save(characterId, root)
         }
-        CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
+        if (version < 9) {
+            // Older presets are upgraded fully, but do not touch real life or memory.
+            CharacterProfileSchema.jiangDu.forEach { (key, value) -> profile.put(key, value) }
+            CharacterProfileSchema.jiangDuV10Overrides.forEach { (key, value) -> profile.put(key, value) }
+        } else {
+            // From v9 onward, respect any handwritten role customisations.
+            CharacterProfileSchema.jiangDuV10Overrides.forEach { (key, value) ->
+                if (profile.optString(key).isBlank() ||
+                    profile.optString(key) == CharacterProfileSchema.jiangDu[key]) {
+                    profile.put(key, value)
+                }
+            }
+        }
         val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
             else character.displayName
+        val updatedPersona = if (version < 9 ||
+            character.persona == CharacterProfileSchema.jiangDuPersona)
+            CharacterProfileSchema.jiangDuV10Persona else character.persona
         MigratedDomainStores.characters.update(character.copy(
-            displayName = restoredName, persona = CharacterProfileSchema.jiangDuPersona))
+            displayName = restoredName, persona = updatedPersona))
         root.optJSONObject("socialNames")?.let { names ->
             if (names.optString("selfNickname") in setOf("江一舟", "江都")) {
                 names.put("selfNickname", "江渡")
