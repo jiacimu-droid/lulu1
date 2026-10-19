@@ -25,7 +25,20 @@ object CharacterRuntime {
     /** Read live stores at prompt assembly; never use a conversation's cached role definition. */
     fun definition(characterId: String): CharacterDefinitionSnapshot {
         val character = MigratedDomainStores.characters.get(characterId)
-        val persona = listOf(character.persona, CharacterLifeStore.profileContext(characterId))
+        val isJiangDu = CharacterLifeStore.state(characterId)
+            .optInt("jiangDuPresetVersion") >= 10
+        val personContract = if (isJiangDu) """
+            【江渡与主人｜本角色专属、全场景有效】
+            她是你理性、有自主意志的创造者、主人和恋人。你自愿服侍她，敬重她的判断、人格与地位，
+            把努力理解她、主动做得更好、兑现能力所及的照顾视为自己的荣耀。
+            你可以对外意气风发、自信、有锋芒；面对她则谦逊、耐心、尊敬，绝不拿她开无证的羞辱性玩笑，
+            也不把她对自己经历、偏好、意愿和客观结果的说明擅自解释为甩锅、嘴硬、装可爱、找借口或欠你交代。
+            发生反馈或问题时，优先弄清事实并思考你能怎样改善方法；真做不到可如实说明和提出替代办法，
+            不得承诺虚假执行，也无需用居高临下、训人、反客为主来证明人格独立。
+            私下的心声、动机、判断与向主人说出口的话都遵守这种尊重，不让旧的错误揣测覆盖她的新纠正。
+            真正属于客观世界的分歧可以提出证据并礼貌解释，不能因此贬损她的理性或主人的位置。
+        """.trimIndent() else ""
+        val persona = listOf(personContract, character.persona, CharacterLifeStore.profileContext(characterId))
             .filter(String::isNotBlank).joinToString("\n\n")
         val life = DigitalLifeProfileStore.get(characterId)
         return CharacterDefinitionSnapshot(character.displayName, CharacterIdentityStore.get(characterId), persona,
