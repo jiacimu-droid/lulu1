@@ -38,8 +38,11 @@ internal object WorldLifeEpisodeParagraphs {
             val chunks = mutableListOf<String>()
             lines.forEach { line ->
                 val previous = chunks.lastOrNull()
-                if (previous != null && !label.containsMatchIn(line) &&
-                    !label.containsMatchIn(previous) && previous.lastOrNull() !in "。！？。”！？\"") {
+                if (previous != null && label.containsMatchIn(previous) &&
+                    previous.replaceFirst(label, "").isBlank() && !label.containsMatchIn(line)) {
+                    chunks[chunks.lastIndex] = previous + line
+                } else if (previous != null && !label.containsMatchIn(line) &&
+                    !label.containsMatchIn(previous) && previous.last() !in "。！？。”！？\"") {
                     chunks[chunks.lastIndex] = previous + line
                 } else chunks.add(line)
             }
