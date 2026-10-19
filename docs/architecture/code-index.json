@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T03:33:57.383123+00:00",
-  "commit": "a252404824fac7ac1e94e16e34aaceb8f79d7360",
+  "generatedAt": "2026-10-19T03:34:22.069071+00:00",
+  "commit": "a5429e966a6fc36528cd2150ff21c07f33ea3b1e",
   "branch": "main",
-  "sourceFingerprint": "65e7d7b9f2d0fd9a9fcbb48de91ca1085f7df22e6cee025bf92e9b99713c57e5",
+  "sourceFingerprint": "f4108f816f4576c007add881d1ad12f0e8fbb7f2f1a076389a874037e839823b",
   "summary": {
     "files": 719,
-    "lines": 137747,
+    "lines": 137775,
     "symbols": 2079
   },
   "symbolIndex": {
@@ -227,7 +227,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-        "line": 129
+        "line": 157
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt",
@@ -4173,7 +4173,7 @@
     "failed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-        "line": 122
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4187,7 +4187,7 @@
     "goals": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-        "line": 180
+        "line": 208
       }
     ],
     "isMaterialEvidence": [
@@ -15287,8 +15287,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
-      "lines": 224,
-      "sha256": "e93888929762ccc8280c93a3350e995e7bb10816a4b2c8193040564af708d717",
+      "lines": 252,
+      "sha256": "35e56ed33dd53369d3ff3ea9c876a0b5d0f00ce4e504fa45e494d0477684cece",
       "symbols": [
         {
           "name": "Budget",
@@ -15300,15 +15300,15 @@
         },
         {
           "name": "failed",
-          "line": 122
+          "line": 150
         },
         {
           "name": "prompt",
-          "line": 129
+          "line": 157
         },
         {
           "name": "goals",
-          "line": 180
+          "line": 208
         }
       ]
     },
