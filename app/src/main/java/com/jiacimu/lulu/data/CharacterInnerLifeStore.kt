@@ -87,6 +87,31 @@ object CharacterInnerLifeStore {
         return removed
     }
 
+    @Synchronized fun forgetPrivateEmotion(characterId: String, startedAt: String, feeling: String): Boolean {
+        if (prefs == null || startedAt.isBlank()) return false
+        val root = snapshot(characterId)
+        var changed = false
+        val history = root.optJSONArray("emotionHistory") ?: JSONArray()
+        val kept = JSONArray()
+        for (i in 0 until history.length()) {
+            val item = history.optJSONObject(i) ?: continue
+            if (item.optString("startedAt") == startedAt && item.optString("feeling") == feeling) {
+                changed = true
+            } else kept.put(item)
+        }
+        if (changed) root.put("emotionHistory", kept)
+        val current = root.optJSONObject("emotion")
+        if (current?.optString("startedAt") == startedAt && current.optString("feeling") == feeling) {
+            root.remove("emotion")
+            changed = true
+        }
+        if (changed) save(characterId, root)
+        return changed
+    }
+
+    @Synchronized fun forgetClosedConcern(characterId: String, id: String): Boolean =
+        deletePrivateArrayItem(characterId, "closedConcerns", id)
+
     @Synchronized fun deletePrivateMotive(characterId: String, id: String): Boolean =
         deletePrivateArrayItem(characterId, "motives", id)
 
