@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T03:35:06.537219+00:00",
-  "commit": "c840feda03406b093db219fd345ec9482ece9f5c",
+  "generatedAt": "2026-10-19T03:36:11.919061+00:00",
+  "commit": "0e1cdf0a53b044b8f74d7cb5507b8656e06eb12d",
   "branch": "main",
-  "sourceFingerprint": "fcd8df267a5a3f37ad8704aa4c7f2ee237aa7107e5e686924b7643938491795a",
+  "sourceFingerprint": "1c2fe96cb8d6249e6cc1f5e4509859174588b37930b4a38386d21fd0aaa56956",
   "summary": {
     "files": 719,
-    "lines": 137848,
+    "lines": 137858,
     "symbols": 2080
   },
   "symbolIndex": {
@@ -23223,8 +23223,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 78,
-      "sha256": "7be835f8c42c594ec76bab4ed55056a79d23597d12645b294919786418488626",
+      "lines": 88,
+      "sha256": "3a698fa2db198bf12b4285f24c35637cb9d86405802937cabfe3f3a897bc541a",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -23529,7 +23529,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
       "lines": 469,
-      "sha256": "98957ada809c1cda75a0fa9e63a87c6b55c06cf4479b2dd9bfed90ed59ade1a6",
+      "sha256": "71d002d5ce8dca9ea99d829a655ddd910bdf54a15ea1fc17859548ed54ccacc7",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -24235,7 +24235,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 636,
-      "sha256": "3a5e55dea01bdad285dc4c6cd7efe73762068ca827edbff9d7432bb73c0c3fdb",
+      "sha256": "eab1de7009327c79774b14b1a1821e77c999cff13a26ed854b2cfe2c4a87f606",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
