@@ -45,7 +45,7 @@ internal fun DigitalWorldSocialGraphDialog(
     var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
     // Read the existing evidence-backed bonds and genuine encounters; no extra
     // social score or fabricated "friendship" database is introduced.
-    val nodes = remember(focusId, settings, world.meetings, revision) {
+    val nodes = remember(focusId, settings, world.meetings, revision, relationData) {
         if (focusId.isBlank()) emptyList() else buildList {
             val known = participants.filter { it.characterId != focusId }
             add(RelationshipNode("user", "你", true, "用户"))
@@ -53,7 +53,10 @@ internal fun DigitalWorldSocialGraphDialog(
                 val relation = CharacterSocialRelationship.snapshot(focusId, role.characterId)
                 val directed = CharacterSocialRelationship.perspective(focusId, role.characterId) != null ||
                     CharacterSocialRelationship.perspective(role.characterId, focusId) != null
-                add(RelationshipNode(role.characterId, role.displayName.take(7), relation.knowsEachOther || directed, "角色"))
+                val agreed = CharacterSocialRelationship.agreement(focusId, role.characterId) != null ||
+                    CharacterSocialRelationship.agreement(role.characterId, focusId) != null
+                add(RelationshipNode(role.characterId, role.displayName.take(7),
+                    relation.knowsEachOther || directed || agreed, "角色"))
             }
             val nativeIds = world.meetings.filter { focusId in it.participantIds }
                 .flatMap { it.turns.mapNotNull { turn ->
