@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T05:39:06.663149+00:00",
-  "commit": "e0e9508925bd92b9b8a1aacc69371be4595c64ba",
+  "generatedAt": "2026-10-19T05:40:37.893352+00:00",
+  "commit": "3850c2910a16228eedb63fe469b2c2be19195d15",
   "branch": "main",
-  "sourceFingerprint": "2eff509002c793ecd5074b938ae0eb055e812b014fe3e21685d45f759a65ee0d",
+  "sourceFingerprint": "17305ac5107498a09bd011bda7e67515362364e0385570b96f97635ba093865a",
   "summary": {
     "files": 721,
-    "lines": 138655,
+    "lines": 138665,
     "symbols": 2101
   },
   "symbolIndex": {
@@ -5173,7 +5173,7 @@
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 311
+        "line": 313
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -5191,7 +5191,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 698
+        "line": 708
       }
     ],
     "describe": [
@@ -14801,7 +14801,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 56,
-      "sha256": "236a0ae4e522747f57363f1b812e964b833616602d5f69eed89b1f7c05416a03",
+      "sha256": "d4f287d62d562099fdf856169f56bcb05ba7b29184277de3abda7890b8a2f632",
       "symbols": [
         {
           "name": "Capability",
@@ -16560,8 +16560,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 716,
-      "sha256": "4b2008a9a5735e7a45f8e89041de2318cafaf856b55e83ca48f8a7e263acc32c",
+      "lines": 726,
+      "sha256": "1c61bae2a7325b56493ad77ccfc666fc05aeadaf6c4b6ebb21685cce78ee8457",
       "symbols": [
         {
           "name": "asJson",
@@ -16573,11 +16573,11 @@
         },
         {
           "name": "normalized",
-          "line": 311
+          "line": 313
         },
         {
           "name": "world",
-          "line": 698
+          "line": 708
         }
       ]
     },
@@ -21844,7 +21844,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
       "lines": 164,
-      "sha256": "dfe42a5f1c8b2b32f1f0db5824911a178405a051ded0c6c5e52fa0f17596d3b4",
+      "sha256": "7b9138d86ca9cd1181a149503cf1d572ad391ab182b8c052893aa65983a94d56",
       "symbols": [
         {
           "name": "books",
