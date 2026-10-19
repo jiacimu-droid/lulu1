@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T03:26:00.965356+00:00",
-  "commit": "93dcec82cd29d76be62ddfccb5b0d23ae647f74e",
+  "generatedAt": "2026-10-19T03:26:19.834017+00:00",
+  "commit": "6b003446c260b735ebd448acce76b692ab143ff5",
   "branch": "main",
-  "sourceFingerprint": "319404cf02e8a8f587ccf246db32c6d3589fba91a8fef2b733fdd9a17d19c747",
+  "sourceFingerprint": "66f9d4c82088691ad5aacf2cb537684753ea2e7f6474d9cbc509c6cf0f774c33",
   "summary": {
     "files": 719,
-    "lines": 137526,
-    "symbols": 2077
+    "lines": 137539,
+    "symbols": 2078
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3402,28 +3402,34 @@
         "line": 33
       }
     ],
-    "isUnmetPromiseChallenge": [
+    "isWakeExplanation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
         "line": 48
       }
     ],
+    "isUnmetPromiseChallenge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
+        "line": 55
+      }
+    ],
     "guardUnfairBlame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 64
+        "line": 71
       }
     ],
     "guardUnfoundedInnerBlame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 83
+        "line": 96
       }
     ],
     "challengeGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 99
+        "line": 112
       }
     ],
     "resolve": [
@@ -14658,28 +14664,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-      "lines": 112,
-      "sha256": "53ef123dcfa0d3ba9010715dc13619ea4b24644340ef1d99d0ad8a0db9ea2cc7",
+      "lines": 125,
+      "sha256": "164306b90788829b494c05afb4470bdf3447c27696e8d3dd4d55ce3464b8b43f",
       "symbols": [
         {
           "name": "prompt",
           "line": 13
         },
         {
-          "name": "isUnmetPromiseChallenge",
+          "name": "isWakeExplanation",
           "line": 48
         },
         {
+          "name": "isUnmetPromiseChallenge",
+          "line": 55
+        },
+        {
           "name": "guardUnfairBlame",
-          "line": 64
+          "line": 71
         },
         {
           "name": "guardUnfoundedInnerBlame",
-          "line": 83
+          "line": 96
         },
         {
           "name": "challengeGuidance",
-          "line": 99
+          "line": 112
         }
       ]
     },
