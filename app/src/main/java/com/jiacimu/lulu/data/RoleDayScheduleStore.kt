@@ -23,6 +23,11 @@ data class RoleDayPlan(
     val dueAt: Instant,
     val createdAt: Instant,
     val status: String = "planned",
+    val activityAction: String = "",
+    val resolvedAt: Instant? = null,
+    val resultEvidenceId: String = "",
+    val resultSummary: String = "",
+    val rescheduleCount: Int = 0,
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -46,7 +51,11 @@ object RoleDayScheduleStore {
                 RoleDayPlan(o.getString("id"), o.getString("characterId"),
                     o.getString("title"), o.optString("intent"),
                     Instant.parse(o.getString("dueAt")), Instant.parse(o.getString("createdAt")),
-                    o.optString("status", "planned"))
+                    o.optString("status", "planned"),
+                    o.optString("activityAction"),
+                    o.optString("resolvedAt").takeIf(String::isNotBlank)?.let(Instant::parse),
+                    o.optString("resultEvidenceId"), o.optString("resultSummary"),
+                    o.optInt("rescheduleCount", 0))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -58,7 +67,12 @@ object RoleDayScheduleStore {
             json.put(JSONObject().put("id", p.id).put("characterId", p.characterId)
                 .put("title", p.title).put("intent", p.intent)
                 .put("dueAt", p.dueAt.toString()).put("createdAt", p.createdAt.toString())
-                .put("status", p.status))
+                .put("status", p.status)
+                .put("activityAction", p.activityAction)
+                .put("resolvedAt", p.resolvedAt?.toString().orEmpty())
+                .put("resultEvidenceId", p.resultEvidenceId)
+                .put("resultSummary", p.resultSummary)
+                .put("rescheduleCount", p.rescheduleCount))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -66,31 +80,42 @@ object RoleDayScheduleStore {
         revisions.value += 1
     }
 
+    /** Only real, independently verifiable actions can settle a plan. */
+    val verifiableActions = setOf(
+        "read_book", "play_solo_game", "digital_world_action", "write_journal", "publish_moment",
+    )
+
+    private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant) {
+        val delay = Duration.between(now, plan.dueAt).toMillis().coerceAtLeast(1_000L)
+        val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
+            .setInputData(Data.Builder().putString("roleId", plan.characterId)
+                .putString("planId", plan.id).build())
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "role-own-plan-${plan.id}", ExistingWorkPolicy.REPLACE, request)
+    }
+
     @Synchronized
     fun arrange(context: Context, characterId: String, title: String, intent: String,
-        dueAt: Instant, now: Instant = Instant.now()): RoleDayPlan {
+        dueAt: Instant, now: Instant = Instant.now(), activityAction: String = ""): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
         }
         require(dueAt.isAfter(now.plusSeconds(60)) &&
             dueAt.isBefore(now.plus(Duration.ofDays(14)))) { "请选择未来两周内的时间" }
+        val action = activityAction.trim().lowercase()
+        require(action.isBlank() || action in verifiableActions) { "这项日程尚无可验证的执行动作" }
         val existing = all(context)
-        require(existing.count { it.characterId == characterId && it.status == "planned" } < 12) {
+        require(existing.count { it.characterId == characterId && it.status in setOf("planned", "due") } < 12) {
             "当前日程过多，请先完成或取消此前的安排"
         }
         val plan = RoleDayPlan(UUID.randomUUID().toString(), characterId,
-            title.trim(), intent.trim(), dueAt, now)
+            title.trim(), intent.trim(), dueAt, now, activityAction = action)
         persist(context, existing + plan)
         try {
-            val wait = Duration.between(now, dueAt).toMillis().coerceAtLeast(1_000L)
-            val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
-                .setInputData(Data.Builder().putString("roleId", characterId)
-                    .putString("planId", plan.id).build())
-                .setInitialDelay(wait, TimeUnit.MILLISECONDS)
-                .build()
-            WorkManager.getInstance(context.applicationContext)
-                .enqueueUniqueWork("role-own-plan-${plan.id}", ExistingWorkPolicy.REPLACE, request)
+            scheduleWake(context, plan, now)
         } catch (failure: Exception) {
             persist(context, existing)
             throw failure
@@ -99,25 +124,68 @@ object RoleDayScheduleStore {
     }
 
     @Synchronized
-    fun cancel(context: Context, characterId: String, planId: String) {
+    fun cancel(context: Context, characterId: String, planId: String, reason: String = "",
+        now: Instant = Instant.now()): Boolean {
         val records = all(context)
-        val target = records.firstOrNull { it.characterId == characterId && it.id == planId }
-            ?: return
+        val target = records.firstOrNull { it.characterId == characterId && it.id == planId &&
+            it.status in setOf("planned", "due") } ?: return false
         persist(context, records.map {
-            if (it.id == target.id) it.copy(status = "cancelled") else it
+            if (it.id == target.id) it.copy(status = "cancelled", resolvedAt = now,
+                resultSummary = reason.trim().take(180)) else it
         })
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("role-own-plan-$planId")
+        return true
+    }
+
+    @Synchronized
+    fun reschedule(context: Context, characterId: String, planId: String,
+        dueAt: Instant, reason: String, now: Instant = Instant.now()): RoleDayPlan {
+        require(reason.trim().length >= 3) { "改期需要本人真实的理由" }
+        require(dueAt.isAfter(now.plusSeconds(60)) &&
+            dueAt.isBefore(now.plus(Duration.ofDays(14)))) { "改期只能安排在未来两周内" }
+        val previous = all(context)
+        val original = previous.firstOrNull { it.characterId == characterId && it.id == planId &&
+            it.status in setOf("planned", "due") } ?: error("没有可改期的本人日程")
+        val revised = original.copy(dueAt = dueAt, status = "planned",
+            resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1)
+        persist(context, previous.map { if (it.id == planId) revised else it })
+        try {
+            scheduleWake(context, revised, now)
+        } catch (failure: Exception) {
+            persist(context, previous)
+            runCatching { scheduleWake(context, original, now) }
+            throw failure
+        }
+        return revised
+    }
+
+    /** Status projection only; the execution evidence remains in the canonical raw timeline. */
+    @Synchronized
+    fun completeFromReceipt(context: Context, characterId: String, planId: String,
+        action: String, evidenceId: String, summary: String, now: Instant = Instant.now()): Boolean {
+        if (planId.isBlank() || evidenceId.isBlank() || action !in verifiableActions) return false
+        val previous = all(context)
+        val plan = previous.firstOrNull { it.id == planId && it.characterId == characterId &&
+            it.status == "due" && (it.activityAction.isBlank() || it.activityAction == action) }
+            ?: return false
+        // Duplicate tool receipts and replies cannot repeatedly complete a plan.
+        persist(context, previous.map { if (it.id == plan.id) it.copy(status = "completed",
+            resolvedAt = now, resultEvidenceId = evidenceId, resultSummary = summary.take(180)) else it })
+        WorkManager.getInstance(context.applicationContext).cancelUniqueWork("role-own-plan-$planId")
+        return true
     }
 
     @Synchronized
     fun markDue(context: Context, characterId: String, planId: String): RoleDayPlan? {
         val existing = all(context)
         val target = existing.firstOrNull {
-            it.characterId == characterId && it.id == planId && it.status == "planned"
+            it.characterId == characterId && it.id == planId && it.status in setOf("planned", "due")
         } ?: return null
-        persist(context, existing.map { if (it.id == planId) it.copy(status = "due") else it })
-        return target
+        if (target.status == "planned") {
+            persist(context, existing.map { if (it.id == planId) it.copy(status = "due") else it })
+        }
+        return target.copy(status = "due")
     }
 
     /** A due plan is not a completed activity. Only wake the original role's decision loop. */
@@ -125,8 +193,11 @@ object RoleDayScheduleStore {
         plans(context, characterId).filter { it.status == "due" ||
             (it.status == "planned" && !it.dueAt.isAfter(now)) }
             .take(3).joinToString("\n") {
-                "你曾自行安排：${it.title}；本人的缘由：${it.intent}；原定时间：${it.dueAt}。" +
-                    "现在可按真实情况决定执行、延后或取消；已安排不等于已经做了。"
+                "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
+                    "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}。" +
+                    "想做就执行真实工具并把 planId 放入同一次 args；只有成功回执才算完成。" +
+                    "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +
+                    "仅想一想、聊天、失败、没有证据都不能冒充完成。"
             }
 
     @Synchronized
@@ -143,9 +214,11 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         val role = inputData.getString("roleId").orEmpty()
         val planId = inputData.getString("planId").orEmpty()
         if (role.isBlank() || planId.isBlank()) return Result.failure()
-        val plan = RoleDayScheduleStore.markDue(applicationContext, role, planId)
+        val current = RoleDayScheduleStore.plans(applicationContext, role).firstOrNull { it.id == planId }
             ?: return Result.success()
-        if (Instant.now().isBefore(plan.dueAt.minusSeconds(60))) return Result.retry()
+        if (current.status !in setOf("planned", "due")) return Result.success()
+        if (Instant.now().isBefore(current.dueAt)) return Result.retry()
+        RoleDayScheduleStore.markDue(applicationContext, role, planId) ?: return Result.success()
         return runCatching {
             ProactivePerceptionScheduler.scheduleManual(applicationContext, role)
             Result.success()
