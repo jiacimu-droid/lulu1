@@ -261,7 +261,7 @@ fun LexiconFeatureScreenV2(
                     OutlinedButton(onClick = { sectionPickerExpanded = true },
                         shape = RoundedCornerShape(13.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-                        Text(if (isLifeStory) "小剧场" else LexiconV2Sections[sectionIndex].second,
+                        Text(if (isLifeStory) "小剧场" else LexiconV2Sections.getOrNull(sectionIndex)?.second ?: "生活近况",
                             fontSize = 13.sp)
                         Spacer(Modifier.width(4.dp))
                         Icon(Icons.Outlined.KeyboardArrowDown, null, modifier = Modifier.size(17.dp))
@@ -424,7 +424,7 @@ fun LexiconFeatureScreenV2(
                 if (entries.isEmpty() && scheduledTasks.isEmpty()) {
                     item {
                         LexiconV2Card {
-                            Text("还没有${LexiconV2Sections[sectionIndex].second}记录", fontWeight = FontWeight.Bold)
+                            Text("还没有${LexiconV2Sections.getOrNull(sectionIndex)?.second ?: "生活"}记录", fontWeight = FontWeight.Bold)
                         }
                     }
                 } else {
