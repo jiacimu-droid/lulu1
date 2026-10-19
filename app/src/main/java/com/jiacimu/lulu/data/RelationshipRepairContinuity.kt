@@ -57,6 +57,13 @@ internal object RelationshipRepairContinuity {
         return !age.isNegative && age <= Duration.ofDays(30)
     }
 
+    fun eligiblePriorState(createdAt: String, updatedAt: String, resolvedAt: Instant): Boolean {
+        if (!eligiblePriorState(createdAt, resolvedAt)) return false
+        if (updatedAt.isBlank()) return true
+        val changed = runCatching { Instant.parse(updatedAt) }.getOrNull() ?: return false
+        return !changed.isAfter(resolvedAt)
+    }
+
     /** Used only for unsolicited autonomous messages, never for direct user replies. */
     fun isReopenedApology(text: String): Boolean {
         val compact = normalized(text).take(550)
