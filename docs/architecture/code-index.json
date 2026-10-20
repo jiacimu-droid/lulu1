@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T21:14:50.819135+00:00",
-  "commit": "80b6359433a2cc1456f45cfc08862f19e44a6de4",
+  "generatedAt": "2026-10-20T21:31:54.912699+00:00",
+  "commit": "f6fbcf1cb60ee56642c689dfea530e780e9a2892",
   "branch": "main",
-  "sourceFingerprint": "ff6a216bf24ba3090ff88b2f78b7bd57787ed46c11a3118107643c9dbbd01303",
+  "sourceFingerprint": "c508a2a8c2a585c39e117da9df1eeec35a498e51ca464246f434967bcc00802e",
   "summary": {
-    "files": 757,
-    "lines": 145375,
-    "symbols": 2191
+    "files": 758,
+    "lines": 145475,
+    "symbols": 2197
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2738,6 +2738,78 @@
         "line": 201
       }
     ],
+    "install": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 35
+      }
+    ],
+    "stage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 51
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 568
+      }
+    ],
+    "ready": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt",
+        "line": 7
+      }
+    ],
+    "latest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 229
+      }
+    ],
+    "record": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 51
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 134
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 81
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
+        "line": 33
+      }
+    ],
+    "display": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 72
+      }
+    ],
     "byId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
@@ -4188,28 +4260,6 @@
         "line": 47
       }
     ],
-    "record": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 51
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 134
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 35
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 81
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 33
-      }
-    ],
     "isExpressionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
@@ -4962,12 +5012,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
         "line": 209
-      }
-    ],
-    "latest": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 229
       }
     ],
     "CharacterSelfActivityWorker": [
@@ -6526,16 +6570,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
         "line": 78
-      }
-    ],
-    "stage": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 568
       }
     ],
     "retryAt": [
@@ -8608,12 +8642,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
         "line": 17
-      }
-    ],
-    "ready": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt",
-        "line": 7
       }
     ],
     "url": [
@@ -14774,6 +14802,37 @@
         {
           "name": "context",
           "line": 84
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+      "lines": 100,
+      "sha256": "3a34ac7eb17c4536e7e25aafce5d3be3a0124dcbe15d018ec9a96711da4f969d",
+      "symbols": [
+        {
+          "name": "install",
+          "line": 35
+        },
+        {
+          "name": "stage",
+          "line": 51
+        },
+        {
+          "name": "ready",
+          "line": 53
+        },
+        {
+          "name": "latest",
+          "line": 58
+        },
+        {
+          "name": "record",
+          "line": 61
+        },
+        {
+          "name": "display",
+          "line": 72
         }
       ]
     },
