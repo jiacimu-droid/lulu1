@@ -27,6 +27,14 @@ internal object CharacterSelfActivityRuntime {
     private const val PREFS = "lulu_own_activity_followthrough_v1"
     private const val REPEAT_WINDOW_MS = 10 * 60_000L
 
+    /** A terse personal wish is valid when the model chose a real action and
+     * supplied real IDs; never require an arbitrary character count. */
+    internal fun hasRealReason(reason: String): Boolean {
+        val clean = reason.trim()
+        return clean.isNotEmpty() && clean.lowercase() !in
+            setOf("无", "暂无", "没有", "null", "none", "n/a", "...", "……", "未说明")
+    }
+
     internal data class Proposal(val tool: String, val args: JSONObject, val label: String) {
         val signature: String get() = "$tool:${args.toString()}"
     }
@@ -144,7 +152,7 @@ internal object CharacterSelfActivityRuntime {
             candidate.copy(label = "尝试处理数字世界里尚未解决的生活事件")
         } else candidate
         val whyNow = intended.optString("whyNow").trim().take(200)
-        if (whyNow.length < 3) return false
+        if (!hasRealReason(whyNow)) return false
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val previous = prefs.getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
@@ -184,7 +192,7 @@ internal object CharacterSelfActivityRuntime {
         val action = intent.optString("action").trim().lowercase()
         val reason = intent.optString("whyNow").trim().take(180)
         if (action !in setOf("reading", "solo_game", "digital_world") ||
-            reason.length < 3) return false
+            !hasRealReason(reason)) return false
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val old = prefs.getString("considering:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
