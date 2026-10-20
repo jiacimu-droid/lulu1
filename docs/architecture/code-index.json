@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T20:33:19.786649+00:00",
-  "commit": "190343a4f9d20a20a9d6ea27e2f26ec5c1e57464",
+  "generatedAt": "2026-10-20T20:35:00.230928+00:00",
+  "commit": "16a1e893329c004d45423d6a5ee343a44152c59e",
   "branch": "main",
-  "sourceFingerprint": "7ef9a074a02b4c0023c6fb647a6b1e27f480b68c5f56c5e218c03bf8d0e3cfaf",
+  "sourceFingerprint": "b2fc13d94e2d7e1b7dc8daa595269d220b69ababb60614e5645da7fb349dcd15",
   "summary": {
     "files": 754,
-    "lines": 144985,
-    "symbols": 2188
+    "lines": 145009,
+    "symbols": 2189
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5738,10 +5738,16 @@
         "line": 46
       }
     ],
+    "musicContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
+        "line": 116
+      }
+    ],
     "DeferredCallMediaWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
-        "line": 198
+        "line": 222
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -17679,12 +17685,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
-      "lines": 209,
-      "sha256": "d52854b7db90ba7e4be59639fe3cea14e7246e8eb29cf6cdb1c3c023839e8481",
+      "lines": 233,
+      "sha256": "59960bfafcb61c65dc6be8162d0ea4eabd826ebb1cd565b7b4eebf0258be361c",
       "symbols": [
         {
+          "name": "musicContext",
+          "line": 116
+        },
+        {
           "name": "DeferredCallMediaWorker",
-          "line": 198
+          "line": 222
         }
       ]
     },
