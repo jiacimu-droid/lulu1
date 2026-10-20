@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -96,7 +98,15 @@ internal fun SelfThoughtNotebookScreen(
         }
         pageNumber = pageNumber.coerceIn(0, dayPages.lastIndex.coerceAtLeast(0))
     }
-    BackHandler { if (writing) writing = false else onBack() }
+    val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val keyboardController = LocalSoftwareKeyboardController.current
+    BackHandler {
+        when {
+            writing && keyboardVisible -> keyboardController?.hide()
+            writing -> writing = false
+            else -> onBack()
+        }
+    }
 
     fun day(delta: Long) {
         if (writing) return
@@ -131,9 +141,10 @@ internal fun SelfThoughtNotebookScreen(
         Modifier.fillMaxSize()
             .background(Brush.verticalGradient(
                 listOf(SelfPrefacePalette.background, SelfPrefacePalette.sageLight)))
-            .statusBarsPadding().navigationBarsPadding()
+            .statusBarsPadding().navigationBarsPadding().imePadding()
             .padding(horizontal = 12.dp),
     ) {
+        if (!writing || !keyboardVisible) {
         Row(
             Modifier.fillMaxWidth().padding(top = 23.dp, bottom = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -207,20 +218,38 @@ internal fun SelfThoughtNotebookScreen(
                 }
             }
         }
+        } else {
+            // A small writing toolbar leaves most of the available height for
+            // editable paper while the phone keyboard is on-screen.
+            Row(Modifier.fillMaxWidth().height(50.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { keyboardController?.hide() }) {
+                    Icon(Icons.Outlined.KeyboardArrowDown, "收起键盘", tint = BookInk)
+                }
+                Text("所思 · ${date.format(BookDate)}",
+                    modifier = Modifier.weight(1f), color = BookInk,
+                    fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                TextButton(onClick = { keyboardController?.hide() }) {
+                    Text("收起", color = BookAccent)
+                }
+            }
+        }
         BoxWithConstraints(
             modifier = Modifier.fillMaxWidth().weight(1f),
             contentAlignment = Alignment.Center,
         ) {
             // A book follows paper proportions, not the 9:16 device proportions.
-            val bookWidth = minOf(maxWidth, (maxHeight - 4.dp) * .615f)
-            val bookHeight = bookWidth / .615f
+            val compactWriting = writing && keyboardVisible
+            val bookWidth = if (compactWriting) maxWidth
+                else minOf(maxWidth, (maxHeight - 4.dp) * .615f)
+            val bookHeight = if (compactWriting) maxHeight else bookWidth / .615f
             SelfThoughtNotebookArtwork(Modifier.width(bookWidth).height(bookHeight)) {
         Column(
             Modifier.fillMaxSize().padding(
                 start = bookWidth * .135f,
                 end = bookWidth * .102f,
-                top = bookHeight * .192f,
-                bottom = bookHeight * .077f,
+                top = if (compactWriting) 25.dp else bookHeight * .192f,
+                bottom = if (compactWriting) 15.dp else bookHeight * .077f,
             ),
         ) {
             if (writing) {
@@ -230,7 +259,8 @@ internal fun SelfThoughtNotebookScreen(
                     Text("${body.length} 字", color = BookMuted, fontSize = 11.sp)
                 }
                 Spacer(Modifier.height(10.dp))
-                BasicTextField(title, { title = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                BasicTextField(title, { title = it }, singleLine = true,
+                    modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible(),
                     textStyle = TextStyle(color = BookInk, fontSize = 20.sp, fontWeight = FontWeight.SemiBold),
                     decorationBox = { field ->
                         Box {
@@ -239,7 +269,8 @@ internal fun SelfThoughtNotebookScreen(
                         }
                     })
                 Spacer(Modifier.height(16.dp))
-                BasicTextField(body, { body = it }, modifier = Modifier.weight(1f).fillMaxWidth(),
+                BasicTextField(body, { body = it }, modifier = Modifier.weight(1f).fillMaxWidth()
+                    .selfPrefaceKeepFieldVisible(),
                     textStyle = TextStyle(color = BookInk, fontSize = 15.sp, lineHeight = 26.sp),
                     decorationBox = { field ->
                         Box {
