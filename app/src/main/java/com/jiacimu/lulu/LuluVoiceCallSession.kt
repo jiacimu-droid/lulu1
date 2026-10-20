@@ -476,23 +476,25 @@ internal object LuluVoiceCallSession {
      * The normal direct call model is used, preserving the role and its voice.
      */
     fun toggleSleepMode() {
+        setSleepMode(!mutableState.value.sleepMode)
+    }
+
+    /** Shared path for the manual chip and the character's structured decision. */
+    private fun setSleepMode(enabled: Boolean) {
         val current = mutableState.value
-        if (!current.connected) return
+        if (!current.connected || current.sleepMode == enabled) return
         appContext?.let(SleepNarrativeStore::initialize)
-        val enabled = !current.sleepMode
         sleepContinuationJob?.cancel()
+        sleepContinuationJob = null
         sleepFailures = 0
-        // One hour starts at the LAST confirmed user sentence, not the
-        // moment the listener opened the bedtime surface. If nothing has
-        // ever been said during this call, start from enabling bedtime.
         lastSleepUserReplyAtMillis = if (enabled)
             lastConfirmedUserSpeechMillis.takeIf { confirmedUserSpeechCount > 0 }
                 ?: SystemClock.elapsedRealtime()
         else null
         mutableState.update {
             it.copy(sleepMode = enabled, sleepFocus = SleepGuidanceFocus.Natural,
-                statusMessage = if (enabled) "哄睡陪伴已开启 · 你可以只听，也可以随时说话"
-                else "哄睡模式已关闭 · 恢复普通通话")
+                statusMessage = if (enabled) "正在自然哄睡 · 已切换哄睡声线"
+                else "已退出哄睡 · 恢复普通通话声线")
         }
         if (enabled) scheduleSleepContinuation()
     }
@@ -1234,7 +1236,11 @@ internal object LuluVoiceCallSession {
             val stream = CallReplyStream()
             // Expressive ElevenLabs voices interpret emotion over surrounding sentences.
             // Keep the live subtitle preview, but synthesize the completed turn once.
-            val wholeTurnSpeech = latest.sleepMode ||
+            // This only postpones streaming audio while the main character model decides;
+            // matching these words never switches the mode on its own.
+            val possibleSleepTransition = !opening && !autonomousSleep && !autonomousSilence &&
+                Regex("睡|困|哄|午休|午觉|晚安|起床|醒|休息|放松|躺|梦|清醒").containsMatchIn(spoken)
+            val wholeTurnSpeech = possibleSleepTransition || latest.sleepMode ||
                 appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true ||
                 com.jiacimu.lulu.data.RelationshipExpressionGuard.requiresBufferedSpeech(latest.characterId)
             val heard = StringBuilder()
@@ -1249,7 +1255,7 @@ internal object LuluVoiceCallSession {
                 if (heard.toString().filterNot(Char::isWhitespace) == complete.filterNot(Char::isWhitespace)) {
                     com.jiacimu.lulu.data.CharacterConversationAgency.delivered(latest.characterId,
                         interactionReceipt, lastDeliveredMessageId, heard.toString(), phone = true)
-                    if (latest.sleepMode) {
+                    if (mutableState.value.sleepMode) {
                         SleepNarrativeStore.accept(latest.callExperienceId, lastDeliveredMessageId, bedtimeContinuation)
                         val kind = bedtimeContinuation?.let { runCatching { org.json.JSONObject(it).optString("kind") }.getOrNull() }
                         if (mutableState.value.sleepFocus == SleepGuidanceFocus.Natural) {
@@ -1266,7 +1272,7 @@ internal object LuluVoiceCallSession {
                     if (speech.isBlank()) return@forEach
                     val plainSpeech = VoicePerformance.plain(speech)
                     val renderedSpeech = appContext?.let {
-                        VoicePerformance.sleepAudio(it, speech, latest.sleepMode)
+                        VoicePerformance.sleepAudio(it, speech, mutableState.value.sleepMode)
                     } ?: speech
                     // Reserve a stable ID BEFORE playback. The exact streamed
                     // performance and the chat transcript must share this ID.
@@ -1274,7 +1280,7 @@ internal object LuluVoiceCallSession {
                     speechQueue?.enqueue(
                         text = renderedSpeech,
                         speakerId = latest.characterId,
-                        voiceId = CharacterVoicePreferenceStore.callVoiceId(latest.characterId, latest.sleepMode),
+                        voiceId = CharacterVoicePreferenceStore.callVoiceId(latest.characterId, mutableState.value.sleepMode),
                         messageId = voiceMessageId,
                         onStarted = {
                             if (sameReply()) {
@@ -1310,7 +1316,7 @@ internal object LuluVoiceCallSession {
                                     voiceMessageId, plainSpeech, true)
                                 autonomousHangup.markDelivered(latest.callExperienceId, generation, plainSpeech)
                                 lastDeliveredMessageId = voiceMessageId
-                                if (latest.sleepMode) SleepNarrativeStore.recordPlayed(latest.callExperienceId,
+                                if (mutableState.value.sleepMode) SleepNarrativeStore.recordPlayed(latest.callExperienceId,
                                     voiceMessageId, plainSpeech)
                             }
                             clearWhenHeard()
@@ -1394,7 +1400,7 @@ internal object LuluVoiceCallSession {
                     if (sameReply() && !autonomousSleep && !wakeOpening)
                         autonomousHangup.request(latest.callExperienceId, generation)
                 }),
-                onReplyStream = if (autonomousSilence) null else ({ envelope: String -> scope.launch {
+                onReplyStream = if (autonomousSilence || possibleSleepTransition) null else ({ envelope: String -> scope.launch {
                     if (!sameReply() || stream.isFinished) return@launch
                     val parts = stream.updateForSpeech(envelope, wholeTurnSpeech)
                     CallReplyStream.replyTextPrefix(envelope)?.let { candidate ->
@@ -1436,6 +1442,12 @@ internal object LuluVoiceCallSession {
                         mutableState.update { it.copy(sleepMode = false, statusMessage = "哄睡自动续讲连续失败，已暂停") }
                     } else scheduleSleepContinuation()
                     return@onSuccess
+                }
+                // Apply the role model’s decision BEFORE the first TTS enqueue, so
+                // an invited bedtime reply uses the bedtime voice in this same turn.
+                if (!wakeOpening && !autonomousSleep && !autonomousSilence) when (reply.sleepDecision) {
+                    "enable" -> setSleepMode(true)
+                    "disable" -> setSleepMode(false)
                 }
                 interactionReceipt = reply.interactionReceipt
                 bedtimeContinuation = reply.bedtimeContinuation
