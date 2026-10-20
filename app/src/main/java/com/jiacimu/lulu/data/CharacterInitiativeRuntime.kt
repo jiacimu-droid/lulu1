@@ -100,10 +100,10 @@ internal object CharacterInitiativeRuntime {
         )
         val userMemories = userSupportMemories(characterId, cue)
         return buildString {
-            appendLine("【程序识别到的主动性机会｜不是用户命令】")
-            appendLine("可能需要：${cue.kind.label}；置信度=${"%.2f".format(cue.confidence)}；依据仅是本轮原话：${cue.evidence}")
-            appendLine("先判断这个角色自己是否真的想介入，再决定一件最自然的小事；不要把决定重新甩给用户问“那我该做什么/你要我怎么办”。")
-            appendLine("优先顺序：理解需要 → 从真实记忆/已验证方法找线索 → 选择一个符合人格的目标 → 检查能力与授权 → reply/tool/silent → 根据真实结果继续。")
+            appendLine("【相关经历的检索线索｜程序不替角色判断用户的心情或需求】")
+            appendLine("原话：${cue.evidence}")
+            appendLine("下述材料只按文字线索检索，可能有关，也可能完全无关；不提供虚假的情绪置信度。用户可能是在引用、否认、开玩笑或描述过去，不能把检索标签当作事实。")
+            appendLine("请你自己结合完整语境、关系和现在的感受决定是否介入、如何表达、是否行动或保持安静；允许真诚地询问，不自动把任何回应判作敷衍。")
             if (verified.isNotEmpty()) {
                 appendLine("过去多次有结果支持的做法（只作候选，不机械复刻）：")
                 verified.forEach { appendLine("- ${it.content}") }
