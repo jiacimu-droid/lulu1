@@ -34,9 +34,9 @@ internal object CommitmentDecisionRuntime {
         userText: String,
         roleText: String,
         userAt: Instant,
-        selectedDeliveryAction: String? = null,
         now: Instant = Instant.now(),
         zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+        selectedDeliveryAction: String? = null,
     ): CommitmentTask? = mutex.withLock {
         if (characterId.isBlank() || evidenceIds.isEmpty() || sourceTurnId.isBlank()) return@withLock null
         val normalizedUser = userText.trim()
