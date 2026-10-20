@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T20:29:01.918568+00:00",
-  "commit": "88f96d40ee4403598ffd4d43ab4e3849887781a4",
+  "generatedAt": "2026-10-20T20:30:12.553209+00:00",
+  "commit": "1b418ceb7c8de55cfe4a11011e45af2491d12b77",
   "branch": "main",
-  "sourceFingerprint": "ddfabfb24d2605ee5984aa6c7368dc9a3c240f1855273c38140a38dd45eb9179",
+  "sourceFingerprint": "1819271cd14e727150835b86df27ce77cfac19afa2c2896a565aecc564daa339",
   "summary": {
-    "files": 753,
-    "lines": 144920,
-    "symbols": 2187
+    "files": 754,
+    "lines": 144959,
+    "symbols": 2188
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2264,6 +2264,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
         "line": 67
+      }
+    ],
+    "leaksInternalAnalysis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt",
+        "line": 18
       }
     ],
     "appendParagraph": [
@@ -14167,6 +14173,17 @@
         {
           "name": "uploadChunkFull",
           "line": 67
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt",
+      "lines": 39,
+      "sha256": "8654ebbc3be6b611324d5bade902c792df3b40dfcd24f4a85285a8965a91b0cd",
+      "symbols": [
+        {
+          "name": "leaksInternalAnalysis",
+          "line": 18
         }
       ]
     },
