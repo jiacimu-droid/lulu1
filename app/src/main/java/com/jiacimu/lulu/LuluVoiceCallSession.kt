@@ -547,11 +547,15 @@ internal object LuluVoiceCallSession {
                     // A promised 40-minute nap is not cut off by the normal
                     // 30-minute bedtime silence limit. Keep this SAME call
                     // quietly connected until the persisted wake alarm takes over.
+                    val time = Instant.now()
+                    // Hold a short nap, not an overnight bedtime call:
+                    // an 8-hour morning alarm must not keep the mic open all night.
                     val pendingWake = com.jiacimu.lulu.data.CommitmentTaskStore
                         .snapshot(now.characterId).any { task ->
                             task.status.isActive() && task.isWakeResponsibility() &&
                                 task.linkedAlarmId != null &&
-                                task.dueAt?.isAfter(Instant.now()) == true
+                                task.dueAt?.isAfter(time) == true &&
+                                task.dueAt?.isBefore(time.plusSeconds(3L * 60 * 60)) == true
                         }
                     if (pendingWake) {
                         mutableState.update { it.copy(statusMessage = "安静陪着你 · 等约定时间叫醒") }
@@ -1276,7 +1280,7 @@ internal object LuluVoiceCallSession {
             // This only postpones streaming audio while the main character model decides;
             // matching these words never switches the mode on its own.
             val possibleSleepTransition = !opening && !autonomousSleep && !autonomousSilence &&
-                Regex("睡|困|哄|午休|午觉|晚安|起床|醒|休息|放松|躺|梦|清醒").containsMatchIn(spoken)
+                Regex("睡|困|累|疲|哄|午休|午觉|晚安|起床|醒|休息|放松|躺|闭眼|梦|清醒").containsMatchIn(spoken)
             val wholeTurnSpeech = possibleSleepTransition || latest.sleepMode ||
                 appContext?.let { VoicePerformance.phoneNeedsWholeTurn(it) } == true ||
                 com.jiacimu.lulu.data.RelationshipExpressionGuard.requiresBufferedSpeech(latest.characterId)
