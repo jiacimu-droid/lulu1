@@ -66,6 +66,34 @@ object CharacterInnerLifeStore {
         if (prefs?.edit()?.remove(characterId)?.commit() == true) revisionState.value += 1L
     }
 
+    /**
+     * Explicitly withdraw ONE character's subjective interpretation of ONE
+     * person. The original conversation, verified encounters, relationship
+     * agreements, and all other bonds remain intact. A matched current source
+     * prevents a stale dialog from wiping a newer interpretation.
+     *
+     * This is not deleting the person's actions or retroactively rewriting
+     * what was said: only the model-created opinion (including its cached
+     * subjective encounter summaries) is withdrawn.
+     */
+    @Synchronized fun forgetRelationshipImpression(
+        characterId: String,
+        towardId: String,
+        expectedEvidenceId: String,
+        expectedInterpretation: String,
+    ): Boolean {
+        if (characterId.isBlank() || towardId.isBlank() || prefs == null) return false
+        val raw = prefs?.getString(characterId, null) ?: return false
+        val root = runCatching { JSONObject(raw) }.getOrNull() ?: return false
+        val bonds = root.optJSONObject("bonds") ?: return false
+        val current = bonds.optJSONObject(towardId) ?: return false
+        if (current.optString("evidenceId") != expectedEvidenceId ||
+            current.optString("interpretation") != expectedInterpretation) return false
+        bonds.remove(towardId)
+        save(characterId, root)
+        return true
+    }
+
     /** Target one thought only: do not erase unrelated motives, commitments,
      * messages or the source observation that prompted it. */
     @Synchronized fun forgetExactThought(characterId: String, thought: String): Boolean {
