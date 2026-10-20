@@ -388,11 +388,13 @@ private fun SelfPrefaceCategory(
     // One coherent sea-glass palette. Differentiation comes from icons and tone,
     // rather than four unrelated pastel colors.
     val accent = SelfPrefacePalette.sageDeep
+    // Home covers use light yellow-green stationery, while individual apps
+    // intentionally keep their own established visual palettes.
     val backgroundColors = when (title) {
-        "所思" -> listOf(SelfPrefacePalette.sageLight, SelfPrefacePalette.paperBright)
-        "所重" -> listOf(SelfPrefacePalette.honeyLight, SelfPrefacePalette.paperBright)
-        "所愿" -> listOf(SelfPrefacePalette.sageMist, SelfPrefacePalette.paper)
-        else -> listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.sageLight)
+        "所思" -> listOf(Color(0xFFF1F5DB), Color(0xFFFFFDF0))
+        "所重" -> listOf(Color(0xFFF6EFCD), Color(0xFFFFFCF1))
+        "所愿" -> listOf(Color(0xFFEBF2D6), Color(0xFFFBFDF5))
+        else -> listOf(Color(0xFFF8F1D9), Color(0xFFF4F8E6))
     }
     Surface(
         onClick = onClick,
