@@ -55,6 +55,13 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
             if (goal.isBlank() && action == "create") continue
             val dueAt = item.optString("dueAt").trim().takeIf(String::isNotBlank)
                 ?.let { Instant.parse(it) }
+            val proposedRoute = item.optString("deliveryAction").trim()
+            val isWake = Regex("叫醒|叫我|喊我|起床|醒来|wake|睡醒", RegexOption.IGNORE_CASE)
+                .containsMatchIn(goal + " " + item.optString("completionCondition"))
+            // An omitted or quiet delivery method is unresolved for a real
+            // wake-up, not permission to invent a private-message alarm.
+            val wakeMethodMissing = action == "create" && isWake &&
+                proposedRoute !in setOf("start_call", "alarm_only")
             val steps = item.optJSONArray("steps")?.let { values ->
                 buildList { for (i in 0 until values.length()) values.optString(i).trim().takeIf(String::isNotBlank)?.let(::add) }
             }.orEmpty()
@@ -66,10 +73,12 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     timezone = item.optString("timezone").trim().takeIf(String::isNotBlank),
                     completionCondition = item.optString("completionCondition").trim(),
                     steps = steps,
-                    deliveryAction = item.optString("deliveryAction").takeIf { it in setOf("start_call", "alarm_only", "send_private_message") }
-                        ?: if (action == "create") "send_private_message" else "",
+                    deliveryAction = proposedRoute.takeIf {
+                        it in setOf("start_call", "alarm_only", "send_private_message")
+                    } ?: if (action == "create" && !isWake) "send_private_message" else "",
                     promiseKind = item.optString("promiseKind").trim().takeIf(String::isNotBlank),
-                    needsClarification = item.optBoolean("needsClarification", dueAt == null && action == "create"),
+                    needsClarification = wakeMethodMissing ||
+                        item.optBoolean("needsClarification", dueAt == null && action == "create"),
                     targetTaskId = item.optString("targetTaskId").trim().takeIf(String::isNotBlank),
                 ),
             )
