@@ -157,7 +157,7 @@ internal object CompanionActionRuntime {
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
                 val reason = args.optString("reason").trim().take(180)
-                require(messageId.isNotBlank() && reason.length >= 4) {
+                require(messageId.isNotBlank() && reason.isNotBlank()) {
                     "收藏必须选择一条真实的用户消息，并说明自己的理由"
                 }
                 val target = MigratedDomainStores.chat.conversations.value.asSequence()
