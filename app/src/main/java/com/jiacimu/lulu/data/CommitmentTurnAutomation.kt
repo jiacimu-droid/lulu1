@@ -104,6 +104,7 @@ object CommitmentTurnAutomation {
         context: Context,
         conversation: LuluConversation,
         user: LuluChatMessage,
+        userMessages: List<LuluChatMessage>,
         sourceTurnId: String,
         evidenceIds: List<String>,
         userText: String,
@@ -112,8 +113,13 @@ object CommitmentTurnAutomation {
     ): CommitmentTask? = wakeChoiceMutex.withLock {
         val zone = ZoneId.systemDefault()
         val normalized = userText.trim()
-        val recognized = RelativeWakeCommitmentParser.parse(normalized, roleText, user.createdAt, zone)
-            ?: WakeCommitmentParser.parse(normalized, roleText, user.createdAt, zone)
+        // Anchor "20 minutes later" to the user's bubble CONTAINING the
+        // relative time, not a later "and bring water" bubble.
+        val requestedAt = userMessages.lastOrNull { message ->
+            listOf("分钟", "小时", "点", "时").any(message.content::contains)
+        }?.createdAt ?: user.createdAt
+        val recognized = RelativeWakeCommitmentParser.parse(normalized, roleText, requestedAt, zone)
+            ?: WakeCommitmentParser.parse(normalized, roleText, requestedAt, zone)
             ?: return@withLock null
         if (recognized.dueAt?.isAfter(Instant.now().plusSeconds(5)) != true)
             return@withLock null
@@ -187,7 +193,7 @@ object CommitmentTurnAutomation {
         val task = CommitmentDecisionRuntime.ensureAcceptedWake(
             context = context, characterId = characterId, sourceTurnId = sourceTurnId,
             evidenceIds = evidenceIds, userText = normalized, roleText = roleText,
-            userAt = user.createdAt, selectedDeliveryAction = route,
+            userAt = requestedAt, selectedDeliveryAction = route,
         )
         if (task == null) showWakeScheduleProblem(
             conversation, user, characterId,
@@ -246,7 +252,7 @@ object CommitmentTurnAutomation {
                 if (userBatch.isEmpty() || replies.isEmpty()) return@launch
                 val task = reconcileRoleChosenWake(
                     context = context.applicationContext, conversation = conversation,
-                    user = user, characterId = characterId,
+                    user = user, userMessages = userBatch, characterId = characterId,
                     sourceTurnId = "${conversation.id}:${user.id}:$characterId",
                     evidenceIds = userBatch.map(LuluChatMessage::id),
                     userText = userBatch.joinToString("\n") { it.content },
@@ -341,7 +347,7 @@ object CommitmentTurnAutomation {
             val ensuredWake = reconcileRoleChosenWake(
                 context = appContext ?: return@forEach,
                 conversation = conversation, user = userMessage,
-                characterId = characterId, sourceTurnId = sourceTurnId,
+                userMessages = userBatch, characterId = characterId, sourceTurnId = sourceTurnId,
                 evidenceIds = evidenceIds, userText = combinedUserText,
                 roleText = characterText,
             )
