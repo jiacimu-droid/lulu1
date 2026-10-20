@@ -17,7 +17,7 @@ class SelfWishFoldersTest {
         val oldActive = wish("active")
         assertEquals(SelfWishFolders.LEGACY_HELD, SelfWishFolders.categoryId(oldHeld))
         assertEquals(SelfWishFolders.UNFILED, SelfWishFolders.categoryId(oldActive))
-        assertEquals(listOf("old", "active"),
+        assertEquals(listOf("active", "old"),
             SelfWishFolders.filter(listOf(oldActive, oldHeld), SelfWishFolders.ALL)
                 .sortedBy { it.id }.map { it.id })
     }
