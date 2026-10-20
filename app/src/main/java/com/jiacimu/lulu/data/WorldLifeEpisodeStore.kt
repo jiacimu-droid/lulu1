@@ -123,17 +123,16 @@ internal object WorldLifeEpisodeStore {
         val elapsed = java.time.Duration.between(episode.occurredAt, now).toMinutes()
         if (elapsed !in 0..1_440) return ""
         val recentEnoughForContinuation = elapsed <= 35
+        // A novel is a readable artifact, NOT a reliable source of new beliefs
+        // about the user. Keeping its prose in model context used to repeat
+        // unsupported personal interpretations across story, chat and phone.
         return (if (recentEnoughForContinuation)
-            "刚才已经经历了一段完整的独处（约${elapsed}分钟前）："
-        else "今天较早时真实经历过一段独处（约${elapsed}分钟前；不可当作刚发生）：") +
-            "${episode.title}；唯一核实的世界动作：${episode.actualAction}。" +
-            "当时的主观叙事（不是新世界事实）：${episode.scene.take(260)}。" +
-            episode.unresolvedThread.takeIf(String::isNotBlank)?.let {
-                "人物仍有的主观疑问（不是已发生的客观事件）：${it}。"
-            }.orEmpty() +
+            "刚才已有一次独处活动（约${elapsed}分钟前）："
+        else "今天较早时已有一次独处活动（约${elapsed}分钟前）：") +
+            "经执行器核实的动作：${episode.actualAction}。" +
             (if (recentEnoughForContinuation)
-                "同一地点的日常动作应接着这段时间继续，不要隔几分钟重复生成走路、坐下的小回执。"
-            else "你可以因此产生自己的回味或新决定，但不要复演原剧情、把主观想象说成世界事实。")
+                "避免短时间内重复执行相同的日常动作。"
+            else "保留实际行动的时间关系；不要把文学正文当成事实或新的用户画像。")
     }
 
     @Synchronized fun delete(id: String): Boolean {
