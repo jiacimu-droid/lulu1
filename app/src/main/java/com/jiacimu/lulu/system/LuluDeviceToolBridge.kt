@@ -314,8 +314,10 @@ object LuluDeviceToolBridge {
             这不是固定音乐脚本。你可以选择是否接受，不能只在台词里答应，
             必须给真实可执行的数据；成功与否还要以手机执行器回执为准。
             只有已授权的媒体会话能被控制，并不能虚构歌曲或播放器。
-            音乐开始后电话仍可保持安静陪伴，你想再说话时播放器会暂时暂停，
-            你的话真正讲完后再继续；系统会对媒体音量执行额外限幅。
+            音乐开始后电话仍可保持安静陪伴；你想说话时播放器暂时暂停。
+            你可以在 reply JSON 选择 "musicAfterSpeech":"resume" 或 "stay_paused"，
+            由你决定说完要不要继续播放；省略表示保持暂停，不会擅自续播。
+            系统会对媒体音量执行额外限幅。
         """.trimIndent() else ""
         val voicePerformanceRule = if (sceneContext.contains("电话"))
             com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext,
@@ -1302,6 +1304,7 @@ object LuluDeviceToolBridge {
             return Result.success(expressed.copy(text = sendText,
                 bedtimeContinuation = plan.sleepContinuation?.toString(),
                 sleepDecision = plan.sleepDecision.takeIf { sceneContext.contains("电话") && it in setOf("enable", "disable") },
+                musicAfterSpeech = plan.musicAfterSpeech.takeIf { sceneContext.contains("电话") && it in setOf("resume", "stay_paused") },
                 interactionReceipt = if (rewriting || invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
@@ -1515,6 +1518,9 @@ object LuluDeviceToolBridge {
                 text = displayedText,
                 sleepDecision = plan.sleepDecision.takeIf {
                     sceneContext.contains("电话") && it in setOf("enable", "disable")
+                },
+                musicAfterSpeech = plan.musicAfterSpeech.takeIf {
+                    sceneContext.contains("电话") && it in setOf("resume", "stay_paused")
                 },
                 inputTokens = result.inputTokens + plannedReply.inputTokens,
                 outputTokens = result.outputTokens + plannedReply.outputTokens,
@@ -1751,6 +1757,7 @@ object LuluDeviceToolBridge {
                 endCall = json.optBoolean("endCall", false),
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 afterCallMedia = json.optJSONObject("afterCallMedia"),
+                musicAfterSpeech = json.optString("musicAfterSpeech").trim().lowercase(),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
@@ -1817,6 +1824,7 @@ private data class ToolPlan(
     val endCall: Boolean = false,
     val sleepDecision: String = "",
     val afterCallMedia: JSONObject? = null,
+    val musicAfterSpeech: String = "",
     val phoneFavorite: JSONObject? = null,
     val speechIntent: String = "",
     val socialAttempt: String = "",
