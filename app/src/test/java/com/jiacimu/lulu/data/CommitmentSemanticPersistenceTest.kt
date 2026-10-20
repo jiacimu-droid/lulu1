@@ -75,6 +75,56 @@ class CommitmentSemanticPersistenceTest {
         } finally { server.shutdown() }
     }
 
+    @Test fun acceptedTwentyMinuteWakeCreatesNativeAlarmAfterEmptyModelCommitmentDecision() = runBlocking {
+        val now = Instant.now()
+        val evidence = "accepted-wake-user"
+        // Reproduces the bug: the planner replied normally, recorded [] as
+        // handled, and the older recovery scanner skipped this entire promise.
+        CommitmentDecisionRuntime.apply(context, role, "chat:empty:$role",
+            listOf(evidence), JSONArray())
+        assertTrue(CommitmentDecisionRuntime.handled(context, role, listOf(evidence)))
+        assertTrue(CommitmentTaskStore.active(role).isEmpty())
+
+        val task = CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:$evidence:$role", listOf(evidence),
+            "我好累啊，宝宝，20分钟之后叫我",
+            "好，快把手机放下，安心眯一会儿。二十分钟我替你稳稳盯着，到点准时叫你。",
+            userAt = now, now = now, zone = zone,
+        )
+        assertNotNull(task)
+        assertEquals(now.plusSeconds(20 * 60), task!!.dueAt)
+        assertEquals("send_private_message", task.deliveryAction)
+        assertEquals(CommitmentTaskStatus.Scheduled, task.status)
+        assertNotNull(task.linkedAlarmId)
+        assertEquals(task.id, CommitmentTaskStore.active(role).single().id)
+        assertEquals(task.linkedAlarmId, LuluAlarmSystem.list().single {
+            it.commitmentTaskId == task.id
+        }.id)
+        // Re-running the same messages must not generate duplicate alarms.
+        val repeated = CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:$evidence:$role", listOf(evidence),
+            "我好累啊，宝宝，20分钟之后叫我", "好，我来叫你",
+            userAt = now, now = now.plusSeconds(10), zone = zone,
+        )
+        assertEquals(task.id, repeated?.id)
+        assertEquals(1, CommitmentTaskStore.active(role).size)
+        assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == task.id })
+    }
+
+    @Test fun refusedOrExpiredWakeCannotScheduleAnAlarm() = runBlocking {
+        val now = Instant.now()
+        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:refused:$role", listOf("refused-wake"),
+            "20分钟后叫我", "我没办法保证，不能帮你叫醒。", now, now, zone,
+        ))
+        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:expired:$role", listOf("expired-wake"),
+            "20分钟后叫我", "好，20分钟后准时叫你。",
+            now.minusSeconds(3600), now, zone,
+        ))
+        assertTrue(CommitmentTaskStore.active(role).isEmpty())
+    }
+
     @Test fun modelChosenOngoingResponsibilityIsVisibleWithoutInventingAnAlarm() = runBlocking {
         // The executor does not parse these words: it receives a typed model decision.
         val changes = JSONArray("""[{"action":"create","goal":"关注备考进展，低落时一起调整","promiseKind":"long_term_supervision","needsClarification":false,"completionCondition":"根据真实进展持续跟进"}]""")
