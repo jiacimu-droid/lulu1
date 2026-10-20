@@ -121,7 +121,8 @@ object CommitmentTurnAutomation {
         val recognized = RelativeWakeCommitmentParser.parse(normalized, roleText, requestedAt, zone)
             ?: WakeCommitmentParser.parse(normalized, roleText, requestedAt, zone)
             ?: return@withLock null
-        if (recognized.dueAt?.isAfter(Instant.now().plusSeconds(5)) != true)
+        val targetDue = recognized.dueAt ?: return@withLock null
+        if (!targetDue.isAfter(Instant.now().plusSeconds(5)))
             return@withLock null
 
         val existingWakes = CommitmentTaskStore.snapshot(characterId)
@@ -133,7 +134,7 @@ object CommitmentTurnAutomation {
         } ?: existingWakes.filter { task ->
             task.dueAt?.let { due ->
                 kotlin.math.abs(java.time.Duration.between(
-                    due, recognized.dueAt
+                    due, targetDue
                 ).seconds) <= 30L
             } == true
         }.singleOrNull()
