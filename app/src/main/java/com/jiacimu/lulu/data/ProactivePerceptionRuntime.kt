@@ -1521,6 +1521,7 @@ object ProactivePerceptionRuntime {
                 execution.conversationId != null &&
                     execution.conversationId in onlineUnread.conversationIds
             Action.TOOL -> decision.tool in setOf("send_private_message", "send_group_message") &&
+                execution.conversationId != null &&
                 execution.conversationId in onlineUnread.conversationIds
             else -> false
         })
