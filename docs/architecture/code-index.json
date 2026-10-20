@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T20:35:32.885362+00:00",
-  "commit": "f3152ea889d58088492b3aa48e814112b6a32d5d",
+  "generatedAt": "2026-10-20T20:35:52.588294+00:00",
+  "commit": "0357c9962c3867ffa8e1d3a77ea855792dfb61f8",
   "branch": "main",
-  "sourceFingerprint": "a7b545e7322cabe407664446d2d530bbdbfb8331f5eee367cb8bf0670a39ed32",
+  "sourceFingerprint": "072e8049e97335cf7ee86829862bb5ecbfea5b54bdf67066652d02ac1b005367",
   "summary": {
     "files": 754,
-    "lines": 145010,
+    "lines": 145023,
     "symbols": 2189
   },
   "symbolIndex": {
@@ -1853,19 +1853,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1654
+        "line": 1659
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1805
+        "line": 1810
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1955
+        "line": 1960
       }
     ],
     "returnToList": [
@@ -13615,8 +13615,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2041,
-      "sha256": "ce2fcc14c12f7363718ddff4f3c46f7851be4c4acfecce89f8e0361fbb944294",
+      "lines": 2046,
+      "sha256": "f41257fd0880849af1844a58dbcf2f3c492ed771285a1ce2391e7c698429d9c9",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -13692,15 +13692,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1654
+          "line": 1659
         },
         {
           "name": "retryListening",
-          "line": 1805
+          "line": 1810
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1955
+          "line": 1960
         }
       ]
     },
@@ -23572,8 +23572,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1837,
-      "sha256": "e4f18466d7b06cde8cbe80971bdfdd715e3744e7ec3f0e1c18b374b326e00a3f",
+      "lines": 1845,
+      "sha256": "80fbea90d218f7c5951969e96b973d557b8945128f399f54a27792fdd0f3e6a2",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
