@@ -1640,13 +1640,76 @@ object ProactivePerceptionRuntime {
         }
         val resultJson = JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
             requestId = requestId, intentionId = decision.intentionId))
-        val result = CompanionActionResult(resultJson.optBoolean("success"), resultJson.optString("summary").ifBlank { resultJson.optString("error") }, resultJson.optString("conversationId").takeIf(String::isNotBlank))
-        if (!result.success) {
-            return ActionExecution(false, result.summary.ifBlank { "执行器没有返回失败原因" })
+        val result = CompanionActionResult(
+            resultJson.optBoolean("success"),
+            resultJson.optString("summary").ifBlank {
+                resultJson.optString("error").ifBlank {
+                    resultJson.optString("verification").ifBlank { resultJson.optString("status") }
+                }
+            },
+            resultJson.optString("conversationId").takeIf(String::isNotBlank),
+            resultJson.optString("evidenceId"))
+        val effectNotes = mutableListOf<String>()
+        if (result.summary.isNotBlank()) effectNotes += result.summary
+        // The same role-model response may choose a separate device action
+        // AND a conversational reply. Neither effect is permission for the
+        // other; each receives an independent, persisted ToolRouter receipt.
+        if (result.success) decision.sideActions?.let { effects ->
+            for (i in 0 until minOf(2, effects.length())) {
+                val effect = effects.optJSONObject(i) ?: continue
+                val name = effect.optString("tool").trim()
+                if (name !in setOf("control_volume", "control_music", "list_media_sessions")) {
+                    effectNotes += "附加动作未执行：无效的工具名称"
+                    continue
+                }
+                val extraResult = runCatching {
+                    JSONObject(ToolRouter.execute(appContext, character.characterId, name,
+                        effect.optJSONObject("args") ?: JSONObject(),
+                        requestId = requestId + ":side:" + i,
+                        intentionId = decision.intentionId))
+                }.getOrElse { JSONObject().put("success", false)
+                    .put("error", it.message.orEmpty().ifBlank { "设备未返回状态" }) }
+                effectNotes += name + "：" + extraResult.optString("summary").ifBlank {
+                    extraResult.optString("error").ifBlank {
+                        extraResult.optString("verification").ifBlank {
+                            extraResult.optString("status").ifBlank { "未确认" }
+                        }
+                    }
+                }.take(160)
+            }
         }
-        when (decision.action) {
-            // Chat notifications originate from committed messages, including action=tool,
-            // rather than a subset of model action labels. Do not notify the same reply twice.
+        // A chosen tool does not consume its own optional spoken message.
+        // This text is authored by the original model decision; there is no
+        // second personality/model call after tool execution.
+        var deliveredExtra = false
+        var extraConversationId: String? = null
+        if (decision.action == Action.TOOL && decision.text.isNotBlank() &&
+            tool !in setOf("send_private_message", "send_group_message") &&
+            hasFreshUserMessage && replyConversationIds.isNotEmpty()) {
+            val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {
+                it.id in replyConversationIds && it.groupChat == null &&
+                    it.characterId == character.characterId
+            }
+            if (destination != null) {
+                val responseArgs = JSONObject().put("text", decision.text)
+                    .put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
+                val replyResult = runCatching {
+                    JSONObject(ToolRouter.execute(appContext, character.characterId,
+                        "send_private_message", responseArgs,
+                        requestId = requestId + ":reply", intentionId = decision.intentionId))
+                }.getOrElse { JSONObject().put("success", false)
+                    .put("error", it.message.orEmpty().ifBlank { "消息发送失败" }) }
+                deliveredExtra = replyResult.optBoolean("success")
+                extraConversationId = replyResult.optString("conversationId").takeIf(String::isNotBlank)
+                if (!deliveredExtra) effectNotes += "回复未送达：" +
+                    replyResult.optString("error").take(150)
+            }
+        }
+        val combinedSummary = effectNotes.joinToString("；").take(350)
+            .ifBlank { "工具执行未返回具体状态" }
+        if (!result.success && !deliveredExtra)
+            return ActionExecution(false, combinedSummary)
+        if (result.success) when (decision.action) {
             Action.CALL -> result.conversationId?.let {
                 showCallNotification(appContext, it, character.displayName, decision.text)
             }
@@ -1656,8 +1719,9 @@ object ProactivePerceptionRuntime {
             }
             else -> Unit
         }
-        return ActionExecution(true, result.summary, result.conversationId,
-            resultJson.optString("evidenceId"))
+        return ActionExecution(true, combinedSummary,
+            extraConversationId ?: result.conversationId, result.evidenceId,
+            deliveredReply = deliveredExtra)
     }
 
     private fun Decision.withPresenceFallback(character: CharacterSettings): Decision {
