@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:17:25.685247+00:00",
-  "commit": "d73b243a0bcd2a869edb4dd46d83824f59740559",
+  "generatedAt": "2026-10-20T06:18:03.253159+00:00",
+  "commit": "36f13fc14a25c7f2264d8a4417b40fe78a6373fa",
   "branch": "main",
-  "sourceFingerprint": "38bca7889c303735fb6b6f4159e09e994eb3c3859e92dea92bb713d1f0711008",
+  "sourceFingerprint": "7b174ec62d1a11b6af41fbf61572afab8a89d78139a5b69a81eea8725de6ef9b",
   "summary": {
-    "files": 746,
-    "lines": 142891,
-    "symbols": 2168
+    "files": 747,
+    "lines": 142920,
+    "symbols": 2169
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10801,6 +10801,12 @@
     "CallSpokenHangupPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt",
+        "line": 5
+      }
+    ],
+    "ChatErrorNoticeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt",
         "line": 5
       }
     ],
@@ -23573,6 +23579,17 @@
       "symbols": [
         {
           "name": "CallSpokenHangupPolicyTest",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt",
+      "lines": 29,
+      "sha256": "1ceffca10f1fd8633a260a92ed725b7ee25b73f28c5e9532433d8fb6e0ce6604",
+      "symbols": [
+        {
+          "name": "ChatErrorNoticeTest",
           "line": 5
         }
       ]
