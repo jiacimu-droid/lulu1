@@ -717,6 +717,14 @@ object LuluDeviceToolBridge {
                 ?: "phone-${phoneCallId}-${now.toEpochMilli()}"
             val receipt = com.jiacimu.lulu.data.DeferredCallMediaAction.register(
                 appContext, characterId, phoneCallId, sourceTurn, plan.afterCallMedia)
+            runCatching {
+                com.jiacimu.lulu.data.SharedExperienceTimeline.record(
+                    eventId = "phone-media-decision:$characterId:$sourceTurn",
+                    characterId = characterId, channel = "电话音乐安排",
+                    speaker = "设备执行器", content = receipt, occurredAt = now,
+                    source = "deferred-call-media", triggerExtraction = false,
+                    evidenceKind = com.jiacimu.lulu.data.EventEvidenceKind.ToolResult)
+            }
             if (receipt.startsWith("已登记")) {
                 val trigger = plan.afterCallMedia.optString("trigger")
                 if (trigger == "in_call" || trigger == "now") {
@@ -1309,6 +1317,7 @@ object LuluDeviceToolBridge {
                 bedtimeContinuation = plan.sleepContinuation?.toString(),
                 sleepDecision = plan.sleepDecision.takeIf { sceneContext.contains("电话") && it in setOf("enable", "disable") },
                 musicAfterSpeech = plan.musicAfterSpeech.takeIf { sceneContext.contains("电话") && it in setOf("resume", "stay_paused") },
+                phoneMediaReceipt = mediaReceipt.takeIf(String::isNotBlank),
                 interactionReceipt = if (rewriting || invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
