@@ -88,6 +88,20 @@ class RelationshipPreferencesTest {
             event("fiction", "以后你每次抛飞吻的时候都要发mwah", channel = "末世求生"))).preferences.isEmpty())
     }
 
+    @Test fun voluntaryWakeDeliveryPreferenceBelongsToThisRelationshipOnly() {
+        val first = state("我更喜欢你打电话叫醒我")
+        assertEquals(1, first.preferences.size)
+        assertEquals("我更喜欢你打电话叫醒我", first.preferences.single().quote)
+        val second = state("我偏向于你给我打电话叫醒我")
+        assertEquals(1, second.preferences.size)
+        assertTrue(second.preferences.single().quote.contains("偏向"))
+        assertTrue(state("今天你打电话叫我起床，我很开心").preferences.isEmpty())
+        assertTrue(state("我喜欢奶油意面").preferences.isEmpty())
+        assertEquals(0, CharacterRelationshipPreferences.fromEvents(listOf(
+            event("role-invention", "我更喜欢你打电话叫醒我",
+                kind = EventEvidenceKind.CharacterStatement))).preferences.size)
+    }
+
     @Test fun groupPreferencesNeedAnExplicitCollectiveAddressee() {
         assertTrue(CharacterRelationshipPreferences.fromEvents(listOf(
             event("group", "以后叫我宝宝吧", channel = "群聊·朋友"))).preferences.isEmpty())
