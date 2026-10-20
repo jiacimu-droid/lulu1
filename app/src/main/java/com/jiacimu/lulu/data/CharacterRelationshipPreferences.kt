@@ -77,14 +77,20 @@ internal object CharacterRelationshipPreferences {
             val contract = Regex("""(?:每次|以后|今后)(?:你|角色)?(?:每次)?(.{1,35}?)(?:的时候|时)?(?:都)?(要|必须|不需要再?|不用再?|不要再?)(?:发|说|带上|加上|用)([^，,。；;\n]+)""").find(sentence)
             val lasting = Regex("以后|今后|每次|一直|永远|别忘|记住|长期|不要再|别再").containsMatchIn(sentence)
             val relational = contract != null || Regex("你|我们|角色|称呼|叫我|喊我|被叫|亲亲|拥抱|相处|聊天|安慰").containsMatchIn(sentence)
-            val preference = Regex("我(?:特别|很|非常|比较|更|最)?(?:不喜欢|喜欢|讨厌)|我(?:希望|要求)|都要|必须|不需要|不用|不要再|别再|别叫我|不要叫我")
+            val preference = Regex("我(?:特别|很|非常|比较|更|最)?(?:不喜欢|喜欢|讨厌)|我(?:希望|要求)|我(?:更)?(?:偏向于|倾向于)|都要|必须|不需要|不用|不要再|别再|别叫我|不要叫我")
+                .containsMatchIn(sentence)
+            // Keep a real user's call-vs-ringtone preference in THIS role's
+            // source-backed relationship projection, not a global role prompt.
+            // A preference is not a mandatory alarm or a new commitment.
+            val wakePreference = Regex("(?:喜欢|偏向于|倾向于|希望).{0,36}(?:电话|来电|闹钟|叫醒|喊醒)")
                 .containsMatchIn(sentence)
             // A general conditional account of what helps is a relationship preference,
             // unlike an isolated 'I was happy today'. Preserve the user's exact cause and scope.
             val conditionalBenefit = Regex("我.{0,24}(?:的时候|时|期间).{0,80}(?:你|角色|我们).{0,80}我.{0,8}(?:就会|会|就).{0,8}(?:开心|舒服|安心|好受)")
                 .containsMatchIn(sentence)
-            if (!relational || !(conditionalBenefit || lasting && preference || preference && Regex("称呼|叫我|喊我|亲亲|拥抱|相处|聊天|安慰|我不喜欢你").containsMatchIn(sentence)))
-                return@mapNotNull null
+            if (!relational || !(conditionalBenefit || lasting && preference ||
+                preference && (wakePreference || Regex("称呼|叫我|喊我|亲亲|拥抱|相处|聊天|安慰|我不喜欢你")
+                    .containsMatchIn(sentence)))) return@mapNotNull null
             // Naming has its own current-state projection; don't re-inject superseded raw names.
             if (contract == null && (CharacterAddressPreference.extractExplicitAddress(sentence) != null ||
                 CharacterAddressPreference.extractRejectedAddresses(sentence).isNotEmpty())) return@mapNotNull null
