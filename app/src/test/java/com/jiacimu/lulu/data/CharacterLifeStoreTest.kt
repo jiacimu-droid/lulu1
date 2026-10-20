@@ -313,6 +313,50 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
+    fun v12DefaultsUpgradeButOwnerCustomizedWordsAndOtherRolesStayUnchanged() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val person = MigratedDomainStores.characters.create("江渡",
+            CharacterProfileSchema.jiangDuV12Persona)
+        val other = MigratedDomainStores.characters.create("另一个人", "不属于江渡的性格")
+        val id = person.characterId
+        val old = CharacterLifeStore.state(id)
+            .put("jiangDuPresetVersion", 12)
+            .put("profile", JSONObject().apply {
+                CharacterProfileSchema.jiangDuV12Overrides.forEach { (key, value) ->
+                    put(key, value)
+                }
+                put("conflict", "本人手动定义的独特冲突方式")
+            })
+            .put("relationshipAgreements", JSONObject()
+                .put("user", JSONObject().put("title", "自己设定的关系")
+                    .put("details", "私人专属关系细节")))
+            .put("customNotebook", "我写过的东西绝不清空")
+        assertTrue(context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+            .edit().putString(id, old.toString()).commit())
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val newState = CharacterLifeStore.state(id)
+        val profile = newState.getJSONObject("profile")
+        assertEquals(13, newState.getInt("jiangDuPresetVersion"))
+        assertEquals("本人手动定义的独特冲突方式", profile.getString("conflict"))
+        assertEquals(CharacterProfileSchema.jiangDuV13Overrides.getValue("respect"),
+            profile.getString("respect"))
+        assertEquals("私人专属关系细节",
+            newState.getJSONObject("relationshipAgreements")
+                .getJSONObject("user").getString("details"))
+        assertEquals("我写过的东西绝不清空", newState.getString("customNotebook"))
+        assertEquals(CharacterProfileSchema.jiangDuV13Persona,
+            MigratedDomainStores.characters.get(id).persona)
+        assertEquals(other, MigratedDomainStores.characters.get(other.characterId))
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
     fun relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
