@@ -651,6 +651,9 @@ internal object LuluVoiceCallSession {
         appContext?.let { context ->
             com.jiacimu.lulu.data.DeferredCallMediaAction.onCallDisconnected(
                 context, current.characterId, current.callExperienceId)
+            // Only a model-authored call_end instruction survives disconnect.
+            com.jiacimu.lulu.data.DeferredCallMediaAction.onCallEnded(
+                context, current.characterId, current.callExperienceId)
         }
         LuluCallRingtone.stopAll()
         lastPhoneXhsRequest = ""
@@ -850,7 +853,8 @@ internal object LuluVoiceCallSession {
                     mediaSpeechResume = scope.launch {
                         delay(600L)
                         val call = mutableState.value
-                        if (call.connected && !call.speaking &&
+                        if (call.connected && !call.thinking && !call.speaking &&
+                            !call.userSpeaking && !userSpeechInProgress &&
                             speechQueue?.hasPendingAudio != true) {
                             appContext?.let {
                                 com.jiacimu.lulu.data.DeferredCallMediaAction.afterRoleSpeech(
