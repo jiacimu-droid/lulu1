@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T19:00:50.288631+00:00",
-  "commit": "2f8f2fbc36cd8ab72c225d3c09415dd3afb292f6",
+  "generatedAt": "2026-10-20T19:01:50.509316+00:00",
+  "commit": "88eee06ce2e706f30118d94bd149aee131f2fc75",
   "branch": "main",
-  "sourceFingerprint": "9ad6a6ed5333eb23047637cb55c28f46820de9f3eab1f1d6d3938a5656cf03e4",
+  "sourceFingerprint": "7eed0ced3005ada0fa0079f73735a559d9af05ad28274702206d9ba61a4d9121",
   "summary": {
     "files": 750,
-    "lines": 144307,
-    "symbols": 2179
+    "lines": 144340,
+    "symbols": 2180
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5328,6 +5328,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
         "line": 67
+      }
+    ],
+    "playChosenMusic": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
+        "line": 34
       }
     ],
     "CommitmentLexiconSync": [
@@ -17118,9 +17124,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt",
-      "lines": 212,
-      "sha256": "35163a9e21515b1d26b3b0defdc60e27477fe2eaeda3d30aaae78f5c83f8b431",
-      "symbols": []
+      "lines": 245,
+      "sha256": "388cb0f3dd7841c5c214b37d47100c080ac27be5d0ef1cc76e6b0202556ecf96",
+      "symbols": [
+        {
+          "name": "playChosenMusic",
+          "line": 34
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt",
