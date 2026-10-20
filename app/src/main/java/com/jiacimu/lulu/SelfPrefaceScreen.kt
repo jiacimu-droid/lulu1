@@ -47,6 +47,7 @@ internal data class SelfPageEntry(
     val nextStep: String = "",
     val state: String = "",
     val starred: Boolean = false,
+    val wishFolderId: String = "",
 )
 
 /** Private user-authored pages; never mixed into a character's memory or life logs. */
@@ -56,34 +57,62 @@ private object SelfPageStore {
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    fun read(context: Context): List<SelfPageEntry> = runCatching {
-        val array = JSONArray(prefs(context).getString(KEY, "[]"))
-        (0 until array.length()).mapNotNull { index ->
-            val obj = array.optJSONObject(index) ?: return@mapNotNull null
-            val id = obj.optString("id").takeIf(String::isNotBlank) ?: return@mapNotNull null
+    /**
+     * Never treat a corrupted or partly unreadable original as an empty notebook.
+     * All prior entries must parse before any save can proceed.
+     */
+    fun readStrict(context: Context): List<SelfPageEntry>? = runCatching {
+        val stored = prefs(context).getString(KEY, null) ?: return@runCatching emptyList()
+        val array = JSONArray(stored)
+        val rows = (0 until array.length()).map { index ->
+            val obj = array.getJSONObject(index)
+            val id = obj.getString("id").trim()
+            require(id.isNotEmpty()) { "Missing record ID" }
             val updated = obj.optLong("updated")
-            SelfPageEntry(id, obj.optString("area", "所思"), obj.optString("title"),
+            SelfPageEntry(
+                id, obj.optString("area", "所思"), obj.optString("title"),
                 obj.optString("body"), obj.optBoolean("done"), updated,
                 obj.optLong("createdAt", updated), obj.optString("entryDate", ""),
                 obj.optString("mood", ""), obj.optString("weather", ""),
                 obj.optString("guide", ""), obj.optString("nextStep", ""),
-                obj.optString("state", ""), obj.optBoolean("starred", false))
-        }.sortedByDescending { it.updated }
-    }.getOrDefault(emptyList())
+                obj.optString("state", ""), obj.optBoolean("starred", false),
+                obj.optString("wishFolderId", ""),
+            )
+        }
+        require(rows.map { it.id }.distinct().size == rows.size) { "Duplicate record IDs" }
+        rows.sortedByDescending { it.updated }
+    }.getOrNull()
 
-    fun persist(context: Context, entries: List<SelfPageEntry>): Boolean {
+    fun persist(context: Context, entries: List<SelfPageEntry>): Boolean = runCatching {
+        val stored = prefs(context).getString(KEY, null)
+        val originals = mutableMapOf<String, JSONObject>()
+        if (stored != null) {
+            val array = JSONArray(stored)
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                val id = obj.getString("id").trim()
+                require(id.isNotEmpty() && !originals.containsKey(id))
+                originals[id] = obj
+            }
+        }
+        require(entries.map { it.id }.distinct().size == entries.size)
         val array = JSONArray()
         entries.forEach { item ->
-            array.put(JSONObject().put("id", item.id).put("area", item.area)
+            // Merge instead of rebuilding: preserve all unknown keys from older /
+            // future versions (including any extensions another feature wrote).
+            val obj = originals[item.id]?.let { JSONObject(it.toString()) } ?: JSONObject()
+            array.put(obj.put("id", item.id).put("area", item.area)
                 .put("title", item.title).put("body", item.body)
                 .put("done", item.done).put("updated", item.updated)
                 .put("createdAt", item.createdAt).put("entryDate", item.entryDate)
                 .put("mood", item.mood).put("weather", item.weather)
                 .put("guide", item.guide).put("nextStep", item.nextStep)
-                .put("state", item.state).put("starred", item.starred))
+                .put("state", item.state).put("starred", item.starred)
+                .put("wishFolderId", item.wishFolderId))
         }
-        return prefs(context).edit().putString(KEY, array.toString()).commit()
-    }
+        prefs(context).edit().putString(KEY, array.toString()).commit()
+    }.getOrDefault(false)
+
 }
 
 
@@ -91,7 +120,9 @@ private object SelfPageStore {
 @Composable
 fun SelfPrefaceScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    var records by remember { mutableStateOf(SelfPageStore.read(context)) }
+    val initialRead = remember { SelfPageStore.readStrict(context) }
+    var records by remember { mutableStateOf(initialRead ?: emptyList()) }
+    val dataReadFailed = initialRead == null
     var area by remember { mutableStateOf("所思") }
     var overview by remember { mutableStateOf(true) }
     var editing by remember { mutableStateOf<SelfPageEntry?>(null) }
@@ -113,6 +144,14 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     }
     val filtered = records.filter { it.area == area }
     fun save(next: List<SelfPageEntry>): Boolean {
+        // A stale screen or corrupted storage must never silently overwrite any
+        // newer or unreadable user pages.
+        val current = SelfPageStore.readStrict(context)
+        if (dataReadFailed || current == null ||
+            current.associateBy { it.id } != records.associateBy { it.id }) {
+            error = "原记录读取异常或已在其他页面更新。已停止写入，请重新打开自序核对。"
+            return false
+        }
         if (!SelfPageStore.persist(context, next)) {
             error = "保存失败，请重试"
             return false
@@ -137,16 +176,14 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
             pages = thoughtPages,
             onBack = { overview = true },
             onSave = { page ->
-                save(records.filterNot { it.id == page.id } + SelfPageEntry(
-                    id = page.id,
-                    area = "所思",
-                    title = page.title,
-                    body = page.body,
-                    done = false,
-                    updated = page.updatedAt,
-                    createdAt = page.createdAt,
-                    entryDate = page.date.toString(),
-                    mood = page.mood,
+                val existing = records.firstOrNull { it.id == page.id }
+                save(records.filterNot { it.id == page.id } + (existing ?: SelfPageEntry(
+                    id = page.id, area = "所思", title = "", body = "",
+                    done = false, updated = page.updatedAt
+                )).copy(
+                    area = "所思", title = page.title, body = page.body,
+                    updated = page.updatedAt, createdAt = page.createdAt,
+                    entryDate = page.date.toString(), mood = page.mood,
                     weather = page.weather,
                 ))
             },
@@ -220,6 +257,11 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                if (dataReadFailed) Text(
+                    "自序原始记录读取异常，已保护现有数据并禁止覆盖。请先检查存储。",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(vertical = 9.dp),
+                )
                 SelfPrefaceHomeHero(Modifier.padding(top = 7.dp, bottom = 11.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     SelfPrefaceCategory("所思", "日记 · 灵感 · 思考", Icons.Outlined.EditNote,
@@ -302,10 +344,12 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                 TextButton(
                     enabled = title.isNotBlank() || body.isNotBlank(),
                     onClick = {
-                        val entry = SelfPageEntry(
-                            original?.id ?: UUID.randomUUID().toString(),
-                            area, title.trim(), body.trim(), original?.done ?: false,
+                        val entry = (original ?: SelfPageEntry(
+                            UUID.randomUUID().toString(), area, "", "", false,
                             System.currentTimeMillis(),
+                        )).copy(
+                            area = area, title = title.trim(), body = body.trim(),
+                            updated = System.currentTimeMillis(),
                         )
                         if (save(records.filterNot { it.id == entry.id } + entry)) {
                             overview = false
