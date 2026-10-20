@@ -46,6 +46,29 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(role)
     }
 
+    @Test fun userCanWithdrawOnlyOneSubjectiveRelationshipImpression() {
+        start()
+        val role = "inside-test-impression-withdrawal"
+        CharacterInnerLifeStore.clear(role)
+        val now = Instant.parse("2026-10-20T11:00:00Z")
+        val social = JSONObject().put("social", JSONObject()
+            .put("targetId", "user")
+            .put("interpretation", "她似乎总在逞强")
+            .put("reason", "我刚才自己猜的"))
+        CharacterInnerLifeStore.observe(role, "evidence-impression", "一次双方对话",
+            social, setOf("user"), now)
+        val before = CharacterInnerLifeStore.snapshot(role)
+        assertEquals("她似乎总在逞强",
+            before.getJSONObject("bonds").getJSONObject("user").getString("interpretation"))
+        assertFalse(CharacterInnerLifeStore.forgetRelationshipImpression(
+            role, "user", "outdated-evidence", "她似乎总在逞强"))
+        assertTrue(CharacterInnerLifeStore.forgetRelationshipImpression(
+            role, "user", "evidence-impression", "她似乎总在逞强"))
+        assertNull(CharacterInnerLifeStore.snapshot(role)
+            .optJSONObject("bonds")?.optJSONObject("user"))
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun strongRecordedRegretSurvivesFiveMinutePresenceWindowForAftercare() {
         start()
         val id = "inside-test-aftercare"
