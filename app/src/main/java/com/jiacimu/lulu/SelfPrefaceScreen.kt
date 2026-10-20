@@ -342,11 +342,20 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
             onDismissRequest = { creating = false },
             title = { Text(if (original == null) "写在「$area」" else "修改记录") },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // Legacy editor (for records not opened through the specialised
+                // apps): constrain the form to a keyboard-safe scroll region.
+                Column(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
                     OutlinedTextField(title, { title = it }, label = { Text("标题") },
-                        singleLine = true, modifier = Modifier.fillMaxWidth())
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible())
                     OutlinedTextField(body, { body = it }, label = { Text("内容") },
-                        minLines = 5, maxLines = 12, modifier = Modifier.fillMaxWidth())
+                        minLines = 3, maxLines = 8,
+                        modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible())
+                    Spacer(Modifier.height(8.dp))
                 }
             },
             confirmButton = {
