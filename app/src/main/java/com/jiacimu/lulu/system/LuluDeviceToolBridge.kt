@@ -828,12 +828,12 @@ object LuluDeviceToolBridge {
             }
             if (userMessage != null && requestedId.isBlank())
                 plan.args.put("messageId", userMessage.id)
-            if (plan.args.optString("reason").trim().length < 4)
-                plan.args.put("reason", plan.reason.trim().take(170).takeIf {
-                    it.length >= 4
-                } ?: plan.innerThought.trim().take(170).takeIf {
-                    it.length >= 4
-                } ?: "刚刚听到的那句话很想留着，日后再听听")
+            // A genuinely chosen favorite keeps the role's own words,
+            // however brief. Never fabricate four-character "motivations".
+            if (plan.args.optString("reason").isBlank()) {
+                val actualReason = plan.reason.trim().ifBlank { plan.innerThought.trim() }
+                if (actualReason.isNotBlank()) plan.args.put("reason", actualReason.take(170))
+            }
         }
         val choiceBasis = com.jiacimu.lulu.data.CharacterBehaviorMotivation.resolve(
             if (plan.action == "tool") plan.tool else plan.action,
