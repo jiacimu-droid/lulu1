@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T07:53:34.445022+00:00",
-  "commit": "3f79edb2e29ad9b9dbd9931560a751c98fa7b3de",
+  "generatedAt": "2026-10-20T07:54:52.638739+00:00",
+  "commit": "8a0ab58eb009fa6581bb33c81ae4eaf9a77b7340",
   "branch": "main",
-  "sourceFingerprint": "370acc99ce5d11b95d8ac20297f3aa76400e906b37fc786dda9e02b939369967",
+  "sourceFingerprint": "f1a619ab9b6c0fbffc7f27f4e97f35823def5a998def777314339198a9fbf213",
   "summary": {
     "files": 748,
-    "lines": 143101,
+    "lines": 143161,
     "symbols": 2169
   },
   "symbolIndex": {
@@ -14431,8 +14431,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 467,
-      "sha256": "4732797f9f69f5077c7caed68429a1a7be207f4d485a40dc47a606a73cee2dbb",
+      "lines": 527,
+      "sha256": "dab007e1fabb9bcecf104e73fe5e39243a3e407a27db9ace2d0539c2e8ce763f",
       "symbols": [
         {
           "name": "readStrict",
