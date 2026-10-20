@@ -90,10 +90,11 @@ class CommitmentSemanticPersistenceTest {
             "我好累啊，宝宝，20分钟之后叫我",
             "好，快把手机放下，安心眯一会儿。二十分钟我替你稳稳盯着，到点准时叫你。",
             userAt = now, now = now, zone = zone,
+            selectedDeliveryAction = "alarm_only",
         )
         assertNotNull(task)
         assertEquals(now.plusSeconds(20 * 60), task!!.dueAt)
-        assertEquals("send_private_message", task.deliveryAction)
+        assertEquals("alarm_only", task.deliveryAction)
         assertEquals(CommitmentTaskStatus.Scheduled, task.status)
         assertNotNull(task.linkedAlarmId)
         assertEquals(task.id, CommitmentTaskStore.active(role).single().id)
@@ -109,6 +110,40 @@ class CommitmentSemanticPersistenceTest {
         assertEquals(task.id, repeated?.id)
         assertEquals(1, CommitmentTaskStore.active(role).size)
         assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == task.id })
+    }
+
+    @Test fun missingOrQuietWakeRouteNeverSilentlyBecomesTextMessage() = runBlocking {
+        val now = Instant.now()
+        val base = arrayOf("20分钟后叫我", "好，20分钟后叫你。")
+        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:no-way:$role", listOf("no-way"),
+            base[0], base[1], userAt = now, now = now, zone = zone,
+        ))
+        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:quiet:$role", listOf("quiet-way"),
+            base[0], base[1], userAt = now, now = now, zone = zone,
+            selectedDeliveryAction = "send_private_message",
+        ))
+        assertNull(CommitmentDecisionRuntime.ensureAcceptedWake(
+            context, role, "chat:phone-explicit:$role", listOf("explicit-phone"),
+            "20分钟后打电话叫醒我", "好，我给你打电话",
+            userAt = now, now = now, zone = zone, selectedDeliveryAction = "alarm_only",
+        ))
+        assertTrue(CommitmentTaskStore.snapshot(role).isEmpty())
+    }
+
+    @Test fun absentWakeChannelFromMainModelStaysPendingUntilRoleChooses() = runBlocking {
+        val due = Instant.now().plusSeconds(20 * 60)
+        val json = JSONArray().put(JSONObject()
+            .put("action", "create").put("goal", "20分钟后叫醒用户")
+            .put("dueAt", due.toString()).put("timezone", zone.id))
+        val receipt = CommitmentDecisionRuntime.apply(context, role,
+            "chat:pending:$role", listOf("pending-wake"), json)
+        val pending = CommitmentTaskStore.snapshot(role).single()
+        assertEquals(CommitmentTaskStatus.NeedsClarification, pending.status)
+        assertNull(pending.linkedAlarmId)
+        assertFalse(LuluAlarmSystem.list().any { it.commitmentTaskId == pending.id })
+        assertTrue(receipt.contains("NeedsClarification"))
     }
 
     @Test fun refusedOrExpiredWakeCannotScheduleAnAlarm() = runBlocking {
