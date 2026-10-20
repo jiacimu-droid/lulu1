@@ -94,7 +94,24 @@ internal fun SelfCompassScreen(
     var editing by remember { mutableStateOf(false) }
     var target by remember { mutableStateOf<SelfPageEntry?>(null) }
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
-    var filter by remember(area) { mutableStateOf(if (values) "all" else SelfCompassRules.ACTIVE) }
+    var filter by remember(area) { mutableStateOf(if (values) "all" else SelfWishFolders.ALL) }
+    var folders by remember { mutableStateOf(SelfWishFolders.read(context)) }
+    val safeFolders = folders.orEmpty()
+    fun createFolder(name: String): Boolean {
+        if (values || folders == null) return false
+        val updated = SelfWishFolders.create(context, safeFolders, name) ?: return false
+        folders = updated
+        filter = updated.last().id
+        localError = ""
+        return true
+    }
+    fun renameFolder(id: String, name: String): Boolean {
+        if (values || folders == null) return false
+        val updated = SelfWishFolders.rename(context, safeFolders, id, name) ?: return false
+        folders = updated
+        localError = ""
+        return true
+    }
     var taskIds by remember { mutableStateOf(SelfTodoStore.read(context).map { it.id }.toSet()) }
     var localError by remember { mutableStateOf("") }
     fun open(page: SelfPageEntry? = null) { target = page; editing = true }
@@ -103,6 +120,10 @@ internal fun SelfCompassScreen(
     if (editing) {
         CompassEditor(
             original = target, values = values, colors = colors, error = error,
+            folders = safeFolders,
+            selectedFolder = filter.takeUnless {
+                it in setOf(SelfWishFolders.ALL, SelfWishFolders.COMPLETED)
+            } ?: SelfWishFolders.UNFILED,
             onCancel = { editing = false },
             onSave = {
                 if (onSave(it)) {
@@ -113,10 +134,10 @@ internal fun SelfCompassScreen(
             onDelete = { editing = false; deleting = it },
         )
     } else {
-        val visible = SelfCompassRules.select(pages, values, filter)
-        val featured = pages.filter {
-            it.starred && (values || SelfCompassRules.state(it) == SelfCompassRules.ACTIVE)
-        }.maxByOrNull { it.updated }
+        val visible = if (values) SelfCompassRules.select(pages, true, filter)
+            else SelfWishFolders.filter(pages, filter)
+        val featured = if (values) pages.filter { it.starred }.maxByOrNull { it.updated }
+            else null // Starred wishes already sort to the top of their chosen folder.
         val fulfilled = pages.count {
             !values && SelfCompassRules.state(it) == SelfCompassRules.FULFILLED
         }
@@ -156,10 +177,15 @@ internal fun SelfCompassScreen(
                 contentPadding = PaddingValues(19.dp, 12.dp, 19.dp, 118.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                item(key = "hero") { CompassHero(values, pages.size, fulfilled, colors) }
-                if (error.isNotBlank() || localError.isNotBlank()) {
+                if (values) item(key = "hero") {
+                    CompassHero(true, pages.size, fulfilled, colors)
+                }
+                if (error.isNotBlank() || localError.isNotBlank() ||
+                    (!values && folders == null)) {
                     item(key = "error") {
-                        Text((error + "\n" + localError).trim(),
+                        Text((listOf(error, localError,
+                            if (!values && folders == null) "心愿文件夹读取失败，已禁用分类修改以保护原有数据。" else "")
+                            .filter { it.isNotBlank() }.joinToString("\n")),
                             fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -204,21 +230,22 @@ internal fun SelfCompassScreen(
                         colors,
                     )
                     Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                        if (values) {
+                    if (values) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                             CompassPill("全部", filter == "all", colors) { filter = "all" }
-                            CompassPill("常记心上", filter == "pinned", colors) { filter = "pinned" }
-                        } else {
-                            CompassPill("在路上", filter == SelfCompassRules.ACTIVE, colors) {
-                                filter = SelfCompassRules.ACTIVE
-                            }
-                            CompassPill("珍藏", filter == SelfCompassRules.HELD, colors) {
-                                filter = SelfCompassRules.HELD
-                            }
-                            CompassPill("已实现", filter == SelfCompassRules.FULFILLED, colors) {
-                                filter = SelfCompassRules.FULFILLED
+                            CompassPill("常记心上", filter == "pinned", colors) {
+                                filter = "pinned"
                             }
                         }
+                    } else {
+                        SelfWishFolderTabs(
+                            folders = safeFolders,
+                            pages = pages,
+                            selected = filter,
+                            onSelect = { filter = it },
+                            onCreate = ::createFolder,
+                            onRename = ::renameFolder,
+                        )
                     }
                 }
                 if (visible.isEmpty()) {
@@ -228,8 +255,23 @@ internal fun SelfCompassScreen(
                         CompassCard(
                             page, values, colors, SelfCompassRules.todoId(page) in taskIds,
                             onEdit = { open(page) },
-                            onPin = { onSave(page.copy(starred = !page.starred,
-                                updated = System.currentTimeMillis())) },
+                            onPin = {
+                                if (!onSave(page.copy(starred = !page.starred,
+                                    updated = System.currentTimeMillis())))
+                                    localError = "置顶保存失败，请重试"
+                                else localError = ""
+                            },
+                            onComplete = {
+                                if (!values) {
+                                    if (!onSave(SelfWishFolders.setCompleted(page,
+                                        SelfCompassRules.state(page) != SelfCompassRules.FULFILLED,
+                                        System.currentTimeMillis())))
+                                        localError = "心愿状态保存失败，请重试"
+                                    else localError = ""
+                                }
+                            },
+                            folderName = if (values) "" else SelfWishFolders.categoryName(
+                                SelfWishFolders.categoryId(page), safeFolders),
                             onTodo = {
                                 if (onCreateTodo(page)) {
                                     taskIds = SelfTodoStore.read(context).map { it.id }.toSet()
@@ -369,6 +411,7 @@ private fun CompassPill(
 private fun CompassCard(
     page: SelfPageEntry, values: Boolean, colors: CompassColors, linked: Boolean,
     onEdit: () -> Unit, onPin: () -> Unit, onTodo: () -> Unit,
+    onComplete: () -> Unit, folderName: String,
 ) {
     val status = SelfCompassRules.state(page)
     Surface(
@@ -379,13 +422,17 @@ private fun CompassCard(
         Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp,
             top = 11.dp, bottom = 11.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (!values) {
+                    Checkbox(
+                        checked = status == SelfCompassRules.FULFILLED,
+                        onCheckedChange = { onComplete() },
+                        modifier = Modifier.size(38.dp),
+                        colors = CheckboxDefaults.colors(checkedColor = colors.accent),
+                    )
+                    Spacer(Modifier.width(7.dp))
+                }
                 Surface(color = colors.pale, shape = RoundedCornerShape(8.dp)) {
-                    Text(
-                        if (values) "珍视的事" else when (status) {
-                            SelfCompassRules.HELD -> "好好珍藏"
-                            SelfCompassRules.FULFILLED -> "已经实现"
-                            else -> "正在靠近"
-                        },
+                    Text(if (values) "珍视的事" else folderName,
                         Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
                         fontSize = 10.sp, color = colors.accent)
                 }
@@ -460,8 +507,8 @@ private fun CompassEmpty(
             Text(
                 if (values && filter == "pinned") "还没有置顶的原则"
                 else if (values) "先留下第一条重要的事"
-                else if (filter == SelfCompassRules.HELD) "这里还没有珍藏的心愿"
-                else if (filter == SelfCompassRules.FULFILLED) "实现的愿望，会好好留在这里"
+                else if (filter == SelfWishFolders.COMPLETED) "实现的愿望，会好好留在这里"
+                else if (filter == SelfWishFolders.UNFILED) "这里还没有未分类的心愿"
                 else "想要的未来，从一个念头开始",
                 fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.ink)
             Text(if (values) "一项底线、一段关系，或者你珍视的生活方式。"
@@ -479,6 +526,7 @@ private fun CompassEmpty(
 @Composable
 private fun CompassEditor(
     original: SelfPageEntry?, values: Boolean, colors: CompassColors,
+    folders: List<SelfWishFolder>, selectedFolder: String,
     error: String, onCancel: () -> Unit,
     onSave: (SelfPageEntry) -> Unit, onDelete: (SelfPageEntry) -> Unit,
 ) {
@@ -488,9 +536,10 @@ private fun CompassEditor(
         mutableStateOf(if (values) original?.guide.orEmpty() else original?.nextStep.orEmpty())
     }
     var starred by remember(original?.id, values) { mutableStateOf(original?.starred ?: false) }
-    var status by remember(original?.id, values) {
-        mutableStateOf(if (original == null) SelfCompassRules.ACTIVE else SelfCompassRules.state(original))
+    var folder by remember(original?.id, values, selectedFolder) {
+        mutableStateOf(if (original == null) selectedFolder else SelfWishFolders.categoryId(original))
     }
+    var folderMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = colors.bg,
@@ -527,8 +576,16 @@ private fun CompassEditor(
                             title = title.trim(), body = body.trim(),
                             guide = if (values) guidance.trim() else original?.guide.orEmpty(),
                             nextStep = if (values) original?.nextStep.orEmpty() else guidance.trim(),
-                            starred = starred, state = if (values) SelfCompassRules.ACTIVE else status,
-                            done = !values && status == SelfCompassRules.FULFILLED,
+                            starred = starred,
+                            wishFolderId = if (values) original?.wishFolderId.orEmpty() else folder,
+                            // Existing fulfilled wishes stay fulfilled unless explicitly
+                            // unchecked on the card; editing never clears completion.
+                            state = if (values) original?.state.orEmpty()
+                                else original?.state?.takeIf { it == SelfCompassRules.FULFILLED }
+                                    ?: SelfCompassRules.ACTIVE,
+                            done = if (values) original?.done ?: false
+                                else original?.let { SelfCompassRules.state(it) ==
+                                    SelfCompassRules.FULFILLED } ?: false,
                             updated = now,
                         )
                         onSave(page)
@@ -578,16 +635,28 @@ private fun CompassEditor(
                 modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 6,
                 shape = RoundedCornerShape(17.dp))
             if (!values) {
-                CompassLabel("04", "心愿现在的状态", colors)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CompassPill("在路上", status == SelfCompassRules.ACTIVE, colors) {
-                        status = SelfCompassRules.ACTIVE
+                CompassLabel("04", "放进哪个文件夹？", colors)
+                Box {
+                    OutlinedButton(onClick = { folderMenu = true },
+                        modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(9.dp))
+                        Text(SelfWishFolders.categoryName(folder, folders),
+                            modifier = Modifier.weight(1f), color = colors.ink)
+                        Icon(Icons.Outlined.ArrowDropDown, "选择文件夹")
                     }
-                    CompassPill("珍藏", status == SelfCompassRules.HELD, colors) {
-                        status = SelfCompassRules.HELD
-                    }
-                    CompassPill("已实现", status == SelfCompassRules.FULFILLED, colors) {
-                        status = SelfCompassRules.FULFILLED
+                    DropdownMenu(expanded = folderMenu,
+                        onDismissRequest = { folderMenu = false }) {
+                        val legacy = original != null &&
+                            SelfWishFolders.categoryId(original) == SelfWishFolders.LEGACY_HELD
+                        (listOf(SelfWishFolder(SelfWishFolders.UNFILED, "未分类")) +
+                            (if (legacy) listOf(SelfWishFolder(SelfWishFolders.LEGACY_HELD, "原珍藏"))
+                                else emptyList()) + folders).forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option.name) },
+                                onClick = { folder = option.id; folderMenu = false },
+                            )
+                        }
                     }
                 }
             }
