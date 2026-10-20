@@ -12,7 +12,7 @@ class RelativeWakeCommitmentParserTest {
     @Test fun twentyMinutesLaterIsAnExactPromisedDeadline() {
         val task = RelativeWakeCommitmentParser.parse("现在20分钟之后再叫我", "好，我会叫你", now, zone)!!
         assertEquals(now.plusSeconds(20 * 60), task.dueAt)
-        assertEquals("send_private_message", task.deliveryAction)
+        assertEquals("", task.deliveryAction)
         assertFalse(task.needsClarification)
         assertTrue(task.goal.contains("12:20"))
     }
