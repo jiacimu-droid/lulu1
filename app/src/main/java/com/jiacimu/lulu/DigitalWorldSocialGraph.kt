@@ -40,6 +40,8 @@ internal fun DigitalWorldSocialGraphDialog(
         mutableStateOf(initialCharacterId?.takeIf { it in settings } ?: participants.firstOrNull()?.characterId.orEmpty())
     }
     var selectedId by remember(focusId) { mutableStateOf<String?>(null) }
+    var withdrawImpression by remember(focusId, selectedId) { mutableStateOf(false) }
+    var impressionError by remember(focusId, selectedId) { mutableStateOf("") }
     var editingRelation by remember(focusId, selectedId) { mutableStateOf(false) }
     var relationshipTitle by remember(focusId, selectedId) { mutableStateOf("") }
     var relationshipDetails by remember(focusId, selectedId) { mutableStateOf("") }
@@ -81,6 +83,29 @@ internal fun DigitalWorldSocialGraphDialog(
         ?.let { CharacterSocialRelationship.snapshot(focusId, it.id) }
     val displayed = nodes.take(7)
 
+    if (withdrawImpression && selectedNode != null && forward != null) {
+        AlertDialog(
+            onDismissRequest = { withdrawImpression = false },
+            title = { Text("撤回这条主观印象？") },
+            text = { Text(
+                "只清除${focalName}对${selectedNode.label}当前这条主观看法及其派生印象历史。" +
+                    "你们实际说过的话、见面经历、共同约定和其他人的印象都不删除。" +
+                    "之后如有新的真实互动，他仍可以重新形成不同看法。"
+            ) },
+            confirmButton = {
+                TextButton(onClick = {
+                    val ok = CharacterInnerLifeStore.forgetRelationshipImpression(
+                        focusId, selectedNode.id, forward.evidenceId, forward.impression
+                    )
+                    impressionError = if (ok) "" else "当前印象已变化或保存失败，请重新查看。"
+                    withdrawImpression = false
+                }) { Text("撤回印象") }
+            },
+            dismissButton = {
+                TextButton(onClick = { withdrawImpression = false }) { Text("取消") }
+            },
+        )
+    }
     if (editingRelation && selectedNode != null) {
         AlertDialog(
             onDismissRequest = { editingRelation = false },
@@ -231,6 +256,15 @@ internal fun DigitalWorldSocialGraphDialog(
                             Text("依据：$it", fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                        if (forward != null) {
+                            TextButton(onClick = { withdrawImpression = true }) {
+                                Text("撤回这条印象", color = Color(0xFF9A6B59))
+                            }
+                        }
+                        if (impressionError.isNotBlank()) Text(
+                            impressionError, fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.error,
+                        )
                         forward?.trend?.takeIf(String::isNotBlank)?.let {
                             Text("近期变化：$it", fontSize = 11.sp)
                         }
