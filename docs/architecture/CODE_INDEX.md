@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`85b6edaf805394eeef8f15a3484616b21a2e5597`
+- 基准提交：`190343a4f9d20a20a9d6ea27e2f26ec5c1e57464`
 - 分支：`main`
 - 已索引文件：754
-- 已索引代码/文本行：144986
+- 已索引代码/文本行：144985
 - 已发现符号：2188
 
 | 文件 | 行数 | 符号数 |
@@ -392,7 +392,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 28 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 151 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 150 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
