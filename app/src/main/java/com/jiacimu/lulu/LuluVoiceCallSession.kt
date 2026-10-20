@@ -117,6 +117,33 @@ internal object LuluVoiceCallSession {
     }
     private var subtitleRevealJob: Job? = null
     private var replyJob: Job? = null
+    private val mediaTimers = mutableMapOf<String, Job>()
+    private var mediaSpeechResume: Job? = null
+
+    /** In-process accurate delay for an active call; WorkManager is persisted backup. */
+    fun scheduleDeferredMedia(characterId: String, callId: String, taskId: String, delaySeconds: Int) {
+        if (taskId.isBlank() || mediaTimers.containsKey(taskId)) return
+        val call = mutableState.value
+        if (!call.connected || call.characterId != characterId || call.callExperienceId != callId) return
+        val context = appContext ?: return
+        mediaTimers[taskId] = scope.launch {
+            try {
+                delay(delaySeconds.coerceIn(0, 7200).toLong() * 1000L)
+                if (mutableState.value.connected && mutableState.value.callExperienceId == callId) {
+                    val verified = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                        com.jiacimu.lulu.data.DeferredCallMediaAction.execute(context, taskId)
+                    }
+                    val status = if (verified) "音乐已启动 · 随时可以继续说话"
+                        else "音乐执行尚未确认 · 可在最近感知查看真实结果"
+                    if (mutableState.value.callExperienceId == callId)
+                        mutableState.update { it.copy(statusMessage = status) }
+                }
+            } finally {
+                mediaTimers.remove(taskId)
+            }
+        }
+    }
+
     private var replyGeneration = 0L
     // Only the next call-model turn receives a scheduled wake event, not fake
     // user speech. Clearing this on interruption prevents stale wake prompts.
@@ -617,6 +644,14 @@ internal object LuluVoiceCallSession {
     private fun finishCall(endedByCharacter: Boolean, sleepAutoEnded: Boolean = false) {
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) return
+        mediaTimers.values.toList().forEach { it.cancel() }
+        mediaTimers.clear()
+        mediaSpeechResume?.cancel()
+        mediaSpeechResume = null
+        appContext?.let { context ->
+            com.jiacimu.lulu.data.DeferredCallMediaAction.onCallDisconnected(
+                context, current.characterId, current.callExperienceId)
+        }
         LuluCallRingtone.stopAll()
         lastPhoneXhsRequest = ""
         lastPhoneXhsRequestAt = 0L
@@ -811,6 +846,18 @@ internal object LuluVoiceCallSession {
                     )
                 }
                 if (!busy && current.connected) {
+                    mediaSpeechResume?.cancel()
+                    mediaSpeechResume = scope.launch {
+                        delay(600L)
+                        val call = mutableState.value
+                        if (call.connected && !call.speaking &&
+                            speechQueue?.hasPendingAudio != true) {
+                            appContext?.let {
+                                com.jiacimu.lulu.data.DeferredCallMediaAction.afterRoleSpeech(
+                                    it, call.characterId, call.callExperienceId)
+                            }
+                        }
+                    }
                     // The gate must observe speaking=false AFTER the state update above.
                     // Previously it ran while call.speaking still held true, and
                     // nothing checked again after the last speech segment finished.
@@ -1328,6 +1375,11 @@ internal object LuluVoiceCallSession {
                     val speech = part.replace(Regex("⟪[^⟫]*⟫"), "").trim()
                     if (speech.isBlank()) return@forEach
                     val plainSpeech = VoicePerformance.plain(speech)
+                    mediaSpeechResume?.cancel()
+                    appContext?.let {
+                        com.jiacimu.lulu.data.DeferredCallMediaAction.beforeRoleSpeech(
+                            it, latest.characterId, latest.callExperienceId)
+                    }
                     val renderedSpeech = appContext?.let {
                         VoicePerformance.sleepAudio(it, speech, mutableState.value.sleepMode)
                     } ?: speech
@@ -1439,6 +1491,7 @@ internal object LuluVoiceCallSession {
                 archiveId = archiveId,
                 silenceObservationId = observationId,
                 userEvidenceIds = turnUserEvidenceIds,
+                phoneCallId = latest.callExperienceId,
                 turnContext = if (externalToolResult != null)
                     "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
                 else if (scheduledWakeReason != null)
