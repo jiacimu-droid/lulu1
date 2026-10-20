@@ -112,6 +112,20 @@ class CommitmentSemanticPersistenceTest {
         assertEquals(1, LuluAlarmSystem.list().count { it.commitmentTaskId == task.id })
     }
 
+    @Test fun roleModelIsFreeToChooseCallOrAlarmButNeverChatAsWake() {
+        assertEquals("start_call", CommitmentTurnAutomation.parseModelWakeChoice(
+            """{"accepted":true,"deliveryAction":"start_call"}"""))
+        assertEquals("alarm_only", CommitmentTurnAutomation.parseModelWakeChoice(
+            """{"accepted":true,"deliveryAction":"alarm_only"}"""))
+        assertNull(CommitmentTurnAutomation.parseModelWakeChoice(
+            """{"accepted":true,"deliveryAction":"send_private_message"}"""))
+        assertNull(CommitmentTurnAutomation.parseModelWakeChoice(
+            """{"accepted":false,"deliveryAction":"start_call"}"""))
+        assertNull(CommitmentTurnAutomation.parseModelWakeChoice("不是 JSON"))
+        assertTrue(CommitmentDecisionProtocol.instruction.contains("自己"))
+        assertTrue(CommitmentDecisionProtocol.instruction.contains("alarm_only"))
+    }
+
     @Test fun missingOrQuietWakeRouteNeverSilentlyBecomesTextMessage() = runBlocking {
         val now = Instant.now()
         val base = arrayOf("20分钟后叫我", "好，20分钟后叫你。")
