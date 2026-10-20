@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3b760ddfc66123fd21041e117b993901e01cefa2`
+- 基准提交：`32344239a3e92959ffa92aa63bcd2d34d439bbb2`
 - 分支：`main`
 - 已索引文件：753
-- 已索引代码/文本行：144770
+- 已索引代码/文本行：144830
 - 已发现符号：2186
 
 | 文件 | 行数 | 符号数 |
@@ -292,7 +292,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 423 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt` | 104 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt` | 149 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt` | 209 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 37 | 5 |
