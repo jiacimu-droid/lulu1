@@ -29,6 +29,29 @@ internal object PerceptionStatusPresentation {
         }
     }
 
+    /**
+     * An attempt to recover an older failure is a running task, not a new failure.
+     * Only explicit stage errors are called failures; never grep for "失败" in
+     * an arbitrary human-readable trigger.
+     */
+    fun status(note: String, lastAtKnown: Boolean, priorFailure: Boolean = false): String = when {
+        !lastAtKnown -> "暂无记录"
+        errorNote(note) -> "异常"
+        note.startsWith("感知启动") -> "进行中"
+        note.startsWith("感知成功") -> "已完成"
+        note.startsWith("旧消息已由其他回复处理") -> "已跳过重复"
+        priorFailure -> "待确认"
+        else -> "已更新"
+    }
+
+    fun errorNote(note: String): Boolean =
+        note.startsWith("感知失败") || note.startsWith("模型请求失败") ||
+            note.startsWith("模型回复格式不完整") || note.startsWith("动作失败") ||
+            note.startsWith("动作未完成") || note.startsWith("回复处理失败") ||
+            note.startsWith("新消息重试排程失败") ||
+            note.startsWith("感知暂停") || note.startsWith("通话结束后的感知尚未完成") ||
+            note == "模型返回了空状态"
+
     fun lines(state: CompanionPresenceState?, policy: ProactivePerceptionPolicy,
         plan: PerceptionWakePlan?, online: Boolean, inCall: Boolean,
         now: Instant, zone: ZoneId = ZoneId.systemDefault()): List<String> = buildList {
@@ -36,10 +59,11 @@ internal object PerceptionStatusPresentation {
         state?.lastPerceptionAt?.let {
             val note = state.lastPerceptionNote
             val outcome = when {
-                note.contains("失败") || note.contains("暂停") || note.contains("未完成") || note.contains("不完整") -> note.take(110)
-                note.contains("启动") -> "已启动 · 尚无完成记录"
-                note.contains("silent", ignoreCase = true) -> "已感知 · 选择安静"
-                else -> "已感知"
+                errorNote(note) -> note.take(110)
+                note.startsWith("感知启动") -> "进行中 · 尚无完成记录"
+                note.startsWith("感知成功") && note.contains("silent", ignoreCase = true) -> "已感知 · 选择安静"
+                note.startsWith("感知成功") -> "已完成"
+                else -> "已更新"
             }
             add("最近感知 · ${time(it)} · $outcome")
         } ?: add("尚无感知记录")
