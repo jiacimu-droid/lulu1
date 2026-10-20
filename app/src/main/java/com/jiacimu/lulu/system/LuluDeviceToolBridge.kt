@@ -157,6 +157,7 @@ object LuluDeviceToolBridge {
         turnContext: String = "",
         reconsiderationEvidenceId: String = "",
         userEvidenceIds: List<String> = emptyList(),
+        phoneCallId: String = "",
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
@@ -302,6 +303,20 @@ object LuluDeviceToolBridge {
             不以固定关键词认定：讨论别人睡眠、引用台词、否定句、简单说晚安不等于要求开启；她说“宝宝陪我睡会儿”“困了想听你哄我”也可理解为邀请。角色可以按性格回应，但答应陪睡时必须交出真实状态决定，不能只口头答应。已在哄睡状态且仍在哄睡，不要反复切换。
             sleepDecision 只是本通电话的真实控制字段，不是台词，不替代承诺叫醒的 commitmentChanges；有明确午睡截止时间应另行创建真实叫醒约定。
         """.trimIndent() else ""
+        val phoneMediaRule = if (sceneContext.contains("电话")) """
+            【通话中的真实音乐安排】
+            你可以选择让手机上真正存在的音乐播放器稍后播放音乐，同时与她保持通话。
+            若你决定承担这项行动，在本次 reply JSON 加入字段
+            "afterCallMedia":{"trigger":"in_call","delaySeconds":180,"command":"play","volumePercent":35}。
+            trigger=in_call 表示【本通电话持续接通】且从你作出决定起计时；通话结束就取消。
+            如果对方明确要挂断以后才播，改用 trigger=call_end，若不限定通话可用 now。
+            时长根据当下真实要求与上下文判断，例如三分钟=180秒、半分钟=30秒。
+            这不是固定音乐脚本。你可以选择是否接受，不能只在台词里答应，
+            必须给真实可执行的数据；成功与否还要以手机执行器回执为准。
+            只有已授权的媒体会话能被控制，并不能虚构歌曲或播放器。
+            音乐开始后电话仍可保持安静陪伴，你想再说话时播放器会暂时暂停，
+            你的话真正讲完后再继续；系统会对媒体音量执行额外限幅。
+        """.trimIndent() else ""
         val voicePerformanceRule = if (sceneContext.contains("电话"))
             com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext,
                 sleepMode = sceneContext.contains("哄睡")) else ""
@@ -389,7 +404,7 @@ object LuluDeviceToolBridge {
             如果根本不需要说话，也可直接选择 action=tool、tool=favorite_user_message 的旧方式。
             如果真的想收藏，可以选填 phoneFavorite；字段漏填时，只要你当下的真实心声或回复明确表达了收藏决定，程序也会尝试收藏刚刚真实收到的原话。格式不完整不应让整通电话回复失败。
             如果已经决定现在收藏，就直接行动而不是说“挂了以后再操作”；犹豫或暂不收藏时不要填写。
-            如果决定以后再做，应把有真实目标和下一步的未完成意愿放进 appraisal.pendingConcern；心声、后续口头承诺或意图字段本身不会自动执行工具。
+            如果决定以后再做，应把有真实目标和下一步的未完成意愿放进 appraisal.pendingConcern；心声、后续口头承诺或意图字段本身不会自动执行工具。明确决定在电话里稍后放歌时，必须使用上文 afterCallMedia，不要只留口头保证。
         """.trimIndent()
         val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext
             .let { it.isUnmetPromiseChallenge(userText) || it.isWakeExplanation(userText) }
@@ -566,6 +581,7 @@ object LuluDeviceToolBridge {
                 ${if (separateExpression) "" else onlineChatBubbleRule}
                 $voicePerformanceRule
                 $phoneSleepRule
+                $phoneMediaRule
                 $characterHangupRule
             """.trimIndent(),
             source = if (sceneContext.contains("电话")) "电话回复" else "聊天工具规划",
@@ -680,6 +696,24 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        // A phone media plan is a side action chosen in the SAME role turn.
+        // It cannot be treated as achieved merely because the role said it.
+        val mediaReceipt = if (!rewriting && !callSilence && sceneContext.contains("电话") &&
+            plan.action == "reply" && plan.afterCallMedia != null && phoneCallId.isNotBlank()) {
+            val sourceTurn = userEvidenceIds.lastOrNull()
+                ?: "phone-${phoneCallId}-${now.toEpochMilli()}"
+            val receipt = com.jiacimu.lulu.data.DeferredCallMediaAction.register(
+                appContext, characterId, phoneCallId, sourceTurn, plan.afterCallMedia)
+            if (receipt.startsWith("已登记")) {
+                val trigger = plan.afterCallMedia.optString("trigger")
+                if (trigger == "in_call" || trigger == "now") {
+                    com.jiacimu.lulu.LuluVoiceCallSession.scheduleDeferredMedia(
+                        characterId, phoneCallId, "$characterId:$phoneCallId:$sourceTurn",
+                        plan.afterCallMedia.optInt("delaySeconds", 0))
+                }
+            }
+            receipt
+        } else ""
         val commitmentChanges = plan.commitmentChanges
         val commitmentReceipt = if (!rewriting && !callSilence && commitmentChanges != null) {
             runCatching {
@@ -1074,6 +1108,7 @@ object LuluDeviceToolBridge {
                         }
                         if (expressionConversation.isEmpty()) appendLine("用户刚才说：$userText")
                         if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
+                if (mediaReceipt.isNotBlank()) appendLine("【本轮音乐操作真实回执】$mediaReceipt")
                         appendLine(expressionHandoff)
                         if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
@@ -1698,6 +1733,7 @@ object LuluDeviceToolBridge {
                 intentionId = json.optString("intentionId").trim().take(70),
                 endCall = json.optBoolean("endCall", false),
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
+                afterCallMedia = json.optJSONObject("afterCallMedia"),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
@@ -1763,6 +1799,7 @@ private data class ToolPlan(
     val intentionId: String = "",
     val endCall: Boolean = false,
     val sleepDecision: String = "",
+    val afterCallMedia: JSONObject? = null,
     val phoneFavorite: JSONObject? = null,
     val speechIntent: String = "",
     val socialAttempt: String = "",
