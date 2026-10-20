@@ -59,6 +59,8 @@ internal object StartupFailureRecovery {
     fun latest(context: Context): String? = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         .getString(REPORT, null)?.takeIf { it.isNotBlank() }
 
+    fun recordCurrent(context: Context, error: Throwable) = record(context, currentStage, error)
+
     fun record(context: Context, stage: String, error: Throwable) {
         runCatching {
             val writer = StringWriter()
