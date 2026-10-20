@@ -66,6 +66,10 @@ private suspend fun createCommitmentTask(
     }
     val ongoing = draft.dueAt == null && draft.promiseKind in setOf("long_term_supervision", "responsibility")
     val needsClarification = draft.needsClarification || (draft.dueAt == null && !ongoing)
+    val wakeChoiceMissing = draft.dueAt != null &&
+        listOf("叫醒", "起床", "喊醒", "醒来", "wake").any {
+            (draft.goal + draft.completionCondition).contains(it, ignoreCase = true)
+        } && draft.deliveryAction !in setOf("start_call", "alarm_only")
     var task = CommitmentTask(
         characterId = characterId,
         lexiconEntryId = lexiconId,
@@ -80,7 +84,9 @@ private suspend fun createCommitmentTask(
         completionCondition = draft.completionCondition,
         steps = draft.steps,
         deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
-        lastActionResult = if (needsClarification) "缺少必要条件，需要后续自然确认"
+        lastActionResult = if (needsClarification && wakeChoiceMissing)
+            "已识别叫醒约定，但尚未选出真实来电或有声闹钟；没有登记叫醒任务"
+            else if (needsClarification) "缺少必要条件，需要后续自然确认"
             else if (ongoing) "持续约定已记入辞海，结合真实进展继续跟进；没有创建固定闹钟" else "",
     )
     task = CommitmentTaskStore.save(task)
