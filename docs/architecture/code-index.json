@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T16:32:53.419255+00:00",
-  "commit": "476e656200e898cd34315ffa4040c93392e2fbf2",
+  "generatedAt": "2026-10-20T16:33:11.546746+00:00",
+  "commit": "8da9eabbbdc8cf8a9b0af789229aef1a9d76eb7b",
   "branch": "main",
-  "sourceFingerprint": "6e8532bba958a6b66334b081677ddbdeda755d97176a81e8cb9317dd594b58d3",
+  "sourceFingerprint": "552b67727c5b44c6690ca8983914426e2ed2c867be02e8e68221ca7973dcdb2e",
   "summary": {
     "files": 748,
-    "lines": 143930,
+    "lines": 143938,
     "symbols": 2171
   },
   "symbolIndex": {
@@ -24849,8 +24849,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt",
-      "lines": 310,
-      "sha256": "6ebcd198468ff4982c3995d0f3d0939eb5ac45bb2ab0f98b157b83144293f9f9",
+      "lines": 318,
+      "sha256": "ac85ceb6f86ebd3f4e10ea74946634d94f41ff05626083814b12183a533ec568",
       "symbols": [
         {
           "name": "ConversationNaturalnessGateTest",
