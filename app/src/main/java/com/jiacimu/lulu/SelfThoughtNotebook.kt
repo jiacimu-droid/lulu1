@@ -88,6 +88,7 @@ internal fun SelfThoughtNotebookScreen(
     var weather by remember { mutableStateOf("") }
     var focusId by remember { mutableStateOf<String?>(null) }
     var deleting by remember { mutableStateOf<SelfThoughtPage?>(null) }
+    val editorScroll = rememberScrollState()
     val dayPages = remember(pages, date) { thoughtPagesOn(pages, date) }
     LaunchedEffect(date, dayPages) {
         focusId?.let { id ->
@@ -97,6 +98,9 @@ internal fun SelfThoughtNotebookScreen(
             }
         }
         pageNumber = pageNumber.coerceIn(0, dayPages.lastIndex.coerceAtLeast(0))
+    }
+    LaunchedEffect(writing, editTarget?.id) {
+        if (writing) editorScroll.scrollTo(0)
     }
     val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -250,7 +254,7 @@ internal fun SelfThoughtNotebookScreen(
                 end = bookWidth * .102f,
                 top = if (compactWriting) 25.dp else bookHeight * .192f,
                 bottom = if (compactWriting) 15.dp else bookHeight * .077f,
-            ),
+            ).then(if (writing) Modifier.verticalScroll(editorScroll) else Modifier),
         ) {
             if (writing) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -269,8 +273,10 @@ internal fun SelfThoughtNotebookScreen(
                         }
                     })
                 Spacer(Modifier.height(16.dp))
-                BasicTextField(body, { body = it }, modifier = Modifier.weight(1f).fillMaxWidth()
-                    .selfPrefaceKeepFieldVisible(),
+                BasicTextField(body, { body = it },
+                    modifier = Modifier.fillMaxWidth()
+                        .heightIn(min = if (compactWriting) 170.dp else 240.dp)
+                        .selfPrefaceKeepFieldVisible(),
                     textStyle = TextStyle(color = BookInk, fontSize = 15.sp, lineHeight = 26.sp),
                     decorationBox = { field ->
                         Box {
