@@ -22,6 +22,29 @@ internal object CommitmentCallFeedback {
         }
     }
 
+    /** Connected is not the same as audible; keep these independent facts. */
+    fun onVoiceStarted(taskId: String, callId: String) {
+        CommitmentTaskStore.update(taskId) { old ->
+            if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
+            else old.copy(lastActionResult = "来电已接通；本次叫醒语音开始播放（会话=${callId.take(12)}）；尚未播完，也未确认用户醒来")
+        }
+    }
+
+    fun onVoiceDelivered(taskId: String, callId: String) {
+        CommitmentTaskStore.update(taskId) { old ->
+            if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
+            else old.copy(lastActionResult = "本次叫醒语音已完整送达播放器（会话=${callId.take(12)}）；尚未收到用户明确已醒的反馈")
+        }
+    }
+
+    fun onVoiceFailed(taskId: String, callId: String, error: String) {
+        CommitmentTaskStore.update(taskId) { old ->
+            if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
+            else old.copy(status = CommitmentTaskStatus.Blocked,
+                lastActionResult = "电话已接通，但本次叫醒语音播放失败（会话=${callId.take(12)}）：${error.take(110)}；不算成功叫醒")
+        }
+    }
+
     fun onMissed(taskId: String) {
         val task = CommitmentTaskStore.snapshot().firstOrNull { it.id == taskId } ?: return
         if (task.status != CommitmentTaskStatus.WaitingForFeedback) return
