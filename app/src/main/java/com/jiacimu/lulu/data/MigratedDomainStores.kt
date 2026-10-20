@@ -438,6 +438,15 @@ class InMemoryLuluChatStore : LuluChatStore {
         favoriteTarget?.let { target ->
             CharacterMessageFavorites.favorite(effectiveAuthorId, conversationId, target)
         }
+        // The reply has now been durably appended. Do not infer a promise
+        // from draft text, private thoughts, or the model's planned speech.
+        // Real accepted timed wake requests can register their native alarm
+        // immediately, even if the user soon backgrounds the chat.
+        appContext?.let { context ->
+            CommitmentTurnAutomation.onDeliveredCharacterMessage(
+                context, conversationId, effectiveAuthorId
+            )
+        }
         return created
     }
 
