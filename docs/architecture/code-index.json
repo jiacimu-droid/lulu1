@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T19:48:34.548140+00:00",
-  "commit": "a861cbfdea8cb0eb4e656cca3a585f09b5c737e3",
+  "generatedAt": "2026-10-20T19:50:06.776080+00:00",
+  "commit": "339c59c7ef9aba2623edf6f5416ada0d0658a2dd",
   "branch": "main",
-  "sourceFingerprint": "82a87134c6c586c4121bef299ebb96f40b7e79aabcec95aed651708015042d39",
+  "sourceFingerprint": "3197c27f536f5992e5626996d476827c8933f31c06c8ab992a7c545c9be6582c",
   "summary": {
-    "files": 751,
-    "lines": 144548,
-    "symbols": 2184
+    "files": 752,
+    "lines": 144566,
+    "symbols": 2185
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1422,6 +1422,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt",
         "line": 12
+      }
+    ],
+    "genuinelyConnected": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt",
+        "line": 8
       }
     ],
     "LexiconFeatureScreenV2": [
@@ -13264,6 +13270,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt",
+      "lines": 18,
+      "sha256": "672740e44e0ddde624ff5a022481c0fc4656759206e4ebf99a8259cec122f39d",
+      "symbols": [
+        {
+          "name": "genuinelyConnected",
+          "line": 8
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt",
       "lines": 35,
       "sha256": "572ab688f975ce2d9fa893b7e761517bd35a42176c7087c79f13b611c9244cf8",
@@ -14220,7 +14237,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt",
       "lines": 242,
-      "sha256": "e939da7b2065ff1df0dc5b6969142899f9d3d3440f8d424d0a89b0a41c574223",
+      "sha256": "67ab2e460bced10ed4cd689191ee3cfb43b07bce38edbd74a711246fc0779ae9",
       "symbols": [
         {
           "name": "connect",
