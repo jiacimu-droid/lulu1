@@ -31,6 +31,7 @@ internal data class WorldLifeEpisode(
 
 internal object WorldLifeEpisodeStore {
     private const val PREFS = "lulu_world_life_episodes_v1"
+    private const val DELETED_PREFIX = "__deleted_chapter_sources__:"
     private var prefs: android.content.SharedPreferences? = null
     private val mutable = MutableStateFlow<Map<String, List<WorldLifeEpisode>>>(emptyMap())
     val state = mutable.asStateFlow()
@@ -40,7 +41,8 @@ internal object WorldLifeEpisodeStore {
         val store = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs = store
         mutable.value = store.all.mapNotNull { (id, raw) ->
-            (raw as? String)?.let { id to decode(it) }
+            if (id.startsWith(DELETED_PREFIX)) null
+            else (raw as? String)?.let { id to decode(it) }
         }.toMap()
     }
 
@@ -50,6 +52,14 @@ internal object WorldLifeEpisodeStore {
     fun find(id: String): WorldLifeEpisode? = mutable.value.values
         .asSequence().flatMap { it.asSequence() }
         .firstOrNull { it.id == id }
+
+    /** A deleted chapter is intentionally NOT regenerated from its still-valid
+     * physical action if a delayed worker retries. Never delete that action. */
+    private fun deletedSources(characterId: String): Set<String>? = runCatching {
+        val raw = prefs?.getString(DELETED_PREFIX + characterId, "[]") ?: return@runCatching emptySet()
+        val array = JSONArray(raw)
+        (0 until array.length()).map { array.getString(it) }.toSet()
+    }.getOrNull()
 
     /** A location outing is one chapter, even when successive perceptions
      * independently execute small, verified actions inside that same place. */
@@ -101,6 +111,8 @@ internal object WorldLifeEpisodeStore {
         // The composer already rejects blanks and provider errors. A second
         // arbitrary 100-character gate used to discard otherwise valid prose.
         if (scene.isBlank() || actualAction.isBlank()) return null
+        val deleted = deletedSources(characterId) ?: return null
+        if (evidenceId in deleted) return null
         val prior = episodes(characterId)
         if (prior.any { it.evidenceId == evidenceId }) return prior.first { it.evidenceId == evidenceId }
         val episode = WorldLifeEpisode(
@@ -137,8 +149,16 @@ internal object WorldLifeEpisodeStore {
 
     @Synchronized fun delete(id: String): Boolean {
         val found = find(id) ?: return false
+        val deleted = deletedSources(found.characterId) ?: return false
         val next = episodes(found.characterId).filterNot { it.id == id }
-        if (prefs?.edit()?.putString(found.characterId, encode(next))?.commit() != true) return false
+        val tombstones = JSONArray().apply {
+            (deleted + found.evidenceId).forEach(::put)
+        }
+        // Both changes in one atomic prefs commit: user intent is preserved
+        // without deleting the source timeline event or unrelated chapters.
+        if (prefs?.edit()?.putString(found.characterId, encode(next))
+                ?.putString(DELETED_PREFIX + found.characterId, tombstones.toString())
+                ?.commit() != true) return false
         mutable.value = mutable.value + (found.characterId to next)
         return true
     }
@@ -156,7 +176,7 @@ internal object WorldLifeEpisodeStore {
     }
 
     @Synchronized fun clear(characterId: String) {
-        prefs?.edit()?.remove(characterId)?.commit()
+        prefs?.edit()?.remove(characterId)?.remove(DELETED_PREFIX + characterId)?.commit()
         mutable.value = mutable.value - characterId
     }
 
