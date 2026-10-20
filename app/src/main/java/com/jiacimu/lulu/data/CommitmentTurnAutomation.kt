@@ -96,7 +96,7 @@ object CommitmentTurnAutomation {
                         (it.authorCharacterId ?: conversation.characterId) == characterId
                 }
                 if (userBatch.isEmpty() || replies.isEmpty()) return@launch
-                CommitmentDecisionRuntime.ensureAcceptedWake(
+                val task = CommitmentDecisionRuntime.ensureAcceptedWake(
                     context = context.applicationContext,
                     characterId = characterId,
                     sourceTurnId = "${conversation.id}:${user.id}:$characterId",
@@ -105,12 +105,36 @@ object CommitmentTurnAutomation {
                     roleText = replies.joinToString("\n") { it.content },
                     userAt = user.createdAt,
                 )
+                showWakeReceipt(conversation, user, characterId, task)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
                 android.util.Log.e("LuluCommitment", "Accepted wake check failed after message delivery", failure)
             }
         }
+    }
+
+    /** One factual system receipt per accepted wake turn, never role-authored speech. */
+    private fun showWakeReceipt(
+        conversation: LuluConversation,
+        userMessage: LuluChatMessage,
+        characterId: String,
+        task: CommitmentTask?,
+    ) {
+        if (task == null) return
+        val content = when (task.status) {
+            CommitmentTaskStatus.Scheduled ->
+                if (!task.linkedAlarmId.isNullOrBlank()) {
+                    "系统叫醒已登记 · ${task.goal}。可在「日程·约定」查看执行状态。" +
+                        if (task.lastActionResult.contains("非精确")) " 手机未授予精确闹钟权限，可能延迟。" else ""
+                } else "叫醒尚未真正登记到手机，请检查日程任务状态。"
+            CommitmentTaskStatus.Blocked, CommitmentTaskStatus.NeedsClarification ->
+                "叫醒约定未能安排成功：${task.lastActionResult.take(110)}。请检查日程和手机权限。"
+            else -> return
+        }
+        MigratedDomainStores.chat.appendSystemReceipt(
+            conversation.id, "wake-schedule:${userMessage.id}:$characterId", content
+        )
     }
 
     private suspend fun retryTransientExtraction(operation: suspend () -> Unit) {
@@ -169,6 +193,7 @@ object CommitmentTurnAutomation {
                 roleText = characterText,
                 userAt = userMessage.createdAt,
             )
+            showWakeReceipt(conversation, userMessage, characterId, ensuredWake)
             // Generic, open-ended promises still rely on the main model's
             // semantic decision; only unhandled legacy turns need extra AI.
             if (CommitmentDecisionRuntime.handled(
