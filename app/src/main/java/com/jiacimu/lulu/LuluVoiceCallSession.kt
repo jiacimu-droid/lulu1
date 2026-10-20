@@ -28,6 +28,8 @@ import com.jiacimu.lulu.data.ProactivePerceptionScheduler
 import com.jiacimu.lulu.data.ProactivePerceptionRuntime
 import com.jiacimu.lulu.data.initializeBackgroundRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.isActive
+import com.jiacimu.lulu.data.isWakeResponsibility
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -542,6 +544,20 @@ internal object LuluVoiceCallSession {
                         sleepSilenceMillis(), now.connected, now.sleepMode,
                         confirmedSpeechInProgress(), busy,
                     )) {
+                    // A promised 40-minute nap is not cut off by the normal
+                    // 30-minute bedtime silence limit. Keep this SAME call
+                    // quietly connected until the persisted wake alarm takes over.
+                    val pendingWake = com.jiacimu.lulu.data.CommitmentTaskStore
+                        .snapshot(now.characterId).any { task ->
+                            task.status.isActive() && task.isWakeResponsibility() &&
+                                task.linkedAlarmId != null &&
+                                task.dueAt?.isAfter(Instant.now()) == true
+                        }
+                    if (pendingWake) {
+                        mutableState.update { it.copy(statusMessage = "安静陪着你 · 等约定时间叫醒") }
+                        delay(15_000L)
+                        continue
+                    }
                     endSleepCallOnSilence()
                     return@launch
                 }
