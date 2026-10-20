@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7e8f579a39397570539eb4cd6af3f1646c94301b`
+- 基准提交：`4eb1ce0c97ac8b8d464ba63bfe0da844de6a5f20`
 - 分支：`main`
-- 已索引文件：754
-- 已索引代码/文本行：145023
-- 已发现符号：2189
+- 已索引文件：755
+- 已索引代码/文本行：145084
+- 已发现符号：2190
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -574,6 +574,7 @@
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneMicSegmentPolicyTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |

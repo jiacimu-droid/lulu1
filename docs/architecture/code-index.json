@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T20:36:06.831730+00:00",
-  "commit": "7e8f579a39397570539eb4cd6af3f1646c94301b",
+  "generatedAt": "2026-10-20T20:36:58.387046+00:00",
+  "commit": "4eb1ce0c97ac8b8d464ba63bfe0da844de6a5f20",
   "branch": "main",
-  "sourceFingerprint": "072e8049e97335cf7ee86829862bb5ecbfea5b54bdf67066652d02ac1b005367",
+  "sourceFingerprint": "7553bf7bf1fe7e706b81794b3ad30f159d328f19ff2eea4a361049b26aeb87c7",
   "summary": {
-    "files": 754,
-    "lines": 145023,
-    "symbols": 2189
+    "files": 755,
+    "lines": 145084,
+    "symbols": 2190
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10974,6 +10974,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "PhoneCallMediaSafetyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt",
+        "line": 14
       }
     ],
     "PhoneCallTranscriptFilterTest": [
@@ -23940,6 +23946,17 @@
         {
           "name": "PhoneBargeInPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt",
+      "lines": 61,
+      "sha256": "a032e5207ca495d25aebf007121f2c098c0fa9c2e3d94867293750ee55f6c5ae",
+      "symbols": [
+        {
+          "name": "PhoneCallMediaSafetyTest",
+          "line": 14
         }
       ]
     },
