@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T19:30:33.373177+00:00",
-  "commit": "76c2673bd16096d89772ae91b24ded8596c048ca",
+  "generatedAt": "2026-10-20T19:31:59.058764+00:00",
+  "commit": "b9e47f77c0cb1ecdea253c2c5295b4db14eb9a88",
   "branch": "main",
-  "sourceFingerprint": "4a385d03ee5aaf3277b7f5e758c685bdb0bd10b78bd8cb46903e32c67d8318f5",
+  "sourceFingerprint": "9c6480dd83925909e03b8fae554471eadf6ad6ba999f83182e6244b5c2ff94f0",
   "summary": {
     "files": 751,
-    "lines": 144443,
-    "symbols": 2181
+    "lines": 144441,
+    "symbols": 2180
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3796,12 +3796,6 @@
         "line": 20
       }
     ],
-    "permitsExternalAction": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-        "line": 104
-      }
-    ],
     "actionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt",
@@ -4145,7 +4139,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 256
+        "line": 255
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -8177,25 +8171,25 @@
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 201
+        "line": 200
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 231
+        "line": 230
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 243
+        "line": 242
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 262
+        "line": 261
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -15609,8 +15603,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-      "lines": 113,
-      "sha256": "1fe39b38d3c0aff9711c21d4a28fb1b35bfa4a5c55e5c316338ae6790f64eaff",
+      "lines": 112,
+      "sha256": "467e59c8e142db362084112460445b22296c0c088bfe5ff160845494c3160021",
       "symbols": [
         {
           "name": "Basis",
@@ -15627,10 +15621,6 @@
         {
           "name": "clean",
           "line": 36
-        },
-        {
-          "name": "permitsExternalAction",
-          "line": 104
         }
       ]
     },
@@ -17288,7 +17278,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 726,
-      "sha256": "01153c0de5b9136090c89820eabaa35a6fa337bb92acd690078824b851fdc565",
+      "sha256": "a6b102bc20de048efe674008c0a9250987bf77658cc99ca56f95e66c90b002b2",
       "symbols": [
         {
           "name": "asJson",
@@ -20262,8 +20252,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 285,
-      "sha256": "ee73aad5f0c47b824a27067899261008d2e0f57017c58ac27dbefdb4342a5cb4",
+      "lines": 284,
+      "sha256": "47aee43ec16809bfbd890acf5a88a7b129d2f3f9c61cac3677818b09e8411a1a",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -20295,23 +20285,23 @@
         },
         {
           "name": "completeFromReceipt",
-          "line": 201
+          "line": 200
         },
         {
           "name": "markDue",
-          "line": 231
+          "line": 230
         },
         {
           "name": "dueContext",
-          "line": 243
+          "line": 242
         },
         {
           "name": "clearCharacter",
-          "line": 256
+          "line": 255
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 262
+          "line": 261
         }
       ]
     },
@@ -23472,7 +23462,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 1783,
-      "sha256": "9d01f7306dea4f0da9d6e69ca631824e5ba0c282726133d057a4463711aa5609",
+      "sha256": "d549d8778cbe43c32f0c7bbde00e340535b14909463953e89aec1c692c9759e3",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
