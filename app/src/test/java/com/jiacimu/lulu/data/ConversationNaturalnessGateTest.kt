@@ -108,6 +108,14 @@ class ConversationNaturalnessGateTest {
         assertTrue(result.reasons.any { it.contains("甩回") })
     }
 
+    @Test fun characterCanOfferSomethingPersonalThenNaturallyAskWithoutForcedRewrite() {
+        val assessment = ConversationNaturalnessGate.assess(
+            "我学习累了",
+            listOf("我先陪你坐会儿。", "等你想说话了，你希望我怎么陪？"),
+        )
+        assertFalse(assessment.reasons.any { it.contains("甩回") })
+    }
+
     @Test fun naturalRoleOwnedResponsePasses() {
         val result = ConversationNaturalnessGate.assess(
             "我学习累了",
