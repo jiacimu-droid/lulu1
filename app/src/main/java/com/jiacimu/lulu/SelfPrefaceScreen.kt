@@ -54,6 +54,9 @@ internal data class SelfPageEntry(
 private object SelfPageStore {
     private const val PREFS = "lulu_self_preface_v1"
     private const val KEY = "entries"
+    // A raw, immutable pre-upgrade snapshot, kept in the SAME app-private store.
+    // Automatic updates and normal overwrite installs preserve these preferences.
+    private const val KEY_PRE_WISH_FOLDERS_BACKUP = "entries_before_wish_folders_v1"
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -110,7 +113,13 @@ private object SelfPageStore {
                 .put("state", item.state).put("starred", item.starred)
                 .put("wishFolderId", item.wishFolderId))
         }
-        prefs(context).edit().putString(KEY, array.toString()).commit()
+        val editor = prefs(context).edit().putString(KEY, array.toString())
+        if (stored != null &&
+            !prefs(context).contains(KEY_PRE_WISH_FOLDERS_BACKUP)) {
+            // Keep the exact unmodified original JSON before the first folder upgrade.
+            editor.putString(KEY_PRE_WISH_FOLDERS_BACKUP, stored)
+        }
+        editor.commit()
     }.getOrDefault(false)
 
 }
