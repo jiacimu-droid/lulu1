@@ -27,6 +27,15 @@ internal fun ScheduledCommitmentCard(task: CommitmentTask) {
         Text(task.goal, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         Text((task.dueAt?.let(::recordTime) ?: "持续约定") + " · " + label,
             fontSize = 12.sp, color = LuluColors.Muted)
+        if (task.dueAt != null) {
+            val method = when (task.deliveryAction) {
+                "start_call" -> "角色主动来电（系统闹钟负责准点触发）"
+                "alarm_only" -> "本机有声叫醒（到点可由角色选择铃声或已授权音乐）"
+                "send_private_message" -> "普通私聊提醒"
+                else -> "叫醒方式待明确"
+            }
+            Text("执行方式 · $method", fontSize = 12.sp, color = LuluColors.Muted)
+        }
         if (task.lastActionResult.isNotBlank()) Text(task.lastActionResult, fontSize = 13.sp)
         Row {
             TextButton(onClick = { detail = !detail }) { Text(if (detail) "收起依据" else "查看约定依据") }
