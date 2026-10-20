@@ -75,8 +75,9 @@ internal object CommitmentExecutor {
                     linkedAlarmId = null, nextCheckAt = null,
                     lastActionResult = if (!delivered) "到点叫醒失败：本机通知或音乐未能实际触发"
                         else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
-                        else if (sameCall) "在原电话内叫醒（${selected.cue}），没有重新拨号；未确认醒来"
-                        else "本机闹钟已发出通知；未证明用户已经醒来",
+                        else if (sameCall) "在原电话内${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "用普通声线" else "响铃后"}叫醒，没有重新拨号；未确认醒来"
+                        else "本机闹钟已发出通知；未证明用户已经醒来" +
+                            selected.reason.takeIf { it.isNotBlank() }?.let { "；角色决定：$it" }.orEmpty(),
                 )
             }
             return
@@ -162,6 +163,7 @@ internal object CommitmentExecutor {
                     nextCheckAt = nextAlarm?.triggerAt,
                     lastActionResult = if (queued) buildString {
                         append("第$attempt 次已在原电话执行叫醒；未收到明确回应，不视为已醒。$music")
+                        if (selected.reason.isNotBlank()) append("；角色考虑：${selected.reason}")
                         append(if (nextAlarm != null) "；已安排后续目标复查"
                             else "；后续提醒已到次数上限或未排成功")
                     } else "原电话中未能排入叫醒铃声与语音；没有再次拨号",
