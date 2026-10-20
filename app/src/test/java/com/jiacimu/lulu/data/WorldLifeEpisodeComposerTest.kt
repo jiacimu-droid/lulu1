@@ -65,6 +65,21 @@ class WorldLifeEpisodeComposerTest {
         assertTrue(WorldLifeEpisodeComposer.readableScene(grounded))
     }
 
+    @Test fun literaryHeadingIsSeparatedFromBodyWithoutPersistingMarkdownNoise() {
+        val prose = ("江渡翻开桌边的书，窗外的光在书页上轻轻挪动。" +
+            "他伸手去扶正那张纸，却忽然觉得屋子也安静下来了。").repeat(3)
+        val raw = "《书脊上的晚光》\\n\\n" + prose
+        val draft = WorldLifeEpisodeComposer.parseModelScene(raw, "一段独处时光")
+        assertEquals("书脊上的晚光", draft?.title)
+        assertEquals(prose, draft?.scene)
+    }
+
+    @Test fun incompleteHeadingNeverEatsARealScene() {
+        val prose = "小屋里有一盏灯，他走进来，慢慢整理自己的书架。".repeat(5)
+        assertEquals(prose, WorldLifeEpisodeComposer.parseModelScene(prose, "短暂独处")?.scene)
+        assertNull(WorldLifeEpisodeComposer.literaryHeading("《没有结尾的标题"))
+    }
+
     @Test fun softOrUnfinishedFillerIsNeverACompletedSoloStory() {
         assertFalse(WorldLifeEpisodeComposer.readableScene("江渡回了家，安静地坐下。"))
         assertFalse(WorldLifeEpisodeComposer.readableScene(
