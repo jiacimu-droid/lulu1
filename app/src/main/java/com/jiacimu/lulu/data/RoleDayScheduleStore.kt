@@ -168,7 +168,6 @@ object RoleDayScheduleStore {
     @Synchronized
     fun reschedule(context: Context, characterId: String, planId: String,
         dueAt: Instant, reason: String, now: Instant = Instant.now()): RoleDayPlan {
-        require(reason.trim().length >= 3) { "改期需要本人真实的理由" }
         require(dueAt.isAfter(now.plusSeconds(60)) &&
             dueAt.isBefore(now.plus(Duration.ofDays(14)))) { "改期只能安排在未来两周内" }
         val previous = all(context)
