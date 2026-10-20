@@ -48,7 +48,7 @@ internal fun SelfPrefaceHomeHero(modifier: Modifier = Modifier) {
             Box(
                 Modifier.fillMaxSize().background(
                     Brush.linearGradient(
-                        listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.paper, SelfPrefacePalette.sageLight),
+                        listOf(Color(0xFFF6F1CE), Color(0xFFF9F9EA), Color(0xFFE8F0D6)),
                     )
                 )
             ) {
