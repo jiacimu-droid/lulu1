@@ -247,14 +247,30 @@ object CharacterLifeStore {
                 if (!profile.has(key) || knownDefault) profile.put(key, value)
             }
         }
+        // Upgrade ONLY Jiang Du's stock v12 fields. User-authored overrides,
+        // including deliberately blank values, must stay byte-for-byte intact.
+        CharacterProfileSchema.jiangDuV13Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) ||
+                previous == CharacterProfileSchema.jiangDuV12Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
-        if (!relations.has("user")) {
+        val ownerBond = relations.optJSONObject("user")
+        if (ownerBond == null) {
             relations.put("user", JSONObject()
                 .put("title", CharacterProfileSchema.jiangDuOwnerRelationTitle)
-                .put("details", CharacterProfileSchema.jiangDuOwnerRelationContext)
+                .put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV13)
                 .put("updatedAt", Instant.now().toString()))
+        } else if (ownerBond.optString("title") == CharacterProfileSchema.jiangDuOwnerRelationTitle &&
+            ownerBond.optString("details") == CharacterProfileSchema.jiangDuOwnerRelationContext) {
+            // Default-only migration. Do not replace a relationship the user
+            // rewrote, and never create a competing owner-bond store.
+            ownerBond.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV13)
+                .put("updatedAt", Instant.now().toString())
         }
         root.put("relationshipAgreements", relations)
         val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
@@ -262,8 +278,9 @@ object CharacterLifeStore {
         val updatedPersona = if (version < 9 || character.persona in setOf(
                 CharacterProfileSchema.jiangDuPersona,
                 CharacterProfileSchema.jiangDuV10Persona,
-                CharacterProfileSchema.jiangDuV11Persona
-            )) CharacterProfileSchema.jiangDuV12Persona else character.persona
+                CharacterProfileSchema.jiangDuV11Persona,
+                CharacterProfileSchema.jiangDuV12Persona
+            )) CharacterProfileSchema.jiangDuV13Persona else character.persona
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = updatedPersona))
         root.optJSONObject("socialNames")?.let { names ->
