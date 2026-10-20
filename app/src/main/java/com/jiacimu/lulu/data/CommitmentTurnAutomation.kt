@@ -67,6 +67,30 @@ object CommitmentTurnAutomation {
         }
     }
 
+    /** Preserve failures as machine-written receipts, never as character speech. */
+    private fun showWakeScheduleProblem(
+        conversation: LuluConversation,
+        user: LuluChatMessage,
+        characterId: String,
+        reason: String,
+    ) {
+        val content = "叫醒约定尚未安排成功 · ${reason.take(130)}。手机上没有可确认的新叫醒任务。"
+        val id = "wake-choice-failed:${user.id}:$characterId"
+        val message = MigratedDomainStores.chat.appendSystemReceipt(conversation.id, id, content)
+        if (message.content != content) MigratedDomainStores.chat.editMessage(id, content)
+    }
+
+    /** Return the character's explicitly selected executable method, never a guessed default. */
+    internal fun parseModelWakeChoice(response: String): String? = runCatching {
+        val clean = response.trim().removePrefix("```json").removePrefix("```")
+            .removeSuffix("```").trim()
+        val json = JSONObject(clean)
+        if (!json.optBoolean("accepted", false)) null
+        else json.optString("deliveryAction").takeIf {
+            it in setOf("start_call", "alarm_only")
+        }
+    }.getOrNull()
+
     /**
      * This recovery is invoked ONLY when the character has already spoken and
      * a clear time for "wake me" has been offered. Model owns *whether the
@@ -102,7 +126,7 @@ object CommitmentTurnAutomation {
         }
         val acceptedRoutes = setOf("start_call", "alarm_only")
         val route = if (saved?.deliveryAction in acceptedRoutes) {
-            saved!!.deliveryAction
+            saved.deliveryAction
         } else {
             val callEnabled = MigratedDomainStores.characters.get(characterId)
                 .contactPolicy.proactiveCallsEnabled
@@ -116,7 +140,8 @@ object CommitmentTurnAutomation {
                 val preferences = CharacterRelationshipPreferences.promptSection(characterId)
                 if (preferences.isNotBlank()) appendLine(preferences)
             }
-            val decision = LuluAiServices.gateway.generate(
+            val decision = try {
+                LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = facts,
                 instruction = """
@@ -139,17 +164,34 @@ object CommitmentTurnAutomation {
                 title = "约定履行方式",
                 maxTokens = 180,
                 usage = ModelUsage.Chat,
-            ).getOrThrow().text.trim().removePrefix("```json")
-                .removePrefix("```").removeSuffix("```").trim()
-            val choice = JSONObject(decision)
-            if (!choice.optBoolean("accepted", false)) return@withLock null
-            choice.optString("deliveryAction")
+            ).getOrThrow().text
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                showWakeScheduleProblem(conversation, user, characterId,
+                    "执行方式判断请求失败：${error.message.orEmpty().take(75)}")
+                throw error
+            }
+            val choice = parseModelWakeChoice(decision)
+            if (choice == null) {
+                showWakeScheduleProblem(conversation, user, characterId,
+                    "没有取得有效的叫醒方式，电话与闹钟均未登记")
+                return@withLock null
+            }
+            choice
         }
-        if (route !in acceptedRoutes) return@withLock null
+        if (route !in acceptedRoutes) {
+            showWakeScheduleProblem(conversation, user, characterId, "未选出可执行的有声叫醒方式")
+            return@withLock null
+        }
         val task = CommitmentDecisionRuntime.ensureAcceptedWake(
             context = context, characterId = characterId, sourceTurnId = sourceTurnId,
             evidenceIds = evidenceIds, userText = normalized, roleText = roleText,
             userAt = user.createdAt, selectedDeliveryAction = route,
+        )
+        if (task == null) showWakeScheduleProblem(
+            conversation, user, characterId,
+            "角色选择的方式与用户明确的要求冲突，未擅自更换方式"
         )
         task
     }
@@ -230,16 +272,16 @@ object CommitmentTurnAutomation {
         val content = when (task.status) {
             CommitmentTaskStatus.Scheduled ->
                 if (!task.linkedAlarmId.isNullOrBlank()) {
-                    "系统叫醒已登记 · ${task.goal}。可在「日程·约定」查看执行状态。" +
+                    "${if (task.deliveryAction == "start_call") "角色来电" else "本机响铃"}已登记 · ${task.goal}。可在「日程·约定」查看执行状态。" +
                         if (task.lastActionResult.contains("非精确")) " 手机未授予精确闹钟权限，可能延迟。" else ""
                 } else "叫醒尚未真正登记到手机，请检查日程任务状态。"
             CommitmentTaskStatus.Blocked, CommitmentTaskStatus.NeedsClarification ->
                 "叫醒约定未能安排成功：${task.lastActionResult.take(110)}。请检查日程和手机权限。"
             else -> return
         }
-        MigratedDomainStores.chat.appendSystemReceipt(
-            conversation.id, "wake-schedule:${userMessage.id}:$characterId", content
-        )
+        val id = "wake-schedule:${userMessage.id}:$characterId"
+        val existing = MigratedDomainStores.chat.appendSystemReceipt(conversation.id, id, content)
+        if (existing.content != content) MigratedDomainStores.chat.editMessage(id, content)
     }
 
     private suspend fun retryTransientExtraction(operation: suspend () -> Unit) {
