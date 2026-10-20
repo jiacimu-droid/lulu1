@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`54ef08098b9b3907d50e9fda1f498d81a214f678`
+- 基准提交：`5a7b8996afba9a8308fdf8301b0ac411195fd556`
 - 分支：`main`
 - 已索引文件：748
-- 已索引代码/文本行：144107
+- 已索引代码/文本行：144132
 - 已发现符号：2174
 
 | 文件 | 行数 | 符号数 |
@@ -103,7 +103,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 571 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1902 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1914 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -187,7 +187,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 223 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 189 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1126 | 26 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1128 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
@@ -534,7 +534,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 294 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1765 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1776 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 186 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
