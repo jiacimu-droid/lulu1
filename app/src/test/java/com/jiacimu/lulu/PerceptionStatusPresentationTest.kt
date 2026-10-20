@@ -44,6 +44,28 @@ class PerceptionStatusPresentationTest {
         assertFalse(lines.any { it.contains("每5分钟尝试") || it.contains("每2分半") })
     }
 
+    @Test fun recoveryTriggerWithWordFailureIsNotMistakenForAnotherFailure() {
+        val recovering = "感知启动 · 在线收到新消息，恢复失败的感知"
+        assertEquals("进行中", PerceptionStatusPresentation.status(recovering, true, true))
+        assertFalse(PerceptionStatusPresentation.errorNote(recovering))
+        val state = CompanionPresenceState("role", lastPerceptionAt = now,
+            lastPerceptionNote = recovering)
+        assertNull(PerceptionStatusPresentation.errorFor(state))
+        val lines = PerceptionStatusPresentation.lines(state, policy, plan, true, false, now, zone)
+        assertTrue(lines.any { it.contains("进行中") })
+        assertFalse(lines.any { it.contains("感知失败") })
+    }
+
+    @Test fun completedVersusRealDeliveryFailureHaveSeparatePresentation() {
+        assertEquals("已完成",
+            PerceptionStatusPresentation.status("感知成功 · message", true, false))
+        assertEquals("异常",
+            PerceptionStatusPresentation.status("动作失败 · message · 消息未写入", true))
+        assertEquals("异常",
+            PerceptionStatusPresentation.status("模型回复格式不完整 · JSON解析失败", true))
+        assertEquals("暂无记录", PerceptionStatusPresentation.status("", false))
+    }
+
     @Test fun aRealModelOrExecutorFailureIsAnActionableErrorForThisRole() {
         val failedModel = CompanionPresenceState("jiangdu",
             lastPerceptionAt = now, lastPerceptionNote = "模型请求失败 · 超时")
