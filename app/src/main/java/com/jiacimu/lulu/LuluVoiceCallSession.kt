@@ -129,7 +129,7 @@ internal object LuluVoiceCallSession {
      * A bedtime session switches to the usual speaking voice for an audible wake.
      * This is an agent-owned reminder, never synthesized as a user utterance.
      */
-    fun announceScheduledReminder(characterId: String, text: String, taskId: String): Boolean {
+    fun announceScheduledReminder(characterId: String, text: String, taskId: String, ringFirst: Boolean = true): Boolean {
         val call = mutableState.value
         if (!call.connected || call.characterId != characterId || text.isBlank()) return false
         if (speechQueue == null) return false
@@ -153,8 +153,10 @@ internal object LuluVoiceCallSession {
         pendingScheduledWakeReason = reason
         val context = appContext ?: return false
         wakeCueJob = scope.launch {
-            LuluCallRingtone.startInCallWake(context, "wake-$callId-$taskId", 6_000L)
-            delay(6_000L)
+            if (ringFirst) {
+                LuluCallRingtone.startInCallWake(context, "wake-$callId-$taskId", 6_000L)
+                delay(6_000L)
+            }
             LuluCallRingtone.stopInCallWake()
             val live = mutableState.value
             if (live.connected && live.callExperienceId == callId &&
@@ -164,6 +166,22 @@ internal object LuluVoiceCallSession {
                 handleUserSpeech("", opening = true)
             }
         }
+        return true
+    }
+
+    /** A musical wake can happen without hanging up or dialing a second call. */
+    fun exitSleepForWake(characterId: String): Boolean {
+        val call = mutableState.value
+        if (!call.connected || call.characterId != characterId) return false
+        sleepContinuationJob?.cancel()
+        sleepContinuationJob = null
+        replyJob?.cancel()
+        replyGeneration++
+        subtitleRevealJob?.cancel()
+        speechQueue?.stop()
+        setSleepMode(false)
+        mutableState.update { it.copy(thinking = false, speaking = false,
+            playingTranscript = "", statusMessage = "叫醒时间到了 · 通话仍然连接") }
         return true
     }
 
