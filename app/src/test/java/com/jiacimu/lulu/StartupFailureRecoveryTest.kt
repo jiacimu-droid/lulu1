@@ -1,7 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE, sdk = [32])
 class StartupFailureRecoveryTest {
     @Test fun startupFailurePreservesTraceWithoutTouchingUserData() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = RuntimeEnvironment.getApplication() as Context
         val userPrefs = context.getSharedPreferences("existing_character_test", Context.MODE_PRIVATE)
         userPrefs.edit().putString("character", "still-present").commit()
 
