@@ -405,8 +405,13 @@ internal object LuluVoiceCallSession {
         mutableState.update { it.copy(provider = provider, errorMessage = "") }
         val library = LuluAiServices.connectionStore.library.value
         val archiveId = library.archiveIdFor(ModelUsage.VoiceCall)
-        if (library.archives.none { it.id == archiveId }) {
-            mutableState.update { it.copy(statusMessage = "请先选择电话模型") }
+        // A scheduled wake already has an authored, persisted first line.
+        // It must still be audible if the chat-model archive was unselected
+        // while the phone was asleep. Later free conversation can request a model.
+        val storedWakeOpening = current.incomingCommitmentTaskId != null &&
+            current.incomingReason.isNotBlank()
+        if (library.archives.none { it.id == archiveId } && !storedWakeOpening) {
+            mutableState.update { it.copy(statusMessage = "请先选择电话模型", errorMessage = "电话模型尚未配置") }
             return
         }
         configureCallAudio()
