@@ -100,7 +100,8 @@ internal object CharacterBehaviorMotivation {
         else -> name
     }
 
-    /** Audit helper only: having separately explained a motive is OPTIONAL and\n     * must never be a prerequisite to a model-selected, authorized action. */\n    fun hasExplicitBasis(
+    /** A read-only explanation diagnostic, not an execution permission. */
+    fun hasExplicitBasis(
         action: String,
         reason: String = "",
         appraisal: JSONObject? = null,
