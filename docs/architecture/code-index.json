@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T05:48:39.041418+00:00",
-  "commit": "821822428c34342de7aa17705c78e7aa3501ae43",
+  "generatedAt": "2026-10-20T05:50:47.986447+00:00",
+  "commit": "8762c27f4d01ed11ebe76e4480216daad1cd29d7",
   "branch": "main",
-  "sourceFingerprint": "59cd714b26890e98f1fc273b27b9dcb75fbec84febf0445910b6dcc678070c40",
+  "sourceFingerprint": "343d9278287005019307b3e8b4e9e02a3c7fa9caa7a08b929576c463ad22b1b4",
   "summary": {
     "files": 745,
-    "lines": 142608,
-    "symbols": 2161
+    "lines": 142677,
+    "symbols": 2163
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1517,7 +1517,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
-        "line": 100
+        "line": 117
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -2506,6 +2506,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
         "line": 59
+      }
+    ],
+    "createFolder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 100
+      }
+    ],
+    "renameFolder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
+        "line": 108
       }
     ],
     "readStrict": [
@@ -14328,8 +14340,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
-      "lines": 632,
-      "sha256": "1cb5bfffeea12e1c86ae8a416743e8890b2b6b9f48a1467e069eee44885ca192",
+      "lines": 701,
+      "sha256": "0cdbad69d25330b4ddfa81a239603d52da0cd4d42db52837c9760d356fafd482",
       "symbols": [
         {
           "name": "state",
@@ -14344,8 +14356,16 @@
           "line": 59
         },
         {
-          "name": "open",
+          "name": "createFolder",
           "line": 100
+        },
+        {
+          "name": "renameFolder",
+          "line": 108
+        },
+        {
+          "name": "open",
+          "line": 117
         }
       ]
     },
