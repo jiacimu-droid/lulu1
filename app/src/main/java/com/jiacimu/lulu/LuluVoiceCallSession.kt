@@ -1564,6 +1564,11 @@ internal object LuluVoiceCallSession {
                     "enable" -> setSleepMode(true)
                     "disable" -> setSleepMode(false)
                 }
+                appContext?.let {
+                    com.jiacimu.lulu.data.DeferredCallMediaAction.chooseAfterSpeech(
+                        latest.characterId, latest.callExperienceId,
+                        reply.musicAfterSpeech == "resume")
+                }
                 interactionReceipt = reply.interactionReceipt
                 bedtimeContinuation = reply.bedtimeContinuation
                 finalText = VoicePerformance.plain(text)
