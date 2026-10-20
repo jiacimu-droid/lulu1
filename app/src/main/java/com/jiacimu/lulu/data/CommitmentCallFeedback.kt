@@ -16,8 +16,10 @@ internal object CommitmentCallFeedback {
                 linkedAlarmId = null,
                 nextCheckAt = null,
                 lastActionResult = if (!answered) "用户主动拒绝本次来电，已停止自动重拨"
-                    else if (old.isWakeResponsibility()) "用户点击接听，未确认已醒；等待明确反馈，不继续自动重拨"
-                    else "用户点击接听，已收到本次电话",
+                    else if (old.isWakeResponsibility())
+                        old.lastActionResult.takeIf { "叫醒语音" in it && ("开始播放" in it || "完整送达" in it) }
+                            ?: "电话已实际连接（${java.time.Instant.now()}），未确认已醒；等待真实音频结果"
+                    else "电话已实际连接（${java.time.Instant.now()}），尚不代表已发声",
             )
         }
     }
@@ -26,14 +28,14 @@ internal object CommitmentCallFeedback {
     fun onVoiceStarted(taskId: String, callId: String) {
         CommitmentTaskStore.update(taskId) { old ->
             if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
-            else old.copy(lastActionResult = "来电已接通；本次叫醒语音开始播放（会话=${callId.take(12)}）；尚未播完，也未确认用户醒来")
+            else old.copy(lastActionResult = "叫醒语音开始播放（${java.time.Instant.now()}；会话=${callId.take(12)}）；尚未播完，也未确认用户醒来")
         }
     }
 
     fun onVoiceDelivered(taskId: String, callId: String) {
         CommitmentTaskStore.update(taskId) { old ->
             if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
-            else old.copy(lastActionResult = "本次叫醒语音已完整送达播放器（会话=${callId.take(12)}）；尚未收到用户明确已醒的反馈")
+            else old.copy(lastActionResult = "本次叫醒语音已完整送达播放器（${java.time.Instant.now()}；会话=${callId.take(12)}）；尚未收到用户明确已醒的反馈")
         }
     }
 
@@ -41,7 +43,7 @@ internal object CommitmentCallFeedback {
         CommitmentTaskStore.update(taskId) { old ->
             if (old.status != CommitmentTaskStatus.WaitingForFeedback || !old.isWakeResponsibility()) old
             else old.copy(status = CommitmentTaskStatus.Blocked,
-                lastActionResult = "电话已接通，但本次叫醒语音播放失败（会话=${callId.take(12)}）：${error.take(110)}；不算成功叫醒")
+                lastActionResult = "电话已接通，但本次叫醒语音播放失败（${java.time.Instant.now()}；会话=${callId.take(12)}）：${error.take(110)}；不算成功叫醒")
         }
     }
 
