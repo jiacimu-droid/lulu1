@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,18 +92,25 @@ internal fun TodoEditorDialog(
     var minutes by remember(original?.id) { mutableStateOf(original?.minutes) }
     var repeat by remember(original?.id) { mutableStateOf(original?.repeat ?: TodoRepeat.ONCE) }
 
+    val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     Dialog(onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        // Constrain the actual dialog by the IME-safe viewport, not by a static
+        // 640dp surface with padding added INSIDE it. The form remains scrollable.
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize().imePadding()
+                .padding(horizontal = 18.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
         Surface(
-            Modifier.fillMaxWidth().padding(horizontal = 18.dp)
-                .heightIn(max = 640.dp).imePadding(),
+            Modifier.fillMaxWidth().heightIn(max = minOf(maxHeight, 640.dp)),
             shape = RoundedCornerShape(28.dp),
             color = TodoInk.background,
             shadowElevation = 16.dp,
         ) {
             Column {
                 Box(
-                    Modifier.fillMaxWidth().height(100.dp)
+                    Modifier.fillMaxWidth().height(if (keyboardVisible) 63.dp else 100.dp)
                         .background(Brush.horizontalGradient(
                             listOf(SelfPrefacePalette.creamLight, SelfPrefacePalette.sageLight, SelfPrefacePalette.paper))),
                 ) {
@@ -114,7 +122,7 @@ internal fun TodoEditorDialog(
                             fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.sp)
                         Text(if (original == null) "新建待办" else "编辑待办",
-                            color = TodoInk.title, fontSize = 25.sp,
+                            color = TodoInk.title, fontSize = if (keyboardVisible) 20.sp else 25.sp,
                             fontWeight = FontWeight.Bold)
                     }
                     IconButton(onClick = onDismiss,
@@ -131,7 +139,8 @@ internal fun TodoEditorDialog(
                     TodoFormLabel("01", "要完成什么？")
                     TextField(value = title, onValueChange = { title = it },
                         placeholder = { Text("例如：背完今天的单词", color = TodoInk.secondary) },
-                        singleLine = true, modifier = Modifier.fillMaxWidth(),
+                        singleLine = true, modifier = Modifier.fillMaxWidth()
+                            .selfPrefaceKeepFieldVisible(),
                         shape = RoundedCornerShape(15.dp),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White, unfocusedContainerColor = Color.White,
@@ -141,7 +150,8 @@ internal fun TodoEditorDialog(
                         ))
                     TextField(value = note, onValueChange = { note = it },
                         placeholder = { Text("补充一点备注（选填）", color = TodoInk.secondary) },
-                        minLines = 2, maxLines = 3, modifier = Modifier.fillMaxWidth(),
+                        minLines = 2, maxLines = 3, modifier = Modifier.fillMaxWidth()
+                            .selfPrefaceKeepFieldVisible(),
                         shape = RoundedCornerShape(15.dp),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White, unfocusedContainerColor = Color.White,
@@ -224,6 +234,7 @@ internal fun TodoEditorDialog(
                     }
                 }
             }
+        }
         }
     }
 }
