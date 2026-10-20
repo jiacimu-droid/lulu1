@@ -66,6 +66,7 @@ object ProactivePerceptionRuntime {
         val concernId: String = "",
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
+        val sideActions: org.json.JSONArray? = null,
         val targetScore: Int? = null,
         val intention: JSONObject? = null,
         val afterglow: JSONObject? = null,
@@ -112,7 +113,8 @@ object ProactivePerceptionRuntime {
     )
 
     private data class ActionExecution(val success: Boolean, val summary: String,
-        val conversationId: String? = null, val evidenceId: String = "")
+        val conversationId: String? = null, val evidenceId: String = "",
+        val deliveredReply: Boolean = false)
 
     fun initialize(context: Context) {
         ProactivePerceptionPolicyStore.initialize(context.applicationContext)
@@ -1258,7 +1260,7 @@ object ProactivePerceptionRuntime {
         )
         val executionVariant = listOf(
             chosenActionSignature, decision.journalTitle, decision.journalContent,
-            decision.toolArgs.toString(),
+            decision.toolArgs.toString(), decision.sideActions?.toString().orEmpty(),
         ).joinToString("|").hashCode().toUInt().toString(16)
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
         val actionStartedAt = Instant.now()
@@ -1268,6 +1270,7 @@ object ProactivePerceptionRuntime {
             goalReviewMode = trigger.startsWith("持续目标定时复盘"),
             hasFreshUserMessage = messageStimulus != null,
             responseEvidenceIds = onlineUnread.messageIds,
+            replyConversationIds = onlineUnread.conversationIds,
             requestId = when {
                 // A new user message is a NEW decision. Never reuse the older
                 // call-end/world-event request key while the user is waiting.
@@ -1511,14 +1514,14 @@ object ProactivePerceptionRuntime {
         // A consciously quiet character has still *seen* the words; leaving
         // these eternally unread caused the online-life worker to abort every
         // follow-up pulse. Parsing failure and executor failure remain unread.
-        val deliveredToWaitingConversation = execution.success && when (decision.action) {
+        val deliveredToWaitingConversation = execution.success && (execution.deliveredReply || when (decision.action) {
             Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER ->
                 execution.conversationId != null &&
                     execution.conversationId in onlineUnread.conversationIds
             else -> false
-        }
-        val choseOtherLifeAction = execution.success && decision.action !in setOf(
+        })
+        val choseOtherLifeAction = execution.success && !execution.deliveredReply && decision.action !in setOf(
             Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
         )
@@ -1549,6 +1552,7 @@ object ProactivePerceptionRuntime {
         goalReviewMode: Boolean = false,
         hasFreshUserMessage: Boolean = false,
         responseEvidenceIds: Set<String> = emptySet(),
+        replyConversationIds: Set<String> = emptySet(),
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
         // The character already authored an explicit action choice in this
@@ -1740,6 +1744,7 @@ object ProactivePerceptionRuntime {
             stickerId = json.optString("stickerId").trim(),
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
+            sideActions = json.optJSONArray("sideActions"),
             toolArgs = (json.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()).apply {
                 // Direct autonomous actions can attach planId at the top level or
                 // inside args; both must reach the same verifiable executor receipt.
