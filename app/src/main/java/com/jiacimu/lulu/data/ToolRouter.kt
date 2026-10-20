@@ -134,8 +134,7 @@ object ToolRouter {
             "detail", "reason", "status").firstNotNullOfOrNull { key ->
             result.optString(key).takeIf { it.isNotBlank() }
         }
-        return (available ?: "工具$ name 执行未成功，且执行器没有提供诊断字段")
-            .replace("工具$ name", "工具$name").take(250)
+        return (available ?: "工具${name}执行未成功，且执行器没有提供诊断字段").take(250)
     }
 
     private fun failure(message: String, status: String = "failed"): String = JSONObject().put("success", false).put("status", status).put("error", message).toString()
