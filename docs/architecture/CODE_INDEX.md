@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4bc5be27057d8053d03ac6e10a0f40ae26458b27`
+- 基准提交：`2f8f2fbc36cd8ab72c225d3c09415dd3afb292f6`
 - 分支：`main`
 - 已索引文件：750
-- 已索引代码/文本行：144280
-- 已发现符号：2178
+- 已索引代码/文本行：144307
+- 已发现符号：2179
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -103,7 +103,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 571 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1914 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 1932 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -400,7 +400,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 74 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 102 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 111 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 270 | 0 |
