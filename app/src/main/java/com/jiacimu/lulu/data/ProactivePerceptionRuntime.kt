@@ -86,9 +86,17 @@ object ProactivePerceptionRuntime {
 
     /** Same-tick, model-authored conversational choice is enough to express a
      * message; it cannot authorize unrelated tools, posts or phone calls. */
-    private fun Decision.conversationWords(): String =
-        if (action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE,
-                Action.KAOMOJI, Action.GROUP_KAOMOJI)) text else ""
+    private fun Decision.conversationWords(): String = when {
+        action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE,
+            Action.KAOMOJI, Action.GROUP_KAOMOJI) -> text
+        // The character may choose a send-message tool rather than the direct
+        // action label. Its authored nonblank args.text is still an intentional
+        // utterance. Do not extend this fallback to calls, posts or world actions.
+        action == Action.TOOL &&
+            tool in setOf("send_private_message", "send_group_message") ->
+            toolArgs.optString("text").trim()
+        else -> ""
+    }
 
     private fun Decision.actionBasis(): CharacterBehaviorMotivation.Basis? =
         CharacterBehaviorMotivation.resolve(
@@ -893,7 +901,7 @@ object ProactivePerceptionRuntime {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
-                characterId, "模型回复格式不完整，没有送达消息；尚未将用户消息标记为已处理", now,
+                characterId, "模型回复格式不完整 · API已返回但解析未通过，消息仍待处理", now,
             )
             if (onlineUnread.text.isNotBlank()) {
                 (onlineUnread.conversationIds + conversation.id).forEach { id ->
@@ -1512,7 +1520,7 @@ object ProactivePerceptionRuntime {
             decision.action != Action.SILENT) {
             (onlineUnread.conversationIds + conversation.id).forEach { id ->
                 com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
-                    "本轮未能完成回复，消息仍保留待处理；请点「回复」重试"
+                    "已生成决定，但发送阶段未完成：${execution.summary.take(115)}；消息仍待处理，可重试"
                 )
             }
         }
