@@ -99,10 +99,26 @@ object CommitmentTurnAutomation {
         grouped.forEach { (characterId, roleReplies) ->
             if (characterId.isBlank()) return@forEach
             val characterText = roleReplies.joinToString("\n", transform = LuluChatMessage::content).trim()
-            // The ordinary planner understands every turn and records its explicit [] or changes.
-            // Only older/unstructured producers need this semantic recovery, without word gates.
-            if (CommitmentDecisionRuntime.handled(appContext ?: return@forEach, characterId, userBatch.map(LuluChatMessage::id))) return@forEach
             val sourceTurnId = "${conversation.id}:${userMessage.id}:$characterId"
+            val evidenceIds = userBatch.map(LuluChatMessage::id)
+            // A delivered "twenty minutes later, wake me" accepted by the role
+            // is an executable promise even if the model's commitmentChanges was
+            // an empty array already marked handled. Use the SAME typed task and
+            // native alarm machinery; no second planner call or parallel schedule.
+            CommitmentDecisionRuntime.ensureAcceptedWake(
+                context = appContext ?: return@forEach,
+                characterId = characterId,
+                sourceTurnId = sourceTurnId,
+                evidenceIds = evidenceIds,
+                userText = combinedUserText,
+                roleText = characterText,
+                userAt = userMessage.createdAt,
+            )
+            // Generic, open-ended promises still rely on the main model's
+            // semantic decision; only unhandled legacy turns need extra AI.
+            if (CommitmentDecisionRuntime.handled(
+                    appContext ?: return@forEach, characterId, evidenceIds
+                )) return@forEach
             val signature = "commitment-turn-v2:$sourceTurnId"
             if (isProcessed(signature) || !permitAttempt(signature)) return@forEach
 
