@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.WorldLifeEpisode
+import com.jiacimu.lulu.data.WorldLifeEpisodeStore
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -119,10 +121,11 @@ internal fun WorldLifeEpisodeReader(scene: String) {
 internal fun WorldLifeEpisodeFullscreenDialog(
     episode: WorldLifeEpisode,
     onClose: () -> Unit,
+    onDelete: () -> Boolean = { WorldLifeEpisodeStore.delete(episode.id) },
 ) {
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(modifier = Modifier.fillMaxSize(), color = StoryPaper) {
-            WorldLifeEpisodeFullPage(episode, onClose)
+            WorldLifeEpisodeFullPage(episode, onClose, onDelete)
         }
     }
 }
@@ -132,8 +135,25 @@ internal fun WorldLifeEpisodeFullscreenDialog(
 internal fun WorldLifeEpisodeFullPage(
     episode: WorldLifeEpisode,
     onBack: () -> Unit,
+    onDelete: () -> Boolean = { WorldLifeEpisodeStore.delete(episode.id) },
 ) {
     var showSource by remember(episode.id) { mutableStateOf(false) }
+    var confirmDelete by remember(episode.id) { mutableStateOf(false) }
+    var deletionError by remember(episode.id) { mutableStateOf(false) }
+    if (confirmDelete) AlertDialog(
+        onDismissRequest = { confirmDelete = false },
+        title = { Text("删除这篇小剧场？") },
+        text = { Text("仅删除《${episode.title}》的文学正文，不删除它所依据的真实世界行动、聊天或其他生活记录。") },
+        confirmButton = {
+            TextButton(onClick = {
+                confirmDelete = false
+                if (onDelete()) onBack() else deletionError = true
+            }) { Text("删除这一篇", color = MaterialTheme.colorScheme.error) }
+        },
+        dismissButton = {
+            TextButton(onClick = { confirmDelete = false }) { Text("取消") }
+        },
+    )
     val name = MigratedDomainStores.characters.settings.collectAsState().value[episode.characterId]
         ?.displayName ?: "角色"
     Scaffold(
@@ -145,6 +165,12 @@ internal fun WorldLifeEpisodeFullPage(
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
                 },
+                actions = {
+                    IconButton(onClick = { confirmDelete = true }) {
+                        Icon(Icons.Outlined.DeleteOutline, "删除这篇小剧场",
+                            tint = StoryMuted)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = StoryPaper),
             )
         },
@@ -153,6 +179,8 @@ internal fun WorldLifeEpisodeFullPage(
             Modifier.fillMaxSize().padding(inset).verticalScroll(rememberScrollState())
                 .padding(horizontal = 27.dp, vertical = 25.dp),
         ) {
+            if (deletionError) Text("删除失败，原文仍在，请重试。",
+                color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
             Text("LIFE · PRIVATE CHAPTER", fontSize = 10.sp, letterSpacing = 2.sp,
                 color = StoryAccent)
             Spacer(Modifier.height(19.dp))
