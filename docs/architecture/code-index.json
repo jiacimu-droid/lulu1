@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T21:34:07.816089+00:00",
-  "commit": "a1a7c7a8de1987dea722405b08af2e47aafe0b5e",
+  "generatedAt": "2026-10-20T21:34:27.285654+00:00",
+  "commit": "fb757c33f24717c485b590f633510853cc6c25a8",
   "branch": "main",
-  "sourceFingerprint": "eb889db7385131039cf3e2ff468b784612071752eb7e00f574bb4e63e3e6da18",
+  "sourceFingerprint": "f77d843c26bbec962bc88f961f7b5cc8ed6a8ef61de1f12ece18c89d5c1c753d",
   "summary": {
     "files": 759,
     "lines": 145536,
@@ -24291,7 +24291,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt",
       "lines": 30,
-      "sha256": "fc57a66111d56ce268d2df072fca44d76bf55e9ae94bb1b40a5efe00bab73456",
+      "sha256": "e845d5fdc157385ac1679e0e24261fa55fdc35462a4aa65d5d215226b914984f",
       "symbols": [
         {
           "name": "StartupFailureRecoveryTest",
