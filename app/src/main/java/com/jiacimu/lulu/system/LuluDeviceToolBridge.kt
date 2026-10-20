@@ -296,6 +296,12 @@ object LuluDeviceToolBridge {
             - 若上下文有真实用户消息ID，确实想引用时在 text 开头用 ⟪QUOTE:消息ID⟫；只回应新消息且指代明确时不必引用。只允许引用明确给出的真实ID。
             - 只有本人真的很想长期留住某条用户消息时才在 text 开头用 ⟪FAVORITE:消息ID⟫。收藏不是点赞，不必为了展示能力频繁触发；ID同样必须真实。引用和收藏可以同时出现，也可以都不出现。
         """.trimIndent()
+        val phoneSleepRule = if (sceneContext.contains("电话")) """
+            【通话中的真实哄睡选择】根据对方整句原话、前后文及真实诉求，自主判断是否切换电话的陪睡状态。
+            当对方确实想被哄着入睡、午休时自然陪睡，返回 sleepDecision="enable"；若明确想退出哄睡、恢复日常通话，返回 sleepDecision="disable"；其余不填或 keep。
+            不以固定关键词认定：讨论别人睡眠、引用台词、否定句、简单说晚安不等于要求开启；她说“宝宝陪我睡会儿”“困了想听你哄我”也可理解为邀请。角色可以按性格回应，但答应陪睡时必须交出真实状态决定，不能只口头答应。已在哄睡状态且仍在哄睡，不要反复切换。
+            sleepDecision 只是本通电话的真实控制字段，不是台词，不替代承诺叫醒的 commitmentChanges；有明确午睡截止时间应另行创建真实叫醒约定。
+        """.trimIndent() else ""
         val voicePerformanceRule = if (sceneContext.contains("电话"))
             com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext,
                 sleepMode = sceneContext.contains("哄睡")) else ""
@@ -497,6 +503,7 @@ object LuluDeviceToolBridge {
                 不需要对方回答，不假设她睡着了，不能把虚构故事当共同回忆。
                 只输出一个紧凑 JSON：
                 {"action":"reply","text":"可直接朗读的完整长段"}
+                如果她明确想结束哄睡、恢复正常聊天，可额外返回 "sleepDecision":"disable"；由电话执行器切换真实声线，不要只口头说切换了。
                 可选 sleepContinuation 只记录本段真的讲到的进展；
                 如果附加字段影响正文完整性，优先只返回 action 和 text。
                 禁止工具动作、隐藏心声、章节总结和解释性代码块。
@@ -558,6 +565,7 @@ object LuluDeviceToolBridge {
                 ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
                 ${if (separateExpression) "" else onlineChatBubbleRule}
                 $voicePerformanceRule
+                $phoneSleepRule
                 $characterHangupRule
             """.trimIndent(),
             source = if (sceneContext.contains("电话")) "电话回复" else "聊天工具规划",
@@ -1242,6 +1250,7 @@ object LuluDeviceToolBridge {
             ))
             return Result.success(expressed.copy(text = sendText,
                 bedtimeContinuation = plan.sleepContinuation?.toString(),
+                sleepDecision = plan.sleepDecision.takeIf { sceneContext.contains("电话") && it in setOf("enable", "disable") },
                 interactionReceipt = if (rewriting || invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
@@ -1681,6 +1690,7 @@ object LuluDeviceToolBridge {
                 motiveId = json.optString("motiveId"),
                 intentionId = json.optString("intentionId").trim().take(70),
                 endCall = json.optBoolean("endCall", false),
+                sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
                 socialAttempt = json.optString("socialAttempt").trim().take(220),
@@ -1745,6 +1755,7 @@ private data class ToolPlan(
     val motiveId: String = "",
     val intentionId: String = "",
     val endCall: Boolean = false,
+    val sleepDecision: String = "",
     val phoneFavorite: JSONObject? = null,
     val speechIntent: String = "",
     val socialAttempt: String = "",
