@@ -29,7 +29,7 @@ class WorldLifeEpisodeComposerTest {
             ",\"title\":\"台灯亮起\",\"unresolvedThread\":\"没有结束"
         val result = WorldLifeEpisodeComposer.parseModelScene(raw, "晚上")
         assertEquals(prose, result?.scene)
-        assertEquals("晚上", result?.title)
+        assertEquals("他打开灯，光落在桌角", result?.title)
     }
 
     @Test fun proseOnlyModelResponseCanBeKeptIfComplete() {
