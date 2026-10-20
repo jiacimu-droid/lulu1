@@ -76,14 +76,32 @@ class WorldLifeEpisodeStoreTest {
             assertNotNull(entry)
             assertEquals("明天是否要解释自己刚才那句话", entry?.unresolvedThread)
             val contextText = WorldLifeEpisodeStore.recentContext(role, whenHappened.plusSeconds(60))
-            assertTrue(contextText.contains("人物仍有的主观疑问"))
-            assertTrue(contextText.contains("不是已发生的客观事件"))
             assertTrue(contextText.contains("角色真实回家并停留"))
+            assertFalse(contextText.contains("明天是否要解释自己刚才那句话"))
+            assertFalse(contextText.contains("他在家里想起刚刚发生的那句话"))
             WorldLifeEpisodeStore.invalidateEvidence("evidence-night-2")
             assertNull(WorldLifeEpisodeStore.find(entry!!.id))
         } finally {
             WorldLifeEpisodeStore.clear(role)
         }
+    }
+
+    @Test fun deletingOnlyTheChapterRetainsItsUnderlyingWorldAction() {
+        WorldLifeEpisodeStore.initialize(context)
+        WorldLifeEpisodeStore.clear(role)
+        val whenHappened = Instant.now().minusSeconds(120)
+        val evidenceId = "evidence-story-delete-only"
+        fact(evidenceId, whenHappened)
+        val chapter = WorldLifeEpisodeStore.record(role, "home:test", "晚光",
+            "他坐在桌边，想起了自己的计划。".repeat(7), "真实坐下看书架",
+            evidenceId, whenHappened)
+        try {
+            assertNotNull(chapter)
+            assertTrue(WorldLifeEpisodeStore.delete(chapter!!.id))
+            assertNull(WorldLifeEpisodeStore.find(chapter.id))
+            assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).size)
+            assertFalse(WorldLifeEpisodeStore.delete(chapter.id))
+        } finally { WorldLifeEpisodeStore.clear(role) }
     }
 
     @Test fun verifiedWorldActionCanBecomeOneDurableClickThroughButTextAloneCannot() {
