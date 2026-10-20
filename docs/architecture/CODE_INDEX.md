@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6fe50ce0cfd3aa420a0bb6d0dbbbe14026ddbe73`
+- 基准提交：`119626d5dedeeb42cc58febd0b524541d52acb29`
 - 分支：`main`
 - 已索引文件：745
-- 已索引代码/文本行：142677
+- 已索引代码/文本行：142685
 - 已发现符号：2163
 
 | 文件 | 行数 | 符号数 |
@@ -167,7 +167,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 331 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 256 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 467 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 168 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 176 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 44 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 89 | 2 |
