@@ -1568,6 +1568,15 @@ internal object LuluVoiceCallSession {
                     "enable" -> setSleepMode(true)
                     "disable" -> setSleepMode(false)
                 }
+                reply.phoneMediaReceipt?.let { receipt ->
+                    if (receipt.startsWith("未安排播放")) {
+                        com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
+                            latest.characterId, "音乐安排失败 · ${receipt.take(180)}")
+                        mutableState.update { it.copy(errorMessage = receipt.take(180)) }
+                    } else if (receipt.startsWith("已登记")) {
+                        mutableState.update { it.copy(statusMessage = "音乐任务已登记，等待实际播放") }
+                    }
+                }
                 appContext?.let {
                     com.jiacimu.lulu.data.DeferredCallMediaAction.chooseAfterSpeech(
                         latest.characterId, latest.callExperienceId,
