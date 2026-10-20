@@ -582,14 +582,11 @@ private fun CompassEditor(
                             nextStep = if (values) original?.nextStep.orEmpty() else guidance.trim(),
                             starred = starred,
                             wishFolderId = if (values) original?.wishFolderId.orEmpty() else folder,
-                            // Existing fulfilled wishes stay fulfilled unless explicitly
-                            // unchecked on the card; editing never clears completion.
-                            state = if (values) original?.state.orEmpty()
-                                else original?.state?.takeIf { it == SelfCompassRules.FULFILLED }
-                                    ?: SelfCompassRules.ACTIVE,
-                            done = if (values) original?.done ?: false
-                                else original?.let { SelfCompassRules.state(it) ==
-                                    SelfCompassRules.FULFILLED } ?: false,
+                            // Editing content or moving a folder never rewrites
+                            // an existing historical state or completion bit.
+                            // Completion is exclusively toggled by the card checkbox.
+                            state = original?.state ?: SelfCompassRules.ACTIVE,
+                            done = original?.done ?: false,
                             updated = now,
                         )
                         onSave(page)
