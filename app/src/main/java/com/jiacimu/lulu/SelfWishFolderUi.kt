@@ -118,7 +118,8 @@ internal fun SelfWishFolderTabs(
                     OutlinedTextField(
                         input, { input = it.take(32); warning = "" },
                         label = { Text("文件夹名称") },
-                        singleLine = true, modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible(),
                     )
                     if (warning.isNotBlank()) Text(warning,
                         color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
