@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4113c725082c0313c80fe6e8856266a1ae59296b`
+- 基准提交：`ea2867ec2c779c75586cdc210c951b614e9a7a39`
 - 分支：`main`
 - 已索引文件：755
-- 已索引代码/文本行：145096
+- 已索引代码/文本行：145107
 - 已发现符号：2189
 
 | 文件 | 行数 | 符号数 |
@@ -189,7 +189,7 @@
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 223 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 189 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1129 | 26 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1131 | 26 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
@@ -538,7 +538,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 294 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1849 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1858 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 186 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 71 | 1 |
