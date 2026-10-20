@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`44d1324090207b0d63cdfcfabc6501ecce6771c8`
+- 基准提交：`5d0e6c09a198e3d7b010cb723b0f52d7b9d9d02f`
 - 分支：`main`
 - 已索引文件：748
-- 已索引代码/文本行：143950
-- 已发现符号：2171
+- 已索引代码/文本行：143953
+- 已发现符号：2172
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -204,7 +204,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 606 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 56 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 125 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt` | 69 | 2 |
