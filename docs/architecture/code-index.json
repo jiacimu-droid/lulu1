@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T18:57:49.785658+00:00",
-  "commit": "0fd32d722ab22fa1df212ddbb8d843a2268ba80d",
+  "generatedAt": "2026-10-20T18:58:58.608162+00:00",
+  "commit": "ee9c56e138c443535bb044306cd8bcb323efb59e",
   "branch": "main",
-  "sourceFingerprint": "224c63cb18dea9e8294f9e4c0eea9e7288324e8956e19c1508cf78449fb44248",
+  "sourceFingerprint": "91d66f1dd0c402bb55d0b0069b10afda87d1e2e218c4484e1867d860cf806516",
   "summary": {
-    "files": 749,
-    "lines": 144206,
-    "symbols": 2175
+    "files": 750,
+    "lines": 144279,
+    "symbols": 2178
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8436,6 +8436,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
         "line": 40
+      }
+    ],
+    "Cue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
+        "line": 12
+      }
+    ],
+    "Choice": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
+        "line": 13
+      }
+    ],
+    "musicAllowed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
+        "line": 14
       }
     ],
     "acceptedRequest": [
@@ -20576,6 +20594,25 @@
         {
           "name": "displayLabel",
           "line": 40
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
+      "lines": 73,
+      "sha256": "da01f83c4f1e0e20d92c6aa2574599eef08fe3e959d6edf740ff1a875a78a089",
+      "symbols": [
+        {
+          "name": "Cue",
+          "line": 12
+        },
+        {
+          "name": "Choice",
+          "line": 13
+        },
+        {
+          "name": "musicAllowed",
+          "line": 14
         }
       ]
     },
