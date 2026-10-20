@@ -72,8 +72,19 @@ object CommitmentTurnAutomation {
         val key = "$conversationId:$characterId"
         immediateWakeJobs.remove(key)?.cancel()
         immediateWakeJobs[key] = scope.launch {
-            delay(1_200L)
+            delay(650L)
             try {
+                // Await the end of this reply batch. A first bubble saying "好"
+                // is not consent if a later bubble says "我做不到".
+                val finished = kotlinx.coroutines.withTimeoutOrNull(20_000L) {
+                    while (ChatGenerationActivity.isRunning(conversationId) ||
+                        com.jiacimu.lulu.ChatReplyTaskManager.state(conversationId).running) {
+                        delay(250L)
+                    }
+                    true
+                } == true
+                if (!finished) return@launch // slow scanner remains the backup
+                delay(250L)
                 val conversation = MigratedDomainStores.chat.conversations.value
                     .firstOrNull { it.id == conversationId } ?: return@launch
                 val messages = MigratedDomainStores.chat.messages(conversation.id).value
