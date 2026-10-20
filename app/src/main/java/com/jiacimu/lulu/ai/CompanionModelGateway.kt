@@ -97,6 +97,8 @@ data class ModelReply(
     /** Private choice metadata; acknowledged by the sender/TTS, never shown or spoken. */
     val interactionReceipt: String? = null,
     val bedtimeContinuation: String? = null,
+    /** The character's structured, non-spoken choice of telephone sleep state. */
+    val sleepDecision: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {
