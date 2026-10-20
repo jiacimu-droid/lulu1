@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T21:08:59.218132+00:00",
-  "commit": "fc8f85384febd35f5aea353564aaf9418874a095",
+  "generatedAt": "2026-10-20T21:10:12.280963+00:00",
+  "commit": "6ea8a005e3423c487bdaacdafb474b8261df0423",
   "branch": "main",
-  "sourceFingerprint": "310e70a5f1ddee9fd1f7f4e19f4162f4c4ab518b4e777882def906f9402dfe10",
+  "sourceFingerprint": "a9e0972b60ea5704a1dc92c9adf67ec39ebaae6fad57e708ec425d8c9038e845",
   "summary": {
-    "files": 755,
-    "lines": 145233,
-    "symbols": 2189
+    "files": 756,
+    "lines": 145272,
+    "symbols": 2190
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5532,6 +5532,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
         "line": 510
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
+        "line": 17
       }
     ],
     "resetCharacter": [
@@ -20608,6 +20612,17 @@
         {
           "name": "empty",
           "line": 89
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
+      "lines": 39,
+      "sha256": "0ac12cc50b0558eeeec92ae18bb0321f56a53b2e2b60b255c6a7cd1b62cec852",
+      "symbols": [
+        {
+          "name": "markSeen",
+          "line": 17
         }
       ]
     },
