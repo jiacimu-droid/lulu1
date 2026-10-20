@@ -29,6 +29,11 @@ internal object ConversationNaturalnessGate {
     private val passDecisionBack = Regex(
         """(?:(?:那)?我(?:该|应该)(?:做什么|做些什么|怎么做|怎么办)|你想让我(?:做什么|做些什么|怎么做)|你希望我(?:做什么|做些什么|怎么做)|需要我(?:做什么|做些什么|怎么做)|我能为你做什么|有什么我(?:可以|能)帮(?:你|忙)的)"""
     )
+    // A genuine, model-authored move may be followed by a question. The gate
+    // must not rewrite a chosen offer into a mandatory one-way comfort script.
+    private val roleAlreadyOffered = Regex(
+        """(?:我(?:先|来|陪你|想|打算|准备|给你|跟你)|不如我们|我们先|要不(?:我们)?|一起(?:玩|走|聊|看看)|让我先)"""
+    )
     private val servicePhrases = Regex(
         """(?:如果你愿意|如果你需要|你可以|我建议|建议你|可以考虑|我可以帮你|需要的话我可以)"""
     )
@@ -149,7 +154,8 @@ internal object ConversationNaturalnessGate {
             reasons += "用总结用户意思作模板式开场"
         }
         val initiativeCue = CharacterInitiativeRuntime.detect(userText)
-        if (initiativeCue != null && passDecisionBack.containsMatchIn(reply)) {
+        if (initiativeCue != null && passDecisionBack.containsMatchIn(reply) &&
+            !roleAlreadyOffered.containsMatchIn(reply)) {
             score += 3
             reasons += "用户已暴露需要线索，却把“该做什么”原样甩回给用户"
         }
