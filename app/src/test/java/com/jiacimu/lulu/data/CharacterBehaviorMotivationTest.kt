@@ -105,6 +105,21 @@ class CharacterBehaviorMotivationTest {
             "message", chosenUtterance = "嗯"))
     }
 
+    @Test fun authoredToolMessageIsAnExplicitSpeechChoiceNotAMissingMotive() {
+        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+            "send_private_message",
+            chosenUtterance = "刚刚看到你的话啦，我想回应一下"))
+        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+            "send_group_message",
+            chosenUtterance = "我有个想法"))
+        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+            "send_private_message", chosenUtterance = ""))
+        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+            "start_call", chosenUtterance = "想跟你说话"))
+        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+            "publish_moment", chosenUtterance = "说话内容"))
+    }
+
     @Test fun aChosenMessageMustNotAuthorizeAnotherTypeOfAction() {
         for (action in listOf("reading", "digital_world", "publish_moment", "start_call",
                 "write_journal", "favorite_user_message", "read_xiaohongshu")) {
