@@ -105,7 +105,7 @@ object CommitmentTurnAutomation {
             // is an executable promise even if the model's commitmentChanges was
             // an empty array already marked handled. Use the SAME typed task and
             // native alarm machinery; no second planner call or parallel schedule.
-            CommitmentDecisionRuntime.ensureAcceptedWake(
+            val ensuredWake = CommitmentDecisionRuntime.ensureAcceptedWake(
                 context = appContext ?: return@forEach,
                 characterId = characterId,
                 sourceTurnId = sourceTurnId,
@@ -137,9 +137,16 @@ object CommitmentTurnAutomation {
                 now = userMessage.createdAt,
             )
             val filtered = drafts.filterNot { draft ->
-                draft.action == "create" && active.any { task ->
+                // If we already installed a native wake promise for THIS
+                // delivered turn, the generic model must not add a second
+                // alarm with a different paraphrase of the same wake request.
+                val wakeDuplicate = ensuredWake != null &&
+                    draft.action == "create" &&
+                    listOf("叫醒", "叫我起床", "喊醒", "喊我起床", "按约定叫我")
+                        .any { (draft.goal + draft.completionCondition).contains(it) }
+                wakeDuplicate || (draft.action == "create" && active.any { task ->
                     task.sourceTurnId == sourceTurnId && task.goal.taskKey() == draft.goal.taskKey()
-                }
+                })
             }
             // The recovery uses the same typed executor and receipt as the primary model.
             CommitmentDecisionRuntime.apply(
