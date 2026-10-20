@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T16:06:35.198415+00:00",
-  "commit": "3e6bb7cca9f06e7e3d650e4def2a254cdbddacbb",
+  "generatedAt": "2026-10-20T16:07:54.911516+00:00",
+  "commit": "c25bdfdd1fed5e4728f76345a6a0c2dfa1faf306",
   "branch": "main",
-  "sourceFingerprint": "1e1483e80536f1590d7541019f6d3f9eea432012469f42cbee714b4c2d458e3c",
+  "sourceFingerprint": "e45e9382517420fa49d731d0f3e2a3d37583b566274bc863d18a5a52e8b4e9db",
   "summary": {
     "files": 748,
     "lines": 143831,
@@ -17198,7 +17198,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
       "lines": 456,
-      "sha256": "7fc6e7aa1f2eda7a175412d125cfbe972b010eef520b19228ab0f3295db486cb",
+      "sha256": "2155c817649fd0258fd9779f1ae82176c0a1c9e9800e1fd0fee04bbe6517bc20",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -20150,7 +20150,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
       "lines": 74,
-      "sha256": "21f660788166b827e498321d1ab4df45a95fc3cf7f99635046c109e126e3cdfa",
+      "sha256": "10c530f0f061749137310d24b17b2062de3c5cd4caf755c867fa0e7aa21002eb",
       "symbols": [
         {
           "name": "parse",
@@ -20556,7 +20556,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
       "lines": 72,
-      "sha256": "8ea84d3bb36ece52baddd0937b8b408232f7dcbdfb09d23fb3d8b357bceeab2a",
+      "sha256": "798eb40ed90ab2a20523452d7228e5ba44db225852c40729a9c88cbb263d3223",
       "symbols": [
         {
           "name": "acceptedRequest",
@@ -25490,7 +25490,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt",
       "lines": 54,
-      "sha256": "3e1d6efb9fa3036089dba7748739e38ece46b644c9e1b11bdb2dc51aee08dd9e",
+      "sha256": "8e107b33059af94a6ad92a275f82f475a0bc7c4b129f819ab40a3b5febfa61cf",
       "symbols": [
         {
           "name": "RelativeWakeCommitmentParserTest",
@@ -25590,7 +25590,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt",
       "lines": 55,
-      "sha256": "e9093db1f6fd73ca3c3bed6c89b50ed0d4289a81baf5f29215ffb1d354f4702e",
+      "sha256": "711145c3b14639323ed5e4d05f99a25f52d3b5a83216bf556c0d5c85e9bd323e",
       "symbols": [
         {
           "name": "WakeCommitmentParserTest",
