@@ -546,6 +546,7 @@ private fun CompassEditor(
     var folderMenu by remember { mutableStateOf(false) }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         containerColor = colors.bg,
         topBar = {
             Row(
@@ -621,19 +622,19 @@ private fun CompassEditor(
             CompassLabel("01", if (values) "什么对我很重要？" else "我想实现什么？", colors)
             OutlinedTextField(title, { title = it },
                 placeholder = { Text(if (values) "例如：尊重自己的边界" else "例如：拥有自己的小天地") },
-                modifier = Modifier.fillMaxWidth(), minLines = 2, maxLines = 3,
+                modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible(), minLines = 2, maxLines = 3,
                 shape = RoundedCornerShape(17.dp))
             CompassLabel("02", if (values) "为什么我珍视它？" else "它对我意味着什么？", colors)
             OutlinedTextField(body, { body = it },
                 placeholder = { Text(if (values) "写下背后的经历和理由……"
                     else "描述一下你想要的未来……") },
-                modifier = Modifier.fillMaxWidth(), minLines = 5, maxLines = 12,
+                modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible(), minLines = 4, maxLines = 10,
                 shape = RoundedCornerShape(17.dp))
             CompassLabel("03", if (values) "未来遇到选择，我要提醒自己……" else "迈出的第一小步（可选）", colors)
             OutlinedTextField(guidance, { guidance = it },
                 placeholder = { Text(if (values) "例如：不舒服时先说明，而不是勉强答应。"
                     else "例如：先收集三个相关的信息。") },
-                modifier = Modifier.fillMaxWidth(), minLines = 3, maxLines = 6,
+                modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible(), minLines = 3, maxLines = 6,
                 shape = RoundedCornerShape(17.dp))
             if (!values) {
                 CompassLabel("04", "放进哪个文件夹？", colors)
