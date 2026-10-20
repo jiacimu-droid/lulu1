@@ -26,7 +26,7 @@ internal object DeferredCallMediaAction {
     internal fun validate(spec: JSONObject): String? {
         val trigger = spec.optString("trigger")
         val seconds = spec.optInt("delaySeconds", -1)
-        if (trigger !in setOf("call_end", "now")) return "没有可执行的音乐时间锚点"
+        if (trigger !in setOf("in_call", "call_end", "now")) return "没有可执行的音乐时间锚点"
         if (seconds !in 0..7200) return "音乐延时需要在0至7200秒之间"
         if (spec.optString("command", "play") != "play") return "延时音乐只允许播放已存在的媒体会话"
         val volume = spec.optInt("volumePercent", -1)
@@ -60,8 +60,8 @@ internal object DeferredCallMediaAction {
             .put("createdAt", Instant.now().toString())
         if (!prefs(context).edit().putString(id, row.toString()).commit())
             return "未安排播放：手机本地保存失败"
-        if (row.getString("trigger") == "now") enqueue(context, row)
-        return "已登记真实媒体任务：${if (row.getString("trigger") == "call_end") "通话结束" else "从现在"}后约${row.getInt("delaySeconds")}秒播放；不保证播放器届时仍然可用"
+        if (row.getString("trigger") != "call_end") enqueue(context, row)
+        return "已登记真实媒体任务：${when (row.getString("trigger")) { "in_call" -> "本次通话仍连接时，从现在"; "call_end" -> "通话结束"; else -> "从现在" }}起约${row.getInt("delaySeconds")}秒后播放；实际播放器结果另行核验"
     }
 
     @Synchronized fun onCallEnded(context: Context, characterId: String, callId: String) {
@@ -94,12 +94,67 @@ internal object DeferredCallMediaAction {
         }
     }
 
+    @Synchronized fun cancelCall(context: Context, characterId: String, callId: String) {
+        val store = prefs(context)
+        store.all.values.filterIsInstance<String>().forEach { raw ->
+            val row = runCatching { JSONObject(raw) }.getOrNull() ?: return@forEach
+            if (row.optString("characterId") == characterId &&
+                row.optString("callId") == callId &&
+                row.optString("trigger") == "in_call" &&
+                row.optString("status") in setOf("queued", "waiting")) {
+                store.edit().putString(row.optString("id"),
+                    row.put("status", "cancelled").put("result", "通话结束；只限本次通话的音乐安排已取消").toString()).commit()
+                WorkManager.getInstance(context).cancelUniqueWork("lulu-deferred-media-${row.optString("id")}")
+            }
+        }
+    }
+
+    private var activeMusicCallId: String? = null
+    private var activeMusicCharacterId: String? = null
+    private var interruptedByRoleSpeech: Boolean = false
+
+    @Synchronized fun beforeRoleSpeech(context: Context, characterId: String, callId: String) {
+        if (activeMusicCallId != callId || activeMusicCharacterId != characterId) return
+        val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "pause")) }.getOrNull()
+        interruptedByRoleSpeech = result?.optBoolean("accepted") == true ||
+            result?.optBoolean("success") == true
+    }
+
+    @Synchronized fun afterRoleSpeech(context: Context, characterId: String, callId: String) {
+        if (activeMusicCallId != callId || activeMusicCharacterId != characterId ||
+            !interruptedByRoleSpeech) return
+        val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "play")) }.getOrNull()
+        interruptedByRoleSpeech = false
+        if (result?.optBoolean("accepted") != true && result?.optBoolean("success") != true) {
+            activeMusicCallId = null
+        }
+    }
+
+    @Synchronized fun onCallDisconnected(context: Context, characterId: String, callId: String) {
+        cancelCall(context, characterId, callId)
+        if (activeMusicCallId == callId) {
+            activeMusicCallId = null
+            activeMusicCharacterId = null
+            interruptedByRoleSpeech = false
+        }
+    }
+
     @Synchronized fun execute(context: Context, id: String): Boolean {
         val store = prefs(context)
         val row = store.getString(id, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
             ?: return false
         if (row.optString("status") !in setOf("queued", "waiting")) return false
         val charId = row.optString("characterId")
+        if (row.optString("trigger") == "in_call") {
+            val call = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+            if (!call.connected || call.characterId != charId ||
+                call.callExperienceId != row.optString("callId")) {
+                store.edit().putString(id,
+                    row.put("status", "cancelled")
+                        .put("result", "本次电话已经结束，未越过通话边界播放音乐").toString()).commit()
+                return false
+            }
+        }
         val volume = row.optInt("volumePercent", -1)
         if (volume >= 0) LuluMediaVolume.control(context, charId, "set", volume)
         val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "play")) }
@@ -122,6 +177,11 @@ internal object DeferredCallMediaAction {
             else -> "音乐没有播放：${result.optString("error", "找不到可控制的会话")}"
         }
         if (!accepted && volume >= 0) LuluMediaVolume.control(context, charId, "restore")
+        if (row.optString("trigger") == "in_call" && accepted) {
+            activeMusicCallId = row.optString("callId")
+            activeMusicCharacterId = charId
+            interruptedByRoleSpeech = false
+        }
         val updated = row.put("status", if (verified) "verified" else if (accepted) "unverified" else "failed")
             .put("finishedAt", Instant.now().toString()).put("result", actual)
         store.edit().putString(id, updated.toString()).commit()
