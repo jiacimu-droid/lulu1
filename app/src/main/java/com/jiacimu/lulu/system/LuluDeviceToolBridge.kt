@@ -684,6 +684,13 @@ object LuluDeviceToolBridge {
                 ))
                 return Result.failure(IllegalStateException("模型没有产生可核实的完整回复"))
             }
+            if (sceneContext.contains("电话") &&
+                com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(visible)) {
+                if (callSilence) return Result.success(plannedReply.copy(
+                    text = "", disposition = CharacterDecisionProtocol.SILENT))
+                return Result.failure(IllegalStateException(
+                    "角色把内部观察误写为口语，已拦截发声，请重试"))
+            }
             val verifiedSpeech = repairUnfairSpeech(visible)
                 ?: return Result.failure(IllegalStateException(
                     "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
@@ -1236,6 +1243,13 @@ object LuluDeviceToolBridge {
                 ?: return Result.failure(IllegalStateException(
                     "角色本轮表达与未履行责任的事实不符，已停止发送，不使用固定道歉模板"
                 ))
+            if (sceneContext.contains("电话") &&
+                com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(verifiedSpeech)) {
+                if (callSilence) return Result.success(expressed.copy(
+                    text = "", disposition = CharacterDecisionProtocol.SILENT))
+                return Result.failure(IllegalStateException(
+                    "角色的回复混入内部感知分析，已停止播报并保留通话"))
+            }
             val safeText = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(
                 characterId, verifiedSpeech)
             // A sticker exists only if the user has imported and approved that
@@ -1469,6 +1483,9 @@ object LuluDeviceToolBridge {
                 ?: throw IllegalStateException(
                     "工具完成后回复包含无依据的归责，重新表达仍未通过核验；不代写道歉"
                 )
+            if (sceneContext.contains("电话") &&
+                com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(checkedResultText))
+                throw IllegalStateException("工具结果混入内部分析，未向通话播放")
             if (finalPlan != null && checkedResultText == naturalText) {
                 savePresence(
                     characterId, finalPlan, "聊天·工具",
