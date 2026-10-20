@@ -1519,14 +1519,10 @@ internal object LuluVoiceCallSession {
                     if (sameReply() && !autonomousSleep && !wakeOpening)
                         autonomousHangup.request(latest.callExperienceId, generation)
                 }),
-                onReplyStream = if (autonomousSilence || possibleSleepTransition) null else ({ envelope: String -> scope.launch {
-                    if (!sameReply() || stream.isFinished) return@launch
-                    val parts = stream.updateForSpeech(envelope, wholeTurnSpeech)
-                    CallReplyStream.replyTextPrefix(envelope)?.let { candidate ->
-                        mutableState.update { it.copy(generatedTranscript = VoicePerformance.plain(candidate)) }
-                    }
-                    enqueueSpoken(parts)
-                }; Unit }),
+                // The full role decision and its private fields must pass the
+                // publication boundary BEFORE any subtitle or audio output.
+                // Streaming partial JSON previously leaked raw deliberation.
+                onReplyStream = null,
             ).onSuccess { reply ->
                 if (generation != replyGeneration || !mutableState.value.connected || mutableState.value.callExperienceId != latest.callExperienceId) return@onSuccess
                 replyIsSilence = false
