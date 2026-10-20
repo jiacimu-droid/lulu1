@@ -50,6 +50,23 @@ internal object WorldLifeEpisodeComposer {
     internal fun permanentFailure(error: Throwable): Boolean =
         Regex("""(?<!\d)(400|401|403|404|413)(?!\d)""").containsMatchIn(error.message.orEmpty())
 
+    /** An independent literary heading is a FIRST line, not a planner's task title.
+     * Old records are never modified; this only affects newly generated works.
+     * Ignore arbitrary JSON-like inner fragments and never treat a mid-story
+     * quotation as an article heading. */
+    internal fun literaryHeading(raw: String): Pair<String, String>? {
+        val clean = raw.trim()
+        val first = clean.lineSequence().firstOrNull()?.trim().orEmpty()
+        val matched = Regex("""^(?:《([^《》\\n]{2,20})》|标题[：:]\\s*([^\\n]{2,20}))$""")
+            .matchEntire(first) ?: return null
+        val title = (matched.groupValues[1].ifBlank { matched.groupValues[2] })
+            .trim().trim('。', '！', '？', '.', '!', '?', ' ')
+        if (title.length !in 2..20 || Regex("^(?:独处|一段独处|独处小剧场|一个人的片刻|生活片段|无题)$")
+                .matches(title)) return null
+        val remaining = clean.substringAfter('\n', "").trim()
+        return if (readableScene(remaining)) title to remaining else null
+    }
+
     /** Publication is not a writing contest. In particular, word count, number
      * of periods, tone and optional metadata must never discard real prose.
      * Only reject blank/error/obviously unfinished non-scenes.
@@ -83,15 +100,36 @@ internal object WorldLifeEpisodeComposer {
         val plain = raw.trim().removePrefix("```text").removePrefix("```markdown")
             .removePrefix("```").removeSuffix("```").trim()
         val plainScene = if (plain.startsWith("{") || plain.contains("\"scene\"")) "" else plain
-        val scene = structured?.optString("scene").orEmpty().ifBlank { recoveredScene }
+        val prose = structured?.optString("scene").orEmpty().ifBlank { recoveredScene }
             .ifBlank { structured?.optString("text").orEmpty() }.ifBlank { plainScene }.trim()
+        val heading = literaryHeading(prose)
+        val scene = heading?.second ?: prose
         if (!readableScene(scene)) return null
         return WorldLifeSceneDraft(
-            title = structured?.optString("title").orEmpty().trim().take(70)
-                .ifBlank { suppliedTitle.trim().take(70).ifBlank { "一段独处时光" } },
+            title = heading?.first
+                ?: structured?.optString("title").orEmpty().trim().take(24)
+                    .takeUnless { genericHeading(it) }
+                ?: suppliedTitle.trim().take(24).takeUnless { genericHeading(it) }
+                ?: deriveSceneTitle(scene),
             scene = scene.take(4_000),
             unresolvedThread = structured?.optString("unresolvedThread").orEmpty().trim().take(220),
         )
+    }
+
+    private fun genericHeading(title: String): Boolean =
+        title.isBlank() || Regex("^(?:一段独处时光|一个人的片刻|独处小剧场|独处片段|生活片段|无题|独处故事|独处)$")
+            .matches(title.trim()) || title.contains("独处小剧场")
+
+    /** Gentle deterministic fallback when providers omit the requested title.
+     * Never invent locations, other people or their reactions. */
+    private fun deriveSceneTitle(scene: String): String {
+        val opening = scene.trim().lineSequence().firstOrNull().orEmpty()
+            .replace(Regex("^[\\s　“”]+"), "")
+            .substringBefore('。').substringBefore('！').substringBefore('？')
+            .trim('，', ',', ' ', '　', '“', '”')
+        return if (opening.length in 3..15) opening else if (opening.length > 15)
+            opening.take(11).trimEnd('，', '、', '与', '和', '的', '在')
+        else "窗边的一页"
     }
 
     /**
@@ -137,9 +175,9 @@ internal object WorldLifeEpisodeComposer {
                             appendLine("题材倾向：${suppliedTitle.take(70)}；戏剧种子：${suppliedScene.take(240)}")
                         }
                         prior?.let {
-                            appendLine("【上次独处片段（旧事，不要再演一次）】${it.title}；${it.scene.take(350)}")
-                            if (it.unresolvedThread.isNotBlank())
-                                appendLine("上回留下的未解主观疑问：${it.unresolvedThread.take(200)}；可自然接续或暂放，不能冒充新的已发生事实。")
+                            // Never recycle a novel's unverified character portrayal:
+                            // it is creative prose, not reliable knowledge of the user.
+                            appendLine("【上次真实独处行动（用于场景时间连续性）】${it.actualAction.take(180)}")
                         }
                     },
                     instruction = """
@@ -152,7 +190,7 @@ internal object WorldLifeEpisodeComposer {
                         【不可越过的世界事实边界】只有程序已执行的动作和提供的世界状态是真正发生过的。禁止编造NPC在场/说话、新物品、获得奖励、开始读一本未核验的书、另一地点的到访、手机来电、他人对角色的回应或其他未执行的世界事件。若希望与居民真实相遇，下一轮应由决策层执行相应动作，故事不能代替执行器。
                         如上一次有主观未解心事，可发展人物态度，但不能复述前文或预言别人会怎样。内心的情节张力与客观地图事实保持区分。
                         小说叙述适合文学细节；私聊的即时接话仍是简短活人的语言，两种风格不能互相污染。
-                        直接输出自然语言小说正文，按阅读节奏分段，绝对不用JSON包装；标题可有可无。
+                        第一行单独写一条与本篇实际场景和人物情绪贴切的散文式篇名，格式《篇名》，约4～12个汉字；不写“独处小剧场”“一个人的时光”这种栏目名，也不照搬任务名。空一行后写小说正文，绝对不用JSON包装。
                         正文直接按小说排版：自然段落之间空一行，尽量每段一到三句，人物动作、对话和私下心思用文学笔法自然衔接。不要写【叙述】【心声】【对白】、旁白说明、章节分析或其他系统标签。
                         格式不是成功条件，不要为此牺牲人物和故事。私人猜想不等于发生过的世界动作，任何对白不得伪造其他角色的真实回应。
                     """.trimIndent(),
@@ -193,14 +231,14 @@ internal object WorldLifeEpisodeComposer {
                         appendLine("已登记现场物件：${items.ifBlank { "无" }}")
                         appendLine("角色：${character.displayName}")
                         appendLine("角色已有内在状态：${CharacterInnerLifeStore.compactContext(characterId, Instant.now()).take(900)}")
-                        appendLine("旧片段：${prior?.scene?.take(200).orEmpty()}；不可照抄")
+                        appendLine("上次核实的行动：${prior?.actualAction?.take(140).orEmpty()}；不要复演")
                         appendLine("私人情节种子（不是事实）：${suppliedScene.take(160)}")
                     },
                     instruction = """
                         写一篇约250至450汉字、具有画面感、人物欲望、阻力、转折和余韵的第三人称独处短篇。
                         必须围绕已执行的真实动作展开。可以刻画内心矛盾和猜想，不得捏造世界中新增的NPC、
                         交谈、道具、读书、来电、移动或其他实际发生的事情。别写生活哲理报告。
-                        只输出自然语言小说正文，空行分段，不用JSON或【叙述】【心声】【对白】等标签，绝不可为了表现画面而编造世界事实。
+                        第一行《有画面感的散文篇名》，空一行后自然语言正文；不写JSON或【叙述】【心声】【对白】标签。标题应来自当前故事而非固定模板，不虚构世界事实。
                     """.trimIndent(),
                     source = "数字世界·独处小说补写",
                     title = "${character.displayName}的独处片段补写",
