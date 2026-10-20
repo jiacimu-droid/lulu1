@@ -16,6 +16,7 @@ object CapabilityRegistry {
         Capability("cancel_alarm", "phone", "alarm", "character-owned alarm cancellation", false),
         Capability("list_media_sessions", "phone", "device_read", "active Android media sessions via user-enabled notification listener", true),
         Capability("control_music", "phone", "media", "Android MediaController dispatch and observable playback state; app support varies", false),
+        Capability("control_volume", "phone", "media", "Observed, capped STREAM_MUSIC volume; restores previous volume on request", false),
         Capability("read_screen", "phone", "device_read", "fresh accessibility snapshot", true),
         Capability("click_text", "phone", "screen", "post-action screen observation", false),
         Capability("screen_action", "phone", "screen", "post-action screen observation", false),
