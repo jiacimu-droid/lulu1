@@ -37,20 +37,67 @@ internal fun ProactiveIncomingCallOverlay() {
     val pending by ProactiveIncomingCallStore.pending.collectAsState()
     var permissionTarget by remember { mutableStateOf<ProactiveIncomingCall?>(null) }
     var notice by remember { mutableStateOf("") }
+    var connectingCall by remember { mutableStateOf<ProactiveIncomingCall?>(null) }
+    val session by LuluVoiceCallSession.state.collectAsState()
 
     fun connect(call: ProactiveIncomingCall) {
+        if (connectingCall != null) return
+        val before = LuluVoiceCallSession.state.value
+        val retrySameReady = before.phase == CallPhase.Ready &&
+            before.conversationId == call.conversationId &&
+            before.characterId == call.characterId
+        if (before.phase !in setOf(CallPhase.Idle, CallPhase.Ended) && !retrySameReady) {
+            notice = "另一通电话正在准备或进行，请先结束那通电话"
+            return
+        }
         val character = MigratedDomainStores.characters.get(call.characterId)
-        LuluVoiceCallSession.prepare(
+        if (!retrySameReady) LuluVoiceCallSession.prepare(
             context = context,
             conversationId = call.conversationId,
             characterId = call.characterId,
             characterName = character.displayName,
             incomingReason = call.reason,
+            incomingCommitmentTaskId = call.commitmentTaskId,
         )
         LuluVoiceCallSession.dial()
-        ProactiveIncomingCallStore.respond(call, answered = true)
-        LuluCallWindowController.show()
-        notice = ""
+        val started = LuluVoiceCallSession.state.value
+        if (started.phase !in setOf(CallPhase.Dialing, CallPhase.Connected)) {
+            notice = started.errorMessage.ifBlank { started.statusMessage.ifBlank { "电话尚未接通，请检查设置后重试" } }
+            return
+        }
+        connectingCall = call
+        notice = "正在连接电话…"
+    }
+
+    // Dialing is asynchronous (especially cloud STT). Clicking Answer is not
+    // evidence of a connected call. Preserve the ringing invitation on failure.
+    LaunchedEffect(connectingCall, session.phase, session.callExperienceId, session.errorMessage) {
+        val call = connectingCall ?: return@LaunchedEffect
+        val matching = session.conversationId == call.conversationId &&
+            session.characterId == call.characterId
+        when {
+            matching && session.phase == CallPhase.Connected && call.active() &&
+                ProactiveIncomingCallStore.pending.value == call -> {
+                ProactiveIncomingCallStore.respond(call, answered = true)
+                connectingCall = null
+                notice = ""
+                LuluCallWindowController.show()
+            }
+            !matching || session.phase in setOf(CallPhase.Idle, CallPhase.Ended) ||
+                session.phase == CallPhase.Ready || !call.active() -> {
+                connectingCall = null
+                notice = session.errorMessage.ifBlank { "这次接通失败，来电仍可重试" }
+            }
+        }
+    }
+    LaunchedEffect(connectingCall) {
+        val call = connectingCall ?: return@LaunchedEffect
+        kotlinx.coroutines.delay(30_000L)
+        if (connectingCall == call && LuluVoiceCallSession.state.value.phase == CallPhase.Dialing) {
+            LuluVoiceCallSession.cancelDial()
+            connectingCall = null
+            notice = "连接超时，未记为已接听；请检查收音线路后重试"
+        }
     }
 
     val microphonePermission = rememberLauncherForActivityResult(
