@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T05:47:01.399193+00:00",
-  "commit": "fb1b6e4ba8188e0e10ec174c48bf66600c3f7005",
+  "generatedAt": "2026-10-20T05:48:39.041418+00:00",
+  "commit": "821822428c34342de7aa17705c78e7aa3501ae43",
   "branch": "main",
-  "sourceFingerprint": "4c3654223db94dc4dabb3ba7f2e9f580c708194252162aae894063aab95a5ca1",
+  "sourceFingerprint": "59cd714b26890e98f1fc273b27b9dcb75fbec84febf0445910b6dcc678070c40",
   "summary": {
-    "files": 744,
-    "lines": 142440,
+    "files": 745,
+    "lines": 142608,
     "symbols": 2161
   },
   "symbolIndex": {
@@ -14464,6 +14464,12 @@
           "line": 254
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt",
+      "lines": 168,
+      "sha256": "436637db49ec31978fae1ef090469c034a9c443a835ba9924c41f4defecf3f2b",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
