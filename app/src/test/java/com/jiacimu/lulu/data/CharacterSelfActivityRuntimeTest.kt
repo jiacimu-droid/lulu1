@@ -55,6 +55,18 @@ class CharacterSelfActivityRuntimeTest {
         assertNull(CharacterSelfActivityRuntime.latestConsideration(context, "receipt-role"))
     }
 
+    @Test fun characterCanExpressARealSelfChosenActionInJustTwoChineseCharacters() {
+        assertTrue(CharacterSelfActivityRuntime.hasRealReason("想玩"))
+        assertTrue(CharacterSelfActivityRuntime.hasRealReason("好奇"))
+        assertFalse(CharacterSelfActivityRuntime.hasRealReason("……"))
+        assertFalse(CharacterSelfActivityRuntime.hasRealReason("未说明"))
+        val choice = JSONObject().put("stage", "decided").put("action", "solo_game")
+            .put("gameId", "memory_match").put("whyNow", "想玩")
+        assertNotNull(CharacterSelfActivityRuntime.parse(choice, available, true))
+        assertNull(CharacterSelfActivityRuntime.parse(
+            JSONObject(choice.toString()).put("gameId", "fictional"), available, true))
+    }
+
     @Test fun mereHeartVoiceAndUnchosenIdeasNeverExecuteAnything() {
         assertNull(CharacterSelfActivityRuntime.parse(null, available, digitalLife = true))
         assertNull(CharacterSelfActivityRuntime.parse(JSONObject()
