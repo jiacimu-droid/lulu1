@@ -385,7 +385,8 @@ object LuluDeviceToolBridge {
             如果已经决定现在收藏，就直接行动而不是说“挂了以后再操作”；犹豫或暂不收藏时不要填写。
             如果决定以后再做，应把有真实目标和下一步的未完成意愿放进 appraisal.pendingConcern；心声、后续口头承诺或意图字段本身不会自动执行工具。
         """.trimIndent()
-        val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext.isUnmetPromiseChallenge(userText)
+        val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext
+            .let { it.isUnmetPromiseChallenge(userText) || it.isWakeExplanation(userText) }
         // This is deliberately AFTER message persistence, not a photo-picker blocker.
         val chatPhotos = if (!sceneContext.contains("电话") && userEvidenceIds.isNotEmpty())
             com.jiacimu.lulu.QqChatImageModelInput.prepare(appContext, characterId, userEvidenceIds)
