@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:14:57.094821+00:00",
-  "commit": "cedc8dec752155fb0ec64bf399a5fbd3cd71420b",
+  "generatedAt": "2026-10-20T06:15:35.152872+00:00",
+  "commit": "2b051cec5e82fea45079fc17e551f6add09650c7",
   "branch": "main",
-  "sourceFingerprint": "39e896ceb2f3c314081406719ae4ff32d726562de743c0a8a81ed140b78806bb",
+  "sourceFingerprint": "2359d3dcc2dfd970afaa281e5707b652506fd55490450da8e63466f4c7977439",
   "summary": {
     "files": 746,
-    "lines": 142862,
+    "lines": 142873,
     "symbols": 2168
   },
   "symbolIndex": {
@@ -12615,8 +12615,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt",
-      "lines": 22,
-      "sha256": "8f5171dff3823af9e69da89c34e8eac4ceb969903ba18e579fdb6f5982e42ac2",
+      "lines": 33,
+      "sha256": "05c4c52e771c1ce76466d4e0eb310af4af1b83e79bc2875d963efe23c4e7b994",
       "symbols": []
     },
     {
