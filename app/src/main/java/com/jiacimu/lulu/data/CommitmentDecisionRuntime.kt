@@ -64,7 +64,15 @@ internal object CommitmentDecisionRuntime {
             task.status != CommitmentTaskStatus.NeedsClarification &&
                 !(task.status == CommitmentTaskStatus.Scheduled &&
                     task.linkedAlarmId.isNullOrBlank())
-        if (matchingSource != null && hasValidAlarm(matchingSource))
+        // If the model guessed a different deadline for the SAME user turn,
+        // the explicit accepted relative time wins. Do not keep the wrong alarm.
+        val sourceDeadlineAccurate = matchingSource?.dueAt?.let {
+            kotlin.math.abs(java.time.Duration.between(it, due).seconds) <= 30L
+        } == true
+        if (matchingSource != null && hasValidAlarm(matchingSource) &&
+            (matchingSource.status != CommitmentTaskStatus.Scheduled ||
+                (sourceDeadlineAccurate &&
+                    matchingSource.deliveryAction == proposed.deliveryAction)))
             return@withLock matchingSource
         if (sameDeadline != null && hasValidAlarm(sameDeadline))
             return@withLock sameDeadline
