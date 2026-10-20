@@ -747,13 +747,14 @@ object LuluDeviceToolBridge {
             }
             receipt
         } else ""
+        val plannedSideActions = plan.sideActions
         val sideDeviceReceipt = if (!rewriting && !callSilence &&
-            plan.action == "reply" && plan.sideActions != null) {
+            plan.action == "reply" && plannedSideActions != null) {
             val notes = mutableListOf<String>()
             val inputKey = userEvidenceIds.lastOrNull()
                 ?: "current-" + now.toEpochMilli()
-            for (i in 0 until minOf(2, plan.sideActions.length())) {
-                val effect = plan.sideActions.optJSONObject(i) ?: continue
+            for (i in 0 until minOf(2, plannedSideActions.length())) {
+                val effect = plannedSideActions.optJSONObject(i) ?: continue
                 val tool = effect.optString("tool").trim()
                 if (tool !in setOf("control_volume", "control_music", "list_media_sessions")) {
                     notes += "未执行未经授权的附加动作"
