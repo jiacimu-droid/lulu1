@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`de71a1e494eab96dc6aba6a22a83f09a17eac05d`
+- 基准提交：`e47862a8102325ea7e754cdf03c86ab7f86bd777`
 - 分支：`main`
 - 已索引文件：748
-- 已索引代码/文本行：143966
+- 已索引代码/文本行：143983
 - 已发现符号：2172
 
 | 文件 | 行数 | 符号数 |
@@ -234,7 +234,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 252 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 582 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 250 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 654 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 671 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 77 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 191 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 85 | 3 |
