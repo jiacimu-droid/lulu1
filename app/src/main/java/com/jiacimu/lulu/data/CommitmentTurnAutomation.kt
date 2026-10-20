@@ -169,7 +169,7 @@ object CommitmentTurnAutomation {
                 throw cancelled
             } catch (error: Exception) {
                 showWakeScheduleProblem(conversation, user, characterId,
-                    "执行方式判断请求失败：${error.message.orEmpty().take(75)}")
+                    "行动方式模型请求失败（${error.javaClass.simpleName}），请检查模型连接")
                 throw error
             }
             val choice = parseModelWakeChoice(decision)
@@ -279,6 +279,13 @@ object CommitmentTurnAutomation {
                 "叫醒约定未能安排成功：${task.lastActionResult.take(110)}。请检查日程和手机权限。"
             else -> return
         }
+        val failedId = "wake-choice-failed:${userMessage.id}:$characterId"
+        val earlierFailure = MigratedDomainStores.chat.messages(conversation.id).value
+            .firstOrNull { it.id == failedId }
+        if (earlierFailure != null)
+            MigratedDomainStores.chat.editMessage(
+                failedId, "此前叫醒登记异常已恢复，请以新的真实系统登记回执为准。"
+            )
         val id = "wake-schedule:${userMessage.id}:$characterId"
         val existing = MigratedDomainStores.chat.appendSystemReceipt(conversation.id, id, content)
         if (existing.content != content) MigratedDomainStores.chat.editMessage(id, content)
