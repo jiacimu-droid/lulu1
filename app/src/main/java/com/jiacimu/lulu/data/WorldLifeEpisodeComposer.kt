@@ -57,7 +57,7 @@ internal object WorldLifeEpisodeComposer {
     internal fun literaryHeading(raw: String): Pair<String, String>? {
         val clean = raw.trim()
         val first = clean.lineSequence().firstOrNull()?.trim().orEmpty()
-        val matched = Regex("""^(?:《([^《》\\n]{2,20})》|标题[：:]\\s*([^\\n]{2,20}))$""")
+        val matched = Regex("""^(?:《([^《》\n]{2,20})》|标题[：:]\s*([^\n]{2,20}))$""")
             .matchEntire(first) ?: return null
         val title = (matched.groupValues[1].ifBlank { matched.groupValues[2] })
             .trim().trim('。', '！', '？', '.', '!', '?', ' ')
@@ -129,7 +129,7 @@ internal object WorldLifeEpisodeComposer {
             .trim('，', ',', ' ', '　', '“', '”')
         return if (opening.length in 3..15) opening else if (opening.length > 15)
             opening.take(11).trimEnd('，', '、', '与', '和', '的', '在')
-        else "窗边的一页"
+        else "光落下的时候"
     }
 
     /**
