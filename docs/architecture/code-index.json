@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T11:18:20.492025+00:00",
-  "commit": "7ce29da9ff8e90c37312287a565697cc00274446",
+  "generatedAt": "2026-10-20T11:18:57.875421+00:00",
+  "commit": "b9a14c01d723d3042030f0b46db552bab20a8f67",
   "branch": "main",
-  "sourceFingerprint": "badf84d5e451f7f898f0a51147203ee203dc12d069e82c85cdb896b6164125df",
+  "sourceFingerprint": "f8fb58b8d7f3857ee46f0f6a69a4d3cd8239380e46e57728ce0366ab29d4f1e5",
   "summary": {
     "files": 748,
-    "lines": 143189,
+    "lines": 143223,
     "symbols": 2169
   },
   "symbolIndex": {
@@ -13029,8 +13029,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt",
-      "lines": 260,
-      "sha256": "ba5373827ba7add5bc36eeba5883929ce0d576e312f6b3c068f649a9ddd26c9f",
+      "lines": 294,
+      "sha256": "d892ec7e87590fc6e8ced30ec18542389dd5550875810a715f4e05a687a5ac98",
       "symbols": []
     },
     {
