@@ -124,12 +124,19 @@ object CommitmentTurnAutomation {
         if (recognized.dueAt?.isAfter(Instant.now().plusSeconds(5)) != true)
             return@withLock null
 
-        val saved = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
-            task.isWakeResponsibility() && evidenceIds.any { id ->
-                task.sourceEventIds.any { it.substringBefore(":group:") ==
-                    id.substringBefore(":group:") }
-            }
-        }
+        val existingWakes = CommitmentTaskStore.snapshot(characterId)
+            .filter { it.isWakeResponsibility() && it.status != CommitmentTaskStatus.Cancelled }
+        val saved = existingWakes.firstOrNull { task ->
+            evidenceIds.any { id -> task.sourceEventIds.any {
+                it.substringBefore(":group:") == id.substringBefore(":group:")
+            } }
+        } ?: existingWakes.filter { task ->
+            task.dueAt?.let { due ->
+                kotlin.math.abs(java.time.Duration.between(
+                    due, recognized.dueAt
+                ).seconds) <= 30L
+            } == true
+        }.singleOrNull()
         val acceptedRoutes = setOf("start_call", "alarm_only")
         val route = if (saved?.deliveryAction in acceptedRoutes) {
             saved?.deliveryAction.orEmpty()
