@@ -68,7 +68,7 @@ class WorldLifeEpisodeComposerTest {
     @Test fun literaryHeadingIsSeparatedFromBodyWithoutPersistingMarkdownNoise() {
         val prose = ("江渡翻开桌边的书，窗外的光在书页上轻轻挪动。" +
             "他伸手去扶正那张纸，却忽然觉得屋子也安静下来了。").repeat(3)
-        val raw = "《书脊上的晚光》\\n\\n" + prose
+        val raw = "《书脊上的晚光》\n\n" + prose
         val draft = WorldLifeEpisodeComposer.parseModelScene(raw, "一段独处时光")
         assertEquals("书脊上的晚光", draft?.title)
         assertEquals(prose, draft?.scene)
