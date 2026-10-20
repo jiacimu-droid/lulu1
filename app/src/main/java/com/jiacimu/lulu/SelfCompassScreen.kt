@@ -65,15 +65,15 @@ private data class CompassColors(
     val bg: Color, val ink: Color, val muted: Color,
     val accent: Color, val pale: Color, val hero: Color, val line: Color,
 )
+// Restore the original independent looks: warm rose-brown values, cool blue wishes.
+// These are the exact pre-unification colors, not newly approximated replacements.
 private val ValuesInk = CompassColors(
-    SelfPrefacePalette.paper, SelfPrefacePalette.ink, SelfPrefacePalette.muted,
-    SelfPrefacePalette.sageDeep, SelfPrefacePalette.honeyLight,
-    SelfPrefacePalette.creamLight, SelfPrefacePalette.outline,
+    Color(0xFFFCF8F2), Color(0xFF47362F), Color(0xFF90796D),
+    Color(0xFF946A59), Color(0xFFF3E5D8), Color(0xFFECDBCF), Color(0xFFE9DCD1),
 )
 private val WishesInk = CompassColors(
-    SelfPrefacePalette.background, SelfPrefacePalette.ink, SelfPrefacePalette.muted,
-    SelfPrefacePalette.seaGlass, SelfPrefacePalette.sageLight,
-    SelfPrefacePalette.sageMist, SelfPrefacePalette.outline,
+    Color(0xFFF8FAFE), Color(0xFF354058), Color(0xFF8792AA),
+    Color(0xFF617AA4), Color(0xFFE9EFFB), Color(0xFFDCE7F5), Color(0xFFE0E6F0),
 )
 private val compassDate = DateTimeFormatter.ofPattern("yyyy.MM.dd")
 
