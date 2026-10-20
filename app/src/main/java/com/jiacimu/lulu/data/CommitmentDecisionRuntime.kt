@@ -21,9 +21,10 @@ internal object CommitmentDecisionRuntime {
      * Repair an accepted, explicit wake-up promise which the main model omitted
      * from commitmentChanges (including a model decision already marked handled).
      *
-     * Runs ONLY after actual user and role messages are delivered and uses the
-     * existing CommitmentTaskStore + system alarm pipeline. No separate scheduler,
-     * speculative task, second language model call, or synthetic wake success.
+     * Runs ONLY after actual user and role messages are delivered. The character
+     * (original planner or focused model recovery) must SELECT the wake method.
+     * This verifier ONLY checks time, responsibility, existing tasks and delivery
+     * evidence; it must never silently turn "wake me" into a chat message.
      */
     suspend fun ensureAcceptedWake(
         context: Context,
@@ -33,6 +34,7 @@ internal object CommitmentDecisionRuntime {
         userText: String,
         roleText: String,
         userAt: Instant,
+        selectedDeliveryAction: String? = null,
         now: Instant = Instant.now(),
         zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
     ): CommitmentTask? = mutex.withLock {
@@ -42,6 +44,7 @@ internal object CommitmentDecisionRuntime {
             ?: WakeCommitmentParser.parse(normalizedUser, roleText, userAt, zone)
             ?: return@withLock null
         val due = proposed.dueAt ?: return@withLock null
+        val requestedPhone = proposed.deliveryAction == "start_call"
 
         CommitmentTaskStore.initialize(context)
         val all = CommitmentTaskStore.snapshot(characterId)
@@ -57,11 +60,14 @@ internal object CommitmentDecisionRuntime {
         val sameDeadline = all.firstOrNull { task ->
             task.isWakeResponsibility() && task.dueAt != null &&
                 kotlin.math.abs(java.time.Duration.between(task.dueAt, due).seconds) <= 30L &&
-                task.deliveryAction == proposed.deliveryAction &&
+                task.deliveryAction in setOf("start_call", "alarm_only") &&
+                (!requestedPhone || task.deliveryAction == "start_call") &&
                 task.status != CommitmentTaskStatus.Cancelled
         }
         fun hasValidAlarm(task: CommitmentTask): Boolean =
-            task.status != CommitmentTaskStatus.NeedsClarification &&
+            task.deliveryAction in setOf("start_call", "alarm_only") &&
+                (!requestedPhone || task.deliveryAction == "start_call") &&
+                task.status != CommitmentTaskStatus.NeedsClarification &&
                 !(task.status == CommitmentTaskStatus.Scheduled &&
                     task.linkedAlarmId.isNullOrBlank())
         // If the model guessed a different deadline for the SAME user turn,
@@ -71,14 +77,19 @@ internal object CommitmentDecisionRuntime {
         } == true
         if (matchingSource != null && hasValidAlarm(matchingSource) &&
             (matchingSource.status != CommitmentTaskStatus.Scheduled ||
-                (sourceDeadlineAccurate &&
-                    matchingSource.deliveryAction == proposed.deliveryAction)))
+                sourceDeadlineAccurate))
             return@withLock matchingSource
         if (sameDeadline != null && hasValidAlarm(sameDeadline))
             return@withLock sameDeadline
 
         // Never register an old alarm retrospectively when opening an old chat.
         if (!due.isAfter(now.plusSeconds(5))) return@withLock null
+        // Only model-selected audible methods qualify as waking someone up.
+        // A private text bubble is not proof of an audible wake. No program-side
+        // preference, keyword default or quiet automatic downgrade.
+        val chosen = selectedDeliveryAction?.takeIf { it in setOf("start_call", "alarm_only") }
+            ?: return@withLock null
+        if (requestedPhone && chosen != "start_call") return@withLock null
 
         val wantsReschedule = listOf("再叫我", "改成", "改到", "改为", "推迟", "延后")
             .any(normalizedUser::contains)
@@ -91,9 +102,8 @@ internal object CommitmentDecisionRuntime {
         }
         val change = if (prior != null) proposed.copy(
             action = "reschedule", targetTaskId = prior.id,
-            deliveryAction = if (prior.deliveryAction == "start_call") "start_call"
-                else proposed.deliveryAction,
-        ) else proposed
+            deliveryAction = chosen,
+        ) else proposed.copy(deliveryAction = chosen)
         applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, listOf(change))
         val created = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
             if (prior != null) task.id == prior.id
