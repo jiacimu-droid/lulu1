@@ -40,18 +40,25 @@ internal object AutonomousDecisionRecovery {
     /** Only salvage a fully closed private text field from truncated optional JSON. */
     fun completedPrivateMessage(raw: String): JSONObject? {
         val clean = raw.substringAfter('{', "").let { "{$it" }.trim()
-        val action = Regex("""^\{\s*"action"\s*:\s*"(message|kaomoji|reply|private_message)"\s*,""")
-            .find(clean)?.groupValues?.getOrNull(1) ?: return null
+        if (!clean.startsWith("{")) return null
+        // The character MUST explicitly choose speech. A plain innerThought,
+        // an unfinished tool command or a generic thought is never sent.
+        val actionMatch = Regex(""""action"\s*:\s*"(message|kaomoji|reply|private_message)"""")
+            .find(clean) ?: return null
         val found = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""")
             .find(clean) ?: return null
-        if (found.range.first > 8_000) return null
+        if (found.range.first > 8_000 || actionMatch.range.first > found.range.first) return null
         val prefix = clean.substring(0, found.range.first)
-        if (listOf("innerLife", "appraisal", "alternatives", "args", "tool", "bubbles")
+        // Accept reason/status preceding action, but not nested/private fields
+        // or side-effect commands before the supposed user-visible reply.
+        if (listOf("innerLife", "innerThought", "appraisal", "alternatives",
+                "args", "tool", "bubbles", "journal", "worldAction")
             .any { prefix.contains("\"$it\"") }) return null
         val text = runCatching { JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}")
             .optString("text").trim() }.getOrNull().orEmpty()
         if (text.isBlank()) return null
-        return JSONObject().put("action", action).put("text", text.take(1_500))
+        return JSONObject().put("action", actionMatch.groupValues[1])
+            .put("text", text.take(1_500))
             .put("reason", "保留已经完整生成的回复文字，不执行未完成的额外字段")
     }
     fun choose(json: JSONObject): JSONObject {
