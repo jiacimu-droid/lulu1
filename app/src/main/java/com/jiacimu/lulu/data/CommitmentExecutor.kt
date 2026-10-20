@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.system.LuluAlarmSystem
+import com.jiacimu.lulu.system.LuluMediaVolume
 import org.json.JSONObject
 import java.time.Instant
 
@@ -24,19 +25,58 @@ internal object CommitmentExecutor {
             it.id == claimedTask.id && it.status == CommitmentTaskStatus.Running && it.executionToken == claimedTask.executionToken
         }) return
 
-        // A directly requested device alarm is only a local alarm. It may
-        // have a first-class visible Promise record, but cannot be promoted
-        // into an unrequested character call or chat message.
+        val activeCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+        val sameCall = activeCall.connected && activeCall.characterId == claimedTask.characterId
+        val wake = claimedTask.isWakeResponsibility()
+        val selected = if (wake)
+            WakeActionPlanner.choose(appContext, claimedTask, sameCall, now)
+        else WakeActionPlanner.Choice(WakeActionPlanner.Cue.RING)
+
+        fun playChosenMusic(): Boolean {
+            if (selected.cue != WakeActionPlanner.Cue.MUSIC) return false
+            selected.volumePercent?.let {
+                LuluMediaVolume.control(appContext, claimedTask.characterId, "set", it)
+            }
+            val played = WakeMusicCoordinator.playImmediately(
+                appContext, claimedTask.characterId, claimedTask.id)
+            if (!played && selected.volumePercent != null)
+                LuluMediaVolume.control(appContext, claimedTask.characterId, "restore")
+            return played
+        }
+
+        // A local alarm is NOT permission to place a new phone call. In a live
+        // bedtime call the same reminder may use its existing audio session.
         if (claimedTask.deliveryAction == "alarm_only") {
+            val playing = playChosenMusic()
+            val delivered = if (playing) {
+                if (sameCall) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId)
+                }
+                true
+            } else if (sameCall) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
+                        claimedTask.characterId, claimedTask.goal, claimedTask.id,
+                        ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
+                    )
+                }
+            } else {
+                androidx.core.app.NotificationManagerCompat.from(appContext).areNotificationsEnabled() &&
+                    runCatching {
+                        LuluAlarmSystem.showAlarmNotification(appContext,
+                            claimedTask.linkedAlarmId ?: claimedTask.id,
+                            claimedTask.characterId, characterName, claimedTask.goal)
+                    }.isSuccess
+            }
             CommitmentTaskStore.update(claimedTask.id) { old ->
                 old.copy(
-                    status = if (notificationShown) CommitmentTaskStatus.WaitingForFeedback
+                    status = if (delivered) CommitmentTaskStatus.WaitingForFeedback
                         else CommitmentTaskStatus.Blocked,
-                    linkedAlarmId = null,
-                    nextCheckAt = null,
-                    lastActionResult = if (notificationShown)
-                        "本机闹钟到点，已发出通知；未证明用户看到或已经醒来"
-                    else "闹钟到点，但手机通知未能显示；没有冒充已提醒用户",
+                    linkedAlarmId = null, nextCheckAt = null,
+                    lastActionResult = if (!delivered) "到点叫醒失败：本机通知或音乐未能实际触发"
+                        else if (playing) "角色选择音乐叫醒，媒体会话已确认播放；未证明用户醒来"
+                        else if (sameCall) "在原电话内叫醒（${selected.cue}），没有重新拨号；未确认醒来"
+                        else "本机闹钟已发出通知；未证明用户已经醒来",
                 )
             }
             return
@@ -49,7 +89,6 @@ internal object CommitmentExecutor {
         )
 
         val attempt = claimedTask.attemptCount + 1
-        val wake = claimedTask.isWakeResponsibility()
         val character = MigratedDomainStores.characters.get(claimedTask.characterId)
         val callsEnabled = character.contactPolicy.proactiveCallsEnabled
         val scheduledCall = claimedTask.deliveryAction == "start_call"
@@ -74,7 +113,7 @@ internal object CommitmentExecutor {
             }) return
         val useCall = scheduledCall || (wake && attempt >= 2 && callsEnabled)
         val action = if (useCall) "start_call" else "send_private_message"
-        val wording = when {
+        val wording = selected.openingLine.takeIf { wake && useCall && it.isNotBlank() } ?: when {
             // Incoming-call text is now literally spoken after answer, never
             // just shown as an instruction on the ringing screen.
             scheduledCall && wake && attempt == 1 -> "到我们约好的时间啦，我来叫你起床。醒了就跟我说一声，好不好？"
@@ -88,21 +127,22 @@ internal object CommitmentExecutor {
         // A promised wake-up during an already connected call is a spoken
         // reminder in THAT call, never another incoming call over its UI.
         // The call session switches from bedtime voice to the normal voice.
-        val activeCall = com.jiacimu.lulu.LuluVoiceCallSession.state.value
-        if (wake && activeCall.connected && activeCall.characterId == claimedTask.characterId) {
-            val music = WakeMusicCoordinator.onScheduledWake(
-                appContext, claimedTask.characterId, claimedTask.id, defer = true,
-            )
-            val queued = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+        if (wake && sameCall) {
+            val playing = playChosenMusic()
+            val queued = if (playing) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    com.jiacimu.lulu.LuluVoiceCallSession.exitSleepForWake(claimedTask.characterId)
+                }
+            } else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
                 com.jiacimu.lulu.LuluVoiceCallSession.announceScheduledReminder(
                     claimedTask.characterId,
-                    "真实定时事件：现在仍在同一通已接通的电话里。这是第$attempt 次履行" +
-                        "『${claimedTask.goal}』的叫醒目标。请根据自己的人格自然地叫她起来；" +
-                        "之前已尝试过的只说明响铃或开口，不说明她醒了。" +
-                        "不要说再次拨号、电话没接通，也不要机械念闹钟回执。",
+                    "真实定时事件：在同一通电话中履行第$attempt 次叫醒『${claimedTask.goal}』。" +
+                        "按你自己的人格自然地叫她起来；不把响铃当作她已经醒了。",
                     claimedTask.id,
+                    ringFirst = selected.cue != WakeActionPlanner.Cue.SPEAK,
                 )
             }
+            val music = if (playing) "角色自主选择在原电话内播放音乐" else "角色选择${if (selected.cue == WakeActionPlanner.Cue.SPEAK) "直接说话" else "铃声加自然对话"}"
             // Do not equate ringing/speaking with the goal "user awake".
             // Only outstanding goals receive a bounded follow-up after 5min.
             val delaySeconds = if (queued)
@@ -121,7 +161,7 @@ internal object CommitmentExecutor {
                     linkedAlarmId = nextAlarm?.id,
                     nextCheckAt = nextAlarm?.triggerAt,
                     lastActionResult = if (queued) buildString {
-                        append("第$attempt 次已在原电话发起铃声叫醒，随后自然说话；未收到明确回应，不视为已醒。$music")
+                        append("第$attempt 次已在原电话执行叫醒；未收到明确回应，不视为已醒。$music")
                         append(if (nextAlarm != null) "；已安排后续目标复查"
                             else "；后续提醒已到次数上限或未排成功")
                     } else "原电话中未能排入叫醒铃声与语音；没有再次拨号",
@@ -132,12 +172,16 @@ internal object CommitmentExecutor {
             }
             return
         }
-        // A real incoming call is followed by music only after the ringtone/call ends.
-        if (wake && useCall) {
+        // A song is deferred only if THIS role actually chose music today.
+        // The fact a phone call ended is never sufficient to create a song request.
+        val plannedMusic = if (wake && useCall &&
+            selected.cue == WakeActionPlanner.Cue.MUSIC) {
+            selected.volumePercent?.let {
+                LuluMediaVolume.control(appContext, claimedTask.characterId, "set", it)
+            }
             WakeMusicCoordinator.onScheduledWake(
-                appContext, claimedTask.characterId, claimedTask.id, defer = true,
-            )
-        }
+                appContext, claimedTask.characterId, claimedTask.id, defer = true)
+        } else ""
         val args = JSONObject().put("text", wording)
         if (useCall) args.put("commitmentTaskId", claimedTask.id)
         val result = CompanionActionRuntime.execute(
@@ -152,18 +196,7 @@ internal object CommitmentExecutor {
                 appContext, claimedTask.characterId, result.conversationId, wording,
             )
         } else notificationShown
-        val musicResult = when {
-            !wake -> ""
-            useCall && result.success -> "等通话结束后放歌"
-            // A failed call must not leave the music hand-off blocked forever.
-            useCall -> {
-                WakeMusicCoordinator.onMissedCall(appContext, claimedTask.characterId, claimedTask.id)
-                "通话未发出，改为尝试音乐叫醒"
-            }
-            else -> WakeMusicCoordinator.onScheduledWake(
-                appContext, claimedTask.characterId, claimedTask.id, defer = false,
-            )
-        }
+        val musicResult = plannedMusic
 
         val afterSeconds = if (result.success && (deliveryNotificationShown || useCall))
             CommitmentCallRetryPolicy.nextDelaySeconds(claimedTask, attempt, callsEnabled) else null
