@@ -1515,27 +1515,17 @@ object ProactivePerceptionRuntime {
         // A consciously quiet character has still *seen* the words; leaving
         // these eternally unread caused the online-life worker to abort every
         // follow-up pulse. Parsing failure and executor failure remain unread.
-        val deliveredToWaitingConversation = execution.success && (execution.deliveredReply || when (decision.action) {
-            Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
-            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER ->
-                execution.conversationId != null &&
-                    execution.conversationId in onlineUnread.conversationIds
-            Action.TOOL -> decision.tool in setOf("send_private_message", "send_group_message") &&
-                execution.conversationId != null &&
-                execution.conversationId in onlineUnread.conversationIds
-            else -> false
-        })
-        val choseOtherLifeAction = execution.success && !execution.deliveredReply &&
-            (onlineUnread.text.isBlank() || decision.action != Action.TOOL || decision.replyChoice == "silent") &&
-            decision.action !in setOf(
-            Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
-            Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
+        val seenBecauseOfActualDeliveryOrChoice = UnifiedReplyAndActionPolicy.markSeen(
+            unreadPresent = onlineUnread.text.isNotBlank(),
+            chosenAction = decision.action.name.lowercase(),
+            chosenTool = decision.tool,
+            replyChoice = decision.replyChoice,
+            actionSucceeded = execution.success,
+            replyActuallyDelivered = execution.deliveredReply,
+            conversationMatches = execution.conversationId != null &&
+                execution.conversationId in onlineUnread.conversationIds,
         )
-        val deliberatelyQuiet = decision.action == Action.SILENT
-        if (onlineUnread.text.isBlank() || deliveredToWaitingConversation ||
-            choseOtherLifeAction || deliberatelyQuiet) {
-            // Retain unanswered actual user speech in the raw timeline and
-            // next turn's "待回复" context. Do not fabricate a sent message.
+        if (seenBecauseOfActualDeliveryOrChoice) {
             CompanionOnlineStore.markSeen(characterId, onlineUnread)
         } else if (onlineUnread.text.isNotBlank() && !execution.success &&
             decision.action != Action.SILENT) {
