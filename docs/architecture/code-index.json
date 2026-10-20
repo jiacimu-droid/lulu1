@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T16:19:55.468250+00:00",
-  "commit": "0cba4f548ad91947e1f47a93f572ecbe6d102384",
+  "generatedAt": "2026-10-20T16:28:54.436987+00:00",
+  "commit": "98f81884b023953e5ca50fc22da3619fb6f7d881",
   "branch": "main",
-  "sourceFingerprint": "7e50ee6bd55607d21fdd8cb1bac3160ee04113a03e3798f56bddcfcafa3aeb8e",
+  "sourceFingerprint": "75fa2fb650c1ba9c6e29ab41bdf7f5995188cffe71d18afbf03d81bd14f12691",
   "summary": {
     "files": 748,
-    "lines": 143898,
+    "lines": 143892,
     "symbols": 2171
   },
   "symbolIndex": {
@@ -7599,7 +7599,7 @@
     "permits": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-        "line": 20
+        "line": 18
       }
     ],
     "shouldUpdateVisibleState": [
@@ -19590,12 +19590,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
-      "lines": 44,
-      "sha256": "a0a2db0f1137c2c47ca57f6c6e6060215565907a140965367638a8d6d922ef15",
+      "lines": 38,
+      "sha256": "67719925e5a000e12b7b913d3610c20a5aca2f899d11ac7900b4eba2a7a3775f",
       "symbols": [
         {
           "name": "permits",
-          "line": 20
+          "line": 18
         }
       ]
     },
