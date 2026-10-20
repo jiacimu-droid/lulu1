@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.system.LuluMediaPlayback
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import java.time.Instant
@@ -36,6 +37,8 @@ internal object WakeActionPlanner {
                     appendLine("叫醒形式约定：${task.deliveryAction}；已尝试次数：${task.attemptCount}")
                     appendLine("是否还在同一通电话中：$inCall")
                     appendLine("手机音乐控制是否已授权：$canMusic")
+                    if (canMusic) appendLine("已查实的播放器状态：" +
+                        LuluMediaPlayback.observation(context).take(350))
                     appendLine("不能假装她已经醒了。")
                 },
                 instruction = """
