@@ -183,14 +183,11 @@ internal fun CompanionPresenceDialog(
                                 ?.atZone(ZoneId.systemDefault())
                                 ?.format(DateTimeFormatter.ofPattern("MM-dd HH:mm")).orEmpty()
                             val latestNote = state?.lastPerceptionNote.orEmpty()
-                            val failed = perceptionError != null || photoFailed ||
-                                latestNote.contains("失败") || latestNote.contains("未完成")
-                            val shortStatus = when {
-                                failed -> "异常"
-                                lastAt.isBlank() -> "暂无记录"
-                                latestNote.startsWith("感知启动") -> "进行中"
-                                else -> "已更新"
-                            }
+                            val lastFailure = CompanionPresenceStore.lastPerceptionFailure(characterId)
+                            val failed = perceptionError != null
+                            val shortStatus = PerceptionStatusPresentation.status(
+                                latestNote, lastAt.isNotBlank(), lastFailure != null,
+                            )
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -220,8 +217,22 @@ internal fun CompanionPresenceDialog(
                                 if (diagnosticsExpanded) {
                                     val issue = perceptionError ?: if (photoFailed) photoStatus else ""
                                     if (issue.isNotBlank()) {
-                                        Text(issue, color = Color(0xFFB15B5B),
+                                        Text(if (photoFailed && perceptionError == null)
+                                            "图片读取 · $issue" else issue,
+                                            color = Color(0xFFB15B5B),
                                             fontSize = 12.sp, lineHeight = 18.sp)
+                                    }
+                                    lastFailure?.let { (failedAt, failedReason) ->
+                                        val failureTime = failedAt.atZone(ZoneId.systemDefault())
+                                            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"))
+                                        Text("最近一次实际失败 · $failureTime",
+                                            color = Color(0xFFB15B5B), fontSize = 11.sp)
+                                        Text(failedReason, color = Color(0xFF8B5555),
+                                            fontSize = 12.sp, lineHeight = 18.sp)
+                                        if (latestNote.startsWith("感知启动")) {
+                                            Text("当前处于再次尝试中；开始运行不等于回复已发送。",
+                                                color = Color(0xFF858086), fontSize = 11.sp)
+                                        }
                                     }
                                     PerceptionStatusPresentation.lines(
                                         state, policy, plans[characterId],
