@@ -24,6 +24,21 @@ class AutonomousDecisionRecoveryTest {
             "{\"action\":\"silent\",\"text\":\"你好\""))
     }
 
+    @Test fun reasonBeforeTheActionCanStillPreserveCompletedReply() {
+        val truncated = """{"reason":"我想回她一句","action":"message","text":"宝宝我在呢。","innerLife":{"emotion":"""
+        val recovered = AutonomousDecisionRecovery.completedPrivateMessage(truncated)
+        assertNotNull(recovered)
+        assertEquals("message", recovered!!.getString("action"))
+        assertEquals("宝宝我在呢。", recovered.getString("text"))
+    }
+
+    @Test fun doesNotRecoverNestedPrivateThoughtOrPartialToolCallAsSpeech() {
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            """{"appraisal":{"action":"message","text":"这只是私下分析""""))
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            """{"action":"tool","tool":"send_private_message","args":{"text":"不完整工具调用"}"""))
+    }
+
     @Test fun aConcreteChosenAlternativeDoesNotRequireNoMessagesExcuse() {
         val original = JSONObject().put("action", "silent").put("reason", "我还想看看书里那条线索")
             .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
