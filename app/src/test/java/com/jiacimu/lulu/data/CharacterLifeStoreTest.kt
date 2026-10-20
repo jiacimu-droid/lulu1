@@ -357,6 +357,34 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
+    fun v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val id = MigratedDomainStores.characters.create("江渡",
+            CharacterProfileSchema.jiangDuV12Persona).characterId
+        val root = CharacterLifeStore.state(id).put("jiangDuPresetVersion", 12)
+            .put("relationshipAgreements", JSONObject().put("user",
+                JSONObject().put("title", CharacterProfileSchema.jiangDuOwnerRelationTitle)
+                    .put("details", CharacterProfileSchema.jiangDuOwnerRelationContext)
+                    .put("updatedAt", "2026-10-20T00:00:00Z")))
+        assertTrue(context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+            .edit().putString(id, root.toString()).commit())
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val bond = CharacterSocialRelationship.agreement(id, "user")
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationTitle, bond?.title)
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV13, bond?.details)
+        assertTrue(CharacterRuntime.definition(id).promptSection()
+            .contains("不在心里擅自说成"))
+        assertEquals(1, CharacterLifeStore.state(id).getJSONObject("relationshipAgreements").length())
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
     fun relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
