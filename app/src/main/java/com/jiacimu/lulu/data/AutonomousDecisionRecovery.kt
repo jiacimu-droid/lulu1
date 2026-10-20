@@ -68,7 +68,8 @@ internal object AutonomousDecisionRecovery {
         if (!json.optString("action").equals("silent", true)) return json
         if (Regex("想独处|需要独处|想休息|好好休息|困了|真的不想").containsMatchIn(json.optString("reason"))) return json
         val alt = json.optJSONObject("selfInitiatedAlternative") ?: return json
-        if (!alt.optBoolean("personallyWanted") || alt.optString("whyNow").trim().length < 5) return json
+        if (!alt.optBoolean("personallyWanted") ||
+            !CharacterSelfActivityRuntime.hasRealReason(alt.optString("whyNow"))) return json
         val action = alt.optString("action").lowercase()
         if (action !in ownLifeActions) return json
         val validParameters = when (action) {
