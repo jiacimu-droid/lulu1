@@ -21,13 +21,13 @@ class CharacterBehaviorMotivationTest {
         assertEquals("", basis.understanding)
     }
 
-    @Test fun noSubjectiveBasisCannotExecuteBackgroundLifeAction() {
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction("digital_world"))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction("reading", "未说明"))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction("publish_moment"))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction("send_private_message"))
+    @Test fun absenceOfSeparateBasisIsAuditableButNotAnActionPermissionGate() {
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis("digital_world"))
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis("reading", "未说明"))
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis("publish_moment"))
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis("send_private_message"))
         // An undecided quiet turn remains possible; it is not a pretend action.
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction("silent"))
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis("silent"))
     }
 
     @Test fun responseAimAndFeltImpulseBothCountAsPersonalReasons() {
@@ -49,7 +49,7 @@ class CharacterBehaviorMotivationTest {
             .put("action", "reading").put("whyNow", "刚才那一章很有意思，我想继续读"))
         val basis = CharacterBehaviorMotivation.resolve("reading", appraisal = appraisal)
         assertEquals("刚才那一章很有意思，我想继续读", basis?.reason)
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "reading", appraisal = appraisal))
     }
 
@@ -95,28 +95,28 @@ class CharacterBehaviorMotivationTest {
         assertNotNull(basis)
         assertEquals("chosen_utterance", basis?.source)
         assertTrue(basis!!.reason.contains("这本书的结局"))
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "message", chosenUtterance = "这本书的结局让我有点意外"))
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "group_message", chosenUtterance = "我也想说两句"))
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "kaomoji", chosenUtterance = "(๑˃ᴗ˂)"))
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "message", chosenUtterance = "嗯"))
     }
 
     @Test fun authoredToolMessageIsAnExplicitSpeechChoiceNotAMissingMotive() {
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "send_private_message",
             chosenUtterance = "刚刚看到你的话啦，我想回应一下"))
-        assertTrue(CharacterBehaviorMotivation.permitsExternalAction(
+        assertTrue(CharacterBehaviorMotivation.hasExplicitBasis(
             "send_group_message",
             chosenUtterance = "我有个想法"))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis(
             "send_private_message", chosenUtterance = ""))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis(
             "start_call", chosenUtterance = "想跟你说话"))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis(
             "publish_moment", chosenUtterance = "说话内容"))
     }
 
@@ -124,14 +124,14 @@ class CharacterBehaviorMotivationTest {
         for (action in listOf("reading", "digital_world", "publish_moment", "start_call",
                 "write_journal", "favorite_user_message", "read_xiaohongshu")) {
             assertFalse("$action cannot borrow a chat message's intent",
-                CharacterBehaviorMotivation.permitsExternalAction(
+                CharacterBehaviorMotivation.hasExplicitBasis(
                     action, chosenUtterance = "刚刚我想说两句"))
         }
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis(
             "message", chosenUtterance = ""))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis(
             "message", chosenUtterance = "null"))
-        assertFalse(CharacterBehaviorMotivation.permitsExternalAction(
+        assertFalse(CharacterBehaviorMotivation.hasExplicitBasis(
             "message", chosenUtterance = "..."))
     }
 
