@@ -19,6 +19,7 @@ object CommitmentTurnAutomation {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val jobs = mutableMapOf<String, Job>()
+    private val immediateWakeJobs = mutableMapOf<String, Job>()
     private var prefs: android.content.SharedPreferences? = null
     private var appContext: Context? = null
     private var started = false
@@ -54,6 +55,60 @@ object CommitmentTurnAutomation {
                             }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Fast post-delivery lane. A clear, accepted wake request should become a
+     * native alarm right after actual role speech has been saved, not wait for
+     * the slower general AI recovery scan. The recovery scan stays as a backup.
+     * Every visible bubble restarts a tiny debounce, so "好……但做不到"
+     * does not get interpreted from only the first bubble.
+     */
+    @Synchronized
+    fun onDeliveredCharacterMessage(context: Context, conversationId: String, characterId: String) {
+        if (conversationId.isBlank() || characterId.isBlank()) return
+        val key = "$conversationId:$characterId"
+        immediateWakeJobs.remove(key)?.cancel()
+        immediateWakeJobs[key] = scope.launch {
+            delay(1_200L)
+            try {
+                val conversation = MigratedDomainStores.chat.conversations.value
+                    .firstOrNull { it.id == conversationId } ?: return@launch
+                val messages = MigratedDomainStores.chat.messages(conversation.id).value
+                val userIndex = messages.indexOfLast {
+                    it.sender == LuluChatMessage.Sender.User &&
+                        it.status == LuluChatMessage.Status.Sent
+                }
+                if (userIndex < 0) return@launch
+                val user = messages[userIndex]
+                val before = messages.subList(0, userIndex).indexOfLast {
+                    it.sender == LuluChatMessage.Sender.Character &&
+                        it.status == LuluChatMessage.Status.Sent
+                }
+                val userBatch = messages.subList(before + 1, userIndex + 1)
+                    .filter { it.sender == LuluChatMessage.Sender.User &&
+                        it.status == LuluChatMessage.Status.Sent }.takeLast(16)
+                val replies = messages.drop(userIndex + 1).filter {
+                    it.sender == LuluChatMessage.Sender.Character &&
+                        it.status == LuluChatMessage.Status.Sent &&
+                        (it.authorCharacterId ?: conversation.characterId) == characterId
+                }
+                if (userBatch.isEmpty() || replies.isEmpty()) return@launch
+                CommitmentDecisionRuntime.ensureAcceptedWake(
+                    context = context.applicationContext,
+                    characterId = characterId,
+                    sourceTurnId = "${conversation.id}:${user.id}:$characterId",
+                    evidenceIds = userBatch.map(LuluChatMessage::id),
+                    userText = userBatch.joinToString("\n") { it.content },
+                    roleText = replies.joinToString("\n") { it.content },
+                    userAt = user.createdAt,
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                android.util.Log.e("LuluCommitment", "Accepted wake check failed after message delivery", failure)
             }
         }
     }
