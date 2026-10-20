@@ -46,7 +46,7 @@ internal fun ProactiveIncomingCallOverlay() {
         val retrySameReady = before.phase == CallPhase.Ready &&
             before.conversationId == call.conversationId &&
             before.characterId == call.characterId
-        if (before.phase !in setOf(CallPhase.Idle, CallPhase.Ended) && !retrySameReady) {
+        if (before.phase in setOf(CallPhase.Dialing, CallPhase.Connected)) {
             notice = "另一通电话正在准备或进行，请先结束那通电话"
             return
         }
