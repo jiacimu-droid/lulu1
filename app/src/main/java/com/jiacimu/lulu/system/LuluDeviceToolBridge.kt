@@ -747,6 +747,40 @@ object LuluDeviceToolBridge {
             }
             receipt
         } else ""
+        val sideDeviceReceipt = if (!rewriting && !callSilence &&
+            plan.action == "reply" && plan.sideActions != null) {
+            val notes = mutableListOf<String>()
+            val inputKey = userEvidenceIds.lastOrNull()
+                ?: "current-" + now.toEpochMilli()
+            for (i in 0 until minOf(2, plan.sideActions.length())) {
+                val effect = plan.sideActions.optJSONObject(i) ?: continue
+                val tool = effect.optString("tool").trim()
+                if (tool !in setOf("control_volume", "control_music", "list_media_sessions")) {
+                    notes += "未执行未经授权的附加动作"
+                    continue
+                }
+                val result = runCatching {
+                    JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
+                        appContext, characterId, tool,
+                        effect.optJSONObject("args") ?: JSONObject(),
+                        requestId = "reply-side-" + inputKey + "-" + i,
+                        userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
+                            .isExplicitUserToolRequest(userText, tool),
+                        intentionId = plan.intentionId))
+                }.getOrElse { error ->
+                    JSONObject().put("success", false)
+                        .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
+                }
+                notes += tool + "：" + result.optString("summary").ifBlank {
+                    result.optString("error").ifBlank {
+                        result.optString("verification").ifBlank {
+                            result.optString("status").ifBlank { "状态未核实" }
+                        }
+                    }
+                }.take(170)
+            }
+            notes.joinToString("；").take(420)
+        } else ""
         val commitmentChanges = plan.commitmentChanges
         val commitmentReceipt = if (!rewriting && !callSilence && commitmentChanges != null) {
             runCatching {
@@ -1142,6 +1176,7 @@ object LuluDeviceToolBridge {
                         if (expressionConversation.isEmpty()) appendLine("用户刚才说：$userText")
                         if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
                 if (mediaReceipt.isNotBlank()) appendLine("【本轮音乐操作真实回执】$mediaReceipt")
+                if (sideDeviceReceipt.isNotBlank()) appendLine("【本轮统一决策设备执行回执｜按实际状态说话，不能编造成功】$sideDeviceReceipt")
                         appendLine(expressionHandoff)
                         if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
