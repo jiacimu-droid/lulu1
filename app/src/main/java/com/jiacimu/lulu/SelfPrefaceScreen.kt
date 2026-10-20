@@ -233,8 +233,9 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
         return
     }
 
+    val homePaper = Color(0xFFFAFAF6)
     Scaffold(
-        containerColor = SelfPrefacePalette.background,
+        containerColor = if (overview) homePaper else SelfPrefacePalette.background,
         topBar = {
             TopAppBar(
                 title = { Text(if (overview) "自序" else area, fontWeight = FontWeight.SemiBold,
@@ -250,7 +251,9 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
                         Icon(Icons.Outlined.Add, "新建")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SelfPrefacePalette.background),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (overview) homePaper else SelfPrefacePalette.background,
+                ),
             )
         },
         floatingActionButton = {
@@ -262,23 +265,37 @@ fun SelfPrefaceScreen(onBack: () -> Unit) {
     ) { padding ->
         if (overview) {
             Column(
-                Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                Modifier.fillMaxSize().padding(padding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 18.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(11.dp),
             ) {
                 if (dataReadFailed) Text(
                     "自序原始记录读取异常，已保护现有数据并禁止覆盖。请先检查存储。",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(vertical = 9.dp),
                 )
-                SelfPrefaceHomeHero(Modifier.padding(top = 7.dp, bottom = 11.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                SelfPrefaceHomeHero(Modifier.padding(top = 4.dp, bottom = 10.dp))
+                Row(
+                    Modifier.fillMaxWidth().padding(start = 2.dp, end = 2.dp, bottom = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("我的篇章", color = SelfPrefacePalette.ink,
+                        fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Spacer(Modifier.width(11.dp))
+                    Box(Modifier.weight(1f).height(1.dp)
+                        .background(SelfPrefacePalette.outline.copy(alpha = .8f)))
+                    Spacer(Modifier.width(11.dp))
+                    Text("01—04", color = SelfPrefacePalette.muted,
+                        fontSize = 10.sp, letterSpacing = 1.sp)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
                     SelfPrefaceCategory("所思", "日记 · 灵感 · 思考", Icons.Outlined.EditNote,
                         Modifier.weight(1f)) { area = "所思"; overview = false }
                     SelfPrefaceCategory("所重", "价值观 · 人生原则", Icons.Outlined.FavoriteBorder,
                         Modifier.weight(1f)) { area = "所重"; overview = false }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
                     SelfPrefaceCategory("所愿", "理想 · 心愿 · 长期计划", Icons.Outlined.AutoAwesome,
                         Modifier.weight(1f)) { area = "所愿"; overview = false }
                     SelfPrefaceCategory("所行", "待办 · 目标 · 行动", Icons.Outlined.CheckCircleOutline,
@@ -403,62 +420,105 @@ private fun SelfPrefaceCategory(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    // One coherent sea-glass palette. Differentiation comes from icons and tone,
-    // rather than four unrelated pastel colors.
-    val accent = SelfPrefacePalette.sageDeep
-    // Home covers use light yellow-green stationery, while individual apps
-    // intentionally keep their own established visual palettes.
-    val backgroundColors = when (title) {
-        "所思" -> listOf(Color(0xFFF1F5DB), Color(0xFFFFFDF0))
-        "所重" -> listOf(Color(0xFFF6EFCD), Color(0xFFFFFCF1))
-        "所愿" -> listOf(Color(0xFFEBF2D6), Color(0xFFFBFDF5))
-        else -> listOf(Color(0xFFF8F1D9), Color(0xFFF4F8E6))
+    // All covers are almost-white paper, like the actual 所思 notebook.
+    // Variations are barely visible ink washes, not four colored tiles.
+    val paper = SelfPrefacePalette.paperBright
+    val sage = SelfPrefacePalette.sageDeep
+    val muted = SelfPrefacePalette.muted
+    val number = when (title) {
+        "所思" -> "01"
+        "所重" -> "02"
+        "所愿" -> "03"
+        else -> "04"
     }
+    val wash = when (title) {
+        "所思" -> Color(0xFFEAF3EE)
+        "所重" -> Color(0xFFF7F2E6)
+        "所愿" -> Color(0xFFEAF1EF)
+        else -> Color(0xFFF2F3E9)
+    }
+
     Surface(
+        modifier = modifier.heightIn(min = 158.dp),
         onClick = onClick,
-        modifier = modifier.height(145.dp),
-        color = backgroundColors.last(),
         shape = RoundedCornerShape(23.dp),
-        border = BorderStroke(1.dp, accent.copy(alpha = .15f)),
-        shadowElevation = 1.dp,
+        color = paper,
+        border = BorderStroke(1.dp, SelfPrefacePalette.outline.copy(alpha = .85f)),
+        shadowElevation = 2.dp,
     ) {
         Box(
-            Modifier.fillMaxSize().background(
-                Brush.linearGradient(backgroundColors)
+            Modifier.fillMaxWidth().background(
+                Brush.linearGradient(
+                    colors = listOf(paper, Color(0xFFFFFCF7), wash.copy(alpha = .7f)),
+                )
             )
         ) {
-            Canvas(Modifier.align(Alignment.TopEnd).size(96.dp)) {
+            Canvas(Modifier.align(Alignment.TopEnd).size(93.dp)) {
                 val w = size.width
                 val h = size.height
-                drawCircle(accent.copy(alpha = .07f), radius = w * .45f,
-                    center = Offset(w * .92f, h * .03f))
-                drawCircle(accent.copy(alpha = .17f), radius = w * .30f,
-                    center = Offset(w * .92f, h * .03f),
-                    style = Stroke(1.dp.toPx()))
-                val p1 = Offset(w * .32f, h * .34f)
-                val p2 = Offset(w * .65f, h * .73f)
-                drawLine(accent.copy(alpha = .17f), p1, p2, 1.2.dp.toPx())
-                drawCircle(SelfPrefacePalette.honey.copy(alpha = .75f), radius = 2.4.dp.toPx(), center = p2)
+                val center = Offset(w * .87f, h * .13f)
+                drawCircle(
+                    SelfPrefacePalette.seaGlass.copy(alpha = .13f),
+                    radius = w * .43f,
+                    center = center,
+                    style = Stroke(1.3.dp.toPx()),
+                )
+                drawCircle(
+                    SelfPrefacePalette.sageLight.copy(alpha = .44f),
+                    radius = w * .29f,
+                    center = center,
+                )
+                drawLine(
+                    SelfPrefacePalette.seaGlass.copy(alpha = .29f),
+                    Offset(w * .36f, h * .31f),
+                    Offset(w * .71f, h * .68f),
+                    1.25.dp.toPx(),
+                )
+                drawCircle(
+                    SelfPrefacePalette.honey.copy(alpha = .68f),
+                    radius = 2.3.dp.toPx(),
+                    center = Offset(w * .71f, h * .68f),
+                )
             }
+
             Column(
-                Modifier.fillMaxSize().padding(17.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 15.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
-                Surface(
-                    color = SelfPrefacePalette.paperBright.copy(alpha = .81f),
-                    shape = RoundedCornerShape(13.dp),
-                ) {
-                    Box(Modifier.size(42.dp), contentAlignment = Alignment.Center) {
-                        Icon(icon, title, tint = accent,
-                            modifier = Modifier.size(25.dp))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = SelfPrefacePalette.sageLight.copy(alpha = .75f),
+                        shape = RoundedCornerShape(13.dp),
+                    ) {
+                        Box(Modifier.size(41.dp), contentAlignment = Alignment.Center) {
+                            Icon(icon, contentDescription = null,
+                                tint = sage, modifier = Modifier.size(22.dp))
+                        }
                     }
+                    Spacer(Modifier.weight(1f))
+                    Text(number, color = muted.copy(alpha = .7f),
+                        fontSize = 11.sp, letterSpacing = 1.sp)
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(title, color = accent, fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp, letterSpacing = 1.sp)
-                    Text(subtitle, color = accent.copy(alpha = .79f),
-                        fontSize = 11.sp, maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
+
+                Spacer(Modifier.height(18.dp))
+                Text(
+                    title, color = SelfPrefacePalette.ink,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 22.sp, letterSpacing = 1.1.sp,
+                    maxLines = 1,
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        subtitle,
+                        color = muted, fontSize = 11.sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(2.dp))
+                    Icon(Icons.Outlined.ChevronRight, contentDescription = "进入$title",
+                        tint = sage.copy(alpha = .75f),
+                        modifier = Modifier.size(16.dp))
                 }
             }
         }
