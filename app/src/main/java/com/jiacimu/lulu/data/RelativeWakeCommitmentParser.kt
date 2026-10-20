@@ -4,7 +4,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-/** Deterministic relative wake promises must not rely on model JSON extraction. */
+/** Validates an explicitly accepted relative deadline; does NOT choose how the role wakes the user. */
 internal object RelativeWakeCommitmentParser {
     private val duration = Regex("""(?:(\d{1,4}|[零〇一二两三四五六七八九十百]{1,5})\s*(?:个)?分钟|半个?小时)\s*(?:后|之后|以后)""")
     private val phoneSignals = listOf("打电话", "打个电话", "电话叫", "来电", "电话联系", "给我打", "拨电话")
@@ -28,7 +28,7 @@ internal object RelativeWakeCommitmentParser {
             timezone = zone.id,
             completionCondition = "准时触发有声叫醒或来电；用户明确确认已醒或取消后再完成",
             steps = listOf("提前登记真实系统闹钟", "到点实际履行叫醒约定"),
-            deliveryAction = if (phone) "start_call" else "send_private_message",
+            deliveryAction = if (phone) "start_call" else "",
         )
     }
 
