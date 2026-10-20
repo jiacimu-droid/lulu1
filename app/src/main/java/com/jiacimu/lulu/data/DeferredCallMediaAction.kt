@@ -114,7 +114,7 @@ internal object DeferredCallMediaAction {
     private var interruptedByRoleSpeech: Boolean = false
     private var resumeApprovedByRole: Boolean = false
 
-    fun musicContext(characterId: String, callId: String): String =
+    @Synchronized fun musicContext(characterId: String, callId: String): String =
         if (activeMusicCharacterId == characterId && activeMusicCallId == callId)
             "本通电话已经请求真实音乐，角色可选择讲完话后继续播放或让它保持暂停"
         else "本通电话尚无本系统成功请求的音乐"
@@ -154,7 +154,11 @@ internal object DeferredCallMediaAction {
 
     @Synchronized fun onCallDisconnected(context: Context, characterId: String, callId: String) {
         cancelCall(context, characterId, callId)
-        if (activeMusicCallId == callId) {
+        if (activeMusicCallId == callId && activeMusicCharacterId == characterId) {
+            // A song explicitly scoped to this call should not be left playing
+            // after disconnect unless the role registered a separate post-call act.
+            runCatching { LuluMediaPlayback.control(context, "pause") }
+            LuluMediaVolume.control(context, characterId, "restore")
             activeMusicCallId = null
             activeMusicCharacterId = null
             interruptedByRoleSpeech = false
