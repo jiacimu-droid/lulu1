@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0a37c43e6a0216740e043bb3b8824b07dee27fb6`
+- 基准提交：`15b8227271ef9329a3f0df52665dfad27ae2257c`
 - 分支：`main`
 - 已索引文件：748
-- 已索引代码/文本行：143869
+- 已索引代码/文本行：143883
 - 已发现符号：2171
 
 | 文件 | 行数 | 符号数 |
@@ -711,7 +711,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 119 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt` | 117 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |

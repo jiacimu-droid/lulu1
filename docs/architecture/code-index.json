@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T16:17:02.603152+00:00",
-  "commit": "0a37c43e6a0216740e043bb3b8824b07dee27fb6",
+  "generatedAt": "2026-10-20T16:17:18.261637+00:00",
+  "commit": "15b8227271ef9329a3f0df52665dfad27ae2257c",
   "branch": "main",
-  "sourceFingerprint": "0b05c5ee1f6dd9bfecf1480829c5a1dce2b12825af633937d5c0e9159b0d4db8",
+  "sourceFingerprint": "55a9664403c261d86d1676ab86fece106759d1e08c858795554dd4e675f42284",
   "summary": {
     "files": 748,
-    "lines": 143869,
+    "lines": 143883,
     "symbols": 2171
   },
   "symbolIndex": {
@@ -25445,8 +25445,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt",
-      "lines": 119,
-      "sha256": "88ec82f6e18c843e31cb9c0c1e8b0464e24b66f2d0c1e96d30025790d6f15274",
+      "lines": 133,
+      "sha256": "5fdc22d2dd312754a8069ffcafc9c5ab68e49d69c2766e2a7f2e1735abe7cef2",
       "symbols": [
         {
           "name": "RelationshipPreferencesTest",
