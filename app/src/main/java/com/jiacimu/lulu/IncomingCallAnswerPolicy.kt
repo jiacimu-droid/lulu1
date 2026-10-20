@@ -13,5 +13,5 @@ internal object IncomingCallAnswerPolicy {
         actual.phase == CallPhase.Connected &&
         actual.conversationId == invited.conversationId &&
         actual.characterId == invited.characterId &&
-        actual.callStartMessageCount >= 0
+        actual.callStartedAt != null && actual.callExperienceId.isNotBlank()
 }
