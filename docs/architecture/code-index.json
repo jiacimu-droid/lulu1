@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T16:00:56.042644+00:00",
-  "commit": "82e9dc7cba914970ab4205d92801e102efd5e7f7",
+  "generatedAt": "2026-10-20T16:02:17.201128+00:00",
+  "commit": "6ce2bf1a15f24351268b34f145b25c8d8e3e6205",
   "branch": "main",
-  "sourceFingerprint": "2b0cc7936789fc490869e13e5fa6a3cf56826aac46f4533e868cf9c7f7e15081",
+  "sourceFingerprint": "85f3dc887606e290c964a77f994fb6128452127c010b894d04ba761a24fe6c62",
   "summary": {
     "files": 748,
-    "lines": 143651,
+    "lines": 143743,
     "symbols": 2171
   },
   "symbolIndex": {
@@ -619,7 +619,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 29
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
@@ -5373,13 +5373,13 @@
     "CommitmentTurnAutomation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 14
+        "line": 21
       }
     ],
     "onDeliveredCharacterMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 70
+        "line": 165
       }
     ],
     "asJson": [
@@ -17197,20 +17197,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 322,
-      "sha256": "12dbd445352540c892781d9d055af2f1cb477ac4dd8f73010bc6f8b810e5c97b",
+      "lines": 414,
+      "sha256": "5c694009b3b812ae16b88fe0a016ccbb5c7962766febcf78c1d9daad35426693",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
-          "line": 14
+          "line": 21
         },
         {
           "name": "initialize",
-          "line": 29
+          "line": 37
         },
         {
           "name": "onDeliveredCharacterMessage",
-          "line": 70
+          "line": 165
         }
       ]
     },
