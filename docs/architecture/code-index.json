@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T18:55:17.061454+00:00",
-  "commit": "8cf92b3c5baa77d8d2d5f5c5b67090196c842d8e",
+  "generatedAt": "2026-10-20T18:57:32.739476+00:00",
+  "commit": "b1d0b4a25b8db9952d2b01b973cd900e9de4e126",
   "branch": "main",
-  "sourceFingerprint": "3fd7a12671a0bf3a3bbe5a5c620de4ae8434b7933a9ddaec45d336f367c4dfe2",
+  "sourceFingerprint": "224c63cb18dea9e8294f9e4c0eea9e7288324e8956e19c1508cf78449fb44248",
   "summary": {
-    "files": 748,
-    "lines": 144132,
-    "symbols": 2174
+    "files": 749,
+    "lines": 144206,
+    "symbols": 2175
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -343,7 +343,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 49
+        "line": 50
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -3585,7 +3585,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 32
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -3607,7 +3607,7 @@
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 33
+        "line": 34
       }
     ],
     "isWakeExplanation": [
@@ -10760,6 +10760,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
         "line": 105
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt",
+        "line": 12
       }
     ],
     "LuluNotificationListenerService": [
@@ -15412,8 +15416,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 56,
-      "sha256": "be7b49ee3fa96563907923140e18e64104c6abada2228e3389767db147b35adf",
+      "lines": 57,
+      "sha256": "fb006c36a971fda7ac8c085d1fe0b59513799bdc13708b01ab2deb121727caa2",
       "symbols": [
         {
           "name": "Capability",
@@ -15425,15 +15429,15 @@
         },
         {
           "name": "find",
-          "line": 32
-        },
-        {
-          "name": "allows",
           "line": 33
         },
         {
+          "name": "allows",
+          "line": 34
+        },
+        {
           "name": "context",
-          "line": 49
+          "line": 50
         }
       ]
     },
@@ -23403,8 +23407,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 1776,
-      "sha256": "7544231409b0a940f4d9d1743635bcb5775298c7cf50609a75938107fbf3b2a0",
+      "lines": 1778,
+      "sha256": "4a213eb85bde89fe01f8aa7063e83210db125b33e7e73559015e34e690fcb33a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -23459,6 +23463,17 @@
         {
           "name": "control",
           "line": 105
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt",
+      "lines": 71,
+      "sha256": "470c8ee472518f761835d59130c381263394035d9a97722edaeda3d6e1de618e",
+      "symbols": [
+        {
+          "name": "control",
+          "line": 12
         }
       ]
     },

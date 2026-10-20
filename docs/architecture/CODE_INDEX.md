@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8cf92b3c5baa77d8d2d5f5c5b67090196c842d8e`
+- 基准提交：`b1d0b4a25b8db9952d2b01b973cd900e9de4e126`
 - 分支：`main`
-- 已索引文件：748
-- 已索引代码/文本行：144132
-- 已发现符号：2174
+- 已索引文件：749
+- 已索引代码/文本行：144206
+- 已发现符号：2175
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -203,7 +203,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 606 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 56 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 57 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 126 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -534,9 +534,10 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 294 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1776 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 1778 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 186 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
