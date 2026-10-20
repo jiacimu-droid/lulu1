@@ -126,7 +126,7 @@ object CommitmentTurnAutomation {
         }
         val acceptedRoutes = setOf("start_call", "alarm_only")
         val route = if (saved?.deliveryAction in acceptedRoutes) {
-            saved.deliveryAction
+            saved?.deliveryAction.orEmpty()
         } else {
             val callEnabled = MigratedDomainStores.characters.get(characterId)
                 .contactPolicy.proactiveCallsEnabled
