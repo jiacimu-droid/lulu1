@@ -96,6 +96,7 @@ internal fun SelfCompassScreen(
     var deleting by remember { mutableStateOf<SelfPageEntry?>(null) }
     var filter by remember(area) { mutableStateOf(if (values) "all" else SelfWishFolders.ALL) }
     var folders by remember { mutableStateOf(SelfWishFolders.read(context)) }
+    var localError by remember { mutableStateOf("") }
     val safeFolders = folders.orEmpty()
     fun createFolder(name: String): Boolean {
         if (values || folders == null) return false
@@ -113,7 +114,6 @@ internal fun SelfCompassScreen(
         return true
     }
     var taskIds by remember { mutableStateOf(SelfTodoStore.read(context).map { it.id }.toSet()) }
-    var localError by remember { mutableStateOf("") }
     fun open(page: SelfPageEntry? = null) { target = page; editing = true }
     BackHandler { if (editing) editing = false else onBack() }
 
