@@ -109,7 +109,6 @@ internal object WorldLifeEpisodeComposer {
             title = heading?.first
                 ?: structured?.optString("title").orEmpty().trim().take(24)
                     .takeUnless { genericHeading(it) }
-                ?: suppliedTitle.trim().take(24).takeUnless { genericHeading(it) }
                 ?: deriveSceneTitle(scene),
             scene = scene.take(4_000),
             unresolvedThread = structured?.optString("unresolvedThread").orEmpty().trim().take(220),
