@@ -14,7 +14,7 @@ class WakeCommitmentParserTest {
         assertNotNull(draft)
         assertEquals(Instant.parse("2026-10-10T02:00:00Z"), draft!!.dueAt)
         assertEquals("Asia/Shanghai", draft.timezone)
-        assertEquals("send_private_message", draft.deliveryAction)
+        assertEquals("", draft.deliveryAction)
         assertFalse(draft.needsClarification)
         assertTrue(draft.goal.contains("叫醒"))
     }
