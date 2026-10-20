@@ -22,6 +22,9 @@ internal object PerceptionStatusPresentation {
             note.startsWith("模型请求失败") -> note
             note.startsWith("通话结束后的感知尚未完成") -> note
             note.startsWith("动作失败") -> note
+            note.startsWith("动作未完成") -> note
+            note.startsWith("模型回复格式不完整") -> note
+            note.startsWith("回复处理失败") -> note
             note.contains("排程失败") -> note
             note.startsWith("感知暂停") -> note
             note == "模型返回了空状态" -> "感知未完成 · 模型返回了空状态"
