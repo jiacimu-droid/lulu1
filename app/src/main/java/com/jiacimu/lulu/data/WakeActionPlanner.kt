@@ -10,7 +10,7 @@ import java.time.Instant
 /** Character-led wake strategy with a reliable Android fallback. */
 internal object WakeActionPlanner {
     enum class Cue { RING, SPEAK, MUSIC }
-    data class Choice(val cue: Cue, val reason: String = "", val volumePercent: Int? = null)
+    data class Choice(val cue: Cue, val reason: String = "", val volumePercent: Int? = null, val openingLine: String = "")
 
     fun musicAllowed(context: Context, characterId: String): Boolean {
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
@@ -41,7 +41,7 @@ internal object WakeActionPlanner {
                 instruction = """
                     你是正在履行这项真实责任的原角色。结合自己的性格、关系、
                     已知的习惯与当前约定，自由决定这一刻怎么叫醒她。
-                    只返回 JSON：{"cue":"ring|speak|music","reason":"为什么想这么做","volumePercent":35}
+                    只返回 JSON：{"cue":"ring|speak|music","reason":"为什么想这么做","volumePercent":35,"openingLine":"如果要打电话，你接通后自然说的第一句"}
                     ring=本机响铃，通话已接通时随后自然开口；
                     speak=已接通的电话里直接以平常声线叫醒，未接通仍需电话铃声；
                     music=让现有授权播放器真实播放音乐，不凭空指定歌曲。
@@ -52,7 +52,7 @@ internal object WakeActionPlanner {
                 """.trimIndent(),
                 source = "到点叫醒决策",
                 title = "角色自主叫醒",
-                maxTokens = 220,
+                maxTokens = 320,
                 usage = ModelUsage.Chat,
             ).getOrNull()?.text
         } ?: return fallback
@@ -67,6 +67,7 @@ internal object WakeActionPlanner {
             else -> Cue.RING
         }
         return Choice(cue, json.optString("reason").trim().take(180),
-            json.optInt("volumePercent", -1).takeIf { it in 0..65 })
+            json.optInt("volumePercent", -1).takeIf { it in 0..65 },
+            json.optString("openingLine").trim().take(180))
     }
 }
