@@ -1182,7 +1182,10 @@ internal object LuluVoiceCallSession {
             wakeCueJob = null
             pendingScheduledWakeReason = null
             LuluCallRingtone.stopInCallWake()
-            com.jiacimu.lulu.data.WakeGoalVerification.confirm(current.characterId, spoken)
+            val woke = com.jiacimu.lulu.data.WakeGoalVerification.confirm(current.characterId, spoken)
+            if (woke) appContext?.let { context ->
+                com.jiacimu.lulu.system.LuluMediaVolume.control(context, current.characterId, "restore")
+            }
         }
         if (!autonomousSleep && !autonomousSilence) {
             userSpeechInProgress = false
