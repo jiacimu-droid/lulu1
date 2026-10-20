@@ -39,6 +39,9 @@ object CompanionPresenceStore {
     private const val KEY_STATES = "states_v1"
     private const val KEY_HISTORY = "history_v1"
     private const val KEY_MESSAGE_MOMENTS = "message_moments_v1"
+    // Separate diagnostic metadata, NOT an alternate source of character memory.
+    // A recovery "started" note must never overwrite evidence of what last failed.
+    private const val KEY_LAST_PERCEPTION_FAILURE = "last_perception_failure_v1"
     private val mutableStates = MutableStateFlow<Map<String, CompanionPresenceState>>(emptyMap())
     val states: StateFlow<Map<String, CompanionPresenceState>> = mutableStates.asStateFlow()
     private val mutableHistories = MutableStateFlow<Map<String, List<CompanionPresenceState>>>(emptyMap())
@@ -201,6 +204,24 @@ object CompanionPresenceStore {
         selectedMessageAnchor = null
     }
 
+    /** The last REAL failure survives retry startup; no raw model text or keys are kept. */
+    @Synchronized
+    fun lastPerceptionFailure(characterId: String): Pair<Instant, String>? {
+        if (characterId.isBlank()) return null
+        val data = prefs?.getString(KEY_LAST_PERCEPTION_FAILURE + "_" + characterId, null)
+            ?: return null
+        val time = data.substringBefore('|').toLongOrNull() ?: return null
+        val message = data.substringAfter('|', "").trim().take(180)
+        return if (message.isNotEmpty()) Instant.ofEpochMilli(time) to message else null
+    }
+
+    /** Clears old troubleshooting evidence only after a real completed perception. */
+    @Synchronized
+    fun clearPerceptionFailure(characterId: String) {
+        if (characterId.isBlank()) return
+        prefs?.edit()?.remove(KEY_LAST_PERCEPTION_FAILURE + "_" + characterId)?.apply()
+    }
+
     /** Records that the perception pipeline actually ran, including skips and failures. */
     @Synchronized
     fun recordPerceptionAttempt(characterId: String, note: String, now: Instant = Instant.now()) {
@@ -211,6 +232,16 @@ object CompanionPresenceStore {
             lastPerceptionNote = note.trim().take(180),
         )
         mutableStates.value = mutableStates.value + (characterId to next)
+        if (note.startsWith("感知失败") || note.startsWith("模型请求失败") ||
+            note.startsWith("模型回复格式不完整") || note.startsWith("动作失败") ||
+            note.startsWith("动作未完成") || note.startsWith("新消息重试排程失败") ||
+            note.startsWith("回复处理失败")) {
+            prefs?.edit()?.putString(KEY_LAST_PERCEPTION_FAILURE + "_" + characterId,
+                now.toEpochMilli().toString() + "|" + note.trim().take(180))?.apply()
+        } else if (note.startsWith("感知成功") ||
+            note.startsWith("旧消息已由其他回复处理")) {
+            clearPerceptionFailure(characterId)
+        }
         persist()
     }
 
