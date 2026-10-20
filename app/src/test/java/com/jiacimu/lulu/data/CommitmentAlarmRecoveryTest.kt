@@ -201,7 +201,7 @@ class CommitmentAlarmRecoveryTest {
         CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback) }
         CommitmentCallFeedback.onResponse(task.id, true)
         assertEquals(CommitmentTaskStatus.WaitingForFeedback, current(task).status)
-        assertTrue(current(task).lastActionResult.contains("接听"))
+        assertTrue(current(task).lastActionResult.contains("连接"))
         CommitmentCallFeedback.onVoiceStarted(task.id, "session-1")
         assertTrue(current(task).lastActionResult.contains("开始播放"))
         CommitmentCallFeedback.onVoiceDelivered(task.id, "session-1")
