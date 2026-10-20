@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:16:06.964501+00:00",
-  "commit": "b2f7fdd49b54eafe9046283580708c2e3d577753",
+  "generatedAt": "2026-10-20T06:17:25.685247+00:00",
+  "commit": "d73b243a0bcd2a869edb4dd46d83824f59740559",
   "branch": "main",
-  "sourceFingerprint": "7dff6382cc6a50fdfa51d3faaddb54470f015a8c6dd3612192a6e82d5121ef77",
+  "sourceFingerprint": "38bca7889c303735fb6b6f4159e09e994eb3c3859e92dea92bb713d1f0711008",
   "summary": {
     "files": 746,
-    "lines": 142888,
+    "lines": 142891,
     "symbols": 2168
   },
   "symbolIndex": {
@@ -2105,7 +2105,7 @@
     "status": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-        "line": 37
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
@@ -2115,13 +2115,13 @@
     "errorNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-        "line": 46
+        "line": 49
       }
     ],
     "lines": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-        "line": 54
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt",
@@ -2131,7 +2131,7 @@
     "time": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-        "line": 58
+        "line": 61
       }
     ],
     "PerformanceFeatureScreen": [
@@ -13904,8 +13904,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
-      "lines": 85,
-      "sha256": "0aecb34d8dfcec4c8c90196053878d7303dc3a4df3d7980cce7920f6c5a4680c",
+      "lines": 88,
+      "sha256": "0507415a5cfb0e4c1e4618706ba8fcb708838a2f9a0bcb0dc43bcfb8e7201c42",
       "symbols": [
         {
           "name": "errorFor",
@@ -13913,19 +13913,19 @@
         },
         {
           "name": "status",
-          "line": 37
+          "line": 40
         },
         {
           "name": "errorNote",
-          "line": 46
+          "line": 49
         },
         {
           "name": "lines",
-          "line": 54
+          "line": 57
         },
         {
           "name": "time",
-          "line": 58
+          "line": 61
         }
       ]
     },
