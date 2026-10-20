@@ -6,9 +6,9 @@ import java.time.LocalTime
 import java.time.ZoneId
 
 /**
- * Extract the one case where we must not rely on an LLM remembering to create a future task:
- * the user gives an explicit local wake-up time and the role accepts the request.
- * This creates a *real* local AlarmManager job, not just a diary or private thought.
+ * Only validates an accepted, explicitly dated wake-up deadline.
+ * The character model still decides whether to place a real call or schedule a
+ * native ringtone. Merely parsing the words never creates a system alarm.
  */
 internal object WakeCommitmentParser {
     private val wakeSignals = listOf("叫我", "喊我", "叫醒我", "喊醒我", "叫我起床", "叫醒", "喊醒", "叫起床", "提醒我起床")
@@ -65,7 +65,7 @@ internal object WakeCommitmentParser {
             completionCondition = "到点实际触发手机叫醒提醒；用户明确说醒了或取消后再结束",
             steps = listOf("提前安排真实的手机闹钟", "到点触发有声通知", "按角色约定发出叫醒消息" +
                 if (wantsPhone) "与真实主动来电" else ""),
-            deliveryAction = if (wantsPhone) "start_call" else "send_private_message",
+            deliveryAction = if (wantsPhone) "start_call" else "",
         )
     }
 }
