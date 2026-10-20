@@ -17,8 +17,8 @@ class CharacterAccountabilityContextTest {
         assertFalse(CharacterAccountabilityContext.isUnmetPromiseChallenge("今天我吃了披萨"))
         assertFalse(CharacterAccountabilityContext.isUnmetPromiseChallenge("明天10点叫我"))
         val guide = CharacterAccountabilityContext.challengeGuidance("你都没有叫醒我")
-        assertTrue(guide.contains("先确认谁承担叫醒或提醒责任"))
-        assertTrue(guide.contains("倒打一耙"))
+        assertTrue(guide.contains("当时是谁答应执行"))
+        assertTrue(guide.contains("不预设道歉句式"))
     }
 
     @Test fun missingReceiptsCannotBeTreatedAsSuccessfulDelivery() {
@@ -46,19 +46,26 @@ class CharacterAccountabilityContextTest {
         val response = CharacterAccountabilityContext.guardUnfairBlame(
             feedback, "这甩锅的理由找得挺齐全呀，怎么还嘴硬。")
         assertFalse(response.contains("甩锅的理由"))
-        assertTrue(response.contains("客观情况"))
-        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains("主人"))
+        assertEquals("", response)
+        assertFalse(CharacterDecisionProtocol.runtimePrinciples.contains("主人与仆人"))
     }
 
     @Test fun obviousRoleBlameIsStoppedOnlyInMissedCommitmentContext() {
         val unfair = "憋了四个小时，就憋出这一句倒打一耙？"
         val repaired = CharacterAccountabilityContext.guardUnfairBlame("那你也没十点叫我啊", unfair)
         assertFalse(repaired.contains("倒打一耙"))
-        assertTrue(repaired.contains("是我答应"))
-        assertTrue(repaired.contains("对不起"))
+        assertEquals("", repaired)
+        assertTrue(CharacterAccountabilityContext.containsUnfoundedBlame("那你也没十点叫我啊", unfair))
         assertEquals(unfair, CharacterAccountabilityContext.guardUnfairBlame("今天吃了一个披萨", unfair))
         val fair = "是我没做到，我不该怪你。对不起。"
         assertEquals(fair, CharacterAccountabilityContext.guardUnfairBlame("你没叫我起床", fair))
+        assertFalse(CharacterAccountabilityContext.containsUnfoundedBlame(
+            "今天这题我没懂", "我有证据表明这题答案应该是B"))
+        assertEquals("", CharacterAccountabilityContext.guardUnfairBlame(
+            "你没有叫醒我", "我看你就是嘴硬，明明是你自己懒"))
+        // No canned apology is returned for any companion.
+        assertFalse(CharacterAccountabilityContext::class.java.declaredMethods
+            .any { it.name.contains("fixedApology") })
     }
 
     @Test fun languageQuirksHaveTheirOwnPerRolePersonaSlotNotGlobalWorldbook() {
