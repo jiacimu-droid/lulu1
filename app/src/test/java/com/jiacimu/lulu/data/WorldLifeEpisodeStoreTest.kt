@@ -101,6 +101,10 @@ class WorldLifeEpisodeStoreTest {
             assertNull(WorldLifeEpisodeStore.find(chapter.id))
             assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(evidenceId)).size)
             assertFalse(WorldLifeEpisodeStore.delete(chapter.id))
+            // A queued write must not resurrect the literary chapter.
+            assertNull(WorldLifeEpisodeStore.record(role, "home:test", "晚光重试",
+                "新的小说内容写了很多字。".repeat(8), "真实坐下看书架",
+                evidenceId, whenHappened))
         } finally { WorldLifeEpisodeStore.clear(role) }
     }
 
