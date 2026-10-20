@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,9 +24,12 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * The "自序" cover has the large date artwork removed from 所行.
- * Everything is vector-drawn and offline; the clock uses local device time
- * and refreshes while this screen is on display.
+ * Original on-device ink illustration for 自序's cover.
+ * Its primary color is the same almost-white warm paper as the 所思 notebook;
+ * green is for tiny line details, NOT a saturated green/yellow gradient.
+ *
+ * This header reads only the device clock. No notes, wishes, todo lists or
+ * character records are written or migrated during a theme change.
  */
 @Composable
 internal fun SelfPrefaceHomeHero(modifier: Modifier = Modifier) {
@@ -36,76 +40,135 @@ internal fun SelfPrefaceHomeHero(modifier: Modifier = Modifier) {
             delay(60_000L)
         }
     }
-    val dark = SelfPrefacePalette.ink
+
+    val ink = SelfPrefacePalette.ink
     val muted = SelfPrefacePalette.muted
-    Box(modifier.fillMaxWidth().height(184.dp)) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            shape = RoundedCornerShape(27.dp),
-            shadowElevation = 3.dp,
-            color = SelfPrefacePalette.paper,
-        ) {
-            Box(
-                Modifier.fillMaxSize().background(
+    Surface(
+        modifier = modifier.fillMaxWidth().heightIn(min = 196.dp),
+        shape = RoundedCornerShape(25.dp),
+        color = SelfPrefacePalette.paperBright,
+        border = BorderStroke(1.dp, SelfPrefacePalette.outline.copy(alpha = .78f)),
+        shadowElevation = 3.dp,
+    ) {
+        Box(
+            Modifier.fillMaxWidth().heightIn(min = 196.dp)
+                .background(
                     Brush.linearGradient(
-                        listOf(Color(0xFFF6F1CE), Color(0xFFF9F9EA), Color(0xFFE8F0D6)),
+                        colors = listOf(
+                            Color(0xFFFFFDF8), // notebook paper: warm white, barely yellow
+                            Color(0xFFFFFCF6),
+                            Color(0xFFF1F7F3), // subtle pale green only at the far edge
+                        ),
+                        start = Offset.Zero,
+                        end = Offset(1100f, 650f),
                     )
                 )
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val w = size.width
+                val h = size.height
+                val sage = Color(0xFF82A7A0)
+                val honey = Color(0xFFC9AC7A)
+                val stroke = 1.35.dp.toPx()
+
+                // Quiet paper seam and lightly sketched inset margin.
+                drawLine(sage.copy(alpha = .20f),
+                    Offset(w * .044f, h * .13f),
+                    Offset(w * .044f, h * .87f), stroke)
+                drawLine(sage.copy(alpha = .17f),
+                    Offset(w * .065f, h * .89f),
+                    Offset(w * .91f, h * .89f), stroke)
+
+                // Same hand-drawn geometry as the notebook: orbit + small sun
+                // rather than a large colored plant or gradient illustration.
+                val orbit = Path().apply {
+                    moveTo(w * .66f, h * .72f)
+                    cubicTo(w * .79f, h * .12f, w * .92f, h * .19f, w * .985f, h * .35f)
+                }
+                drawPath(orbit, sage.copy(alpha = .55f),
+                    style = Stroke(width = 1.65.dp.toPx()))
+                drawCircle(
+                    Color(0xFFFFF8E9),
+                    radius = w * .065f,
+                    center = Offset(w * .825f, h * .41f),
+                )
+                drawCircle(
+                    honey.copy(alpha = .47f),
+                    radius = w * .065f,
+                    center = Offset(w * .825f, h * .41f),
+                    style = Stroke(width = stroke),
+                )
+                // A few points of light, with restrained gold instead of yellow fill.
+                listOf(
+                    Offset(w * .70f, h * .32f),
+                    Offset(w * .955f, h * .65f),
+                    Offset(w * .76f, h * .78f),
+                ).forEachIndexed { i, p ->
+                    val d = (if (i == 1) 6 else 4).dp.toPx()
+                    val color = if (i == 1) honey else sage
+                    drawLine(color.copy(alpha = .7f),
+                        Offset(p.x - d, p.y), Offset(p.x + d, p.y), stroke)
+                    drawLine(color.copy(alpha = .7f),
+                        Offset(p.x, p.y - d), Offset(p.x, p.y + d), stroke)
+                }
+                drawCircle(sage.copy(alpha = .35f), radius = 2.dp.toPx(),
+                    center = Offset(w * .97f, h * .19f))
+            }
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .heightIn(min = 196.dp)
+                    .padding(start = 25.dp, end = 23.dp, top = 20.dp, bottom = 20.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                Canvas(Modifier.fillMaxSize()) {
-                    val w = size.width
-                    val h = size.height
-                    val plum = SelfPrefacePalette.seaGlass
-                    val rose = SelfPrefacePalette.honey
-                    // Diary-inspired hand-drawn orbit and tiny warm-gold stars; no bitmap.
-                    val orbit = Path().apply {
-                        moveTo(w * .65f, h * 1.04f)
-                        cubicTo(w * .77f, h * .68f, w * .74f, h * .20f, w * 1.01f, h * .08f)
-                    }
-                    drawPath(orbit, plum.copy(alpha = .44f),
-                        style = Stroke(2.1.dp.toPx()))
-                    drawCircle(rose.copy(alpha = .13f), w * .24f,
-                        Offset(w * .99f, h * .88f))
-                    drawCircle(plum.copy(alpha = .11f), w * .16f,
-                        Offset(w * .81f, h * .10f))
-                    listOf(
-                        Offset(w * .69f, h * .28f),
-                        Offset(w * .86f, h * .47f),
-                        Offset(w * .76f, h * .78f),
-                        Offset(w * .95f, h * .24f),
-                    ).forEachIndexed { index, o ->
-                        val d = (if (index % 2 == 0) 6 else 4).dp.toPx()
-                        drawLine(if (index % 2 == 0) plum else rose,
-                            Offset(o.x - d, o.y), Offset(o.x + d, o.y), 1.5.dp.toPx())
-                        drawLine(if (index % 2 == 0) plum else rose,
-                            Offset(o.x, o.y - d), Offset(o.x, o.y + d), 1.5.dp.toPx())
-                    }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "MY LIFE JOURNAL",
+                        color = muted,
+                        fontSize = 10.sp,
+                        letterSpacing = 1.8.sp,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        clock.format(DateTimeFormatter.ofPattern("HH:mm")),
+                        color = ink,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
                 Column(
-                    Modifier.fillMaxSize().padding(horizontal = 21.dp, vertical = 19.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.fillMaxWidth(.75f),
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("A PAGE OF MY LIFE", color = muted,
-                            fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 1.4.sp)
-                        Spacer(Modifier.weight(1f))
-                        Text(clock.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            color = dark, fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold)
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(clock.format(DateTimeFormatter.ofPattern("yyyy.MM")),
-                            color = muted, fontSize = 12.sp, letterSpacing = 1.sp)
+                    Text(
+                        clock.format(DateTimeFormatter.ofPattern("yyyy  /  MM")),
+                        color = muted,
+                        fontSize = 12.sp,
+                        letterSpacing = 1.sp,
+                    )
+                    Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            clock.dayOfMonth.toString() + "  /  " +
-                                clock.format(DateTimeFormatter.ofPattern("EEEE", Locale.SIMPLIFIED_CHINESE)),
-                            color = dark, fontWeight = FontWeight.Bold, fontSize = 29.sp,
+                            clock.dayOfMonth.toString().padStart(2, '0'),
+                            color = ink,
+                            fontSize = 38.sp,
+                            fontWeight = FontWeight.SemiBold,
                         )
-                        Spacer(Modifier.height(4.dp))
-                        Text("人生由我落笔，故事尚在途中。",
-                            color = dark.copy(alpha = .78f), fontSize = 12.sp)
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            clock.format(DateTimeFormatter.ofPattern("EEEE", Locale.SIMPLIFIED_CHINESE)),
+                            color = ink,
+                            fontSize = 15.sp,
+                            modifier = Modifier.padding(bottom = 7.dp),
+                        )
                     }
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        "人生由我落笔，故事尚在途中。",
+                        color = muted,
+                        fontSize = 12.sp,
+                        maxLines = 2,
+                        lineHeight = 19.sp,
+                    )
                 }
             }
         }
