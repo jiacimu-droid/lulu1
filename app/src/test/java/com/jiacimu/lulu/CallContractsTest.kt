@@ -187,6 +187,27 @@ class CallContractsTest {
         assertTrue(gate.consumeWhenReady("second", 4L, true, false, false))
     }
 
+    @Test fun incomingAnswerDoesNotAckBeforeActualMatchingConnection() {
+        val now = java.time.Instant.now()
+        val invitation = com.jiacimu.lulu.data.ProactiveIncomingCall(
+            "role", "conversation", "09:45 叫醒", now, now.plusSeconds(90), "task-1")
+        val base = LuluVoiceCallState(conversationId = "conversation", characterId = "role",
+            callExperienceId = "call-1", callStartedAt = now)
+        for (phase in listOf(CallPhase.Ready, CallPhase.Dialing, CallPhase.Ended, CallPhase.Idle)) {
+            assertFalse(IncomingCallAnswerPolicy.genuinelyConnected(
+                invitation, invitation, base.copy(phase = phase)))
+        }
+        val connected = base.copy(phase = CallPhase.Connected)
+        assertTrue(IncomingCallAnswerPolicy.genuinelyConnected(invitation, invitation, connected))
+        assertFalse(IncomingCallAnswerPolicy.genuinelyConnected(invitation, null, connected))
+        assertFalse(IncomingCallAnswerPolicy.genuinelyConnected(invitation, invitation,
+            connected.copy(conversationId = "wrong")))
+        assertFalse(IncomingCallAnswerPolicy.genuinelyConnected(invitation, invitation,
+            connected.copy(callStartedAt = null)))
+        assertFalse(IncomingCallAnswerPolicy.genuinelyConnected(invitation, invitation,
+            connected.copy(callExperienceId = "")))
+    }
+
     @Test fun wakeCallOpeningUsesNaturalSpeechButKeepsCallOpen() {
         assertTrue(CallOpeningTurn.isWakeCallReason("约定的叫醒时间到了"))
         assertTrue(CallOpeningTurn.isWakeCallReason("8点半叫我起床"))
