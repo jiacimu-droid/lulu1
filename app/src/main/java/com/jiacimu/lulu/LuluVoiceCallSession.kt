@@ -275,6 +275,7 @@ internal object LuluVoiceCallSession {
     private var silenceFailures = 0
     private var replyIsSilence = false
     private var silenceAudioPending = false
+    private var pendingWakeOpeningAudioTaskId: String? = null
 
     private fun noteCallUserActivity() {
         if (pendingCharacterHangupJob?.isActive == true) {
@@ -373,6 +374,7 @@ internal object LuluVoiceCallSession {
         initialize(context)
         val current = mutableState.value
         if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) {
+            pendingWakeOpeningAudioTaskId = null
             cancelPendingCharacterHangup()
             mutableState.value = LuluVoiceCallState(
                 conversationId = conversationId,
@@ -825,7 +827,8 @@ internal object LuluVoiceCallSession {
                 // The character's farewell is not complete when TTS fails.
                 // Never execute a structured or spoken hangup after failed audio.
                 cancelPendingCharacterHangup()
-                mutableState.value.incomingCommitmentTaskId?.let {
+                pendingWakeOpeningAudioTaskId?.let {
+                    pendingWakeOpeningAudioTaskId = null
                     com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceFailed(it, mutableState.value.callExperienceId, error)
                 }
                 mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") }
@@ -1276,7 +1279,7 @@ internal object LuluVoiceCallSession {
                 scheduleListening(300)
                 return@launch
             }
-            val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel)
+            val activeLabel = activeArchive?.let { LuluAiServices.connectionStore.archiveLabel(it) }
                 ?: "接听已存的来电开场"
             val recentHistory = buildCallHistory(
                 MigratedDomainStores.chat.messages(latest.conversationId).value,
@@ -1327,6 +1330,7 @@ internal object LuluVoiceCallSession {
                     // performance and the chat transcript must share this ID.
                     val voiceMessageId = "voice-${if (latest.sleepMode) "sleep-" else ""}${latest.callExperienceId}-agent-${UUID.randomUUID()}"
                     val promiseTaskId = latest.incomingCommitmentTaskId.takeIf { opening && wakeOpening }
+                    if (promiseTaskId != null) pendingWakeOpeningAudioTaskId = promiseTaskId
                     speechQueue?.enqueue(
                         text = renderedSpeech,
                         speakerId = latest.characterId,
@@ -1359,7 +1363,12 @@ internal object LuluVoiceCallSession {
                         },
                         onDelivered = {
                             if (!sameReply()) return@enqueue
-                            promiseTaskId?.let { com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceDelivered(it, latest.callExperienceId) }
+                            promiseTaskId?.let {
+                                if (pendingWakeOpeningAudioTaskId == it) {
+                                    pendingWakeOpeningAudioTaskId = null
+                                    com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceDelivered(it, latest.callExperienceId)
+                                }
+                            }
                             subtitleRevealJob?.cancel()
                             heard.append(VoicePerformance.plain(part))
                             if (plainSpeech.isNotBlank()) {
