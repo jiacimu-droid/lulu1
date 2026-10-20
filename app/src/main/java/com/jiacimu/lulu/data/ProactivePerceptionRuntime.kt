@@ -67,6 +67,7 @@ object ProactivePerceptionRuntime {
         val tool: String = "",
         val toolArgs: JSONObject = JSONObject(),
         val sideActions: org.json.JSONArray? = null,
+        val replyChoice: String = "",
         val targetScore: Int? = null,
         val intention: JSONObject? = null,
         val afterglow: JSONObject? = null,
@@ -808,7 +809,7 @@ object ProactivePerceptionRuntime {
                     不返回在线决定或没有真实理由，程序默认休眠，不会伪造想法。
                 """.trimIndent() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
-                    "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若想说话且同时操作音乐/音量，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"sideActions\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。sideActions最多两个、只支持control_music/control_volume/list_media_sessions，其他生活行动仍走原执行器。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
+                    "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若确实自主决定本轮只操作设备而不回复，填写replyChoice=\"silent\"；否则没有实际发出的回复就不会把新消息当成已回应。若想说话且同时操作音乐/音量，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"sideActions\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。sideActions最多两个、只支持control_music/control_volume/list_media_sessions，其他生活行动仍走原执行器。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
                 else """【此时没有新消息】你不是聊天待命机器人：先判断自己正在好奇的事情、真正可去的地点、可读的书或可做的小活动，选择一件感兴趣的实际生活行动；只有此刻确实不想做，才选 silent。不要为追求活跃而机械轮换。动作请直接写在 JSON 第一项 action，不要只在 statusText 或 innerThought 里写“我出去走走”。也可 action=tool，通过真实执行器收藏用户确实说过的一句话。""",
             source = "后台主动感知",
             title = "${character.displayName}的主动感知",
@@ -1519,9 +1520,13 @@ object ProactivePerceptionRuntime {
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER ->
                 execution.conversationId != null &&
                     execution.conversationId in onlineUnread.conversationIds
+            Action.TOOL -> decision.tool in setOf("send_private_message", "send_group_message") &&
+                execution.conversationId in onlineUnread.conversationIds
             else -> false
         })
-        val choseOtherLifeAction = execution.success && !execution.deliveredReply && decision.action !in setOf(
+        val choseOtherLifeAction = execution.success && !execution.deliveredReply &&
+            (onlineUnread.text.isBlank() || decision.action != Action.TOOL || decision.replyChoice == "silent") &&
+            decision.action !in setOf(
             Action.MESSAGE, Action.KAOMOJI, Action.STICKER,
             Action.GROUP_MESSAGE, Action.GROUP_KAOMOJI, Action.GROUP_STICKER,
         )
@@ -1809,6 +1814,7 @@ object ProactivePerceptionRuntime {
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
             sideActions = json.optJSONArray("sideActions"),
+            replyChoice = json.optString("replyChoice").trim().lowercase(),
             toolArgs = (json.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()).apply {
                 // Direct autonomous actions can attach planId at the top level or
                 // inside args; both must reach the same verifiable executor receipt.
