@@ -1590,7 +1590,7 @@ object ProactivePerceptionRuntime {
         }
         val pursuingThisGoal = goal != null && (goalReviewMode ||
             decision.intentionId == goal.optString("createdAt"))
-        if (pursuingThisGoal && goal != null &&
+        if (pursuingThisGoal && goal != null && !hasFreshUserMessage &&
             GoalFollowUpPolicy.shouldBlockContact(goal, tool)) {
             return ActionExecution(false, "已两次主动联系而未获得新的用户回应；保留目标但暂停重复打扰")
         }
@@ -1645,6 +1645,10 @@ object ProactivePerceptionRuntime {
             // rather than a subset of model action labels. Do not notify the same reply twice.
             Action.CALL -> result.conversationId?.let {
                 showCallNotification(appContext, it, character.displayName, decision.text)
+            }
+            Action.TOOL -> if (tool == "start_call") result.conversationId?.let {
+                showCallNotification(appContext, it, character.displayName,
+                    args.optString("text"))
             }
             else -> Unit
         }
