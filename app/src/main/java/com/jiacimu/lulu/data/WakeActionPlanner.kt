@@ -28,8 +28,12 @@ internal object WakeActionPlanner {
         // The model must never be a single point of failure for a wake alarm.
         val fallback = Choice(Cue.RING)
         val canMusic = musicAllowed(context, task.characterId)
-        val raw = withTimeoutOrNull(8_000L) {
-            LuluAiServices.gateway.generate(
+        val raw = try {
+            withTimeoutOrNull(8_000L) {
+                // Cold-process AlarmManager deliveries are allowed to use the
+                // same configured character model as foreground conversations.
+                LuluAiServices.initialize(context)
+                LuluAiServices.gateway.generate(
                 characterId = task.characterId,
                 facts = buildString {
                     appendLine("真实到点时刻：$now")
@@ -58,6 +62,11 @@ internal object WakeActionPlanner {
                 maxTokens = 320,
                 usage = ModelUsage.Chat,
             ).getOrNull()?.text
+            }
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            null // Never sacrifice the audible Android fallback for AI failure.
         } ?: return fallback
         return parseChoice(raw, canMusic, inCall)
     }
