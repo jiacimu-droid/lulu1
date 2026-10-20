@@ -60,9 +60,13 @@ internal object CommitmentDecisionRuntime {
                 task.deliveryAction == proposed.deliveryAction &&
                 task.status != CommitmentTaskStatus.Cancelled
         }
-        if (matchingSource != null && matchingSource.status != CommitmentTaskStatus.NeedsClarification)
+        fun hasValidAlarm(task: CommitmentTask): Boolean =
+            task.status != CommitmentTaskStatus.NeedsClarification &&
+                !(task.status == CommitmentTaskStatus.Scheduled &&
+                    task.linkedAlarmId.isNullOrBlank())
+        if (matchingSource != null && hasValidAlarm(matchingSource))
             return@withLock matchingSource
-        if (sameDeadline != null && sameDeadline.status != CommitmentTaskStatus.NeedsClarification)
+        if (sameDeadline != null && hasValidAlarm(sameDeadline))
             return@withLock sameDeadline
 
         // Never register an old alarm retrospectively when opening an old chat.
@@ -71,8 +75,8 @@ internal object CommitmentDecisionRuntime {
         val wantsReschedule = listOf("再叫我", "改成", "改到", "改为", "推迟", "延后")
             .any(normalizedUser::contains)
         val prior = when {
-            matchingSource?.status == CommitmentTaskStatus.NeedsClarification -> matchingSource
-            sameDeadline?.status == CommitmentTaskStatus.NeedsClarification -> sameDeadline
+            matchingSource != null -> matchingSource
+            sameDeadline != null -> sameDeadline
             wantsReschedule -> all.filter { it.status.isActive() && it.isWakeResponsibility() }
                 .singleOrNull()
             else -> null
