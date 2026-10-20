@@ -306,6 +306,17 @@ object LuluDeviceToolBridge {
         val currentPhoneMusic = if (phoneCallId.isNotBlank())
             com.jiacimu.lulu.data.DeferredCallMediaAction.musicContext(characterId, phoneCallId)
         else "未提供本次真实通话会话"
+        val sharedReplyAndDeviceRule = if (!rewriting && !callSilence) """
+            【同一模型决定可以兼有回复与设备行为】
+            一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
+            若你想两者兼做，使用 action=reply 配合 sideActions=[{"tool":"control_volume","args":{"action":"adjust","deltaPercent":10}}]；
+            媒体操作还可选择 control_music、list_media_sessions，最多2项。
+            private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
+            你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
+            即将执行的动作不能预先说成已经完成。外部工具会真正执行、分别产生回执。
+            音量“再高点”用 adjust+正的 deltaPercent，不要重复设定绝对值。
+            不允许用 sideActions 绕过角色权限、访问其他人的资料或强迫用户接受操作。
+        """.trimIndent() else ""
         val phoneMediaRule = if (sceneContext.contains("电话")) """
             【通话中的真实音乐安排】
             已确认的本通电话音乐状态：$currentPhoneMusic
@@ -588,6 +599,7 @@ object LuluDeviceToolBridge {
                 $voicePerformanceRule
                 $phoneSleepRule
                 $phoneMediaRule
+                $sharedReplyAndDeviceRule
                 $characterHangupRule
             """.trimIndent(),
             source = if (sceneContext.contains("电话")) "电话回复" else "聊天工具规划",
@@ -1771,6 +1783,7 @@ object LuluDeviceToolBridge {
                 endCall = json.optBoolean("endCall", false),
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 afterCallMedia = json.optJSONObject("afterCallMedia"),
+                sideActions = json.optJSONArray("sideActions"),
                 musicAfterSpeech = json.optString("musicAfterSpeech").trim().lowercase(),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
@@ -1838,6 +1851,7 @@ private data class ToolPlan(
     val endCall: Boolean = false,
     val sleepDecision: String = "",
     val afterCallMedia: JSONObject? = null,
+    val sideActions: org.json.JSONArray? = null,
     val musicAfterSpeech: String = "",
     val phoneFavorite: JSONObject? = null,
     val speechIntent: String = "",
