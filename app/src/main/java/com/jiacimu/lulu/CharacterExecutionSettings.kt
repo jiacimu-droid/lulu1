@@ -65,16 +65,16 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 }) { Text("设置") }
             }
         }
-        Text("音乐控制需要先在手机权限页开启「通知读取」，并让音乐 App 建立播放会话；授权后可以暂停、继续、上一首和下一首。", style = MaterialTheme.typography.bodySmall)
+        Text("音乐控制需要在手机权限页开启「通知读取」，并让音乐 App 建立播放会话；角色获媒体授权后可按实际情况播放、暂停、切歌及有限度调节媒体音量。", style = MaterialTheme.typography.bodySmall)
         var wakeMusic by remember(characterId) { mutableStateOf(prefs.getBoolean("$characterId:wake_music_enabled", false)) }
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text("到点叫醒后自动放歌", modifier = Modifier.weight(1f))
+            Text("允许角色自主选择音乐叫醒", modifier = Modifier.weight(1f))
             Switch(wakeMusic, {
                 wakeMusic = it
                 prefs.edit().putBoolean("$characterId:wake_music_enabled", it).commit()
             })
         }
-        Text("已开启时，叫醒电话会先自然叫你起床，电话保持接通，方便醒来再聊几句；等你或角色真正挂断后再播放音乐，避免声音重叠。",
+        Text("开启表示允许选择，并不意味着每次叫醒都放音乐。角色会依据当时情况选择铃声、自然叫醒或已有播放器；正在通话时优先沿用原电话。媒体音量会受安全上限约束。",
             style = MaterialTheme.typography.bodySmall)
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         OutlinedTextField(packages, { packages = it; prefs.edit().putString("$characterId:notification_packages", it).commit() },
