@@ -25,6 +25,10 @@ internal fun SelfWishFolderTabs(
     folders: List<SelfWishFolder>,
     pages: List<SelfPageEntry>,
     selected: String,
+    accent: Color,
+    ink: Color,
+    line: Color,
+    paper: Color,
     onSelect: (String) -> Unit,
     onCreate: (String) -> Boolean,
     onRename: (String, String) -> Boolean,
@@ -44,40 +48,40 @@ internal fun SelfWishFolderTabs(
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SelfWishFolderChip("全部", selected == SelfWishFolders.ALL) {
+        SelfWishFolderChip("全部", selected == SelfWishFolders.ALL, accent = accent, ink = ink, line = line, paper = paper) {
             onSelect(SelfWishFolders.ALL)
         }
-        SelfWishFolderChip("未分类", selected == SelfWishFolders.UNFILED) {
+        SelfWishFolderChip("未分类", selected == SelfWishFolders.UNFILED, accent = accent, ink = ink, line = line, paper = paper) {
             onSelect(SelfWishFolders.UNFILED)
         }
         if (hasLegacy) {
-            SelfWishFolderChip("原珍藏", selected == SelfWishFolders.LEGACY_HELD) {
+            SelfWishFolderChip("原珍藏", selected == SelfWishFolders.LEGACY_HELD, accent = accent, ink = ink, line = line, paper = paper) {
                 onSelect(SelfWishFolders.LEGACY_HELD)
             }
         }
         folders.forEach { folder ->
-            SelfWishFolderChip(folder.name, selected == folder.id) {
+            SelfWishFolderChip(folder.name, selected == folder.id, accent = accent, ink = ink, line = line, paper = paper) {
                 onSelect(folder.id)
             }
         }
-        SelfWishFolderChip("已实现", selected == SelfWishFolders.COMPLETED, completed = true) {
+        SelfWishFolderChip("已实现", selected == SelfWishFolders.COMPLETED, completed = true, accent = accent, ink = ink, line = line, paper = paper) {
             onSelect(SelfWishFolders.COMPLETED)
         }
         OutlinedButton(
             onClick = { dialog = "create" },
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
             shape = RoundedCornerShape(13.dp),
-            border = BorderStroke(1.dp, SelfPrefacePalette.outline),
+            border = BorderStroke(1.dp, line),
         ) {
             Icon(Icons.Outlined.Add, "新建分类", Modifier.size(17.dp),
-                tint = SelfPrefacePalette.sageDeep)
+                tint = accent)
             Spacer(Modifier.width(3.dp))
-            Text("文件夹", fontSize = 12.sp, color = SelfPrefacePalette.sageDeep)
+            Text("文件夹", fontSize = 12.sp, color = accent)
         }
         if (folders.isNotEmpty()) {
             IconButton(onClick = { dialog = "manage" }, modifier = Modifier.size(38.dp)) {
                 Icon(Icons.Outlined.Edit, "重命名文件夹", Modifier.size(18.dp),
-                    tint = SelfPrefacePalette.sageDeep)
+                    tint = accent)
             }
         }
     }
@@ -91,14 +95,14 @@ internal fun SelfWishFolderTabs(
                     folders.forEach { folder ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(folder.name, Modifier.weight(1f),
-                                color = SelfPrefacePalette.ink)
+                                color = ink)
                             IconButton(onClick = { dialog = folder.id }) {
                                 Icon(Icons.Outlined.Edit, "重命名"+folder.name)
                             }
                         }
                     }
                     Text("重命名只改变文件夹名称，不改变里面的心愿。",
-                        color = SelfPrefacePalette.muted, fontSize = 12.sp)
+                        color = ink.copy(alpha = .68f), fontSize = 12.sp)
                 }
             },
             confirmButton = {
@@ -143,14 +147,18 @@ internal fun SelfWishFolderChip(
     label: String,
     selected: Boolean,
     completed: Boolean = false,
+    accent: Color,
+    ink: Color,
+    line: Color,
+    paper: Color,
     onClick: () -> Unit,
 ) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        color = if (selected) SelfPrefacePalette.sageDeep else SelfPrefacePalette.paperBright,
+        color = if (selected) accent else paper,
         border = BorderStroke(1.dp,
-            if (selected) SelfPrefacePalette.sageDeep else SelfPrefacePalette.outline),
+            if (selected) accent else line),
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -158,9 +166,9 @@ internal fun SelfWishFolderChip(
             Icon(
                 if (completed) Icons.Outlined.CheckCircleOutline else Icons.Outlined.FolderOpen,
                 null, Modifier.size(15.dp),
-                tint = if (selected) Color.White else SelfPrefacePalette.sage,
+                tint = if (selected) Color.White else accent,
             )
-            Text(label, color = if (selected) Color.White else SelfPrefacePalette.ink,
+            Text(label, color = if (selected) Color.White else ink,
                 fontSize = 12.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
         }
     }
