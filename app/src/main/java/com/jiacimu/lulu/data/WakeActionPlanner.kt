@@ -56,6 +56,12 @@ internal object WakeActionPlanner {
                 usage = ModelUsage.Chat,
             ).getOrNull()?.text
         } ?: return fallback
+        return parseChoice(raw, canMusic, inCall)
+    }
+
+    /** Central validation used for live decisions and regression tests. */
+    internal fun parseChoice(raw: String, canMusic: Boolean, inCall: Boolean): Choice {
+        val fallback = Choice(Cue.RING)
         val json = runCatching {
             JSONObject(raw.trim().removePrefix("```json").removePrefix("```")
                 .removeSuffix("```").trim())
