@@ -112,6 +112,24 @@ internal object DeferredCallMediaAction {
     private var activeMusicCallId: String? = null
     private var activeMusicCharacterId: String? = null
     private var interruptedByRoleSpeech: Boolean = false
+    private var resumeApprovedByRole: Boolean = false
+
+    fun musicContext(characterId: String, callId: String): String =
+        if (activeMusicCharacterId == characterId && activeMusicCallId == callId)
+            "本通电话已经请求真实音乐，角色可选择讲完话后继续播放或让它保持暂停"
+        else "本通电话尚无本系统成功请求的音乐"
+
+    @Synchronized fun chooseAfterSpeech(characterId: String, callId: String, resume: Boolean) {
+        if (activeMusicCharacterId == characterId && activeMusicCallId == callId)
+            resumeApprovedByRole = resume
+    }
+
+    @Synchronized fun stopAutoResume(characterId: String, callId: String) {
+        if (activeMusicCharacterId == characterId && activeMusicCallId == callId) {
+            interruptedByRoleSpeech = false
+            resumeApprovedByRole = false
+        }
+    }
 
     @Synchronized fun beforeRoleSpeech(context: Context, characterId: String, callId: String) {
         if (activeMusicCallId != callId || activeMusicCharacterId != characterId) return
@@ -123,6 +141,10 @@ internal object DeferredCallMediaAction {
     @Synchronized fun afterRoleSpeech(context: Context, characterId: String, callId: String) {
         if (activeMusicCallId != callId || activeMusicCharacterId != characterId ||
             !interruptedByRoleSpeech) return
+        if (!resumeApprovedByRole) {
+            interruptedByRoleSpeech = false
+            return // The character did not decide to turn music back on.
+        }
         val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "play")) }.getOrNull()
         interruptedByRoleSpeech = false
         if (result?.optBoolean("accepted") != true && result?.optBoolean("success") != true) {
@@ -136,6 +158,7 @@ internal object DeferredCallMediaAction {
             activeMusicCallId = null
             activeMusicCharacterId = null
             interruptedByRoleSpeech = false
+            resumeApprovedByRole = false
         }
     }
 
@@ -181,6 +204,7 @@ internal object DeferredCallMediaAction {
             activeMusicCallId = row.optString("callId")
             activeMusicCharacterId = charId
             interruptedByRoleSpeech = false
+            resumeApprovedByRole = false
         }
         val updated = row.put("status", if (verified) "verified" else if (accepted) "unverified" else "failed")
             .put("finishedAt", Instant.now().toString()).put("result", actual)
