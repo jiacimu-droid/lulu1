@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T21:10:43.434068+00:00",
-  "commit": "a859dd2532839298013b186cf61e691709c58ebc",
+  "generatedAt": "2026-10-20T21:11:06.328574+00:00",
+  "commit": "1e8a6b9c67f8b8ff30cf0841ad26caa2889b7cfe",
   "branch": "main",
-  "sourceFingerprint": "bd1d788d52c8cede18f9a412f879ae729b85f731dc9471884cdce69b1ba0aaac",
+  "sourceFingerprint": "c8b952a6e10fc8c4bb962eb5825231ef831cf2434d70667195034fb3b32f6b0c",
   "summary": {
-    "files": 756,
-    "lines": 145262,
-    "symbols": 2190
+    "files": 757,
+    "lines": 145325,
+    "symbols": 2191
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12090,6 +12090,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt",
         "line": 5
+      }
+    ],
+    "UnifiedReplyAndActionPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt",
+        "line": 6
       }
     ],
     "UserInteractionPresenceTest": [
@@ -25790,6 +25796,17 @@
         {
           "name": "TransientConversationStyleTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt",
+      "lines": 63,
+      "sha256": "3ce922d5cc88f6148b640b60aad1c685a890e69faeca9a6befd66443dc399802",
+      "symbols": [
+        {
+          "name": "UnifiedReplyAndActionPolicyTest",
+          "line": 6
         }
       ]
     },
