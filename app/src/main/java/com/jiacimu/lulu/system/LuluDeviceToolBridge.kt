@@ -375,6 +375,11 @@ object LuluDeviceToolBridge {
                 appendLine("当前时区：${zone.id}")
                 appendLine(com.jiacimu.lulu.data.CommitmentDecisionProtocol.context(
                     CommitmentTaskStore.active(characterId), now, zone))
+                appendLine("【角色本轮可以选择的定时叫醒方式】真实来电start_call：" +
+                    if (MigratedDomainStores.characters.get(characterId).contactPolicy.proactiveCallsEnabled)
+                        "已允许" else "此角色未开启主动来电")
+                appendLine("本机响铃alarm_only：可申请系统闹钟，准确登记和到点通知仍须程序回执；" +
+                    "普通私聊send_private_message不能冒充叫醒熟睡的人。")
                 commitmentEvidence.forEach { event ->
                     appendLine("本轮用户原话发生时间=${event.occurredAt.atZone(zone)}；内容=${event.content.take(500)}")
                 }
