@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T19:35:56.412425+00:00",
-  "commit": "8e6ac8a1eed3ba6f8cc78cff4b73f29cb449aa40",
+  "generatedAt": "2026-10-20T19:37:27.199559+00:00",
+  "commit": "7f4dfc415e7aa9d45b168301ce7c7c1654b154e4",
   "branch": "main",
-  "sourceFingerprint": "29108543131bcaf375152f293dcabfb23ed3fe9903fea4e8a75cbec23baad8f4",
+  "sourceFingerprint": "7b800df4048c429d5f7204c875fd8044a5db6d76b0aa5c6e74ee9eaa043efed9",
   "summary": {
     "files": 751,
-    "lines": 144445,
-    "symbols": 2180
+    "lines": 144446,
+    "symbols": 2181
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3794,6 +3794,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
         "line": 20
+      }
+    ],
+    "hasExplicitBasis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
+        "line": 104
       }
     ],
     "actionOnly": [
@@ -15603,8 +15609,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
-      "lines": 112,
-      "sha256": "467e59c8e142db362084112460445b22296c0c088bfe5ff160845494c3160021",
+      "lines": 113,
+      "sha256": "aa37f12b2ecaaecbf7887f8d730b959d1664878484d9ca0ee2103370c590a401",
       "symbols": [
         {
           "name": "Basis",
@@ -15621,6 +15627,10 @@
         {
           "name": "clean",
           "line": 36
+        },
+        {
+          "name": "hasExplicitBasis",
+          "line": 104
         }
       ]
     },
