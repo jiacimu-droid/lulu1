@@ -843,9 +843,11 @@ object LuluDeviceToolBridge {
             }, plan.appraisal, plan.innerLife,
             speechIntent = plan.speechIntent,
         )
-        if (plan.action == "tool" && choiceBasis == null) {
-            return Result.failure(IllegalStateException("角色尚未形成这次工具行为的具体意愿，未执行"))
-        }
+        // The character explicitly chose the tool in the same model turn.
+        // Do not require a second prose explanation as permission to act.
+        // Missing optional motivation remains missing in the trace; actual
+        // capability permissions, input validation and tool results still gate
+        // the real action. Never synthesize a motive from a future result.
         if (choiceBasis != null) plan = plan.copy(reason = choiceBasis.reason)
         val dialoguePlan = com.jiacimu.lulu.data.DialogueMoveEngine.resolve(
             plan.dialogueMove ?: plan.appraisal, plan.speechIntent, userText,
