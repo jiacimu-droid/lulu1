@@ -1486,6 +1486,18 @@ object ProactivePerceptionRuntime {
             execution.success, execution.summary, execution.evidenceId,
         )
         val effectiveAction = if (execution.success) decision.action else Action.SILENT
+        // The character's "正在输入" must have a visible outcome if the model
+        // chose an action that the real executor could not perform. Previously
+        // only the distant perception page held this error, so the private chat
+        // looked as though the companion simply vanished.
+        if (onlineUnread.text.isNotBlank() && decision.action != Action.SILENT &&
+            !execution.success) {
+            (onlineUnread.conversationIds + conversation.id).forEach { id ->
+                com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
+                    "这次行动没有执行成功：${execution.summary.take(140)}；可直接重试"
+                )
+            }
+        }
         CompanionPresenceStore.recordPerceptionAttempt(
             characterId,
             if (decision.action != Action.SILENT && !execution.success) {
@@ -1539,14 +1551,11 @@ object ProactivePerceptionRuntime {
         responseEvidenceIds: Set<String> = emptySet(),
     ): ActionExecution {
         if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
-        // All autonomous external actions share this gate: no model-authored wish,
-        // appraisal aim or brief subjective reason means NO physical/social action.
-        // Never manufacture an explanation after the tool has already run.
-        if (!CharacterBehaviorMotivation.permitsExternalAction(
-                (if (decision.action == Action.TOOL) decision.tool else decision.action.name.lowercase()),
-                decision.reason, decision.appraisal, decision.innerLife,
-                chosenUtterance = decision.conversationWords(),
-            )) return ActionExecution(false, "角色本轮没有提出行动动机，未执行外部动作")
+        // The character already authored an explicit action choice in this
+        // decision. An extra prose "reason"/emotion/innerThought is OPTIONAL,
+        // not a second permission gate. Do not invent a missing motive;
+        // preserve it as missing in the decision audit. Real-world permission,
+        // valid tool names, actual targets and executor receipts remain required.
         if (decision.action == Action.TOOL &&
             CapabilityRegistry.find(decision.tool) == null) {
             return ActionExecution(false, "模型未提供有效的工具名称，尚未执行")
