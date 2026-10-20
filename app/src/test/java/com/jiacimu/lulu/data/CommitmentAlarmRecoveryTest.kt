@@ -196,6 +196,33 @@ class CommitmentAlarmRecoveryTest {
         assertNull(current(task).linkedAlarmId)
     }
 
+    @Test fun audibleWakeReceiptIsSeparateFromAnswerAndActualWaking() {
+        val task = saveTask(Instant.now().minusSeconds(2))
+        CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback) }
+        CommitmentCallFeedback.onResponse(task.id, true)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, current(task).status)
+        assertTrue(current(task).lastActionResult.contains("接听"))
+        CommitmentCallFeedback.onVoiceStarted(task.id, "session-1")
+        assertTrue(current(task).lastActionResult.contains("开始播放"))
+        CommitmentCallFeedback.onVoiceDelivered(task.id, "session-1")
+        assertTrue(current(task).lastActionResult.contains("完整"))
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, current(task).status)
+        assertTrue(WakeGoalVerification.confirm(task.characterId, "我醒了"))
+        assertEquals(CommitmentTaskStatus.Completed, current(task).status)
+        CommitmentCallFeedback.onVoiceFailed(task.id, "session-1", "late callback")
+        assertEquals(CommitmentTaskStatus.Completed, current(task).status)
+    }
+
+    @Test fun failedWakeVoiceMustNotCountAsSuccessfulAlarm() {
+        val task = saveTask(Instant.now().minusSeconds(2))
+        CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback) }
+        CommitmentCallFeedback.onResponse(task.id, true)
+        CommitmentCallFeedback.onVoiceFailed(task.id, "session-2", "tts offline")
+        assertEquals(CommitmentTaskStatus.Blocked, current(task).status)
+        assertTrue(current(task).lastActionResult.contains("播放失败"))
+        assertFalse(current(task).lastActionResult.contains("已确认醒来"))
+    }
+
     private fun saveTask(due: Instant, role: String = "role") = CommitmentTaskStore.save(CommitmentTask(
         characterId = role, goal = "09:30 打电话叫醒", status = CommitmentTaskStatus.Scheduled,
         dueAt = due, nextCheckAt = due, linkedAlarmId = "alarm", deliveryAction = "start_call"))
