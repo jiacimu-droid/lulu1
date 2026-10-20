@@ -139,7 +139,8 @@ object CommitmentTurnAutomation {
             } == true
         }.singleOrNull()
         val acceptedRoutes = setOf("start_call", "alarm_only")
-        val route = if (saved?.deliveryAction in acceptedRoutes) {
+        val route = if (saved?.deliveryAction in acceptedRoutes &&
+            (recognized.deliveryAction != "start_call" || saved?.deliveryAction == "start_call")) {
             saved?.deliveryAction.orEmpty()
         } else {
             val callEnabled = MigratedDomainStores.characters.get(characterId)
