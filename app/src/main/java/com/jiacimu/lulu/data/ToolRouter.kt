@@ -82,6 +82,10 @@ object ToolRouter {
                 val parsed = runCatching { JSONObject(result) }.getOrElse {
                     JSONObject().put("success", false).put("error", result.take(400))
                 }
+                if (!parsed.optBoolean("success") &&
+                    parsed.optString("error").isBlank() && parsed.optString("summary").isBlank()) {
+                    parsed.put("error", failureDetail(name, parsed))
+                }
                 val receiptId = "tool-$characterId-$requestId"
                 // Prefer the actual outbound message/post. All other operations use
                 // the authoritative tool receipt rather than a model description.
@@ -122,6 +126,16 @@ object ToolRouter {
                 confirmedResult
             }
         }
+    }
+
+    /** Human-readable diagnostics even when native tools return status/verification only. */
+    internal fun failureDetail(name: String, result: JSONObject): String {
+        val available = listOf("error", "summary", "verification", "message",
+            "detail", "reason", "status").firstNotNullOfOrNull { key ->
+            result.optString(key).takeIf { it.isNotBlank() }
+        }
+        return (available ?: "工具$ name 执行未成功，且执行器没有提供诊断字段")
+            .replace("工具$ name", "工具$name").take(250)
     }
 
     private fun failure(message: String, status: String = "failed"): String = JSONObject().put("success", false).put("status", status).put("error", message).toString()
