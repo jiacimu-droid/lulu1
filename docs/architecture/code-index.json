@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T19:47:22.433392+00:00",
-  "commit": "c7915989cf2e5f6e61adf99c5a7bc74b630c6137",
+  "generatedAt": "2026-10-20T19:48:05.937286+00:00",
+  "commit": "713b44317b4a5f988d21e39a839c4ae99a7dab0c",
   "branch": "main",
-  "sourceFingerprint": "e792cfb722e1a23792eb58b812f97e36e468e0aa8e41b1d9e8cae26268b1e8ab",
+  "sourceFingerprint": "260e215038b5701359894251569e3a175a1daca601b1f72eb7a08a2f0e597381",
   "summary": {
     "files": 751,
-    "lines": 144516,
-    "symbols": 2181
+    "lines": 144539,
+    "symbols": 2184
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5288,10 +5288,28 @@
         "line": 7
       }
     ],
+    "onVoiceStarted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
+        "line": 26
+      }
+    ],
+    "onVoiceDelivered": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
+        "line": 32
+      }
+    ],
+    "onVoiceFailed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
+        "line": 39
+      }
+    ],
     "onMissed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-        "line": 24
+        "line": 47
       }
     ],
     "nextInCallWakeReviewSeconds": [
@@ -17066,16 +17084,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentCallFeedback.kt",
-      "lines": 35,
-      "sha256": "3b2ed4e9019f106f571a487ef2e67f52a67f4194316824ad080d35d8aaf989e1",
+      "lines": 58,
+      "sha256": "e1dfcafcab4d0892fdb2031f515bd0b1a0acda28bb0c645c165675b066b45368",
       "symbols": [
         {
           "name": "onResponse",
           "line": 7
         },
         {
+          "name": "onVoiceStarted",
+          "line": 26
+        },
+        {
+          "name": "onVoiceDelivered",
+          "line": 32
+        },
+        {
+          "name": "onVoiceFailed",
+          "line": 39
+        },
+        {
           "name": "onMissed",
-          "line": 24
+          "line": 47
         }
       ]
     },
