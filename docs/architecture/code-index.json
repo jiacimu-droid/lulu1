@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:28:01.734545+00:00",
-  "commit": "9171c1596babcb659acda1ec537067496c7ed1e8",
+  "generatedAt": "2026-10-20T07:53:34.445022+00:00",
+  "commit": "3f79edb2e29ad9b9dbd9931560a751c98fa7b3de",
   "branch": "main",
-  "sourceFingerprint": "6d51ac771ffba425dc520a1e897d4e095005033de2a9e29c66fe47d7ae088106",
+  "sourceFingerprint": "370acc99ce5d11b95d8ac20297f3aa76400e906b37fc786dda9e02b939369967",
   "summary": {
     "files": 748,
-    "lines": 143038,
+    "lines": 143101,
     "symbols": 2169
   },
   "symbolIndex": {
@@ -14413,8 +14413,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt",
-      "lines": 114,
-      "sha256": "5c7361d7a94b5673c9f14e48d98bcf0cac0864f1a077aaa09a6c648c79e7a8fc",
+      "lines": 177,
+      "sha256": "1cbcae0d882e32c7d54fa11427a3b26091bce980ea9b75f371c20448ec12b76f",
       "symbols": []
     },
     {
