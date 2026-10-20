@@ -16,21 +16,30 @@ internal object WakeMusicCoordinator {
         return Regex("我醒了|我醒啦|已经醒了|睡醒了|我起来了|我起床了|起床啦|起来啦").containsMatchIn(clean)
     }
 
+    /** Wake confirmation never automatically schedules a song. */
     @Synchronized fun onExplicitWakeConfirmation(
         context: Context,
         characterId: String,
         text: String,
         activeTasks: List<CommitmentTask>,
     ) {
-        if (!explicitlyAwake(text)) return
-        val task = activeTasks.firstOrNull {
-            it.characterId == characterId && it.isWakeResponsibility() &&
-                it.status == CommitmentTaskStatus.WaitingForFeedback
-        } ?: return
-        // An explicit acknowledgement can retry an unavailable music player,
-        // but is no longer a prerequisite for wake music.
-        onScheduledWake(context, characterId, task.id,
-            defer = LuluVoiceCallSession.state.value.connected)
+        if (explicitlyAwake(text)) {
+            com.jiacimu.lulu.system.LuluMediaVolume.control(context, characterId, "restore")
+        }
+    }
+
+    /** Immediate music is only called for a verified character-selected action. */
+    @Synchronized fun playImmediately(context: Context, characterId: String, taskId: String): Boolean {
+        val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
+            !permission.getBoolean("$characterId:media", false)) return false
+        val result = runCatching {
+            org.json.JSONObject(LuluMediaPlayback.control(context, "play"))
+        }.getOrNull() ?: return false
+        if (!result.optBoolean("success")) return false
+        context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
+            .putBoolean("requested:$taskId", true).commit()
+        return true
     }
 
     /** An opted-in song may be the alarm itself; no awake acknowledgement is required. */
