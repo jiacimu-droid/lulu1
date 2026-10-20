@@ -39,21 +39,23 @@ import java.util.Locale
 
 /** App-scoped palette. No changes to the desktop or character screen themes. */
 internal object TodoInk {
-    val background = SelfPrefacePalette.background
-    val paper = SelfPrefacePalette.paperBright
-    val title = SelfPrefacePalette.ink
-    val secondary = SelfPrefacePalette.muted
-    val line = SelfPrefacePalette.outline
-    // Legacy names remain internal API aliases for the existing UI components.
-    val violet = SelfPrefacePalette.seaGlass
-    val violetLight = SelfPrefacePalette.sageLight
-    val lavender = SelfPrefacePalette.outline
-    val sage = SelfPrefacePalette.sage
-    val sageLight = SelfPrefacePalette.sageMist
-    val coral = SelfPrefacePalette.honey
-    val coralLight = SelfPrefacePalette.creamLight
-    val overdue = SelfPrefacePalette.overdue
+    // A calmer olive + ivory notebook just for 所行, not the blue/green
+    // colors of 所思 or the restored brown/blue palettes of 所重 and 所愿.
+    val background = Color(0xFFFAFAF5)
+    val paper = Color(0xFFFFFEFA)
+    val title = Color(0xFF34473C)
+    val secondary = Color(0xFF7B877D)
+    val line = Color(0xFFDFE5DA)
+    val violet = Color(0xFF597866) // legacy alias for primary action
+    val violetLight = Color(0xFFEAF1E5)
+    val lavender = Color(0xFFD8E5D6)
+    val sage = Color(0xFF69876A)
+    val sageLight = Color(0xFFF0F5E8)
+    val coral = Color(0xFFB18E4F) // warm decorative detail
+    val coralLight = Color(0xFFF8EFD8)
+    val overdue = Color(0xFFB36755)
 }
+
 
 
 internal val todoVisualDate = DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.SIMPLIFIED_CHINESE)
