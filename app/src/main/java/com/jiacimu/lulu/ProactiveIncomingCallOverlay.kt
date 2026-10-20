@@ -76,8 +76,8 @@ internal fun ProactiveIncomingCallOverlay() {
         val matching = session.conversationId == call.conversationId &&
             session.characterId == call.characterId
         when {
-            matching && session.phase == CallPhase.Connected && call.active() &&
-                ProactiveIncomingCallStore.pending.value == call -> {
+            matching && IncomingCallAnswerPolicy.genuinelyConnected(
+                call, ProactiveIncomingCallStore.pending.value, session) -> {
                 ProactiveIncomingCallStore.respond(call, answered = true)
                 connectingCall = null
                 notice = ""
