@@ -174,6 +174,45 @@ object LuluDeviceToolBridge {
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(archiveId) }
             .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
+        // Factual integrity only. If the model wrongly puts its own missed
+        // obligation on the user, ask the SAME role to reconsider its expression.
+        // Never substitute a universal apology script or mutate stored persona.
+        val repairUnfairSpeech: suspend (String) -> String? = { speech ->
+            if (!com.jiacimu.lulu.data.CharacterAccountabilityContext
+                    .containsUnfoundedBlame(userText, speech)) speech
+            else {
+                val redraft = LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = buildString {
+                        appendLine("用户本轮原话：${userText.take(850)}")
+                        appendLine("本角色刚才尚未发出的表达：${speech.take(900)}")
+                        appendLine("已核实的责任上下文：")
+                        appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext
+                            .prompt(characterId).take(1800))
+                    },
+                    instruction = """
+                        这是同一角色的原话在送达前进行事实核对，而不是新增用户消息。
+                        原稿把没有证据的责任/动机强加给用户了。请依据刚才的事实，
+                        由你自己重新判断想说什么，并用你原有的人格、关系、语气自然说出来。
+                        保留有根据的不同意见和情绪，不重复无证据的指责。
+                        不规定必须道歉或必须怎样道歉；不得声称工具动作已经完成。
+                        只输出本人自然口语的完整文本，不要 JSON、引号或舞台旁白。
+                    """.trimIndent(),
+                    source = "聊天发送前·责任事实核对",
+                    title = title,
+                    maxTokens = 420,
+                    connectionOverride = connection,
+                ).getOrNull()?.text?.trim().orEmpty()
+                val natural = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(redraft)
+                    ?: redraft.takeUnless {
+                        it.startsWith("{") || it.startsWith("```")
+                    }.orEmpty()
+                natural.takeIf { it.isNotBlank() &&
+                    !com.jiacimu.lulu.data.CharacterAccountabilityContext
+                        .containsUnfoundedBlame(userText, it) }
+            }
+        }
+
         val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
@@ -620,9 +659,11 @@ object LuluDeviceToolBridge {
                 ))
                 return Result.failure(IllegalStateException("模型没有产生可核实的完整回复"))
             }
-            return Result.success(plannedReply.copy(
-                text = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, visible),
-            ))
+            val verifiedSpeech = repairUnfairSpeech(visible)
+                ?: return Result.failure(IllegalStateException(
+                    "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
+                ))
+            return Result.success(plannedReply.copy(text = verifiedSpeech))
         }
         if (callSilence && parsedPlan.action !in setOf("reply", CharacterDecisionProtocol.SILENT))
             return Result.failure(IllegalStateException("通话沉默观察不执行外部工具动作"))
@@ -1143,10 +1184,14 @@ object LuluDeviceToolBridge {
             } else plannedReply
             val naturalText = if (imageOnly) "" else if (separateExpression && plan.speechIntent.isNotBlank()) expressed.text
                 else if (!separateExpression && phoneSpoken.isNotBlank())
-                    com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, phoneSpoken)
-                else checkedText
-            val safeText = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(characterId,
-                com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(userText, naturalText))
+                    phoneSpoken
+                else proposedSpeech
+            val verifiedSpeech = repairUnfairSpeech(naturalText)
+                ?: return Result.failure(IllegalStateException(
+                    "角色本轮表达与未履行责任的事实不符，已停止发送，不使用固定道歉模板"
+                ))
+            val safeText = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(
+                characterId, verifiedSpeech)
             // A sticker exists only if the user has imported and approved that
             // exact ID. Invalid guesses silently yield no image.
             val chosenSticker = if (!sceneContext.contains("电话"))
@@ -1348,7 +1393,7 @@ object LuluDeviceToolBridge {
                 } else finalReply
             } else finalReply
         } else finalReply
-        return toolReplyForDelivery.map { result ->
+        return toolReplyForDelivery.mapCatching { result ->
             val toolResultPrivateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
             var toolResultPrivateDelta: com.jiacimu.lulu.data.PrivateStateDelta? = null
             val finalPlan = parsePlan(result.text)?.let { parsed ->
@@ -1373,9 +1418,10 @@ object LuluDeviceToolBridge {
             }
             val naturalText = finalPlan?.text?.ifBlank { result.text }
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
-            val checkedResultText = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
-                userText, naturalText,
-            )
+            val checkedResultText = repairUnfairSpeech(naturalText)
+                ?: throw IllegalStateException(
+                    "工具完成后回复包含无依据的归责，重新表达仍未通过核验；不代写道歉"
+                )
             if (finalPlan != null && checkedResultText == naturalText) {
                 savePresence(
                     characterId, finalPlan, "聊天·工具",
