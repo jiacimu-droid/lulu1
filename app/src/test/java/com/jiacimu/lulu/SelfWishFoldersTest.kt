@@ -51,7 +51,7 @@ class SelfWishFoldersTest {
         assertEquals(once, twice)
         assertEquals("trip-folder", twice.wishFolderId)
         assertTrue(twice.starred)
-        assertEquals(456, twice.updated)
+        assertEquals(456L, twice.updated)
     }
 
     @Test fun sortingPinsBeforeUpdateTimeAndFiltersCustomFolders() {
