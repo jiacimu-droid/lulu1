@@ -1459,6 +1459,9 @@ object LuluDeviceToolBridge {
             } else checkedResultText
             result.copy(
                 text = displayedText,
+                sleepDecision = plan.sleepDecision.takeIf {
+                    sceneContext.contains("电话") && it in setOf("enable", "disable")
+                },
                 inputTokens = result.inputTokens + plannedReply.inputTokens,
                 outputTokens = result.outputTokens + plannedReply.outputTokens,
                 cachedTokens = result.cachedTokens + plannedReply.cachedTokens,
