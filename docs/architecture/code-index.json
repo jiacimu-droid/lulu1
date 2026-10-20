@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T19:56:30.729819+00:00",
-  "commit": "36b2aebaf9cee496610ff504a6110182e3dc42cd",
+  "generatedAt": "2026-10-20T20:22:25.611972+00:00",
+  "commit": "3b760ddfc66123fd21041e117b993901e01cefa2",
   "branch": "main",
-  "sourceFingerprint": "57c4d9941798ff6a5348a3764b8507e8686b2d6f9b19d0a86f3bb42409ccd651",
+  "sourceFingerprint": "fa604d97d40aec4f0455c8ec9a0f65736004a29ed2cbd689b5b8226a3d77f9ce",
   "summary": {
-    "files": 752,
-    "lines": 144621,
-    "symbols": 2185
+    "files": 753,
+    "lines": 144770,
+    "symbols": 2186
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5724,6 +5724,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt",
         "line": 46
+      }
+    ],
+    "DeferredCallMediaWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
+        "line": 138
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -17641,6 +17647,17 @@
         {
           "name": "recent",
           "line": 44
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
+      "lines": 149,
+      "sha256": "07891febd589f207f7aa3588767a53aea7629b9ad35e12e88eac91def9ff5e5f",
+      "symbols": [
+        {
+          "name": "DeferredCallMediaWorker",
+          "line": 138
         }
       ]
     },
