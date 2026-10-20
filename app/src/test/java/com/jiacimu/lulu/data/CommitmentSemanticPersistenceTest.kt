@@ -122,7 +122,7 @@ class CommitmentSemanticPersistenceTest {
         assertNull(CommitmentTurnAutomation.parseModelWakeChoice(
             """{"accepted":false,"deliveryAction":"start_call"}"""))
         assertNull(CommitmentTurnAutomation.parseModelWakeChoice("不是 JSON"))
-        assertTrue(CommitmentDecisionProtocol.instruction.contains("自己"))
+        assertTrue(CommitmentDecisionProtocol.instruction.contains("自主决定"))
         assertTrue(CommitmentDecisionProtocol.instruction.contains("alarm_only"))
     }
 
