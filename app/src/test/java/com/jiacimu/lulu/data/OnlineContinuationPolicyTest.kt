@@ -24,6 +24,18 @@ class OnlineContinuationPolicyTest {
             false, true, "", Long.MAX_VALUE))
     }
 
+    @Test fun shortButSincereCharacterThoughtsAreNotRejectedByArbitraryLengthOrKeywords() {
+        assertTrue(OnlineContinuationPolicy.permits(
+            "continue", "睡不着", false, false, "", Long.MAX_VALUE))
+        assertTrue(OnlineContinuationPolicy.permits(
+            "continue", "在想她", false, false, "", Long.MAX_VALUE))
+        assertTrue(OnlineContinuationPolicy.permits(
+            "continue", "刚读完的书还有点意思，想继续琢磨",
+            false, false, "", Long.MAX_VALUE))
+        assertFalse(OnlineContinuationPolicy.permits(
+            "continue", "保持在线", false, true, "", Long.MAX_VALUE))
+    }
+
     @Test fun repeatingTheSameQuietReasonInEveryFiveMinuteWindowIsRejected() {
         val reason = "之前那件事还在想，想清楚自己为什么犹豫"
         assertFalse(OnlineContinuationPolicy.permits(
