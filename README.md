@@ -7,6 +7,7 @@
 ## 修改代码前
 
 - 开发规则与修改流程：[`AGENTS.md`](AGENTS.md)
+- **所有窗口修改人物之前必读**：[`docs/architecture/UNIFIED_CHARACTER_CONTRACT.md`](docs/architecture/UNIFIED_CHARACTER_CONTRACT.md)（统一因果架构、角色独立、可多行为）
 - 当前页面视觉基准：[`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)
 - 代码文件与符号索引：[`docs/architecture/CODE_INDEX.md`](docs/architecture/CODE_INDEX.md)
 - 代码来源与归属：[`docs/PROVENANCE.md`](docs/PROVENANCE.md)
