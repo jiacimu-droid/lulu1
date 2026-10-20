@@ -49,6 +49,9 @@ internal object AutonomousDecisionRecovery {
             .find(clean) ?: return null
         if (found.range.first > 8_000 || actionMatch.range.first > found.range.first) return null
         val prefix = clean.substring(0, found.range.first)
+        // Reject an action nested inside another object. Only an explicitly
+        // top-level conversational choice may be salvaged.
+        if (prefix.drop(1).contains('{')) return null
         // Accept reason/status preceding action, but not nested/private fields
         // or side-effect commands before the supposed user-visible reply.
         if (listOf("innerLife", "innerThought", "appraisal", "alternatives",
