@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T16:14:36.826763+00:00",
-  "commit": "c8556d070d41bdc318bf69e78466be17fbabf5fc",
+  "generatedAt": "2026-10-20T16:17:02.603152+00:00",
+  "commit": "0a37c43e6a0216740e043bb3b8824b07dee27fb6",
   "branch": "main",
-  "sourceFingerprint": "2678e1a0164007b7db9ff183ae1c61e658c65b69c753b784fa6d5ec1329c82fe",
+  "sourceFingerprint": "0b05c5ee1f6dd9bfecf1480829c5a1dce2b12825af633937d5c0e9159b0d4db8",
   "summary": {
     "files": 748,
-    "lines": 143863,
+    "lines": 143869,
     "symbols": 2171
   },
   "symbolIndex": {
@@ -3737,7 +3737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-        "line": 101
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
@@ -16538,8 +16538,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-      "lines": 117,
-      "sha256": "dfaebfd723698c8eab7349a91036aa2bf4d7cfec1fef66387b73242537905634",
+      "lines": 123,
+      "sha256": "01b499fd8245ebf43654e1f611ac3440808af8cd28cdcbd60f905033f321c567",
       "symbols": [
         {
           "name": "invalidate",
@@ -16551,7 +16551,7 @@
         },
         {
           "name": "promptSection",
-          "line": 101
+          "line": 107
         }
       ]
     },
