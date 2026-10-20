@@ -373,7 +373,7 @@ internal object LuluVoiceCallSession {
     fun prepare(context: Context, conversationId: String, characterId: String, characterName: String, incomingReason: String = "", incomingCommitmentTaskId: String? = null) {
         initialize(context)
         val current = mutableState.value
-        if (current.phase == CallPhase.Idle || current.phase == CallPhase.Ended) {
+        if (current.phase in setOf(CallPhase.Idle, CallPhase.Ended, CallPhase.Ready)) {
             pendingWakeOpeningAudioTaskId = null
             cancelPendingCharacterHangup()
             mutableState.value = LuluVoiceCallState(
