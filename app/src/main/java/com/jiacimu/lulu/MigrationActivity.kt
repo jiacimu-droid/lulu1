@@ -76,6 +76,7 @@ class MigrationActivity : ComponentActivity() {
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (StartupFailureRecovery.recovering) return
         navigationIntent.value = intent
         navigationRequestSerial.longValue += 1L
         val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
@@ -91,6 +92,7 @@ class MigrationActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (StartupFailureRecovery.recovering) return
         com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
         // Warm the single Activity-owned browser only while Lulu is foregrounded.
         // A character can then read using the same logged-in WebView even when
@@ -122,6 +124,10 @@ class MigrationActivity : ComponentActivity() {
     }
 
     override fun onPause() {
+        if (StartupFailureRecovery.recovering) {
+            super.onPause()
+            return
+        }
         com.jiacimu.lulu.data.XhsReadingEngine.pause(this)
         com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(false)
         ProactivePerceptionScheduler.stopForegroundChecks()
@@ -129,7 +135,8 @@ class MigrationActivity : ComponentActivity() {
     }
 
     override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
-        if (event.actionMasked == android.view.MotionEvent.ACTION_DOWN)
+        if (!StartupFailureRecovery.recovering &&
+            event.actionMasked == android.view.MotionEvent.ACTION_DOWN)
             com.jiacimu.lulu.data.UserInteractionPresenceStore.touch()
         return super.dispatchTouchEvent(event)
     }
@@ -137,6 +144,13 @@ class MigrationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appContext = applicationContext
+        StartupFailureRecovery.install(appContext)
+        StartupFailureRecovery.latest(appContext)?.let { report ->
+            StartupFailureRecovery.display(this, report)
+            return
+        }
+        try {
+        StartupFailureRecovery.stage("启动安全与旧数据保护")
         UserDataUpgradeGuard.protectBeforeStoresInitialize(appContext)
         LuluAppPreferencesStore.initialize(appContext)
         com.jiacimu.lulu.data.LuluAppearanceStore.initialize(appContext)
@@ -146,6 +160,7 @@ class MigrationActivity : ComponentActivity() {
         LuluRepositories.lexicon.initialize(appContext)
         LuluRepositories.worldBook.initialize(appContext)
         LegacyConversationMigration.migrateSavedState(appContext)
+        StartupFailureRecovery.stage("原始时间线与人物配置")
         SharedExperienceTimeline.initialize(appContext)
         MigratedDomainStores.initialize(appContext)
         CharacterIdentityStore.initialize(appContext)
@@ -164,6 +179,7 @@ class MigrationActivity : ComponentActivity() {
         setIncomingCallWindow(incomingCall)
         MeetingExperienceStore.initialize(appContext)
         HealthCycleStore.initialize(appContext)
+        StartupFailureRecovery.stage("角色模型、记忆与设备能力")
         LuluAiServices.initialize(appContext)
         // Past genuine feedback remains available in the shared timeline and
         // growth trail. Do not re-enact old arguments with a fresh API call on
@@ -175,6 +191,7 @@ class MigrationActivity : ComponentActivity() {
         ChatAutoVoicePlayback.initialize(appContext)
         LuluGames.initialize(appContext)
         StudyRemovedFeatureMigration.migrate(appContext)
+        StartupFailureRecovery.stage("学习记录与番茄钟")
         PostgraduateExamStores.initialize(appContext)
         SelfDirectedStudyPlanSeed.migrate(appContext, PostgraduateExamStores.main)
         StarWishStores.initialize(appContext)
@@ -200,12 +217,14 @@ class MigrationActivity : ComponentActivity() {
         CommitmentTurnAutomation.initialize(appContext)
 
         ProactivePerceptionPolicyStore.initialize(appContext)
+        StartupFailureRecovery.stage("角色感知与后台调度")
         ProactivePerceptionRuntime.initialize(appContext)
         ProactivePerceptionScheduler.schedule(appContext)
 
         incomingSharedNote.value = incomingXhsText(intent)
         navigationIntent.value = intent
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
+        StartupFailureRecovery.stage("桌面 Compose 首次渲染")
         setContent {
             val requestedNavigation = navigationIntent.value
             LuluMigrationRootAppV2(
@@ -224,6 +243,16 @@ class MigrationActivity : ComponentActivity() {
                 onSharedNoteHandled = { incomingSharedNote.value = null },
             )
             ProactiveIncomingCallOverlay()
+        }
+        window.decorView.postDelayed({
+            if (!StartupFailureRecovery.recovering) StartupFailureRecovery.ready()
+        }, 5_000L)
+        } catch (error: Throwable) {
+            // Keep all existing stores intact when the new version fails.
+            StartupFailureRecovery.recordCurrent(appContext, error)
+            StartupFailureRecovery.display(this,
+                StartupFailureRecovery.latest(appContext)
+                    ?: (error.javaClass.name + ": " + error.message.orEmpty()))
         }
     }
 }
