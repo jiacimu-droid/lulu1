@@ -100,6 +100,8 @@ data class ModelReply(
     /** The character's structured, non-spoken choice of telephone sleep state. */
     val sleepDecision: String? = null,
     val musicAfterSpeech: String? = null,
+    /** Persistent device receipt; UI/debug only, never a TTS line. */
+    val phoneMediaReceipt: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {
