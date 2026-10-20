@@ -91,7 +91,7 @@ internal object CommitmentAlarmDelivery {
                     if (!isCurrent(task)) return@withContext
                     val shown = when {
                         alarm.silentCallback -> NotificationManagerCompat.from(context).areNotificationsEnabled()
-                        task.deliveryAction == "start_call" -> false
+                        task.deliveryAction == "start_call" || task.deliveryAction == "alarm_only" -> false
                         else -> showLocalAlarm(context, alarm)
                     }
                     CommitmentExecutor.onAlarm(context, task, alarm.characterName, now, shown)
