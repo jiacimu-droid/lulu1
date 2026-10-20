@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7d172a5d8c46245f8a5bf4cb3b84a38e50247a23`
+- 基准提交：`e56b198c1c879d188b41b700c04e87b68cc6c2d3`
 - 分支：`main`
-- 已索引文件：750
-- 已索引代码/文本行：144365
-- 已发现符号：2180
+- 已索引文件：751
+- 已索引代码/文本行：144408
+- 已发现符号：2181
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -397,7 +397,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 48 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 74 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 111 | 0 |
@@ -725,6 +725,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 37 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 253 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt` | 17 | 1 |
