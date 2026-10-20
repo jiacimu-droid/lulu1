@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T21:33:07.428733+00:00",
-  "commit": "fdd9559ea139659dfd2afddd128113259e363941",
+  "generatedAt": "2026-10-20T21:34:07.816089+00:00",
+  "commit": "a1a7c7a8de1987dea722405b08af2e47aafe0b5e",
   "branch": "main",
-  "sourceFingerprint": "d68318fe28c1a5846f4977035cf8fd1ac51c38e2191e83afd1166531494bb467",
+  "sourceFingerprint": "eb889db7385131039cf3e2ff468b784612071752eb7e00f574bb4e63e3e6da18",
   "summary": {
-    "files": 758,
-    "lines": 145506,
-    "symbols": 2198
+    "files": 759,
+    "lines": 145536,
+    "symbols": 2199
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11180,6 +11180,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt",
         "line": 13
+      }
+    ],
+    "StartupFailureRecoveryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt",
+        "line": 14
       }
     ],
     "StickerPromptSelectionTest": [
@@ -24279,6 +24285,17 @@
         {
           "name": "SleepNarrativeStoreTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt",
+      "lines": 30,
+      "sha256": "fc57a66111d56ce268d2df072fca44d76bf55e9ae94bb1b40a5efe00bab73456",
+      "symbols": [
+        {
+          "name": "StartupFailureRecoveryTest",
+          "line": 14
         }
       ]
     },
