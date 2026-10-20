@@ -396,7 +396,7 @@ object ProactivePerceptionScheduler {
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInitialDelay(2_000L, TimeUnit.MILLISECONDS)
             .setInputData(Data.Builder()
-                .putString("trigger", "在线收到新消息，恢复失败的感知")
+                .putString("trigger", "在线新消息 · 重新尝试上一轮未送达的回复")
                 .putString("characterId", characterId)
                 .putBoolean("force", true)
                 .putBoolean("requireOnline", true)
