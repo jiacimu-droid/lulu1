@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T06:13:24.506128+00:00",
-  "commit": "fedf364f5867fcf5d84022974a44c21da041f4d3",
+  "generatedAt": "2026-10-20T06:14:09.894149+00:00",
+  "commit": "8bf91ef410125780537f0221b6a38c1efbdbc8e7",
   "branch": "main",
-  "sourceFingerprint": "7d3cbdb85e2b2a6001102e8f7ce82cca784688a2f5d57740f874b32daa939163",
+  "sourceFingerprint": "359389c335431379f18110dd8c5c6b3ef7f4a3d0153f96ecc2108927d2ce0898",
   "summary": {
     "files": 746,
-    "lines": 142832,
+    "lines": 142840,
     "symbols": 2168
   },
   "symbolIndex": {
@@ -751,7 +751,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 108
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -7721,25 +7721,25 @@
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 116
+        "line": 124
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 124
+        "line": 132
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 133
+        "line": 141
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1800
+        "line": 1808
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -19764,8 +19764,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 1867,
-      "sha256": "10ecbe7df4a04e2e3c8acc8279eff75d1fad1d65850ca765a46b20cf867c2967",
+      "lines": 1875,
+      "sha256": "a54020ebd5cc3828bcfa56c919e8d4a63cf768dc10e89c763a66b2e0433fd560",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -19773,23 +19773,23 @@
         },
         {
           "name": "initialize",
-          "line": 108
-        },
-        {
-          "name": "markConcernPromisePending",
           "line": 116
         },
         {
-          "name": "wakePlanFor",
+          "name": "markConcernPromisePending",
           "line": 124
         },
         {
+          "name": "wakePlanFor",
+          "line": 132
+        },
+        {
           "name": "nextDueAt",
-          "line": 133
+          "line": 141
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1800
+          "line": 1808
         }
       ]
     },
