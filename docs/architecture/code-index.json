@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T17:28:12.582981+00:00",
-  "commit": "99e7970e6f929093d4e560cdb189656d13ada59c",
+  "generatedAt": "2026-10-20T05:45:45.598697+00:00",
+  "commit": "d78094d72a6ca94397b846d7a0bda1996e9f72c1",
   "branch": "main",
-  "sourceFingerprint": "8e446eecdbefd5d07ec17265a4ae2e30a7af7ea6c2f57becef5d52b4998a7d7c",
+  "sourceFingerprint": "dd1e2acd93ed34590f93eb5421f209b62d8abb26ffcf3717e87dbab61f0bf9fe",
   "summary": {
-    "files": 743,
-    "lines": 142293,
-    "symbols": 2154
+    "files": 744,
+    "lines": 142396,
+    "symbols": 2161
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1544,6 +1544,10 @@
         "line": 132
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 24
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
         "line": 21
       }
@@ -2588,6 +2592,70 @@
         "line": 188
       }
     ],
+    "create": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 40
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
+        "line": 359
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 893
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
+        "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
+        "line": 233
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
+        "line": 459
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
+        "line": 54
+      }
+    ],
+    "rename": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 127
+      }
+    ],
+    "categoryId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 66
+      }
+    ],
+    "categoryName": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 72
+      }
+    ],
+    "filter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 78
+      }
+    ],
+    "setCompleted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+        "line": 89
+      }
+    ],
     "nextPauseMillis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt",
@@ -2632,12 +2700,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
         "line": 100
-      }
-    ],
-    "rename": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 127
       }
     ],
     "toggleFavorite": [
@@ -3064,32 +3126,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 357
-      }
-    ],
-    "create": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 359
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 893
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
-        "line": 23
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 233
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 459
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
-        "line": 54
       }
     ],
     "CompanionModelGateway": [
@@ -14424,6 +14460,41 @@
         {
           "name": "save",
           "line": 254
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
+      "lines": 103,
+      "sha256": "b146fb0a5c07f7853e8cfedd7f66ab38abedb3e6d173e32bd35c9522d7123bc5",
+      "symbols": [
+        {
+          "name": "read",
+          "line": 24
+        },
+        {
+          "name": "create",
+          "line": 40
+        },
+        {
+          "name": "rename",
+          "line": 49
+        },
+        {
+          "name": "categoryId",
+          "line": 66
+        },
+        {
+          "name": "categoryName",
+          "line": 72
+        },
+        {
+          "name": "filter",
+          "line": 78
+        },
+        {
+          "name": "setCompleted",
+          "line": 89
         }
       ]
     },
