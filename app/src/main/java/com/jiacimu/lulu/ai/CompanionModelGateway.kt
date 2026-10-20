@@ -99,6 +99,7 @@ data class ModelReply(
     val bedtimeContinuation: String? = null,
     /** The character's structured, non-spoken choice of telephone sleep state. */
     val sleepDecision: String? = null,
+    val musicAfterSpeech: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {
