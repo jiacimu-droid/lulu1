@@ -39,6 +39,17 @@ class AutonomousDecisionRecoveryTest {
             """{"action":"tool","tool":"send_private_message","args":{"text":"不完整工具调用"}"""))
     }
 
+    @Test fun aBriefActualMotiveCanSelectConcreteBookWithoutInventingAnAction() {
+        val alternative = JSONObject().put("action", "reading")
+            .put("readingBookId", "real-book").put("personallyWanted", true)
+            .put("whyNow", "想读")
+        val original = JSONObject().put("action", "silent").put("reason", "没人找我")
+            .put("selfInitiatedAlternative", alternative)
+        assertEquals("reading", AutonomousDecisionRecovery.choose(original).optString("action"))
+        alternative.put("whyNow", "...")
+        assertSame(original, AutonomousDecisionRecovery.choose(original))
+    }
+
     @Test fun aConcreteChosenAlternativeDoesNotRequireNoMessagesExcuse() {
         val original = JSONObject().put("action", "silent").put("reason", "我还想看看书里那条线索")
             .put("selfInitiatedAlternative", JSONObject().put("action", "reading")
