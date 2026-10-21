@@ -36,6 +36,14 @@ class Live2DVisualActionBusTest {
             assertFalse(Live2DVisualActionBus.publish(context, role, "other-call", smile))
             assertFalse(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("expression", "invented-happy-face")))
+            // Head poses are not offered until the loaded model itself confirms parameters.
+            assertFalse(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("head", JSONObject().put("yaw", 15))))
+            Live2DVisualActionBus.stageParameters(role, call, "ParamAngleX,ParamAngleY")
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("head", JSONObject().put("yaw", 60).put("roll", 20))))
+            assertEquals(25f, Live2DVisualActionBus.cues.value[role]?.head?.yaw)
+            assertEquals(null, Live2DVisualActionBus.cues.value[role]?.head?.roll)
             assertTrue(Live2DVisualActionBus.publish(context, role, call, smile))
             assertEquals("smile", Live2DVisualActionBus.cues.value[role]?.expression)
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
