@@ -73,10 +73,16 @@ private fun createLive2DWebView(context: Context, modelUrl: String): WebView {
             allowContentAccess = false
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
             loadsImagesAutomatically = true
-            blockNetworkLoads = true
+            // Requests with the virtual HTTPS origin must reach WebViewAssetLoader.
+            // All non-local requests are denied in shouldInterceptRequest below.
+            blockNetworkLoads = false
             setSupportMultipleWindows(false)
         }
         webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
+                val uri = request.url
+                return uri.scheme != "https" || uri.host != "appassets.androidplatform.net"
+            }
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse {
                 val uri = request.url
                 if (uri.scheme == "https" && uri.host == "appassets.androidplatform.net") {
