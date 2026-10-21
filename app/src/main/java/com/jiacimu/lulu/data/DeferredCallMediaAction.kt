@@ -113,6 +113,52 @@ internal object DeferredCallMediaAction {
     private var activeMusicCharacterId: String? = null
     private var interruptedByRoleSpeech: Boolean = false
     private var resumeApprovedByRole: Boolean = false
+    private var activeMusicPackage: String = ""
+
+    /** A new verified user turn must not inherit an older music-resume instruction. */
+    @Synchronized fun onUserTurn(context: Context, characterId: String, callId: String) {
+        if (activeMusicCharacterId != characterId || activeMusicCallId != callId) return
+        resumeApprovedByRole = false
+        if (interruptedByRoleSpeech) return
+        val sessions = runCatching { JSONObject(LuluMediaPlayback.sessions(context)) }.getOrNull()
+        // If the user stopped the player, the model no longer owns its playback.
+        if (sessions?.optBoolean("success") == true) {
+            val entries = sessions.optJSONArray("sessions")
+            val target = (0 until (entries?.length() ?: 0)).mapNotNull { entries?.optJSONObject(it) }
+                .firstOrNull { it.optString("packageName") == activeMusicPackage }
+            if (target?.optBoolean("playing") != true) {
+                activeMusicCallId = null
+                activeMusicCharacterId = null
+                activeMusicPackage = ""
+                interruptedByRoleSpeech = false
+            }
+        }
+    }
+
+    /** Immediate phone media commands use the same ownership/cleanup as delayed music. */
+    @Synchronized fun notePhoneMediaControl(
+        characterId: String, callId: String, command: String, result: JSONObject,
+    ) {
+        if (!result.optBoolean("accepted") && !result.optBoolean("success")) return
+        when (result.optString("command").ifBlank { command }.lowercase()) {
+            "play" -> {
+                activeMusicCallId = callId
+                activeMusicCharacterId = characterId
+                activeMusicPackage = result.optString("packageName")
+                interruptedByRoleSpeech = false
+                resumeApprovedByRole = false
+            }
+            "pause" -> if (activeMusicCallId == callId &&
+                activeMusicCharacterId == characterId) {
+                activeMusicCallId = null
+                activeMusicCharacterId = null
+                activeMusicPackage = ""
+                interruptedByRoleSpeech = false
+                resumeApprovedByRole = false
+            }
+        }
+    }
+
 
     @Synchronized fun musicContext(characterId: String, callId: String): String =
         if (activeMusicCharacterId == characterId && activeMusicCallId == callId)
@@ -133,7 +179,23 @@ internal object DeferredCallMediaAction {
 
     @Synchronized fun beforeRoleSpeech(context: Context, characterId: String, callId: String) {
         if (activeMusicCallId != callId || activeMusicCharacterId != characterId) return
-        val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "pause")) }.getOrNull()
+        val sessions = runCatching { JSONObject(LuluMediaPlayback.sessions(context)) }.getOrNull()
+        val entries = sessions?.optJSONArray("sessions")
+        val playing = (0 until (entries?.length() ?: 0)).mapNotNull { entries?.optJSONObject(it) }
+            .firstOrNull { it.optString("packageName") == activeMusicPackage }
+            ?.optBoolean("playing") == true
+        if (!playing) {
+            // A phone TTS turn never has permission to revive user-paused music.
+            interruptedByRoleSpeech = false
+            resumeApprovedByRole = false
+            activeMusicCallId = null
+            activeMusicCharacterId = null
+            activeMusicPackage = ""
+            return
+        }
+        val result = runCatching {
+            JSONObject(LuluMediaPlayback.control(context, "pause", activeMusicPackage))
+        }.getOrNull()
         interruptedByRoleSpeech = result?.optBoolean("accepted") == true ||
             result?.optBoolean("success") == true
     }
@@ -145,8 +207,11 @@ internal object DeferredCallMediaAction {
             interruptedByRoleSpeech = false
             return // The character did not decide to turn music back on.
         }
-        val result = runCatching { JSONObject(LuluMediaPlayback.control(context, "play")) }.getOrNull()
+        val result = runCatching {
+            JSONObject(LuluMediaPlayback.control(context, "play", activeMusicPackage))
+        }.getOrNull()
         interruptedByRoleSpeech = false
+        resumeApprovedByRole = false // One approval cannot leak into another turn.
         if (result?.optBoolean("accepted") != true && result?.optBoolean("success") != true) {
             activeMusicCallId = null
         }
@@ -157,8 +222,11 @@ internal object DeferredCallMediaAction {
         if (activeMusicCallId == callId && activeMusicCharacterId == characterId) {
             // A song explicitly scoped to this call should not be left playing
             // after disconnect unless the role registered a separate post-call act.
-            runCatching { LuluMediaPlayback.control(context, "pause") }
+            if (activeMusicPackage.isNotBlank()) {
+                runCatching { LuluMediaPlayback.control(context, "pause", activeMusicPackage) }
+            }
             LuluMediaVolume.control(context, characterId, "restore")
+            activeMusicPackage = ""
             activeMusicCallId = null
             activeMusicCharacterId = null
             interruptedByRoleSpeech = false
@@ -207,6 +275,7 @@ internal object DeferredCallMediaAction {
         if (row.optString("trigger") == "in_call" && accepted) {
             activeMusicCallId = row.optString("callId")
             activeMusicCharacterId = charId
+            activeMusicPackage = result.optString("packageName")
             interruptedByRoleSpeech = false
             resumeApprovedByRole = false
         }
