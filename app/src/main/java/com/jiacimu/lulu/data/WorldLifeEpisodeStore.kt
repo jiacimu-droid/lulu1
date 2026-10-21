@@ -220,7 +220,7 @@ internal object WorldLifeEpisodeStore {
                     (0 until links.length()).mapNotNull { n ->
                         links.optString(n).takeIf(String::isNotBlank)
                     }
-                }?.takeIf(List<String>::isNotEmpty) ?: listOf(e.optString("evidenceId")),
+                }?.takeIf { it.isNotEmpty() } ?: listOf(e.optString("evidenceId")),
                 e.optString("category").ifBlank { "outing" })
         }.sortedBy { it.occurredAt }
     }.getOrDefault(emptyList())
