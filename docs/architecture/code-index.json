@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:35:57.583000+00:00",
-  "commit": "2d484056e9a932085b4cb525f2691e992d4e5e56",
+  "generatedAt": "2026-10-21T17:37:31.952387+00:00",
+  "commit": "875cb2debc27757a3b4d21eb7edc7217d26e37fc",
   "branch": "main",
-  "sourceFingerprint": "360b4b9af4f314ccd1a32d4455111d32f9023fc99b1909a277600e34da3f0db3",
+  "sourceFingerprint": "cf1d1f467021aec0f8a160423f6ecf8337b01f92154f625885fa4683f64a0036",
   "summary": {
     "files": 785,
-    "lines": 149116,
+    "lines": 149129,
     "symbols": 2251
   },
   "symbolIndex": {
@@ -13759,8 +13759,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 212,
-      "sha256": "0c259172276684ed7dc6be474f87eaa816c1aefefa51bdc860fbddfb3733b701",
+      "lines": 225,
+      "sha256": "20e047643beb4fa0f6c1bdad9dcc642e9071dd07698d8102d5bcbb36fd12ca1c",
       "symbols": []
     },
     {
