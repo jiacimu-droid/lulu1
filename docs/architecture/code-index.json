@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:00:29.471663+00:00",
-  "commit": "28dc6feccc8b6beed5bcb9ae96f2d6594d01bdab",
+  "generatedAt": "2026-10-21T07:02:00.864509+00:00",
+  "commit": "38eb2713e8351a5c4d26a33a5688a74eea6f00ad",
   "branch": "main",
-  "sourceFingerprint": "bc14e73f13adad40e32348cffc6366a73648c5c50d72e6c6b40e8a2a4093ba08",
+  "sourceFingerprint": "1820647e050473f40f1a8c4f758017fd4f87ebe8b1f08a64c97a0ac1545b3680",
   "summary": {
-    "files": 761,
-    "lines": 145867,
-    "symbols": 2201
+    "files": 762,
+    "lines": 145933,
+    "symbols": 2203
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3684,6 +3684,18 @@
         "line": 69
       }
     ],
+    "stopped": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
+        "line": 5
+      }
+    ],
+    "restarted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
+        "line": 9
+      }
+    ],
     "Capability": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
@@ -5807,7 +5819,7 @@
     "DeferredCallMediaWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
-        "line": 295
+        "line": 347
       }
     ],
     "DeterministicMemoryAutomation": [
@@ -15641,6 +15653,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
+      "lines": 14,
+      "sha256": "ef55d2a4962af116f91ab9fa92159a0049294514573d4b42b1a812551f531751",
+      "symbols": [
+        {
+          "name": "stopped",
+          "line": 5
+        },
+        {
+          "name": "restarted",
+          "line": 9
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 58,
       "sha256": "edcb5a71ebeced2706aa827a7bf92f6325b82116683f0ba91d7b56a8be6c64e7",
@@ -17797,12 +17824,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt",
-      "lines": 306,
-      "sha256": "b65474d90bd849ec4729c5d31c0936ae667b0cf5e036137c6803756113f9a8ad",
+      "lines": 358,
+      "sha256": "9d38963c8d2b2b0e7444a10bb43ce9da3bc2c3de463d2d063b14a98bea424f83",
       "symbols": [
         {
           "name": "DeferredCallMediaWorker",
-          "line": 295
+          "line": 347
         }
       ]
     },

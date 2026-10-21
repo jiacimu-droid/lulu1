@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`28dc6feccc8b6beed5bcb9ae96f2d6594d01bdab`
+- 基准提交：`38eb2713e8351a5c4d26a33a5688a74eea6f00ad`
 - 分支：`main`
-- 已索引文件：761
-- 已索引代码/文本行：145867
-- 已发现符号：2201
+- 已索引文件：762
+- 已索引代码/文本行：145933
+- 已发现符号：2203
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -207,6 +207,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 606 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt` | 14 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 58 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 126 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 56 | 2 |
@@ -295,7 +296,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 423 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt` | 104 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt` | 306 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt` | 358 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 37 | 5 |
