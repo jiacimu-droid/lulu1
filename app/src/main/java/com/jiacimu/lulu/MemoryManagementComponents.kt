@@ -275,6 +275,17 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 finally { busy = false }
             } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
             Text("待整理 ${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
+            Text("每日自动做本地重复检查；每周仅在有新变化且已配置后台记忆模型时，审核长期事实是否语义重复。旧记录和来源会保留。", fontSize = 12.sp, color = FeatureBlueGray)
+            OutlinedButton(enabled = !busy, onClick = { busy = true; scope.launch {
+                try {
+                    val archived = MemorySemanticConsolidation.consolidateNow(characterId)
+                    onNotice(if (archived > 0) "已归档 $archived 条确认为同义的历史记忆，原始证据仍保留"
+                        else "语义复核完成，暂无能确认的同义长期事实")
+                } catch (error: Exception) { onNotice(error.message ?: "语义整理失败，原有记忆不受影响") }
+                finally { busy = false }
+            } }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (busy) "正在整理…" else "深度整理历史重复（后台记忆 API）")
+            }
             debug.lastError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
             TextButton(onClick = { audit = !audit }) { Text(if (audit) "收起下发记录" else "查看置顶记忆下发记录") }
             if (audit) CoreMemoryInjectionCard(characterId, memories)
