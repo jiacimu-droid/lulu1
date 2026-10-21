@@ -13,6 +13,11 @@ import java.security.MessageDigest
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
+internal data class Live2DModelControls(
+    val expressions: List<String> = emptyList(),
+    val motions: List<Pair<String, Int>> = emptyList(),
+)
+
 /** Only owns the renderer assets; character identity, memories and calls remain in their stores. */
 internal object Live2DAssets {
     private const val STORAGE = "lulu_live2d"
@@ -34,6 +39,29 @@ internal object Live2DAssets {
     }
     fun modelLabel(context: Context, characterId: String) =
         prefs(context).getString("label:$characterId", null).orEmpty()
+    /** Actual controls from the user's Cubism model, not invented universal emotion labels. */
+    fun controls(context: Context, characterId: String): Live2DModelControls {
+        val relative = prefs(context).getString("model:$characterId", null).orEmpty()
+        val settings = File(base(context), relative)
+        if (relative.isBlank() || !inside(base(context), settings) || !settings.isFile) return Live2DModelControls()
+        return runCatching {
+            val refs = JSONObject(settings.readText()).getJSONObject("FileReferences")
+            val expressions = refs.optJSONArray("Expressions")?.let { array ->
+                (0 until array.length()).mapNotNull { array.optJSONObject(it)?.optString("Name")?.takeIf(String::isNotBlank) }
+            }.orEmpty()
+            val motions = mutableListOf<Pair<String, Int>>()
+            refs.optJSONObject("Motions")?.let { groups ->
+                val names = groups.keys()
+                while (names.hasNext()) {
+                    val name = names.next()
+                    val items = groups.getJSONArray(name)
+                    repeat(items.length()) { index -> motions.add(name to index) }
+                }
+            }
+            Live2DModelControls(expressions, motions)
+        }.getOrDefault(Live2DModelControls())
+    }
+
     fun removeModel(context: Context, characterId: String) {
         val previous = prefs(context).getString("model:$characterId", null)
         check(prefs(context).edit().remove("model:$characterId").remove("label:$characterId").commit())
