@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:37:16.562094+00:00",
-  "commit": "3db0aafdf6ba12a9879de8818fec8ec6fb0c770b",
+  "generatedAt": "2026-10-21T16:37:52.554455+00:00",
+  "commit": "925b6b0f335e60266e44fa59559e9a1657d2a831",
   "branch": "main",
-  "sourceFingerprint": "f61f52538f3c30fa8367846c30997ef6e8cc59af18ad0cce5a3c278d23d44361",
+  "sourceFingerprint": "1a45c8f693eacadc6d8c7653e926a42d5825daca825242089c8d956877aeb526",
   "summary": {
     "files": 778,
-    "lines": 148334,
-    "symbols": 2235
+    "lines": 148336,
+    "symbols": 2236
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1446,40 +1446,46 @@
         "line": 59
       }
     ],
-    "base": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 27
-      }
-    ],
-    "coreFile": [
+    "notifyCoreChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 28
       }
     ],
-    "hasCore": [
+    "base": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 29
       }
     ],
-    "modelUrl": [
+    "coreFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 30
+      }
+    ],
+    "hasCore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 31
       }
     ],
+    "modelUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 33
+      }
+    ],
     "modelLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 40
+        "line": 42
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 43
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1489,7 +1495,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 64
+        "line": 66
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13608,36 +13614,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 215,
-      "sha256": "f161c850fb3ca497ef943be9ee51e5342be144d5b846ebf8a2897af887bc577a",
+      "lines": 217,
+      "sha256": "0e14f520a8ead6818c5faa4613c2c3db158470095c5d5b2f3fc7c4211ddcde60",
       "symbols": [
         {
-          "name": "base",
-          "line": 27
-        },
-        {
-          "name": "coreFile",
+          "name": "notifyCoreChanged",
           "line": 28
         },
         {
-          "name": "hasCore",
+          "name": "base",
           "line": 29
         },
         {
-          "name": "modelUrl",
+          "name": "coreFile",
+          "line": 30
+        },
+        {
+          "name": "hasCore",
           "line": 31
         },
         {
+          "name": "modelUrl",
+          "line": 33
+        },
+        {
           "name": "modelLabel",
-          "line": 40
+          "line": 42
         },
         {
           "name": "controls",
-          "line": 43
+          "line": 45
         },
         {
           "name": "removeModel",
-          "line": 64
+          "line": 66
         }
       ]
     },
