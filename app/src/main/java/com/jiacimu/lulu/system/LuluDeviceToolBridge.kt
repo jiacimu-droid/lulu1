@@ -752,6 +752,7 @@ object LuluDeviceToolBridge {
             (plan.action == "reply" || (sceneContext.contains("电话") &&
                 plan.action == CharacterDecisionProtocol.SILENT))) {
             val notes = mutableListOf<String>()
+            var verifiedWakeAudio = false
             val inputKey = userEvidenceIds.lastOrNull()
                 ?: silenceObservationId.takeIf(String::isNotBlank)
                 ?: "current-" + now.toEpochMilli()
@@ -776,9 +777,14 @@ object LuluDeviceToolBridge {
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
                 }
-                val actionLabel = if (tool == "control_music")
-                    "/" + result.optString("command", effect.optJSONObject("args")?.optString("command"))
-                else ""
+                val command = result.optString("command")
+                    .ifBlank { effect.optJSONObject("args")?.optString("command").orEmpty() }
+                if (result.optBoolean("success") &&
+                    (tool == "ring_in_call_wake" ||
+                        (tool == "control_music" && command == "play"))) {
+                    verifiedWakeAudio = true
+                }
+                val actionLabel = if (tool == "control_music") "/$command" else ""
                 notes += tool + actionLabel + "：" +
                     (if (result.optBoolean("success")) "已执行" else "未完成") + "：" +
                     result.optString("summary").ifBlank {
@@ -789,7 +795,8 @@ object LuluDeviceToolBridge {
                     }
                 }.take(170)
             }
-            notes.joinToString("；").take(420)
+            val details = notes.joinToString("；").take(420)
+            if (verifiedWakeAudio) "wake_audio_confirmed=1；$details" else details
         } else ""
         val commitmentChanges = plan.commitmentChanges
         val commitmentReceipt = if (!rewriting && !callSilence && commitmentChanges != null) {
