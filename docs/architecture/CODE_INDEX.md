@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`90220c62460de253a97880266a1e7c814e9f2ab3`
+- 基准提交：`223170c8ff452ac13a729716a4339ea30804128e`
 - 分支：`main`
 - 已索引文件：766
-- 已索引代码/文本行：146603
+- 已索引代码/文本行：146642
 - 已发现符号：2212
 
 | 文件 | 行数 | 符号数 |
@@ -609,7 +609,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
@@ -719,7 +719,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 64 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
