@@ -8,13 +8,6 @@ import java.time.Instant
  * confirmation can finish the wake-up goal. Silence is not proof of sleep.
  */
 internal object WakeGoalVerification {
-    fun explicitlyAwake(text: String): Boolean {
-        val clean = text.replace(Regex("""\s+"""), "")
-        if (Regex("还没醒|没醒|没起来|不想起|没起床|醒了再说|没完全醒").containsMatchIn(clean))
-            return false
-        return Regex("我醒了|我醒啦|已经醒了|睡醒了|我起来了|我起床了|起床啦|起来啦").containsMatchIn(clean)
-    }
-
     /** Only confirm an already due or attempted wake-up; do not cancel future alarms. */
     internal fun eligibleToComplete(task: CommitmentTask, now: Instant): Boolean =
         task.isWakeResponsibility() && task.status.isActive() &&
