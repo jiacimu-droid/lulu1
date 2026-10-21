@@ -246,6 +246,11 @@ internal fun Live2DFullscreenVideoCall(
                         }
                     }
                 }
+                IconButton(onClick = ::toggleSelfCamera) {
+                    Icon(if (selfCameraEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.CameraFront,
+                        if (selfCameraEnabled) "关闭我的画面" else "开启我的画面（仅本机预览）",
+                        tint = Color.White)
+                }
                 IconButton(onClick = onChangeModel) {
                     Icon(Icons.Outlined.Portrait, "更换 Live2D 模型", tint = Color.White)
                 }
@@ -298,10 +303,6 @@ internal fun Live2DFullscreenVideoCall(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically) {
                 VideoCallButton(Icons.Outlined.VideocamOff, "切为语音", onSwitchToVoice)
-                VideoCallButton(if (selfCameraEnabled) Icons.Outlined.VideocamOff
-                    else Icons.Outlined.CameraFront,
-                    if (selfCameraEnabled) "关闭我的画面" else "打开我的画面",
-                    ::toggleSelfCamera)
                 if (state.connected) {
                     VideoCallButton(if (state.speakerEnabled) Icons.Outlined.VolumeUp
                         else Icons.Outlined.PhoneInTalk,
