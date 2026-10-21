@@ -45,6 +45,11 @@ internal fun Live2DFullscreenVideoCall(
     onRetryCore: () -> Unit,
     onStartCall: () -> Unit,
 ) {
+    val cues by Live2DVisualActionBus.cues.collectAsState()
+    val cue = cues[characterId]?.takeIf { it.callId == state.callExperienceId }
+    DisposableEffect(characterId, state.callExperienceId) {
+        onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
+    }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     val rendered = stageStatus == "ready"
@@ -58,12 +63,15 @@ internal fun Live2DFullscreenVideoCall(
                 speaking = state.connected && state.speaking,
                 listening = state.connected && state.listening,
                 mouthLevel = mouthLevel,
-                previewExpression = previewExpression,
-                previewMotion = previewMotion,
-                previewRevision = previewRevision,
+                previewExpression = cue?.expression ?: previewExpression,
+                previewMotion = cue?.motion ?: previewMotion,
+                previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 onStatus = { phase, detail ->
                     stageStatus = phase
                     stageDetail = detail
+                    if (phase == "ready") Live2DVisualActionBus.stageReady(
+                        characterId, state.callExperienceId)
+                    else Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
                 },
             )
         }
