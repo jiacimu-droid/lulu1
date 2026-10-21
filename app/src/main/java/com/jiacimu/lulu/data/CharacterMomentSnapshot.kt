@@ -121,7 +121,10 @@ internal object PresenceHistoryPresentation {
             if (!state.showInHistory) return@mapIndexedNotNull null
             val previous = chronological.getOrNull(index - 1)
             val gesture = state.gesture.takeIf { it.isNotBlank() && it != previous?.gesture }.orEmpty()
-            val status = state.statusText.takeIf { it.isNotBlank() && it != previous?.statusText }.orEmpty()
+            val status = state.statusText.takeIf {
+                it.isNotBlank() && it != previous?.statusText &&
+                    !PresenceFieldBoundary.repeatsConfirmedAction(it, gesture)
+            }.orEmpty()
             val mood = state.mood.takeIf { it.isNotBlank() && it != previous?.mood }.orEmpty()
             if (gesture.isBlank() && status.isBlank() && mood.isBlank() &&
                 state.innerThought.isBlank() && state.momentReflection.isBlank()) null
