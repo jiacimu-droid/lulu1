@@ -32,7 +32,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     val context = LocalContext.current
     val statusReceiver = rememberUpdatedState(onStatus)
     val stage = remember(context, characterId, modelUrl) {
-        createLive2DWebView(context, modelUrl) { phase, detail ->
+        createLive2DWebView(context, characterId, modelUrl) { phase, detail ->
             statusReceiver.value(phase, detail)
         }
     }
@@ -64,7 +64,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     }
 }
 
-private fun createLive2DWebView(context: Context, modelUrl: String,
+private fun createLive2DWebView(context: Context, characterId: String, modelUrl: String,
     onStatus: (String, String) -> Unit): WebView {
     val loader = WebViewAssetLoader.Builder()
         .setDomain("appassets.androidplatform.net")
@@ -115,6 +115,15 @@ private fun createLive2DWebView(context: Context, modelUrl: String,
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse {
                 val uri = request.url
                 if (uri.scheme == "https" && uri.host == "appassets.androidplatform.net") {
+                    // AIRI discovers model expressions missing from FileReferences. Expose
+                    // the amended manifest at exactly the current model URL, never on disk.
+                    if (android.net.Uri.decode(uri.toString()) ==
+                        android.net.Uri.decode(modelUrl)) {
+                        Live2DAssets.rendererManifest(context, characterId)?.let { json ->
+                            return WebResourceResponse("application/json", "utf-8",
+                                ByteArrayInputStream(json.toByteArray(Charsets.UTF_8)))
+                        }
+                    }
                     return loader.shouldInterceptRequest(uri)
                         ?: WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
                 }
