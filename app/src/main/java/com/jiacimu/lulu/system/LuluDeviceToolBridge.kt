@@ -306,11 +306,11 @@ object LuluDeviceToolBridge {
         val currentPhoneMusic = if (phoneCallId.isNotBlank())
             com.jiacimu.lulu.data.DeferredCallMediaAction.musicContext(characterId, phoneCallId)
         else "未提供本次真实通话会话"
-        val sharedReplyAndDeviceRule = if (!rewriting && !callSilence) """
+        val sharedReplyAndDeviceRule = if (!rewriting && (!callSilence || sceneContext.contains("电话"))) """
             【同一模型决定可以兼有回复与设备行为】
             一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
-            若你想两者兼做，使用 action=reply 配合 sideActions=[{"tool":"control_volume","args":{"action":"adjust","deltaPercent":10}}]；
-            媒体操作还可选择 control_music、list_media_sessions，最多2项。
+            若你想两者兼做，使用 action=reply 配合 sideActions=[{"tool":"control_volume","args":{"action":"adjust","deltaPercent":10}}]；若希望保持安静，只操作手机，通话中可用 action=silent 加 sideActions。
+            媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。通话中最多5项，按列表顺序逐项执行；普通聊天最多2项。
             private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
             你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
             即将执行的动作不能预先说成已经完成。外部工具会真正执行、分别产生回执。
@@ -326,7 +326,7 @@ object LuluDeviceToolBridge {
             trigger=in_call 表示【本通电话持续接通】且从你作出决定起计时；通话结束就取消。
             如果对方明确要挂断以后才播，改用 trigger=call_end，若不限定通话可用 now。
             时长根据当下真实要求与上下文判断，例如三分钟=180秒、半分钟=30秒。
-            这不是固定音乐脚本。你可以选择是否接受，不能只在台词里答应，
+            这不是固定音乐脚本。旧音乐命令已执行后绝不能在后续感知中机械重放。尤其对方自己暂停了音乐，就尊重她的最新选择，不能因旧约定、通话结束或说完一句话自动继续播放。你可以选择是否接受，不能只在台词里答应，
             必须给真实可执行的数据；成功与否还要以手机执行器回执为准。
             只有已授权的媒体会话能被控制，并不能虚构歌曲或播放器。
             音乐开始后电话仍可保持安静陪伴；你想说话时播放器暂时暂停。
@@ -387,9 +387,9 @@ object LuluDeviceToolBridge {
             不能为了凑结构创造情绪、心声或未发生的事件，禁止重复执行工具。
         """.trimIndent() else if (callSilence) """
             这是电话中的真实观察，没有新增用户发言；观察可能是安静陪伴，也可能是此前工具刚返回的结果。
-            依据本轮程序提供的观察内容，可选择 silent 或 reply；不允许重复工具动作。
+            依据本轮程序提供的观察内容，可选择 silent 或 reply；没有新增真实理由绝不可重复上一轮工具动作。若有新的叫醒进展或实际需要，允许 silent 搭配 sideActions 执行获授权的手机音乐、音量或通话内铃声；说话会与音乐争夺音频，纯音乐/铃声叫醒时优先选择 silent。
             安静陪伴返回 {"action":"silent","reason":"此刻选择安静的个人原因","statusText":"持续处境","gesture":"自己的动作","innerThought":"未说出口的念头","mood":"当前感受"}。
-            真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}，不能把空回复、结构化状态或心声读出来。
+            真想说话才返回 {"action":"reply","text":"自然可朗读的口语"}；若只操作手机可选 {"action":"silent","reason":"我想先让音乐继续响一会儿","sideActions":[{"tool":"control_volume","args":{"action":"adjust","deltaPercent":5}}]}。每次先观察真实播放器状态，明确醒来才能视为叫醒目标达成；没有回应也不能当成一定未醒。不能把空回复、结构化状态或心声读出来。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
             想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
@@ -412,7 +412,7 @@ object LuluDeviceToolBridge {
             只输出一个完整 JSON，如 {"action":"reply","text":"我自己的群聊发言","reason":"想接话的简短原因"}；
             或 {"action":"silent","reason":"此刻为什么不想接话"}。
         """.trimIndent() else """
-            这是电话的低延迟通道，普通交谈必须给可以直接念出的 text，不能返回 silent 或仅有 speechIntent 的空发言。
+            这是电话的低延迟通道，普通交谈一般给可以直接念出的 text；若确实想不说话而操作已授权的设备，允许 silent 配合 sideActions，不能返回仅有 speechIntent 的空发言。
             {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
             【电话里可以当场收藏，无需先挂断或先回复另一次电话】
             你若真正决定把提供的某条准确用户消息留在辞海，可以在正常的电话回复里同时写
@@ -748,15 +748,19 @@ object LuluDeviceToolBridge {
             receipt
         } else ""
         val plannedSideActions = plan.sideActions
-        val sideDeviceReceipt = if (!rewriting && !callSilence &&
-            plan.action == "reply" && plannedSideActions != null) {
+        val sideDeviceReceipt = if (!rewriting && plannedSideActions != null &&
+            (plan.action == "reply" || (sceneContext.contains("电话") &&
+                plan.action == CharacterDecisionProtocol.SILENT))) {
             val notes = mutableListOf<String>()
             val inputKey = userEvidenceIds.lastOrNull()
+                ?: silenceObservationId.takeIf(String::isNotBlank)
                 ?: "current-" + now.toEpochMilli()
-            for (i in 0 until minOf(2, plannedSideActions.length())) {
+            val maxActions = if (sceneContext.contains("电话")) 5 else 2
+            for (i in 0 until minOf(maxActions, plannedSideActions.length())) {
                 val effect = plannedSideActions.optJSONObject(i) ?: continue
                 val tool = effect.optString("tool").trim()
-                if (tool !in setOf("control_volume", "control_music", "list_media_sessions")) {
+                if (tool !in setOf("control_volume", "control_music", "list_media_sessions") &&
+                    !(sceneContext.contains("电话") && tool == "ring_in_call_wake")) {
                     notes += "未执行未经授权的附加动作"
                     continue
                 }
@@ -1069,7 +1073,7 @@ object LuluDeviceToolBridge {
                 plan.innerThought, now, privateDelta.fingerprint,
             )
         }
-        if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat) && !rewriting) {
+        if (plan.action == CharacterDecisionProtocol.SILENT && (separateExpression || callSilence || isGroupChat || sceneContext.contains("电话")) && !rewriting) {
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordDecision(
                 characterId = characterId,
                 decisionId = if (callSilence) "$silenceObservationId:silent" else "chat:silent:${now.toEpochMilli()}:${userText.hashCode()}",
@@ -1077,7 +1081,7 @@ object LuluDeviceToolBridge {
                 reason = plan.reason,
                 chosenMotiveId = plan.motiveId,
                 alternatives = plan.alternatives,
-                outcome = "暂时不发送消息，没有执行任何外部动作",
+                outcome = if (sideDeviceReceipt.isNotBlank()) "本轮安静执行手机动作：$sideDeviceReceipt" else "自愿保持安静，没有执行额外动作",
                 succeeded = false,
                 now = now,
             )
