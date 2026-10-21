@@ -131,6 +131,61 @@ class WorldLifeEpisodeStoreTest {
             WorldLifeEpisodeStore.clear(role)
         }
     }
+    @Test fun residentConversationBecomesItsOwnChapterAndKeepsAllRawSources() {
+        WorldLifeEpisodeStore.initialize(context)
+        WorldLifeEpisodeStore.clear(role)
+        val at = Instant.parse("2026-10-21T11:00:00Z")
+        fact("outing-arrival", at.minusSeconds(90))
+        fact("resident-said-hello", at)
+        fact("character-replied", at.plusMillis(1))
+        fact("resident-summary", at.plusMillis(2))
+        val prose = "江渡在咖啡角遇见了老朋友，原本有点犹豫，随后终于聊起真正关心的事情。".repeat(7)
+        try {
+            val outing = WorldLifeEpisodeStore.record(role, "cafe", "咖啡角",
+                prose, "他真实抵达咖啡角", "outing-arrival", at.minusSeconds(90))
+            val encounter = WorldLifeEpisodeStore.record(role, "cafe", "咖啡角的交谈",
+                prose, "双方确实交流", "resident-summary", at.plusMillis(2),
+                sourceEvidenceIds = listOf("resident-summary", "resident-said-hello", "character-replied"),
+                category = "encounter")
+            assertNotNull(outing)
+            assertNotNull(encounter)
+            assertEquals("encounter", encounter?.category)
+            assertEquals(3, encounter?.sourceEvidenceIds?.size)
+            assertEquals(2, WorldLifeEpisodeStore.episodes(role).size)
+            assertEquals(outing?.id, WorldLifeEpisodeStore.nearbyAt(role, "cafe", at)?.id)
+            // A literary scene is a projection: delete one originating turn,
+            // and the episode disappears without deleting the remaining facts.
+            WorldLifeEpisodeStore.invalidateEvidence("resident-said-hello")
+            assertNull(WorldLifeEpisodeStore.find(encounter!!.id))
+            assertNotNull(WorldLifeEpisodeStore.find(outing!!.id))
+            assertEquals(1, SharedExperienceTimeline.eventsByIds(role,
+                listOf("resident-summary")).size)
+        } finally { WorldLifeEpisodeStore.clear(role) }
+    }
+
+    @Test fun encounterCannotBePublishedWithMissingOrChangedSupportingEvidence() {
+        WorldLifeEpisodeStore.initialize(context)
+        WorldLifeEpisodeStore.clear(role)
+        val at = Instant.now()
+        fact("resident-anchor", at)
+        fact("resident-first-turn", at)
+        val oldTurn = SharedExperienceTimeline.eventsByIds(role, listOf("resident-first-turn")).single()
+        SharedExperienceTimeline.record(oldTurn.id, role, "数字世界", "执行器",
+            "已经更正的真实交流", at, triggerExtraction = false)
+        val prose = "他们真的坐下来谈了很久，窗外的天色变化，交谈中产生新的想法。".repeat(7)
+        try {
+            assertNull(WorldLifeEpisodeStore.record(role, "cafe", "迟到的交流",
+                prose, "真实交流", "resident-anchor", at,
+                sourceEvidenceIds = listOf("resident-anchor", "不存在的台词"),
+                category = "encounter"))
+            // The store itself only accepts current sources; a stale worker
+            // must also check snapshots before invoking it.
+            assertNotEquals(oldTurn,
+                SharedExperienceTimeline.eventsByIds(role, listOf(oldTurn.id)).single())
+            assertTrue(WorldLifeEpisodeStore.episodes(role).isEmpty())
+        } finally { WorldLifeEpisodeStore.clear(role) }
+    }
+
     @Test fun lateProseCannotSurviveSourceEditingDeletionOrHistoryReset() {
         WorldLifeEpisodeStore.initialize(context)
         WorldLifeEpisodeStore.clear(role)
