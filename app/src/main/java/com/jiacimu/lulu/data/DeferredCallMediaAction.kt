@@ -116,6 +116,28 @@ internal object DeferredCallMediaAction {
     private var activeMusicPackage: String = ""
     private var userPausedCallId: String? = null
     private var userPausedCharacterId: String? = null
+    private var userPausedMusicPackage: String = ""
+
+    /** One last check after Android returns audio focus to external players. */
+    @Synchronized fun enforceStoppedAfterCall(context: Context, characterId: String, callId: String) {
+        if (userPausedCallId != callId || userPausedCharacterId != characterId) return
+        val selected = userPausedMusicPackage
+        if (selected.isNotBlank()) {
+            val snapshot = runCatching { JSONObject(LuluMediaPlayback.sessions(context)) }.getOrNull()
+            val entries = snapshot?.optJSONArray("sessions")
+            val resumed = (0 until (entries?.length() ?: 0)).mapNotNull { entries?.optJSONObject(it) }
+                .any { it.optString("packageName") == selected && it.optBoolean("playing") }
+            if (resumed) {
+                // With the already-at-target guard a stale PAUSE cannot toggle
+                // the session back on if it has stopped in the meantime.
+                runCatching { LuluMediaPlayback.control(context, "pause", selected) }
+            }
+        }
+        userPausedCallId = null
+        userPausedCharacterId = null
+        userPausedMusicPackage = ""
+    }
+
 
     @Synchronized fun mayStartMusic(characterId: String, callId: String): Boolean =
         userPausedCallId != callId || userPausedCharacterId != characterId
@@ -132,6 +154,7 @@ internal object DeferredCallMediaAction {
         }
         userPausedCallId = callId
         userPausedCharacterId = characterId
+        userPausedMusicPackage = activeMusicPackage
         cancelPlannedPlayback(context, characterId, callId)
         LuluMediaVolume.control(context, characterId, "restore")
     }
@@ -158,11 +181,13 @@ internal object DeferredCallMediaAction {
         if (CallMediaUserIntent.restarted(text)) {
             userPausedCallId = null
             userPausedCharacterId = null
+            userPausedMusicPackage = ""
         }
         val expresslyStopped = CallMediaUserIntent.stopped(text)
         if (expresslyStopped) {
             userPausedCallId = callId
             userPausedCharacterId = characterId
+            userPausedMusicPackage = activeMusicPackage
             cancelPlannedPlayback(context, characterId, callId)
         }
         if (activeMusicCharacterId != characterId || activeMusicCallId != callId) return
@@ -176,6 +201,7 @@ internal object DeferredCallMediaAction {
                 target?.optBoolean("playing") != true)) {
             userPausedCallId = callId
             userPausedCharacterId = characterId
+            userPausedMusicPackage = activeMusicPackage
             activeMusicCallId = null
             activeMusicCharacterId = null
             activeMusicPackage = ""
@@ -280,10 +306,8 @@ internal object DeferredCallMediaAction {
             interruptedByRoleSpeech = false
             resumeApprovedByRole = false
         }
-        if (userPausedCallId == callId && userPausedCharacterId == characterId) {
-            userPausedCallId = null
-            userPausedCharacterId = null
-        }
+        // Keep the user's explicit stop through audio-focus restoration,
+        // which finishes shortly AFTER the disconnection callback.
     }
 
     @Synchronized fun execute(context: Context, id: String): Boolean {
