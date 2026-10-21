@@ -408,6 +408,22 @@ internal object AutonomousSocialRuntime {
         // pests linger while the character seemingly decided to handle them.
         val queuedSelfAction = CharacterSelfActivityRuntime.offer(
             context, characterId, reaction.appraisal, sourceId)
+        val ownChoice = reaction.appraisal?.optJSONObject("ownActivity")
+        if (!queuedSelfAction && ownChoice?.optString("stage") == "decided") {
+            // A model selecting an action is not proof that it was scheduled,
+            // much less executed. Keep a trace rather than silently swallowing
+            // invalid incident IDs, duplicate queued work or unavailable tools.
+            CharacterInnerLifeStore.recordDecision(
+                characterId = characterId,
+                decisionId = "world-activity-unqueued:$sourceId",
+                selectedAction = ownChoice.optString("action").ifBlank { "digital_world" },
+                reason = ownChoice.optString("whyNow").trim().take(200),
+                chosenMotiveId = ownChoice.optString("motiveId"),
+                alternatives = null,
+                outcome = "未排程：当前目标、参数或任务状态未通过真实执行器检查；没有执行任何动作",
+                succeeded = false, now = now, causalEvidenceId = sourceId,
+            )
+        }
         CharacterInnerLifeStore.recordCausalTransition(
             characterId = characterId, evidenceId = sourceId,
             appraisal = reaction.appraisal, innerLife = reaction.innerLife,
