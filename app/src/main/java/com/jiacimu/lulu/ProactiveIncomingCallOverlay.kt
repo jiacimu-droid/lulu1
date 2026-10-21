@@ -81,7 +81,8 @@ internal fun ProactiveIncomingCallOverlay() {
                 ProactiveIncomingCallStore.respond(call, answered = true)
                 connectingCall = null
                 notice = ""
-                LuluCallWindowController.show()
+                // Incoming calls remain voice-first unless a video call is explicitly offered.
+                LuluCallWindowController.start(video = false)
             }
             !matching || session.phase in setOf(CallPhase.Idle, CallPhase.Ended) ||
                 session.phase == CallPhase.Ready || !call.active() -> {
