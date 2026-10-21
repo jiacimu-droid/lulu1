@@ -24,6 +24,8 @@ internal object Live2DAssets {
     private const val PREFS = "lulu_live2d_models_v1"
     private val revisionState = MutableStateFlow(0L)
     val revisions = revisionState.asStateFlow()
+    /** An installed official Core is shared by every role; this refreshes all open previews. */
+    fun notifyCoreChanged() { revisionState.value++ }
     fun base(context: Context) = File(context.applicationContext.filesDir, STORAGE).apply { mkdirs() }
     fun coreFile(context: Context) = File(base(context), "core/live2dcubismcore.min.js")
     fun hasCore(context: Context) = coreFile(context).let { it.isFile && it.length() > 1024 }
