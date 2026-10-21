@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:09:58.963094+00:00",
-  "commit": "8b817f4e562a8ad9050cdd08117b53fd098608c2",
+  "generatedAt": "2026-10-21T16:11:49.570992+00:00",
+  "commit": "f46a41870da8db85ae5921eae3a470c1b7a43454",
   "branch": "main",
-  "sourceFingerprint": "7f9f9634b011d9fc7addd350216012e57c2c33b84965b4ed08fb771597f9dba0",
+  "sourceFingerprint": "b5a6fdc5a36c74b786374b45876eb40b7320442813bf3e1700d7c432cbb0c693",
   "summary": {
     "files": 775,
-    "lines": 148121,
+    "lines": 148123,
     "symbols": 2234
   },
   "symbolIndex": {
@@ -13542,8 +13542,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-      "lines": 168,
-      "sha256": "ba76f39109fb3c54372c49ce1f6e27cc64c419660e32e95cf4db9644ae0a4d4b",
+      "lines": 169,
+      "sha256": "7ef3a70dfa22bb3dcf0bbd61cd9d85fafb7338fb7fc2e1fd6539a37a4a5b9647",
       "symbols": [
         {
           "name": "stop",
@@ -14302,8 +14302,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
-      "lines": 118,
-      "sha256": "5ee32edac24d34afd898acb493e945c1820a2e4b7898f6b907a6d36a5bf3dd93",
+      "lines": 119,
+      "sha256": "e8e4d9aa42d408e7ddec23a9f4f465fe0f1d63141ae123714f671c4f18f3f273",
       "symbols": [
         {
           "name": "stop",
