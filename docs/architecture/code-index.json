@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:39:02.329721+00:00",
-  "commit": "83ec5f7fc0109ff539ad77ad0b09f7ac7b810beb",
+  "generatedAt": "2026-10-21T16:39:21.130996+00:00",
+  "commit": "eb92e426763f65a67c7d5a1e3538624751fe7ecc",
   "branch": "main",
-  "sourceFingerprint": "3243ad6a391b8af2633b07f9a0e3e5943f88a098c99f9b93ab60eb96047d9b41",
+  "sourceFingerprint": "93ca2b47ee44e903f6f93bdaf3a23735c6e762913fe580d9ba5e0ec42b2bb0ac",
   "summary": {
     "files": 778,
-    "lines": 148367,
+    "lines": 148385,
     "symbols": 2236
   },
   "symbolIndex": {
@@ -13659,8 +13659,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt",
-      "lines": 106,
-      "sha256": "4f16860250ed569cd2486ef7654f51cba4491df8e872940126756cf6b08e93de",
+      "lines": 124,
+      "sha256": "2d16dcceb482840662d1bc0dfaf42c0b03e0210d8afeaeb02904a595b96c458e",
       "symbols": []
     },
     {
