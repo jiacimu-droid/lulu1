@@ -808,7 +808,21 @@ object ProactivePerceptionRuntime {
                     "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若确实自主决定本轮只操作设备而不回复，填写replyChoice=\"silent\"；否则没有实际发出的回复就不会把新消息当成已回应。若想说话且同时操作音乐/音量，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"sideActions\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。sideActions最多两个、只支持control_music/control_volume/list_media_sessions，其他生活行动仍走原执行器。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
                 else """【此时没有新消息】你不是聊天待命机器人：先判断自己正在好奇的事情、真正可去的地点、可读的书或可做的小活动，选择一件感兴趣的实际生活行动；只有此刻确实不想做，才选 silent。不要为追求活跃而机械轮换。动作请直接写在 JSON 第一项 action，不要只在 statusText 或 innerThought 里写“我出去走走”。也可 action=tool，通过真实执行器收藏用户确实说过的一句话。""",
             source = "后台主动感知",
-            title = "${character.displayName}的主动感知",
+            // Usage diagnostics must identify the wake class without logging raw user text.
+            title = "${character.displayName}的主动感知 · " + when {
+                onlineUnread.messageIds.isNotEmpty() -> "新消息"
+                onlineExpiryAtMillis > 0L -> "在线窗口到期"
+                trigger.startsWith("在线持续感知") -> "在线自主回顾"
+                trigger.startsWith("合并后的自主生活回顾") -> "生活回顾"
+                trigger.startsWith("真实生活后续回想") -> "实际经历回想"
+                trigger.startsWith("强烈情绪的后续整理") -> "情绪后续回顾"
+                trigger.startsWith("刚结束的电话") -> "通话结束"
+                trigger.startsWith("实际数字世界到访") -> "数字世界到访"
+                trigger.startsWith("角色时间间隔") -> "后台定时"
+                trigger.contains("到期复查") -> "计划到期复查"
+                trigger.contains("用户手动唤醒") -> "手动唤醒"
+                else -> "其他独立触发"
+            },
             // A complete action/text is more useful than a long private monologue.
             // Headroom keeps a final JSON brace from being cut off.
             maxTokens = 3_000,
