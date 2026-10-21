@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:27:46.324515+00:00",
-  "commit": "ba81e29666a6ac081e8b5d4c3ebd782a27df9afd",
+  "generatedAt": "2026-10-21T07:28:42.508980+00:00",
+  "commit": "d8d59f0a028431404b8a536d7decc83238f3fa6f",
   "branch": "main",
-  "sourceFingerprint": "7afaea1b609d6cc4f2a106b0dc11a2415dd8f551cab794780e5a53ffff6b43db",
+  "sourceFingerprint": "f44135174c4d5fc068d9b29f8f947ed30f7baca79e344071aae1d18f7becd236",
   "summary": {
     "files": 764,
-    "lines": 146169,
-    "symbols": 2205
+    "lines": 146147,
+    "symbols": 2204
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8584,16 +8584,10 @@
         "line": 17
       }
     ],
-    "explicitlyAwake": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt",
-        "line": 11
-      }
-    ],
     "confirmFromModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt",
-        "line": 24
+        "line": 17
       }
     ],
     "savedKey": [
@@ -17352,8 +17346,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 166,
-      "sha256": "c6ea6ebf9662b62e4878e553d38555c42e4078226eec698029bc1a73812d418c",
+      "lines": 164,
+      "sha256": "1e2f0d21b5fa89ec50eedef463ae83490c76060cb6de94c366845b5cbc2d2284",
       "symbols": [
         {
           "name": "handled",
@@ -20919,23 +20913,19 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt",
-      "lines": 39,
-      "sha256": "6ae55cc86ca6c0c71126ce3535b58b139cea046d9b5bc63f5577aae88e72e137",
+      "lines": 32,
+      "sha256": "c9aed8e56ef7fa4c4013d40fa6e46987e8688eb8d358361d75ecee02e2ba77ac",
       "symbols": [
         {
-          "name": "explicitlyAwake",
-          "line": 11
-        },
-        {
           "name": "confirmFromModel",
-          "line": 24
+          "line": 17
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt",
-      "lines": 99,
-      "sha256": "518a1795411827a6ee902c61a6a10e3b1ae9e06c767e4b6067a521c6d9fcb517",
+      "lines": 86,
+      "sha256": "3cd4156110a14245171317c31a44903fcacc581c958cf020b3e5f98d86b710b9",
       "symbols": []
     },
     {
