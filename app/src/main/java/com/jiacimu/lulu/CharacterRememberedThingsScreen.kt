@@ -51,6 +51,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     var deletingEvent by remember { mutableStateOf<SharedTimelineEvent?>(null) }
     var count by rememberSaveable(characterId, area, search) { mutableIntStateOf(40) }
     val memories by repository.observeMemories(characterId).collectAsState(initial = emptyList())
+    val validityRevision by MemoryValidityStore.revisions.collectAsState()
     val life by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Life).collectAsState(initial = emptyList())
     val concerns by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Concern).collectAsState(initial = emptyList())
     val knowledgeRevision by CharacterLearningLedger.revisions.collectAsState()
@@ -62,7 +63,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
             characterId = characters.keys.first()
     }
     val rememberedState by produceState("" to emptyList<CharacterRememberedItem>(),
-        characterId, memories, life, concerns, knowledgeRevision, timelineRevision) {
+        characterId, memories, life, concerns, knowledgeRevision, timelineRevision, validityRevision) {
         value = characterId to withContext(Dispatchers.IO) {
             CharacterRecordProjection.remembered(characterId, memories,
                 CharacterLearningLedger.listInsights(characterId), life + concerns)
