@@ -68,13 +68,23 @@ internal object Live2DAssets {
         }.getOrNull()
     }
 
+    /** An in-memory manifest for the renderer; the imported model3.json stays unmodified. */
+    fun rendererManifest(context: Context, characterId: String): String? {
+        val relative = prefs(context).getString("model:$characterId", null).orEmpty()
+        if (!relative.startsWith("models/") || relative.contains("..")) return null
+        val settings = File(base(context), relative)
+        if (!inside(base(context), settings) || !settings.isFile) return null
+        return runCatching { Live2DModelManifestAdapter.normalizedSettings(settings).toString() }.getOrNull()
+    }
+
     /** Actual controls from the user's Cubism model, not invented universal emotion labels. */
     fun controls(context: Context, characterId: String): Live2DModelControls {
         val relative = prefs(context).getString("model:$characterId", null).orEmpty()
         val settings = File(base(context), relative)
         if (relative.isBlank() || !inside(base(context), settings) || !settings.isFile) return Live2DModelControls()
         return runCatching {
-            val refs = JSONObject(settings.readText()).getJSONObject("FileReferences")
+            val refs = Live2DModelManifestAdapter.normalizedSettings(settings)
+                .getJSONObject("FileReferences")
             val expressions = refs.optJSONArray("Expressions")?.let { array ->
                 (0 until array.length()).mapNotNull { array.optJSONObject(it)?.optString("Name")?.takeIf(String::isNotBlank) }
             }.orEmpty()
