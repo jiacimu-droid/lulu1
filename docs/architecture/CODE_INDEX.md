@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1e59ccace54a93ea7a3bcb6c3a16f8b441dbb123`
+- 基准提交：`250025ddd8f3aa6aa711101fc2bb34180d1dcab2`
 - 分支：`main`
 - 已索引文件：766
-- 已索引代码/文本行：146690
+- 已索引代码/文本行：146726
 - 已发现符号：2213
 
 | 文件 | 行数 | 符号数 |
@@ -585,7 +585,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 72 | 1 |
