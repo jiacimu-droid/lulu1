@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-20T21:34:27.285654+00:00",
-  "commit": "fb757c33f24717c485b590f633510853cc6c25a8",
+  "generatedAt": "2026-10-21T05:34:24.561090+00:00",
+  "commit": "9c2152f13aa9c309fdd9c938228f6f83a335559b",
   "branch": "main",
-  "sourceFingerprint": "f77d843c26bbec962bc88f961f7b5cc8ed6a8ef61de1f12ece18c89d5c1c753d",
+  "sourceFingerprint": "58f9c35fd46c258b1ceda219b7743c64ed831ab412d994e679170bfcad8b5761",
   "summary": {
-    "files": 759,
-    "lines": 145536,
-    "symbols": 2199
+    "files": 760,
+    "lines": 145554,
+    "symbols": 2200
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1600,6 +1600,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt",
         "line": 170
+      }
+    ],
+    "LuluCrashApplication": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt",
+        "line": 10
       }
     ],
     "saveGroupCall": [
@@ -12334,8 +12340,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 160,
-      "sha256": "2fe39ad2ca9ff1d0b3f9809a338b3d54502c2b37c7300cf26442f060ad5fba78",
+      "lines": 161,
+      "sha256": "ddf48cc3c24151717476554b5a08e087228a7376448c607f27b39b3312f9acf2",
       "symbols": []
     },
     {
@@ -13497,6 +13503,17 @@
         {
           "name": "destroy",
           "line": 55
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt",
+      "lines": 17,
+      "sha256": "46bda71bd01eb6e20d3a9c07934074e014e87894334f4d2354792739bca20ae4",
+      "symbols": [
+        {
+          "name": "LuluCrashApplication",
+          "line": 10
         }
       ]
     },

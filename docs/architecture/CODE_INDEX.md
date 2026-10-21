@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`fb757c33f24717c485b590f633510853cc6c25a8`
+- 基准提交：`9c2152f13aa9c309fdd9c938228f6f83a335559b`
 - 分支：`main`
-- 已索引文件：759
-- 已索引代码/文本行：145536
-- 已发现符号：2199
+- 已索引文件：760
+- 已索引代码/文本行：145554
+- 已发现符号：2200
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 141 | 0 |
-| `app/src/main/AndroidManifest.xml` | 160 | 0 |
+| `app/src/main/AndroidManifest.xml` | 161 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
@@ -94,6 +94,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 510 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 496 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 283 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 479 | 9 |
