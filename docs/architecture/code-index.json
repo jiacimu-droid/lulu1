@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T08:50:09.071084+00:00",
-  "commit": "ff3423223f1225eccfc1c29bda42878303937fb7",
+  "generatedAt": "2026-10-21T08:51:08.985812+00:00",
+  "commit": "6a6e4bcba303bb8d5ad60f8e9f5e137460d1d300",
   "branch": "main",
-  "sourceFingerprint": "34015ce2e6e6fc0a5f5957627891acddadbbb5c06a6459d30d41c8c26bc57493",
+  "sourceFingerprint": "20742cf21d478d75d77e1004b3819cf26a3ea240d85c995fd84836295cd4405b",
   "summary": {
-    "files": 765,
-    "lines": 146494,
-    "symbols": 2211
+    "files": 766,
+    "lines": 146569,
+    "symbols": 2212
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11306,6 +11306,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt",
         "line": 14
+      }
+    ],
+    "RelayRequestPressurePolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
+        "line": 5
       }
     ],
     "VoiceCallModelSelectionTest": [
@@ -24539,6 +24545,17 @@
         {
           "name": "MultimodalContentTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
+      "lines": 75,
+      "sha256": "8bb253c9f3b7bcdb647085e769db91ed87af2e7fa2f9a3d8cae35f7378a1c4a5",
+      "symbols": [
+        {
+          "name": "RelayRequestPressurePolicyTest",
+          "line": 5
         }
       ]
     },
