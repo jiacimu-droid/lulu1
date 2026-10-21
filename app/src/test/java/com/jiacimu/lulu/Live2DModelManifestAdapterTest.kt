@@ -3,9 +3,14 @@ package com.jiacimu.lulu
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 import java.nio.file.Files
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class Live2DModelManifestAdapterTest {
     @Test fun findsUnlistedWolfExpressionsWithoutOverwritingOriginalManifest() {
         val dir = Files.createTempDirectory("lulu-live2d-").toFile()
