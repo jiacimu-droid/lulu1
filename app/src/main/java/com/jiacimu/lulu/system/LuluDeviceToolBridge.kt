@@ -318,6 +318,16 @@ object LuluDeviceToolBridge {
             不允许用 sideActions 绕过角色权限、访问其他人的资料或强迫用户接受操作。
         """.trimIndent() else ""
         val phoneMediaRule = if (sceneContext.contains("电话")) """
+            【通话中的自然语言理解由你本人负责】
+            本通电话实际观察到的音乐状态：$currentPhoneMusic
+            如果本轮确实收到了用户的新话，结合原话、否定、转折、时间指向、此前经历与真正意图自行判断：
+            mediaUnderstanding={"music":"unchanged|stop|play","wake":"unconfirmed|confirmed","reason":"你对这轮原话的具体理解"}。
+            music=stop 表示对方现在希望停止或保持停止，不是她仅仅叙述过去曾经关过音乐。
+            music=play 仅表示对方本轮新的确希望再次播放，不能因为历史上曾下令、谈论过音乐或你想旧曲重播而选择。
+            music=unchanged 表示没有新音乐要求；默认为 unchanged。
+            wake=confirmed 只在用户这轮确实确认已经醒来时填写；说话、翻身、没有回应、提问或否认自己醒了都不等于确认。
+            没有真实新用户发言时这两个字段都省略：你仍然可以按自己的当前意愿选择获授权行动，但旧的用户播放意愿不会因你的定时感知而复活。
+            此字段记录你理解出的意图，不直接替代动作：是否暂停/恢复音乐仍由已授权执行器验证，真实结果决定最终状态。
             【通话中的真实音乐安排】
             已确认的本通电话音乐状态：$currentPhoneMusic
             你可以选择让手机上真正存在的音乐播放器稍后播放音乐，同时与她保持通话。
@@ -721,6 +731,28 @@ object LuluDeviceToolBridge {
             com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 userText, parsedPlan.innerThought,
             ))
+        // The character's own model interprets natural speech. Only an actual
+        // new user turn can revise the previous music-stop boundary or confirm
+        // the wake goal. Time-based silence and old chat history cannot.
+        if (!rewriting && !callSilence && sceneContext.contains("电话") &&
+            phoneCallId.isNotBlank() && userText.isNotBlank()) {
+            val understanding = plan.mediaUnderstanding
+            val musicChoice = understanding?.optString("music").orEmpty()
+            if (musicChoice in setOf("stop", "play")) {
+                com.jiacimu.lulu.data.DeferredCallMediaAction.applyUserMediaUnderstanding(
+                    appContext, characterId, phoneCallId, musicChoice)
+                if (musicChoice == "stop")
+                    com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(appContext, characterId)
+            }
+            if (understanding?.optString("wake") == "confirmed") {
+                val actuallyCompleted = com.jiacimu.lulu.data.WakeGoalVerification.confirmFromModel(characterId)
+                if (actuallyCompleted) {
+                    com.jiacimu.lulu.data.DeferredCallMediaAction.onWakeConfirmed(
+                        appContext, characterId, phoneCallId)
+                    com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(appContext, characterId)
+                }
+            }
+        }
         // A phone media plan is a side action chosen in the SAME role turn.
         // It cannot be treated as achieved merely because the role said it.
         val mediaReceipt = if (!rewriting && !callSilence && sceneContext.contains("电话") &&
@@ -1891,6 +1923,7 @@ object LuluDeviceToolBridge {
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 afterCallMedia = json.optJSONObject("afterCallMedia"),
                 sideActions = json.optJSONArray("sideActions"),
+                mediaUnderstanding = json.optJSONObject("mediaUnderstanding"),
                 musicAfterSpeech = json.optString("musicAfterSpeech").trim().lowercase(),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),
                 speechIntent = CharacterDecisionProtocol.speechIntent(json),
@@ -1959,6 +1992,7 @@ private data class ToolPlan(
     val sleepDecision: String = "",
     val afterCallMedia: JSONObject? = null,
     val sideActions: org.json.JSONArray? = null,
+    val mediaUnderstanding: JSONObject? = null,
     val musicAfterSpeech: String = "",
     val phoneFavorite: JSONObject? = null,
     val speechIntent: String = "",
