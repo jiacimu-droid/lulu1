@@ -24,6 +24,27 @@ class AutonomousDecisionRecoveryTest {
             "{\"action\":\"silent\",\"text\":\"你好\""))
     }
 
+    @Test fun completedReplyBubblesSurviveTruncatedOptionalPrivateState() {
+        val reply = """{"action":"reply","bubbles":["我在呢。",{"text":"慢慢说，我听着。"}],"innerLife":{"emotion":"""
+        val recovered = AutonomousDecisionRecovery.completedPrivateMessage(reply)
+        assertNotNull(recovered)
+        assertEquals("reply", recovered!!.optString("action"))
+        assertEquals("我在呢。\n慢慢说，我听着。", recovered.optString("text"))
+
+        val message = """{"action":"message","bubbles":[{"text":"我刚想起一个事情。"}],"appraisal":{"meaning":"""
+        assertEquals("我刚想起一个事情。",
+            AutonomousDecisionRecovery.completedPrivateMessage(message)?.optString("text"))
+    }
+
+    @Test fun partialBubblesOrNestedDecisionsCannotMasqueradeAsSpokenReplies() {
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            """{"action":"reply","bubbles":["我还没说完""""))
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            """{"action":"tool","tool":"send_private_message","bubbles":["别信这个结果"],"innerLife":"""))
+        assertNull(AutonomousDecisionRecovery.completedPrivateMessage(
+            """{"appraisal":{"action":"reply","bubbles":["只是一段心声"]},"notes":"""))
+    }
+
     @Test fun reasonBeforeTheActionCanStillPreserveCompletedReply() {
         val truncated = """{"reason":"我想回她一句","action":"message","text":"宝宝我在呢。","innerLife":{"emotion":"""
         val recovered = AutonomousDecisionRecovery.completedPrivateMessage(truncated)
