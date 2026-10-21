@@ -56,6 +56,7 @@ internal class LuluCallSpeechQueue(
     }
 
     fun stop(clearQueue: Boolean = true) {
+        activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
         generation += 1
         if (clearQueue) pending.clear()
         active = false
@@ -67,6 +68,7 @@ internal class LuluCallSpeechQueue(
     }
 
     fun shutdown() {
+        activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
         generation += 1
         pending.clear()
         active = false
@@ -90,12 +92,14 @@ internal class LuluCallSpeechQueue(
         activeRequest = request
         val localGeneration = generation
         var audible = false
+        var lastMouthSampleAt = 0L
         // Report real PCM playback, not the HTTP TTS preparation interval.
         engine.onPlaybackState = { playing ->
             if (playing) scope.launch(Dispatchers.Main.immediate) {
                 if (localGeneration == generation && active && activeRequest === request && !audible) {
                     audible = true
                     onBusyChanged(true)
+                    request.speakerId?.let { AvatarController.playback(it, true) }
                     onSpeakerChanged(request.speakerId)
                     request.onStarted?.invoke()
                 }
@@ -107,6 +111,7 @@ internal class LuluCallSpeechQueue(
                 if (localGeneration != generation) return@launch
                 val succeeded = engine.lastPlaybackSucceeded
                 val failure = engine.lastError
+                request.speakerId?.let { AvatarController.playback(it, false) }
                 if (succeeded) request.onDelivered?.invoke()
                 active = false
                 activeRequest = null
@@ -129,6 +134,17 @@ internal class LuluCallSpeechQueue(
                 source = "phone_direct",
                 onFinished = onFinished,
                 recordingTarget = target,
+                onPcmFrame = { pcm, offset, length ->
+                    if (localGeneration == generation && active && activeRequest === request) {
+                        val now = android.os.SystemClock.elapsedRealtime()
+                        if (now - lastMouthSampleAt >= 65L) {
+                            lastMouthSampleAt = now
+                            request.speakerId?.let {
+                                AvatarController.audio(it, CallSpeechPcmLevel.measure(pcm, offset, length))
+                            }
+                        }
+                    }
+                },
             )
         }
     }
