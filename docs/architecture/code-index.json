@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T06:05:43.284191+00:00",
-  "commit": "1d68c50f64f4a856459ee9b71c83e042797ee860",
+  "generatedAt": "2026-10-21T06:08:50.198895+00:00",
+  "commit": "a8a0bb35e3bca3573802bc5ae012d81916d99b28",
   "branch": "main",
-  "sourceFingerprint": "6614159b3955fb8732869f406667fc605865a70c565262777eb34c95c48c0421",
+  "sourceFingerprint": "eee8afdb47c575417386912780e3c4d28639b0444ae0ca1a9edd115e3342fd73",
   "summary": {
     "files": 761,
-    "lines": 145656,
+    "lines": 145686,
     "symbols": 2201
   },
   "symbolIndex": {
@@ -12340,8 +12340,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 151,
-      "sha256": "c667ce6a55af55536c6c89ad59091057878b6bf64929fea400478882f7e7fa56",
+      "lines": 171,
+      "sha256": "8ffc8c5fd6c24d077831bdd61cc0eb7639eca76f32e09c718882d7e7477c1e12",
       "symbols": []
     },
     {
@@ -26285,8 +26285,8 @@
     },
     {
       "path": "scripts/verify_phone_apk_bytecode.py",
-      "lines": 41,
-      "sha256": "b9d9d8efeb1d9225d3a80484fe34b7c56bce673bd39c23517b23eae28e9ac48b",
+      "lines": 51,
+      "sha256": "806f854cc76660caf95351c425e7144823da3e0ee0987dbd2ccc08f6d8222319",
       "symbols": []
     },
     {
