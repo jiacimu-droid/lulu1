@@ -1,0 +1,12 @@
+{
+  "name": "lulu-live2d-web-stage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-only Live2D stage used by Lulu's native phone UI; no independent AI or TTS",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": {
+    "pixi.js": "6.5.10",
+    "pixi-live2d-display": "0.4.0"
+  },
+  "devDependencies": { "esbuild": "0.25.12" }
+}
