@@ -23,14 +23,21 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
             val id = inputData.getString("evidenceId") ?: return@withLock Result.failure()
             val source = SharedExperienceTimeline.eventsByIds(role, listOf(id)).firstOrNull()
                 ?: return@withLock Result.success()
+            val category = inputData.getString("category").orEmpty().ifBlank { "outing" }
+            val sourceIds = (listOf(id) + inputData.getStringArray("sourceEvidenceIds").orEmpty())
+                .distinct().take(16)
+            val verified = SharedExperienceTimeline.eventsByIds(role, sourceIds)
+            if (verified.size != sourceIds.size) return@withLock Result.success()
             if (source.revision != inputData.getLong("revision", -1L)) return@withLock Result.success()
             if (WorldLifeEpisodeStore.episodes(role).any { it.evidenceId == id } ||
-                WorldLifeEpisodeStore.nearbyAt(role, location, source.occurredAt) != null)
+                (category == "outing" &&
+                    WorldLifeEpisodeStore.nearbyAt(role, location, source.occurredAt) != null))
                 return@withLock Result.success()
             val composition = try {
                 WorldLifeEpisodeComposer.compose(role, location, source.content,
                     inputData.getString("title").orEmpty(), inputData.getString("seed").orEmpty(),
-                    witnessedItems = inputData.getString("items").orEmpty())
+                    witnessedItems = inputData.getString("items").orEmpty(),
+                    verifiedEvents = verified, category = category)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -38,12 +45,12 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
             }
             // Source deletion, editing or an old outstanding job must never
             // publish a ghost scene or a bogus failure message.
-            if (SharedExperienceTimeline.eventsByIds(role, listOf(id)).firstOrNull() != source)
+            if (SharedExperienceTimeline.eventsByIds(role, sourceIds).toSet() != verified.toSet())
                 return@withLock Result.success()
             if (composition.draft == null) {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                    source = "独处写作",
-                    title = "独处片段补写 · 第${runAttemptCount + 1}次",
+                    source = "生活小剧场",
+                    title = "生活片段补写 · 第${runAttemptCount + 1}次",
                     message = composition.failureReason.take(160).ifBlank { "没有得到完整正文" },
                 )
                 // The former Result.success() permanently discarded every
@@ -53,16 +60,17 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 // One concise final notice only after retry exhaustion, rather
                 // than a string of failure notices inside the character chat.
                 MigratedDomainStores.chat.appendPrivateActivityNotice(
-                    role, "独处片段暂未补写成功 · 真实世界动作已保存，可查看模型请求日志")
+                    role, "生活小剧场暂未补写成功 · 真实经历已保存，可查看模型请求日志")
                 return@withLock Result.success()
             }
             val draft = composition.draft
             val episode = try {
                 WorldLifeEpisodeStore.record(role, location, draft.title, draft.scene,
-                    source.content, id, source.occurredAt, draft.unresolvedThread, expectedSource = source)
+                    source.content, id, source.occurredAt, draft.unresolvedThread,
+                    expectedSource = source, sourceEvidenceIds = sourceIds, category = category)
             } catch (error: Exception) {
                 com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                    source = "独处写作", title = "独处片段持久化失败",
+                    source = "生活小剧场", title = "生活片段持久化失败",
                     message = error.message.orEmpty().take(140))
                 if (runAttemptCount < 2) return@withLock Result.retry()
                 return@withLock Result.failure()
@@ -71,7 +79,7 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 SharedExperienceTimeline.eventsByIds(role, listOf(id)).firstOrNull() == source) {
                 val name = MigratedDomainStores.characters.get(role).displayName
                 MigratedDomainStores.chat.appendPrivateActivityNotice(role,
-                    "[独处片段|${episode.id}] ${name}的《${episode.title}》 · 查看片段")
+                    "[独处片段|${episode.id}] ${name}的《${episode.title}》 · 查看生活小剧场")
             }
             Result.success()
         }
@@ -81,7 +89,8 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
         private val writers = KeyedWorkMutex()
 
         internal fun enqueue(context: Context, characterId: String, location: String,
-            evidenceId: String, title: String, seed: String) {
+            evidenceId: String, title: String, seed: String,
+            sourceEvidenceIds: List<String> = listOf(evidenceId), category: String = "outing") {
             val source = SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId)).firstOrNull() ?: return
             val items = DigitalWorldStore.itemsAtLocation(characterId).take(9)
                 .joinToString("；") { "${it.name}（${it.position.take(65)}）" }.take(900)
@@ -91,6 +100,8 @@ class WorldLifeEpisodeWorker(context: Context, params: WorkerParameters) : Corou
                 .setInputData(Data.Builder().putString("characterId", characterId)
                     .putString("location", location).putString("evidenceId", evidenceId)
                     .putLong("revision", source.revision).putString("items", items)
+                    .putStringArray("sourceEvidenceIds", (listOf(evidenceId) + sourceEvidenceIds)
+                        .distinct().take(16).toTypedArray()).putString("category", category)
                     .putString("title", title.take(70)).putString("seed", seed.take(500)).build())
                 .build()
             WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
