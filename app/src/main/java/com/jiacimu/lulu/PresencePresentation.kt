@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.CompanionPresenceState
+import com.jiacimu.lulu.data.PresenceFieldBoundary
 
 /**
  * One moment, three distinct dimensions. Old model turns can accidentally
@@ -23,12 +24,16 @@ internal object PresencePresentation {
 
     fun stateFields(state: CompanionPresenceState): List<Pair<String, String>> {
         val mood = uniqueMood(state.mood)
+        val gestureRaw = clean(state.gesture)
         val status = clean(state.statusText).takeUnless {
-            it.isBlank() || (mood.isNotBlank() && equivalent(it, mood))
-        }.orEmpty()
-        val gesture = clean(state.gesture).takeUnless {
             it.isBlank() || (mood.isNotBlank() && equivalent(it, mood)) ||
-                (status.isNotBlank() && equivalent(it, status))
+                PresenceFieldBoundary.repeatsConfirmedAction(it, gestureRaw)
+        }.orEmpty()
+        val gesture = gestureRaw.takeUnless {
+            it.isBlank() || (mood.isNotBlank() && equivalent(it, mood)) ||
+                (status.isNotBlank() &&
+                (equivalent(it, status) ||
+                    PresenceFieldBoundary.repeatsConfirmedAction(status, it)))
         }.orEmpty()
         return listOf(
             "心情" to mood,
