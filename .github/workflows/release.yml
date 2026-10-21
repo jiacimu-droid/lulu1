@@ -34,6 +34,18 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
+      # The renderer is bundled locally inside the APK; no CDN, chat API or
+      # remote scripts are used by the actual Live2D WebView.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build bundled Live2D stage
+        run: |
+          npm install --prefix tools/live2d --ignore-scripts --no-audit --no-fund --no-package-lock
+          npm run build --prefix tools/live2d
+          test -s app/src/main/assets/live2d/renderer.js
+
       - name: Test and build phone APK
         run: |
           set -o pipefail
