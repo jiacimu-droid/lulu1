@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T06:58:12.309465+00:00",
-  "commit": "19fdc5eb801c1d9f48ffabd38a37be9dd7fc66c7",
+  "generatedAt": "2026-10-21T06:58:42.362409+00:00",
+  "commit": "ecb2897273bcf5eec5f054e0a8efda07ecac3b3a",
   "branch": "main",
-  "sourceFingerprint": "5b152443ed28006a4269c75289aecfd7b2765b60716db666efc0201f53c1775c",
+  "sourceFingerprint": "b0caf2f3480e854ef5f6ffd75818fe695fae46c97955644de9a745ca0d2d0260",
   "summary": {
     "files": 761,
-    "lines": 145826,
+    "lines": 145833,
     "symbols": 2201
   },
   "symbolIndex": {
@@ -343,7 +343,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 50
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -3699,7 +3699,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 33
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -3721,7 +3721,7 @@
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 34
+        "line": 35
       }
     ],
     "isWakeExplanation": [
@@ -13438,8 +13438,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
-      "lines": 112,
-      "sha256": "ae229af1930c302ee9d403cf75d9064e4b78fb86279e7d115365aef8b9aa79af",
+      "lines": 118,
+      "sha256": "774a28c6ba721528e7841cb128d57525e1e0a5a28d190da9da1d0e39f747113b",
       "symbols": [
         {
           "name": "enabled",
@@ -15642,8 +15642,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 57,
-      "sha256": "fb006c36a971fda7ac8c085d1fe0b59513799bdc13708b01ab2deb121727caa2",
+      "lines": 58,
+      "sha256": "edcb5a71ebeced2706aa827a7bf92f6325b82116683f0ba91d7b56a8be6c64e7",
       "symbols": [
         {
           "name": "Capability",
@@ -15655,15 +15655,15 @@
         },
         {
           "name": "find",
-          "line": 33
-        },
-        {
-          "name": "allows",
           "line": 34
         },
         {
+          "name": "allows",
+          "line": 35
+        },
+        {
           "name": "context",
-          "line": 50
+          "line": 51
         }
       ]
     },
