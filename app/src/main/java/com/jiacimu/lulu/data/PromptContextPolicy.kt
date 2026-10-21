@@ -83,6 +83,16 @@ internal object PromptContextPolicy {
             append("要移动/布置/使用物品时，先取得该地点完整权威清单与真实ID，不编造物品。")
             DigitalWorldActivityStateStore.briefContextFor(characterId)
                 .takeIf(String::isNotBlank)?.let { append("\n").append(it) }
+            // The compact chat path must retain the same live resident
+            // locator used by the actual world executor. Without this, an old
+            // friendship or an imagined meeting can masquerade as "just came in".
+            val presentResidents = DigitalWorldExpansionStore.residentsAt(location)
+            append("\n当前地点程序已登记在场的居民：")
+            if (presentResidents.isEmpty()) append("无")
+            else append(presentResidents.joinToString("；") { resident ->
+                "${resident.name}(resident:${resident.id}，身份=${resident.identity}，当前地点已核实)"
+            })
+            append("。在场只表示最新保存的当前位置，不证明刚刚进门；只有真实世界移动回执或在场的见面记录才能支持到访时间和具体交流。")
             DigitalWorldLiveScene.context(characterId).takeIf(String::isNotBlank)?.let { append("\n").append(it) }
             if (activeEvents.isNotBlank()) append("\n").append(activeEvents)
         }
