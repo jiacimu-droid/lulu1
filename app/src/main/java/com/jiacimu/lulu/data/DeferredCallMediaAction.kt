@@ -143,6 +143,7 @@ internal object DeferredCallMediaAction {
         userPausedCallId != callId || userPausedCharacterId != characterId
 
     @Synchronized fun onWakeConfirmed(context: Context, characterId: String, callId: String) {
+        val playerAtConfirmation = activeMusicPackage
         if (activeMusicCharacterId == characterId && activeMusicCallId == callId) {
             if (activeMusicPackage.isNotBlank())
                 runCatching { LuluMediaPlayback.control(context, "pause", activeMusicPackage) }
@@ -154,7 +155,7 @@ internal object DeferredCallMediaAction {
         }
         userPausedCallId = callId
         userPausedCharacterId = characterId
-        userPausedMusicPackage = activeMusicPackage
+        userPausedMusicPackage = playerAtConfirmation.ifBlank { userPausedMusicPackage }
         cancelPlannedPlayback(context, characterId, callId)
         LuluMediaVolume.control(context, characterId, "restore")
     }
