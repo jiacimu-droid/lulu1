@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T08:15:18.022418+00:00",
-  "commit": "9e2d014c5e860a895e8bf90085d7c862f9e86182",
+  "generatedAt": "2026-10-21T08:16:05.360884+00:00",
+  "commit": "88e52594c09379ca5d5d06792ab240a24b800bcc",
   "branch": "main",
-  "sourceFingerprint": "3c5a3f66f954fccdcc2d46411233604d56f206fdfb21f59f42658b327dc3d689",
+  "sourceFingerprint": "6ebb3858da13e14ff79478db33712735cadcc4eed81daa80d1ed29c987b3d2ff",
   "summary": {
     "files": 764,
     "lines": 146311,
@@ -21007,7 +21007,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
       "lines": 228,
-      "sha256": "e995d5676533aca8fcddaea5e5606e3a0cc2fff52e9cb03351d150c3130d1421",
+      "sha256": "2da007f7989ce3b1bdcfd8ae59336e783b074e9e746eca70be544e67533fcd1a",
       "symbols": [
         {
           "name": "episodes",
