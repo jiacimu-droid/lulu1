@@ -15,6 +15,9 @@ let mouth = 0
 let listening = false
 let paused = false
 let seconds = 0
+let headRequest = null
+let headRequestEndAt = 0
+const smoothPose = { yaw: 0, pitch: 0, roll: 0 }
 
 function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
@@ -43,7 +46,18 @@ function tick(delta) {
     core.setParameterValueById('ParamMouthOpenY', playing ? Math.min(1, Math.max(0, mouth)) : 0)
     // Tiny idle movement is a renderer-only interpolation, never a reported world action.
     core.setParameterValueById('ParamBodyAngleX', Math.sin(seconds * .66) * 1.4)
-    core.setParameterValueById('ParamAngleX', listening ? 1.3 : Math.sin(seconds * .47) * 1.6)
+    if (headRequest && Date.now() > headRequestEndAt) headRequest = null
+    const axes = [
+      ['ParamAngleX', 'yaw', listening ? 1.3 : Math.sin(seconds * .47) * 1.6],
+      ['ParamAngleY', 'pitch', 0],
+      ['ParamAngleZ', 'roll', Math.sin(seconds * .35) * .5],
+    ]
+    for (const [id, axis, idle] of axes) {
+      if (core.getParameterIndex(id) < 0) continue
+      const goal = headRequest?.[axis] ?? idle
+      smoothPose[axis] += (goal - smoothPose[axis]) * Math.min(1, delta * .18)
+      core.setParameterValueById(id, smoothPose[axis])
+    }
   } catch (_ignored) { /* Older models may omit optional parameters. */ }
 }
 function ensureApp() {
@@ -85,6 +99,10 @@ async function load(modelURL) {
     app.stage.addChild(model)
     fit()
     status('', 'ready')
+    const coreModel = model.internalModel?.coreModel
+    const available = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ']
+      .filter(id => coreModel?.getParameterIndex(id) >= 0)
+    console.info('__LULU_LIVE2D__' + JSON.stringify({ type: 'parameters', detail: available.join(',') }))
   } catch (error) {
     status('无法加载动态模型：' + (error && error.message ? error.message : String(error)), 'error')
   }
@@ -108,7 +126,17 @@ function motion(group, index) {
   Promise.resolve(model.motion(group, index)).catch(() => {})
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
-window.LuluLive2D = { load, update, setPaused, expression, motion }
+function head(target) {
+  if (!model || !target) return
+  headRequest = {}
+  for (const axis of ['yaw', 'pitch', 'roll']) {
+    if (typeof target[axis] === 'number' && Number.isFinite(target[axis])) {
+      headRequest[axis] = Math.max(-25, Math.min(25, target[axis]))
+    }
+  }
+  headRequestEndAt = Date.now() + 1600
+}
+window.LuluLive2D = { load, update, setPaused, expression, motion, head }
 if (window.__luluStageState) update(window.__luluStageState)
 if (window.__luluStageModelUrl) load(window.__luluStageModelUrl)
 else status('请选择 Live2D 模型')
