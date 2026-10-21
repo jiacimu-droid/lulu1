@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:03:08.375323+00:00",
-  "commit": "d98222fcc1c1f758a92a2cea0eac914413a22788",
+  "generatedAt": "2026-10-21T16:04:36.016393+00:00",
+  "commit": "7e6bac45d146b90f171a9cbb7c35386089ae2192",
   "branch": "main",
-  "sourceFingerprint": "1082318114e70463793f8ec302008fa5a4a71632a1cd74f78960536f2e987e1a",
+  "sourceFingerprint": "1f4fd024b1dbae53da1982edf265a93e38e4f54a41722126ea32eff9b7afeac4",
   "summary": {
     "files": 773,
-    "lines": 147911,
+    "lines": 147978,
     "symbols": 2231
   },
   "symbolIndex": {
@@ -1781,7 +1781,7 @@
     "LuluVoiceCallScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-        "line": 58
+        "line": 60
       }
     ],
     "scheduleDeferredMedia": [
@@ -13898,12 +13898,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 571,
-      "sha256": "31902f2de8fdc5bd0cc32c7dee5caa9a256357795ab0216031fae6a6088c6aca",
+      "lines": 638,
+      "sha256": "33137168018045ba455296461bc624b823b814fd5b2d730133f1d999d7742abe",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
-          "line": 58
+          "line": 60
         }
       ]
     },
