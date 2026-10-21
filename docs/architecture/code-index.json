@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T08:49:33.791547+00:00",
-  "commit": "17fe24bdf83fe6962e9207328d635ba7ed972190",
+  "generatedAt": "2026-10-21T08:50:09.071084+00:00",
+  "commit": "ff3423223f1225eccfc1c29bda42878303937fb7",
   "branch": "main",
-  "sourceFingerprint": "8e502da40049a347cd50d2bf15075de4c121d504634cdb2c153760d64d6284e8",
+  "sourceFingerprint": "34015ce2e6e6fc0a5f5957627891acddadbbb5c06a6459d30d41c8c26bc57493",
   "summary": {
     "files": 765,
-    "lines": 146464,
+    "lines": 146494,
     "symbols": 2211
   },
   "symbolIndex": {
@@ -15445,8 +15445,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 254,
-      "sha256": "3e31edd1b5c4b2e32dd3a0503c16fb7e1d0d71ff4d68d05d64e35524184b0a64",
+      "lines": 284,
+      "sha256": "ec10d933a2612d86b1466e7d23f7779496b02c3da611e1c2c67c490833421b55",
       "symbols": [
         {
           "name": "VisionModelService",
