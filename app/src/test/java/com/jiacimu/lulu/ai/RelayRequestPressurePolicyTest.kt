@@ -88,7 +88,7 @@ class RelayRequestPressurePolicyTest {
 
     @Test fun fallbackNeverCutsAStatementInHalfOrStitchesSeparatedFacts() {
         val oldest = "先确认：没有同意新增任务"
-        val newer = "用户说过一条非常长的单一事实" + "旧细节".repeat(2_500)
+        val newer = "用户说过一条非常长的单一事实" + "旧细节".repeat(10_000)
         val latest = "刚刚的新事件：已经明确拒绝了音乐"
         val selected = RelayRequestPressurePolicy.compactSections(listOf(
             "本轮背景依据" to listOf("真实感知背景", oldest, newer, latest)
