@@ -394,7 +394,12 @@ internal object DigitalWorldLifeEventStore {
             DigitalFurnitureKind.TV -> listOf("screen_static")
             else -> listOf("dust_layer")
         }
-        return physical + stumbling + ambience + actualIssue + listOf("roach")
+        // A pest is a rare physical circumstance tied to an actual hiding
+        // surface, not a generic event produced by EVERY furniture item.
+        // Existing active incidents stay persisted until a real response.
+        val pests = if (kind in setOf(DigitalFurnitureKind.RUG, DigitalFurnitureKind.PLANT))
+            listOf("roach") else emptyList()
+        return physical + stumbling + ambience + actualIssue + pests
     }
 
     private fun responseOptions(kind: String): List<String> = when (kind) {
