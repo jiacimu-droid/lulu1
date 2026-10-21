@@ -4,12 +4,9 @@ import android.content.Context
 
 /** Durable chat turns wait for the last user bubble; an unsent older reply must yield to newer input. */
 internal object OnlineChatBatchStore {
-    // First bubble waits long enough to catch a natural follow-up.
-    // Each subsequent bubble needs only a SHORT quiet window, not 8/10/... seconds.
+    // Each actual new user bubble extends ONE fixed quiet window.
+    // Never grow the wait with message count or trigger the paid API mid-burst.
     const val QUIET_MILLIS = 6_000L
-    const val FOLLOWUP_QUIET_MILLIS = 3_000L
-    internal fun quietMillis(bubbleCount: Int): Long =
-        if (bubbleCount > 1) FOLLOWUP_QUIET_MILLIS else QUIET_MILLIS
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
@@ -26,18 +23,16 @@ internal object OnlineChatBatchStore {
                 // An autonomous background tick may have left an immediate
                 // non-message batch pending. The FIRST chat bubble MUST turn
                 // that into a real quiet waiting window; never reuse the 0ms due.
-                val due = now + quietMillis(1)
+                val due = now + QUIET_MILLIS
                 check(p.edit().putLong("due:$characterId", due)
-                    .putInt("bubbleCount:$characterId", 1)
                     .putBoolean("messageWindow:$characterId", true).commit()) { "在线首条消息等待期保存失败" }
                 return Batch(pendingRevision, due)
             }
             return Batch(pendingRevision, p.getLong("due:$characterId", now))
         }
         val revision = pendingRevision + 1
-        val due = if (collectMessages) now + quietMillis(1) else now
+        val due = if (collectMessages) now + QUIET_MILLIS else now
         check(p.edit().putLong("revision:$characterId", revision).putLong("due:$characterId", due)
-            .putInt("bubbleCount:$characterId", if (collectMessages) 1 else 0)
             .putBoolean("messageWindow:$characterId", collectMessages).commit()) { "在线消息批次保存失败" }
         return Batch(revision, due)
     }
@@ -49,27 +44,22 @@ internal object OnlineChatBatchStore {
         val p = prefs(context)
         val revision = p.getLong("revision:$characterId", 0L)
         if (p.contains("due:$characterId") && (characterId to revision) !in reading) {
-            // Preserve the FIRST bubble's deadline (don't start its API
-            // earlier just because the user added another sentence). Subsequent
-            // bubbles only need 3 seconds after the latest send, never 8/10.
-            val count = (p.getInt("bubbleCount:$characterId", 1) + 1).coerceAtMost(3)
-            val due = maxOf(p.getLong("due:$characterId", atMillis), atMillis + quietMillis(count))
+            // Another bubble means the user may still be typing. The quiet
+            // period restarts from this latest persisted bubble, always 6s.
+            val due = maxOf(p.getLong("due:$characterId", atMillis), atMillis + QUIET_MILLIS)
             check(p.edit().putLong("due:$characterId", due)
-                .putInt("bubbleCount:$characterId", count)
                 .putBoolean("messageWindow:$characterId", true).commit()) {
                 "延长本轮消息静默等待失败"
             }
             return Batch(revision, due)
         }
-        // If a model was already reading, new user input supersedes its unsent
-        // answer. Do not charge yet another unnecessary 6-second first-bubble
-        // delay: this is a continuation of the same burst, not a new greeting.
+        // If a model was already reading, newer user input supersedes its
+        // unsent decision. Every new bubble gets the same fixed quiet time.
         if (p.contains("due:$characterId") && (characterId to revision) in reading) {
             val nextRevision = revision + 1
-            val due = atMillis + FOLLOWUP_QUIET_MILLIS
+            val due = atMillis + QUIET_MILLIS
             check(p.edit().putLong("revision:$characterId", nextRevision)
                 .putLong("due:$characterId", due)
-                .putInt("bubbleCount:$characterId", 2)
                 .putBoolean("messageWindow:$characterId", true).commit()) {
                 "生成中的连续消息保存失败"
             }
@@ -118,7 +108,7 @@ internal object OnlineChatBatchStore {
         reading.remove(characterId to revision)
         if (completed && isCurrent(context, characterId, revision)) {
             check(prefs(context).edit().remove("due:$characterId")
-                .remove("messageWindow:$characterId").remove("bubbleCount:$characterId")
+                .remove("messageWindow:$characterId")
                 .remove("enqueued:$characterId").commit()) { "在线消息读取状态保存失败" }
         }
     }
@@ -139,6 +129,6 @@ internal object OnlineChatBatchStore {
         reading.removeAll { it.first == characterId }
         check(p.edit().putLong("revision:$characterId", p.getLong("revision:$characterId", 0) + 1)
             .remove("due:$characterId").remove("messageWindow:$characterId")
-            .remove("bubbleCount:$characterId").remove("enqueued:$characterId").commit()) { "取消在线消息失败" }
+            .remove("enqueued:$characterId").commit()) { "取消在线消息失败" }
     }
 }
