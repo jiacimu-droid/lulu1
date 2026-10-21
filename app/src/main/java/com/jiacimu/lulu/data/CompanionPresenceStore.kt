@@ -9,6 +9,38 @@ import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
 
+/**
+ * Presentation-only overlap detection. It never infers what the role wanted,
+ * alters world evidence, or erases persisted history. Exact word sequences
+ * are often reordered in a model description of the SAME confirmed motion.
+ */
+internal object PresenceFieldBoundary {
+    private fun normalize(text: String): String =
+        text.replace(Regex("[\\s，。！？!?、；;：:·‘’“”]+"), "")
+
+    private fun grams(text: String, size: Int): Set<String> =
+        if (text.length < size) emptySet() else
+            text.windowed(size, 1).toSet()
+
+    private fun overlap(first: String, second: String, size: Int): Double {
+        val a = grams(first, size)
+        val b = grams(second, size)
+        if (a.isEmpty() || b.isEmpty()) return 0.0
+        return a.intersect(b).size.toDouble() / minOf(a.size, b.size)
+    }
+
+    fun repeatsConfirmedAction(status: String, action: String): Boolean {
+        val a = normalize(status)
+        val b = normalize(action)
+        if (a.isBlank() || b.isBlank()) return false
+        if (a == b || a.contains(b) || b.contains(a)) return true
+        // Only suppress very strong overlap between a sustained-state field
+        // and a verified action description; different aims or feelings survive.
+        return minOf(a.length, b.length) >= 12 &&
+            overlap(a, b, 3) >= 0.55 && overlap(a, b, 2) >= 0.64
+    }
+}
+
 data class CompanionPresenceState(
     val characterId: String,
     val statusText: String = "",
