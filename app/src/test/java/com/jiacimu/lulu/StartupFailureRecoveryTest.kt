@@ -12,6 +12,16 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [32])
 class StartupFailureRecoveryTest {
+    @Test fun recoverablePeripheralErrorDoesNotTurnIntoFatalStartupReport() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        val prefs = context.getSharedPreferences("lulu_startup_failure_diagnostic", Context.MODE_PRIVATE)
+        prefs.edit().remove("last_report").commit()
+        StartupFailureRecovery.recordWarning(context, "background service",
+            SecurityException("foreground service restricted"))
+        assertTrue(StartupFailureRecovery.latest(context) == null)
+        assertTrue(prefs.getString("last_warning", "").orEmpty().contains("background service"))
+    }
+
     @Test fun startupFailurePreservesTraceWithoutTouchingUserData() {
         val context = RuntimeEnvironment.getApplication() as Context
         val userPrefs = context.getSharedPreferences("existing_character_test", Context.MODE_PRIVATE)
