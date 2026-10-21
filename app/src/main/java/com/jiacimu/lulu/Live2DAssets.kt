@@ -43,9 +43,29 @@ internal object Live2DAssets {
         prefs(context).getString("label:$characterId", null).orEmpty()
     /** Optional full-person preview supplied by the creator. Never display atlas textures as a portrait. */
     fun previewFile(context: Context, characterId: String): File? {
-        val relative = prefs(context).getString("preview:$characterId", null).orEmpty()
-        if (!relative.startsWith("models/") || relative.contains("..")) return null
-        return File(base(context), relative).takeIf { inside(base(context), it) && it.isFile }
+        val root = base(context)
+        val saved = prefs(context).getString("preview:$characterId", null).orEmpty()
+        if (saved.startsWith("models/") && !saved.contains("..")) {
+            File(root, saved).takeIf { inside(root, it) && it.isFile }?.let { return it }
+        }
+        // Older versions already imported the ZIP without saving its preview path.
+        val modelRelative = prefs(context).getString("model:$characterId", null).orEmpty()
+        if (!modelRelative.startsWith("models/") || modelRelative.contains("..")) return null
+        val modelFile = File(root, modelRelative)
+        if (!inside(root, modelFile) || !modelFile.isFile) return null
+        return runCatching {
+            val textures = JSONObject(modelFile.readText()).getJSONObject("FileReferences").getJSONArray("Textures")
+            val referenced = (0 until textures.length()).map {
+                File(modelFile.parentFile!!, textures.getString(it)).canonicalPath
+            }.toSet()
+            val folder = modelFile.parentFile ?: return@runCatching null
+            folder.walkTopDown().filter { file ->
+                file.isFile && file.extension.lowercase() in setOf("png", "jpg", "jpeg", "webp") &&
+                    file.canonicalPath !in referenced &&
+                    !file.invariantSeparatorsPath.contains("/8192/") &&
+                    !file.invariantSeparatorsPath.contains("/4096/")
+            }.sortedByDescending { it.length() }.firstOrNull()
+        }.getOrNull()
     }
 
     /** Actual controls from the user's Cubism model, not invented universal emotion labels. */
