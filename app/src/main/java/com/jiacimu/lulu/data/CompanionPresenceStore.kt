@@ -33,10 +33,13 @@ internal object PresenceFieldBoundary {
         val a = normalize(status)
         val b = normalize(action)
         if (a.isBlank() || b.isBlank()) return false
-        if (a == b || a.contains(b) || b.contains(a)) return true
-        // Only suppress very strong overlap between a sustained-state field
-        // and a verified action description; different aims or feelings survive.
-        return minOf(a.length, b.length) >= 12 &&
+        if (a == b || b.contains(a)) return true
+        // If the status contains the whole action PLUS additional content,
+        // its additional intention/condition may be unique and must survive.
+        if (a.contains(b) || a.length > b.length) return false
+        // Only suppress very strong overlap between a shorter status and
+        // longer confirmed action, never guess that added facts are equivalent.
+        return a.length >= 12 &&
             overlap(a, b, 3) >= 0.55 && overlap(a, b, 2) >= 0.64
     }
 }
