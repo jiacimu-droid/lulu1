@@ -1,5 +1,8 @@
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
+// Pixi v6 replaces runtime shader code-generation with a CSP-safe adapter.
+// This does NOT enable eval or relax Android WebView content-security policy.
+import '@pixi/unsafe-eval'
 import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 
 window.PIXI = PIXI
