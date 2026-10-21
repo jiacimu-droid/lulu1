@@ -160,6 +160,9 @@ internal fun Live2DFullscreenVideoCall(
                 verticalAlignment = Alignment.CenterVertically) {
                 VideoCallButton(Icons.Outlined.VideocamOff, "切为语音", onSwitchToVoice)
                 if (state.connected) {
+                    VideoCallButton(if (state.speakerEnabled) Icons.Outlined.VolumeUp
+                        else Icons.Outlined.PhoneInTalk,
+                        "声音输出", LuluVoiceCallSession::toggleSpeaker)
                     VideoCallButton(if (state.microphoneMuted) Icons.Outlined.MicOff else Icons.Outlined.Mic,
                         if (state.microphoneMuted) "打开麦克风" else "关闭麦克风",
                         LuluVoiceCallSession::toggleMicrophone)
