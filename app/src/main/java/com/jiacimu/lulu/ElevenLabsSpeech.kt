@@ -96,7 +96,8 @@ internal class ElevenLabsSpeech(context: Context) {
         } finally { call.close() }
     }
 
-    suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null, source: String = "phone_direct"): Boolean = withContext(Dispatchers.IO) {
+    suspend fun speak(text: String, voiceId: String?, onStarted: () -> Unit, recordingTarget: File? = null, source: String = "phone_direct",
+        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> }): Boolean = withContext(Dispatchers.IO) {
         val token = epoch
         // A long bedtime turn remains one visible message and one recording,
         // but each WebSocket synthesis segment has its own bounded PCM stream.
@@ -138,6 +139,7 @@ internal class ElevenLabsSpeech(context: Context) {
                                 check(sent > 0) { "ElevenLabs 音频播放失败" }
                                 if (written == 0L) onStarted()
                                 recording?.write(buffer, offset, sent)
+                                onPcmFrame(buffer, offset, sent)
                                 offset += sent; written += sent
                             }
                             carry = total % 2
