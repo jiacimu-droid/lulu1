@@ -97,6 +97,9 @@ fun LuluVoiceCallScreen(
     var showAnimationPreview by remember(currentCharacterId) { mutableStateOf(false) }
     var previewExpression by remember(currentCharacterId) { mutableStateOf<String?>(null) }
     var previewMotion by remember(currentCharacterId) { mutableStateOf<Pair<String, Int>?>(null) }
+    var previewHead by remember(currentCharacterId) {
+        mutableStateOf<Live2DVisualActionBus.Head?>(null)
+    }
     var previewRevision by remember(currentCharacterId) { mutableIntStateOf(0) }
     fun installCoreIfNeeded() {
         if (Live2DAssets.hasCore(context) || importingModel) return
@@ -218,6 +221,26 @@ fun LuluVoiceCallScreen(
                     previewExpression = previewExpression,
                     previewMotion = previewMotion,
                     previewRevision = previewRevision,
+                    manualHead = previewHead,
+                    availableAnimations = availableAnimations,
+                    onPreviewExpression = { expression ->
+                        previewExpression = expression
+                        previewMotion = null
+                        previewHead = null
+                        previewRevision++
+                    },
+                    onPreviewMotion = { motion ->
+                        previewMotion = motion
+                        previewExpression = null
+                        previewHead = null
+                        previewRevision++
+                    },
+                    onPreviewHead = { head ->
+                        previewHead = head
+                        previewExpression = null
+                        previewMotion = null
+                        previewRevision++
+                    },
                     setupMessage = modelNotice,
                     onSwitchToVoice = {
                         videoEnabled = false
