@@ -258,6 +258,15 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
         MemorySemanticConsolidation.eligibleCount(characterId)
     }
     val reviewing = report.phase == MemoryReviewPhase.Waiting || report.phase == MemoryReviewPhase.Running
+    val aliases = remember(characterId, memories, validityRevision) {
+        val byId = memories.associateBy(MemoryEntry::id)
+        MemoryValidityStore.equivalenceSnapshot().mapNotNull { (oldId, keptId) ->
+            val old = byId[oldId] ?: return@mapNotNull null
+            val kept = byId[keptId] ?: return@mapNotNull null
+            old.content to kept.content
+        }
+    }
+    var showAliases by remember(characterId) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Color.White) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
@@ -299,6 +308,16 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                             report.phase == MemoryReviewPhase.Partial -> "继续审核剩余批次（后台记忆 API）"
                             else -> "审核长期事实中的同义重复（后台记忆 API）"
                         })
+                    }
+                    if (aliases.isNotEmpty()) {
+                        TextButton(onClick = { showAliases = !showAliases }) {
+                            Text(if (showAliases) "收起同义归档记录（${aliases.size}条）"
+                                else "查看同义归档记录（${aliases.size}条）")
+                        }
+                        if (showAliases) aliases.takeLast(8).forEach { (old, kept) ->
+                            Text("已归档：${old.take(90)}\n保留：${kept.take(90)}",
+                                fontSize = 12.sp, lineHeight = 18.sp, color = FeatureBlueGray)
+                        }
                     }
                     Text("关闭此页面不取消已开始的审核；后台模型可能产生费用。需要时可重新打开查看结果。",
                         fontSize = 11.sp, color = FeatureBlueGray)
