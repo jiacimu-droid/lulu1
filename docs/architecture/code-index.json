@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:24:47.255861+00:00",
-  "commit": "d713f0c677841dbfc25903b4c40e4a5dadc5a359",
+  "generatedAt": "2026-10-21T17:26:25.638230+00:00",
+  "commit": "f8610f36d4c800b1ed54a4e2e24408370e30ea4a",
   "branch": "main",
-  "sourceFingerprint": "e050a592c3d99b58515659529205e5f06a301d49c7172f18d8fe7b0ea430f37e",
+  "sourceFingerprint": "12336a07afcfb6685b3ae4cebc4f2b1687a2b5b5a7fd33e96f7b91bfd48aaa59",
   "summary": {
-    "files": 782,
-    "lines": 148941,
-    "symbols": 2244
+    "files": 783,
+    "lines": 149003,
+    "symbols": 2245
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1502,6 +1502,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 93
+      }
+    ],
+    "normalizedSettings": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt",
+        "line": 12
       }
     ],
     "Cue": [
@@ -13716,6 +13722,17 @@
       "lines": 191,
       "sha256": "657de9f0bed5865d2173ca5c9f6f4835f50cf08f5e1999185e10c70701d14620",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt",
+      "lines": 62,
+      "sha256": "9b4a48f9f0ce164de3f40b92bb46c11a4593a9a980cfe4c5d4f30444ee23efd9",
+      "symbols": [
+        {
+          "name": "normalizedSettings",
+          "line": 12
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt",
