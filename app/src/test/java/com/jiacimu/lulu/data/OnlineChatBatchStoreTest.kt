@@ -27,9 +27,9 @@ class OnlineChatBatchStoreTest {
         val third = OnlineChatBatchStore.onUserBubble(app, role, 103_000L)
         assertEquals(first.revision, second.revision)
         assertEquals(first.revision, third.revision)
-        assertEquals(102_000L + 8_000L, second.dueAtMillis)
-        assertEquals(103_000L + 10_000L, third.dueAtMillis)
-        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 109_000L))
+        assertEquals(106_000L, second.dueAtMillis)
+        assertEquals(106_000L, third.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 105_999L))
         assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, third.dueAtMillis))
         OnlineChatBatchStore.finish(app, role, first.revision)
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
@@ -43,6 +43,8 @@ class OnlineChatBatchStoreTest {
         assertNotEquals(old.revision, newcomer.revision)
         assertFalse(OnlineChatBatchStore.isCurrent(app, role, old.revision))
         assertTrue(OnlineChatBatchStore.isCurrent(app, role, newcomer.revision))
+        assertEquals(old.dueAtMillis + 1_000L + OnlineChatBatchStore.FOLLOWUP_QUIET_MILLIS,
+            newcomer.dueAtMillis)
         assertFalse(OnlineChatBatchStore.claim(app, role, newcomer.revision, newcomer.dueAtMillis - 1))
         // Finishing the stale generation must not acknowledge or clear the
         // queued, combined unread turn which is now owned by the newer revision.
@@ -52,6 +54,30 @@ class OnlineChatBatchStoreTest {
         assertTrue(OnlineChatBatchStore.claim(app, role, newcomer.revision, newcomer.dueAtMillis))
         OnlineChatBatchStore.finish(app, role, newcomer.revision)
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
+    @Test fun secondBubbleAtFiveSecondsMustNotChargeFirstApiAndThenWaitsOnlyThreeMore() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 105_000L))
+        val second = OnlineChatBatchStore.onUserBubble(app, role, 105_000L)
+        assertEquals(first.revision, second.revision)
+        assertEquals(108_000L, second.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 106_000L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 108_000L))
+        OnlineChatBatchStore.finish(app, role, first.revision)
+    }
+
+    @Test fun threeBubblesAtFiveAndSixSecondsDoNotWaitTenAfterThird() {
+        OnlineChatBatchStore.cancel(app, role)
+        val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
+        val second = OnlineChatBatchStore.onUserBubble(app, role, 105_000L)
+        val third = OnlineChatBatchStore.onUserBubble(app, role, 106_000L)
+        assertEquals(first.revision, third.revision)
+        assertEquals(108_000L, second.dueAtMillis)
+        assertEquals(109_000L, third.dueAtMillis)
+        assertTrue(OnlineChatBatchStore.claim(app, role, third.revision, 109_000L))
+        OnlineChatBatchStore.finish(app, role, third.revision)
     }
 
     @Test fun independentNonMessageWakeCannotAdvanceAnUnfinishedBubbleWindow() {
