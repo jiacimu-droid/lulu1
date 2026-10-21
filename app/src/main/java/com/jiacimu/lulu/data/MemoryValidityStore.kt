@@ -1,6 +1,9 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 
 /**
@@ -12,6 +15,9 @@ import org.json.JSONObject
 internal object MemoryValidityStore {
     private const val PREFS_NAME = "lulu_memory_validity_v1"
     private const val KEY_SUPERSEDED_BY = "superseded_by"
+
+    private val changeCounter = MutableStateFlow(0L)
+    val revisions: StateFlow<Long> = changeCounter.asStateFlow()
 
     private var prefs: android.content.SharedPreferences? = null
     private var supersededBy: Map<String, String> = emptyMap()
@@ -79,7 +85,8 @@ internal object MemoryValidityStore {
         val objectValue = JSONObject().apply {
             supersededBy.forEach { (oldId, newId) -> put(oldId, newId) }
         }
-        prefs?.edit()?.putString(KEY_SUPERSEDED_BY, objectValue.toString())?.commit()
+        prefs?.let { check(it.edit().putString(KEY_SUPERSEDED_BY, objectValue.toString()).commit()) { "记忆失效关系未能持久保存" } }
+        changeCounter.value = changeCounter.value + 1
     }
 
     private fun decode(raw: String?): Map<String, String> {
