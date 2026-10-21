@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +69,33 @@ fun LuluVoiceCallScreen(
     val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
     val presenceHistories by com.jiacimu.lulu.data.CompanionPresenceStore.histories.collectAsState()
     val currentCharacterId = state.characterId.ifBlank { characterId }
+    val scope = rememberCoroutineScope()
+    var videoEnabled by rememberSaveable(currentCharacterId) { mutableStateOf(false) }
+    var importingModel by remember { mutableStateOf(false) }
+    var modelNotice by remember { mutableStateOf("") }
+    val modelRevision by Live2DAssets.revisions.collectAsState()
+    val visualModelUrl = remember(context, currentCharacterId, modelRevision) {
+        Live2DAssets.modelUrl(context, currentCharacterId)
+    }
+    val coreReady = remember(context, modelRevision) { Live2DAssets.hasCore(context) }
+    val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            importingModel = true
+            modelNotice = try { Live2DAssets.importModel(context, currentCharacterId, uri) }
+                catch (error: Exception) { "模型导入失败：" + (error.message ?: "未知错误") }
+            importingModel = false
+        }
+    }
+    val corePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            importingModel = true
+            modelNotice = try { Live2DAssets.importOfficialCore(context, uri) }
+                catch (error: Exception) { "Cubism Core 导入失败：" + (error.message ?: "未知错误") }
+            importingModel = false
+        }
+    }
+    val avatar by AvatarController.states.collectAsState()
+    val mouthLevel = avatar[currentCharacterId]?.mouthOpen ?: 0f
     if (showPresence) CompanionPresenceDialog(
         characterName = state.characterName.ifBlank { characterName },
         state = presenceStates[currentCharacterId],
@@ -148,30 +177,68 @@ fun LuluVoiceCallScreen(
                     sleepMode = state.sleepMode,
                     onToggleSleep = LuluVoiceCallSession::toggleSleepMode,
                 )
-                Spacer(Modifier.height(14.dp))
-                Box(contentAlignment = Alignment.Center) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TextButton(onClick = { videoEnabled = !videoEnabled }) {
+                        Icon(if (videoEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam,
+                            contentDescription = null, modifier = Modifier.size(19.dp))
+                        Spacer(Modifier.width(7.dp))
+                        Text(if (videoEnabled) "返回语音画面" else "打开 Live2D 视频", fontSize = 13.sp)
+                    }
+                }
+                if (videoEnabled) {
                     Surface(
-                        modifier = Modifier.size(132.dp),
-                        shape = CircleShape,
-                        color = Color.White.copy(alpha = .45f),
-                        border = BorderStroke(1.dp, Color.White.copy(alpha = .86f)),
-                        shadowElevation = 18.dp,
-                    ) {}
-                    Surface(
-                        modifier = Modifier.size(120.dp).clickable {
+                        modifier = Modifier.fillMaxWidth().height(248.dp),
+                        shape = RoundedCornerShape(26.dp),
+                        color = Color(0xFFF0F3F6),
+                        border = BorderStroke(1.dp, CallLine.copy(alpha = .6f)),
+                    ) {
+                        if (visualModelUrl != null && coreReady) {
+                            Live2DCallStage(
+                                characterId = currentCharacterId,
+                                modelUrl = visualModelUrl,
+                                speaking = state.connected && state.speaking,
+                                listening = state.connected && state.listening,
+                                mouthLevel = mouthLevel,
+                            )
+                        } else Box(Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.Center) {
+                            Text(
+                                if (visualModelUrl == null) "还没有为这个角色导入 Live2D 身体\n请选择完整的 .model3.json ZIP 模型包"
+                                else "已导入角色身体，但还需要官方 Cubism Core JS",
+                                textAlign = TextAlign.Center, color = CallMuted, fontSize = 13.sp, lineHeight = 20.sp,
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+                    ) {
+                        TextButton(onClick = { modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
+                            enabled = !importingModel) { Text(if (visualModelUrl == null) "导入 Live2D 模型 ZIP" else "更换模型", fontSize = 12.sp) }
+                        TextButton(onClick = { corePicker.launch(arrayOf("application/javascript", "text/javascript", "*/*")) },
+                            enabled = !importingModel) { Text(if (coreReady) "更换官方 Cubism Core" else "导入官方 Cubism Core", fontSize = 12.sp) }
+                    }
+                    if (modelNotice.isNotBlank()) Text(modelNotice, fontSize = 11.sp, color = CallMuted,
+                        maxLines = 2, lineHeight = 15.sp)
+                } else {
+                    Spacer(Modifier.height(14.dp))
+                    Box(contentAlignment = Alignment.Center) {
+                        Surface(modifier = Modifier.size(132.dp), shape = CircleShape,
+                            color = Color.White.copy(alpha = .45f),
+                            border = BorderStroke(1.dp, Color.White.copy(alpha = .86f)),
+                            shadowElevation = 18.dp) {}
+                        Surface(modifier = Modifier.size(120.dp).clickable {
                             com.jiacimu.lulu.data.CompanionPresenceStore.clearMessageAnchor()
                             showPresence = true
-                        },
-                        shape = RoundedCornerShape(34.dp),
-                        color = Color.White,
-                        border = BorderStroke(4.dp, Color.White),
-                        shadowElevation = 10.dp,
-                    ) {
-                        LuluProfileAvatar(
-                            imageUri = character.avatarUri,
-                            fallback = state.characterName.ifBlank { characterName }.take(1).ifBlank { "露" },
-                            size = 120,
-                        )
+                        }, shape = RoundedCornerShape(34.dp), color = Color.White,
+                            border = BorderStroke(4.dp, Color.White), shadowElevation = 10.dp) {
+                            LuluProfileAvatar(imageUri = character.avatarUri,
+                                fallback = state.characterName.ifBlank { characterName }.take(1).ifBlank { "露" },
+                                size = 120)
+                        }
                     }
                 }
 
