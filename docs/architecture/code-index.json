@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:39:21.130996+00:00",
-  "commit": "eb92e426763f65a67c7d5a1e3538624751fe7ecc",
+  "generatedAt": "2026-10-21T16:39:46.819229+00:00",
+  "commit": "1680f832489ee11d1184a236e76be1e453050627",
   "branch": "main",
-  "sourceFingerprint": "93ca2b47ee44e903f6f93bdaf3a23735c6e762913fe580d9ba5e0ec42b2bb0ac",
+  "sourceFingerprint": "6714c7e6ba8079bece1676a3a70f46799dd821ef5bf9571fed8046a343ef285c",
   "summary": {
-    "files": 778,
-    "lines": 148385,
-    "symbols": 2236
+    "files": 779,
+    "lines": 148443,
+    "symbols": 2237
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11146,6 +11146,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
         "line": 17
+      }
+    ],
+    "Live2DOfficialCoreInstallerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt",
+        "line": 18
       }
     ],
     "LuluCallFloatingWindowTest": [
@@ -24377,6 +24383,17 @@
         {
           "name": "Live2DAssetsTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt",
+      "lines": 58,
+      "sha256": "8975f5d054916040eee1c23976a404b04a4afcef481fe8de901da75c46047518",
+      "symbols": [
+        {
+          "name": "Live2DOfficialCoreInstallerTest",
+          "line": 18
         }
       ]
     },
