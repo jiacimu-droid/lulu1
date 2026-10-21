@@ -53,6 +53,15 @@ internal fun Live2DFullscreenVideoCall(
     }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
+    var reportedAngles by remember(modelUrl) { mutableStateOf("") }
+    // Video can load before the call is dialed. Once Android creates the real
+    // call ID, attach the already-ready renderer to that session, not the empty ID.
+    LaunchedEffect(stageStatus, state.callExperienceId, reportedAngles) {
+        if (stageStatus == "ready" && state.callExperienceId.isNotBlank()) {
+            Live2DVisualActionBus.stageReady(characterId, state.callExperienceId)
+            Live2DVisualActionBus.stageParameters(characterId, state.callExperienceId, reportedAngles)
+        }
+    }
     // An oversized texture or broken JS bundle must not leave a silent gray canvas forever.
     // Late successful render may still recover and replace this static preview.
     LaunchedEffect(modelUrl, coreReady) {
@@ -85,6 +94,7 @@ internal fun Live2DFullscreenVideoCall(
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 onStatus = { phase, detail ->
                     if (phase == "parameters") {
+                        reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
                             state.callExperienceId, detail)
                     } else {
