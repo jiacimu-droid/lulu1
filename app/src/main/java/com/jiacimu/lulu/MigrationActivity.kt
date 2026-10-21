@@ -90,37 +90,62 @@ class MigrationActivity : ComponentActivity() {
         return xhsAppBrowserSession
     }
 
+    /**
+     * Device/OEM foreground-service, WebView and alarm failures are not reasons
+     * to crash the Activity or destroy character data. Every sub-system keeps
+     * its own failure receipt, and the desktop can still be opened.
+     */
+    private fun resumePeripheral(stage: String, action: () -> Unit) {
+        try {
+            action()
+        } catch (fatal: ThreadDeath) {
+            throw fatal
+        } catch (error: Exception) {
+            StartupFailureRecovery.recordWarning(applicationContext, stage, error)
+        } catch (error: LinkageError) {
+            StartupFailureRecovery.recordWarning(applicationContext, stage, error)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (StartupFailureRecovery.recovering) return
-        com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
-        // Warm the single Activity-owned browser only while Lulu is foregrounded.
-        // A character can then read using the same logged-in WebView even when
-        // the user is in chat; Android may pause it when the app is backgrounded.
-        if (com.jiacimu.lulu.data.XhsReadingEngine.localEnabled(this)) {
-            window.decorView.post {
-                if (!isFinishing && !isDestroyed &&
-                    com.jiacimu.lulu.data.XhsReadingEngine.localEnabled(this)) {
-                    browserSession().prepareForForeground()
+        resumePeripheral("小红书前台会话恢复") {
+            com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
+        }
+        resumePeripheral("小红书 WebView 预热") {
+            if (com.jiacimu.lulu.data.XhsReadingEngine.localEnabled(this)) {
+                window.decorView.post {
+                    if (!isFinishing && !isDestroyed &&
+                        com.jiacimu.lulu.data.XhsReadingEngine.localEnabled(this)) {
+                        resumePeripheral("小红书 WebView 加载") {
+                            browserSession().prepareForForeground()
+                        }
+                    }
                 }
             }
         }
-        com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
-        com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
-        com.jiacimu.lulu.data.BackgroundCompanionControl.refresh(applicationContext)
-        ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
-        // Returning from Android's exact-alarm permission screen upgrades pending wake-ups
-        // from best-effort to exact without requiring a reboot or changing the original time.
-        com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
-        CommitmentTaskStore.reconcileAfterRestart()
-        // Android may suspend the UI ticker in the background. The saved deadline, not
-        // the number of delivered ticks, determines the remaining time on return.
-        val studyStore = PostgraduateExamStores.main
-        val minutes = studyStore.state.value.pomodoro.selectedMinutes
-        if (studyStore.syncPomodoroClock()) {
-            PomodoroCompanionSessions.handleNaturalCompletion(studyStore, minutes)
+        resumePeripheral("用户在线状态") {
+            com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
+            com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
         }
-        PomodoroCompanionSessions.syncCountUpClock()
+        resumePeripheral("后台陪伴前台服务（受 Android 设备限制）") {
+            com.jiacimu.lulu.data.BackgroundCompanionControl.refresh(applicationContext)
+        }
+        resumePeripheral("角色前台感知检查") {
+            ProactivePerceptionScheduler.startForegroundChecks(applicationContext)
+        }
+        resumePeripheral("精确闹钟恢复") {
+            com.jiacimu.lulu.system.LuluAlarmSystem.initialize(applicationContext)
+            CommitmentTaskStore.reconcileAfterRestart()
+        }
+        resumePeripheral("学习计时与番茄钟") {
+            val studyStore = PostgraduateExamStores.main
+            val minutes = studyStore.state.value.pomodoro.selectedMinutes
+            if (studyStore.syncPomodoroClock())
+                PomodoroCompanionSessions.handleNaturalCompletion(studyStore, minutes)
+            PomodoroCompanionSessions.syncCountUpClock()
+        }
     }
 
     override fun onPause() {
