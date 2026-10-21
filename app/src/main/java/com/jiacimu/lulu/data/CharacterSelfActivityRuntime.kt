@@ -107,6 +107,12 @@ internal object CharacterSelfActivityRuntime {
                     if (activityId in setOf("read_at_desk", "quiet_read", "window_read"))
                         return null
                 }
+                // Optional personal theme remains the character's own
+                // subjective choice, not a device executor assigning a plot.
+                input.optString("lifeSceneTitle").takeIf(String::isNotBlank)
+                    ?.let { args.put("lifeSceneTitle", it.take(70)) }
+                input.optString("lifeScene").takeIf(String::isNotBlank)
+                    ?.let { args.put("lifeScene", it.take(500)) }
                 Proposal("digital_world_action", args, "在数字世界做一件真实的小事")
             }
             else -> null
