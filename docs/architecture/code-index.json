@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T15:59:09.900918+00:00",
-  "commit": "ba359b1ffffe34109a1078a8d792557b3799746c",
+  "generatedAt": "2026-10-21T16:01:44.298788+00:00",
+  "commit": "7aac0c670bdff9d6d7362f0136fd4d04b143b59a",
   "branch": "main",
-  "sourceFingerprint": "ea31a38aceab0d7223189264e3b40505a8bd074d9d12b2b9ebfda51e6ac162e1",
+  "sourceFingerprint": "d48a11de62593c2c9bbf37c7c71a9a6cc0a942a3d58da610021385cfaf4c47c0",
   "summary": {
-    "files": 771,
-    "lines": 147647,
-    "symbols": 2225
+    "files": 772,
+    "lines": 147829,
+    "symbols": 2231
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1438,6 +1438,42 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
         "line": 59
+      }
+    ],
+    "base": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 22
+      }
+    ],
+    "coreFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 23
+      }
+    ],
+    "hasCore": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 24
+      }
+    ],
+    "modelUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 26
+      }
+    ],
+    "modelLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 35
+      }
+    ],
+    "removeModel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 37
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13528,6 +13564,37 @@
         {
           "name": "LexiconFeatureScreenV2",
           "line": 59
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+      "lines": 182,
+      "sha256": "a79ce53735de805252658fab50ffda67d42f1199425a9affcb6a65ec7c73b248",
+      "symbols": [
+        {
+          "name": "base",
+          "line": 22
+        },
+        {
+          "name": "coreFile",
+          "line": 23
+        },
+        {
+          "name": "hasCore",
+          "line": 24
+        },
+        {
+          "name": "modelUrl",
+          "line": 26
+        },
+        {
+          "name": "modelLabel",
+          "line": 35
+        },
+        {
+          "name": "removeModel",
+          "line": 37
         }
       ]
     },
