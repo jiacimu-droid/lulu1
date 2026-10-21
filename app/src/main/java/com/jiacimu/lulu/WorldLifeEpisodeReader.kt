@@ -24,6 +24,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.WorldLifeEpisode
 import com.jiacimu.lulu.data.WorldLifeEpisodeStore
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -206,14 +207,27 @@ internal fun WorldLifeEpisodeFullPage(
                     color = StoryMuted, fontSize = 12.sp)
             }
             if (showSource) {
+                // Each visible line is drawn from the same original timeline
+                // evidence as the literary chapter, not generated exposition.
+                val verifiedSources = remember(episode.id, showSource) {
+                    SharedExperienceTimeline.eventsByIds(
+                        episode.characterId, episode.sourceEvidenceIds)
+                }
                 Surface(shape = RoundedCornerShape(12.dp),
                     color = Color(0xFFF0ECE5), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(15.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("真实经历：${episode.actualAction}", fontSize = 12.sp,
                             color = StoryInk, lineHeight = 20.sp)
-                        Text("关联 ${episode.sourceEvidenceIds.size} 条已保存的原始事件。文学细节不是新增世界事实；双方实际发言以原始见面记录为准。",
+                        Text("关联 ${episode.sourceEvidenceIds.size} 条原始证据；文学细节不代表新增世界事实。",
                             fontSize = 11.sp, color = StoryMuted, lineHeight = 18.sp)
+                        verifiedSources.take(8).forEach { source ->
+                            Text("${source.speaker}：${source.content.take(220)}",
+                                fontSize = 11.sp, color = StoryInk, lineHeight = 19.sp)
+                        }
+                        if (verifiedSources.size > 8)
+                            Text("其余 ${verifiedSources.size - 8} 条证据可在原始时间线查看。",
+                                fontSize = 11.sp, color = StoryMuted)
                     }
                 }
             }
