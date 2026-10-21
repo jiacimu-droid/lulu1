@@ -31,9 +31,7 @@ class Live2DAssetsTest {
         val file = File(Live2DAssets.base(context), relative)
         file.parentFile?.mkdirs()
         file.writeText(
-            """{"FileReferences":{"Moc":"model.moc3","Textures":["texture.png"],""" +
-                """"Expressions":[{"Name":"smile","File":"smile.exp3.json"}],""" +
-                """"Motions":{"Idle":[{"File":"idle.motion3.json"},{"File":"idle2.motion3.json"}]}}}"""
+            """{"FileReferences":{"Moc":"model.moc3","Textures":["texture.png"],"Expressions":[{"Name":"smile","File":"smile.exp3.json"}],"Motions":{"Idle":[{"File":"idle.motion3.json"},{"File":"idle2.motion3.json"}]}}}"""
         )
         val prefs = context.getSharedPreferences("lulu_live2d_models_v1", 0)
         prefs.edit().putString("model:$role", relative).commit()
