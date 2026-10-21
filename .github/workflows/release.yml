@@ -40,7 +40,7 @@ jobs:
           mkdir -p ci-logs
           node scripts/test_xhs_reader.js
           python scripts/test_timeline_migration.py
-          gradle --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process --stacktrace :app:testDebugUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
+          gradle --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process --stacktrace :app:verifyArtSafeVariants :app:testDebugUnitTest :app:assemblePhone 2>&1 | tee ci-logs/gradle-build.log
 
       - name: Collect APK
         run: |
@@ -71,7 +71,7 @@ jobs:
           set -euo pipefail
           tag="lulu-v${RELEASE_NUMBER}"
           title="Lulu v${RELEASE_NUMBER}"
-          notes="${title}，仅提供 ARM64 手机包（功能完整），构建自 ${GITHUB_SHA}。"
+          notes="${title}，仅提供 ARM64 手机包（功能完整），构建自 ${GITHUB_SHA}。修复 Android 16 VerifyError：此版未启用 R8 优化、使用原签名支持保留数据覆盖安装；实际运行仍需真机验证。"
 
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" apk-artifacts/*.apk --clobber
