@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T14:15:25.979069+00:00",
-  "commit": "9d15eedd2b82de133efb9ea6f0b81af0a2efebb2",
+  "generatedAt": "2026-10-21T14:17:01.240301+00:00",
+  "commit": "a96d79782405e24c07a3d9815e0b0d8e3abcc557",
   "branch": "main",
-  "sourceFingerprint": "34bc5cdf9065a98761644155809807725cd48799bb34de3c42b27cf3dff5cd21",
+  "sourceFingerprint": "cbd60e0faa7206f41c08ada9271cc1f94d0d12584df9ad226fbece5274106e66",
   "summary": {
-    "files": 769,
-    "lines": 147267,
-    "symbols": 2218
+    "files": 770,
+    "lines": 147301,
+    "symbols": 2219
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12046,6 +12046,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt",
         "line": 26
+      }
+    ],
+    "MemorySemanticConsolidationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt",
+        "line": 12
       }
     ],
     "release": [
@@ -25784,6 +25790,17 @@
         {
           "name": "MemoryRecallIntegrationTest",
           "line": 26
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt",
+      "lines": 34,
+      "sha256": "0139d58f662979440ff3e1a5310d8d290cc0877c593c6c8c3bc4cd596de4d303",
+      "symbols": [
+        {
+          "name": "MemorySemanticConsolidationTest",
+          "line": 12
         }
       ]
     },
