@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:14:24.637447+00:00",
-  "commit": "63ac7e93301a920014bd98b2fe47543934a60f44",
+  "generatedAt": "2026-10-21T16:15:10.251295+00:00",
+  "commit": "5af3c275304b6a63d101eb9f7e68f0e824dc5ff0",
   "branch": "main",
-  "sourceFingerprint": "6998a924e2c1a42bef26693039935032303ac1164bf6de11da5553b627e73f0e",
+  "sourceFingerprint": "2fd1bb444e6df437c700fb4c93ed0a3e8e8ebf5c9e5f5a742f341c67842f02c6",
   "summary": {
-    "files": 775,
-    "lines": 148136,
-    "symbols": 2234
+    "files": 776,
+    "lines": 148184,
+    "symbols": 2235
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11134,6 +11134,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt",
         "line": 14
+      }
+    ],
+    "Live2DAssetsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
+        "line": 17
       }
     ],
     "LuluCallFloatingWindowTest": [
@@ -24338,6 +24344,17 @@
         {
           "name": "ElevenLabsAudioContractsTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
+      "lines": 48,
+      "sha256": "5c45a06837a02cc298ceeffad5143fe1717320f2aa03e928f8a0d3889d851f5b",
+      "symbols": [
+        {
+          "name": "Live2DAssetsTest",
+          "line": 17
         }
       ]
     },
