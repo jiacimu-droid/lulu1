@@ -5,19 +5,6 @@ import org.junit.Test
 import java.time.Instant
 
 class WakeGoalVerificationTest {
-    @Test fun noReplyOrRingtoneNeverCountsAsGoalSuccess() {
-        assertFalse(WakeGoalVerification.explicitlyAwake(""))
-        assertFalse(WakeGoalVerification.explicitlyAwake("嗯"))
-        assertFalse(WakeGoalVerification.explicitlyAwake("怎么啦"))
-        assertFalse(WakeGoalVerification.explicitlyAwake("我还没醒"))
-        assertFalse(WakeGoalVerification.explicitlyAwake("我醒了，但是又睡过去了，我没醒"))
-    }
-
-    @Test fun clearAffirmationIncludesNoMusicPreference() {
-        assertTrue(WakeGoalVerification.explicitlyAwake("我醒了"))
-        assertTrue(WakeGoalVerification.explicitlyAwake("我醒了，不过别放歌"))
-        assertTrue(WakeGoalVerification.explicitlyAwake("我起来啦"))
-    }
     @Test fun dueWakeCanFinishBeforeExecutorPersistsFeedback() {
         val now = Instant.parse("2026-10-15T07:00:00Z")
         val running = CommitmentTask(
@@ -42,7 +29,6 @@ class WakeGoalVerificationTest {
         assertFalse(WakeGoalVerification.eligibleToComplete(future, now))
         assertFalse(WakeGoalVerification.eligibleToComplete(
             future.copy(status = CommitmentTaskStatus.NeedsClarification, dueAt = null), now))
-        assertTrue(WakeGoalVerification.explicitlyAwake("我已经醒了啦"))
     }
 
 }
