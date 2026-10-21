@@ -22,17 +22,29 @@ object ChatMemoryAutomation {
     fun initialize(context: Context) {
         if (started) return
         MemoryExtractionJobStore.initialize(context)
+        MemorySemanticConsolidation.initialize(context)
         started = true
         scope.launch {
             // Recover pre-queue timelines too; summarizeNow is threshold aware.
             MigratedDomainStores.characters.settings.value.keys.forEach { request(it) }
             var lastTailCheck = Instant.EPOCH
+            var lastMaintenanceCheck = Instant.EPOCH
             while (true) {
                 delay(1_500)
                 val now = Instant.now()
                 if (Duration.between(lastTailCheck, now).seconds >= 60) {
                     lastTailCheck = now
                     enqueueIdleTails()
+                }
+                if (Duration.between(lastMaintenanceCheck, now).toMinutes() >= 60) {
+                    lastMaintenanceCheck = now
+                    // Periodic checks never block the extraction loop; overdue work resumes after launch.
+                    val roles = MigratedDomainStores.characters.settings.value.keys.toList()
+                    scope.launch {
+                        roles.forEach { characterId ->
+                            runCatching { MemorySemanticConsolidation.maintainWhenDue(characterId) }
+                        }
+                    }
                 }
                 MemoryExtractionJobStore.pending().filter { memoryExtractionRetryDue(it, now) }.forEach { job ->
                     val admitted = synchronized(activeCharacters) { activeCharacters.add(job.characterId) }
