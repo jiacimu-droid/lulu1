@@ -11,12 +11,12 @@
 
 ## 准备与使用
 
-1. 打开原电话的「打开 Live2D 视频」，选择「一键下载并安装官方 Cubism Core」。应用会先展示 [Live2D 中文许可](https://www.live2d.com/eula/live2d-proprietary-software-license-agreement_cn.html)，用户阅读并确认后直接从官方固定 SDK 地址 `https://cubism.live2d.com/sdk-web/bin/CubismSdkForWeb-5-r.3.zip` 流式下载并只提取 Core。这个方法参考 AIRI 的 [下载插件](https://github.com/proj-airi/unplugin-live2d-sdk/blob/main/src/vite/index.ts)，Core 不进入 GitHub 仓库或 APK。国内网络若无法连通官方服务器，仍保留原有「导入官方 Cubism Core」入口作为备选。
+1. 打开原电话并导入自己的 Live2D 模型 ZIP；当模型存在且首次准备开启 Live2D 时，应用自动提示阅读并确认 [Live2D 中文专有许可](https://www.live2d.com/eula/live2d-proprietary-software-license-agreement_cn.html)。确认后，应用直接下载 [Live2D 官方托管的轻量 Cubism Core](https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js)，无需下载完整 SDK ZIP，不会把 Core 提交到 GitHub 或公开 APK。以后新角色复用该本地 Core，不再反复确认。没有模型则不会发起 Core 下载；如果官方下载失败，页面提供重试与手动导入。
 2. 准备拥有使用许可的 Cubism3/4 导出模型，保持模型 .model3.json、.moc3、纹理及可选动作/表情的相对路径，一起打包 ZIP。当前要求包里恰有一个 model3 入口；Cubism2 老模型、VRM/GLB 不属于当前渲染器。
-3. 完成在线 Core 安装后选择「导入 Live2D 模型 ZIP」；如需离线手动导入，也可选择 SDK 内的 live2dcubismcore.min.js。随后用原有电话模型和声音测试 Live2D。
+3. 在线 Core 会在首次导入模型或打开视频时自动准备，无需单独点击下载按钮。失败时可重试，或手动选择 SDK 内的 live2dcubismcore.min.js。随后用原有电话模型和声音测试 Live2D。
 4. 有需要时在视频画面中测试模型支持的原生表情和动作；返回语音画面不影响正在进行的通话。
 
-官方 SDK 的网页版下载界面可能要求电脑；新版的一键安装走 AIRI 使用的官方 SDK 直链，不需要手动解压，但连通性、协议和文件结构仍需真实手机测试。在线安装失败会告知错误且尽力保留旧 Core。不要使用来历不明的破解 Core；用户手动导入的 JS 是可执行代码，请确认来源可信。
+官方 SDK 的网页版下载界面可能要求电脑；新版优先使用官网托管的单个 Core 文件（官网注明“Latest”更新可能带来兼容性风险），不下载整套开发包。联网与兼容性仍需真机验证。安装失败应保留旧 Core；不要使用来历不明的破解 Core。
 
 ## 重要的未完成与验收边界
 
