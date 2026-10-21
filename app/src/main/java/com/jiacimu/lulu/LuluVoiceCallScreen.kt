@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -231,6 +233,12 @@ fun LuluVoiceCallScreen(
                         TextButton(onClick = { corePicker.launch(arrayOf("application/javascript", "text/javascript", "*/*")) },
                             enabled = !importingModel) { Text(if (coreReady) "更换官方 Cubism Core" else "导入官方 Cubism Core", fontSize = 12.sp) }
                     }
+                    if (!coreReady) TextButton(onClick = {
+                        runCatching {
+                            context.startActivity(Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://www.live2d.com/zh-CHS/sdk/download/web/")))
+                        }.onFailure { modelNotice = "请访问 Live2D Cubism SDK for Web 官方下载页面" }
+                    }) { Text("从官方获取 Cubism SDK（需同意许可）", fontSize = 12.sp) }
                     if (modelNotice.isNotBlank()) Text(modelNotice, fontSize = 11.sp, color = CallMuted,
                         maxLines = 2, lineHeight = 15.sp)
                     if (coreReady && visualModelUrl != null &&
