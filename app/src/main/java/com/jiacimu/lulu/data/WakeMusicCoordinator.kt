@@ -42,59 +42,47 @@ internal object WakeMusicCoordinator {
         return true
     }
 
-    /** An opted-in song may be the alarm itself; no awake acknowledgement is required. */
+    /**
+     * Wake music can be an explicit character action while the call is live.
+     * Never put a surprise PLAY into a generic on-hangup callback. A separate
+     * model-authored call_end plan has its own executor and durable receipt.
+     */
     @Synchronized fun onScheduledWake(context: Context, characterId: String, taskId: String, defer: Boolean): String {
         val permission = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         if (!permission.getBoolean("$characterId:wake_music_enabled", false) ||
             !permission.getBoolean("$characterId:media", false)) return "未授权音乐叫醒"
-        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-        val waitForCall = defer || LuluVoiceCallSession.state.value.connected
-        if (prefs.getBoolean("requested:$taskId", false)) {
-            if (waitForCall) {
-                // A finite call retry must not talk over music previously started
-                // by this wake task. Resume the same media session afterward.
-                LuluMediaPlayback.control(context, "pause")
-                prefs.edit().remove("requested:$taskId")
-                    .putString(PENDING + characterId, taskId).commit()
-                return "已暂停音乐，等电话结束后续播"
-            }
-            return "本次音乐已请求"
-        }
-        if (waitForCall) {
-            prefs.edit().putString(PENDING + characterId, taskId).commit()
-            deferredCharacter = characterId
-            return "音乐将在通话结束后开始"
+        val callActive = LuluVoiceCallSession.state.value.connected
+        if (defer || callActive) {
+            // The live call's model may choose music, volume or silence in
+            // its next genuine observation. End-call is not such a choice.
+            context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
+                .remove(PENDING + characterId).commit()
+            return "本次电话不会在挂断时自动续播；接通后由角色自主决定音乐行动"
         }
         return play(context, taskId)
     }
 
-    @Synchronized fun shouldSwitchAfterSpeech(context: Context?, characterId: String, taskId: String): Boolean =
-        context != null && context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-            .getString(PENDING + characterId, null) == taskId
+    @Synchronized fun shouldSwitchAfterSpeech(context: Context?, characterId: String, taskId: String): Boolean = false
 
     @Synchronized fun onCallEnded(context: Context?, characterId: String) {
-        if (context == null || LuluVoiceCallSession.state.value.connected) return
-        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-        val pending = prefs.getString(PENDING + characterId, null)
+        // An old pending key from previous versions is NOT fresh permission.
+        context?.getSharedPreferences(STORE, Context.MODE_PRIVATE)?.edit()
+            ?.remove(PENDING + characterId)?.commit()
         deferredCharacter = null
-        if (pending != null) {
-            prefs.edit().remove(PENDING + characterId).commit()
-            play(context, pending)
-        }
     }
 
     @Synchronized fun onMissedCall(context: Context?, characterId: String, taskId: String?) {
-        if (context == null || taskId == null) return
-        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-        if (prefs.getString(PENDING + characterId, null) == taskId) onCallEnded(context, characterId)
+        // An unanswered call is not authorization to start music after hang-up.
+        onCallEnded(context, characterId)
     }
 
     @Synchronized fun onDeclinedCall(context: Context?, characterId: String, taskId: String?) {
-        if (context == null || taskId == null) return
-        val prefs = context.getSharedPreferences(STORE, Context.MODE_PRIVATE)
-        if (prefs.getString(PENDING + characterId, null) == taskId) {
-            prefs.edit().remove(PENDING + characterId).commit()
-        }
+        onCallEnded(context, characterId)
+    }
+
+    @Synchronized fun cancelPending(context: Context, characterId: String) {
+        context.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit()
+            .remove(PENDING + characterId).commit()
     }
 
     private fun play(context: Context, taskId: String): String {
