@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:42:32.747350+00:00",
-  "commit": "69285b9732ffc5ea929074270f003f96153b3f43",
+  "generatedAt": "2026-10-21T08:09:00.916373+00:00",
+  "commit": "3d6d536f26420407435d69a9a3f0e6a78cafb625",
   "branch": "main",
-  "sourceFingerprint": "24d7c8cbcf8314d24d50ccc317fcc96042bd054d14819498583cc89473f26f8d",
+  "sourceFingerprint": "3e747b5baf368f56934fd624dcb442f06f55dc5808cb83517807a61c44c1c99b",
   "summary": {
     "files": 764,
-    "lines": 146161,
+    "lines": 146180,
     "symbols": 2204
   },
   "symbolIndex": {
@@ -2815,7 +2815,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 81
+        "line": 84
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
@@ -3723,7 +3723,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 51
+        "line": 54
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -8403,7 +8403,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 132
+        "line": 144
       }
     ],
     "remember": [
@@ -8647,19 +8647,19 @@
     "episodes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 48
+        "line": 51
       }
     ],
     "recentAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 66
+        "line": 69
       }
     ],
     "nearbyAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 74
+        "line": 77
       }
     ],
     "WorldLifeEpisodeWorker": [
@@ -21006,32 +21006,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-      "lines": 209,
-      "sha256": "f91b51a984043371f06a5bb4c875db80aae73ae2ca1ef792c2e611109f6572b9",
+      "lines": 228,
+      "sha256": "85d5a7f43c49c2972d0d7a433ffde6185e3d61044cd5cf7ef74f8d659d323b28",
       "symbols": [
         {
           "name": "episodes",
-          "line": 48
-        },
-        {
-          "name": "find",
           "line": 51
         },
         {
+          "name": "find",
+          "line": 54
+        },
+        {
           "name": "recentAt",
-          "line": 66
+          "line": 69
         },
         {
           "name": "nearbyAt",
-          "line": 74
+          "line": 77
         },
         {
           "name": "record",
-          "line": 81
+          "line": 84
         },
         {
           "name": "recentContext",
-          "line": 132
+          "line": 144
         }
       ]
     },
