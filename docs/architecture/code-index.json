@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:09:18.995774+00:00",
-  "commit": "ce63abe49aa1f290bb478814f27508517804671f",
+  "generatedAt": "2026-10-21T10:10:01.103964+00:00",
+  "commit": "e280d3385e6da705109222d9b702c59881ad6b9f",
   "branch": "main",
-  "sourceFingerprint": "b5deed706228c8a53b9d15ea239d5284b4c27f9c45fb353863b896bd91f5cff7",
+  "sourceFingerprint": "ee077b9a30875aab00556dd0cbda801e01a739225497f42cd05aab75a4ef9376",
   "summary": {
     "files": 766,
-    "lines": 146788,
+    "lines": 146790,
     "symbols": 2213
   },
   "symbolIndex": {
@@ -4291,7 +4291,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 178
+        "line": 180
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
@@ -6237,19 +6237,19 @@
     "blockingSummaryForItem": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 187
+        "line": 189
       }
     ],
     "canHandle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 201
+        "line": 203
       }
     ],
     "handle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 209
+        "line": 211
       }
     ],
     "witnessed": [
@@ -18328,8 +18328,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-      "lines": 682,
-      "sha256": "477394dcf5d516df0e022b2905aff226aa33a64f3be1f407c69e77cd621e0a82",
+      "lines": 684,
+      "sha256": "9f40ef521f6edde5bb63aa36b9c63ddfcf8932afcaee2ae35ba434ea3bbe2951",
       "symbols": [
         {
           "name": "isAmbientMoment",
@@ -18357,19 +18357,19 @@
         },
         {
           "name": "clearCharacter",
-          "line": 178
+          "line": 180
         },
         {
           "name": "blockingSummaryForItem",
-          "line": 187
+          "line": 189
         },
         {
           "name": "canHandle",
-          "line": 201
+          "line": 203
         },
         {
           "name": "handle",
-          "line": 209
+          "line": 211
         }
       ]
     },
