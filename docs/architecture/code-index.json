@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:28:58.141775+00:00",
-  "commit": "46ad53b222dc27226679a94952da935e3eaf38b3",
+  "generatedAt": "2026-10-21T07:29:34.445981+00:00",
+  "commit": "4e2c3234237e14f3239412e22533127da3cb266e",
   "branch": "main",
-  "sourceFingerprint": "f44135174c4d5fc068d9b29f8f947ed30f7baca79e344071aae1d18f7becd236",
+  "sourceFingerprint": "969cc341047757800d231f9a7c938f03b925815e92a13e0c601bf3ddea333c8e",
   "summary": {
-    "files": 764,
-    "lines": 146147,
-    "symbols": 2204
+    "files": 765,
+    "lines": 146172,
+    "symbols": 2206
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3682,6 +3682,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
         "line": 69
+      }
+    ],
+    "musicChoice": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt",
+        "line": 11
+      }
+    ],
+    "confirmedAwake": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt",
+        "line": 19
       }
     ],
     "stopped": [
@@ -15659,6 +15671,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt",
+      "lines": 23,
+      "sha256": "9759a6e4fea5c22769127d6ea36d2d1b5b5548e68a16430b109b5fb2eaba9219",
+      "symbols": [
+        {
+          "name": "musicChoice",
+          "line": 11
+        },
+        {
+          "name": "confirmedAwake",
+          "line": 19
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
       "lines": 14,
       "sha256": "b5f65e194242e4e5edb7d58983928e6f37973b13e7d2a573a1b92811b4bb1764",
@@ -23720,8 +23747,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2014,
-      "sha256": "dd5cee0df71090fe79a4e9fbf9794a3426592f00c565e96fbdb7da75a2bfc4ee",
+      "lines": 2016,
+      "sha256": "56cc3dc4df7a44144d80e358aa94acda683134a5c714e7111a74dda1d81e2f5e",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
