@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:06:57.000902+00:00",
-  "commit": "250025ddd8f3aa6aa711101fc2bb34180d1dcab2",
+  "generatedAt": "2026-10-21T10:07:50.221737+00:00",
+  "commit": "651c4fa1577da490a95c3631e7895a35446c5c8e",
   "branch": "main",
-  "sourceFingerprint": "d5b73997ac3711f88d26812bfa4744efca1ed6cf7d3897aea4dbe46ea04eeee7",
+  "sourceFingerprint": "1f2269d748f599b50035ff57c89cbc70ed3fc44a754d99fcce6db7e3144f067d",
   "summary": {
     "files": 766,
-    "lines": 146726,
+    "lines": 146739,
     "symbols": 2213
   },
   "symbolIndex": {
@@ -5549,7 +5549,7 @@
     "onDeliveredCharacterMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-        "line": 222
+        "line": 225
       }
     ],
     "asJson": [
@@ -16593,8 +16593,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
-      "lines": 132,
-      "sha256": "5b1fe2002fde5b804626ac5df2ab817c052577b67764a8dbf291c479fc014f69",
+      "lines": 135,
+      "sha256": "22a10078c15b6d8d88083d10e4ff6999fcb683552e64689db178864e165fd7aa",
       "symbols": [
         {
           "name": "reflection",
@@ -17516,8 +17516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 102,
-      "sha256": "d2730bd5acf4f7b0018cdc4077d9ddd76905a6888a2f04d6741872259f79ccb1",
+      "lines": 109,
+      "sha256": "3df48404897e8ba87f1139ab4174bfca4b644cbe915da866436e58f5240a7f7d",
       "symbols": []
     },
     {
@@ -17588,8 +17588,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt",
-      "lines": 478,
-      "sha256": "0e07dc2c2a55c237b2b68b305784e7110fe79230ec6192bdff83ec18c0a33bf0",
+      "lines": 481,
+      "sha256": "224e3363cab8a2b2e460ccd0481ad70ead9a3a44733ca1b1bc3a5dbb4f313598",
       "symbols": [
         {
           "name": "CommitmentTurnAutomation",
@@ -17601,7 +17601,7 @@
         },
         {
           "name": "onDeliveredCharacterMessage",
-          "line": 222
+          "line": 225
         }
       ]
     },
