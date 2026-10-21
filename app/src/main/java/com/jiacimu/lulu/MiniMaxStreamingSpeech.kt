@@ -29,7 +29,8 @@ internal class MiniMaxStreamingSpeech(context: Context) {
         runCatching { old?.pause(); old?.flush(); old?.release() }
     }
 
-    suspend fun speak(text: String, voiceId: String?, onAudioStarted: () -> Unit = {}, recordingTarget: File? = null): Boolean = withContext(Dispatchers.IO) {
+    suspend fun speak(text: String, voiceId: String?, onAudioStarted: () -> Unit = {}, recordingTarget: File? = null,
+        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> }): Boolean = withContext(Dispatchers.IO) {
         val recording = recordingTarget?.let { runCatching { CallSpeechRecording(it) }.getOrNull() }
         var playedToEnd = false
         val epoch = generation
@@ -91,6 +92,7 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                             check(count > 0) { "流式音频播放失败" }
                             if (bytesWritten == 0L) onAudioStarted()
                             recording?.write(bytes, offset, count)
+                            onPcmFrame(bytes, offset, count)
                             offset += count; bytesWritten += count
                         }
                     }
