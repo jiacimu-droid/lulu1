@@ -54,6 +54,9 @@ internal fun Live2DFullscreenVideoCall(
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     val rendered = stageStatus == "ready"
     val hasCreatorPreview = creatorPreview?.isFile == true
+    val previewSize = remember(creatorPreview?.absolutePath) {
+        creatorPreviewDimensions(creatorPreview)
+    }
     Box(Modifier.fillMaxSize().background(Color(0xFF151719))) {
         // Fill the entire portrait call screen. The complete model remains fitted, not cropped.
         if (modelUrl != null && coreReady) {
@@ -138,6 +141,15 @@ internal fun Live2DFullscreenVideoCall(
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                         .background(Color.Black.copy(alpha = .53f))
                         .padding(horizontal = 12.dp, vertical = 9.dp))
+                previewSize?.let { (width, height) ->
+                    val direction = when {
+                        height > width -> "竖向"
+                        width > height -> "横向"
+                        else -> "方形"
+                    }
+                    Text("作者预览：$direction $width × $height · 原比例",
+                        color = Color.White.copy(alpha = .8f), fontSize = 11.sp)
+                }
                 if (stageStatus == "error" && hasCreatorPreview) {
                     Text("正在显示模型自带的静态形象；可继续正常打电话。",
                         color = Color.White.copy(alpha = .75f), fontSize = 11.sp)
