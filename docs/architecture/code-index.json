@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:32:21.457193+00:00",
-  "commit": "2df1cf51c13d995f3ba59af2414624746ed44daf",
+  "generatedAt": "2026-10-21T10:32:49.792465+00:00",
+  "commit": "c85b83dbee68356a706fad094d29aa3f0639041e",
   "branch": "main",
-  "sourceFingerprint": "57dffca2c360392f411ab565fbea53b15e2d8ab9a2e49eeb6fd38034ae042724",
+  "sourceFingerprint": "5fa020b44541ed95686cb3778411b8a618e48d834f6d2c7eeb7cb844640ccd51",
   "summary": {
-    "files": 767,
-    "lines": 146935,
-    "symbols": 2216
+    "files": 768,
+    "lines": 147002,
+    "symbols": 2217
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12060,6 +12060,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
         "line": 11
+      }
+    ],
+    "OnlineChatBatchStoreTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt",
+        "line": 14
       }
     ],
     "OnlineChatExperienceTest": [
@@ -25796,6 +25802,17 @@
         {
           "name": "ModelStructuredOutputTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt",
+      "lines": 67,
+      "sha256": "c9cddadd1f0c0f90ed935f0a2293679075a5038b630275b71810ee4172d1f527",
+      "symbols": [
+        {
+          "name": "OnlineChatBatchStoreTest",
+          "line": 14
         }
       ]
     },
