@@ -71,6 +71,15 @@ android {
         }
         create("phone") {
             initWith(getByName("release"))
+            // Emergency fix for Android 16 VerifyError on the previously
+            // R8-optimized LuluDeviceToolBridge.respond suspend method.
+            // Its 15-argument coroutine method was obfuscated to u2.x.h and
+            // fails ART verification with an Undefined high-numbered register.
+            // Produce a D8-only APK until that method is split and tested on
+            // the affected Redmi device. Do not change applicationId/signing
+            // or clear user data. The phone APK will be larger.
+            isMinifyEnabled = false
+            isShrinkResources = false
             matchingFallbacks += listOf("release")
             ndk { abiFilters += "arm64-v8a" }
         }
