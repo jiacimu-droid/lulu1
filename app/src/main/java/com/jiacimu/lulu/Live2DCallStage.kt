@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,7 +23,9 @@ import java.io.ByteArrayInputStream
 /** An isolated visual stage; no JavaScriptInterface, cookies, external resources or model API calls. */
 @Composable
 internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Boolean,
-    listening: Boolean, mouthLevel: Float, modifier: Modifier = Modifier) {
+    listening: Boolean, mouthLevel: Float, modifier: Modifier = Modifier,
+    previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
+    previewRevision: Int = 0) {
     val context = LocalContext.current
     val stage = remember(context, characterId, modelUrl) { createLive2DWebView(context, modelUrl) }
     DisposableEffect(stage) {
@@ -33,6 +36,18 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         }
     }
     AndroidView(factory = { stage }, modifier = modifier.fillMaxSize())
+    LaunchedEffect(stage, previewRevision) {
+        if (previewRevision > 0) {
+            val script = when {
+                previewExpression != null ->
+                    "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(previewExpression)})"
+                previewMotion != null ->
+                    "window.LuluLive2D && window.LuluLive2D.motion(${JSONObject.quote(previewMotion.first)}, ${previewMotion.second})"
+                else -> null
+            }
+            if (script != null) stage.evaluateJavascript(script, null)
+        }
+    }
     SideEffect {
         val state = JSONObject().put("speaking", speaking).put("listening", listening)
             .put("mouth", if (speaking) mouthLevel.coerceIn(0f, 1f).toDouble() else 0.0)
