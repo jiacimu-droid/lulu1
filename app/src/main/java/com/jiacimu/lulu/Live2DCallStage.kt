@@ -51,7 +51,8 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     SideEffect {
         val state = JSONObject().put("speaking", speaking).put("listening", listening)
             .put("mouth", if (speaking) mouthLevel.coerceIn(0f, 1f).toDouble() else 0.0)
-        stage.evaluateJavascript("window.LuluLive2D && window.LuluLive2D.update(${state})", null)
+        stage.evaluateJavascript(
+            "window.__luluStageState = ${state}; window.LuluLive2D && window.LuluLive2D.update(window.__luluStageState)", null)
     }
 }
 
