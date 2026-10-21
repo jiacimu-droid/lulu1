@@ -474,14 +474,10 @@ object ProactivePerceptionRuntime {
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
-        worldTick?.takeIf { tick ->
-            !DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
-                DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick)
-        }?.let { tick ->
-            // Material incidents and rare personal mishaps may be visible in chat.
-            // Smaller ambient gestures stay in the lived timeline and can be shared naturally.
-            MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, tick.summary, tick.incidentId)
-        }
+        // The authoritative world tick is already committed to the shared
+        // timeline and included in this same model turn. A system-generated
+        // chat bulletin is NOT the character choosing to tell the user:
+        // only an actual model-selected, executed message can do that.
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val zoneId = ZoneId.systemDefault()
         val localTimeText = now.atZone(zoneId).format(
