@@ -40,7 +40,7 @@ class RelayRequestPressurePolicyTest {
         assertTrue(compacted.contains("江渡本人"))
         assertTrue(compacted.contains("周六的约定仍然有效"))
         assertTrue(compacted.contains("本轮新事实：有实际相遇"))
-        assertTrue(compacted.contains("部分较早背景省略"))
+        assertTrue(compacted.contains("其他较早材料暂未提供"))
         assertEquals(current.toByteArray(Charsets.UTF_8).size,
             RelayRequestPressurePolicy.payloadBytes("", current, emptyList(), emptyList()))
         // Compaction affects only the older projection. The current user
@@ -63,6 +63,40 @@ class RelayRequestPressurePolicyTest {
             "后台主动感知", 500_000))
         assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 60_000))
+    }
+
+    @Test fun relayFallbackNeverSlicesPersonaCoreCommitmentsOrWorldIdentifiers() {
+        val personalRule = "不允许把用户的否定回答反过来解释。".repeat(1_200)
+        val core = "已确认的长期人物关系".repeat(750)
+        val obligations = "已经约好的真实承诺".repeat(650)
+        val facts = ("较早的观察记录\n".repeat(900)) +
+            "现在已确认的原始事实：用户明确说不希望重新来过"
+        val compacted = RelayRequestPressurePolicy.compactSections(listOf(
+            "角色人设" to personalRule,
+            "核心记忆" to core,
+            "未完成责任" to obligations,
+            "本轮背景依据" to facts,
+            "跨场景连续性锚点" to ("过时的连续状态\n".repeat(800))
+        ))
+        assertTrue(compacted.contains(personalRule))
+        assertTrue(compacted.contains(core))
+        assertTrue(compacted.contains(obligations))
+        assertTrue(compacted.contains("用户明确说不希望重新来过"))
+        assertTrue(compacted.contains("其他较早材料暂未提供"))
+        assertFalse(compacted.contains("过时的连续状态\n".repeat(800)))
+    }
+
+    @Test fun fallbackNeverCutsAStatementInHalfOrStitchesSeparatedFacts() {
+        val oldest = "先确认：没有同意新增任务"
+        val newer = "用户说过一条非常长的单一事实" + "旧细节".repeat(2_500)
+        val latest = "刚刚的新事件：已经明确拒绝了音乐"
+        val selected = RelayRequestPressurePolicy.compactSections(listOf(
+            "本轮背景依据" to listOf("真实感知背景", oldest, newer, latest)
+                .joinToString("\n")))
+        assertTrue(selected.contains(latest))
+        assertFalse(selected.contains(oldest))
+        assertFalse(selected.contains("旧细节".repeat(20)))
+        assertTrue(selected.contains("真实感知背景"))
     }
 
     @Test fun compactHistoryDoesNotCutTurnsOrRewriteRecentSpeech() {
