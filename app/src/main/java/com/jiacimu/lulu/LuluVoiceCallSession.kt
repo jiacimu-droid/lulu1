@@ -1550,10 +1550,8 @@ internal object LuluVoiceCallSession {
                 if (reply.disposition == com.jiacimu.lulu.data.CharacterDecisionProtocol.SILENT) {
                     stream.cancel()
                     if (wakeOpening) {
-                        val verifiedWakeAudio = reply.phoneMediaReceipt.orEmpty().let { receipt ->
-                            receipt.contains("ring_in_call_wake：已执行") ||
-                                receipt.contains("control_music/play：已执行")
-                        }
+                        val verifiedWakeAudio = reply.phoneMediaReceipt.orEmpty()
+                            .startsWith("wake_audio_confirmed=1")
                         if (!verifiedWakeAudio) {
                             // Do not mark a real wake promise complete when the
                             // model chose silence but no actual cue was delivered.
