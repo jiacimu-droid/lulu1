@@ -16,17 +16,27 @@ def verify(apk: pathlib.Path) -> None:
     if not apk.is_file():
         raise SystemExit(f"Missing APK: {apk}")
     with zipfile.ZipFile(apk) as archive:
+        corrupt = archive.testzip()
+        if corrupt is not None:
+            raise SystemExit(f"Corrupt APK archive entry: {corrupt}")
         dex_names = [name for name in archive.namelist()
-                     if name.startswith("classes") and name.endswith(".dex")]
+                     if name.startswith("classes") and name.endswith(".dex")
+                     and "/" not in name]
         if not dex_names:
             raise SystemExit("Phone APK has no classes*.dex")
-        marker = b"Lcom/jiacimu/lulu/system/LuluDeviceToolBridge;"
-        if not any(marker in archive.read(dex) for dex in dex_names):
+        markers = [
+            b"Lcom/jiacimu/lulu/system/LuluDeviceToolBridge;",
+            b"Lcom/jiacimu/lulu/MigrationActivity;",
+            b"Lcom/jiacimu/lulu/StartupFailureRecovery;",
+        ]
+        blobs = [archive.read(dex) for dex in dex_names]
+        missing = [name.decode("ascii") for name in markers
+                   if not any(name in blob for blob in blobs)]
+        if missing:
             raise SystemExit(
-                "Phone APK does not contain the unobfuscated " 
-                "LuluDeviceToolBridge entrypoint. "
-                "R8/minify may have been accidentally re-enabled; "
-                "do not publish the APK.")
+                "Phone APK does not contain original app class descriptors: "
+                + ", ".join(missing)
+                + ". R8/minify may have been re-enabled; do not publish the APK.")
     print(
         "OK: phone APK keeps the affected reply class unobfuscated. "
         "This guards against the previous R8 VerifyError, but cannot replace "
