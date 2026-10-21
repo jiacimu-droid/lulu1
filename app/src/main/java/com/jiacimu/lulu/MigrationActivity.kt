@@ -237,14 +237,18 @@ class MigrationActivity : ComponentActivity() {
         MemorySourceIntegrityRuntime.initialize()
         ChatLexiconAutomation.initialize(appContext)
         CommitmentTaskStore.initialize(appContext)
-        CommitmentTaskStore.reconcileAfterRestart()
+        resumePeripheral("已存约定与系统闹钟恢复") {
+            CommitmentTaskStore.reconcileAfterRestart()
+        }
         CommitmentLexiconSync.initialize()
         CommitmentTurnAutomation.initialize(appContext)
 
         ProactivePerceptionPolicyStore.initialize(appContext)
         StartupFailureRecovery.stage("角色感知与后台调度")
         ProactivePerceptionRuntime.initialize(appContext)
-        ProactivePerceptionScheduler.schedule(appContext)
+        resumePeripheral("后台角色唤醒排程初始化") {
+            ProactivePerceptionScheduler.schedule(appContext)
+        }
 
         incomingSharedNote.value = incomingXhsText(intent)
         navigationIntent.value = intent
