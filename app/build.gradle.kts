@@ -63,21 +63,22 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         getByName("release") {
-            // Use the existing certificate and application ID for cover installs.
+            // Android 16 ART rejected R8's rewritten large coroutine method
+            // LuluDeviceToolBridge.respond (VerifyError, Undefined v307).
+            // Treat all installable variants as D8-only until the public
+            // decision method has been split and device-verified. Disabling
+            // only 'phone' leaves assembleRelease as an accidental crash path.
+            // Keep the same applicationId and signer to preserve all user data.
             signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         create("phone") {
             initWith(getByName("release"))
-            // Emergency fix for Android 16 VerifyError on the previously
-            // R8-optimized LuluDeviceToolBridge.respond suspend method.
-            // Its 15-argument coroutine method was obfuscated to u2.x.h and
-            // fails ART verification with an Undefined high-numbered register.
-            // Produce a D8-only APK until that method is split and tested on
-            // the affected Redmi device. Do not change applicationId/signing
-            // or clear user data. The phone APK will be larger.
+            // Phone APK inherits the safer D8-only release settings.
+            // Do not re-enable R8 in any installable variant until on-device
+            // ART verification passes on the affected Android 16 build.
             isMinifyEnabled = false
             isShrinkResources = false
             matchingFallbacks += listOf("release")
