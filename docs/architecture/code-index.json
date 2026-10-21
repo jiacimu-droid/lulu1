@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T08:11:05.661440+00:00",
-  "commit": "8bd7c1e312ed4f65c7aff8b00cea79ee9adf7f4b",
+  "generatedAt": "2026-10-21T08:11:29.591328+00:00",
+  "commit": "dbce0df20f05cbd72f9afbc03eca2850edc54a06",
   "branch": "main",
-  "sourceFingerprint": "6d6465b664336865bd433806cc81f781c20e8689931cd56027fa37aeff208dfd",
+  "sourceFingerprint": "0af68ed7ff3e5122aa888d949411e1b63aae7489602f33cc232c48bc1dcd98ac",
   "summary": {
     "files": 764,
-    "lines": 146229,
+    "lines": 146246,
     "symbols": 2204
   },
   "symbolIndex": {
@@ -18377,8 +18377,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
-      "lines": 144,
-      "sha256": "aa8f9702bee2b40d7dd32b36fcb1e4c251b112d8e5d23117f0bfb6eb2f041c0f",
+      "lines": 161,
+      "sha256": "5ce018f9717eb4961e353a27041af4c3693997e38c0c5330e17ccd748e684214",
       "symbols": []
     },
     {
