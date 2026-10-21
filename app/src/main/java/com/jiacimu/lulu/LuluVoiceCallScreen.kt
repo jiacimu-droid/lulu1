@@ -85,6 +85,9 @@ fun LuluVoiceCallScreen(
         Live2DAssets.modelUrl(context, currentCharacterId)
     }
     val coreReady = remember(context, modelRevision) { Live2DAssets.hasCore(context) }
+    val creatorPreviewFile = remember(context, currentCharacterId, modelRevision) {
+        Live2DAssets.previewFile(context, currentCharacterId)
+    }
     val availableAnimations = remember(context, currentCharacterId, modelRevision) {
         Live2DAssets.controls(context, currentCharacterId)
     }
@@ -199,7 +202,39 @@ fun LuluVoiceCallScreen(
                     ),
                 ),
         ) {
-            Column(
+            if (videoEnabled) {
+                Live2DFullscreenVideoCall(
+                    characterId = currentCharacterId,
+                    characterName = state.characterName.ifBlank { characterName },
+                    state = state,
+                    modelUrl = visualModelUrl,
+                    creatorPreview = creatorPreviewFile,
+                    coreReady = coreReady,
+                    avatarUri = character.avatarUri,
+                    mouthLevel = mouthLevel,
+                    previewExpression = previewExpression,
+                    previewMotion = previewMotion,
+                    previewRevision = previewRevision,
+                    setupMessage = modelNotice,
+                    onSwitchToVoice = { videoEnabled = false },
+                    onMinimize = onDismiss,
+                    onChangeModel = {
+                        modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
+                    },
+                    onRetryCore = { installCoreIfNeeded() },
+                    onStartCall = {
+                        val permissions = buildList {
+                            add(Manifest.permission.RECORD_AUDIO)
+                            if (android.os.Build.VERSION.SDK_INT >= 31) add(Manifest.permission.BLUETOOTH_CONNECT)
+                        }.filter {
+                            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
+                        }
+                        if (permissions.isEmpty()) LuluVoiceCallSession.dial()
+                        else microphonePermission.launch(permissions.toTypedArray())
+                    },
+                )
+            } else {
+                Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
@@ -537,6 +572,7 @@ fun LuluVoiceCallScreen(
                 // Lift the three call controls clear of the navigation bar by giving
                 // them extra breathing room below (the caption panel yields this space).
                 Spacer(Modifier.height(if (state.phase == CallPhase.Connected) 42.dp else 16.dp))
+                }
             }
         }
     }
