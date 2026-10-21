@@ -355,7 +355,7 @@ internal object AutonomousSocialRuntime {
                 你只负责让角色对程序已经确认并保存的现场事实作出反应，不能创造、移动、解决或改写事件。
                 ${spontaneousInnerVoiceGuide}
                 只返回 JSON：
-                {"statusText":"事件后正在做什么","gesture":"动作神态","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|private|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串","reason":"为什么此刻本人想分享或想保持沉默，允许非常简单的念头"
+                {"statusText":"事件发生后仍持续的处境（若无独立信息留空）","gesture":"仅此刻可见但不冒充世界工具结果的小动作","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|private|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串","reason":"为什么此刻本人想分享或想保持沉默，允许非常简单的念头"}
 
                 规则：
                 1. 主人不在现场，不能让主人说话、行动、被看见或默认参与。
@@ -374,12 +374,11 @@ internal object AutonomousSocialRuntime {
         ).getOrNull()?.text.orEmpty()
         val reaction = parseSoloIncidentReaction(raw)
         if (reaction == null) {
-            if (!DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
-                DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick)) {
-                MigratedDomainStores.chat.appendPrivateActivityNotice(
-                    characterId, tick.summary, tick.incidentId,
-                )
-            }
+            // The event is already saved in the world timeline. Failure to
+            // generate a subjective response cannot silently become a chat
+            // message written by the program in the companion's name.
+            CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                "真实世界事件已记录，角色的自主反应生成未完成；未代替角色发送消息", now)
             return
         }
 
@@ -404,19 +403,25 @@ internal object AutonomousSocialRuntime {
         }
         CharacterInnerLifeStore.observe(characterId, sourceId, tick.summary, reaction.innerLife, emptySet(), now)
         CharacterInnerLifeStore.recordInnerVoice(characterId, sourceId, reaction.innerThought, now)
+        // The author's same-model choice MUST enter the existing durable
+        // ToolRouter-backed worker. Merely storing appraisal.ownActivity made
+        // pests linger while the character seemingly decided to handle them.
+        val queuedSelfAction = CharacterSelfActivityRuntime.offer(
+            context, characterId, reaction.appraisal, sourceId)
         CharacterInnerLifeStore.recordCausalTransition(
             characterId = characterId, evidenceId = sourceId,
             appraisal = reaction.appraisal, innerLife = reaction.innerLife,
             innerThoughtBasis = null,
-            selectedAction = if (effectiveShareChannel == "none") "silent" else selectedShareAction,
+            selectedAction = if (effectiveShareChannel != "none") selectedShareAction
+                else if (queuedSelfAction) "own_activity_queued" else "silent",
             innerThought = reaction.innerThought,
             reason = shareBasis?.reason.orEmpty(), now = now,
         )
         val provenanceId = "world-incident-reaction-${tick.incidentId}-$characterId-${now.toEpochMilli()}"
         CompanionPresenceStore.update(
             characterId = characterId,
-            statusText = "在${tick.locationName}，${tick.summary}",
-            gesture = null,
+            statusText = reaction.statusText.ifBlank { "位于${tick.locationName}" },
+            gesture = reaction.gesture.takeIf(String::isNotBlank),
             innerThought = reaction.innerThought,
             mood = reaction.mood,
             source = "数字世界事件反应",
@@ -481,12 +486,9 @@ internal object AutonomousSocialRuntime {
                 }, true, shareResult.summary, shareResult.evidenceId,
             )
         }
-        if ((shareResult == null || !shareResult.success) &&
-            (!DigitalWorldLifeEventStore.isAmbientMoment(tick) ||
-                DigitalWorldLifeEventStore.isNoticeableLifeMoment(tick))) {
-            MigratedDomainStores.chat.appendPrivateActivityNotice(
-                characterId, tick.summary, tick.incidentId,
-            )
+        if (shareResult != null && !shareResult.success) {
+            CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                "角色自选分享未送达：${shareResult.summary.take(130)}；事件事实保留，未伪造聊天消息", now)
         }
     }
 
