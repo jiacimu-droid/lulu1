@@ -111,6 +111,23 @@ internal object DigitalWorldResidentInteractionRuntime {
                 }
                 DigitalWorldExpansionStore.moveResident(resident.id, location, now)
             }
+            // Publish a readable, multi-person literary rendering only AFTER
+            // the true native dialogue and all its independent turn evidence
+            // have been committed. Any prose failure never reverses that fact.
+            runCatching {
+                WorldLifeEpisodeStore.initialize(context)
+                WorldLifeEpisodeWorker.enqueue(
+                    context, characterId, location, summaryId,
+                    title = "", seed = "",
+                    sourceEvidenceIds = listOf(summaryId) + evidenceIds,
+                    category = "encounter",
+                )
+            }.onFailure { error ->
+                com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                    source = "生活小剧场", title = "居民相处正文排程失败",
+                    message = error.message.orEmpty().take(160),
+                )
+            }
             DigitalWorldActionResult(true,
                 "[角色见面|${session.id}] 与${resident.name}交流 · 查看见面记录", summaryId)
         }.getOrElse {
