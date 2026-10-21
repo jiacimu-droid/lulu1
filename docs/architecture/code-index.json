@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:15:45.734530+00:00",
-  "commit": "a3048a78973c76668a409f8f466662078f7f8799",
+  "generatedAt": "2026-10-21T17:16:26.184120+00:00",
+  "commit": "976ca12069145d8edcbc32bc645f6a506572b7a3",
   "branch": "main",
-  "sourceFingerprint": "44cea0b486f57e3e0892195089741f36565d5bd81931de89854c473013f99926",
+  "sourceFingerprint": "c36a1737cde4d874c0f01886bc15330df1a013ed13078d128ebde7dbdeb71799",
   "summary": {
     "files": 779,
-    "lines": 148496,
+    "lines": 148516,
     "symbols": 2239
   },
   "symbolIndex": {
@@ -1491,7 +1491,7 @@
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 52
+        "line": 72
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1501,7 +1501,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 73
+        "line": 93
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13632,8 +13632,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 241,
-      "sha256": "c2cb28a3415a9b7a318fe19167ca575ea049db9f7179d025b07650f963e3a534",
+      "lines": 261,
+      "sha256": "a83a3579277f565b16cf08b9e8f29a7ff2446b7fff2331b9af9899dfc534b77c",
       "symbols": [
         {
           "name": "notifyCoreChanged",
@@ -13665,11 +13665,11 @@
         },
         {
           "name": "controls",
-          "line": 52
+          "line": 72
         },
         {
           "name": "removeModel",
-          "line": 73
+          "line": 93
         }
       ]
     },
