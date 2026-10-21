@@ -179,6 +179,7 @@ internal object CharacterInitiativeRuntime {
             "create_alarm" -> Regex("闹钟|叫我|提醒我|定时").containsMatchIn(text)
             "list_alarms" -> Regex("闹钟|提醒").containsMatchIn(text)
             "cancel_alarm" -> Regex("取消.*(闹钟|提醒)|(闹钟|提醒).*(取消|删除|删掉)|删.*(闹钟|提醒)|不要.*(闹钟|提醒)").containsMatchIn(text)
+            "ring_in_call_wake" -> Regex("铃声|响铃|闹铃|叫醒|喊醒").containsMatchIn(text)
             "read_screen" -> Regex("屏幕|屏幕上|看.*页面|读.*页面|看看.*显示").containsMatchIn(text)
             "click_text" -> Regex("点|点击|按.*按钮|帮我选").containsMatchIn(text)
             "screen_action", "screen_sequence" -> Regex("返回|主页|桌面|最近任务|通知栏|快捷设置|点|点击|操作.*屏幕|帮我操作").containsMatchIn(text)
