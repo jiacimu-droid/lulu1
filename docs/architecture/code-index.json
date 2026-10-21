@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:08:05.697894+00:00",
-  "commit": "c58e68f9e34b1ddab62df9feb3fc56db65013e11",
+  "generatedAt": "2026-10-21T10:08:44.231536+00:00",
+  "commit": "ba2e97b2734d743dfe87b83c064ef4e6e580cd9f",
   "branch": "main",
-  "sourceFingerprint": "1f2269d748f599b50035ff57c89cbc70ed3fc44a754d99fcce6db7e3144f067d",
+  "sourceFingerprint": "a762579893841063943f21a1377f4d10a3e841eabbe2f3b647808486d871529f",
   "summary": {
     "files": 766,
-    "lines": 146739,
+    "lines": 146792,
     "symbols": 2213
   },
   "symbolIndex": {
@@ -11765,7 +11765,7 @@
     "CommitmentSemanticPersistenceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "ConversationExpressionGatewayTest": [
@@ -25303,12 +25303,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
-      "lines": 274,
-      "sha256": "8ba92027a484e664bb9eb332e137b7788c24046deecb4da9a47bf7fcd13c2a4e",
+      "lines": 327,
+      "sha256": "e84cdefbf598b324ab03e414eea8b82f3ecbf70755bcb76bdd6744142fc9e9ac",
       "symbols": [
         {
           "name": "CommitmentSemanticPersistenceTest",
-          "line": 29
+          "line": 30
         }
       ]
     },
