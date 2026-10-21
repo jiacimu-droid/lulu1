@@ -39,6 +39,11 @@ internal fun Live2DFullscreenVideoCall(
     previewExpression: String?,
     previewMotion: Pair<String, Int>?,
     previewRevision: Int,
+    manualHead: Live2DVisualActionBus.Head?,
+    availableAnimations: Live2DModelControls,
+    onPreviewExpression: (String) -> Unit,
+    onPreviewMotion: (Pair<String, Int>) -> Unit,
+    onPreviewHead: (Live2DVisualActionBus.Head) -> Unit,
     setupMessage: String,
     onSwitchToVoice: () -> Unit,
     onMinimize: () -> Unit,
@@ -51,6 +56,7 @@ internal fun Live2DFullscreenVideoCall(
     DisposableEffect(characterId, state.callExperienceId) {
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
     }
+    var showDebugMenu by remember(modelUrl) { mutableStateOf(false) }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
@@ -90,7 +96,7 @@ internal fun Live2DFullscreenVideoCall(
                 mouthLevel = mouthLevel,
                 previewExpression = cue?.expression ?: previewExpression,
                 previewMotion = cue?.motion ?: previewMotion,
-                previewHead = cue?.head,
+                previewHead = cue?.head ?: manualHead,
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 onStatus = { phase, detail ->
                     if (phase == "parameters") {
@@ -152,6 +158,44 @@ internal fun Live2DFullscreenVideoCall(
                     }, fontSize = 12.sp, color = Color.White.copy(alpha = .7f))
                 }
                 Spacer(Modifier.weight(1f))
+                if (rendered && state.phase == CallPhase.Ready) {
+                    Box {
+                        IconButton(onClick = { showDebugMenu = true }) {
+                            Icon(Icons.Outlined.MoreVert, "测试模型动作", tint = Color.White)
+                        }
+                        DropdownMenu(expanded = showDebugMenu,
+                            onDismissRequest = { showDebugMenu = false }) {
+                            availableAnimations.expressions.take(24).forEach { expression ->
+                                DropdownMenuItem(
+                                    text = { Text("表情 · $expression") },
+                                    onClick = { showDebugMenu = false; onPreviewExpression(expression) },
+                                )
+                            }
+                            availableAnimations.motions.take(24).forEach { motion ->
+                                DropdownMenuItem(
+                                    text = { Text("动作 · ${motion.first} #${motion.second + 1}") },
+                                    onClick = { showDebugMenu = false; onPreviewMotion(motion) },
+                                )
+                            }
+                            if ("ParamAngleX" in reportedAngles.split(',')) {
+                                DropdownMenuItem(text = { Text("转头 · 左") }, onClick = {
+                                    showDebugMenu = false
+                                    onPreviewHead(Live2DVisualActionBus.Head(yaw = -18f))
+                                })
+                                DropdownMenuItem(text = { Text("转头 · 右") }, onClick = {
+                                    showDebugMenu = false
+                                    onPreviewHead(Live2DVisualActionBus.Head(yaw = 18f))
+                                })
+                            }
+                            if ("ParamAngleY" in reportedAngles.split(',')) {
+                                DropdownMenuItem(text = { Text("低头再抬头") }, onClick = {
+                                    showDebugMenu = false
+                                    onPreviewHead(Live2DVisualActionBus.Head(pitch = -18f))
+                                })
+                            }
+                        }
+                    }
+                }
                 IconButton(onClick = onChangeModel) {
                     Icon(Icons.Outlined.Portrait, "更换 Live2D 模型", tint = Color.White)
                 }
