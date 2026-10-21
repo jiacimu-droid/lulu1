@@ -1464,12 +1464,13 @@ internal object LuluVoiceCallSession {
             ) + "\n" + SleepNarrativeStore.context(latest.callExperienceId, latest.sleepFocus) else ""
             val silenceContext = if (autonomousSilence) CallSilencePolicy.context(
                 SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis, latest.microphoneMuted) else ""
-            // Stable milestones: silence can be reconsidered without inventing
-            // a brand-new external event on every timer pulse.
+            // A genuine new time-based observation has a new action identity.
+            // An older fixed milestone reused the SAME execution ID for
+            // multiple wake pulses, making a later volume change impossible.
             val observationId = externalToolResult?.id ?: if (autonomousSilence)
                 "call-silence-${latest.callExperienceId}-${confirmedUserSpeechCount}-${CallSilencePolicy.observationMilestone(
                     (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L)
-                )}" else ""
+                )}-tick-${SystemClock.elapsedRealtime() / 30_000L}" else ""
             if (autonomousSilence && externalToolResult == null) InteractionSignalBridge.recordCallQuiet(
                 characterId = latest.characterId,
                 callId = latest.callExperienceId,
