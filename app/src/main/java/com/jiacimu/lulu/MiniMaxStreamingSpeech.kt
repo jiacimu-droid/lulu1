@@ -92,7 +92,8 @@ internal class MiniMaxStreamingSpeech(context: Context) {
                             check(count > 0) { "流式音频播放失败" }
                             if (bytesWritten == 0L) onAudioStarted()
                             recording?.write(bytes, offset, count)
-                            onPcmFrame(bytes, offset, count)
+                            // Visual lip sync is optional; audio must still play if it fails.
+                            runCatching { onPcmFrame(bytes, offset, count) }
                             offset += count; bytesWritten += count
                         }
                     }
