@@ -1255,20 +1255,12 @@ internal object LuluVoiceCallSession {
             wakeCueJob = null
             pendingScheduledWakeReason = null
             LuluCallRingtone.stopInCallWake()
+            // Collect the verified player state now; the role-model decision
+            // later interprets the spoken words (including whether the user
+            // actually requested stop/play or confirmed being awake).
             appContext?.let { context ->
-                com.jiacimu.lulu.data.DeferredCallMediaAction.onUserTurn(
-                    context, current.characterId, current.callExperienceId, spoken)
-                if (com.jiacimu.lulu.data.CallMediaUserIntent.stopped(spoken)) {
-                    com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(
-                        context, current.characterId)
-                }
-            }
-            val woke = com.jiacimu.lulu.data.WakeGoalVerification.confirm(current.characterId, spoken)
-            if (woke) appContext?.let { context ->
-                com.jiacimu.lulu.data.DeferredCallMediaAction.onWakeConfirmed(
+                com.jiacimu.lulu.data.DeferredCallMediaAction.observeBeforeUserTurn(
                     context, current.characterId, current.callExperienceId)
-                com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(
-                    context, current.characterId)
             }
         }
         if (!autonomousSleep && !autonomousSilence) {
