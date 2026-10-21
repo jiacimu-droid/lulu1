@@ -33,29 +33,49 @@ internal object RelayRequestPressurePolicy {
     fun shouldCompactBeforeSend(source: String, payloadBytes: Int): Boolean =
         canRecover(source) && payloadBytes > 440_000
 
+    /**
+     * These aren't local-memory quotas. A relay failure may justify omitting
+     * older secondary context from ONE outgoing request, but not corrupting
+     * role identity, established relationships, commitments, or the tool rules.
+     */
+    private val protected = setOf(
+        "任务规则/工具协议", "角色身份", "角色人设",
+        "核心记忆", "未完成责任", "全局世界书",
+        "角色世界书/设计书", "数字世界权威状态",
+    )
+
     private fun limit(label: String): Int = when (label) {
-        "任务规则/工具协议" -> 13_000
-        "角色身份" -> 4_000
-        "角色人设" -> 8_000
-        "用户资料" -> 900
-        "全局世界书" -> 2_500
-        "角色世界书/设计书" -> 1_800
-        "数字世界权威状态" -> 3_500
-        "核心记忆" -> 5_000
-        "未完成责任" -> 3_500
-        "本轮背景依据" -> 11_000
-        else -> 900
+        "本轮背景依据" -> 20_000
+        "跨场景连续性锚点", "成长与持续动机", "当前状态" -> 7_000
+        "近期原始时间线（新原话优先；旧理解不得覆盖本轮纠正）：" -> 10_000
+        else -> 4_000
     }
 
-    private fun excerpt(text: String, allowed: Int, keepTail: Boolean): String {
+    private const val OMITTED =
+        "【本轮 Relay 请求压力保护：其他较早材料暂未提供，原始记录仍在手机】"
+
+    /** Select complete source lines, never cut an utterance or a negation mid-line. */
+    private fun excerptWholeLines(text: String, allowed: Int, mostRecentFirst: Boolean): String {
         if (text.length <= allowed) return text
-        if (allowed <= 40) return ""
-        // The last portion of background facts often carries CURRENT user evidence.
-        // Both sides are clearly marked as partial, never silently merged as facts.
-        val marker = "\n【Relay负载保护：部分较早背景省略，原始记录仍保存在手机】\n"
-        val n = (allowed - marker.length).coerceAtLeast(0)
-        val head = if (keepTail) n / 3 else n * 4 / 5
-        return text.take(head) + marker + text.takeLast(n - head)
+        val lines = text.lines()
+        // The first line often carries the authority/source label. Retain it
+        // when selecting from the tail, but leave the original line intact.
+        val header = if (mostRecentFirst) lines.firstOrNull().orEmpty() else ""
+        var remaining = (allowed - OMITTED.length - 2 -
+            if (mostRecentFirst) header.length + 1 else 0).coerceAtLeast(0)
+        val selected = mutableListOf<String>()
+        val candidates = if (mostRecentFirst) lines.drop(1).asReversed() else lines
+        candidates.forEach { line ->
+            val cost = line.length + 1
+            if (cost <= remaining) {
+                selected += line
+                remaining -= cost
+            }
+        }
+        val kept = if (mostRecentFirst) selected.asReversed() else selected
+        return if (mostRecentFirst)
+            listOf(header, OMITTED).filter(String::isNotBlank).plus(kept).joinToString("\n")
+        else kept.plus(OMITTED).joinToString("\n")
     }
 
     /**
@@ -63,7 +83,7 @@ internal object RelayRequestPressurePolicy {
      * turns and original roles, newest first; old turns alone are expendable.
      */
     fun compactHistory(history: List<ModelConversationMessage>,
-                       maxCharacters: Int = 5_500): List<ModelConversationMessage> {
+                       maxCharacters: Int = 8_000): List<ModelConversationMessage> {
         var used = 0
         val retained = mutableListOf<ModelConversationMessage>()
         for (turn in history.asReversed()) {
@@ -77,8 +97,10 @@ internal object RelayRequestPressurePolicy {
     fun compactSections(sections: List<Pair<String, String>>): String =
         sections.mapNotNull { (label, content) ->
             if (content.isBlank()) return@mapNotNull null
-            val cap = limit(label)
-            val selected = excerpt(content, cap, keepTail = label == "本轮背景依据")
+            val selected = if (label in protected) content
+                else excerptWholeLines(content, limit(label),
+                    mostRecentFirst = label == "本轮背景依据" ||
+                        label.contains("时间线") || label.contains("原始依据"))
             selected.takeIf(String::isNotBlank)
         }.joinToString("\n\n")
 
