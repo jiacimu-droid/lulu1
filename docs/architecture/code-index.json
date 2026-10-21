@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:16:44.374123+00:00",
-  "commit": "3d4c08450fe4f1bf109162722fd6d634890ef413",
+  "generatedAt": "2026-10-21T17:17:20.925967+00:00",
+  "commit": "d6c258742ce55a099e83eec5d5d254cffc1f7ff0",
   "branch": "main",
-  "sourceFingerprint": "9f8bb20acc07c8ea0c23243ac3d76a399f808df2398d19ef93deea7333a95183",
+  "sourceFingerprint": "02e4780cb008a87c1e15bbb289758e52d159acf6b0266c09c9cfea5756c910da",
   "summary": {
     "files": 780,
-    "lines": 148572,
+    "lines": 148580,
     "symbols": 2239
   },
   "symbolIndex": {
@@ -12576,8 +12576,8 @@
     },
     {
       "path": "app/src/main/assets/live2d/bootstrap.js",
-      "lines": 25,
-      "sha256": "af3800e2a27a5f62f78a6a4684f23bc751ee985b03458de841dd9e1a119c5ef9",
+      "lines": 33,
+      "sha256": "e3c191389d1b80d3b43ed1c0a01086a240b3c5c2bf27b7a0912d2839dbc06ccd",
       "symbols": []
     },
     {
