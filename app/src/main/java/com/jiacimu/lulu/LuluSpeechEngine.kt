@@ -89,6 +89,7 @@ internal class LuluSpeechEngine(context: Context) {
         onFinished: (() -> Unit)? = null,
         recordingTarget: File? = null,
         source: String = "phone_direct",
+        onPcmFrame: (ByteArray, Int, Int) -> Unit = { _, _, _ -> },
     ) {
         if (!prefs.getBoolean("tts_enabled", true) || text.isBlank()) {
             onFinished?.invoke()
@@ -103,7 +104,7 @@ internal class LuluSpeechEngine(context: Context) {
             scope.launch {
                 runCatching { minimaxStream.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
                     onAudioStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
-                    recordingTarget = recordingTarget) }
+                    recordingTarget = recordingTarget, onPcmFrame = onPcmFrame) }
                     .onSuccess { completed -> if (requestGeneration == playbackGeneration) finishPlayback(completed) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
@@ -111,7 +112,8 @@ internal class LuluSpeechEngine(context: Context) {
             scope.launch {
                 runCatching { elevenSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
                     onStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
-                    recordingTarget = recordingTarget, source = source) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
+                    recordingTarget = recordingTarget, source = source,
+                    onPcmFrame = onPcmFrame) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
         } else {
