@@ -159,6 +159,7 @@ object LuluDeviceToolBridge {
         userEvidenceIds: List<String> = emptyList(),
         phoneCallId: String = "",
         onReconsiderationDraft: ((ReconsideredChatReply) -> Unit)? = null,
+        onLive2DAction: ((JSONObject) -> Unit)? = null,
     ): Result<ModelReply> {
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         val rewriting = reconsiderationEvidenceId.isNotBlank()
@@ -349,6 +350,10 @@ object LuluDeviceToolBridge {
             由你决定说完要不要继续播放；省略表示保持暂停，不会擅自续播。
             系统会对媒体音量执行额外限幅。
         """.trimIndent() else ""
+        val live2dDecisionContext = if (sceneContext.contains("电话") &&
+            phoneCallId.isNotBlank() && !rewriting) {
+            com.jiacimu.lulu.Live2DVisualActionBus.capabilityNote(appContext, characterId, phoneCallId)
+        } else ""
         val voicePerformanceRule = if (sceneContext.contains("电话"))
             com.jiacimu.lulu.VoicePerformance.phoneInstruction(appContext,
                 sleepMode = sceneContext.contains("哄睡")) else ""
@@ -569,6 +574,7 @@ object LuluDeviceToolBridge {
                 ${if (reconsiderationEvidenceId.isNotBlank()) "这是用户要求重新考虑角色刚才那一轮表达，用户没有新增聊天正文。可选 reply 或 silent；不得重做旧工具、发起电话、发圈或另行调度活动。只重新判断该怎样表达自己刚才想说的意思，不回答旧消息，不捏造新的用户请求。" else ""}
                 $programDialogueConstraint
                 $phoneConversationConstraint
+                $live2dDecisionContext
 
                 【主观生活与取舍】
                 以已有性格、真实经历、关系和未完成愿望判断本轮刺激；可以快乐、好奇、不满、矛盾、犹豫、提出反问，也可以保持安静。不要统一成温柔安慰或每轮自我剖析。
@@ -1152,6 +1158,8 @@ object LuluDeviceToolBridge {
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                 momentChanged = privateDelta.meaningful,
             )
+            if (!rewriting && phoneCallId.isNotBlank())
+                plan.live2d?.let { onLive2DAction?.invoke(it) }
             return Result.success(plannedReply.copy(text = "",
                 disposition = CharacterDecisionProtocol.SILENT,
                 phoneMediaReceipt = sideDeviceReceipt.takeIf(String::isNotBlank)))
@@ -1415,6 +1423,10 @@ object LuluDeviceToolBridge {
                     momentChanged = privateDelta.meaningful,
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
+            }
+            if (!invalidBlame && !rewriting && phoneCallId.isNotBlank() &&
+                checkedResultText == naturalText) {
+                plan.live2d?.let { onLive2DAction?.invoke(it) }
             }
             if (!invalidBlame && !rewriting && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
@@ -1917,6 +1929,7 @@ object LuluDeviceToolBridge {
                     .put("reason", json.optString("reason")) else JSONObject(),
                 statusText = json.optString("statusText").ifBlank { json.optString("status") },
                 gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") },
+                live2d = json.optJSONObject("live2d"),
                 innerThought = json.optString("innerThought").ifBlank { json.optString("inner_voice") },
                 innerThoughtBasis = json.optJSONObject("innerThoughtBasis"),
                 mood = json.optString("mood"),
@@ -1987,6 +2000,7 @@ private data class ToolPlan(
     val statusText: String,
     val gesture: String,
     val innerThought: String,
+    val live2d: JSONObject? = null,
     val innerThoughtBasis: JSONObject? = null,
     val mood: String,
     val intention: JSONObject? = null,
