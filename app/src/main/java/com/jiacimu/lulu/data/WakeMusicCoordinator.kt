@@ -10,22 +10,9 @@ internal object WakeMusicCoordinator {
     private const val PENDING = "pending:"
     private var deferredCharacter: String? = null
 
-    internal fun explicitlyAwake(text: String): Boolean {
-        val clean = text.replace(Regex("\\s+"), "")
-        if (Regex("还没醒|没醒|没起来|不想起|没起床|别放歌|不要放歌|不放音乐|不要音乐").containsMatchIn(clean)) return false
-        return Regex("我醒了|我醒啦|已经醒了|睡醒了|我起来了|我起床了|起床啦|起来啦").containsMatchIn(clean)
-    }
-
-    /** Wake confirmation never automatically schedules a song. */
-    @Synchronized fun onExplicitWakeConfirmation(
-        context: Context,
-        characterId: String,
-        text: String,
-        activeTasks: List<CommitmentTask>,
-    ) {
-        if (explicitlyAwake(text)) {
-            com.jiacimu.lulu.system.LuluMediaVolume.control(context, characterId, "restore")
-        }
+    /** Model-authored wake task completion already verified actual user evidence. */
+    @Synchronized fun onModelConfirmedWake(context: Context, characterId: String) {
+        com.jiacimu.lulu.system.LuluMediaVolume.control(context, characterId, "restore")
     }
 
     /** Immediate music is only called for a verified character-selected action. */
