@@ -41,6 +41,13 @@ internal object Live2DAssets {
     }
     fun modelLabel(context: Context, characterId: String) =
         prefs(context).getString("label:$characterId", null).orEmpty()
+    /** Optional full-person preview supplied by the creator. Never display atlas textures as a portrait. */
+    fun previewFile(context: Context, characterId: String): File? {
+        val relative = prefs(context).getString("preview:$characterId", null).orEmpty()
+        if (!relative.startsWith("models/") || relative.contains("..")) return null
+        return File(base(context), relative).takeIf { inside(base(context), it) && it.isFile }
+    }
+
     /** Actual controls from the user's Cubism model, not invented universal emotion labels. */
     fun controls(context: Context, characterId: String): Live2DModelControls {
         val relative = prefs(context).getString("model:$characterId", null).orEmpty()
@@ -66,7 +73,8 @@ internal object Live2DAssets {
 
     fun removeModel(context: Context, characterId: String) {
         val previous = prefs(context).getString("model:$characterId", null)
-        check(prefs(context).edit().remove("model:$characterId").remove("label:$characterId").commit())
+        check(prefs(context).edit().remove("model:$characterId").remove("label:$characterId")
+            .remove("preview:$characterId").commit())
         previous?.let { deleteImportedFolder(context, it) }
         revisionState.value++
     }
@@ -181,13 +189,29 @@ internal object Live2DAssets {
                         settings.parentFile!!, motionsInGroup.getJSONObject(i).getString("File"))
                 }
             }
+            // Creator preview pictures (e.g. 小狼.png) are NOT Live2D texture atlases.
+            // Prefer an image beside the settings file and not referenced as a texture.
+            val texturePaths = (0 until textures.length()).map { i ->
+                File(settings.parentFile!!, textures.getString(i)).canonicalPath
+            }.toSet()
+            val picture = staging.walkTopDown().filter { file ->
+                file.isFile && file.extension.lowercase() in setOf("png", "jpg", "jpeg", "webp") &&
+                    file.canonicalPath !in texturePaths &&
+                    !file.invariantSeparatorsPath.contains("/8192/") &&
+                    !file.invariantSeparatorsPath.contains("/4096/")
+            }.sortedWith(compareBy<File> { it.parentFile != settings.parentFile }
+                .thenByDescending { it.length() }).firstOrNull()
+            val previewRelative = picture?.relativeTo(staging)?.invariantSeparatorsPath
             val relativeSettings = settings.relativeTo(staging).invariantSeparatorsPath
             destination.parentFile?.mkdirs()
             check(staging.renameTo(destination)) { "无法存储 Live2D 模型" }
             val stored = "models/$hash/$stamp/$relativeSettings"
             val previous = prefs(context).getString("model:$characterId", null)
-            check(prefs(context).edit().putString("model:$characterId", stored)
-                .putString("label:$characterId", settings.nameWithoutExtension).commit()) {
+            val editor = prefs(context).edit().putString("model:$characterId", stored)
+                .putString("label:$characterId", settings.nameWithoutExtension)
+            if (previewRelative != null) editor.putString("preview:$characterId", "models/$hash/$stamp/$previewRelative")
+            else editor.remove("preview:$characterId")
+            check(editor.commit()) {
                 "角色模型绑定保存失败"
             }
             if (previous != stored) previous?.let { deleteImportedFolder(context, it) }
