@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:30:03.592059+00:00",
-  "commit": "d2adf5015a97d578d6164b7565e4f117b7fddd0f",
+  "generatedAt": "2026-10-21T07:30:25.199525+00:00",
+  "commit": "526d5e5bf235a1a7f803e1e00404d5fc550e8518",
   "branch": "main",
-  "sourceFingerprint": "59753bbdf330f5394ebe6d1b3519df4356f7207da4b68cef5ec17dac7c5d0685",
+  "sourceFingerprint": "505b13c3ee193254185d1debd9b0deb239b9e437f6a1d69c3adfd3d2a54b7311",
   "summary": {
-    "files": 763,
-    "lines": 146131,
-    "symbols": 2203
+    "files": 764,
+    "lines": 146154,
+    "symbols": 2204
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11346,6 +11346,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
         "line": 19
+      }
+    ],
+    "CallMediaSemanticBoundaryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
+        "line": 12
       }
     ],
     "CharacterAccountabilityContextTest": [
@@ -24604,6 +24610,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
+      "lines": 45,
+      "sha256": "5ae585c403b298efb25b6a42ff3a2020cbc038e4896126cf2f3b9bc00c839e7d",
+      "symbols": [
+        {
+          "name": "CallMediaSemanticBoundaryTest",
+          "line": 12
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
       "lines": 95,
       "sha256": "0a5a4de61cf8ac368cafb4c4af54fd08804103c30c21550fc7b9351b05a7cfa6",
@@ -25996,8 +26013,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeGoalVerificationTest.kt",
-      "lines": 49,
-      "sha256": "f4450bf7aef9c247987b742f69a81a28cca4cd488938987b7affade17df2b89b",
+      "lines": 35,
+      "sha256": "9dd853890c14b7fae89537ca73176a8d890ef9be5dbc342f169a966a07b0274b",
       "symbols": [
         {
           "name": "WakeGoalVerificationTest",
@@ -26007,8 +26024,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt",
-      "lines": 31,
-      "sha256": "109e238611ec7bf0cafb064d0feca5a9e290573ac56acecfe65eab20a9cedb8b",
+      "lines": 23,
+      "sha256": "8a4e407eaff86057255dec753ad4b6df90baa4384c3e19d213187cee41af1f7c",
       "symbols": [
         {
           "name": "WakeMusicCoordinatorTest",
