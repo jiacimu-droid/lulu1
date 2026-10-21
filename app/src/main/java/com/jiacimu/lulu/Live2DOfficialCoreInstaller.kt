@@ -75,6 +75,24 @@ internal object Live2DOfficialCoreInstaller {
                 "官方 SDK 下载包超出当前单次下载安全预算"
             }
             var downloaded = 0L
+            val boundedInput = object : java.io.FilterInputStream(connection.inputStream) {
+                override fun read(): Int {
+                    val result = `in`.read()
+                    if (result >= 0) {
+                        downloaded++
+                        check(downloaded <= MAX_DOWNLOAD_BYTES) { "下载内容超过单次安全预算" }
+                    }
+                    return result
+                }
+                override fun read(bytes: ByteArray, offset: Int, length: Int): Int {
+                    val result = `in`.read(bytes, offset, length)
+                    if (result > 0) {
+                        downloaded += result
+                        check(downloaded <= MAX_DOWNLOAD_BYTES) { "下载内容超过单次安全预算" }
+                    }
+                    return result
+                }
+            }
             val locatedCore = extractCoreFromArchive(boundedInput, staging)
             check(locatedCore) {
                 "官方 SDK 压缩包中没有预期的 5-r.3 Cubism Core，下载内容可能更新"
