@@ -214,8 +214,38 @@ object VisionModelService {
      */
     suspend fun prepareChatImageDataUrl(context: Context, imageUri: String): Result<String> =
         withContext(Dispatchers.IO) {
-            runCatching { imageDataUrl(context, Uri.parse(imageUri), maxSide = 2048, quality = 92) }
+            runCatching { boundedChatImageDataUrl(context, Uri.parse(imageUri)) }
         }
+
+    /**
+     * Two 2048px/92% base64 photos could dwarf the entire perception prompt.
+     * Keep the original attachment untouched; encode a bounded model-only copy.
+     * Smaller JPEG retries retain actual pixels, rather than silently dropping
+     * a photo while claiming the model saw it.
+     */
+    private fun boundedChatImageDataUrl(context: Context, uri: Uri): String {
+        val bitmap = context.applicationContext.contentResolver.openInputStream(uri)
+            ?.use(BitmapFactory::decodeStream) ?: error("无法读取这张图片")
+        try {
+            val settings = listOf(1400 to 82, 1152 to 76, 960 to 70, 800 to 63, 640 to 58)
+            for ((edge, quality) in settings) {
+                val scaled = scaleDown(bitmap, edge)
+                val bytes = ByteArrayOutputStream().use { output ->
+                    check(scaled.compress(Bitmap.CompressFormat.JPEG, quality, output)) {
+                        "图片压缩失败"
+                    }
+                    output.toByteArray()
+                }
+                if (scaled !== bitmap) scaled.recycle()
+                if (bytes.isNotEmpty() && bytes.size <= 144 * 1024) {
+                    return "data:image/jpeg;base64,${Base64.encodeToString(bytes, Base64.NO_WRAP)}"
+                }
+            }
+            error("图片内容过大，已停止发送以保护模型请求；原图片仍保留在聊天中")
+        } finally {
+            bitmap.recycle()
+        }
+    }
 
     private fun imageDataUrl(context: Context, uri: Uri, maxSide: Int = 2_048, quality: Int = 92): String {
         val resolver = context.applicationContext.contentResolver
