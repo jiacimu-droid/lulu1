@@ -61,6 +61,18 @@ internal object StartupFailureRecovery {
 
     fun recordCurrent(context: Context, error: Throwable) = record(context, currentStage, error)
 
+    /** A noncritical peripheral failure must not become a fatal-recovery loop. */
+    fun recordWarning(context: Context, stage: String, error: Throwable) {
+        runCatching {
+            val writer = StringWriter()
+            error.printStackTrace(PrintWriter(writer))
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putString("last_warning", "模块：$stage\n" + writer.toString().take(3000))
+                .apply()
+        }
+    }
+
+
     fun record(context: Context, stage: String, error: Throwable) {
         runCatching {
             val writer = StringWriter()
