@@ -20,8 +20,8 @@ internal object WakeGoalVerification {
         task.isWakeResponsibility() && task.status.isActive() &&
             (task.attemptCount > 0 || (task.dueAt != null && !task.dueAt.isAfter(now)))
 
-    fun confirm(characterId: String, text: String, now: Instant = Instant.now()): Boolean {
-        if (!explicitlyAwake(text)) return false
+    /** Invoked after the role's normal semantic decision confirms this NEW user turn. */
+    fun confirmFromModel(characterId: String, now: Instant = Instant.now()): Boolean {
         val outstanding = CommitmentTaskStore.snapshot(characterId).filter {
             eligibleToComplete(it, now)
         }
