@@ -1531,6 +1531,14 @@ internal object LuluVoiceCallSession {
                     if (sameReply() && !autonomousSleep && !wakeOpening)
                         autonomousHangup.request(latest.callExperienceId, generation)
                 }),
+                onLive2DAction = { visualAction ->
+                    if (sameReply()) {
+                        appContext?.let { context ->
+                            Live2DVisualActionBus.publish(
+                                context, latest.characterId, latest.callExperienceId, visualAction)
+                        }
+                    }
+                },
                 // The full role decision and its private fields must pass the
                 // publication boundary BEFORE any subtitle or audio output.
                 // Streaming partial JSON previously leaked raw deliberation.
