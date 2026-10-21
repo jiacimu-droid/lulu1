@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T08:14:27.193062+00:00",
-  "commit": "96da131ce8bebeaa84b3c8d338b05087f1ef009e",
+  "generatedAt": "2026-10-21T08:15:18.022418+00:00",
+  "commit": "9e2d014c5e860a895e8bf90085d7c862f9e86182",
   "branch": "main",
-  "sourceFingerprint": "bfbd04333331cfd5a6d472da303eda18f9c0001b82ff12e98dc27d96e8723ea5",
+  "sourceFingerprint": "3c5a3f66f954fccdcc2d46411233604d56f206fdfb21f59f42658b327dc3d689",
   "summary": {
     "files": 764,
-    "lines": 146305,
+    "lines": 146311,
     "symbols": 2204
   },
   "symbolIndex": {
@@ -2781,7 +2781,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 229
+        "line": 235
       }
     ],
     "recordCurrent": [
@@ -5035,19 +5035,19 @@
     "offer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 120
+        "line": 126
       }
     ],
     "latestConsideration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 209
+        "line": 215
       }
     ],
     "CharacterSelfActivityWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 284
+        "line": 290
       }
     ],
     "concern": [
@@ -16893,8 +16893,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-      "lines": 356,
-      "sha256": "4cf828e9e372cd51f7d2dde6b2f99ee8083c72208fe2c0df6e95c9e6a6ae3ca5",
+      "lines": 362,
+      "sha256": "9231f44f8b5545e16f95df01196ed645bc7c5768bf07a2ab87ce6982a31fc5f0",
       "symbols": [
         {
           "name": "parse",
@@ -16902,19 +16902,19 @@
         },
         {
           "name": "offer",
-          "line": 120
+          "line": 126
         },
         {
           "name": "latestConsideration",
-          "line": 209
+          "line": 215
         },
         {
           "name": "latest",
-          "line": 229
+          "line": 235
         },
         {
           "name": "CharacterSelfActivityWorker",
-          "line": 284
+          "line": 290
         }
       ]
     },
