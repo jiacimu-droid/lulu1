@@ -304,7 +304,7 @@ object ProactivePerceptionRuntime {
                     } else null
                     val result = runCatching {
                         evaluateCharacter(appContext, conversation, effectiveTrigger, now,
-                            requiredInteractionEvidenceId, onlineExpiryAtMillis)
+                            requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision)
                     }
                     result.onSuccess { action ->
                         AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
@@ -435,16 +435,19 @@ object ProactivePerceptionRuntime {
         appContext: Context, conversation: LuluConversation, trigger: String,
         now: Instant, requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
+        onlineRevision: Long? = null,
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val unread = CompanionOnlineStore.unreadChatSnapshot(characterId)
         if (unread.text.isBlank()) return evaluateCharacterWithActivity(
             appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
+            onlineRevision,
         )
         return ChatGenerationActivity.during(characterId, unread.conversationIds + conversation.id) {
             try {
                 evaluateCharacterWithActivity(
                     appContext, conversation, trigger, now, requiredInteractionEvidenceId, onlineExpiryAtMillis,
+                    onlineRevision,
                 )
             } catch (error: Throwable) {
                 currentCoroutineContext().ensureActive()
@@ -466,9 +469,21 @@ object ProactivePerceptionRuntime {
         now: Instant,
         requiredInteractionEvidenceId: String? = null,
         onlineExpiryAtMillis: Long = 0L,
+        onlineRevision: Long? = null,
     ): Action {
         val characterId = conversation.characterId.ifBlank { "lulu" }
         val character = MigratedDomainStores.characters.get(characterId)
+        // The generation may take seconds. Any NEW user bubble can open a newer
+        // durable revision before this model completes; its older unsent choice
+        // cannot be treated as the reply to the entire new user turn.
+        fun batchSuperseded(): Boolean = onlineRevision != null &&
+            !OnlineChatBatchStore.isCurrent(appContext, characterId, onlineRevision)
+        fun deferSupersededDecision(): Action {
+            CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                "连续消息已合并为更新的未读批次 · 旧回复草稿未发送", Instant.now())
+            return Action.SILENT
+        }
+        if (batchSuperseded()) return deferSupersededDecision()
         val awakeReflection = CompanionOnlineStore.isOnline(characterId, now)
         val awakeObservationId = "online-awareness-$characterId-${now.toEpochMilli()}"
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
@@ -846,6 +861,7 @@ object ProactivePerceptionRuntime {
             throw error
         }
         currentCoroutineContext().ensureActive()
+        if (batchSuperseded()) return deferSupersededDecision()
         // A manual reply or another worker may have delivered an answer while
         // this model was thinking. Never send a second reply to evidence that
         // is no longer unread; genuinely newer messages get their own batch.
@@ -927,6 +943,7 @@ object ProactivePerceptionRuntime {
                 characterId, "补正期间消息已由其他回复处理，本次不重复发言", Instant.now())
             return Action.SILENT
         }
+        if (batchSuperseded()) return deferSupersededDecision()
         val parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
@@ -1157,6 +1174,10 @@ object ProactivePerceptionRuntime {
             // response, its old action must not get sent into the new chat.
             if (!keptAwake && newerWindow) return Action.SILENT
         }
+        // A new bubble may have arrived during optional same-role thinking.
+        // Abort BEFORE any heart state, tool, delivery or read-receipt is
+        // committed from a decision made without that user message.
+        if (batchSuperseded()) return deferSupersededDecision()
         // Emotion and intent are decided together in this same action call.
         CharacterMotivationOwnership.updateLegacyIfPresent(characterId, decision.intention, now)
         val canonicalInnerLife = CharacterMotivationOwnership.canonicalInnerLife(
@@ -1293,6 +1314,7 @@ object ProactivePerceptionRuntime {
         val priorEvidence = SharedExperienceTimeline.all(characterId).map { it.id }.toHashSet()
         val actionStartedAt = Instant.now()
         AutonomousPerceptionAttempts.beforeAction(appContext, characterId)
+        if (batchSuperseded()) return deferSupersededDecision()
         val execution = performAction(
             appContext, character, decision, availableGroups, now,
             goalReviewMode = trigger.startsWith("持续目标定时复盘"),
