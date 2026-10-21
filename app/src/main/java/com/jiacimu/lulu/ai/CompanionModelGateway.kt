@@ -716,17 +716,60 @@ class CompanionModelGateway(
             val estimatedInputTokens = breakdown.sumOf { item -> item.estimatedTokens }
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
-            val reply = openAiCompatible(
-                connection = connection,
-                system = systemPrompt,
-                user = userPrompt,
-                maxTokens = maxTokens,
-                streamResponse = streamResponse,
-                readTimeoutMillis = readTimeoutMillis,
-                onStreamText = onStreamText,
-                imageDataUrls = imageDataUrls,
-                conversationHistory = dialogueHistory,
-            )
+            // Build the compact projection from the very same assembled facts
+            // and single-character decision. No second semantic planner, no
+            // new role identity, no fake reply or action is introduced.
+            val originalBytes = RelayRequestPressurePolicy.payloadBytes(
+                systemPrompt, userPrompt, dialogueHistory, imageDataUrls)
+            val reducedSystem = if (RelayRequestPressurePolicy.canRecover(source))
+                RelayRequestPressurePolicy.compactSections(systemSections) else ""
+            val reducedHistory = if (RelayRequestPressurePolicy.canRecover(source))
+                RelayRequestPressurePolicy.compactHistory(dialogueHistory) else emptyList()
+            val reducedBytes = if (reducedSystem.isNotBlank())
+                RelayRequestPressurePolicy.payloadBytes(
+                    reducedSystem, userPrompt, reducedHistory, imageDataUrls) else originalBytes
+            val reductionAvailable = RelayRequestPressurePolicy.savesEnough(originalBytes, reducedBytes)
+            var sentReduced = reductionAvailable &&
+                RelayRequestPressurePolicy.shouldCompactBeforeSend(source, originalBytes)
+            val reply = try {
+                openAiCompatible(
+                    connection = connection,
+                    system = if (sentReduced) reducedSystem else systemPrompt,
+                    user = userPrompt,
+                    maxTokens = maxTokens,
+                    streamResponse = streamResponse,
+                    readTimeoutMillis = readTimeoutMillis,
+                    onStreamText = onStreamText,
+                    imageDataUrls = imageDataUrls,
+                    conversationHistory = if (sentReduced) reducedHistory else dialogueHistory,
+                )
+            } catch (error: ModelHttpException) {
+                if (sentReduced || !reductionAvailable ||
+                    !RelayRequestPressurePolicy.canRecover(source) ||
+                    !RelayRequestPressurePolicy.isMemoryGuard(error.status, error.message.orEmpty()))
+                    throw error
+                // The relay explicitly rejected body allocation: the provider
+                // did not create a model reply, so ONE smaller transport retry
+                // is safe. No tool execution has happened at this boundary.
+                sentReduced = true
+                openAiCompatible(
+                    connection = connection,
+                    system = reducedSystem,
+                    user = userPrompt, // preserve the complete current user turn
+                    maxTokens = maxTokens,
+                    streamResponse = streamResponse,
+                    readTimeoutMillis = readTimeoutMillis,
+                    onStreamText = onStreamText,
+                    imageDataUrls = imageDataUrls, // never quietly pretend to have seen omitted photos
+                    conversationHistory = reducedHistory,
+                )
+            }
+            if (sentReduced) {
+                // Size-only diagnostic: never log plaintext memories, photos or keys.
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "Relay 请求负载保护 · 已使用精简上下文成功完成模型请求（约" +
+                        "${originalBytes / 1024}KB → ${reducedBytes / 1024}KB）")
+            }
             // Record only after the request returned a valid model reply. The audit
             // reflects the exact core IDs included in this outgoing system prompt,
             // not the ordinary retrieval candidates or merely assembled text.
@@ -745,9 +788,15 @@ class CompanionModelGateway(
                 reportedInputTokens = reply.inputTokens,
                 reportedOutputTokens = reply.outputTokens,
                 cachedTokens = reply.cachedTokens,
-                estimatedInputTokens = estimatedInputTokens,
+                estimatedInputTokens = if (sentReduced)
+                    estimateTokens(reducedSystem.length + userPrompt.length +
+                        reducedHistory.sumOf { it.content.length }) else estimatedInputTokens,
                 estimatedOutputTokens = estimateTokens(reply.text.length),
-                breakdown = breakdown,
+                breakdown = if (sentReduced) listOf(
+                    tokenBreakdown("Relay精简后系统上下文", reducedSystem.length),
+                    tokenBreakdown("本轮完整用户输入", userPrompt.length),
+                    tokenBreakdown("保留的原始对话", reducedHistory.sumOf { it.content.length })
+                ) else breakdown,
                 promptMillis = promptMillis,
                 modelMillis = modelMillis,
                 totalMillis = totalMillis,
