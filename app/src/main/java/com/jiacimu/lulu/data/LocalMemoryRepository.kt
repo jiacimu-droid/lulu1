@@ -1005,17 +1005,19 @@ private fun MemoryEntry.memoryIdentityKey(): String = content
     .take(320)
 
 private fun memoriesEquivalentForMaintenance(left: MemoryEntry, right: MemoryEntry): Boolean {
-    if (left.kind != right.kind) return false
+    if (left.kind != right.kind || left.characterId != right.characterId) return false
+    // Manual corrections and memories in different episodes must never disappear in a daily sweep.
+    if (!left.source.startsWith("timeline-events:") || !right.source.startsWith("timeline-events:")) return false
+    val sameEvent = left.sourceIds().intersect(right.sourceIds().toSet()).isNotEmpty()
+    if (left.kind != MemoryKind.Fact && !sameEvent) return false
+    if (left.subject.isNotBlank() && right.subject.isNotBlank() && left.subject != right.subject) return false
+    if (left.slot.isNotBlank() && right.slot.isNotBlank() && left.slot != right.slot) return false
     val a = left.memoryIdentityKey()
     val b = right.memoryIdentityKey()
     if (a == b) return true
-    // A one-word negation can reverse a preference. Text similarity is not semantic equality.
-    if (left.kind == MemoryKind.Fact) return false
-    if (a.length < 12 || b.length < 12) return false
-    val shorter = minOf(a.length, b.length).toDouble()
-    val longer = maxOf(a.length, b.length).toDouble()
-    if (shorter / longer >= 0.78 && (a.contains(b) || b.contains(a))) return true
-    return bigramJaccard(a, b) >= 0.88
+    // Non-facts are only merged when they describe the same original event; negations and
+    // semantically different versions are left to a model review, never string similarity alone.
+    return false
 }
 
 private fun bigramJaccard(left: String, right: String): Double {
