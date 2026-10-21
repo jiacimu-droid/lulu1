@@ -60,17 +60,20 @@ internal object RelayRequestPressurePolicy {
         val lines = text.lines()
         // The first line often carries the authority/source label. Retain it
         // when selecting from the tail, but leave the original line intact.
-        val header = if (mostRecentFirst) lines.firstOrNull().orEmpty() else ""
+        val header = lines.firstOrNull().orEmpty()
+            .takeIf { mostRecentFirst && it.length <= 160 }.orEmpty()
         var remaining = (allowed - OMITTED.length - 2 -
-            if (mostRecentFirst) header.length + 1 else 0).coerceAtLeast(0)
+            if (header.isNotEmpty()) header.length + 1 else 0).coerceAtLeast(0)
         val selected = mutableListOf<String>()
-        val candidates = if (mostRecentFirst) lines.drop(1).asReversed() else lines
-        candidates.forEach { line ->
+        val candidates = if (mostRecentFirst)
+            (if (header.isNotEmpty()) lines.drop(1) else lines).asReversed() else lines
+        // Keep a *contiguous* prefix or suffix; don't splice unrelated lines
+        // across an omitted condition into an apparently continuous fact.
+        for (line in candidates) {
             val cost = line.length + 1
-            if (cost <= remaining) {
-                selected += line
-                remaining -= cost
-            }
+            if (cost > remaining) break
+            selected += line
+            remaining -= cost
         }
         val kept = if (mostRecentFirst) selected.asReversed() else selected
         return if (mostRecentFirst)
