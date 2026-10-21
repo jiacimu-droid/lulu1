@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T05:34:37.301194+00:00",
-  "commit": "7aa3025a0d71e310555f25ee967d1f325faaaceb",
+  "generatedAt": "2026-10-21T05:35:05.893691+00:00",
+  "commit": "5de10374bb5f372742ea08e802507f47cc73c070",
   "branch": "main",
-  "sourceFingerprint": "58f9c35fd46c258b1ceda219b7743c64ed831ab412d994e679170bfcad8b5761",
+  "sourceFingerprint": "830042792105cb5d1f398b78d9eb0a8a74a6a7f5b80f3658900f9914a595de79",
   "summary": {
     "files": 760,
-    "lines": 145554,
-    "symbols": 2200
+    "lines": 145566,
+    "symbols": 2201
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2790,10 +2790,16 @@
         "line": 61
       }
     ],
+    "recordWarning": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 65
+      }
+    ],
     "record": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
-        "line": 63
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
@@ -2819,7 +2825,7 @@
     "display": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
-        "line": 74
+        "line": 86
       }
     ],
     "byId": [
@@ -14836,8 +14842,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
-      "lines": 102,
-      "sha256": "0d847560931cad47539d5919fa9ec9e6edb06df25382820fbb867ffb845751eb",
+      "lines": 114,
+      "sha256": "3be2464467fc0d7016fb9bf16a4e4395597e21fa6aecb9bd9991775f8fbbc35d",
       "symbols": [
         {
           "name": "install",
@@ -14860,12 +14866,16 @@
           "line": 61
         },
         {
+          "name": "recordWarning",
+          "line": 65
+        },
+        {
           "name": "record",
-          "line": 63
+          "line": 74
         },
         {
           "name": "display",
-          "line": 74
+          "line": 86
         }
       ]
     },
