@@ -46,18 +46,24 @@ internal object LuluCallRingtone {
     }
 
     /** Short local wake ringtone in an already connected call; no overlay, no TTS credits. */
-    @Synchronized fun startInCallWake(context: Context, key: String, lifetimeMs: Long = 6_000L) {
-        if (key.isBlank()) return
+    @Synchronized fun startInCallWake(context: Context, key: String, lifetimeMs: Long = 6_000L): Boolean {
+        if (key.isBlank()) return false
         stopInCallWake()
-        if (!enabled(context)) return
+        if (!enabled(context)) return false
         inCallWakeKey = key
         inCallWake = play(context)
+        val started = inCallWake?.isPlaying == true
+        if (!started) {
+            stopInCallWake()
+            return false // Silent/DND/disabled ringtone must not be reported as ringing.
+        }
         scope.launch {
             delay(lifetimeMs.coerceIn(1_000L, 15_000L))
             synchronized(this@LuluCallRingtone) {
                 if (inCallWakeKey == key) stopInCallWake()
             }
         }
+        return true
     }
 
     @Synchronized fun stopInCallWake() {
