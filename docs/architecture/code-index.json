@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:07:35.689858+00:00",
-  "commit": "ec77d76bf3a486bc2d3747584834a604c6ababfa",
+  "generatedAt": "2026-10-21T07:08:07.461232+00:00",
+  "commit": "cae5a662030cd605cfa6065f253b5512c6d03cda",
   "branch": "main",
-  "sourceFingerprint": "f3d4bfccd1490de5c68bac3dd974e1226c3d3392fa9cd52b4ac61aa662ed27c0",
+  "sourceFingerprint": "cb618a3d598167021d8802588dd9b024e0cee863ca27ad47f96dfbf1d2296932",
   "summary": {
-    "files": 763,
-    "lines": 146019,
-    "symbols": 2204
+    "files": 764,
+    "lines": 146045,
+    "symbols": 2205
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12334,6 +12334,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt",
         "line": 13
+      }
+    ],
+    "LuluMediaPlaybackStateTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt",
+        "line": 12
       }
     ],
     "LuluMediaTransportPolicyTest": [
@@ -26273,6 +26279,17 @@
         {
           "name": "LuluMediaPlaybackEvidenceTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt",
+      "lines": 26,
+      "sha256": "041d143f635476c5fd242b8feea59de2cb0a10acf107a2de4a74c487fe4e0c13",
+      "symbols": [
+        {
+          "name": "LuluMediaPlaybackStateTest",
+          "line": 12
         }
       ]
     },
