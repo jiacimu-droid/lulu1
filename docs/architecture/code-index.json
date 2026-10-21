@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:47:52.771218+00:00",
-  "commit": "0fbc08682a23e6aa06db7154d2da72b1f55d4f99",
+  "generatedAt": "2026-10-21T17:15:45.734530+00:00",
+  "commit": "a3048a78973c76668a409f8f466662078f7f8799",
   "branch": "main",
-  "sourceFingerprint": "fdf52753b1d9e5c6175caea538a9148bab620c3a43ee6d5c1c7d638e71cab158",
+  "sourceFingerprint": "44cea0b486f57e3e0892195089741f36565d5bd81931de89854c473013f99926",
   "summary": {
     "files": 779,
-    "lines": 148472,
-    "symbols": 2238
+    "lines": 148496,
+    "symbols": 2239
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1482,10 +1482,16 @@
         "line": 42
       }
     ],
-    "controls": [
+    "previewFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 45
+      }
+    ],
+    "controls": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1495,7 +1501,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 66
+        "line": 73
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13626,8 +13632,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 217,
-      "sha256": "0e14f520a8ead6818c5faa4613c2c3db158470095c5d5b2f3fc7c4211ddcde60",
+      "lines": 241,
+      "sha256": "c2cb28a3415a9b7a318fe19167ca575ea049db9f7179d025b07650f963e3a534",
       "symbols": [
         {
           "name": "notifyCoreChanged",
@@ -13654,12 +13660,16 @@
           "line": 42
         },
         {
-          "name": "controls",
+          "name": "previewFile",
           "line": 45
         },
         {
+          "name": "controls",
+          "line": 52
+        },
+        {
           "name": "removeModel",
-          "line": 66
+          "line": 73
         }
       ]
     },
