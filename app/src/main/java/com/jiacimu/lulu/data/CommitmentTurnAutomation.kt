@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import com.jiacimu.lulu.ai.LuluAiServices
-import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.CompanionContextMode
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
@@ -178,7 +178,10 @@ object CommitmentTurnAutomation {
                 source = "已答应叫醒约定·行动方式修复",
                 title = "约定履行方式",
                 maxTokens = 180,
-                usage = ModelUsage.Chat,
+                // Preserve this character's persona while avoiding a second full
+                // chat-model recall for a narrow, already-accepted wake promise.
+                contextMode = CompanionContextMode.CharacterAndScenario,
+                connectionOverride = commitmentBackgroundConnection(),
             ).getOrThrow().text
             } catch (cancelled: CancellationException) {
                 throw cancelled
