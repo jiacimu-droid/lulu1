@@ -114,24 +114,72 @@ internal object DeferredCallMediaAction {
     private var interruptedByRoleSpeech: Boolean = false
     private var resumeApprovedByRole: Boolean = false
     private var activeMusicPackage: String = ""
+    private var userPausedCallId: String? = null
+    private var userPausedCharacterId: String? = null
 
-    /** A new verified user turn must not inherit an older music-resume instruction. */
-    @Synchronized fun onUserTurn(context: Context, characterId: String, callId: String) {
+    @Synchronized fun mayStartMusic(characterId: String, callId: String): Boolean =
+        userPausedCallId != callId || userPausedCharacterId != characterId
+
+    @Synchronized fun onWakeConfirmed(context: Context, characterId: String, callId: String) {
+        if (activeMusicCharacterId == characterId && activeMusicCallId == callId) {
+            if (activeMusicPackage.isNotBlank())
+                runCatching { LuluMediaPlayback.control(context, "pause", activeMusicPackage) }
+            activeMusicCallId = null
+            activeMusicCharacterId = null
+            activeMusicPackage = ""
+            interruptedByRoleSpeech = false
+            resumeApprovedByRole = false
+        }
+        userPausedCallId = callId
+        userPausedCharacterId = characterId
+        cancelPlannedPlayback(context, characterId, callId)
+        LuluMediaVolume.control(context, characterId, "restore")
+    }
+
+    @Synchronized fun cancelPlannedPlayback(context: Context, characterId: String, callId: String) {
+        val store = prefs(context)
+        store.all.values.filterIsInstance<String>().forEach { raw ->
+            val row = runCatching { JSONObject(raw) }.getOrNull() ?: return@forEach
+            if (row.optString("characterId") != characterId ||
+                row.optString("callId") != callId ||
+                row.optString("status") !in setOf("queued", "waiting")) return@forEach
+            val id = row.optString("id")
+            store.edit().putString(id, row.put("status", "cancelled")
+                .put("result", "用户停止或结束本次叫醒；旧音乐任务已取消").toString()).commit()
+            runCatching {
+                WorkManager.getInstance(context).cancelUniqueWork("lulu-deferred-media-$id")
+            }
+        }
+    }
+
+
+    /** A real new user utterance outranks every old automated media choice. */
+    @Synchronized fun onUserTurn(context: Context, characterId: String, callId: String, text: String) {
+        if (CallMediaUserIntent.restarted(text)) {
+            userPausedCallId = null
+            userPausedCharacterId = null
+        }
+        val expresslyStopped = CallMediaUserIntent.stopped(text)
+        if (expresslyStopped) {
+            userPausedCallId = callId
+            userPausedCharacterId = characterId
+            cancelPlannedPlayback(context, characterId, callId)
+        }
         if (activeMusicCharacterId != characterId || activeMusicCallId != callId) return
         resumeApprovedByRole = false
-        if (interruptedByRoleSpeech) return
+        if (interruptedByRoleSpeech && !expresslyStopped) return
         val sessions = runCatching { JSONObject(LuluMediaPlayback.sessions(context)) }.getOrNull()
-        // If the user stopped the player, the model no longer owns its playback.
-        if (sessions?.optBoolean("success") == true) {
-            val entries = sessions.optJSONArray("sessions")
-            val target = (0 until (entries?.length() ?: 0)).mapNotNull { entries?.optJSONObject(it) }
-                .firstOrNull { it.optString("packageName") == activeMusicPackage }
-            if (target?.optBoolean("playing") != true) {
-                activeMusicCallId = null
-                activeMusicCharacterId = null
-                activeMusicPackage = ""
-                interruptedByRoleSpeech = false
-            }
+        val entries = sessions?.optJSONArray("sessions")
+        val target = (0 until (entries?.length() ?: 0)).mapNotNull { entries?.optJSONObject(it) }
+            .firstOrNull { it.optString("packageName") == activeMusicPackage }
+        if (expresslyStopped || (sessions?.optBoolean("success") == true &&
+                target?.optBoolean("playing") != true)) {
+            userPausedCallId = callId
+            userPausedCharacterId = characterId
+            activeMusicCallId = null
+            activeMusicCharacterId = null
+            activeMusicPackage = ""
+            interruptedByRoleSpeech = false
         }
     }
 
@@ -231,6 +279,10 @@ internal object DeferredCallMediaAction {
             activeMusicCharacterId = null
             interruptedByRoleSpeech = false
             resumeApprovedByRole = false
+        }
+        if (userPausedCallId == callId && userPausedCharacterId == characterId) {
+            userPausedCallId = null
+            userPausedCharacterId = null
         }
     }
 
