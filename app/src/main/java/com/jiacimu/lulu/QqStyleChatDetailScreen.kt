@@ -106,8 +106,13 @@ fun QqStyleChatDetailScreen(
     val lastCharacterTurn = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
     val lastPendingUserBubble = messages.drop(lastCharacterTurn + 1)
         .lastOrNull { it.sender == LuluChatMessage.Sender.User }
-    val lastBubbleDeadline = lastPendingUserBubble?.createdAt?.toEpochMilli()
-        ?.plus(OnlineChatBatchStore.QUIET_MILLIS)
+    val lastBubbleDeadline = lastPendingUserBubble?.let { bubble ->
+        // Match the true durable, adaptive chat-batch deadline rather than
+        // showing "typing" while the character is still collecting bubbles.
+        val fallback = bubble.createdAt.toEpochMilli() + OnlineChatBatchStore.QUIET_MILLIS
+        OnlineChatBatchStore.pendingDueAt(context, characterId)
+            ?.takeIf { it >= bubble.createdAt.toEpochMilli() } ?: fallback
+    }
     var messageWindowElapsed by remember(conversationId, lastPendingUserBubble?.id) {
         mutableStateOf(lastBubbleDeadline == null || System.currentTimeMillis() >= lastBubbleDeadline)
     }
