@@ -263,82 +263,6 @@ fun LuluVoiceCallScreen(
                         Text(if (videoEnabled) "返回语音画面" else "打开 Live2D 视频", fontSize = 13.sp)
                     }
                 }
-                if (videoEnabled) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().height(248.dp),
-                        shape = RoundedCornerShape(26.dp),
-                        color = Color(0xFFF0F3F6),
-                        border = BorderStroke(1.dp, CallLine.copy(alpha = .6f)),
-                    ) {
-                        if (visualModelUrl != null && coreReady) {
-                            Live2DCallStage(
-                                characterId = currentCharacterId,
-                                modelUrl = visualModelUrl,
-                                speaking = state.connected && state.speaking,
-                                listening = state.connected && state.listening,
-                                mouthLevel = mouthLevel,
-                                previewExpression = previewExpression,
-                                previewMotion = previewMotion,
-                                previewRevision = previewRevision,
-                            )
-                        } else Box(Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.Center) {
-                            Text(
-                                if (visualModelUrl == null) "还没有为这个角色导入 Live2D 身体\n请选择完整的 .model3.json ZIP 模型包"
-                                else if (importingModel) "正在自动准备渲染组件，请稍候…"
-                                else "渲染组件尚未就绪；若安装失败，可重试",
-                                textAlign = TextAlign.Center, color = CallMuted, fontSize = 13.sp, lineHeight = 20.sp,
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-                    ) {
-                        TextButton(onClick = { modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
-                            enabled = !importingModel) { Text(if (visualModelUrl == null) "导入 Live2D 模型 ZIP" else "更换模型", fontSize = 12.sp) }
-
-                    }
-                    if (visualModelUrl != null && !coreReady &&
-                        modelNotice.startsWith("官方 Core 安装失败")) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            TextButton(onClick = { installCoreIfNeeded() }, enabled = !importingModel) {
-                                Text("重试安装", fontSize = 12.sp)
-                            }
-                            TextButton(onClick = {
-                                corePicker.launch(arrayOf("application/javascript", "text/javascript", "*/*"))
-                            }, enabled = !importingModel) {
-                                Text("手动导入备用", fontSize = 12.sp)
-                            }
-                        }
-                    }
-                    if (modelNotice.isNotBlank()) Text(modelNotice, fontSize = 11.sp, color = CallMuted,
-                        maxLines = 2, lineHeight = 15.sp)
-                    if (coreReady && visualModelUrl != null &&
-                        (availableAnimations.expressions.isNotEmpty() || availableAnimations.motions.isNotEmpty())) {
-                        TextButton(onClick = { showAnimationPreview = !showAnimationPreview }) {
-                            Text(if (showAnimationPreview) "收起模型动作测试" else "测试模型自带的表情 / 动作", fontSize = 12.sp)
-                        }
-                        if (showAnimationPreview) {
-                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                                horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                                availableAnimations.expressions.forEach { expression ->
-                                    OutlinedButton(onClick = {
-                                        previewExpression = expression
-                                        previewMotion = null
-                                        previewRevision++
-                                    }) { Text("表情·$expression", fontSize = 11.sp) }
-                                }
-                                availableAnimations.motions.forEach { (group, index) ->
-                                    OutlinedButton(onClick = {
-                                        previewMotion = group to index
-                                        previewExpression = null
-                                        previewRevision++
-                                    }) { Text("动作·$group #${index + 1}", fontSize = 11.sp) }
-                                }
-                            }
-                        }
-                    }
-                } else {
                     Spacer(Modifier.height(14.dp))
                     Box(contentAlignment = Alignment.Center) {
                         Surface(modifier = Modifier.size(132.dp), shape = CircleShape,
@@ -355,7 +279,6 @@ fun LuluVoiceCallScreen(
                                 size = 120)
                         }
                     }
-                }
 
                 Spacer(Modifier.height(14.dp))
                 Text(
