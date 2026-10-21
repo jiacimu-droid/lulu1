@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T06:32:25.731924+00:00",
-  "commit": "d680e469baf6b7a53cbfa8e4d4671573040432b9",
+  "generatedAt": "2026-10-21T06:33:09.051558+00:00",
+  "commit": "16046929699ea135b88eb3d62a35ee9d6ed04237",
   "branch": "main",
-  "sourceFingerprint": "5178c66fc99948544508682ce919e146138309a385ad4ee2d65f409a9d1f10eb",
+  "sourceFingerprint": "7085bffe763f4ea2c209d0003bcfd2af4dc45d497176983916f5e19047899d0a",
   "summary": {
     "files": 761,
-    "lines": 145765,
+    "lines": 145769,
     "symbols": 2201
   },
   "symbolIndex": {
@@ -3643,7 +3643,7 @@
     "choose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-        "line": 108
+        "line": 112
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt",
@@ -15564,8 +15564,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt",
-      "lines": 134,
-      "sha256": "58d441361a7221014b4c257bd4f839c43cb41abd9382e091c270f51705486239",
+      "lines": 138,
+      "sha256": "4d5d023ec9ea55100fe0e2704d98750ee331641a054a96c865bf1796a4fe04c7",
       "symbols": [
         {
           "name": "needsIndependentLifeReview",
@@ -15577,7 +15577,7 @@
         },
         {
           "name": "choose",
-          "line": 108
+          "line": 112
         }
       ]
     },

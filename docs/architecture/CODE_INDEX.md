@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d680e469baf6b7a53cbfa8e4d4671573040432b9`
+- 基准提交：`16046929699ea135b88eb3d62a35ee9d6ed04237`
 - 分支：`main`
 - 已索引文件：761
-- 已索引代码/文本行：145765
+- 已索引代码/文本行：145769
 - 已发现符号：2201
 
 | 文件 | 行数 | 符号数 |
@@ -202,7 +202,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 89 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 74 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 134 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 247 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 606 | 0 |
