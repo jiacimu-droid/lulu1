@@ -139,6 +139,11 @@ fun LuluVoiceCallScreen(
             importingModel = false
         }
     }
+    LaunchedEffect(videoEnabled, currentCharacterId, visualModelUrl, coreReady) {
+        if (videoEnabled && visualModelUrl != null && !coreReady && !importingModel) {
+            installCoreIfNeeded()
+        }
+    }
     val avatar by AvatarController.states.collectAsState()
     val mouthLevel = avatar[currentCharacterId]?.mouthOpen ?: 0f
     if (showPresence) CompanionPresenceDialog(
