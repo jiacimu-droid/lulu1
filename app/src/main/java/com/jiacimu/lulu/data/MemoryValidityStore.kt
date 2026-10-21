@@ -15,28 +15,44 @@ import org.json.JSONObject
 internal object MemoryValidityStore {
     private const val PREFS_NAME = "lulu_memory_validity_v1"
     private const val KEY_SUPERSEDED_BY = "superseded_by"
+    private const val KEY_EQUIVALENT_BY = "equivalent_by"
 
     private val changeCounter = MutableStateFlow(0L)
     val revisions: StateFlow<Long> = changeCounter.asStateFlow()
 
     private var prefs: android.content.SharedPreferences? = null
     private var supersededBy: Map<String, String> = emptyMap()
+    private var equivalentBy: Map<String, String> = emptyMap()
 
     @Synchronized
     fun initialize(context: Context) {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         supersededBy = decode(prefs?.getString(KEY_SUPERSEDED_BY, null))
+        equivalentBy = decode(prefs?.getString(KEY_EQUIVALENT_BY, null))
     }
 
     @Synchronized
-    fun isActive(memoryId: String): Boolean = memoryId !in supersededBy
+    fun isActive(memoryId: String): Boolean = memoryId !in supersededBy && memoryId !in equivalentBy
 
     @Synchronized
     fun replacementId(memoryId: String): String? = supersededBy[memoryId]
 
     @Synchronized
     fun supersessionSnapshot(): Map<String, String> = supersededBy.toMap()
+
+    @Synchronized
+    fun equivalenceSnapshot(): Map<String, String> = equivalentBy.toMap()
+
+    /** Equivalent wording is not a change of fact. Keep old evidence separate. */
+    @Synchronized
+    fun markEquivalent(redundantIds: Collection<String>, keeperId: String) {
+        val ids = redundantIds.map(String::trim).filter { it.isNotBlank() && it != keeperId }.distinct()
+        if (ids.isEmpty() || keeperId.isBlank()) return
+        equivalentBy = equivalentBy + ids.associateWith { keeperId }
+        ids.forEach(MemoryEmbeddingIndex::removeMemory)
+        persist()
+    }
 
     @Synchronized
     fun markSuperseded(oldMemoryId: String, replacementMemoryId: String) {
@@ -63,10 +79,12 @@ internal object MemoryValidityStore {
         MemoryEmbeddingIndex.removeMemory(memoryId)
         val next = supersededBy
             .filterKeys { it != memoryId }
+        val nextEquivalent = equivalentBy.filterKeys { it != memoryId }
             // Do not reactivate older false facts merely because the newer correction was deleted.
             // Historical invalidation is evidence about chronology, not ownership of the new entry.
-        if (next != supersededBy) {
+        if (next != supersededBy || nextEquivalent != equivalentBy) {
             supersededBy = next
+            equivalentBy = nextEquivalent
             persist()
         }
     }
@@ -74,10 +92,17 @@ internal object MemoryValidityStore {
     @Synchronized
     fun debugContext(memoryIds: Collection<String>): String {
         val rows = memoryIds.mapNotNull { oldId -> supersededBy[oldId]?.let { newId -> oldId to newId } }
-        if (rows.isEmpty()) return ""
+        val equivalents = memoryIds.mapNotNull { oldId -> equivalentBy[oldId]?.let { keptId -> oldId to keptId } }
+        if (rows.isEmpty() && equivalents.isEmpty()) return ""
         return buildString {
-            appendLine("【历史事实替代关系】")
-            rows.forEach { (oldId, newId) -> appendLine("- 旧 memoryId=$oldId 已由 memoryId=$newId 替代；旧条目仅保留历史记录，不代表当前事实。") }
+            if (rows.isNotEmpty()) {
+                appendLine("【历史事实替代关系】")
+                rows.forEach { (oldId, newId) -> appendLine("- 旧 memoryId=$oldId 已由 memoryId=$newId 替代；旧条目仅保留历史记录，不代表当前事实。") }
+            }
+            if (equivalents.isNotEmpty()) {
+                appendLine("【同义记忆归档】")
+                equivalents.forEach { (oldId, keptId) -> appendLine("- memoryId=$oldId 与 memoryId=$keptId 语义等价；旧来源仍可审计，不代表事实发生变化。") }
+            }
         }.trim()
     }
 
@@ -85,7 +110,13 @@ internal object MemoryValidityStore {
         val objectValue = JSONObject().apply {
             supersededBy.forEach { (oldId, newId) -> put(oldId, newId) }
         }
-        prefs?.let { check(it.edit().putString(KEY_SUPERSEDED_BY, objectValue.toString()).commit()) { "记忆失效关系未能持久保存" } }
+        val duplicates = JSONObject().apply {
+            equivalentBy.forEach { (oldId, keptId) -> put(oldId, keptId) }
+        }
+        prefs?.let {
+            check(it.edit().putString(KEY_SUPERSEDED_BY, objectValue.toString())
+                .putString(KEY_EQUIVALENT_BY, duplicates.toString()).commit()) { "记忆失效关系未能持久保存" }
+        }
         changeCounter.value = changeCounter.value + 1
     }
 
