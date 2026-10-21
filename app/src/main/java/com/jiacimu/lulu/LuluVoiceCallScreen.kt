@@ -75,7 +75,10 @@ fun LuluVoiceCallScreen(
     var videoEnabled by rememberSaveable(currentCharacterId) { mutableStateOf(false) }
     var importingModel by remember { mutableStateOf(false) }
     var showCoreLicense by remember { mutableStateOf(false) }
-    var acceptedCoreLicense by remember { mutableStateOf(false) }
+    val coreLicensePrefs = remember(context) {
+        context.getSharedPreferences("lulu_live2d_core_license_v1", android.content.Context.MODE_PRIVATE)
+    }
+    var coreLicenseChecked by remember { mutableStateOf(false) }
     var modelNotice by remember { mutableStateOf("") }
     val modelRevision by Live2DAssets.revisions.collectAsState()
     val visualModelUrl = remember(context, currentCharacterId, modelRevision) {
@@ -89,12 +92,34 @@ fun LuluVoiceCallScreen(
     var previewExpression by remember(currentCharacterId) { mutableStateOf<String?>(null) }
     var previewMotion by remember(currentCharacterId) { mutableStateOf<Pair<String, Int>?>(null) }
     var previewRevision by remember(currentCharacterId) { mutableIntStateOf(0) }
+    fun installCoreIfNeeded() {
+        if (Live2DAssets.hasCore(context) || importingModel) return
+        if (!coreLicensePrefs.getBoolean("license_accepted", false)) {
+            coreLicenseChecked = false
+            showCoreLicense = true
+            return
+        }
+        importingModel = true
+        modelNotice = "正在自动准备 Live2D 渲染组件，请稍候…"
+        scope.launch {
+            modelNotice = try {
+                Live2DOfficialCoreInstaller.install(context)
+            } catch (error: Exception) {
+                "官方 Core 安装失败：" + (error.message ?: "请检查网络后重试")
+            } finally {
+                importingModel = false
+            }
+        }
+    }
     val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             importingModel = true
             modelNotice = try { Live2DAssets.importModel(context, currentCharacterId, uri) }
                 catch (error: Exception) { "模型导入失败：" + (error.message ?: "未知错误") }
             importingModel = false
+            // Do not waste a large SDK download until a usable character model exists.
+            if (Live2DAssets.modelUrl(context, currentCharacterId) != null &&
+                !Live2DAssets.hasCore(context)) installCoreIfNeeded()
         }
     }
     val corePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -120,29 +145,23 @@ fun LuluVoiceCallScreen(
                         }.onFailure { modelNotice = "浏览器未能打开许可说明，请检查默认浏览器" }
                     }) { Text("阅读官方中文授权协议") }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = acceptedCoreLicense, onCheckedChange = { acceptedCoreLicense = it })
+                        Checkbox(checked = coreLicenseChecked, onCheckedChange = { coreLicenseChecked = it })
                         Text("我已阅读并同意 Live2D 官方许可", fontSize = 12.sp)
                     }
                 }
             },
             confirmButton = {
                 TextButton(
-                    enabled = acceptedCoreLicense && !importingModel,
+                    enabled = coreLicenseChecked && !importingModel,
                     onClick = {
-                        showCoreLicense = false
-                        importingModel = true
-                        modelNotice = "正在从 Live2D 官方服务器下载安装 Core，请稍候…"
-                        scope.launch {
-                            modelNotice = try {
-                                Live2DOfficialCoreInstaller.install(context)
-                            } catch (error: Exception) {
-                                "官方 Core 安装失败：" + (error.message ?: "请检查网络后重试")
-                            } finally {
-                                importingModel = false
-                            }
+                        if (coreLicensePrefs.edit().putBoolean("license_accepted", true).commit()) {
+                            showCoreLicense = false
+                            installCoreIfNeeded()
+                        } else {
+                            modelNotice = "无法保存许可确认状态，请稍后重试"
                         }
                     },
-                ) { Text("同意并下载安装") }
+                ) { Text("确认许可并继续") }
             },
             dismissButton = { TextButton(onClick = { showCoreLicense = false }) { Text("取消") } },
         )
@@ -235,7 +254,10 @@ fun LuluVoiceCallScreen(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TextButton(onClick = { videoEnabled = !videoEnabled }) {
+                    TextButton(onClick = {
+                        videoEnabled = !videoEnabled
+                        if (videoEnabled && visualModelUrl != null && !coreReady) installCoreIfNeeded()
+                    }) {
                         Icon(if (videoEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam,
                             contentDescription = null, modifier = Modifier.size(19.dp))
                         Spacer(Modifier.width(7.dp))
@@ -263,7 +285,8 @@ fun LuluVoiceCallScreen(
                         } else Box(Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.Center) {
                             Text(
                                 if (visualModelUrl == null) "还没有为这个角色导入 Live2D 身体\n请选择完整的 .model3.json ZIP 模型包"
-                                else "已导入角色身体，但还需要官方 Cubism Core JS",
+                                else if (importingModel) "正在自动准备渲染组件，请稍候…"
+                                else "渲染组件尚未就绪；若安装失败，可重试",
                                 textAlign = TextAlign.Center, color = CallMuted, fontSize = 13.sp, lineHeight = 20.sp,
                             )
                         }
@@ -274,13 +297,19 @@ fun LuluVoiceCallScreen(
                     ) {
                         TextButton(onClick = { modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) },
                             enabled = !importingModel) { Text(if (visualModelUrl == null) "导入 Live2D 模型 ZIP" else "更换模型", fontSize = 12.sp) }
-                        TextButton(onClick = { corePicker.launch(arrayOf("application/javascript", "text/javascript", "*/*")) },
-                            enabled = !importingModel) { Text(if (coreReady) "更换官方 Cubism Core" else "导入官方 Cubism Core", fontSize = 12.sp) }
+
                     }
-                    if (!coreReady) {
-                        Button(onClick = { acceptedCoreLicense = false; showCoreLicense = true },
-                            enabled = !importingModel) {
-                            Text(if (importingModel) "正在安装官方 Core…" else "一键下载并安装官方 Cubism Core", fontSize = 12.sp)
+                    if (visualModelUrl != null && !coreReady &&
+                        modelNotice.startsWith("官方 Core 安装失败")) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            TextButton(onClick = { installCoreIfNeeded() }, enabled = !importingModel) {
+                                Text("重试安装", fontSize = 12.sp)
+                            }
+                            TextButton(onClick = {
+                                corePicker.launch(arrayOf("application/javascript", "text/javascript", "*/*"))
+                            }, enabled = !importingModel) {
+                                Text("手动导入备用", fontSize = 12.sp)
+                            }
                         }
                     }
                     if (modelNotice.isNotBlank()) Text(modelNotice, fontSize = 11.sp, color = CallMuted,
