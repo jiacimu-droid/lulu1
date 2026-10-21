@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b4f6d4aed37d1dde9c1303b11cce9c970103a015`
+- 基准提交：`1d48cac8ae4532f29c978a1b60218c023f4ded80`
 - 分支：`main`
 - 已索引文件：785
-- 已索引代码/文本行：149144
+- 已索引代码/文本行：149173
 - 已发现符号：2253
 
 | 文件 | 行数 | 符号数 |
@@ -150,7 +150,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 242 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 480 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 268 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
@@ -164,7 +164,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 892 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 920 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
