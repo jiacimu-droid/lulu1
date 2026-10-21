@@ -164,17 +164,17 @@ fun LexiconFeatureScreenV2(
                 ) {
                     item(key = "story-intro") {
                         Column(Modifier.padding(bottom = 9.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Text("一个人的时光", fontSize = 25.sp, fontWeight = FontWeight.SemiBold,
+                            Text("生活小剧场", fontSize = 25.sp, fontWeight = FontWeight.SemiBold,
                                 color = LuluColors.Ink)
-                            Text("从真实行动生长出的私人故事 · ${storyEntries.size} 篇",
+                            Text("有意思的独处、相遇与生活事件 · ${storyEntries.size} 篇",
                                 fontSize = 12.sp, color = LuluColors.Muted)
                         }
                     }
                     if (storyEntries.isEmpty()) {
                         item(key = "no-stories") {
                             LexiconV2Card {
-                                Text("还没有独处小剧场", fontWeight = FontWeight.SemiBold)
-                                Text("角色完成一次真实的独处行动后，才会产生可阅读的故事；这里不会虚构生成记录。",
+                                Text("还没有生活小剧场", fontWeight = FontWeight.SemiBold)
+                                Text("角色实际经历了值得回看的生活片段，才会写成故事；相遇、交流与生活事件也会收进这里。",
                                     fontSize = 12.sp, color = LuluColors.Muted)
                             }
                         }
@@ -191,7 +191,9 @@ fun LexiconFeatureScreenV2(
                                     Text(episode.occurredAt.atZone(ZoneId.systemDefault())
                                         .format(DateTimeFormatter.ofPattern("yyyy / MM / dd    HH:mm")),
                                         fontSize = 11.sp, color = Color(0xFF968575))
-                                    Text(episode.title, fontSize = 21.sp,
+                                    Text(episode.category.let { if (it == "encounter") "相遇 · 交谈" else if (it == "incident") "生活事件" else "个人片刻" },
+                                         fontSize = 11.sp, color = Color(0xFF947E68))
+                                     Text(episode.title, fontSize = 21.sp,
                                         lineHeight = 30.sp, fontWeight = FontWeight.SemiBold,
                                         color = Color(0xFF302A28))
                                     Text(WorldLifeEpisodeParagraphs.parse(episode.scene).firstOrNull()
