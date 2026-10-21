@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`49014c7a216735681a1969bf95e477bf53629c3e`
+- 基准提交：`57336ba9e028fb981b0fae10353af8f2498d74a1`
 - 分支：`main`
-- 已索引文件：764
-- 已索引代码/文本行：146327
-- 已发现符号：2204
+- 已索引文件：765
+- 已索引代码/文本行：146415
+- 已发现符号：2211
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -195,6 +195,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 73 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 88 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 254 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 149 | 30 |
