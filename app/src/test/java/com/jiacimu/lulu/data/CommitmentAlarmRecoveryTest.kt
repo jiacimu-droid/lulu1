@@ -207,7 +207,8 @@ class CommitmentAlarmRecoveryTest {
         CommitmentCallFeedback.onVoiceDelivered(task.id, "session-1")
         assertTrue(current(task).lastActionResult.contains("完整"))
         assertEquals(CommitmentTaskStatus.WaitingForFeedback, current(task).status)
-        assertTrue(WakeGoalVerification.confirm(task.characterId, "我醒了"))
+        // The character model has confirmed a genuine current-turn wake acknowledgement.
+        assertTrue(WakeGoalVerification.confirmFromModel(task.characterId))
         assertEquals(CommitmentTaskStatus.Completed, current(task).status)
         CommitmentCallFeedback.onVoiceFailed(task.id, "session-1", "late callback")
         assertEquals(CommitmentTaskStatus.Completed, current(task).status)
