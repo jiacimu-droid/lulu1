@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:02:49.754706+00:00",
-  "commit": "f3b0519dbb53a1b1d22957aff0bd476919771dc7",
+  "generatedAt": "2026-10-21T07:04:23.153376+00:00",
+  "commit": "de414d9bad8a44e3a307f6b4dfb1fd6252eed602",
   "branch": "main",
-  "sourceFingerprint": "dd45315b801adb1589ae28b417e579e7e49529f8de9f6211af1013f6d4eb4e1f",
+  "sourceFingerprint": "46dd2d56f9650cf7dcdb9280441e8c213866cb1b91b112ac0587717761cc089d",
   "summary": {
-    "files": 762,
-    "lines": 145956,
-    "symbols": 2203
+    "files": 763,
+    "lines": 145983,
+    "symbols": 2204
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11354,6 +11354,12 @@
         "line": 19
       }
     ],
+    "CallMediaUserIntentTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaUserIntentTest.kt",
+        "line": 5
+      }
+    ],
     "CharacterAccountabilityContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
@@ -15655,7 +15661,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
       "lines": 14,
-      "sha256": "ef55d2a4962af116f91ab9fa92159a0049294514573d4b42b1a812551f531751",
+      "sha256": "287f4b0e033304f8c7e67d1450b43b3f938c66cbc5ba5fa14ed59a73dcebd2bd",
       "symbols": [
         {
           "name": "stopped",
@@ -24604,6 +24610,17 @@
         {
           "name": "BackgroundPerceptionRecoveryTest",
           "line": 19
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaUserIntentTest.kt",
+      "lines": 27,
+      "sha256": "f548fb020f9b914cd1b19f008a2473f1da7589c5ad82a64d04a19e977424e805",
+      "symbols": [
+        {
+          "name": "CallMediaUserIntentTest",
+          "line": 5
         }
       ]
     },
