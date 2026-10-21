@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:26:25.638230+00:00",
-  "commit": "f8610f36d4c800b1ed54a4e2e24408370e30ea4a",
+  "generatedAt": "2026-10-21T17:26:41.049474+00:00",
+  "commit": "2cdc2e4344847b500a2208f840f6c5c58a0953a9",
   "branch": "main",
-  "sourceFingerprint": "12336a07afcfb6685b3ae4cebc4f2b1687a2b5b5a7fd33e96f7b91bfd48aaa59",
+  "sourceFingerprint": "b567ae9c1831f37f6dbe996e912920ed7445eb9993f7e762d04b329cd64cfcb6",
   "summary": {
     "files": 783,
-    "lines": 149003,
-    "symbols": 2245
+    "lines": 149013,
+    "symbols": 2246
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1488,10 +1488,16 @@
         "line": 45
       }
     ],
-    "controls": [
+    "rendererManifest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 72
+      }
+    ],
+    "controls": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1501,7 +1507,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 93
+        "line": 103
       }
     ],
     "normalizedSettings": [
@@ -13664,8 +13670,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 261,
-      "sha256": "a83a3579277f565b16cf08b9e8f29a7ff2446b7fff2331b9af9899dfc534b77c",
+      "lines": 271,
+      "sha256": "9bc2744a06ead1b72e4eb72ef46a01e26828a5a1e712c85805479aa928cc1aaf",
       "symbols": [
         {
           "name": "notifyCoreChanged",
@@ -13696,12 +13702,16 @@
           "line": 45
         },
         {
-          "name": "controls",
+          "name": "rendererManifest",
           "line": 72
         },
         {
+          "name": "controls",
+          "line": 81
+        },
+        {
           "name": "removeModel",
-          "line": 93
+          "line": 103
         }
       ]
     },
