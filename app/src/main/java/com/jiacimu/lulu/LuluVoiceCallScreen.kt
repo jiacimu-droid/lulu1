@@ -74,6 +74,8 @@ fun LuluVoiceCallScreen(
     val scope = rememberCoroutineScope()
     var videoEnabled by rememberSaveable(currentCharacterId) { mutableStateOf(false) }
     var importingModel by remember { mutableStateOf(false) }
+    var showCoreLicense by remember { mutableStateOf(false) }
+    var acceptedCoreLicense by remember { mutableStateOf(false) }
     var modelNotice by remember { mutableStateOf("") }
     val modelRevision by Live2DAssets.revisions.collectAsState()
     val visualModelUrl = remember(context, currentCharacterId, modelRevision) {
@@ -102,6 +104,48 @@ fun LuluVoiceCallScreen(
                 catch (error: Exception) { "Cubism Core 导入失败：" + (error.message ?: "未知错误") }
             importingModel = false
         }
+    }
+    if (showCoreLicense) {
+        AlertDialog(
+            onDismissRequest = { if (!importingModel) showCoreLicense = false },
+            title = { Text("安装 Live2D 官方渲染核心") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("像 AIRI 一样，从 Live2D 官方服务器下载固定版本 5-r.3 SDK，只提取渲染 Core。SDK 下载包可能较大；不上传你的模型，也不需要电脑。", fontSize = 13.sp)
+                    Text("Cubism Core 使用 Live2D 专有许可，首次获取前请先阅读并确认。", fontSize = 13.sp)
+                    TextButton(onClick = {
+                        runCatching {
+                            context.startActivity(Intent(Intent.ACTION_VIEW,
+                                Uri.parse(Live2DOfficialCoreInstaller.LICENSE_URL)))
+                        }.onFailure { modelNotice = "浏览器未能打开许可说明，请检查默认浏览器" }
+                    }) { Text("阅读官方中文授权协议") }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = acceptedCoreLicense, onCheckedChange = { acceptedCoreLicense = it })
+                        Text("我已阅读并同意 Live2D 官方许可", fontSize = 12.sp)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = acceptedCoreLicense && !importingModel,
+                    onClick = {
+                        showCoreLicense = false
+                        importingModel = true
+                        modelNotice = "正在从 Live2D 官方服务器下载安装 Core，请稍候…"
+                        scope.launch {
+                            modelNotice = try {
+                                Live2DOfficialCoreInstaller.install(context)
+                            } catch (error: Exception) {
+                                "官方 Core 安装失败：" + (error.message ?: "请检查网络后重试")
+                            } finally {
+                                importingModel = false
+                            }
+                        }
+                    },
+                ) { Text("同意并下载安装") }
+            },
+            dismissButton = { TextButton(onClick = { showCoreLicense = false }) { Text("取消") } },
+        )
     }
     val avatar by AvatarController.states.collectAsState()
     val mouthLevel = avatar[currentCharacterId]?.mouthOpen ?: 0f
@@ -233,12 +277,12 @@ fun LuluVoiceCallScreen(
                         TextButton(onClick = { corePicker.launch(arrayOf("application/javascript", "text/javascript", "*/*")) },
                             enabled = !importingModel) { Text(if (coreReady) "更换官方 Cubism Core" else "导入官方 Cubism Core", fontSize = 12.sp) }
                     }
-                    if (!coreReady) TextButton(onClick = {
-                        runCatching {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse("https://www.live2d.com/zh-CHS/sdk/download/web/")))
-                        }.onFailure { modelNotice = "请访问 Live2D Cubism SDK for Web 官方下载页面" }
-                    }) { Text("从官方获取 Cubism SDK（需同意许可）", fontSize = 12.sp) }
+                    if (!coreReady) {
+                        Button(onClick = { acceptedCoreLicense = false; showCoreLicense = true },
+                            enabled = !importingModel) {
+                            Text(if (importingModel) "正在安装官方 Core…" else "一键下载并安装官方 Cubism Core", fontSize = 12.sp)
+                        }
+                    }
                     if (modelNotice.isNotBlank()) Text(modelNotice, fontSize = 11.sp, color = CallMuted,
                         maxLines = 2, lineHeight = 15.sp)
                     if (coreReady && visualModelUrl != null &&
