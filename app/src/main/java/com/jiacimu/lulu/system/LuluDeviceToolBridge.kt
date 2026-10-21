@@ -303,9 +303,14 @@ object LuluDeviceToolBridge {
             不以固定关键词认定：讨论别人睡眠、引用台词、否定句、简单说晚安不等于要求开启；她说“宝宝陪我睡会儿”“困了想听你哄我”也可理解为邀请。角色可以按性格回应，但答应陪睡时必须交出真实状态决定，不能只口头答应。已在哄睡状态且仍在哄睡，不要反复切换。
             sleepDecision 只是本通电话的真实控制字段，不是台词，不替代承诺叫醒的 commitmentChanges；有明确午睡截止时间应另行创建真实叫醒约定。
         """.trimIndent() else ""
-        val currentPhoneMusic = if (phoneCallId.isNotBlank())
+        val currentPhoneMusic = if (phoneCallId.isNotBlank()) {
+            // Fresh, read-only playback evidence before every role decision.
+            // A manual pause during silence must invalidate an older music plan
+            // even when the user has not spoken another sentence.
+            com.jiacimu.lulu.data.DeferredCallMediaAction.observeBeforeUserTurn(
+                appContext, characterId, phoneCallId)
             com.jiacimu.lulu.data.DeferredCallMediaAction.musicContext(characterId, phoneCallId)
-        else "未提供本次真实通话会话"
+        } else "未提供本次真实通话会话"
         val sharedReplyAndDeviceRule = if (!rewriting && (!callSilence || sceneContext.contains("电话"))) """
             【同一模型决定可以兼有回复与设备行为】
             一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
