@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`68bff35523039515f4c6f037dab26a74f918f6fa`
+- 基准提交：`12a359346a597682d842ab579cfc24785b08fd36`
 - 分支：`main`
 - 已索引文件：775
-- 已索引代码/文本行：148021
+- 已索引代码/文本行：148027
 - 已发现符号：2233
 
 | 文件 | 行数 | 符号数 |
@@ -84,7 +84,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 236 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 166 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 168 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
@@ -105,7 +105,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 373 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 225 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 336 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 473 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 475 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 638 | 1 |
@@ -126,7 +126,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 487 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 98 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 116 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 118 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 331 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 160 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |

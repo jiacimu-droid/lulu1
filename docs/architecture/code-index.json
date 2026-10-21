@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:05:37.361476+00:00",
-  "commit": "68bff35523039515f4c6f037dab26a74f918f6fa",
+  "generatedAt": "2026-10-21T16:05:57.127291+00:00",
+  "commit": "12a359346a597682d842ab579cfc24785b08fd36",
   "branch": "main",
-  "sourceFingerprint": "26be522e231d74a420a6abecf3139ae4a4c4c5fd6349bfa2085758d267cf2e7d",
+  "sourceFingerprint": "8506d4e8e5dff6e359f07de288a1c265ad2c9e2e535d32eef0b7aa24c231f3e3",
   "summary": {
     "files": 775,
-    "lines": 148021,
+    "lines": 148027,
     "symbols": 2233
   },
   "symbolIndex": {
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 222
+        "line": 224
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
@@ -1549,7 +1549,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 242
+        "line": 244
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
@@ -1763,19 +1763,19 @@
     "speakAndCache": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 123
+        "line": 125
       }
     ],
     "playCached": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 183
+        "line": 185
       }
     ],
     "cachedAudioFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-        "line": 195
+        "line": 197
       }
     ],
     "LuluVisionSettingsScreen": [
@@ -12585,7 +12585,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/AvatarController.kt",
       "lines": 34,
-      "sha256": "65fa320bf80b71e067b00bdc6307cf707c21554367c7706e868b7f9d770117f0",
+      "sha256": "48821ee5f466fd8e956b4d8334ca4b7dbb528c6e02b060586904d7f38268769b",
       "symbols": [
         {
           "name": "AvatarPresentation",
@@ -13538,8 +13538,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt",
-      "lines": 166,
-      "sha256": "7cd1e05ddad2b49b6b3cad8402574c95baf6a1217b83aeeea6def71e209958e0",
+      "lines": 168,
+      "sha256": "ba76f39109fb3c54372c49ce1f6e27cc64c419660e32e95cf4db9644ae0a4d4b",
       "symbols": [
         {
           "name": "stop",
@@ -13873,8 +13873,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
-      "lines": 473,
-      "sha256": "35fc8ab3e90fdb7c1a962559be1c0c9f9bea4b96ec52950fb830695197135cf6",
+      "lines": 475,
+      "sha256": "891786ac740d469c386c9e2108ea55670b934c928f8408d2f4469cc431622351",
       "symbols": [
         {
           "name": "speak",
@@ -13882,23 +13882,23 @@
         },
         {
           "name": "speakAndCache",
-          "line": 123
+          "line": 125
         },
         {
           "name": "playCached",
-          "line": 183
+          "line": 185
         },
         {
           "name": "cachedAudioFile",
-          "line": 195
+          "line": 197
         },
         {
           "name": "stop",
-          "line": 222
+          "line": 224
         },
         {
           "name": "shutdown",
-          "line": 242
+          "line": 244
         }
       ]
     },
@@ -14294,8 +14294,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
-      "lines": 116,
-      "sha256": "0b7e154073d9f9ded36c4e3cc6daf004b5b116692137ef81a93a57be968ce19a",
+      "lines": 118,
+      "sha256": "5ee32edac24d34afd898acb493e945c1820a2e4b7898f6b907a6d36a5bf3dd93",
       "symbols": [
         {
           "name": "stop",
