@@ -751,6 +751,9 @@ class CompanionModelGateway(
                 // The relay explicitly rejected body allocation: the provider
                 // did not create a model reply, so ONE smaller transport retry
                 // is safe. No tool execution has happened at this boundary.
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "Relay 请求体内存保护（HTTP 503）· 已保留未读消息，正以精简的同一角色上下文重试" +
+                        "（约${originalBytes / 1024}KB → ${reducedBytes / 1024}KB）")
                 sentReduced = true
                 openAiCompatible(
                     connection = connection,
