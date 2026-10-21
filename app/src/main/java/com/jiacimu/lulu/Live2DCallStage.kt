@@ -28,7 +28,9 @@ import java.io.ByteArrayInputStream
 internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Boolean,
     listening: Boolean, mouthLevel: Float, modifier: Modifier = Modifier,
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
-    previewRevision: Int = 0, onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
+    previewRevision: Int = 0,
+    previewHead: Live2DVisualActionBus.Head? = null,
+    onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
     val statusReceiver = rememberUpdatedState(onStatus)
     val stage = remember(context, characterId, modelUrl) {
@@ -46,14 +48,21 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     AndroidView(factory = { stage }, modifier = modifier.fillMaxSize())
     LaunchedEffect(stage, previewRevision) {
         if (previewRevision > 0) {
-            val script = when {
-                previewExpression != null ->
-                    "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(previewExpression)})"
-                previewMotion != null ->
-                    "window.LuluLive2D && window.LuluLive2D.motion(${JSONObject.quote(previewMotion.first)}, ${previewMotion.second})"
-                else -> null
+            val commands = mutableListOf<String>()
+            previewExpression?.let {
+                commands += "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(it)})"
             }
-            if (script != null) stage.evaluateJavascript(script, null)
+            previewMotion?.let {
+                commands += "window.LuluLive2D && window.LuluLive2D.motion(${JSONObject.quote(it.first)}, ${it.second})"
+            }
+            previewHead?.let { head ->
+                val values = JSONObject()
+                head.yaw?.let { values.put("yaw", it.toDouble()) }
+                head.pitch?.let { values.put("pitch", it.toDouble()) }
+                head.roll?.let { values.put("roll", it.toDouble()) }
+                commands += "window.LuluLive2D && window.LuluLive2D.head($values)"
+            }
+            commands.forEach { stage.evaluateJavascript(it, null) }
         }
     }
     SideEffect {
