@@ -12,6 +12,7 @@ import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
+import java.security.MessageDigest
 
 /** Scheduling metadata only; no parallel store for facts or personality. */
 internal object MemorySemanticConsolidation {
@@ -46,8 +47,12 @@ internal object MemorySemanticConsolidation {
             }
             if (due(previous, now, Duration.ofDays(7))) {
                 if (MemoryModelRuntime.extractionConnection() == null) return@withLock
+                val retryKey = "weeklyAttempt:$characterId"
+                if (!due(storage.getString(retryKey, null), now, Duration.ofHours(12))) return@withLock
+                // Record attempts BEFORE the paid call to avoid hourly retry storms after crashes.
+                check(storage.edit().putString(retryKey, now.toString()).commit()) { "每周尝试时间保存失败" }
                 consolidateUnderLock(characterId, false)
-                check(storage.edit().putString(weeklyKey, now.toString()).commit()) { "每周维护进度保存失败" }
+                check(storage.edit().putString(weeklyKey, now.toString()).remove(retryKey).commit()) { "每周维护进度保存失败" }
             }
         }
     }
@@ -91,6 +96,11 @@ internal object MemorySemanticConsolidation {
                 source = "记忆维护", title = "长期事实语义去重", maxTokens = 2_000,
                 contextMode = CompanionContextMode.Isolated, connectionOverride = connection,
             ).getOrThrow()
+            // A malformed provider response is a retryable failure, not "no duplicates".
+            val cleanReply = reply.text.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+            check(runCatching { JSONObject(cleanReply).getJSONArray("groups") }.isSuccess) {
+                "记忆语义审核结果格式错误，将在后续重试"
+            }
             val groups = parseGroups(reply.text, window.mapTo(mutableSetOf(), MemoryEntry::id))
             for (group in groups) {
                 synchronized(SharedExperienceTimeline) {
@@ -122,8 +132,10 @@ internal object MemorySemanticConsolidation {
                 memoryHasLiveSources(it, characterId)
         }.sortedWith(compareBy<MemoryEntry> { it.subject }.thenBy { it.slot }.thenBy { it.content })
 
-    private fun fingerprint(memories: List<MemoryEntry>): String =
-        memories.joinToString("|") { "${it.id}:${it.content}:${it.sourceRevisions}" }.hashCode().toString()
+    private fun fingerprint(memories: List<MemoryEntry>): String {
+        val bytes = memories.joinToString("|") { "${it.id}:${it.content}:${it.sourceRevisions}" }.toByteArray(Charsets.UTF_8)
+        return MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+    }
 
     private fun equivalentScope(memories: List<MemoryEntry>): Boolean =
         memories.map { it.characterId }.distinct().size == 1 &&
