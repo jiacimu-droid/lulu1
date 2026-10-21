@@ -12,7 +12,9 @@ class PromptContextPolicyTest {
     @Test fun normalChatKeepsASmallBoundedEvidenceWindowWithoutBecomingHeavyweight() {
         val b = PromptContextPolicy.forRequest("聊天工具规划",
             UnifiedMemoryRequest(currentInput = "今天看见小猫啦", sceneContext = "私聊"))
-        assertEquals(1_200, b.evidenceCharacters)
+        assertEquals(2_000, b.evidenceCharacters)
+        assertTrue(b.memoryCharacters >= 6_000)
+        assertTrue(b.workingSetCharacters >= 18_000)
         assertTrue(b.evidenceCharacters < b.memoryCharacters)
         assertTrue(b.memoryCharacters > 0)
         assertTrue(b.recentCharacters > 0)
@@ -58,6 +60,9 @@ class PromptContextPolicyTest {
         assertTrue(meeting.worldDetails)
         assertTrue(background.worldDetails)
         assertTrue(meeting.richInnerLife)
-        assertTrue(background.evidenceCharacters > 0)
+        assertTrue(background.evidenceCharacters >= 4_600)
+        assertTrue(background.workingSetCharacters >= 26_000)
+        assertTrue(meeting.memoryCharacters >= 7_800)
+        assertTrue(background.recallLimit >= 38)
     }
 }
