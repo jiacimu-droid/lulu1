@@ -15,12 +15,19 @@ internal object MemoryWorkingSet {
         val candidates = buildList {
             fun evidence(event: SharedTimelineEvent, recent: Boolean) {
                 val content = event.evidenceContent.trim()
-                val shown = if (content.length <= 1_200) content else content.take(1_199) + "…"
+                // A 1,200-character preview used to hide useful details even
+                // when the unified memory budget had room. Allow a fuller
+                // view without changing the durable original event.
+                val complete = content.length <= 3_000
+                val shown = if (complete) content else
+                    content.take(2_200) +
+                        "\n【原始事件过长：中段未注入，请凭 eventId 查原始时间线；前后内容不能直接视为连续】\n" +
+                        content.takeLast(650)
                 add(MemoryPromptCandidate("${if (recent) "recent" else "event"}:${event.id}",
                     if (recent) RECENT else EVIDENCE,
                     "- [${event.occurredAt}] [${event.channel}] [${event.evidenceKind}] eventId=${event.id}@${event.revision} ${event.speaker}：$shown",
                     if (recent) 950 else 800, payload = content, sources = setOf(event.id),
-                    originalEvidence = content.length <= 1_200))
+                    originalEvidence = complete))
             }
             // Reverse only the working view: recent corrections must win budget pressure.
             context.recentEvents.asReversed().forEach { evidence(it, true) }
