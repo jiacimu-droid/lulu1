@@ -123,6 +123,26 @@ android {
     }
 }
 
+
+// The exact R8-generated register failure cannot be caught by JVM unit tests.
+// Explicitly reject any accidental R8 re-enable in either installable variant
+// before generating another APK that crashes at launch on Android 16.
+tasks.register("verifyArtSafeVariants") {
+    group = "verification"
+    description = "Ensure installed Lulu APK variants do not trigger the known ART VerifyError"
+    doLast {
+        for (name in listOf("release", "phone")) {
+            val variant = android.buildTypes.getByName(name)
+            check(!variant.isMinifyEnabled) {
+                "Do not publish ${name}: R8 caused ART VerifyError in LuluDeviceToolBridge.respond"
+            }
+            check(!variant.isShrinkResources) {
+                "Do not resource-shrink ${name} while ART-safe packaging is enabled"
+            }
+        }
+    }
+}
+
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // Render the OpenMoji SVG artwork bundled as text assets into local PNGs;
