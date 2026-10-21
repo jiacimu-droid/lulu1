@@ -1634,8 +1634,38 @@ object LuluDeviceToolBridge {
                 ).toString()
             }
             "list_media_sessions" -> LuluMediaPlayback.sessions(context)
-            "control_music" -> LuluMediaPlayback.control(
-                context, args.optString("command"), args.optString("packageName"))
+            "control_music" -> {
+                val result = LuluMediaPlayback.control(
+                    context, args.optString("command"), args.optString("packageName"))
+                val phone = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+                if (phone.connected && phone.characterId == characterId &&
+                    phone.callExperienceId.isNotBlank()) {
+                    runCatching {
+                        com.jiacimu.lulu.data.DeferredCallMediaAction.notePhoneMediaControl(
+                            characterId, phone.callExperienceId, args.optString("command"),
+                            JSONObject(result))
+                    }
+                }
+                result
+            }
+            "ring_in_call_wake" -> {
+                val phone = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+                check(phone.connected && phone.characterId == characterId &&
+                    phone.callExperienceId.isNotBlank()) {
+                    "只有与此角色真实通话中才能播放通话内叫醒铃声"
+                }
+                // Ringing is a separate, short native action; it does not
+                // force a voice reply or dial a second incoming call.
+                val seconds = args.optInt("seconds", 6).coerceIn(1, 15)
+                val started = com.jiacimu.lulu.LuluCallRingtone.startInCallWake(
+                    context, "role-wake-$requestId", seconds * 1_000L)
+                JSONObject().put("success", started)
+                    .put("status", if (started) "succeeded" else "failed")
+                    .put("summary", if (started)
+                        "已在当前通话播放本地叫醒铃声，约${seconds}秒后自动停止"
+                        else "铃声未能播放；检查手机静音、勿扰模式和来电铃声设置")
+                    .toString()
+            }
             "control_volume" -> LuluMediaVolume.control(
                 context, characterId, args.optString("action", "status"),
                 args.optInt("targetPercent", 0), args.optInt("deltaPercent", 0))
