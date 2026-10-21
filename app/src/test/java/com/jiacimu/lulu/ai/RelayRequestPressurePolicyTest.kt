@@ -41,7 +41,10 @@ class RelayRequestPressurePolicyTest {
         assertTrue(compacted.contains("周六的约定仍然有效"))
         assertTrue(compacted.contains("本轮新事实：有实际相遇"))
         assertTrue(compacted.contains("部分较早背景省略"))
-        assertEquals(current, current) // Caller passes this untouched as currentUser.
+        assertEquals(current.toByteArray(Charsets.UTF_8).size,
+            RelayRequestPressurePolicy.payloadBytes("", current, emptyList(), emptyList()))
+        // Compaction affects only the older projection. The current user
+        // argument remains untouched in both the first and the second request.
         val original = RelayRequestPressurePolicy.payloadBytes(
             "之前全部上下文".repeat(9_000), current, old, emptyList())
         val compactBytes = RelayRequestPressurePolicy.payloadBytes(
