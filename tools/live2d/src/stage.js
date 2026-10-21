@@ -3,6 +3,8 @@ import * as PIXI from 'pixi.js'
 import { Live2DModel } from 'pixi-live2d-display/cubism4'
 
 window.PIXI = PIXI
+// Pixi v6 is bundled by the existing APK workflow; the official Cubism Core remains user-supplied.
+Live2DModel.registerTicker(PIXI.Ticker)
 const root = document.getElementById('stage')
 const notice = document.getElementById('notice')
 let app
@@ -51,6 +53,7 @@ function ensureApp() {
     autoDensity: true,
   })
   root.insertBefore(app.view, notice)
+  app.ticker.maxFPS = 30
   app.ticker.add(tick)
   window.addEventListener('resize', fit)
 }
@@ -92,5 +95,14 @@ function setPaused(value) {
   paused = !!value
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
 }
-window.LuluLive2D = { load, update, setPaused }
+function expression(name) {
+  if (!model || !name || name.length > 128) return
+  Promise.resolve(model.expression(name)).catch(() => {})
+}
+function motion(group, index) {
+  if (!model || !group || !Number.isInteger(index) || index < 0) return
+  Promise.resolve(model.motion(group, index)).catch(() => {})
+}
+document.addEventListener('visibilitychange', () => setPaused(document.hidden))
+window.LuluLive2D = { load, update, setPaused, expression, motion }
 status('请选择 Live2D 模型')
