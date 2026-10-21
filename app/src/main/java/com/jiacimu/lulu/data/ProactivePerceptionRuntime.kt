@@ -859,47 +859,64 @@ object ProactivePerceptionRuntime {
             occurredAt = now, triggerExtraction = false, source = "online-awareness",
             evidenceKind = EventEvidenceKind.Observation)
         val initialDecision = parseDecision(result.text, actionOnly = false)
-        // The screenshot's "未知能力：" came from an empty tool name reaching the
-        // executor. A pending chat deserves one bounded correction using the
-        // SAME character and decision context, not an empty ToolRouter call.
+        // A malformed JSON envelope is just as much a failed model decision as
+        // an unknown tool name. Neither is an intentional choice to ignore a
+        // fresh user message. Offer ONE bounded same-role format correction.
         val invalidTool = initialDecision?.let { decision ->
             decision.action == Action.TOOL && CapabilityRegistry.find(decision.tool) == null
         } == true
-        val recoveredDecision = if (invalidTool && onlineUnread.text.isNotBlank()) {
+        val needsCorrection = initialDecision == null || invalidTool
+        val recoveredDecision = if (needsCorrection && onlineUnread.text.isNotBlank()) {
             val correction = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
-                    appendLine("当前真实用户消息：${onlineUnread.text.takeLast(1_400)}")
-                    appendLine("上一轮已做出的判断（其中工具名称无效，未执行）：${result.text.take(1_300)}")
+                    appendLine("当前仍待处理的真实用户消息：${onlineUnread.text.takeLast(1_400)}")
+                    appendLine("上一轮模型原始输出（格式无效、完全没有执行）：${result.text.take(1_300)}")
+                    appendLine(if (invalidTool) "失败原因：工具名称未注册或为空。" else
+                        "失败原因：上一轮没有解析出合法的顶层 action 或完整 JSON。")
                     appendLine("当前角色真正可以选择的操作：")
                     appendLine(CompanionActionRuntime.capabilityContext(appContext, characterId, false).take(2_800))
-                    appendLine("小红书阅读工具只有在已启用并获授权时才可以用。")
                 },
                 instruction = """
-                    你仍是同一角色，本轮只是修正一个格式错误的动作，不重做心理状态或编造事件。
-                    上一轮 action=tool 但工具名称无效，尚未执行，也没有给对方发消息。
-                    请选择真实合法的行动并输出简洁 JSON。若确实想读小红书且该能力已授权，
-                    用 {"action":"tool","tool":"read_xiaohongshu","args":{"keyword":"你自己想看的关键词"},"reason":"角色真实缘由"}。
-                    若决定先回应用户，可用 {"action":"message","text":"完整且自然的实际回复","reason":"真实缘由"}。
-                    如果此刻不想行动，可用 {"action":"silent","reason":"为什么选择暂时安静"}。
-                    不能返回空 tool、编造已阅读、代替真实执行回执，也不要把这个格式问题告诉用户。
+                    你仍是同一个角色。这只是修正上次未执行的模型决定，不是重新开始对话。
+                    保持你上一轮真正想做的事、原本的态度和对用户的具体回应；不要复述错误、道歉或编造已经完成的动作。
+                    只返回一个短而完整的顶层 JSON 对象，第一项必须是 action，随后是对应的实际参数。
+                    如果确实想回应当前消息：{"action":"message","text":"自然完整的实际回复","reason":"你的真实理由"}。
+                    如果想先保持安静：{"action":"silent","reason":"你确实选择安静的本人理由"}。
+                    如果真正要操作获授权的设备或生活能力：{"action":"tool","tool":"实际注册的工具名","args":{},"reason":"真实缘由"}，参数按能力说明填写。
+                    也可以选择其他能力说明中确实可执行的 action，不能凭空创造工具或执行结果。
+                    不要把程序格式失败当成不想回复的理由，不强制说话；没有有效工具名称就选择别的真实动作或自己决定安静。
+                    这次只写必要字段，不生成长篇内心分析、第二份人物设定、Markdown 或 JSON 外的解释。
                 """.trimIndent(),
-                source = "同次自主决定·无效动作补正",
+                source = "同次自主决定·格式补正",
                 title = "${character.displayName}修正行动格式",
-                maxTokens = 900,
+                maxTokens = 1_200,
                 connectionOverride = connection,
             ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
             correction?.takeUnless { it.action == Action.TOOL &&
-                CapabilityRegistry.find(it.tool) == null }?.copy(
-                innerLife = initialDecision?.innerLife,
-                appraisal = initialDecision?.appraisal,
-                innerThought = initialDecision?.innerThought.orEmpty(),
-                innerThoughtBasis = initialDecision?.innerThoughtBasis,
-                intention = initialDecision?.intention,
-                afterglow = initialDecision?.afterglow,
-                mood = initialDecision?.mood.orEmpty(),
-            )
+                CapabilityRegistry.find(it.tool) == null }?.let { validCorrection ->
+                // When only a tool name was invalid, retain the already parsed
+                // first-stage psychology rather than letting a repair rewrite it.
+                if (initialDecision == null) validCorrection else validCorrection.copy(
+                    innerLife = initialDecision.innerLife,
+                    appraisal = initialDecision.appraisal,
+                    innerThought = initialDecision.innerThought,
+                    innerThoughtBasis = initialDecision.innerThoughtBasis,
+                    intention = initialDecision.intention,
+                    afterglow = initialDecision.afterglow,
+                    mood = initialDecision.mood,
+                )
+            }
         } else null
+        // A manual reply/another worker may finish during the extra model call.
+        // Never duplicate a delivered answer or consume an already-seen batch.
+        if (onlineUnread.messageIds.isNotEmpty() &&
+            !CompanionOnlineStore.hasOriginalUnreadEvidence(
+                onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) {
+            CompanionPresenceStore.recordPerceptionAttempt(
+                characterId, "补正期间消息已由其他回复处理，本次不重复发言", Instant.now())
+            return Action.SILENT
+        }
         val parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
