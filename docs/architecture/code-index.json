@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:13:01.497379+00:00",
-  "commit": "fdaac530cafe5fade8f0ceec8d0c06a67bec7cb7",
+  "generatedAt": "2026-10-21T10:30:40.411045+00:00",
+  "commit": "9c3e5da4f4478ff1e0c8fd12596a2b7d8d1b4056",
   "branch": "main",
-  "sourceFingerprint": "3a9bf206bdb9ef8cf4244ccb7c20e0df6b8370cfed696cfd192c0a520bd68548",
+  "sourceFingerprint": "9bdfbc62d05b213b93e82aa0835b3ddca10b9a5ba31b08575b7ba7b545cf7418",
   "summary": {
     "files": 767,
-    "lines": 146897,
+    "lines": 146908,
     "symbols": 2214
   },
   "symbolIndex": {
@@ -7757,19 +7757,19 @@
     "Batch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "isCurrent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 102
+        "line": 113
       }
     ],
     "dueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-        "line": 109
+        "line": 120
       }
     ],
     "permits": [
@@ -19983,20 +19983,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
-      "lines": 122,
-      "sha256": "335bf481362087d705ba0f17ba325558f424efbb728395fb0567fff23841bf15",
+      "lines": 133,
+      "sha256": "575ab5f86abc76179ba5bccfbc2e739b20803fd1e16f2e068f6607503524b248",
       "symbols": [
         {
           "name": "Batch",
-          "line": 8
+          "line": 14
         },
         {
           "name": "isCurrent",
-          "line": 102
+          "line": 113
         },
         {
           "name": "dueAt",
-          "line": 109
+          "line": 120
         }
       ]
     },
