@@ -79,7 +79,7 @@ class PresencePresentationTest {
             gesture = "在咖啡角靠窗坐下",
         )
         val fields = PresencePresentation.stateFields(state).toMap()
-        assertEquals(state.statusText, fields["状态"])
+        assertEquals("等着言溪回消息，想当面说清楚", fields["状态"])
         assertEquals(state.gesture, fields["动作"])
     }
 
