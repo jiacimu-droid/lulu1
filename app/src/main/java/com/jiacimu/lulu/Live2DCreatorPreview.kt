@@ -18,6 +18,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
+internal fun creatorPreviewDimensions(file: File?): Pair<Int, Int>? = runCatching {
+    val photo = file?.takeIf(File::isFile) ?: return@runCatching null
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(photo.absolutePath, bounds)
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) null
+    else bounds.outWidth to bounds.outHeight
+}.getOrNull()
+
 /**
  * Shows the creator's complete portrait, not the sliced texture atlas.
  * Decode downsampled so even a big PNG does not exhaust Android RAM.
