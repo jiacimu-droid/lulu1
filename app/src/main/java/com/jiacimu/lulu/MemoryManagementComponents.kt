@@ -263,31 +263,6 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
             .padding(horizontal = 22.dp).padding(bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("记忆管理", fontWeight = FontWeight.SemiBold, fontSize = 21.sp)
-            OutlinedTextField(excluded, { excluded = it.filter(Char::isDigit) }, singleLine = true,
-                label = { Text("最近 N 条暂不总结") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit) }, singleLine = true,
-                label = { Text("每 N 条总结一次") }, modifier = Modifier.fillMaxWidth())
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("自动整理", Modifier.weight(1f)); Switch(automatic, { automatic = it })
-            }
-            Button(onClick = { scope.launch {
-                val saved = MemoryPolicy(excluded.toIntOrNull()?.coerceAtLeast(0) ?: policy.excludedRecentMessages,
-                    threshold.toIntOrNull()?.coerceAtLeast(1) ?: policy.readableThreshold, automatic)
-                if (personal) repository.updatePersonalPolicy(characterId, saved) else repository.updatePolicy(characterId, saved)
-                onNotice("记忆规则已保存")
-            } }, modifier = Modifier.fillMaxWidth()) { Text("保存规则") }
-            if (personal) TextButton(onClick = { scope.launch { repository.followGlobalPolicy(characterId) } }) {
-                Text("跟随统一设置")
-            }
-            OutlinedButton(enabled = !busy, onClick = { busy = true; scope.launch {
-                try {
-                    val removed = repository.maintain(characterId)
-                    repository.flushNow(characterId)
-                    onNotice(if (removed > 0) "已整理并合并 $removed 条重复记忆" else "已检查当前角色的整理队列")
-                } catch (error: Exception) { onNotice(error.message ?: "整理失败") }
-                finally { busy = false }
-            } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
-            Text("待提取的原始消息：${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
             Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF4F6F8),
                 border = BorderStroke(1.dp, FeatureBorder)) {
                 Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -329,6 +304,32 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                         fontSize = 11.sp, color = FeatureBlueGray)
                 }
             }
+            Text("自动记忆规则", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            OutlinedTextField(excluded, { excluded = it.filter(Char::isDigit) }, singleLine = true,
+                label = { Text("最近 N 条暂不总结") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit) }, singleLine = true,
+                label = { Text("每 N 条总结一次") }, modifier = Modifier.fillMaxWidth())
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("自动整理", Modifier.weight(1f)); Switch(automatic, { automatic = it })
+            }
+            Button(onClick = { scope.launch {
+                val saved = MemoryPolicy(excluded.toIntOrNull()?.coerceAtLeast(0) ?: policy.excludedRecentMessages,
+                    threshold.toIntOrNull()?.coerceAtLeast(1) ?: policy.readableThreshold, automatic)
+                if (personal) repository.updatePersonalPolicy(characterId, saved) else repository.updatePolicy(characterId, saved)
+                onNotice("记忆规则已保存")
+            } }, modifier = Modifier.fillMaxWidth()) { Text("保存规则") }
+            if (personal) TextButton(onClick = { scope.launch { repository.followGlobalPolicy(characterId) } }) {
+                Text("跟随统一设置")
+            }
+            OutlinedButton(enabled = !busy, onClick = { busy = true; scope.launch {
+                try {
+                    val removed = repository.maintain(characterId)
+                    repository.flushNow(characterId)
+                    onNotice(if (removed > 0) "已整理并合并 $removed 条重复记忆" else "已检查当前角色的整理队列")
+                } catch (error: Exception) { onNotice(error.message ?: "整理失败") }
+                finally { busy = false }
+            } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
+            Text("待提取的原始消息：${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
             debug.lastError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
             TextButton(onClick = { audit = !audit }) { Text(if (audit) "收起下发记录" else "查看置顶记忆下发记录") }
             if (audit) CoreMemoryInjectionCard(characterId, memories)
