@@ -37,32 +37,73 @@ internal object AutonomousDecisionRecovery {
     }
 
 
-    /** Only salvage a fully closed private text field from truncated optional JSON. */
+    /** Salvage only completed speech chosen by the model, never partial tools or private thoughts. */
     fun completedPrivateMessage(raw: String): JSONObject? {
         val clean = raw.substringAfter('{', "").let { "{$it" }.trim()
         if (!clean.startsWith("{")) return null
-        // The character MUST explicitly choose speech. A plain innerThought,
-        // an unfinished tool command or a generic thought is never sent.
+        // Silence or a tool action must not be converted to an unsolicited message.
         val actionMatch = Regex(""""action"\s*:\s*"(message|kaomoji|reply|private_message)"""")
             .find(clean) ?: return null
-        val found = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""")
-            .find(clean) ?: return null
-        if (found.range.first > 8_000 || actionMatch.range.first > found.range.first) return null
-        val prefix = clean.substring(0, found.range.first)
-        // Reject an action nested inside another object. Only an explicitly
-        // top-level conversational choice may be salvaged.
+        val directText = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""").find(clean)
+        val bubbleField = if (directText == null)
+            Regex(""""bubbles"\s*:\s*\[""").find(clean) else null
+        val speechStart = directText?.range?.first ?: bubbleField?.range?.first ?: return null
+        if (speechStart > 8_000 || actionMatch.range.first > speechStart) return null
+        val prefix = clean.substring(0, speechStart)
+        // Reject a decision embedded inside a thought, tool args, or nested object.
         if (prefix.drop(1).contains('{')) return null
-        // Accept reason/status preceding action, but not nested/private fields
-        // or side-effect commands before the supposed user-visible reply.
         if (listOf("innerLife", "innerThought", "appraisal", "alternatives",
-                "args", "tool", "bubbles", "journal", "worldAction")
+                "args", "tool", "journal", "worldAction")
             .any { prefix.contains("\"$it\"") }) return null
-        val text = runCatching { JSONObject("{\"text\":\"" + found.groupValues[1] + "\"}")
-            .optString("text").trim() }.getOrNull().orEmpty()
+        val text = if (directText != null) {
+            runCatching { JSONObject("{\"text\":\"" + directText.groupValues[1] + "\"}")
+                .optString("text").trim() }.getOrNull().orEmpty()
+        } else {
+            // A completed bubbles array is already authored speech even if the
+            // model later ran out of tokens writing optional innerLife fields.
+            completedBubbleArray(clean, clean.indexOf('[', bubbleField!!.range.first))
+        }
         if (text.isBlank()) return null
         return JSONObject().put("action", actionMatch.groupValues[1])
             .put("text", text.take(1_500))
             .put("reason", "保留已经完整生成的回复文字，不执行未完成的额外字段")
+    }
+
+    private fun completedBubbleArray(raw: String, start: Int): String {
+        if (start < 0) return ""
+        var depth = 0
+        var inString = false
+        var escaped = false
+        for (i in start until raw.length) {
+            val c = raw[i]
+            if (inString) {
+                if (escaped) { escaped = false; continue }
+                when (c) {
+                    '\\' -> escaped = true
+                    '"' -> inString = false
+                }
+                continue
+            }
+            when (c) {
+                '"' -> inString = true
+                '[' -> depth++
+                ']' -> {
+                    depth--
+                    if (depth == 0) {
+                        val array = runCatching {
+                            org.json.JSONArray(raw.substring(start, i + 1))
+                        }.getOrNull() ?: return ""
+                        return (0 until minOf(8, array.length())).mapNotNull { index ->
+                            val bubble = array.opt(index)
+                            val words = if (bubble is JSONObject) bubble.optString("text")
+                                else if (bubble is String) bubble else ""
+                            words.trim().takeIf(String::isNotBlank)
+                        }.joinToString("\n")
+                    }
+                }
+            }
+        }
+        return ""
     }
     fun choose(json: JSONObject): JSONObject {
         if (!json.optString("action").equals("silent", true)) return json
