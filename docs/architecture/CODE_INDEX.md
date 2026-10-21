@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7e6bac45d146b90f171a9cbb7c35386089ae2192`
+- 基准提交：`68bff35523039515f4c6f037dab26a74f918f6fa`
 - 分支：`main`
-- 已索引文件：773
-- 已索引代码/文本行：147978
-- 已发现符号：2231
+- 已索引文件：775
+- 已索引代码/文本行：148021
+- 已发现符号：2233
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -28,6 +28,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 23 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 54 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 70 | 10 |
@@ -569,6 +570,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 60 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt` | 29 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:04:36.016393+00:00",
-  "commit": "7e6bac45d146b90f171a9cbb7c35386089ae2192",
+  "generatedAt": "2026-10-21T16:05:37.361476+00:00",
+  "commit": "68bff35523039515f4c6f037dab26a74f918f6fa",
   "branch": "main",
-  "sourceFingerprint": "1f4fd024b1dbae53da1982edf265a93e38e4f54a41722126ea32eff9b7afeac4",
+  "sourceFingerprint": "26be522e231d74a420a6abecf3139ae4a4c4c5fd6349bfa2085758d267cf2e7d",
   "summary": {
-    "files": 773,
-    "lines": 147978,
-    "symbols": 2231
+    "files": 775,
+    "lines": 148021,
+    "symbols": 2233
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -420,6 +420,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
         "line": 115
+      }
+    ],
+    "measure": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt",
+        "line": 7
       }
     ],
     "write": [
@@ -11078,6 +11084,12 @@
         "line": 5
       }
     ],
+    "CallSpeechPcmLevelTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt",
+        "line": 6
+      }
+    ],
     "CallSpeechRecordingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt",
@@ -12774,6 +12786,17 @@
         {
           "name": "context",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt",
+      "lines": 25,
+      "sha256": "81a8e855a039406099198646cd53fd2b9a83f9effd15e567c6df562d2327bdef",
+      "symbols": [
+        {
+          "name": "measure",
+          "line": 7
         }
       ]
     },
@@ -24219,6 +24242,17 @@
         {
           "name": "CallSilencePolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt",
+      "lines": 18,
+      "sha256": "59e691d7aa9bc5364c31718e06a831760bba039221ad644b7374c43a51e9b0a4",
+      "symbols": [
+        {
+          "name": "CallSpeechPcmLevelTest",
+          "line": 6
         }
       ]
     },
