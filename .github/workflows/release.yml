@@ -34,7 +34,7 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Test and build optimized APK
+      - name: Test and build phone APK
         run: |
           set -o pipefail
           mkdir -p ci-logs
@@ -47,6 +47,10 @@ jobs:
           mkdir -p apk-artifacts
           phone_apk="$(find app/build/outputs/apk/phone -name '*.apk' -print -quit)"
           test -n "$phone_apk"
+          # Prevent recurrence of Android 16 ART VerifyError caused by R8
+          # rewriting the oversized unified-reply coroutine. Verify final
+          # phone APK content, not just Gradle source configuration.
+          python scripts/verify_phone_apk_bytecode.py "$phone_apk" | tee ci-logs/apk-bytecode-check.log
           cp "$phone_apk" apk-artifacts/Lulu-arm64.apk
           python scripts/apk_size_report.py "$phone_apk" | tee ci-logs/apk-size.log
 
