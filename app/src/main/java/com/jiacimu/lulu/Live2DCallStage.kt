@@ -88,7 +88,8 @@ private fun createLive2DWebView(context: Context, modelUrl: String): WebView {
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (url == "https://appassets.androidplatform.net/assets/live2d/stage.html") {
                     view?.evaluateJavascript(
-                        "window.LuluLive2D && window.LuluLive2D.load(${JSONObject.quote(modelUrl)})", null)
+                        "window.__luluStageModelUrl = ${JSONObject.quote(modelUrl)};" +
+                            "if (window.LuluLive2D) window.LuluLive2D.load(window.__luluStageModelUrl)", null)
                 }
             }
         }
