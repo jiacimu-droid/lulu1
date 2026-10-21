@@ -113,7 +113,7 @@ internal object MemorySemanticConsolidation {
                         .thenByDescending { it.strength }.thenByDescending { it.createdAt }).first()
                     val redundant = current.filter { it.id != keeper.id }
                     if (redundant.isNotEmpty()) {
-                        MemoryValidityStore.markSuperseded(redundant.map { it.id }, keeper.id)
+                        MemoryValidityStore.markEquivalent(redundant.map { it.id }, keeper.id)
                         archived += redundant.size
                     }
                 }
