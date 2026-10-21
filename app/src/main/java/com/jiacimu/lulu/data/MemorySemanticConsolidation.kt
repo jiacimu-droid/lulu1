@@ -143,8 +143,18 @@ internal object MemorySemanticConsolidation {
                 if (!due(storage.getString(retryKey, null), now, Duration.ofHours(12))) return@withLock
                 // Record attempts BEFORE the paid call to avoid hourly retry storms after crashes.
                 check(storage.edit().putString(retryKey, now.toString()).commit()) { "每周尝试时间保存失败" }
-                consolidateUnderLock(characterId, false)
-                check(storage.edit().putString(weeklyKey, now.toString()).remove(retryKey).commit()) { "每周维护进度保存失败" }
+                try {
+                    consolidateUnderLock(characterId, false)
+                    check(storage.edit().putString(weeklyKey, now.toString()).remove(retryKey).commit()) { "每周维护进度保存失败" }
+                } catch (cancelled: CancellationException) {
+                    publish(characterId, report(characterId).copy(phase = MemoryReviewPhase.Interrupted,
+                        detail = "后台维护被中断，未完成的批次保留"))
+                    throw cancelled
+                } catch (error: Exception) {
+                    publish(characterId, report(characterId).copy(phase = MemoryReviewPhase.Failed,
+                        detail = error.message?.take(240) ?: "周期整理失败"))
+                    throw error
+                }
             }
         }
     }
@@ -260,7 +270,11 @@ internal object MemorySemanticConsolidation {
                 archived = archived,
                 detail = "已审核 ${start + offset + 1} / ${windows.size} 批，本轮确认同义归档 ${archived} 条"))
         }
-        val newFactsLeft = candidates(characterId).any { it.id !in facts.map(MemoryEntry::id).toSet() }
+        val reviewSnapshot = facts.associateBy(MemoryEntry::id)
+        val newFactsLeft = candidates(characterId).any { memory ->
+            val previous = reviewSnapshot[memory.id]
+            previous == null || previous != memory
+        }
         val fullyReviewed = end == windows.size && !newFactsLeft
         val editor = storage.edit().putInt("remaining:$characterId", windows.size - end)
             .putInt(cursorKey, if (end == windows.size) 0 else end)
