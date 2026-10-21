@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T15:19:37.285996+00:00",
-  "commit": "ce85d098dccb899fa138f759154d8036f2862839",
+  "generatedAt": "2026-10-21T15:21:58.712299+00:00",
+  "commit": "030036578ce0ac5ba20e30819a9b3f6b0c34dc10",
   "branch": "main",
-  "sourceFingerprint": "7e37934b573d80073e8e3528c859ed2e21cf710ed371835f973cb6ad6767ebf0",
+  "sourceFingerprint": "8a32b573f546e6a4b41c1de71bb4000fb3fdaa436dd8056408197dd1a1bcd759",
   "summary": {
     "files": 770,
-    "lines": 147537,
+    "lines": 147568,
     "symbols": 2225
   },
   "symbolIndex": {
@@ -707,7 +707,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 115
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
@@ -7353,25 +7353,25 @@
     "report": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 50
+        "line": 51
       }
     ],
     "eligibleCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 88
+        "line": 89
       }
     ],
     "startManual": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 93
+        "line": 94
       }
     ],
     "pendingBatches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 150
+        "line": 151
       }
     ],
     "replacementId": [
@@ -19636,28 +19636,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 292,
-      "sha256": "470b5730e97624d4916f879ee4bf4f9e111814fd8481cd2d137ee3a5eee7ce00",
+      "lines": 323,
+      "sha256": "0baa7c743a2ecd1f8e1bdebb0fc38c539ba1e7dcf02f4c380cc3a4a5e737808f",
       "symbols": [
         {
           "name": "report",
-          "line": 50
+          "line": 51
         },
         {
           "name": "eligibleCount",
-          "line": 88
+          "line": 89
         },
         {
           "name": "startManual",
-          "line": 93
+          "line": 94
         },
         {
           "name": "initialize",
-          "line": 115
+          "line": 116
         },
         {
           "name": "pendingBatches",
-          "line": 150
+          "line": 151
         }
       ]
     },
