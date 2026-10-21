@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.system.LuluAlarmSystem
@@ -50,6 +51,58 @@ class CommitmentSemanticPersistenceTest {
         CommitmentTaskStore.snapshot().forEach { CommitmentTaskStore.remove(it.id) }
         resetTaskPreferences()
         MemoryTestEnvironment.release()
+    }
+
+    @Test fun commitmentExtractionUsesBackgroundModelAndNeverPaysForChatArchive() = runBlocking {
+        val chat = MockWebServer()
+        val globalDefault = MockWebServer()
+        val memoryExtraction = MockWebServer()
+        globalDefault.enqueue(response("[]"))
+        memoryExtraction.enqueue(response("[]"))
+        chat.start(); globalDefault.start(); memoryExtraction.start()
+        val advanced = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        try {
+            val library = LuluAiServices.connectionStore
+            val defaultConfig = library.saveConfiguration(null, "cheap-global-default",
+                globalDefault.url("/").toString(), "default-test-key")
+            val defaultArchive = library.addArchive(defaultConfig.id, "default-cheap-model")
+            val chatConfig = library.saveConfiguration(null, "expensive-chat",
+                chat.url("/").toString(), "chat-test-key")
+            val chatArchive = library.addArchive(chatConfig.id, "expensive-chat-model")
+            library.selectArchive(chatArchive.id, ModelUsage.Chat)
+            library.selectArchive(defaultArchive.id)
+
+            advanced.edit()
+                .putString("memory_extract_url", memoryExtraction.url("/").toString())
+                .putString("memory_extract_key", "memory-test-key")
+                .putString("memory_extract_model", "memory-cheap-model")
+                .commit()
+            MemoryModelRuntime.initialize(context)
+            assertTrue(extractCommitmentTaskDrafts(role, "你会记住这件事吗？",
+                "会，我会记着。", emptyList()).isEmpty())
+            val cheapRequest = memoryExtraction.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()
+            assertTrue(cheapRequest.contains("用户本轮"))
+            assertTrue(cheapRequest.contains("角色本轮完整回复"))
+            assertTrue(cheapRequest.contains("memory-cheap-model"))
+            assertEquals(0, chat.requestCount)
+            assertEquals(0, globalDefault.requestCount)
+
+            // No separate memory model configured: use the global active archive,
+            // never the expensive per-chat selection.
+            advanced.edit().remove("memory_extract_url").remove("memory_extract_key")
+                .remove("memory_extract_model").commit()
+            assertTrue(extractCommitmentTaskDrafts(role, "今天有新约定吗？",
+                "没有。", emptyList()).isEmpty())
+            val defaultRequest = globalDefault.takeRequest(5, TimeUnit.SECONDS)!!.body.readUtf8()
+            assertTrue(defaultRequest.contains("default-cheap-model"))
+            assertEquals(0, chat.requestCount)
+            assertEquals(1, memoryExtraction.requestCount)
+            assertEquals(1, globalDefault.requestCount)
+        } finally {
+            advanced.edit().remove("memory_extract_url").remove("memory_extract_key")
+                .remove("memory_extract_model").commit()
+            chat.shutdown(); globalDefault.shutdown(); memoryExtraction.shutdown()
+        }
     }
 
     @Test fun modelInterpretsMidnightAndCorrectionWithoutCalendarOrKeywordShortcuts() = runBlocking {
