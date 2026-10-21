@@ -68,13 +68,19 @@ internal fun Live2DFullscreenVideoCall(
                 mouthLevel = mouthLevel,
                 previewExpression = cue?.expression ?: previewExpression,
                 previewMotion = cue?.motion ?: previewMotion,
+                previewHead = cue?.head,
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 onStatus = { phase, detail ->
-                    stageStatus = phase
-                    stageDetail = detail
-                    if (phase == "ready") Live2DVisualActionBus.stageReady(
-                        characterId, state.callExperienceId)
-                    else Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+                    if (phase == "parameters") {
+                        Live2DVisualActionBus.stageParameters(characterId,
+                            state.callExperienceId, detail)
+                    } else {
+                        stageStatus = phase
+                        stageDetail = detail
+                        if (phase == "ready") Live2DVisualActionBus.stageReady(
+                            characterId, state.callExperienceId)
+                        else Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+                    }
                 },
             )
         }
