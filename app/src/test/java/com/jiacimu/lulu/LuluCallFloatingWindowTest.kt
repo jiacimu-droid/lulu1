@@ -26,4 +26,15 @@ class LuluCallFloatingWindowTest {
         assertTrue(LuluCallWindowController.expanded.value)
         LuluCallWindowController.minimize()
     }
+    @Test fun voiceAndVideoChoiceSurviveMinimizingWithoutStartingAnotherCall() {
+        LuluCallWindowController.start(video = true)
+        assertTrue(LuluCallWindowController.videoRequested.value)
+        LuluCallWindowController.minimize()
+        LuluCallWindowController.show()
+        assertTrue(LuluCallWindowController.videoRequested.value)
+        LuluCallWindowController.setVideoMode(false)
+        assertFalse(LuluCallWindowController.videoRequested.value)
+        LuluCallWindowController.minimize()
+    }
+
 }
