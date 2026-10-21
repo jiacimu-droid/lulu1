@@ -16,9 +16,12 @@ let listening = false
 let paused = false
 let seconds = 0
 
-function status(message) {
+function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
   notice.style.display = message ? 'block' : 'none'
+  console.info('__LULU_LIVE2D__' + JSON.stringify({
+    type: phase, detail: String(message || '模型渲染完成').slice(0, 200)
+  }))
 }
 function fit() {
   if (!app || !model) return
@@ -77,13 +80,13 @@ async function load(modelURL) {
   try {
     await loadCore()
     ensureApp()
-    if (model) { app.stage.removeChild(model); model.destroy(); model = null }
+    if (model) { app.stage.removeChild(model); model.destroy({ texture: true, baseTexture: true }); model = null }
     model = await Live2DModel.from(modelURL, { autoInteract: false, autoUpdate: true })
     app.stage.addChild(model)
     fit()
-    status('')
+    status('', 'ready')
   } catch (error) {
-    status('无法加载动态模型：' + (error && error.message ? error.message : String(error)))
+    status('无法加载动态模型：' + (error && error.message ? error.message : String(error)), 'error')
   }
 }
 function update(next) {
