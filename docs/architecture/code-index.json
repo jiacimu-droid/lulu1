@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:20:15.663252+00:00",
-  "commit": "e57a57a557d69841421cd63c338b2d7d48bea76f",
+  "generatedAt": "2026-10-21T17:22:33.736544+00:00",
+  "commit": "cafb859ea5a30b872dff37f31f0aae17a8c19fce",
   "branch": "main",
-  "sourceFingerprint": "285f416918e8bac6f6e45e99f1d4904170b5dfa52b0fd61b972707cf48a8862a",
+  "sourceFingerprint": "495b6ef2d44b61df461516269724d071d629cdabf833d526bea2c52355200004",
   "summary": {
-    "files": 781,
-    "lines": 148834,
-    "symbols": 2239
+    "files": 782,
+    "lines": 148909,
+    "symbols": 2244
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1504,6 +1504,44 @@
         "line": 93
       }
     ],
+    "Cue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
+        "line": 13
+      }
+    ],
+    "stageReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 24
+      }
+    ],
+    "stageClosed": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 29
+      }
+    ],
+    "capabilityNote": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 37
+      }
+    ],
+    "publish": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 57
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
+        "line": 45
+      }
+    ],
     "LuluVoiceSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -2180,12 +2218,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt",
         "line": 37
-      }
-    ],
-    "publish": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
-        "line": 45
       }
     ],
     "MomentsScreen": [
@@ -8730,12 +8762,6 @@
         "line": 40
       }
     ],
-    "Cue": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
-        "line": 13
-      }
-    ],
     "Choice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
@@ -13696,6 +13722,33 @@
       "lines": 123,
       "sha256": "70a06ad85b3e8a84d978b1733eaa035b4c41c78a8495717e0be3f3195146aa06",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+      "lines": 75,
+      "sha256": "80d1068dad0293966fc4aa097123a4de5df719460746c6bc6593972346261de7",
+      "symbols": [
+        {
+          "name": "Cue",
+          "line": 13
+        },
+        {
+          "name": "stageReady",
+          "line": 24
+        },
+        {
+          "name": "stageClosed",
+          "line": 29
+        },
+        {
+          "name": "capabilityNote",
+          "line": 37
+        },
+        {
+          "name": "publish",
+          "line": 57
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
