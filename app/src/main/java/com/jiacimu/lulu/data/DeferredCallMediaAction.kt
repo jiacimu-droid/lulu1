@@ -176,36 +176,65 @@ internal object DeferredCallMediaAction {
     }
 
 
-    /** A real new user utterance outranks every old automated media choice. */
-    @Synchronized fun onUserTurn(context: Context, characterId: String, callId: String, text: String) {
-        if (CallMediaUserIntent.restarted(text)) {
-            userPausedCallId = null
-            userPausedCharacterId = null
-            userPausedMusicPackage = ""
-        }
-        val expresslyStopped = CallMediaUserIntent.stopped(text)
-        if (expresslyStopped) {
-            userPausedCallId = callId
-            userPausedCharacterId = characterId
-            userPausedMusicPackage = activeMusicPackage
-            cancelPlannedPlayback(context, characterId, callId)
-        }
+    /**
+     * Read playback state only. Understanding spoken wishes belongs to the
+     * character's normal model turn, never a list of Chinese keywords here.
+     */
+    @Synchronized fun observeBeforeUserTurn(context: Context, characterId: String, callId: String) {
         if (activeMusicCharacterId != characterId || activeMusicCallId != callId) return
         resumeApprovedByRole = false
-        if (interruptedByRoleSpeech && !expresslyStopped) return
+        // A pause made by our own TTS does not prove the user rejected music.
+        if (interruptedByRoleSpeech) return
         val sessions = runCatching { JSONObject(LuluMediaPlayback.sessions(context)) }.getOrNull()
-        val entries = sessions?.optJSONArray("sessions")
+        if (sessions?.optBoolean("success") != true) return
+        val entries = sessions.optJSONArray("sessions")
         val target = (0 until (entries?.length() ?: 0)).mapNotNull { entries?.optJSONObject(it) }
             .firstOrNull { it.optString("packageName") == activeMusicPackage }
-        if (expresslyStopped || (sessions?.optBoolean("success") == true &&
-                target?.optBoolean("playing") != true)) {
-            userPausedCallId = callId
-            userPausedCharacterId = characterId
-            userPausedMusicPackage = activeMusicPackage
-            activeMusicCallId = null
-            activeMusicCharacterId = null
-            activeMusicPackage = ""
-            interruptedByRoleSpeech = false
+        if (target?.optBoolean("playing") == true) return
+        userPausedCallId = callId
+        userPausedCharacterId = characterId
+        userPausedMusicPackage = activeMusicPackage
+        activeMusicCallId = null
+        activeMusicCharacterId = null
+        activeMusicPackage = ""
+        interruptedByRoleSpeech = false
+        cancelPlannedPlayback(context, characterId, callId)
+    }
+
+    /**
+     * This is the structured choice from ONE genuinely new user turn.
+     * "stop"/"play" is model interpretation, not lexical matching.
+     * The actual player/permissions are still checked by their executors.
+     */
+    @Synchronized fun applyUserMediaUnderstanding(
+        context: Context, characterId: String, callId: String, intent: String,
+    ) {
+        when (intent) {
+            "stop" -> {
+                userPausedCallId = callId
+                userPausedCharacterId = characterId
+                userPausedMusicPackage = activeMusicPackage.ifBlank { userPausedMusicPackage }
+                resumeApprovedByRole = false
+                cancelPlannedPlayback(context, characterId, callId)
+                // If our character currently owns the active music, stop it;
+                // mentioning a past pause does NOT reach this branch.
+                if (activeMusicCharacterId == characterId && activeMusicCallId == callId) {
+                    activeMusicPackage.takeIf(String::isNotBlank)?.let { target ->
+                        runCatching { LuluMediaPlayback.control(context, "pause", target) }
+                    }
+                    activeMusicCallId = null
+                    activeMusicCharacterId = null
+                    activeMusicPackage = ""
+                    interruptedByRoleSpeech = false
+                }
+            }
+            "play" -> {
+                // Only a *fresh* user utterance assessed in this role model
+                // can lift the lock; an old stored tool decision cannot.
+                userPausedCallId = null
+                userPausedCharacterId = null
+                userPausedMusicPackage = ""
+            }
         }
     }
 
@@ -234,10 +263,13 @@ internal object DeferredCallMediaAction {
     }
 
 
-    @Synchronized fun musicContext(characterId: String, callId: String): String =
-        if (activeMusicCharacterId == characterId && activeMusicCallId == callId)
-            "本通电话已经请求真实音乐，角色可选择讲完话后继续播放或让它保持暂停"
-        else "本通电话尚无本系统成功请求的音乐"
+    @Synchronized fun musicContext(characterId: String, callId: String): String = when {
+        userPausedCallId == callId && userPausedCharacterId == characterId ->
+            "本通电话的音乐已观测到暂停或用户决定停止。旧命令不能自动恢复；若有新的真实发言，请自行理解是否明确要求重新播放"
+        activeMusicCharacterId == characterId && activeMusicCallId == callId ->
+            "本通电话已有角色请求的音乐。若要继续或暂停，必须尊重当前播放器状态与对方新回应"
+        else -> "本通电话尚无本系统成功请求的音乐"
+    }
 
     @Synchronized fun chooseAfterSpeech(characterId: String, callId: String, resume: Boolean) {
         if (activeMusicCharacterId == characterId && activeMusicCallId == callId)
@@ -325,6 +357,12 @@ internal object DeferredCallMediaAction {
                         .put("result", "本次电话已经结束，未越过通话边界播放音乐").toString()).commit()
                 return false
             }
+        }
+        if (row.optString("trigger") == "in_call" &&
+            !mayStartMusic(charId, row.optString("callId"))) {
+            store.edit().putString(id, row.put("status", "cancelled")
+                .put("result", "用户已停止音乐，旧的延时播放不再执行").toString()).commit()
+            return false
         }
         val volume = row.optInt("volumePercent", -1)
         if (volume >= 0) LuluMediaVolume.control(context, charId, "set", volume)
