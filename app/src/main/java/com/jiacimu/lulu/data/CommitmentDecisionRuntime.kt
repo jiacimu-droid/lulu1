@@ -136,12 +136,10 @@ internal object CommitmentDecisionRuntime {
         val drafts = CommitmentDecisionProtocol.drafts(changes, active)
         val completed = drafts.filter { it.action == "complete" }.mapNotNull { it.targetTaskId }.toSet()
         if (completed.isNotEmpty()) {
-            val userText = SharedExperienceTimeline.eventsByIds(characterId, evidenceIds)
-                .filter { it.evidenceKind == EventEvidenceKind.UserStatement }.joinToString("\n") { it.content }
-            // Preserve the existing music handoff, only after a model-owned completion
-            // decision and an actual user acknowledgement, never merely an answered call.
-            WakeMusicCoordinator.onExplicitWakeConfirmation(context, characterId, userText,
-                active.filter { it.id in completed })
+            // Only the model's completed-task decision can restore wake music
+            // volume, and only when an actual user event accompanies the change.
+            if (evidenceIds.isNotEmpty() && active.any { it.id in completed && it.isWakeResponsibility() })
+                WakeMusicCoordinator.onModelConfirmedWake(context, characterId)
         }
         val before = CommitmentTaskStore.snapshot(characterId).associate { it.id to it.revision }
         applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, drafts)
