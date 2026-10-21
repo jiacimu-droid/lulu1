@@ -22,7 +22,7 @@ object AvatarController {
         val old = mutable.value[characterId]
         mutable.value = mutable.value + (characterId to AvatarPresentation(characterId,
             CompanionPresenceStore.current(characterId)?.mood.orEmpty(), DigitalWorldStore.locationOf(characterId),
-            speaking = level > 0.01f, listening = old?.listening ?: false, mouthOpen = level.coerceIn(0f, 1f)))
+            speaking = old?.speaking == true, listening = old?.listening ?: false, mouthOpen = level.coerceIn(0f, 1f)))
     }
     @Synchronized fun listening(characterId: String, listening: Boolean) {
         val old = mutable.value[characterId]
