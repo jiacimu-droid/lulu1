@@ -45,9 +45,13 @@ internal object AutonomousDecisionRecovery {
         val actionMatch = Regex(""""action"\s*:\s*"(message|kaomoji|reply|private_message)"""")
             .find(clean) ?: return null
         val directText = Regex(""""text"\s*:\s*"((?:[^"\\]|\\.)*)"""").find(clean)
-        val bubbleField = if (directText == null)
-            Regex(""""bubbles"\s*:\s*\[""").find(clean) else null
-        val speechStart = directText?.range?.first ?: bubbleField?.range?.first ?: return null
+        val bubbleField = Regex(""""bubbles"\s*:\s*\[""").find(clean)
+        // In {"bubbles":[{"text":"..."}]}, the first "text" belongs to
+        // an inner bubble; recover the complete array instead of rejecting it.
+        val useBubbles = bubbleField != null &&
+            (directText == null || bubbleField.range.first < directText.range.first)
+        val speechStart = if (useBubbles) bubbleField!!.range.first
+            else directText?.range?.first ?: return null
         if (speechStart > 8_000 || actionMatch.range.first > speechStart) return null
         val prefix = clean.substring(0, speechStart)
         // Reject a decision embedded inside a thought, tool args, or nested object.
@@ -55,7 +59,7 @@ internal object AutonomousDecisionRecovery {
         if (listOf("innerLife", "innerThought", "appraisal", "alternatives",
                 "args", "tool", "journal", "worldAction")
             .any { prefix.contains("\"$it\"") }) return null
-        val text = if (directText != null) {
+        val text = if (!useBubbles && directText != null) {
             runCatching { JSONObject("{\"text\":\"" + directText.groupValues[1] + "\"}")
                 .optString("text").trim() }.getOrNull().orEmpty()
         } else {
