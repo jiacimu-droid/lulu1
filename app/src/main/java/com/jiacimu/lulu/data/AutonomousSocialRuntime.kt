@@ -437,7 +437,12 @@ internal object AutonomousSocialRuntime {
         CompanionPresenceStore.update(
             characterId = characterId,
             statusText = reaction.statusText.ifBlank { "位于${tick.locationName}" },
-            gesture = reaction.gesture.takeIf(String::isNotBlank),
+            // A proposed world action may be queued but is not yet performed.
+            // Its actual physical movement belongs to the executor's receipt,
+            // never to this speculative pre-action avatar field.
+            gesture = if (ownChoice?.optString("stage") == "decided" &&
+                ownChoice.optString("action") == "digital_world") "" else
+                reaction.gesture.takeIf(String::isNotBlank),
             innerThought = reaction.innerThought,
             mood = reaction.mood,
             source = "数字世界事件反应",
