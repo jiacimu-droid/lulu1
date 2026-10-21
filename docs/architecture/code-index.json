@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:06:32.192504+00:00",
-  "commit": "1ee947bf14baff724d415f974e255e0dfaafbe52",
+  "generatedAt": "2026-10-21T16:09:11.441574+00:00",
+  "commit": "6284e8d91d6f8efc24be9e6301994f6f42d71055",
   "branch": "main",
-  "sourceFingerprint": "9cb7f0916b07449e3eb9f645b34e29a2f6b00a43d95390c0117f438105cff33d",
+  "sourceFingerprint": "9823bff5affe262c1f985fd7752207ba4dfb98c93e85451a3f18cc45788b56b6",
   "summary": {
     "files": 775,
-    "lines": 148043,
-    "symbols": 2233
+    "lines": 148071,
+    "symbols": 2234
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1449,37 +1449,47 @@
     "base": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 22
+        "line": 27
       }
     ],
     "coreFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 23
+        "line": 28
       }
     ],
     "hasCore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 24
+        "line": 29
       }
     ],
     "modelUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 26
+        "line": 31
       }
     ],
     "modelLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 35
+        "line": 40
+      }
+    ],
+    "controls": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
+        "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
+        "line": 121
       }
     ],
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 37
+        "line": 64
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -8834,12 +8844,6 @@
         "line": 118
       }
     ],
-    "controls": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 121
-      }
-    ],
     "lastDiagnosticSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -13592,32 +13596,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 182,
-      "sha256": "a79ce53735de805252658fab50ffda67d42f1199425a9affcb6a65ec7c73b248",
+      "lines": 210,
+      "sha256": "d2b056d950e58f3fd7fb72083021ffd38d799ec06b54b06ab8a6017d402df668",
       "symbols": [
         {
           "name": "base",
-          "line": 22
+          "line": 27
         },
         {
           "name": "coreFile",
-          "line": 23
+          "line": 28
         },
         {
           "name": "hasCore",
-          "line": 24
+          "line": 29
         },
         {
           "name": "modelUrl",
-          "line": 26
+          "line": 31
         },
         {
           "name": "modelLabel",
-          "line": 35
+          "line": 40
+        },
+        {
+          "name": "controls",
+          "line": 43
         },
         {
           "name": "removeModel",
-          "line": 37
+          "line": 64
         }
       ]
     },
