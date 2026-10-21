@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:11:29.052196+00:00",
-  "commit": "aef7affec259574e4360b5ed6670641e49735050",
+  "generatedAt": "2026-10-21T10:11:48.689320+00:00",
+  "commit": "1143a181cad09a69f9a291b4a03bfec28cf1dfeb",
   "branch": "main",
-  "sourceFingerprint": "d66b3e95a513259b4abb7631ea7b2d8e22823451026b5b4c2e06f60b38d4e5cc",
+  "sourceFingerprint": "2ff57b285f2282ed3891108f1f25d037498ececda57381a6aee511f19233058f",
   "summary": {
-    "files": 766,
-    "lines": 146809,
-    "symbols": 2213
+    "files": 767,
+    "lines": 146878,
+    "symbols": 2214
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11862,6 +11862,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldLiveSceneTest.kt",
         "line": 13
+      }
+    ],
+    "DigitalWorldPersistentIncidentContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt",
+        "line": 17
       }
     ],
     "DigitalWorldReadingRouteTest": [
@@ -24252,8 +24258,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
-      "lines": 76,
-      "sha256": "a3aebeebe6957cf7d13e00269b0cbd23fb5737e4f10b68b7723f593ce80f4ce5",
+      "lines": 87,
+      "sha256": "ef1df58eb718b588b91b9ecae4f22f2d933173bd4c55294e27d6bf3eed66e690",
       "symbols": [
         {
           "name": "PresencePresentationTest",
@@ -25471,6 +25477,17 @@
         {
           "name": "DigitalWorldLiveSceneTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt",
+      "lines": 58,
+      "sha256": "be2c6e023c3cd255850fc8880872b7fca6dc72090d9c2d0fc0289cd88ee3173c",
+      "symbols": [
+        {
+          "name": "DigitalWorldPersistentIncidentContextTest",
+          "line": 17
         }
       ]
     },
