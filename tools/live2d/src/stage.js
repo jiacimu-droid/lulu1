@@ -40,28 +40,46 @@ function fit() {
   model.anchor.set(.5, .5)
   model.position.set(viewWidth / 2, viewHeight * .53)
 }
-function tick(delta) {
-  if (!model || paused) return
-  seconds += Math.min(delta / 60, .05)
-  const core = model.internalModel && model.internalModel.coreModel
-  if (!core) return
-  try {
-    core.setParameterValueById('ParamMouthOpenY', playing ? Math.min(1, Math.max(0, mouth)) : 0)
-    // Tiny idle movement is a renderer-only interpolation, never a reported world action.
-    core.setParameterValueById('ParamBodyAngleX', Math.sin(seconds * .66) * 1.4)
-    if (headRequest && Date.now() > headRequestEndAt) headRequest = null
-    const axes = [
-      ['ParamAngleX', 'yaw', listening ? 1.3 : Math.sin(seconds * .47) * 1.6],
-      ['ParamAngleY', 'pitch', 0],
-      ['ParamAngleZ', 'roll', Math.sin(seconds * .35) * .5],
-    ]
-    for (const [id, axis, idle] of axes) {
-      if (core.getParameterIndex(id) < 0) continue
-      const goal = headRequest?.[axis] ?? idle
-      smoothPose[axis] += (goal - smoothPose[axis]) * Math.min(1, delta * .18)
-      core.setParameterValueById(id, smoothPose[axis])
-    }
-  } catch (_ignored) { /* Older models may omit optional parameters. */ }
+// AIRI's motion manager applies user-controlled parameters after its native
+// Cubism motion update. Do the same: a Pixi app.ticker callback can run BEFORE
+// the Live2D model update and be overwritten by the next Cubism frame.
+function applyAfterMotion(core, deltaMs) {
+  if (!core || paused) return
+  seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
+  if (headRequest && Date.now() > headRequestEndAt) headRequest = null
+  const axes = [
+    ['ParamAngleX', 'yaw', listening ? 1.3 : Math.sin(seconds * .47) * 1.6],
+    ['ParamAngleY', 'pitch', 0],
+    ['ParamAngleZ', 'roll', Math.sin(seconds * .35) * .5],
+  ]
+  for (const [id, axis, idle] of axes) {
+    if (core.getParameterIndex(id) < 0) continue
+    const target = headRequest?.[axis] ?? idle
+    smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .008)
+    core.setParameterValueById(id, smoothPose[axis])
+  }
+  if (core.getParameterIndex('ParamMouthOpenY') >= 0) {
+    // Motion layers must never swallow the actual voice waveform.
+    const target = playing ? Math.min(1, Math.max(0, mouth)) : 0
+    core.setParameterValueById('ParamMouthOpenY', target)
+  }
+}
+function installPostMotionControl(loadedModel) {
+  const manager = loadedModel.internalModel?.motionManager
+  if (!manager || typeof manager.update !== 'function') {
+    status('模型未提供 Cubism 动作管理器', 'error')
+    return false
+  }
+  const original = manager.update
+  let lastMotionTime = 0
+  manager.update = function (core, now) {
+    const updated = original.call(this, core, now)
+    const deltaMs = lastMotionTime ? Math.min(Math.max(now - lastMotionTime, 0), 60) : 16
+    lastMotionTime = now
+    applyAfterMotion(core, deltaMs)
+    return updated
+  }
+  return true
 }
 function ensureApp() {
   if (app) return
@@ -75,7 +93,6 @@ function ensureApp() {
   })
   root.insertBefore(app.view, notice)
   app.ticker.maxFPS = 30
-  app.ticker.add(tick)
   window.addEventListener('resize', fit)
 }
 async function loadCore() {
@@ -99,6 +116,7 @@ async function load(modelURL) {
     ensureApp()
     if (model) { app.stage.removeChild(model); model.destroy({ texture: true, baseTexture: true }); model = null }
     model = await Live2DModel.from(modelURL, { autoInteract: false, autoUpdate: true })
+    if (!installPostMotionControl(model)) throw new Error('缺少可控制的 Live2D 动作管理器')
     app.stage.addChild(model)
     fit()
     status('', 'ready')
