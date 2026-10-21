@@ -72,4 +72,15 @@ class PresencePresentationTest {
         assertEquals(state.gesture, fields["动作"])
     }
 
+    @Test fun longStatusContainingCompletedActionAndSeparateConcernStaysVisible() {
+        val state = CompanionPresenceState(
+            characterId = "jiangdu",
+            statusText = "在咖啡角靠窗坐下，等着言溪回消息，想当面说清楚",
+            gesture = "在咖啡角靠窗坐下",
+        )
+        val fields = PresencePresentation.stateFields(state).toMap()
+        assertEquals(state.statusText, fields["状态"])
+        assertEquals(state.gesture, fields["动作"])
+    }
+
 }
