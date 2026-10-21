@@ -35,7 +35,15 @@ import kotlinx.coroutines.flow.asStateFlow
 internal object LuluCallWindowController {
     private val mutableExpanded = MutableStateFlow(false)
     val expanded = mutableExpanded.asStateFlow()
+    private val mutableVideoRequested = MutableStateFlow(false)
+    val videoRequested = mutableVideoRequested.asStateFlow()
 
+    /** Select once before dialing; reopening a minimized call retains its current mode. */
+    fun start(video: Boolean) {
+        mutableVideoRequested.value = video
+        mutableExpanded.value = true
+    }
+    fun setVideoMode(video: Boolean) { mutableVideoRequested.value = video }
     fun show() { mutableExpanded.value = true }
     fun minimize() { mutableExpanded.value = false }
 }
