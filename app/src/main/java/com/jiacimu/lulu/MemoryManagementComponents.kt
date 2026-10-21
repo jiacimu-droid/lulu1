@@ -35,6 +35,7 @@ import com.jiacimu.lulu.data.InMemoryWorldBookRepository
 import com.jiacimu.lulu.data.CoreMemoryDelivery
 import com.jiacimu.lulu.data.CoreMemoryInjectionAudit
 import com.jiacimu.lulu.data.LocalMemoryRepository
+import com.jiacimu.lulu.data.MemorySemanticConsolidation
 import com.jiacimu.lulu.data.LocalPerformanceRepository
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
