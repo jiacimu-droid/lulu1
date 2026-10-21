@@ -153,6 +153,8 @@ class WorldLifeEpisodeStoreTest {
             assertEquals(3, encounter?.sourceEvidenceIds?.size)
             assertEquals(2, WorldLifeEpisodeStore.episodes(role).size)
             assertEquals(outing?.id, WorldLifeEpisodeStore.nearbyAt(role, "cafe", at)?.id)
+            assertEquals(outing?.id, WorldLifeEpisodeStore.recentAt(role, "cafe",
+                at.plusSeconds(60))?.id)
             // A literary scene is a projection: delete one originating turn,
             // and the episode disappears without deleting the remaining facts.
             WorldLifeEpisodeStore.invalidateEvidence("resident-said-hello")
