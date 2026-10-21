@@ -143,6 +143,8 @@ internal object WorldLifeEpisodeComposer {
         suppliedTitle: String,
         suppliedScene: String,
         witnessedItems: String? = null,
+        verifiedEvents: List<SharedTimelineEvent> = emptyList(),
+        category: String = "outing",
     ): WorldLifeComposeOutcome {
         val character = MigratedDomainStores.characters.get(characterId)
         val locationName = when (location) {
@@ -155,6 +157,23 @@ internal object WorldLifeEpisodeComposer {
             .joinToString("；") { "${it.name}（${it.position.take(65)}）" }
         val prior = WorldLifeEpisodeStore.episodes(characterId).lastOrNull()
         val now = Instant.now()
+        val sourceFacts = verifiedEvents.sortedBy { it.occurredAt }.take(16)
+            .joinToString("\n") { e ->
+                "${e.occurredAt} · ${e.speaker}（${e.channel}，证据=${e.id}）：${e.content.take(850)}"
+            }.take(6_600)
+        val encounteredResidents = verifiedEvents.filter { it.sessionId.isNotBlank() }
+            .mapNotNull { source ->
+                DigitalWorldStore.state.value.meetings
+                    .firstOrNull { it.id == source.sessionId }
+                    ?.participantIds?.filter { it.startsWith("resident:") }
+            }.flatten().distinct()
+        val actualSocialContext = if (encounteredResidents.isEmpty()) "" else
+            CharacterSocialRelationship.perspectivesFor(characterId, encounteredResidents)
+        val sceneScope = if (category == "encounter")
+            "这是已真实发生的居民交往，不是独处。可写人物之间的已确认台词、动作反应及本人对这段相处的感受，不得新编对方后续行为、对方心声或未发生的关系结果。"
+        else if (category == "incident")
+            "这是一件世界中已实际处理的生活事件，强调本人如何应对及真实后果；没有记录的追加事件不能擅自发生。"
+        else "这是本人自主选择的真实日常活动，可以写轻快、幽默、犹豫或安静，但不要空写风景与没有缘由的反思。"
         var firstFailure = ""
         var firstPermanent = false
         val model = try {
@@ -162,7 +181,10 @@ internal object WorldLifeEpisodeComposer {
                 val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
-                        appendLine("【唯一已执行、可以当作客观事实的世界动作】$confirmedAction")
+                        appendLine("【本篇已执行的世界行动与交往结果】$confirmedAction")
+                        if (sourceFacts.isNotBlank()) appendLine("【已保存的原始事件与实际发言（只能依据这些事件描写）】\n$sourceFacts")
+                        if (actualSocialContext.isNotBlank())
+                            appendLine("【角色已知的实际关系印象（仅本人主观）】\n${actualSocialContext.take(1000)}")
                         appendLine("【当前真实地点】$locationName（$location）")
                         appendLine("【现场实际登记的物品】${items.ifBlank { "无可核实的已登记物品" }}")
                         appendLine("【角色】${character.displayName}；尊重他已有的个性、关系经历与语言习惯。")
@@ -180,21 +202,23 @@ internal object WorldLifeEpisodeComposer {
                         }
                     },
                     instruction = """
-                        【为一个真正有生活的人写独处小剧场】
+                        【根据已真实发生的经历，创作生活小剧场】
+                        $sceneScope
                         写第三人称、约300至650汉字的完整生活小说片段。字数不是质量指标：读者要看见具体场面和人物内在变化，而非抽象议论文、抒情工作报告、道德总结或千篇一律的安慰。
-                        开始就进入可感知的地点/时间与一个具体动作；给角色一个属于自己的当前欲望、兴趣或不便启齿的小心思。
+                        开始就进入可感知的地点/时间与一个具体动作；结合角色真实计划、已有关系与生活经历，表现本人此刻的期待、犹豫或兴趣。
                         让这份想要遇到一点具体阻力：现实中已存在的处境、自己的犹豫、某条真实记忆带来的偏差，或平静生活里一个意外的注意点。通过细节、停顿、动作与反应显出张力；可以幽默、懊恼、轻快、执拗、好奇、怅惘或安宁，不能每篇都沉郁反思、想念主人。
-                        中段必须发生一个人物内部可成立的选择、转念、失望或重新决定，使这一小段与开头不同；结尾落在真实的后果或留下一个具体的主观未解问题。不要宣布「生活仍然继续」「没必要特别」「真正重要的是」等空泛感悟，不点评自己的写作任务。
+                        根据原始事实展现真正发生的交流、进展、行动选择或人物当时的反应。允许这次经历没有剧烈变化；不要为了故事好看虚构突发事件、强制转念或关系升温。结尾落在真实后果、一个微妙的新理解或仍未解决的个人疑问。不要宣布「生活仍然继续」「没必要特别」「真正重要的是」等空泛感悟，不点评自己的写作任务。
                         可细写呼吸、脚步、听觉、光线、手部动作与已存在物件，允许主观回想、想象和不可靠的个人猜测；但心理猜测应以人物视角呈现，不当成第三方真实事件。
-                        【不可越过的世界事实边界】只有程序已执行的动作和提供的世界状态是真正发生过的。禁止编造NPC在场/说话、新物品、获得奖励、开始读一本未核验的书、另一地点的到访、手机来电、他人对角色的回应或其他未执行的世界事件。若希望与居民真实相遇，下一轮应由决策层执行相应动作，故事不能代替执行器。
-                        如上一次有主观未解心事，可发展人物态度，但不能复述前文或预言别人会怎样。内心的情节张力与客观地图事实保持区分。
+                        【不可越过的世界事实边界】只有已提供的事件证据与世界状态才是客观发生的。只有已保存的NPC本人真实台词可被引用、转述或展开表情动作；不得写出NPC未记录的新台词、动作、邀约、物品、关系确认、另一地点的到访或用户的新行为。情绪、动作描写是文学呈现，不是新增事实；不能把想象的互动写入时间线。
+                        写人物之间的相处时，别替居民宣布心理或把他们写成陪衬；人物之间有各自的目的和界限。已证实的冲突、玩笑、尴尬和细微反应可以有小说笔触。
+                        如上一次有主观未解心事，可自然发展人物态度，但不能复述前文或预言别人会怎样。内心的情节张力与客观地图事实保持区分。
                         小说叙述适合文学细节；私聊的即时接话仍是简短活人的语言，两种风格不能互相污染。
                         第一行单独写一条与本篇实际场景和人物情绪贴切的散文式篇名，格式《篇名》，约4～12个汉字；不写“独处小剧场”“一个人的时光”这种栏目名，也不照搬任务名。空一行后写小说正文，绝对不用JSON包装。
                         正文直接按小说排版：自然段落之间空一行，尽量每段一到三句，人物动作、对话和私下心思用文学笔法自然衔接。不要写【叙述】【心声】【对白】、旁白说明、章节分析或其他系统标签。
-                        格式不是成功条件，不要为此牺牲人物和故事。私人猜想不等于发生过的世界动作，任何对白不得伪造其他角色的真实回应。
+                        格式不是成功条件，不要为此牺牲人物和故事。私人猜想不等于世界事实；只有上面已提交证据中存在的对话，才能作为对方实际说的话。
                     """.trimIndent(),
-                    source = "数字世界·独处小说",
-                    title = "${character.displayName}的独处小剧场",
+                    source = "数字世界·生活小剧场",
+                    title = "${character.displayName}的生活小剧场",
                     maxTokens = 1_800,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                     readTimeoutMillis = 55_000,
@@ -225,7 +249,9 @@ internal object WorldLifeEpisodeComposer {
                 val response = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
-                        appendLine("唯一已执行世界动作：$confirmedAction")
+                        appendLine("已执行世界动作：$confirmedAction")
+                        if (sourceFacts.isNotBlank()) appendLine("真实事件与双向台词：\n${sourceFacts.take(4000)}")
+                        if (actualSocialContext.isNotBlank()) appendLine("已知关系：${actualSocialContext.take(600)}")
                         appendLine("真实地点：$locationName（$location）")
                         appendLine("已登记现场物件：${items.ifBlank { "无" }}")
                         appendLine("角色：${character.displayName}")
@@ -234,13 +260,14 @@ internal object WorldLifeEpisodeComposer {
                         appendLine("私人情节种子（不是事实）：${suppliedScene.take(160)}")
                     },
                     instruction = """
-                        写一篇约250至450汉字、具有画面感、人物欲望、阻力、转折和余韵的第三人称独处短篇。
-                        必须围绕已执行的真实动作展开。可以刻画内心矛盾和猜想，不得捏造世界中新增的NPC、
-                        交谈、道具、读书、来电、移动或其他实际发生的事情。别写生活哲理报告。
+                        $sceneScope
+                        写一篇约250至450汉字、有画面感、真实生活细节和人物主体性的第三人称生活短篇。
+                        必须围绕已保存的真实行动和居民交谈展开，已记录的NPC可按真实台词入场；不得编造额外的NPC到访、
+                        对话、道具、读书、来电、移动或相处结果。允许细腻主观心理，但别写空泛人生哲理报告。
                         第一行《有画面感的散文篇名》，空一行后自然语言正文；不写JSON或【叙述】【心声】【对白】标签。标题应来自当前故事而非固定模板，不虚构世界事实。
                     """.trimIndent(),
-                    source = "数字世界·独处小说补写",
-                    title = "${character.displayName}的独处片段补写",
+                    source = "数字世界·生活小剧场补写",
+                    title = "${character.displayName}的生活片段补写",
                     maxTokens = 1_250,
                     contextMode = com.jiacimu.lulu.ai.CompanionContextMode.CharacterAndScenario,
                     readTimeoutMillis = 30_000,
