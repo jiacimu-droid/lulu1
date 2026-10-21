@@ -1,16 +1,21 @@
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
-// Pixi v6 replaces runtime shader code-generation with a CSP-safe adapter.
-// This does NOT enable eval or relax Android WebView content-security policy.
-import '@pixi/unsafe-eval'
+// Pixi v6.5.x does NOT auto-install the CSP adapter via a bare import.
+// Its source exports install({ ShaderSystem }), which patches the exact Pixi core
+// class used by our renderer. Do this before the first PIXI.Application.
+import { install as installCspShaderAdapter } from '@pixi/unsafe-eval'
 import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 
+installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
 // Pixi v6 is bundled by the existing APK workflow; the official Cubism Core remains user-supplied.
 Live2DModel.registerTicker(PIXI.Ticker)
 if (config) config.sound = false // Do not mix motion sound effects into the existing phone's TTS.
 const root = document.getElementById('stage')
 const notice = document.getElementById('notice')
+console.info('__LULU_LIVE2D__' + JSON.stringify({
+  type: 'loading', detail: 'Pixi 6 CSP ShaderSystem adapter 已显式安装'
+}))
 let app
 let model
 let playing = false
