@@ -1639,9 +1639,21 @@ object LuluDeviceToolBridge {
             }
             "list_media_sessions" -> LuluMediaPlayback.sessions(context)
             "control_music" -> {
+                val phone = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+                val requested = args.optString("command").trim().lowercase()
+                // A device-level stop by the user cannot be undone by the
+                // character replaying the previous conversation's old PLAY.
+                if (phone.connected && phone.characterId == characterId &&
+                    requested in setOf("play", "resume", "start", "播放", "继续播放") &&
+                    !com.jiacimu.lulu.data.DeferredCallMediaAction.mayStartMusic(
+                        characterId, phone.callExperienceId)) {
+                    return@runCatching JSONObject().put("success", false)
+                        .put("status", "waiting_user")
+                        .put("error", "用户已停止本通电话的音乐；需要新的明确播放请求，不能根据旧指令自动续播")
+                        .toString()
+                }
                 val result = LuluMediaPlayback.control(
                     context, args.optString("command"), args.optString("packageName"))
-                val phone = com.jiacimu.lulu.LuluVoiceCallSession.state.value
                 if (phone.connected && phone.characterId == characterId &&
                     phone.callExperienceId.isNotBlank()) {
                     runCatching {
