@@ -3,10 +3,18 @@
 // Never inject remote scripts, even for fallback.
 (() => {
   const notice = document.getElementById('notice')
+  const send = (type, detail) => console.info('__LULU_LIVE2D__' + JSON.stringify({
+    type, detail: String(detail || '').slice(0, 200)
+  }))
   const showError = message => {
     notice.textContent = message
     notice.style.display = 'block'
+    send('error', message)
   }
+  window.addEventListener('error', event => showError('渲染脚本错误：' + (event.message || '未知错误')))
+  window.addEventListener('unhandledrejection', event => showError('模型加载异常：' +
+    (event.reason?.message || '无法完成资源加载')))
+  send('loading', '正在初始化 Cubism Core')
   const core = document.createElement('script')
   core.src = '/private/core/live2dcubismcore.min.js'
   core.onload = () => {
