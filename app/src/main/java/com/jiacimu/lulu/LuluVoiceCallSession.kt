@@ -1545,15 +1545,24 @@ internal object LuluVoiceCallSession {
                 if (reply.disposition == com.jiacimu.lulu.data.CharacterDecisionProtocol.SILENT) {
                     stream.cancel()
                     if (wakeOpening) {
-                        // A promised wake cannot be silently consumed if the
-                        // model chose silence. Keep the call open afterward.
-                        enqueueSpoken(listOf("宝宝，醒醒啦，我来叫你起床了。"))
+                        val verifiedWakeAudio = reply.phoneMediaReceipt.orEmpty().let { receipt ->
+                            receipt.contains("ring_in_call_wake：已执行") ||
+                                receipt.contains("control_music/play：已执行")
+                        }
+                        if (!verifiedWakeAudio) {
+                            // Do not mark a real wake promise complete when the
+                            // model chose silence but no actual cue was delivered.
+                            enqueueSpoken(listOf("宝宝，醒醒啦，我来叫你起床了。"))
+                        }
                         mutableState.update { it.copy(thinking = false, opening = false,
-                            statusMessage = "叫醒语音待播放 · 电话继续") }
+                            statusMessage = if (verifiedWakeAudio)
+                                "叫醒声音已播放 · 等待你明确醒来" else "叫醒语音待播放 · 电话继续") }
+                        if (!latest.microphoneMuted) scheduleListening(300)
                         return@onSuccess
                     }
                     mutableState.update { it.copy(thinking = false, opening = false,
                         statusMessage = "${latest.characterName} 正安静陪着你") }
+                    if (!autonomousSilence && !latest.microphoneMuted) scheduleListening(300)
                     return@onSuccess
                 }
                 val text = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(latest.characterId, reply.text)
