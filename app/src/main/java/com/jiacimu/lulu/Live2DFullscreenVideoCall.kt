@@ -1,5 +1,12 @@
 package com.jiacimu.lulu
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -57,6 +64,27 @@ internal fun Live2DFullscreenVideoCall(
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
     }
     var showDebugMenu by remember(modelUrl) { mutableStateOf(false) }
+    val cameraContext = LocalContext.current
+    var selfCameraEnabled by remember { mutableStateOf(false) }
+    var cameraFailure by remember { mutableStateOf("") }
+    val cameraPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        selfCameraEnabled = granted
+        if (!granted) cameraFailure = "未授予相机权限，前置摄像头保持关闭"
+    }
+    fun toggleSelfCamera() {
+        if (selfCameraEnabled) {
+            selfCameraEnabled = false
+            cameraFailure = ""
+        } else if (ContextCompat.checkSelfPermission(cameraContext, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED) {
+            cameraFailure = ""
+            selfCameraEnabled = true
+        } else {
+            cameraPermission.launch(Manifest.permission.CAMERA)
+        }
+    }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
@@ -128,6 +156,28 @@ internal fun Live2DFullscreenVideoCall(
                         }
                     },
                 )
+            }
+        }
+        // Opt-in on-device-only front-camera picture-in-picture. No frame ever leaves
+        // this view or enters the model unless a separate vision-sharing flow is built.
+        if (selfCameraEnabled) {
+            Column(
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .statusBarsPadding().padding(top = 82.dp, end = 18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(Modifier.size(width = 112.dp, height = 154.dp)
+                    .clip(RoundedCornerShape(17.dp)).background(Color(0xFF33363B))) {
+                    Live2DSelfCameraPreview(onFailure = {
+                        cameraFailure = it
+                        selfCameraEnabled = false
+                    })
+                }
+                Spacer(Modifier.height(5.dp))
+                Text("本机预览 · 未分享给 AI",
+                    color = Color.White, fontSize = 10.sp,
+                    modifier = Modifier.background(Color.Black.copy(alpha = .5f))
+                        .padding(horizontal = 5.dp, vertical = 3.dp))
             }
         }
         // A compact gradient over the avatar preserves the video-call feel.
@@ -233,6 +283,10 @@ internal fun Live2DFullscreenVideoCall(
                     }
                 }
             }
+            if (cameraFailure.isNotBlank()) {
+                Text(cameraFailure, fontSize = 12.sp, color = Color.White,
+                    textAlign = TextAlign.Center, modifier = Modifier.padding(bottom = 8.dp))
+            }
             val liveWords = state.playingTranscript.ifBlank {
                 state.partialTranscript.ifBlank { state.statusMessage }
             }
@@ -244,6 +298,10 @@ internal fun Live2DFullscreenVideoCall(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically) {
                 VideoCallButton(Icons.Outlined.VideocamOff, "切为语音", onSwitchToVoice)
+                VideoCallButton(if (selfCameraEnabled) Icons.Outlined.VideocamOff
+                    else Icons.Outlined.CameraFront,
+                    if (selfCameraEnabled) "关闭我的画面" else "打开我的画面",
+                    ::toggleSelfCamera)
                 if (state.connected) {
                     VideoCallButton(if (state.speakerEnabled) Icons.Outlined.VolumeUp
                         else Icons.Outlined.PhoneInTalk,
