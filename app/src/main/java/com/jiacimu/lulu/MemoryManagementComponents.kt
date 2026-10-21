@@ -281,7 +281,7 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                     val archived = MemorySemanticConsolidation.consolidateNow(characterId)
                     onNotice(if (archived > 0) "已归档 $archived 条确认为同义的历史记忆，原始证据仍保留"
                         else "语义复核完成，暂无能确认的同义长期事实")
-                } catch (error: Exception) { onNotice(error.message ?: "语义整理失败，原有记忆不受影响") }
+                } catch (error: Exception) { onNotice("语义整理中断，已完成的归档保留；可稍后重试。原因：" + (error.message ?: "未知错误")) }
                 finally { busy = false }
             } }, modifier = Modifier.fillMaxWidth()) {
                 Text(if (busy) "正在整理…" else "深度整理历史重复（后台记忆 API）")
