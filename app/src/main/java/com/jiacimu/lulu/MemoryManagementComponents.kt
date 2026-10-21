@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,8 @@ import com.jiacimu.lulu.data.CoreMemoryDelivery
 import com.jiacimu.lulu.data.CoreMemoryInjectionAudit
 import com.jiacimu.lulu.data.LocalMemoryRepository
 import com.jiacimu.lulu.data.MemorySemanticConsolidation
+import com.jiacimu.lulu.data.MemoryReviewPhase
+import com.jiacimu.lulu.data.MemoryValidityStore
 import com.jiacimu.lulu.data.LocalPerformanceRepository
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
@@ -246,6 +249,15 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
     var audit by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     val debug by repository.debugState.collectAsState()
+    val appContext = LocalContext.current
+    remember(appContext) { MemorySemanticConsolidation.initialize(appContext); true }
+    val allReports by MemorySemanticConsolidation.reports.collectAsState()
+    val report = allReports[characterId] ?: MemorySemanticConsolidation.report(characterId)
+    val validityRevision by MemoryValidityStore.revisions.collectAsState()
+    val eligible = remember(characterId, memories, validityRevision) {
+        MemorySemanticConsolidation.eligibleCount(characterId)
+    }
+    val reviewing = report.phase == MemoryReviewPhase.Waiting || report.phase == MemoryReviewPhase.Running
     val scope = rememberCoroutineScope()
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Color.White) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
@@ -275,19 +287,47 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 } catch (error: Exception) { onNotice(error.message ?: "整理失败") }
                 finally { busy = false }
             } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
-            Text("待整理 ${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
-            Text("每日自动做本地重复检查；每周仅在有新变化且已配置后台记忆模型时，审核长期事实是否语义重复。旧记录和来源会保留。", fontSize = 12.sp, color = FeatureBlueGray)
-            OutlinedButton(enabled = !busy, onClick = { busy = true; scope.launch {
-                try {
-                    val archived = MemorySemanticConsolidation.consolidateNow(characterId)
-                    val remaining = MemorySemanticConsolidation.pendingBatches(characterId)
-                    onNotice(if (remaining > 0) "本轮归档 $archived 条，仍有 $remaining 批待检查；再点一次可继续"
-                        else if (archived > 0) "已归档 $archived 条同义记忆，旧来源仍可追溯"
-                        else "语义复核完成，暂无能确认的同义长期事实")
-                } catch (error: Exception) { onNotice("语义整理中断，已完成的归档保留；可稍后重试。原因：" + (error.message ?: "未知错误")) }
-                finally { busy = false }
-            } }, modifier = Modifier.fillMaxWidth()) {
-                Text(if (busy) "正在整理…" else "深度整理历史重复（后台记忆 API）")
+            Text("待提取的原始消息：${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
+            Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF4F6F8),
+                border = BorderStroke(1.dp, FeatureBorder)) {
+                Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("长期事实去重 · 审核记录", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text("现有记忆 ${memories.size} 条 · 可审核长期事实 ${eligible} 条 · 其他 ${(memories.size - eligible).coerceAtLeast(0)} 条未参与",
+                        fontSize = 12.sp, color = FeatureBlueGray)
+                    Text("这里只核对有原始证据的长期事实；经历、情绪、手动记忆及历史失效条目不会自动合并。",
+                        fontSize = 12.sp, color = FeatureBlueGray)
+                    val statusText = when (report.phase) {
+                        MemoryReviewPhase.Idle -> "尚无可追溯的整理报告（旧版点击结果无法确认）"
+                        MemoryReviewPhase.Waiting -> "排队中"
+                        MemoryReviewPhase.Running -> "正在整理 · ${report.reviewedBatches}/${report.totalBatches} 批"
+                        MemoryReviewPhase.Partial -> "本轮完成一部分 · ${report.reviewedBatches}/${report.totalBatches} 批"
+                        MemoryReviewPhase.Completed -> "本轮已完成 · ${report.reviewedBatches}/${report.totalBatches} 批"
+                        MemoryReviewPhase.Skipped -> "本轮未调用 API"
+                        MemoryReviewPhase.Failed -> "整理失败"
+                        MemoryReviewPhase.Interrupted -> "上次整理中断"
+                    }
+                    Text(statusText, fontWeight = FontWeight.SemiBold, fontSize = 13.sp,
+                        color = if (report.phase == MemoryReviewPhase.Failed) MaterialTheme.colorScheme.error else FeatureBlueGray)
+                    if (reviewing) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    if (report.phase != MemoryReviewPhase.Idle) {
+                        Text(report.detail, fontSize = 12.sp, lineHeight = 18.sp,
+                            color = if (report.phase == MemoryReviewPhase.Failed) MaterialTheme.colorScheme.error else FeatureBlueGray)
+                        Text("本轮确认归档 ${report.archived} 条 · 最近状态 ${if (report.updatedAt == Instant.EPOCH) "未知" else report.updatedAt.atZone(ZoneId.systemDefault()).format(MemoryDateTimeFormatter)}",
+                            fontSize = 12.sp, color = FeatureBlueGray)
+                    }
+                    OutlinedButton(enabled = !busy && !reviewing, onClick = {
+                        if (!MemorySemanticConsolidation.startManual(characterId))
+                            onNotice("这个角色已有整理任务正在进行")
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Text(when {
+                            reviewing -> "后台正在审核…"
+                            report.phase == MemoryReviewPhase.Partial -> "继续审核剩余批次（后台记忆 API）"
+                            else -> "审核长期事实中的同义重复（后台记忆 API）"
+                        })
+                    }
+                    Text("关闭此页面不取消已开始的审核；后台模型可能产生费用。需要时可重新打开查看结果。",
+                        fontSize = 11.sp, color = FeatureBlueGray)
+                }
             }
             debug.lastError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
             TextButton(onClick = { audit = !audit }) { Text(if (audit) "收起下发记录" else "查看置顶记忆下发记录") }
