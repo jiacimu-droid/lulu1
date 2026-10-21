@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:27:16.718378+00:00",
-  "commit": "301d1ec02bc21538d2843ba9c2911cf103cc6977",
+  "generatedAt": "2026-10-21T17:27:57.377318+00:00",
+  "commit": "5c54b0e81867f8d74c69cf2deb06317b19bda4ad",
   "branch": "main",
-  "sourceFingerprint": "02524e1adc6a3d414cfdf319deacc1be775a2f1b692e86d0c8dab800b9293b6e",
+  "sourceFingerprint": "4bd0f12745538bc459ddeb949a42b2e90a7117cf449a41975bba9240231eb993",
   "summary": {
-    "files": 783,
-    "lines": 149022,
-    "symbols": 2246
+    "files": 784,
+    "lines": 149061,
+    "symbols": 2247
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11196,6 +11196,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
         "line": 17
+      }
+    ],
+    "Live2DModelManifestAdapterTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt",
+        "line": 8
       }
     ],
     "Live2DOfficialCoreInstallerTest": [
@@ -24495,6 +24501,17 @@
         {
           "name": "Live2DAssetsTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt",
+      "lines": 39,
+      "sha256": "f46fd6237fc51755ccab2c614b20ec83cf6a5b5abd32cc444abf25b7cdc56c08",
+      "symbols": [
+        {
+          "name": "Live2DModelManifestAdapterTest",
+          "line": 8
         }
       ]
     },
