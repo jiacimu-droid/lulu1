@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -30,4 +31,15 @@ class MemorySemanticConsolidationTest {
         )
         assertEquals(listOf(listOf("a", "b")), groups)
     }
+    @Test fun semanticAliasDoesNotBecomeHistoricalFactCorrection() {
+        MemoryValidityStore.initialize(org.robolectric.RuntimeEnvironment.getApplication())
+        val oldId = "test-equivalent-old"
+        val keeperId = "test-equivalent-keeper"
+        MemoryValidityStore.markEquivalent(listOf(oldId), keeperId)
+        assertFalse(MemoryValidityStore.isActive(oldId))
+        assertEquals(keeperId, MemoryValidityStore.equivalenceSnapshot()[oldId])
+        assertFalse(oldId in MemoryValidityStore.supersessionSnapshot())
+        MemoryValidityStore.removeMemory(oldId)
+    }
+
 }
