@@ -36,4 +36,40 @@ class PresencePresentationTest {
             gesture = "揉了揉眼睛")
         assertEquals("困倦 · 准备休息", PresencePresentation.status(state))
     }
+    @Test fun worldArrivalStatusAndVerifiedActionCannotEchoEachOther() {
+        val state = CompanionPresenceState(
+            characterId = "jiangdu",
+            mood = "松弛、温软",
+            statusText = "在浮光咖啡角挑了个靠窗的位置坐下",
+            gesture = "江渡换到浮光咖啡角靠窗的位置坐下，看看外面的光景",
+        )
+        val fields = PresencePresentation.stateFields(state).toMap()
+        assertEquals("松弛、温软", fields["心情"])
+        assertNull(fields["状态"])
+        assertEquals(state.gesture, fields["动作"])
+    }
+
+    @Test fun sustainedIndependentConditionSurvivesWorldActionRendering() {
+        val state = CompanionPresenceState(
+            characterId = "jiangdu",
+            mood = "好奇",
+            statusText = "在咖啡角等言溪的回复，还想看看他会不会来",
+            gesture = "刚坐到窗边",
+        )
+        val fields = PresencePresentation.stateFields(state).toMap()
+        assertEquals(state.statusText, fields["状态"])
+        assertEquals(state.gesture, fields["动作"])
+    }
+
+    @Test fun partialSharedLocationDoesNotSuppressASeparateGoal() {
+        val state = CompanionPresenceState(
+            characterId = "jiangdu",
+            statusText = "在咖啡角思考昨晚与她讨论的事情",
+            gesture = "换到咖啡角靠窗的位置坐下",
+        )
+        val fields = PresencePresentation.stateFields(state).toMap()
+        assertEquals(state.statusText, fields["状态"])
+        assertEquals(state.gesture, fields["动作"])
+    }
+
 }
