@@ -420,17 +420,28 @@ internal object CompanionActionRuntime {
                     val recentEpisode = WorldLifeEpisodeStore.recentAt(
                         characterId, locationAfter, now,
                     )
-                    val shouldWriteScene = worldAction in leisureActions &&
-                        recentEpisode == null && worldResult.evidenceId.isNotBlank()
+                    // Actual life incidents are inherently eventful; a routine
+                    // move/rest is NOT a story merely because it was executed.
+                    // For ordinary leisure the character's own optional scene
+                    // intention is the signal, not a keyword/word-count rule.
+                    val meaningfulWorldEvent = worldAction == "handle_incident"
+                    val hasPersonalSceneIntent =
+                        args.optString("lifeScene").isNotBlank() ||
+                            args.optString("lifeSceneTitle").isNotBlank()
+                    val shouldWriteScene = worldResult.evidenceId.isNotBlank() &&
+                        (meaningfulWorldEvent ||
+                            (worldAction in leisureActions && hasPersonalSceneIntent &&
+                                recentEpisode == null))
                     // The world receipt is already durable. Writing is a separate
                     // best-effort task; failures must never reverse the real action.
                     if (shouldWriteScene) {
                         runCatching {
                             WorldLifeEpisodeWorker.enqueue(context, characterId, locationAfter,
-                                worldResult.evidenceId, args.optString("lifeSceneTitle"), args.optString("lifeScene"))
+                                worldResult.evidenceId, args.optString("lifeSceneTitle"), args.optString("lifeScene"),
+                                category = if (meaningfulWorldEvent) "incident" else "outing")
                         }.onFailure { error ->
                             com.jiacimu.lulu.LuluRepositories.performance.recordError(
-                                source = "独处写作", title = "后台写作排程未完成",
+                                source = "生活小剧场", title = "后台写作排程未完成",
                                 message = error.message.orEmpty().take(160))
                         }
                     } else if (worldAction !in leisureActions) {
