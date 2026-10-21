@@ -78,6 +78,13 @@ fun LuluVoiceCallScreen(
         Live2DAssets.modelUrl(context, currentCharacterId)
     }
     val coreReady = remember(context, modelRevision) { Live2DAssets.hasCore(context) }
+    val availableAnimations = remember(context, currentCharacterId, modelRevision) {
+        Live2DAssets.controls(context, currentCharacterId)
+    }
+    var showAnimationPreview by remember(currentCharacterId) { mutableStateOf(false) }
+    var previewExpression by remember(currentCharacterId) { mutableStateOf<String?>(null) }
+    var previewMotion by remember(currentCharacterId) { mutableStateOf<Pair<String, Int>?>(null) }
+    var previewRevision by remember(currentCharacterId) { mutableIntStateOf(0) }
     val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             importingModel = true
@@ -203,6 +210,9 @@ fun LuluVoiceCallScreen(
                                 speaking = state.connected && state.speaking,
                                 listening = state.connected && state.listening,
                                 mouthLevel = mouthLevel,
+                                previewExpression = previewExpression,
+                                previewMotion = previewMotion,
+                                previewRevision = previewRevision,
                             )
                         } else Box(Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.Center) {
                             Text(
@@ -223,6 +233,31 @@ fun LuluVoiceCallScreen(
                     }
                     if (modelNotice.isNotBlank()) Text(modelNotice, fontSize = 11.sp, color = CallMuted,
                         maxLines = 2, lineHeight = 15.sp)
+                    if (coreReady && visualModelUrl != null &&
+                        (availableAnimations.expressions.isNotEmpty() || availableAnimations.motions.isNotEmpty())) {
+                        TextButton(onClick = { showAnimationPreview = !showAnimationPreview }) {
+                            Text(if (showAnimationPreview) "收起模型动作测试" else "测试模型自带的表情 / 动作", fontSize = 12.sp)
+                        }
+                        if (showAnimationPreview) {
+                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                                availableAnimations.expressions.forEach { expression ->
+                                    OutlinedButton(onClick = {
+                                        previewExpression = expression
+                                        previewMotion = null
+                                        previewRevision++
+                                    }) { Text("表情·$expression", fontSize = 11.sp) }
+                                }
+                                availableAnimations.motions.forEach { (group, index) ->
+                                    OutlinedButton(onClick = {
+                                        previewMotion = group to index
+                                        previewExpression = null
+                                        previewRevision++
+                                    }) { Text("动作·$group #${index + 1}", fontSize = 11.sp) }
+                                }
+                            }
+                        }
+                    }
                 } else {
                     Spacer(Modifier.height(14.dp))
                     Box(contentAlignment = Alignment.Center) {
