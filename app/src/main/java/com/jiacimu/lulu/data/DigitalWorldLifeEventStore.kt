@@ -165,13 +165,15 @@ internal object DigitalWorldLifeEventStore {
         }
         if (active.isEmpty()) return "当前位置没有尚未解决的持续事件。普通环境瞬间会直接写入时间线，不会变成待处理任务。"
         return buildString {
-            appendLine("【数字世界尚未解决的持续事件｜程序权威状态】")
+            appendLine("【数字世界仍未解决的旧事件｜权威现场状态，不是本轮重新发生】")
+            appendLine("下列 incidentId 是持久的同一件事，不能当作每次感知都重新出现。只有新增的 world-fact 原始事件或真实处理回执才算新进展；仍在场不等于角色每轮都必须处理、重复担心或发消息。")
             active.forEach { incident ->
                 append("- incidentId=${incident.id}；类型=${incident.kind}；阶段=${incident.stage}；")
+                append("首次观察=${incident.createdAt}；最后核实进展=${incident.updatedAt}；")
                 if (incident.anchorItemId.isNotBlank()) {
                     append("家具 itemId=${incident.anchorItemId}；家具=${incident.anchorItemName}；")
                 }
-                appendLine("当前状态=${incident.summary}；可执行 approach=${responseOptions(incident.kind).joinToString("/")}")
+                appendLine("已记录的最近状态=${incident.summary}；可选 approach=${responseOptions(incident.kind).joinToString("/")}")
             }
         }.trim()
     }
