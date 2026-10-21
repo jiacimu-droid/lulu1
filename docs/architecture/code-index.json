@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:01:44.298788+00:00",
-  "commit": "7aac0c670bdff9d6d7362f0136fd4d04b143b59a",
+  "generatedAt": "2026-10-21T16:03:08.375323+00:00",
+  "commit": "d98222fcc1c1f758a92a2cea0eac914413a22788",
   "branch": "main",
-  "sourceFingerprint": "d48a11de62593c2c9bbf37c7c71a9a6cc0a942a3d58da610021385cfaf4c47c0",
+  "sourceFingerprint": "1082318114e70463793f8ec302008fa5a4a71632a1cd74f78960536f2e987e1a",
   "summary": {
-    "files": 772,
-    "lines": 147829,
+    "files": 773,
+    "lines": 147911,
     "symbols": 2231
   },
   "symbolIndex": {
@@ -13597,6 +13597,12 @@
           "line": 37
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
+      "lines": 82,
+      "sha256": "bff53d9f6a517ac5d8dd9b485da554b34cf0144b109c4c0e18525fbb5a83fc9c",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
