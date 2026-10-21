@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:29:34.445981+00:00",
-  "commit": "4e2c3234237e14f3239412e22533127da3cb266e",
+  "generatedAt": "2026-10-21T07:29:50.181085+00:00",
+  "commit": "56f8bb8a42b1b2e7cb1dda6a50d45e25d6826209",
   "branch": "main",
-  "sourceFingerprint": "969cc341047757800d231f9a7c938f03b925815e92a13e0c601bf3ddea333c8e",
+  "sourceFingerprint": "59753bbdf330f5394ebe6d1b3519df4356f7207da4b68cef5ec17dac7c5d0685",
   "summary": {
-    "files": 765,
-    "lines": 146172,
-    "symbols": 2206
+    "files": 763,
+    "lines": 146131,
+    "symbols": 2203
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3694,18 +3694,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt",
         "line": 19
-      }
-    ],
-    "stopped": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
-        "line": 5
-      }
-    ],
-    "restarted": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
-        "line": 9
       }
     ],
     "Capability": [
@@ -11360,12 +11348,6 @@
         "line": 19
       }
     ],
-    "CallMediaUserIntentTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaUserIntentTest.kt",
-        "line": 5
-      }
-    ],
     "CharacterAccountabilityContextTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
@@ -15682,21 +15664,6 @@
         {
           "name": "confirmedAwake",
           "line": 19
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/CallMediaUserIntent.kt",
-      "lines": 14,
-      "sha256": "b5f65e194242e4e5edb7d58983928e6f37973b13e7d2a573a1b92811b4bb1764",
-      "symbols": [
-        {
-          "name": "stopped",
-          "line": 5
-        },
-        {
-          "name": "restarted",
-          "line": 9
         }
       ]
     },
@@ -24633,17 +24600,6 @@
         {
           "name": "BackgroundPerceptionRecoveryTest",
           "line": 19
-        }
-      ]
-    },
-    {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaUserIntentTest.kt",
-      "lines": 27,
-      "sha256": "f548fb020f9b914cd1b19f008a2473f1da7589c5ad82a64d04a19e977424e805",
-      "symbols": [
-        {
-          "name": "CallMediaUserIntentTest",
-          "line": 5
         }
       ]
     },
