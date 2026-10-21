@@ -101,6 +101,13 @@ internal object LuluMediaPlayback {
                 (state.actions and PlaybackState.ACTION_PLAY_PAUSE) != 0L)
     }
 
+    /** PLAY_PAUSE fallback is a toggle: never dispatch it when already in target state. */
+    internal fun alreadyAtTarget(action: String, state: Int): Boolean =
+        (action == "play" && state == PlaybackState.STATE_PLAYING) ||
+            (action == "pause" && state in setOf(
+                PlaybackState.STATE_PAUSED, PlaybackState.STATE_STOPPED,
+                PlaybackState.STATE_NONE))
+
     @Volatile private var lastPlayerPackage = ""
 
     fun control(context: Context, command: String, packageName: String = ""): String = runCatching {
@@ -130,6 +137,19 @@ internal object LuluMediaPlayback {
         val before = selected.playbackState
         val action = requestedAction(requested, before?.state == PlaybackState.STATE_PLAYING)
         check(before != null) { "播放器没有提供状态，无法安全区分播放或暂停。请在音乐App里先播放一次再重试" }
+        // Sending PLAY_PAUSE when paused would resume the player's music.
+        // Sending it when playing would pause. An idempotent request should
+        // neither replay nor interrupt anything; verify and return instead.
+        if (alreadyAtTarget(action, before.state)) {
+            lastPlayerPackage = selected.packageName
+            return@runCatching JSONObject().put("success", true)
+                .put("accepted", true).put("status", "already_at_target")
+                .put("command", action).put("sentBy", "no_dispatch")
+                .put("packageName", selected.packageName).put("title", title(selected))
+                .put("beforeState", before.state).put("afterState", before.state)
+                .put("verification", "播放器已经处于目标状态，未重复发送切换按键")
+                .toString()
+        }
         check(supports(action, before) || action in setOf("play", "pause")) {
             "当前播放器未开放「$action」控制"
         }
