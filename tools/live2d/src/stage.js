@@ -1,10 +1,11 @@
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
-import { Live2DModel } from 'pixi-live2d-display/cubism4'
+import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 
 window.PIXI = PIXI
 // Pixi v6 is bundled by the existing APK workflow; the official Cubism Core remains user-supplied.
 Live2DModel.registerTicker(PIXI.Ticker)
+if (config) config.sound = false // Do not mix motion sound effects into the existing phone's TTS.
 const root = document.getElementById('stage')
 const notice = document.getElementById('notice')
 let app
