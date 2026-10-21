@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:53:25.678343+00:00",
-  "commit": "be737f863f93151cd17193101202e3e892366e31",
+  "generatedAt": "2026-10-21T14:13:52.851593+00:00",
+  "commit": "42e5811bd5a10660c6f760a74888a119fc9a866b",
   "branch": "main",
-  "sourceFingerprint": "fe6ea1758cdcd1073279c2655125b7a3ea06ba8e12efe8dd3c7f84eb7bc28130",
+  "sourceFingerprint": "8f65563c99865504048dfdfa7968073bda7e06bcb40aaa4a6015d956d80ef18c",
   "summary": {
     "files": 768,
-    "lines": 147084,
+    "lines": 147104,
     "symbols": 2217
   },
   "symbolIndex": {
@@ -715,7 +715,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 20
+        "line": 26
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt",
@@ -4809,7 +4809,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 27
+        "line": 33
       }
     ],
     "paused": [
@@ -7283,7 +7283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 55
+        "line": 61
       }
     ],
     "MemoryExtractionJob": [
@@ -7349,29 +7349,29 @@
     "replacementId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 30
+        "line": 36
       }
     ],
     "supersessionSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 33
+        "line": 39
       }
     ],
     "markSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 36
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 44
+        "line": 50
       }
     ],
     "debugContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-        "line": 69
+        "line": 75
       }
     ],
     "recordPositiveSamples": [
@@ -12811,8 +12811,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
-      "lines": 282,
-      "sha256": "d37fa44475aae4fe63579307fa99f6a2dbe8427638f30064281dc7c9caff0251",
+      "lines": 283,
+      "sha256": "ca03f1c637af8f1ff3905fcd8259ecc48382b7494a8cedac40c5752626a68f09",
       "symbols": [
         {
           "name": "MemoryFeatureScreen",
@@ -17275,8 +17275,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 86,
-      "sha256": "8ed0a3b2787173bdc2378fb9998bfcca976204e9f2d23e69f1774b45c9f423ea",
+      "lines": 98,
+      "sha256": "2ae935a6f9b56f7515f2c1c4479cd3794a2ccda102cd7e46e03b900f1cbd0f9e",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
@@ -19612,40 +19612,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
-      "lines": 100,
-      "sha256": "efeda7b58c90c45a2c69eac925de25a1eb63275221e9de767df678639392d082",
+      "lines": 107,
+      "sha256": "6831fde8b23cf0f4b366591decf8ec07b40164ccdd0499961d4f9a3efc9cf1f6",
       "symbols": [
         {
           "name": "initialize",
-          "line": 20
+          "line": 26
         },
         {
           "name": "isActive",
-          "line": 27
-        },
-        {
-          "name": "replacementId",
-          "line": 30
-        },
-        {
-          "name": "supersessionSnapshot",
           "line": 33
         },
         {
-          "name": "markSuperseded",
+          "name": "replacementId",
           "line": 36
         },
         {
+          "name": "supersessionSnapshot",
+          "line": 39
+        },
+        {
           "name": "markSuperseded",
-          "line": 44
+          "line": 42
+        },
+        {
+          "name": "markSuperseded",
+          "line": 50
         },
         {
           "name": "removeMemory",
-          "line": 55
+          "line": 61
         },
         {
           "name": "debugContext",
-          "line": 69
+          "line": 75
         }
       ]
     },
