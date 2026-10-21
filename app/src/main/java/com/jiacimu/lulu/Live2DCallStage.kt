@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import android.graphics.Color as AndroidColor
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
@@ -13,6 +15,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -25,9 +28,14 @@ import java.io.ByteArrayInputStream
 internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Boolean,
     listening: Boolean, mouthLevel: Float, modifier: Modifier = Modifier,
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
-    previewRevision: Int = 0) {
+    previewRevision: Int = 0, onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
-    val stage = remember(context, characterId, modelUrl) { createLive2DWebView(context, modelUrl) }
+    val statusReceiver = rememberUpdatedState(onStatus)
+    val stage = remember(context, characterId, modelUrl) {
+        createLive2DWebView(context, modelUrl) { phase, detail ->
+            statusReceiver.value(phase, detail)
+        }
+    }
     DisposableEffect(stage) {
         onDispose {
             stage.stopLoading()
@@ -56,7 +64,8 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     }
 }
 
-private fun createLive2DWebView(context: Context, modelUrl: String): WebView {
+private fun createLive2DWebView(context: Context, modelUrl: String,
+    onStatus: (String, String) -> Unit): WebView {
     val loader = WebViewAssetLoader.Builder()
         .setDomain("appassets.androidplatform.net")
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
@@ -78,6 +87,26 @@ private fun createLive2DWebView(context: Context, modelUrl: String): WebView {
             blockNetworkLoads = false
             setSupportMultipleWindows(false)
         }
+        webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(message: ConsoleMessage?): Boolean {
+                val source = message?.message().orEmpty()
+                val marker = "__LULU_LIVE2D__"
+                if (source.startsWith(marker)) {
+                    runCatching {
+                        val event = JSONObject(source.substring(marker.length))
+                        onStatus(event.optString("type", "loading"),
+                            event.optString("detail").take(220))
+                    }
+                    return true
+                }
+                if (message?.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                    // Avoid exposing local file paths or application internals to the call UI.
+                    onStatus("error", "模型渲染脚本发生错误；请检查模型或 SDK 兼容性")
+                    return true
+                }
+                return super.onConsoleMessage(message)
+            }
+        }
         webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
                 val uri = request.url
@@ -90,6 +119,12 @@ private fun createLive2DWebView(context: Context, modelUrl: String): WebView {
                         ?: WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
                 }
                 return WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
+            }
+            override fun onReceivedError(view: WebView?, request: WebResourceRequest?,
+                error: android.webkit.WebResourceError?) {
+                if (request?.url?.host == "appassets.androidplatform.net" && request.isForMainFrame) {
+                    onStatus("error", "无法加载 Live2D 本地舞台")
+                }
             }
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (url == "https://appassets.androidplatform.net/assets/live2d/stage.html") {
