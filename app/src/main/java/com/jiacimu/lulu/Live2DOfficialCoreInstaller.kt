@@ -27,6 +27,35 @@ internal object Live2DOfficialCoreInstaller {
     private const val MAX_DOWNLOAD_BYTES = 512L * 1024L * 1024L
     private const val MAX_CORE_BYTES = 12L * 1024L * 1024L
 
+    /**
+     * Extract only the one pinned Core path. Caller handles HTTPS source, limits and license.
+     * Pure ZIP parsing is tested with synthetic archives, without downloading proprietary SDK bits.
+     */
+    internal fun extractCoreFromArchive(input: java.io.InputStream, destination: File): Boolean {
+        ZipInputStream(input.buffered()).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: return false
+                val path = entry.name.replace('\\', '/').trimStart('/')
+                if (!entry.isDirectory && path == EXPECTED_PATH) {
+                    var coreBytes = 0L
+                    FileOutputStream(destination).use { output ->
+                        val buffer = ByteArray(16 * 1024)
+                        while (true) {
+                            val count = zip.read(buffer)
+                            if (count < 0) break
+                            coreBytes += count
+                            check(coreBytes <= MAX_CORE_BYTES) { "官方 Core 文件过大" }
+                            output.write(buffer, 0, count)
+                        }
+                    }
+                    zip.closeEntry()
+                    return true
+                }
+                zip.closeEntry()
+            }
+        }
+    }
+
     suspend fun install(context: Context): String = withContext(Dispatchers.IO) {
         val destination = Live2DAssets.coreFile(context)
         destination.parentFile?.mkdirs()
@@ -46,49 +75,7 @@ internal object Live2DOfficialCoreInstaller {
                 "官方 SDK 下载包超出当前单次下载安全预算"
             }
             var downloaded = 0L
-            var locatedCore = false
-            // Stream ZIP entries, keeping only the official Core. No SDK bundle is retained.
-            val boundedInput = object : java.io.FilterInputStream(connection.inputStream) {
-                override fun read(): Int {
-                    val value = super.read()
-                    if (value >= 0) {
-                        downloaded++
-                        check(downloaded <= MAX_DOWNLOAD_BYTES) { "官方 SDK 下载数据异常过大" }
-                    }
-                    return value
-                }
-                override fun read(bytes: ByteArray, offset: Int, length: Int): Int {
-                    val n = super.read(bytes, offset, length)
-                    if (n > 0) {
-                        downloaded += n
-                        check(downloaded <= MAX_DOWNLOAD_BYTES) { "官方 SDK 下载数据异常过大" }
-                    }
-                    return n
-                }
-            }
-            ZipInputStream(boundedInput.buffered()).use { zip ->
-                while (true) {
-                    val entry = zip.nextEntry ?: break
-                    val entryPath = entry.name.replace('\\', '/').trimStart('/')
-                    if (!entry.isDirectory && entryPath == EXPECTED_PATH) {
-                        var coreBytes = 0L
-                        FileOutputStream(staging).use { output ->
-                            val buffer = ByteArray(16 * 1024)
-                            while (true) {
-                                val count = zip.read(buffer)
-                                if (count < 0) break
-                                coreBytes += count
-                                check(coreBytes <= MAX_CORE_BYTES) { "官方 Core 文件过大" }
-                                output.write(buffer, 0, count)
-                            }
-                        }
-                        locatedCore = true
-                        zip.closeEntry()
-                        break
-                    }
-                    zip.closeEntry()
-                }
-            }
+            val locatedCore = extractCoreFromArchive(boundedInput, staging)
             check(locatedCore) {
                 "官方 SDK 压缩包中没有预期的 5-r.3 Cubism Core，下载内容可能更新"
             }
