@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T07:08:07.461232+00:00",
-  "commit": "cae5a662030cd605cfa6065f253b5512c6d03cda",
+  "generatedAt": "2026-10-21T07:10:21.891674+00:00",
+  "commit": "8756cc57d8c36a9663fc4ea7efaa53103c50a4cb",
   "branch": "main",
-  "sourceFingerprint": "cb618a3d598167021d8802588dd9b024e0cee863ca27ad47f96dfbf1d2296932",
+  "sourceFingerprint": "22cf5204c10ad629c2eb8811abccd8ac92a2a184bea101ef9d1016940c29c80b",
   "summary": {
     "files": 764,
-    "lines": 146045,
+    "lines": 146046,
     "symbols": 2205
   },
   "symbolIndex": {
@@ -1859,19 +1859,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1692
+        "line": 1693
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1843
+        "line": 1844
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1993
+        "line": 1994
       }
     ],
     "returnToList": [
@@ -12597,7 +12597,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
       "lines": 54,
-      "sha256": "d94bb62cf04fb48614def6eb833a046f0d75d4b1fb6da84ad4bc5ee58df570ce",
+      "sha256": "951c74d0a88ac24688e06ee53dc44dc1d0830c3a1ab8668f9e8dbfc385f63be4",
       "symbols": [
         {
           "name": "shouldRecoverStuckCapture",
@@ -13712,8 +13712,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2079,
-      "sha256": "759b8f8dacca377fbc51f8b7867a3591758b8e8994498c5a74547453c4dd03d6",
+      "lines": 2080,
+      "sha256": "6bdb026ade593881d862f0ad22b76ce81c6521e707954bef91ada9e736921366",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -13789,15 +13789,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1692
+          "line": 1693
         },
         {
           "name": "retryListening",
-          "line": 1843
+          "line": 1844
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 1993
+          "line": 1994
         }
       ]
     },
