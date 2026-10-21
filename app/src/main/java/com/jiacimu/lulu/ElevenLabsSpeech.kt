@@ -139,7 +139,8 @@ internal class ElevenLabsSpeech(context: Context) {
                                 check(sent > 0) { "ElevenLabs 音频播放失败" }
                                 if (written == 0L) onStarted()
                                 recording?.write(buffer, offset, sent)
-                                onPcmFrame(buffer, offset, sent)
+                                // A renderer failure must never interrupt a phone call.
+                                runCatching { onPcmFrame(buffer, offset, sent) }
                                 offset += sent; written += sent
                             }
                             carry = total % 2
