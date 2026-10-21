@@ -737,14 +737,16 @@ object LuluDeviceToolBridge {
         if (!rewriting && !callSilence && sceneContext.contains("电话") &&
             phoneCallId.isNotBlank() && userText.isNotBlank()) {
             val understanding = plan.mediaUnderstanding
-            val musicChoice = understanding?.optString("music").orEmpty()
+            val musicChoice = com.jiacimu.lulu.data.CallMediaSemanticBoundary.musicChoice(
+                understanding, userText.isNotBlank())
             if (musicChoice in setOf("stop", "play")) {
                 com.jiacimu.lulu.data.DeferredCallMediaAction.applyUserMediaUnderstanding(
                     appContext, characterId, phoneCallId, musicChoice)
                 if (musicChoice == "stop")
                     com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(appContext, characterId)
             }
-            if (understanding?.optString("wake") == "confirmed") {
+            if (com.jiacimu.lulu.data.CallMediaSemanticBoundary.confirmedAwake(
+                    understanding, userText.isNotBlank())) {
                 val actuallyCompleted = com.jiacimu.lulu.data.WakeGoalVerification.confirmFromModel(characterId)
                 if (actuallyCompleted) {
                     com.jiacimu.lulu.data.DeferredCallMediaAction.onWakeConfirmed(
