@@ -90,7 +90,7 @@ internal object Live2DVisualActionBus {
         fun bounded(key: String, required: String): Float? {
             if (proposed == null || required !in allowed || !proposed.has(key)) return null
             val value = proposed.optDouble(key, Double.NaN)
-            return value.takeIf(Double::isFinite)?.coerceIn(-25.0, 25.0)?.toFloat()
+            return value.takeIf { it.isFinite() }?.coerceIn(-25.0, 25.0)?.toFloat()
         }
         val angles = Head(
             yaw = bounded("yaw", "ParamAngleX"),
