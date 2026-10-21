@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:17:20.925967+00:00",
-  "commit": "d6c258742ce55a099e83eec5d5d254cffc1f7ff0",
+  "generatedAt": "2026-10-21T17:18:12.937537+00:00",
+  "commit": "e441734d86459ac1b2351a3bb54048c242264bdf",
   "branch": "main",
-  "sourceFingerprint": "02e4780cb008a87c1e15bbb289758e52d159acf6b0266c09c9cfea5756c910da",
+  "sourceFingerprint": "480ee42ec51ef2babcf9a93378c12a24bff3c8edd451bd6f44d569bb4c020974",
   "summary": {
     "files": 780,
-    "lines": 148580,
+    "lines": 148615,
     "symbols": 2239
   },
   "symbolIndex": {
@@ -13675,8 +13675,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 105,
-      "sha256": "c3eb27d27c4fe84f35339f29372964a282bdb14117fa5ef864526cbec6ce8d1c",
+      "lines": 140,
+      "sha256": "c9f99e2eeb247c2cc33a9d4a6f78af0167c38e27d589047d24106248ef426a07",
       "symbols": []
     },
     {
