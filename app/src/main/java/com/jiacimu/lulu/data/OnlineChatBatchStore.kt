@@ -2,9 +2,15 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 
-/** Durable chat turns wait for the last user bubble without cancelling already-running replies. */
+/** Durable chat turns wait for the last user bubble; an unsent older reply must yield to newer input. */
 internal object OnlineChatBatchStore {
-    const val QUIET_MILLIS = 4_000L
+    const val QUIET_MILLIS = 6_000L
+    /** More incoming bubbles indicate the user is still expressing one thought. */
+    internal fun quietMillis(bubbleCount: Int): Long = when {
+        bubbleCount >= 3 -> 10_000L
+        bubbleCount == 2 -> 8_000L
+        else -> QUIET_MILLIS
+    }
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
@@ -21,21 +27,23 @@ internal object OnlineChatBatchStore {
                 // An autonomous background tick may have left an immediate
                 // non-message batch pending. The FIRST chat bubble MUST turn
                 // that into a real four-second waiting window; never reuse the 0ms due.
-                val due = now + QUIET_MILLIS
+                val due = now + quietMillis(1)
                 check(p.edit().putLong("due:$characterId", due)
+                    .putInt("bubbleCount:$characterId", 1)
                     .putBoolean("messageWindow:$characterId", true).commit()) { "在线首条消息等待期保存失败" }
                 return Batch(pendingRevision, due)
             }
             return Batch(pendingRevision, p.getLong("due:$characterId", now))
         }
         val revision = pendingRevision + 1
-        val due = if (collectMessages) now + QUIET_MILLIS else now
+        val due = if (collectMessages) now + quietMillis(1) else now
         check(p.edit().putLong("revision:$characterId", revision).putLong("due:$characterId", due)
+            .putInt("bubbleCount:$characterId", if (collectMessages) 1 else 0)
             .putBoolean("messageWindow:$characterId", collectMessages).commit()) { "在线消息批次保存失败" }
         return Batch(revision, due)
     }
 
-    /** Extend the pending turn by four seconds from each newly persisted user bubble. */
+    /** Extend a waiting turn from each genuine incoming bubble, without starting another model. */
     @Synchronized fun onUserBubble(
         context: Context, characterId: String, atMillis: Long = System.currentTimeMillis(),
     ): Batch {
@@ -44,8 +52,10 @@ internal object OnlineChatBatchStore {
         if (p.contains("due:$characterId") && (characterId to revision) !in reading) {
             // This worker checks dueAt after every wait: a newly persisted
             // bubble restarts its silence clock even if the old due just passed.
-            val due = atMillis + QUIET_MILLIS
+            val count = (p.getInt("bubbleCount:$characterId", 1) + 1).coerceAtMost(3)
+            val due = atMillis + quietMillis(count)
             check(p.edit().putLong("due:$characterId", due)
+                .putInt("bubbleCount:$characterId", count)
                 .putBoolean("messageWindow:$characterId", true).commit()) {
                 "延长本轮消息静默等待失败"
             }
@@ -96,7 +106,8 @@ internal object OnlineChatBatchStore {
         reading.remove(characterId to revision)
         if (completed && isCurrent(context, characterId, revision)) {
             check(prefs(context).edit().remove("due:$characterId")
-                .remove("messageWindow:$characterId").remove("enqueued:$characterId").commit()) { "在线消息读取状态保存失败" }
+                .remove("messageWindow:$characterId").remove("bubbleCount:$characterId")
+                .remove("enqueued:$characterId").commit()) { "在线消息读取状态保存失败" }
         }
     }
 
@@ -116,6 +127,6 @@ internal object OnlineChatBatchStore {
         reading.removeAll { it.first == characterId }
         check(p.edit().putLong("revision:$characterId", p.getLong("revision:$characterId", 0) + 1)
             .remove("due:$characterId").remove("messageWindow:$characterId")
-            .remove("enqueued:$characterId").commit()) { "取消在线消息失败" }
+            .remove("bubbleCount:$characterId").remove("enqueued:$characterId").commit()) { "取消在线消息失败" }
     }
 }
