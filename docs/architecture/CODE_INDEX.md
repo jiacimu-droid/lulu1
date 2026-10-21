@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ec12114b00cef8bfc075298aa9dcf233bd9bc14c`
+- 基准提交：`1ee947bf14baff724d415f974e255e0dfaafbe52`
 - 分支：`main`
 - 已索引文件：775
-- 已索引代码/文本行：148027
+- 已索引代码/文本行：148043
 - 已发现符号：2233
 
 | 文件 | 行数 | 符号数 |
@@ -95,7 +95,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 118 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 136 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 152 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 510 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 17 | 1 |

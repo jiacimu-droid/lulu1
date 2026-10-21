@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:06:14.367416+00:00",
-  "commit": "ec12114b00cef8bfc075298aa9dcf233bd9bc14c",
+  "generatedAt": "2026-10-21T16:06:32.192504+00:00",
+  "commit": "1ee947bf14baff724d415f974e255e0dfaafbe52",
   "branch": "main",
-  "sourceFingerprint": "8506d4e8e5dff6e359f07de288a1c265ad2c9e2e535d32eef0b7aa24c231f3e3",
+  "sourceFingerprint": "9cb7f0916b07449e3eb9f645b34e29a2f6b00a43d95390c0117f438105cff33d",
   "summary": {
     "files": 775,
-    "lines": 148027,
+    "lines": 148043,
     "symbols": 2233
   },
   "symbolIndex": {
@@ -1545,7 +1545,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 68
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -13693,8 +13693,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 136,
-      "sha256": "5924328ca0340a1140229b79ef8dd3d1b372ec932988c79f14da7cfbc7bb2614",
+      "lines": 152,
+      "sha256": "5e8970321a0f6024e1871d45dad86c65758da4f1347ef03601a48b5f2d4d9bb1",
       "symbols": [
         {
           "name": "enqueue",
@@ -13706,7 +13706,7 @@
         },
         {
           "name": "shutdown",
-          "line": 68
+          "line": 69
         }
       ]
     },
