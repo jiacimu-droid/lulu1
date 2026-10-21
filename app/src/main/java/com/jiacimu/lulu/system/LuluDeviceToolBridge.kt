@@ -776,7 +776,12 @@ object LuluDeviceToolBridge {
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
                 }
-                notes += tool + "：" + result.optString("summary").ifBlank {
+                val actionLabel = if (tool == "control_music")
+                    "/" + result.optString("command", effect.optJSONObject("args")?.optString("command"))
+                else ""
+                notes += tool + actionLabel + "：" +
+                    (if (result.optBoolean("success")) "已执行" else "未完成") + "：" +
+                    result.optString("summary").ifBlank {
                     result.optString("error").ifBlank {
                         result.optString("verification").ifBlank {
                             result.optString("status").ifBlank { "状态未核实" }
@@ -1090,7 +1095,9 @@ object LuluDeviceToolBridge {
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                 momentChanged = privateDelta.meaningful,
             )
-            return Result.success(plannedReply.copy(text = "", disposition = CharacterDecisionProtocol.SILENT))
+            return Result.success(plannedReply.copy(text = "",
+                disposition = CharacterDecisionProtocol.SILENT,
+                phoneMediaReceipt = sideDeviceReceipt.takeIf(String::isNotBlank)))
         }
         if (plan.action == "reply") {
             // Phone reply and a voluntary favorite can be one decision. A
