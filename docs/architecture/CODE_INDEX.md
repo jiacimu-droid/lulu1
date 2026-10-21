@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e5ea7a5945a379bb6dc78e75ada1a26ba080d414`
+- 基准提交：`dba5eadcf280a676c2d20fdcd3739369a232b176`
 - 分支：`main`
 - 已索引文件：785
-- 已索引代码/文本行：149217
+- 已索引代码/文本行：149261
 - 已发现符号：2253
 
 | 文件 | 行数 | 符号数 |
@@ -93,7 +93,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 271 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 158 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 64 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 235 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 279 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 108 | 8 |
