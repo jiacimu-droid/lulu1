@@ -1251,9 +1251,20 @@ internal object LuluVoiceCallSession {
             wakeCueJob = null
             pendingScheduledWakeReason = null
             LuluCallRingtone.stopInCallWake()
+            appContext?.let { context ->
+                com.jiacimu.lulu.data.DeferredCallMediaAction.onUserTurn(
+                    context, current.characterId, current.callExperienceId, spoken)
+                if (com.jiacimu.lulu.data.CallMediaUserIntent.stopped(spoken)) {
+                    com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(
+                        context, current.characterId)
+                }
+            }
             val woke = com.jiacimu.lulu.data.WakeGoalVerification.confirm(current.characterId, spoken)
             if (woke) appContext?.let { context ->
-                com.jiacimu.lulu.system.LuluMediaVolume.control(context, current.characterId, "restore")
+                com.jiacimu.lulu.data.DeferredCallMediaAction.onWakeConfirmed(
+                    context, current.characterId, current.callExperienceId)
+                com.jiacimu.lulu.data.WakeMusicCoordinator.cancelPending(
+                    context, current.characterId)
             }
         }
         if (!autonomousSleep && !autonomousSilence) {
