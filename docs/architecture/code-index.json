@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:35:24.956014+00:00",
-  "commit": "12e13d260bfdbbd8d1f8923fa4b4766c1903382c",
+  "generatedAt": "2026-10-21T17:35:57.583000+00:00",
+  "commit": "2d484056e9a932085b4cb525f2691e992d4e5e56",
   "branch": "main",
-  "sourceFingerprint": "224a0bfebf52346cc690629a7f81c5962d43d88b2f6a30882a21cb3ef6bc7564",
+  "sourceFingerprint": "360b4b9af4f314ccd1a32d4455111d32f9023fc99b1909a277600e34da3f0db3",
   "summary": {
     "files": 785,
-    "lines": 149108,
+    "lines": 149116,
     "symbols": 2251
   },
   "symbolIndex": {
@@ -24564,8 +24564,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt",
-      "lines": 53,
-      "sha256": "1178b58f4b353b90f1b459762cc1f369f04f986a6ff4c3dd704ce601b283e362",
+      "lines": 61,
+      "sha256": "dbc3652dc034d1952845e21956378c193c66d804c5bdd0bba8bb38f17afe4475",
       "symbols": [
         {
           "name": "Live2DVisualActionBusTest",
