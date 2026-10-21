@@ -76,14 +76,14 @@ class RelayRequestPressurePolicyTest {
             "核心记忆" to core,
             "未完成责任" to obligations,
             "本轮背景依据" to facts,
-            "跨场景连续性锚点" to ("过时的连续状态\n".repeat(800))
+            "跨场景连续性锚点" to ("过时的连续状态\n".repeat(1_500))
         ))
         assertTrue(compacted.contains(personalRule))
         assertTrue(compacted.contains(core))
         assertTrue(compacted.contains(obligations))
         assertTrue(compacted.contains("用户明确说不希望重新来过"))
         assertTrue(compacted.contains("其他较早材料暂未提供"))
-        assertFalse(compacted.contains("过时的连续状态\n".repeat(800)))
+        assertFalse(compacted.contains("过时的连续状态\n".repeat(1_500)))
     }
 
     @Test fun fallbackNeverCutsAStatementInHalfOrStitchesSeparatedFacts() {
