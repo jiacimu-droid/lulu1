@@ -768,6 +768,10 @@ internal object LuluVoiceCallSession {
         scope.launch {
             // Never mix music with the last phone TTS frame or call audio route.
             delay(500L)
+            appContext?.let { context ->
+                com.jiacimu.lulu.data.DeferredCallMediaAction.enforceStoppedAfterCall(
+                    context, current.characterId, current.callExperienceId)
+            }
             com.jiacimu.lulu.data.WakeMusicCoordinator.onCallEnded(
                 appContext, current.characterId,
             )
