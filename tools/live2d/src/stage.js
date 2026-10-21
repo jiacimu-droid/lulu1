@@ -106,4 +106,6 @@ function motion(group, index) {
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
 window.LuluLive2D = { load, update, setPaused, expression, motion }
-status('请选择 Live2D 模型')
+if (window.__luluStageState) update(window.__luluStageState)
+if (window.__luluStageModelUrl) load(window.__luluStageModelUrl)
+else status('请选择 Live2D 模型')
