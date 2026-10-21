@@ -1,6 +1,6 @@
 package com.jiacimu.lulu.data
 
-/** Dynamic *prompt* budgets. Stores and original evidence are never deleted or rewritten.
+/** Dynamic *prompt* budgets, not device RAM/storage limits. Stores and evidence are never deleted or rewritten.
  * Full fidelity is retained for responsibility checks, world interaction and autonomous action.
  */
 data class PromptContextBudget(
@@ -12,7 +12,7 @@ data class PromptContextBudget(
     val richInnerLife: Boolean,
     val lexiconCharacters: Int,
     val precise: Boolean,
-    val workingSetCharacters: Int = if (precise) 23_000 else if (richInnerLife) 19_000 else 12_000,
+    val workingSetCharacters: Int = if (precise) 31_000 else if (richInnerLife) 26_000 else 18_000,
 )
 
 internal object PromptContextPolicy {
@@ -32,6 +32,9 @@ internal object PromptContextPolicy {
         "打电话", "日记", "发布", "设置闹钟", "邀请", "阅读", "游戏",
     )
 
+    /** Give the role more relevant source material; the transport independently handles
+     * provider request-size pressure, without changing stored history or local memory.
+     */
     fun forRequest(source: String, request: UnifiedMemoryRequest): PromptContextBudget {
         // Current input is the main relevance signal. Old history cannot force heavyweight
         // evidence/world context into every later turn forever.
@@ -51,11 +54,11 @@ internal object PromptContextPolicy {
         val activeTool = liveSignals.any(current::contains)
         val rich = autonomous || world || immersive || precise || activeTool
         return when {
-            precise -> PromptContextBudget(30, 7_200, 5_000, 4_800, world, true, 2_600, true)
-            autonomous || immersive -> PromptContextBudget(28, 6_200, 3_200, 4_200, autonomous || world, true, 2_800, false)
-            world || activeTool -> PromptContextBudget(24, 5_600, if (activeTool) 2_400 else 1_400,
-                3_400, world, rich, 2_000, false)
-            else -> PromptContextBudget(18, 4_000, 1_200, 2_600, false, false, 1_500, false)
+            precise -> PromptContextBudget(42, 10_000, 7_000, 6_400, world, true, 3_200, true)
+            autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, autonomous || world, true, 3_400, false)
+            world || activeTool -> PromptContextBudget(34, 7_800, if (activeTool) 3_200 else 2_400,
+                4_800, world, rich, 2_700, false)
+            else -> PromptContextBudget(26, 6_000, 2_000, 3_800, false, false, 2_200, false)
         }
     }
 
