@@ -160,7 +160,7 @@ internal fun WorldLifeEpisodeFullPage(
         containerColor = StoryPaper,
         topBar = {
             TopAppBar(
-                title = { Text("独处小剧场", fontSize = 16.sp, fontWeight = FontWeight.Medium,
+                title = { Text("生活小剧场", fontSize = 16.sp, fontWeight = FontWeight.Medium,
                     color = StoryInk) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
@@ -181,7 +181,8 @@ internal fun WorldLifeEpisodeFullPage(
         ) {
             if (deletionError) Text("删除失败，原文仍在，请重试。",
                 color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-            Text("LIFE · PRIVATE CHAPTER", fontSize = 10.sp, letterSpacing = 2.sp,
+            Text(if (episode.category == "encounter") "LIFE · ENCOUNTER" else "LIFE · CHAPTER",
+                fontSize = 10.sp, letterSpacing = 2.sp,
                 color = StoryAccent)
             Spacer(Modifier.height(19.dp))
             Text(episode.title, fontSize = 29.sp, lineHeight = 40.sp,
@@ -201,7 +202,7 @@ internal fun WorldLifeEpisodeFullPage(
             HorizontalDivider(color = Color(0xFFE6DED4))
             TextButton(onClick = { showSource = !showSource },
                 contentPadding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)) {
-                Text(if (showSource) "收起故事依据" else "查看真实行动依据",
+                Text(if (showSource) "收起故事依据" else "查看真实经历依据",
                     color = StoryMuted, fontSize = 12.sp)
             }
             if (showSource) {
@@ -209,9 +210,9 @@ internal fun WorldLifeEpisodeFullPage(
                     color = Color(0xFFF0ECE5), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(15.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("已执行行动：${episode.actualAction}", fontSize = 12.sp,
+                        Text("真实经历：${episode.actualAction}", fontSize = 12.sp,
                             color = StoryInk, lineHeight = 20.sp)
-                        Text("叙事中的心声和想象属于角色的主观体验，不会自动生成额外世界事实。",
+                        Text("关联 ${episode.sourceEvidenceIds.size} 条已保存的原始事件。文学细节不是新增世界事实；双方实际发言以原始见面记录为准。",
                             fontSize = 11.sp, color = StoryMuted, lineHeight = 18.sp)
                     }
                 }
