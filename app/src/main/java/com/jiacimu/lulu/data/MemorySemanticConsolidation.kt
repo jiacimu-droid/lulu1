@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
@@ -159,21 +160,31 @@ internal object MemorySemanticConsolidation {
     }
 
     private suspend fun consolidateUnderLock(characterId: String, force: Boolean): Int {
-        val connection = MemoryModelRuntime.extractionConnection()
-            ?: error("请先配置后台「记忆提取」模型，防止误用前台聊天模型付费")
         val storage = prefs ?: error("记忆维护尚未初始化")
-        val facts = candidates(characterId)
-        val totalRecords = LuluRepositories.memory.snapshot(characterId).size
+        val allMemories = LuluRepositories.memory.snapshot(characterId)
+        val activeFacts = candidates(characterId)
+        val totalRecords = allMemories.size
+        val snapshotKey = "reviewSnapshot:$characterId"
+        val cursorKey = "cursor:$characterId"
+        val previousIds = runCatching {
+            val saved = JSONArray(storage.getString(snapshotKey, "[]"))
+            (0 until saved.length()).map { saved.getString(it) }
+        }.getOrDefault(emptyList())
+        val byId = allMemories.associateBy(MemoryEntry::id)
+        // A started multi-batch review keeps the same candidate ordering even if
+        // earlier batches archive duplicates. Otherwise a shifted cursor skips records.
+        val canResume = previousIds.isNotEmpty() && previousIds.all(byId::containsKey) &&
+            storage.getInt(cursorKey, 0) > 0
+        val facts = if (canResume) previousIds.mapNotNull(byId::get) else activeFacts
         if (facts.size < 2) {
             publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Skipped,
                 totalRecords = totalRecords, eligibleRecords = facts.size,
                 detail = "仅 ${facts.size} 条长期事实符合安全审核条件（至少需要2条），未发起模型调用"))
             return 0
         }
-        val fingerprint = fingerprint(facts)
+        val fingerprint = fingerprint(activeFacts)
         val windows = facts.windowed(size = 70, step = 50, partialWindows = true)
-        val cursorKey = "cursor:$characterId"
-        val start = storage.getInt(cursorKey, 0).coerceIn(0, windows.lastIndex)
+        val start = if (canResume) storage.getInt(cursorKey, 0).coerceIn(0, windows.lastIndex) else 0
         if (start == 0 && !force && storage.getString("digest:$characterId", null) == fingerprint) {
             publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Skipped,
                 totalRecords = totalRecords, eligibleRecords = facts.size,
@@ -182,6 +193,15 @@ internal object MemorySemanticConsolidation {
             return 0
         }
 
+        // The original candidate set is persisted before the first paid request.
+        if (start == 0) {
+            check(storage.edit().putString(snapshotKey, JSONArray(facts.map(MemoryEntry::id)).toString())
+                .putInt(cursorKey, 0).remove("digest:$characterId").commit()) {
+                "未能保存审核范围，本次不调用 API"
+            }
+        }
+        val connection = MemoryModelRuntime.extractionConnection()
+            ?: error("请先配置后台「记忆提取」模型，本次未调用前台聊天 API")
         // Bound paid work per run, not permanent storage. A visible partial report accompanies every cap.
         val end = (start + if (force) 3 else 2).coerceAtMost(windows.size)
         var archived = 0
@@ -230,25 +250,36 @@ internal object MemorySemanticConsolidation {
                     }
                 }
             }
+            check(storage.edit().putInt(cursorKey, start + offset + 1)
+                .putInt("remaining:$characterId", windows.size - start - offset - 1).commit()) {
+                "当前批次进度未能保存，后续可重新审核"
+            }
             publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Running,
                 totalRecords = totalRecords, eligibleRecords = facts.size,
                 reviewedBatches = start + offset + 1, totalBatches = windows.size,
                 archived = archived,
                 detail = "已审核 ${start + offset + 1} / ${windows.size} 批，本轮确认同义归档 ${archived} 条"))
         }
+        val newFactsLeft = candidates(characterId).any { it.id !in facts.map(MemoryEntry::id).toSet() }
+        val fullyReviewed = end == windows.size && !newFactsLeft
         val editor = storage.edit().putInt("remaining:$characterId", windows.size - end)
             .putInt(cursorKey, if (end == windows.size) 0 else end)
-        if (end == windows.size) editor.putString("digest:$characterId", fingerprint(candidates(characterId)))
-        else editor.remove("digest:$characterId")
+        if (end == windows.size) {
+            editor.remove(snapshotKey)
+            if (fullyReviewed) editor.putString("digest:$characterId", fingerprint(candidates(characterId)))
+            else editor.remove("digest:$characterId")
+        } else editor.remove("digest:$characterId")
         check(editor.commit()) { "语义整理检查点保存失败" }
         publish(characterId, MemoryReviewStatus(
-            phase = if (end == windows.size) MemoryReviewPhase.Completed else MemoryReviewPhase.Partial,
+            phase = if (fullyReviewed) MemoryReviewPhase.Completed else MemoryReviewPhase.Partial,
             totalRecords = totalRecords, eligibleRecords = facts.size,
             reviewedBatches = end, totalBatches = windows.size,
             archived = archived,
-            detail = if (end == windows.size)
-                "本轮已检查全部 ${windows.size} 批候选长期事实，确认归档 ${archived} 条；其余未覆盖的记忆类型保持原样"
-            else "本轮归档 ${archived} 条，剩余 ${windows.size - end} 批尚未审核；再次点击可以继续",
+            detail = when {
+                fullyReviewed -> "本轮已检查全部 ${windows.size} 批候选长期事实，确认归档 ${archived} 条；其他记忆类型未处理"
+                newFactsLeft -> "原定批次审核完毕，但审核期间又出现新记忆；请再次点击审核新增内容"
+                else -> "本轮归档 ${archived} 条，剩余 ${windows.size - end} 批尚未审核；再次点击可以继续"
+            },
         ))
         return archived
     }
