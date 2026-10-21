@@ -102,6 +102,9 @@ fun QqStyleChatDetailScreen(
     val actualActivities by ChatGenerationActivity.activities.collectAsState()
     val activeTypists = actualActivities.values.filter { conversationId in it.conversationIds }.map { it.characterId }.distinct()
     val receiving = replyTaskState.running || activeTypists.isNotEmpty()
+    val conversation = conversations.firstOrNull { it.id == conversationId }
+    val groupChat = conversation?.groupChat
+    val characterId = conversation?.characterId ?: "lulu"
     // Do not show "typing" while the user is sending more bubbles this turn.
     val lastCharacterTurn = messages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
     val lastPendingUserBubble = messages.drop(lastCharacterTurn + 1)
@@ -125,9 +128,6 @@ fun QqStyleChatDetailScreen(
     }
     val showTypingIndicator = messageWindowElapsed &&
         (replyTaskState.typingCharacterId != null || activeTypists.isNotEmpty())
-    val conversation = conversations.firstOrNull { it.id == conversationId }
-    val groupChat = conversation?.groupChat
-    val characterId = conversation?.characterId ?: "lulu"
     val recordedResponsibilities by CommitmentTaskStore.tasks.collectAsState()
     val visibleResponsibility = remember(recordedResponsibilities, characterId) {
         recordedResponsibilities.asSequence()
