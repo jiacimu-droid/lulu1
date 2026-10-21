@@ -386,7 +386,12 @@ class LocalMemoryRepository : MemoryRepository {
         incoming.forEach { entry ->
             if (entry.scopedMemoryKey() in current.deletedMemoryKeys ||
                 entry.sourceIds().any { it in current.forgottenSourceIds[entry.characterId].orEmpty() }) return@forEach
-            val index = entries.indexOfFirst { it.characterId == entry.characterId && it.dedupeKey() == entry.dedupeKey() }
+            val index = entries.indexOfFirst { existing ->
+                existing.characterId == entry.characterId && existing.dedupeKey() == entry.dedupeKey() &&
+                    // Identical daily wording is not proof of the same episode on a different day.
+                    (entry.kind == MemoryKind.Fact ||
+                        existing.sourceIds().intersect(entry.sourceIds().toSet()).isNotEmpty())
+            }
             if (index < 0) entries += entry else entries[index] = mergeMemory(entries[index], entry)
         }
         return entries
@@ -1042,7 +1047,8 @@ private fun mergeMemory(primary: MemoryEntry, duplicate: MemoryEntry): MemoryEnt
         tier = if (primary.tier == MemoryTier.Core || duplicate.tier == MemoryTier.Core) MemoryTier.Core else primary.tier,
         subject = primary.subject.ifBlank { duplicate.subject },
         slot = primary.slot.ifBlank { duplicate.slot },
-        canRecallProactively = primary.canRecallProactively || duplicate.canRecallProactively,
+        // Never restore recall permission merely because a duplicate was extracted later.
+        canRecallProactively = primary.canRecallProactively && duplicate.canRecallProactively,
         source = mergeMemoryProvenance(primary.source, duplicate.source),
         sourceRevisions = primary.sourceRevisions + duplicate.sourceRevisions,
         occurredAt = listOfNotNull(primary.occurredAt, duplicate.occurredAt).minOrNull(),
