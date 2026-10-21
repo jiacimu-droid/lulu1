@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T17:37:31.952387+00:00",
-  "commit": "875cb2debc27757a3b4d21eb7edc7217d26e37fc",
+  "generatedAt": "2026-10-21T17:39:20.754495+00:00",
+  "commit": "975c3d71a797bdc47b40150c4c59af50adb3a8a8",
   "branch": "main",
-  "sourceFingerprint": "cf1d1f467021aec0f8a160423f6ecf8337b01f92154f625885fa4683f64a0036",
+  "sourceFingerprint": "12a6b843f054894ee220fceec863eeb817e84ee98bac6ff6136f1e630b6f4f01",
   "summary": {
     "files": 785,
-    "lines": 149129,
-    "symbols": 2251
+    "lines": 149144,
+    "symbols": 2253
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -34,6 +34,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
         "line": 66
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
@@ -1602,16 +1606,22 @@
         "line": 41
       }
     ],
+    "setVideoMode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
+        "line": 46
+      }
+    ],
     "show": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 38
+        "line": 47
       }
     ],
     "minimize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 40
+        "line": 48
       }
     ],
     "enabled": [
@@ -1883,7 +1893,7 @@
     "installCoreIfNeeded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-        "line": 98
+        "line": 101
       }
     ],
     "scheduleDeferredMedia": [
@@ -13859,16 +13869,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-      "lines": 123,
-      "sha256": "37beb920bb4f407f69d16ea4626b9a085f685a41d710e53bbc18e55d244a9fce",
+      "lines": 131,
+      "sha256": "738505cdd3cb46332e41890a6e33756f84b3ef48492f44ecd867187208d3be31",
       "symbols": [
         {
+          "name": "start",
+          "line": 42
+        },
+        {
+          "name": "setVideoMode",
+          "line": 46
+        },
+        {
           "name": "show",
-          "line": 38
+          "line": 47
         },
         {
           "name": "minimize",
-          "line": 40
+          "line": 48
         }
       ]
     },
@@ -14113,8 +14131,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt",
-      "lines": 714,
-      "sha256": "eff0e6c1580253dfdac3c33feea717ce3e74db8159c680836d9cec40ad3e0411",
+      "lines": 721,
+      "sha256": "6b18dd2bfdaf6a22ce629d95453e1fe4b82a37076063f708820220bfef6a5225",
       "symbols": [
         {
           "name": "LuluVoiceCallScreen",
@@ -14122,7 +14140,7 @@
         },
         {
           "name": "installCoreIfNeeded",
-          "line": 98
+          "line": 101
         }
       ]
     },
