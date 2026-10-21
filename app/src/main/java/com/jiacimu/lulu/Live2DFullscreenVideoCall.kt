@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import java.io.File
 
 /**
@@ -52,6 +53,18 @@ internal fun Live2DFullscreenVideoCall(
     }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
+    // An oversized texture or broken JS bundle must not leave a silent gray canvas forever.
+    // Late successful render may still recover and replace this static preview.
+    LaunchedEffect(modelUrl, coreReady) {
+        if (modelUrl != null && coreReady) {
+            delay(25_000)
+            if (stageStatus == "loading") {
+                stageStatus = "error"
+                stageDetail = "动态模型加载超过25秒，请检查贴图大小或 Cubism 兼容性"
+                Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+            }
+        }
+    }
     val rendered = stageStatus == "ready"
     val hasCreatorPreview = creatorPreview?.isFile == true
     val previewSize = remember(creatorPreview?.absolutePath) {
