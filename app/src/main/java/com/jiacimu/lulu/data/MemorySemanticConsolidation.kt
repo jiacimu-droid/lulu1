@@ -57,6 +57,8 @@ internal object MemorySemanticConsolidation {
         }
     }
 
+    fun pendingBatches(characterId: String): Int = prefs?.getInt("remaining:$characterId", 0) ?: 0
+
     /** Manual action reviews the existing backlog; old evidence stays inspectable. */
     suspend fun consolidateNow(characterId: String): Int = lock.withLock {
         require(characterId.isNotBlank())
@@ -72,12 +74,15 @@ internal object MemorySemanticConsolidation {
         val facts = candidates(characterId)
         if (facts.size < 2) return 0
         val fingerprint = fingerprint(facts)
-        if (!force && storage.getString("digest:$characterId", null) == fingerprint) return 0
+        val windows = facts.windowed(size = 70, step = 50, partialWindows = true)
+        val cursorKey = "cursor:$characterId"
+        val start = storage.getInt(cursorKey, 0).coerceIn(0, windows.lastIndex)
+        if (start == 0 && storage.getString("digest:$characterId", null) == fingerprint) return 0
 
-        // These limits bound one API request only, not the number of stored memories.
-        // Overlapping windows prevent the most common adjacent-batch omissions.
+        // Bound total paid work per maintenance run. Large libraries progress across checkpoints.
+        val end = (start + if (force) 3 else 2).coerceAtMost(windows.size)
         var archived = 0
-        for (window in facts.windowed(size = 70, step = 50, partialWindows = true)) {
+        for (window in windows.subList(start, end)) {
             if (window.size < 2) continue
             val evidence = window.joinToString("\n") { memory ->
                 "id=${memory.id} | 对象=${memory.subject} | 槽位=${memory.slot} | 时间=${memory.occurredAt ?: memory.createdAt} | ${memory.content.replace('\n', ' ')}"
@@ -119,9 +124,11 @@ internal object MemorySemanticConsolidation {
                 }
             }
         }
-        check(storage.edit().putString("digest:$characterId", fingerprint(candidates(characterId))).commit()) {
-            "语义整理检查点保存失败"
-        }
+        val editor = storage.edit().putInt("remaining:$characterId", windows.size - end)
+            .putInt(cursorKey, if (end == windows.size) 0 else end)
+        if (end == windows.size) editor.putString("digest:$characterId", fingerprint(candidates(characterId)))
+        else editor.remove("digest:$characterId")
+        check(editor.commit()) { "语义整理检查点保存失败" }
         return archived
     }
 
