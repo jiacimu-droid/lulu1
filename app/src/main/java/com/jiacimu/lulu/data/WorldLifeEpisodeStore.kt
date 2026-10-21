@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * A character's PRIVATE, narrated leisure moment.
+ * A character's readable life chapter: personal moments, verified incidents or real encounters.
  *
- * Its only objective world fact is the already-committed execution receipt.
+ * Its only objective world facts are its linked, already committed timeline events.
  * Descriptive prose and unspoken thoughts are subjective, NOT extra map moves,
  * acquired objects, meetings or witnessed residents. Opening a moment is free:
  * this store does not call the model.
@@ -67,7 +67,7 @@ internal object WorldLifeEpisodeStore {
     /** A location outing is one chapter, even when successive perceptions
      * independently execute small, verified actions inside that same place. */
     fun recentAt(characterId: String, location: String, now: Instant = Instant.now()):
-        WorldLifeEpisode? = episodes(characterId).lastOrNull()?.takeIf { episode ->
+        WorldLifeEpisode? = episodes(characterId).lastOrNull { episode ->
             episode.location == location && episode.category == "outing" &&
                 java.time.Duration.between(episode.occurredAt, now).toMinutes() in 0..35
         }
