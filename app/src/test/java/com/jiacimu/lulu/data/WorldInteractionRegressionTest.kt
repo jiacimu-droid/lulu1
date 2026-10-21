@@ -32,6 +32,36 @@ class WorldInteractionRegressionTest {
         assertEquals(keys.size, keys.toSet().size)
     }
 
+    @Test fun privateChatCompactWorldListsOnlyActuallyPresentResidents() {
+        val context = RuntimeEnvironment.getApplication()
+        MigratedDomainStores.characters.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+        DigitalWorldExpansionStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("NPC在场核实测试", "先看真实世界状态")
+        val id = role.characterId
+        DigitalLifeProfileStore.registerNewLife(id, role.displayName, "创造者")
+        DigitalWorldStore.ensureHome(id, role.displayName)
+        val location = DigitalWorldStore.locationOf(id)
+        val resident = DigitalWorldExpansionStore.registerResident(
+            DigitalWorldResident(id = "npc-grounded-context-" + id, name = "地点校验居民" + id.take(4),
+                identity = "数字世界路标维护居民", homeLocationCode = DigitalWorldPublicPlaces.COURTYARD))
+        try {
+            val absent = PromptContextPolicy.compactWorld(id)
+            assertFalse(absent.contains("resident:${resident.id}"))
+            DigitalWorldExpansionStore.moveResident(resident.id, location)
+            val present = PromptContextPolicy.compactWorld(id)
+            assertTrue(present.contains("resident:${resident.id}"))
+            assertTrue(present.contains("当前地点程序已登记在场的居民"))
+            assertTrue(present.contains("不证明刚刚进门"))
+            DigitalWorldExpansionStore.moveResident(resident.id, resident.homeLocationCode)
+            val departed = PromptContextPolicy.compactWorld(id)
+            assertFalse(departed.contains("resident:${resident.id}"))
+        } finally {
+            DigitalWorldExpansionStore.moveResident(resident.id, resident.homeLocationCode)
+        }
+    }
+
     @Test fun summaryOnlyAndOneSidedNpcDialogueAreNotCompletedInteractions() {
         val resident = DigitalWorldResident(id = "npc", name = "小禾", identity = "园艺爱好者", homeLocationCode = "resident-home:npc")
         val now = Instant.now()
