@@ -753,6 +753,7 @@ object LuluDeviceToolBridge {
                 plan.action == CharacterDecisionProtocol.SILENT))) {
             val notes = mutableListOf<String>()
             var verifiedWakeAudio = false
+            var raisedVolumeThisTurn = false
             val inputKey = userEvidenceIds.lastOrNull()
                 ?: silenceObservationId.takeIf(String::isNotBlank)
                 ?: "current-" + now.toEpochMilli()
@@ -765,10 +766,20 @@ object LuluDeviceToolBridge {
                     notes += "未执行未经授权的附加动作"
                     continue
                 }
+                val effectArgs = effect.optJSONObject("args") ?: JSONObject()
+                if (tool == "control_volume" &&
+                    effectArgs.optString("action") == "adjust" &&
+                    effectArgs.optInt("deltaPercent") > 0) {
+                    if (raisedVolumeThisTurn) {
+                        notes += "同一轮重复增大音量已跳过；需等待新的感知与真实反馈"
+                        continue
+                    }
+                    raisedVolumeThisTurn = true
+                }
                 val result = runCatching {
                     JSONObject(com.jiacimu.lulu.data.ToolRouter.execute(
                         appContext, characterId, tool,
-                        effect.optJSONObject("args") ?: JSONObject(),
+                        effectArgs,
                         requestId = "reply-side-" + inputKey + "-" + i,
                         userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
                             .isExplicitUserToolRequest(userText, tool),
@@ -778,7 +789,7 @@ object LuluDeviceToolBridge {
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
                 }
                 val command = result.optString("command")
-                    .ifBlank { effect.optJSONObject("args")?.optString("command").orEmpty() }
+                    .ifBlank { effectArgs.optString("command") }
                 if (result.optBoolean("success") &&
                     (tool == "ring_in_call_wake" ||
                         (tool == "control_music" && command == "play"))) {
