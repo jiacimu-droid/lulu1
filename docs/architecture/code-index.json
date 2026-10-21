@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T16:15:36.561429+00:00",
-  "commit": "625df5bdced15b91a003d4a81c9b5d7c8c9ade81",
+  "generatedAt": "2026-10-21T16:18:55.436093+00:00",
+  "commit": "67888837125c9e74289d558f54b34447dd7c94d3",
   "branch": "main",
-  "sourceFingerprint": "8fe3fd68eb0b2de51c0f52081dc116c6eac15f777a6f98f22dba76a381d78602",
+  "sourceFingerprint": "3b7b2f44f956b4dd92ef8cd101a8afc99860cf9a3d9b86b8d36ef2c341d524f5",
   "summary": {
-    "files": 776,
-    "lines": 148182,
+    "files": 777,
+    "lines": 148207,
     "symbols": 2235
   },
   "symbolIndex": {
@@ -12548,6 +12548,12 @@
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 161,
       "sha256": "ddf48cc3c24151717476554b5a08e087228a7376448c607f27b39b3312f9acf2",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/bootstrap.js",
+      "lines": 25,
+      "sha256": "af3800e2a27a5f62f78a6a4684f23bc751ee985b03458de841dd9e1a119c5ef9",
       "symbols": []
     },
     {
