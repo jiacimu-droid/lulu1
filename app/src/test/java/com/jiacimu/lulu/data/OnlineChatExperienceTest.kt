@@ -228,48 +228,48 @@ class OnlineChatExperienceTest {
         assertEquals(first.revision, second.revision)
         assertEquals(first.revision, third.revision)
         assertFalse(OnlineChatBatchStore.markEnqueued(context, role, third.revision))
-        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 6_000L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 8_000L))
         // Another user bubble while generation is running gets a new revision.
-        val next = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 7_000L)
+        val next = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 9_000L)
         assertTrue(next.revision > first.revision)
         assertTrue(OnlineChatBatchStore.markEnqueued(context, role, next.revision))
         assertFalse(OnlineChatBatchStore.markEnqueued(context, role, next.revision))
         OnlineChatBatchStore.finish(context, role, first.revision)
-        assertTrue(OnlineChatBatchStore.claim(context, role, next.revision, now = 11_000L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, next.revision, now = 15_000L))
         OnlineChatBatchStore.finish(context, role, next.revision)
         OnlineChatBatchStore.cancel(context, role)
     }
 
-    @Test fun fourSecondsFollowLastBubbleAndEachNewTurnWaitsAgain() {
+    @Test fun sixSecondsFollowLastBubbleAndEachNewTurnWaitsAgain() {
         val context = RuntimeEnvironment.getApplication() as Context
-        val role = "four-second-last-bubble"
+        val role = "six-second-last-bubble"
         OnlineChatBatchStore.cancel(context, role)
         val first = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 1_000L)
         val second = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 2_000L)
         val wake = OnlineChatBatchStore.next(context, role, true, now = 2_200L)
         val third = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 3_800L)
-        assertEquals(5_000L, first.dueAtMillis)
-        assertEquals(6_000L, second.dueAtMillis)
+        assertEquals(7_000L, first.dueAtMillis)
+        assertEquals(8_000L, second.dueAtMillis)
         assertEquals(second.dueAtMillis, wake.dueAtMillis)
-        assertEquals(7_800L, third.dueAtMillis)
+        assertEquals(9_800L, third.dueAtMillis)
         assertEquals(first.revision, third.revision)
-        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 7_799L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 7_800L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, first.revision, now = 9_799L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, first.revision, now = 9_800L))
         // While that response is active, new user bubbles form their own turn.
         val fourth = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 10_100L)
         val fifth = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 11_300L)
-        assertEquals(14_100L, fourth.dueAtMillis)
-        assertEquals(15_300L, fifth.dueAtMillis)
+        assertEquals(16_100L, fourth.dueAtMillis)
+        assertEquals(17_300L, fifth.dueAtMillis)
         assertEquals(fourth.revision, fifth.revision)
         OnlineChatBatchStore.finish(context, role, first.revision)
         assertFalse(OnlineChatBatchStore.isCurrent(context, role, first.revision))
-        assertFalse(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 15_299L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 15_300L))
+        assertFalse(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 17_299L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, fifth.revision, now = 17_300L))
         OnlineChatBatchStore.finish(context, role, fifth.revision)
         // Already online, but a fresh conversation topic still gets its own quiet period.
         val nextTurn = OnlineChatBatchStore.onUserBubble(context, role, atMillis = 18_000L)
-        assertEquals(22_000L, nextTurn.dueAtMillis)
-        assertFalse(OnlineChatBatchStore.claim(context, role, nextTurn.revision, now = 21_999L))
+        assertEquals(24_000L, nextTurn.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(context, role, nextTurn.revision, now = 23_999L))
         OnlineChatBatchStore.cancel(context, role)
     }
 
@@ -278,9 +278,9 @@ class OnlineChatExperienceTest {
         val role = "parallel-reflection"
         OnlineChatBatchStore.cancel(context, role)
         val batch = OnlineChatBatchStore.next(context, role, collectMessages = true, now = 10_000L)
-        assertEquals(14_000L, OnlineChatBatchStore.pendingDueAt(context, role))
-        assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision, now = 13_999L))
-        assertTrue(OnlineChatBatchStore.claim(context, role, batch.revision, now = 14_000L))
+        assertEquals(16_000L, OnlineChatBatchStore.pendingDueAt(context, role))
+        assertFalse(OnlineChatBatchStore.claim(context, role, batch.revision, now = 15_999L))
+        assertTrue(OnlineChatBatchStore.claim(context, role, batch.revision, now = 16_000L))
         OnlineChatBatchStore.finish(context, role, batch.revision)
         assertNull(OnlineChatBatchStore.pendingDueAt(context, role))
         OnlineChatBatchStore.cancel(context, role)
