@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T14:19:43.412381+00:00",
-  "commit": "cc73f44a9ace088797148e856ffaf0d168a946e2",
+  "generatedAt": "2026-10-21T14:21:22.202729+00:00",
+  "commit": "8c86cbe923f7892b3c2d863c87e506f5045430ee",
   "branch": "main",
-  "sourceFingerprint": "f3e772bc081468597a9fc69433b3cb83ab8a96d98add96de67eca17c25137800",
+  "sourceFingerprint": "23c2e58e21cb7d81a694057b4cc17057ad698683a7ca23ced00deae9f3ec60fd",
   "summary": {
     "files": 770,
-    "lines": 147303,
+    "lines": 147315,
     "symbols": 2219
   },
   "symbolIndex": {
@@ -707,7 +707,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 23
+        "line": 24
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt",
@@ -14072,7 +14072,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
       "lines": 296,
-      "sha256": "961b83d14177c29c1acfcb5feb977448b9ddeb8663b649158776a0cc7db272ea",
+      "sha256": "edd5506c79136c0b75ac16ff3a7c3b9b0c94e55cd663e09e0ea0cb1bb1148323",
       "symbols": []
     },
     {
@@ -19600,12 +19600,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 152,
-      "sha256": "72840bd3b716bf987f1df6efca72fa155a6671a4c99b6e17292d382a93d99ba0",
+      "lines": 164,
+      "sha256": "eef8d46956bede853eddda8bd905373de0a2e82a45ae8b888cf78889a426f335",
       "symbols": [
         {
           "name": "initialize",
-          "line": 23
+          "line": 24
         }
       ]
     },
