@@ -48,7 +48,7 @@ internal object Live2DModelManifestAdapter {
                     ?.let { existing.add(File(base, it).canonicalPath) }
             }
         }
-        val discovered = JSONArray()
+        val discovered = motions.optJSONArray("Lulu") ?: JSONArray()
         base.walkTopDown().filter { it.isFile && it.name.endsWith(".motion3.json", true) }
             .forEach { file ->
                 if (existing.add(file.canonicalPath))
