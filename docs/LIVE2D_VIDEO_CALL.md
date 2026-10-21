@@ -71,3 +71,28 @@ AIRI 的 Model.vue 将模型原有 motion.update 与表情、手动姿态、眨�
 AIRI 项目：https://github.com/moeru-ai/airi
 Pixi Live2D 渲染库（MIT）：https://github.com/guansss/pixi-live2d-display
 官方 Cubism Core 许可说明：https://docs.live2d.com/en/cubism-sdk-manual/cubism-core/
+
+## 2026-10-22 WebView `unsafe-eval` 根因和防复发
+
+**症状**：作者静态预览图可以显示，但 Cubism 模型不能渲染，提示
+`Current environment does not allow unsafe-eval, please use @pixi/unsafe-eval module`。
+
+**确认根因**：本项目固定 PixiJS **6.5.10**。该版本
+`@pixi/unsafe-eval/src/index.ts` 仅导出 `install`；和 PixiJS 7+ 的自动副作用安装不同，
+单独 `import '@pixi/unsafe-eval'` **并不会补丁 ShaderSystem**。导致新包仍然抛同样的异常。
+正确用法：
+```js
+import * as PIXI from 'pixi.js'
+import { install as installCspShaderAdapter } from '@pixi/unsafe-eval'
+installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
+// 必须在 new PIXI.Application() 之前执行
+```
+
+**不会为了让它运行而添加 CSP `'unsafe-eval'`**：该安装程序重写 ShaderSystem 的检查与 Uniform 同步，实现无动态 `new Function` 的着色器同步，保留原本的隔离和 CSP 约束。
+
+**参考证据**：
+- https://github.com/pixijs/pixijs/blob/v6.5.10/packages/unsafe-eval/src/index.ts
+- https://github.com/pixijs/pixijs/blob/v6.5.10/packages/unsafe-eval/src/install.ts
+- https://github.com/pixijs/pixijs/issues/9113
+
+**验证分层**：npm esbuild bundle 成功、Android 单测和 APK 构建成功，均不能代替在用户当前手机 WebView 运行 Cubism 模型的最终验证。只有新版 APK 中见到真实动画、模型原生表情可播放、音频口型跟随、前后切换无丢音，才能声称动态体验通过。静态作者预览只能证明 PNG 可以解码。
