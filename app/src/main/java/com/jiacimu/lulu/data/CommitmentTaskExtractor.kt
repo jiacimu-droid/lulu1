@@ -1,10 +1,16 @@
 package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.ai.LuluAiServices
-import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.CompanionContextMode
+import com.jiacimu.lulu.ai.ModelConnection
 import org.json.JSONArray
 import java.time.Instant
 import java.time.ZoneId
+
+/** Background-only extraction: never inherit the character's expensive chat model. */
+internal fun commitmentBackgroundConnection(): ModelConnection =
+    MemoryModelRuntime.extractionConnection()
+        ?: LuluAiServices.connectionStore.resolveConnection()
 
 internal suspend fun extractCommitmentTaskDrafts(
     characterId: String,
@@ -35,7 +41,8 @@ internal suspend fun extractCommitmentTaskDrafts(
         source = "承诺任务",
         title = "承诺任务提取",
         maxTokens = 1_500,
-        usage = ModelUsage.Chat,
+        contextMode = CompanionContextMode.Isolated,
+        connectionOverride = commitmentBackgroundConnection(),
     )
     // A transport failure or cancelled request is NOT "no promises found".
     // Propagate it so the conversation scanner can retry without recording
