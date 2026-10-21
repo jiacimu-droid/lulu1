@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T08:13:29.518241+00:00",
-  "commit": "3e162c5eaa0c0715993059b94fe04a6dedb876bb",
+  "generatedAt": "2026-10-21T08:14:27.193062+00:00",
+  "commit": "96da131ce8bebeaa84b3c8d338b05087f1ef009e",
   "branch": "main",
-  "sourceFingerprint": "4e81434779b68946aae90144aae71e19b211753349f6a77e60717b9373bda9db",
+  "sourceFingerprint": "bfbd04333331cfd5a6d472da303eda18f9c0001b82ff12e98dc27d96e8723ea5",
   "summary": {
     "files": 764,
-    "lines": 146250,
+    "lines": 146305,
     "symbols": 2204
   },
   "symbolIndex": {
@@ -26057,8 +26057,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeStoreTest.kt",
-      "lines": 157,
-      "sha256": "2c4db459cb6d3083571fdb87d489bded1317f9176cb1cb5d833d9116145a81fc",
+      "lines": 212,
+      "sha256": "ac17abc22a4c520b5624ee167c5715bcfd39ae6f59f5ca77de47e02a8a62e597",
       "symbols": [
         {
           "name": "WorldLifeEpisodeStoreTest",
