@@ -72,7 +72,10 @@ fun LuluVoiceCallScreen(
     val presenceHistories by com.jiacimu.lulu.data.CompanionPresenceStore.histories.collectAsState()
     val currentCharacterId = state.characterId.ifBlank { characterId }
     val scope = rememberCoroutineScope()
-    var videoEnabled by rememberSaveable(currentCharacterId) { mutableStateOf(false) }
+    val preferredVideo by LuluCallWindowController.videoRequested.collectAsState()
+    var videoEnabled by rememberSaveable(currentCharacterId, state.callExperienceId) {
+        mutableStateOf(preferredVideo)
+    }
     var importingModel by remember { mutableStateOf(false) }
     var showCoreLicense by remember { mutableStateOf(false) }
     val coreLicensePrefs = remember(context) {
@@ -216,7 +219,10 @@ fun LuluVoiceCallScreen(
                     previewMotion = previewMotion,
                     previewRevision = previewRevision,
                     setupMessage = modelNotice,
-                    onSwitchToVoice = { videoEnabled = false },
+                    onSwitchToVoice = {
+                        videoEnabled = false
+                        LuluCallWindowController.setVideoMode(false)
+                    },
                     onMinimize = onDismiss,
                     onChangeModel = {
                         modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
@@ -255,6 +261,7 @@ fun LuluVoiceCallScreen(
                 ) {
                     TextButton(onClick = {
                         videoEnabled = !videoEnabled
+                        LuluCallWindowController.setVideoMode(videoEnabled)
                         if (videoEnabled && visualModelUrl != null && !coreReady) installCoreIfNeeded()
                     }) {
                         Icon(if (videoEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam,
