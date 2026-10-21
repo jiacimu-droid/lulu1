@@ -26,7 +26,7 @@ internal object OnlineChatBatchStore {
             if (collectMessages && !hasUserBubbles) {
                 // An autonomous background tick may have left an immediate
                 // non-message batch pending. The FIRST chat bubble MUST turn
-                // that into a real four-second waiting window; never reuse the 0ms due.
+                // that into a real quiet waiting window; never reuse the 0ms due.
                 val due = now + quietMillis(1)
                 check(p.edit().putLong("due:$characterId", due)
                     .putInt("bubbleCount:$characterId", 1)
