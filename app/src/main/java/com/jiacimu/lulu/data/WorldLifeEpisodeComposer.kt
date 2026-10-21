@@ -165,7 +165,7 @@ internal object WorldLifeEpisodeComposer {
             .mapNotNull { source ->
                 DigitalWorldStore.state.value.meetings
                     .firstOrNull { it.id == source.sessionId }
-                    ?.participantIds?.filter { it.startsWith("resident:") }
+                    ?.turns?.map { it.speakerId }?.filter { it.startsWith("resident:") }
             }.flatten().distinct()
         val actualSocialContext = if (encounteredResidents.isEmpty()) "" else
             CharacterSocialRelationship.perspectivesFor(characterId, encounteredResidents)
