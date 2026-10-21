@@ -388,6 +388,8 @@ class LocalMemoryRepository : MemoryRepository {
                 entry.sourceIds().any { it in current.forgottenSourceIds[entry.characterId].orEmpty() }) return@forEach
             val index = entries.indexOfFirst { existing ->
                 existing.characterId == entry.characterId && existing.dedupeKey() == entry.dedupeKey() &&
+                    existing.source.startsWith("timeline-events:") && entry.source.startsWith("timeline-events:") &&
+                    // A new extraction must never silently overwrite a user's manually edited fact.
                     // Identical daily wording is not proof of the same episode on a different day.
                     (entry.kind == MemoryKind.Fact ||
                         existing.sourceIds().intersect(entry.sourceIds().toSet()).isNotEmpty())
