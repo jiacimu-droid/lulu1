@@ -42,7 +42,7 @@ internal fun Live2DSelfCameraPreview(onFailure: (String) -> Unit, modifier: Modi
                     runCatching {
                         val readyProvider = future.get()
                         val preview = Preview.Builder().build()
-                        preview.surfaceProvider = previewView.surfaceProvider
+                        preview.setSurfaceProvider(previewView.surfaceProvider)
                         readyProvider.bindToLifecycle(
                             lifecycleOwner, CameraSelector.DEFAULT_FRONT_CAMERA, preview,
                         )
