@@ -130,42 +130,6 @@ fun LuluVoiceCallScreen(
             importingModel = false
         }
     }
-    if (showCoreLicense) {
-        AlertDialog(
-            onDismissRequest = { if (!importingModel) showCoreLicense = false },
-            title = { Text("安装 Live2D 官方渲染核心") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("像 AIRI 一样，从 Live2D 官方服务器下载固定版本 5-r.3 SDK，只提取渲染 Core。SDK 下载包可能较大；不上传你的模型，也不需要电脑。", fontSize = 13.sp)
-                    Text("Cubism Core 使用 Live2D 专有许可，首次获取前请先阅读并确认。", fontSize = 13.sp)
-                    TextButton(onClick = {
-                        runCatching {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse(Live2DOfficialCoreInstaller.LICENSE_URL)))
-                        }.onFailure { modelNotice = "浏览器未能打开许可说明，请检查默认浏览器" }
-                    }) { Text("阅读官方中文授权协议") }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = coreLicenseChecked, onCheckedChange = { coreLicenseChecked = it })
-                        Text("我已阅读并同意 Live2D 官方许可", fontSize = 12.sp)
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = coreLicenseChecked && !importingModel,
-                    onClick = {
-                        if (coreLicensePrefs.edit().putBoolean("license_accepted", true).commit()) {
-                            showCoreLicense = false
-                            installCoreIfNeeded()
-                        } else {
-                            modelNotice = "无法保存许可确认状态，请稍后重试"
-                        }
-                    },
-                ) { Text("确认许可并继续") }
-            },
-            dismissButton = { TextButton(onClick = { showCoreLicense = false }) { Text("取消") } },
-        )
-    }
     val avatar by AvatarController.states.collectAsState()
     val mouthLevel = avatar[currentCharacterId]?.mouthOpen ?: 0f
     if (showPresence) CompanionPresenceDialog(
@@ -576,6 +540,43 @@ fun LuluVoiceCallScreen(
             }
         }
     }
+    if (showCoreLicense) {
+        AlertDialog(
+            onDismissRequest = { if (!importingModel) showCoreLicense = false },
+            title = { Text("安装 Live2D 官方渲染核心") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("仅在首次使用时，从 Live2D 官方站点取得所需的轻量渲染核心，不下载整个 SDK，也不会上传模型。确认一次后，后续自动复用。", fontSize = 13.sp)
+                    Text("Cubism Core 使用 Live2D 专有许可，首次获取前请先阅读并确认。", fontSize = 13.sp)
+                    TextButton(onClick = {
+                        runCatching {
+                            context.startActivity(Intent(Intent.ACTION_VIEW,
+                                Uri.parse(Live2DOfficialCoreInstaller.LICENSE_URL)))
+                        }.onFailure { modelNotice = "浏览器未能打开许可说明，请检查默认浏览器" }
+                    }) { Text("阅读官方中文授权协议") }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = coreLicenseChecked, onCheckedChange = { coreLicenseChecked = it })
+                        Text("我已阅读并同意 Live2D 官方许可", fontSize = 12.sp)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = coreLicenseChecked && !importingModel,
+                    onClick = {
+                        if (coreLicensePrefs.edit().putBoolean("license_accepted", true).commit()) {
+                            showCoreLicense = false
+                            installCoreIfNeeded()
+                        } else {
+                            modelNotice = "无法保存许可确认状态，请稍后重试"
+                        }
+                    },
+                ) { Text("确认许可并继续") }
+            },
+            dismissButton = { TextButton(onClick = { showCoreLicense = false }) { Text("取消") } },
+        )
+    }
+
 }
 
 @Composable
