@@ -121,13 +121,18 @@ internal object Live2DAssets {
                         entries++
                         require(entries <= 3000) { "ZIP 文件数量过多" }
                         val relative = entry.name.replace('\\', '/')
+                        if (relative.startsWith("__MACOSX/") || relative.substringAfterLast('/') == ".DS_Store" ||
+                            relative.substringAfterLast('/').startsWith("._")) {
+                            zip.closeEntry()
+                            continue
+                        }
                         require(!relative.startsWith("/") && !relative.contains('\u0000') &&
                             relative.split('/').none { it == ".." || it == "." }) { "ZIP 存在不安全路径" }
                         val file = File(staging, relative)
                         require(inside(staging, file)) { "ZIP 路径越界" }
                         if (entry.isDirectory) file.mkdirs() else {
                             require(relative.substringAfterLast('.', "").lowercase() in
-                                setOf("json", "moc3", "png", "jpg", "jpeg", "webp")) {
+                                setOf("json", "moc3", "png", "jpg", "jpeg", "webp", "wav", "mp3", "ogg")) {
                                 "ZIP 包含不支持的资源类型：$relative"
                             }
                             file.parentFile?.mkdirs()
