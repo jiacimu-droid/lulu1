@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a8273eba1159ff0bf786b6b0d80b7bca8ba3d252`
+- 基准提交：`e31fea1248184ae2fad3196a39cf604fd1af083c`
 - 分支：`main`
 - 已索引文件：768
-- 已索引代码/文本行：147071
+- 已索引代码/文本行：147084
 - 已发现符号：2217
 
 | 文件 | 行数 | 符号数 |
@@ -139,7 +139,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 48 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 242 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 480 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 268 | 2 |

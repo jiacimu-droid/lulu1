@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-21T10:51:16.134792+00:00",
-  "commit": "a8273eba1159ff0bf786b6b0d80b7bca8ba3d252",
+  "generatedAt": "2026-10-21T10:53:10.999880+00:00",
+  "commit": "e31fea1248184ae2fad3196a39cf604fd1af083c",
   "branch": "main",
-  "sourceFingerprint": "979a4936b61a516fe0b69671c2af444cbb0994879e86a319299a3ab698bc3345",
+  "sourceFingerprint": "fe6ea1758cdcd1073279c2655125b7a3ea06ba8e12efe8dd3c7f84eb7bc28130",
   "summary": {
     "files": 768,
-    "lines": 147071,
+    "lines": 147084,
     "symbols": 2217
   },
   "symbolIndex": {
@@ -2133,7 +2133,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 44
+        "line": 57
       }
     ],
     "errorNote": [
@@ -2339,13 +2339,13 @@
     "uniqueMood": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 18
+        "line": 31
       }
     ],
     "stateFields": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 24
+        "line": 37
       }
     ],
     "connect": [
@@ -14425,20 +14425,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-      "lines": 48,
-      "sha256": "6e5afa9a1c86a5224fe41ed56d9e19c5862c6faa266f4dd5489563a72a50ff2d",
+      "lines": 61,
+      "sha256": "092195cc43052644b562605a703251c10011988cb8a7322f3fcc2d22227e496e",
       "symbols": [
         {
           "name": "uniqueMood",
-          "line": 18
+          "line": 31
         },
         {
           "name": "stateFields",
-          "line": 24
+          "line": 37
         },
         {
           "name": "status",
-          "line": 44
+          "line": 57
         }
       ]
     },
@@ -24285,7 +24285,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
       "lines": 87,
-      "sha256": "ef1df58eb718b588b91b9ecae4f22f2d933173bd4c55294e27d6bf3eed66e690",
+      "sha256": "be9472094ca83b893408f73ee7669fa008a027cea8b1a66f442010561d38aa0f",
       "symbols": [
         {
           "name": "PresencePresentationTest",
