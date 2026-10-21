@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`c0222636492ae957a7dea3dc41af1e49f38851fb`
+- 基准提交：`1d68c50f64f4a856459ee9b71c83e042797ee860`
 - 分支：`main`
-- 已索引文件：760
-- 已索引代码/文本行：145614
+- 已索引文件：761
+- 已索引代码/文本行：145656
 - 已发现符号：2201
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 150 | 0 |
+| `app/build.gradle.kts` | 151 | 0 |
 | `app/src/main/AndroidManifest.xml` | 161 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
@@ -765,6 +765,7 @@
 | `scripts/generate_code_index.py` | 33 | 0 |
 | `scripts/test_timeline_migration.py` | 28 | 1 |
 | `scripts/test_xhs_reader.js` | 659 | 1 |
+| `scripts/verify_phone_apk_bytecode.py` | 41 | 0 |
 | `preview/app.js` | 54 | 0 |
 | `preview/index.html` | 99 | 0 |
 | `preview/styles.css` | 2 | 0 |
