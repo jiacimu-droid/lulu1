@@ -27,6 +27,9 @@ internal data class WorldLifeEpisode(
     val evidenceId: String,
     /** A subjective, unresolved inner question for the NEXT chapter; not a world fact. */
     val unresolvedThread: String = "",
+    /** All verified facts behind this readable chapter; legacy prose has just one. */
+    val sourceEvidenceIds: List<String> = listOf(evidenceId),
+    val category: String = "outing",
 )
 
 internal object WorldLifeEpisodeStore {
@@ -65,7 +68,7 @@ internal object WorldLifeEpisodeStore {
      * independently execute small, verified actions inside that same place. */
     fun recentAt(characterId: String, location: String, now: Instant = Instant.now()):
         WorldLifeEpisode? = episodes(characterId).lastOrNull()?.takeIf { episode ->
-            episode.location == location &&
+            episode.location == location && episode.category == "outing" &&
                 java.time.Duration.between(episode.occurredAt, now).toMinutes() in 0..35
         }
 
@@ -73,7 +76,7 @@ internal object WorldLifeEpisodeStore {
      * an older queued action cannot create a second chapter for the same outing. */
     fun nearbyAt(characterId: String, location: String, at: Instant): WorldLifeEpisode? =
         episodes(characterId).lastOrNull { episode ->
-            episode.location == location &&
+            episode.location == location && episode.category == "outing" &&
                 kotlin.math.abs(java.time.Duration.between(episode.occurredAt, at).toMinutes()) <= 35L
         }
 
@@ -88,25 +91,32 @@ internal object WorldLifeEpisodeStore {
         now: Instant = Instant.now(),
         unresolvedThread: String = "",
         expectedSource: SharedTimelineEvent? = null,
+        sourceEvidenceIds: List<String> = listOf(evidenceId),
+        category: String = "outing",
     ): WorldLifeEpisode? {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return null
         val source = expectedSource ?: SharedExperienceTimeline.eventsByIds(characterId, listOf(evidenceId))
             .firstOrNull() ?: return null
         if (source.characterId != characterId || source.id != evidenceId) return null
+        val links = (listOf(evidenceId) + sourceEvidenceIds).distinct().take(16)
+        val currentSources = SharedExperienceTimeline.eventsByIds(characterId, links)
+        if (currentSources.size != links.size || currentSources.any { it.characterId != characterId } ||
+            currentSources.firstOrNull { it.id == evidenceId } != source) return null
         var saved: WorldLifeEpisode? = null
         // Always take the timeline monitor before this store, matching deleteEvent.
         // A model that returns after deletion, an edit, or a life reset cannot commit.
-        SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, listOf(source)) {
+        SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, currentSources) {
             synchronized(this) {
                 saved = recordLocked(characterId, location, title, prose, actualAction,
-                    evidenceId, now, unresolvedThread)
+                    evidenceId, now, unresolvedThread, links, category)
             }
         }
         return saved
     }
 
     private fun recordLocked(characterId: String, location: String, title: String, prose: String,
-        actualAction: String, evidenceId: String, now: Instant, unresolvedThread: String): WorldLifeEpisode? {
+        actualAction: String, evidenceId: String, now: Instant, unresolvedThread: String,
+        sourceEvidenceIds: List<String>, category: String): WorldLifeEpisode? {
         val scene = prose.trim().replace(Regex("\\n{4,}"), "\n\n").take(4_000)
         // The composer already rejects blanks and provider errors. A second
         // arbitrary 100-character gate used to discard otherwise valid prose.
@@ -121,6 +131,8 @@ internal object WorldLifeEpisodeStore {
             title = title.trim().take(70).ifBlank { "一个人的片刻" },
             scene = scene, actualAction = actualAction.take(280),
             evidenceId = evidenceId, unresolvedThread = unresolvedThread.trim().take(220),
+            sourceEvidenceIds = sourceEvidenceIds,
+            category = category.takeIf { it in setOf("outing", "encounter", "incident") } ?: "outing",
         )
         val next = (prior + episode).sortedBy { it.occurredAt }
         check(prefs?.edit()?.putString(characterId, encode(next))?.commit() == true) {
@@ -139,8 +151,8 @@ internal object WorldLifeEpisodeStore {
         // about the user. Keeping its prose in model context used to repeat
         // unsupported personal interpretations across story, chat and phone.
         return (if (recentEnoughForContinuation)
-            "刚才已有一次独处活动（约${elapsed}分钟前）："
-        else "今天较早时已有一次独处活动（约${elapsed}分钟前）：") +
+            "刚才已有一次生活经历（约${elapsed}分钟前）："
+        else "今天较早时已有一次生活经历（约${elapsed}分钟前）：") +
             "经执行器核实的动作：${episode.actualAction}。" +
             (if (recentEnoughForContinuation)
                 "避免短时间内重复执行相同的日常动作。"
@@ -167,7 +179,7 @@ internal object WorldLifeEpisodeStore {
     @Synchronized fun invalidateEvidence(evidenceId: String) {
         if (prefs == null || evidenceId.isBlank()) return
         mutable.value.forEach { (characterId, entries) ->
-            val next = entries.filterNot { it.evidenceId == evidenceId }
+            val next = entries.filterNot { evidenceId in it.sourceEvidenceIds }
             if (next.size != entries.size &&
                 prefs?.edit()?.putString(characterId, encode(next))?.commit() == true) {
                 mutable.value = mutable.value + (characterId to next)
@@ -186,7 +198,8 @@ internal object WorldLifeEpisodeStore {
                 .put("occurredAt", e.occurredAt.toString())
                 .put("location", e.location).put("title", e.title)
                 .put("scene", e.scene).put("actualAction", e.actualAction)
-                .put("evidenceId", e.evidenceId).put("unresolvedThread", e.unresolvedThread))
+                .put("evidenceId", e.evidenceId).put("unresolvedThread", e.unresolvedThread)
+                .put("category", e.category).put("sourceEvidenceIds", JSONArray(e.sourceEvidenceIds)))
         }
     }.toString()
 
@@ -202,7 +215,13 @@ internal object WorldLifeEpisodeStore {
             WorldLifeEpisode(id, characterId, time, e.optString("location"),
                 e.optString("title"), e.optString("scene"),
                 e.optString("actualAction"), e.optString("evidenceId"),
-                e.optString("unresolvedThread"))
+                e.optString("unresolvedThread"),
+                e.optJSONArray("sourceEvidenceIds")?.let { links ->
+                    (0 until links.length()).mapNotNull { n ->
+                        links.optString(n).takeIf(String::isNotBlank)
+                    }
+                }?.takeIf(List<String>::isNotEmpty) ?: listOf(e.optString("evidenceId")),
+                e.optString("category").ifBlank { "outing" })
         }.sortedBy { it.occurredAt }
     }.getOrDefault(emptyList())
 }
