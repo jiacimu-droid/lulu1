@@ -1612,7 +1612,8 @@ object ProactivePerceptionRuntime {
         responseEvidenceIds: Set<String> = emptySet(),
         replyConversationIds: Set<String> = emptySet(),
     ): ActionExecution {
-        if (decision.action == Action.SILENT) return ActionExecution(false, "角色选择保持安静")
+        if (decision.action == Action.SILENT && (decision.sideActions?.length() ?: 0) == 0)
+            return ActionExecution(false, "角色选择保持安静")
         // The character already authored an explicit action choice in this
         // decision. An extra prose "reason"/emotion/innerThought is OPTIONAL,
         // not a second permission gate. Do not invent a missing motive;
@@ -1638,7 +1639,7 @@ object ProactivePerceptionRuntime {
             Action.USER_REMARK -> "set_user_remark"
             Action.SELF_NICKNAME -> "set_self_nickname"
             Action.TOOL -> decision.tool
-            Action.SILENT -> return ActionExecution(false, "角色选择保持安静")
+            Action.SILENT -> "" // no spoken main action; explicit later steps may still execute
         }
         // One delivered apology is not reconciliation. However, a still-open
         // goal is not permission to send unlimited unsolicited follow-ups.
@@ -1696,7 +1697,10 @@ object ProactivePerceptionRuntime {
             responseEvidenceIds.isNotEmpty()) {
             args.put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
         }
-        val resultJson = JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
+        val resultJson = if (tool.isBlank()) {
+            JSONObject().put("success", true).put("status", "skipped")
+                .put("summary", "本轮不发言，继续执行角色实际选定的步骤")
+        } else JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
             requestId = requestId, intentionId = decision.intentionId,
             userRequested = tool == "capture_screen" && explicitScreenRequest))
         val result = CompanionActionResult(
@@ -1791,7 +1795,7 @@ object ProactivePerceptionRuntime {
         }
         val combinedSummary = effectNotes.joinToString("；").take(350)
             .ifBlank { "工具执行未返回具体状态" }
-        if (!result.success && !deliveredExtra && !sideActionSucceeded)
+        if ((!result.success || decision.action == Action.SILENT) && !deliveredExtra && !sideActionSucceeded)
             return ActionExecution(false, combinedSummary)
         if (result.success) when (decision.action) {
             Action.CALL -> result.conversationId?.let {
