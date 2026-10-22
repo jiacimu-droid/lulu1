@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:52:46.265451+00:00",
-  "commit": "219ba631108d496cedb2a63a02ab840689a2df51",
+  "generatedAt": "2026-10-22T20:53:04.673247+00:00",
+  "commit": "6360afd034854e8e26765896184a552abc76d026",
   "branch": "main",
-  "sourceFingerprint": "0eeb2115ce8dcbaec94acf6002e0af8a543090b9e4a2ace45b9ab15077951519",
+  "sourceFingerprint": "222b9f0ef978f00963ce9369b691fa2dbaaa4b500bbda2407e9f76d648b9bfc6",
   "summary": {
     "files": 834,
-    "lines": 159408,
+    "lines": 159415,
     "symbols": 2416
   },
   "symbolIndex": {
@@ -13616,8 +13616,8 @@
     },
     {
       "path": "app/src/main/cpp/whisper_jni.cpp",
-      "lines": 87,
-      "sha256": "6090c9d66a50ec2968cc78f6a5edcc3699de93ac0ec15b197fccfec415cdac1e",
+      "lines": 94,
+      "sha256": "c020764d37dab76beedcb8427ccb50ae8d6361eb2802feef2c0ceb3dfc90c598",
       "symbols": []
     },
     {
@@ -27812,7 +27812,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
       "lines": 102,
-      "sha256": "e770d8f51c4c6e5d0b49195be1e3e758f7ed7d9c4dc3638e2fd5e2370a2a154c",
+      "sha256": "f8a1724aeaac3e1fd35d69e58f0af6c14a19e06e3a5ffadfd7f5cc4a3973da6d",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",

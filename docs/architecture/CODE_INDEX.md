@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`219ba631108d496cedb2a63a02ab840689a2df51`
+- 基准提交：`6360afd034854e8e26765896184a552abc76d026`
 - 分支：`main`
 - 已索引文件：834
-- 已索引代码/文本行：159408
+- 已索引代码/文本行：159415
 - 已发现符号：2416
 
 | 文件 | 行数 | 符号数 |
@@ -18,7 +18,7 @@
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 452 | 0 |
 | `app/src/main/cpp/cubism_native_probe.cpp` | 33 | 0 |
-| `app/src/main/cpp/whisper_jni.cpp` | 87 | 0 |
+| `app/src/main/cpp/whisper_jni.cpp` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
