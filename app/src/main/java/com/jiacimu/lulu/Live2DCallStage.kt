@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import android.graphics.Color as AndroidColor
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.os.Build
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.ConsoleMessage
@@ -11,19 +13,30 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.WebViewAssetLoader
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /** An isolated visual stage; no JavaScriptInterface, cookies, external resources or model API calls. */
 @Composable
@@ -32,6 +45,9 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
     previewRevision: Int = 0,
     previewHead: Live2DVisualActionBus.Head? = null,
+    // Render frames in Compose, outside the WebView surface, when Android's
+    // GPU compositor displays an empty WebView in spite of positive readback.
+    nativeMirrorEnabled: Boolean = false,
     onWebViewReady: ((WebView) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
@@ -53,14 +69,21 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // AndroidView can be composed before Android has measured or attached this
     // WebView. Start loading only once it enters the actual view hierarchy,
     // then report the real pixel dimensions after onLayout.
-    AndroidView(
-        factory = {
-            stage.loadUrl("https://appassets.androidplatform.net/assets/live2d/stage.html")
-            stage
-        },
-        modifier = modifier.fillMaxSize(),
-        update = { view -> reportNativeLive2DViewport(view) },
-    )
+    Box(modifier.fillMaxSize()) {
+        AndroidView(
+            factory = {
+                stage.loadUrl("https://appassets.androidplatform.net/assets/live2d/stage.html")
+                stage
+            },
+            modifier = Modifier.fillMaxSize(),
+            update = { view -> reportNativeLive2DViewport(view) },
+        )
+        if (nativeMirrorEnabled) {
+            Live2DNativeFrameOverlay(stage) { phase, detail ->
+                statusReceiver.value(phase, detail)
+            }
+        }
+    }
     LaunchedEffect(stage, previewRevision) {
         if (previewRevision > 0) {
             val commands = mutableListOf<String>()
@@ -85,6 +108,74 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             .put("mouth", if (speaking) mouthLevel.coerceIn(0f, 1f).toDouble() else 0.0)
         stage.evaluateJavascript(
             "window.__luluStageState = ${state}; window.LuluLive2D && window.LuluLive2D.update(window.__luluStageState)", null)
+    }
+}
+
+/**
+ * Bypasses the WebView's compositor altogether. Android receives compressed
+ * frames from the *local* Pixi drawing buffer over evaluateJavascript and
+ * draws them as a native Compose image on top of the WebView. This is a
+ * compatibility path: capped at ~6 fps / 480 px, never sent over the network.
+ */
+@Composable
+private fun Live2DNativeFrameOverlay(
+    webView: WebView,
+    onStatus: (String, String) -> Unit,
+) {
+    var picture by remember(webView) {
+        mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
+    }
+    val receiver = rememberUpdatedState(onStatus)
+    LaunchedEffect(webView) {
+        var reportedFirstFrame = false
+        var consecutiveErrors = 0
+        while (isActive) {
+            val encoded = try {
+                suspendCancellableCoroutine<String?> { continuation ->
+                    webView.evaluateJavascript(
+                        "window.LuluLive2D && window.LuluLive2D.captureNativeFrame" +
+                            " ? window.LuluLive2D.captureNativeFrame() : null",
+                    ) { result ->
+                        val decoded = runCatching {
+                            org.json.JSONTokener(result).nextValue() as? String
+                        }.getOrNull()
+                        if (continuation.isActive) continuation.resume(decoded)
+                    }
+                }
+            } catch (_: Exception) {
+                null
+            }
+            if (encoded != null && encoded.startsWith("data:image/jpeg;base64,") &&
+                encoded.length < 2_000_000) {
+                try {
+                    val bytes = Base64.decode(encoded.substringAfter(','), Base64.DEFAULT)
+                    val decoded = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    if (decoded != null) {
+                        picture = decoded.asImageBitmap()
+                        consecutiveErrors = 0
+                        if (!reportedFirstFrame) {
+                            reportedFirstFrame = true
+                            receiver.value("diagnostic",
+                                "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height}")
+                        }
+                    } else consecutiveErrors++
+                } catch (_: Exception) {
+                    consecutiveErrors++
+                }
+            }
+            if (consecutiveErrors == 3) {
+                receiver.value("error", "原生画面桥接解码失败，请复制诊断日志")
+            }
+            delay(160)
+        }
+    }
+    picture?.let { current ->
+        Image(
+            bitmap = current,
+            contentDescription = "Live2D Android 原生帧显示",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds,
+        )
     }
 }
 
