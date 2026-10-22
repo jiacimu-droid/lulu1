@@ -87,8 +87,15 @@ internal object DigitalWorldActivityStateStore {
             DigitalWorldStore.itemsAtLocation(characterId).filter {
                 DigitalFurnitureCatalog.resolve(it).kind in setOf(DigitalFurnitureKind.TV, DigitalFurnitureKind.TABLE_LAMP, DigitalFurnitureKind.FLOOR_LAMP)
             }.forEach { appendLine("${it.name}开关：${if (p.getBoolean("power:${it.id}", false)) "开" else "关"}；电视尚未接入节目源。") }
+            val cafeInventory = DigitalCafeMenu.offerings.mapNotNull { item ->
+                p.getInt(item.inventoryPrefix + characterId, 0).takeIf { it > 0 }?.let {
+                    "${item.name} ${it} 份"
+                }
+            }
+            if (cafeInventory.isNotEmpty()) appendLine("咖啡角随身物品：${cafeInventory.joinToString("；")}。")
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
-                appendLine("咖啡角自助供应台提供免费数字温水与原味饼干；order_drink/order_snack 领取后才进入随身物品，消耗一份减少一份。")
+                appendLine("浮光咖啡角：原有免费温水、饼干继续可用；新菜单=${DigitalCafeMenu.names()}。")
+                appendLine("点单之后才入库；实际喝完或吃完才结算数字身体。店员是否在场，以实际居民位置为准。")
             }
             val expansionContext = DigitalWorldExpansionStore.contextFor()
             if (expansionContext.isNotBlank()) {
@@ -140,6 +147,23 @@ internal object DigitalWorldActivityStateStore {
                 require(p.getInt(key, 0) < 100) { "随身同类物品已满" }
                 editor.putInt(key, p.getInt(key, 0) + 1)
                 "${name}从自助供应台领取了${if (drink) "一杯温水" else "一份原味饼干"}，放入随身物品。"
+            }
+            in DigitalCafeMenu.orderActionIds -> {
+                require(DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) { "需要先到浮光咖啡角点单" }
+                val item = checkNotNull(DigitalCafeMenu.byOrder(activityId))
+                val key = item.inventoryPrefix + characterId
+                val count = p.getInt(key, 0)
+                require(count < Int.MAX_VALUE) { "已超过数字物品数量上限" }
+                editor.putInt(key, count + 1)
+                "${name}在浮光咖啡角点了一份${item.name}，已放入随身物品；尚未食用。"
+            }
+            in DigitalCafeMenu.consumeActionIds -> {
+                val item = checkNotNull(DigitalCafeMenu.byConsume(activityId))
+                val key = item.inventoryPrefix + characterId
+                val count = p.getInt(key, 0)
+                require(count > 0) { "随身没有${item.name}，需要先点单" }
+                editor.putInt(key, count - 1)
+                "${name}${item.verb}了一份${item.name}；剩余 ${count - 1} 份。"
             }
             "slow_drink", "have_snack" -> {
                 val drink = activityId == "slow_drink"
