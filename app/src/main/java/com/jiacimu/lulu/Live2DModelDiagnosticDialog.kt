@@ -118,9 +118,13 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     }
     Dialog(onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        val dialogView = LocalView.current
-        val dialogWindow = ((dialogView as? DialogWindowProvider)
-            ?: (dialogView.parent as? DialogWindowProvider))?.window
+        // Compose Dialog uses its OWN Android Window. Walk the parent chain,
+        // rather than accidentally capturing the Activity behind the dialog.
+        var dialogParent: android.view.View? = LocalView.current
+        while (dialogParent != null && dialogParent !is DialogWindowProvider) {
+            dialogParent = dialogParent.parent as? android.view.View
+        }
+        val dialogWindow = (dialogParent as? DialogWindowProvider)?.window
         LaunchedEffect(stagePhase, diagnosticView, dialogWindow, session) {
             if (stagePhase != "verifying" || diagnosticView == null) return@LaunchedEffect
             delay(450)
