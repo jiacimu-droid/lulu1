@@ -179,7 +179,13 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                         scope.launch {
                             try {
                                 require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
-                                mcpStatus = LuluExternalMcp.testXhsReading(context, probeKeyword)
+                                val verified = LuluExternalMcp.testXhsReading(context, probeKeyword)
+                                // Only a real search followed by actual matching note
+                                // detail can promote this route for autonomous use.
+                                check(XhsReadingEngine.setMcpPrimaryEnabled(context, true))
+                                remotePrimary = true
+                                fallbackOn = true
+                                mcpStatus = "实际搜索和笔记详情均已验证，已自动设为后台主线路。\\n" + verified
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
                             } catch (error: Exception) {
@@ -192,6 +198,8 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 ) { Text(if (probeBusy) "正在检验搜索与详情…" else "测试云端搜索 → 真正读一篇笔记") }
                 HorizontalDivider()
                 Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
+                Text("优先使用 xpzouying Go MCP；只有『搜索→打开真实正文』测试成功，才自动切换角色后台主线路。云端浏览器与手机内置浏览器是两份独立登录会话。",
+                    style = MaterialTheme.typography.bodySmall)
                 Text("先测试 MCP 服务，再检查独立 Chromium 的登录状态，最后测试真实搜索和正文。服务在线不代表已登录，已登录也不代表能读到笔记。",
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
@@ -205,8 +213,8 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                 }) { Text("检查小红书登录") }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
-                        links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-cloud/README.md")
-                    }) { Text("手机部署云端教程") }
+                        links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-xpzouying/README.md")
+                    }) { Text("Go MCP 云端教程") }
                     OutlinedButton(onClick = {
                         links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-termux/README.md")
                     }) { Text("Termux 教程") }
