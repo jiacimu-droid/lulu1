@@ -281,9 +281,8 @@ internal object LuluVoiceCallSession {
             val grouped = touchBatch.toList()
             touchBatch.clear()
             if (grouped.isEmpty()) return@launch
-            val (lastRegion, lastGesture) = grouped.last()
-            val id = InteractionSignalBridge.recordAvatarTouch(
-                characterId, callId, lastRegion, lastGesture, grouped.size)
+            val id = InteractionSignalBridge.recordAvatarTouches(
+                characterId, callId, grouped)
                 ?: return@launch
             // New user speech owns the reply; don't interrupt to repeat it.
             if (replyGeneration == earlierGeneration && !confirmedSpeechInProgress()) {
