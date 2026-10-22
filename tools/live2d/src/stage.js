@@ -170,12 +170,39 @@ async function verifyVisibleFrame(loaded, sequence) {
         }
       }
       if (visibleColoredPixels >= 48) {
-        previewObserved = true
-        notify('diagnostic', 'WebGL 已绘制彩色像素 ' + visibleColoredPixels +
-          '；画布 ' + Math.round(bounds.width) + '×' + Math.round(bounds.height))
-        return
+        // AIRI captures the actual canvas instead of trusting an arbitrary
+        // WebGL framebuffer. Some GPU pipelines leave colored pixels in a
+        // render target while the canvas presented to WebView stays black.
+        const checkCanvas = document.createElement('canvas')
+        checkCanvas.width = 64
+        checkCanvas.height = 64
+        const snapshot = checkCanvas.getContext('2d', { willReadFrequently: true })
+        if (!snapshot) throw new Error('无法验证 Live2D Canvas 画面')
+        snapshot.clearRect(0, 0, 64, 64)
+        snapshot.drawImage(app.view, 0, 0, 64, 64)
+        const presentedPixels = snapshot.getImageData(0, 0, 64, 64).data
+        let presentedColored = 0
+        for (let i = 0; i < presentedPixels.length; i += 4) {
+          const r = presentedPixels[i]
+          const g = presentedPixels[i + 1]
+          const b = presentedPixels[i + 2]
+          const alpha = presentedPixels[i + 3]
+          if (alpha > 32 && (Math.max(r, g, b) > 45 ||
+            Math.max(r, g, b) - Math.min(r, g, b) > 18)) {
+            presentedColored++
+          }
+        }
+        if (presentedColored >= 32) {
+          previewObserved = true
+          notify('diagnostic', 'Canvas 已实际绘制角色（彩色像素 ' +
+            presentedColored + '）；画布 ' +
+            Math.round(bounds.width) + '×' + Math.round(bounds.height))
+          return
+        }
+        priorError = 'GPU 已处理模型，但屏幕 Canvas 仍是黑色；已保留静态预览'
+      } else {
+        priorError = 'Pixi 画布仍为黑色或透明（彩色像素 ' + visibleColoredPixels + ')'
       }
-      priorError = 'Pixi 画布仍为黑色或透明（彩色像素 ' + visibleColoredPixels + ')'
     } catch (error) {
       priorError = error?.message || String(error)
     }
