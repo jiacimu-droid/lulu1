@@ -130,6 +130,17 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
             dialogParent = dialogParent.parent as? android.view.View
         }
         val dialogWindow = (dialogParent as? DialogWindowProvider)?.window
+        LaunchedEffect(stagePhase, nativeMirrorMode, session) {
+            if (stagePhase == "native_loading" && nativeMirrorMode) {
+                delay(6_000)
+                if (stagePhase == "native_loading") {
+                    stagePhase = "error"
+                    stageMessage = "Android 原生画面已启动，但未收到 Live2D 帧；" +
+                        "如蓝色底图可见，说明 WebView 帧导出存在问题"
+                    record("原生兼容通道等待6秒仍未收到模型帧")
+                }
+            }
+        }
         LaunchedEffect(stagePhase, diagnosticView, dialogWindow, session) {
             if (diagnosticView == null) return@LaunchedEffect
             if (stagePhase == "native_verifying") {
