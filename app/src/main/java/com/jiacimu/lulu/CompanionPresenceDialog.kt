@@ -154,26 +154,19 @@ internal fun CompanionPresenceDialog(
                                     modifier = Modifier.padding(vertical = 18.dp),
                                 )
                             } else {
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(22.dp),
-                                    color = Color.White,
-                                    border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
+                                // One editorial surface, not a bordered card around
+                                // a second shaded heart-voice card.
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth().padding(15.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                                    ) {
-                                        PresenceStateContent(displayState, latestHeartMoment)
+                                    PresenceStateContent(displayState, latestHeartMoment)
                                     if (messageAnchor == null) {
                                         TextButton(
                                             onClick = { deleteCurrentConfirm = true },
                                             modifier = Modifier.align(Alignment.End),
                                             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
-                                        ) {
-                                            Text("删除记录", color = Color(0xFF9C9297), fontSize = 11.sp)
-                                        }
-                                    }
+                                        ) { Text("删除记录", color = Color(0xFF9C9297), fontSize = 11.sp) }
                                     }
                                 }
                             }
@@ -371,22 +364,22 @@ private fun PresenceStateContent(
             val time = heartMoment!!.updatedAt.atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
             val label = if (heartMoment.updatedAt == state.updatedAt) "心声" else "心声 · " + time
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFFF8F7F6),
-                shape = RoundedCornerShape(18.dp),
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(13.dp),
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 17.dp, vertical = 17.dp),
-                    verticalArrangement = Arrangement.spacedBy(11.dp),
-                ) {
-                    Text(label, fontSize = 11.sp, color = Color(0xFF8D858B),
-                        fontWeight = FontWeight.Medium)
-                    voice.lines().filter(String::isNotBlank).forEach { line ->
-                        heartVoiceParagraphs(line).forEach { paragraph ->
-                            Text(paragraph, fontSize = 15.sp, lineHeight = 26.sp,
-                                color = Color(0xFF292629))
-                        }
+                HorizontalDivider(color = Color(0xFFEAE6E5), thickness = 1.dp)
+                Text(label, fontSize = 11.sp, color = Color(0xFF8D858B),
+                    fontWeight = FontWeight.Medium)
+                voice.lines().filter(String::isNotBlank).forEach { line ->
+                    heartVoiceParagraphs(line).forEach { paragraph ->
+                        Text(
+                            paragraph, fontSize = 15.sp, lineHeight = 27.sp,
+                            color = Color(0xFF292629),
+                            style = androidx.compose.ui.text.TextStyle(
+                                textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 30.sp),
+                            ),
+                        )
                     }
                 }
             }
