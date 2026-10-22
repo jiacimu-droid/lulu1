@@ -38,14 +38,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
+import androidx.webkit.WebMessageCompat
+import androidx.webkit.JavaScriptReplyProxy
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+
+// A frame is acknowledged only after Android has decoded it, preventing
+// WebView and Compose from accumulating latency or multiple large JPEG buffers.
+private data class Live2DBinaryFrame(val jpeg: ByteArray, val reply: JavaScriptReplyProxy)
 
 /** An isolated visual stage; no JavaScriptInterface, cookies, external resources or model API calls. */
 @Composable
@@ -63,8 +72,25 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     val context = LocalContext.current
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
+    val binaryFrames = remember(context, characterId, modelUrl) {
+        Channel<Live2DBinaryFrame>(Channel.CONFLATED)
+    }
+    val binarySupported = remember(context, characterId, modelUrl) {
+        WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) &&
+            WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER)
+    }
+    val rendererReady = remember(context, characterId, modelUrl) { mutableStateOf(false) }
     val stage = remember(context, characterId, modelUrl) {
-        createLive2DWebView(context, characterId, modelUrl, framingMode) { phase, detail ->
+        createLive2DWebView(
+            context, characterId, modelUrl, framingMode, nativeMirrorEnabled,
+            onFrame = { jpeg, reply ->
+                if (binaryFrames.trySend(Live2DBinaryFrame(jpeg, reply)).isFailure) {
+                    runCatching { reply.postMessage("next:900") }
+                }
+            },
+        ) { phase, detail ->
+            if (phase == "ready") rendererReady.value = true
+            else if (phase == "fatal") rendererReady.value = false
             statusReceiver.value(phase, detail)
         }
     }
@@ -89,10 +115,19 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             update = { view -> reportNativeLive2DViewport(view) },
         )
         if (nativeMirrorEnabled) {
-            Live2DNativeFrameOverlay(stage) { phase, detail ->
+            Live2DNativeFrameOverlay(
+                stage, binaryFrames, binarySupported, rendererReady.value,
+            ) { phase, detail ->
                 statusReceiver.value(phase, detail)
             }
         }
+    }
+    LaunchedEffect(stage, nativeMirrorEnabled) {
+        stage.evaluateJavascript(
+            "window.__luluNativeStreamEnabled=$nativeMirrorEnabled;" +
+                "window.LuluLive2D && window.LuluLive2D.setNativeStreaming($nativeMirrorEnabled)",
+            null,
+        )
     }
     LaunchedEffect(stage, framingMode) {
         val mode = if (framingMode == "portrait") "portrait" else "full"
@@ -271,6 +306,8 @@ private fun reportNativeLive2DViewport(view: WebView) {
 
 private fun createLive2DWebView(context: Context, characterId: String, modelUrl: String,
     initialFramingMode: String,
+    initialNativeMirrorEnabled: Boolean,
+    onFrame: (ByteArray, JavaScriptReplyProxy) -> Unit,
     onStatus: (String, String) -> Unit): WebView {
     val loader = WebViewAssetLoader.Builder()
         .setDomain("appassets.androidplatform.net")
@@ -281,6 +318,33 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
         // A fully opaque video window prevents chat content bleeding through a
         // transparent hardware WebView surface when Android redraws its layer.
         setBackgroundColor(AndroidColor.rgb(21, 23, 25))
+        // Strictly same-origin and main-frame only. Unlike JavaScriptInterface,
+        // AndroidX WebMessage supports binary ArrayBuffer without Base64.
+        // Must register BEFORE loading the HTML page.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER) &&
+            WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER)) {
+            runCatching {
+                WebViewCompat.addWebMessageListener(
+                    this, "LuluNativeFrames", setOf("https://appassets.androidplatform.net"),
+                ) { _, message, sourceOrigin, isMainFrame, reply ->
+                    if (isMainFrame && sourceOrigin.scheme == "https" &&
+                        sourceOrigin.host == "appassets.androidplatform.net" &&
+                        message.type == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+                        val jpeg = message.arrayBuffer
+                        if (jpeg.size in 256..3_500_000 &&
+                            (jpeg[0].toInt() and 0xff) == 0xff &&
+                            (jpeg[1].toInt() and 0xff) == 0xd8) {
+                            onFrame(jpeg, reply)
+                        } else {
+                            runCatching { reply.postMessage("next:900") }
+                        }
+                    }
+                }
+                onStatus("diagnostic", "Android WebMessage 二进制图像桥接已注册")
+            }.onFailure {
+                onStatus("diagnostic", "二进制图像桥接不可用，将自动使用兼容通道")
+            }
+        }
         addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             val width = right - left
             val height = bottom - top
@@ -393,10 +457,12 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
                         current.evaluateJavascript(
                             "window.__luluStageModelUrl = ${JSONObject.quote(modelUrl)};" +
                                 "window.__luluFramingMode=${JSONObject.quote(initialFramingMode)};" +
+                                "window.__luluNativeStreamEnabled=$initialNativeMirrorEnabled;" +
                                 "window.__luluNativeViewport={width:$width,height:$height};" +
                                 "if(window.LuluLive2D){" +
                                 "window.LuluLive2D.setViewport($width,$height);" +
                                 "window.LuluLive2D.setFramingMode(window.__luluFramingMode);" +
+                                "window.LuluLive2D.setNativeStreaming(window.__luluNativeStreamEnabled);" +
                                 "window.LuluLive2D.load(window.__luluStageModelUrl)}", null)
                     }
                 }
