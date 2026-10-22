@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:18:43.357533+00:00",
-  "commit": "83d14b0b17826c41a2e63bcc622d43448bf90190",
+  "generatedAt": "2026-10-22T15:19:14.294675+00:00",
+  "commit": "178661593a16e640e1f7d55c74521801cf5ee155",
   "branch": "main",
-  "sourceFingerprint": "f233e3d9a4dfbed9ec5af580cb4e152f4705900a34613cdba84297ba117667b9",
+  "sourceFingerprint": "56aee826eccf61fa505a2f470efb216668c7216deda5c08864cd6baece1009b5",
   "summary": {
-    "files": 804,
-    "lines": 153712,
-    "symbols": 2305
+    "files": 805,
+    "lines": 153745,
+    "symbols": 2306
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9118,6 +9118,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt",
         "line": 17
+      }
+    ],
+    "fromToolText": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt",
+        "line": 11
       }
     ],
     "url": [
@@ -22107,6 +22113,17 @@
         {
           "name": "normalize",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt",
+      "lines": 33,
+      "sha256": "e589c52b78e4c1f764080e58e7a932228814a6dc5abc353e8875fa0eaf508bd7",
+      "symbols": [
+        {
+          "name": "fromToolText",
+          "line": 11
         }
       ]
     },

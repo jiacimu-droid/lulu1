@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`83d14b0b17826c41a2e63bcc622d43448bf90190`
+- 基准提交：`178661593a16e640e1f7d55c74521801cf5ee155`
 - 分支：`main`
-- 已索引文件：804
-- 已索引代码/文本行：153712
-- 已发现符号：2305
+- 已索引文件：805
+- 已索引代码/文本行：153745
+- 已发现符号：2306
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -437,6 +437,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 112 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 33 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 878 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
