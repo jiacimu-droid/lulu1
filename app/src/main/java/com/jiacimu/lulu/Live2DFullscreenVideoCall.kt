@@ -129,6 +129,7 @@ internal fun Live2DFullscreenVideoCall(
             Live2DCallStage(
                 characterId = characterId,
                 modelUrl = modelUrl,
+                callId = state.callExperienceId,
                 speaking = state.connected && state.speaking,
                 listening = state.connected && state.listening,
                 mouthLevel = mouthLevel,
