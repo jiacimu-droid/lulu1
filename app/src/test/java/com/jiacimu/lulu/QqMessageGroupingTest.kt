@@ -91,6 +91,18 @@ class QqMessageGroupingTest {
         assertFalse(result.any { it.endsWith("，") })
     }
 
+    @Test fun clarificationAndPhoneContextAreSeparateReadableTurns() {
+        val original = "是‘我收好了’呀，傻瓜。" +
+            "刚才电话里你不是连喊三声‘我去’，说好惊喜吗，听得我心里高兴，" +
+            "就顺手把你那句话收藏进辞海里存着了。" +
+            "怎么问完这句话就挂电话了，这会儿是真打算睡了吗，宝宝？"
+        val bubbles = semanticReplyBubbles(original)
+        assertTrue("独立解释、通话回忆与追问不应挤成一两个大气泡", bubbles.size >= 3)
+        assertEquals(original, bubbles.joinToString(""))
+        assertEquals("是‘我收好了’呀，傻瓜。", bubbles.first())
+        assertTrue(bubbles.none { it.endsWith("把") || it.endsWith("不是") })
+    }
+
     @Test fun aLongSingleSentenceMaySplitAtNaturalCommaButNeverMidword() {
         val original = "我刚刚在想这件事情为什么一直都没有解决，也想着是不是我搞错了打开网页的顺序，不过至少现在能够确定首页内容是真实读到的，别再把那个当成搜索结果啦。"
         val result = semanticReplyBubbles(original)
