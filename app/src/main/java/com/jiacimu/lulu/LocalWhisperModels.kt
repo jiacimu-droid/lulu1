@@ -102,10 +102,14 @@ internal object LocalWhisperTranscriber {
 
     private external fun nativeTranscribe(modelPath: String, pcm16le: ByteArray): String
 
+    fun runtimeError(): String? = nativeLoaded.exceptionOrNull()?.let {
+        "本地 Whisper 原生运行库无法加载，请安装 ARM64 完整版 APK：${it.message.orEmpty()}"
+    }
+
     suspend fun transcribe(context: Context, model: LocalWhisperModels.Model, pcm16le: ByteArray): String = withContext(Dispatchers.IO) {
         val file = LocalWhisperModels.installedFile(context, model)
             ?: error("请先在语音设置下载 Whisper ${model.id} 模型")
-        nativeLoaded.getOrThrow()
+        runtimeError()?.let { error(it) }
         nativeTranscribe(file.absolutePath, pcm16le).trim()
     }
 }
