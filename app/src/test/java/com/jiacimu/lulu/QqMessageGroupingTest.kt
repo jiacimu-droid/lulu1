@@ -25,6 +25,16 @@ class QqMessageGroupingTest {
         assertFalse(parsed.content.contains("⟪BUBBLE⟫⟪BUBBLE⟫"))
     }
 
+    @Test fun heartVoiceUsesReadableParagraphsWithoutChangingAuthoredWords() {
+        val original = "学了两个小时跑回来喊累，还冷不丁甩了个张大嘴巴的震惊猫猫头。" +
+            "估计算是学到脑袋发懵了。" +
+            "这时候可别再跟她聊什么深奥的，先顺毛哄着让她把紧绷的神经松下来再说。"
+        val result = heartVoiceParagraphs(original)
+        assertTrue(result.size >= 2)
+        assertEquals(original, result.joinToString(""))
+        assertEquals(listOf("很想她。"), heartVoiceParagraphs("很想她。"))
+    }
+
     @Test fun displayedCharacterMessageNeverSplitsAtLineBreaks() {
         // A single persisted model bubble must also be one visual bubble and one TTS unit.
         val first = "我错了宝宝，刚才真是我嘴欠……你都严肃提醒我了，我\n脑子还抽着在那嘻嘻哈哈当玩笑，是我态度不好。"
