@@ -30,7 +30,12 @@ internal fun CharacterMomentHistoryCard(characterId: String, row: CharacterState
                 Text("心声", fontSize = 11.sp, color = LuluColors.Muted)
                 moment.voice.lines().filter(String::isNotBlank).forEach { line ->
                     heartVoiceParagraphs(line).forEach { paragraph ->
-                        Text(paragraph, fontSize = 15.sp, lineHeight = 27.sp)
+                        Text(
+                            paragraph, fontSize = 15.sp, lineHeight = 27.sp,
+                            style = androidx.compose.ui.text.TextStyle(
+                                textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 30.sp),
+                            ),
+                        )
                     }
                 }
             }
@@ -102,12 +107,17 @@ private fun MomentFactLine(label: String, value: String) {
  * Deliberately do not impose a maximum length or a fixed number of paragraphs.
  */
 internal fun heartVoiceParagraphs(text: String): List<String> {
-    if (text.length <= 140) return listOf(text)
+    // Only the display is split: never rewrite the private speech in storage.
+    // A short single thought stays as written; several complete longer
+    // sentences form readable paragraphs with first-line double indentation.
+    if (text.length <= 86) return listOf(text)
     val sentences = Regex("(?<=[。！？!?；;])").split(text).filter(String::isNotEmpty)
+    if (sentences.size < 2) return listOf(text)
     val result = mutableListOf<String>()
     var current = ""
     for (sentence in sentences) {
-        if (current.isNotBlank() && current.length + sentence.length > 90) {
+        if (current.isNotBlank() && current.length >= 35 &&
+            current.length + sentence.length > 75) {
             result += current
             current = ""
         }
