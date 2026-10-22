@@ -1509,12 +1509,22 @@ internal object LuluVoiceCallSession {
             // It is not a user utterance and must not trigger another LLM turn.
             // Visibility is verified independently from the user's selected
             // video mode; a blank/unloaded model must not claim it is on screen.
+            val sharedCameraObservation =
+                if (LuluCallWindowController.videoRequested.value)
+                    Live2DCallVisionState.turnContext(
+                        latest.characterId, latest.callExperienceId)
+                else ""
+            val cameraVisibilityRule =
+                if (sharedCameraObservation.isBlank())
+                    "用户没有向你共享自己的摄像头画面，你无法看见她的脸、神情或现实房间。"
+                else
+                    "用户主动分享了近期的摄像头照片。你只了解下方真实识图证据中可见的内容，不能假装看到连续视频或猜测她的隐私。"
             val videoTurnContext = if (LuluCallWindowController.videoRequested.value) {
                 if (Live2DVisualActionBus.isStageVisible(
                         latest.characterId, latest.callExperienceId)) {
-                    "【当前通话媒介】用户已开启本次 Live2D 虚拟视频通话；你的 Live2D 数字形象已在她的手机画面中真实显示。你知道现在不是纯语音模式。可以依据真实情绪与意图使用已提供的身体动作能力，不必每轮动，也不要反复口头宣布视频已开启。用户自己的摄像头画面没有发送给你，因此不能声称看见她的脸、神情或现实房间。"
+                    "【当前通话媒介】用户已开启本次 Live2D 虚拟视频通话；你的 Live2D 数字形象已在她的手机画面中真实显示。你知道现在不是纯语音模式。可以依据真实情绪与意图使用已提供的身体动作能力，不必每轮动，也不要反复口头宣布视频已开启。$cameraVisibilityRule"
                 } else {
-                    "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示，也不能声称看见用户本人。等身体实际可用时再选择可执行动作。"
+                    "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示。$cameraVisibilityRule 等身体实际可用时再选择可执行动作。"
                 }
             } else {
                 "【当前通话媒介】本轮为语音电话，用户未开启 Live2D 视频；不要声称彼此正在视频中看到对方。"
@@ -1530,6 +1540,10 @@ internal object LuluVoiceCallSession {
                 phoneCallId = latest.callExperienceId,
                 turnContext = buildString {
                     append(videoTurnContext)
+                    if (sharedCameraObservation.isNotBlank()) {
+                        append('\n')
+                        append(sharedCameraObservation)
+                    }
                     val existingTurnEvent = if (externalToolResult != null)
                         "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
                     else if (scheduledWakeReason != null)
