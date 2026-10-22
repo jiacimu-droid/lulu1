@@ -65,6 +65,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     hasPcmSamples: Boolean = false,
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
     previewRevision: Int = 0,
+    previewImmediate: Boolean = false,
     previewHead: Live2DVisualActionBus.Head? = null,
     previewBody: Live2DVisualActionBus.Body? = null,
     previewFace: Live2DVisualActionBus.Face? = null,
@@ -163,7 +164,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         if (rendererReady.value && previewRevision > 0) {
             val commands = mutableListOf<String>()
             previewExpression?.let {
-                commands += "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(it)})"
+                commands += "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(it)}, $previewImmediate)"
             }
             previewMotion?.let {
                 commands += "window.LuluLive2D && window.LuluLive2D.motion(${JSONObject.quote(it.first)}, ${it.second})"
@@ -173,19 +174,19 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 head.yaw?.let { values.put("yaw", it.toDouble()) }
                 head.pitch?.let { values.put("pitch", it.toDouble()) }
                 head.roll?.let { values.put("roll", it.toDouble()) }
-                commands += "window.LuluLive2D && window.LuluLive2D.head($values)"
+                commands += "window.LuluLive2D && window.LuluLive2D.head($values, $previewImmediate)"
             }
             previewBody?.let { body ->
                 val values = JSONObject()
                 body.yaw?.let { values.put("yaw", it.toDouble()) }
                 body.pitch?.let { values.put("pitch", it.toDouble()) }
                 body.roll?.let { values.put("roll", it.toDouble()) }
-                commands += "window.LuluLive2D && window.LuluLive2D.body($values)"
+                commands += "window.LuluLive2D && window.LuluLive2D.body($values, $previewImmediate)"
             }
             previewFace?.let { face ->
                 val values = JSONObject()
                 face.values.forEach { (key, value) -> values.put(key, value.toDouble()) }
-                commands += "window.LuluLive2D && window.LuluLive2D.face($values)"
+                commands += "window.LuluLive2D && window.LuluLive2D.face($values, $previewImmediate)"
             }
             commands.forEach { stage.evaluateJavascript(it, null) }
         }
