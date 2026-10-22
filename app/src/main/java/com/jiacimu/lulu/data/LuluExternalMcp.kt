@@ -116,16 +116,26 @@ internal object LuluExternalMcp {
         }
         val raw = call(context, "xiaohongshu", "check_login_status", JSONObject())
         val status = runCatching { JSONObject(raw) }.getOrNull()
-        if (status == null) return@withContext "MCP 已连接，但登录状态返回格式无法识别：${raw.take(140)}"
-        val message = status.optString("message").trim().take(180)
+        // xpzouying/xiaohongshu-mcp returns a human-readable MCP text block,
+        // not JSON: "✅ 已登录\\n用户名: ...". The old JSON-only decoder
+        // incorrectly marked a genuinely logged-in browser as incompatible.
+        val state = XhsMcpLoginStatus.fromToolText(raw)
+        val message = status?.optString("message").orEmpty().trim().take(180)
         when {
-            status.optBoolean("isLoggedIn") -> "MCP 已连接，小红书已登录" +
-                status.optString("nickname").takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
+            state.loggedIn -> "MCP 已连接，小红书已登录" +
+                state.displayName.takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
+            status?.optBoolean("isLoggedIn") == true || status?.optBoolean("is_logged_in") == true ->
+                "MCP 已连接，小红书已登录" +
+                    (status.optString("nickname").ifBlank { status.optString("username") })
+                        .takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
+            state.explicitlyLoggedOut ->
+                "MCP 已连接，小红书尚未登录；请获取二维码后使用小红书 App 扫码"
             message.contains("Failed to launch", ignoreCase = true) ||
                 message.contains("CANNOT LINK EXECUTABLE", ignoreCase = true) ||
                 message.contains("cannot locate symbol", ignoreCase = true) ->
                 "MCP 已连接，但 Termux Chromium 启动失败：请更新 C++ 运行库后重试"
-            else -> "MCP 已连接，小红书尚未登录：${message.ifBlank { "请获取二维码扫码" }}"
+            else -> "MCP 已连接，但小红书登录状态未证实：" +
+                message.ifBlank { state.detail.take(140).ifBlank { "请获取二维码扫码或检测浏览器日志" } }
         }
     }
 
