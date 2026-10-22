@@ -86,6 +86,51 @@ internal object InteractionSignalBridge {
         )
     }
 
+    /**
+     * Calls keep their original ID, audio transcript, delivery receipts and
+     * memory lifecycle while moving between video and voice. A mode switch
+     * is just an observed event in that same timeline, not a second call.
+     */
+    fun recordCallMediaSwitch(
+        characterId: String, callId: String, fromVideo: Boolean,
+        toVideo: Boolean, now: Instant = Instant.now(),
+    ) {
+        if (characterId.isBlank() || callId.isBlank() || fromVideo == toVideo) return
+        val id = "interaction-call-media-switch-$callId-${java.util.UUID.randomUUID()}"
+        SharedExperienceTimeline.record(
+            eventId = id, characterId = characterId, channel = "电话互动",
+            speaker = "通话模式切换",
+            content = if (toVideo)
+                "同一通仍在进行的电话，用户刚把语音模式切换为 Live2D 视频模式；视频画面是否成功显示以独立画面回执为准。"
+            else
+                "同一通仍在进行的电话，用户刚把 Live2D 视频模式切换为语音模式；并没有重新拨号，之前的通话内容和视频经历仍属于这一通电话。",
+            occurredAt = now, triggerExtraction = false, sessionId = callId,
+            source = SOURCE, evidenceKind = EventEvidenceKind.Observation,
+        )
+    }
+
+    /** Whether THIS call has actually rendered video, not merely opened a UI. */
+    fun hasRenderedVideo(characterId: String, callId: String): Boolean =
+        characterId.isNotBlank() && callId.isNotBlank() &&
+            SharedExperienceTimeline.eventsByIds(characterId,
+                listOf("interaction-call-video-rendered-$callId")).isNotEmpty()
+
+    fun hasSelectedVideo(characterId: String, callId: String): Boolean =
+        characterId.isNotBlank() && callId.isNotBlank() &&
+            SharedExperienceTimeline.eventsByIds(characterId,
+                listOf("interaction-call-video-selected-$callId")).isNotEmpty()
+
+    fun callMediaSummary(characterId: String, callId: String, endsInVideo: Boolean): String {
+        if (!hasSelectedVideo(characterId, callId)) return ""
+        val visible = hasRenderedVideo(characterId, callId)
+        return if (visible) {
+            if (endsInVideo) "这通电话实际使用过 Live2D 视频画面，结束时仍在视频模式。"
+            else "这通电话中曾真实显示过 Live2D 视频画面，结束时已回到语音模式；仍是同一通电话。"
+        } else {
+            "这通电话曾开启 Live2D 视频模式，但没有确认视频画面成功显示；不能冒充已经视频见面。"
+        }
+    }
+
     fun recordCallQuiet(
         characterId: String,
         callId: String,
@@ -119,6 +164,7 @@ internal object InteractionSignalBridge {
         confirmedUserSpeechCount: Int,
         secondsSinceConfirmedSpeech: Long,
         now: Instant = Instant.now(),
+        endsInVideo: Boolean = false,
     ): String {
         val id = "interaction-call-end-$callId"
         SharedExperienceTimeline.record(
@@ -128,7 +174,7 @@ internal object InteractionSignalBridge {
             speaker = "通话操作",
             content = callEndDescription(
                 endedByCharacter, elapsedSeconds, confirmedUserSpeechCount, secondsSinceConfirmedSpeech,
-            ),
+            ) + callMediaSummary(characterId, callId, endsInVideo),
             occurredAt = now,
             triggerExtraction = false,
             sessionId = callId,
