@@ -170,7 +170,8 @@ internal object DigitalWorldActivityCatalog {
             "sit_arcade" to "去休息区坐坐",
             "arcade_linger" to "在灯光和音效里待一会儿",
         )
-        DigitalWorldPublicPlaces.CAFE -> DigitalCafeMenu.locationOptions() + listOf(
+        DigitalWorldPublicPlaces.CAFE -> (if (DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
+                .any { it.identity == "浮光咖啡角店员" }) DigitalCafeMenu.locationOptions() else emptyList()) + listOf(
             "order_drink" to "领取一杯温水",
             "order_snack" to "领取一份原味饼干",
             "cafe_sit" to "找个座位坐下",
