@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:27:13.824612+00:00",
-  "commit": "8e713d8d87dd82baee07abd8795c0858e82473f6",
+  "generatedAt": "2026-10-22T16:30:07.716563+00:00",
+  "commit": "3aab61dc6c1c8115f11d38bc2d0fb7b540d92aa1",
   "branch": "main",
-  "sourceFingerprint": "f6a54f9fa4433c82ada6d0828f905629a00a832a545b6d3c68378a8ef06ed7cf",
+  "sourceFingerprint": "613982051234bc404537a8e3f6f613cc780f89e2a945d44e977882f1f7efb635",
   "summary": {
-    "files": 821,
-    "lines": 156779,
-    "symbols": 2372
+    "files": 822,
+    "lines": 156809,
+    "symbols": 2373
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2506,6 +2506,20 @@
         "line": 37
       }
     ],
+    "inspect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
+        "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
+        "line": 87
+      }
+    ],
     "errorFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
@@ -3276,16 +3290,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
         "line": 50
-      }
-    ],
-    "inspect": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
-        "line": 55
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
-        "line": 87
       }
     ],
     "reset": [
@@ -15405,6 +15409,17 @@
         {
           "name": "MomentsScreen",
           "line": 37
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt",
+      "lines": 30,
+      "sha256": "d0457199518614b5a2b81ae3bace86890e6bd89252f8cc55a4d5b3e96b627bc6",
+      "symbols": [
+        {
+          "name": "inspect",
+          "line": 14
         }
       ]
     },

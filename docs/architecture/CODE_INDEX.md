@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8e713d8d87dd82baee07abd8795c0858e82473f6`
+- 基准提交：`3aab61dc6c1c8115f11d38bc2d0fb7b540d92aa1`
 - 分支：`main`
-- 已索引文件：821
-- 已索引代码/文本行：156779
-- 已发现符号：2372
+- 已索引文件：822
+- 已索引代码/文本行：156809
+- 已发现符号：2373
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -147,6 +147,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 327 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 256 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 30 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 88 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
