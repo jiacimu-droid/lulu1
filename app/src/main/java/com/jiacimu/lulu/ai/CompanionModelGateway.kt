@@ -823,6 +823,8 @@ class CompanionModelGateway(
                 requestBodyBytes = sentRequestBodyBytes,
                 messageCount = actualAudit.messageCount,
                 reducedRequest = actualAudit.reduced,
+                contextMode = effectiveMode.name,
+                streamedRequest = streamResponse,
             )
             reply
         }.onFailure { error ->
