@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T09:49:36.480482+00:00",
-  "commit": "55cdf9465ebab7f40073c17c78d6dfb845435ba1",
+  "generatedAt": "2026-10-22T09:50:43.402970+00:00",
+  "commit": "26f6b7467c8e53ca3e2023e88b944455d5fe0ff7",
   "branch": "main",
-  "sourceFingerprint": "acb759515fe439c3b96af1ff795f88f674a5bf2c0e6e52e836d9ec827effeb45",
+  "sourceFingerprint": "0c884a065ea12e58a7cb101cfa585e01e7e69d0c7454367a434588b9b4b5a0ee",
   "summary": {
     "files": 799,
-    "lines": 152171,
+    "lines": 152178,
     "symbols": 2290
   },
   "symbolIndex": {
@@ -4197,7 +4197,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 62
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -8945,7 +8945,7 @@
     "displayLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 91
+        "line": 98
       }
     ],
     "Choice": [
@@ -21744,8 +21744,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-      "lines": 99,
-      "sha256": "91055b4f7bc8f24c7fcfd3cff07c87dfe33567471f9b22266f91023e7cd74d34",
+      "lines": 106,
+      "sha256": "7bff7790f69630739b2d3db741757090cbb601e4f88459e4fc4b97de5d24164e",
       "symbols": [
         {
           "name": "UserProfileContext",
@@ -21761,11 +21761,11 @@
         },
         {
           "name": "promptSection",
-          "line": 62
+          "line": 69
         },
         {
           "name": "displayLabel",
-          "line": 91
+          "line": 98
         }
       ]
     },
