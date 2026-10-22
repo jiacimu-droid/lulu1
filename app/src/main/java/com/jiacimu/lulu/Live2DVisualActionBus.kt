@@ -120,6 +120,46 @@ internal object Live2DVisualActionBus {
         """.trimIndent()
     }
 
+    /**
+     * Speech recognition and language models do not always emit an expression
+     * file's literal basename. Resolve semantic aliases ONLY against actual
+     * exp3 entries found in this role's on-device model manifest. Never
+     * fabricate an expression that the model doesn't have.
+     */
+    internal fun resolveExpression(requested: String, names: List<String>): String? {
+        val clean = requested.trim()
+        if (clean.isEmpty()) return null
+        names.firstOrNull { it == clean }?.let { return it }
+        fun normalized(value: String): String =
+            value.trim().lowercase(java.util.Locale.ROOT)
+                .replace(Regex("[\\s_\\-·.（）()\\[\\]]+"), "")
+                .removeSuffix("exp3")
+        val key = normalized(clean)
+        names.firstOrNull { normalized(it) == key }?.let { return it }
+        // Only high-confidence names, e.g. "星星眼" vs "小狼-星星眼".
+        // Don't select vaguely similar expressions such as "笑眼".
+        val isStar = key.contains("星星眼") || key.contains("星眼") ||
+            key.contains("stareye") || key.contains("starryeye") ||
+            key.contains("starry") || key.contains("sparkleeye")
+        if (isStar) return names.firstOrNull {
+            val label = normalized(it)
+            label.contains("星星眼") || label.contains("星眼") ||
+                label.contains("stareye") || label.contains("starryeye")
+        }
+        val aliases = mapOf(
+            "爱心眼" to listOf("爱心眼", "心形眼", "hearteye"),
+            "脸红" to listOf("脸红", "害羞", "blush"),
+            "流泪" to listOf("流泪", "眼泪", "tears"),
+            "吐舌" to listOf("吐舌", "舌头", "tongue"),
+        )
+        val hits = aliases.values.firstOrNull { variants ->
+            variants.any { normalized(it) == key }
+        } ?: return null
+        return names.firstOrNull { actual ->
+            hits.any { word -> normalized(actual).contains(normalized(word)) }
+        }
+    }
+
     /** Enforces the exact imported model manifest at execution time, independent of the LLM. */
     @Synchronized
     fun publish(context: Context, characterId: String, callId: String, request: JSONObject?): Boolean {
@@ -131,7 +171,7 @@ internal object Live2DVisualActionBus {
             val index = item.optInt("index", -1)
             (group to index).takeIf { it in controls.motions }
         }
-        val selected = expression?.takeIf { it in controls.expressions }
+        val selected = expression?.let { resolveExpression(it, controls.expressions) }
         val allowed = availableParameters[characterId].orEmpty()
         val proposed = request.optJSONObject("head")
         fun bounded(key: String, required: String): Float? {
