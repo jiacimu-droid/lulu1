@@ -40,6 +40,7 @@ internal fun QqChatComposer(
     onCall: () -> Unit,
     onVideoCall: (() -> Unit)? = null,
     onWatchTogether: (() -> Unit)? = null,
+    onListenTogether: (() -> Unit)? = null,
     onSendOnly: (QqComposerPayload) -> Boolean,
     onWakeOrReply: (QqComposerPayload) -> Boolean,
     onSendSticker: (LuluSticker) -> Boolean,
@@ -211,6 +212,12 @@ internal fun QqChatComposer(
                 QqComposerTool(
                     label = "一起看", icon = Icons.Outlined.Theaters,
                     modifier = Modifier.weight(1f), onClick = onWatchTogether,
+                )
+            }
+            if (!groupMode && onListenTogether != null) {
+                QqComposerTool(
+                    label = "一起听", icon = Icons.Outlined.MusicNote,
+                    modifier = Modifier.weight(1f), onClick = onListenTogether,
                 )
             }
         }
