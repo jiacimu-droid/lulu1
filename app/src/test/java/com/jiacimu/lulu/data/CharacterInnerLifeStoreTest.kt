@@ -20,6 +20,30 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear("inside-test-b")
     }
 
+    @Test fun expiryCueReadsSameRoleEmotionWithoutCreatingSleepStateOrNewEvidence() {
+        start()
+        val now = Instant.parse("2026-10-23T06:00:00Z")
+        val role = "inside-test-a"
+        val other = "inside-test-b"
+        CharacterInnerLifeStore.observe(role, "actual-conversation-before-expiry",
+            "刚才确实经历了一段复杂的聊天", JSONObject().put("emotion", JSONObject()
+                .put("feeling", "紧张过后想静一静")
+                .put("cause", "刚才的聊天"
+                ).put("strength", 3).put("halfLifeMinutes", 60)
+                .put("arousal", 0.8).put("valence", -0.4)), now = now)
+        val before = CharacterInnerLifeStore.snapshot(role).toString()
+        val cue = OnlineContinuationPolicy.affectCue(role, now.plusSeconds(30 * 60))
+        assertTrue(cue.contains("当前唤醒度=+0.57"))
+        assertTrue(cue.contains("当前愉悦度=-0.28"))
+        assertTrue(cue.contains("休眠仅结束本轮在线注意力"))
+        assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
+        assertEquals("", OnlineContinuationPolicy.affectCue(other, now.plusSeconds(30 * 60)))
+        assertEquals("", OnlineContinuationPolicy.affectCue(role, now.plusSeconds(60 * 60 * 6)))
+        CharacterInnerLifeStore.invalidateEvidence("actual-conversation-before-expiry")
+        assertEquals("", OnlineContinuationPolicy.affectCue(role, now.plusSeconds(30 * 60)))
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun timedEmotionIsOneProjectionForCompactAndFullAcrossScenes() {
         start()
         val role = "inside-test-a"
