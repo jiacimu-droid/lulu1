@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3bd5d2058c380483d76b60b3ed489a0a05e4f43a`
+- 基准提交：`b0522b2b8a9172e76d3e30b83fb73b22193f00e4`
 - 分支：`main`
 - 已索引文件：833
-- 已索引代码/文本行：159249
+- 已索引代码/文本行：159265
 - 已发现符号：2413
 
 | 文件 | 行数 | 符号数 |
@@ -744,7 +744,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldReadingRouteTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStoreTest.kt` | 96 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 86 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt` | 102 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicyTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GoalFollowUpPolicyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt` | 51 | 1 |
