@@ -19,6 +19,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
+import java.net.Proxy
+import java.net.SocketTimeoutException
 import java.net.URL
 import java.time.Instant
 import java.util.UUID
@@ -31,6 +33,20 @@ import java.util.UUID
 internal object LuluExternalMcp {
     private const val PREFS = "lulu_external_mcp_v1"
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    /**
+     * A same-device Termux MCP connection must not inherit a device HTTP
+     * proxy that can send 127.0.0.1 away from Android's own loopback.
+     * NO_PROXY applies ONLY to literal local HTTP loopback. Remote HTTPS
+     * retains the normal network/proxy configuration.
+     */
+    private fun localLoopback(url: URL): Boolean =
+        url.protocol.equals("http", ignoreCase = true) &&
+            url.host.lowercase() in setOf("localhost", "127.0.0.1")
+
+    private fun mcpConnection(url: URL): HttpURLConnection =
+        (if (localLoopback(url)) url.openConnection(Proxy.NO_PROXY)
+         else url.openConnection()) as HttpURLConnection
 
     fun configured(context: Context, service: String): Boolean =
         endpoint(context, service).isNotBlank()
@@ -88,7 +104,7 @@ internal object LuluExternalMcp {
             // for a bare GET. A missing /health must not reject the Go server.
             val legacyHealth = runCatching {
                 val healthUrl = java.net.URL(uri.scheme, uri.host, uri.port, "/health")
-                val connection = healthUrl.openConnection() as HttpURLConnection
+                val connection = mcpConnection(healthUrl)
                 try {
                     connection.requestMethod = "GET"
                     connection.connectTimeout = 2_500
@@ -469,7 +485,8 @@ internal object LuluExternalMcp {
     /** Return RPC result and optional MCP session ID, including SSE responses. */
     private fun send(url: String, token: String, session: String?, payload: JSONObject,
         expectResponse: Boolean = true, timeoutMillis: Int = 120_000): Pair<JSONObject, String?> {
-        val connection = URL(url).openConnection() as HttpURLConnection
+        val endpointUrl = URL(url)
+        val connection = mcpConnection(endpointUrl)
         return try {
             connection.requestMethod = "POST"
             connection.connectTimeout = minOf(10_000, timeoutMillis)
@@ -507,6 +524,14 @@ internal object LuluExternalMcp {
                 }
             }
             (rpc ?: runCatching { JSONObject(body.toString()) }.getOrElse { error("MCP 返回无法解析") }) to responseSession
+        } catch (error: SocketTimeoutException) {
+            if (localLoopback(endpointUrl)) {
+                throw IllegalStateException(
+                    "本机 MCP 连接或响应超时。请用手机浏览器测试 127.0.0.1:${endpointUrl.port}/mcp，并排查 VPN/代理对本地回环的干扰",
+                    error,
+                )
+            }
+            throw error
         } finally { connection.disconnect() }
     }
 }
