@@ -260,7 +260,8 @@ internal object LuluVoiceCallSession {
             call.characterId != characterId || call.callExperienceId != callId ||
             !InteractionSignalBridge.hasRenderedVideo(characterId, callId) ||
             region !in setOf("head", "arm", "body") ||
-            gesture !in setOf("tap", "hold", "stroke")) return false
+            gesture !in setOf("tap", "hold", "stroke", "stroke-left",
+                "stroke-right", "stroke-up", "stroke-down")) return false
         if (touchBatchRole != characterId || touchBatchCall != callId) {
             touchBatchJob?.cancel()
             touchBatch.clear()
