@@ -70,6 +70,16 @@ data class TokenConsoleRecord(
     val effectiveOutputTokens: Long,
     val cachedTokens: Long,
     val breakdown: List<TokenBreakdownItem>,
+    /** Version 0 records predate the complete request audit; fields then are unknown. */
+    val auditVersion: Int = 0,
+    val textCharacters: Int = 0,
+    val coveredTextCharacters: Long = 0L,
+    val textUtf8Bytes: Long = 0L,
+    val imageCount: Int = 0,
+    val imageDataUrlBytes: Long = 0L,
+    val requestBodyBytes: Long = 0L,
+    val messageCount: Int = 0,
+    val reducedRequest: Boolean = false,
 )
 
 data class PerformanceTimingRecord(
@@ -198,6 +208,15 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         promptMillis: Long,
         modelMillis: Long,
         totalMillis: Long,
+        auditVersion: Int = 0,
+        textCharacters: Int = 0,
+        coveredTextCharacters: Long = 0L,
+        textUtf8Bytes: Long = 0L,
+        imageCount: Int = 0,
+        imageDataUrlBytes: Long = 0L,
+        requestBodyBytes: Long = 0L,
+        messageCount: Int = 0,
+        reducedRequest: Boolean = false,
     ) {
         val effectiveInput = reportedInputTokens.takeIf { value -> value > 0 }
             ?: estimatedInputTokens.coerceAtLeast(0)
@@ -227,6 +246,15 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             effectiveOutputTokens = effectiveOutput.toLong(),
             cachedTokens = cachedTokens.coerceAtLeast(0).toLong(),
             breakdown = breakdown,
+            auditVersion = auditVersion,
+            textCharacters = textCharacters,
+            coveredTextCharacters = coveredTextCharacters,
+            textUtf8Bytes = textUtf8Bytes,
+            imageCount = imageCount,
+            imageDataUrlBytes = imageDataUrlBytes,
+            requestBodyBytes = requestBodyBytes,
+            messageCount = messageCount,
+            reducedRequest = reducedRequest,
         )
         val timings = listOf(
             PerformanceTimingRecord(
@@ -388,6 +416,15 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("effectiveInputTokens", value.effectiveInputTokens)
         .put("effectiveOutputTokens", value.effectiveOutputTokens)
         .put("cachedTokens", value.cachedTokens)
+        .put("auditVersion", value.auditVersion)
+        .put("textCharacters", value.textCharacters)
+        .put("coveredTextCharacters", value.coveredTextCharacters)
+        .put("textUtf8Bytes", value.textUtf8Bytes)
+        .put("imageCount", value.imageCount)
+        .put("imageDataUrlBytes", value.imageDataUrlBytes)
+        .put("requestBodyBytes", value.requestBodyBytes)
+        .put("messageCount", value.messageCount)
+        .put("reducedRequest", value.reducedRequest)
         .put(
             "breakdown",
             JSONArray().apply {
@@ -414,6 +451,15 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         effectiveInputTokens = item.optLong("effectiveInputTokens").coerceAtLeast(0L),
         effectiveOutputTokens = item.optLong("effectiveOutputTokens").coerceAtLeast(0L),
         cachedTokens = item.optLong("cachedTokens").coerceAtLeast(0L),
+        auditVersion = item.optInt("auditVersion"),
+        textCharacters = item.optInt("textCharacters").coerceAtLeast(0),
+        coveredTextCharacters = item.optLong("coveredTextCharacters").coerceAtLeast(0L),
+        textUtf8Bytes = item.optLong("textUtf8Bytes").coerceAtLeast(0L),
+        imageCount = item.optInt("imageCount").coerceAtLeast(0),
+        imageDataUrlBytes = item.optLong("imageDataUrlBytes").coerceAtLeast(0L),
+        requestBodyBytes = item.optLong("requestBodyBytes").coerceAtLeast(0L),
+        messageCount = item.optInt("messageCount").coerceAtLeast(0),
+        reducedRequest = item.optBoolean("reducedRequest"),
         breakdown = item.optJSONArray("breakdown").decodeObjects { part ->
             TokenBreakdownItem(
                 label = part.optString("label"),
