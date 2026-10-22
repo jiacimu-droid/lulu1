@@ -21,6 +21,8 @@ internal object Live2DVisualActionBus {
         "smile" to listOf("ParamMouthForm"),
         "eyeSmile" to listOf("ParamEyeLSmile", "ParamEyeRSmile"),
         "browY" to listOf("ParamBrowLY", "ParamBrowRY"),
+        "browAngle" to listOf("ParamBrowLAngle", "ParamBrowRAngle"),
+        "browForm" to listOf("ParamBrowLForm", "ParamBrowRForm"),
         "squint" to listOf("ParamEyeLSquint", "ParamEyeRSquint"),
         "cheekPuff" to listOf("ParamCheekPuff"),
         "pout" to listOf("ParamMouthFunnel"),
@@ -105,7 +107,11 @@ internal object Live2DVisualActionBus {
             可用头部角度=$headFields（-25至25）；身体姿态=$bodyFields（-10至10）。
             当前可用面部语义参数=$faceFields；每项限 -1 至 1，其中 eyeSmile、squint、
             cheekPuff、pout 只能填 0 至 1；例如 face={"gazeX":-0.5,"smile":0.7,"eyeSmile":0.4}。
-            gazeX/Y 表示眼神，smile 正值表示嘴角上扬，browY 为眉毛上下。
+            gazeX/Y 表示眼神，smile 正值表示嘴角上扬，browY 为眉毛上下，browAngle 为眉毛倾斜，browForm 为眉形。
+            可自主演绎多参数的小表情：例如想专注看着对方，可以用 gazeX/Y 接近0 配合轻微眉眼变化；
+            想调皮可以选真实存在的吐舌表情，也可以仅轻歪头、嘴角上扬；难过时可以选择流泪或克制的低眉。
+            这些仅是能力例子，不是按情绪关键词机械派发动作；由当前自身感受、关系和本轮说话意图决定。
+            同一回合可以组合一个真实表情、少量头部/躯干姿态和眉眼变化，也可以什么都不做。
             视觉动作应当与这轮真正准备说出口的话、语气和自己内心状态一致，而不是从表情文件中随便挑一个。
             表情是一小段有开始和结束的情绪，不是整通电话永久锁定的脸；说完自然恢复常态。
             若打算认真说话，不要突然选择吐舌、爱心眼等与语气冲突的强表情。
@@ -113,6 +119,8 @@ internal object Live2DVisualActionBus {
             眼神和微表情只在当前真实想法需要时短暂出现，并平滑还原；不要以眨眼或随机晃头冒充自主行为。
             当前模型实际支持：表情/外观切换=$expressions；预制动作=$motions。
             切换兽耳、耳机、麦克风属于外观，不要当作情绪动作；没有 motion 就不能假称挥手、跳舞。
+            支持的头部转动/倾斜和脸部参数可以组合小动作，但不等于已有真实手臂骨骼动作。
+            说话时嘴巴由本地真实语音播放驱动，禁止用 live2d.face 假装发声。
             当用户明确要求你展示一个模型现有的表情（例如星星眼），请在同一轮回复的
             live2d.expression 中选择对应的真实表情文件名，不能只口头答应却没有动作指令；
             如果真实模型没有这种表情，也不要假装已实现。
