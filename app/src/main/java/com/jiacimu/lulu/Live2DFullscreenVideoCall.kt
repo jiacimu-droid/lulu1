@@ -70,6 +70,7 @@ internal fun Live2DFullscreenVideoCall(
     // Familiar face-first framing for calls; the user can pull back to a full
     // body without reloading the model or interrupting the call audio.
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
+    var videoMenuExpanded by remember(modelUrl) { mutableStateOf(false) }
     // These only tune the JPEG bridge's resolution budget; they do not
     // change model assets or interrupt the call/audio session.
     var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
@@ -245,56 +246,6 @@ internal fun Live2DFullscreenVideoCall(
                 )
             }
         }
-        // Deliberately keep this switch OUTSIDE the model renderer. It changes
-        // its camera fit in-place, not the character, assets, or phone session.
-        if (modelUrl != null && coreReady) {
-            Row(
-                modifier = Modifier.align(Alignment.TopStart).statusBarsPadding()
-                    .padding(start = 18.dp, top = 92.dp)
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(Color.Black.copy(alpha = .55f))
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                listOf("portrait" to "半身", "full" to "全身").forEach { (mode, label) ->
-                    val selected = framingMode == mode
-                    Box(
-                        modifier = Modifier.clip(RoundedCornerShape(36.dp))
-                            .background(if (selected) Color.White else Color.Transparent)
-                            .clickable { framingMode = mode }
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(label, fontSize = 12.sp,
-                            color = if (selected) Color(0xFF151719) else Color.White,
-                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
-                    }
-                }
-                Box(
-                    modifier = Modifier.clip(RoundedCornerShape(36.dp))
-                        .background(Color.White.copy(alpha = .13f))
-                        .clickable {
-                            qualityMode = if (qualityMode == "quality") "smooth" else "quality"
-                        }
-                        .padding(horizontal = 11.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(if (qualityMode == "quality") "高清" else "流畅",
-                        fontSize = 12.sp, color = Color.White,
-                        fontWeight = FontWeight.SemiBold)
-                }
-            }
-        }
-        // Small real-world diagnostic: measured native delivery, not claimed 30fps.
-        // Keep it out of the call controls and let it vanish before samples exist.
-        if (videoPerformance.isNotBlank() && rendered) {
-            Text(videoPerformance, color = Color.White.copy(alpha = .78f),
-                fontSize = 10.sp, maxLines = 2,
-                modifier = Modifier.align(Alignment.TopStart).statusBarsPadding()
-                    .padding(start = 20.dp, top = 146.dp)
-                    .background(Color.Black.copy(alpha = .35f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 6.dp, vertical = 3.dp))
-        }
         // Opt-in on-device-only front-camera picture-in-picture. No frame ever leaves
         // this view or enters the model unless a separate vision-sharing flow is built.
         if (selfCameraEnabled) {
@@ -419,13 +370,66 @@ internal fun Live2DFullscreenVideoCall(
                     }, fontSize = 12.sp, color = Color.White.copy(alpha = .7f))
                 }
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = ::toggleSelfCamera) {
-                    Icon(if (selfCameraEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.CameraFront,
-                        if (selfCameraEnabled) "关闭我的画面" else "开启我的画面（仅本机预览）",
-                        tint = Color.White)
-                }
-                IconButton(onClick = onChangeModel) {
-                    Icon(Icons.Outlined.Portrait, "更换 Live2D 模型", tint = Color.White)
+                Box {
+                    IconButton(onClick = { videoMenuExpanded = true }) {
+                        Icon(Icons.Outlined.MoreVert, "视频通话设置", tint = Color.White)
+                    }
+                    DropdownMenu(
+                        expanded = videoMenuExpanded,
+                        onDismissRequest = { videoMenuExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(if (framingMode == "portrait") "✓ 半身近景" else "半身近景") },
+                            onClick = {
+                                framingMode = "portrait"
+                                videoMenuExpanded = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Face, null) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(if (framingMode == "full") "✓ 全身镜头" else "全身镜头") },
+                            onClick = {
+                                framingMode = "full"
+                                videoMenuExpanded = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Portrait, null) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(if (qualityMode == "quality")
+                                "✓ 高清优先 · 点击切流畅" else "✓ 流畅优先 · 点击切高清") },
+                            onClick = {
+                                qualityMode = if (qualityMode == "quality") "smooth" else "quality"
+                                videoMenuExpanded = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.HighQuality, null) },
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text(if (selfCameraEnabled) "关闭我的摄像头" else "打开我的摄像头") },
+                            onClick = {
+                                videoMenuExpanded = false
+                                toggleSelfCamera()
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.CameraFront, null) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("更换 Live2D 模型") },
+                            onClick = {
+                                videoMenuExpanded = false
+                                onChangeModel()
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Portrait, null) },
+                        )
+                        if (videoPerformance.isNotBlank()) {
+                            HorizontalDivider()
+                            Text(
+                                videoPerformance,
+                                fontSize = 11.sp,
+                                color = Color.DarkGray,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
+                            )
+                        }
+                    }
                 }
             }
             Spacer(Modifier.weight(1f))
@@ -505,6 +509,9 @@ internal fun Live2DFullscreenVideoCall(
                         danger = true)
                 }
             }
+            // Raise phone controls above the Android gesture bar so the
+            // character remains visible and buttons are easier to reach.
+            Spacer(Modifier.height(52.dp))
         }
     }
 }
