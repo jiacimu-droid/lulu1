@@ -4,9 +4,61 @@ import android.content.Context
 
 object UserProfileContext {
     private var prefs: android.content.SharedPreferences? = null
+    private var application: Context? = null
 
     fun initialize(context: Context) {
+        application = context.applicationContext
         if (prefs == null) prefs = context.applicationContext.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+    }
+
+    /**
+     * Only device-verified abilities and objective call receipts belong here.
+     * It is read by the shared model gateway for chat, phone and autonomous
+     * decisions; it does not generate another model request or invented memory.
+     */
+    fun live2dCallContext(characterId: String): String {
+        if (characterId.isBlank()) return ""
+        val installed = application?.let { app ->
+            com.jiacimu.lulu.Live2DAssets.modelUrl(app, characterId) != null
+        } == true
+        val coreReady = application?.let { app ->
+            com.jiacimu.lulu.Live2DAssets.hasCore(app)
+        } == true
+        val call = com.jiacimu.lulu.LuluVoiceCallSession.state.value
+        val active = call.connected && call.characterId == characterId
+        val videoSelected = active &&
+            com.jiacimu.lulu.LuluCallWindowController.videoRequested.value
+        val actualVisible = videoSelected &&
+            com.jiacimu.lulu.Live2DVisualActionBus.isStageVisible(
+                characterId, call.callExperienceId)
+        val rendered = SharedExperienceTimeline.recentEvents(characterId, 320)
+            .lastOrNull {
+                it.source == InteractionSignalBridge.SOURCE &&
+                    it.id.startsWith("interaction-call-video-rendered-") &&
+                    it.evidenceKind == EventEvidenceKind.Observation
+            }
+        return buildString {
+            appendLine("【露露机当前视频能力与该角色亲历的通话事实】")
+            if (installed && coreReady) {
+                appendLine("本角色手机端已导入 Live2D 模型与渲染 Core，可以在露露机内使用 Live2D 虚拟视频通话；不是只能语音电话或数字世界见面。")
+            } else if (installed) {
+                appendLine("本角色已导入 Live2D 模型，但当前渲染 Core 尚未就绪；视频需要先完成组件加载。")
+            } else {
+                appendLine("露露机支持 Live2D 虚拟视频通话，但本角色当前没有可用的已导入 Live2D 模型；不要把尚未配置说成整个应用不能视频。")
+            }
+            if (active) {
+                when {
+                    actualVisible -> appendLine("此刻正处于已接通的 Live2D 视频电话，角色数字画面已显示在用户手机上。")
+                    videoSelected -> appendLine("此刻电话已开启 Live2D 视频模式，画面尚未确认成功渲染。")
+                    else -> appendLine("此刻正处于语音电话模式，没有开启视频画面；历史视频经历仍然真实存在。")
+                }
+            }
+            if (rendered != null) {
+                appendLine("本角色亲历的视频回执：${rendered.occurredAt}，会话证据ID=${rendered.id}。那次角色自己的 Live2D 形象确实成功显示在用户手机上，不能再把它当作只有语音的电话。")
+            }
+            appendLine("关键区别：用户看见角色的数字形象，并不意味着角色可以看见用户本人。只有用户主动开启摄像头共享、识图结果确实返回时，才能描述用户真实画面；不得捏造实时连续视觉。")
+            appendLine("这只是设备能力和事件事实，不要求角色主动提及，也不规定人设或说话风格；当前用户的新指令与真实权限优先。")
+        }.trim()
     }
 
     fun promptSection(): String {
