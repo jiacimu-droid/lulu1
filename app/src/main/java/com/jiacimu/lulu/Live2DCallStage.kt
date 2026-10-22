@@ -14,7 +14,10 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,6 +30,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Text
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -169,13 +176,29 @@ private fun Live2DNativeFrameOverlay(
             delay(160)
         }
     }
-    picture?.let { current ->
+    val current = picture
+    if (current != null) {
         Image(
             bitmap = current,
             contentDescription = "Live2D Android 原生帧显示",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.FillBounds,
         )
+    } else {
+        // A native blue test surface distinguishes a genuinely missing
+        // Android overlay from an unreadable WebGL frame. This layer is only
+        // used during explicit fallback, never in ordinary voice calls.
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .background(Color(0xFF15354C)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                "Android 原生画面通道已启动\n正在读取 Live2D 图像帧…",
+                color = Color.White,
+                modifier = Modifier.padding(16.dp),
+            )
+        }
     }
 }
 
