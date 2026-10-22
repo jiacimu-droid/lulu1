@@ -62,7 +62,14 @@ internal object CharacterStateHistory {
                     ?.let { "仍在权衡：$it" },
             )
             if (parts.isEmpty()) continue
-            val existing = rows.indexOfFirst { it.at == at }
+            // The reflection writer and the presence writer can persist
+            // the SAME causal event a few seconds apart. Evidence identity,
+            // not identical wall-clock timestamps, determines ownership.
+            val existing = rows.indexOfFirst { row ->
+                row.at == at || (evidenceId.isNotBlank() &&
+                    (evidenceId in row.evidenceIds || row.moment?.provenanceId == evidenceId) &&
+                    kotlin.math.abs(java.time.Duration.between(row.at, at).toMillis()) <= 60_000)
+            }
             if (existing >= 0) {
                 val row = rows[existing]
                 val voice = row.moment?.innerThought.orEmpty()

@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.LuluRepositories
+import com.jiacimu.lulu.heartVoiceParagraphs
 import com.jiacimu.lulu.ai.LuluAiServices
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
@@ -175,9 +176,25 @@ class CharacterRecordArchitectureTest {
             .put("at", now.plusSeconds(8).toString())))
         val snapshot = CompanionPresenceState(role, innerThought = voice,
             updatedAt = now, provenanceId = "one-inner-event")
+        // The separately persisted causal assessment is a projection of the
+        // same source, even when the timestamps differ by a few seconds.
+        mind.put("causalTransitions", JSONArray().put(JSONObject()
+            .put("at", now.plusSeconds(12).toString())
+            .put("evidenceId", "one-inner-event")
+            .put("selectedAction", "silent")
+            .put("innerThought", voice)))
         val rows = CharacterStateHistory.entries(role, listOf(snapshot),
             now.plusSeconds(120), mind, emptyList())
         assertEquals(1, rows.size)
         assertEquals(1, Regex(Regex.escape(voice)).findAll(rows.single().detail).count())
+        assertTrue(rows.single().extraDeletions.any { it.first == "transition" })
+    }
+    @Test fun longInnerVoiceUsesNaturalParagraphsWithoutLosingItsWords() {
+        val prose = (1..7).joinToString("") {
+            "夜风吹来时，他忽然想到那个期待已久的测试结果，也想起刚刚在聊天里看到的消息。"
+        }
+        val paragraphs = heartVoiceParagraphs(prose)
+        assertTrue(paragraphs.size > 1)
+        assertEquals(prose, paragraphs.joinToString(""))
     }
 }
