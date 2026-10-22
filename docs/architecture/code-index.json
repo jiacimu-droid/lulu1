@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:37:37.114874+00:00",
-  "commit": "fbdbb414b89f9a512357ebf4761ad1bceb6284dd",
+  "generatedAt": "2026-10-22T13:38:14.314265+00:00",
+  "commit": "200752a60525f207aaeb2664d275eacf03388715",
   "branch": "main",
-  "sourceFingerprint": "d7991c5fb00382b0521efa36fc71d71c32cd50f38573ec1fd3b467d5d437e5b5",
+  "sourceFingerprint": "385b2d11fafbfa7534ad1c531c994503624d8c7785c8a830c135262fbdcdd49b",
   "summary": {
     "files": 801,
-    "lines": 153241,
+    "lines": 153259,
     "symbols": 2299
   },
   "symbolIndex": {
@@ -3201,7 +3201,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
-        "line": 68
+        "line": 86
       }
     ],
     "reset": [
@@ -16172,8 +16172,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
-      "lines": 107,
-      "sha256": "842360af5159e04350cdf63646627f710dfda3d44a848af9ea0aa861f82d6d04",
+      "lines": 125,
+      "sha256": "1a4890584ce903dcb2756f2e23920e3474399ef3cf1d44560737b04814103f11",
       "symbols": [
         {
           "name": "Snapshot",
@@ -16181,7 +16181,7 @@
         },
         {
           "name": "inspect",
-          "line": 68
+          "line": 86
         }
       ]
     },
