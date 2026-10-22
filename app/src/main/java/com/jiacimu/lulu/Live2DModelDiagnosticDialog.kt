@@ -260,6 +260,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 mouthLevel = if (mouthPreview) .9f else 0f,
                                 previewHead = manualHead,
                                 previewRevision = motionRevision,
+                                previewImmediate = true,
                                 nativeMirrorEnabled = nativeMirrorMode,
                                 onWebViewReady = { view ->
                                     diagnosticView = view
