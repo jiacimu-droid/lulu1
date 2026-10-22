@@ -27,6 +27,9 @@ let previewObserved = false
 let mirrorImage = null
 let mirrorTimer = null
 let mirrorErrorSent = false
+let nativeCaptureCanvas = null
+let nativeCaptureContext = null
+let nativeCaptureErrorReported = false
 let gpuLost = false
 let gpuMaxTexture = 0
 let textureDetails = ''
@@ -426,6 +429,44 @@ function setPresentationMode(useMirror) {
   mirrorTimer = setInterval(refresh, 200)
   notify('diagnostic', '已启用普通图片通道（本机约 5 帧/秒，不调用 API）')
 }
+// Some HyperOS / Android WebView compositions show an entirely blank native
+// WebView surface even when readPixels and an HTML <img> contain the model.
+// A native Android Image overlay can display these frames without depending
+// on the WebView compositing surface. Called only by the Android fallback
+// at a throttled rate, never streamed to a server or exposed to the model.
+function captureNativeFrame() {
+  if (!app || !model || gpuLost || paused || document.hidden ||
+      !previewObserved) return null
+  try {
+    if (!nativeCaptureCanvas) {
+      nativeCaptureCanvas = document.createElement('canvas')
+      nativeCaptureContext = nativeCaptureCanvas.getContext('2d', { alpha: false })
+    }
+    if (!nativeCaptureContext) return null
+    const w = app.view.width
+    const h = app.view.height
+    if (w < 32 || h < 32) return null
+    const scale = Math.min(1, 480 / Math.max(w, h))
+    const width = Math.max(32, Math.round(w * scale))
+    const height = Math.max(32, Math.round(h * scale))
+    if (nativeCaptureCanvas.width !== width || nativeCaptureCanvas.height !== height) {
+      nativeCaptureCanvas.width = width
+      nativeCaptureCanvas.height = height
+    }
+    // Keep the animation going while the WebView itself is invisible.
+    app.render()
+    nativeCaptureContext.fillStyle = '#151719'
+    nativeCaptureContext.fillRect(0, 0, width, height)
+    nativeCaptureContext.drawImage(app.view, 0, 0, width, height)
+    return nativeCaptureCanvas.toDataURL('image/jpeg', 0.75)
+  } catch (error) {
+    if (!nativeCaptureErrorReported) {
+      nativeCaptureErrorReported = true
+      notify('error', 'Native 画面帧导出失败：' + (error?.message || String(error)))
+    }
+    return null
+  }
+}
 function setPaused(value) {
   paused = !!value
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
@@ -449,7 +490,7 @@ function head(target) {
   }
   headRequestEndAt = Date.now() + 1600
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode }
+window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
