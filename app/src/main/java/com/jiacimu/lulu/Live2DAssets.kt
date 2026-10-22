@@ -74,7 +74,16 @@ internal object Live2DAssets {
         if (!relative.startsWith("models/") || relative.contains("..")) return null
         val settings = File(base(context), relative)
         if (!inside(base(context), settings) || !settings.isFile) return null
-        return runCatching { Live2DModelManifestAdapter.normalizedSettings(settings).toString() }.getOrNull()
+        return runCatching {
+            Live2DMobileTextureAdapter.prepare(
+                settings, Live2DModelManifestAdapter.normalizedSettings(settings)
+            ).toString()
+        }.getOrElse { error ->
+            // A missing or failed atlas cache must be a visible failure, not a silent
+            // fallback to the original 8192px GPU texture that may crash WebView.
+            org.json.JSONObject().put("luluMobileTextureError",
+                error.message ?: "手机贴图优化失败").toString()
+        }
     }
 
     /** Actual controls from the user's Cubism model, not invented universal emotion labels. */
