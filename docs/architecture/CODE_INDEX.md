@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`317131967eea05e5a358319d71468345a9c1e2bf`
+- 基准提交：`03fc55d5dfb207534122a4e77896962aa076a2a2`
 - 分支：`main`
-- 已索引文件：798
-- 已索引代码/文本行：151839
-- 已发现符号：2282
+- 已索引文件：799
+- 已索引代码/文本行：151864
+- 已发现符号：2283
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -578,6 +578,7 @@
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
+| `app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 229 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |

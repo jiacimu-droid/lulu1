@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:40:55.499761+00:00",
-  "commit": "317131967eea05e5a358319d71468345a9c1e2bf",
+  "generatedAt": "2026-10-22T07:42:32.698874+00:00",
+  "commit": "03fc55d5dfb207534122a4e77896962aa076a2a2",
   "branch": "main",
-  "sourceFingerprint": "cc637ded060a87faddfb271d1e931df568b215f4eef1596017376d8f6054886f",
+  "sourceFingerprint": "f3166b710562d0b7d1b8584fd9b08a40161d34b24a489fa2c1e1ce934838fca9",
   "summary": {
-    "files": 798,
-    "lines": 151839,
-    "symbols": 2282
+    "files": 799,
+    "lines": 151864,
+    "symbols": 2283
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11238,6 +11238,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt",
         "line": 47
+      }
+    ],
+    "AvatarPcmAvailabilityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt",
+        "line": 12
       }
     ],
     "BundledCuteStickerCatalogTest": [
@@ -24686,6 +24692,17 @@
       "lines": 10,
       "sha256": "9f7679ff0aac4d713086ca440f55a532ce8a43e01a261767ff0a6698370f0b0d",
       "symbols": []
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt",
+      "lines": 25,
+      "sha256": "85b01100b7ee8fbfd7b673d9d5b62407866fc05edb58505ebb73ccc94d6f066d",
+      "symbols": [
+        {
+          "name": "AvatarPcmAvailabilityTest",
+          "line": 12
+        }
+      ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt",
