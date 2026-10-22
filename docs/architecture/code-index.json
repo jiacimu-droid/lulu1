@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T08:44:03.481578+00:00",
-  "commit": "0ece6eacf0c1c12b0854e0f3b23b2a45430ab861",
+  "generatedAt": "2026-10-22T08:45:52.590505+00:00",
+  "commit": "4ce4422890a8240cbe9ffc61b7165bd722b195d3",
   "branch": "main",
-  "sourceFingerprint": "05fe94432b2a324d6f54977aa962dc6919053c0e09f5263890fc0a55960e44c0",
+  "sourceFingerprint": "718eaf15ce8d7d82e4d99bb23b0b2bb342ef46c1738a21c3c5ac28b30d7d1417",
   "summary": {
     "files": 799,
-    "lines": 152056,
+    "lines": 152084,
     "symbols": 2286
   },
   "symbolIndex": {
@@ -11715,7 +11715,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-        "line": 57
+        "line": 85
       }
     ],
     "AutonomousActionWireProtocolTest": [
@@ -26041,8 +26041,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
-      "lines": 74,
-      "sha256": "4e134186ea537cc50b426c03056376c221f8fbc65c3efad39d6a320e39609ee1",
+      "lines": 102,
+      "sha256": "4a2b98f6855bb689cdfb9c099a23324a4d54cd0f043e55aeb967806eb35953ed",
       "symbols": [
         {
           "name": "CharacterPerceptionContextTest",
@@ -26054,7 +26054,7 @@
         },
         {
           "name": "event",
-          "line": 57
+          "line": 85
         }
       ]
     },
