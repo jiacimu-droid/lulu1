@@ -321,7 +321,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                     }) { Text("复制诊断", fontSize = 12.sp) }
                 }
                 val logListState = rememberLazyListState()
-                LaunchedEffect(events.size, logsExpanded) {
+                LaunchedEffect(events.lastOrNull(), logsExpanded) {
                     if (events.isNotEmpty()) logListState.scrollToItem(events.lastIndex)
                 }
                 LazyColumn(
