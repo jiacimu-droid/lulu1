@@ -2,14 +2,17 @@ package com.jiacimu.lulu
 
 import android.graphics.BitmapFactory
 import android.util.Base64
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +44,7 @@ internal fun LuluIntegrationsSettingsScreen(
     var loginStatus by remember { mutableStateOf("") }
     var readingStatus by remember { mutableStateOf("") }
     var mcpExpanded by remember {
-        mutableStateOf(LuluExternalMcp.configured(context, "xiaohongshu"))
+        mutableStateOf(!LuluExternalMcp.configured(context, "xiaohongshu"))
     }
     var localReading by remember { mutableStateOf(XhsReadingEngine.localEnabled(context)) }
     var mcpPrimary by remember { mutableStateOf(XhsReadingEngine.mcpPrimaryEnabled(context)) }
@@ -60,6 +63,8 @@ internal fun LuluIntegrationsSettingsScreen(
     var deepSeekKey by remember { mutableStateOf(WebSearchProvider.savedDeepSeekKey(context)) }
     var tavilyKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
     var searchStatus by remember { mutableStateOf("") }
+    var searchExpanded by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = {
@@ -79,37 +84,33 @@ internal fun LuluIntegrationsSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text("小红书", style = MaterialTheme.typography.titleMedium)
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text("本机网页阅读", modifier = Modifier.weight(1f))
-                Switch(
-                    checked = localReading,
-                    onCheckedChange = { enabled ->
-                        if (XhsReadingEngine.setLocalEnabled(context, enabled)) localReading = enabled
-                    },
-                )
-            }
-            OutlinedButton(onClick = onOpenBrowserProbe, modifier = Modifier.fillMaxWidth()) {
-                Text("打开小红书")
-            }
-
-            HorizontalDivider()
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text("独立 MCP", style = MaterialTheme.typography.titleMedium)
-                TextButton(onClick = { mcpExpanded = !mcpExpanded }) {
-                    Text(if (mcpExpanded) "收起" else "展开")
-                }
-            }
-            if (mcpExpanded) {
+            IntegrationSettingsCard {
                 Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Text("内置网页", modifier = Modifier.weight(1f))
+                    TextButton(onClick = onOpenBrowserProbe) { Text("打开") }
+                    Switch(
+                        checked = localReading,
+                        onCheckedChange = { enabled ->
+                            if (XhsReadingEngine.setLocalEnabled(context, enabled)) localReading = enabled
+                        },
+                    )
+                }
+            }
+
+            IntegrationSettingsCard {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("独立 MCP", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { mcpExpanded = !mcpExpanded }) {
+                        Text(if (mcpExpanded) "收起设置" else "连接设置")
+                    }
+                }
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("优先使用 MCP", modifier = Modifier.weight(1f))
                     Switch(
                         checked = mcpPrimary,
@@ -126,52 +127,71 @@ internal fun LuluIntegrationsSettingsScreen(
                         },
                     )
                 }
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text("作为备用线路", modifier = Modifier.weight(1f))
-                    Switch(
-                        checked = mcpFallback,
-                        onCheckedChange = { enabled ->
-                            if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled)) {
-                                mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
-                                mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+
+                if (mcpExpanded) {
+                    HorizontalDivider()
+                    OutlinedTextField(
+                        value = mcpUrl,
+                        onValueChange = { mcpUrl = it },
+                        label = { Text("MCP 地址") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                        trailingIcon = {
+                            TextButton(onClick = { mcpUrl = "http://127.0.0.1:18061/mcp" }) {
+                                Text("本机")
                             }
                         },
                     )
+                    OutlinedTextField(
+                        value = mcpToken,
+                        onValueChange = { mcpToken = it },
+                        label = { Text("访问 Token") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text("备用线路", modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = mcpFallback,
+                            onCheckedChange = { enabled ->
+                                if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled)) {
+                                    mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
+                                    mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+                                }
+                            },
+                        )
+                    }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                connectionStatus = runCatching {
+                                    check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                    "已保存"
+                                }.getOrElse { "保存失败：" + it.message.orEmpty() }
+                            },
+                            modifier = Modifier.weight(1f),
+                        ) { Text("保存连接") }
+                        TextButton(onClick = {
+                            val cleared = runCatching {
+                                LuluExternalMcp.save(context, "xiaohongshu", "", "")
+                            }.getOrDefault(false)
+                            connectionStatus = if (cleared) {
+                                XhsReadingEngine.setMcpPrimaryEnabled(context, false)
+                                XhsReadingEngine.setMcpFallbackEnabled(context, false)
+                                mcpPrimary = false
+                                mcpFallback = false
+                                mcpUrl = ""
+                                mcpToken = ""
+                                qr = null
+                                "已断开"
+                            } else "断开失败"
+                        }) { Text("断开") }
+                    }
                 }
-                OutlinedTextField(
-                    value = mcpUrl,
-                    onValueChange = { mcpUrl = it },
-                    label = { Text("MCP 地址") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                    trailingIcon = {
-                        TextButton(onClick = { mcpUrl = "http://127.0.0.1:18061/mcp" }) {
-                            Text("本机")
-                        }
-                    },
-                )
-                OutlinedTextField(
-                    value = mcpToken,
-                    onValueChange = { mcpToken = it },
-                    label = { Text("Token") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                )
+
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
-                        onClick = {
-                            connectionStatus = runCatching {
-                                check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
-                                "已保存"
-                            }.getOrElse { "保存失败：" + it.message.orEmpty() }
-                        },
-                        modifier = Modifier.weight(1f),
-                    ) { Text("保存") }
-                    Button(
                         enabled = mcpUrl.isNotBlank(),
                         onClick = {
                             connectionStatus = "连接中…"
@@ -180,35 +200,13 @@ internal fun LuluIntegrationsSettingsScreen(
                                     check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
                                     LuluExternalMcp.testService(context, "xiaohongshu")
                                 }.fold(
-                                    { "MCP 已响应 · 登录和读帖待验证" },
+                                    { "MCP 已响应 · 登录待验证" },
                                     { "连接失败：" + it.message.orEmpty().take(180) },
                                 )
                             }
                         },
                         modifier = Modifier.weight(1f),
                     ) { Text("测试连接") }
-                    TextButton(
-                        onClick = {
-                            mcpUrl = ""
-                            mcpToken = ""
-                            connectionStatus = if (LuluExternalMcp.save(context, "xiaohongshu", "", "")) {
-                                XhsReadingEngine.setMcpPrimaryEnabled(context, false)
-                                XhsReadingEngine.setMcpFallbackEnabled(context, false)
-                                mcpPrimary = false
-                                mcpFallback = false
-                                qr = null
-                                "已断开"
-                            } else "断开失败"
-                        },
-                    ) { Text("断开") }
-                }
-                if (connectionStatus.isNotBlank()) {
-                    Text(connectionStatus, style = MaterialTheme.typography.bodySmall)
-                }
-
-                HorizontalDivider()
-                Text("登录", style = MaterialTheme.typography.titleSmall)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
                         enabled = mcpUrl.isNotBlank(),
                         onClick = {
@@ -225,31 +223,39 @@ internal fun LuluIntegrationsSettingsScreen(
                         },
                         modifier = Modifier.weight(1f),
                     ) { Text("检查登录") }
-                    OutlinedButton(
-                        enabled = mcpUrl.isNotBlank() && !qrBusy,
-                        onClick = {
-                            qrBusy = true
-                            qrStatus = "获取中…"
-                            scope.launch {
-                                try {
-                                    check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
-                                    qr = LuluExternalMcp.xhsLoginQr(context)
-                                    qrStatus = qr?.description.orEmpty()
-                                } catch (cancelled: CancellationException) {
-                                    throw cancelled
-                                } catch (error: Exception) {
-                                    qr = null
-                                    qrStatus = error.message.orEmpty().take(160)
-                                } finally {
-                                    qrBusy = false
-                                }
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                    ) { Text(if (qrBusy) "获取中…" else "获取二维码") }
                 }
-                if (loginStatus.isNotBlank()) {
-                    Text(loginStatus, style = MaterialTheme.typography.bodySmall)
+                IntegrationFeedback(connectionStatus)
+                IntegrationFeedback(loginStatus)
+
+                HorizontalDivider()
+                Button(
+                    enabled = mcpUrl.isNotBlank() && !qrBusy,
+                    onClick = {
+                        qrBusy = true
+                        qrStatus = "获取中…"
+                        scope.launch {
+                            try {
+                                check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                qr = LuluExternalMcp.xhsLoginQr(context)
+                                qrStatus = if (qr?.pngBase64.isNullOrBlank()) qr?.description.orEmpty()
+                                    else "二维码已生成"
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (error: Exception) {
+                                qr = null
+                                qrStatus = "二维码获取失败：" + error.message.orEmpty().take(160)
+                            } finally {
+                                qrBusy = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(when {
+                        qrBusy -> "获取中…"
+                        qr != null -> "重新获取二维码"
+                        else -> "获取登录二维码"
+                    })
                 }
                 qr?.pngBase64?.takeIf(String::isNotBlank)?.let { encoded ->
                     val bitmap = remember(encoded) {
@@ -259,26 +265,30 @@ internal fun LuluIntegrationsSettingsScreen(
                         }.getOrNull()
                     }
                     if (bitmap != null) {
-                        Image(
-                            bitmap = bitmap,
-                            contentDescription = "小红书登录二维码",
-                            modifier = Modifier.size(196.dp),
-                        )
-                        OutlinedButton(onClick = {
-                            qrStatus = runCatching {
-                                if (LuluExternalMcp.saveXhsLoginQrToPhotos(context, encoded)) {
-                                    "已保存到相册"
-                                } else "保存失败"
-                            }.getOrElse { "保存失败：" + it.message.orEmpty().take(130) }
-                        }) { Text("保存二维码到相册") }
+                        Column(
+                            Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = "小红书登录二维码",
+                                modifier = Modifier.size(196.dp),
+                            )
+                            TextButton(onClick = {
+                                qrStatus = runCatching {
+                                    if (LuluExternalMcp.saveXhsLoginQrToPhotos(context, encoded)) {
+                                        "已保存到相册"
+                                    } else "保存失败"
+                                }.getOrElse { "保存失败：" + it.message.orEmpty().take(130) }
+                            }) { Text("保存到相册") }
+                        }
                     }
                 }
-                if (qrStatus.isNotBlank()) {
-                    Text(qrStatus, style = MaterialTheme.typography.bodySmall)
-                }
+                IntegrationFeedback(qrStatus)
 
                 HorizontalDivider()
-                Text("真实读帖", style = MaterialTheme.typography.titleSmall)
+                Text("真实读帖测试", style = MaterialTheme.typography.titleSmall)
                 OutlinedTextField(
                     value = keyword,
                     onValueChange = { keyword = it.take(64) },
@@ -286,7 +296,7 @@ internal fun LuluIntegrationsSettingsScreen(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                 )
-                Button(
+                OutlinedButton(
                     enabled = !readingBusy && mcpUrl.isNotBlank() && keyword.isNotBlank(),
                     onClick = {
                         readingBusy = true
@@ -310,108 +320,140 @@ internal fun LuluIntegrationsSettingsScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(if (readingBusy) "读取中…" else "搜索并读帖") }
-                if (readingStatus.isNotBlank()) {
-                    Text(readingStatus, style = MaterialTheme.typography.bodySmall)
+                IntegrationFeedback(readingStatus)
+            }
+
+            IntegrationSettingsCard {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("网络搜索", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { searchExpanded = !searchExpanded }) {
+                        Text(if (searchExpanded) "收起" else "设置")
+                    }
+                }
+                if (searchExpanded) {
+                    OutlinedTextField(
+                        value = deepSeekKey,
+                        onValueChange = { deepSeekKey = it.take(256); searchStatus = "" },
+                        label = { Text("DeepSeek Search API Key") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    OutlinedTextField(
+                        value = tavilyKey,
+                        onValueChange = { tavilyKey = it.take(256); searchStatus = "" },
+                        label = { Text("Tavily API Key（备用）") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            when {
+                                WebSearchProvider.savedDeepSeekKey(context).isNotBlank() -> "当前：DeepSeek"
+                                WebSearchProvider.savedKey(context).isNotBlank() -> "当前：Tavily"
+                                else -> "当前：百科检索"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(onClick = {
+                            searchStatus = runCatching {
+                                check(WebSearchProvider.saveDeepSeekKey(context, deepSeekKey))
+                                check(WebSearchProvider.saveKey(context, tavilyKey))
+                                "已保存"
+                            }.getOrElse { "保存失败：" + it.message.orEmpty() }
+                        }) { Text("保存") }
+                    }
+                    IntegrationFeedback(searchStatus)
                 }
             }
 
-            HorizontalDivider()
-            Text("网络搜索", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(
-                value = deepSeekKey,
-                onValueChange = { deepSeekKey = it.take(256); searchStatus = "" },
-                label = { Text("DeepSeek Search API Key") },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-            )
-            OutlinedTextField(
-                value = tavilyKey,
-                onValueChange = { tavilyKey = it.take(256); searchStatus = "" },
-                label = { Text("Tavily API Key（备用）") },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-            )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    when {
-                        WebSearchProvider.savedDeepSeekKey(context).isNotBlank() -> "当前：DeepSeek"
-                        WebSearchProvider.savedKey(context).isNotBlank() -> "当前：Tavily"
-                        else -> "当前：百科检索"
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                TextButton(onClick = {
-                    searchStatus = runCatching {
-                        check(WebSearchProvider.saveDeepSeekKey(context, deepSeekKey))
-                        check(WebSearchProvider.saveKey(context, tavilyKey))
-                        "已保存"
-                    }.getOrElse { "保存失败：" + it.message.orEmpty() }
-                }) { Text("保存") }
-            }
-            if (searchStatus.isNotBlank()) {
-                Text(searchStatus, style = MaterialTheme.typography.bodySmall)
-            }
-
-            HorizontalDivider()
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("华为健康 MCP", style = MaterialTheme.typography.titleMedium)
-                TextButton(onClick = { healthExpanded = !healthExpanded }) {
-                    Text(if (healthExpanded) "收起" else "展开")
+            IntegrationSettingsCard {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("华为健康 MCP", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { healthExpanded = !healthExpanded }) {
+                        Text(if (healthExpanded) "收起" else "设置")
+                    }
                 }
-            }
-            if (healthExpanded) {
-                OutlinedTextField(
-                    value = healthUrl,
-                    onValueChange = { healthUrl = it },
-                    label = { Text("MCP 地址") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                )
-                OutlinedTextField(
-                    value = healthToken,
-                    onValueChange = { healthToken = it },
-                    label = { Text("Token") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-                )
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = {
-                        healthStatus = runCatching {
-                            check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
-                            "已保存"
-                        }.getOrElse { "保存失败：" + it.message.orEmpty() }
-                    }, modifier = Modifier.weight(1f)) { Text("保存") }
-                    Button(
-                        enabled = healthUrl.isNotBlank(),
-                        onClick = {
-                            healthStatus = "连接中…"
-                            scope.launch {
-                                healthStatus = runCatching {
-                                    check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
-                                    LuluExternalMcp.testService(context, "health")
-                                }.fold(
-                                    { "MCP 已响应" },
-                                    { "连接失败：" + it.message.orEmpty().take(180) },
-                                )
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                    ) { Text("测试连接") }
-                    TextButton(onClick = {
-                        healthUrl = ""
-                        healthToken = ""
-                        healthStatus = if (LuluExternalMcp.save(context, "health", "", "")) {
-                            "已断开"
-                        } else "断开失败"
-                    }) { Text("断开") }
-                }
-                if (healthStatus.isNotBlank()) {
-                    Text(healthStatus, style = MaterialTheme.typography.bodySmall)
+                if (healthExpanded) {
+                    OutlinedTextField(
+                        value = healthUrl,
+                        onValueChange = { healthUrl = it },
+                        label = { Text("MCP 地址") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    OutlinedTextField(
+                        value = healthToken,
+                        onValueChange = { healthToken = it },
+                        label = { Text("Token") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = {
+                            healthStatus = runCatching {
+                                check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
+                                "已保存"
+                            }.getOrElse { "保存失败：" + it.message.orEmpty() }
+                        }, modifier = Modifier.weight(1f)) { Text("保存") }
+                        Button(
+                            enabled = healthUrl.isNotBlank(),
+                            onClick = {
+                                healthStatus = "连接中…"
+                                scope.launch {
+                                    healthStatus = runCatching {
+                                        check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
+                                        LuluExternalMcp.testService(context, "health")
+                                    }.fold(
+                                        { "MCP 已响应" },
+                                        { "连接失败：" + it.message.orEmpty().take(180) },
+                                    )
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                        ) { Text("测试连接") }
+                        TextButton(onClick = {
+                            healthStatus = if (LuluExternalMcp.save(context, "health", "", "")) {
+                                healthUrl = ""
+                                healthToken = ""
+                                "已断开"
+                            } else "断开失败"
+                        }) { Text("断开") }
+                    }
+                    IntegrationFeedback(healthStatus)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun IntegrationSettingsCard(content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun IntegrationFeedback(message: String) {
+    if (message.isNotBlank()) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (message.contains("失败") || message.contains("错误"))
+                MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
