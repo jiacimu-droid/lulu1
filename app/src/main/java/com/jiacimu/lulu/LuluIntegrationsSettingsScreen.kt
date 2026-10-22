@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,29 +12,53 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import android.graphics.BitmapFactory
-import android.util.Base64
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
 import com.jiacimu.lulu.data.XhsReadingEngine
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 /**
- * Application-wide external integrations. Character settings only decide who can invoke them.
- * Credentials retain their existing storage keys; moving this screen does not reset accounts.
+ * Compact integrations screen. Configuration, login, read verification and
+ * web-search remain separate actions; only confirmed reading promotes MCP.
+ * Existing persisted settings keys and service routes are unchanged.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserProbe: () -> Unit, onOpenXhsNativeReader: () -> Unit) {
+internal fun LuluIntegrationsSettingsScreen(
+    onBack: () -> Unit,
+    onOpenBrowserProbe: () -> Unit,
+    onOpenXhsNativeReader: () -> Unit,
+) {
     val context = LocalContext.current
-    val links = LocalUriHandler.current
+    val scope = rememberCoroutineScope()
+    var mcpUrl by remember { mutableStateOf(LuluExternalMcp.endpoint(context, "xiaohongshu")) }
+    var mcpToken by remember { mutableStateOf(LuluExternalMcp.savedToken(context, "xiaohongshu")) }
+    var mcpStatus by remember { mutableStateOf("") }
+    var mcpExpanded by remember {
+        mutableStateOf(LuluExternalMcp.configured(context, "xiaohongshu"))
+    }
+    var localReading by remember { mutableStateOf(XhsReadingEngine.localEnabled(context)) }
+    var mcpPrimary by remember { mutableStateOf(XhsReadingEngine.mcpPrimaryEnabled(context)) }
+    var mcpFallback by remember { mutableStateOf(XhsReadingEngine.mcpFallbackEnabled(context)) }
+    var keyword by remember { mutableStateOf("") }
+    var readingBusy by remember { mutableStateOf(false) }
+    var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
+    var qrBusy by remember { mutableStateOf(false) }
+    var qrStatus by remember { mutableStateOf("") }
+
+    var healthExpanded by remember { mutableStateOf(false) }
+    var healthUrl by remember { mutableStateOf(LuluExternalMcp.endpoint(context, "health")) }
+    var healthToken by remember { mutableStateOf(LuluExternalMcp.savedToken(context, "health")) }
+    var healthStatus by remember { mutableStateOf("") }
+
+    var deepSeekKey by remember { mutableStateOf(WebSearchProvider.savedDeepSeekKey(context)) }
+    var tavilyKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
+    var searchStatus by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -47,260 +73,327 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
     ) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("这里的服务器地址、密钥和搜索账号对所有角色通用；是否允许角色自主调用，仍在该角色的执行授权中单独设置。",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        HorizontalDivider()
-        Text("小红书 · 本机阅读 / 独立云端阅读", style = MaterialTheme.typography.titleMedium)
-        Text("本机网页登录仍可手动浏览；想让角色关掉小红书页面后也能访问，就连接常驻云端 MCP 并选“云端优先”。云端浏览器不依赖本机 WebView，安卓后台唤醒仍需单独验证。",
-            style = MaterialTheme.typography.bodySmall)
-        val scope = rememberCoroutineScope()
-        var xhsRouteGeneration by remember { mutableStateOf(0) }
-        listOf("xiaohongshu" to "小红书独立阅读线路", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
-            var mcpUrl by remember(service) { mutableStateOf(LuluExternalMcp.endpoint(context, service)) }
-            var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
-            var mcpStatus by remember(service) { mutableStateOf("") }
-            Text(title, style = MaterialTheme.typography.titleSmall)
-            if (service == "xiaohongshu") {
-                var localReading by remember { mutableStateOf(XhsReadingEngine.localEnabled(context)) }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("使用已登录的本机网页", modifier = Modifier.weight(1f))
-                    Switch(localReading, { enabled ->
+            Text("小红书", style = MaterialTheme.typography.titleMedium)
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("本机网页阅读", modifier = Modifier.weight(1f))
+                Switch(
+                    checked = localReading,
+                    onCheckedChange = { enabled ->
                         if (XhsReadingEngine.setLocalEnabled(context, enabled)) localReading = enabled
-                    })
-                }
-                Text("内置浏览器是主线路；角色仍需单独开启只读授权。外部 MCP 不必配置，" +
-                    "也不会因仅保存本机地址就自动接管阅读。",
-                    style = MaterialTheme.typography.bodySmall)
-                Button(onClick = onOpenBrowserProbe, modifier = Modifier.fillMaxWidth()) {
-                    Text("打开小红书")
-                }
-                Text("直接浏览帖子和评论。网页阅读、搜索、提取图文、真实读帖测试和诊断都统一放进阅读页右上角菜单；不再需要三个不同入口。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            var optionalMcpExpanded by remember(service) {
-                mutableStateOf(service == "xiaohongshu" && LuluExternalMcp.configured(context, service))
-            }
-            if (service == "xiaohongshu") {
-                TextButton(onClick = { optionalMcpExpanded = !optionalMcpExpanded }) {
-                    Text(if (optionalMcpExpanded) "收起独立 MCP 设置"
-                        else "配置独立云端 MCP / 本机 Termux")
-                }
-            }
-            if (service != "xiaohongshu" || optionalMcpExpanded) {
-                if (service == "xiaohongshu") {
-                    var fallbackOn by remember(service, xhsRouteGeneration) {
-                        mutableStateOf(XhsReadingEngine.mcpFallbackEnabled(context))
-                    }
-                    var remotePrimary by remember(service, xhsRouteGeneration) {
-                        mutableStateOf(XhsReadingEngine.mcpPrimaryEnabled(context))
-                    }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("角色自主阅读：优先使用独立 MCP", modifier = Modifier.weight(1f))
-                        Switch(remotePrimary, { enabled ->
-                            val saved = runCatching {
-                                XhsReadingEngine.setMcpPrimaryEnabled(context, enabled)
-                            }
-                            if (saved.getOrDefault(false)) {
-                                remotePrimary = enabled
-                                fallbackOn = XhsReadingEngine.mcpFallbackEnabled(context)
-                                mcpStatus = if (enabled) "已设为云端优先；请务必测试登录和真实读帖。" else "已恢复内置网页优先"
-                            } else mcpStatus = saved.exceptionOrNull()?.message.orEmpty().ifBlank { "保存失败" }
-                        })
-                    }
-                    Text("打开后，角色无论在聊天还是后台执行，都会先使用独立 MCP 搜索；不再等内置网页超时。本机手动浏览入口仍然保留。",
-                        style = MaterialTheme.typography.bodySmall)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("本机网页失败后尝试 MCP 备用", modifier = Modifier.weight(1f))
-                        Switch(fallbackOn, { enabled ->
-                            if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled)) {
-                                fallbackOn = enabled
-                                remotePrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
-                            }
-                        })
-                    }
-                    Text("两种模式都需要外部 MCP 真正在线；单纯保存地址不会启动服务端。",
-                        style = MaterialTheme.typography.bodySmall)
-                }
-                if (service == "xiaohongshu") OutlinedButton(onClick = {
-                    mcpUrl = "http://127.0.0.1:18060/mcp"
-                    mcpToken = ""
-                    mcpStatus = runCatching {
-                        require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
-                        "已使用手机本机地址。先在 Termux 安装并启动只读服务，再点“保存并测试”。"
-                    }.getOrElse { "配置失败：" + it.message.orEmpty() }
-                }) { Text("一键使用本机 Termux · 免费") }
-            OutlinedTextField(mcpUrl, { mcpUrl = it }, label = { Text("HTTPS 地址 / Termux 本机 127.0.0.1") },
-                singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-            OutlinedTextField(mcpToken, { mcpToken = it }, label = { Text("Bearer Token（云端必须填写，勿公开）") },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = {
-                    mcpStatus = runCatching { LuluExternalMcp.save(context, service, mcpUrl, mcpToken) }
-                        .fold({ if (it) "配置已保存；接下来检查登录与数据" else "保存失败" },
-                            { it.message.orEmpty() })
-                }) { Text("保存") }
-                OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
-                    mcpStatus = "正在检查…"
-                    scope.launch {
-                        mcpStatus = runCatching {
-                            require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken)) { "无法保存连接信息" }
-                            LuluExternalMcp.testService(context, service)
-                        }.fold(
-                            { it.take(240) },
-                            { "服务连接失败：" + it.message.orEmpty().take(180) },
-                        )
-                    }
-                }) { Text("测试服务") }
-                OutlinedButton(onClick = {
-                    mcpUrl = ""; mcpToken = ""
-                    mcpStatus = if (LuluExternalMcp.save(context, service, "", "")) "已断开" else "断开失败"
-                }) { Text("断开") }
-            }
-            if (mcpStatus.isNotBlank()) Text(mcpStatus, style = MaterialTheme.typography.bodySmall)
-            if (service == "xiaohongshu") {
-                var probeKeyword by remember(service) { mutableStateOf("") }
-                var probeBusy by remember(service) { mutableStateOf(false) }
-                OutlinedTextField(
-                    value = probeKeyword, onValueChange = { probeKeyword = it.take(64) },
-                    label = { Text("真实读帖测试关键词") }, singleLine = true,
-                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    },
                 )
-                OutlinedButton(
-                    enabled = !probeBusy && mcpUrl.isNotBlank() && probeKeyword.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        probeBusy = true
-                        mcpStatus = "正在通过独立 MCP 搜索并打开真实笔记…"
-                        scope.launch {
-                            try {
-                                require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
-                                val verified = LuluExternalMcp.testXhsReading(context, probeKeyword)
-                                // Only a real search followed by actual matching note
-                                // detail can promote this route for autonomous use.
-                                check(XhsReadingEngine.setMcpPrimaryEnabled(context, true))
-                                xhsRouteGeneration++
-                                mcpStatus = "实际搜索和笔记详情均已验证，已自动设为后台主线路。\\n" + verified
-                            } catch (cancelled: CancellationException) {
-                                throw cancelled
-                            } catch (error: Exception) {
-                                mcpStatus = "独立 MCP 真实读帖失败：" + error.message.orEmpty().take(230)
-                            } finally {
-                                probeBusy = false
+            }
+            OutlinedButton(onClick = onOpenBrowserProbe, modifier = Modifier.fillMaxWidth()) {
+                Text("打开小红书")
+            }
+
+            HorizontalDivider()
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("独立 MCP", style = MaterialTheme.typography.titleMedium)
+                TextButton(onClick = { mcpExpanded = !mcpExpanded }) {
+                    Text(if (mcpExpanded) "收起" else "展开")
+                }
+            }
+            if (mcpExpanded) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("优先使用 MCP", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = mcpPrimary,
+                        onCheckedChange = { enabled ->
+                            if (XhsReadingEngine.setMcpPrimaryEnabled(context, enabled)) {
+                                mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+                                mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
                             }
+                        },
+                    )
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("作为备用线路", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = mcpFallback,
+                        onCheckedChange = { enabled ->
+                            if (XhsReadingEngine.setMcpFallbackEnabled(context, enabled)) {
+                                mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
+                                mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+                            }
+                        },
+                    )
+                }
+                OutlinedTextField(
+                    value = mcpUrl,
+                    onValueChange = { mcpUrl = it },
+                    label = { Text("MCP 地址") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    trailingIcon = {
+                        TextButton(onClick = { mcpUrl = "http://127.0.0.1:18061/mcp" }) {
+                            Text("本机")
                         }
                     },
-                ) { Text(if (probeBusy) "正在检验搜索与详情…" else "测试云端搜索 → 真正读一篇笔记") }
+                )
+                OutlinedTextField(
+                    value = mcpToken,
+                    onValueChange = { mcpToken = it },
+                    label = { Text("Token") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                )
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            mcpStatus = runCatching {
+                                check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                "已保存"
+                            }.getOrElse { "保存失败：" + it.message.orEmpty() }
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text("保存") }
+                    Button(
+                        enabled = mcpUrl.isNotBlank(),
+                        onClick = {
+                            mcpStatus = "连接中…"
+                            scope.launch {
+                                mcpStatus = runCatching {
+                                    check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                    LuluExternalMcp.testService(context, "xiaohongshu")
+                                }.fold(
+                                    { "MCP 已响应 · 登录和读帖待验证" },
+                                    { "连接失败：" + it.message.orEmpty().take(180) },
+                                )
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text("测试连接") }
+                    TextButton(
+                        onClick = {
+                            mcpUrl = ""
+                            mcpToken = ""
+                            mcpStatus = if (LuluExternalMcp.save(context, "xiaohongshu", "", "")) {
+                                "已断开"
+                            } else "断开失败"
+                        },
+                    ) { Text("断开") }
+                }
+                if (mcpStatus.isNotBlank()) {
+                    Text(mcpStatus, style = MaterialTheme.typography.bodySmall)
+                }
+
                 HorizontalDivider()
-                Text("手机扫码登录（无需电脑）", style = MaterialTheme.typography.titleSmall)
-                Text("优先使用 xpzouying Go MCP；只有『搜索→打开真实正文』测试成功，才自动切换角色后台主线路。云端浏览器与手机内置浏览器是两份独立登录会话。",
-                    style = MaterialTheme.typography.bodySmall)
-                Text("先测试 MCP 服务，再检查独立 Chromium 的登录状态，最后测试真实搜索和正文。服务在线不代表已登录，已登录也不代表能读到笔记。",
-                    style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(enabled = mcpUrl.isNotBlank(), onClick = {
-                    mcpStatus = "正在启动浏览器并检查小红书登录，请稍候…"
-                    scope.launch {
-                        mcpStatus = runCatching {
-                            require(LuluExternalMcp.save(context, service, mcpUrl, mcpToken))
-                            LuluExternalMcp.check(context, service)
-                        }.fold({ it.take(260) }, { "登录检查失败：" + it.message.orEmpty().take(180) })
-                    }
-                }) { Text("检查小红书登录") }
+                Text("登录", style = MaterialTheme.typography.titleSmall)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = {
-                        links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-xpzouying/README.md")
-                    }) { Text("Go MCP 云端教程") }
-                    OutlinedButton(onClick = {
-                        links.openUri("https://github.com/jiacimu-droid/lulu1/blob/main/tools/xhs-termux/README.md")
-                    }) { Text("Termux 教程") }
+                    OutlinedButton(
+                        enabled = mcpUrl.isNotBlank(),
+                        onClick = {
+                            mcpStatus = "检查登录中…"
+                            scope.launch {
+                                mcpStatus = runCatching {
+                                    check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                    LuluExternalMcp.check(context, "xiaohongshu")
+                                }.fold(
+                                    { it.take(260) },
+                                    { "登录检查失败：" + it.message.orEmpty().take(180) },
+                                )
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text("检查登录") }
+                    OutlinedButton(
+                        enabled = mcpUrl.isNotBlank() && !qrBusy,
+                        onClick = {
+                            qrBusy = true
+                            qrStatus = "获取中…"
+                            scope.launch {
+                                try {
+                                    check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                    qr = LuluExternalMcp.xhsLoginQr(context)
+                                    qrStatus = qr?.description.orEmpty()
+                                } catch (cancelled: CancellationException) {
+                                    throw cancelled
+                                } catch (error: Exception) {
+                                    qr = null
+                                    qrStatus = error.message.orEmpty().take(160)
+                                } finally {
+                                    qrBusy = false
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text(if (qrBusy) "获取中…" else "获取二维码") }
                 }
-                Text("先确保已连接可用的 MCP（云端或兼容的 Termux 本机服务）。按下面按钮生成登录码、保存到相册，然后在小红书的扫一扫中从相册选择图片。返回这里检查登录状态；二维码可能很快过期。",
-                    style = MaterialTheme.typography.bodySmall)
-                var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
-                var qrBusy by remember { mutableStateOf(false) }
-                var qrMessage by remember { mutableStateOf("") }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(enabled = !qrBusy && mcpUrl.isNotBlank(), onClick = {
-                        qrBusy = true
-                        qrMessage = "正在从 MCP 获取二维码…"
-                        scope.launch {
-                            runCatching {
-                                LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken)
-                                LuluExternalMcp.xhsLoginQr(context)
-                            }.fold(
-                                { qr = it; qrMessage = it.description },
-                                { qr = null; qrMessage = it.message.orEmpty().take(160) },
-                            )
-                            qrBusy = false
-                        }
-                    }) { Text(if (qrBusy) "正在获取…" else "获取登录二维码") }
-                    OutlinedButton(enabled = qr?.pngBase64?.isNotBlank() == true, onClick = {
-                        qrMessage = runCatching {
-                            LuluExternalMcp.saveXhsLoginQrToPhotos(context, qr!!.pngBase64)
-                        }.fold(
-                            { if (it) "已保存到系统相册，切换小红书 App 从相册扫描" else "保存失败" },
-                            { "保存失败：" + it.message.orEmpty().take(130) },
-                        )
-                    }) { Text("保存到相册") }
-                }
-                if (qrMessage.isNotBlank()) Text(qrMessage, style = MaterialTheme.typography.bodySmall)
                 qr?.pngBase64?.takeIf(String::isNotBlank)?.let { encoded ->
                     val bitmap = remember(encoded) {
                         runCatching {
-                            val bytes = Base64.decode(encoded, Base64.DEFAULT)
-                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                            val data = Base64.decode(encoded, Base64.DEFAULT)
+                            BitmapFactory.decodeByteArray(data, 0, data.size)?.asImageBitmap()
                         }.getOrNull()
                     }
                     if (bitmap != null) {
-                        Image(bitmap = bitmap, contentDescription = "小红书 MCP 登录二维码",
-                            modifier = Modifier.size(196.dp))
+                        Image(
+                            bitmap = bitmap,
+                            contentDescription = "小红书登录二维码",
+                            modifier = Modifier.size(196.dp),
+                        )
+                        OutlinedButton(onClick = {
+                            qrStatus = runCatching {
+                                if (LuluExternalMcp.saveXhsLoginQrToPhotos(context, encoded)) {
+                                    "已保存到相册"
+                                } else "保存失败"
+                            }.getOrElse { "保存失败：" + it.message.orEmpty().take(130) }
+                        }) { Text("保存二维码到相册") }
                     }
                 }
-            }
-            } // end optional external MCP configuration
-        }
+                if (qrStatus.isNotBlank()) {
+                    Text(qrStatus, style = MaterialTheme.typography.bodySmall)
+                }
 
-        HorizontalDivider()
-        Text("网络搜索（所有角色共用）", style = MaterialTheme.typography.titleMedium)
-        var deepSeekKey by remember { mutableStateOf(WebSearchProvider.savedDeepSeekKey(context)) }
-        var searchKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
-        var searchStatus by remember { mutableStateOf("") }
-        Text("通用实时搜索使用 DeepSeek Search & Fetch（非聊天补全 API）；仅用于公开网页。小红书完整笔记仍走已登录浏览器/MCP。DeepSeek 有独立请求费用，是否调用由角色当前真实行动决定。",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        OutlinedTextField(
-            value = deepSeekKey,
-            onValueChange = { deepSeekKey = it.take(256); searchStatus = "" },
-            label = { Text("DeepSeek 官方 Search API Key（优先）") },
-            visualTransformation = PasswordVisualTransformation(),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-        )
-        OutlinedTextField(
-            value = searchKey,
-            onValueChange = { searchKey = it.take(256); searchStatus = "" },
-            label = { Text("Tavily Search API Key（可选备选）") },
-            visualTransformation = PasswordVisualTransformation(),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
-        )
-        Text(if (WebSearchProvider.savedDeepSeekKey(context).isNotBlank()) "当前：DeepSeek Search"
-            else if (WebSearchProvider.savedKey(context).isNotBlank()) "当前：Tavily Search"
-            else "未配置：使用百科检索",
-            style = MaterialTheme.typography.bodySmall)
-        OutlinedButton(onClick = {
-            searchStatus = runCatching {
-                check(WebSearchProvider.saveDeepSeekKey(context, deepSeekKey))
-                check(WebSearchProvider.saveKey(context, searchKey))
-                "已保存；可用线路按 DeepSeek → Tavily → 百科（仅未配置时）选择。请通过一次真实学习检索验证。"
-            }.getOrElse { "保存失败：" + it.message.orEmpty() }
-        }) { Text("保存通用搜索线路") }
-        if (searchStatus.isNotBlank()) Text(searchStatus, style = MaterialTheme.typography.bodySmall)
+                HorizontalDivider()
+                Text("真实读帖", style = MaterialTheme.typography.titleSmall)
+                OutlinedTextField(
+                    value = keyword,
+                    onValueChange = { keyword = it.take(64) },
+                    label = { Text("搜索关键词") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                )
+                Button(
+                    enabled = !readingBusy && mcpUrl.isNotBlank() && keyword.isNotBlank(),
+                    onClick = {
+                        readingBusy = true
+                        mcpStatus = "正在搜索并读取正文…"
+                        scope.launch {
+                            try {
+                                check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
+                                val details = LuluExternalMcp.testXhsReading(context, keyword)
+                                check(XhsReadingEngine.setMcpPrimaryEnabled(context, true))
+                                mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+                                mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
+                                mcpStatus = "真实读帖成功 · 已设为优先线路\n" + details
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (error: Exception) {
+                                mcpStatus = "真实读帖失败：" + error.message.orEmpty().take(230)
+                            } finally {
+                                readingBusy = false
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(if (readingBusy) "读取中…" else "搜索并读帖") }
+            }
+
+            HorizontalDivider()
+            Text("网络搜索", style = MaterialTheme.typography.titleMedium)
+            OutlinedTextField(
+                value = deepSeekKey,
+                onValueChange = { deepSeekKey = it.take(256); searchStatus = "" },
+                label = { Text("DeepSeek Search API Key") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+            )
+            OutlinedTextField(
+                value = tavilyKey,
+                onValueChange = { tavilyKey = it.take(256); searchStatus = "" },
+                label = { Text("Tavily API Key（备用）") },
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+            )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    when {
+                        WebSearchProvider.savedDeepSeekKey(context).isNotBlank() -> "当前：DeepSeek"
+                        WebSearchProvider.savedKey(context).isNotBlank() -> "当前：Tavily"
+                        else -> "当前：百科检索"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                TextButton(onClick = {
+                    searchStatus = runCatching {
+                        check(WebSearchProvider.saveDeepSeekKey(context, deepSeekKey))
+                        check(WebSearchProvider.saveKey(context, tavilyKey))
+                        "已保存"
+                    }.getOrElse { "保存失败：" + it.message.orEmpty() }
+                }) { Text("保存") }
+            }
+            if (searchStatus.isNotBlank()) {
+                Text(searchStatus, style = MaterialTheme.typography.bodySmall)
+            }
+
+            HorizontalDivider()
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("华为健康 MCP", style = MaterialTheme.typography.titleMedium)
+                TextButton(onClick = { healthExpanded = !healthExpanded }) {
+                    Text(if (healthExpanded) "收起" else "展开")
+                }
+            }
+            if (healthExpanded) {
+                OutlinedTextField(
+                    value = healthUrl,
+                    onValueChange = { healthUrl = it },
+                    label = { Text("MCP 地址") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                )
+                OutlinedTextField(
+                    value = healthToken,
+                    onValueChange = { healthToken = it },
+                    label = { Text("Token") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                )
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = {
+                        healthStatus = runCatching {
+                            check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
+                            "已保存"
+                        }.getOrElse { "保存失败：" + it.message.orEmpty() }
+                    }, modifier = Modifier.weight(1f)) { Text("保存") }
+                    Button(
+                        enabled = healthUrl.isNotBlank(),
+                        onClick = {
+                            healthStatus = "连接中…"
+                            scope.launch {
+                                healthStatus = runCatching {
+                                    check(LuluExternalMcp.save(context, "health", healthUrl, healthToken))
+                                    LuluExternalMcp.testService(context, "health")
+                                }.fold(
+                                    { "MCP 已响应" },
+                                    { "连接失败：" + it.message.orEmpty().take(180) },
+                                )
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text("测试连接") }
+                    TextButton(onClick = {
+                        healthUrl = ""
+                        healthToken = ""
+                        healthStatus = if (LuluExternalMcp.save(context, "health", "", "")) {
+                            "已断开"
+                        } else "断开失败"
+                    }) { Text("断开") }
+                }
+                if (healthStatus.isNotBlank()) {
+                    Text(healthStatus, style = MaterialTheme.typography.bodySmall)
+                }
+            }
         }
     }
 }
