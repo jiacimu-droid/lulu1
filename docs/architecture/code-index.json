@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:29:38.465742+00:00",
-  "commit": "15fde3a734af5df4ad5773f8e423372afc87d826",
+  "generatedAt": "2026-10-22T15:30:38.834370+00:00",
+  "commit": "46ac67e443bb60f833b4defb7a8c5d1e43dbdc7e",
   "branch": "main",
-  "sourceFingerprint": "930f0bbe989c5ce034b392810ebce176c39f6e3bb04b1dbbcd12d14b9b9599d0",
+  "sourceFingerprint": "e0d75648cebb7d851658dc5b4589ab51c97930d922b0a28529e5d4b4b91c071b",
   "summary": {
     "files": 807,
-    "lines": 153860,
+    "lines": 153867,
     "symbols": 2308
   },
   "symbolIndex": {
@@ -7369,19 +7369,19 @@
     "XhsLoginQr": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 296
+        "line": 303
       }
     ],
     "saveXhsLoginQrToPhotos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 315
+        "line": 322
       }
     ],
     "healthContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 348
+        "line": 355
       }
     ],
     "MeetingProseLength": [
@@ -20063,8 +20063,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-      "lines": 517,
-      "sha256": "efd81a3be2cbb746caa214018df1698dc1bffec3cd9439acf61357ea31c78e8c",
+      "lines": 524,
+      "sha256": "4a558c040d59172aec055fbfdbc4e2bb55fc0b836a2f95f5d6c9e953b78bd1ac",
       "symbols": [
         {
           "name": "configured",
@@ -20088,15 +20088,15 @@
         },
         {
           "name": "XhsLoginQr",
-          "line": 296
+          "line": 303
         },
         {
           "name": "saveXhsLoginQrToPhotos",
-          "line": 315
+          "line": 322
         },
         {
           "name": "healthContext",
-          "line": 348
+          "line": 355
         }
       ]
     },
