@@ -61,13 +61,18 @@ internal object Live2DVisualActionBus {
         ).joinToString("、")
         return """
             【当前可视电话：本角色已加载成功的 Live2D 身体】
-            你可以在同一次回复的 JSON 里自主选择一个可视动作，也可以完全省略：
-            live2d={"expression":"表情原名"} 或 live2d={"motion":{"group":"动作组原名","index":0}}。
-            若当前模型支持头部参数，也可填 live2d={"head":{"yaw":-12,"pitch":4,"roll":0}}。
+            当前你拥有可操作的 Live2D 身体，是否表达由你自主决定，不要求每一句话配动作。
+            若这一刻确实有表情或动作意图，可在同一次回复的 JSON 附加 live2d。
+            例如 live2d={"expression":"表情原名"}，或 live2d={"motion":{"group":"动作组原名","index":0}}。
+            有真实需要时可在一个 live2d 中同时写 expression、motion、head；
+            支持头部参数才可用 live2d={"head":{"yaw":-12,"pitch":4,"roll":0}}。
             可选角度控制=$headFields；每个角度只使用 -25 至 25 范围。
             当前模型实际支持：表情=$expressions；动作=$motions。
-            只填写上面列出的真实名字和索引；按本人的性格、情绪、说话内容与现场自然决定。
-            不必每轮动，不准机械随机挑动作；没有适合的就省略 live2d。
+            只填写上面列出的真实名字和索引，沿用自己当前的心理状态、关系、情绪变化与表达意图自然决定。
+            一个动作若无必要，就保持原模型自带的呼吸眨眼和动作状态；不要每轮随机换表情，
+            不要为了显得活泼而固定摆头、反复点头或重复同一动作。
+            文本 gesture 和台词里写「笑了」「挥手」并不能驱动身体，
+            真想执行模型支持的对应动作才输出 live2d；执行器可能因资源缺失拒绝动作。
             这是身体视觉操作，不是台词、不是新的 API 回合，也不代表任何现实接触。
             若视觉不可用/视频关闭，程序会跳过，不可在正文假称动作已成功执行。
         """.trimIndent()
@@ -100,7 +105,7 @@ internal object Live2DVisualActionBus {
         if (selected == null && motion == null && angles == null) return false
         sequence++
         mutableCues.value = mutableCues.value + (characterId to Cue(
-            callId, characterId, selected, if (selected == null) motion else null, angles, sequence
+            callId, characterId, selected, motion, angles, sequence
         ))
         return true
     }
