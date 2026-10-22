@@ -284,7 +284,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.PictureInPictureAlt,
                     "悬浮窗",
-                    "允许露露在其他 App 上方陪伴和提示",
+                    "让角色请求查看屏幕、邀请返回时浮出小弹窗",
                     snapshot.overlay,
                 ) { open(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))) }
             }
@@ -568,7 +568,7 @@ private fun LuluScreenAwarenessSettings() {
     }
     if (showConsent) {
         AlertDialog(onDismissRequest = { showConsent = false }, title = { Text("允许角色看见手机屏幕？") },
-            text = { Text("同意后，角色可以根据真实理由主动请求单次截图。不是定时录像。画面可能包含个人信息，会发送到你已选择的视觉模型服务商。锁屏、系统敏感页和排除的 App 禁止截图。授权可随时撤销；返回邀请只会显示通知，不会强制切换 App。") },
+            text = { Text("同意后，角色可以根据真实理由申请查看当前一帧，不会持续录像。画面可能包含个人信息，获准后会发送给你选择的识图模型；锁屏、敏感页和排除的 App 无法读取。开启下方「悬浮窗」权限后优先弹出可拒绝的小窗；未开启则使用系统通知。返回邀请也不会强制切换 App，只有你点击才会打开。") },
             confirmButton = { TextButton(onClick = {
                 prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true).commit()
                 consent = true
