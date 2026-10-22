@@ -43,4 +43,16 @@ const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
 assert.match(stage, /internal\.on\('beforeModelUpdate'/)
 assert.doesNotMatch(stage, /\.getParameterIndex\(|\.setParameterValueById\(/)
 assert.match(stage, /setParameter\(core, 'ParamMouthOpenY', smoothedMouthOpen\)/)
-console.log('Live2D actual-index and final-stage tests passed')
+// Video eye contact is a continuous default, not a random eye saccade and
+// not a conditional release of gaze/body parameters to an idle animation.
+assert.doesNotMatch(stage, /gazeReflex|Math\.random\(\).*radius/)
+assert.match(stage, /const eyeContact = key === 'gazeX' \|\| key === 'gazeY'/)
+assert.match(stage, /if \(!eyeContact && requested == null/)
+assert.match(stage, /setParameter\(core, id, smoothBody\[axis\]\)/)
+assert.match(stage, /model\.position\.set\(viewWidth \/ 2, viewHeight \* \(isPortrait \? 1\.00 : \.49\)\)/)
+// The native receiver is authoritative about final frame size. Oversizing
+// every JPEG by 1.38x defeats measured backpressure and causes stutter.
+assert.doesNotMatch(stage, /maxEdge \* factor|Math\.min\(2100/)
+assert.match(stage, /nativeStreamMaxEdge = Math\.min\(1850,/)
+assert.match(stage, /nativeStreamAckMeanMs > 90 \? 0\.86 : 0\.89/)
+console.log('Live2D actual-index, camera eye-contact and transport guards passed')
