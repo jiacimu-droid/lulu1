@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`602840837008a5ad85b7b230b9b45f9b47c20366`
+- 基准提交：`6791fc5807f990c195573daf2626cf50a00c5c1c`
 - 分支：`main`
 - 已索引文件：831
-- 已索引代码/文本行：158459
+- 已索引代码/文本行：158492
 - 已发现符号：2397
 
 | 文件 | 行数 | 符号数 |
@@ -810,7 +810,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpCompatibilityTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 71 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
