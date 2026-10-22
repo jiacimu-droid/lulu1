@@ -14,8 +14,9 @@ import android.view.Window
 import android.webkit.WebView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -100,7 +101,8 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     var session by remember(roleId, modelUrl) { mutableIntStateOf(0) }
     var stagePhase by remember(roleId, modelUrl, session) { mutableStateOf("idle") }
     var stageMessage by remember(roleId, modelUrl, session) { mutableStateOf("尚未开始动态渲染") }
-    var latestPhase by remember { mutableStateOf("未检测") }
+    var lastStatusRecord by remember { mutableStateOf("") }
+    var logsExpanded by remember { mutableStateOf(false) }
     var events by remember { mutableStateOf<List<String>>(emptyList()) }
     var manualHead by remember { mutableStateOf<Live2DVisualActionBus.Head?>(null) }
     var motionRevision by remember { mutableIntStateOf(0) }
@@ -108,7 +110,9 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     var diagnosticView by remember(roleId, modelUrl, session) { mutableStateOf<WebView?>(null) }
     var mirrorMode by remember(roleId, modelUrl, session) { mutableStateOf(false) }
     fun record(message: String) {
-        events = (events + message.take(260)).takeLast(50)
+        val timestamp = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+            .format(java.util.Date())
+        events = (events + "$timestamp · ${message.take(260)}").takeLast(50)
     }
     fun attemptReload() {
         session++
@@ -240,9 +244,10 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                         stagePhase = phase
                                         stageMessage = detail
                                     }
-                                    if (phase != latestPhase || events.lastOrNull() != "$phase · $detail") {
-                                        record("$phase · $detail")
-                                        latestPhase = phase
+                                    val entry = "$phase · $detail"
+                                    if (entry != lastStatusRecord) {
+                                        record(entry)
+                                        lastStatusRecord = entry
                                     }
                                 },
                             )
@@ -256,6 +261,14 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                 Text("当前阶段：$stagePhase · $stageMessage", color = if (stagePhase == "error" ||
                     stagePhase == "fatal") Color(0xFFFFB09D) else Color.White,
                     fontSize = 12.sp, lineHeight = 17.sp)
+                // Always visible even when the scrollable history is clipped by a
+                // small phone or Android navigation bar. The last event is NOT
+                // dependent on the LazyColumn scroll offset.
+                Text("最新日志：${events.lastOrNull() ?: "暂无记录"}",
+                    modifier = Modifier.fillMaxWidth().background(Color(0xFF30343A))
+                        .padding(horizontal = 9.dp, vertical = 6.dp),
+                    color = Color(0xFFFAE3AE), fontSize = 11.sp,
+                    lineHeight = 15.sp, maxLines = 4)
                 Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     TextButton(onClick = ::attemptReload, enabled = modelUrl != null && coreReady) {
                         Text("重新测试", fontSize = 12.sp)
@@ -294,6 +307,9 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("加载日志（最近50条）", color = Color.LightGray, fontSize = 12.sp,
                         modifier = Modifier.weight(1f))
+                    TextButton(onClick = { logsExpanded = !logsExpanded }) {
+                        Text(if (logsExpanded) "收起日志" else "展开日志", fontSize = 12.sp)
+                    }
                     TextButton(onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
                             as? ClipboardManager
@@ -304,12 +320,18 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 events.joinToString("\n")))
                     }) { Text("复制诊断", fontSize = 12.sp) }
                 }
-                val scrollState = rememberScrollState()
-                LaunchedEffect(events.size) { scrollState.scrollTo(scrollState.maxValue) }
-                Column(Modifier.fillMaxWidth().height(145.dp).verticalScroll(scrollState)
-                    .background(Color(0xFF202326)).padding(8.dp)) {
-                    events.forEach {
-                        Text(it, color = Color(0xFFE0E2E6), fontSize = 11.sp, lineHeight = 16.sp)
+                val logListState = rememberLazyListState()
+                LaunchedEffect(events.size, logsExpanded) {
+                    if (events.isNotEmpty()) logListState.scrollToItem(events.lastIndex)
+                }
+                LazyColumn(
+                    state = logListState,
+                    modifier = Modifier.fillMaxWidth().height(if (logsExpanded) 250.dp else 112.dp)
+                        .background(Color(0xFF202326)).padding(8.dp),
+                ) {
+                    itemsIndexed(events) { _, entry ->
+                        Text(entry, color = Color(0xFFE0E2E6), fontSize = 11.sp,
+                            lineHeight = 16.sp, modifier = Modifier.padding(vertical = 2.dp))
                     }
                 }
             }
