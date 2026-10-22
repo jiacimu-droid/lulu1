@@ -45,6 +45,7 @@ import androidx.webkit.WebViewFeature
 import androidx.webkit.WebMessageCompat
 import androidx.webkit.JavaScriptReplyProxy
 import org.json.JSONObject
+import org.json.JSONArray
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +71,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     previewHead: Live2DVisualActionBus.Head? = null,
     previewBody: Live2DVisualActionBus.Body? = null,
     previewFace: Live2DVisualActionBus.Face? = null,
+    previewBeats: List<Live2DVisualActionBus.Beat> = emptyList(),
     // Render frames in Compose, outside the WebView surface, when Android's
     // GPU compositor displays an empty WebView in spite of positive readback.
     nativeMirrorEnabled: Boolean = false,
@@ -188,6 +190,36 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 val values = JSONObject()
                 face.values.forEach { (key, value) -> values.put(key, value.toDouble()) }
                 commands += "window.LuluLive2D && window.LuluLive2D.face($values, $previewImmediate)"
+            }
+            if (previewBeats.isNotEmpty()) {
+                val beats = JSONArray()
+                previewBeats.forEach { beat ->
+                    val item = JSONObject().put("atMs", beat.atMs)
+                    beat.expression?.let { item.put("expression", it) }
+                    beat.head?.let { head ->
+                        val values = JSONObject()
+                        head.yaw?.let { values.put("yaw", it.toDouble()) }
+                        head.pitch?.let { values.put("pitch", it.toDouble()) }
+                        head.roll?.let { values.put("roll", it.toDouble()) }
+                        item.put("head", values)
+                    }
+                    beat.body?.let { body ->
+                        val values = JSONObject()
+                        body.yaw?.let { values.put("yaw", it.toDouble()) }
+                        body.pitch?.let { values.put("pitch", it.toDouble()) }
+                        body.roll?.let { values.put("roll", it.toDouble()) }
+                        item.put("body", values)
+                    }
+                    beat.face?.let { face ->
+                        val values = JSONObject()
+                        face.values.forEach { (key, value) ->
+                            values.put(key, value.toDouble())
+                        }
+                        item.put("face", values)
+                    }
+                    beats.put(item)
+                }
+                commands += "window.LuluLive2D && window.LuluLive2D.choreography($beats, $previewImmediate)"
             }
             commands.forEach { stage.evaluateJavascript(it, null) }
         }
