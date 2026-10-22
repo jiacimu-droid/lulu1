@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`23cc8c86acdd45942c8bac2168d3573471e4e573`
+- 基准提交：`bd03fd1d5e9d5222b2ecfe35457a268074d08775`
 - 分支：`main`
-- 已索引文件：833
-- 已索引代码/文本行：159371
-- 已发现符号：2414
+- 已索引文件：834
+- 已索引代码/文本行：159390
+- 已发现符号：2415
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -107,6 +107,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 312 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |

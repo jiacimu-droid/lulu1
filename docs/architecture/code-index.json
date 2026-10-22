@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:51:20.560820+00:00",
-  "commit": "23cc8c86acdd45942c8bac2168d3573471e4e573",
+  "generatedAt": "2026-10-22T20:51:59.675323+00:00",
+  "commit": "bd03fd1d5e9d5222b2ecfe35457a268074d08775",
   "branch": "main",
-  "sourceFingerprint": "ab3292f13d3b5af5391af55a7671954010fd8445d11372674e656a12dd52df0a",
+  "sourceFingerprint": "b08b962bc561c1a955a13798a570807f2bb0fe995c45b506f4e41ff98a83ce62",
   "summary": {
-    "files": 833,
-    "lines": 159371,
-    "symbols": 2414
+    "files": 834,
+    "lines": 159390,
+    "symbols": 2415
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -514,6 +514,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
         "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt",
+        "line": 17
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -14819,6 +14823,17 @@
         {
           "name": "interrupted",
           "line": 44
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt",
+      "lines": 19,
+      "sha256": "f39347023fd9e07450432b23e686a9c2f8d0c4e6d7b040d58ddc6344dceeb395",
+      "symbols": [
+        {
+          "name": "label",
+          "line": 17
         }
       ]
     },
