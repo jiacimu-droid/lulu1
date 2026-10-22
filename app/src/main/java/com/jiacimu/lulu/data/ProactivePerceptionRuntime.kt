@@ -1827,7 +1827,7 @@ object ProactivePerceptionRuntime {
                     (0 until minOf(bubbles.length(), 5)).mapNotNull { i ->
                         (bubbles.optJSONObject(i)?.optString("text")
                             ?: bubbles.optString(i)).trim().takeIf(String::isNotBlank)
-                    }.joinToString("\n")
+                    }.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
                 }.orEmpty()
             },
             reason = json.optString("reason").trim(),
