@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:25:20.524441+00:00",
-  "commit": "c2b7704214be924a153397a13f0c59aa4c78657e",
+  "generatedAt": "2026-10-22T07:33:51.895077+00:00",
+  "commit": "3852dc95583e6c1e75496dc93b3911cffa397c09",
   "branch": "main",
-  "sourceFingerprint": "313af33f74881e2071a69405853a40aee7f18e8d6e2485c1a272d85b25450faf",
+  "sourceFingerprint": "3bae0ae4a0845d5dd8588488f1937b173cb24c477ced8f47f44f1d5d9c239bd4",
   "summary": {
     "files": 798,
-    "lines": 151740,
-    "symbols": 2281
+    "lines": 151780,
+    "symbols": 2282
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1684,10 +1684,28 @@
         "line": 76
       }
     ],
+    "normalized": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 133
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
+        "line": 14
+      }
+    ],
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 125
+        "line": 165
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1697,13 +1715,13 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 137
+        "line": 177
       }
     ],
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 148
+        "line": 188
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -7708,20 +7726,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
         "line": 37
-      }
-    ],
-    "normalized": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 50
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 36
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
-        "line": 14
       }
     ],
     "LuluConversation": [
@@ -14047,8 +14051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 177,
-      "sha256": "94919c665779359ae499017899d9c9db506b9641e291ed2abf985ee793fb5384",
+      "lines": 217,
+      "sha256": "afb44c3297b53eb11d664423d981c898a67e64c01d1903e43df223af03280263",
       "symbols": [
         {
           "name": "Head",
@@ -14087,16 +14091,20 @@
           "line": 76
         },
         {
+          "name": "normalized",
+          "line": 133
+        },
+        {
           "name": "publish",
-          "line": 125
+          "line": 165
         },
         {
           "name": "bounded",
-          "line": 137
+          "line": 177
         },
         {
           "name": "boundedBody",
-          "line": 148
+          "line": 188
         }
       ]
     },
