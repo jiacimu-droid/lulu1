@@ -122,9 +122,13 @@ internal class XhsAppBrowserSession(private val activity: Activity) {
             isFocusable = false
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         }
-        val height = (420f * activity.resources.displayMetrics.density).toInt()
+        // Use the same viewport geometry as manual browsing. The old 420dp
+        // parking slot changed XHS responsive search overlays and virtualized
+        // card hydration, so foreground manual reads could work while an
+        // autonomous read on the exact same session saw no search results.
         root.addView(slot, 0, FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, height))
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT))
         parkingSlot = slot
         return slot
     }
