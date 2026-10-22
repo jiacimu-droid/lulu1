@@ -85,13 +85,21 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     }
 }
 
+// Frequent Compose audio-level updates must not re-run canvas layout JS.
+// Keep only weak references so disposed video WebViews are not retained.
+private val reportedLive2DSizes = java.util.WeakHashMap<WebView, Pair<Int, Int>>()
+
 private fun reportNativeLive2DViewport(view: WebView) {
     if (view.width < 20 || view.height < 20) return
-    val width = view.width
-    val height = view.height
-    view.evaluateJavascript(
-        "window.__luluNativeViewport={width:$width,height:$height};" +
-            "if(window.LuluLive2D)window.LuluLive2D.setViewport($width,$height)", null)
+    val size = view.width to view.height
+    if (reportedLive2DSizes[view] == size) return
+    reportedLive2DSizes[view] = size
+    runCatching {
+        view.evaluateJavascript(
+            "window.__luluNativeViewport={width:${size.first},height:${size.second}};" +
+                "if(window.LuluLive2D)window.LuluLive2D.setViewport(${size.first},${size.second})",
+            null)
+    }
 }
 
 private fun createLive2DWebView(context: Context, characterId: String, modelUrl: String,
