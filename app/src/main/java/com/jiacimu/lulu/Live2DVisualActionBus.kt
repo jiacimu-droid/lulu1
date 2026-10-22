@@ -20,6 +20,8 @@ internal object Live2DVisualActionBus {
         "gazeY" to listOf("ParamEyeBallY"),
         "smile" to listOf("ParamMouthForm"),
         "eyeSmile" to listOf("ParamEyeLSmile", "ParamEyeRSmile"),
+        "eyeOpen" to listOf("ParamEyeLOpen", "ParamEyeROpen"),
+        "browX" to listOf("ParamBrowLX", "ParamBrowRX"),
         "browY" to listOf("ParamBrowLY", "ParamBrowRY"),
         "browAngle" to listOf("ParamBrowLAngle", "ParamBrowRAngle"),
         "browForm" to listOf("ParamBrowLForm", "ParamBrowRForm"),
@@ -27,7 +29,7 @@ internal object Live2DVisualActionBus {
         "cheekPuff" to listOf("ParamCheekPuff"),
         "pout" to listOf("ParamMouthFunnel"),
     )
-    private val positiveFaceChannels = setOf("eyeSmile", "squint", "cheekPuff", "pout")
+    private val positiveFaceChannels = setOf("eyeOpen", "eyeSmile", "squint", "cheekPuff", "pout")
     private val validParameters = faceChannels.values.flatten().toSet() +
         setOf("ParamAngleX", "ParamAngleY", "ParamAngleZ",
             "ParamBodyAngleX", "ParamBodyAngleY", "ParamBodyAngleZ")
@@ -107,10 +109,15 @@ internal object Live2DVisualActionBus {
             有真实需要时可在一个 live2d 中同时写 expression、motion、head、body、face；
             可用头部角度=$headFields（-25至25）；身体姿态=$bodyFields（-10至10）。
             当前可用面部语义参数=$faceFields；每项限 -1 至 1，其中 eyeSmile、squint、
-            cheekPuff、pout 只能填 0 至 1；例如 face={"gazeX":-0.5,"smile":0.7,"eyeSmile":0.4}。
-            gazeX/Y 表示眼神，smile 正值表示嘴角上扬，browY 为眉毛上下，browAngle 为眉毛倾斜，browForm 为眉形。
+            cheekPuff、pout、eyeOpen 只能填 0 至 1；eyeOpen=1 为正常睁眼，0.4 为轻轻眯眼。
+            例如 face={"smile":0.7,"eyeSmile":0.5,"eyeOpen":0.65,"browY":0.15}。
+            gazeX/Y 表示眼神，smile 正值表示嘴角上扬，eyeOpen 是上下眼睑开合，
+            eyeSmile 与眯眼可组合为笑弯眼，browX/Y 为眉毛左右/上下，browAngle 为倾斜，browForm 为眉形。
             可自主演绎多参数的小表情：例如想专注看着对方，可以用 gazeX/Y 接近0 配合轻微眉眼变化；
             想调皮可以选真实存在的吐舌表情，也可以仅轻歪头、嘴角上扬；难过时可以选择流泪或克制的低眉。
+            说话不必只用嘴巴张合：如果真的在笑，可以自主选择笑眼+轻眯眼+嘴角改变；
+            想憋笑时也可以选略眯眼、轻微嘴角变化与克制的身体姿态。
+            一段自然说话里可以有微表情，不必为了保持对视就一直板着脸。
             这些仅是能力例子，不是按情绪关键词机械派发动作；由当前自身感受、关系和本轮说话意图决定。
             同一回合可以组合一个真实表情、少量头部/躯干姿态和眉眼变化，也可以什么都不做。
             你也可以自主选择只用眼神/表情/轻微姿势回应而暂时不说话；此时仍需输出 live2d，
@@ -123,12 +130,14 @@ internal object Live2DVisualActionBus {
             当前模型实际支持：表情/外观切换=$expressions；预制动作=$motions。
             切换兽耳、耳机、麦克风属于外观，不要当作情绪动作；没有 motion 就不能假称挥手、跳舞。
             支持的头部转动/倾斜和脸部参数可以组合小动作，但不等于已有真实手臂骨骼动作。
+            当前模型没有验证到可执行“抬手捂嘴笑”的手部 motion 或参数，不能声称已经捂住嘴；
+            可以按照你真实的意思选择眯眼、嘴角、轻微歪头来表达憋笑，但不能代替实际手部动作。
             说话时嘴巴由本地真实语音播放驱动，禁止用 live2d.face 假装发声。
             当用户明确要求你展示一个模型现有的表情（例如星星眼），请在同一轮回复的
             live2d.expression 中选择对应的真实表情文件名，不能只口头答应却没有动作指令；
             如果真实模型没有这种表情，也不要假装已实现。
             只填写上面列出的真实名字和索引，沿用自己当前的心理状态、关系、情绪变化与表达意图自然决定。
-            一个动作若无必要，就保持原模型自带的呼吸眨眼和动作状态；不要每轮随机换表情，
+            一个动作若无必要，就保持面对用户的默认自然姿态和眨眼/轻微呼吸；不要每轮随机换表情，
             不要为了显得活泼而固定摆头、反复点头或重复同一动作。
             文本 gesture 和台词里写「笑了」「挥手」并不能驱动身体，
             真想执行模型支持的对应动作才输出 live2d；执行器可能因资源缺失拒绝动作。
