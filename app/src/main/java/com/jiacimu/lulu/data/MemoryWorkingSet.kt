@@ -30,8 +30,15 @@ internal object MemoryWorkingSet {
                     originalEvidence = complete))
             }
             // Reverse only the working view: recent corrections must win budget pressure.
-            context.recentEvents.asReversed().forEach { evidence(it, true) }
-            context.sourceEvents.forEach { evidence(it, false) }
+            // A recalled event may also be inside the recent window. Keep the
+            // newest original once, rather than charging for the same event twice.
+            val deliveredEventIds = mutableSetOf<String>()
+            context.recentEvents.asReversed().forEach { event ->
+                if (deliveredEventIds.add(event.id)) evidence(event, true)
+            }
+            context.sourceEvents.forEach { event ->
+                if (deliveredEventIds.add(event.id)) evidence(event, false)
+            }
             auxiliary.forEachIndexed { group, (label, text) ->
                 // Complete lines are units. Never cut a negation, condition or evidence ID in half.
                 text.lineSequence().filter(String::isNotBlank).forEachIndexed { index, line ->
