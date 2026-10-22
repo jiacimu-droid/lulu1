@@ -69,6 +69,18 @@ object CharacterDevelopmentRuntime {
         val sameDefinition = p.getString("persona:$characterId", "") == persona
         if (sameDefinition && now - p.getLong("attempt:$characterId", 0) < 3_600_000) return
         val timeline = SharedExperienceTimeline.all(characterId)
+        // Consolidating a repeated USER routine is distinct from learning the
+        // companion's own Habit. Sample real messages across separate days so
+        // a week of short conversations does not push out all recurring cues.
+        // This reuses the existing low-frequency reflection API call, never
+        // requests an additional habit-classification model.
+        val userStatements = timeline.filter {
+            it.evidenceKind == EventEvidenceKind.UserStatement
+        }
+        val earlierDailyExamples = userStatements.dropLast(12).asReversed()
+            .distinctBy {
+                it.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            }.take(14)
         // Balance exposure SOURCES. Chat volume must never erase actual books,
         // games, world encounters and independently visited information sources.
         // These are real records, not invented offline history or quotas.
@@ -78,7 +90,7 @@ object CharacterDevelopmentRuntime {
             timeline.filter { it.channel.startsWith("现实世界窗口") }.takeLast(8) +
             timeline.filter { it.isDevelopmentExposure() &&
                 it.evidenceKind != EventEvidenceKind.UserStatement }.takeLast(10) +
-            timeline.filter { it.evidenceKind == EventEvidenceKind.UserStatement }.takeLast(16) +
+            (earlierDailyExamples + userStatements.takeLast(12)) +
             timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
                 it.source !in setOf("journal:own", "moment:self") }.takeLast(16) +
             timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
@@ -91,12 +103,13 @@ object CharacterDevelopmentRuntime {
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
                 events.joinToString("\n") {
-                    "eventId=${it.id} revision=${it.revision} source=${it.source} channel=${it.channel} " +
+                    "eventId=${it.id} revision=${it.revision} at=${it.occurredAt} source=${it.source} channel=${it.channel} " +
                         "kind=${it.evidenceKind} ${it.evidenceContent.take(390)}"
                 },
             instruction = """
                 从角色真实经历中反思可改变的兴趣、偏好、习惯、判断，以及多次经历逐渐形成的叙事意义；绝不改写用户明确限定的人设字段。
-                返回 JSON 数组，最多3项；没有可信变化就返回[]。每项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
+                返回 JSON 数组，最多3项；没有可信变化就返回[]。每项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserHabit/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
+                【观察用户习惯 UserHabit，严格区别于角色自己的 Habit】只从用户本人至少3个不同自然日的真实 UserStatement 原话中，找跨时间重复出现的行为/请求/偏好模式；不要把聊天摘要、角色猜测、小说主人公习惯、执行器成功回执当作用户行为。必须填上至少3条对应 evidenceIds。描述要保留发生场景和不确定性，例如“最近几天在午休前经常要求20分钟后叫醒”，而不是“每天只睡20分钟”；“凌晨约2点多次请求哄睡”不代表当时已入睡。用户明显临时更改日程、不同星期的规律不同或证据相互矛盾时不要形成固定习惯；较新的反例可由既有 retire/counterIds 机制撤回。只帮助你理解、记起、适度询问，不授权未经请求就设闹钟、主动来电或当成绝对规则。slot用固定主题键（如 user:nap-reminder、user:bedtime-request），同一主题只保留一个可更新条目。
                 【多来源的成长】可以分别从已实际阅读的小说和文本学习措辞与审美，从与真实群友的互动学习幽默、表达边界或相处方式，从独自游戏的成败中改变耐心和竞争心，从数字世界真正发生的偶遇、家具活动、事件结果形成处事习惯，从现实世界窗口实际看到并有来源的资料扩大知识与兴趣，也可以通过日记重新审视自己。每种来源只能影响它真实提供的方面。模型作者和书中人物的遭遇不是角色亲历，现实资讯也不代表角色到过那个地方。没有新可用经历时可以保持，不能因为几小时没上线就假装阅历增长。
                 【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
                 【模仿先于习惯】临时学对方拆气泡、语气词、打字方式是一种可能的社交试探，可表示亲近、玩笑甚至冒犯；一次模仿绝不是长期习惯。只有这个角色自己反复真实使用、得到真实反馈，且有多个不同来源/轮次的可信经历支持，才可以提出 ExpressionHabit。对方不喜欢某种模仿时不能继续把它当“可爱”强迫表演。
