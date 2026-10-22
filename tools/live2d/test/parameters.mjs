@@ -154,8 +154,10 @@ for (let i = 0; i < 110; i++) {
     touchReflex: null, speaking: false, seconds,
   })
 }
-assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - 1) < .05,
-  'eyelids must release to model-authored opening after the caress')
+assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - .54) < .05,
+  'left eyelid must restore the authored wink, not a forced neutral face')
+assert.ok(Math.abs(valuesById.get('ParamEyeROpen') - 1) < .05,
+  'right eyelid must independently restore the authored opening')
 rig.reset()
 frame()
 assert.equal(valuesById.get('ParamAngleX'), 0)
