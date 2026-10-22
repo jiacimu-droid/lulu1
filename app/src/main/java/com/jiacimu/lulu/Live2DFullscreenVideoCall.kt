@@ -213,11 +213,7 @@ internal fun Live2DFullscreenVideoCall(
                             characterId, state.callExperienceId)
                         if (LuluVoiceCallSession.onLive2DTouch(characterId,
                                 state.callExperienceId, region, gesture)) {
-                            val label = when (region) {
-                                "head" -> "头部"
-                                "arm" -> "手臂"
-                                else -> "身体"
-                            }
+                            val label = Live2DTouchZones.label(region) ?: "身体"
                             touchFeedback = when (gesture) {
                                 "stroke-left" -> "轻轻向左抚摸 · $label"
                                 "stroke-right" -> "轻轻向右抚摸 · $label"
