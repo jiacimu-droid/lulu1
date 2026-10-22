@@ -690,10 +690,10 @@ private fun PresenceLifeThreads(characterId: String, now: Instant) {
                 }
             }
         }
-        if (unique.size > 4) {
+        if (ideas.size > 4) {
             TextButton(onClick = { showOlder = !showOlder },
                 modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text(if (showOlder) "收起其他想法" else "再看看其他${unique.size - 4}件事")
+                Text(if (showOlder) "收起其他想法" else "再看看其他${ideas.size - 4}件事")
             }
         }
     }
