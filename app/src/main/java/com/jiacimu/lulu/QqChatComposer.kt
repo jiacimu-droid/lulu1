@@ -7,6 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -159,23 +161,24 @@ internal fun QqChatComposer(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                .padding(horizontal = 4.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(1.dp),
         ) {
             TextButton(
                 onClick = { imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp),
+                modifier = Modifier.width(44.dp),
+                contentPadding = PaddingValues(0.dp),
             ) {
-                Icon(Icons.Outlined.AddPhotoAlternate, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("图片", fontSize = 11.sp)
+                Icon(Icons.Outlined.AddPhotoAlternate, "图片", Modifier.size(20.dp))
             }
             TextButton(
                 onClick = { showStickerShelf = !showStickerShelf },
-                contentPadding = PaddingValues(horizontal = 5.dp, vertical = 5.dp),
+                modifier = Modifier.width(44.dp),
+                contentPadding = PaddingValues(0.dp),
             ) {
-                Text("☺", fontSize = 19.sp, color = QqInk)
-                Spacer(Modifier.width(3.dp))
-                Text("表情", fontSize = 11.sp)
+                Text("☺", fontSize = 21.sp, color = QqInk)
             }
             ModelArchiveIconButton(
                 usage = ModelUsage.Chat,
@@ -195,22 +198,17 @@ internal fun QqChatComposer(
                     Icon(Icons.Outlined.AlternateEmail, null, Modifier.size(18.dp)); Spacer(Modifier.width(3.dp)); Text("@", fontSize = 11.sp)
                 }
             }
-        }
-        // Give calls and co-watching an always-visible row on narrow phones.
-        // In particular, 一起看 stays immediately to the right of 视频.
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            TextButton(onClick = onCall, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp)) {
+            // Keep image, stickers, model, telephone, video and co-watch on ONE row.
+            // Narrow screens may scroll this single row; never stack calling controls.
+
+            TextButton(onClick = onCall, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 5.dp)) {
                 Icon(Icons.Outlined.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("电话", fontSize = 11.sp)
             }
             // Only one-to-one chats have the user's imported Live2D body.
             // The right-side video shortcut shares the SAME voice-call session.
             if (!groupMode && onVideoCall != null) {
                 TextButton(onClick = onVideoCall,
-                    contentPadding = PaddingValues(horizontal = 7.dp, vertical = 5.dp)) {
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 5.dp)) {
                     Icon(Icons.Outlined.Videocam, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("视频", fontSize = 11.sp)
@@ -218,7 +216,7 @@ internal fun QqChatComposer(
             }
             if (!groupMode && onWatchTogether != null) {
                 TextButton(onClick = onWatchTogether,
-                    contentPadding = PaddingValues(horizontal = 7.dp, vertical = 5.dp)) {
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 5.dp)) {
                     Icon(Icons.Outlined.Theaters, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("一起看", fontSize = 11.sp)

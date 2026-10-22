@@ -98,27 +98,44 @@ private suspend fun watchSubtitleFile(context: Context, uri: Uri): List<WatchSub
         }.orEmpty()
     }
 
-/** Extract a single past-or-current frame on demand, without streaming the entire movie to AI. */
-private suspend fun watchFrame(context: Context, uri: Uri, atMs: Long): String? = withContext(Dispatchers.IO) {
-    runCatching {
-        val retriever = MediaMetadataRetriever()
-        try {
-            retriever.setDataSource(context, uri)
-            val image = retriever.getFrameAtTime(atMs * 1000, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC)
-                ?: return@runCatching null
-            val ratio = minOf(1f, 640f / image.width.coerceAtLeast(1))
-            val small = if (ratio < 1) Bitmap.createScaledBitmap(image,
-                (image.width * ratio).toInt().coerceAtLeast(1),
-                (image.height * ratio).toInt().coerceAtLeast(1), true) else image
-            val bytes = ByteArrayOutputStream()
-            small.compress(Bitmap.CompressFormat.JPEG, 76, bytes)
-            if (small !== image) small.recycle()
-            image.recycle()
-            "data:image/jpeg;base64," + Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP)
-        } finally {
-            retriever.release()
+/**
+ * Decode the selected moments in one local pass. The file is not uploaded:
+ * only these opt-in images go through the existing model API call.
+ * Multi-frame is an approximate storyboard, not continuous video/audio vision.
+ */
+private suspend fun watchFrames(
+    context: Context, uri: Uri, times: List<Long>,
+): List<Pair<Long, String>> = withContext(Dispatchers.IO) {
+    if (times.isEmpty()) return@withContext emptyList()
+    val retriever = MediaMetadataRetriever()
+    try {
+        retriever.setDataSource(context, uri)
+        times.mapNotNull { atMs ->
+            runCatching {
+                val image = retriever.getFrameAtTime(
+                    (atMs.coerceAtLeast(0L) * 1000L).coerceAtLeast(0L),
+                    MediaMetadataRetriever.OPTION_CLOSEST,
+                ) ?: return@runCatching null
+                try {
+                    val ratio = minOf(1f, 640f / image.width.coerceAtLeast(1))
+                    val small = if (ratio < 1f) Bitmap.createScaledBitmap(
+                        image, (image.width * ratio).toInt().coerceAtLeast(1),
+                        (image.height * ratio).toInt().coerceAtLeast(1), true,
+                    ) else image
+                    try {
+                        val bytes = ByteArrayOutputStream()
+                        check(small.compress(Bitmap.CompressFormat.JPEG, 76, bytes))
+                        atMs to ("data:image/jpeg;base64," +
+                            Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP))
+                    } finally {
+                        if (small !== image) small.recycle()
+                    }
+                } finally { image.recycle() }
+            }.getOrNull()
         }
-    }.getOrNull()
+    } catch (_: Exception) {
+        emptyList()
+    } finally { retriever.release() }
 }
 
 /** A scene adapter: current character gateway, model archive, and ONE shared evidence timeline. */
@@ -145,8 +162,13 @@ internal fun WatchTogetherRoom(
     var input by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
-    var auto by remember(key) { mutableStateOf(prefs.getBoolean(key + "automatic", false)) }
+    var auto by remember(key) { mutableStateOf(prefs.getBoolean(key + "automatic", true)) }
     var observedAt by remember(roomId) { mutableLongStateOf(prefs.getLong(key + roomId + ":observed", 0L)) }
+    val evidence = remember(roomId) {
+        WatchPlaybackEvidence.restore(prefs.getString(key + roomId + ":watched", "").orEmpty())
+    }
+    var observationSerial by remember(roomId) { mutableIntStateOf(0) }
+    var requestRevision by remember(roomId) { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val videoTitle = remember(videoUri) {
         if (videoUri.isBlank()) "" else watchFilename(context, Uri.parse(videoUri))
@@ -164,15 +186,34 @@ internal fun WatchTogetherRoom(
         )
         refresh()
     }
-    fun save() { prefs.edit().putLong(key + "position", video?.currentPosition?.toLong() ?: progress).apply() }
+    fun save() {
+        prefs.edit()
+            .putLong(key + roomId + ":position", video?.currentPosition?.toLong() ?: progress)
+            .putString(key + roomId + ":watched", evidence.encode())
+            .apply()
+    }
+    fun moveTo(position: Long) {
+        val to = position.coerceIn(0L, duration.coerceAtLeast(0L))
+        requestRevision += 1
+        evidence.pause()
+        video?.seekTo(to.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+        progress = to
+        if (playing) evidence.begin(to)
+        save()
+    }
     fun exit() {
         save()
         video?.pause()
+        evidence.pause()
         playing = false
         onClose()
     }
 
-    LaunchedEffect(roomId) { refresh() }
+    LaunchedEffect(roomId) {
+        refresh()
+        record("观影状态", characterName + "和你进入了同一个观影房间；片源尚未开始时一起等候。",
+            EventEvidenceKind.Observation, id = "room-arrival")
+    }
     LaunchedEffect(subtitleUri) {
         cues = emptyList()
         if (subtitleUri.isNotBlank()) {
@@ -201,9 +242,12 @@ internal fun WatchTogetherRoom(
                 ready = false
                 playing = false
                 notes = emptyList()
+                requestRevision += 1
                 prefs.edit().putString(key + "video", videoUri).putString(key + "subtitle", "")
-                    .putString(key + "room", next).putLong(key + "position", 0L).apply()
+                    .putString(key + "room", next).putLong(key + next + ":position", 0L).apply()
                 error = ""
+                record("观影状态", "你选择了本地影片：" + watchFilename(context, uri) +
+                    "；双方已在房间等待正式播放。", EventEvidenceKind.Observation, id = "media-selected")
             }
         }
     }
@@ -219,84 +263,129 @@ internal fun WatchTogetherRoom(
         }
     }
 
-    fun react(comment: String = "", automatic: Boolean = false) {
+    fun react(comment: String = "", automatic: Boolean = false, completed: Boolean = false) {
         if (!ready || videoUri.isBlank() || busy) return
-        val at = video?.currentPosition?.toLong() ?: progress
-        if (automatic && (at < 120_000 || at - observedAt < 120_000)) return
+        val at = if (completed) duration else video?.currentPosition?.toLong() ?: progress
+        if (automatic && !completed && (evidence.observedMs(at) < 45_000L ||
+                at - observedAt < 90_000L)) return
+        if (automatic && completed &&
+            prefs.getBoolean(key + roomId + ":end-considered", false)) return
         val currentRoom = roomId
+        val revision = requestRevision
         val uri = Uri.parse(videoUri)
         val title = watchFilename(context, uri)
-        val subtitles = watchedSubtitleWindow(cues, at)
+        // Snapshot exactly the watch evidence at this decision, not a guessed
+        // 0..playhead interval. An old model reply cannot survive a seek/new file.
+        val snapshot = WatchPlaybackEvidence.restore(evidence.encode())
+        val subtitles = watchedSubtitles(cues, snapshot, at)
+        val frameTimes = snapshot.frameTimes(at)
         if (automatic) {
             observedAt = at
-            prefs.edit().putLong(key + currentRoom + ":observed", at).apply()
+            prefs.edit().putLong(key + currentRoom + ":observed", at)
+                .putBoolean(key + currentRoom + ":end-considered",
+                    completed || prefs.getBoolean(key + currentRoom + ":end-considered", false))
+                .apply()
         }
         if (comment.isNotBlank()) record(UserProfileContext.displayLabel(),
             "[" + (at / 1000) + "秒] " + comment, EventEvidenceKind.UserStatement)
-        val history = notes.takeLast(12).joinToString("\n") { it.speaker + "：" + it.content.take(200) }
+        val history = notes.takeLast(16).joinToString("\n") {
+            it.speaker + "：" + it.content.take(230)
+        }
         busy = true
         error = ""
         scope.launch {
             try {
-                val frame = watchFrame(context, uri, at)
+                val storyboard = watchFrames(context, uri, frameTimes)
                 val facts = buildString {
-                    appendLine("此刻和用户在露露机上共同观看真实本地视频：" + title)
-                    appendLine("播放器当前：" + (at / 1000) + "秒；以下内容只来自已经播放到的位置。")
-                    appendLine("当前播放位置以前最近三分钟的字幕（跳播的区间不等于实际看过）：")
-                    appendLine(subtitles.ifBlank { "没有可读取的定时对白，不能臆测台词。" })
-                    appendLine(if (frame == null) "未取得视频画面，不能声称看见人物和场景。" else
-                        "附带仅这一时刻的单张画面，不代表连续看到了所有动作。")
-                    appendLine("房间中已经发生的交流：\n" + history)
-                    appendLine("用户此刻的话：" + comment.ifBlank { "没有新提问；决定自己要不要说话。" })
+                    appendLine("你和用户已经进入同一个观影房间，正在一起看：" + title)
+                    appendLine("目前视频播放头：" + (at / 1000) + "秒；" +
+                        (if (completed) "影片刚播放完。" else if (playing) "正在播放。" else "目前暂停。"))
+                    appendLine("应用确实追踪到的观看时长：" + (snapshot.observedMs(at) / 1000) +
+                        "秒。拖动跳过的部分不算看过。")
+                    appendLine("最近实际看过且已经结束的字幕：")
+                    appendLine(subtitles.ifBlank { "没有可读取的字幕；不能因此臆测对白。" })
+                    appendLine("这次提供的实际画面时间点（与附图按顺序一一对应）：")
+                    appendLine(storyboard.joinToString("；") { it.first.toString() + "ms" }
+                        .ifBlank { "没有可用关键画面。" })
+                    appendLine("这是从已看过时段抽样的若干帧，不是完整逐帧视频；" +
+                        "不能声称听到了音频、连续看到了所有动作。")
+                    appendLine("同一个房间过去的观影交流和你的阶段主观印象：\n" + history)
+                    appendLine("此刻用户的表达：" + comment.ifBlank {
+                        if (automatic) "没有新提问；由你自己决定是否开口。"
+                        else "用户想听听你对目前共同看过内容的想法。"
+                    })
                 }
                 val raw = LuluAiServices.gateway.generate(
                     characterId = characterId, facts = facts,
                     instruction = """
-                        当前是你和用户一起看电影的生活场景，继承你本人的完整性格、关系与记忆。
-                        只依据已经展示的字幕与当前画面，不预测、不剧透尚未播出的情节；
-                        电影人物与事件都是片中虚构内容，不能误认为你与用户的现实经历。
-                        由你本人决定吐槽、好奇、回复还是安静看。不要机械定时解说或写长篇作文。
-                        回复严格用 JSON：{"speak":true,"text":"想说的自然台词"}；
-                        不想说话时：{"speak":false,"text":""}。
-                        没有提供音轨识别结果时，不能自称听见声音，也不要虚构播放器操作。
+                        这是露露机真实生活里的共同观影场景，不是一次陌生的照片鉴定。
+                        你早已入场，并和用户共享同一段实际播放经历。你的身份、
+                        个性、关系和上一轮真实观影印象均与其他聊天场景一致。
+                        根据提供的按时间顺序关键画面、已经实际播放完的字幕、房间历史，
+                        自己理解发生了什么、之前的猜测是否被推翻、接下来想不想交流。
+                        影视内容是虚构作品，不是你和用户的真实身世、经历或偏好。
+                        不知道的情节要承认未知；未看到的片段、未来剧情不能编造。
+                        如果材料不足，不用装作看懂了完整剧情。
+                        可以安静看，也可以说出本人自然的反应；不要机械评论每张画面。
+                        如果用户真的在问话，优先认真接话，而不是强行沉默。
+                        只输出 JSON：
+                        {"speak":true,"text":"此刻真正想对她说的话","impression":"你自己对已见剧情的简要阶段印象"}
+                        或 {"speak":false,"text":"","impression":"你自己本轮真实的阶段印象"}
+                        impression 是你的主观看法，不是事实和对用户人格的判断。
                     """.trimIndent(),
                     source = "一起看", title = "一起看 · " + characterName,
-                    maxTokens = 330, usage = ModelUsage.Chat,
-                    imageDataUrls = frame?.let { listOf(it) } ?: emptyList(),
+                    usage = ModelUsage.Chat, maxTokens = 440,
+                    imageDataUrls = storyboard.map { it.second },
                 ).getOrThrow().text.trim()
-                if (roomId != currentRoom || (video?.currentPosition?.toLong() ?: 0) + 15_000 < at) return@launch
+                if (roomId != currentRoom || requestRevision != revision) return@launch
                 val fence = 96.toChar().toString().repeat(3)
-                val cleaned = raw.removePrefix(fence + "json").removePrefix(fence).removeSuffix(fence).trim()
+                val cleaned = raw.removePrefix(fence + "json").removePrefix(fence)
+                    .removeSuffix(fence).trim()
                 val json = runCatching { JSONObject(cleaned) }.getOrNull()
                 val speech = if (json != null) {
                     if (json.optBoolean("speak", true)) json.optString("text").trim() else ""
                 } else raw.takeUnless { it.startsWith("{") || it.startsWith("[") }.orEmpty()
-                if (speech.isNotBlank()) record(characterName,
-                    "[" + (at / 1000) + "秒] " + speech, EventEvidenceKind.CharacterStatement)
+                val impression = json?.optString("impression")?.trim().orEmpty()
+                if (impression.isNotBlank()) {
+                    record(characterName, "[" + (at / 1000) + "秒] 片中阶段印象（主观）：" +
+                        impression, EventEvidenceKind.Inference)
+                }
+                if (speech.isNotBlank()) {
+                    record(characterName, "[" + (at / 1000) + "秒] " + speech,
+                        EventEvidenceKind.CharacterStatement)
+                }
             } catch (e: Exception) {
-                if (roomId == currentRoom) error = "观影理解未成功：" + (e.message ?: "请检查聊天模型")
+                if (roomId == currentRoom) error = "观影理解失败：" +
+                    (e.message ?: "请检查所选聊天模型是否支持多张图")
             } finally { busy = false }
         }
     }
 
-    DisposableEffect(video) {
+    DisposableEffect(video, roomId) {
+        val attachedPlayer = video
         onDispose {
-            video?.let { player ->
-                prefs.edit().putLong(key + "position", player.currentPosition.toLong()).apply()
-                player.stopPlayback()
-            }
+            // Keep exact watched ranges and a seekable playhead on restart.
+            prefs.edit().putLong(key + roomId + ":position", attachedPlayer?.currentPosition?.toLong() ?: progress)
+                .putString(key + roomId + ":watched", evidence.encode()).apply()
+            evidence.pause()
+            attachedPlayer?.pause()
         }
     }
-    LaunchedEffect(video, videoUri, playing, auto, busy) {
+    LaunchedEffect(video, videoUri, roomId, playing, auto, busy) {
         val v = video ?: return@LaunchedEffect
         while (isActive) {
             delay(1_000)
             if (ready && videoUri.isNotBlank()) {
-                progress = v.currentPosition.toLong()
-                if (progress > 0 && progress % 5_000 < 1_000)
-                    prefs.edit().putLong(key + "position", progress).apply()
-                if (playing && auto && !busy && progress >= 120_000 && progress - observedAt >= 120_000)
+                val current = v.currentPosition.toLong().coerceAtLeast(0L)
+                if (playing && v.isPlaying) evidence.advance(current, true)
+                else evidence.pause()
+                progress = current
+                observationSerial += 1
+                if (observationSerial % 4 == 0) save()
+                if (playing && auto && !busy && current >= 45_000L &&
+                    current - observedAt >= 90_000L && evidence.observedMs(current) >= 45_000L) {
                     react(automatic = true)
+                }
             }
         }
     }
@@ -315,6 +404,12 @@ internal fun WatchTogetherRoom(
                         Text("字幕")
                     }
                 }
+                Text(
+                    if (videoUri.isBlank()) "已和" + characterName + "进入观影房间 · 等你选片"
+                    else if (playing) "正在一起看 · 已记录真实观看 " + (evidence.observedMs(progress) / 1000) + " 秒"
+                    else "同一观影房间 · 已记录真实观看 " + (evidence.observedMs(progress) / 1000) + " 秒",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
+                )
                 if (videoUri.isBlank()) {
                     Column(Modifier.fillMaxWidth().height(220.dp)
                         .background(Color(0xFF171A20), RoundedCornerShape(16.dp)),
@@ -331,7 +426,8 @@ internal fun WatchTogetherRoom(
                             view.setOnPreparedListener {
                                 ready = true
                                 duration = view.duration.toLong().coerceAtLeast(0L)
-                                val saved = prefs.getLong(key + "position", 0L)
+                                val saved = prefs.getLong(key + roomId + ":position",
+                                    prefs.getLong(key + "position", 0L))
                                 if (saved > 0L) view.seekTo(saved.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
                             }
                             view.setOnErrorListener { _, _, _ ->
@@ -340,13 +436,23 @@ internal fun WatchTogetherRoom(
                                 error = "视频解码失败，可尝试 MP4（H.264/AAC）"
                                 true
                             }
-                            view.setOnCompletionListener {
-                                playing = false
-                                record("观影状态", "影片已播放到结尾：" + videoTitle,
-                                    EventEvidenceKind.Observation, id = "completed")
-                            }
                         }
                     }, update = { v ->
+                        // Update the callback whenever the selected room / evidence changes.
+                        // A listener from an older video must not write into the new room.
+                        v.setOnCompletionListener {
+                            if (playing) evidence.advance(duration, true)
+                            evidence.pause()
+                            playing = false
+                            progress = duration
+                            prefs.edit().putLong(key + roomId + ":position", duration)
+                                .putString(key + roomId + ":watched", evidence.encode()).apply()
+                            record("观影状态", "这次影片已从实际播放进度到达结尾：" + videoTitle,
+                                EventEvidenceKind.Observation, id = "completed")
+                            if (auto && !busy && evidence.observedMs(duration) >= 2_000L) {
+                                react(automatic = true, completed = true)
+                            }
+                        }
                         if (loadedUri != videoUri) {
                             loadedUri = videoUri
                             ready = false
@@ -358,38 +464,42 @@ internal fun WatchTogetherRoom(
                         Text(it.text, modifier = Modifier.fillMaxWidth(), fontSize = 14.sp)
                     }
                     Slider(value = if (duration > 0) (progress.toFloat() / duration).coerceIn(0f, 1f) else 0f,
-                        onValueChange = {
-                            val target = (it * duration).toLong()
-                            progress = target
-                            video?.seekTo(target.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
-                            prefs.edit().putLong(key + "position", target).apply()
-                        }, enabled = ready && duration > 0)
+                        onValueChange = { moveTo((it * duration).toLong()) },
+                        enabled = ready && duration > 0)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text((progress / 60_000).toString() + ":" + ((progress / 1000) % 60).toString().padStart(2, '0') +
                             " / " + (duration / 60_000) + ":" + ((duration / 1000) % 60).toString().padStart(2, '0'),
                             fontSize = 12.sp)
                         Spacer(Modifier.weight(1f))
                         IconButton(enabled = ready, onClick = {
-                            video?.seekTo((progress - 10_000).coerceAtLeast(0).toInt())
+                            moveTo(progress - 10_000)
                         }) { Icon(Icons.Outlined.Replay10, "倒退十秒") }
                         IconButton(enabled = ready, onClick = {
-                            if (playing) { video?.pause(); playing = false }
-                            else {
-                                video?.start(); playing = true
+                            if (playing) {
+                                evidence.advance(video?.currentPosition?.toLong() ?: progress, true)
+                                evidence.pause()
+                                video?.pause()
+                                playing = false
+                                save()
+                            } else {
+                                if (duration > 0L && progress >= duration) moveTo(0)
+                                evidence.begin(video?.currentPosition?.toLong() ?: progress)
+                                video?.start()
+                                playing = true
                                 if (!prefs.getBoolean(key + roomId + ":started", false)) {
-                                    record("观影状态", "开始播放本地视频：" + videoTitle,
+                                    record("观影状态", "你和" + characterName + "从播放器正式开始一起看：" + videoTitle,
                                         EventEvidenceKind.Observation, id = "started")
                                     prefs.edit().putBoolean(key + roomId + ":started", true).apply()
                                 }
                             }
                         }) { Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, "播放或暂停") }
                         IconButton(enabled = ready, onClick = {
-                            video?.seekTo((progress + 10_000).coerceAtMost(duration).toInt())
+                            moveTo(progress + 10_000)
                         }) { Icon(Icons.Outlined.Forward10, "快进十秒") }
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("自动感想（约每两分钟一次，可沉默）", fontSize = 12.sp, modifier = Modifier.weight(1f))
+                    Text("自主观影交流（调用聊天模型）", fontSize = 12.sp, modifier = Modifier.weight(1f))
                     Switch(checked = auto, onCheckedChange = {
                         auto = it
                         prefs.edit().putBoolean(key + "automatic", it).apply()
@@ -400,7 +510,10 @@ internal fun WatchTogetherRoom(
                 HorizontalDivider()
                 Text("观影聊天", style = MaterialTheme.typography.titleSmall)
                 LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(notes, key = { it.id }) { note ->
+                    items(notes.filter {
+                        it.evidenceKind == EventEvidenceKind.CharacterStatement ||
+                            it.evidenceKind == EventEvidenceKind.UserStatement
+                    }, key = { it.id }) { note ->
                         Column {
                             Text(note.speaker, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(note.content, fontSize = 13.sp)
