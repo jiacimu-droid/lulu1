@@ -210,6 +210,7 @@ internal fun WatchTogetherRoom(
     }
 
     LaunchedEffect(roomId) {
+        prefs.edit().putString(key + "room", roomId).apply()
         refresh()
         record("观影状态", characterName + "和你进入了同一个观影房间；片源尚未开始时一起等候。",
             EventEvidenceKind.Observation, id = "room-arrival")
@@ -376,7 +377,11 @@ internal fun WatchTogetherRoom(
         while (isActive) {
             delay(1_000)
             if (ready && videoUri.isNotBlank()) {
-                val current = v.currentPosition.toLong().coerceAtLeast(0L)
+                val reported = v.currentPosition.toLong().coerceAtLeast(0L)
+                // Some Android decoders reset getCurrentPosition() to zero at EOF.
+                // Keep the witnessed end position until the viewer explicitly rewinds.
+                val current = if (!playing && progress >= duration && duration > 0L &&
+                    reported == 0L) duration else reported
                 if (playing && v.isPlaying) evidence.advance(current, true)
                 else evidence.pause()
                 progress = current
