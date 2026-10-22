@@ -1,0 +1,20 @@
+services:
+  xiaohongshu-mcp:
+    build:
+      context: ../..
+      dockerfile: tools/xhs-xpzouying/Dockerfile
+    restart: unless-stopped
+    tty: true
+    environment:
+      COOKIES_PATH: /app/data/cookies.json
+      HOME: /app/data/home
+      XDG_CONFIG_HOME: /app/data/config
+      AUTH_TOKEN: ${AUTH_TOKEN:?Set a long random AUTH_TOKEN (at least 32 characters) before starting}
+    volumes:
+      - xhs_session:/app/data
+    # Never publicly expose the upstream Go service: it also has WRITE
+    # tools. Use a trusted HTTPS reverse proxy and a strong access token.
+    ports:
+      - "127.0.0.1:18060:18060"
+volumes:
+  xhs_session:
