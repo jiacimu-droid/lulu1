@@ -124,6 +124,31 @@ android {
 }
 
 
+// Native Cubism integration requires the official Core distribution.
+// This verification is OPT-IN and never runs during regular APK building,
+// so the proven WebGL->Compose compatibility video remains available.
+tasks.register("verifyCubismNativePrerequisites") {
+    group = "verification"
+    description = "Validate local licensed Cubism Native SDK before any NDK integration"
+    doLast {
+        val sdkPath = providers.gradleProperty("luluNativeSdkDir").orNull
+            ?: error("Missing -PluluNativeSdkDir=/absolute/path/to/official/CubismSdkForNative. " +
+                "Download the Native SDK from Live2D's official site first. " +
+                "The Web Core JS file cannot replace the native Core.")
+        val sdkRoot = file(sdkPath)
+        check(sdkRoot.isDirectory) { "Cubism Native SDK directory does not exist: $sdkPath" }
+        val headerDir = sdkRoot.resolve("Core/include")
+        val arm64Lib = sdkRoot.resolve("Core/lib/android/arm64-v8a")
+        check(headerDir.isDirectory) { "Official Native Core headers missing: $headerDir" }
+        check(arm64Lib.isDirectory &&
+            arm64Lib.listFiles()?.any { it.extension == "a" || it.extension == "so" } == true) {
+            "Licensed Android ARM64 Native Core library missing: $arm64Lib"
+        }
+        println("Cubism Native Core ARM64 prerequisites detected. " +
+            "This task does not mean an EGL/Surface renderer has been built or validated.")
+    }
+}
+
 // The exact R8-generated register failure cannot be caught by JVM unit tests.
 // Explicitly reject any accidental R8 re-enable in either installable variant
 // before generating another APK that crashes at launch on Android 16.
