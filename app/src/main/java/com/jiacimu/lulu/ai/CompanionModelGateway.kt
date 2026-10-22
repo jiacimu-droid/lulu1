@@ -665,7 +665,7 @@ class CompanionModelGateway(
             else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
-                    characterId, compact = dialogueRequest || !budget.richInnerLife,
+                    characterId, compact = !budget.richInnerLife,
                     query = request.retrievalQuery(), includeActiveCommitments = false)
                 // Private chat's second model pass renders text only. It still
                 // receives the same character's unfinished intention, but no
