@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:56:35.067371+00:00",
-  "commit": "77b17f26dd8efe26b5363af4902057b7f1dc085e",
+  "generatedAt": "2026-10-22T03:58:01.317613+00:00",
+  "commit": "a147408ce114abcda59c7c6ad3cd4f76b9f3b887",
   "branch": "main",
-  "sourceFingerprint": "89243226f53c7b646373e98fcd43be5e793fc9c4443bd16252cde6d95db4532b",
+  "sourceFingerprint": "8627c485abc197f283b9b3d461505d76c3b0571d5478194d019e7c1f92da72a1",
   "summary": {
     "files": 791,
     "lines": 150390,
@@ -13842,7 +13842,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
       "lines": 315,
-      "sha256": "77ae6eee1a7b21c1229dc84ff5c00f697dccf3342ea7c028489b241f52d10f52",
+      "sha256": "c79d3a4cff9030e96ad84d286a64fbe683d36936ca0a26493ea81cf85db62f36",
       "symbols": [
         {
           "name": "record",
