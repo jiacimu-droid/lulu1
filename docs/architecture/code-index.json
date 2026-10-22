@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T02:25:57.027282+00:00",
-  "commit": "b3f7614121092fd9949111d63ae7f50a7b932274",
+  "generatedAt": "2026-10-22T02:28:04.116848+00:00",
+  "commit": "7b09f053af5c64b7588b430808cbbac4d3058c84",
   "branch": "main",
-  "sourceFingerprint": "bc5d6216e4136aeb8aae3e9dee45014a1e2ff818f6c4a249b3db31748e7f6b29",
+  "sourceFingerprint": "05b39f2757e32fbd91f0733a47eb85a2cf60caf2bcfd7b597a8a04341961f44a",
   "summary": {
     "files": 788,
-    "lines": 149618,
+    "lines": 149646,
     "symbols": 2256
   },
   "symbolIndex": {
@@ -24587,8 +24587,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
-      "lines": 46,
-      "sha256": "245a354baf5a9c5633e3c5b94c899da03180010abd8b116f42bc4cc43b31c17d",
+      "lines": 74,
+      "sha256": "56419fc4be97260d037c9a37c5708672e0e39ed35e29126b0522a584e8faaf44",
       "symbols": [
         {
           "name": "Live2DAssetsTest",
