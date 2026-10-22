@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T05:15:57.362916+00:00",
-  "commit": "b5bbaa2b8cf18e65298f41217e4c0b4f03f6d22e",
+  "generatedAt": "2026-10-22T05:25:49.361227+00:00",
+  "commit": "12574c73c68ab87fd2fa4e7189a46297023d0f6e",
   "branch": "main",
-  "sourceFingerprint": "984d0fc539bd194ce2a7ed253dd27dfa3562b7f9c01ce7fc7b60c590030e38b2",
+  "sourceFingerprint": "c7c64c99e698559ae9511c43c916c924a21aabf4e7391fd22f874a8ddb2f400d",
   "summary": {
     "files": 793,
-    "lines": 151067,
+    "lines": 151072,
     "symbols": 2266
   },
   "symbolIndex": {
@@ -1619,7 +1619,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 78
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1629,7 +1629,7 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 90
+        "line": 95
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13909,8 +13909,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 108,
-      "sha256": "01d12ab18add3eee7f150bb924ae147564d4c6ba3a0bdbab89422c1d4c9d5b04",
+      "lines": 113,
+      "sha256": "b6585d0c46bb85c42a69b62cf990ba2d81d706848f8cf8c8ad3cd1d929d69e0a",
       "symbols": [
         {
           "name": "Head",
@@ -13938,11 +13938,11 @@
         },
         {
           "name": "publish",
-          "line": 78
+          "line": 83
         },
         {
           "name": "bounded",
-          "line": 90
+          "line": 95
         }
       ]
     },
