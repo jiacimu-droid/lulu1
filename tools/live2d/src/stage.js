@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js'
 // class used by our renderer. Do this before the first PIXI.Application.
 import { install as installCspShaderAdapter } from '@pixi/unsafe-eval'
 import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
+import { CubismParameterAccess } from './cubism-parameters.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -86,6 +87,11 @@ let fallbackSpeechSeed = 0
 // Only semantic parameters confirmed in the uploaded wolf model's CDI3 and
 // VTube settings. For OTHER models the runtime Cubism parameter probe must
 // independently confirm every individual ID before applying any value.
+const cubismParameters = new CubismParameterAccess()
+const hasParameter = (core, id) => cubismParameters.has(core, id)
+const getParameter = (core, id) => cubismParameters.read(core, id)
+const setParameter = (core, id, value) => cubismParameters.write(core, id, value)
+
 const FACE_BINDINGS = {
   gazeX: ['ParamEyeBallX'], gazeY: ['ParamEyeBallY'],
   smile: ['ParamMouthForm'],
@@ -287,10 +293,10 @@ async function verifyVisibleFrame(loaded, sequence) {
   }
   throw new Error(priorError || '模型虽然载入，但未能产生可见的视频画面')
 }
-// AIRI's motion manager applies user-controlled parameters after its native
-// Cubism motion update. Do the same: a Pixi app.ticker callback can run BEFORE
-// the Live2D model update and be overwritten by the next Cubism frame.
-function applyAfterMotion(core, deltaMs) {
+// Apply at the LAST mutable stage: after motion, expressions, focus, auto
+// breathing, physics and pose, but before core.update computes the drawables.
+// The former motionManager.update hook ran before breathing and physics.
+function applyFinalParameters(core, deltaMs) {
   if (!core || paused) return
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
@@ -333,17 +339,17 @@ function applyAfterMotion(core, deltaMs) {
     ['ParamAngleZ', 'roll'],
   ]
   for (const [id, axis] of axes) {
-    if (core.getParameterIndex(id) < 0) continue
+    if (!hasParameter(core, id)) continue
     const requested = headRequest?.[axis]
     const target = requested ?? 0
     smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .010)
     if (Math.abs(smoothPose[axis]) < .025) smoothPose[axis] = 0
     // Always write neutral zero while no intentional cue is active; if we
     // simply "continue" here, the original idle motion reintroduces swaying.
-    core.setParameterValueById(id, smoothPose[axis])
+    setParameter(core, id, smoothPose[axis])
   }
   for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-    if (core.getParameterIndex(id) < 0) continue
+    if (!hasParameter(core, id)) continue
     const requested = bodyRequest?.[axis]
     if (requested == null && Math.abs(smoothBody[axis]) < .10) {
       smoothBody[axis] = 0
@@ -351,12 +357,12 @@ function applyAfterMotion(core, deltaMs) {
     }
     smoothBody[axis] += ((requested ?? 0) - smoothBody[axis]) *
       Math.min(1, deltaMs * .008)
-    core.setParameterValueById(id, smoothBody[axis])
+    setParameter(core, id, smoothBody[axis])
   }
   for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
     // Eye tracking and facial states can combine with authored expression
     // files (e.g. blush). They are NOT selected randomly each animation frame.
-    if (ids.some(id => core.getParameterIndex(id) < 0)) continue
+    if (ids.some(id => !hasParameter(core, id))) continue
     const requested = faceRequest?.[key]
     const resting = key === 'gazeX' ? gazeReflex.x :
       key === 'gazeY' ? gazeReflex.y : 0
@@ -369,14 +375,14 @@ function applyAfterMotion(core, deltaMs) {
     }
     const next = previous + (target - previous) * Math.min(1, deltaMs * .008)
     smoothFace[key] = next
-    for (const id of ids) core.setParameterValueById(id, next)
+    for (const id of ids) setParameter(core, id, next)
   }
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
   if (proceduralBlinkEnabled &&
-      core.getParameterIndex('ParamEyeLOpen') >= 0 &&
-      core.getParameterIndex('ParamEyeROpen') >= 0) {
+      hasParameter(core, 'ParamEyeLOpen') &&
+      hasParameter(core, 'ParamEyeROpen')) {
     const dt = Math.min(.06, Math.max(0, deltaMs / 1000))
     if (blinkProgress < 0) {
       blinkClock -= dt
@@ -385,8 +391,8 @@ function applyAfterMotion(core, deltaMs) {
       blinkProgress += dt / .22
       const closing = Math.sin(Math.min(1, blinkProgress) * Math.PI)
       for (const id of ['ParamEyeLOpen', 'ParamEyeROpen']) {
-        const current = core.getParameterValueById(id)
-        core.setParameterValueById(id, current * (1 - closing * .95))
+        const current = getParameter(core, id) ?? 1
+        setParameter(core, id, current * (1 - closing * .95))
       }
       if (blinkProgress >= 1) {
         blinkProgress = -1
@@ -394,7 +400,7 @@ function applyAfterMotion(core, deltaMs) {
       }
     }
   }
-  if (core.getParameterIndex('ParamMouthOpenY') >= 0) {
+  if (hasParameter(core, 'ParamMouthOpenY')) {
     // AIRI uses a speech-release tail rather than snapping the jaw shut on
     // the very first silent frame. Don't permanently own the mouth during
     // idle, either: the model's own expression may need this parameter.
@@ -411,31 +417,32 @@ function applyAfterMotion(core, deltaMs) {
       const alpha = Math.min(1, deltaMs * (target > smoothedMouthOpen ? .045 : .031))
       smoothedMouthOpen += (target - smoothedMouthOpen) * alpha
       mouthReleaseUntil = timeNow + 470
-      core.setParameterValueById('ParamMouthOpenY', smoothedMouthOpen)
+      setParameter(core, 'ParamMouthOpenY', smoothedMouthOpen)
     } else if (timeNow < mouthReleaseUntil || smoothedMouthOpen > .012) {
       smoothedMouthOpen += (0 - smoothedMouthOpen) * Math.min(1, deltaMs * .019)
       if (smoothedMouthOpen < .012) smoothedMouthOpen = 0
-      core.setParameterValueById('ParamMouthOpenY', smoothedMouthOpen)
+      setParameter(core, 'ParamMouthOpenY', smoothedMouthOpen)
     }
   }
 }
-function installPostMotionControl(loadedModel) {
-  const manager = loadedModel.internalModel?.motionManager
-  if (!manager || typeof manager.update !== 'function') {
-    status('模型未提供 Cubism 动作管理器', 'error')
+function installFinalParameterControl(loadedModel) {
+  const internal = loadedModel.internalModel
+  if (!internal || typeof internal.on !== 'function' || !internal.coreModel) {
+    status('模型未提供 Cubism 每帧更新事件', 'error')
     return false
   }
-  const original = manager.update
-  let lastMotionTime = 0
-  manager.update = function (core, now) {
-    const updated = original.call(this, core, now)
-    const deltaMs = lastMotionTime ? Math.min(Math.max(now - lastMotionTime, 0), 60) : 16
-    lastMotionTime = now
-    applyAfterMotion(core, deltaMs)
-    return updated
-  }
+  let previousTime = 0
+  // pixi-live2d-display Cubism4InternalModel.update emits this after
+  // the model's auto-breath and physics and immediately before model.update.
+  internal.on('beforeModelUpdate', () => {
+    const now = performance.now()
+    const deltaMs = previousTime ? Math.min(Math.max(now - previousTime, 0), 60) : 16
+    previousTime = now
+    applyFinalParameters(internal.coreModel, deltaMs)
+  })
   return true
 }
+
 function ensureApp() {
   if (app) return
   app = new PIXI.Application({
@@ -556,7 +563,7 @@ async function load(modelURL) {
     }
     model = loaded
     describeTextureLimits(model)
-    if (!installPostMotionControl(model)) throw new Error('缺少可控制的 Live2D 动作管理器')
+    if (!installFinalParameterControl(model)) throw new Error('缺少 Cubism 最终参数控制阶段')
     app.stage.addChild(model)
     fit()
     notify('step', '⑥ Canvas：验证真实可见人物像素')
@@ -573,8 +580,11 @@ async function load(modelURL) {
       ...Object.values(FACE_BINDINGS).flat(),
     ]
     const available = [...new Set(candidates)].filter(id =>
-      coreModel?.getParameterIndex(id) >= 0)
+      hasParameter(coreModel, id))
     notify('parameters', available.join(','))
+    notify('diagnostic', '真实 Moc3 口型索引=' + cubismParameters.index(coreModel, 'ParamMouthOpenY') +
+      '；头部X索引=' + cubismParameters.index(coreModel, 'ParamAngleX') +
+      '；已绑定最终绘制前参数控制')
     notify('diagnostic', '可执行视觉语义参数 ' + available.length +
       ' 项；自动眨眼=' + (proceduralBlinkEnabled ? '仅反射性眼睑参数' : '模型自带'))
   } catch (error) {
@@ -910,7 +920,7 @@ function face(target) {
   }
   const next = Object.create(null)
   for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
-    if (ids.some(id => model.internalModel?.coreModel?.getParameterIndex(id) < 0)) continue
+    if (ids.some(id => !hasParameter(model.internalModel?.coreModel, id))) continue
     const value = target[key]
     if (typeof value !== 'number' || !Number.isFinite(value)) continue
     const low = ['eyeSmile', 'squint', 'cheekPuff', 'pout'].includes(key) ? 0 : -1
@@ -929,7 +939,7 @@ function body(target) {
   }
   const next = Object.create(null)
   for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-    if (model.internalModel?.coreModel?.getParameterIndex(id) < 0) continue
+    if (!hasParameter(model.internalModel?.coreModel, id)) continue
     const value = target[axis]
     if (typeof value === 'number' && Number.isFinite(value)) {
       next[axis] = Math.max(-10, Math.min(10, value))
