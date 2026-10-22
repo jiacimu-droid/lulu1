@@ -38,6 +38,9 @@ let nativeStreamTimer = null
 let nativeStreamLastFrameAt = 0
 let nativeStreamMaxEdge = 1024
 let nativeStreamWarned = false
+// Avoid JPEG-encoding duplicate frames when the WebView's Pixi ticker runs
+// slower than the Android bridge. Capture only after a NEW rendered frame.
+let nativeStreamLastTickerTime = -1
 // Full body for diagnostics; video calls may request a closer waist-up view.
 let framingMode = window.__luluFramingMode === 'portrait' ? 'portrait' : 'full'
 let gpuLost = false
@@ -380,7 +383,12 @@ function ensureApp() {
     // Without this, readback can pass before Android composites a cleared buffer.
     preserveDrawingBuffer: true,
     antialias: true,
-    resolution: Math.min(2, window.devicePixelRatio || 1),
+    // A 2x WebGL drawing buffer produces millions of pixels per frame,
+    // then each is GPU-readback and JPEG-compressed for Compose. The native
+    // mirror itself is the final output, so render at a bounded density.
+    // On Android this trades imperceptible offscreen supersampling for
+    // substantially less GPU readback work and steadier frame pacing.
+    resolution: Math.min(1.4, window.devicePixelRatio || 1),
     autoDensity: true,
   })
   root.insertBefore(app.view, notice)
@@ -602,6 +610,11 @@ function scheduleNativeStreamFrame(delay = 0) {
 function sendNativeStreamFrame() {
   nativeStreamTimer = null
   if (!nativeStreamEnabled || nativeStreamBusy) return
+  const tickerTime = app?.ticker?.lastTime
+  if (Number.isFinite(tickerTime) && tickerTime === nativeStreamLastTickerTime) {
+    scheduleNativeStreamFrame(12)
+    return
+  }
   const bridge = window.LuluNativeFrames
   if (!bridge || typeof bridge.postMessage !== 'function') return
   let canvas
@@ -618,6 +631,7 @@ function sendNativeStreamFrame() {
     return
   }
   nativeStreamBusy = true
+  if (Number.isFinite(tickerTime)) nativeStreamLastTickerTime = tickerTime
   nativeStreamLastFrameAt = performance.now()
   try {
     // Asynchronous JPEG encoding avoids a blocking toDataURL on every frame.
@@ -645,7 +659,7 @@ function sendNativeStreamFrame() {
         }
         scheduleNativeStreamFrame(250)
       }
-    }, 'image/jpeg', 0.90)
+    }, 'image/jpeg', 0.84)
   } catch (error) {
     nativeStreamBusy = false
     scheduleNativeStreamFrame(300)
@@ -658,6 +672,7 @@ function setNativeStreaming(enabled) {
   // Reset in-flight state when the native layer switches back to the proven
   // Base64 compatibility path.
   nativeStreamBusy = false
+  nativeStreamLastTickerTime = -1
   if (!nativeStreamEnabled) return
   const bridge = window.LuluNativeFrames
   if (!bridge || typeof bridge.postMessage !== 'function') {
