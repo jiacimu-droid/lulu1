@@ -25,11 +25,16 @@ internal fun actualPhoneCaptions(
  * Real spoken words OUTSIDE caption brackets are preserved verbatim.
  */
 internal object PhoneTranscriptEvidence {
-    private val captionOnly = Regex(
-        """^(?:[\\s，,。.!！?？]*[（(【\\[][^(（)）】\\]]{1,24}[)）】\\]][\\s，,。.!！?？]*)+$"""
+    private val captionToken = Regex(
+        """(?:（[^（）]{1,24}）|\\([^()]{1,24}\\)|【[^【】]{1,24}】|\\[[^\\[\\]]{1,24}\\])"""
     )
     fun isConfirmedSpeech(raw: String): Boolean {
         val value = raw.trim()
-        return value.isNotEmpty() && !captionOnly.matches(value)
+        if (value.isEmpty()) return false
+        if (!captionToken.containsMatchIn(value)) return true
+        // A real sentence outside parentheses must survive; only isolated
+        // non-speech captions have no lexical content after removing tokens.
+        return captionToken.replace(value, "")
+            .trim { it.isWhitespace() || it in "，,。.!！?？" }.isNotEmpty()
     }
 }
