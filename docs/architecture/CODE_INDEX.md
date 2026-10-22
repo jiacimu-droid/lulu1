@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`309e81de126954d67fab4bb68778c4e23c1560a7`
+- 基准提交：`a7db255914bcd3981b9a26276790ea4f595db372`
 - 分支：`main`
 - 已索引文件：802
-- 已索引代码/文本行：153406
+- 已索引代码/文本行：153410
 - 已发现符号：2300
 
 | 文件 | 行数 | 符号数 |
@@ -382,7 +382,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 84 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1059 | 48 |
-| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 257 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 902 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 135 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 38 | 1 |
