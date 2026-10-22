@@ -63,6 +63,8 @@ internal fun Live2DFullscreenVideoCall(
     onStartCall: () -> Unit,
 ) {
     val cues by Live2DVisualActionBus.cues.collectAsState()
+    val avatarPresentations by AvatarController.states.collectAsState()
+    val avatarPresentation = avatarPresentations[characterId]
     val cue = cues[characterId]?.takeIf { it.callId == state.callExperienceId }
     DisposableEffect(characterId, state.callExperienceId) {
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
@@ -169,9 +171,10 @@ internal fun Live2DFullscreenVideoCall(
                 characterId = characterId,
                 modelUrl = modelUrl,
                 callId = state.callExperienceId,
-                speaking = state.connected && state.speaking,
+                speaking = state.connected && (state.speaking || avatarPresentation?.speaking == true),
                 listening = state.connected && state.listening,
                 mouthLevel = mouthLevel,
+                hasPcmSamples = avatarPresentation?.hasPcmSamples == true,
                 previewExpression = cue?.expression ?: previewExpression,
                 previewMotion = cue?.motion ?: previewMotion,
                 previewHead = cue?.head ?: manualHead,
@@ -324,7 +327,7 @@ internal fun Live2DFullscreenVideoCall(
                     },
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 3.dp),
                 ) {
-                    Text(if (cameraShared) "停止共享" else "共享给江渡",
+                    Text(if (cameraShared) "停止共享" else "共享给${characterName}",
                         color = if (cameraShared) Color(0xFFFFC5C5) else Color.White,
                         fontSize = 11.sp)
                 }
