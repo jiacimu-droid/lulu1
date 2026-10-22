@@ -827,7 +827,7 @@ object ProactivePerceptionRuntime {
                     不返回在线决定或没有真实理由，程序默认休眠，不会伪造想法。
                 """.trimIndent() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
-                    "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若确实自主决定本轮只操作设备而不回复，填写replyChoice=\"silent\"；否则没有实际发出的回复就不会把新消息当成已回应。若想说话且同时操作音乐/音量，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"sideActions\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。sideActions最多两个、只支持control_music/control_volume/list_media_sessions，其他生活行动仍走原执行器。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
+                    "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若确实自主决定本轮只操作设备而不回复，填写replyChoice=\"silent\"；否则没有实际发出的回复就不会把新消息当成已回应。若想说话且同时操作音乐/音量，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"sideActions\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。steps 或 sideActions 可以按顺序列出多个本人真正选择的工具动作，每步写 {\\\"tool\\\":\\\"实际已注册的工具名\\\",\\\"args\\\":{},\\\"requiresPreviousSuccess\\\":true|false}；所有能力均经同一 ToolRouter 独立核权限、执行、保存真实回执，不只限音乐。依赖前一步成功才做的事写 requiresPreviousSuccess=true；独立行动写 false。权限申请、截图请求 pending 不等于已看见画面，依赖截图内容的后续判断必须等真实回执进入下一次感知，不能预编截图细节。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
                 else """【此时没有新消息】你不是聊天待命机器人：先判断自己正在好奇的事情、真正可去的地点、可读的书或可做的小活动，选择一件感兴趣的实际生活行动；只有此刻确实不想做，才选 silent。不要为追求活跃而机械轮换。动作请直接写在 JSON 第一项 action，不要只在 statusText 或 innerThought 里写“我出去走走”。也可 action=tool，通过真实执行器收藏用户确实说过的一句话。""",
             source = "后台主动感知",
             // Usage diagnostics must identify the wake class without logging raw user text.
@@ -1713,28 +1713,55 @@ object ProactivePerceptionRuntime {
         // The same role-model response may choose a separate device action
         // AND a conversational reply. Neither effect is permission for the
         // other; each receives an independent, persisted ToolRouter receipt.
-        if (result.success) decision.sideActions?.let { effects ->
-            for (i in 0 until minOf(2, effects.length())) {
+        // One model choice can include multiple distinct, ordered actions.
+        // Every step uses the existing permission boundary and its own durable receipt.
+        // Do not silently narrow these to music/volume or invent a second planner.
+        var sideActionSucceeded = false
+        var previousStepCompleted = result.success &&
+            resultJson.optString("status") !in setOf("pending", "waiting_user", "requested")
+        decision.sideActions?.let { effects ->
+            for (i in 0 until effects.length()) {
                 val effect = effects.optJSONObject(i) ?: continue
                 val name = effect.optString("tool").trim()
-                if (name !in setOf("control_volume", "control_music", "list_media_sessions")) {
-                    effectNotes += "附加动作未执行：无效的工具名称"
+                if (CapabilityRegistry.find(name) == null) {
+                    effectNotes += "第${i + 1}步未执行：未知工具${name.take(40)}"
+                    previousStepCompleted = false
                     continue
+                }
+                // Dependents must wait for genuine completed evidence, not a pending
+                // screenshot permission request or an optimistic model assertion.
+                if (effect.optBoolean("requiresPreviousSuccess", false) && !previousStepCompleted) {
+                    effectNotes += "第${i + 1}步${name}未执行：前一步尚未成功完成"
+                    continue
+                }
+                val arguments = JSONObject((effect.optJSONObject("args") ?: JSONObject()).toString())
+                if (name in setOf("send_private_message", "send_group_message") &&
+                    responseEvidenceIds.isNotEmpty()) {
+                    arguments.put("_replyEvidenceIds",
+                        org.json.JSONArray(responseEvidenceIds.toList()))
                 }
                 val extraResult = runCatching {
                     JSONObject(ToolRouter.execute(appContext, character.characterId, name,
-                        effect.optJSONObject("args") ?: JSONObject(),
-                        requestId = requestId + ":side:" + i,
+                        arguments, requestId = requestId + ":step:" + i,
+                        userRequested = CharacterInitiativeRuntime.isExplicitUserToolRequest(
+                            if (hasFreshUserMessage) decision.toolArgs.optString("_userRequest") else "", name
+                        ) || (name == "capture_screen" && explicitScreenRequest),
                         intentionId = decision.intentionId))
                 }.getOrElse { JSONObject().put("success", false)
-                    .put("error", it.message.orEmpty().ifBlank { "设备未返回状态" }) }
-                effectNotes += name + "：" + extraResult.optString("summary").ifBlank {
-                    extraResult.optString("error").ifBlank {
-                        extraResult.optString("verification").ifBlank {
-                            extraResult.optString("status").ifBlank { "未确认" }
+                    .put("error", it.message.orEmpty().ifBlank { "工具未返回状态" }) }
+                val stepAccepted = extraResult.optBoolean("success")
+                val stepStatus = extraResult.optString("status")
+                previousStepCompleted = stepAccepted &&
+                    stepStatus !in setOf("pending", "waiting_user", "requested")
+                sideActionSucceeded = sideActionSucceeded || stepAccepted
+                effectNotes += "第${i + 1}步${name}：" +
+                    extraResult.optString("summary").ifBlank {
+                        extraResult.optString("error").ifBlank {
+                            extraResult.optString("verification").ifBlank {
+                                stepStatus.ifBlank { "状态未确认" }
+                            }
                         }
-                    }
-                }.take(160)
+                    }.take(160)
             }
         }
         // A chosen tool does not consume its own optional spoken message.
@@ -1766,7 +1793,7 @@ object ProactivePerceptionRuntime {
         }
         val combinedSummary = effectNotes.joinToString("；").take(350)
             .ifBlank { "工具执行未返回具体状态" }
-        if (!result.success && !deliveredExtra)
+        if (!result.success && !deliveredExtra && !sideActionSucceeded)
             return ActionExecution(false, combinedSummary)
         if (result.success) when (decision.action) {
             Action.CALL -> result.conversationId?.let {
@@ -1867,7 +1894,7 @@ object ProactivePerceptionRuntime {
             stickerId = json.optString("stickerId").trim(),
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
-            sideActions = json.optJSONArray("sideActions"),
+            sideActions = json.optJSONArray("steps") ?: json.optJSONArray("sideActions"),
             replyChoice = json.optString("replyChoice").trim().lowercase(),
             toolArgs = (json.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()).apply {
                 // Direct autonomous actions can attach planId at the top level or
