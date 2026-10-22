@@ -87,8 +87,12 @@ object CharacterRuntime {
         val learned = CharacterDevelopmentStore.active(characterId)
         val narrative = CharacterDevelopmentRecall.select(
             learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8)
+        val userHabits = CharacterDevelopmentRecall.select(
+            learned.filter { it.kind == DevelopmentKind.UserHabit }, query, if (compact) 3 else 8)
         val adaptive = CharacterDevelopmentRecall.select(
-            learned.filterNot { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 5 else 16)
+            learned.filterNot {
+                it.kind == DevelopmentKind.NarrativeMeaning || it.kind == DevelopmentKind.UserHabit
+            }, query, if (compact) 5 else 16)
         return buildString {
             // The stable principles are shared in CharacterDecisionProtocol;
             // one brief anatomy is enough even for a full context request.
@@ -124,6 +128,17 @@ object CharacterRuntime {
                     if (compact) appendLine("- [$maturity] ${record.slot}：${record.content.take(260)}")
                     else appendLine("- [$maturity] ${record.slot} v${record.version}：${record.content}；依据=${record.evidence.keys.joinToString()}")
                 }
+            }
+            if (userHabits.isNotEmpty()) {
+                appendLine("【你从反复真实对话中观察到的用户习惯｜不是你的个人性格】")
+                appendLine("以下是带来源的可变倾向，不是用户此刻的命令、保证或明确同意。")
+                userHabits.forEach { record ->
+                    val maturity = if (record.maturity == DevelopmentMaturity.Established)
+                        "多次较稳定" else "正在形成"
+                    if (compact) appendLine("- [$maturity] ${record.content.take(220)}")
+                    else appendLine("- [$maturity] ${record.slot}：${record.content}；依据=${record.evidence.keys.joinToString()}")
+                }
+                appendLine("可以在合适时机自然提及或问一句，遇到当天的新安排以新话为准；不要仅凭习惯自动拨打电话、设提醒或代用户作决定。")
             }
             if (adaptive.isNotEmpty()) {
                 appendLine("基于真实经历形成的可变适应（不覆盖稳定人设）：")
