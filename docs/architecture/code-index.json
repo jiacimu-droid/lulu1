@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T05:44:30.830506+00:00",
-  "commit": "5c9c89807007ccaa6272fff3e3f604d50849dbef",
+  "generatedAt": "2026-10-22T05:52:38.048706+00:00",
+  "commit": "c64e8d80e7f04392069a7ff84a7ab3b2d2b1692b",
   "branch": "main",
-  "sourceFingerprint": "f22b7a1232392e53fd5213090954a9e0c0618aa059c79e024239ff95be3a0ca7",
+  "sourceFingerprint": "440c9b21dcc012015230bacea7fcf52a4e1fad886f37d8de8db2af235fbdd0ba",
   "summary": {
     "files": 793,
-    "lines": 151228,
-    "symbols": 2269
+    "lines": 151234,
+    "symbols": 2270
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1616,22 +1616,28 @@
         "line": 52
       }
     ],
+    "isStageVisible": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 64
+      }
+    ],
     "stageParameters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 63
+        "line": 69
       }
     ],
     "capabilityNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 70
+        "line": 76
       }
     ],
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 115
+        "line": 121
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1641,13 +1647,13 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 127
+        "line": 133
       }
     ],
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 138
+        "line": 144
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13927,8 +13933,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 167,
-      "sha256": "069e4cdd1273b21130a4ab82186e85eab5e27fed5c2e5344eb8c11da4863cdfc",
+      "lines": 173,
+      "sha256": "9ce9b1e150a1cb464a3da035e76cb66fe65cd3a1d85f28d460a42979fdaaf2e7",
       "symbols": [
         {
           "name": "Head",
@@ -13955,24 +13961,28 @@
           "line": 52
         },
         {
+          "name": "isStageVisible",
+          "line": 64
+        },
+        {
           "name": "stageParameters",
-          "line": 63
+          "line": 69
         },
         {
           "name": "capabilityNote",
-          "line": 70
+          "line": 76
         },
         {
           "name": "publish",
-          "line": 115
+          "line": 121
         },
         {
           "name": "bounded",
-          "line": 127
+          "line": 133
         },
         {
           "name": "boundedBody",
-          "line": 138
+          "line": 144
         }
       ]
     },
