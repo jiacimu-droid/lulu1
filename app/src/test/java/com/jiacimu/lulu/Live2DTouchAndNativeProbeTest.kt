@@ -34,6 +34,21 @@ class Live2DTouchAndNativeProbeTest {
             assertTrue(evidence.content.contains("头部"))
             assertTrue(evidence.content.contains("3次"))
             assertTrue(evidence.content.contains("不替角色推断情绪"))
+            // Different touches in one gesture burst must keep their own
+            // parts, instead of falsely reporting every touch on the head.
+            val mixed = InteractionSignalBridge.recordAvatarTouches(
+                role, call, listOf("head" to "stroke", "body" to "tap",
+                    "head" to "stroke"))
+            assertNotNull(mixed)
+            try {
+                val row = SharedExperienceTimeline.eventsByIds(role, listOf(mixed!!)).single()
+                assertTrue(row.content.contains("头部"))
+                assertTrue(row.content.contains("身体"))
+                assertTrue(row.content.contains("共2次"))
+                assertFalse(row.content.contains("身体，共3次"))
+            } finally {
+                mixed?.let(SharedExperienceTimeline::deleteEvent)
+            }
         } finally {
             recordedId?.let(SharedExperienceTimeline::deleteEvent)
             SharedExperienceTimeline.deleteEvent(renderedId)
