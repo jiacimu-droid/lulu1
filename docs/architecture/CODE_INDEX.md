@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`029f856becb44fe2d379bc13a631364fe6238558`
+- 基准提交：`fd884683b699902d0f1bd9edece90449acaadc6f`
 - 分支：`main`
 - 已索引文件：799
-- 已索引代码/文本行：152340
+- 已索引代码/文本行：152345
 - 已发现符号：2293
 
 | 文件 | 行数 | 符号数 |
@@ -103,7 +103,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 307 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 312 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
