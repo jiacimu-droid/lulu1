@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b18db68e92a4d217f4686f25638555d6f6bef886`
+- 基准提交：`f97c69791a92f202c8fc78ab38ac57df0cb8a7bf`
 - 分支：`main`
 - 已索引文件：827
-- 已索引代码/文本行：157416
+- 已索引代码/文本行：157439
 - 已发现符号：2388
 
 | 文件 | 行数 | 符号数 |
@@ -790,7 +790,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 52 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 37 | 2 |

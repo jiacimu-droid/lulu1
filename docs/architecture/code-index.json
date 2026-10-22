@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:18:04.824493+00:00",
-  "commit": "b18db68e92a4d217f4686f25638555d6f6bef886",
+  "generatedAt": "2026-10-22T17:18:23.796842+00:00",
+  "commit": "f97c69791a92f202c8fc78ab38ac57df0cb8a7bf",
   "branch": "main",
-  "sourceFingerprint": "f0ae5771d3b90a3433e758a2dbd365bfc5882e15a06f1faa62f554d23754516a",
+  "sourceFingerprint": "4f2e8fe84153f6434978115d59e67d8718596e3cead5aaa5814d6c6a82fd1433",
   "summary": {
     "files": 827,
-    "lines": 157416,
+    "lines": 157439,
     "symbols": 2388
   },
   "symbolIndex": {
@@ -28090,8 +28090,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
-      "lines": 52,
-      "sha256": "ed66d33a99457770f9fd11f5df5877a3c253f21ce9f55c788341b4a847ce5c92",
+      "lines": 75,
+      "sha256": "8dcb3452791aa63a6b67b66876694b42a1bcda579c73efd5a38129480a7b94f4",
       "symbols": [
         {
           "name": "TokenConsolePresentationTest",
