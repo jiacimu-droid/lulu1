@@ -309,25 +309,38 @@ async function load(modelURL) {
   inflightModelUrl = modelURL
   const sequence = ++loadSequence
   previewObserved = false
+  notify('step', '① Cubism Core：检查引擎')
   status('正在加载 Live2D 模型…')
   try {
     await loadCore()
     if (sequence !== loadSequence) return
+    notify('step', '① Cubism Core：已加载')
     status('等待手机视频画布完成布局…')
     if (!await awaitViewport(sequence)) return
+    notify('step', '② 视频画布：DOM ' + root.clientWidth + '×' +
+      root.clientHeight + ' / Android ' + nativeViewport.width + '×' +
+      nativeViewport.height)
     ensureApp()
+    const gl = app.renderer?.gl
+    notify('step', '③ WebGL：' + (gl ? '可用' : '不可用') +
+      '，最大纹理 ' + (gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? '未知'))
     gpuLost = false
     // Check native preprocessing errors BEFORE the Pixi model parser can turn
     // them into an unhelpful blank canvas or generic "invalid model" error.
     const settingsResponse = await fetch(modelURL, { cache: 'no-store' })
     if (!settingsResponse.ok) throw new Error('模型配置文件无法加载 (HTTP ' + settingsResponse.status + ')')
     const modelSettings = await settingsResponse.json()
+    notify('step', '④ model3.json：HTTP ' + settingsResponse.status +
+      '，纹理 ' + (modelSettings.FileReferences?.Textures?.length ?? '?') + ' 张')
     if (modelSettings.luluMobileTextureError) {
       throw new Error('手机贴图优化失败：' + modelSettings.luluMobileTextureError)
     }
     if (sequence !== loadSequence) return
     if (model) { app.stage.removeChild(model); model.destroy({ texture: true, baseTexture: true }); model = null }
+    notify('step', '⑤ Moc3 / 纹理 / Cubism：开始解码模型')
     const loaded = await Live2DModel.from(modelURL, { autoInteract: false, autoUpdate: true })
+    notify('step', '⑤ 模型解析：成功；宽高 ' + Math.round(loaded.width) +
+      '×' + Math.round(loaded.height))
     if (sequence !== loadSequence) {
       loaded.destroy({ texture: true, baseTexture: true })
       return
@@ -337,17 +350,21 @@ async function load(modelURL) {
     if (!installPostMotionControl(model)) throw new Error('缺少可控制的 Live2D 动作管理器')
     app.stage.addChild(model)
     fit()
+    notify('step', '⑥ Canvas：验证真实可见人物像素')
     status('模型已解码，正在验证实际绘制画面…')
     await verifyVisibleFrame(model, sequence)
     if (sequence !== loadSequence) return
     status('', 'ready')
+    notify('step', '⑥ 画面通过验证：动态人物可见')
     const coreModel = model.internalModel?.coreModel
     const available = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ']
       .filter(id => coreModel?.getParameterIndex(id) >= 0)
     notify('parameters', available.join(','))
   } catch (error) {
-    if (sequence === loadSequence)
+    if (sequence === loadSequence) {
+      notify('step', '失败阶段：' + (error?.message || String(error)))
       status('无法呈现 Live2D 动态模型：' + (error?.message || String(error)), 'error')
+    }
   } finally {
     if (sequence === loadSequence) inflightModelUrl = null
   }
