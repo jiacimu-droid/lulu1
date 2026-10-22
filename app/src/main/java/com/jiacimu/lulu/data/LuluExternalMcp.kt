@@ -83,19 +83,26 @@ internal object LuluExternalMcp {
         val uri = java.net.URI(url)
         if (service == "xiaohongshu" && uri.scheme == "http" &&
             uri.host in setOf("127.0.0.1", "localhost")) {
-            val healthUrl = java.net.URL(uri.scheme, uri.host, uri.port, "/health")
-            val connection = healthUrl.openConnection() as HttpURLConnection
-            try {
-                connection.requestMethod = "GET"
-                connection.connectTimeout = 2_500
-                connection.readTimeout = 4_000
-                if (connection.responseCode != 200) error("本机 MCP 没有正常响应（HTTP ${connection.responseCode}）")
-                val data = JSONObject(connection.inputStream.bufferedReader().use { it.readText().take(500) })
-                require(data.optBoolean("ready") && data.optBoolean("readOnly")) {
-                    "端口有服务，但不是露露机的小红书只读 MCP"
-                }
-                return@withContext "Termux MCP 服务在线（尚未检测 Chromium 和小红书登录）"
-            } finally { connection.disconnect() }
+            // Legacy Node bridge exposes /health, but the official Go MCP in
+            // the user's ARM64/proot tutorial has ONLY /mcp and returns 405
+            // for a bare GET. A missing /health must not reject the Go server.
+            val legacyHealth = runCatching {
+                val healthUrl = java.net.URL(uri.scheme, uri.host, uri.port, "/health")
+                val connection = healthUrl.openConnection() as HttpURLConnection
+                try {
+                    connection.requestMethod = "GET"
+                    connection.connectTimeout = 2_500
+                    connection.readTimeout = 4_000
+                    if (connection.responseCode != 200) null else {
+                        val data = JSONObject(connection.inputStream.bufferedReader()
+                            .use { it.readText().take(500) })
+                        if (data.optBoolean("ready") && data.optBoolean("readOnly")) true else null
+                    }
+                } finally { connection.disconnect() }
+            }.getOrNull()
+            if (legacyHealth == true) return@withContext
+                "本机旧版只读 MCP 已响应（未检测浏览器登录和实际笔记）"
+            // Continue below: validate a real authenticated MCP initialize.
         }
         val init = send(url, savedToken(context, service), null, JSONObject()
             .put("jsonrpc", "2.0").put("id", 1).put("method", "initialize")
