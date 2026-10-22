@@ -8,6 +8,7 @@ import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
+import { createSpeechExpressionGate, isMouthExclusiveExpression } from './speech-expression-gate.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -93,6 +94,8 @@ const visualLayers = createVisualLayerRuntime({
   has: hasParameter, read: getParameter, write: setParameter,
 })
 const performanceRuntime = createPerformanceRuntime()
+const mouthExpressionGate = createSpeechExpressionGate()
+let mouthExclusiveExpressions = new Set()
 
 function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
@@ -302,6 +305,12 @@ function applyFinalParameters(core, deltaMs) {
     if (beat.body) body(beat.body, true)
     if (beat.face) face(beat.face, true)
   })
+  // Mouth-occupying gestures are deferred to a CONFIRMED audio pause or
+  // utterance completion, not blindly triggered at a model-chosen millisecond.
+  const gate = mouthExpressionGate.tick()
+  if (gate.reset && activeExpressionName &&
+      mouthExclusiveExpressions.has(activeExpressionName)) resetSpeechExpression()
+  if (gate.play) playVerifiedSpeechExpression(gate.play, true)
   // Expression cues are emotional beats, not permanent faces. Let gaps
   // between TTS fragments breathe, while bounding even long monologues.
   if (activeExpressionName &&
@@ -351,7 +360,7 @@ function applyFinalParameters(core, deltaMs) {
     // AIRI uses a speech-release tail rather than snapping the jaw shut on
     // the very first silent frame. Don't permanently own the mouth during
     // idle, either: the model's own expression may need this parameter.
-    if (playing) {
+    if (playing && !mouthExpressionGate.state().active) {
       const realSignal = Math.min(1, Math.max(0, mouth))
       // The PCM callback is not provided by every platform TTS engine; for
       // those we approximate light syllables, only while speech is audible.
@@ -365,6 +374,11 @@ function applyFinalParameters(core, deltaMs) {
       smoothedMouthOpen += (target - smoothedMouthOpen) * alpha
       mouthReleaseUntil = timeNow + 470
       setParameter(core, 'ParamMouthOpenY', smoothedMouthOpen)
+    } else if (mouthExpressionGate.state().active) {
+      // Tongue/covered-mouth gestures cannot coexist with talking mouth shape.
+      smoothedMouthOpen = 0
+      mouthReleaseUntil = 0
+      setParameter(core, 'ParamMouthOpenY', 0)
     } else if (timeNow < mouthReleaseUntil || smoothedMouthOpen > .012) {
       smoothedMouthOpen += (0 - smoothedMouthOpen) * Math.min(1, deltaMs * .019)
       if (smoothedMouthOpen < .012) smoothedMouthOpen = 0
@@ -481,6 +495,28 @@ async function load(modelURL) {
     const settingsResponse = await fetch(modelURL, { cache: 'no-store' })
     if (!settingsResponse.ok) throw new Error('模型配置文件无法加载 (HTTP ' + settingsResponse.status + ')')
     const modelSettings = await settingsResponse.json()
+    // Describe what a .exp3 actually changes; do not assume a Chinese or
+    // English filename is enough to infer if it blocks mouth movement.
+    mouthExclusiveExpressions = new Set()
+    const references = modelSettings.FileReferences?.Expressions || []
+    await Promise.all(references.map(async entry => {
+      if (!entry?.Name || !entry?.File) return
+      try {
+        const url = new URL(entry.File, modelURL)
+        if (url.origin !== new URL(modelURL).origin) return
+        const response = await fetch(url.href)
+        if (!response.ok) return
+        const metadata = await response.json()
+        if (sequence === loadSequence && isMouthExclusiveExpression(metadata)) {
+          mouthExclusiveExpressions.add(entry.Name)
+        }
+      } catch (_) { /* not every model ships valid optional exp3 files */ }
+    }))
+    // A malformed local metadata file should fail safely for the known
+    // tongue expressions rather than showing a tongue during TTS.
+    for (const entry of references) {
+      if (/吐舌|tongue/i.test(entry?.Name || '')) mouthExclusiveExpressions.add(entry.Name)
+    }
     const eyeBlinkGroup = (modelSettings.Groups || []).find(group =>
       group.Name === 'EyeBlink' && group.Target === 'Parameter')
     proceduralBlinkEnabled = !eyeBlinkGroup || !(eyeBlinkGroup.Ids || []).length
@@ -505,6 +541,7 @@ async function load(modelURL) {
     // score is allowed to bleed into the next imported model.
     visualLayers.reset()
     performanceRuntime.reset()
+    mouthExpressionGate.reset()
     if (playing) performanceRuntime.startSpeech()
     headRequest = null
     bodyRequest = null
@@ -568,6 +605,8 @@ function activatePendingSpeechMoment() {
 function onPlaybackEvent(phase) {
   if (phase === 'playing') {
     playing = true
+    const gate = mouthExpressionGate.started()
+    if (gate.reset && activeExpressionName) resetSpeechExpression()
     performanceRuntime.startSpeech()
     lastSpeechSoundAt = Date.now()
     speakingBeganAt = Date.now()
@@ -578,6 +617,10 @@ function onPlaybackEvent(phase) {
   if (phase !== 'finished' && phase !== 'interrupted') return
   playing = false
   performanceRuntime.stopSpeech()
+  const gate = phase === 'finished'
+    ? mouthExpressionGate.finished() : mouthExpressionGate.interrupted()
+  if (gate.reset && activeExpressionName) resetSpeechExpression()
+  if (gate.play) playVerifiedSpeechExpression(gate.play, true)
   mouth = 0
   pcmAvailable = false
   lastRealMouthSignalAt = 0
@@ -611,13 +654,24 @@ function update(next) {
     lastMouthSignal = mouth
   }
   if (playing && !wasPlaying) {
+    const gate = mouthExpressionGate.started()
+    if (gate.reset && activeExpressionName) resetSpeechExpression()
     performanceRuntime.startSpeech()
     speakingBeganAt = Date.now()
     fallbackSpeechSeed = Math.random() * 4
   }
   if (!playing) {
     mouth = 0
-    if (wasPlaying) performanceRuntime.stopSpeech()
+    if (wasPlaying) {
+      performanceRuntime.stopSpeech()
+      const gate = mouthExpressionGate.finished()
+      if (gate.play) playVerifiedSpeechExpression(gate.play, true)
+    }
+  } else {
+    const gate = mouthExpressionGate.sample({
+      audible: playing, pcm: pcmAvailable, level: mouth,
+    })
+    if (gate.reset && activeExpressionName) resetSpeechExpression()
   }
   if (playing) {
     lastSpeechSoundAt = Date.now()
@@ -826,6 +880,8 @@ function setPaused(value) {
     // Do not play a stale animation score in a burst when Android restores
     // the WebView after it was hidden while TTS continued in the background.
     performanceRuntime.stopSpeech()
+    mouthExpressionGate.interrupted()
+    resetSpeechExpression()
     headRequest = null
     bodyRequest = null
     faceRequest = null
@@ -848,6 +904,15 @@ function resetSpeechExpression() {
   activeExpressionIsPreview = false
 }
 function startSpeechExpression(name, immediatePreview = false) {
+  if (!model || !name) return
+  if (mouthExclusiveExpressions.has(name)) {
+    // Playing audio takes precedence over an animated tongue. Wait for a
+    // PCM-confirmed pause or a real playback-finished event.
+    if (!mouthExpressionGate.request(name, playing)) return
+  }
+  playVerifiedSpeechExpression(name, immediatePreview)
+}
+function playVerifiedSpeechExpression(name, immediatePreview = false) {
   if (!model || !name) return
   resetSpeechExpression()
   activeExpressionName = name
