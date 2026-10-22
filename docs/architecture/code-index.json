@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:13:41.706141+00:00",
-  "commit": "0d97db8244d839b436443316dec1627ec7d0b7d5",
+  "generatedAt": "2026-10-22T16:22:39.342925+00:00",
+  "commit": "6046ec2c7070d84846597afd4a06b6e38df5490b",
   "branch": "main",
-  "sourceFingerprint": "548a0d0b65a419e5cdb6fc68696e12cc01ae1ba76522e6a0a84fcc18aec9f5ff",
+  "sourceFingerprint": "87a6b466e1921f6ed5a2b7114bd001e6980f09443e61694fed04b1ac956d9007",
   "summary": {
-    "files": 819,
-    "lines": 156376,
-    "symbols": 2363
+    "files": 820,
+    "lines": 156460,
+    "symbols": 2364
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3740,6 +3740,20 @@
         "line": 8
       }
     ],
+    "describe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
+        "line": 20
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
+        "line": 12
+      }
+    ],
     "Snapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
@@ -6014,16 +6028,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
         "line": 733
-      }
-    ],
-    "describe": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
-        "line": 20
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
-        "line": 12
       }
     ],
     "age": [
@@ -16625,6 +16629,17 @@
         {
           "name": "user",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
+      "lines": 84,
+      "sha256": "f1b4fd76d334356f983a82217c98cbfa6a2758f1116f2751bed2a9630a7cc410",
+      "symbols": [
+        {
+          "name": "describe",
+          "line": 16
         }
       ]
     },
