@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`021d4feab8bbe68cd8066ee047b5eadad404e136`
+- 基准提交：`bb89a435113b3bc84051eb0daa47971589bccd06`
 - 分支：`main`
-- 已索引文件：829
-- 已索引代码/文本行：158086
-- 已发现符号：2394
+- 已索引文件：830
+- 已索引代码/文本行：158390
+- 已发现符号：2396
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -93,6 +93,7 @@
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 453 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 282 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 295 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 730 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
@@ -164,7 +165,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 502 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 302 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 309 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 119 | 0 |
@@ -176,7 +177,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 914 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 929 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
