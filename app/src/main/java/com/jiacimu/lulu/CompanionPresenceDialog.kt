@@ -455,14 +455,10 @@ private data class LifeThoughtEntry(
     val onDelete: (() -> Unit)? = null,
 )
 
-@Composable
-private fun PresenceLifeThreads(characterId: String, now: Instant) {
-    val context = LocalContext.current
-    val revisions by CharacterInnerLifeStore.revisions.collectAsState()
-    val lives by CharacterLifeStore.states.collectAsState()
-    // Recompose from actual saved stores; never run a paid model for this UI.
-    @Suppress("UNUSED_VARIABLE")
-    val refresh = Triple(now.epochSecond / 15L, revisions, lives[characterId])
+private fun loadPresenceLifeEntries(
+    context: android.content.Context, characterId: String, now: Instant,
+    showOlder: Boolean,
+): List<LifeThoughtEntry> {
     val goal = CharacterLifeStore.state(characterId).optJSONObject("intention")
     val mind = CharacterInnerLifeStore.snapshot(characterId)
     val motives = mind.optJSONArray("motives")
@@ -473,8 +469,6 @@ private fun PresenceLifeThreads(characterId: String, now: Instant) {
     val threads = curiosity.optJSONArray("threads")
     val evidence = CharacterLifeFollowThroughStore.auditSnapshot(characterId)
         .filter { it.optString("shareStatus") == "held" }.takeLast(2).asReversed()
-    var expandedKey by remember(characterId) { mutableStateOf("") }
-    var showOlder by remember(characterId) { mutableStateOf(false) }
     val ideas = mutableListOf<LifeThoughtEntry>()
     CharacterLifeVisibility.current(characterId, now).forEach { entry ->
         if (entry.title == "还在挂心") {
@@ -623,7 +617,28 @@ private fun PresenceLifeThreads(characterId: String, now: Instant) {
             if (item.title == "持续意愿") item.title + ":" + item.detail.trim()
             else item.title.replace(Regex("\\s+"), "").take(80)
         }
-    val visible = if (showOlder) unique else unique.take(4)
+    return unique
+}
+
+@Composable
+private fun PresenceLifeThreads(characterId: String, now: Instant) {
+    val context = LocalContext.current
+    val revisions by CharacterInnerLifeStore.revisions.collectAsState()
+    val lives by CharacterLifeStore.states.collectAsState()
+    val sourceRevision by SharedExperienceTimeline.revisions.collectAsState()
+    var expandedKey by remember(characterId) { mutableStateOf("") }
+    var showOlder by remember(characterId) { mutableStateOf(false) }
+    // Never scan years of causal evidence synchronously when the user taps
+    // the avatar. Render the dialog first and populate these read-only cards
+    // on a worker. The real stores remain the sole source of truth.
+    val ideas by produceState(initialValue = emptyList<LifeThoughtEntry>(),
+        characterId, now.epochSecond / 15L, revisions, lives[characterId],
+        sourceRevision, showOlder) {
+        value = withContext(Dispatchers.Default) {
+            loadPresenceLifeEntries(context, characterId, now, showOlder)
+        }
+    }
+    val visible = if (showOlder) ideas else ideas.take(4)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text("心里的那些事", fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
