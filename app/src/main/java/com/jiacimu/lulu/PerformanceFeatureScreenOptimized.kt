@@ -145,6 +145,19 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 FastMetric("接口输入", record.reportedInputTokens.takeIf { it > 0 }?.fastTokens() ?: "未返回")
                 FastMetric("接口输出", record.reportedOutputTokens.takeIf { it > 0 }?.fastTokens() ?: "未返回")
                 FastMetric("缓存 Token", record.cachedTokens.fastTokens())
+                val estimatedParts = record.breakdown.sumOf { it.estimatedTokens.toLong() }
+                FastMetric("分项估算总计", estimatedParts.fastTokens())
+                if (record.reportedInputTokens > 0L) {
+                    val difference = record.reportedInputTokens - estimatedParts
+                    FastMetric("接口减估算", (if (difference > 0) "+" else "") + difference.fastTokens())
+                    Text(
+                        "接口输入是服务商报告的整次请求 Token；下面每一项是 App 按字符数 ÷ 1.8 粗估，不是服务商逐项计数。两者差额不能直接视作重复调用或隐藏消息。",
+                        color = FastPerformanceMuted,
+                        fontSize = 11.sp,
+                    )
+                } else {
+                    Text("接口没有提供输入用量；计入输入暂由本地字符估算替代。", color = FastPerformanceMuted, fontSize = 11.sp)
+                }
                 record.breakdown.forEach { part ->
                     FastMetric(part.label, "${part.estimatedTokens} tok / ${part.chars} 字符")
                 }
