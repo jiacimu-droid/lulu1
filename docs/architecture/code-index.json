@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:23:12.309227+00:00",
-  "commit": "7e0af644b37eb505cdc8635d5fb1ad680fae479d",
+  "generatedAt": "2026-10-22T20:23:43.353859+00:00",
+  "commit": "33e29d8f255a825171b996f04df89857471e4261",
   "branch": "main",
-  "sourceFingerprint": "94d0f0df25ffbc48b9ca20070cb69e1a3c901b020ced452e61423859f1d06cfe",
+  "sourceFingerprint": "9460936f0d2251e9336e3b892ffe17c40f1b9742a089294aafeffe7907e21b16",
   "summary": {
     "files": 831,
-    "lines": 158852,
+    "lines": 158857,
     "symbols": 2400
   },
   "symbolIndex": {
@@ -13472,8 +13472,8 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "lines": 164,
-      "sha256": "69fdb1b67e0cb5042bfbe308ed96739071060494dc1e50f57846504a4e8216a7",
+      "lines": 169,
+      "sha256": "21760028f6e6fad72296a108e526ca7e898499f88be44a4d9eb56f118ef24115",
       "symbols": []
     },
     {
@@ -22570,7 +22570,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
       "lines": 155,
-      "sha256": "743d60012d0b216216a78f4b5a3f54098b6e1797a4a7193154543ba1944b8b62",
+      "sha256": "0f7d8611b7bcef6af630a151fe7671afa0022ebb1c8944b2e4ec04873389e6a7",
       "symbols": [
         {
           "name": "ToolRouter",
