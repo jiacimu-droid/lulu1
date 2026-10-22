@@ -578,7 +578,9 @@ function setNativeStreaming(enabled) {
       }
     }
     nativeStreamBusy = false
-    scheduleNativeStreamFrame(Math.max(0, 53 - (performance.now() - nativeStreamLastFrameAt)))
+    // AIRI's Pixi ticker is capped at 30fps. Target its cadence without
+    // ever starting a second encode before Android's decode ACK.
+    scheduleNativeStreamFrame(Math.max(0, 34 - (performance.now() - nativeStreamLastFrameAt)))
   }
   notify('diagnostic', '已启用 Android WebMessage 二进制桥接（带解码回执）')
   scheduleNativeStreamFrame()
