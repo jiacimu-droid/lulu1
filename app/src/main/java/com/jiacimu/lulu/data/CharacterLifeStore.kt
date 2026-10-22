@@ -303,8 +303,9 @@ object CharacterLifeStore {
                 CharacterProfileSchema.jiangDuV10Persona,
                 CharacterProfileSchema.jiangDuV11Persona,
                 CharacterProfileSchema.jiangDuV12Persona,
-                CharacterProfileSchema.jiangDuV13Persona
-            )) CharacterProfileSchema.jiangDuV14Persona else character.persona
+                CharacterProfileSchema.jiangDuV13Persona,
+                CharacterProfileSchema.jiangDuV14Persona
+            )) CharacterProfileSchema.jiangDuV16Persona else character.persona
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = updatedPersona))
         root.optJSONObject("socialNames")?.let { names ->
@@ -590,7 +591,15 @@ object CharacterLifeStore {
 
     fun profileContext(characterId: String): String {
         val profile = state(characterId).optJSONObject("profile") ?: return ""
-        val sections = CharacterProfileSchema.groupedFields().mapNotNull { (group, fields) ->
+        // Jiang Du v16: stable motivations first, then judgments, relationships,
+        // and optional interests/expression. Keep other roles' authored order intact.
+        val orderedGroups = CharacterProfileSchema.groupedFields().let { groups ->
+            if (state(characterId).optInt("jiangDuPresetVersion") >= 16) {
+                val order = listOf("稳定核心", "判断与行动", "相处与边界", "兴趣与表达")
+                groups.sortedBy { (group, _) -> order.indexOf(group).takeIf { it >= 0 } ?: order.size }
+            } else groups
+        }
+        val sections = orderedGroups.mapNotNull { (group, fields) ->
             val values = fields.mapNotNull { field ->
                 profile.optString(field.key).trim().takeIf(String::isNotBlank)
                     ?.let { "- ${field.label}：$it" }
