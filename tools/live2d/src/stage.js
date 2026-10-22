@@ -53,6 +53,10 @@ let paused = false
 let seconds = 0
 let headRequest = null
 let headRequestEndAt = 0
+let pendingExpressionName = null
+let activeExpressionName = null
+let activeExpressionStartedAt = 0
+let lastSpeechSoundAt = 0
 let bodyRequest = null
 let bodyRequestEndAt = 0
 let faceRequest = null
@@ -138,11 +142,11 @@ function fit() {
   // In portrait view the top of the model remains in shot, while the lower
   // half is intentionally below the visible viewport.
   const isPortrait = framingMode === 'portrait'
-  const heightTarget = viewHeight * (isPortrait ? 1.78 : 1.02)
-  const widthTarget = viewWidth * (isPortrait ? 2.05 : .92)
+  const heightTarget = viewHeight * (isPortrait ? 2.13 : 1.02)
+  const widthTarget = viewWidth * (isPortrait ? 2.40 : .92)
   model.scale.set(Math.min(widthTarget / originalWidth, heightTarget / originalHeight))
   model.anchor.set(.5, .5)
-  model.position.set(viewWidth / 2, viewHeight * (isPortrait ? .91 : .53))
+  model.position.set(viewWidth / 2, viewHeight * (isPortrait ? 1.06 : .53))
 }
 function setFramingMode(nextMode) {
   framingMode = nextMode === 'portrait' ? 'portrait' : 'full'
@@ -276,6 +280,16 @@ function applyAfterMotion(core, deltaMs) {
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
+  const timeNow = Date.now()
+  // Expression cues are emotional beats, not permanent faces. Let gaps
+  // between TTS fragments breathe, while bounding even long monologues.
+  if (activeExpressionName &&
+      ((lastSpeechSoundAt && timeNow - lastSpeechSoundAt > 1050) ||
+       timeNow - activeExpressionStartedAt > 6200)) {
+    resetSpeechExpression()
+  }
+  if (pendingExpressionName && timeNow - pendingExpressionName.queuedAt > 20000)
+    pendingExpressionName = null
   // Cubism's authored idle motion, breathing and eye-blink already handle
   // the body's life. Do not impose a perpetual clock-driven left/right
   // head sway: it looks arbitrary and can erase the character's intentional
@@ -388,7 +402,9 @@ function ensureApp() {
     // mirror itself is the final output, so render at a bounded density.
     // On Android this trades imperceptible offscreen supersampling for
     // substantially less GPU readback work and steadier frame pacing.
-    resolution: Math.min(1.4, window.devicePixelRatio || 1),
+    // The old 1.4x GPU buffer capped real output at 552x1200.
+    // Upscaling JPEG cannot restore that lost facial detail.
+    resolution: Math.min(2.35, window.devicePixelRatio || 1),
     autoDensity: true,
   })
   root.insertBefore(app.view, notice)
@@ -470,7 +486,13 @@ async function load(modelURL) {
       throw new Error('手机贴图优化失败：' + modelSettings.luluMobileTextureError)
     }
     if (sequence !== loadSequence) return
-    if (model) { app.stage.removeChild(model); model.destroy({ texture: true, baseTexture: true }); model = null }
+    if (model) {
+      resetSpeechExpression()
+      pendingExpressionName = null
+      app.stage.removeChild(model)
+      model.destroy({ texture: true, baseTexture: true })
+      model = null
+    }
     notify('step', '⑤ Moc3 / 纹理 / Cubism：开始解码模型')
     const loaded = await Live2DModel.from(modelURL, { autoInteract: false, autoUpdate: true })
     notify('step', '⑤ 模型解析：成功；宽高 ' + Math.round(loaded.width) +
@@ -512,10 +534,22 @@ async function load(modelURL) {
   }
 }
 function update(next) {
+  const wasPlaying = playing
   playing = !!next.speaking
   listening = !!next.listening
   mouth = Number.isFinite(Number(next.mouth)) ? Math.max(0, Math.min(1, Number(next.mouth))) : 0
   if (!playing) mouth = 0
+  if (playing) {
+    lastSpeechSoundAt = Date.now()
+    if (pendingExpressionName && !activeExpressionName) {
+      const selected = pendingExpressionName.name
+      pendingExpressionName = null
+      startSpeechExpression(selected)
+    }
+  } else if (wasPlaying && activeExpressionName) {
+    // Grace period for inter-sentence pauses.
+    lastSpeechSoundAt = Date.now()
+  }
 }
 // Debug option: mirror decoded WebGL frames through an ordinary HTML image.
 // This deliberately uses a different Chromium compositing path. Kept behind
@@ -574,7 +608,7 @@ function drawNativeCapture(maxEdge = 960) {
   const w = app.view.width
   const h = app.view.height
   if (w < 32 || h < 32) return null
-  const safeEdge = Math.max(400, Math.min(1440, Math.floor(Number(maxEdge) || 960)))
+  const safeEdge = Math.max(400, Math.min(2200, Math.floor(Number(maxEdge) || 960)))
   const scale = Math.min(1, safeEdge / Math.max(w, h))
   const width = Math.max(32, Math.round(w * scale))
   const height = Math.max(32, Math.round(h * scale))
@@ -685,7 +719,7 @@ function setNativeStreaming(enabled) {
     if (reply.startsWith('next:')) {
       const maxEdge = Number(reply.substring(5))
       if (Number.isFinite(maxEdge)) {
-        nativeStreamMaxEdge = Math.min(1440, Math.max(640, Math.floor(maxEdge)))
+        nativeStreamMaxEdge = Math.min(2200, Math.max(640, Math.floor(maxEdge)))
       }
     }
     nativeStreamBusy = false
@@ -701,9 +735,36 @@ function setPaused(value) {
   paused = !!value
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
 }
+function resetSpeechExpression() {
+  if (model && activeExpressionName) {
+    const manager = model.internalModel?.motionManager?.expressionManager
+    try { manager?.resetExpression() } catch (error) {
+      notify('diagnostic', '表情复位失败：' + (error?.message || String(error)))
+    }
+  }
+  activeExpressionName = null
+  activeExpressionStartedAt = 0
+}
+function startSpeechExpression(name) {
+  if (!model || !name) return
+  resetSpeechExpression()
+  activeExpressionName = name
+  activeExpressionStartedAt = Date.now()
+  lastSpeechSoundAt = Date.now()
+  Promise.resolve(model.expression(name)).catch(() => {
+    if (activeExpressionName === name) resetSpeechExpression()
+  })
+}
 function expression(name) {
   if (!model || !name || name.length > 128) return
-  Promise.resolve(model.expression(name)).catch(() => {})
+  if (playing) {
+    pendingExpressionName = null
+    startSpeechExpression(name)
+  } else {
+    // The decision arrives before TTS plays; do not grimace throughout
+    // network/voice generation latency.
+    pendingExpressionName = { name, queuedAt: Date.now() }
+  }
 }
 function motion(group, index) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
