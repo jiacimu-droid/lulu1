@@ -572,28 +572,56 @@ async function load(modelURL) {
     if (sequence === loadSequence) inflightModelUrl = null
   }
 }
+// Moment state is driven by the Android phone player's actual audible
+// events, not merely an LLM response or a pending TTS network request.
+function activatePendingSpeechMoment() {
+  if (!pendingExpressionName && !pendingSpeechParts) return
+  const selected = pendingExpressionName?.name
+  const parts = pendingSpeechParts
+  pendingExpressionName = null
+  pendingSpeechParts = null
+  if (selected) startSpeechExpression(selected)
+  if (parts?.head) head(parts.head)
+  if (parts?.body) body(parts.body)
+  if (parts?.face) face(parts.face)
+}
+function onPlaybackEvent(phase) {
+  if (phase === 'playing') {
+    playing = true
+    lastSpeechSoundAt = Date.now()
+    activatePendingSpeechMoment()
+    return
+  }
+  if (phase !== 'finished' && phase !== 'interrupted') return
+  playing = false
+  mouth = 0
+  pendingExpressionName = null
+  pendingSpeechParts = null
+  headRequest = null
+  bodyRequest = null
+  faceRequest = null
+  // The expressionManager fades back to the base expression itself.
+  resetSpeechExpression()
+  // Keep the mouth's short release tail on normal completion. Interruptions
+  // should cancel immediately rather than make the role keep talking.
+  if (phase === 'interrupted') {
+    smoothedMouthOpen = 0
+    mouthReleaseUntil = 0
+  }
+}
 function update(next) {
   const wasPlaying = playing
   playing = !!next.speaking
   listening = !!next.listening
-  mouth = Number.isFinite(Number(next.mouth)) ? Math.max(0, Math.min(1, Number(next.mouth))) : 0
+  mouth = Number.isFinite(Number(next.mouth))
+    ? Math.max(0, Math.min(1, Number(next.mouth))) : 0
   if (!playing) mouth = 0
   if (playing) {
     lastSpeechSoundAt = Date.now()
-    if (pendingExpressionName || pendingSpeechParts) {
-      const selected = pendingExpressionName?.name
-      const parts = pendingSpeechParts
-      pendingExpressionName = null
-      pendingSpeechParts = null
-      if (selected) startSpeechExpression(selected)
-      // A role can choose only a gaze or posture, without an expression
-      // file. Such cues also begin with audible speech, not while TTS loads.
-      if (parts?.head) head(parts.head)
-      if (parts?.body) body(parts.body)
-      if (parts?.face) face(parts.face)
-    }
+    // The older call providers only expose speaking status. Real TTS timeline
+    // events also call this, so both paths remain idempotent.
+    activatePendingSpeechMoment()
   } else if (wasPlaying && activeExpressionName) {
-    // Grace period for inter-sentence pauses.
     lastSpeechSoundAt = Date.now()
   }
 }
@@ -882,7 +910,7 @@ function head(target) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head, face, body, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
