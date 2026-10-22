@@ -190,15 +190,14 @@ internal object CharacterStateHistory {
                 val fingerprint = old.moment?.innerThoughtFingerprint.orEmpty()
                 val sameFingerprint = fingerprint.isNotBlank() &&
                     fingerprint == row.moment?.innerThoughtFingerprint
+                // A decision's supporting projection may share a source event
+                // with the actual presence moment. Different actual voices
+                // remain independent even when they are close together.
+                val isSupportingProjection = sameExecutionWindow && overlap &&
+                    (old.moment == null || row.moment == null)
                 // Two different inner voices about the same source are genuine
                 // changes, not duplicates. Do not merge merely by clock minute.
-                nearby && (sameVoice || sameFingerprint ||
-                    (sameExecutionWindow && overlap &&
-                        // A decision's structured thoughts are supporting fields
-                        // of its presence moment, not another independently
-                        // generated "present". Two *actual* presence changes
-                        // with different voices remain separate.
-                        (old.moment == null || row.moment == null)))
+                nearby && (sameVoice || sameFingerprint || isSupportingProjection)
             }
             if (same < 0) {
                 output += row
