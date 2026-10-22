@@ -30,17 +30,20 @@ internal object LuluScreenRequestPopup {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Settings.canDrawOverlays(context)
 
     fun showCapture(context: Context, role: String, id: String,
-        stillPending: () -> Boolean, onAllow: () -> Unit, onDeny: () -> Unit): Boolean =
+        stillPending: () -> Boolean, onAllow: () -> Unit, onDeny: () -> Unit,
+        onFailure: () -> Unit = {}): Boolean =
         show(context, "capture:$id", "请求查看屏幕", "$role 想看一眼你现在的屏幕",
             "只查看当前一帧。点击允许后才会截图并交给识图模型。",
             listOf("拒绝" to onDeny, "允许一次" to onAllow),
-            120_000L, stillPending)
+            120_000L, stillPending, onFailure)
 
     fun showReturn(context: Context, role: String,
-        onReturn: () -> Unit, onLater: () -> Unit): Boolean =
+        onReturn: () -> Unit, onLater: () -> Unit,
+        onFailure: () -> Unit = {}): Boolean =
         show(context, "summon", "请求返回露露机", "$role 想邀请你回来",
             "你可以继续忙自己的事，想回来时再点开。",
-            listOf("稍后" to onLater, "返回露露机" to onReturn), 25_000L)
+            listOf("稍后" to onLater, "返回露露机" to onReturn), 25_000L,
+            onFailure = onFailure)
 
     fun showProgress(context: Context, text: String): Boolean =
         show(context, "screen-progress", "正在查看屏幕", text,
@@ -78,7 +81,8 @@ internal object LuluScreenRequestPopup {
 
     private fun show(context: Context, key: String, title: String, subtitle: String,
         details: String, actions: List<Pair<String, () -> Unit>>, duration: Long,
-        valid: () -> Boolean = { true }): Boolean {
+        valid: () -> Boolean = { true },
+        onFailure: () -> Unit = {}): Boolean {
         if (!available(context)) return false
         val app = context.applicationContext
         main.post {
@@ -160,10 +164,12 @@ internal object LuluScreenRequestPopup {
                 activeManager = window
                 activeKey = key
                 main.postDelayed({ if (activeKey == key) dismissNow() }, duration)
-            } catch (_: Exception) {
-                // Android may reject overlays while its security/permission UI is active.
-                // Caller already created a system notification fallback where possible.
+            } catch (error: Exception) {
+                // System privacy screens and manufacturer ROMs may reject overlays.
+                // Leave any notification as a fallback, and expose the failure to diagnostics.
+                android.util.Log.w("LuluScreenPopup", "Overlay could not be displayed", error)
                 dismissNow()
+                onFailure()
             }
         }
         return true
