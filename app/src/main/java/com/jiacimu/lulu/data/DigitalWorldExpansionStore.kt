@@ -17,6 +17,9 @@ data class DigitalWorldResident(
     val neighborhoodCode: String = DigitalWorldPublicPlaces.COURTYARD,
     val createdAt: Instant = Instant.now(),
     val lastInteractionAt: Instant? = null,
+    /** Stable, distinct qualities of this NPC. Old saves retain empty defaults. */
+    val temperament: String = "",
+    val preferences: String = "",
 )
 
 data class DigitalWorldDiscoveredPlace(
@@ -141,7 +144,7 @@ internal object DigitalWorldExpansionStore {
                 appendLine("- 地点 id=${place.code}；${place.label}；用途=${place.purpose}；连接=${place.connectedTo.joinToString("/")}")
             }
             relevantResidents.forEach { resident ->
-                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}")
+                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}")
             }
             append("未列出的新地点、新居民都不存在；模型不能只靠叙述把它们变成世界事实。")
         }
@@ -184,7 +187,9 @@ internal object DigitalWorldExpansionStore {
                     .put("currentLocationCode", resident.currentLocationCode)
                     .put("neighborhoodCode", resident.neighborhoodCode)
                     .put("createdAt", resident.createdAt.toString())
-                    .put("lastInteractionAt", resident.lastInteractionAt?.toString() ?: JSONObject.NULL))
+                    .put("lastInteractionAt", resident.lastInteractionAt?.toString() ?: JSONObject.NULL)
+                    .put("temperament", resident.temperament)
+                    .put("preferences", resident.preferences))
             }
         }
         check(prefs?.edit()?.putString(KEY_PLACES, placeArray.toString())?.putString(KEY_RESIDENTS, residentArray.toString())?.commit() == true) {
@@ -242,6 +247,8 @@ internal object DigitalWorldExpansionStore {
                         currentLocationCode = if (earlierLocation == originalHome || earlierLocation == DigitalWorldPublicPlaces.READING_LOUNGE) realHome else earlierLocation,
                         neighborhoodCode = neighborhood,
                         createdAt = item.optString("createdAt").expansionInstant(),
+                        temperament = item.optString("temperament").take(260),
+                        preferences = item.optString("preferences").take(260),
                         lastInteractionAt = item.optString("lastInteractionAt").takeUnless { it.isBlank() || it.equals("null", true) }
                             ?.let { runCatching { Instant.parse(it) }.getOrNull() },
                     ))
