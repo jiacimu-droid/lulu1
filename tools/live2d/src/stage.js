@@ -50,7 +50,29 @@ let paused = false
 let seconds = 0
 let headRequest = null
 let headRequestEndAt = 0
+let bodyRequest = null
+let bodyRequestEndAt = 0
+let faceRequest = null
+let faceRequestEndAt = 0
+let proceduralBlinkEnabled = false
+let blinkClock = 4.4
+let blinkProgress = -1
 const smoothPose = { yaw: 0, pitch: 0, roll: 0 }
+const smoothBody = { yaw: 0, pitch: 0, roll: 0 }
+const smoothFace = Object.create(null)
+// Only semantic parameters confirmed in the uploaded wolf model's CDI3 and
+// VTube settings. For OTHER models the runtime Cubism parameter probe must
+// independently confirm every individual ID before applying any value.
+const FACE_BINDINGS = {
+  gazeX: ['ParamEyeBallX'], gazeY: ['ParamEyeBallY'],
+  smile: ['ParamMouthForm'],
+  eyeSmile: ['ParamEyeLSmile', 'ParamEyeRSmile'],
+  browY: ['ParamBrowLY', 'ParamBrowRY'],
+  squint: ['ParamEyeLSquint', 'ParamEyeRSquint'],
+  cheekPuff: ['ParamCheekPuff'], pout: ['ParamMouthFunnel'],
+}
+const BODY_BINDINGS = { yaw: 'ParamBodyAngleX', pitch: 'ParamBodyAngleY', roll: 'ParamBodyAngleZ' }
+
 
 function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
@@ -128,7 +150,7 @@ function setFramingMode(nextMode) {
 }
 function notify(type, detail) {
   console.info('__LULU_LIVE2D__' + JSON.stringify({
-    type, detail: String(detail || '').slice(0, 200)
+    type, detail: String(detail || '').slice(0, type === 'parameters' ? 850 : 200)
   }))
 }
 function describeTextureLimits(loaded) {
@@ -249,6 +271,8 @@ function applyAfterMotion(core, deltaMs) {
   if (!core || paused) return
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
+  if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
+  if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   // Cubism's authored idle motion, breathing and eye-blink already handle
   // the body's life. Do not impose a perpetual clock-driven left/right
   // head sway: it looks arbitrary and can erase the character's intentional
@@ -271,6 +295,54 @@ function applyAfterMotion(core, deltaMs) {
     const target = requested ?? 0
     smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .010)
     core.setParameterValueById(id, smoothPose[axis])
+  }
+  for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
+    if (core.getParameterIndex(id) < 0) continue
+    const requested = bodyRequest?.[axis]
+    if (requested == null && Math.abs(smoothBody[axis]) < .10) {
+      smoothBody[axis] = 0
+      continue
+    }
+    smoothBody[axis] += ((requested ?? 0) - smoothBody[axis]) *
+      Math.min(1, deltaMs * .008)
+    core.setParameterValueById(id, smoothBody[axis])
+  }
+  for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
+    // Eye tracking and facial states can combine with authored expression
+    // files (e.g. blush). They are NOT selected randomly each animation frame.
+    if (ids.some(id => core.getParameterIndex(id) < 0)) continue
+    const requested = faceRequest?.[key]
+    const previous = smoothFace[key] || 0
+    if (requested == null && Math.abs(previous) < .018) {
+      smoothFace[key] = 0
+      continue
+    }
+    const next = previous + ((requested ?? 0) - previous) * Math.min(1, deltaMs * .010)
+    smoothFace[key] = next
+    for (const id of ids) core.setParameterValueById(id, next)
+  }
+  // A natural reflex, not an invented emotional intention: this particular
+  // model has an empty EyeBlink group but exposes both eyelid parameters.
+  // Avoid overwriting eye opening outside the brief blink interval.
+  if (proceduralBlinkEnabled &&
+      core.getParameterIndex('ParamEyeLOpen') >= 0 &&
+      core.getParameterIndex('ParamEyeROpen') >= 0) {
+    const dt = Math.min(.06, Math.max(0, deltaMs / 1000))
+    if (blinkProgress < 0) {
+      blinkClock -= dt
+      if (blinkClock <= 0) blinkProgress = 0
+    } else {
+      blinkProgress += dt / .22
+      const closing = Math.sin(Math.min(1, blinkProgress) * Math.PI)
+      for (const id of ['ParamEyeLOpen', 'ParamEyeROpen']) {
+        const current = core.getParameterValueById(id)
+        core.setParameterValueById(id, current * (1 - closing * .95))
+      }
+      if (blinkProgress >= 1) {
+        blinkProgress = -1
+        blinkClock = 3.8 + Math.random() * 2.8
+      }
+    }
   }
   if (core.getParameterIndex('ParamMouthOpenY') >= 0) {
     // Motion layers must never swallow the actual voice waveform.
@@ -379,6 +451,11 @@ async function load(modelURL) {
     const settingsResponse = await fetch(modelURL, { cache: 'no-store' })
     if (!settingsResponse.ok) throw new Error('模型配置文件无法加载 (HTTP ' + settingsResponse.status + ')')
     const modelSettings = await settingsResponse.json()
+    const eyeBlinkGroup = (modelSettings.Groups || []).find(group =>
+      group.Name === 'EyeBlink' && group.Target === 'Parameter')
+    proceduralBlinkEnabled = !eyeBlinkGroup || !(eyeBlinkGroup.Ids || []).length
+    blinkProgress = -1
+    blinkClock = 3.4
     notify('step', '④ model3.json：HTTP ' + settingsResponse.status +
       '，纹理 ' + (modelSettings.FileReferences?.Textures?.length ?? '?') + ' 张')
     if (modelSettings.luluMobileTextureError) {
@@ -407,9 +484,16 @@ async function load(modelURL) {
     if (window.__luluNativeStreamEnabled) setNativeStreaming(true)
     notify('step', '⑥ 仅通过 WebGL/Canvas 验证；Android 屏幕仍需独立确认')
     const coreModel = model.internalModel?.coreModel
-    const available = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ']
-      .filter(id => coreModel?.getParameterIndex(id) >= 0)
+    const candidates = [
+      'ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
+      ...Object.values(BODY_BINDINGS),
+      ...Object.values(FACE_BINDINGS).flat(),
+    ]
+    const available = [...new Set(candidates)].filter(id =>
+      coreModel?.getParameterIndex(id) >= 0)
     notify('parameters', available.join(','))
+    notify('diagnostic', '可执行视觉语义参数 ' + available.length +
+      ' 项；自动眨眼=' + (proceduralBlinkEnabled ? '仅反射性眼睑参数' : '模型自带'))
   } catch (error) {
     if (sequence === loadSequence) {
       notify('step', '失败阶段：' + (error?.message || String(error)))
@@ -611,6 +695,34 @@ function motion(group, index) {
   Promise.resolve(model.motion(group, index)).catch(() => {})
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
+function face(target) {
+  if (!model || !target || typeof target !== 'object') return
+  const next = Object.create(null)
+  for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
+    if (ids.some(id => model.internalModel?.coreModel?.getParameterIndex(id) < 0)) continue
+    const value = target[key]
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue
+    const low = ['eyeSmile', 'squint', 'cheekPuff', 'pout'].includes(key) ? 0 : -1
+    next[key] = Math.max(low, Math.min(1, value))
+  }
+  if (!Object.keys(next).length) return
+  faceRequest = next
+  faceRequestEndAt = Date.now() + 4200
+}
+function body(target) {
+  if (!model || !target || typeof target !== 'object') return
+  const next = Object.create(null)
+  for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
+    if (model.internalModel?.coreModel?.getParameterIndex(id) < 0) continue
+    const value = target[axis]
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      next[axis] = Math.max(-10, Math.min(10, value))
+    }
+  }
+  if (!Object.keys(next).length) return
+  bodyRequest = next
+  bodyRequestEndAt = Date.now() + 3000
+}
 function head(target) {
   if (!model || !target) return
   headRequest = {}
@@ -624,7 +736,7 @@ function head(target) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
+window.LuluLive2D = { load, update, setPaused, expression, motion, head, face, body, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
