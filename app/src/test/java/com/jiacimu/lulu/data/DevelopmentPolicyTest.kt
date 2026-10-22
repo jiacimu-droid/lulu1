@@ -8,6 +8,16 @@ class DevelopmentPolicyTest {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Habit, 1, true, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.Habit, 3, false, 0))
     }
+    @Test fun learnedUserHabitRequiresMultiDayEvidenceNotOneInstruction() {
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 1, true, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 2, true, 0))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 3, false, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 4, false, 1))
+        assertEquals(DevelopmentMaturity.Emerging,
+            DevelopmentPolicy.maturity(DevelopmentKind.UserHabit, 3))
+        assertEquals(DevelopmentMaturity.Established,
+            DevelopmentPolicy.maturity(DevelopmentKind.UserHabit, 5))
+    }
     @Test fun expressiveHabitsRequireThreeRealExposuresNotRepeatedDiaryClaims() {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.ExpressionHabit, 0, true, 0))
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.ExpressionHabit, 2, true, 0))
