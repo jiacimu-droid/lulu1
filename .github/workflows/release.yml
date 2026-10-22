@@ -43,6 +43,7 @@ jobs:
       - name: Build bundled Live2D stage
         run: |
           node tools/live2d/test/parameters.mjs
+          node tools/live2d/test/touch-hit.mjs
           npm install --prefix tools/live2d --ignore-scripts --no-audit --no-fund --no-package-lock
           npm run build --prefix tools/live2d
           test -s app/src/main/assets/live2d/renderer.js
