@@ -55,6 +55,7 @@ let seconds = 0
 let headRequest = null
 let headRequestEndAt = 0
 let pendingExpressionName = null
+let pendingSpeechParts = null
 let activeExpressionName = null
 let activeExpressionStartedAt = 0
 let lastSpeechSoundAt = 0
@@ -289,8 +290,10 @@ function applyAfterMotion(core, deltaMs) {
        timeNow - activeExpressionStartedAt > 6200)) {
     resetSpeechExpression()
   }
-  if (pendingExpressionName && timeNow - pendingExpressionName.queuedAt > 20000)
+  if (pendingExpressionName && timeNow - pendingExpressionName.queuedAt > 20000) {
     pendingExpressionName = null
+    pendingSpeechParts = null
+  }
   // Cubism's authored idle motion, breathing and eye-blink already handle
   // the body's life. Do not impose a perpetual clock-driven left/right
   // head sway: it looks arbitrary and can erase the character's intentional
@@ -490,6 +493,7 @@ async function load(modelURL) {
     if (model) {
       resetSpeechExpression()
       pendingExpressionName = null
+      pendingSpeechParts = null
       app.stage.removeChild(model)
       model.destroy({ texture: true, baseTexture: true })
       model = null
@@ -544,8 +548,16 @@ function update(next) {
     lastSpeechSoundAt = Date.now()
     if (pendingExpressionName && !activeExpressionName) {
       const selected = pendingExpressionName.name
+      const parts = pendingSpeechParts
       pendingExpressionName = null
+      pendingSpeechParts = null
       startSpeechExpression(selected)
+      // One AI decision may contain face, head AND body. Delay all parts to
+      // the first audible frame together, rather than showing a grimace
+      // during TTS synthesis while the lips remain still.
+      if (parts?.head) head(parts.head)
+      if (parts?.body) body(parts.body)
+      if (parts?.face) face(parts.face)
     }
   } else if (wasPlaying && activeExpressionName) {
     // Grace period for inter-sentence pauses.
@@ -774,6 +786,7 @@ function expression(name) {
     // The decision arrives before TTS plays; do not grimace throughout
     // network/voice generation latency.
     pendingExpressionName = { name, queuedAt: Date.now() }
+    pendingSpeechParts = null
   }
 }
 function motion(group, index) {
@@ -783,6 +796,11 @@ function motion(group, index) {
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
 function face(target) {
   if (!model || !target || typeof target !== 'object') return
+  if (!playing && pendingExpressionName) {
+    pendingSpeechParts = pendingSpeechParts || {}
+    pendingSpeechParts.face = target
+    return
+  }
   const next = Object.create(null)
   for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
     if (ids.some(id => model.internalModel?.coreModel?.getParameterIndex(id) < 0)) continue
@@ -797,6 +815,11 @@ function face(target) {
 }
 function body(target) {
   if (!model || !target || typeof target !== 'object') return
+  if (!playing && pendingExpressionName) {
+    pendingSpeechParts = pendingSpeechParts || {}
+    pendingSpeechParts.body = target
+    return
+  }
   const next = Object.create(null)
   for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
     if (model.internalModel?.coreModel?.getParameterIndex(id) < 0) continue
@@ -811,6 +834,11 @@ function body(target) {
 }
 function head(target) {
   if (!model || !target) return
+  if (!playing && pendingExpressionName) {
+    pendingSpeechParts = pendingSpeechParts || {}
+    pendingSpeechParts.head = target
+    return
+  }
   headRequest = {}
   for (const axis of ['yaw', 'pitch', 'roll']) {
     if (typeof target[axis] === 'number' && Number.isFinite(target[axis])) {
