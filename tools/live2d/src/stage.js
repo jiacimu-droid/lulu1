@@ -10,6 +10,7 @@ import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion } from './touch-hit.mjs'
+import { touchReflexFor, touchExpressionFor } from './touch-reflex.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -74,6 +75,10 @@ let headRequest = null
 let headRequestEndAt = 0
 let touchReflex = null
 let touchReflexEndAt = 0
+let touchSequence = 0
+let touchExpressionNames = []
+let activeTouchExpression = null
+let activeTouchExpressionUntil = 0
 let pendingExpressionName = null
 let pendingSpeechParts = null
 let activeExpressionName = null
@@ -314,6 +319,10 @@ function applyFinalParameters(core, deltaMs) {
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
   if (touchReflex && performance.now() > touchReflexEndAt) touchReflex = null
+  if (activeTouchExpression && performance.now() > activeTouchExpressionUntil) {
+    if (activeExpressionName === activeTouchExpression) resetSpeechExpression()
+    activeTouchExpression = null
+  }
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   const timeNow = Date.now()
@@ -543,7 +552,10 @@ async function load(modelURL) {
     // English filename is enough to infer if it blocks mouth movement.
     mouthExclusiveExpressions = new Set()
     eyeLockedExpressions = new Set()
+    touchExpressionNames = []
+    activeTouchExpression = null
     const references = modelSettings.FileReferences?.Expressions || []
+    touchExpressionNames = references.map(entry => entry?.Name).filter(Boolean)
     await Promise.all(references.map(async entry => {
       if (!entry?.Name || !entry?.File) return
       try {
@@ -946,21 +958,28 @@ function touch(normalizedX, normalizedY, gesture = 'tap') {
     hits, authoredAreas, bounds: model.getBounds(), x, y,
   })
   if (!region) return { hit: false }
-  const strokes = ['stroke-left', 'stroke-right', 'stroke-up', 'stroke-down']
-  const kind = strokes.includes(gesture) ? gesture : gesture === 'hold' ? 'hold' : 'tap'
-  const stroking = strokes.includes(kind)
-  // Physical tactile response only. This is not a forced emotion or spoken
-  // consent: the role still interprets real user contact via its existing
-  // timeline/decision loop. Only parameters present in this model can move.
-  touchReflex = {
-    yaw: kind === 'stroke-right' ? 3.5 : kind === 'stroke-left' ? -3.5 : 1.2,
-    pitch: region === 'head' && stroking ? 7 : 0,
-    roll: region === 'head' ? (kind === 'stroke-left' ? 2.5 : -2.5) : -.9,
-    // Rest into the palm: soften lids while tilting the head toward a stroke.
-    // Never override a role-authored facial cue or speech mouth.
-    face: region === 'head' && stroking ? { eyeOpen: .52, eyeSmile: .42 } : null,
+  const kind = ['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
+    'stroke-up', 'stroke-down'].includes(gesture) ? gesture : 'tap'
+  if (kind === 'down') touchSequence++
+  // Touch changes pose immediately and for as long as a finger moves.
+  // This physical reflex costs ZERO model calls.
+  touchReflex = touchReflexFor(region, kind, touchSequence)
+  touchReflexEndAt = performance.now() +
+    (kind.startsWith('stroke') ? 560 : kind === 'hold' ? 1100 : 420)
+  // The character's authored speaking expression always wins. Silent
+  // touches may briefly borrow a REAL exp3 animation when one exists.
+  if (!playing && !activeExpressionName &&
+      kind !== 'down' && kind !== 'hold' &&
+      (region === 'hair' || region.includes('cheek') || region === 'forehead')) {
+    const selected = touchExpressionFor(region, touchExpressionNames, touchSequence)
+    const manager = model.internalModel?.motionManager?.expressionManager
+    if (selected && manager?.getExpressionIndex?.(selected) >= 0 &&
+        !mouthExclusiveExpressions.has(selected)) {
+      playVerifiedSpeechExpression(selected, true)
+      activeTouchExpression = selected
+      activeTouchExpressionUntil = performance.now() + 1000
+    }
   }
-  touchReflexEndAt = performance.now() + (stroking ? 950 : kind === 'hold' ? 420 : 240)
   return { hit: true, region, gesture: kind }
 }
 
@@ -976,6 +995,7 @@ function setPaused(value) {
     bodyRequest = null
     faceRequest = null
     touchReflex = null
+    activeTouchExpression = null
   } else if (playing) {
     // Audio may have kept running while the renderer was hidden; resume
     // present-time mouth animation without resurrecting skipped gestures.

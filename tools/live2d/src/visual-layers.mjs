@@ -39,6 +39,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
   const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06)
   const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1)
   const touchSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.1)
+  const touchBodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 105, 1.08)
   const smoothedFace = Object.create(null)
   let secondaryHeadMix = 0
   let secondaryBodyMix = 0
@@ -47,6 +48,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     headSpring.reset()
     bodySpring.reset()
     touchSpring.reset()
+    touchBodySpring.reset()
     secondaryHeadMix = 0
     secondaryBodyMix = 0
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
@@ -54,14 +56,28 @@ export function createVisualLayerRuntime({ has, read, write }) {
 
   function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, voiceLevel = null, seconds }) {
     if (!core) return
-    const headPose = headSpring.step(head, deltaMs)
-    const bodyPose = bodySpring.step(body, deltaMs)
+    // Breathing alone looks frozen in many rigs. A few sub-degree slow
+    // movements keep the body alive without ever pulling eyes off camera.
+    // Touch and the character's own explicit pose take precedence.
+    const idleHead = !head && !touchReflex ? {
+      yaw: .46 * Math.sin(seconds * .37),
+      pitch: .3 * Math.sin(seconds * .29 + .8),
+      roll: .34 * Math.sin(seconds * .21 + .3),
+    } : null
+    const idleBody = !body && !touchReflex ? {
+      yaw: .5 * Math.sin(seconds * .19 + .5),
+      pitch: .28 * Math.sin(seconds * .23),
+      roll: .35 * Math.sin(seconds * .17 + .9),
+    } : null
+    const headPose = headSpring.step(head || idleHead, deltaMs)
+    const bodyPose = bodySpring.step(body || idleBody, deltaMs)
     const reflexPose = touchSpring.step(touchReflex, deltaMs)
+    const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs)
     for (const [id, axis] of MAIN_HEAD) {
       if (has(core, id)) write(core, id, headPose[axis] + (reflexPose[axis] || 0))
     }
     for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-      if (has(core, id)) write(core, id, bodyPose[axis])
+      if (has(core, id)) write(core, id, bodyPose[axis] + bodyReflex[axis])
     }
 
     // Physics follow-through on a neutral head/torso causes the user's

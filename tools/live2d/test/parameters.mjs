@@ -4,6 +4,8 @@ import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
+import { resolveTouchRegion } from '../src/touch-hit.mjs'
+import { touchReflexFor, touchExpressionFor } from '../src/touch-reflex.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from '../src/speech-expression-gate.mjs'
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
@@ -92,7 +94,8 @@ for (let i = 0; i < 50; i++) frame()
 for (const id of ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2',
   'ParamBodyAngleX', 'body_gensui_x', 'ParamEyeBallX', 'ParamEyeBallY']) {
-  assert.ok(Math.abs(valuesById.get(id)) < .05, 'idle not centered: ' + id)
+  const minorMotion = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ', 'ParamBodyAngleX'].includes(id)
+  assert.ok(Math.abs(valuesById.get(id)) < (minorMotion ? .8 : .05), 'idle unexpectedly wandered: ' + id)
 }
 assert.ok(valuesById.get('ParamBreath') > 0.3)
 // Same imported rig, same clock: only physical breathing cadence varies.
@@ -106,7 +109,7 @@ assert.ok(tiredBreath >= .35 && tiredBreath <= .65)
 for (let i = 0; i < 60; i++) frame({ roll: 12 }, null, null, true)
 assert.ok(valuesById.get('ParamAngleZ') > 11)
 for (let i = 0; i < 90; i++) frame()
-assert.ok(Math.abs(valuesById.get('ParamAngleZ')) < .05)
+assert.ok(Math.abs(valuesById.get('ParamAngleZ')) < .8)
 valuesById.set('ParamMouthForm', .62)
 frame()
 assert.equal(valuesById.get('ParamMouthForm'), .62,
@@ -160,7 +163,7 @@ assert.ok(Math.abs(valuesById.get('ParamEyeROpen') - 1) < .05,
   'right eyelid must independently restore the authored opening')
 rig.reset()
 frame()
-assert.equal(valuesById.get('ParamAngleX'), 0)
+assert.ok(Math.abs(valuesById.get('ParamAngleX')) < .8)
 // Touch recoil fades independently of the character's chosen head movement.
 for (let i = 0; i < 35; i++) {
   seconds += .016
@@ -171,7 +174,7 @@ for (let i = 0; i < 100; i++) {
   seconds += .016
   rig.update(core, { deltaMs: 16, touchReflex: null, seconds })
 }
-assert.ok(Math.abs(valuesById.get('ParamAngleX')) < .05)
+assert.ok(Math.abs(valuesById.get('ParamAngleX')) < .8)
 
 // Speech score uses real monotonic time; dropped frames never delay gestures,
 // repeated 'playing' callbacks do not replay any completed beat.
@@ -283,3 +286,32 @@ assert.ok(stage.includes("setParameter(core, 'ParamTongueOut', 0)"))
 assert.ok(stage.includes('const audibleMouth = playing && (!pcmAvailable || mouth > .055)'))
 assert.ok(stage.includes('1600 / Math.max(1, root.clientWidth, root.clientHeight)'))
 console.log('Cubism, audio-expression gating, AIRI layers and transport checks passed')
+
+const modelBounds = { x: 0, y: 0, width: 200, height: 1000 }
+const zone = (u, v, hits = []) => resolveTouchRegion({
+  x: 200 * u, y: 1000 * v, bounds: modelBounds,
+  hits, authoredAreas: hits.length ? 2 : 0,
+})
+assert.equal(zone(.5, .02), 'hair')
+assert.equal(zone(.18, .055, ['Head']), 'ear-left')
+assert.equal(zone(.82, .055, ['Head']), 'ear-right')
+assert.equal(zone(.34, .13, ['Head']), 'eye-left')
+assert.equal(zone(.5, .20, ['Head']), 'nose')
+assert.equal(zone(.5, .25, ['Head']), 'mouth')
+assert.equal(zone(.18, .20, ['Head']), 'cheek-left')
+assert.equal(zone(.5, .365, ['Body']), 'neck')
+assert.equal(zone(.5, .42, ['Body']), 'collarbone')
+assert.equal(zone(.5, .55, ['Body']), 'chest')
+assert.equal(zone(.13, .52, ['Arm']), 'arm-left')
+assert.equal(zone(.87, .52, ['Arm']), 'arm-right')
+assert.equal(zone(.13, .84, ['Hand']), 'hand-left')
+assert.equal(resolveTouchRegion({
+  x: 100, y: 120, hits: [], authoredAreas: 2, bounds: modelBounds,
+}), null, 'a missed authored hit must never become a phantom body touch')
+assert.equal(zone(.01, .6), null, 'background should not trigger touch')
+const caress = touchReflexFor('cheek-left', 'stroke-right', 2)
+assert.ok(caress.yaw < -8)
+assert.ok(caress.face.eyeOpen < 1)
+assert.ok(touchReflexFor('chest', 'tap').body.pitch < -2)
+assert.notDeepEqual(touchReflexFor('hair', 'hold', 0), touchReflexFor('hair', 'hold', 1))
+assert.equal(touchExpressionFor('hair', ['angry', 'smile', 'tongue']), 'smile')
