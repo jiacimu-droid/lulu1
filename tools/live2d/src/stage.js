@@ -69,6 +69,12 @@ let blinkProgress = -1
 const smoothPose = { yaw: 0, pitch: 0, roll: 0 }
 const smoothBody = { yaw: 0, pitch: 0, roll: 0 }
 const smoothFace = Object.create(null)
+// Local motor reflexes are intentionally tiny: they must never invent head
+// nods, smiles or story decisions. A person may hold eye contact, then briefly
+// look aside without any new paid character-model call.
+const gazeReflex = { x: 0, y: 0, nextAt: 0 }
+let smoothedMouthOpen = 0
+let mouthReleaseUntil = 0
 // Only semantic parameters confirmed in the uploaded wolf model's CDI3 and
 // VTube settings. For OTHER models the runtime Cubism parameter probe must
 // independently confirm every individual ID before applying any value.
@@ -294,6 +300,15 @@ function applyAfterMotion(core, deltaMs) {
     pendingExpressionName = null
     pendingSpeechParts = null
   }
+  // Low amplitude, non-periodic eye saccades. Listening favors eye contact;
+  // speaking allows a brief glance away. Deliberate AI gaze overrides both.
+  // Never move the whole head or imply a particular emotional state.
+  if (timeNow >= gazeReflex.nextAt) {
+    const radius = listening ? .045 : playing ? .13 : .085
+    gazeReflex.x = (Math.random() * 2 - 1) * radius
+    gazeReflex.y = (Math.random() * 2 - 1) * radius * .65
+    gazeReflex.nextAt = timeNow + 2500 + Math.random() * 3500
+  }
   // Cubism's authored idle motion, breathing and eye-blink already handle
   // the body's life. Do not impose a perpetual clock-driven left/right
   // head sway: it looks arbitrary and can erase the character's intentional
@@ -333,12 +348,16 @@ function applyAfterMotion(core, deltaMs) {
     // files (e.g. blush). They are NOT selected randomly each animation frame.
     if (ids.some(id => core.getParameterIndex(id) < 0)) continue
     const requested = faceRequest?.[key]
+    const resting = key === 'gazeX' ? gazeReflex.x :
+      key === 'gazeY' ? gazeReflex.y : 0
+    const target = requested ?? resting
     const previous = smoothFace[key] || 0
-    if (requested == null && Math.abs(previous) < .018) {
+    if (requested == null && Math.abs(previous) < .018 &&
+        Math.abs(resting) < .018) {
       smoothFace[key] = 0
       continue
     }
-    const next = previous + ((requested ?? 0) - previous) * Math.min(1, deltaMs * .010)
+    const next = previous + (target - previous) * Math.min(1, deltaMs * .008)
     smoothFace[key] = next
     for (const id of ids) core.setParameterValueById(id, next)
   }
@@ -366,9 +385,20 @@ function applyAfterMotion(core, deltaMs) {
     }
   }
   if (core.getParameterIndex('ParamMouthOpenY') >= 0) {
-    // Motion layers must never swallow the actual voice waveform.
-    const target = playing ? Math.min(1, Math.max(0, mouth)) : 0
-    core.setParameterValueById('ParamMouthOpenY', target)
+    // AIRI uses a speech-release tail rather than snapping the jaw shut on
+    // the very first silent frame. Don't permanently own the mouth during
+    // idle, either: the model's own expression may need this parameter.
+    if (playing) {
+      const target = Math.min(1, Math.max(0, mouth))
+      const alpha = Math.min(1, deltaMs * (target > smoothedMouthOpen ? .023 : .015))
+      smoothedMouthOpen += (target - smoothedMouthOpen) * alpha
+      mouthReleaseUntil = timeNow + 470
+      core.setParameterValueById('ParamMouthOpenY', smoothedMouthOpen)
+    } else if (timeNow < mouthReleaseUntil || smoothedMouthOpen > .012) {
+      smoothedMouthOpen += (0 - smoothedMouthOpen) * Math.min(1, deltaMs * .019)
+      if (smoothedMouthOpen < .012) smoothedMouthOpen = 0
+      core.setParameterValueById('ParamMouthOpenY', smoothedMouthOpen)
+    }
   }
 }
 function installPostMotionControl(loadedModel) {
