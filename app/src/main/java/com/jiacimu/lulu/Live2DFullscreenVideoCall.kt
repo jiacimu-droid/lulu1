@@ -222,6 +222,10 @@ internal fun Live2DFullscreenVideoCall(
                                 else -> "身体"
                             }
                             touchFeedback = when (gesture) {
+                                "stroke-left" -> "轻轻向左抚摸 · $label"
+                                "stroke-right" -> "轻轻向右抚摸 · $label"
+                                "stroke-up" -> "向上抚摸 · $label"
+                                "stroke-down" -> "向下抚摸 · $label"
                                 "stroke" -> "摸到了 · $label"
                                 "hold" -> "碰到了 · $label"
                                 else -> "戳到了 · $label"
@@ -493,29 +497,23 @@ internal fun Live2DFullscreenVideoCall(
                 }
             }
             Spacer(Modifier.weight(1f))
-            if (!rendered) {
+            // Same clean call chrome before and after the first native frame.
+            // Renderer progress belongs in the diagnostics screen, not over the
+            // author's portrait on every call resume/re-entry.
+            if (!rendered && (modelUrl == null || stageStatus == "error" ||
+                    stageStatus == "fatal" || (!coreReady && setupMessage.contains("失败")))) {
                 val message = when {
-                    modelUrl == null -> "尚未导入 Live2D 身体，点击右上角导入模型"
-                    !coreReady -> "正在准备 Live2D 官方渲染组件"
-                    stageStatus == "error" || stageStatus == "fatal" ->
-                        stageDetail.ifBlank { "Live2D 加载失败" }
-                    else -> if (hasCreatorPreview) "完整形象预览 · 正在准备动态画面"
-                            else "暂无模型预览图 · 正在加载动态画面"
+                    modelUrl == null -> "尚未导入 Live2D 模型，右上角可更换"
+                    !coreReady -> "Live2D 渲染核心暂不可用"
+                    else -> stageDetail.ifBlank { "动态画面加载失败" }
                 }
                 Text(message, color = Color.White, fontSize = 12.sp, lineHeight = 18.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                        .background(Color.Black.copy(alpha = .53f))
+                        .background(Color.Black.copy(alpha = .5f))
                         .padding(horizontal = 12.dp, vertical = 9.dp))
-                previewSize?.let { (width, height) ->
-                    val direction = when {
-                        height > width -> "竖向"
-                        width > height -> "横向"
-                        else -> "方形"
-                    }
-                    Text("作者预览：$direction $width × $height · 原比例",
-                        color = Color.White.copy(alpha = .8f), fontSize = 11.sp)
-                }
+            }
+            if (!rendered) {
                 if ((stageStatus == "error" || stageStatus == "fatal") &&
                     modelUrl != null && coreReady) {
                     TextButton(onClick = {
