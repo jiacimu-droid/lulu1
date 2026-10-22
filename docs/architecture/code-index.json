@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:27:19.972268+00:00",
-  "commit": "7395d72e740a32a1c5ed97ebdc15f83c2d920044",
+  "generatedAt": "2026-10-22T17:27:38.391195+00:00",
+  "commit": "309c1a9a28aa3b868fe62bcb4d5e22db6768596e",
   "branch": "main",
-  "sourceFingerprint": "be57fa008fe062331af3c0341deb18cb091c74ad5b78dbafed33a24b9a9d4181",
+  "sourceFingerprint": "1ddceaaf5e7f3bf91545fc08bf7472e6a134c72a7d3fb1fc71e0026b17d2b9dd",
   "summary": {
     "files": 827,
-    "lines": 157512,
+    "lines": 157523,
     "symbols": 2389
   },
   "symbolIndex": {
@@ -26098,8 +26098,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PhoneCallTranscriptFilterTest.kt",
-      "lines": 30,
-      "sha256": "306e2383ef9245711d3483d039fdcbc69634a41fef1da859eebcaefd0790ffe6",
+      "lines": 41,
+      "sha256": "613b83eb67fd3a680e5e2da1f99d3df62e9ad7181d7df4a23d20b5b6c1bf2687",
       "symbols": [
         {
           "name": "PhoneCallTranscriptFilterTest",
