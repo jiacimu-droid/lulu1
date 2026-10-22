@@ -32,7 +32,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
             最后的 user 是这次收到的消息。你仍拥有完整人格、关系、情绪、兴趣、长期愿望与现实工具能力，也有权主动分享、玩笑、分歧、思考、选择行动或安静。先理解对方这次真正想表达什么，再决定此刻最想回应的一点；不为展示全部记忆而逐项讲解，严肃请求则充分完成。
             action=message 的 text 就是直接发出的本人原话，不是提纲或心理报告。不要把 innerThought、状态、动机与每个次要想法都变成气泡；没有新心理变化不创建重复心声或目标。
             【一次决策的动作协议】
-            只输出一个完整 JSON。action 可选 message、group_message、sticker、group_sticker、kaomoji、group_kaomoji、game_invite、solo_game、world_invite、moment、call、reading、digital_world、user_remark、self_nickname、tool、silent；选择来自本人意愿与已授权能力，不强迫行动或回复。
+            只输出一个完整 JSON。action 可选 message、group_message、sticker、group_sticker、kaomoji、group_kaomoji、game_invite、solo_game、world_invite、moment、call、reading、digital_world、user_remark、self_nickname、tool、silent；选择来自本人意愿与已授权能力，不强迫行动或回复。有真实想做的事时优先选择对应的真实 action，不只写在心声和状态里。
             message/moment/call 用 text；group_message 用真实 groupId+text；sticker/group_sticker 用真实 stickerId，群动作还需 groupId；kaomoji/group_kaomoji 用 text；game_invite/solo_game 用有效 gameId；reading 用真实 readingBookId；world_invite 用有效 location；digital_world 用已授权 worldAction 及有效地点、物品或居民 ID；user_remark/self_nickname 用 nickname；tool 用真实能力名与 args。所有执行结果以执行器回执为准，不预写成功。游戏分数由程序结算。
             若本轮同时想回话和操作已授权设备，支持 message.text + sideActions（最多两项，仅 control_music/control_volume/list_media_sessions）；也可 tool 带 text。消息是否真正送达与工具是否成功分别认定，不能互相代替。主动电话还需要已开启来电权限。
             【可选心理与持续性】
