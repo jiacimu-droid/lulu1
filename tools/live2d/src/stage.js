@@ -355,7 +355,8 @@ function applyFinalParameters(core, deltaMs) {
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
   const eyePoseBusy = eyeLockedExpressions.has(activeExpressionName) ||
-    (faceRequest?.eyeOpen != null && faceRequest.eyeOpen < .25)
+    (faceRequest?.eyeOpen != null && faceRequest.eyeOpen < .25) ||
+    (touchReflex?.face?.eyeOpen != null && touchReflex.face.eyeOpen < .7)
   if (eyePoseBusy && blinkProgress >= 0) {
     blinkProgress = -1
     blinkClock = 2.5
@@ -942,13 +943,21 @@ function touch(normalizedX, normalizedY, gesture = 'tap') {
     hits, authoredAreas, bounds: model.getBounds(), x, y,
   })
   if (!region) return { hit: false }
-  const kind = gesture === 'stroke' ? 'stroke' : gesture === 'hold' ? 'hold' : 'tap'
-  // A short physical recoil. No pre-scripted emotional reaction or speech.
+  const strokes = ['stroke-left', 'stroke-right', 'stroke-up', 'stroke-down']
+  const kind = strokes.includes(gesture) ? gesture : gesture === 'hold' ? 'hold' : 'tap'
+  const stroking = strokes.includes(kind)
+  // Physical tactile response only. This is not a forced emotion or spoken
+  // consent: the role still interprets real user contact via its existing
+  // timeline/decision loop. Only parameters present in this model can move.
   touchReflex = {
-    yaw: kind === 'stroke' ? 1.3 : 3.1,
-    roll: region === 'head' ? -1.8 : -.9,
+    yaw: kind === 'stroke-right' ? 3.5 : kind === 'stroke-left' ? -3.5 : 1.2,
+    pitch: region === 'head' && stroking ? 7 : 0,
+    roll: region === 'head' ? (kind === 'stroke-left' ? 2.5 : -2.5) : -.9,
+    // Rest into the palm: soften lids while tilting the head toward a stroke.
+    // Never override a role-authored facial cue or speech mouth.
+    face: region === 'head' && stroking ? { eyeOpen: .52, eyeSmile: .42 } : null,
   }
-  touchReflexEndAt = performance.now() + (kind === 'stroke' ? 360 : 170)
+  touchReflexEndAt = performance.now() + (stroking ? 950 : kind === 'hold' ? 420 : 240)
   return { hit: true, region, gesture: kind }
 }
 
