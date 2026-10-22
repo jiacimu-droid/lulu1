@@ -66,6 +66,7 @@ let bodyRequest = null
 let bodyRequestEndAt = 0
 let faceRequest = null
 let faceRequestEndAt = 0
+let faceRequestStartedAt = 0
 let proceduralBlinkEnabled = false
 let blinkClock = 4.4
 let blinkProgress = -1
@@ -103,6 +104,8 @@ const FACE_BINDINGS = {
   gazeX: ['ParamEyeBallX'], gazeY: ['ParamEyeBallY'],
   smile: ['ParamMouthForm'],
   eyeSmile: ['ParamEyeLSmile', 'ParamEyeRSmile'],
+  eyeOpen: ['ParamEyeLOpen', 'ParamEyeROpen'],
+  browX: ['ParamBrowLX', 'ParamBrowRX'],
   browY: ['ParamBrowLY', 'ParamBrowRY'],
   browAngle: ['ParamBrowLAngle', 'ParamBrowRAngle'],
   browForm: ['ParamBrowLForm', 'ParamBrowRForm'],
@@ -382,16 +385,26 @@ function applyFinalParameters(core, deltaMs) {
     if (ids.some(id => !hasParameter(core, id))) continue
     const requested = faceRequest?.[key]
     const eyeContact = key === 'gazeX' || key === 'gazeY'
-    const target = requested ?? 0
-    const previous = smoothFace[key] || 0
-    // Never yield the gaze channels to the model's idle/focus animation.
-    // Other face channels may still be owned by imported expressions.
-    if (!eyeContact && requested == null && Math.abs(previous) < .018) {
-      smoothFace[key] = 0
+    const resting = key === 'eyeOpen' ? 1 : 0
+    const hasPriorCue = Object.prototype.hasOwnProperty.call(smoothFace, key)
+    // Avoid overriding imported expressions during idle. But if we previously
+    // owned this channel, we must write it back to neutral once, then release.
+    if (!eyeContact && requested == null && !hasPriorCue) continue
+    const previous = hasPriorCue ? smoothFace[key] :
+      (key === 'eyeOpen' ? (getParameter(core, ids[0]) ?? 1) : 0)
+    // Subtle voiced modulation only when the character CHOSE a smile/eye
+    // expression. No spontaneous head sway, forced emotional state or API call.
+    const expressiveVoice = playing && requested != null &&
+      (key === 'smile' || key === 'eyeSmile' || key === 'squint')
+    const modulated = expressiveVoice ?
+      requested * (0.94 + 0.06 * Math.sin(seconds * 7.5)) : requested
+    const target = modulated ?? resting
+    let next = previous + (target - previous) * Math.min(1, deltaMs * .012)
+    if (requested == null && Math.abs(next - resting) < .015) {
+      for (const id of ids) setParameter(core, id, resting)
+      delete smoothFace[key]
       continue
     }
-    let next = previous + (target - previous) * Math.min(1, deltaMs * .012)
-    if (requested == null && Math.abs(next) < .015) next = 0
     smoothFace[key] = next
     for (const id of ids) setParameter(core, id, next)
   }
@@ -946,12 +959,13 @@ function face(target, immediatePreview = false) {
     if (ids.some(id => !hasParameter(model.internalModel?.coreModel, id))) continue
     const value = target[key]
     if (typeof value !== 'number' || !Number.isFinite(value)) continue
-    const low = ['eyeSmile', 'squint', 'cheekPuff', 'pout'].includes(key) ? 0 : -1
+    const low = ['eyeOpen', 'eyeSmile', 'squint', 'cheekPuff', 'pout'].includes(key) ? 0 : -1
     next[key] = Math.max(low, Math.min(1, value))
   }
   if (!Object.keys(next).length) return
   faceRequest = next
-  faceRequestEndAt = Date.now() + 4200
+  faceRequestStartedAt = Date.now()
+  faceRequestEndAt = faceRequestStartedAt + (playing ? 6500 : 4300)
 }
 function body(target, immediatePreview = false) {
   if (!model || !target || typeof target !== 'object') return
