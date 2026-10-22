@@ -524,6 +524,9 @@ class CompanionModelGateway(
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
+            val live2dCapabilitySection = if (fullContext ||
+                effectiveMode == CompanionContextMode.CharacterAndScenario)
+                UserProfileContext.live2dCallContext(characterId) else ""
             val lexicon = if (fullContext) com.jiacimu.lulu.data.LexiconMemoryContext.select(characterId, request.retrievalQuery()) else emptyList()
             // Stable world rules constrain the SAME person even in a lean renderer.
             // Cross-world fiction and isolated tools retain their explicit boundary.
@@ -687,6 +690,7 @@ class CompanionModelGateway(
             val fixedSections = listOf(
                 "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
+                "角色视频能力和通话实况" to live2dCapabilitySection,
                 "全局世界书" to globalWorldBookSection, "角色世界书/设计书" to roleWorldBookSection,
                 "数字世界权威状态" to currentWorld)
             val conversationMaterials = if (dialogueRequest) listOf("本轮背景依据" to buildString {
