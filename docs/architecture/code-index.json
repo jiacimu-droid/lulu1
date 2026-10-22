@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:18:33.440920+00:00",
-  "commit": "30101006fe019384e2af1fa45d161b90eb1c2c18",
+  "generatedAt": "2026-10-22T13:21:25.322966+00:00",
+  "commit": "4dd5fa5fe7b74d098077858499674ba977b82a5e",
   "branch": "main",
-  "sourceFingerprint": "16f45ff450ba2462a082bf8121a45be38df7db5c2e1d18c5f04a5bc8bb94e91d",
+  "sourceFingerprint": "e9833ad0c2f87f71a0bedbb74460a8110f8e3389d777ac75ce7bf3be4eb67ca9",
   "summary": {
     "files": 799,
-    "lines": 152835,
+    "lines": 152855,
     "symbols": 2296
   },
   "symbolIndex": {
@@ -26597,8 +26597,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt",
-      "lines": 78,
-      "sha256": "b7f815b70128d4189306c9cc9af283453d3c590c7ab6456c93a84ab2f38cdee6",
+      "lines": 98,
+      "sha256": "840a4de224ef23d4e73ee8463ebd89a3e3c261ae31ffe2a404765c7b0f961057",
       "symbols": [
         {
           "name": "LexiconWorkingSetTest",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`30101006fe019384e2af1fa45d161b90eb1c2c18`
+- 基准提交：`4dd5fa5fe7b74d098077858499674ba977b82a5e`
 - 分支：`main`
 - 已索引文件：799
-- 已索引代码/文本行：152835
+- 已索引代码/文本行：152855
 - 已发现符号：2296
 
 | 文件 | 行数 | 符号数 |
@@ -726,7 +726,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCompetencyPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 98 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 81 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 62 | 1 |
