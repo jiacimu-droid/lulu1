@@ -72,6 +72,14 @@ let blinkProgress = -1
 const smoothPose = { yaw: 0, pitch: 0, roll: 0 }
 const smoothBody = { yaw: 0, pitch: 0, roll: 0 }
 const smoothFace = Object.create(null)
+// Imported rigs can have physics-driven secondary skull/torso angles besides
+// the main ParamAngleX/Y/Z. These actual IDs occur in the wolf physics3.json.
+// Keep hair, ears and clothing physics active even when the skull is neutral.
+const SECONDARY_HEAD_IDS = ['ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2']
+const SECONDARY_BODY_IDS = ['body_gensui_x', 'body_gensui_y', 'body_gensui_y2',
+  'body_gensui_y3', 'body_gensui_z']
+let secondaryHeadMotionMix = 0
+let secondaryBodyMotionMix = 0
 // Keep eye contact with the camera while idle. No random gaze wandering:
  // looking away is a deliberate character action with a bounded lifetime.
 let smoothedMouthOpen = 0
@@ -349,6 +357,24 @@ function applyFinalParameters(core, deltaMs) {
     if (requested == null && Math.abs(smoothBody[axis]) < .025) smoothBody[axis] = 0
     // Suppress authored idle torso swaying, but preserve short intentional cues.
     setParameter(core, id, smoothBody[axis])
+  }
+  // The physics solver runs before the final parameter callback. Secondary
+  // head/torso follow-through can visibly sway even when the primary angles
+  // are exactly zero. Blend away ONLY these parameters in idle pose.
+  const followStep = Math.min(1, Math.max(0, deltaMs) * .014)
+  secondaryHeadMotionMix += ((headRequest ? 1 : 0) -
+    secondaryHeadMotionMix) * followStep
+  secondaryBodyMotionMix += ((bodyRequest ? 1 : 0) -
+    secondaryBodyMotionMix) * followStep
+  if (!headRequest && secondaryHeadMotionMix < .008) secondaryHeadMotionMix = 0
+  if (!bodyRequest && secondaryBodyMotionMix < .008) secondaryBodyMotionMix = 0
+  for (const id of SECONDARY_HEAD_IDS) {
+    if (!hasParameter(core, id)) continue
+    setParameter(core, id, (getParameter(core, id) ?? 0) * secondaryHeadMotionMix)
+  }
+  for (const id of SECONDARY_BODY_IDS) {
+    if (!hasParameter(core, id)) continue
+    setParameter(core, id, (getParameter(core, id) ?? 0) * secondaryBodyMotionMix)
   }
   for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
     // Eye tracking and facial states can combine with authored expression
