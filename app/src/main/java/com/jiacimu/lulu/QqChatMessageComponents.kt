@@ -419,14 +419,14 @@ private fun parseSystemActivityNotice(content: String): SystemActivityNotice {
             val visible = match.groupValues[2].trim().ifBlank { "独处了一会儿 · 查看片段" }
             // Current worker says "查看生活小剧场"; older receipts say "查看片段".
             // Locate the actual caption so the clickable link receives its underline.
-            val caption = listOf("查看生活小剧场", "查看片段", "查看片段")
+            val caption = listOf("查看生活小剧场", "查看片段")
                 .firstOrNull { visible.contains(it) }
             val start = caption?.let(visible::indexOf) ?: -1
             return SystemActivityNotice(
                 visibleText = visible,
                 link = SystemActivityLink(SystemActivityType.LifeEpisode, episodeId),
                 linkStart = start,
-                linkEnd = if (start >= 0) start + caption!!.length else -1,
+                linkEnd = if (start >= 0) start + (caption?.length ?: 0) else -1,
             )
         }
 
