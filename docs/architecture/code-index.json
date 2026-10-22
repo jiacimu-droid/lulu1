@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:44:48.077149+00:00",
-  "commit": "97ff3878bba4fba5ec1e76d03899aae2f9b08e87",
+  "generatedAt": "2026-10-22T20:47:09.679586+00:00",
+  "commit": "28c5c17752320d9bfcccd3b438e4f2867a31e5d9",
   "branch": "main",
-  "sourceFingerprint": "9306ce018a940932bc71ee6d5dbcb5246a582303245b3486a75b10221cc8b6e7",
+  "sourceFingerprint": "1da10522716454b10ab86199320b1f4e21d510a87e3d84d26513b1c79cdbb8ce",
   "summary": {
-    "files": 832,
-    "lines": 159106,
-    "symbols": 2409
+    "files": 833,
+    "lines": 159143,
+    "symbols": 2413
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6514,6 +6514,34 @@
         "line": 23
       }
     ],
+    "byOrder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
+        "line": 30
+      }
+    ],
+    "byConsume": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
+        "line": 31
+      }
+    ],
+    "locationOptions": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
+        "line": 157
+      }
+    ],
+    "names": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
+        "line": 35
+      }
+    ],
     "DigitalFurnitureKind": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt",
@@ -6650,12 +6678,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
         "line": 101
-      }
-    ],
-    "locationOptions": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 157
       }
     ],
     "locationActivitySummary": [
@@ -19648,6 +19670,29 @@
         {
           "name": "accepts",
           "line": 23
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt",
+      "lines": 37,
+      "sha256": "6f420b8af68455eee5fc5ea672b1f4588cb8c546d9d8bc441d64b0ea9cf1d6f1",
+      "symbols": [
+        {
+          "name": "byOrder",
+          "line": 30
+        },
+        {
+          "name": "byConsume",
+          "line": 31
+        },
+        {
+          "name": "locationOptions",
+          "line": 32
+        },
+        {
+          "name": "names",
+          "line": 35
         }
       ]
     },

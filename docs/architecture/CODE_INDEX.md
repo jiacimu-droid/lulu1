@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`97ff3878bba4fba5ec1e76d03899aae2f9b08e87`
+- 基准提交：`28c5c17752320d9bfcccd3b438e4f2867a31e5d9`
 - 分支：`main`
-- 已索引文件：832
-- 已索引代码/文本行：159106
-- 已发现符号：2409
+- 已索引文件：833
+- 已索引代码/文本行：159143
+- 已发现符号：2413
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -331,6 +331,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DeterministicMemoryAutomation.kt` | 20 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentEvidence.kt` | 46 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DevelopmentPolicy.kt` | 38 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalCafeMenu.kt` | 37 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalFurnitureCatalog.kt` | 225 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeDriveContext.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt` | 244 | 16 |
