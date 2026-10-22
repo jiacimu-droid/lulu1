@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <whisper.h>
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <mutex>
 #include <string>
@@ -70,6 +71,8 @@ Java_com_jiacimu_lulu_LocalWhisperTranscriber_nativeTranscribe(
     params.print_timestamps = false;
     params.print_special = false;
     params.suppress_blank = true;
+    // Whisper can invent words when the input is nearly silent.
+    params.no_speech_thold = 0.60f;
     const unsigned cores = std::thread::hardware_concurrency();
     params.n_threads = static_cast<int>(std::min(4u, std::max(2u, cores / 2u)));
     if (whisper_full(g_context, params, audio.data(), static_cast<int>(audio.size())) != 0) {
@@ -79,6 +82,10 @@ Java_com_jiacimu_lulu_LocalWhisperTranscriber_nativeTranscribe(
     std::string text;
     const int count = whisper_full_n_segments(g_context);
     for (int i = 0; i < count; ++i) {
+        const float nonspeech = whisper_full_get_segment_no_speech_prob(g_context, i);
+        // Only discard very strong non-speech evidence. Soft, short user
+        // utterances remain eligible, instead of using a blanket loudness gate.
+        if (std::isfinite(nonspeech) && nonspeech >= 0.90f) continue;
         const char *segment = whisper_full_get_segment_text(g_context, i);
         if (segment) text += segment;
     }
