@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T06:54:55.059368+00:00",
-  "commit": "2f2ad39f77754c7c78c43b59fe5ffe62452a2f5d",
+  "generatedAt": "2026-10-22T06:55:14.629512+00:00",
+  "commit": "438c6b51826d2a85641cc5a3ad2745fc750e4a05",
   "branch": "main",
-  "sourceFingerprint": "94a90672ea0b24bbe410eff152a5a62ec1b3ee7e686017ddac590863ab1270e5",
+  "sourceFingerprint": "03e2964d55d30a48f0dca34ebc3c99f482a375e9211a450dee11c4cb07cc2690",
   "summary": {
     "files": 794,
-    "lines": 151239,
+    "lines": 151246,
     "symbols": 2275
   },
   "symbolIndex": {
@@ -77,7 +77,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 57
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -847,7 +847,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 43
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -1759,7 +1759,7 @@
     "shutdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 69
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
@@ -14115,20 +14115,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-      "lines": 152,
-      "sha256": "5e8970321a0f6024e1871d45dad86c65758da4f1347ef03601a48b5f2d4d9bb1",
+      "lines": 159,
+      "sha256": "90671d4b5be7c011eabbf1f40a48295d493ca35522b75fc29d2c6496c4ec08a5",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 43
+          "line": 44
         },
         {
           "name": "stop",
-          "line": 57
+          "line": 59
         },
         {
           "name": "shutdown",
-          "line": 69
+          "line": 74
         }
       ]
     },
