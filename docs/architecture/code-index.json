@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:23:55.178900+00:00",
-  "commit": "9149417e106d85a8a535e223985f987085b9747c",
+  "generatedAt": "2026-10-22T15:24:13.269361+00:00",
+  "commit": "7dfd7a42129c86d60da449d04b6b07320637da47",
   "branch": "main",
-  "sourceFingerprint": "917b9f6a857f3f9a717bae13e029dc808afe45095e97e1d181187da42933c6c7",
+  "sourceFingerprint": "08a2e547a4b5da98cca6dfd008dbc02fc579799c5eab6cd1d92cccc962301b71",
   "summary": {
     "files": 807,
-    "lines": 153856,
+    "lines": 153862,
     "symbols": 2308
   },
   "symbolIndex": {
@@ -12839,7 +12839,7 @@
     "XhsMcpLoginStatusTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt",
-        "line": 5
+        "line": 11
       }
     ],
     "XhsNoteReadinessTest": [
@@ -27412,12 +27412,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt",
-      "lines": 26,
-      "sha256": "b50101bfc1f732092a880d0f8a9e6046311f6063f6fe4249772c00ce0739109f",
+      "lines": 32,
+      "sha256": "e233eff7feb4ed39f63ffc1b4ea0b0e9ab46d9d66a1dca3ac7ec0145c1861a69",
       "symbols": [
         {
           "name": "XhsMcpLoginStatusTest",
-          "line": 5
+          "line": 11
         }
       ]
     },
