@@ -1,16 +1,17 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import android.speech.SpeechRecognizer
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import java.net.URI
 
 internal object CallVoiceConfiguration {
     fun provider(context: Context): String = context.getSharedPreferences("lulu_advanced_settings", 0).getString("tts_provider", "system").orEmpty()
-    /** No automatic provider switching. Migrate old "auto" explicitly to phone STT. */
+    /** The retired Android SpeechRecognizer route is replaced by on-device whisper.cpp.
+     * Old installs which selected "system" are migrated transparently to local inference. */
     fun normalizeSttMode(mode: String?): String = when (mode) {
-        "system", "groq", "minimax", "elevenlabs" -> mode
-        else -> "system"
+        "system", "local" -> "local"
+        "groq", "minimax", "elevenlabs" -> mode
+        else -> "local"
     }
 
     const val SCRIBE_V2 = "scribe_v2"
@@ -29,11 +30,11 @@ internal object CallVoiceConfiguration {
     fun resolveSttEngine(mode: String): String = normalizeSttMode(mode)
     fun sttEngine(context: Context): String {
         val p = context.getSharedPreferences("lulu_advanced_settings", 0)
-        return resolveSttEngine(p.getString("call_stt_mode", "system").orEmpty())
+        return resolveSttEngine(p.getString("call_stt_mode", "local").orEmpty())
     }
     fun sttLabel(engine: String): String = when (engine) {
         "groq" -> "Groq Whisper"
-        "system" -> "手机系统识别"
+        "local" -> "本地 Whisper（完全离线）"
         "minimax" -> "MiniMax 识别"
         "elevenlabs" -> "ElevenLabs Scribe"
         else -> "尚未配置"
@@ -50,15 +51,15 @@ internal object CallVoiceConfiguration {
         val provider = provider(context)
         val stt = sttEngine(context)
         when (stt) {
-            "system" -> if (!SpeechRecognizer.isRecognitionAvailable(context))
-                return "手机没有可用语音识别，请在语音设置中选择 Groq Whisper 并填写 API Key"
+            "local" -> if (LocalWhisperModels.installedFile(context, LocalWhisperModels.selected(context)) == null)
+                return "请先到语音设置下载所选 Whisper 本地模型（Tiny 或 Base），不会产生语音识别 API 费用"
             "groq" -> if (p.getString("groq_asr_key", "").orEmpty().isBlank())
                 return "请到语音设置填写 Groq API Key（识别语音，与 ElevenLabs 音色无关）"
             "minimax" -> if (p.getString("minimax_api_key", "").orEmpty().isBlank())
                 return "请配置 MiniMax 识别 API Key，或选择 Groq Whisper"
             "elevenlabs" -> if (p.getString("eleven_api_key", "").orEmpty().isBlank())
                 return "请在 ElevenLabs 语音服务设置中配置 API Key，Scribe 识别会使用你的积分"
-            else -> return "手机未提供系统语音识别；请在语音设置里选择并配置 Groq Whisper"
+            else -> return "请选择一种语音转文字线路"
         }
         val key = p.getString(if (provider == "minimax") "minimax_api_key" else "eleven_api_key", "").orEmpty()
         val voice = CharacterVoicePreferenceStore.playbackVoiceId(characterId) ?: p.getString(if (provider == "minimax") "minimax_voice_id" else "eleven_voice_id", "")
