@@ -55,4 +55,13 @@ assert.match(stage, /model\.position\.set\(viewWidth \/ 2, viewHeight \* \(isPor
 assert.doesNotMatch(stage, /maxEdge \* factor|Math\.min\(2100/)
 assert.match(stage, /nativeStreamMaxEdge = Math\.min\(1850,/)
 assert.match(stage, /nativeStreamAckMeanMs > 90 \? 0\.86 : 0\.89/)
+// The supplied model has physics outputs for secondary skull and torso
+// follow-through. Neutralizing only ParamAngleX/Y/Z leaves visible sway.
+for (const id of ['ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2',
+  'body_gensui_x', 'body_gensui_y', 'body_gensui_y2', 'body_gensui_y3',
+  'body_gensui_z']) assert.ok(stage.includes(id), 'missing ' + id)
+assert.match(stage, /secondaryHeadMotionMix/)
+assert.match(stage, /secondaryBodyMotionMix/)
+assert.match(stage, /getParameter\(core, id\) \?\? 0\) \* secondaryHeadMotionMix/)
+assert.match(stage, /getParameter\(core, id\) \?\? 0\) \* secondaryBodyMotionMix/)
 console.log('Live2D actual-index, camera eye-contact and transport guards passed')
