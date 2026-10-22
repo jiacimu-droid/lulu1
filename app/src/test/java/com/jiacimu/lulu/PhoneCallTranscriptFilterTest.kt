@@ -21,6 +21,17 @@ class PhoneCallTranscriptFilterTest {
         assertTrue(actualPhoneCaptions(all, null).isEmpty())
     }
 
+    @Test fun nonSpeechAsrCaptionsCannotBecomeFakeUserTurns() {
+        for (caption in listOf("（不停）", "（笑）（一切）", "（膜气）（不幸）",
+            "(laughing)", "【环境音】", "[applause]")) {
+            assertFalse(caption, PhoneTranscriptEvidence.isConfirmedSpeech(caption))
+        }
+        assertTrue(PhoneTranscriptEvidence.isConfirmedSpeech("宝宝，我现在有点累了"))
+        assertTrue(PhoneTranscriptEvidence.isConfirmedSpeech("（笑）宝宝，我没生气"))
+        assertTrue(PhoneTranscriptEvidence.isConfirmedSpeech("笑"))
+        assertFalse(PhoneTranscriptEvidence.isConfirmedSpeech("  "))
+    }
+
     @Test fun systemNoticesNeverAppearAsPhoneSpeech() {
         val all = listOf(item(0, LuluChatMessage.Sender.System),
             item(2, LuluChatMessage.Sender.Character))
