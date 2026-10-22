@@ -139,7 +139,7 @@ internal fun Live2DFullscreenVideoCall(
                         reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
                             state.callExperienceId, detail)
-                    } else if (phase == "diagnostic") {
+                    } else if (phase == "diagnostic" || phase == "step" || phase == "resource") {
                         // Diagnostics are not model readiness. In particular, a
                         // successful GPU capability probe must never hide the fallback.
                         stageDetail = detail
