@@ -381,8 +381,11 @@ internal object LuluExternalMcp {
             for (card in possible) {
                 try {
                     val article = XhsReadingEngine.read(context, card, forceRefresh = true)
-                    require(article.body.isNotBlank() || article.images.isNotEmpty()) {
-                        "详情页没有任何可读取的正文或图片"
+                    // This is an onboarding gate, not the general reader:
+                    // promoting the remote source requires actual article
+                    // text, not merely a search hit or unvisited image URL.
+                    require(article.body.isNotBlank()) {
+                        "详情只有图片链接或标题，尚未取得可验证的笔记正文"
                     }
                     return@withContext "云端搜索成功：关键词「${query}」，返回${cards.size}条；" +
                         "打开真实笔记《${article.title.take(60)}》，正文${article.body.length}字，" +
