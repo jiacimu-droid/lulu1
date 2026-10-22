@@ -8,6 +8,11 @@ ENV COOKIES_PATH=/app/data/cookies.json \
     HOME=/app/data/home \
     XDG_CONFIG_HOME=/app/data/config
 
+COPY tools/xhs-xpzouying/entrypoint.sh /usr/local/bin/lulu-xhs-launch
+RUN chmod 755 /usr/local/bin/lulu-xhs-launch
+
 EXPOSE 18060
-# Keep the upstream official entrypoint and built-in Chromium. It knows how
-# to start the Go MCP and exposes its actual /mcp endpoint on port 18060.
+# Upstream runs through tini. Keep its subreaper to avoid Chrome zombies, but
+# refuse startup if AUTH_TOKEN is missing: upstream itself permits no auth.
+ENTRYPOINT ["/usr/bin/tini", "-s", "--", "/usr/local/bin/lulu-xhs-launch"]
+CMD []
