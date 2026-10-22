@@ -387,9 +387,7 @@ internal object CompanionActionRuntime {
                         args = args,
                         now = now,
                     )
-                    if (residentResult.success) {
-                        MigratedDomainStores.chat.appendPrivateActivityNotice(characterId, residentResult.summary)
-                    }
+                    // The life episode worker posts the single reader notification.
                     return@runCatching CompanionActionResult(residentResult.success, residentResult.summary, evidenceId = residentResult.evidenceId)
                 }
                 if (worldAction in setOf("use_home_item", "use_location") && activityId in setOf("read_at_desk", "quiet_read", "window_read")) {
