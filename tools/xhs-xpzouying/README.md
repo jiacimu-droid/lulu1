@@ -41,16 +41,23 @@ Railway 手机浏览器部署：
 `docker compose -f tools/xhs-xpzouying/docker-compose.yml up -d --build`。
 Compose 只映射 `127.0.0.1:18060`，要让手机跨网络访问必须另配受保护的 HTTPS 入口；不支持直接暴露 18060 给公网。
 
-## B. 依据教程的 ARM64/proot 备选（端口 18061）
+## B. 无云服务器：安卓手机 ARM64/proot（端口 18061）
+
+这是用户提供的教程真实采用的**手机本地方案**：安卓 Termux → Ubuntu ARM64 → Go MCP 进程 + Xvfb + ARM64 Chromium。**不需要云服务器，也不需要 Railway**；但 Termux/proot 里的服务进程需要持续运行，Android 杀进程/重启后要重新启动，不能等同于 APK 内完全自包含。
+
+> **2026-10-23 纠错**：上游 `xpzouying/xiaohongshu-mcp` **v2.5.0** 的 `browser/browser_download.go` `platformAsset()` 仅支持 Linux/amd64，而其 `main.go` 会直接调用 `EnsureBrowser()`。**只编译 Go ARM64 后直接启动必定卡在“当前平台 linux/arm64 无预编译浏览器”**。教程里成功部署的作者另有 Playwright Chromium ARM64 浏览器。现有 `arm64-proot.sh` 已加入本地 Go 源码适配：通过环境变量 `LULU_XHS_CHROMIUM` 把实际安装的 ARM64 Chromium 二进制传给 Go 浏览器层；**但没有自动安装 Chromium**。找到可用 ARM64 Chromium 之前，不能声称部署成功。
+
+截图中的其他环境（Ubuntu 22.04 手动 rootfs、Playwright rev1243）与本仓库文档预设（Ubuntu 24.04）不同，可按照宿主依赖自行适配；**不要求为了使用此方案购买云端资源**。
 
 在手机里的 **Ubuntu 24.04 ARM64/proot Linux shell** 运行，不是在 Windows 或普通 Android shell：
 
-1. 安装 Go **1.24+ linux-arm64**、Xvfb、curl、tar、openssl 和 Chromium 运行库。Ubuntu 24.04 使用 `*t64` 包名。确认 `go version`、`Xvfb -help` 有响应。
-2. 用 `bash tools/xhs-xpzouying/arm64-proot.sh install` 下载固定 `v2.5.0` 源码 tar.gz、Go 编译 ARM64 二进制；不依赖 `git`。
-3. 用 `bash tools/xhs-xpzouying/arm64-proot.sh start` 启动 **Xvfb :99** 与 `-headless=false` 的 Go 服务。
-4. 在露露机填 `http://127.0.0.1:18061/mcp`，Token 从 Ubuntu 中的 `~/.local/share/lulu-xhs/data/auth-token` **自行复制到 App（不要发给别人）**。手机内同一个 loopback 才可互通。
-5. 用小红书扫码登录；再做「关键词搜索 → 详情正文」验证。文件 `~/.local/share/lulu-xhs/data/cookies.json` 是唯一路径。
-6. `bash tools/xhs-xpzouying/arm64-proot.sh status|restart|stop` 管理本脚本启动的进程。重启手机或 proot 之后，需要重新启动此服务。
+1. 在 Termux 的 Ubuntu ARM64/proot 中安装 Go **1.24+ linux-arm64**、Python3、Xvfb、curl、tar、openssl 和 Chromium 运行库。Ubuntu 24.04 部分库使用 `*t64` 包名。确认 `uname -m` 是 `aarch64`、`go version`、`Xvfb -help` 可执行。
+2. 安装**Linux ARM64 版 Chromium**（教程采用 Playwright Chromium ARM64，不是普通 Play 商店 Android Chrome）。若已有 Python Playwright 环境，可尝试 `python3 -m playwright install chromium`；浏览器下载/兼容依赖视发行版而定，不能保证一次成功。检查可执行文件路径（例如 `~/.cache/ms-playwright/chromium-*/chrome-linux/chrome`）。
+3. 用 `bash tools/xhs-xpzouying/arm64-proot.sh install` 下载固定 `v2.5.0` 源码并在**本地副本**应用 ARM64 Chromium 路径适配，再用 Go 编译 ARM64 二进制；不依赖 `git`。
+4. 用 `bash tools/xhs-xpzouying/arm64-proot.sh start` 启动 **Xvfb :99** 与 `-headless=false` 的 Go 服务。脚本会寻找 Playwright Chromium；如果未找到，用 `LULU_XHS_CHROMIUM=/完整路径/chrome bash tools/xhs-xpzouying/arm64-proot.sh start` 显式提供浏览器路径。
+5. 在露露机填 `http://127.0.0.1:18061/mcp`，Token 从 Ubuntu 中的 `~/.local/share/lulu-xhs/data/auth-token` **自行复制到 App（不要发给别人）**。手机内同一个 loopback 才可互通。
+6. 用小红书扫码登录；再做「关键词搜索 → 详情正文」验证。文件 `~/.local/share/lulu-xhs/data/cookies.json` 是唯一路径。
+7. `bash tools/xhs-xpzouying/arm64-proot.sh status|restart|stop` 管理本脚本启动的进程。重启手机或 proot 之后，需要重新启动此服务。
 
 脚本保证启动时 `cd /` 且显式 `COOKIES_PATH`，避免源码目录里空 Cookie 抢占有效会话；每次启动检查 Chromium 可执行位。**它不能消除 Android 对 Termux/proot 进程保活的限制**，因此不是建议的长期主线路。
 
