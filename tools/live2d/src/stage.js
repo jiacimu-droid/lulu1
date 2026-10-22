@@ -753,7 +753,9 @@ function sendNativeStreamFrame() {
   if (!nativeStreamEnabled || nativeStreamBusy) return
   const tickerTime = app?.ticker?.lastTime
   if (Number.isFinite(tickerTime) && tickerTime === nativeStreamLastTickerTime) {
-    scheduleNativeStreamFrame(12)
+    // The GPU hasn't finished another model frame. Don't repeatedly wake
+    // JavaScript at 12 ms just to discover the same image.
+    scheduleNativeStreamFrame(22)
     return
   }
   const bridge = window.LuluNativeFrames
@@ -800,7 +802,7 @@ function sendNativeStreamFrame() {
         }
         scheduleNativeStreamFrame(250)
       }
-    }, 'image/jpeg', 0.93)
+    }, 'image/jpeg', nativeStreamAckMeanMs > 90 ? 0.86 : 0.89)
   } catch (error) {
     nativeStreamBusy = false
     scheduleNativeStreamFrame(300)
@@ -828,19 +830,20 @@ function setNativeStreaming(enabled) {
       const ackMs = performance.now() - nativeStreamLastFrameAt
       nativeStreamAckMeanMs = nativeStreamAckMeanMs * .8 + ackMs * .2
       if (Number.isFinite(maxEdge)) {
-        // Android's original adaptive controller capped capture to 1200px
-        // even on a GPU now rendering ~2000px, wasting source detail.
-        // Boost based on measured encode+IPC+decode throughput; if the bridge
-        // gets slow fall back to its conservative requested frame size.
-        const factor = nativeStreamAckMeanMs < 57 ? 1.38 :
-          nativeStreamAckMeanMs < 77 ? 1.17 : 1.0
-        nativeStreamMaxEdge = Math.min(2100,
-          Math.max(760, Math.round(maxEdge * factor)))
+        // Android already has an adaptive quality controller based on actual
+        // decoded FPS/p95. Previously multiplying its requested dimension by
+        // 1.38 silently defeated that controller (1320px => 1822px), forcing
+        // huge GPU readbacks and JPEG encoding that made the avatar stutter.
+        // Honor the measured size directly. Sharpness is maintained with
+        // reasonable JPEG quality instead of hidden supersampling.
+        nativeStreamMaxEdge = Math.min(1850,
+          Math.max(760, Math.round(maxEdge)))
       }
     }
     nativeStreamBusy = false
-    // AIRI's Pixi ticker is capped at 30fps. Target its cadence without
-    // ever starting a second encode before Android's decode ACK.
+    // Decode ACK is our backpressure. Avoid overlapping encoding and keep
+    // a regular ~30fps pacing when the pipeline is fast; when it is slow
+    // resume immediately rather than introducing an extra fixed wait.
     scheduleNativeStreamFrame(Math.max(0, 34 - (performance.now() - nativeStreamLastFrameAt)))
   }
   notify('diagnostic', '已启用 Android WebMessage 二进制桥接（带解码回执）')
