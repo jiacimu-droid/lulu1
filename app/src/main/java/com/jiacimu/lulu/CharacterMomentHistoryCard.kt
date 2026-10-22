@@ -110,14 +110,14 @@ internal fun heartVoiceParagraphs(text: String): List<String> {
     // Only the display is split: never rewrite the private speech in storage.
     // A short single thought stays as written; several complete longer
     // sentences form readable paragraphs with first-line double indentation.
-    if (text.length <= 86) return listOf(text)
+    if (text.length <= 64) return listOf(text)
     val sentences = Regex("(?<=[。！？!?；;])").split(text).filter(String::isNotEmpty)
     if (sentences.size < 2) return listOf(text)
     val result = mutableListOf<String>()
     var current = ""
     for (sentence in sentences) {
-        if (current.isNotBlank() && current.length >= 35 &&
-            current.length + sentence.length > 75) {
+        if (current.isNotBlank() && current.length >= 28 &&
+            current.length + sentence.length > 64) {
             result += current
             current = ""
         }
