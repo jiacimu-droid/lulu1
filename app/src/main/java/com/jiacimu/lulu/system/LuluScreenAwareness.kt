@@ -167,19 +167,14 @@ object LuluScreenAwareness {
         if (!prefs.edit().remove(PENDING_CAPTURE).commit()) return
         context.getSystemService(NotificationManager::class.java)
             .cancel(CAPTURE_NOTIFICATION_ID)
-        if (!approved) {
-            report(context, "主人拒绝查看屏幕，未截图")
-            return
-        }
-        if (!autonomousAllowed(context)) {
-            report(context, "主人授权已变化，取消屏幕查看")
-            return
-        }
-        report(context, "主人允许本次截图 · 等待实际截图")
+        val canProceed = approved && autonomousAllowed(context)
+        if (!canProceed) report(context, if (approved) "角色屏幕授权已撤销，未截图" else "主人拒绝查看屏幕，未截图")
+        else report(context, "主人允许本次截图 · 等待实际截图")
+        // Even a refusal is durable feedback to the character, never silent success.
         val work = OneTimeWorkRequestBuilder<LuluApprovedScreenWorker>()
             .setInputData(Data.Builder().putString("characterId", characterId)
-                .putString("requestId", id).build())
-            .setInitialDelay(2, java.util.concurrent.TimeUnit.SECONDS).build()
+                .putString("requestId", id).putBoolean("approved", canProceed).build())
+            .setInitialDelay(if (canProceed) 2 else 0, java.util.concurrent.TimeUnit.SECONDS).build()
         WorkManager.getInstance(context.applicationContext)
             .enqueueUniqueWork("screen-approved-$id", ExistingWorkPolicy.KEEP, work)
     }
@@ -344,10 +339,16 @@ class LuluApprovedScreenWorker(context: Context, params: WorkerParameters) :
         val requestId = inputData.getString("requestId").orEmpty()
         if (role.isBlank() || requestId.isBlank()) return Result.failure()
         initializeBackgroundRuntime(applicationContext)
-        val raw = LuluScreenAwareness.capture(applicationContext,
-            userRequested = false, characterId = role, requestId = requestId, approved = true)
-        val response = runCatching { JSONObject(raw) }.getOrNull()
-            ?: JSONObject().put("success", false).put("error", "未返回有效截图结果")
+        val permitted = inputData.getBoolean("approved", false)
+        val response = if (!permitted) {
+            JSONObject().put("success", false).put("status", "denied")
+                .put("summary", "主人没有同意本次屏幕查看，没有截图")
+        } else {
+            val raw = LuluScreenAwareness.capture(applicationContext,
+                userRequested = false, characterId = role, requestId = requestId, approved = true)
+            runCatching { JSONObject(raw) }.getOrNull()
+                ?: JSONObject().put("success", false).put("error", "未返回有效截图结果")
+        }
         val success = response.optBoolean("success")
         // This independent evidence is created AFTER the model actually sees the image.
         // The earlier permission request's pending receipt never claims observation.
