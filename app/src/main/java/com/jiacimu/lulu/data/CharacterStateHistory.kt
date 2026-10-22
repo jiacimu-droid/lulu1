@@ -79,7 +79,7 @@ internal object CharacterStateHistory {
                 }
                 rows[existing] = row.copy(detail = (listOf(row.detail) + added)
                     .filter(String::isNotBlank).joinToString("\n"), evidenceIds = (row.evidenceIds + evidenceId).distinct(),
-                    extraDeletions = (row.extraDeletions + ("transition" to evidenceId)).distinct())
+                    extraDeletions = (row.extraDeletions + ("transition" to "$evidenceId|$at")).distinct())
             } else rows += CharacterStateHistoryRow("transition:$at:$index", at, "当时的感想与取舍",
                 parts.joinToString("\n"), evidenceIds = listOf(evidenceId),
                 deletionKind = "transition", deletionKey = evidenceId)
@@ -111,7 +111,8 @@ internal object CharacterStateHistory {
                         detail = if (alreadyExpressed) row.detail
                             else listOf(row.detail, "$title：$detail").filter(String::isNotBlank).joinToString("\n"),
                         evidenceIds = (row.evidenceIds + evidence).filter(String::isNotBlank).distinct(),
-                        extraDeletions = (row.extraDeletions + (kind to item.optString(keyField))).distinct())
+                        extraDeletions = (row.extraDeletions + (kind to if (kind == "emotion")
+                            "$at|${item.optString(keyField)}" else item.optString(keyField))).distinct())
                     continue
                 }
                 rows += CharacterStateHistoryRow("$kind:$at:$index", at, title, detail,
@@ -191,10 +192,19 @@ internal object CharacterStateHistory {
         fun remove(kind: String, key: String) { when (kind) {
             "moment" -> row.moment?.let { CompanionPresenceStore.deleteMoment(characterId, it.updatedAt) }
             "thought" -> CharacterInnerLifeStore.forgetExactThought(characterId, key)
-            "emotion" -> CharacterInnerLifeStore.forgetPrivateEmotion(characterId, row.at.toString(), key)
+            "emotion" -> {
+                val stamped = key.substringBefore('|', "")
+                val exactAt = runCatching { Instant.parse(stamped) }.getOrNull()
+                CharacterInnerLifeStore.forgetPrivateEmotion(characterId,
+                    (exactAt ?: row.at).toString(), if (exactAt == null) key else key.substringAfter('|'))
+            }
             "concern" -> CharacterInnerLifeStore.deletePrivateConcern(characterId, key)
             "closure" -> CharacterInnerLifeStore.forgetClosedConcern(characterId, key)
-            "transition" -> CharacterInnerLifeStore.forgetTransition(characterId, key, row.at)
+            "transition" -> {
+                val exactAt = runCatching { Instant.parse(key.substringAfterLast('|')) }.getOrNull()
+                CharacterInnerLifeStore.forgetTransition(characterId,
+                    if (exactAt == null) key else key.substringBeforeLast('|'), exactAt ?: row.at)
+            }
         } }
         row.extraDeletions.forEach { (kind, key) -> remove(kind, key) }
         remove(row.deletionKind, row.deletionKey)

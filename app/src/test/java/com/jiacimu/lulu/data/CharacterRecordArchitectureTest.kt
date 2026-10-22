@@ -178,16 +178,22 @@ class CharacterRecordArchitectureTest {
             updatedAt = now, provenanceId = "one-inner-event")
         // The separately persisted causal assessment is a projection of the
         // same source, even when the timestamps differ by a few seconds.
-        mind.put("causalTransitions", JSONArray().put(JSONObject()
-            .put("at", now.plusSeconds(12).toString())
-            .put("evidenceId", "one-inner-event")
-            .put("selectedAction", "silent")
-            .put("innerThought", voice)))
+        CharacterInnerLifeStore.recordCausalTransition(
+            characterId = role, evidenceId = "one-inner-event",
+            appraisal = JSONObject().put("meaning", "坐着吹风，暂时放松一下"),
+            innerLife = null, innerThoughtBasis = null,
+            selectedAction = "silent", innerThought = voice,
+            reason = "在自己的生活里歇一歇", now = now.plusSeconds(12))
+        mind.put("causalTransitions",
+            CharacterInnerLifeStore.snapshot(role).optJSONArray("causalTransitions"))
         val rows = CharacterStateHistory.entries(role, listOf(snapshot),
             now.plusSeconds(120), mind, emptyList())
         assertEquals(1, rows.size)
         assertEquals(1, Regex(Regex.escape(voice)).findAll(rows.single().detail).count())
         assertTrue(rows.single().extraDeletions.any { it.first == "transition" })
+        CharacterStateHistory.delete(role, rows.single())
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role)
+            .optJSONArray("causalTransitions")?.length() ?: 0)
     }
     @Test fun longInnerVoiceUsesNaturalParagraphsWithoutLosingItsWords() {
         val prose = (1..7).joinToString("") {
