@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:54:05.708005+00:00",
-  "commit": "83da7a70643722b0a60e6ef8cbfdc525544687c4",
+  "generatedAt": "2026-10-22T16:00:42.256848+00:00",
+  "commit": "f2a3daa558b7ed1828f677b7b3015b2fb42f639d",
   "branch": "main",
-  "sourceFingerprint": "df5e942c891cd3992c61a9c15e874921dcc7a081d3b61545879efb5158d136ea",
+  "sourceFingerprint": "0e5f3151ea1b2f4fde1a72edac9889b5e8cbe49f9bef9a4b0849cee465123a58",
   "summary": {
-    "files": 809,
-    "lines": 154444,
-    "symbols": 2316
+    "files": 811,
+    "lines": 154808,
+    "symbols": 2318
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3604,6 +3604,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
         "line": 1192
+      }
+    ],
+    "LuluMusicSensoryRuntime": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt",
+        "line": 30
+      }
+    ],
+    "roleContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt",
+        "line": 242
       }
     ],
     "ModelConversationMessage": [
@@ -8343,7 +8355,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1939
+        "line": 1940
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -11363,19 +11375,19 @@
     "observation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 38
+        "line": 44
       }
     ],
     "sessions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 54
+        "line": 60
       }
     ],
     "control": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 112
+        "line": 119
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt",
@@ -13359,8 +13371,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 111,
-      "sha256": "ceeac1341b498b7cbdd5fa7b74074660893f77467bdceb5a32aabd42d90a53b4",
+      "lines": 112,
+      "sha256": "3c957a308c01f8355834c93d59e94b257e1c778d04b257ba000331cd7e08ff0f",
       "symbols": []
     },
     {
@@ -13396,6 +13408,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt",
       "lines": 129,
       "sha256": "afa61b0be601d4c959812092eeabecd2cf222d7db30e775a5616fa9f90e51070",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/CharacterMusicSensingSettings.kt",
+      "lines": 91,
+      "sha256": "6a667e240792d65151f4c1cfbc06de4555c09343aaef6c0ad92f09e6d2935c4a",
       "symbols": []
     },
     {
@@ -16253,6 +16271,21 @@
         {
           "name": "initialize",
           "line": 1202
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt",
+      "lines": 261,
+      "sha256": "ba02e54567301be1ebfc9ff0a37e6e1f9b472643869b99f70cc167e27db9f9f4",
+      "symbols": [
+        {
+          "name": "LuluMusicSensoryRuntime",
+          "line": 30
+        },
+        {
+          "name": "roleContext",
+          "line": 242
         }
       ]
     },
@@ -21211,8 +21244,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2006,
-      "sha256": "a4603dcc38b71c3f2e5514ad93cea685c81441f76e1593314cb137042aff4ecd",
+      "lines": 2007,
+      "sha256": "5e0544b6c33b4dcba58fc4da2a29a8dc7adf96b72e22d7fc7e8c6d5623591a61",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -21244,7 +21277,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1939
+          "line": 1940
         }
       ]
     },
@@ -21917,8 +21950,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 156,
-      "sha256": "a543e961ffcac8a3eb854ca8bbfb53a4e0621914116e2cf3f2363b914216ff17",
+      "lines": 159,
+      "sha256": "503efc7b922912bd8d5b300412659eef341031a7286b4e5d60939b3088baaa51",
       "symbols": []
     },
     {
@@ -24869,7 +24902,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2050,
-      "sha256": "a85b8daf912d22866b85a03b01f46ee67a8e46ab5bc76a9fdd490f15feccd1e1",
+      "sha256": "b7651bb9596bd4c73da94b7f07d613ab3bb4918f7ec2a11bbf3e1476d275d072",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -24910,20 +24943,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-      "lines": 206,
-      "sha256": "c2419e18031da78d21e8203d8c608916bbab69b5a6cbac0c36d399e74be08a32",
+      "lines": 213,
+      "sha256": "9fa8876adfeb8e62b2e6d70b05d203bc98c6b702cfb516313b07262bd9cf5c7c",
       "symbols": [
         {
           "name": "observation",
-          "line": 38
+          "line": 44
         },
         {
           "name": "sessions",
-          "line": 54
+          "line": 60
         },
         {
           "name": "control",
-          "line": 112
+          "line": 119
         }
       ]
     },
