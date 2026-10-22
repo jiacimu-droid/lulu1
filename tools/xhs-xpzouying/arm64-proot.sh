@@ -250,7 +250,7 @@ repair_login() {
     cp "$ROOT/source/xiaohongshu/login.go" "$ROOT/source/xiaohongshu/login.go.before-lulu"
   fi
   repair_login_source
-  local candidate="$APP.next.$"
+  local candidate="${APP}.next.${BASHPID}"
   if ! (cd "$ROOT/source"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$candidate" .); then
     rm -f "$candidate"
     echo "Go 编译失败，原 MCP 程序和 Cookie 均保留" >&2
