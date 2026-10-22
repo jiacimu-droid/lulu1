@@ -155,7 +155,7 @@ internal object Live2DVisualActionBus {
                 faceValues[key] = number.coerceIn(min, 1.0).toFloat()
             }
         }
-        val face = faceValues.takeIf(Map<String, Float>::isNotEmpty)?.let(::Face)
+        val face = faceValues.takeIf { it.isNotEmpty() }?.let(::Face)
         if (selected == null && motion == null && angles == null && body == null && face == null) return false
         sequence++
         mutableCues.value = mutableCues.value + (characterId to Cue(
