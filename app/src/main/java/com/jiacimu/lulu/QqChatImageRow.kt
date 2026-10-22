@@ -73,9 +73,8 @@ internal fun QqChatImageRow(
                 }
                 LuluSelectedPhoto(
                     imageUri = image.imageUri,
-                    modifier = Modifier.size(if (image.sticker) 154.dp else 248.dp)
-                        .heightIn(min = if (image.sticker) 140.dp else 150.dp,
-                            max = if (image.sticker) 175.dp else 260.dp),
+                    modifier = if (image.sticker) Modifier.size(154.dp) else Modifier,
+                    keepFullImage = !image.sticker,
                 )
                 if (image.imageDescription.isNotBlank() && !image.sticker) {
                     TextButton(onClick = { descriptionOpen = true }) {
