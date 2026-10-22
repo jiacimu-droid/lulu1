@@ -121,6 +121,11 @@ internal object DigitalWorldEvolutionRuntime {
                 recordEvolution(characterId, "first-resident-${resident.id}", summary, now)
             }
         }
+        DigitalWorldExpansionStore.residents().forEach { resident ->
+            npcQualities[resident.name]?.let { (temperament, preferences) ->
+                DigitalWorldExpansionStore.fillResidentTraitsIfBlank(resident.id, temperament, preferences)
+            }
+        }
         // Cafe employee is a world resident with an actual registered home.
         var barista = DigitalWorldExpansionStore.residents().firstOrNull { it.identity == "浮光咖啡角店员" }
         if (barista == null) {
