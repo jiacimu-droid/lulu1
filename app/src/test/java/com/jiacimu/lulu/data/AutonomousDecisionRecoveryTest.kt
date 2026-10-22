@@ -29,7 +29,8 @@ class AutonomousDecisionRecoveryTest {
         val recovered = AutonomousDecisionRecovery.completedPrivateMessage(reply)
         assertNotNull(recovered)
         assertEquals("reply", recovered!!.optString("action"))
-        assertEquals("我在呢。\n慢慢说，我听着。", recovered.optString("text"))
+        assertEquals(listOf("我在呢。", "慢慢说，我听着。"),
+            com.jiacimu.lulu.semanticReplyBubbles(recovered.optString("text")))
 
         val message = """{"action":"message","bubbles":[{"text":"我刚想起一个事情。"}],"appraisal":{"meaning":"""
         assertEquals("我刚想起一个事情。",
