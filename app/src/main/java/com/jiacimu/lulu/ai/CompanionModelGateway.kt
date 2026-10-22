@@ -717,13 +717,14 @@ class CompanionModelGateway(
                 "真实事实：\n${facts.trim()}"
             }
             val dialogueHistory = if (dialogueRequest) conversation.dropLast(1) else emptyList()
-            val sections = systemSections + dialogueHistory.map { "真实聊天/${it.role.wire}" to it.content } +
-                ("本次感知/聊天素材" to userPrompt)
-            val breakdown = sections.filter { it.second.isNotBlank() }
-                .map { (label, content) -> tokenBreakdown(label, content.length) } +
-                tokenBreakdown("段落分隔", (systemPrompt.length + userPrompt.length +
-                    dialogueHistory.sumOf { it.content.length } - sections.sumOf { it.second.length }).coerceAtLeast(0))
-            val estimatedInputTokens = breakdown.sumOf { item -> item.estimatedTokens }
+            // The audit partitions every actual text character, including the task
+            // instruction and prior messages. An image is recorded separately, not
+            // incorrectly estimated as if its base64 bytes were ordinary prose.
+            val fullAudit = PromptInputAudit.inspect(
+                systemSections, systemPrompt, userPrompt, dialogueHistory, imageDataUrls,
+                instruction = instruction,
+            )
+            val estimatedInputTokens = fullAudit.estimatedTextTokens
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
             // Build the compact projection from the very same assembled facts
@@ -741,6 +742,7 @@ class CompanionModelGateway(
             val reductionAvailable = RelayRequestPressurePolicy.savesEnough(originalBytes, reducedBytes)
             var sentReduced = reductionAvailable &&
                 RelayRequestPressurePolicy.shouldCompactBeforeSend(source, originalBytes)
+            var sentRequestBodyBytes = 0L
             val reply = try {
                 openAiCompatible(
                     connection = connection,
@@ -752,6 +754,7 @@ class CompanionModelGateway(
                     onStreamText = onStreamText,
                     imageDataUrls = imageDataUrls,
                     conversationHistory = if (sentReduced) reducedHistory else dialogueHistory,
+                    onRequestBodyBytes = { sentRequestBodyBytes = it },
                 )
             } catch (error: ModelHttpException) {
                 if (sentReduced || !reductionAvailable ||
@@ -775,6 +778,7 @@ class CompanionModelGateway(
                     onStreamText = onStreamText,
                     imageDataUrls = imageDataUrls, // never quietly pretend to have seen omitted photos
                     conversationHistory = reducedHistory,
+                    onRequestBodyBytes = { sentRequestBodyBytes = it },
                 )
             }
             if (sentReduced) {
@@ -793,6 +797,10 @@ class CompanionModelGateway(
             }
             val modelMillis = elapsedMillis(modelStartedAt)
             val totalMillis = elapsedMillis(totalStartedAt)
+            val actualAudit = if (sentReduced) PromptInputAudit.inspect(
+                listOf("Relay精简后系统上下文" to reducedSystem),
+                reducedSystem, userPrompt, reducedHistory, imageDataUrls, reduced = true,
+            ) else fullAudit
             LuluRepositories.performance.recordGeneration(
                 source = source,
                 title = attemptedModel?.let { "$title · $it" } ?: title,
@@ -801,18 +809,21 @@ class CompanionModelGateway(
                 reportedInputTokens = reply.inputTokens,
                 reportedOutputTokens = reply.outputTokens,
                 cachedTokens = reply.cachedTokens,
-                estimatedInputTokens = if (sentReduced)
-                    estimateTokens(reducedSystem.length + userPrompt.length +
-                        reducedHistory.sumOf { it.content.length }) else estimatedInputTokens,
+                estimatedInputTokens = actualAudit.estimatedTextTokens,
                 estimatedOutputTokens = estimateTokens(reply.text.length),
-                breakdown = if (sentReduced) listOf(
-                    tokenBreakdown("Relay精简后系统上下文", reducedSystem.length),
-                    tokenBreakdown("本轮完整用户输入", userPrompt.length),
-                    tokenBreakdown("保留的原始对话", reducedHistory.sumOf { it.content.length })
-                ) else breakdown,
+                breakdown = actualAudit.breakdown,
                 promptMillis = promptMillis,
                 modelMillis = modelMillis,
                 totalMillis = totalMillis,
+                auditVersion = 1,
+                textCharacters = actualAudit.textCharacters,
+                coveredTextCharacters = actualAudit.coveredCharacters,
+                textUtf8Bytes = actualAudit.textUtf8Bytes,
+                imageCount = actualAudit.imageCount,
+                imageDataUrlBytes = actualAudit.imageDataUrlBytes,
+                requestBodyBytes = sentRequestBodyBytes,
+                messageCount = actualAudit.messageCount,
+                reducedRequest = actualAudit.reduced,
             )
             reply
         }.onFailure { error ->
@@ -847,6 +858,7 @@ class CompanionModelGateway(
         onStreamText: ((String) -> Unit)?,
         imageDataUrls: List<String> = emptyList(),
         conversationHistory: List<ModelConversationMessage> = emptyList(),
+        onRequestBodyBytes: ((Long) -> Unit)? = null,
     ): ModelReply {
         val nativeClaude = isNativeClaude(connection.baseUrl)
         val userContent = MultimodalContent.user(user, imageDataUrls, nativeClaude)
@@ -873,6 +885,7 @@ class CompanionModelGateway(
                 .put("messages", dialogue)
             val url = "${claudeBase(connection.baseUrl)}/messages"
             val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
+            onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             if (streamResponse) return requestPostStreamingReply(url, headers, body, readTimeoutMillis, onStreamText)
             val json = requestPostJson(url, headers, body, readTimeoutMillis)
             val blocks = json.optJSONArray("content") ?: JSONArray()
@@ -895,6 +908,7 @@ class CompanionModelGateway(
         val headers = mapOf("Authorization" to "Bearer ${connection.apiKey}")
         if (streamResponse) {
             body.put("stream", true)
+            onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             try {
                 return requestPostStreamingReply(
                     url = url,
@@ -909,8 +923,10 @@ class CompanionModelGateway(
                 // timeout, rate limit or server failure into a second expensive generation.
                 if (error.status !in setOf(400, 422)) throw error
                 body.remove("stream")
+                onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             }
         }
+        if (!streamResponse) onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
         val json = requestPostJson(
             url = url,
             headers = headers,
