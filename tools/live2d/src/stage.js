@@ -60,6 +60,7 @@ let pendingExpressionName = null
 let pendingSpeechParts = null
 let activeExpressionName = null
 let activeExpressionStartedAt = 0
+let activeExpressionIsPreview = false
 let lastSpeechSoundAt = 0
 let bodyRequest = null
 let bodyRequestEndAt = 0
@@ -306,7 +307,7 @@ function applyFinalParameters(core, deltaMs) {
   // Expression cues are emotional beats, not permanent faces. Let gaps
   // between TTS fragments breathe, while bounding even long monologues.
   if (activeExpressionName &&
-      ((!playing && lastSpeechSoundAt && timeNow - lastSpeechSoundAt > 1050) ||
+      ((!playing && !activeExpressionIsPreview && lastSpeechSoundAt && timeNow - lastSpeechSoundAt > 1050) ||
        timeNow - activeExpressionStartedAt > 6200)) {
     resetSpeechExpression()
   }
@@ -868,12 +869,14 @@ function resetSpeechExpression() {
   }
   activeExpressionName = null
   activeExpressionStartedAt = 0
+  activeExpressionIsPreview = false
 }
-function startSpeechExpression(name) {
+function startSpeechExpression(name, immediatePreview = false) {
   if (!model || !name) return
   resetSpeechExpression()
   activeExpressionName = name
   activeExpressionStartedAt = Date.now()
+  activeExpressionIsPreview = !!immediatePreview
   lastSpeechSoundAt = Date.now()
   const manager = model.internalModel?.motionManager?.expressionManager
   const knownIndex = manager?.getExpressionIndex?.(name) ?? -1
@@ -895,11 +898,11 @@ function startSpeechExpression(name) {
     if (activeExpressionName === name) resetSpeechExpression()
   })
 }
-function expression(name) {
+function expression(name, immediatePreview = false) {
   if (!model || !name || name.length > 128) return
-  if (playing) {
+  if (playing || immediatePreview) {
     pendingExpressionName = null
-    startSpeechExpression(name)
+    startSpeechExpression(name, immediatePreview)
   } else {
     // The decision arrives before TTS plays; do not grimace throughout
     // network/voice generation latency.
@@ -911,9 +914,9 @@ function motion(group, index) {
   Promise.resolve(model.motion(group, index)).catch(() => {})
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
-function face(target) {
+function face(target, immediatePreview = false) {
   if (!model || !target || typeof target !== 'object') return
-  if (!playing) {
+  if (!playing && !immediatePreview) {
     pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.face = target
     return
@@ -930,9 +933,9 @@ function face(target) {
   faceRequest = next
   faceRequestEndAt = Date.now() + 4200
 }
-function body(target) {
+function body(target, immediatePreview = false) {
   if (!model || !target || typeof target !== 'object') return
-  if (!playing) {
+  if (!playing && !immediatePreview) {
     pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.body = target
     return
@@ -949,9 +952,9 @@ function body(target) {
   bodyRequest = next
   bodyRequestEndAt = Date.now() + 3000
 }
-function head(target) {
+function head(target, immediatePreview = false) {
   if (!model || !target) return
-  if (!playing) {
+  if (!playing && !immediatePreview) {
     pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.head = target
     return
