@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:04:59.994994+00:00",
-  "commit": "45cc3878ea354639ca8e8d8221a40466d09e0b88",
+  "generatedAt": "2026-10-22T16:05:25.515380+00:00",
+  "commit": "c8e875250cd852a71e1ff86a013e5898ab5a666a",
   "branch": "main",
-  "sourceFingerprint": "801d5e2a78fc5228db56d9aa46f1bab62138dd7499c7a644c7de8f613a245645",
+  "sourceFingerprint": "79fd36a3d76fc1db9f2cf4808c1c396c0aaaf08cd1189aa1fcce27e67a6be64e",
   "summary": {
     "files": 813,
-    "lines": 155110,
+    "lines": 155120,
     "symbols": 2336
   },
   "symbolIndex": {
@@ -8453,7 +8453,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1940
+        "line": 1945
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -12531,7 +12531,7 @@
     "EmbodiedBodyPhysicsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "GoalDeadlinePerceptionPolicyTest": [
@@ -21417,8 +21417,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2007,
-      "sha256": "5e0544b6c33b4dcba58fc4da2a29a8dc7adf96b72e22d7fc7e8c6d5623591a61",
+      "lines": 2012,
+      "sha256": "0633b044dc7470f5b094cb5d68dd78ec30ca51cd4e6886b06b15ea7111baa2d4",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -21450,7 +21450,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1940
+          "line": 1945
         }
       ]
     },
@@ -26922,12 +26922,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-      "lines": 71,
-      "sha256": "2ab7a8d63427f52cc269227cc1f2de7f390920ab38389b6bc2495b1ac94fb8e8",
+      "lines": 76,
+      "sha256": "f495aa343d78b13477b39388a4818e89db5ac74ccdbcd5b7034e0002e2f9ff8f",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",
-          "line": 6
+          "line": 12
         }
       ]
     },
