@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:47:09.679586+00:00",
-  "commit": "28c5c17752320d9bfcccd3b438e4f2867a31e5d9",
+  "generatedAt": "2026-10-22T20:47:52.550473+00:00",
+  "commit": "cd36ff311d27fc8cd99bc1f304c453a793100ac1",
   "branch": "main",
-  "sourceFingerprint": "1da10522716454b10ab86199320b1f4e21d510a87e3d84d26513b1c79cdbb8ce",
+  "sourceFingerprint": "a0fd82b6bc5331cbb6512c49ed4e795be087cb5b8c0afcd01554e4716566663d",
   "summary": {
     "files": 833,
-    "lines": 159143,
+    "lines": 159179,
     "symbols": 2413
   },
   "symbolIndex": {
@@ -251,7 +251,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 128
+        "line": 135
       }
     ],
     "update": [
@@ -427,7 +427,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 170
+        "line": 178
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -2393,7 +2393,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 112
+        "line": 119
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt",
@@ -4869,7 +4869,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 279
+        "line": 303
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6717,25 +6717,25 @@
     "beginReading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 201
+        "line": 225
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 213
+        "line": 237
       }
     ],
     "pauseActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 224
+        "line": 248
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 238
+        "line": 262
       }
     ],
     "recipients": [
@@ -7165,31 +7165,31 @@
     "endWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 124
+        "line": 131
       }
     ],
     "number": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 130
+        "line": 137
       }
     ],
     "sensorySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 147
+        "line": 155
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 183
+        "line": 191
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 194
+        "line": 202
       }
     ],
     "qualifies": [
@@ -19833,8 +19833,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 260,
-      "sha256": "bb2739f60aa6f237f186376b905e0e5f2c73f6ced6b3b855297afa5221a1a9e0",
+      "lines": 264,
+      "sha256": "d3b49f865b08a7fef649fa0f0e3a18ada347c1bd70c5cf87edf4daf3711d3ce5",
       "symbols": [
         {
           "name": "optionsFor",
@@ -19860,8 +19860,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 288,
-      "sha256": "4f58034cf1f1be77b846ebba265d4f69ee86d92137f9571cc527608981363f6c",
+      "lines": 312,
+      "sha256": "2f4e292f4b0b688161d6553b3bcd39f96795f50f0fe418462500a7a3a1de3daf",
       "symbols": [
         {
           "name": "initialize",
@@ -19877,27 +19877,27 @@
         },
         {
           "name": "apply",
-          "line": 112
+          "line": 119
         },
         {
           "name": "beginReading",
-          "line": 201
+          "line": 225
         },
         {
           "name": "ongoingActivity",
-          "line": 213
+          "line": 237
         },
         {
           "name": "pauseActivity",
-          "line": 224
+          "line": 248
         },
         {
           "name": "endActivity",
-          "line": 238
+          "line": 262
         },
         {
           "name": "clearCharacter",
-          "line": 279
+          "line": 303
         }
       ]
     },
@@ -20334,8 +20334,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 202,
-      "sha256": "f7e2e549ad0d1e2dbb1f60341296edbbc878eb59cca6099474d5306188b3e012",
+      "lines": 210,
+      "sha256": "20bc86b024863c7807209db2238e7a6e6b6a9d60cfb10c1b519613c31ab5d7ff",
       "symbols": [
         {
           "name": "toJson",
@@ -20371,31 +20371,31 @@
         },
         {
           "name": "endWorldActivity",
-          "line": 124
+          "line": 131
         },
         {
           "name": "prompt",
-          "line": 128
+          "line": 135
         },
         {
           "name": "number",
-          "line": 130
+          "line": 137
         },
         {
           "name": "sensorySnapshot",
-          "line": 147
+          "line": 155
         },
         {
           "name": "context",
-          "line": 170
+          "line": 178
         },
         {
           "name": "onWorldActivity",
-          "line": 183
+          "line": 191
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 194
+          "line": 202
         }
       ]
     },
