@@ -47,12 +47,16 @@ jobs:
           npm run build --prefix tools/live2d
           test -s app/src/main/assets/live2d/renderer.js
 
-      - name: Set up Android SDK command-line tools
-        uses: android-actions/setup-android@v3
-
       - name: Install Whisper native build tools
         run: |
-          sdkmanager "cmake;3.22.1" "ndk;27.0.12077973"
+          # GitHub's image already has Android SDK cmdline-tools. The setup-android
+          # action tries to install the obsolete 'tools' package and fails.
+          SDK_MANAGER="$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager"
+          if [ ! -x "$SDK_MANAGER" ]; then
+            SDK_MANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          test -x "$SDK_MANAGER"
+          "$SDK_MANAGER" "cmake;3.22.1" "ndk;27.0.12077973"
 
       - name: Test and build phone APK
         run: |
