@@ -16,3 +16,20 @@ internal fun actualPhoneCaptions(
         item.createdAt >= start && item.sender != LuluChatMessage.Sender.System
     }
 }
+
+
+/**
+ * Cloud and on-device ASR occasionally hallucinate sound-effect captions from
+ * room noise (e.g. （笑）（不幸）). These are not confirmed user words and must
+ * not become user chat bubbles, emotional evidence or model turns.
+ * Real spoken words OUTSIDE caption brackets are preserved verbatim.
+ */
+internal object PhoneTranscriptEvidence {
+    private val captionOnly = Regex(
+        """^(?:[\\s，,。.!！?？]*[（(【\\[][^(（)）】\\]]{1,24}[)）】\\]][\\s，,。.!！?？]*)+$"""
+    )
+    fun isConfirmedSpeech(raw: String): Boolean {
+        val value = raw.trim()
+        return value.isNotEmpty() && !captionOnly.matches(value)
+    }
+}
