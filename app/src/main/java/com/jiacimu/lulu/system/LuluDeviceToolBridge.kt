@@ -497,7 +497,11 @@ object LuluDeviceToolBridge {
                 if (initiativeContext.isNotBlank()) appendLine(initiativeContext)
                 if (!sceneContext.contains("电话"))
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionContinuity.guide())
-                if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, cues = userText + " " + previousPresence?.mood.orEmpty()))
+                if (!sceneContext.contains("电话")) appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext,
+                    cues = userText,
+                    recentConversation = history,
+                    actorMood = previousPresence?.mood.orEmpty(),
+                ))
                 if (turnContext.isNotBlank()) {
                     appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
                     appendLine(turnContext.take(4_000))
