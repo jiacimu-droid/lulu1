@@ -134,8 +134,12 @@ internal object ModelStructuredOutput {
             }
             var current = ""
             clauses.forEach { clause ->
-                if (current.isNotBlank() && current.length >= 19 &&
-                    current.length + clause.length > 52) {
+                // A complete conversational move should not become one
+                // giant IM bubble merely because two short sentences fit
+                // under the old 52-character grouping target.
+                // Respect sentence boundaries, never cut a mid-word fragment.
+                if (current.isNotBlank() && current.length >= 14 &&
+                    current.length + clause.length > 43) {
                     pieces += current
                     current = clause
                 } else current += clause
