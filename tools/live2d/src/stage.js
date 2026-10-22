@@ -43,7 +43,12 @@ function fit() {
   if (!app) return
   const viewWidth = Math.max(1, root.clientWidth)
   const viewHeight = Math.max(1, root.clientHeight)
-  app.renderer.resize(viewWidth, viewHeight)
+  // Resizing an unchanged WebGL drawing buffer each probe clears the buffer
+  // and costs GPU memory; resize only when the Android WebView actually changes.
+  if (app.renderer.screen.width !== viewWidth ||
+      app.renderer.screen.height !== viewHeight) {
+    app.renderer.resize(viewWidth, viewHeight)
+  }
   if (!model) return
   const originalWidth = model.width / Math.max(Math.abs(model.scale.x), 1e-6)
   const originalHeight = model.height / Math.max(Math.abs(model.scale.y), 1e-6)
@@ -214,6 +219,15 @@ async function load(modelURL) {
     if (sequence !== loadSequence) return
     ensureApp()
     gpuLost = false
+    // Check native preprocessing errors BEFORE the Pixi model parser can turn
+    // them into an unhelpful blank canvas or generic "invalid model" error.
+    const settingsResponse = await fetch(modelURL, { cache: 'no-store' })
+    if (!settingsResponse.ok) throw new Error('模型配置文件无法加载 (HTTP ' + settingsResponse.status + ')')
+    const modelSettings = await settingsResponse.json()
+    if (modelSettings.luluMobileTextureError) {
+      throw new Error('手机贴图优化失败：' + modelSettings.luluMobileTextureError)
+    }
+    if (sequence !== loadSequence) return
     if (model) { app.stage.removeChild(model); model.destroy({ texture: true, baseTexture: true }); model = null }
     const loaded = await Live2DModel.from(modelURL, { autoInteract: false, autoUpdate: true })
     if (sequence !== loadSequence) {
