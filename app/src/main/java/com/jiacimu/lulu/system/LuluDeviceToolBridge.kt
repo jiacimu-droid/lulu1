@@ -315,7 +315,7 @@ object LuluDeviceToolBridge {
         val sharedReplyAndDeviceRule = if (!rewriting && (!callSilence || sceneContext.contains("电话"))) """
             【同一模型决定可以兼有回复与设备行为】
             一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
-            若你想两者兼做，使用 action=reply 配合 sideActions=[{"tool":"control_volume","args":{"action":"adjust","deltaPercent":10}}]；若希望保持安静，只操作手机，通话中可用 action=silent 加 sideActions。
+            若既想说话又想操作已授权能力，可以在一次决策中使用 action=reply 配合 steps=[{"tool":"真实能力名","args":{},"requiresPreviousSuccess":false},...]；按顺序执行多项实际动作，记录每一项结果，不限于音乐或音量。若希望保持安静，只操作设备，通话中可选 action=silent 加 steps。依赖前一步完成的动作写 requiresPreviousSuccess=true；尚在等待同意的屏幕请求不是已看见画面，需要真实回执才能继续基于画面作判断。
             媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。通话中最多5项，按列表顺序逐项执行；普通聊天最多2项。
             private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
             你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
@@ -807,13 +807,18 @@ object LuluDeviceToolBridge {
             val inputKey = userEvidenceIds.lastOrNull()
                 ?: silenceObservationId.takeIf(String::isNotBlank)
                 ?: "current-" + now.toEpochMilli()
-            val maxActions = if (sceneContext.contains("电话")) 5 else 2
-            for (i in 0 until minOf(maxActions, plannedSideActions.length())) {
+            var previousStepCompleted = true
+            for (i in 0 until plannedSideActions.length()) {
                 val effect = plannedSideActions.optJSONObject(i) ?: continue
                 val tool = effect.optString("tool").trim()
-                if (tool !in setOf("control_volume", "control_music", "list_media_sessions") &&
-                    !(sceneContext.contains("电话") && tool == "ring_in_call_wake")) {
-                    notes += "未执行未经授权的附加动作"
+                if (com.jiacimu.lulu.data.CapabilityRegistry.find(tool) == null ||
+                    (tool == "ring_in_call_wake" && !sceneContext.contains("电话"))) {
+                    notes += "第${i + 1}步未执行：工具不可用"
+                    previousStepCompleted = false
+                    continue
+                }
+                if (effect.optBoolean("requiresPreviousSuccess", false) && !previousStepCompleted) {
+                    notes += "第${i + 1}步未执行：上一步尚未完成"
                     continue
                 }
                 val effectArgs = effect.optJSONObject("args") ?: JSONObject()
@@ -838,6 +843,8 @@ object LuluDeviceToolBridge {
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
                 }
+                previousStepCompleted = result.optBoolean("success") &&
+                    result.optString("status") !in setOf("pending", "waiting_user", "requested")
                 val command = result.optString("command")
                     .ifBlank { effectArgs.optString("command") }
                 if (result.optBoolean("success") &&
@@ -1956,7 +1963,7 @@ object LuluDeviceToolBridge {
                 endCall = json.optBoolean("endCall", false),
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 afterCallMedia = json.optJSONObject("afterCallMedia"),
-                sideActions = json.optJSONArray("sideActions"),
+                sideActions = json.optJSONArray("steps") ?: json.optJSONArray("sideActions"),
                 mediaUnderstanding = json.optJSONObject("mediaUnderstanding"),
                 musicAfterSpeech = json.optString("musicAfterSpeech").trim().lowercase(),
                 phoneFavorite = json.optJSONObject("phoneFavorite"),
