@@ -59,6 +59,8 @@ let headRequest = null
 let headRequestEndAt = 0
 let pendingExpressionName = null
 let pendingSpeechParts = null
+let pendingPerformance = null
+let activePerformance = null
 let activeExpressionName = null
 let activeExpressionStartedAt = 0
 let activeExpressionIsPreview = false
@@ -316,6 +318,25 @@ function applyFinalParameters(core, deltaMs) {
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   const timeNow = Date.now()
+  // Performance is a series of intentional character-selected beats from
+  // ONE model response. Advance only with audible playback; never spawn
+  // additional LLM calls or random idle head actions.
+  if (activePerformance) {
+    if (playing || activePerformance.allowSilent) {
+      activePerformance.elapsedMs += Math.min(60, Math.max(0, deltaMs))
+      while (activePerformance.index < activePerformance.beats.length &&
+          activePerformance.beats[activePerformance.index].atMs <= activePerformance.elapsedMs) {
+        const beat = activePerformance.beats[activePerformance.index++]
+        if (beat.expression) startSpeechExpression(beat.expression, activePerformance.allowSilent)
+        if (beat.head) head(beat.head, true)
+        if (beat.body) body(beat.body, true)
+        if (beat.face) face(beat.face, true)
+      }
+      if (activePerformance.index >= activePerformance.beats.length) activePerformance = null
+    } else if (timeNow - activePerformance.createdAt > 22000) {
+      activePerformance = null // a never-resumed TTS must not replay stale beats
+    }
+  }
   // Expression cues are emotional beats, not permanent faces. Let gaps
   // between TTS fragments breathe, while bounding even long monologues.
   if (activeExpressionName &&
@@ -326,10 +347,12 @@ function applyFinalParameters(core, deltaMs) {
   if ((pendingExpressionName &&
        timeNow - pendingExpressionName.queuedAt > 20000) ||
       (pendingSpeechParts &&
-       timeNow - pendingSpeechParts.queuedAt > 20000)) {
+       timeNow - pendingSpeechParts.queuedAt > 20000) ||
+      (pendingPerformance && timeNow - pendingPerformance.queuedAt > 20000)) {
     // Never carry a previous, unheard body cue to the next phone turn.
     pendingExpressionName = null
     pendingSpeechParts = null
+    pendingPerformance = null
   }
   // By default the iris must continuously target the center of the screen;
   // the imported model's idle animation / focus controller can otherwise
@@ -622,12 +645,15 @@ async function load(modelURL) {
 // Moment state is driven by the Android phone player's actual audible
 // events, not merely an LLM response or a pending TTS network request.
 function activatePendingSpeechMoment() {
-  if (!pendingExpressionName && !pendingSpeechParts) return
+  if (!pendingExpressionName && !pendingSpeechParts && !pendingPerformance) return
   const selected = pendingExpressionName?.name
   const parts = pendingSpeechParts
+  const performance = pendingPerformance
   pendingExpressionName = null
   pendingSpeechParts = null
+  pendingPerformance = null
   if (selected) startSpeechExpression(selected)
+  if (performance) beginPerformance(performance.beats, false)
   if (parts?.head) head(parts.head)
   if (parts?.body) body(parts.body)
   if (parts?.face) face(parts.face)
@@ -654,7 +680,11 @@ function onPlaybackEvent(phase) {
   // A short reply must still show its facial expression for a moment after
   // the audio ends; otherwise a one-second star-eye cue is barely visible.
   // A genuine interruption, on the other hand, clears it immediately.
-  if (phase === 'interrupted') resetSpeechExpression()
+  if (phase === 'interrupted') {
+    resetSpeechExpression()
+    activePerformance = null
+    pendingPerformance = null
+  }
   else lastSpeechSoundAt = Date.now()
   // Keep the mouth's short release tail on normal completion. Interruptions
   // should cancel immediately rather than make the role keep talking.
@@ -934,6 +964,35 @@ function expression(name, immediatePreview = false) {
     pendingExpressionName = { name, queuedAt: Date.now() }
   }
 }
+// AIRI-inspired staged expressivity: separate authored visual beats use the
+// SAME phone turn and timeline, not an independent personality/animation LLM.
+function beginPerformance(beats, allowSilent) {
+  if (!beats.length) return
+  activePerformance = {
+    beats,
+    index: 0,
+    elapsedMs: 0,
+    createdAt: Date.now(),
+    allowSilent,
+  }
+}
+function choreography(beats, immediatePreview = false) {
+  if (!model || !Array.isArray(beats) || !beats.length) return
+  // Validate twice: Android already filters by the actual .moc3 model and
+  // exp3 manifest, while JS enforces a bounded, non-executable local script.
+  const eligible = beats.slice(0, 16).filter(beat =>
+    beat && Number.isFinite(beat.atMs) &&
+    beat.atMs >= 0 && beat.atMs <= 30000 &&
+    (beat.expression || beat.face || beat.head || beat.body))
+    .sort((a, b) => a.atMs - b.atMs)
+  if (!eligible.length) return
+  if (playing || immediatePreview) {
+    pendingPerformance = null
+    beginPerformance(eligible, !!immediatePreview)
+  } else {
+    pendingPerformance = { beats: eligible, queuedAt: Date.now() }
+  }
+}
 function motion(group, index) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
   Promise.resolve(model.motion(group, index)).catch(() => {})
@@ -996,7 +1055,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
