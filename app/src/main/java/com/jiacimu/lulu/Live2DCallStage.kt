@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import android.graphics.Color as AndroidColor
+import android.os.Build
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -40,9 +42,9 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     }
     DisposableEffect(stage) {
         onDispose {
-            stage.stopLoading()
-            stage.loadUrl("about:blank")
-            stage.destroy()
+            runCatching { stage.stopLoading() }
+            runCatching { stage.loadUrl("about:blank") }
+            runCatching { stage.destroy() }
         }
     }
     AndroidView(factory = { stage }, modifier = modifier.fillMaxSize())
@@ -81,7 +83,9 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
         .addPathHandler("/private/", WebViewAssetLoader.InternalStoragePathHandler(context, Live2DAssets.base(context)))
         .build()
     return WebView(context).apply {
-        setBackgroundColor(AndroidColor.TRANSPARENT)
+        // A fully opaque video window prevents chat content bleeding through a
+        // transparent hardware WebView surface when Android redraws its layer.
+        setBackgroundColor(AndroidColor.rgb(21, 23, 25))
         isVerticalScrollBarEnabled = false
         isHorizontalScrollBarEnabled = false
         settings.apply {
@@ -117,6 +121,14 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
             }
         }
         webViewClient = object : WebViewClient() {
+            override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+                // Very large atlas textures can kill Android's WebView GPU process.
+                // Contain the crash and let Compose retain the static preview/call.
+                onStatus("fatal", if (detail?.didCrash() == true)
+                    "Live2D 图形进程崩溃，可能与8192贴图或手机显存有关；已退回静态画面"
+                    else "Live2D 图形进程被系统回收；已退回静态画面")
+                return true
+            }
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
                 val uri = request.url
                 return uri.scheme != "https" || uri.host != "appassets.androidplatform.net"
