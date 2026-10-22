@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T09:11:13.271217+00:00",
-  "commit": "a63a93971bce3bd88cda05d783c8410cac95fe7e",
+  "generatedAt": "2026-10-22T09:48:13.837546+00:00",
+  "commit": "e96a8c0b25fe73a9850e43a76d0d0539e6761b9c",
   "branch": "main",
-  "sourceFingerprint": "ef253509a2bd9f0be75ebd23aa24ec9789705a089fcc593c967c17128378e057",
+  "sourceFingerprint": "ab3c57e08fabc8f9b2ff5be5068228960b17677716553313434aa24f5da43945",
   "summary": {
     "files": 799,
-    "lines": 152094,
-    "symbols": 2286
+    "lines": 152140,
+    "symbols": 2290
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6914,16 +6914,40 @@
         "line": 76
       }
     ],
+    "recordCallMediaSwitch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 94
+      }
+    ],
+    "hasRenderedVideo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 113
+      }
+    ],
+    "hasSelectedVideo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 117
+      }
+    ],
+    "callMediaSummary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 122
+      }
+    ],
     "recordCallQuiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 88
+        "line": 133
       }
     ],
     "recordCallEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 113
+        "line": 158
       }
     ],
     "retryAt": [
@@ -19454,8 +19478,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-      "lines": 141,
-      "sha256": "124ab8323dc02aab1b6d799f358059e8d385e1292147eae04d6f263a1988c060",
+      "lines": 187,
+      "sha256": "5caa6a7a8bc47e4eff0839b9eae75c58968e6e8744087d3816827e4213933418",
       "symbols": [
         {
           "name": "callEndDescription",
@@ -19478,12 +19502,28 @@
           "line": 76
         },
         {
+          "name": "recordCallMediaSwitch",
+          "line": 94
+        },
+        {
+          "name": "hasRenderedVideo",
+          "line": 113
+        },
+        {
+          "name": "hasSelectedVideo",
+          "line": 117
+        },
+        {
+          "name": "callMediaSummary",
+          "line": 122
+        },
+        {
           "name": "recordCallQuiet",
-          "line": 88
+          "line": 133
         },
         {
           "name": "recordCallEnd",
-          "line": 113
+          "line": 158
         }
       ]
     },
