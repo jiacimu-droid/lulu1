@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:05:56.529768+00:00",
-  "commit": "5aa8d8e29818c23f5a5b23f91782e80f85be3b41",
+  "generatedAt": "2026-10-22T16:06:24.974795+00:00",
+  "commit": "29947782f2cd2d5ca1f9169df30d941a98b06897",
   "branch": "main",
-  "sourceFingerprint": "8647ebdb035febcbe6e2f60d01d543e6a5b17382cc9f602bf4166e7dfdf1cf21",
+  "sourceFingerprint": "b9bef48288436675d4cf5dfa76dcefb4183fbd955c037e030d94d68637d56700",
   "summary": {
-    "files": 813,
-    "lines": 155154,
-    "symbols": 2336
+    "files": 815,
+    "lines": 155439,
+    "symbols": 2340
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -41,7 +41,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 55
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -89,7 +89,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 464
+        "line": 479
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -304,6 +304,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
         "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
+        "line": 132
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
@@ -2207,37 +2211,37 @@
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1374
+        "line": 1375
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1376
+        "line": 1377
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1392
+        "line": 1393
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1754
+        "line": 1760
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1905
+        "line": 1911
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2066
+        "line": 2072
       }
     ],
     "returnToList": [
@@ -2717,27 +2721,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 257
+        "line": 271
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 280
+        "line": 294
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 331
+        "line": 346
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 378
+        "line": 393
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 420
+        "line": 435
       }
     ],
     "payload": [
@@ -3302,6 +3306,54 @@
         "line": 27
       }
     ],
+    "consume": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
+        "line": 82
+      }
+    ],
+    "clear": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
+        "line": 159
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 133
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
+        "line": 196
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 143
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 110
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
+        "line": 16
+      }
+    ],
     "generated": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt",
@@ -3644,16 +3696,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt",
         "line": 5
-      }
-    ],
-    "consume": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
-        "line": 82
       }
     ],
     "content": [
@@ -9574,36 +9616,6 @@
         "line": 186
       }
     ],
-    "clear": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
-        "line": 70
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 133
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 196
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 63
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 143
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
-        "line": 110
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
-        "line": 16
-      }
-    ],
     "promptForDirector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -11876,6 +11888,12 @@
         "line": 5
       }
     ],
+    "VoiceAcousticAnalyzerTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/VoiceAcousticAnalyzerTest.kt",
+        "line": 10
+      }
+    ],
     "VoiceDeliveryLedgerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt",
@@ -12171,13 +12189,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 327
+        "line": 351
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 426
+        "line": 450
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -14780,8 +14798,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2152,
-      "sha256": "420de9386fc068bde9255656ea0a037efd06aee966a05daa7f637abb4017c959",
+      "lines": 2158,
+      "sha256": "fb438e1ad5d52713a27a059d1aca0b99b375dda10dcf8d974b31d9427ee702c0",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -14845,27 +14863,27 @@
         },
         {
           "name": "sameReply",
-          "line": 1374
+          "line": 1375
         },
         {
           "name": "clearWhenHeard",
-          "line": 1376
+          "line": 1377
         },
         {
           "name": "enqueueSpoken",
-          "line": 1392
+          "line": 1393
         },
         {
           "name": "sameSession",
-          "line": 1754
+          "line": 1760
         },
         {
           "name": "retryListening",
-          "line": 1905
+          "line": 1911
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2066
+          "line": 2072
         }
       ]
     },
@@ -15451,36 +15469,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 486,
-      "sha256": "c3c3f58c04bac768da4b4d3646625afed3d8fbdef77a11fa4c84d52b5f1454ba",
+      "lines": 502,
+      "sha256": "c87922ff497909438c335adae37081a82631be7f3abc008bdaa6980c64e79f12",
       "symbols": [
         {
           "name": "start",
-          "line": 55
+          "line": 58
         },
         {
           "name": "pauseCapture",
-          "line": 257
+          "line": 271
         },
         {
           "name": "resumeCapture",
-          "line": 280
+          "line": 294
         },
         {
           "name": "field",
-          "line": 331
+          "line": 346
         },
         {
           "name": "field",
-          "line": 378
+          "line": 393
         },
         {
           "name": "field",
-          "line": 420
+          "line": 435
         },
         {
           "name": "stop",
-          "line": 464
+          "line": 479
         }
       ]
     },
@@ -16101,9 +16119,28 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
+      "lines": 175,
+      "sha256": "8449d9825f5aeb336b2fc32a07e7522587833c6fb3b8858f764322c9d7eef041",
+      "symbols": [
+        {
+          "name": "consume",
+          "line": 34
+        },
+        {
+          "name": "finish",
+          "line": 132
+        },
+        {
+          "name": "clear",
+          "line": 159
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
-      "lines": 233,
-      "sha256": "38ed8b3e1e5a2c58bbbd72aa4d636fc3d12de264bb1db769e3774ed7e729bd01",
+      "lines": 246,
+      "sha256": "9ba8e15857e074e95efb123e3e01cf11bef59713ddfbf39ada67fc4788408eb7",
       "symbols": []
     },
     {
@@ -25853,6 +25890,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/VoiceAcousticAnalyzerTest.kt",
+      "lines": 51,
+      "sha256": "e38b5c328401330ec4f9b6ae31dfa0c4d3a565c77dc4c12d4b639c459bf14138",
+      "symbols": [
+        {
+          "name": "VoiceAcousticAnalyzerTest",
+          "line": 10
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt",
       "lines": 39,
       "sha256": "992f721e7b7751fe9d8583b5be8ac89cd220c39179788450f71059ab2e8b3f45",
@@ -26372,8 +26420,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 586,
-      "sha256": "faa7b74b904e14636cab931691e035f853fefa40b5c6c44341d7d398286c8350",
+      "lines": 610,
+      "sha256": "eb09953f1c02c0688e6e82ce349ed295db6f7331f76565fa7ac38a49a738779c",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -26381,11 +26429,11 @@
         },
         {
           "name": "social",
-          "line": 327
+          "line": 351
         },
         {
           "name": "feeling",
-          "line": 426
+          "line": 450
         }
       ]
     },

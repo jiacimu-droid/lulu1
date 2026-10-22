@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5aa8d8e29818c23f5a5b23f91782e80f85be3b41`
+- 基准提交：`29947782f2cd2d5ca1f9169df30d941a98b06897`
 - 分支：`main`
-- 已索引文件：813
-- 已索引代码/文本行：155154
-- 已发现符号：2336
+- 已索引文件：815
+- 已索引代码/文本行：155439
+- 已发现符号：2340
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -124,7 +124,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 748 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2152 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2158 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -160,7 +160,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 486 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 502 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 279 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
@@ -202,7 +202,8 @@
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 144 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 233 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt` | 175 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 246 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 183 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
@@ -638,6 +639,7 @@
 | `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/VoiceAcousticAnalyzerTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 90 | 1 |
@@ -684,7 +686,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 586 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 610 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 177 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 822 | 16 |
