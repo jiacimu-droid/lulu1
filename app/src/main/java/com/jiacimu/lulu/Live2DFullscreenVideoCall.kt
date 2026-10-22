@@ -135,6 +135,8 @@ internal fun Live2DFullscreenVideoCall(
                 previewExpression = cue?.expression ?: previewExpression,
                 previewMotion = cue?.motion ?: previewMotion,
                 previewHead = cue?.head ?: manualHead,
+                previewBody = cue?.body,
+                previewFace = cue?.face,
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 // Both imported models and Hiyori were verified on the actual
                 // device only through the native Compose presentation path.
