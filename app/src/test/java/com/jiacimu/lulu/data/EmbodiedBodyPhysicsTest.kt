@@ -49,6 +49,22 @@ class EmbodiedBodyPhysicsTest {
         assertFalse(EmbodiedBodyPhysics.prompt(eat).contains("占有欲"))
     }
 
+    @Test fun cafeOrderingAloneDoesNotChangeBodyAndEatingUsesCommittedActions() {
+        val before = EmbodiedBodyPhysics.fresh(start)
+        val order = EmbodiedBodyPhysics.applyWorldActivity(before, "cafe_order_coffee", start, null)
+        assertEquals(before, order)
+        val drink = EmbodiedBodyPhysics.applyWorldActivity(order, "cafe_consume_coffee", start, null)
+        assertTrue(drink.thirst < order.thirst)
+        assertTrue(drink.comfort > order.comfort)
+        val sandwich = EmbodiedBodyPhysics.applyWorldActivity(drink, "cafe_consume_sandwich", start, null)
+        assertTrue(sandwich.hunger < drink.hunger)
+        assertEquals(drink.thirst, sandwich.thirst, 0.001)
+        val cocoa = EmbodiedBodyPhysics.applyWorldActivity(sandwich, "cafe_consume_cocoa", start, null)
+        assertTrue(cocoa.thirst < sandwich.thirst && cocoa.hunger < sandwich.hunger)
+        assertEquals(10, DigitalCafeMenu.locationOptions().size)
+        assertNull(DigitalCafeMenu.byConsume("cafe_order_cake"))
+    }
+
     @Test fun interruptionAndTimeRollbackDoNotCreatePhantomRecovery() {
         val active = EmbodiedBodyPhysics.applyWorldActivity(EmbodiedBodyPhysics.fresh(start),
             "sleep", start, start.plusSeconds(2 * 3600))
