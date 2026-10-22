@@ -1,3 +1,11 @@
+## 2026-10-22：本地 Whisper Tiny / Base 离线识别
+
+- 目标：替换设置页旧 Android `SpeechRecognizer` 普通通话输入，保留云端 Groq / MiniMax / ElevenLabs 作为显式手选方案。
+- 源码：JNI 绑定、Kotlin 模型安装管理和 UI 为露露机独立实现。上游原生引擎通过 CMake `FetchContent` 构建固定 `ggml-org/whisper.cpp` 版本 `v1.9.4`，遵守其 MIT 许可；源代码与原始许可见 <https://github.com/ggml-org/whisper.cpp/tree/v1.9.4>。
+- 模型：Tiny 和 Base 均为多语言 ggml 权重，按需从 <https://huggingface.co/ggerganov/whisper.cpp> 直接下载到应用私有目录；不内置模型权重；不强制用户购买云端转写。
+- 路由：旧 `system` 设置迁移到 `local`；每通电话读取一次所选 Tiny/Base；本地缺失模型时提示安装，不回退收费 ASR。16 kHz PCM 沿用原 `CallAudioInput` 自然停顿分段，后续上下文、角色人格、ElevenLabs TTS 路线不变。
+- 验收边界：需以 GitHub Actions 完整 APK 构建核对 CMake / NDK 链路，并在 Android ARM64 真机验证模型下载、中文转写、延迟、耗电、回声与打断；静态接线不代表以上测试已通过。
+
 # 代码与设计归属账本
 
 这份文件用于记录 `lulu1` 中每个重要模块的来源，避免把第三方代码误写成原创，也避免以后忘记某段实现从哪里来。
