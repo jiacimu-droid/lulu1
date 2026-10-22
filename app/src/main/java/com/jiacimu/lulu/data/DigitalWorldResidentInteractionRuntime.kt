@@ -36,7 +36,7 @@ internal object DigitalWorldResidentInteractionRuntime {
             val reply = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = "地点ID=$location\n现场居民ID=resident:$residentId，姓名=${resident.name}，身份=${resident.identity}。\n" +
-                    "住宅=${resident.homeLocationCode}。本次意愿=$normalized。用户不参与本次台词。\n" +
+                    "住宅=${resident.homeLocationCode}；气质=${resident.temperament.ifBlank { "未登记" }}；偏好=${resident.preferences.ifBlank { "未登记" }}。本次意愿=$normalized。用户不参与本次台词。\n" +
                     "此前双方真正说过的话：\n${history.take(2400)}\n" +
                     "角色此前对这位居民的私人印象（居民本人不知道角色的心声）：\n" +
                     CharacterSocialRelationship.perspectivesFor(characterId, listOf("resident:$residentId")),
