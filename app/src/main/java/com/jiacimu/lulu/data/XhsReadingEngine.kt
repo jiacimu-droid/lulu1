@@ -524,10 +524,27 @@ internal object XhsReadingEngine {
                     .ifBlank { image.optString("urlPre") }.ifBlank { image.optString("url") })
                     .put("width", image.optInt("width")).put("height", image.optInt("height")))
             }
+            // xpzouying Go returns {feed_id, data:{note:{...},
+            // comments:{list:[{content,...}]}}}; this separate comments list
+            // was previously discarded, so characters never saw actually
+            // loaded comments even after a successful detail request.
+            val commentRows = payload.optJSONObject("comments")?.optJSONArray("list")
+                ?: payload.optJSONArray("comments") ?: raw.optJSONArray("comments")
+            val comments = org.json.JSONArray()
+            for (index in 0 until minOf(commentRows?.length() ?: 0, 10)) {
+                val row = commentRows?.opt(index)
+                val actualText = when (row) {
+                    is JSONObject -> row.optString("content")
+                    is String -> row
+                    else -> ""
+                }.trim().take(260)
+                if (actualText.isNotBlank()) comments.put(actualText)
+            }
             return JSONObject().put("images", pictures).put("title", raw.optString("title"))
                 .put("body", raw.optString("desc").ifBlank { raw.optString("description") })
                 .put("author", raw.optJSONObject("user")?.optString("nickname")
                     .orEmpty().ifBlank { raw.optJSONObject("author")?.optString("nickname").orEmpty() })
+                .put("comments", comments)
     }
 
     /** The browser navigates once to the public website route. Never race a
