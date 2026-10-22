@@ -59,6 +59,7 @@ private data class Live2DBinaryFrame(val jpeg: ByteArray, val reply: JavaScriptR
 /** An isolated visual stage; no JavaScriptInterface, cookies, external resources or model API calls. */
 @Composable
 internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Boolean,
+    callId: String = "",
     listening: Boolean, mouthLevel: Float, modifier: Modifier = Modifier,
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
     previewRevision: Int = 0,
@@ -72,6 +73,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     onWebViewReady: ((WebView) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
+    val playbackEvent by Live2DSpeechTimeline.events.collectAsState()
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val binaryFrames = remember(context, characterId, modelUrl) {
@@ -138,6 +140,16 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 "window.LuluLive2D && window.LuluLive2D.setFramingMode(window.__luluFramingMode)",
             null,
         )
+    }
+    LaunchedEffect(stage, callId, playbackEvent.revision) {
+        if (callId.isNotBlank() && playbackEvent.callId == callId &&
+            playbackEvent.characterId == characterId) {
+            val phase = playbackEvent.phase.name.lowercase(java.util.Locale.ROOT)
+            stage.evaluateJavascript(
+                "window.LuluLive2D && window.LuluLive2D.onPlaybackEvent(" +
+                    JSONObject.quote(phase) + ")", null,
+            )
+        }
     }
     LaunchedEffect(stage, previewRevision) {
         if (previewRevision > 0) {
