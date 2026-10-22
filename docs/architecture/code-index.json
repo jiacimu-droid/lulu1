@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T04:41:10.624315+00:00",
-  "commit": "7d2b1b2fb22abef17d7588111268855f0b4e7907",
+  "generatedAt": "2026-10-22T04:57:19.822450+00:00",
+  "commit": "7e6d107a0136f5741d155a7dd7b40256a0726d80",
   "branch": "main",
-  "sourceFingerprint": "ff6cc07df5742e3e0ab09dec5c7f4925a8677673cbddbe63df80e3fd241e5d4b",
+  "sourceFingerprint": "f39c0b35f1acda385b626d1bdae000bbb9eb0e62a3816295e19425d3590e294a",
   "summary": {
-    "files": 791,
-    "lines": 150735,
-    "symbols": 2264
+    "files": 793,
+    "lines": 150818,
+    "symbols": 2266
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5932,6 +5932,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
         "line": 420
+      }
+    ],
+    "planningGuidance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
+        "line": 18
       }
     ],
     "repairInstruction": [
@@ -12042,6 +12048,12 @@
         "line": 30
       }
     ],
+    "ConversationDominantImpulseTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt",
+        "line": 11
+      }
+    ],
     "ConversationExpressionGatewayTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -16562,7 +16574,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 162,
-      "sha256": "9402302c23d079218a16a4826fc34802ddc43302321223ed12d7902cc97a4db9",
+      "sha256": "828aa5a6c28d87ae6a38d748a670214c6b0ec0d9eddfbe0eba03cabc4ad2e2bf",
       "symbols": [
         {
           "name": "expressionContext",
@@ -18289,6 +18301,17 @@
         {
           "name": "clearCharacter",
           "line": 443
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt",
+      "lines": 38,
+      "sha256": "94c20048aa32990bb1ef9364ea8b577e10e4f1debd42b4a749e2f16237ef7202",
+      "symbols": [
+        {
+          "name": "planningGuidance",
+          "line": 18
         }
       ]
     },
@@ -20626,8 +20649,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 133,
-      "sha256": "b846686641c7aff71d77cf5998228441617d226c36d62a7bc6f068383d86ff58",
+      "lines": 134,
+      "sha256": "4c9d9b2ad3668823dc5c07dc20d358a8c83d2346be6270b18bf7f2e32cc01687",
       "symbols": []
     },
     {
@@ -24347,8 +24370,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2037,
-      "sha256": "15b1b7ddfb162fbafcdc095a1d50dd2b15e04270a9d61c01d75e9621268088d8",
+      "lines": 2040,
+      "sha256": "7bf52591cb3892a6df555e397fdfe94a919f62e3189995435c95993d8e4b6c25",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -25940,6 +25963,17 @@
         {
           "name": "CommitmentSemanticPersistenceTest",
           "line": 30
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt",
+      "lines": 41,
+      "sha256": "806bda5e6a1735bccdb38a35418ddfa0de2547f30c1dac02b1c8a069ee76d8fe",
+      "symbols": [
+        {
+          "name": "ConversationDominantImpulseTest",
+          "line": 11
         }
       ]
     },
