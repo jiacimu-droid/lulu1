@@ -35,12 +35,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-private data class SharedListeningTrack(
+internal data class SharedListeningTrack(
     val title: String, val artist: String, val packageName: String, val playing: Boolean,
 )
 
 /** Metadata is NOT audible waveform evidence; no player control can change this distinction. */
-private fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, String> {
+internal fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, String> {
     val root = runCatching { JSONObject(raw) }.getOrNull()
         ?: return null to "媒体会话数据无效"
     if (!root.optBoolean("success")) return null to root.optString("error", "读取媒体会话失败")
@@ -233,7 +233,7 @@ internal fun ListenTogetherRoom(
                                 playing = active.isPlaying
                             }
                         }) { Text(if (playing) "暂停" else "播放") }
-                        Text("${elapsed / 60}:${(elapsed / 1000 % 60).toString().padStart(2, '0')} / " +
+                        Text("${elapsed / 60000}:${(elapsed / 1000 % 60).toString().padStart(2, '0')} / " +
                             "${duration / 60000}:${(duration / 1000 % 60).toString().padStart(2, '0')}",
                             style = MaterialTheme.typography.bodySmall)
                     }
