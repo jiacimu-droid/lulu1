@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:46:10.947322+00:00",
-  "commit": "d2d4636e787e7c0f0856be968225b0070da51a88",
+  "generatedAt": "2026-10-22T15:48:11.448161+00:00",
+  "commit": "97ed1cb91f213a1609a0bbd78b11548688789aa1",
   "branch": "main",
-  "sourceFingerprint": "2776322a34a9faa66f775f9742f83be254b750fda5dbf4c560c02ecbe41dc218",
+  "sourceFingerprint": "f2d5ae89ecab36e5a18a0e946ad843864273705a432c6a5d2772902a932d53b5",
   "summary": {
     "files": 809,
-    "lines": 154148,
-    "symbols": 2314
+    "lines": 154155,
+    "symbols": 2315
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1776,6 +1776,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
         "line": 36
+      }
+    ],
+    "runtimeError": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 104
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13294,8 +13300,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 71,
-      "sha256": "9bd811fe1dca77d2193a9f30f43d0ccec3eb9c53cde39ef70fcad7448c363ffc",
+      "lines": 74,
+      "sha256": "95332c62d5a1e5cafff3c2a74a190c71e959d96b72a1dd56c73330d3e8158c93",
       "symbols": [
         {
           "name": "provider",
@@ -14306,8 +14312,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-      "lines": 112,
-      "sha256": "1ae5ab06c8dd9dfd695ef0f408c00e41b54adcc425b722ca60251111a7380702",
+      "lines": 116,
+      "sha256": "4da213a0d240a533280c61f144fd93e760d3604d10298f08ced60a62e3551b1f",
       "symbols": [
         {
           "name": "Model",
@@ -14328,6 +14334,10 @@
         {
           "name": "remove",
           "line": 39
+        },
+        {
+          "name": "runtimeError",
+          "line": 104
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d2d4636e787e7c0f0856be968225b0070da51a88`
+- 基准提交：`97ed1cb91f213a1609a0bbd78b11548688789aa1`
 - 分支：`main`
 - 已索引文件：809
-- 已索引代码/文本行：154148
-- 已发现符号：2314
+- 已索引代码/文本行：154155
+- 已发现符号：2315
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -32,7 +32,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 71 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 74 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 111 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
@@ -104,7 +104,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 312 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 112 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 116 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
