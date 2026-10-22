@@ -38,6 +38,7 @@ internal object Live2DVisualActionBus {
         val body: Body? = null,
         val face: Face? = null,
         val sequence: Long,
+        val immediate: Boolean = false,
     )
     private val mutableCues = MutableStateFlow<Map<String, Cue>>(emptyMap())
     val cues = mutableCues.asStateFlow()
@@ -112,6 +113,8 @@ internal object Live2DVisualActionBus {
             想调皮可以选真实存在的吐舌表情，也可以仅轻歪头、嘴角上扬；难过时可以选择流泪或克制的低眉。
             这些仅是能力例子，不是按情绪关键词机械派发动作；由当前自身感受、关系和本轮说话意图决定。
             同一回合可以组合一个真实表情、少量头部/躯干姿态和眉眼变化，也可以什么都不做。
+            你也可以自主选择只用眼神/表情/轻微姿势回应而暂时不说话；此时仍需输出 live2d，
+            由执行器立即展示，不必强迫自己发一段台词。
             视觉动作应当与这轮真正准备说出口的话、语气和自己内心状态一致，而不是从表情文件中随便挑一个。
             表情是一小段有开始和结束的情绪，不是整通电话永久锁定的脸；说完自然恢复常态。
             若打算认真说话，不要突然选择吐舌、爱心眼等与语气冲突的强表情。
@@ -223,7 +226,8 @@ internal object Live2DVisualActionBus {
         if (selected == null && motion == null && angles == null && body == null && face == null) return false
         sequence++
         mutableCues.value = mutableCues.value + (characterId to Cue(
-            callId, characterId, selected, motion, angles, body, face, sequence
+            callId, characterId, selected, motion, angles, body, face, sequence,
+            immediate = request.optBoolean("_executeNow", false)
         ))
         return true
     }
