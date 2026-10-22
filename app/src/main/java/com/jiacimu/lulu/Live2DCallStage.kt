@@ -224,10 +224,10 @@ private fun Live2DNativeFrameOverlay(
     LaunchedEffect(webView, binarySupported) {
         if (!binarySupported) return@LaunchedEffect
         var firstFrame = true
-        var periodStart = android.os.SystemClock.elapsedRealtime()
-        var periodFrames = 0
-        var resolution = 860
+        val stats = Live2DFrameStats()
+        var resolution = 1320
         for (frame in binaryFrames) {
+            val decodeStart = android.os.SystemClock.elapsedRealtime()
             val decoded = withContext(Dispatchers.Default) {
                 runCatching {
                     BitmapFactory.decodeByteArray(frame.jpeg, 0, frame.jpeg.size)
@@ -237,28 +237,31 @@ private fun Live2DNativeFrameOverlay(
                 picture = decoded.asImageBitmap()
                 gotBinaryFrame = true
                 lastBinaryFrameAt = android.os.SystemClock.elapsedRealtime()
-                periodFrames++
                 if (firstFrame) {
                     firstFrame = false
                     receiver.value("diagnostic",
                         "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height} · 二进制通道")
                 }
-                val span = lastBinaryFrameAt - periodStart
-                if (span >= 4_000) {
-                    val fps = periodFrames * 1000f / span.coerceAtLeast(1L)
-                    // Smoothness first: adapt the frame size to real decoded
-                    // throughput rather than pushing 1080+px on every phone.
+                stats.frame(
+                    lastBinaryFrameAt, frame.jpeg.size,
+                    lastBinaryFrameAt - decodeStart,
+                    decoded.width, decoded.height, "高速",
+                )?.let { sample ->
+                    // p95 gaps expose visible stutter that mean FPS hides.
+                    // Lower the transport size gradually, preserve face
+                    // sharpness whenever the actual delivered cadence allows.
                     resolution = when {
-                        fps < 11f -> (resolution - 140).coerceAtLeast(560)
-                        fps < 17f -> (resolution - 70).coerceAtLeast(640)
-                        fps > 25f -> (resolution + 100).coerceAtMost(1200)
-                        fps > 21f -> (resolution + 50).coerceAtMost(1080)
+                        sample.fps < 13f || sample.p95GapMs > 115L ->
+                            (resolution - 200).coerceAtLeast(850)
+                        sample.fps < 19f || sample.p95GapMs > 75L ->
+                            (resolution - 110).coerceAtLeast(1020)
+                        sample.fps > 26f && sample.p95GapMs < 48L ->
+                            (resolution + 150).coerceAtMost(1950)
+                        sample.fps > 23f && sample.p95GapMs < 60L ->
+                            (resolution + 90).coerceAtMost(1860)
                         else -> resolution
                     }
-                    receiver.value("performance",
-                        "高速 · %.1f FPS · ${decoded.width}×${decoded.height}px".format(fps))
-                    periodFrames = 0
-                    periodStart = lastBinaryFrameAt
+                    receiver.value("performance", sample.label())
                 }
             }
             // JavaScriptReplyProxy calls happen on the UI coroutine,
@@ -298,9 +301,8 @@ private fun Live2DNativeFrameOverlay(
         var consecutiveErrors = 0
         var slowFrames = 0
         var fastFrames = 0
-        var maxEdge = 760
-        var measuredFrames = 0
-        var measuredSince = android.os.SystemClock.elapsedRealtime()
+        var maxEdge = 1050
+        val stats = Live2DFrameStats()
         while (isActive) {
             val startedAt = android.os.SystemClock.elapsedRealtime()
             val rawResult = try {
@@ -315,6 +317,7 @@ private fun Live2DNativeFrameOverlay(
             } catch (_: Exception) {
                 null
             }
+            val decodeStart = android.os.SystemClock.elapsedRealtime()
             val decoded = withContext(Dispatchers.Default) {
                 runCatching {
                     val encoded = rawResult?.let {
@@ -331,15 +334,12 @@ private fun Live2DNativeFrameOverlay(
             if (decoded != null) {
                 picture = decoded.asImageBitmap()
                 consecutiveErrors = 0
-                measuredFrames++
-                val elapsed = android.os.SystemClock.elapsedRealtime() - measuredSince
-                if (elapsed >= 4_000) {
-                    val fps = measuredFrames * 1000f / elapsed.coerceAtLeast(1L)
-                    receiver.value("performance",
-                        "兼容 · %.1f FPS · ${decoded.width}×${decoded.height}px".format(fps))
-                    measuredFrames = 0
-                    measuredSince = android.os.SystemClock.elapsedRealtime()
-                }
+                val nowMs = android.os.SystemClock.elapsedRealtime()
+                stats.frame(
+                    nowMs, rawResult?.length?.div(2) ?: 0,
+                    nowMs - decodeStart,
+                    decoded.width, decoded.height, "兼容",
+                )?.let { receiver.value("performance", it.label()) }
                 if (!reportedFirstFrame) {
                     reportedFirstFrame = true
                     receiver.value("diagnostic",
@@ -364,18 +364,10 @@ private fun Live2DNativeFrameOverlay(
                     slowFrames = 0
                 }
                 if (slowFrames >= 3) {
-                    maxEdge = when (maxEdge) {
-                        in 801..960 -> 680
-                        in 681..800 -> 600
-                        else -> 520
-                    }
+                    maxEdge = (maxEdge - 130).coerceAtLeast(650)
                     slowFrames = 0
                 } else if (fastFrames >= 18) {
-                    maxEdge = when (maxEdge) {
-                        in 0..599 -> 640
-                        in 600..799 -> 760
-                        else -> 940
-                    }
+                    maxEdge = (maxEdge + 100).coerceAtMost(1450)
                     fastFrames = 0
                 }
             }
