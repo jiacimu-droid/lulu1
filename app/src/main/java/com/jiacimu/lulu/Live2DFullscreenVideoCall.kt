@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -174,6 +176,12 @@ internal fun Live2DFullscreenVideoCall(
         }
     }
     val rendered = stageStatus == "ready"
+    // Keep the SAME video chrome through WebGL startup. Wait for the
+    // real Android frame, then dissolve the portrait into it.
+    val previewOpacity by animateFloatAsState(
+        targetValue = if (rendered && nativeFrameReady) 0f else 1f,
+        label = "video-first-frame-dissolve",
+    )
     val hasCreatorPreview = creatorPreview?.isFile == true
     Box(Modifier.fillMaxSize().background(Color(0xFF151719))) {
         // The stage can switch between waist-up and full-body framing without
@@ -274,11 +282,12 @@ internal fun Live2DFullscreenVideoCall(
         }
         // Static full-body preview is a model asset, never the separated texture atlas.
         // Hide it as soon as Live2D actually reports a successful model render.
-        if (!rendered || modelUrl == null || !coreReady) {
-            Box(Modifier.fillMaxSize().padding(top = 74.dp, bottom = 180.dp),
+        if (previewOpacity > .005f || modelUrl == null || !coreReady) {
+            Box(Modifier.fillMaxSize().graphicsLayer(alpha = previewOpacity),
                 contentAlignment = Alignment.Center) {
                 Live2DCreatorPreview(
                     file = creatorPreview,
+                    portraitFraming = framingMode == "portrait",
                     modifier = Modifier.fillMaxSize(),
                     fallback = {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
