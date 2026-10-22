@@ -41,7 +41,6 @@ fun DigitalWorldMeetingApp(
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val profiles by DigitalLifeProfileStore.profiles.collectAsState()
     val world by DigitalWorldStore.state.collectAsState()
-    val lifeEpisodesByRole by WorldLifeEpisodeStore.state.collectAsState()
     val experience by MeetingExperienceStore.state.collectAsState()
     val taskStates by MeetingReplyTaskManager.states.collectAsState()
     val library by LuluAiServices.connectionStore.library.collectAsState()
@@ -58,7 +57,6 @@ fun DigitalWorldMeetingApp(
     var showModelPicker by remember { mutableStateOf(false) }
     var showWritingPicker by remember { mutableStateOf(false) }
     var showVoiceSettings by remember { mutableStateOf(false) }
-    var showHistory by remember { mutableStateOf(false) }
     var selectedLifeEpisodeId by remember { mutableStateOf<String?>(null) }
     var pendingDeleteSession by remember { mutableStateOf<MeetingSession?>(null) }
     var pendingDeleteTurn by remember { mutableStateOf<MeetingTurn?>(null) }
@@ -70,17 +68,27 @@ fun DigitalWorldMeetingApp(
         DigitalWorldNavigationStore.consumeEpisode(context)?.let { episodeId ->
             if (WorldLifeEpisodeStore.find(episodeId) != null) {
                 selectedLifeEpisodeId = episodeId
-                showHistory = true
             }
         }
         DigitalWorldNavigationStore.consumeMeeting(context)?.let { sessionId ->
             val saved = DigitalWorldStore.state.value.meetings.firstOrNull { it.id == sessionId }
             if (saved != null && saved.turns.isNotEmpty()) {
-                activeSessionId = saved.id
-                browsingMap = false
-                showHistory = false
-                input = ""
-                errorText = ""
+                if (saved.endedAt == null) {
+                    activeSessionId = saved.id
+                    browsingMap = false
+                    input = ""
+                    errorText = ""
+                } else {
+                    // Legacy meeting links open the single literary record, never the old archive.
+                    val prefix = "meeting-${saved.id}-"
+                    selectedLifeEpisodeId = WorldLifeEpisodeStore.state.value.values
+                        .asSequence().flatMap { it.asSequence() }
+                        .firstOrNull { chapter ->
+                            chapter.sourceEvidenceIds.any { sourceId -> sourceId.startsWith(prefix) }
+                        }?.id
+                    if (selectedLifeEpisodeId == null)
+                        errorText = "这次见面已结束；请在生活记录的生活小剧场中查看整理后的正文。"
+                }
             }
         }
     }
@@ -102,7 +110,7 @@ fun DigitalWorldMeetingApp(
 
     // Presence is tied to the scene being truly visible, NOT to a meeting's
     // persisted existence. Leaving the scene retains its memories and state.
-    val observedSession = activeSession?.takeIf { !browsingMap && !showHistory && it.endedAt == null }
+    val observedSession = activeSession?.takeIf { !browsingMap && it.endedAt == null }
     val lifecycleOwner = LocalLifecycleOwner.current
     var meetingForeground by remember { mutableStateOf(
         lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) }
@@ -341,37 +349,8 @@ fun DigitalWorldMeetingApp(
 
     Scaffold(
         containerColor = LuluColors.Paper,
-        topBar = {
-            if (showHistory) {
-                TopAppBar(
-                    title = { Text("见面记录", fontWeight = FontWeight.SemiBold) },
-                    navigationIcon = {
-                        IconButton(onClick = { showHistory = false }) {
-                            Icon(Icons.Outlined.ArrowBack, "返回")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
-                )
-            }
-        },
     ) { padding ->
         when {
-            showHistory -> MeetingUiHistory(
-                modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
-                characters = characters.values.sortedBy(CharacterSettings::displayName),
-                meetings = world.meetings.filter { it.endedAt != null && it.turns.isNotEmpty() },
-                onOpen = { id ->
-                    showHistory = false
-                    activeSessionId = id
-                    browsingMap = false
-                },
-                onDelete = { pendingDeleteSession = it },
-                episodes = lifeEpisodesByRole.values.flatten()
-                    .sortedBy(WorldLifeEpisode::occurredAt),
-                onOpenEpisode = { selectedLifeEpisodeId = it },
-                onDeleteEpisode = { WorldLifeEpisodeStore.delete(it) },
-            )
-
             activeSession == null -> DigitalWorldMapLobby(
                 modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding),
                 characters = characters.values.sortedBy(CharacterSettings::displayName),
@@ -384,7 +363,7 @@ fun DigitalWorldMeetingApp(
                 errorText = errorText,
                 onBack = onBack,
                 onDirectMeeting = ::openDirectMeeting,
-                onOpenHistory = { showHistory = true },
+                onOpenHistory = { /* No second meeting archive: life chapters are in living records. */ },
                 onOpenModelPicker = { showModelPicker = true },
                 onOpenWritingPicker = { showWritingPicker = true },
                 onOpenVoiceSettings = { showVoiceSettings = true },
@@ -423,7 +402,7 @@ fun DigitalWorldMeetingApp(
                     // The world commits the action before the next model call.
                     MeetingLivingWorldRuntime.physicalAction(activeSession, characterId, action)
                 },
-                onOpenHistory = { showHistory = true },
+                onOpenHistory = { /* No second meeting archive: life chapters are in living records. */ },
                 onOpenModelPicker = { showModelPicker = true },
                 onOpenWritingPicker = { showWritingPicker = true },
                 onOpenVoiceSettings = { showVoiceSettings = true },
