@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T12:51:53.640571+00:00",
-  "commit": "757ecf819dd8901f42ee73c695715fc654c06642",
+  "generatedAt": "2026-10-22T12:54:33.346485+00:00",
+  "commit": "9a1d1b2c006855b6a4ff4ed223fca42d7f0f4b4c",
   "branch": "main",
-  "sourceFingerprint": "c5306bc597d851344695520ac3df63e66ae1772c551300a719c9cee8a62f8e57",
+  "sourceFingerprint": "1a5fbc9dd50f9149b7239e6c20ea9bf3ddbceb71699ce7f333054ba7d280c8eb",
   "summary": {
     "files": 799,
-    "lines": 152532,
+    "lines": 152556,
     "symbols": 2293
   },
   "symbolIndex": {
@@ -881,7 +881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 184
+        "line": 191
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -4737,7 +4737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 180
+        "line": 187
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -5455,7 +5455,7 @@
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 80
+        "line": 87
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -12135,7 +12135,7 @@
     "CharacterRecordArchitectureTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-        "line": 21
+        "line": 22
       }
     ],
     "CharacterRelationalInitiativeTest": [
@@ -17862,8 +17862,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 196,
-      "sha256": "2258332941e7f27a6f86fd7a2d9e9caa3742c4fed3fb130f1f0037d3705003b2",
+      "lines": 203,
+      "sha256": "2e82460d318082aa8a4a79dacb8039adecc60c1aa2ab1054a2796267c8b599cf",
       "symbols": [
         {
           "name": "entries",
@@ -17871,15 +17871,15 @@
         },
         {
           "name": "collect",
-          "line": 80
+          "line": 87
         },
         {
           "name": "delete",
-          "line": 180
+          "line": 187
         },
         {
           "name": "remove",
-          "line": 184
+          "line": 191
         }
       ]
     },
@@ -26141,12 +26141,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 184,
-      "sha256": "ff009751be796c23fa8ac45890f076eca46d9e293658c3cc2ad6058b4f25595c",
+      "lines": 201,
+      "sha256": "a577963d51f7e219ffbc1afd40038c2244079e0fbb10ed050147d4a003e91851",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
-          "line": 21
+          "line": 22
         }
       ]
     },
