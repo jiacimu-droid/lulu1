@@ -86,7 +86,8 @@ object CharacterDevelopmentStore {
     fun active(characterId: String): List<DevelopmentRecord> {
         val authorized = authorizedPersonaSnapshots(characterId)
         return history(characterId).filter { record ->
-            record.active && record.personaSnapshot in authorized &&
+            record.active && (record.kind == DevelopmentKind.UserHabit ||
+                record.personaSnapshot in authorized) &&
                 (record.evidence + record.counterEvidence).all { (id, revision) ->
                     SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()?.revision == revision
                 }
