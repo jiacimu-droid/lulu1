@@ -170,11 +170,16 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             commands.forEach { stage.evaluateJavascript(it, null) }
         }
     }
-    SideEffect {
-        val state = JSONObject().put("speaking", speaking).put("listening", listening)
-            .put("mouth", if (speaking) mouthLevel.coerceIn(0f, 1f).toDouble() else 0.0)
+    // Do not saturate WebView's main thread with high-frequency audio
+    // amplitude callbacks while it is rendering and encoding video frames.
+    val mouthStep = if (speaking) (mouthLevel.coerceIn(0f, 1f) * 20f).toInt() else 0
+    LaunchedEffect(stage, speaking, listening, mouthStep) {
+        val payload = JSONObject().put("speaking", speaking).put("listening", listening)
+            .put("mouth", mouthStep / 20.0)
         stage.evaluateJavascript(
-            "window.__luluStageState = ${state}; window.LuluLive2D && window.LuluLive2D.update(window.__luluStageState)", null)
+            "window.__luluStageState = ${payload}; window.LuluLive2D && window.LuluLive2D.update(window.__luluStageState)",
+            null,
+        )
     }
 }
 
@@ -208,7 +213,7 @@ private fun Live2DNativeFrameOverlay(
         var firstFrame = true
         var periodStart = android.os.SystemClock.elapsedRealtime()
         var periodFrames = 0
-        var resolution = 1080
+        var resolution = 860
         for (frame in binaryFrames) {
             val decoded = withContext(Dispatchers.Default) {
                 runCatching {
@@ -226,18 +231,19 @@ private fun Live2DNativeFrameOverlay(
                         "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height} · 二进制通道")
                 }
                 val span = lastBinaryFrameAt - periodStart
-                if (span >= 5_000) {
+                if (span >= 4_000) {
                     val fps = periodFrames * 1000f / span.coerceAtLeast(1L)
-                    // Favor face quality on fast devices, downgrade only
-                    // after actually measuring delivered frame throughput.
+                    // Smoothness first: adapt the frame size to real decoded
+                    // throughput rather than pushing 1080+px on every phone.
                     resolution = when {
-                        fps < 9 -> (resolution - 160).coerceAtLeast(720)
-                        fps < 13 -> (resolution - 80).coerceAtLeast(800)
-                        fps >= 17 -> (resolution + 100).coerceAtMost(1440)
+                        fps < 11f -> (resolution - 140).coerceAtLeast(560)
+                        fps < 17f -> (resolution - 70).coerceAtLeast(640)
+                        fps > 25f -> (resolution + 100).coerceAtMost(1200)
+                        fps > 21f -> (resolution + 50).coerceAtMost(1080)
                         else -> resolution
                     }
-                    receiver.value("diagnostic",
-                        "原生高速通道：%.1f FPS · ${decoded.width}×${decoded.height} · 下轮最长边 ${resolution}px".format(fps))
+                    receiver.value("performance",
+                        "高速 · %.1f FPS · ${decoded.width}×${decoded.height}px".format(fps))
                     periodFrames = 0
                     periodStart = lastBinaryFrameAt
                 }
@@ -279,7 +285,9 @@ private fun Live2DNativeFrameOverlay(
         var consecutiveErrors = 0
         var slowFrames = 0
         var fastFrames = 0
-        var maxEdge = 860
+        var maxEdge = 760
+        var measuredFrames = 0
+        var measuredSince = android.os.SystemClock.elapsedRealtime()
         while (isActive) {
             val startedAt = android.os.SystemClock.elapsedRealtime()
             val rawResult = try {
@@ -310,6 +318,15 @@ private fun Live2DNativeFrameOverlay(
             if (decoded != null) {
                 picture = decoded.asImageBitmap()
                 consecutiveErrors = 0
+                measuredFrames++
+                val elapsed = android.os.SystemClock.elapsedRealtime() - measuredSince
+                if (elapsed >= 4_000) {
+                    val fps = measuredFrames * 1000f / elapsed.coerceAtLeast(1L)
+                    receiver.value("performance",
+                        "兼容 · %.1f FPS · ${decoded.width}×${decoded.height}px".format(fps))
+                    measuredFrames = 0
+                    measuredSince = android.os.SystemClock.elapsedRealtime()
+                }
                 if (!reportedFirstFrame) {
                     reportedFirstFrame = true
                     receiver.value("diagnostic",
@@ -323,10 +340,10 @@ private fun Live2DNativeFrameOverlay(
             }
             val costMs = android.os.SystemClock.elapsedRealtime() - startedAt
             if (decoded != null) {
-                if (costMs > 145) {
+                if (costMs > 115) {
                     slowFrames++
                     fastFrames = 0
-                } else if (costMs < 65) {
+                } else if (costMs < 48) {
                     fastFrames++
                     slowFrames = 0
                 } else {
@@ -335,21 +352,21 @@ private fun Live2DNativeFrameOverlay(
                 }
                 if (slowFrames >= 3) {
                     maxEdge = when (maxEdge) {
-                        in 801..960 -> 720
+                        in 801..960 -> 680
                         in 681..800 -> 600
                         else -> 520
                     }
                     slowFrames = 0
                 } else if (fastFrames >= 18) {
                     maxEdge = when (maxEdge) {
-                        in 0..599 -> 680
-                        in 600..799 -> 820
+                        in 0..599 -> 640
+                        in 600..799 -> 760
                         else -> 940
                     }
                     fastFrames = 0
                 }
             }
-            delay((95L - costMs).coerceAtLeast(15L))
+            delay((65L - costMs).coerceAtLeast(12L))
         }
     }
 
