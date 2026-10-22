@@ -37,7 +37,9 @@ internal fun LuluIntegrationsSettingsScreen(
     val scope = rememberCoroutineScope()
     var mcpUrl by remember { mutableStateOf(LuluExternalMcp.endpoint(context, "xiaohongshu")) }
     var mcpToken by remember { mutableStateOf(LuluExternalMcp.savedToken(context, "xiaohongshu")) }
-    var mcpStatus by remember { mutableStateOf("") }
+    var connectionStatus by remember { mutableStateOf("") }
+    var loginStatus by remember { mutableStateOf("") }
+    var readingStatus by remember { mutableStateOf("") }
     var mcpExpanded by remember {
         mutableStateOf(LuluExternalMcp.configured(context, "xiaohongshu"))
     }
@@ -112,10 +114,15 @@ internal fun LuluIntegrationsSettingsScreen(
                     Switch(
                         checked = mcpPrimary,
                         onCheckedChange = { enabled ->
-                            if (XhsReadingEngine.setMcpPrimaryEnabled(context, enabled)) {
-                                mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
-                                mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
-                            }
+                            runCatching {
+                                check(XhsReadingEngine.setMcpPrimaryEnabled(context, enabled))
+                            }.fold(
+                                {
+                                    mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
+                                    mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
+                                },
+                                { connectionStatus = "设置失败：" + it.message.orEmpty().take(120) },
+                            )
                         },
                     )
                 }
@@ -157,7 +164,7 @@ internal fun LuluIntegrationsSettingsScreen(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
                         onClick = {
-                            mcpStatus = runCatching {
+                            connectionStatus = runCatching {
                                 check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
                                 "已保存"
                             }.getOrElse { "保存失败：" + it.message.orEmpty() }
@@ -167,9 +174,9 @@ internal fun LuluIntegrationsSettingsScreen(
                     Button(
                         enabled = mcpUrl.isNotBlank(),
                         onClick = {
-                            mcpStatus = "连接中…"
+                            connectionStatus = "连接中…"
                             scope.launch {
-                                mcpStatus = runCatching {
+                                connectionStatus = runCatching {
                                     check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
                                     LuluExternalMcp.testService(context, "xiaohongshu")
                                 }.fold(
@@ -184,14 +191,19 @@ internal fun LuluIntegrationsSettingsScreen(
                         onClick = {
                             mcpUrl = ""
                             mcpToken = ""
-                            mcpStatus = if (LuluExternalMcp.save(context, "xiaohongshu", "", "")) {
+                            connectionStatus = if (LuluExternalMcp.save(context, "xiaohongshu", "", "")) {
+                                XhsReadingEngine.setMcpPrimaryEnabled(context, false)
+                                XhsReadingEngine.setMcpFallbackEnabled(context, false)
+                                mcpPrimary = false
+                                mcpFallback = false
+                                qr = null
                                 "已断开"
                             } else "断开失败"
                         },
                     ) { Text("断开") }
                 }
-                if (mcpStatus.isNotBlank()) {
-                    Text(mcpStatus, style = MaterialTheme.typography.bodySmall)
+                if (connectionStatus.isNotBlank()) {
+                    Text(connectionStatus, style = MaterialTheme.typography.bodySmall)
                 }
 
                 HorizontalDivider()
@@ -200,9 +212,9 @@ internal fun LuluIntegrationsSettingsScreen(
                     OutlinedButton(
                         enabled = mcpUrl.isNotBlank(),
                         onClick = {
-                            mcpStatus = "检查登录中…"
+                            loginStatus = "检查登录中…"
                             scope.launch {
-                                mcpStatus = runCatching {
+                                loginStatus = runCatching {
                                     check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
                                     LuluExternalMcp.check(context, "xiaohongshu")
                                 }.fold(
@@ -235,6 +247,9 @@ internal fun LuluIntegrationsSettingsScreen(
                         },
                         modifier = Modifier.weight(1f),
                     ) { Text(if (qrBusy) "获取中…" else "获取二维码") }
+                }
+                if (loginStatus.isNotBlank()) {
+                    Text(loginStatus, style = MaterialTheme.typography.bodySmall)
                 }
                 qr?.pngBase64?.takeIf(String::isNotBlank)?.let { encoded ->
                     val bitmap = remember(encoded) {
@@ -275,7 +290,7 @@ internal fun LuluIntegrationsSettingsScreen(
                     enabled = !readingBusy && mcpUrl.isNotBlank() && keyword.isNotBlank(),
                     onClick = {
                         readingBusy = true
-                        mcpStatus = "正在搜索并读取正文…"
+                        readingStatus = "正在搜索并读取正文…"
                         scope.launch {
                             try {
                                 check(LuluExternalMcp.save(context, "xiaohongshu", mcpUrl, mcpToken))
@@ -283,11 +298,11 @@ internal fun LuluIntegrationsSettingsScreen(
                                 check(XhsReadingEngine.setMcpPrimaryEnabled(context, true))
                                 mcpPrimary = XhsReadingEngine.mcpPrimaryEnabled(context)
                                 mcpFallback = XhsReadingEngine.mcpFallbackEnabled(context)
-                                mcpStatus = "真实读帖成功 · 已设为优先线路\n" + details
+                                readingStatus = "真实读帖成功 · 已设为优先线路\n" + details
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
                             } catch (error: Exception) {
-                                mcpStatus = "真实读帖失败：" + error.message.orEmpty().take(230)
+                                readingStatus = "真实读帖失败：" + error.message.orEmpty().take(230)
                             } finally {
                                 readingBusy = false
                             }
@@ -295,6 +310,9 @@ internal fun LuluIntegrationsSettingsScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(if (readingBusy) "读取中…" else "搜索并读帖") }
+                if (readingStatus.isNotBlank()) {
+                    Text(readingStatus, style = MaterialTheme.typography.bodySmall)
+                }
             }
 
             HorizontalDivider()
