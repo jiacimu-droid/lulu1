@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T08:18:42.349318+00:00",
-  "commit": "b1b0f38cfe496271f8f8994cbb39b480cc370999",
+  "generatedAt": "2026-10-22T08:19:53.490578+00:00",
+  "commit": "9f6eb152c828e840e46a4d5a339a1d39b1e7838b",
   "branch": "main",
-  "sourceFingerprint": "9b575dde16117d27c9519ff85679b1a43c9c7a17cdbe0daacdd50d57ae08568b",
+  "sourceFingerprint": "5d83e9622d8dd7d7196215758a76eb051f1e19818e9e2184039be8a2aafd34a3",
   "summary": {
     "files": 799,
-    "lines": 151920,
+    "lines": 151930,
     "symbols": 2283
   },
   "symbolIndex": {
@@ -26258,8 +26258,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
-      "lines": 50,
-      "sha256": "594d577019c469ef1245e6866ec1bdd46a97e9eb7663273638a3282b62429e59",
+      "lines": 60,
+      "sha256": "cf3715d9e757cd9cb6d71271138df76035bf7ddd9d26e3bfe3f96e4a6ad39401",
       "symbols": [
         {
           "name": "DevelopmentPolicyTest",
