@@ -44,6 +44,7 @@ import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import com.jiacimu.lulu.system.LuluAccessibilityService
+import com.jiacimu.lulu.system.LuluScreenAwareness
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluMediaPlayback
 import com.jiacimu.lulu.system.LuluNotificationListenerService
@@ -278,6 +279,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     snapshot.accessibility,
                 ) { open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
             }
+            item { LuluScreenAwarenessSettings() }
             item {
                 CapabilityRow(
                     Icons.Outlined.PictureInPictureAlt,
@@ -506,4 +508,72 @@ private fun Context.recentForegroundPackage(): String? {
         }
     }
     return latestPackage
+}
+
+
+/** Explicit owner consent is separate from Android's accessibility grant. */
+@Composable
+private fun LuluScreenAwarenessSettings() {
+    val context = LocalContext.current
+    val prefs = remember(context) { LuluScreenAwareness.preferences(context) }
+    var consent by remember { mutableStateOf(LuluScreenAwareness.consented(context)) }
+    var tracking by remember { mutableStateOf(LuluScreenAwareness.appTracking(context)) }
+    var onDemand by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.ON_DEMAND, true)) }
+    var autonomy by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.AUTONOMOUS, true)) }
+    var summon by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.SUMMON, true)) }
+    var excluded by remember { mutableStateOf(prefs.getString(LuluScreenAwareness.EXCLUDED, "").orEmpty()) }
+    var showConsent by remember { mutableStateOf(false) }
+    var diagnostic by remember { mutableStateOf(LuluScreenAwareness.diagnostics(context)) }
+    Surface(shape = RoundedCornerShape(18.dp), color = CapabilityCard,
+        border = BorderStroke(1.dp, CapabilityBorder)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("角色屏幕视觉", fontWeight = FontWeight.Bold, color = CapabilityInk)
+            Text("一次截图会发送到你配置的识图模型提供商；原图仅在内存中使用。",
+                fontSize = 12.sp, color = CapabilityMuted)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("应用使用感知", Modifier.weight(1f), color = CapabilityInk)
+                Switch(tracking, { tracking = it; prefs.edit().putBoolean(LuluScreenAwareness.TRACK_APPS, it).commit() })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("按需屏幕识图", Modifier.weight(1f), color = CapabilityInk)
+                Switch(onDemand, { onDemand = it; prefs.edit().putBoolean(LuluScreenAwareness.ON_DEMAND, it).commit() })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("自主观察 · 最短间隔5分钟", Modifier.weight(1f), color = CapabilityInk)
+                Switch(autonomy, { autonomy = it; prefs.edit().putBoolean(LuluScreenAwareness.AUTONOMOUS, it).commit() })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("允许邀请返回露露机", Modifier.weight(1f), color = CapabilityInk)
+                Switch(summon, { summon = it; prefs.edit().putBoolean(LuluScreenAwareness.SUMMON, it).commit() })
+            }
+            OutlinedTextField(value = excluded, onValueChange = {
+                excluded = it
+                prefs.edit().putString(LuluScreenAwareness.EXCLUDED, it).commit()
+            }, label = { Text("禁止查看的 App 包名") },
+                supportingText = { Text("多个包名用逗号或换行分隔；支付、密码、系统授权页另有默认保护") },
+                modifier = Modifier.fillMaxWidth(), minLines = 2, maxLines = 4)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(if (consent) "屏幕视觉已授权" else "尚未授权屏幕视觉",
+                    color = CapabilityInk, modifier = Modifier.weight(1f), fontSize = 13.sp)
+                OutlinedButton(onClick = {
+                    if (consent) {
+                        prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, false).commit()
+                        consent = false
+                    } else showConsent = true
+                }) { Text(if (consent) "立即撤销" else "阅读并授权") }
+            }
+            Text("诊断：" + diagnostic, fontSize = 11.sp, color = CapabilityMuted)
+            TextButton(onClick = { diagnostic = LuluScreenAwareness.diagnostics(context) }) { Text("刷新诊断") }
+        }
+    }
+    if (showConsent) {
+        AlertDialog(onDismissRequest = { showConsent = false }, title = { Text("允许角色看见手机屏幕？") },
+            text = { Text("同意后，角色可以根据真实理由主动请求单次截图。不是定时录像。画面可能包含个人信息，会发送到你已选择的视觉模型服务商。锁屏、系统敏感页和排除的 App 禁止截图。授权可随时撤销；返回邀请只会显示通知，不会强制切换 App。") },
+            confirmButton = { TextButton(onClick = {
+                prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true).commit()
+                consent = true
+                showConsent = false
+            }) { Text("同意开启") } },
+            dismissButton = { TextButton(onClick = { showConsent = false }) { Text("取消") } })
+    }
 }

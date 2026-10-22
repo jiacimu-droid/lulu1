@@ -181,6 +181,8 @@ internal object CharacterInitiativeRuntime {
             "cancel_alarm" -> Regex("取消.*(闹钟|提醒)|(闹钟|提醒).*(取消|删除|删掉)|删.*(闹钟|提醒)|不要.*(闹钟|提醒)").containsMatchIn(text)
             "ring_in_call_wake" -> Regex("铃声|响铃|闹铃|叫醒|喊醒").containsMatchIn(text)
             "read_screen" -> Regex("屏幕|屏幕上|看.*页面|读.*页面|看看.*显示").containsMatchIn(text)
+            "capture_screen" -> Regex("看.*屏幕|看.*画面|截图|你看看|看看我.*(玩|做|看)").containsMatchIn(text)
+            "summon_lulu" -> Regex("叫我回来|叫我回去|让我回来|提醒我回来|唤起露露").containsMatchIn(text)
             "click_text" -> Regex("点|点击|按.*按钮|帮我选").containsMatchIn(text)
             "screen_action", "screen_sequence" -> Regex("返回|主页|桌面|最近任务|通知栏|快捷设置|点|点击|操作.*屏幕|帮我操作").containsMatchIn(text)
             "cloud_task" -> Regex("研究|ppt|pptx|文档|docx|云端任务").containsMatchIn(text)
@@ -193,7 +195,7 @@ internal object CharacterInitiativeRuntime {
 
         if (toolName in setOf(
                 "get_battery", "get_location", "get_current_app",
-                "read_recent_notifications", "list_alarms", "read_screen",
+                "read_recent_notifications", "list_alarms", "read_screen", "capture_screen",
             )) return true
 
         return Regex(

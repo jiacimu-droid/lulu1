@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
+import com.jiacimu.lulu.system.LuluScreenAwareness
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -75,6 +76,10 @@ object ToolRouter {
                             JSONObject().put("request", args.optString("request")).put("sources", args.optJSONArray("sources") ?: org.json.JSONArray()).put("notes", args.optString("notes")), requestId)
                         JSONObject().put("success", true).put("status", "pending").put("requestId", job.getString("requestId"))
                             .put("summary", "已保存云端任务请求，尚未生成文件").toString()
+                    } else if (name == "capture_screen") {
+                        LuluScreenAwareness.capture(context, userRequested)
+                    } else if (name == "summon_lulu") {
+                        LuluScreenAwareness.summon(context)
                     } else if (cap.domain == "phone") {
                         LuluDeviceToolBridge.executeRegistered(context, characterId, name, args, requestId)
                     } else CompanionActionRuntime.execute(context, characterId, name, args).asJson()

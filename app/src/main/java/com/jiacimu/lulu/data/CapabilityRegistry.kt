@@ -19,6 +19,8 @@ object CapabilityRegistry {
         Capability("control_volume", "phone", "media", "Observed, capped STREAM_MUSIC volume; restores previous volume on request", false),
         Capability("ring_in_call_wake", "phone", "alarm", "short native ringtone inside the current connected call; never redials", false),
         Capability("read_screen", "phone", "device_read", "fresh accessibility snapshot", true),
+        Capability("capture_screen", "phone", "screen_vision", "owner-consented screenshot plus vision", false),
+        Capability("summon_lulu", "phone", "screen_summon", "user-tappable notification", false),
         Capability("click_text", "phone", "screen", "post-action screen observation", false),
         Capability("screen_action", "phone", "screen", "post-action screen observation", false),
         Capability("screen_sequence", "phone", "screen", "bounded fresh observations and expected text per step", false),
@@ -35,6 +37,10 @@ object CapabilityRegistry {
 
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
+        if (capability.name == "capture_screen") return if (userRequested)
+            com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
+            else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context)
+        if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
         if (userRequested) return true
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         // This is read-only discovery in the user's already-authorized XHS

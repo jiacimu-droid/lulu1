@@ -1,6 +1,15 @@
 package com.jiacimu.lulu.system
 
 import android.accessibilityservice.AccessibilityService
+import android.graphics.Bitmap
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.view.Display
+import androidx.core.content.ContextCompat
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +52,43 @@ class LuluAccessibilityService : AccessibilityService() {
         private var instance: LuluAccessibilityService? = null
         private val mutableState = MutableStateFlow(AccessibilitySnapshot())
         val state: StateFlow<AccessibilitySnapshot> = mutableState.asStateFlow()
+
+        /** Obtain one Android 11+ screen frame; this service never stores or uploads it. */
+        suspend fun captureBitmap(): Bitmap = suspendCancellableCoroutine { cont ->
+            val service = instance
+            if (service == null || Build.VERSION.SDK_INT < 30) {
+                cont.resumeWithException(IllegalStateException("无障碍服务未连接或系统版本不支持"))
+                return@suspendCancellableCoroutine
+            }
+            Handler(Looper.getMainLooper()).post {
+                if (!cont.isActive) return@post
+                try {
+                    service.takeScreenshot(Display.DEFAULT_DISPLAY,
+                        ContextCompat.getMainExecutor(service), object : TakeScreenshotCallback {
+                            override fun onSuccess(result: ScreenshotResult) {
+                                try {
+                                    val buffer = result.hardwareBuffer
+                                    val pixels = try {
+                                        val hardware = Bitmap.wrapHardwareBuffer(buffer, result.colorSpace)
+                                            ?: error("截图像素不可读取")
+                                        try { hardware.copy(Bitmap.Config.ARGB_8888, false)
+                                            ?: error("截图像素无法复制") } finally { hardware.recycle() }
+                                    } finally { buffer.close() }
+                                    if (cont.isActive) cont.resume(pixels) else pixels.recycle()
+                                } catch (e: Exception) {
+                                    if (cont.isActive) cont.resumeWithException(e)
+                                }
+                            }
+                            override fun onFailure(errorCode: Int) {
+                                if (cont.isActive) cont.resumeWithException(
+                                    IllegalStateException("屏幕受保护或系统拒绝截图：" + errorCode))
+                            }
+                        })
+                } catch (e: Exception) {
+                    if (cont.isActive) cont.resumeWithException(e)
+                }
+            }
+        }
 
         fun observe(): AccessibilitySnapshot {
             val service = instance ?: return AccessibilitySnapshot()
