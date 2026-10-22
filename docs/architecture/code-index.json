@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:34:24.280761+00:00",
-  "commit": "249b852cd4267504e09052b123b32759bce33566",
+  "generatedAt": "2026-10-22T15:38:34.897444+00:00",
+  "commit": "566c4a56a76fee74ca535f8e855d7edc530a3a87",
   "branch": "main",
-  "sourceFingerprint": "c6644b2975ebbb823363ca968487fdf3d674513b100fb7a8fc596730b2a26f50",
+  "sourceFingerprint": "bfa4a002522c6854429fe058ec51c4444344c8db9713cf0f0ce26eef14ee2740",
   "summary": {
-    "files": 808,
-    "lines": 153941,
-    "symbols": 2309
+    "files": 809,
+    "lines": 154054,
+    "symbols": 2314
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -876,6 +876,10 @@
         "line": 247
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 39
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
         "line": 148
       },
@@ -1740,6 +1744,38 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
         "line": 276
+      }
+    ],
+    "Model": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 19
+      }
+    ],
+    "from": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 24
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 23
+      }
+    ],
+    "selected": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 27
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
+        "line": 6
+      }
+    ],
+    "installedFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 36
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -4636,12 +4672,6 @@
         "line": 36
       }
     ],
-    "selected": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
-        "line": 6
-      }
-    ],
     "relationships": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt",
@@ -5034,12 +5064,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt",
         "line": 62
-      }
-    ],
-    "from": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 23
       }
     ],
     "eligibleAt": [
@@ -14277,6 +14301,33 @@
         {
           "name": "bodyNumber",
           "line": 276
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+      "lines": 113,
+      "sha256": "bd5e3f82130b891fac47e19b52e495c5c970a5ba8ecb3cccf3c9cca2c2464fd8",
+      "symbols": [
+        {
+          "name": "Model",
+          "line": 19
+        },
+        {
+          "name": "from",
+          "line": 24
+        },
+        {
+          "name": "selected",
+          "line": 27
+        },
+        {
+          "name": "installedFile",
+          "line": 36
+        },
+        {
+          "name": "remove",
+          "line": 39
         }
       ]
     },
