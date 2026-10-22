@@ -173,13 +173,94 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
 @Composable
 private fun Live2DNativeFrameOverlay(
     webView: WebView,
+    binaryFrames: Channel<Live2DBinaryFrame>,
+    binarySupported: Boolean,
+    rendererReady: Boolean,
     onStatus: (String, String) -> Unit,
 ) {
     var picture by remember(webView) {
         mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
     }
+    var gotBinaryFrame by remember(webView) { mutableStateOf(false) }
+    var lastBinaryFrameAt by remember(webView) { mutableStateOf(0L) }
+    var legacyFallback by remember(webView) { mutableStateOf(!binarySupported) }
     val receiver = rememberUpdatedState(onStatus)
-    LaunchedEffect(webView) {
+
+    // Fast path: a message is one JPEG byte[]; there is no Base64, JSON
+    // round-trip, continuous evaluateJavascript polling or extra TTS request.
+    // ACK only after off-main-thread BitmapFactory decoding has completed.
+    LaunchedEffect(webView, binarySupported) {
+        if (!binarySupported) return@LaunchedEffect
+        var firstFrame = true
+        var periodStart = android.os.SystemClock.elapsedRealtime()
+        var periodFrames = 0
+        var resolution = 1080
+        for (frame in binaryFrames) {
+            val decoded = withContext(Dispatchers.Default) {
+                runCatching {
+                    BitmapFactory.decodeByteArray(frame.jpeg, 0, frame.jpeg.size)
+                }.getOrNull()
+            }
+            if (decoded != null) {
+                picture = decoded.asImageBitmap()
+                gotBinaryFrame = true
+                lastBinaryFrameAt = android.os.SystemClock.elapsedRealtime()
+                periodFrames++
+                if (firstFrame) {
+                    firstFrame = false
+                    receiver.value("diagnostic",
+                        "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height} · 二进制通道")
+                }
+                val span = lastBinaryFrameAt - periodStart
+                if (span >= 5_000) {
+                    val fps = periodFrames * 1000f / span.coerceAtLeast(1L)
+                    // Favor face quality on fast devices, downgrade only
+                    // after actually measuring delivered frame throughput.
+                    resolution = when {
+                        fps < 9 -> (resolution - 160).coerceAtLeast(720)
+                        fps < 13 -> (resolution - 80).coerceAtLeast(800)
+                        fps >= 17 -> (resolution + 100).coerceAtMost(1440)
+                        else -> resolution
+                    }
+                    receiver.value("diagnostic",
+                        "原生高速通道：%.1f FPS · ${decoded.width}×${decoded.height} · 下轮最长边 ${resolution}px".format(fps))
+                    periodFrames = 0
+                    periodStart = lastBinaryFrameAt
+                }
+            }
+            // JavaScriptReplyProxy calls happen on the UI coroutine,
+            // never in the bitmap decoder running on Dispatchers.Default.
+            runCatching { frame.reply.postMessage("next:$resolution") }
+        }
+    }
+
+    // Some WebView implementations lack binary ArrayBuffer support or break
+    // its IPC. Preserve the exactly-proven Base64 route when no real native
+    // frames arrive, or if a previously working binary feed stalls.
+    LaunchedEffect(webView, binarySupported, rendererReady) {
+        if (!binarySupported || !rendererReady) {
+            if (!binarySupported) legacyFallback = true
+            return@LaunchedEffect
+        }
+        delay(3_500)
+        while (isActive && !legacyFallback) {
+            val silence = android.os.SystemClock.elapsedRealtime() - lastBinaryFrameAt
+            if ((!gotBinaryFrame) || (lastBinaryFrameAt != 0L && silence > 4_000)) {
+                webView.evaluateJavascript(
+                    "window.LuluLive2D && window.LuluLive2D.setNativeStreaming(false)",
+                    null,
+                )
+                receiver.value("diagnostic",
+                    "二进制画面桥接未持续送达，回退至已验证的 JPEG 兼容通道")
+                legacyFallback = true
+                break
+            }
+            delay(1_500)
+        }
+    }
+
+    LaunchedEffect(webView, legacyFallback) {
+        if (!legacyFallback) return@LaunchedEffect
         var reportedFirstFrame = false
         var consecutiveErrors = 0
         var slowFrames = 0
@@ -199,8 +280,6 @@ private fun Live2DNativeFrameOverlay(
             } catch (_: Exception) {
                 null
             }
-            // JSON parsing, base64 decoding and JPEG bitmap decoding must not
-            // compete with audio controls or the Compose UI on the main thread.
             val decoded = withContext(Dispatchers.Default) {
                 runCatching {
                     val encoded = rawResult?.let {
@@ -220,18 +299,16 @@ private fun Live2DNativeFrameOverlay(
                 if (!reportedFirstFrame) {
                     reportedFirstFrame = true
                     receiver.value("diagnostic",
-                        "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height}")
+                        "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height} · 兼容通道")
                 }
             } else if (rawResult != null && rawResult != "null" && rawResult != "undefined") {
                 consecutiveErrors++
                 if (consecutiveErrors == 3) {
-                    receiver.value("error", "原生画面桥接连续解码失败；已保留最后有效帧")
+                    receiver.value("error", "兼容画面连续解码失败，已保留最后有效帧")
                 }
             }
             val costMs = android.os.SystemClock.elapsedRealtime() - startedAt
             if (decoded != null) {
-                // Keep the quality budget responsive to low-end devices and long
-                // calls rather than forcing fixed 960px JPEGs onto every frame.
                 if (costMs > 145) {
                     slowFrames++
                     fastFrames = 0
@@ -261,6 +338,7 @@ private fun Live2DNativeFrameOverlay(
             delay((95L - costMs).coerceAtLeast(15L))
         }
     }
+
     val current = picture
     if (current != null) {
         Image(
@@ -270,12 +348,8 @@ private fun Live2DNativeFrameOverlay(
             contentScale = ContentScale.FillBounds,
         )
     } else {
-        // A native blue test surface distinguishes a genuinely missing
-        // Android overlay from an unreadable WebGL frame. This layer is only
-        // used during explicit fallback, never in ordinary voice calls.
         Box(
-            modifier = Modifier.fillMaxSize()
-                .background(Color(0xFF15354C)),
+            modifier = Modifier.fillMaxSize().background(Color(0xFF15354C)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
