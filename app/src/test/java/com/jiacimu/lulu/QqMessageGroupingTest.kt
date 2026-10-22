@@ -71,6 +71,16 @@ class QqMessageGroupingTest {
         assertTrue(result.none { it.endsWith("不是") || it.endsWith("可是") })
     }
 
+    @Test fun anAutonomousReplyAboutStudyFatigueUsesNaturalChatBubbles() {
+        val original = "辛苦啦宝宝，快把书合上歇会儿。怎么还配个这么震惊的猫猫头，这是学到什么难题了，把我们小脑袋瓜都给看懵了？"
+        // A full model-selected utterance may be split into real persisted
+        // bubbles at sentence boundaries without requiring another API call.
+        val result = semanticReplyBubbles(original)
+        assertTrue("完整日常回复不应挤在一个长气泡里", result.size >= 2)
+        assertEquals(original, result.joinToString(""))
+        assertFalse(result.any { it.endsWith("，") })
+    }
+
     @Test fun aLongSingleSentenceMaySplitAtNaturalCommaButNeverMidword() {
         val original = "我刚刚在想这件事情为什么一直都没有解决，也想着是不是我搞错了打开网页的顺序，不过至少现在能够确定首页内容是真实读到的，别再把那个当成搜索结果啦。"
         val result = semanticReplyBubbles(original)
