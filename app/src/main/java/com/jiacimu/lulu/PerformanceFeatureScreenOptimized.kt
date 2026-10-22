@@ -142,20 +142,20 @@ private fun FastConsoleTab(onClear: () -> Unit) {
             FastMetric("计入输出", record.effectiveOutputTokens.fastTokens())
             if (expanded) {
                 HorizontalDivider(color = FastPerformanceBorder)
-                FastMetric("接口输入", record.reportedInputTokens.takeIf { it > 0 }?.fastTokens() ?: "未返回")
-                FastMetric("接口输出", record.reportedOutputTokens.takeIf { it > 0 }?.fastTokens() ?: "未返回")
-                FastMetric("缓存 Token", record.cachedTokens.fastTokens())
+                FastMetric("接口输入", record.reportedInputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
+                FastMetric("接口输出", record.reportedOutputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
+                FastMetric("缓存 Token", record.cachedTokens.toString())
                 val estimatedParts = record.breakdown.sumOf { it.estimatedTokens.toLong() }
-                FastMetric("全部文本分项估算", estimatedParts.fastTokens() + " tok")
+                FastMetric("全部文本分项估算", estimatedParts.toString() + " tok")
                 if (record.reportedInputTokens > 0L) {
                     val difference = record.reportedInputTokens - estimatedParts
-                    FastMetric("接口与估算差额", (if (difference > 0) "+" else "") + difference.fastTokens() + " tok")
+                    FastMetric("接口与估算差额", (if (difference > 0) "+" else "") + difference.toString() + " tok")
                 } else {
                     Text("服务商没有返回输入用量，此次计入输入使用本地估算。", color = FastPerformanceMuted, fontSize = 11.sp)
                 }
                 if (record.auditVersion > 0) {
-                    FastMetric("输入文本字符（实际）", record.textCharacters.toLong().fastTokens())
-                    FastMetric("逐项已覆盖字符", record.coveredTextCharacters.fastTokens())
+                    FastMetric("输入文本字符（实际）", record.textCharacters.toString())
+                    FastMetric("逐项已覆盖字符", record.coveredTextCharacters.toString())
                     val coverageOk = record.textCharacters.toLong() == record.coveredTextCharacters
                     Text(
                         if (coverageOk) "文本来源覆盖完整：分项字符之和与实际发送文本完全相等。"
@@ -214,9 +214,9 @@ private fun FastTokenPartLine(part: com.jiacimu.lulu.data.TokenBreakdownItem, al
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
         Text(part.label, color = FastPerformanceMuted, fontSize = 12.sp, modifier = Modifier.weight(1f))
         Column(horizontalAlignment = Alignment.End) {
-            Text(part.estimatedTokens.toLong().fastTokens() + " tok（粗估）", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-            Text(part.chars.toLong().fastTokens() + " 字符", color = FastPerformanceMuted, fontSize = 11.sp)
-            if (allocated != null) Text("等比分摊约 " + allocated.fastTokens() + " tok",
+            Text(part.estimatedTokens.toString() + " tok（粗估）", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            Text(part.chars.toString() + " 字符", color = FastPerformanceMuted, fontSize = 11.sp)
+            if (allocated != null) Text("等比分摊约 " + allocated.toString() + " tok",
                 color = FastPerformanceMuted, fontSize = 11.sp)
         }
     }
