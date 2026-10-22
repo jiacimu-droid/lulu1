@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:48:20.560289+00:00",
-  "commit": "1e59ae168a2cfbb9757ff7d0b2a1ee96433ffd46",
+  "generatedAt": "2026-10-22T20:48:59.478139+00:00",
+  "commit": "ceb465a7db8729ec4cdd771f0cadd647d0d38dc0",
   "branch": "main",
-  "sourceFingerprint": "f0ea5783a198b4b597bfe43f2ceda84606607c821e119ff998ce775d5db25f34",
+  "sourceFingerprint": "86e2158fc4e6016fcb6064f681acc6fb325317370a48366981b27f5a2eb1cb92",
   "summary": {
     "files": 833,
-    "lines": 159186,
+    "lines": 159232,
     "symbols": 2413
   },
   "symbolIndex": {
@@ -681,7 +681,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-        "line": 68
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt",
@@ -6747,7 +6747,7 @@
     "maybeEvolve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-        "line": 80
+        "line": 95
       }
     ],
     "DigitalWorldResident": [
@@ -11821,43 +11821,43 @@
     "showReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 39
+        "line": 38
       }
     ],
     "showProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 47
+        "line": 45
       }
     ],
     "dismissCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 52
+        "line": 49
       }
     ],
     "dismissProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 54
+        "line": 51
       }
     ],
     "dismissReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 55
+        "line": 52
       }
     ],
     "dismiss": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 56
+        "line": 53
       }
     ],
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 99
+        "line": 96
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -19950,16 +19950,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-      "lines": 254,
-      "sha256": "09cec9161e9d2617e28e8b9001d3397fdb67efc2ac3d995d7e2628f3cb2d5368",
+      "lines": 299,
+      "sha256": "188974250a7eb97850e18933eb3d289438ffcc09b5ee1363aa29d63b75e5ab62",
       "symbols": [
         {
           "name": "initialize",
-          "line": 68
+          "line": 83
         },
         {
           "name": "maybeEvolve",
-          "line": 80
+          "line": 95
         }
       ]
     },
@@ -25882,8 +25882,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-      "lines": 178,
-      "sha256": "dda42ee53e2ac524411c98ba16bc58d59b2ff10f4cac572ac8aedbfa1b8cbba4",
+      "lines": 179,
+      "sha256": "f9ac4f311b8baff0fce07a6ea78d734438a0bb81224e32bca3d55ac6bd63afd7",
       "symbols": [
         {
           "name": "available",
@@ -25895,31 +25895,31 @@
         },
         {
           "name": "showReturn",
-          "line": 39
+          "line": 38
         },
         {
           "name": "showProgress",
-          "line": 47
+          "line": 45
         },
         {
           "name": "dismissCapture",
-          "line": 52
+          "line": 49
         },
         {
           "name": "dismissProgress",
-          "line": 54
+          "line": 51
         },
         {
           "name": "dismissReturn",
-          "line": 55
+          "line": 52
         },
         {
           "name": "dismiss",
-          "line": 56
+          "line": 53
         },
         {
           "name": "line",
-          "line": 99
+          "line": 96
         }
       ]
     },

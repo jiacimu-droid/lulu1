@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1e59ae168a2cfbb9757ff7d0b2a1ee96433ffd46`
+- 基准提交：`ceb465a7db8729ec4cdd771f0cadd647d0d38dc0`
 - 分支：`main`
 - 已索引文件：833
-- 已索引代码/文本行：159186
+- 已索引代码/文本行：159232
 - 已发现符号：2413
 
 | 文件 | 行数 | 符号数 |
@@ -342,7 +342,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 254 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 299 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 267 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 684 | 10 |
@@ -584,7 +584,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 422 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 178 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 179 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
