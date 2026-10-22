@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T02:59:58.195384+00:00",
-  "commit": "512149483681a30db392735bfd772714f2d9eefa",
+  "generatedAt": "2026-10-22T03:01:42.208944+00:00",
+  "commit": "6ec13c9c221b8dd1497ca00657955a80ff56bff4",
   "branch": "main",
-  "sourceFingerprint": "b56dd282569579c4cda0d3a90b2bdb0ef740d1fec6d8a8755b8293b76855149c",
+  "sourceFingerprint": "b2fc264f984b033a75fa3f063ac50394d0c721a5320706fcce5cbe204b937bb0",
   "summary": {
     "files": 788,
-    "lines": 149755,
+    "lines": 149734,
     "symbols": 2257
   },
   "symbolIndex": {
@@ -1267,25 +1267,25 @@
     "launchExchange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 151
+        "line": 159
       }
     ],
     "launchLivingMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 168
+        "line": 176
       }
     ],
     "openDirectMeeting": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 182
+        "line": 190
       }
     ],
     "rewindAndRegenerate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-        "line": 203
+        "line": 211
       }
     ],
     "ledgerText": [
@@ -13467,8 +13467,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt",
-      "lines": 661,
-      "sha256": "9975fcf8a7036e2db5033db3b951e46c55f7266c0168098409cad57ead206b8b",
+      "lines": 640,
+      "sha256": "2f36607efed17b8742816387dc845a70b11da2a2e88e5c51484af4e17a2abda7",
       "symbols": [
         {
           "name": "DigitalWorldMeetingApp",
@@ -13476,19 +13476,19 @@
         },
         {
           "name": "launchExchange",
-          "line": 151
+          "line": 159
         },
         {
           "name": "launchLivingMoment",
-          "line": 168
+          "line": 176
         },
         {
           "name": "openDirectMeeting",
-          "line": 182
+          "line": 190
         },
         {
           "name": "rewindAndRegenerate",
-          "line": 203
+          "line": 211
         }
       ]
     },
