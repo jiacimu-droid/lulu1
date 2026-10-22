@@ -16,6 +16,9 @@ import android.webkit.WebViewClient
 import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
@@ -46,6 +49,7 @@ import androidx.webkit.WebMessageCompat
 import androidx.webkit.JavaScriptReplyProxy
 import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONTokener
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -78,12 +82,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     framingMode: String = "full",
     qualityMode: String = "quality",
     onWebViewReady: ((WebView) -> Unit)? = null,
+    onModelTouch: ((region: String, gesture: String) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
     val playbackEvent by Live2DSpeechTimeline.events.collectAsState()
     val qualityReceiver = rememberUpdatedState(qualityMode)
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
+    val touchReceiver = rememberUpdatedState(onModelTouch)
     val binaryFrames = remember(context, characterId, modelUrl) {
         Channel<Live2DBinaryFrame>(Channel.CONFLATED)
     }
@@ -133,6 +139,49 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             ) { phase, detail ->
                 statusReceiver.value(phase, detail)
             }
+        }
+        // HyperOS displays a native ImageView OVER WebGL. Capture gestures
+        // on the actual visible stage, then hit-test the real Cubism model.
+        if (onModelTouch != null) {
+            Box(Modifier.fillMaxSize().pointerInput(stage, rendererReady.value) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val started = android.os.SystemClock.uptimeMillis()
+                    var last = down.position
+                    var traveled = 0f
+                    while (true) {
+                        val pointer = awaitPointerEvent().changes
+                            .firstOrNull { it.id == down.id } ?: break
+                        traveled += (pointer.position - last).getDistance()
+                        last = pointer.position
+                        if (!pointer.pressed) break
+                    }
+                    if (!rendererReady.value || size.width < 20 || size.height < 20) return@awaitEachGesture
+                    val duration = android.os.SystemClock.uptimeMillis() - started
+                    val gesture = when {
+                        traveled > viewConfiguration.touchSlop * 3 -> "stroke"
+                        duration >= 520 -> "hold"
+                        else -> "tap"
+                    }
+                    val nx = (down.position.x / size.width).coerceIn(0f, 1f)
+                    val ny = (down.position.y / size.height).coerceIn(0f, 1f)
+                    stage.evaluateJavascript(
+                        "JSON.stringify(window.LuluLive2D && window.LuluLive2D.touch(" +
+                            "$nx,$ny,${JSONObject.quote(gesture)}))",
+                    ) { response ->
+                        val hit = runCatching {
+                            val json = JSONTokener(response).nextValue() as? String
+                            json?.let(::JSONObject)
+                        }.getOrNull()
+                        if (hit?.optBoolean("hit") == true) {
+                            val region = hit.optString("region")
+                            if (region in setOf("head", "arm", "body")) {
+                                touchReceiver.value?.invoke(region, gesture)
+                            }
+                        }
+                    }
+                }
+            })
         }
     }
     LaunchedEffect(stage, nativeMirrorEnabled) {
