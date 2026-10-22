@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
+import { createPoseSpring } from '../src/pose-spring.mjs'
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
 // parameter indices if handed raw strings. This mock deliberately does so.
@@ -48,7 +49,9 @@ assert.match(stage, /setParameter\(core, 'ParamMouthOpenY', smoothedMouthOpen\)/
 assert.doesNotMatch(stage, /gazeReflex|Math\.random\(\).*radius/)
 assert.match(stage, /const eyeContact = key === 'gazeX' \|\| key === 'gazeY'/)
 assert.match(stage, /if \(!eyeContact && requested == null/)
-assert.match(stage, /setParameter\(core, id, smoothBody\[axis\]\)/)
+assert.match(stage, /const headPose = headSpring\.step\(headRequest, deltaMs\)/)
+assert.match(stage, /const bodyPose = bodySpring\.step\(bodyRequest, deltaMs\)/)
+assert.match(stage, /setParameter\(core, id, bodyPose\[axis\]\)/)
 assert.match(stage, /model\.position\.set\(viewWidth \/ 2, viewHeight \* \(isPortrait \? 1\.00 : \.49\)\)/)
 // The native receiver is authoritative about final frame size. Oversizing
 // every JPEG by 1.38x defeats measured backpressure and causes stutter.
@@ -71,4 +74,25 @@ assert.match(stage, /browX: \['ParamBrowLX', 'ParamBrowRX'\]/)
 assert.match(stage, /const expressiveVoice = playing && requested != null/)
 assert.match(stage, /if \(!eyeContact && requested == null && !hasPriorCue\) continue/)
 assert.match(stage, /delete smoothFace\[key\]/)
-console.log('Live2D facial animation, real parameter and streaming checks passed')
+// Springs never introduce random idle motion and converge across frame rates
+// rather than snapping the entire face/head to an exact pose at each cue.
+const axes = ['yaw', 'pitch', 'roll']
+const spring = createPoseSpring(axes)
+for (let i = 0; i < 90; i++) spring.step(null, 16)
+assert.deepEqual(spring.step(null, 16), { yaw: 0, pitch: 0, roll: 0 })
+for (let i = 0; i < 60; i++) spring.step({ yaw: 16, pitch: -5, roll: 4 }, 16)
+const settled = spring.step({ yaw: 16, pitch: -5, roll: 4 }, 16)
+assert.ok(Math.abs(settled.yaw - 16) < .1)
+assert.ok(Math.abs(settled.pitch + 5) < .1)
+assert.ok(Math.abs(settled.roll - 4) < .1)
+for (let i = 0; i < 90; i++) spring.step(null, 16)
+assert.ok(Math.abs(spring.step(null, 16).yaw) < .05)
+const stalled = spring.step({ yaw: -20 }, 20_000)
+assert.ok(Number.isFinite(stalled.yaw) && Math.abs(stalled.yaw) < 25)
+spring.reset()
+assert.deepEqual(spring.step(null, 16), { yaw: 0, pitch: 0, roll: 0 })
+assert.match(stage, /function choreography\(beats, immediatePreview = false\)/)
+assert.match(stage, /activePerformance\.elapsedMs \+=/)
+assert.match(stage, /if \(performance\) beginPerformance\(performance\.beats, false\)/)
+assert.match(stage, /window\.LuluLive2D = .*choreography,/)
+console.log('Live2D AIRI-style springs, timed expression beats and real-parameter controls passed')
