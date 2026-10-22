@@ -1231,6 +1231,9 @@ internal object LuluVoiceCallSession {
         if (!current.connected || !openingTurn.claim(current.callExperienceId)) return
         mutableState.update { it.copy(opening = true, listening = false, statusMessage = "${it.characterName} 正要开口") }
         InteractionSignalBridge.recordCallStart(current.characterId, current.callExperienceId, current.incomingReason)
+        if (LuluCallWindowController.videoRequested.value) {
+            InteractionSignalBridge.recordVideoSelected(current.characterId, current.callExperienceId)
+        }
         handleUserSpeech("", opening = true)
     }
 
