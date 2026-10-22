@@ -534,6 +534,15 @@ object CharacterInnerLifeStore {
                     .put("physicalCue", emotion.optString("physicalCue").trim().take(120))
                     .put("outwardCue", emotion.optString("outwardCue").trim().take(120))
                     .put("strength", emotion.optInt("strength", 2).coerceIn(1, 4))
+                    // Jiwen-inspired optional axes, owned by this SAME emotional event.
+                    // No second mood store, no inferred relationship score and no model call.
+                    .apply {
+                        for (axis in listOf("valence", "arousal")) {
+                            if (!emotion.has(axis) || emotion.isNull(axis)) continue
+                            val value = emotion.optDouble(axis, Double.NaN)
+                            if (value.isFinite()) put(axis, value.coerceIn(-1.0, 1.0))
+                        }
+                    }
                     .put("startedAt", if (previous?.optString("evidenceId") == evidenceId)
                         previous.optString("startedAt", now.toString()) else now.toString())
                     .put("halfLifeMinutes", emotion.optInt("halfLifeMinutes", 180).coerceIn(30, 1440))
@@ -1406,6 +1415,72 @@ object CharacterInnerLifeStore {
             .sortedWith(compareByDescending<String> { it == "user" }
                 .thenByDescending { bonds?.optJSONObject(it)?.optString("updatedAt").orEmpty() })
 
+    /**
+     * A single, read-only projection of the emotion already saved by observe().
+     * Both compact (chat) and full (calls / meetings / autonomous life) contexts
+     * must use identical time math. This is NOT a second source of mental truth.
+     * Elapsed time by itself is neither a new experience nor permission to contact.
+     */
+    internal data class EmotionInfluence(
+        val elapsedMinutes: Long,
+        val halfLifeMinutes: Int,
+        val initialStrength: Int,
+        val remainingStrength: Double,
+        val valence: Double?,
+        val arousal: Double?,
+    ) {
+        val impact: String get() = when {
+            remainingStrength >= 3.0 -> "强"
+            remainingStrength >= 1.5 -> "中等"
+            remainingStrength >= 0.7 -> "较弱"
+            else -> "很淡"
+        }
+
+        /** Optional dimensions describe this event, never an immutable personality. */
+        val dimensionContext: String get() = listOfNotNull(
+            valence?.takeIf { Math.abs(it) >= 0.2 }?.let {
+                if (it > 0) "愉悦体验偏正向" else "愉悦体验偏负向"
+            },
+            arousal?.takeIf { Math.abs(it) >= 0.2 }?.let {
+                if (it > 0) "情绪激活偏高" else "情绪激活偏低"
+            },
+        ).joinToString("；")
+    }
+
+    internal fun emotionInfluence(emotion: JSONObject?, now: Instant): EmotionInfluence? {
+        if (emotion == null || emotion.optString("feeling").isBlank()) return null
+        val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
+            ?: return null
+        // A future-dated entry cannot affect an earlier moment (including replay/testing).
+        if (started.isAfter(now)) return null
+        val elapsed = Duration.between(started, now).toMinutes().coerceAtLeast(0L)
+        val halfLife = emotion.optInt("halfLifeMinutes", 180).coerceIn(30, 1440)
+        val strength = emotion.optInt("strength", 2).coerceIn(1, 4)
+        val attenuation = Math.pow(0.5, elapsed.toDouble() / halfLife.toDouble())
+        val remaining = strength * attenuation
+        if (elapsed > halfLife * 4L || remaining < 0.35) return null
+
+        fun axis(name: String): Double? {
+            if (!emotion.has(name) || emotion.isNull(name)) return null
+            val value = emotion.optDouble(name, Double.NaN)
+            return value.takeIf(Double::isFinite)?.coerceIn(-1.0, 1.0)
+                ?.times(attenuation)
+        }
+        return EmotionInfluence(elapsed, halfLife, strength, remaining,
+            axis("valence"), axis("arousal"))
+    }
+
+    /** Local diagnostic for a missing/attenuated emotional cue, without new LLM work. */
+    internal fun emotionInfluenceTrace(characterId: String, now: Instant): String {
+        val emotion = snapshot(characterId).optJSONObject("emotion")
+            ?: return "没有已记录的当前情绪"
+        val influence = emotionInfluence(emotion, now)
+            ?: return "现有情绪不在当前时间范围内或影响已自然淡化；不据此产生行动"
+        return "情绪来源=${emotion.optString("evidenceId")}；距今=${influence.elapsedMinutes}分钟；" +
+            "剩余影响=${"%.3f".format(java.util.Locale.ROOT, influence.remainingStrength)}；" +
+            "强度=${influence.impact}；只供角色自主判断"
+    }
+
     fun compactContext(characterId: String, now: Instant = Instant.now()): String {
         val root = snapshot(characterId)
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -1418,23 +1493,13 @@ object CharacterInnerLifeStore {
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
         return buildString {
             appendLine(CharacterActivityExpectation.context(root.optJSONArray("activityExpectations"), now))
-            if (emotion != null) {
-                val started = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
-                val elapsed = started?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
-                val halfLife = emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30)
-                val baseStrength = emotion.optInt("strength", 2).coerceIn(1, 4)
-                val influence = if (elapsed == Long.MAX_VALUE) 0.0
-                    else baseStrength * Math.pow(0.5, elapsed.toDouble() / halfLife.toDouble())
-                if (influence >= 0.35 && elapsed <= halfLife * 4L) {
-                    val impact = when {
-                        influence >= 3.0 -> "强"
-                        influence >= 1.5 -> "中等"
-                        influence >= 0.7 -> "较弱"
-                        else -> "很淡"
-                    }
-                    appendLine("现在感受=${emotion.optString("feeling")}；并存=${emotion.optString("otherFeeling")}；由=${emotion.optString("cause").take(160)}；距今${elapsed}分钟；当前影响=$impact（会随时间自然衰减，旧事被想起不等于重新受刺激）")
-                    emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("此刻克制：${it.take(130)}") }
+            emotionInfluence(emotion, now)?.let { influence ->
+                appendLine("现在感受=${emotion?.optString("feeling")}；并存=${emotion?.optString("otherFeeling")}；由=${emotion?.optString("cause")?.take(160)}；距今${influence.elapsedMinutes}分钟；当前影响=${influence.impact}（随时间自然衰减；旧事被想起不等于重新受刺激）")
+                influence.dimensionContext.takeIf(String::isNotBlank)?.let {
+                    appendLine("当下情绪倾向：$it（可随时间变化，不是性格或关系分数）")
                 }
+                emotion?.optString("restraint")?.takeIf(String::isNotBlank)
+                    ?.let { appendLine("此刻克制：${it.take(130)}") }
             }
             val priorEmotions = root.optJSONArray("emotionHistory") ?: JSONArray()
             for (i in maxOf(0, priorEmotions.length() - 2) until priorEmotions.length()) {
@@ -1534,17 +1599,16 @@ object CharacterInnerLifeStore {
                     appendLine("  最近实际执行：${last?.optString("action")}；成功=${last?.optBoolean("success")}；结果=${last?.optString("summary")}")
                 }
             }
-            if (emotion != null) {
-                val from = runCatching { Instant.parse(emotion.optString("startedAt")) }.getOrNull()
-                val mins = from?.let { Duration.between(it, now).toMinutes().coerceAtLeast(0) } ?: Long.MAX_VALUE
-                if (mins <= emotion.optInt("halfLifeMinutes", 180).coerceAtLeast(30) * 3L) {
-                    appendLine("当前情绪：${emotion.optString("feeling")}；另一层感受：${emotion.optString("otherFeeling")}；触发原因：${emotion.optString("cause")}；已经过去${mins}分钟。")
-                    emotion.optString("impulse").takeIf(String::isNotBlank)?.let { appendLine("本能想做：$it") }
-                    emotion.optString("restraint").takeIf(String::isNotBlank)?.let { appendLine("克制/犹豫：$it") }
-                    emotion.optString("physicalCue").takeIf(String::isNotBlank)?.let { appendLine("自身可感知的身体反应：$it") }
-                    emotion.optString("outwardCue").takeIf(String::isNotBlank)?.let { appendLine("可能被旁人察觉的变化：$it") }
-                    appendLine("这些不是固定剧本：根据时间让情绪逐渐消退、叠加或被新事实扭转，而非每次从零开始。")
+            emotionInfluence(emotion, now)?.let { influence ->
+                appendLine("当前情绪：${emotion?.optString("feeling")}；另一层感受：${emotion?.optString("otherFeeling")}；触发原因：${emotion?.optString("cause")}；已经过去${influence.elapsedMinutes}分钟；当前影响=${influence.impact}。")
+                influence.dimensionContext.takeIf(String::isNotBlank)?.let {
+                    appendLine("当下情绪倾向：$it（可随时间变化，不是性格或关系分数）")
                 }
+                emotion?.optString("impulse")?.takeIf(String::isNotBlank)?.let { appendLine("本能想做：$it") }
+                emotion?.optString("restraint")?.takeIf(String::isNotBlank)?.let { appendLine("克制/犹豫：$it") }
+                emotion?.optString("physicalCue")?.takeIf(String::isNotBlank)?.let { appendLine("自身可感知的身体反应：$it") }
+                emotion?.optString("outwardCue")?.takeIf(String::isNotBlank)?.let { appendLine("可能被旁人察觉的变化：$it") }
+                appendLine("情绪会自然淡化、叠加或被新事实扭转，具体取舍由人物自己决定；数值不是联系或行动命令。")
             }
             if (emotionHistory.length() > 0) {
                 appendLine("最近情绪变化的前因（避免无理由性格跳变）：")
