@@ -113,7 +113,7 @@ object LuluScreenAwareness {
         val existing = runCatching { JSONObject(prefs.getString(PENDING_CAPTURE, "{}")) }.getOrNull()
         val now = System.currentTimeMillis()
         if (existing != null && existing.optString("id").isNotBlank() &&
-            now - existing.optLong("at") in 0..CAPTURE_EXPIRES_MS) {
+            now - existing.optLong("at") in 0L..CAPTURE_EXPIRES_MS) {
             return rejected(context, "已有一条屏幕查看请求等待主人选择", "waiting_user")
         }
         val id = requestId.ifBlank { java.util.UUID.randomUUID().toString() }
@@ -159,7 +159,7 @@ object LuluScreenAwareness {
             ?: return
         if (saved.optString("id") != id || saved.optString("characterId") != characterId) return
         val age = System.currentTimeMillis() - saved.optLong("at")
-        if (age !in 0..CAPTURE_EXPIRES_MS) {
+        if (age !in 0L..CAPTURE_EXPIRES_MS) {
             prefs.edit().remove(PENDING_CAPTURE).commit()
             report(context, "屏幕查看请求已过期，没有截图")
             return
@@ -178,7 +178,8 @@ object LuluScreenAwareness {
         report(context, "主人允许本次截图 · 等待实际截图")
         val work = OneTimeWorkRequestBuilder<LuluApprovedScreenWorker>()
             .setInputData(Data.Builder().putString("characterId", characterId)
-                .putString("requestId", id).build()).build()
+                .putString("requestId", id).build())
+            .setInitialDelay(2, java.util.concurrent.TimeUnit.SECONDS).build()
         WorkManager.getInstance(context.applicationContext)
             .enqueueUniqueWork("screen-approved-$id", ExistingWorkPolicy.KEEP, work)
     }
@@ -246,7 +247,8 @@ object LuluScreenAwareness {
             } finally { bitmap.recycle() }
         } finally {
             busy.set(false)
-            viewingNotice(context, "屏幕查看已结束", "本次只读取一帧；结果将依据真实回执提供给角色", true)
+            viewingNotice(context, "屏幕查看已结束",
+                diagnostics(context).substringAfter(" · ").take(100), true)
         }
     }
 
