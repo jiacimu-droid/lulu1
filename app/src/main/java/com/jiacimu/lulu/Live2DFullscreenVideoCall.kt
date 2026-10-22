@@ -63,10 +63,6 @@ internal fun Live2DFullscreenVideoCall(
     DisposableEffect(characterId, state.callExperienceId) {
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
     }
-    var showDebugMenu by remember(modelUrl) { mutableStateOf(false) }
-    var manualFace by remember(modelUrl) { mutableStateOf<Live2DVisualActionBus.Face?>(null) }
-    var manualBody by remember(modelUrl) { mutableStateOf<Live2DVisualActionBus.Body?>(null) }
-    var manualCueRevision by remember(modelUrl) { mutableIntStateOf(0) }
     // Familiar face-first framing for calls; the user can pull back to a full
     // body without reloading the model or interrupting the call audio.
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
@@ -95,6 +91,7 @@ internal fun Live2DFullscreenVideoCall(
     var nativeFrameReady by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
+    var videoPerformance by remember(modelUrl) { mutableStateOf("") }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
     // Video can load before the call is dialed. Once Android creates the real
     // call ID, attach the already-ready renderer to that session, not the empty ID.
@@ -138,10 +135,9 @@ internal fun Live2DFullscreenVideoCall(
                 previewExpression = cue?.expression ?: previewExpression,
                 previewMotion = cue?.motion ?: previewMotion,
                 previewHead = cue?.head ?: manualHead,
-                previewBody = cue?.body ?: manualBody,
-                previewFace = cue?.face ?: manualFace,
-                previewRevision = if (cue != null) cue.sequence.toInt()
-                    else (previewRevision + manualCueRevision * 10000),
+                previewBody = cue?.body,
+                previewFace = cue?.face,
+                previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 // Both imported models and Hiyori were verified on the actual
                 // device only through the native Compose presentation path.
                 nativeMirrorEnabled = true,
@@ -150,7 +146,11 @@ internal fun Live2DFullscreenVideoCall(
                     // A dead WebView can still emit queued console messages after
                     // onRenderProcessGone. Never recreate it without user retry.
                     if (stageStatus == "fatal" && phase != "fatal") return@Live2DCallStage
-                    if (phase == "parameters") {
+                    if (phase == "performance") {
+                        // Diagnostic updates must NEVER overwrite stageStatus:
+                        // the native frame is still valid and must remain visible.
+                        videoPerformance = detail
+                    } else if (phase == "parameters") {
                         reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
                             state.callExperienceId, detail)
@@ -232,6 +232,16 @@ internal fun Live2DFullscreenVideoCall(
                 }
             }
         }
+        // Small real-world diagnostic: measured native delivery, not claimed 30fps.
+        // Keep it out of the call controls and let it vanish before samples exist.
+        if (videoPerformance.isNotBlank() && rendered) {
+            Text(videoPerformance, color = Color.White.copy(alpha = .74f),
+                fontSize = 10.sp, maxLines = 1,
+                modifier = Modifier.align(Alignment.TopStart).statusBarsPadding()
+                    .padding(start = 20.dp, top = 146.dp)
+                    .background(Color.Black.copy(alpha = .35f), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp, vertical = 3.dp))
+        }
         // Opt-in on-device-only front-camera picture-in-picture. No frame ever leaves
         // this view or enters the model unless a separate vision-sharing flow is built.
         if (selfCameraEnabled) {
@@ -282,83 +292,6 @@ internal fun Live2DFullscreenVideoCall(
                     }, fontSize = 12.sp, color = Color.White.copy(alpha = .7f))
                 }
                 Spacer(Modifier.weight(1f))
-                if (rendered && state.phase == CallPhase.Ready) {
-                    Box {
-                        IconButton(onClick = { showDebugMenu = true }) {
-                            Icon(Icons.Outlined.MoreVert, "测试模型动作", tint = Color.White)
-                        }
-                        DropdownMenu(expanded = showDebugMenu,
-                            onDismissRequest = { showDebugMenu = false }) {
-                            availableAnimations.expressions.take(24).forEach { expression ->
-                                DropdownMenuItem(
-                                    text = { Text("表情 · $expression") },
-                                    onClick = { showDebugMenu = false; onPreviewExpression(expression) },
-                                )
-                            }
-                            availableAnimations.motions.take(24).forEach { motion ->
-                                DropdownMenuItem(
-                                    text = { Text("动作 · ${motion.first} #${motion.second + 1}") },
-                                    onClick = { showDebugMenu = false; onPreviewMotion(motion) },
-                                )
-                            }
-                            if ("ParamAngleX" in reportedAngles.split(',')) {
-                                DropdownMenuItem(text = { Text("转头 · 左") }, onClick = {
-                                    showDebugMenu = false
-                                    onPreviewHead(Live2DVisualActionBus.Head(yaw = -18f))
-                                })
-                                DropdownMenuItem(text = { Text("转头 · 右") }, onClick = {
-                                    showDebugMenu = false
-                                    onPreviewHead(Live2DVisualActionBus.Head(yaw = 18f))
-                                })
-                            }
-                            if ("ParamAngleY" in reportedAngles.split(',')) {
-                                DropdownMenuItem(text = { Text("低头再抬头") }, onClick = {
-                                    showDebugMenu = false
-                                    onPreviewHead(Live2DVisualActionBus.Head(pitch = -18f))
-                                })
-                            }
-                            // This local-only tester bypasses the model decision,
-                            // but uses the exact same semantic controller.
-                            val actual = reportedAngles.split(',').toSet()
-                            if ("ParamMouthForm" in actual) {
-                                DropdownMenuItem(text = { Text("面部测试 · 微笑") }, onClick = {
-                                    showDebugMenu = false
-                                    manualFace = Live2DVisualActionBus.Face(buildMap {
-                                        put("smile", .75f)
-                                        if ("ParamEyeLSmile" in actual &&
-                                            "ParamEyeRSmile" in actual) put("eyeSmile", .55f)
-                                    })
-                                    manualBody = null
-                                    manualCueRevision++
-                                })
-                            }
-                            if ("ParamEyeBallX" in actual) {
-                                DropdownMenuItem(text = { Text("眼神测试 · 看向一边") }, onClick = {
-                                    showDebugMenu = false
-                                    manualFace = Live2DVisualActionBus.Face(mapOf("gazeX" to -.75f))
-                                    manualBody = null
-                                    manualCueRevision++
-                                })
-                            }
-                            if ("ParamCheekPuff" in actual) {
-                                DropdownMenuItem(text = { Text("面部测试 · 鼓脸") }, onClick = {
-                                    showDebugMenu = false
-                                    manualFace = Live2DVisualActionBus.Face(mapOf("cheekPuff" to .8f))
-                                    manualBody = null
-                                    manualCueRevision++
-                                })
-                            }
-                            if ("ParamBodyAngleZ" in actual) {
-                                DropdownMenuItem(text = { Text("身体测试 · 轻轻侧倾") }, onClick = {
-                                    showDebugMenu = false
-                                    manualFace = null
-                                    manualBody = Live2DVisualActionBus.Body(roll = 6f)
-                                    manualCueRevision++
-                                })
-                            }
-                        }
-                    }
-                }
                 IconButton(onClick = ::toggleSelfCamera) {
                     Icon(if (selfCameraEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.CameraFront,
                         if (selfCameraEnabled) "关闭我的画面" else "开启我的画面（仅本机预览）",
