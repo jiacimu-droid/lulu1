@@ -564,6 +564,7 @@ object LuluDeviceToolBridge {
                 ${CharacterDecisionProtocol.runtimePrinciples}
                 ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
                 ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
+                ${if (userText.isNotBlank() && !sceneContext.contains("电话") && !isGroupChat) com.jiacimu.lulu.data.ConversationDominantImpulse.planningGuidance(userText, history) else ""}
                 ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(
                     if (sceneContext.contains("电话")) com.jiacimu.lulu.data.CharacterSpeechChannel.PHONE
                     else if (sceneContext.contains("群聊《")) com.jiacimu.lulu.data.CharacterSpeechChannel.GROUP_CHAT
@@ -1257,6 +1258,7 @@ object LuluDeviceToolBridge {
                         appendLine(expressionHandoff)
                         if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                         appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
+                        appendLine(com.jiacimu.lulu.data.ConversationDominantImpulse.expressionRule)
                         appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
                             includeExamples = false))
                         appendLine("角色已决定的内容简报（保留核心立场与必要答案；旁支理由可不说，不是逐条发送清单）：${plan.speechIntent}")
@@ -1315,6 +1317,7 @@ object LuluDeviceToolBridge {
                             appendLine(expressionHandoff)
                             if (turnEconomyContext.isNotBlank()) appendLine(turnEconomyContext)
                             appendLine(com.jiacimu.lulu.data.DialogueMoveEngine.expressionConstraint(dialoguePlan))
+                        appendLine(com.jiacimu.lulu.data.ConversationDominantImpulse.expressionRule)
                             appendLine(com.jiacimu.lulu.data.TransientConversationStyle.context(userText, history,
                                 includeExamples = false))
                             appendLine("已经确定的内容意图：${plan.speechIntent}")

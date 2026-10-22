@@ -37,7 +37,7 @@ internal object CharacterDecisionProtocol {
         若以 innerLife.emotion.impulse 表达想做的事，须同时提供 emotion.action 对应本轮真实动作；与动作不相关的情绪冲动不能替代本次 reason。
         行动动机不等于 innerThought。内心声音只记录确实新出现、还没有对外说出的想法，没有新内容就留空；决定做一件事仍需有当下意愿。客观事件、私人理解、主观感受、当下意愿、执行结果分别记录，不要彼此冒充。
 
-    """.trimIndent()
+    """.trimIndent() + "\n" + ConversationDominantImpulse.causalRule
 
     val principles: String = causalPrinciples + "\n" + """
         每轮理解全部新输入与现场变化：谁做了什么、对方的主要意思与关系诉求是什么、哪些只是推测；结合记忆与上一刻感受，形成自己的看法，再选择行动及表达方向。不要仅抓一个词接梗，也不逐条机械作答。
