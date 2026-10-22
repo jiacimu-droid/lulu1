@@ -38,6 +38,7 @@ const clamp01 = v => Math.min(1, Math.max(0, v))
 export function createVisualLayerRuntime({ has, read, write }) {
   const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06)
   const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1)
+  const touchSpring = createPoseSpring(['yaw', 'roll'], 135, 1.1)
   const smoothedFace = Object.create(null)
   let secondaryHeadMix = 0
   let secondaryBodyMix = 0
@@ -45,17 +46,19 @@ export function createVisualLayerRuntime({ has, read, write }) {
   function reset() {
     headSpring.reset()
     bodySpring.reset()
+    touchSpring.reset()
     secondaryHeadMix = 0
     secondaryBodyMix = 0
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, speaking, voiceLevel = null, seconds }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, speaking, voiceLevel = null, seconds }) {
     if (!core) return
     const headPose = headSpring.step(head, deltaMs)
     const bodyPose = bodySpring.step(body, deltaMs)
+    const reflexPose = touchSpring.step(touchReflex, deltaMs)
     for (const [id, axis] of MAIN_HEAD) {
-      if (has(core, id)) write(core, id, headPose[axis])
+      if (has(core, id)) write(core, id, headPose[axis] + (reflexPose[axis] || 0))
     }
     for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
       if (has(core, id)) write(core, id, bodyPose[axis])
