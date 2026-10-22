@@ -63,6 +63,11 @@
         </activity>
 
         <receiver
+            android:name=".system.LuluScreenRequestReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
             android:name=".system.LuluAlarmReceiver"
             android:enabled="true"
             android:exported="false" />
