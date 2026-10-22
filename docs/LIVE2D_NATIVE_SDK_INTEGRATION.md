@@ -1,6 +1,6 @@
 # Cubism Native Android GPU：真实接入条件与操作
 
-**当前状态（2026-10-22）：Native OpenGL 渲染尚未实现，正式电话只使用已在真机验证的 WebGL → Compose 帧桥。**
+**当前状态（2026-10-23）：已实现可选择编译的官方 Native Core JNI 模型解析探针，但原生 OpenGL/CubismFramework 的完整 GPU 绘制仍未实现；正式视频继续使用 WebGL → Android Compose 图片兼容画面。**
 
 ## 为什么不能宣称已经完成
 
@@ -20,6 +20,21 @@
 3. 在有 Android SDK/NDK 的机器运行：
    `./gradlew :app:verifyCubismNativePrerequisites -PluluNativeSdkDir=/absolute/path/to/CubismSdkForNative`
 4. 这个任务只验证 Native Core 的基础文件**确实存在**，不是 Native 渲染功能已完成的证明。
+
+## 本轮已落实到源码的 Native 接入基础（不是 GPU 出图）
+
+- `app/build.gradle.kts` 识别 `-PluluNativeSdkDir=/absolute/path/...`，只有明确提供官方 SDK 时才将 ARM64 Core 加入本机 JNI 构建；普通 GitHub CI / 手机 APK 不打包来源不明的 Core。
+- `app/src/main/cpp/CMakeLists.txt` 仅在配置该目录时链接官方 `Core/lib/android/arm64-v8a/libLive2DCubismCore.a`；`cubism_native_probe.cpp` 把真实 .moc3 内存加载为 csmMoc/csmModel 并返回 drawable 数量。不提交官方二进制、SDK 头文件或第三方完整渲染框架。
+- `NativeCubismProbe.kt` 可检查导入模型的本机私有 Moc3 引用：必须位于原有模型私有存储目录，不能经相对路径访问外部文件。官方 Core 未编入当前 APK 时返回清晰的未就绪状态，不试图创建假 Surface。
+- 在「Live2D 动态检测」中，若存在已链接 Native Core，则有单独的可点击解析检测；即使能够解析 Moc3，也只证明**Core 模型兼容**，不能宣称 OpenGL GLES 首帧、纹理上传、遮罩/物理、语音/表情控制已经实现。
+- `AGENTS.md` 要求：此功能不可绕过 WebGL 兼容回退，特别是用户 HyperOS 设备先前真实遇到的黑屏；任何 Native Surface 只有通过可见首帧验证才可进入正式视频。
+- 下一步仍需要官方 SDK for Native + Framework 的具体版本和 Android NDK 构建实际回执，再按 Live2D Samples 的 EGL/Cubism Framework 路径真正渲染。由于授权核心未在仓库，**本轮无法给手机用户提供原生 GPU 直出 APK**。
+
+## 触摸输入已独立落地
+
+- 在 Android Compose **真正可见的帧覆盖层**捕获轻点、长按、滑动；JS 调用 pixi-live2d-display `model.hitTest` 校验作者 HitAreas。模型没有作者 HitAreas 时才使用保守的模型投影轮廓估计，背景不得产生命中回执。
+- 命中只触发轻微的本地参数弹簧位移，不自动表演害羞/占有等人格内容。屏幕点击回执会进入 `InteractionSignalBridge` 的同一通话原始时间线，并合并短时间内的连续动作；角色在既有电话模型中自主决定回应、动作或沉默。
+- 连续触摸每组最多会产生**一个已有电话模型的新决策回合**，因此角色主动回应可能产生一次正常通话 API 费用；本地回弹和无命中点击不调用 AI。导入模型无手/头 HitAreas 时，部分触摸部位仅能做近似分类，不能宣称具有真实压力或体感。
 
 ## 在项目中实现 Native 时的硬性验收
 
