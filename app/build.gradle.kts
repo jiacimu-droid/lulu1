@@ -6,6 +6,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Only explicit, licensed local SDK builds include Native Cubism Core.
+// Default CI/phone APKs remain independent of proprietary binary files.
+val localCubismSdkPath = providers.gradleProperty("luluNativeSdkDir").orNull
 val fixedDebugKeystore = layout.buildDirectory.file("signing/lulu-debug.keystore").get().asFile
 val encodedDebugKeystore = rootProject.file("ci/lulu-debug.keystore.b64")
 if (encodedDebugKeystore.exists() && !fixedDebugKeystore.exists()) {
@@ -39,6 +42,13 @@ android {
         targetSdk = 35
         // The supported Lulu phone is ARM64. Ship the JNI runtime with every installable variant.
         ndk { abiFilters += "arm64-v8a" }
+        if (!localCubismSdkPath.isNullOrBlank()) {
+            externalNativeBuild {
+                cmake {
+                    arguments += "-DLULU_CUBISM_NATIVE_SDK_DIR=${file(localCubismSdkPath).absolutePath}"
+                }
+            }
+        }
         val releaseNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.coerceIn(1, 2_000_000_000) ?: 1
         val revision = System.getenv("GITHUB_SHA")?.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) }?.take(12) ?: "local"
         versionCode = releaseNumber
@@ -150,12 +160,12 @@ tasks.register("verifyCubismNativePrerequisites") {
         val headerDir = sdkRoot.resolve("Core/include")
         val arm64Lib = sdkRoot.resolve("Core/lib/android/arm64-v8a")
         check(headerDir.isDirectory) { "Official Native Core headers missing: $headerDir" }
-        check(arm64Lib.isDirectory &&
-            arm64Lib.listFiles()?.any { it.extension == "a" || it.extension == "so" } == true) {
+        check(arm64Lib.resolve("libLive2DCubismCore.a").isFile) {
             "Licensed Android ARM64 Native Core library missing: $arm64Lib"
         }
-        println("Cubism Native Core ARM64 prerequisites detected. " +
-            "This task does not mean an EGL/Surface renderer has been built or validated.")
+        println("Official Cubism Core static library detected for Android ARM64. " +
+            "The optional JNI Moc3 probe can now build with -PluluNativeSdkDir; " +
+            "GPU rendering and first visible Surface frame are NOT yet implemented.")
     }
 }
 
