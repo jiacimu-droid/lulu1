@@ -138,8 +138,15 @@ internal object ModelStructuredOutput {
                 // giant IM bubble merely because two short sentences fit
                 // under the old 52-character grouping target.
                 // Respect sentence boundaries, never cut a mid-word fragment.
-                if (current.isNotBlank() && current.length >= 14 &&
-                    current.length + clause.length > 43) {
+                // A short complete reaction followed by a substantial new
+                // sentence is two natural speaking moves. The old >=14 test
+                // glued them into one oversized IM bubble (e.g. a concise
+                // clarification followed by an entire phone-call recap).
+                // No character count may cut a sentence mid-phrase.
+                val independentFollowUp = current.length >= 8 &&
+                    current.lastOrNull() in "。！？!?；;" && clause.length >= 20
+                if (current.isNotBlank() && (independentFollowUp ||
+                    (current.length >= 14 && current.length + clause.length > 43))) {
                     pieces += current
                     current = clause
                 } else current += clause
