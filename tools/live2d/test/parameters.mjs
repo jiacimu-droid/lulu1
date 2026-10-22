@@ -4,6 +4,7 @@ import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
+import { createSpeechExpressionGate, isMouthExclusiveExpression } from '../src/speech-expression-gate.mjs'
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
 // parameter indices if handed raw strings. This mock deliberately does so.
@@ -150,4 +151,56 @@ for (let i = 0; i < 90; i++) spring.step(null, 16)
 assert.ok(Math.abs(spring.step(null, 16).yaw) < .05)
 const stalled = spring.step({ yaw: -20 }, 20000)
 assert.ok(Number.isFinite(stalled.yaw) && Math.abs(stalled.yaw) < 25)
-console.log('Cubism index, AIRI final layers, audio score and transport checks passed')
+// Model authored exp3 metadata, not free-form text or other role personalities,
+// determines whether the expression physically occupies the speaking mouth.
+assert.equal(isMouthExclusiveExpression({
+  Parameters: [{ Id: 'ParamTongueOut', Value: 1 }]
+}), true)
+assert.equal(isMouthExclusiveExpression({
+  Parameters: [{ Id: 'ParamEyeLSmile', Value: .75 }]
+}), false)
+assert.equal(isMouthExclusiveExpression({
+  Parameters: [{ Id: 'ParamTongueOut', Value: 0 }]
+}), false)
+let audioMs = 1000
+const gate = createSpeechExpressionGate({ now: () => audioMs })
+assert.equal(gate.started().reset, false)
+gate.sample({ audible: true, pcm: true, level: .6 })
+assert.equal(gate.request('吐舌', true), false)
+audioMs += 450
+assert.equal(gate.tick().play, null,
+  'a speaking PCM level cannot trigger tongue expression')
+gate.sample({ audible: true, pcm: true, level: .02 })
+audioMs += 215
+const quietBeat = gate.tick()
+assert.equal(quietBeat.play, '吐舌', 'a genuine quiet interval may show a tongue')
+assert.equal(gate.state().active, true)
+audioMs += 50
+assert.equal(gate.sample({ audible: true, pcm: true, level: .5 }).reset, true,
+  'mouth expression must clear instantly when vocal PCM resumes')
+assert.equal(gate.state().active, false)
+assert.equal(gate.request('吐舌', true), false)
+gate.sample({ audible: true, pcm: false, level: 0 })
+audioMs += 2000
+assert.equal(gate.tick().play, null, 'without PCM, do not invent a mid-sentence pause')
+assert.equal(gate.finished().play, '吐舌',
+  'non-PCM TTS executes the gesture when actual playback finishes')
+audioMs += 780
+assert.equal(gate.tick().reset, true, 'a tongue cannot remain out for seconds')
+gate.reset()
+gate.started()
+gate.request('吐舌', true)
+assert.equal(gate.interrupted().reset, false)
+audioMs += 2000
+assert.equal(gate.finished().play, null,
+  'interrupted utterance may not replay an old tongue cue')
+gate.reset()
+assert.equal(gate.request('吐舌', false), true,
+  'visual-only, silent reactions remain possible')
+assert.equal(gate.started().reset, true,
+  'a new sentence closes an existing tongue before playing sound')
+assert.match(stage, /mouthExpressionGate\\.tick\\(\\)/)
+assert.match(stage, /mouthExpressionGate\\.finished\\(\\)/)
+assert.match(stage, /mouthExpressionGate\\.interrupted\\(\\)/)
+assert.match(stage, /1600 \\/ Math\\.max\\(1, root\\.clientWidth, root\\.clientHeight\\)/)
+console.log('Cubism, audio-expression gating, AIRI layers and transport checks passed')
