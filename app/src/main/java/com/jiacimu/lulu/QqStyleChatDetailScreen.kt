@@ -158,6 +158,7 @@ fun QqStyleChatDetailScreen(
     var moreExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
     var callModeChoiceVisible by remember { mutableStateOf(false) }
+    var live2dDiagnosticOpen by remember { mutableStateOf(false) }
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
     var mentionExpanded by remember { mutableStateOf(false) }
@@ -843,10 +844,22 @@ fun QqStyleChatDetailScreen(
                         Spacer(Modifier.width(12.dp))
                         Text("Live2D 视频通话")
                     }
+                    HorizontalDivider()
+                    TextButton(onClick = {
+                        callModeChoiceVisible = false
+                        live2dDiagnosticOpen = true
+                    }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Outlined.BugReport, contentDescription = null)
+                        Spacer(Modifier.width(12.dp))
+                        Text("Live2D 动态检测 · 不拨号")
+                    }
                 }
             },
             confirmButton = { TextButton(onClick = { callModeChoiceVisible = false }) { Text("取消") } },
         )
+    }
+    if (live2dDiagnosticOpen && groupChat == null) {
+        Live2DModelDiagnosticDialog(characterId) { live2dDiagnosticOpen = false }
     }
     if (callVisible && groupChat != null) {
         LuluGroupVoiceCallScreen(conversationId, groupChat) {
