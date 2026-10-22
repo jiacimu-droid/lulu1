@@ -44,7 +44,9 @@ internal object UserDevicePerception {
         appendLine("用户屏幕交互状态：${when (isScreenInteractive) { true -> "屏幕可交互（亮屏）"; false -> "屏幕未处于交互状态（可能锁屏或熄屏，绝非睡眠证明）"; null -> "未知" }}")
         appendLine("用户手机电量：${runCatching { batteryContext(context) }.getOrDefault("暂时不可用")}")
         appendLine("用户设备最近前台应用：${if (LuluScreenAwareness.appTracking(context)) foregroundAppContext(context, now) else "已关闭应用感知"}")
-        appendLine("用户最近两小时的应用活动：${LuluScreenAwareness.recentAppActivity(context, now.toEpochMilli())}")
+        appendLine("用户最近两小时的应用活动：" + runCatching {
+            LuluScreenAwareness.recentAppActivity(context, now.toEpochMilli())
+        }.getOrDefault("暂时无法读取系统使用记录"))
         appendLine("用户设备位置：${locationContext(context, refreshLocation)}")
         appendLine("用户设备最近通知（总摘录最多500字）：${notificationContext(now)}")
         val musicAllowed = listOfNotNull(

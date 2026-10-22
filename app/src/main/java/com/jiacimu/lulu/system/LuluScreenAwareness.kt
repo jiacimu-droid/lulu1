@@ -118,7 +118,7 @@ object LuluScreenAwareness {
                 return JSONObject().put("success", true).put("status", "observed")
                     .put("packageName", fresh.packageName)
                     .put("capturedAt", Instant.now().toString())
-                    .put("summary", "已获准查看一帧当前屏幕")
+                    .put("summary", "真实看到的屏幕内容：" + description.take(280))
                     .put("visibleDescription", description.take(1300))
                     .put("verification", "真实截图＋视觉模型描述，不代表持续监看").toString()
             } finally { bitmap.recycle() }
