@@ -40,21 +40,23 @@ internal object LuluCallWindowController {
 
     /** Select once before dialing; reopening a minimized call retains its current mode. */
     fun start(video: Boolean) {
-        mutableVideoRequested.value = video
+        // Start may also open an already connected phone UI. Keep the one
+        // call/session and record a real mode change only if it changed.
+        setVideoMode(video)
         mutableExpanded.value = true
-        recordConnectedVideoChoice(video)
     }
     fun setVideoMode(video: Boolean) {
+        val before = mutableVideoRequested.value
+        if (before == video) return
         mutableVideoRequested.value = video
-        recordConnectedVideoChoice(video)
-    }
-    private fun recordConnectedVideoChoice(video: Boolean) {
-        if (!video) return
         val call = LuluVoiceCallSession.state.value
-        if (call.connected) {
+        if (!call.connected || call.callExperienceId.isBlank()) return
+        if (video) {
             com.jiacimu.lulu.data.InteractionSignalBridge.recordVideoSelected(
                 call.characterId, call.callExperienceId)
         }
+        com.jiacimu.lulu.data.InteractionSignalBridge.recordCallMediaSwitch(
+            call.characterId, call.callExperienceId, before, video)
     }
     fun show() { mutableExpanded.value = true }
     fun minimize() { mutableExpanded.value = false }
