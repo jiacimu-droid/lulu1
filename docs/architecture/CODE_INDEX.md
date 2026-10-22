@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`45d928a044a20a904389483d655a7be44b208f4f`
+- 基准提交：`2cfa45ab746d91e27603b4a6bc976eedb4b87d71`
 - 分支：`main`
 - 已索引文件：798
-- 已索引代码/文本行：151787
+- 已索引代码/文本行：151791
 - 已发现符号：2282
 
 | 文件 | 行数 | 符号数 |
@@ -18,7 +18,7 @@
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 452 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 34 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 230 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
@@ -91,7 +91,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 453 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 295 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 603 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 604 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 64 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:34:47.000229+00:00",
-  "commit": "45d928a044a20a904389483d655a7be44b208f4f",
+  "generatedAt": "2026-10-22T07:35:54.389574+00:00",
+  "commit": "2cfa45ab746d91e27603b4a6bc976eedb4b87d71",
   "branch": "main",
-  "sourceFingerprint": "eb4b2517cef6d05ea323780a72cc739e42bca1bb102ce0fb2b34a5bb321b8a98",
+  "sourceFingerprint": "ad400bbfa39c4ff6f75f338a7be34f8cfd336903c54c27cbedabee04a8ef5b5a",
   "summary": {
     "files": 798,
-    "lines": 151787,
+    "lines": 151791,
     "symbols": 2282
   },
   "symbolIndex": {
@@ -19,7 +19,7 @@
     "AvatarController": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/AvatarController.kt",
-        "line": 12
+        "line": 13
       }
     ],
     "start": [
@@ -12866,8 +12866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/AvatarController.kt",
-      "lines": 34,
-      "sha256": "48821ee5f466fd8e956b4d8334ca4b7dbb528c6e02b060586904d7f38268769b",
+      "lines": 37,
+      "sha256": "b72ab21791f31ecc3d60716acb546e56bb380c727cbb90071e379f3dcbd0100f",
       "symbols": [
         {
           "name": "AvatarPresentation",
@@ -12875,7 +12875,7 @@
         },
         {
           "name": "AvatarController",
-          "line": 12
+          "line": 13
         }
       ]
     },
@@ -13921,8 +13921,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 603,
-      "sha256": "0372c044a3f10ef8e6d30b5d2852de37ccad756850393138a4325c1690162102",
+      "lines": 604,
+      "sha256": "4b3aae20c4179ebbcae5f0ddb177be5775e6e32a8b6628daab506b07cbf49701",
       "symbols": []
     },
     {
