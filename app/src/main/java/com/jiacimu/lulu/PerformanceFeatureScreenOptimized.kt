@@ -145,6 +145,10 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 FastMetric("接口输入", record.reportedInputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
                 FastMetric("接口输出", record.reportedOutputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
                 FastMetric("缓存 Token", record.cachedTokens.toString())
+                if (record.requestSource.isNotBlank()) FastMetric("原始调用来源", record.requestSource)
+                if (record.contextMode.isNotBlank()) FastMetric("实际角色上下文", record.contextMode)
+                if (record.providerHost.isNotBlank()) FastMetric("API服务域名", record.providerHost)
+                if (record.auditVersion > 0) FastMetric("请求方式", if (record.streamedRequest) "流式" else "非流式")
                 val estimatedParts = record.breakdown.sumOf { it.estimatedTokens.toLong() }
                 FastMetric("全部文本分项估算", estimatedParts.toString() + " tok")
                 if (record.reportedInputTokens > 0L) {
