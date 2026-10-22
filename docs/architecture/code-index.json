@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T14:26:56.013804+00:00",
-  "commit": "577fb2ffd2704aa74df98fd07126fb70a1587aa1",
+  "generatedAt": "2026-10-22T14:27:32.583480+00:00",
+  "commit": "3e91b058c07ea0571e2c75d3680c859083c7b701",
   "branch": "main",
-  "sourceFingerprint": "1998c113949abb30eef7b05a205cd260668d4a18d82e3e465124805285490781",
+  "sourceFingerprint": "54a7e4ef95252b56d007945c2e6faf63b580c68ec53761f57b4a79f269448d1c",
   "summary": {
     "files": 803,
     "lines": 153535,
@@ -16039,7 +16039,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1210,
-      "sha256": "a713937278da86e92dff3e5f5770b5b59b659913a8f0c1fdfefb9c9782625a2b",
+      "sha256": "e88a584c59a1b497584c585872c6f98d92390194fc47365c304bbcf0f5125a9f",
       "symbols": [
         {
           "name": "ApiConfiguration",
