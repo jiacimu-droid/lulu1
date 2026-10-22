@@ -12,14 +12,14 @@ Java_com_jiacimu_lulu_NativeCubismProbe_nativeDrawableCount(
     const jsize bytes = env->GetArrayLength(input);
     if (bytes <= 0 || bytes > 100 * 1024 * 1024) return -1;
     void* mocData = nullptr;
-    if (posix_memalign(&mocData, csmAlignofMoc(), static_cast<size_t>(bytes)) != 0) return -2;
+    if (posix_memalign(&mocData, csmAlignofMoc, static_cast<size_t>(bytes)) != 0) return -2;
     env->GetByteArrayRegion(input, 0, bytes, reinterpret_cast<jbyte*>(mocData));
     if (env->ExceptionCheck()) { free(mocData); return -3; }
     const auto* moc = csmReviveMocInPlace(mocData, static_cast<csmUint32>(bytes));
     if (!moc) { free(mocData); return -4; }
     const auto modelBytes = csmGetSizeofModel(moc);
     void* modelData = nullptr;
-    if (modelBytes == 0 || posix_memalign(&modelData, csmAlignofModel(),
+    if (modelBytes == 0 || posix_memalign(&modelData, csmAlignofModel,
                                           static_cast<size_t>(modelBytes)) != 0) {
         free(mocData);
         return -5;
