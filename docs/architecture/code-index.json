@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T02:25:19.755981+00:00",
-  "commit": "78fa7f72f8441d92bac8509e52469d386f29b1da",
+  "generatedAt": "2026-10-22T02:25:57.027282+00:00",
+  "commit": "b3f7614121092fd9949111d63ae7f50a7b932274",
   "branch": "main",
-  "sourceFingerprint": "23dc13cff1f5fdb4b4b07e5b07c7f4023858b02bb2635d9ae0ed370b38a9faee",
+  "sourceFingerprint": "bc5d6216e4136aeb8aae3e9dee45014a1e2ff818f6c4a249b3db31748e7f6b29",
   "summary": {
     "files": 788,
-    "lines": 149624,
+    "lines": 149618,
     "symbols": 2256
   },
   "symbolIndex": {
@@ -1489,19 +1489,19 @@
     "previewFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 82
+        "line": 76
       }
     ],
     "rendererManifest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 93
+        "line": 87
       }
     ],
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 111
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1511,7 +1511,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 133
+        "line": 127
       }
     ],
     "toggleSelfCamera": [
@@ -13726,8 +13726,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 292,
-      "sha256": "fa49083599eb9b7afd998ecad29e61cb07fa40eda417d0e63cde9cc1228c7f78",
+      "lines": 286,
+      "sha256": "8c44e0b174d58b72c0fc45745d18fe2f8bcc4c87ee70737078956626c0a91551",
       "symbols": [
         {
           "name": "notifyCoreChanged",
@@ -13755,19 +13755,19 @@
         },
         {
           "name": "previewFile",
-          "line": 82
+          "line": 76
         },
         {
           "name": "rendererManifest",
-          "line": 93
+          "line": 87
         },
         {
           "name": "controls",
-          "line": 111
+          "line": 105
         },
         {
           "name": "removeModel",
-          "line": 133
+          "line": 127
         }
       ]
     },
