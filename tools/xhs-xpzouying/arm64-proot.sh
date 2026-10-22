@@ -69,9 +69,8 @@ checks = [
     "// CurrentUser 当前登录用户的基础信息。",
     "func (a *LoginAction) WaitForLogin(ctx context.Context) bool {",
     "func (a *LoginAction) FetchQrcodeImage(ctx context.Context) (string, bool, error) {",
-    "if exists, _, _ := pp.Has(\".main-container .user .link-wrapper .channel\"); exists {",
 ]
-if any(s.count(n) != 1 for n in checks) or '"strings"' in s:
+if any(s.count(n) != 1 for n in checks) or s.count('if exists, _, _ := pp.Has("') < 2 or '"strings"' in s:
     raise SystemExit("上游登录文件与 v2.5.0 预期不同，未修改")
 s = s.replace('"encoding/json"\n', '"encoding/json"\n\t"strings"\n', 1)
 start = s.index(checks[0])
