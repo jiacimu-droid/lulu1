@@ -296,7 +296,11 @@ function applyAfterMotion(core, deltaMs) {
        timeNow - activeExpressionStartedAt > 6200)) {
     resetSpeechExpression()
   }
-  if (pendingExpressionName && timeNow - pendingExpressionName.queuedAt > 20000) {
+  if ((pendingExpressionName &&
+       timeNow - pendingExpressionName.queuedAt > 20000) ||
+      (pendingSpeechParts &&
+       timeNow - pendingSpeechParts.queuedAt > 20000)) {
+    // Never carry a previous, unheard body cue to the next phone turn.
     pendingExpressionName = null
     pendingSpeechParts = null
   }
@@ -576,15 +580,14 @@ function update(next) {
   if (!playing) mouth = 0
   if (playing) {
     lastSpeechSoundAt = Date.now()
-    if (pendingExpressionName && !activeExpressionName) {
-      const selected = pendingExpressionName.name
+    if (pendingExpressionName || pendingSpeechParts) {
+      const selected = pendingExpressionName?.name
       const parts = pendingSpeechParts
       pendingExpressionName = null
       pendingSpeechParts = null
-      startSpeechExpression(selected)
-      // One AI decision may contain face, head AND body. Delay all parts to
-      // the first audible frame together, rather than showing a grimace
-      // during TTS synthesis while the lips remain still.
+      if (selected) startSpeechExpression(selected)
+      // A role can choose only a gaze or posture, without an expression
+      // file. Such cues also begin with audible speech, not while TTS loads.
       if (parts?.head) head(parts.head)
       if (parts?.body) body(parts.body)
       if (parts?.face) face(parts.face)
@@ -816,7 +819,6 @@ function expression(name) {
     // The decision arrives before TTS plays; do not grimace throughout
     // network/voice generation latency.
     pendingExpressionName = { name, queuedAt: Date.now() }
-    pendingSpeechParts = null
   }
 }
 function motion(group, index) {
@@ -826,8 +828,8 @@ function motion(group, index) {
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
 function face(target) {
   if (!model || !target || typeof target !== 'object') return
-  if (!playing && pendingExpressionName) {
-    pendingSpeechParts = pendingSpeechParts || {}
+  if (!playing) {
+    pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.face = target
     return
   }
@@ -845,8 +847,8 @@ function face(target) {
 }
 function body(target) {
   if (!model || !target || typeof target !== 'object') return
-  if (!playing && pendingExpressionName) {
-    pendingSpeechParts = pendingSpeechParts || {}
+  if (!playing) {
+    pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.body = target
     return
   }
@@ -864,8 +866,8 @@ function body(target) {
 }
 function head(target) {
   if (!model || !target) return
-  if (!playing && pendingExpressionName) {
-    pendingSpeechParts = pendingSpeechParts || {}
+  if (!playing) {
+    pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
     pendingSpeechParts.head = target
     return
   }
