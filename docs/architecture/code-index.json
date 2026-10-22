@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:35:54.389574+00:00",
-  "commit": "2cfa45ab746d91e27603b4a6bc976eedb4b87d71",
+  "generatedAt": "2026-10-22T07:36:41.583024+00:00",
+  "commit": "f8d0ba4786d5f397a30c3dbb681cd474d7d11d5c",
   "branch": "main",
-  "sourceFingerprint": "ad400bbfa39c4ff6f75f338a7be34f8cfd336903c54c27cbedabee04a8ef5b5a",
+  "sourceFingerprint": "ea577ecb76064093e5f22a0009029df80217305fc7c42516c78397e9c71c5fdd",
   "summary": {
     "files": 798,
-    "lines": 151791,
+    "lines": 151819,
     "symbols": 2282
   },
   "symbolIndex": {
@@ -2149,19 +2149,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1728
+        "line": 1742
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1879
+        "line": 1893
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2029
+        "line": 2043
       }
     ],
     "returnToList": [
@@ -14425,8 +14425,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2115,
-      "sha256": "964d118aa4f25f0d8566c5f651629e193223aea53859b20a8ca434aab6d682b0",
+      "lines": 2129,
+      "sha256": "1950048662190cae79debe3490960086745ca5bb1ccea3efcbe62a93d26ecf59",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -14502,15 +14502,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1728
+          "line": 1742
         },
         {
           "name": "retryListening",
-          "line": 1879
+          "line": 1893
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2029
+          "line": 2043
         }
       ]
     },
@@ -24920,8 +24920,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt",
-      "lines": 103,
-      "sha256": "00fa8f1b595869f4df457e94f389707b7ec9ace2764455239e51a3d719340596",
+      "lines": 117,
+      "sha256": "f84a0792ac9f23a7b694f6c92ea4fdfd648d34c5880ded2b5c95bebcc2f22684",
       "symbols": [
         {
           "name": "Live2DVisualActionBusTest",
