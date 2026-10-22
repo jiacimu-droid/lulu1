@@ -159,8 +159,13 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                     }
                     if (!rendererReady.value || size.width < 20 || size.height < 20) return@awaitEachGesture
                     val duration = android.os.SystemClock.uptimeMillis() - started
+                    val dx = last.x - down.position.x
+                    val dy = last.y - down.position.y
                     val gesture = when {
-                        traveled > viewConfiguration.touchSlop * 3 -> "stroke"
+                        traveled > viewConfiguration.touchSlop * 3 && kotlin.math.abs(dx) >= kotlin.math.abs(dy) ->
+                            if (dx >= 0) "stroke-right" else "stroke-left"
+                        traveled > viewConfiguration.touchSlop * 3 ->
+                            if (dy >= 0) "stroke-down" else "stroke-up"
                         duration >= 520 -> "hold"
                         else -> "tap"
                     }
