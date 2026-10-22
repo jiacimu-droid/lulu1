@@ -10,6 +10,8 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -34,6 +36,7 @@ object LuluMusicSensoryRuntime {
     // Bound the *single API payload*, not music history or device storage.
     // Many OpenAI-compatible proxies reject large JSON bodies; ask for a clip.
     private const val MAX_INLINE_AUDIO_BYTES = 12 * 1024 * 1024
+    private val requestMutex = Mutex()
 
     private data class Config(val base: String, val key: String, val model: String, val mode: String) {
         val ready get() = base.startsWith("https://") && key.isNotBlank() &&
@@ -193,43 +196,69 @@ object LuluMusicSensoryRuntime {
                 require(characterId.isNotBlank()) { "没有选择角色" }
                 require(uri.scheme == "content") { "只能读取用户通过系统文件选择器授权的音频" }
                 val cfg = config(context)
-                check(cfg.ready) { "先选择可接收音频的专用模型和 HTTPS API 线路" }
                 SharedExperienceTimeline.initialize(context)
                 val name = fileName(context, uri)
                 val mime = audioMime(context, uri, name)
                 val bytes = readBounded(context, uri)
+                val signalSketch = MusicSignalSketch.describe(bytes)
+                check(cfg.ready || signalSketch != null) {
+                    "未配置音频模型；不付费的本地结构分析仅支持 PCM16 WAV"
+                }
                 val digest = sha256(bytes)
+                val route = if (cfg.ready) cfg.mode + "|" + cfg.base + "|" + cfg.model else "local-waveform-v1"
+                val routeHash = sha256(route.toByteArray(Charsets.UTF_8)).take(20)
                 val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                val cacheKey = "shared:" + characterId + ":" + digest
-                val priorId = p.getString(cacheKey, "").orEmpty()
-                val prior = SharedExperienceTimeline.eventsByIds(
-                    characterId, listOf(priorId)).firstOrNull()
-                    ?.takeIf { it.source == "sensory-music" }
-                if (prior != null) {
-                    p.edit().putString("last:" + characterId, prior.id).commit()
-                    Result.success("已复用此前真实听到的分析（未再次调用付费模型）：\n" +
-                        JSONObject(prior.content).optString("observation"))
-                } else {
-                    val summary = request(cfg, mime, bytes)
-                    val eventId = "sensory-music-" + UUID.randomUUID().toString()
-                    val detail = JSONObject()
-                        .put("sourceKind", "user_selected_audio_file")
-                        .put("fileLabel", name)
-                        .put("actualAudioObserved", true)
-                        .put("model", cfg.model)
-                        .put("observation", summary)
-                        .put("scope", "用户选择的音频片段；不是对外部音乐 App 的实时监听")
-                    SharedExperienceTimeline.record(
-                        eventId, characterId, "用户共享音乐", "听觉模型", detail.toString(),
-                        triggerExtraction = false, source = "sensory-music",
-                        evidenceKind = EventEvidenceKind.Observation)
-                    check(SharedExperienceTimeline.eventsByIds(
-                        characterId, listOf(eventId)).isNotEmpty()) { "音频已分析，但时间线记录失败，不能当成已记住" }
-                    check(p.edit().putString(cacheKey, eventId)
-                        .putString("last:" + characterId, eventId).commit()) {
-                            "感知已记录，但最新共享指针保存失败"
+                val cacheKey = "shared:" + characterId + ":" + digest + ":" + routeHash
+                requestMutex.withLock {
+                    val cachedId = p.getString(cacheKey, "").orEmpty()
+                    val legacyId = if (cachedId.isBlank() && cfg.ready)
+                        p.getString("shared:" + characterId + ":" + digest, "").orEmpty()
+                        else ""
+                    val old = SharedExperienceTimeline.eventsByIds(characterId, listOf(legacyId))
+                        .firstOrNull()
+                    val sameModelLegacy = old?.source == "sensory-music" &&
+                        runCatching { JSONObject(old.content).optString("model") }.getOrDefault("") == cfg.model
+                    val id = cachedId.ifBlank { if (sameModelLegacy) legacyId else "" }
+                    val existing = SharedExperienceTimeline.eventsByIds(characterId, listOf(id))
+                        .firstOrNull()?.takeIf { it.source == "sensory-music" }
+                    if (existing != null) {
+                        check(p.edit().putString(cacheKey, existing.id)
+                            .putString("last:" + characterId, existing.id).commit()) {
+                            "已找到旧结果，但最近分享索引更新失败"
                         }
-                    Result.success("已将真实音频分析分享给这个角色：\n" + summary)
+                        Result.success("复用了此前对同一音频的分析（未重复收费）：\n" +
+                            JSONObject(existing.content).optString("observation"))
+                    } else {
+                        val semantic = if (cfg.ready) request(cfg, mime, bytes)
+                            else "仅对实际 WAV 波形进行了本地测量，没有识别歌词、乐器或作品意义。"
+                        val observation = buildString {
+                            append(semantic)
+                            if (signalSketch != null) append("\n【本地能量变化（非音符识别）】" + signalSketch)
+                        }
+                        val eventId = "sensory-music-" + UUID.randomUUID()
+                        val detail = JSONObject()
+                            .put("sourceKind", "user_selected_audio_file")
+                            .put("fileLabel", name)
+                            .put("actualAudioObserved", true)
+                            .put("semanticAudioAnalysis", cfg.ready)
+                            .put("model", if (cfg.ready) cfg.model else "local-waveform-v1")
+                            .put("routeHash", routeHash)
+                            .put("observation", observation)
+                            .put("scope", "仅用户选取的片段，不是其他播放器的实时声音")
+                        SharedExperienceTimeline.record(
+                            eventId, characterId, "用户共享音乐", "听觉感知", detail.toString(),
+                            triggerExtraction = false, source = "sensory-music",
+                            evidenceKind = EventEvidenceKind.Observation)
+                        check(SharedExperienceTimeline.eventsByIds(
+                            characterId, listOf(eventId)).isNotEmpty()) {
+                            "感知已完成但原始时间线写入失败；不能标为已记住"
+                        }
+                        check(p.edit().putString(cacheKey, eventId)
+                            .putString("last:" + characterId, eventId).commit()) {
+                            "时间线已有记录，但最近共享索引保存失败"
+                        }
+                        Result.success("已经分享真实音频观察给此角色：\n" + observation)
+                    }
                 }
             } catch (cancel: CancellationException) {
                 throw cancel
@@ -253,7 +282,7 @@ object LuluMusicSensoryRuntime {
         if (observation.isBlank()) return ""
         return "【用户曾主动分享给你的实际音频片段｜" + event.occurredAt +
             "｜来源ID=" + event.id + "】文件：" + data.optString("fileLabel") +
-            "；听觉模型的可质疑观察：" + observation.take(1_400) +
+            "；有来源的听觉观察（可能只是波形测量）：" + observation.take(1_400) +
             "。这是用户主动选择的音频，并不证明手机此刻正在播放此曲；" +
             "你可以凭本人喜好形成感想，也可以不说，不得说你正在实时监听其他App。"
     }
