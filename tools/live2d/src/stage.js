@@ -72,10 +72,8 @@ let blinkProgress = -1
 const smoothPose = { yaw: 0, pitch: 0, roll: 0 }
 const smoothBody = { yaw: 0, pitch: 0, roll: 0 }
 const smoothFace = Object.create(null)
-// Local motor reflexes are intentionally tiny: they must never invent head
-// nods, smiles or story decisions. A person may hold eye contact, then briefly
-// look aside without any new paid character-model call.
-const gazeReflex = { x: 0, y: 0, nextAt: 0 }
+// Keep eye contact with the camera while idle. No random gaze wandering:
+ // looking away is a deliberate character action with a bounded lifetime.
 let smoothedMouthOpen = 0
 let mouthReleaseUntil = 0
 let lastRealMouthSignalAt = 0
@@ -171,7 +169,7 @@ function fit() {
   const widthTarget = viewWidth * (isPortrait ? 2.40 : .92)
   model.scale.set(Math.min(widthTarget / originalWidth, heightTarget / originalHeight))
   model.anchor.set(.5, .5)
-  model.position.set(viewWidth / 2, viewHeight * (isPortrait ? 1.06 : .53))
+  model.position.set(viewWidth / 2, viewHeight * (isPortrait ? 1.00 : .49))
 }
 function setFramingMode(nextMode) {
   framingMode = nextMode === 'portrait' ? 'portrait' : 'full'
@@ -321,17 +319,9 @@ function applyFinalParameters(core, deltaMs) {
     pendingExpressionName = null
     pendingSpeechParts = null
   }
-  // Low amplitude, non-periodic eye saccades. Listening favors eye contact;
-  // speaking allows a brief glance away. Deliberate AI gaze overrides both.
-  // Never move the whole head or imply a particular emotional state.
-  if (timeNow >= gazeReflex.nextAt) {
-    // Face toward the user during actual conversation. Tiny idle-only eye
-    // movement is fine, but never wander offscreen while responding.
-    const radius = (listening || playing) ? 0 : .035
-    gazeReflex.x = (Math.random() * 2 - 1) * radius
-    gazeReflex.y = (Math.random() * 2 - 1) * radius * .65
-    gazeReflex.nextAt = timeNow + 2500 + Math.random() * 3500
-  }
+  // By default the iris must continuously target the center of the screen;
+  // the imported model's idle animation / focus controller can otherwise
+  // rewrite it after a near-zero gaze value was "released".
   // The user's video-call camera is directly in front of the avatar.
   // Authored idle animations can swing the entire skull forever, making eye
   // contact impossible. Override ONLY head angles to a stable front-facing
@@ -354,12 +344,10 @@ function applyFinalParameters(core, deltaMs) {
   for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
     if (!hasParameter(core, id)) continue
     const requested = bodyRequest?.[axis]
-    if (requested == null && Math.abs(smoothBody[axis]) < .10) {
-      smoothBody[axis] = 0
-      continue
-    }
     smoothBody[axis] += ((requested ?? 0) - smoothBody[axis]) *
       Math.min(1, deltaMs * .008)
+    if (requested == null && Math.abs(smoothBody[axis]) < .025) smoothBody[axis] = 0
+    // Suppress authored idle torso swaying, but preserve short intentional cues.
     setParameter(core, id, smoothBody[axis])
   }
   for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
@@ -367,16 +355,17 @@ function applyFinalParameters(core, deltaMs) {
     // files (e.g. blush). They are NOT selected randomly each animation frame.
     if (ids.some(id => !hasParameter(core, id))) continue
     const requested = faceRequest?.[key]
-    const resting = key === 'gazeX' ? gazeReflex.x :
-      key === 'gazeY' ? gazeReflex.y : 0
-    const target = requested ?? resting
+    const eyeContact = key === 'gazeX' || key === 'gazeY'
+    const target = requested ?? 0
     const previous = smoothFace[key] || 0
-    if (requested == null && Math.abs(previous) < .018 &&
-        Math.abs(resting) < .018) {
+    // Never yield the gaze channels to the model's idle/focus animation.
+    // Other face channels may still be owned by imported expressions.
+    if (!eyeContact && requested == null && Math.abs(previous) < .018) {
       smoothFace[key] = 0
       continue
     }
-    const next = previous + (target - previous) * Math.min(1, deltaMs * .008)
+    let next = previous + (target - previous) * Math.min(1, deltaMs * .012)
+    if (requested == null && Math.abs(next) < .015) next = 0
     smoothFace[key] = next
     for (const id of ids) setParameter(core, id, next)
   }
