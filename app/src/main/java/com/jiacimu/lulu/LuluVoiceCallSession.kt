@@ -687,6 +687,9 @@ internal object LuluVoiceCallSession {
         LuluCallRingtone.stopInCallWake()
         val endStatus = if (sleepAutoEnded) "哄睡陪伴已安静结束" else
             if (endedByCharacter) "${current.characterName}结束了通话" else "通话已结束"
+        // Invalidate the visual time line before the late TTS callback
+        // gets a chance to paint a previous expression onto a new session.
+        Live2DSpeechTimeline.interrupted(current.characterId, current.callExperienceId)
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
         mutableState.update { it.copy(phase = CallPhase.Ended, opening = false, listening = false,
             userSpeaking = false, thinking = false, speaking = false, sleepMode = false,
@@ -933,6 +936,7 @@ internal object LuluVoiceCallSession {
         subtitleRevealJob?.cancel()
         cancelPendingCharacterHangup()
         speechQueue?.stop()
+        Live2DSpeechTimeline.interrupted(state.characterId, state.callExperienceId)
         replyIsSilence = false
         silenceAudioPending = false
         mutableState.update {
@@ -1406,6 +1410,8 @@ internal object LuluVoiceCallSession {
                         messageId = voiceMessageId,
                         onStarted = {
                             if (sameReply()) {
+                                Live2DSpeechTimeline.started(
+                                    latest.characterId, latest.callExperienceId, voiceMessageId)
                                 promiseTaskId?.let { com.jiacimu.lulu.data.CommitmentCallFeedback.onVoiceStarted(it, latest.callExperienceId) }
                                 // Retain all audible segments, not only the last bubble.
                                 // STT echo for an earlier sentence can arrive during
@@ -1428,6 +1434,10 @@ internal object LuluVoiceCallSession {
                                     }
                                 }
                             }
+                        },
+                        onEnded = {
+                            Live2DSpeechTimeline.finished(
+                                latest.characterId, latest.callExperienceId, voiceMessageId)
                         },
                         onDelivered = {
                             if (!sameReply()) return@enqueue
