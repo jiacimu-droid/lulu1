@@ -96,3 +96,15 @@ installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 - https://github.com/pixijs/pixijs/issues/9113
 
 **验证分层**：npm esbuild bundle 成功、Android 单测和 APK 构建成功，均不能代替在用户当前手机 WebView 运行 Cubism 模型的最终验证。只有新版 APK 中见到真实动画、模型原生表情可播放、音频口型跟随、前后切换无丢音，才能声称动态体验通过。静态作者预览只能证明 PNG 可以解码。
+
+## 2026-10-22 修复模型加载后的视频黑屏
+
+本机静态预览成功后，曾在 Live2DModel.from 返回时直接通知 Android「渲染完成」，导致 Compose 立即隐藏静态预览。但模型解码成功不等于 WebGL 已画出可见像素。
+
+- 当前改为在 WebGL 绘制后抽样 RGBA 像素，证明确实产生了非透明人物内容才发出 ready；无实际画面保留作者图片与错误原因。
+- 新增 ResizeObserver 跟随 Android WebView 真实尺寸变化；无变化不反复重置 GPU drawing buffer。
+- 新增 GPU WebGL contextlost 与 Android onRenderProcessGone 故障回退，保留静态图和通话，并给出重新载入动态画面的操作。
+- 读取手机 WebGL 纹理上限；原始 8192 像素等大型图集首次使用时在手机本地生成最高 4096 像素的显示缓存，原始模型和纹理永久保留。临时调整仅用于虚拟模型 manifest 中的显示引用。
+- WebView 改为不透明视频背景，降低原有透明 WebView 透出聊天页面的问题。
+
+这解决的是已识别的代码缺陷并增加显存保护；APK 构建成功仍不代表小狼真实运动通过，必须在手机验证人物动作、口型、视频切换和 GPU 稳定性。
