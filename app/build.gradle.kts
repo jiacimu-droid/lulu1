@@ -36,6 +36,8 @@ android {
         applicationId = "app.lulu"
         minSdk = 26
         targetSdk = 35
+        // The supported Lulu phone is ARM64. Ship the JNI runtime with every installable variant.
+        ndk { abiFilters += "arm64-v8a" }
         val releaseNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.coerceIn(1, 2_000_000_000) ?: 1
         val revision = System.getenv("GITHUB_SHA")?.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) }?.take(12) ?: "local"
         versionCode = releaseNumber
@@ -45,6 +47,13 @@ android {
 
     sourceSets {
         getByName("main").res.srcDir(generatedLauncherRes)
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     signingConfigs {
