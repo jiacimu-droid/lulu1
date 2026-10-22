@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`de9b76ee97be5e4975c4f64ecbd07ad1e5ca637a`
+- 基准提交：`8ef796e32731e2418abd178b29f1a4be13438582`
 - 分支：`main`
 - 已索引文件：827
-- 已索引代码/文本行：157504
+- 已索引代码/文本行：157509
 - 已发现符号：2389
 
 | 文件 | 行数 | 符号数 |
@@ -94,7 +94,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 453 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 295 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 725 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 730 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 64 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
