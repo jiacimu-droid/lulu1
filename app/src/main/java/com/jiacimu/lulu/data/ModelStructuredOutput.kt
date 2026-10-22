@@ -144,7 +144,8 @@ internal object ModelStructuredOutput {
                 // clarification followed by an entire phone-call recap).
                 // No character count may cut a sentence mid-phrase.
                 val independentFollowUp = current.length >= 8 &&
-                    current.lastOrNull() in "。！？!?；;" && clause.length >= 20
+                    (current.lastOrNull()?.let { it in "。！？!?；;" } == true) &&
+                    clause.length >= 20
                 if (current.isNotBlank() && (independentFollowUp ||
                     (current.length >= 14 && current.length + clause.length > 43))) {
                     pieces += current
