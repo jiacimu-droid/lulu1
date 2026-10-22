@@ -67,4 +67,35 @@ class CharacterDeliberationContextTest {
             .put("innerThought", "旧的犹豫")
         assertEquals("", CharacterDeliberationContext.summary(JSONArray().put(old), now))
     }
+
+    @Test fun conflictingPrivateIdeasSurviveAsOneSubjectiveEventWithoutBecomingActions() {
+        val impulses = JSONArray().put("想逗她开心").put("又想先好好安慰她").put("想逗她开心")
+        val appraisal = JSONObject().put("privateIdeas", impulses)
+            .put("tension", "两种心思都在，不知道这会儿哪种更合适")
+        val saved = CharacterDeliberationContext.conciseAppraisal(appraisal)!!
+        assertEquals(2, saved.getJSONArray("privateIdeas").length())
+        val trace = JSONObject().put("at", now.toString())
+            .put("selectedAction", "silent")
+            .put("appraisal", saved)
+        val context = CharacterDeliberationContext.summary(JSONArray().put(trace), now)
+        assertTrue(context.contains("想逗她开心"))
+        assertTrue(context.contains("好好安慰她"))
+        assertTrue(context.contains("只是心理历史"))
+        assertEquals(3, impulses.length())
+    }
+
+    @Test fun aNarratedInnerVoiceDoesNotSuppressTheConciseAAndBImpulses() {
+        val impulses = JSONArray().put("想逗她").put("想哄她")
+        val mind = "一开始真想拿这事逗逗她，结果看她情绪不太好，唉，还是先哄哄吧。"
+        val summary = CharacterMomentSnapshot.reflection(null,
+            appraisal = JSONObject().put("privateIdeas", impulses),
+            innerThought = mind)
+        assertTrue(summary.contains("想逗她"))
+        assertTrue(summary.contains("想哄她"))
+        assertFalse(summary.contains("唉，还是先哄哄吧"))
+        val noImpulse = CharacterMomentSnapshot.reflection(null,
+            appraisal = JSONObject().put("uncertainty", "不知道她在想什么"),
+            innerThought = mind)
+        assertEquals("", noImpulse)
+    }
 }

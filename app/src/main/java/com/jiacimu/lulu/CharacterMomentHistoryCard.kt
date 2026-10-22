@@ -56,26 +56,16 @@ internal fun CharacterMomentHistoryCard(characterId: String, row: CharacterState
                 }
             }
         }
-        moment.otherThoughts.forEach { (label, content) ->
-            MomentFactLine(label, content)
-        }
-        row.decisions.distinctBy { it.id }.forEach { decision ->
-            // "Why" is useful only if it adds something to what the role
-            // already thought or what the executor demonstrably accomplished.
-            if (decision.action != row.title &&
-                !CharacterHeartVoicePolicy.sameMeaning(decision.action, moment.gesture)) {
-                MomentFactLine("选择", decision.action)
-            }
-            val alreadySaid = listOf(moment.voice, moment.status, moment.gesture,
-                moment.otherThoughts.joinToString("；") { it.second })
-            if (decision.reason.isNotBlank() && alreadySaid.none {
-                    CharacterHeartVoicePolicy.sameMeaning(decision.reason, it)
-                }) {
-                MomentFactLine("缘由", decision.reason)
-            }
-            if (decision.result.isNotBlank() &&
-                !CharacterHeartVoicePolicy.sameMeaning(decision.result, moment.gesture)) {
-                MomentFactLine("结果", decision.result)
+        // One concise set of impulses, not a second narrated deliberation.
+        // The heart voice above is where A/B's hesitation and turning point live.
+        val ideas = moment.otherThoughts.map { it.second }.filter(String::isNotBlank)
+        if (ideas.isNotEmpty()) MomentFactLine("想法", ideas.joinToString("  ·  "))
+        // A standalone action receipt may lack any saved private speech.
+        // Show only the factual action label here. Full reasons, proof and
+        // outcomes remain behind the existing "关联事件" audit link.
+        if (row.moment == null && moment.voice.isBlank() && ideas.isEmpty()) {
+            row.decisions.distinctBy { it.id }.forEach { decision ->
+                MomentFactLine("行动", decision.action)
             }
         }
         Row {

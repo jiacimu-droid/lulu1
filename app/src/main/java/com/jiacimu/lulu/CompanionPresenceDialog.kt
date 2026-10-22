@@ -346,10 +346,9 @@ private fun PresenceStateContent(
     val status = fields["状态"].orEmpty()
     val gesture = fields["动作"].orEmpty()
     val voice = heartMoment?.innerThought.orEmpty()
-    val reflection = heartMoment?.momentReflection.orEmpty().takeUnless {
-        it.isBlank() || (voice.isNotBlank() &&
-            CharacterHeartVoicePolicy.sameMeaning(it, voice))
-    }.orEmpty()
+    // "想逗"/"想哄" are the concise alternatives; the heart voice may
+    // naturally tell the same A/B story in full without making them redundant.
+    val reflection = heartMoment?.momentReflection.orEmpty()
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(top = 7.dp),
@@ -394,7 +393,7 @@ private fun PresenceStateContent(
         }
         if (reflection.isNotBlank()) {
             Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Text("小念头", color = Color(0xFF928D92), fontSize = 11.sp)
+                Text("想法", color = Color(0xFF928D92), fontSize = 11.sp)
                 reflection.lines().filter(String::isNotBlank).forEach { thought ->
                     Text(thought, fontSize = 13.sp, lineHeight = 22.sp,
                         color = Color(0xFF514E52))

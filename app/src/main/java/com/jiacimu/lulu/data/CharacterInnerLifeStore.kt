@@ -1100,7 +1100,8 @@ object CharacterInnerLifeStore {
             responseAim.isBlank() && effectiveReason.isBlank() &&
             !CharacterOpenConcernRuntime.hasProposals(appraisal) &&
             appraisal?.optJSONObject("ownActivity") == null &&
-            appraisal?.optJSONObject("shareWish") == null) return
+            appraisal?.optJSONObject("shareWish") == null &&
+            (appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) == 0) return
 
         val root = snapshot(characterId)
         val past = root.optJSONArray("causalTransitions") ?: JSONArray()
@@ -1135,6 +1136,11 @@ object CharacterInnerLifeStore {
         }
         interpreted?.optJSONArray("possibleReadings")?.let {
             appraisalTrace.put("possibleReadings", it)
+        }
+        // Unlike action reason, these are concurrent transient mental wishes.
+        // Keep them on the original causal event, not in a second desire Store.
+        interpreted?.optJSONArray("privateIdeas")?.let {
+            appraisalTrace.put("privateIdeas", it)
         }
         if (appraisalTrace.length() > 0) entry.put("appraisal", appraisalTrace)
         val options = JSONArray()

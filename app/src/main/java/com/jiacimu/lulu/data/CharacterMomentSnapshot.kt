@@ -31,8 +31,11 @@ internal object CharacterMomentSnapshot {
                 .trim(' ', '。', '，', '、', '：', ':')
                 .take(limit)
                 .trimEnd('，', ',', '、', '：', ':')
+            // A concise wish can overlap the full inner monologue without
+            // being redundant: A/B are the options, voice is their felt process.
+            // Only omit thoughts that merely repeat an outward utterance.
             if (cleaned.isBlank() || CharacterHeartVoicePolicy.sameMeaning(cleaned, outward) ||
-                CharacterHeartVoicePolicy.sameMeaning(cleaned, innerThought)) return
+                ideas.any { CharacterHeartVoicePolicy.sameMeaning(it, cleaned) }) return
             // Do not repeat near-identical desires under different captions.
             val key = cleaned.lowercase().filter(Char::isLetterOrDigit)
             if (key.isNotBlank() && fingerprints.add(key)) ideas += cleaned
@@ -60,12 +63,9 @@ internal object CharacterMomentSnapshot {
             add(thought.optString("thought"), 72)
             if (ideas.size < 2) add(thought.optString("hesitation"), 72)
         }
-        // An actual doubt is valid, but only a fallback. Do not replace two
-        // adorable concrete ideas with "I should respect her boundaries".
-        if (ideas.isEmpty()) {
-            add(basis?.optString("conflict").orEmpty(), 86)
-            add(appraisal?.optString("uncertainty").orEmpty(), 86)
-        }
+        // No guesses or abstract risk-analysis notes masquerading as desires.
+        // Conflict/uncertainty may inform the role's decision or heart voice,
+        // but they are not automatically a separate "idea".
         return ideas.take(3).joinToString("\n")
     }
 }

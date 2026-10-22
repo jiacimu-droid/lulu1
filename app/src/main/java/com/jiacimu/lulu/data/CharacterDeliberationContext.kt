@@ -29,6 +29,19 @@ internal object CharacterDeliberationContext {
             }
             if (valid.length() > 0) out.put("possibleReadings", valid)
         }
+        // These are the role's concise, concurrent wishes (A/B), not a
+        // transcript of model reasoning. Persist them with the SAME causal
+        // event so the next turn can distinguish a wish from a completed act.
+        source.optJSONArray("privateIdeas")?.let { candidates ->
+            val ideas = JSONArray()
+            for (i in 0 until candidates.length()) {
+                val idea = candidates.optString(i).trim()
+                if (idea.isNotBlank() && !(0 until ideas.length()).any {
+                        CharacterHeartVoicePolicy.sameMeaning(ideas.optString(it), idea)
+                    }) ideas.put(idea.take(180))
+            }
+            if (ideas.length() > 0) out.put("privateIdeas", ideas)
+        }
         return out.takeIf { it.length() > 0 }
     }
 
@@ -46,14 +59,20 @@ internal object CharacterDeliberationContext {
             recent.forEach { entry ->
                 val appraisal = entry.optJSONObject("appraisal")
                 val possibilities = appraisal?.optJSONArray("possibleReadings")
+                val ideas = appraisal?.optJSONArray("privateIdeas")
                 val tension = appraisal?.optString("tension").orEmpty()
                 val basis = entry.optJSONObject("innerThoughtBasis")
                 val conflict = basis?.optString("conflict").orEmpty()
                 val thought = entry.optString("innerThought")
                 val meaningful = (possibilities?.length() ?: 0) > 0 ||
+                    (ideas?.length() ?: 0) > 0 ||
                     tension.isNotBlank() || conflict.isNotBlank() || thought.isNotBlank()
                 if (!meaningful) return@forEach
                 append("- ").append(entry.optString("selectedAction").take(30))
+                if (ideas != null && ideas.length() > 0) {
+                    append("；当时并存的想法：")
+                    append((0 until ideas.length()).map(ideas::optString).joinToString("／"))
+                }
                 if (possibilities != null && possibilities.length() > 0) {
                     append("；当时想到的不同可能：")
                     append((0 until minOf(possibilities.length(), 3))

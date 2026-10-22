@@ -264,4 +264,42 @@ class CharacterRecordArchitectureTest {
         assertTrue(paragraphs.size > 1)
         assertEquals(prose, paragraphs.joinToString(""))
     }
+
+    @Test fun onePsychologicalEventKeepsConcurrentIdeasAndExecutesNoImaginedAction() {
+        val source = "mind-choice-2026"
+        SharedExperienceTimeline.record(source, role, "私聊", "用户", "今天有一点不开心",
+            now, triggerExtraction = false, source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val appraisal = JSONObject().put("privateIdeas", JSONArray()
+            .put("想逗她笑").put("想先哄哄她"))
+        val voice = "先想说句玩笑话。可她今天已经不开心了，还是先认真听她说吧。"
+        CharacterInnerLifeStore.recordCausalTransition(role, source,
+            appraisal = appraisal, innerLife = null, innerThoughtBasis = null,
+            selectedAction = "silent", innerThought = voice,
+            reason = "想给她留一点空间", now = now.plusSeconds(4))
+        val transition = CharacterInnerLifeStore.snapshot(role)
+            .getJSONArray("causalTransitions").getJSONObject(0)
+        assertEquals(2, transition.getJSONObject("appraisal")
+            .getJSONArray("privateIdeas").length())
+        assertEquals("silent", transition.getString("selectedAction"))
+        assertEquals(0, CharacterRecordProjection.decisions(role).size)
+
+        val present = CompanionPresenceState(role, innerThought = voice,
+            momentReflection = CharacterMomentSnapshot.reflection(null,
+                appraisal = appraisal, innerThought = voice),
+            updatedAt = now.plusSeconds(7), provenanceId = source)
+        val rows = CharacterStateHistory.entries(role, listOf(present), now.plusSeconds(30))
+        assertEquals(1, rows.size)
+        val displayed = CharacterStateHistory.display(rows.single())
+        assertEquals(voice, displayed.voice)
+        assertTrue(displayed.otherThoughts.any { it.second == "想逗她笑" })
+        assertTrue(displayed.otherThoughts.any { it.second == "想先哄哄她" })
+        assertTrue(displayed.otherThoughts.all { it.first == "想法" })
+        // A subjective thought is neither a tool receipt nor a new real event.
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(source)).size)
+        CharacterStateHistory.delete(role, rows.single())
+        assertEquals(0, CharacterInnerLifeStore.snapshot(role)
+            .getJSONArray("causalTransitions").length())
+        assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(source)).size)
+    }
 }

@@ -29,8 +29,10 @@ internal object CharacterStateHistory {
             consumed += linked.map { it.id }
             val detail = listOfNotNull(
                 moment.innerThought.takeIf(String::isNotBlank),
-                moment.momentReflection.takeIf { it.isNotBlank() &&
-                    !CharacterHeartVoicePolicy.sameMeaning(it, moment.innerThought) }?.let { "想法：$it" },
+                // A/B labels are intentionally allowed to echo a full voice:
+                // concise choices and their narrative are different functions.
+                moment.momentReflection.takeIf(String::isNotBlank)?.let { text -> text.lineSequence().filter(String::isNotBlank)
+                    .joinToString("\n") { "想法：$it" } },
                 entry.status.takeIf(String::isNotBlank)?.let { "状态：$it" },
                 entry.gesture.takeIf(String::isNotBlank)?.let { "动作：$it" },
             ).joinToString("\n")
@@ -53,6 +55,10 @@ internal object CharacterStateHistory {
             if (evidenceId.isBlank() || SharedExperienceTimeline.eventsByIds(characterId,
                     listOf(evidenceId)).isEmpty()) continue
             val delta = change.optJSONObject("stateDelta")
+            val concurrentIdeas = change.optJSONObject("appraisal")?.optJSONArray("privateIdeas")
+            val ideaLines = (0 until (concurrentIdeas?.length() ?: 0))
+                .mapNotNull { i -> concurrentIdeas?.optString(i)?.trim()?.takeIf(String::isNotBlank) }
+                .distinct().map { "想法：$it" }
             val parts = listOfNotNull(
                 change.optString("innerThought").takeIf(String::isNotBlank),
                 delta?.optString("selfCorrection")?.takeIf(String::isNotBlank)?.let { "想调整：$it" },
@@ -61,7 +67,8 @@ internal object CharacterStateHistory {
                 change.optJSONObject("appraisal")?.optString("tension")?.takeIf(String::isNotBlank)
                     ?.let { "仍在权衡：$it" },
             )
-            if (parts.isEmpty()) continue
+            val authoredParts = parts + ideaLines
+            if (authoredParts.isEmpty()) continue
             // The reflection writer and the presence writer can persist
             // the SAME causal event a few seconds apart. Evidence identity,
             // not identical wall-clock timestamps, determines ownership.
@@ -73,15 +80,16 @@ internal object CharacterStateHistory {
             if (existing >= 0) {
                 val row = rows[existing]
                 val voice = row.moment?.innerThought.orEmpty()
-                val added = parts.filterNot { part ->
+                val added = authoredParts.filterNot { part ->
                     row.detail.contains(part) ||
-                        (voice.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(part, voice))
+                        (!part.startsWith("想法：") && voice.isNotBlank() &&
+                            CharacterHeartVoicePolicy.sameMeaning(part, voice))
                 }
                 rows[existing] = row.copy(detail = (listOf(row.detail) + added)
                     .filter(String::isNotBlank).joinToString("\n"), evidenceIds = (row.evidenceIds + evidenceId).distinct(),
                     extraDeletions = (row.extraDeletions + ("transition" to "$evidenceId|$at")).distinct())
             } else rows += CharacterStateHistoryRow("transition:$at:$index", at, "当时的感想与取舍",
-                parts.joinToString("\n"), evidenceIds = listOf(evidenceId),
+                authoredParts.joinToString("\n"), evidenceIds = listOf(evidenceId),
                 deletionKind = "transition", deletionKey = evidenceId)
         }
         fun collect(array: String, timeField: String, kind: String, keyField: String,
@@ -252,26 +260,36 @@ internal object CharacterStateHistory {
             ?.removePrefix("状态：").orEmpty()
         val gesture = lines.firstOrNull { it.startsWith("动作：") }
             ?.removePrefix("动作：").orEmpty()
+        // These are the A/B impulses the character entertained. Analysis,
+        // execution reasons, uncertainties and audit results remain available
+        // in their original causal/evidence records; they are not extra voices.
         val extras = mutableListOf<Pair<String, String>>()
-        val reserved = setOf("状态", "动作")
+        var readingLegacyIdea = false
         for (line in lines) {
-            if (line == voice) continue
             val label = line.substringBefore('：')
-            if (label in reserved) continue
-            val content = if (label in labels) line.substringAfter('：').trim() else line
-            if (content.isBlank() ||
-                (voice.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(content, voice)) ||
-                (mood.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(content, mood)) ||
-                extras.any { CharacterHeartVoicePolicy.sameMeaning(it.second, content) }) continue
-            val section = when (label) {
-                "想法", "当时的念头" -> "小念头"
-                "仍在权衡" -> "尚在权衡"
-                "想调整" -> "新的打算"
-                "当时怎样理解这段关系" -> "关系理解"
-                "当时挂心的事" -> "挂心"
-                else -> "心里的话"
+            if (label in setOf("想法", "当时的念头")) {
+                readingLegacyIdea = true
+            } else if (label in labels) {
+                readingLegacyIdea = false
+                continue
+            } else if (voice.lines().any { it.trim() == line }) {
+                readingLegacyIdea = false
+                continue
+            } else if (!line.contains('：') && row.moment != null) {
+                // Old cards appended a second private thought as plain prose.
+                // Preserve it as an idea, not as an invented second voice.
+                readingLegacyIdea = true
+            } else {
+                readingLegacyIdea = false
+                continue
             }
-            extras += section to content
+            if (!readingLegacyIdea) continue
+            val content = if (label in setOf("想法", "当时的念头"))
+                line.substringAfter('：').trim() else line
+            if (content.isBlank() || extras.any {
+                    CharacterHeartVoicePolicy.sameMeaning(it.second, content)
+                }) continue
+            extras += "想法" to content
         }
         return MomentDisplay(voice, mood, status, gesture, extras)
     }
