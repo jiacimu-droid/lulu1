@@ -85,6 +85,7 @@ internal fun Live2DFullscreenVideoCall(
             cameraPermission.launch(Manifest.permission.CAMERA)
         }
     }
+    var renderRetry by remember(modelUrl) { mutableIntStateOf(0) }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
@@ -98,7 +99,7 @@ internal fun Live2DFullscreenVideoCall(
     }
     // An oversized texture or broken JS bundle must not leave a silent gray canvas forever.
     // Late successful render may still recover and replace this static preview.
-    LaunchedEffect(modelUrl, coreReady) {
+    LaunchedEffect(modelUrl, coreReady, renderRetry) {
         if (modelUrl != null && coreReady) {
             delay(25_000)
             if (stageStatus == "loading") {
@@ -115,7 +116,10 @@ internal fun Live2DFullscreenVideoCall(
     }
     Box(Modifier.fillMaxSize().background(Color(0xFF151719))) {
         // Fill the entire portrait call screen. The complete model remains fitted, not cropped.
-        if (modelUrl != null && coreReady) {
+        // A terminated GPU renderer must be removed from the hierarchy before
+        // creating another WebView. Never keep a dead native view on screen.
+        if (modelUrl != null && coreReady && stageStatus != "fatal") {
+            key(modelUrl, renderRetry) {
             Live2DCallStage(
                 characterId = characterId,
                 modelUrl = modelUrl,
@@ -140,6 +144,7 @@ internal fun Live2DFullscreenVideoCall(
                     }
                 },
             )
+            }
         }
         // Static full-body preview is a model asset, never the separated texture atlas.
         // Hide it as soon as Live2D actually reports a successful model render.
@@ -260,7 +265,8 @@ internal fun Live2DFullscreenVideoCall(
                 val message = when {
                     modelUrl == null -> "尚未导入 Live2D 身体，点击右上角导入模型"
                     !coreReady -> "正在准备 Live2D 官方渲染组件"
-                    stageStatus == "error" -> stageDetail.ifBlank { "Live2D 加载失败" }
+                    stageStatus == "error" || stageStatus == "fatal" ->
+                        stageDetail.ifBlank { "Live2D 加载失败" }
                     else -> if (hasCreatorPreview) "完整形象预览 · 正在准备动态画面"
                             else "暂无模型预览图 · 正在加载动态画面"
                 }
@@ -278,8 +284,20 @@ internal fun Live2DFullscreenVideoCall(
                     Text("作者预览：$direction $width × $height · 原比例",
                         color = Color.White.copy(alpha = .8f), fontSize = 11.sp)
                 }
-                if (stageStatus == "error" && hasCreatorPreview) {
-                    Text("正在显示模型自带的静态形象；可继续正常打电话。",
+                if ((stageStatus == "error" || stageStatus == "fatal") &&
+                    modelUrl != null && coreReady) {
+                    TextButton(onClick = {
+                        Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+                        stageStatus = "loading"
+                        stageDetail = "正在重新创建 Live2D 图形画面…"
+                        reportedAngles = ""
+                        renderRetry++
+                    }) {
+                        Text("重新载入动态人物", color = Color.White, fontSize = 12.sp)
+                    }
+                }
+                if ((stageStatus == "error" || stageStatus == "fatal") && hasCreatorPreview) {
+                    Text("静态形象仍可用，电话不中断。",
                         color = Color.White.copy(alpha = .75f), fontSize = 11.sp)
                 }
                 if (!coreReady && modelUrl != null && setupMessage.contains("失败")) {
