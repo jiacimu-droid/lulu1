@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:51:19.457288+00:00",
-  "commit": "83f8b1f3a79fbdeaead48c0ead84808a8d312335",
+  "generatedAt": "2026-10-22T15:51:34.252699+00:00",
+  "commit": "60ddb50dfe8a3e5a8ce2674151ce4f44face170f",
   "branch": "main",
-  "sourceFingerprint": "26f801466dc521f9d20ed07444a6b26304b587e2df0e4e3bb22ed7bbeb0f910b",
+  "sourceFingerprint": "e869226f0c0436843b0efe6f81fc513f59b7bd3d1031244eeb50f27289ff0c05",
   "summary": {
     "files": 809,
-    "lines": 154294,
+    "lines": 154303,
     "symbols": 2315
   },
   "symbolIndex": {
@@ -881,7 +881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 148
+        "line": 153
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -3027,7 +3027,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 127
+        "line": 132
       }
     ],
     "categoryId": [
@@ -3161,7 +3161,7 @@
     "toggleFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 137
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -3171,7 +3171,7 @@
     "move": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 141
+        "line": 146
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -15857,8 +15857,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-      "lines": 313,
-      "sha256": "898eef31757f1750e67f13a163839fc0073688d3dd04d98394bf638af08ec94d",
+      "lines": 318,
+      "sha256": "8febdae0daf4c8a4a5d280dc1a9d2300d4ccb3037045ca5e1bef5b77e03f4497",
       "symbols": [
         {
           "name": "byId",
@@ -15874,19 +15874,19 @@
         },
         {
           "name": "rename",
-          "line": 127
+          "line": 132
         },
         {
           "name": "toggleFavorite",
-          "line": 137
+          "line": 142
         },
         {
           "name": "move",
-          "line": 141
+          "line": 146
         },
         {
           "name": "remove",
-          "line": 148
+          "line": 153
         }
       ]
     },
@@ -24858,8 +24858,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2046,
-      "sha256": "9dc009acf7aecae2b02ee00a1d65f809004b0ddd2aaba7bc8cce2ad0aeefd860",
+      "lines": 2050,
+      "sha256": "a85b8daf912d22866b85a03b01f46ee67a8e46ab5bc76a9fdd490f15feccd1e1",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",

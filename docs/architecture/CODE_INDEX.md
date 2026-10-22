@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`83f8b1f3a79fbdeaead48c0ead84808a8d312335`
+- 基准提交：`60ddb50dfe8a3e5a8ce2674151ce4f44face170f`
 - 分支：`main`
 - 已索引文件：809
-- 已索引代码/文本行：154294
+- 已索引代码/文本行：154303
 - 已发现符号：2315
 
 | 文件 | 行数 | 符号数 |
@@ -196,7 +196,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt` | 114 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 313 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 318 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
@@ -566,7 +566,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 294 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2046 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2050 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 206 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
