@@ -113,6 +113,13 @@ internal object EmbodiedBodyPhysics {
         if (recovery.isNotBlank() && plannedEndAt != null && plannedEndAt.isAfter(at)) {
             return current.copy(recoveryMode = recovery, recoveryUntil = plannedEndAt)
         }
+        DigitalCafeMenu.byConsume(activityId)?.let { item ->
+            return current.copy(
+                thirst = bounded(current.thirst - item.thirstRelief),
+                hunger = bounded(current.hunger - item.hungerRelief),
+                comfort = bounded(current.comfort + item.comfortGain),
+            )
+        }
         return when (activityId) {
             "slow_drink" -> current.copy(thirst = bounded(current.thirst - 26.0),
                 comfort = bounded(current.comfort + 3.0))
@@ -133,6 +140,7 @@ internal object EmbodiedBodyPhysics {
             appendLine("精力=${number(snapshot.energy)}；睡眠压力=${number(snapshot.sleepPressure)}；饥饿感=${number(snapshot.hunger)}；口渴感=${number(snapshot.thirst)}；舒适度=${number(snapshot.comfort)}（0—100，均为数字世界内模拟值）。")
             if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
+            appendLine("饥饿和口渴可成为本人去真实咖啡角点单、用餐、喝水或暂时做别的事的动机；由本人决定，不因固定阈值强迫行动或额外发起模型请求。点单不等于已经食用。")
             appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
         }.trim()
     }
