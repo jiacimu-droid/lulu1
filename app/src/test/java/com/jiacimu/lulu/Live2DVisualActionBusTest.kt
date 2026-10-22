@@ -49,6 +49,17 @@ class Live2DVisualActionBusTest {
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("motion", JSONObject().put("group", "Gesture").put("index", 0))))
             assertEquals("Gesture" to 0, Live2DVisualActionBus.cues.value[role]?.motion)
+            // A role can smile WHILE performing an actually available motion;
+            // previously choosing the expression silently erased the motion.
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject()
+                    .put("expression", "smile")
+                    .put("motion", JSONObject().put("group", "Gesture").put("index", 0))
+                    .put("head", JSONObject().put("yaw", -13))))
+            val combined = Live2DVisualActionBus.cues.value[role]
+            assertEquals("smile", combined?.expression)
+            assertEquals("Gesture" to 0, combined?.motion)
+            assertEquals(-13f, combined?.head?.yaw)
             Live2DVisualActionBus.stageClosed(role, call)
             assertFalse(Live2DVisualActionBus.publish(context, role, call, smile))
         } finally {
