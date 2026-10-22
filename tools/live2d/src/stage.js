@@ -424,7 +424,12 @@ function ensureApp() {
     // substantially less GPU readback work and steadier frame pacing.
     // The old 1.4x GPU buffer capped real output at 552x1200.
     // Upscaling JPEG cannot restore that lost facial detail.
-    resolution: Math.min(2.35, window.devicePixelRatio || 1),
+    // Most phones transport only ~1320px along the longer frame edge;
+    // rendering a 2.35x source only to downsample it before JPEG wastes GPU
+    // fill and readback bandwidth. Keep a ~1600px source pixel budget,
+    // retaining some sharpness headroom without extra per-frame allocations.
+    resolution: Math.min(2.2, window.devicePixelRatio || 1,
+      Math.max(1, 1600 / Math.max(1, root.clientWidth, root.clientHeight))),
     autoDensity: true,
   })
   root.insertBefore(app.view, notice)
