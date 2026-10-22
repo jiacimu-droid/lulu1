@@ -31,7 +31,12 @@ internal fun creatorPreviewDimensions(file: File?): Pair<Int, Int>? = runCatchin
  * Decode downsampled so even a big PNG does not exhaust Android RAM.
  */
 @Composable
-internal fun Live2DCreatorPreview(file: File?, modifier: Modifier = Modifier, fallback: @Composable () -> Unit) {
+internal fun Live2DCreatorPreview(
+    file: File?,
+    modifier: Modifier = Modifier,
+    portraitFraming: Boolean = false,
+    fallback: @Composable () -> Unit,
+) {
     val preview by produceState<Bitmap?>(initialValue = null, file?.absolutePath) {
         value = withContext(Dispatchers.IO) {
             val target = file?.takeIf(File::isFile) ?: return@withContext null
@@ -56,8 +61,8 @@ internal fun Live2DCreatorPreview(file: File?, modifier: Modifier = Modifier, fa
             bitmap = preview!!.asImageBitmap(),
             contentDescription = "Live2D 模型作者提供的完整形象预览",
             modifier = modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.Center,
+            contentScale = if (portraitFraming) ContentScale.Crop else ContentScale.Fit,
+            alignment = if (portraitFraming) Alignment.TopCenter else Alignment.Center,
         )
     }
 }
