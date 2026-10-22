@@ -22,6 +22,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val onPartial: (String) -> Unit, private val onText: (String) -> Unit,
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
     private val microphone = CallAudioInput(scope)
+    // Snapshot once per call; changing settings never mixes Tiny and Base mid-utterance.
+    private val localModel = LocalWhisperModels.selected(context)
     private var transcription: Job? = null
     private var realtime: ElevenLabsRealtimeStt? = null
     private var realtimeStartedAtElapsed = 0L
@@ -72,7 +74,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
             CallVoiceConfiguration.ElevenInputPath.OTHER -> Unit
         }
         if (sttEngine == "local") {
-            onStatus("本地 Whisper ${LocalWhisperModels.selected(context).id} · 离线识别，无云端转写费用")
+            onStatus("本地 Whisper ${localModel.id} · 离线识别，无云端转写费用")
         }
         // A running user monologue can outlast cloud upload latency; never
         // silently drop earlier chunks because an arbitrary six-item queue filled.
@@ -297,7 +299,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
         when (sttEngine) {
-            "local" -> LocalWhisperTranscriber.transcribe(context, pcm)
+            "local" -> LocalWhisperTranscriber.transcribe(context, localModel, pcm)
             "groq" -> transcribeGroq(pcm)
             "minimax" -> transcribeMiniMax(pcm, onIncremental)
             "elevenlabs" -> transcribeElevenLabs(pcm)
