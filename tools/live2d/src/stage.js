@@ -500,6 +500,15 @@ async function load(modelURL) {
       model.destroy({ texture: true, baseTexture: true })
       model = null
     }
+    // A new moc3 has different parameter indices and visual state.
+    // Neither a prior call's eye/pose interpolation nor its queued speech
+    // score is allowed to bleed into the next imported model.
+    visualLayers.reset()
+    performanceRuntime.reset()
+    if (playing) performanceRuntime.startSpeech()
+    headRequest = null
+    bodyRequest = null
+    faceRequest = null
     notify('step', '⑤ Moc3 / 纹理 / Cubism：开始解码模型')
     const loaded = await Live2DModel.from(modelURL, { autoInteract: false, autoUpdate: true })
     notify('step', '⑤ 模型解析：成功；宽高 ' + Math.round(loaded.width) +
@@ -813,6 +822,18 @@ function setNativeStreaming(enabled) {
 
 function setPaused(value) {
   paused = !!value
+  if (paused) {
+    // Do not play a stale animation score in a burst when Android restores
+    // the WebView after it was hidden while TTS continued in the background.
+    performanceRuntime.stopSpeech()
+    headRequest = null
+    bodyRequest = null
+    faceRequest = null
+  } else if (playing) {
+    // Audio may have kept running while the renderer was hidden; resume
+    // present-time mouth animation without resurrecting skipped gestures.
+    performanceRuntime.startSpeech()
+  }
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
 }
 function resetSpeechExpression() {
