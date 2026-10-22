@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class AvatarPresentation(val characterId: String, val mood: String, val location: String,
-    val speaking: Boolean = false, val listening: Boolean = false, val mouthOpen: Float = 0f)
+    val speaking: Boolean = false, val listening: Boolean = false, val mouthOpen: Float = 0f,
+    val hasPcmSamples: Boolean = false)
 
 /** Rendering consumes state and audio level; it never invents world actions or calls an LLM per frame. */
 object AvatarController {
@@ -22,12 +23,14 @@ object AvatarController {
         val old = mutable.value[characterId]
         mutable.value = mutable.value + (characterId to AvatarPresentation(characterId,
             CompanionPresenceStore.current(characterId)?.mood.orEmpty(), DigitalWorldStore.locationOf(characterId),
-            speaking = old?.speaking == true, listening = old?.listening ?: false, mouthOpen = level.coerceIn(0f, 1f)))
+            speaking = old?.speaking == true, listening = old?.listening ?: false,
+            mouthOpen = level.coerceIn(0f, 1f), hasPcmSamples = true))
     }
     @Synchronized fun listening(characterId: String, listening: Boolean) {
         val old = mutable.value[characterId]
         mutable.value = mutable.value + (characterId to AvatarPresentation(characterId,
             CompanionPresenceStore.current(characterId)?.mood.orEmpty(), DigitalWorldStore.locationOf(characterId),
-            old?.speaking ?: false, listening, old?.mouthOpen ?: 0f))
+            old?.speaking ?: false, listening, old?.mouthOpen ?: 0f,
+            old?.hasPcmSamples ?: false))
     }
 }
