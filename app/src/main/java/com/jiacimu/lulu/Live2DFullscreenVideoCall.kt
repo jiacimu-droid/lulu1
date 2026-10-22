@@ -175,9 +175,6 @@ internal fun Live2DFullscreenVideoCall(
     }
     val rendered = stageStatus == "ready"
     val hasCreatorPreview = creatorPreview?.isFile == true
-    val previewSize = remember(creatorPreview?.absolutePath) {
-        creatorPreviewDimensions(creatorPreview)
-    }
     Box(Modifier.fillMaxSize().background(Color(0xFF151719))) {
         // The stage can switch between waist-up and full-body framing without
         // destroying its native WebView or touching the existing audio session.
