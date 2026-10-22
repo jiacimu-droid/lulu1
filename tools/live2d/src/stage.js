@@ -30,6 +30,14 @@ let mirrorErrorSent = false
 let nativeCaptureCanvas = null
 let nativeCaptureContext = null
 let nativeCaptureErrorReported = false
+// Optional AndroidX WebMessage ArrayBuffer streaming bridge. JPEG bytes move
+// without evaluateJavascript polling, JSON escaping or Base64 inflation.
+let nativeStreamEnabled = false
+let nativeStreamBusy = false
+let nativeStreamTimer = null
+let nativeStreamLastFrameAt = 0
+let nativeStreamMaxEdge = 1024
+let nativeStreamWarned = false
 // Full body for diagnostics; video calls may request a closer waist-up view.
 let framingMode = window.__luluFramingMode === 'portrait' ? 'portrait' : 'full'
 let gpuLost = false
@@ -384,6 +392,7 @@ async function load(modelURL) {
     await verifyVisibleFrame(model, sequence)
     if (sequence !== loadSequence) return
     status('', 'ready')
+    if (window.__luluNativeStreamEnabled) setNativeStreaming(true)
     notify('step', '⑥ 仅通过 WebGL/Canvas 验证；Android 屏幕仍需独立确认')
     const coreModel = model.internalModel?.coreModel
     const available = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ']
@@ -450,42 +459,131 @@ function setPresentationMode(useMirror) {
 // A native Android Image overlay can display these frames without depending
 // on the WebView compositing surface. Called only by the Android fallback
 // at a throttled rate, never streamed to a server or exposed to the model.
-function captureNativeFrame(maxEdge = 800) {
+function drawNativeCapture(maxEdge = 960) {
   if (!app || !model || gpuLost || paused || document.hidden ||
       !previewObserved) return null
+  if (!nativeCaptureCanvas) {
+    nativeCaptureCanvas = document.createElement('canvas')
+    nativeCaptureContext = nativeCaptureCanvas.getContext('2d', { alpha: false })
+  }
+  if (!nativeCaptureContext) return null
+  const w = app.view.width
+  const h = app.view.height
+  if (w < 32 || h < 32) return null
+  const safeEdge = Math.max(400, Math.min(1440, Math.floor(Number(maxEdge) || 960)))
+  const scale = Math.min(1, safeEdge / Math.max(w, h))
+  const width = Math.max(32, Math.round(w * scale))
+  const height = Math.max(32, Math.round(h * scale))
+  if (nativeCaptureCanvas.width !== width || nativeCaptureCanvas.height !== height) {
+    nativeCaptureCanvas.width = width
+    nativeCaptureCanvas.height = height
+  }
+  // The Pixi ticker already maintains the freshest drawing buffer. The
+  // capture only copies it; never invoke Cubism render a second time.
+  nativeCaptureContext.fillStyle = '#151719'
+  nativeCaptureContext.fillRect(0, 0, width, height)
+  nativeCaptureContext.drawImage(app.view, 0, 0, width, height)
+  return nativeCaptureCanvas
+}
+// Conservative compatibility route for older Android System WebViews.
+function captureNativeFrame(maxEdge = 800) {
   try {
-    if (!nativeCaptureCanvas) {
-      nativeCaptureCanvas = document.createElement('canvas')
-      nativeCaptureContext = nativeCaptureCanvas.getContext('2d', { alpha: false })
-    }
-    if (!nativeCaptureContext) return null
-    const w = app.view.width
-    const h = app.view.height
-    if (w < 32 || h < 32) return null
-    // Previous 480px cap blurred all facial expressions on a ~1100px
-    // Android display. Adapt the upper bound to native decode throughput.
-    const safeEdge = Math.max(400, Math.min(960, Math.floor(Number(maxEdge) || 800)))
-    const scale = Math.min(1, safeEdge / Math.max(w, h))
-    const width = Math.max(32, Math.round(w * scale))
-    const height = Math.max(32, Math.round(h * scale))
-    if (nativeCaptureCanvas.width !== width || nativeCaptureCanvas.height !== height) {
-      nativeCaptureCanvas.width = width
-      nativeCaptureCanvas.height = height
-    }
-    // The Pixi ticker already renders at up to 30fps. Avoid forcing a
-    // redundant WebGL render for every JPEG bridge request.
-    nativeCaptureContext.fillStyle = '#151719'
-    nativeCaptureContext.fillRect(0, 0, width, height)
-    nativeCaptureContext.drawImage(app.view, 0, 0, width, height)
-    return nativeCaptureCanvas.toDataURL('image/jpeg', 0.86)
+    const canvas = drawNativeCapture(maxEdge)
+    return canvas ? canvas.toDataURL('image/jpeg', 0.86) : null
   } catch (error) {
     if (!nativeCaptureErrorReported) {
       nativeCaptureErrorReported = true
-      notify('error', 'Native 画面帧导出失败：' + (error?.message || String(error)))
+      notify('error', '兼容画面捕获失败：' + (error?.message || String(error)))
     }
     return null
   }
 }
+function scheduleNativeStreamFrame(delay = 0) {
+  if (!nativeStreamEnabled || nativeStreamBusy) return
+  if (nativeStreamTimer !== null) clearTimeout(nativeStreamTimer)
+  nativeStreamTimer = setTimeout(sendNativeStreamFrame, delay)
+}
+function sendNativeStreamFrame() {
+  nativeStreamTimer = null
+  if (!nativeStreamEnabled || nativeStreamBusy) return
+  const bridge = window.LuluNativeFrames
+  if (!bridge || typeof bridge.postMessage !== 'function') return
+  let canvas
+  try {
+    canvas = drawNativeCapture(nativeStreamMaxEdge)
+  } catch (error) {
+    if (!nativeStreamWarned) {
+      nativeStreamWarned = true
+      notify('error', '二进制帧绘制失败：' + (error?.message || String(error)))
+    }
+  }
+  if (!canvas) {
+    scheduleNativeStreamFrame(250)
+    return
+  }
+  nativeStreamBusy = true
+  nativeStreamLastFrameAt = performance.now()
+  try {
+    // Asynchronous JPEG encoding avoids a blocking toDataURL on every frame.
+    canvas.toBlob(async blob => {
+      if (!nativeStreamEnabled) { nativeStreamBusy = false; return }
+      if (!blob) {
+        nativeStreamBusy = false
+        scheduleNativeStreamFrame(160)
+        return
+      }
+      try {
+        const bytes = await blob.arrayBuffer()
+        if (nativeStreamEnabled) {
+          // Android acknowledges AFTER decoding the frame. This backpressure
+          // bounds allocations and prevents rendering work piling up.
+          bridge.postMessage(bytes)
+        } else {
+          nativeStreamBusy = false
+        }
+      } catch (error) {
+        nativeStreamBusy = false
+        if (!nativeStreamWarned) {
+          nativeStreamWarned = true
+          notify('error', '二进制 JPEG 发送失败：' + (error?.message || String(error)))
+        }
+        scheduleNativeStreamFrame(250)
+      }
+    }, 'image/jpeg', 0.90)
+  } catch (error) {
+    nativeStreamBusy = false
+    scheduleNativeStreamFrame(300)
+  }
+}
+function setNativeStreaming(enabled) {
+  nativeStreamEnabled = !!enabled
+  if (nativeStreamTimer !== null) clearTimeout(nativeStreamTimer)
+  nativeStreamTimer = null
+  // Reset in-flight state when the native layer switches back to the proven
+  // Base64 compatibility path.
+  nativeStreamBusy = false
+  if (!nativeStreamEnabled) return
+  const bridge = window.LuluNativeFrames
+  if (!bridge || typeof bridge.postMessage !== 'function') {
+    notify('diagnostic', 'Android System WebView 未提供二进制消息桥接，使用兼容画面路线')
+    return
+  }
+  bridge.onmessage = event => {
+    if (!nativeStreamEnabled) return
+    const reply = String(event?.data || '')
+    if (reply.startsWith('next:')) {
+      const maxEdge = Number(reply.substring(5))
+      if (Number.isFinite(maxEdge)) {
+        nativeStreamMaxEdge = Math.min(1440, Math.max(640, Math.floor(maxEdge)))
+      }
+    }
+    nativeStreamBusy = false
+    scheduleNativeStreamFrame(Math.max(0, 53 - (performance.now() - nativeStreamLastFrameAt)))
+  }
+  notify('diagnostic', '已启用 Android WebMessage 二进制桥接（带解码回执）')
+  scheduleNativeStreamFrame()
+}
+
 function setPaused(value) {
   paused = !!value
   if (app) { if (paused) app.ticker.stop(); else app.ticker.start() }
@@ -509,7 +607,7 @@ function head(target) {
   }
   headRequestEndAt = Date.now() + 1600
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame, setFramingMode }
+window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
