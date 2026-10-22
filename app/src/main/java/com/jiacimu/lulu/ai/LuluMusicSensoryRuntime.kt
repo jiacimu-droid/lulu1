@@ -137,7 +137,7 @@ object LuluMusicSensoryRuntime {
                         .put(JSONObject().put("type", "text").put("text", observationPrompt))
                         .put(JSONObject().put("type", "audio_url")
                             .put("audio_url", JSONObject().put("url",
-                                "data:" + mime + ";base64," + encoded)))))))
+                                "data:" + mime + ";base64," + encoded))))))
         }
         val connection = URL(endpoint).openConnection() as HttpURLConnection
         try {
