@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:45:28.364515+00:00",
-  "commit": "432ccb7511bd36c625c0be81a262fbe3cc208fb8",
+  "generatedAt": "2026-10-22T17:48:01.957150+00:00",
+  "commit": "021d4feab8bbe68cd8066ee047b5eadad404e136",
   "branch": "main",
-  "sourceFingerprint": "f0ad206114dc7bac842f537fae142c0516d8347e26283aeb86c4ddccae571fce",
+  "sourceFingerprint": "4532221416aecaacec68f570caedf6031bb2e1268a0ec6bb5ca3e1210e019b35",
   "summary": {
-    "files": 828,
-    "lines": 157989,
-    "symbols": 2392
+    "files": 829,
+    "lines": 158086,
+    "symbols": 2394
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -359,7 +359,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 57
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -4352,6 +4352,12 @@
         "line": 37
       }
     ],
+    "screenVisionContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
+        "line": 63
+      }
+    ],
     "isWakeExplanation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
@@ -6145,7 +6151,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 733
+        "line": 726
       }
     ],
     "age": [
@@ -8651,7 +8657,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1945
+        "line": 1950
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -13158,6 +13164,12 @@
         "line": 6
       }
     ],
+    "ScreenVisionCapabilityContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
+        "line": 15
+      }
+    ],
     "TimedContactCommitmentParserTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt",
@@ -17272,8 +17284,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 64,
-      "sha256": "7d1f41f0cdc0f33a912cd7d9352aa13ff30b01eef653f23c78b01d4c4497ae21",
+      "lines": 89,
+      "sha256": "b7ce2fd653c53759fc3e35d1b32785c0c02db655d715dc6eef0fcbca800bcb1f",
       "symbols": [
         {
           "name": "Capability",
@@ -17292,8 +17304,12 @@
           "line": 37
         },
         {
+          "name": "screenVisionContext",
+          "line": 63
+        },
+        {
           "name": "context",
-          "line": 57
+          "line": 82
         }
       ]
     },
@@ -19143,8 +19159,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 751,
-      "sha256": "14f953feeffe4d629b27a7aa7e87f163ff3c808ed50288a5350f9881f2bdbe22",
+      "lines": 744,
+      "sha256": "d74e5d712b2bfe9a6d8442b5e340fbe8ef80f4ed0b34cb431214793cad0f7f46",
       "symbols": [
         {
           "name": "asJson",
@@ -19156,7 +19172,7 @@
         },
         {
           "name": "world",
-          "line": 733
+          "line": 726
         }
       ]
     },
@@ -21891,8 +21907,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2012,
-      "sha256": "0633b044dc7470f5b094cb5d68dd78ec30ca51cd4e6886b06b15ea7111baa2d4",
+      "lines": 2017,
+      "sha256": "5762f60880e8184fcf0b28666d44a5ccced66b56284f78aaa4bb1588b1eab6b2",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -21924,7 +21940,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1945
+          "line": 1950
         }
       ]
     },
@@ -25557,7 +25573,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2050,
-      "sha256": "b7651bb9596bd4c73da94b7f07d613ab3bb4918f7ec2a11bbf3e1476d275d072",
+      "sha256": "0e245c1ae8912c5007b34f9961d378d2646084b7b66859f6bb2cb210f7eed3b4",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -28103,6 +28119,17 @@
         {
           "name": "RoleDayScheduleStoreTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
+      "lines": 74,
+      "sha256": "c449ccd3c1bbcd08e38a742f91ab6b7c1b75d70a3e30442e09e239a9d79abb81",
+      "symbols": [
+        {
+          "name": "ScreenVisionCapabilityContextTest",
+          "line": 15
         }
       ]
     },
