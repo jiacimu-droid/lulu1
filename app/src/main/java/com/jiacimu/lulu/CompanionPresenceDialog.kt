@@ -72,8 +72,21 @@ internal fun CompanionPresenceDialog(
     // "Current" never enumerates the character's accumulated private thought store.
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val sourceRevision by SharedExperienceTimeline.revisions.collectAsState()
-    val past = remember(characterId, displayHistory, mindRevision, sourceRevision, messageAnchor?.messageAt) {
-        CharacterStateHistory.entries(characterId, displayHistory, messageAnchor?.messageAt ?: Instant.now())
+    // Build the potentially multi-year causal/history projection only when the
+    // history tab is requested, off the UI thread. Avatar taps must open "此刻"
+    // immediately even for a character with years of experiences.
+    var past by remember(characterId) { mutableStateOf<List<CharacterStateHistoryRow>>(emptyList()) }
+    var historyLoading by remember(characterId) { mutableStateOf(false) }
+    LaunchedEffect(characterId, selectedTab, displayHistory, mindRevision, sourceRevision,
+        messageAnchor?.messageAt) {
+        if (selectedTab != 1) return@LaunchedEffect
+        historyLoading = true
+        val cutoff = messageAnchor?.messageAt ?: Instant.now()
+        val built = withContext(Dispatchers.Default) {
+            CharacterStateHistory.entries(characterId, displayHistory, cutoff)
+        }
+        past = built
+        historyLoading = false
     }
     val latestHeartMoment = PresenceHistoryPresentation.latestVoice(
         displayState, displayHistory, messageAnchored = messageAnchor != null,
@@ -263,10 +276,14 @@ internal fun CompanionPresenceDialog(
                             }
                         }
                     } else {
-                        if (past.isEmpty()) item(key = "empty-history") {
-                            Text("还没有留下可查看的历史状态。", color = Color(0xFF7A7A7E))
+                        if (historyLoading) item(key = "history-loading") {
+                            Text("正在读取心声历史…", color = Color(0xFF7A7A7E))
+                        } else {
+                            if (past.isEmpty()) item(key = "empty-history") {
+                                Text("还没有留下可查看的历史状态。", color = Color(0xFF7A7A7E))
+                            }
+                            items(past, key = { it.key }) { entry -> CharacterMomentHistoryCard(characterId, entry) }
                         }
-                        items(past, key = { it.key }) { entry -> CharacterMomentHistoryCard(characterId, entry) }
                     }
 
                 }
