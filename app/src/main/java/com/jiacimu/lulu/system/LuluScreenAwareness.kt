@@ -107,8 +107,9 @@ object LuluScreenAwareness {
     }
 
     private fun requestCapture(context: Context, characterId: String, requestId: String): String {
-        if (!notificationsAvailable(context)) return rejected(context,
-            "未开启露露机屏幕请求通知，不能在主人不知情的情况下截图")
+        val canNotify = notificationsAvailable(context)
+        if (!canNotify && !LuluScreenRequestPopup.available(context)) return rejected(context,
+            "未开启悬浮窗和通知权限，无法让主人看见屏幕查看请求")
         val prefs = preferences(context)
         val existing = runCatching { JSONObject(prefs.getString(PENDING_CAPTURE, "{}")) }.getOrNull()
         val now = System.currentTimeMillis()
@@ -131,6 +132,7 @@ object LuluScreenAwareness {
             return PendingIntent.getBroadcast(context, id.hashCode() + if (approved) 1 else 2,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
+        if (canNotify) {
         val notice = Notification.Builder(context, CAPTURE_CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setContentTitle("请求查看屏幕")
@@ -147,9 +149,27 @@ object LuluScreenAwareness {
             .build()
         context.getSystemService(NotificationManager::class.java)
             .notify(CAPTURE_NOTIFICATION_ID, notice)
-        report(context, "请求查看屏幕 · 等待主人允许（未截图）")
+        }
+        val popup = LuluScreenRequestPopup.showCapture(
+            context, roleName, id,
+            stillPending = {
+                val pending = runCatching {
+                    JSONObject(prefs.getString(PENDING_CAPTURE, "{}"))
+                }.getOrNull()
+                pending?.optString("id") == id && pending.optString("characterId") == characterId
+            },
+            onAllow = { handleCaptureResponse(context.applicationContext, id, characterId, true) },
+            onDeny = { handleCaptureResponse(context.applicationContext, id, characterId, false) },
+        )
+        if (!canNotify && !popup) {
+            prefs.edit().remove(PENDING_CAPTURE).commit()
+            return rejected(context, "悬浮弹窗无法显示且通知不可用，未截图", "failed")
+        }
+        report(context, if (popup) "请求查看屏幕 · 已尝试悬浮弹窗，等待主人允许（未截图）"
+            else "请求查看屏幕 · 通知后备，等待主人允许（未截图）")
         return JSONObject().put("success", true).put("status", "pending")
-            .put("summary", "已发送「请求查看屏幕」通知，尚未取得截图；必须等主人点击允许一次").toString()
+            .put("summary", if (popup) "已弹出「请求查看屏幕」，尚未截图；主人可允许一次或拒绝"
+                else "悬浮窗未授权，已发送「请求查看屏幕」通知；尚未截图").toString()
     }
 
     internal fun handleCaptureResponse(context: Context, id: String, characterId: String,
@@ -165,6 +185,7 @@ object LuluScreenAwareness {
             return
         }
         if (!prefs.edit().remove(PENDING_CAPTURE).commit()) return
+        LuluScreenRequestPopup.dismissCapture(id)
         context.getSystemService(NotificationManager::class.java)
             .cancel(CAPTURE_NOTIFICATION_ID)
         val canProceed = approved && autonomousAllowed(context)
@@ -206,8 +227,8 @@ object LuluScreenAwareness {
         if (!userRequested && cooldownRemaining(context) > 0L)
             return rejected(context, "距上次自主截图不足五分钟", "cooldown")
         if (!userRequested && !approved) return requestCapture(context, characterId, requestId)
-        if (!notificationsAvailable(context)) return rejected(context,
-            "通知权限或屏幕查看通知频道未开启，拒绝无提示截图")
+        if (!notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
+            return rejected(context, "屏幕查看提醒方式都不可用，拒绝无提示截图")
         if (!busy.compareAndSet(false, true)) return rejected(context, "当前已有识图请求", "busy")
         viewingNotice(context, "正在查看屏幕", "只截取当前一帧画面，正在识别")
         try {
@@ -228,6 +249,7 @@ object LuluScreenAwareness {
                         .putLong(LAST_AUTO, System.currentTimeMillis()).commit())
                     return rejected(context, "无法保存观察间隔，已停止")
                 report(context, "已取得一帧截图，识图进行中")
+                LuluScreenRequestPopup.showProgress(context, "已取得当前一帧，正在交给视觉模型理解…")
                 val description = VisionModelService.describeScreenFrame(context, bitmap).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
@@ -242,6 +264,7 @@ object LuluScreenAwareness {
             } finally { bitmap.recycle() }
         } finally {
             busy.set(false)
+            LuluScreenRequestPopup.dismissProgress()
             viewingNotice(context, "屏幕查看已结束",
                 diagnostics(context).substringAfter(" · ").take(100), true)
         }
@@ -250,11 +273,12 @@ object LuluScreenAwareness {
     /** A notification the phone owner may tap, never a background Activity hijack. */
     fun summon(context: Context, characterId: String = ""): String {
         if (!summonAllowed(context)) return rejected(context, "未授权邀请返回露露机")
-        if (Build.VERSION.SDK_INT >= 33 &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED) return rejected(context, "缺少通知权限")
-        if (!NotificationManagerCompat.from(context).areNotificationsEnabled())
-            return rejected(context, "露露机通知已关闭，无法发送返回邀请")
+        val canNotify = (Build.VERSION.SDK_INT < 33 ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED) &&
+            NotificationManagerCompat.from(context).areNotificationsEnabled()
+        if (!canNotify && !LuluScreenRequestPopup.available(context))
+            return rejected(context, "未开启悬浮窗或通知，无法让主人收到返回露露机的请求")
         val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
             ?: return rejected(context, "未找到露露机启动入口", "failed")
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -264,19 +288,40 @@ object LuluScreenAwareness {
         val channel = "lulu_summon_v1"
         manager.createNotificationChannel(NotificationChannel(channel, "角色邀请返回",
             NotificationManager.IMPORTANCE_HIGH))
-        if (manager.getNotificationChannel(channel)?.importance == NotificationManager.IMPORTANCE_NONE)
-            return rejected(context, "返回露露机通知频道已关闭")
+        val channelAvailable = canNotify &&
+            manager.getNotificationChannel(channel)?.importance != NotificationManager.IMPORTANCE_NONE
         val roleName = runCatching {
             MigratedDomainStores.characters.get(characterId).displayName
         }.getOrNull()?.takeIf(String::isNotBlank) ?: "角色"
-        manager.notify(41031, Notification.Builder(context, channel)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("请求返回露露机").setContentText("$roleName 邀请你返回露露机")
-            .setCategory(Notification.CATEGORY_REMINDER).setPriority(Notification.PRIORITY_HIGH)
-            .setContentIntent(pending).setAutoCancel(true).build())
-        report(context, "请求返回露露机 · 邀请通知已投递，等待主人点击")
-        return JSONObject().put("success", true).put("status", "notification_posted")
-            .put("summary", "已发送「请求返回露露机」通知；主人是否点击尚未确认").toString()
+        if (channelAvailable) {
+            manager.notify(41031, Notification.Builder(context, channel)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("请求返回露露机").setContentText("$roleName 邀请你返回露露机")
+                .setCategory(Notification.CATEGORY_REMINDER).setPriority(Notification.PRIORITY_HIGH)
+                .setContentIntent(pending).setAutoCancel(true).build())
+        }
+        val popup = LuluScreenRequestPopup.showReturn(context, roleName,
+            onReturn = {
+                manager.cancel(41031)
+                report(context, "主人点击了「返回露露机」，正在交由 Android 打开")
+                runCatching { pending.send() }.onFailure {
+                    report(context, "主人点击返回，但 Android 未成功启动：" +
+                        it.message.orEmpty().take(75))
+                }
+            },
+            onLater = {
+                manager.cancel(41031)
+                report(context, "主人选择了「稍后」，本次不打开露露机")
+            },
+        )
+        if (!channelAvailable && !popup)
+            return rejected(context, "悬浮窗未显示，且返回通知不可用", "failed")
+        report(context, if (popup) "请求返回露露机 · 已尝试悬浮弹窗，等待主人操作"
+            else "请求返回露露机 · 通知后备，等待主人点击")
+        return JSONObject().put("success", true)
+            .put("status", if (popup) "popup_requested" else "notification_posted")
+            .put("summary", if (popup) "已尝试弹出「请求返回露露机」，主人可返回或稍后；尚未确认返回"
+                else "已发送「请求返回露露机」通知；主人是否点击尚未确认").toString()
     }
 
     /** Local UsageEvents estimate; no database and no screenshot transmission. */
