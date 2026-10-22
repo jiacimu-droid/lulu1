@@ -5,6 +5,10 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.net.ProxySelector
+import java.net.URI
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +40,35 @@ class XhsGoMcpHandshakeTest {
             assertEquals("Bearer test-only-token", handshake.getHeader("Authorization"))
             assertEquals("initialize", JSONObject(handshake.body.readUtf8()).getString("method"))
         } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test fun samePhoneMcpBypassesAndroidHttpProxy() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        val previousProxy = ProxySelector.getDefault()
+        try {
+            // Simulate a VPN/system HTTP proxy that cannot reach the phone's
+            // localhost. Neither /health nor initialize may use that proxy.
+            ProxySelector.setDefault(object : ProxySelector() {
+                override fun select(uri: URI?): List<Proxy> =
+                    listOf(Proxy(Proxy.Type.HTTP, InetSocketAddress("127.0.0.1", 9)))
+                override fun connectFailed(
+                    uri: URI?, sa: java.net.SocketAddress?, ioe: java.io.IOException?
+                ) = Unit
+            })
+            val app = RuntimeEnvironment.getApplication()
+            LuluExternalMcp.save(app, "xiaohongshu", server.url("/mcp").toString(), "test-token")
+            server.enqueue(MockResponse().setResponseCode(404).setBody("Not Found"))
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(result(1, JSONObject().put("protocolVersion", "2025-03-26"))))
+            val outcome = LuluExternalMcp.testService(app, "xiaohongshu")
+            assertTrue(outcome, outcome.contains("MCP 服务已响应"))
+            assertEquals("/health", server.takeRequest().path)
+            assertEquals("/mcp", server.takeRequest().path)
+        } finally {
+            ProxySelector.setDefault(previousProxy)
             server.shutdown()
         }
     }
