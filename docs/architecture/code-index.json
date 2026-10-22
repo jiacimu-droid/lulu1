@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:22:07.884963+00:00",
-  "commit": "4ca0f67a682655a2b32db04ccd448459d9e5b0c7",
+  "generatedAt": "2026-10-22T17:22:44.704188+00:00",
+  "commit": "8599ab9fcdc945857c46f7d0553050960b2ac76f",
   "branch": "main",
-  "sourceFingerprint": "205aeaf91eb5d112fd80224464115537aff1d480dcba4466354dbd25820df4c3",
+  "sourceFingerprint": "c1a43887f0fda0ec6550ae467f94a5344a01e6a835c6a6ff89ceeb364662395c",
   "summary": {
     "files": 827,
-    "lines": 157480,
-    "symbols": 2388
+    "lines": 157497,
+    "symbols": 2389
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2598,6 +2598,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
         "line": 59
+      }
+    ],
+    "isConfirmedSpeech": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt",
+        "line": 31
       }
     ],
     "silenceMs": [
@@ -15597,9 +15603,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt",
-      "lines": 19,
-      "sha256": "d52874b023fb40557b6620eaad3465366ad9257fb81a1469f2001a7d86ab0b9c",
-      "symbols": []
+      "lines": 36,
+      "sha256": "6a911d97bee60fa3cb554f14885f13c1ba756962290e14ebac16d709781f3f8b",
+      "symbols": [
+        {
+          "name": "isConfirmedSpeech",
+          "line": 31
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt",
