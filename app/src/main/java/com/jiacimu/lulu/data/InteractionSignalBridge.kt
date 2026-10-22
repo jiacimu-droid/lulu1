@@ -109,8 +109,11 @@ internal object InteractionSignalBridge {
         )
     }
 
-    /** Text-only factual description; the model decides how it feels about a touch. */
+    /** Describe genuine screen contacts, never assert that the role felt a
+     * physical touch or infer the owner's emotion or relationship intention.
+     */
     fun avatarContactDescription(region: String, gesture: String, count: Int): String? {
+        if (count < 1) return null
         val place = when (region) {
             "head" -> "头部"
             "arm" -> "手臂"
@@ -118,23 +121,35 @@ internal object InteractionSignalBridge {
             else -> return null
         }
         val action = when (gesture) {
-            "tap" -> "轻点了"
-            "hold" -> "按住了"
-            "stroke" -> "抚摸了"
+            "tap" -> "轻点"
+            "hold" -> "按住"
+            "stroke" -> "抚摸"
             else -> return null
         }
-        return "用户在这通 Live2D 视频中真实触碰了角色数字形象的${place}，" +
-            "动作是${action}${place}" +
-            (if (count > 1) "，这组动作共${count}次" else "") +
-            "。这是用户触摸屏幕的设备事件，并非角色真的拥有物理触觉；" +
-            "不替角色推断情绪或规定回应。"
+        return "用户在屏幕上${action}了数字形象的${place}" +
+            (if (count > 1) "，共${count}次" else "")
     }
 
-    /** Only emit after a successful screen hit-test and a genuinely visible frame. */
-    fun recordAvatarTouch(characterId: String, callId: String, region: String,
-        gesture: String, count: Int, now: Instant = Instant.now()): String? {
-        if (!hasRenderedVideo(characterId, callId)) return null
-        val fact = avatarContactDescription(region, gesture, count) ?: return null
+    /** Preserve EVERY distinct touched region in a burst, not just the last
+     * region with an inaccurate total count. One batch is one original event.
+     */
+    fun recordAvatarTouches(characterId: String, callId: String,
+        contacts: List<Pair<String, String>>, now: Instant = Instant.now()): String? {
+        if (!hasRenderedVideo(characterId, callId) || contacts.isEmpty()) return null
+        val counts = linkedMapOf<Pair<String, String>, Int>()
+        for ((region, gesture) in contacts) {
+            if (avatarContactDescription(region, gesture, 1) == null) return null
+            val key = region to gesture
+            counts[key] = (counts[key] ?: 0) + 1
+        }
+        val descriptions = counts.mapNotNull { (key, n) ->
+            avatarContactDescription(key.first, key.second, n)
+        }
+        if (descriptions.isEmpty()) return null
+        val fact = "这通 Live2D 视频里发生了真实的屏幕触摸："+
+            descriptions.joinToString("；") +
+            "。这是手机接收的真实手指动作，不等于角色实体被触摸；" +
+            "不替角色推断情绪或规定回应。"
         val id = "interaction-call-touch-$callId-${java.util.UUID.randomUUID()}"
         SharedExperienceTimeline.record(
             eventId = id, characterId = characterId, channel = "电话互动",
@@ -144,6 +159,14 @@ internal object InteractionSignalBridge {
             evidenceKind = EventEvidenceKind.Observation,
         )
         return id
+    }
+
+    /** Existing callers may submit repeated contacts of the same type. */
+    fun recordAvatarTouch(characterId: String, callId: String, region: String,
+        gesture: String, count: Int, now: Instant = Instant.now()): String? {
+        if (count < 1) return null
+        return recordAvatarTouches(characterId, callId,
+            List(count) { region to gesture }, now)
     }
 
     /** Whether THIS call has actually rendered video, not merely opened a UI. */
