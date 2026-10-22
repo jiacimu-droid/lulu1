@@ -64,4 +64,11 @@ assert.match(stage, /secondaryHeadMotionMix/)
 assert.match(stage, /secondaryBodyMotionMix/)
 assert.match(stage, /getParameter\(core, id\) \?\? 0\) \* secondaryHeadMotionMix/)
 assert.match(stage, /getParameter\(core, id\) \?\? 0\) \* secondaryBodyMotionMix/)
-console.log('Live2D actual-index, camera eye-contact and transport guards passed')
+// A facial choice can animate eye openness, eyebrow positioning, and subtle
+// voicing without releasing centered gaze or fabricating full-arm animation.
+assert.match(stage, /eyeOpen: \['ParamEyeLOpen', 'ParamEyeROpen'\]/)
+assert.match(stage, /browX: \['ParamBrowLX', 'ParamBrowRX'\]/)
+assert.match(stage, /const expressiveVoice = playing && requested != null/)
+assert.match(stage, /if \(!eyeContact && requested == null && !hasPriorCue\) continue/)
+assert.match(stage, /delete smoothFace\[key\]/)
+console.log('Live2D facial animation, real parameter and streaming checks passed')
