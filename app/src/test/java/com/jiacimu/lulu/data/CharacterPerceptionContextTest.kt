@@ -80,6 +80,44 @@ class CharacterPerceptionContextTest {
         }
     }
 
+    @Test fun videoToVoiceKeepsOneCallAndOneMemoryTimelineWithAccurateEnding() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        SharedExperienceTimeline.initialize(app)
+        val role = "call-media-role-" + java.util.UUID.randomUUID()
+        val call = "call-media-id-" + java.util.UUID.randomUUID()
+        val start = "interaction-call-start-$call"
+        val selected = "interaction-call-video-selected-$call"
+        val rendered = "interaction-call-video-rendered-$call"
+        val end = "interaction-call-end-$call"
+        val now = Instant.now()
+        try {
+            InteractionSignalBridge.recordCallStart(role, call, "", now)
+            InteractionSignalBridge.recordVideoSelected(role, call, now.plusSeconds(1))
+            assertTrue(InteractionSignalBridge.hasSelectedVideo(role, call))
+            assertFalse(InteractionSignalBridge.hasRenderedVideo(role, call))
+            assertFalse(InteractionSignalBridge.callMediaSummary(role, call, false)
+                .contains("实际使用过 Live2D 视频画面"))
+            InteractionSignalBridge.recordVideoRendered(role, call, now.plusSeconds(2))
+            InteractionSignalBridge.recordCallMediaSwitch(role, call, true, false, now.plusSeconds(3))
+            val finishId = InteractionSignalBridge.recordCallEnd(
+                role, call, false, 80, 2, 12, now.plusSeconds(80), endsInVideo = false)
+            assertEquals(end, finishId)
+            val events = SharedExperienceTimeline.all(role)
+            val mode = events.single { it.id.startsWith("interaction-call-media-switch-$call-") }
+            assertEquals(call, mode.sessionId)
+            assertTrue(mode.content.contains("切换为语音模式"))
+            assertTrue(InteractionSignalBridge.hasRenderedVideo(role, call))
+            assertTrue(SharedExperienceTimeline.eventsByIds(role, listOf(end)).single()
+                .content.contains("仍是同一通电话"))
+            assertTrue(InteractionSignalBridge.callMediaSummary(role, call, false)
+                .contains("结束时已回到语音模式"))
+        } finally {
+            SharedExperienceTimeline.all(role).forEach {
+                SharedExperienceTimeline.deleteEvent(it.id)
+            }
+        }
+    }
+
     @Test fun witnessedTouchAndVisitSurviveAlongsideNewChatButStaleAndImaginedEventsDoNot() {
         val now = Instant.parse("2026-10-10T06:00:00Z")
         fun event(id: String, age: Long, kind: EventEvidenceKind) = SharedTimelineEvent(
