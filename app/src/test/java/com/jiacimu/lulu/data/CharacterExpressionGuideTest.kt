@@ -261,4 +261,16 @@ class CharacterExpressionGuideTest {
         assertFalse(noDuplicate.contains("熟悉时说话干脆，会接冷笑话"))
         assertTrue(noDuplicate.contains("最近消息用来理解上下文"))
     }
+    @Test fun allCharactersCanNoticeMeaningfulContextWithoutAForcedBedtimeScript() {
+        val common = CharacterDecisionProtocol.runtimePrinciples
+        val causal = CharacterDecisionProtocol.causalPrinciples
+        assertTrue(common.contains("【自主注意力】"))
+        assertTrue(common.contains("不要只等待对方把需求说出口"))
+        assertTrue(common.contains("没有显著变化可以没有新念头"))
+        assertTrue(common.contains("注意到不等于必须提起"))
+        assertTrue(causal.contains("主动留意哪些已知事实"))
+        assertTrue(causal.contains("不要每次重复首次关心"))
+        assertFalse(common.contains("凌晨四点必须"))
+    }
+
 }
