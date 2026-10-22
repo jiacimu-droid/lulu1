@@ -30,6 +30,8 @@ let mirrorErrorSent = false
 let nativeCaptureCanvas = null
 let nativeCaptureContext = null
 let nativeCaptureErrorReported = false
+// Full body for diagnostics; video calls may request a closer waist-up view.
+let framingMode = window.__luluFramingMode === 'portrait' ? 'portrait' : 'full'
 let gpuLost = false
 let gpuMaxTexture = 0
 let textureDetails = ''
@@ -98,9 +100,23 @@ function fit() {
     status('模型画布尺寸无效，无法居中绘制', 'error')
     return
   }
-  model.scale.set(Math.min(viewWidth * .92 / originalWidth, viewHeight * 1.02 / originalHeight))
+  // The *same model* can be framed as full body or waist-up. Never
+  // preprocess textures or alter the original author-supplied assets.
+  // In portrait view the top of the model remains in shot, while the lower
+  // half is intentionally below the visible viewport.
+  const isPortrait = framingMode === 'portrait'
+  const heightTarget = viewHeight * (isPortrait ? 1.78 : 1.02)
+  const widthTarget = viewWidth * (isPortrait ? 2.05 : .92)
+  model.scale.set(Math.min(widthTarget / originalWidth, heightTarget / originalHeight))
   model.anchor.set(.5, .5)
-  model.position.set(viewWidth / 2, viewHeight * .53)
+  model.position.set(viewWidth / 2, viewHeight * (isPortrait ? .91 : .53))
+}
+function setFramingMode(nextMode) {
+  framingMode = nextMode === 'portrait' ? 'portrait' : 'full'
+  if (app && model) {
+    fit()
+    app.render()
+  }
 }
 function notify(type, detail) {
   console.info('__LULU_LIVE2D__' + JSON.stringify({
@@ -434,7 +450,7 @@ function setPresentationMode(useMirror) {
 // A native Android Image overlay can display these frames without depending
 // on the WebView compositing surface. Called only by the Android fallback
 // at a throttled rate, never streamed to a server or exposed to the model.
-function captureNativeFrame() {
+function captureNativeFrame(maxEdge = 800) {
   if (!app || !model || gpuLost || paused || document.hidden ||
       !previewObserved) return null
   try {
@@ -446,19 +462,22 @@ function captureNativeFrame() {
     const w = app.view.width
     const h = app.view.height
     if (w < 32 || h < 32) return null
-    const scale = Math.min(1, 480 / Math.max(w, h))
+    // Previous 480px cap blurred all facial expressions on a ~1100px
+    // Android display. Adapt the upper bound to native decode throughput.
+    const safeEdge = Math.max(400, Math.min(960, Math.floor(Number(maxEdge) || 800)))
+    const scale = Math.min(1, safeEdge / Math.max(w, h))
     const width = Math.max(32, Math.round(w * scale))
     const height = Math.max(32, Math.round(h * scale))
     if (nativeCaptureCanvas.width !== width || nativeCaptureCanvas.height !== height) {
       nativeCaptureCanvas.width = width
       nativeCaptureCanvas.height = height
     }
-    // Keep the animation going while the WebView itself is invisible.
-    app.render()
+    // The Pixi ticker already renders at up to 30fps. Avoid forcing a
+    // redundant WebGL render for every JPEG bridge request.
     nativeCaptureContext.fillStyle = '#151719'
     nativeCaptureContext.fillRect(0, 0, width, height)
     nativeCaptureContext.drawImage(app.view, 0, 0, width, height)
-    return nativeCaptureCanvas.toDataURL('image/jpeg', 0.75)
+    return nativeCaptureCanvas.toDataURL('image/jpeg', 0.86)
   } catch (error) {
     if (!nativeCaptureErrorReported) {
       nativeCaptureErrorReported = true
@@ -490,7 +509,7 @@ function head(target) {
   }
   headRequestEndAt = Date.now() + 1600
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame }
+window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame, setFramingMode }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
