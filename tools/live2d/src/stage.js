@@ -9,6 +9,7 @@ import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
+import { resolveTouchRegion } from './touch-hit.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -59,6 +60,8 @@ let paused = false
 let seconds = 0
 let headRequest = null
 let headRequestEndAt = 0
+let touchReflex = null
+let touchReflexEndAt = 0
 let pendingExpressionName = null
 let pendingSpeechParts = null
 let activeExpressionName = null
@@ -295,6 +298,7 @@ function applyFinalParameters(core, deltaMs) {
   if (!core || paused) return
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
+  if (touchReflex && performance.now() > touchReflexEndAt) touchReflex = null
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   const timeNow = Date.now()
@@ -332,7 +336,7 @@ function applyFinalParameters(core, deltaMs) {
   // remain subsequent independent layers.
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
-    speaking: playing, voiceLevel: pcmAvailable ? mouth : null, seconds,
+    touchReflex, speaking: playing, voiceLevel: pcmAvailable ? mouth : null, seconds,
   })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
@@ -563,6 +567,7 @@ async function load(modelURL) {
     // Neither a prior call's eye/pose interpolation nor its queued speech
     // score is allowed to bleed into the next imported model.
     visualLayers.reset()
+    touchReflex = null
     performanceRuntime.reset()
     mouthExpressionGate.reset()
     if (playing) performanceRuntime.startSpeech()
@@ -902,6 +907,35 @@ function setNativeStreaming(enabled) {
   scheduleNativeStreamFrame()
 }
 
+/**
+ * Android's visible Compose image captures the finger and forwards the
+ * normalized point to the actual Pixi model. Never pretend background is a hit.
+ * The renderer handles only physical feedback, not AI decisions.
+ */
+function touch(normalizedX, normalizedY, gesture = 'tap') {
+  if (!model || !previewObserved || paused ||
+      !Number.isFinite(normalizedX) || !Number.isFinite(normalizedY) ||
+      normalizedX < 0 || normalizedX > 1 ||
+      normalizedY < 0 || normalizedY > 1) return { hit: false }
+  const x = normalizedX * root.clientWidth
+  const y = normalizedY * root.clientHeight
+  let hits = []
+  try { hits = model.hitTest(x, y) || [] } catch (_) { /* optional HitAreas */ }
+  const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
+  const region = resolveTouchRegion({
+    hits, authoredAreas, bounds: model.getBounds(), x, y,
+  })
+  if (!region) return { hit: false }
+  const kind = gesture === 'stroke' ? 'stroke' : gesture === 'hold' ? 'hold' : 'tap'
+  // A short physical recoil. No pre-scripted emotional reaction or speech.
+  touchReflex = {
+    yaw: kind === 'stroke' ? 1.3 : 3.1,
+    roll: region === 'head' ? -1.8 : -.9,
+  }
+  touchReflexEndAt = performance.now() + (kind === 'stroke' ? 360 : 170)
+  return { hit: true, region, gesture: kind }
+}
+
 function setPaused(value) {
   paused = !!value
   if (paused) {
@@ -913,6 +947,7 @@ function setPaused(value) {
     headRequest = null
     bodyRequest = null
     faceRequest = null
+    touchReflex = null
   } else if (playing) {
     // Audio may have kept running while the renderer was hidden; resume
     // present-time mouth animation without resurrecting skipped gestures.
@@ -1046,7 +1081,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
