@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f97c713cb88db1d380b594d40ae2a0eff85fee44`
+- 基准提交：`62fd4d71bc1a426b06b9bae7b5d84c23f770f065`
 - 分支：`main`
-- 已索引文件：800
-- 已索引代码/文本行：153080
-- 已发现符号：2298
+- 已索引文件：801
+- 已索引代码/文本行：153140
+- 已发现符号：2299
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -639,6 +639,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 66 | 1 |

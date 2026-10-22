@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:36:15.439221+00:00",
-  "commit": "f97c713cb88db1d380b594d40ae2a0eff85fee44",
+  "generatedAt": "2026-10-22T13:36:47.158955+00:00",
+  "commit": "62fd4d71bc1a426b06b9bae7b5d84c23f770f065",
   "branch": "main",
-  "sourceFingerprint": "5d0f34ae18c51f3cf701ba750d5dcb2b6829238dedaeaa97967fab22160e4dfe",
+  "sourceFingerprint": "b7895c148aad2fe54afebea218d19ac54e7899090ffdb67da3669baa84095256",
   "summary": {
-    "files": 800,
-    "lines": 153080,
-    "symbols": 2298
+    "files": 801,
+    "lines": 153140,
+    "symbols": 2299
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11746,6 +11746,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt",
         "line": 14
+      }
+    ],
+    "PromptInputAuditTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
+        "line": 5
       }
     ],
     "RelayRequestPressurePolicyTest": [
@@ -25549,6 +25555,17 @@
         {
           "name": "MultimodalContentTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
+      "lines": 60,
+      "sha256": "3ae0f871fb5da324eaf3f1a35127f18ed540ffa1da9aa6ebb6858dd89f32c03e",
+      "symbols": [
+        {
+          "name": "PromptInputAuditTest",
+          "line": 5
         }
       ]
     },
