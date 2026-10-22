@@ -47,7 +47,17 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             runCatching { stage.destroy() }
         }
     }
-    AndroidView(factory = { stage }, modifier = modifier.fillMaxSize())
+    // AndroidView can be composed before Android has measured or attached this
+    // WebView. Start loading only once it enters the actual view hierarchy,
+    // then report the real pixel dimensions after onLayout.
+    AndroidView(
+        factory = {
+            stage.loadUrl("https://appassets.androidplatform.net/assets/live2d/stage.html")
+            stage
+        },
+        modifier = modifier.fillMaxSize(),
+        update = { view -> reportNativeLive2DViewport(view) },
+    )
     LaunchedEffect(stage, previewRevision) {
         if (previewRevision > 0) {
             val commands = mutableListOf<String>()
@@ -75,6 +85,15 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     }
 }
 
+private fun reportNativeLive2DViewport(view: WebView) {
+    if (view.width < 20 || view.height < 20) return
+    val width = view.width
+    val height = view.height
+    view.evaluateJavascript(
+        "window.__luluNativeViewport={width:$width,height:$height};" +
+            "if(window.LuluLive2D)window.LuluLive2D.setViewport($width,$height)", null)
+}
+
 private fun createLive2DWebView(context: Context, characterId: String, modelUrl: String,
     onStatus: (String, String) -> Unit): WebView {
     val loader = WebViewAssetLoader.Builder()
@@ -86,6 +105,15 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
         // A fully opaque video window prevents chat content bleeding through a
         // transparent hardware WebView surface when Android redraws its layer.
         setBackgroundColor(AndroidColor.rgb(21, 23, 25))
+        addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            val width = right - left
+            val height = bottom - top
+            if (width >= 20 && height >= 20 &&
+                (width != oldRight - oldLeft || height != oldBottom - oldTop)) {
+                // Dispatch only after WebView has actually committed its layout.
+                view.post { reportNativeLive2DViewport(view as WebView) }
+            }
+        }
         isVerticalScrollBarEnabled = false
         isHorizontalScrollBarEnabled = false
         settings.apply {
@@ -158,12 +186,18 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
             }
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (url == "https://appassets.androidplatform.net/assets/live2d/stage.html") {
-                    view?.evaluateJavascript(
-                        "window.__luluStageModelUrl = ${JSONObject.quote(modelUrl)};" +
-                            "if (window.LuluLive2D) window.LuluLive2D.load(window.__luluStageModelUrl)", null)
+                    view?.let { current ->
+                        val width = current.width
+                        val height = current.height
+                        current.evaluateJavascript(
+                            "window.__luluStageModelUrl = ${JSONObject.quote(modelUrl)};" +
+                                "window.__luluNativeViewport={width:$width,height:$height};" +
+                                "if(window.LuluLive2D){" +
+                                "window.LuluLive2D.setViewport($width,$height);" +
+                                "window.LuluLive2D.load(window.__luluStageModelUrl)}", null)
+                    }
                 }
             }
         }
-        loadUrl("https://appassets.androidplatform.net/assets/live2d/stage.html")
     }
 }
