@@ -317,6 +317,14 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v19: a single recent phrase clarification is not permission to
+        // replay the full call. Change ONLY untouched Jiang Du stock fields.
+        CharacterProfileSchema.jiangDuV19Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) || previous == CharacterProfileSchema.jiangDuV18Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
