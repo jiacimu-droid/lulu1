@@ -51,6 +51,29 @@ internal object TokenConsolePresentation {
         }
     }
 
+    /**
+     * Reconcile a provider's one real total with the CLIENT-SIDE text inventory.
+     * This is an explicitly proportional ALLOCATION, not provider-reported
+     * per-section tokens. We cannot recover true section counts from one total.
+     * Return null whenever media, old records or incomplete coverage prevent
+     * a defensible all-text distribution.
+     */
+    fun allocateReportedInput(record: TokenConsoleRecord, groups: List<TokenSourceGroup>):
+        List<Long>? {
+        if (record.auditVersion < 1 || record.reportedInputTokens <= 0L ||
+            record.imageCount != 0 || record.textCharacters <= 0 ||
+            record.coveredTextCharacters != record.textCharacters.toLong() ||
+            groups.isEmpty() || groups.sumOf { it.chars } != record.coveredTextCharacters
+        ) return null
+        val total = record.reportedInputTokens
+        var allotted = 0L
+        return groups.mapIndexed { index, group ->
+            if (index == groups.lastIndex) total - allotted
+            else (total.toDouble() * group.chars / record.coveredTextCharacters)
+                .toLong().coerceIn(0L, total - allotted).also { allotted += it }
+        }
+    }
+
     /** Learns a robust provider/model character-to-token ratio from prior complete
      * text-only requests. This is a non-billable estimate, not a tokenizer.
      * Cross-model or media-containing records must never contaminate training.
