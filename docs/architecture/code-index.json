@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:05:40.683025+00:00",
-  "commit": "ac2fd0e2e96bde81f999980c1f38c1be157d8d1a",
+  "generatedAt": "2026-10-22T16:05:56.529768+00:00",
+  "commit": "5aa8d8e29818c23f5a5b23f91782e80f85be3b41",
   "branch": "main",
-  "sourceFingerprint": "79fd36a3d76fc1db9f2cf4808c1c396c0aaaf08cd1189aa1fcce27e67a6be64e",
+  "sourceFingerprint": "8647ebdb035febcbe6e2f60d01d543e6a5b17382cc9f602bf4166e7dfdf1cf21",
   "summary": {
     "files": 813,
-    "lines": 155120,
+    "lines": 155154,
     "symbols": 2336
   },
   "symbolIndex": {
@@ -27232,8 +27232,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineContinuationPolicyTest.kt",
-      "lines": 47,
-      "sha256": "ac4e0fab7cc31a4aeccdeca32154b9eba347771d8c3a2e7039f873724fe4c98c",
+      "lines": 81,
+      "sha256": "711fc02de80377078b41deffb70105161c49a122e2d09ac778d812253d1d663e",
       "symbols": [
         {
           "name": "OnlineContinuationPolicyTest",
