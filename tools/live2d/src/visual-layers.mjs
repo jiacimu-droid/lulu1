@@ -38,7 +38,7 @@ const clamp01 = v => Math.min(1, Math.max(0, v))
 export function createVisualLayerRuntime({ has, read, write }) {
   const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06)
   const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1)
-  const touchSpring = createPoseSpring(['yaw', 'roll'], 135, 1.1)
+  const touchSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.1)
   const smoothedFace = Object.create(null)
   let secondaryHeadMix = 0
   let secondaryBodyMix = 0
@@ -80,7 +80,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
 
     for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
       if (ids.some(id => !has(core, id))) continue
-      const requested = face?.[key]
+      const requested = face?.[key] ?? touchReflex?.face?.[key]
       const eyeContact = key === 'gazeX' || key === 'gazeY'
       let state = smoothedFace[key]
       if (!eyeContact && requested == null && !state) continue
