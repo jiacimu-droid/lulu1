@@ -128,7 +128,7 @@ object LuluMusicSensoryRuntime {
                 .put("role", "user").put("parts", JSONArray()
                     .put(JSONObject().put("text", observationPrompt))
                     .put(JSONObject().put("inline_data", JSONObject()
-                        .put("mime_type", mime).put("data", encoded)))))
+                        .put("mime_type", mime).put("data", encoded))))))
         } else {
             endpoint = cfg.base + "/chat/completions"
             body = JSONObject().put("model", cfg.model).put("max_tokens", 700)
@@ -137,7 +137,7 @@ object LuluMusicSensoryRuntime {
                         .put(JSONObject().put("type", "text").put("text", observationPrompt))
                         .put(JSONObject().put("type", "audio_url")
                             .put("audio_url", JSONObject().put("url",
-                                "data:" + mime + ";base64," + encoded))))))
+                                "data:" + mime + ";base64," + encoded)))))))
         }
         val connection = URL(endpoint).openConnection() as HttpURLConnection
         try {
