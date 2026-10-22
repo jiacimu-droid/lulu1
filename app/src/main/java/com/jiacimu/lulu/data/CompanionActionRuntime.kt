@@ -426,10 +426,18 @@ internal object CompanionActionRuntime {
                     val hasPersonalSceneIntent =
                         args.optString("lifeScene").isNotBlank() ||
                             args.optString("lifeSceneTitle").isNotBlank()
+                    // When arriving among other characters, the actual encounter gets
+                    // its own one-time literary chapter. Do not also publish a
+                    // same-minute generic outing chapter for the same arrival.
+                    val joiningEncounter = previousLocation != locationAfter &&
+                        DigitalWorldStore.state.value.characterLocations.any { (otherId, place) ->
+                            otherId != characterId && place == locationAfter &&
+                                DigitalLifeProfileStore.isEnabled(otherId)
+                        }
                     val shouldWriteScene = worldResult.evidenceId.isNotBlank() &&
                         (meaningfulWorldEvent ||
                             (worldAction in leisureActions && hasPersonalSceneIntent &&
-                                recentEpisode == null))
+                                recentEpisode == null && !joiningEncounter))
                     // The world receipt is already durable. Writing is a separate
                     // best-effort task; failures must never reverse the real action.
                     if (shouldWriteScene) {
