@@ -135,10 +135,8 @@ object LuluScreenAwareness {
         if (canNotify) {
         val notice = Notification.Builder(context, CAPTURE_CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_view)
-            .setContentTitle("请求查看屏幕")
-            .setContentText("$roleName 想查看你当前的屏幕 · 仅一次")
-            .setStyle(Notification.BigTextStyle().bigText(
-                "$roleName 请求查看一次当前屏幕。只有你点击「允许一次」后，才会截图并发送给识图模型。"))
+            .setContentTitle("$roleName 想看屏幕")
+            .setContentText("允许一次 · 拒绝")
             .addAction(Notification.Action.Builder(android.R.drawable.ic_menu_view,
                 "允许一次", decisionIntent(true)).build())
             .addAction(Notification.Action.Builder(android.R.drawable.ic_menu_close_clear_cancel,
@@ -234,7 +232,7 @@ object LuluScreenAwareness {
         if (!notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
             return rejected(context, "屏幕查看提醒方式都不可用，拒绝无提示截图")
         if (!busy.compareAndSet(false, true)) return rejected(context, "当前已有识图请求", "busy")
-        viewingNotice(context, "正在查看屏幕", "只截取当前一帧画面，正在识别")
+        viewingNotice(context, "正在查看屏幕", "识别中")
         try {
             if (!userRequested && cooldownRemaining(context) > 0L)
                 return rejected(context, "距上次自主截图不足五分钟", "cooldown")
@@ -253,7 +251,7 @@ object LuluScreenAwareness {
                         .putLong(LAST_AUTO, System.currentTimeMillis()).commit())
                     return rejected(context, "无法保存观察间隔，已停止")
                 report(context, "已取得一帧截图，识图进行中")
-                LuluScreenRequestPopup.showProgress(context, "已取得当前一帧，正在交给视觉模型理解…")
+                LuluScreenRequestPopup.showProgress(context)
                 val description = VisionModelService.describeScreenFrame(context, bitmap).getOrElse {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
@@ -300,7 +298,7 @@ object LuluScreenAwareness {
         if (channelAvailable) {
             manager.notify(41031, Notification.Builder(context, channel)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("请求返回露露机").setContentText("$roleName 邀请你返回露露机")
+                .setContentTitle("$roleName 邀请你回来").setContentText("返回露露机")
                 .setCategory(Notification.CATEGORY_REMINDER).setPriority(Notification.PRIORITY_HIGH)
                 .setContentIntent(pending).setAutoCancel(true).build())
         }
