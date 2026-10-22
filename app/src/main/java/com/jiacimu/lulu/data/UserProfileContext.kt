@@ -18,12 +18,11 @@ object UserProfileContext {
      */
     fun live2dCallContext(characterId: String): String {
         if (characterId.isBlank()) return ""
-        val installed = application?.let { app ->
-            com.jiacimu.lulu.Live2DAssets.modelUrl(app, characterId) != null
-        } == true
-        val coreReady = application?.let { app ->
-            com.jiacimu.lulu.Live2DAssets.hasCore(app)
-        } == true
+        // An uninitialized background process must not guess that the role
+        // has no model. Omit the claim until Android context is available.
+        val app = application ?: return ""
+        val installed = com.jiacimu.lulu.Live2DAssets.modelUrl(app, characterId) != null
+        val coreReady = com.jiacimu.lulu.Live2DAssets.hasCore(app)
         val call = com.jiacimu.lulu.LuluVoiceCallSession.state.value
         val active = call.connected && call.characterId == characterId
         val videoSelected = active &&
