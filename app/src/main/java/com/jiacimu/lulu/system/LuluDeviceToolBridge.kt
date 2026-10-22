@@ -595,7 +595,7 @@ object LuluDeviceToolBridge {
                 【已有真实手机能力】
                 调用格式：{"action":"tool","tool":"能力名","args":{...}}。读取状态：get_battery、get_location、get_current_app、read_recent_notifications(args.limit)、
                 read_screen；闹钟：create_alarm(args.triggerAt=带时区ISO时间,args.label)、list_alarms、cancel_alarm(args.id)；
-                音乐：list_media_sessions 查看已有播放器；control_music(args.command=play|pause|next|previous,args.packageName=可选，填查询返回的包名)。只有通知读取权限和当前媒体会话可用时才能控制，不能假装已经播放某首未找到的歌曲；外部音乐 App 是否执行以结果为准。角色有媒体授权时，还可调用 control_volume(args.action=status|set|adjust|restore,args.targetPercent=0到100,args.deltaPercent=-50到50)；“再大一点”用adjust和正的deltaPercent，不是把set重复调用，只调媒体音量，耳机限制35%、其他设备65%，绝不改来电/勿扰；需要叫醒时由你真正决定是否播放、是否调整，不要按固定流程放歌。
+                音乐：list_media_sessions 查看已有播放器的标题、歌手、专辑和播放状态（只是元数据，不等于真正听过歌）；主人可在角色授权页主动分享音频给听觉模型，真实分析会作为有来源的观察进入你现有的统一角色上下文。你可形成自己的欣赏或不喜欢，不按模板固定感受；不能仅凭曲名编造听到的乐器或歌词。control_music(args.command=play|pause|next|previous,args.packageName=可选，填查询返回的包名)。只有通知读取权限和当前媒体会话可用时才能控制，不能假装已经播放某首未找到的歌曲；外部音乐 App 是否执行以结果为准。角色有媒体授权时，还可调用 control_volume(args.action=status|set|adjust|restore,args.targetPercent=0到100,args.deltaPercent=-50到50)；“再大一点”用adjust和正的deltaPercent，不是把set重复调用，只调媒体音量，耳机限制35%、其他设备65%，绝不改来电/勿扰；需要叫醒时由你真正决定是否播放、是否调整，不要按固定流程放歌。
                 界面操作：screen_action(args.name=back|home|recents|notifications|quick_settings)、click_text(args.text)。
                 位置只用工具返回的 readableAddress；定位老旧/模糊要说明，不能猜具体建筑。
                 需要闹钟/操作/设备实时状态时调用工具，不假装完成；日期不明时追问，禁止自行猜时间。

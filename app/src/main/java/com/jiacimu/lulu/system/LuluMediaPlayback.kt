@@ -29,6 +29,12 @@ internal object LuluMediaPlayback {
     private fun title(controller: MediaController): String =
         controller.metadata?.getString(MediaMetadata.METADATA_KEY_TITLE).orEmpty()
 
+    private fun artist(controller: MediaController): String =
+        controller.metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST).orEmpty()
+
+    private fun album(controller: MediaController): String =
+        controller.metadata?.getString(MediaMetadata.METADATA_KEY_ALBUM).orEmpty()
+
     /** Active audio is only a hint; videos/games may also emit audio. */
     private fun audioActive(context: Context): Boolean? = runCatching {
         context.getSystemService(AudioManager::class.java)?.isMusicActive
@@ -45,7 +51,7 @@ internal object LuluMediaPlayback {
         val playing = (0 until (items?.length() ?: 0)).mapNotNull { items?.optJSONObject(it) }
             .firstOrNull { it.optBoolean("playing") }
         return when {
-            playing != null -> "已发现正在播放的媒体会话：${playing.optString("packageName")}；歌曲=${playing.optString("title").ifBlank { "未提供标题" }}；可使用list_media_sessions查看详情"
+            playing != null -> "已发现正在播放的媒体会话：${playing.optString("packageName")}；歌曲=${playing.optString("title").ifBlank { "未提供标题" }}；歌手=${playing.optString("artist").ifBlank { "未知" }}；可使用list_media_sessions查看详情。标题/歌手不是实际听过音频的证据"
             snapshot.optInt("count") > 0 -> "发现${snapshot.optInt("count")}个媒体会话，但未报告STATE_PLAYING；系统音频活跃=${audio ?: "未知"}；不可断言主人没有播放"
             audio == true -> "系统报告有音频活动，但未发现可控制的媒体会话；可能是音乐、视频或游戏，具体来源未知"
             else -> "没有发现可控制的媒体会话；系统音频活跃=${audio ?: "未知"}，不能据此断言主人没有播放音乐"
@@ -58,7 +64,8 @@ internal object LuluMediaPlayback {
             JSONArray().apply {
                 controllers.forEach { c ->
                     put(JSONObject().put("packageName", c.packageName)
-                        .put("title", title(c)).put("playing",
+                        .put("title", title(c)).put("artist", artist(c))
+                        .put("album", album(c)).put("playing",
                             c.playbackState?.state == PlaybackState.STATE_PLAYING)
                         .put("playbackState", c.playbackState?.state ?: PlaybackState.STATE_NONE)
                         .put("availableActions", c.playbackState?.actions ?: 0L))

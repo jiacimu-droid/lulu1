@@ -16,6 +16,7 @@ import com.jiacimu.lulu.study.roleStudyContext
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluMediaPlayback
+import com.jiacimu.lulu.ai.LuluMusicSensoryRuntime
 import com.jiacimu.lulu.system.LuluNotificationListenerService
 import java.time.Duration
 import java.time.Instant
@@ -50,6 +51,8 @@ internal object UserDevicePerception {
         ).any { CapabilityRegistry.allows(context, characterId, it, userRequested = false) }
         appendLine("用户设备媒体播放：" + if (musicAllowed)
             LuluMediaPlayback.observation(context) else "角色尚未得到主动读取或控制音乐授权；当前状态未知")
+        LuluMusicSensoryRuntime.roleContext(context, characterId, now)
+            .takeIf(String::isNotBlank)?.let(::appendLine)
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
         appendLine("用户学习状态：${studyContext(characterId)}")
         appendLine(UserInteractionPresenceStore.context(characterId, now))

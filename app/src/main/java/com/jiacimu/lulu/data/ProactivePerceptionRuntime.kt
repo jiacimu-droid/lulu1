@@ -691,6 +691,7 @@ object ProactivePerceptionRuntime {
                 if (CapabilityRegistry.find("control_music")?.let {
                         CapabilityRegistry.allows(appContext, characterId, it, false)
                     } == true) {
+                    appendLine("【手机音乐自主能力】MediaSession 的标题和歌手只是播放器提供的资料，不代表你已听到音乐；只有主人确实分享音频且拿到感官回执，才能谈亲耳分析。你可以有自己的音乐品味，但不能从歌曲内容猜主人内心。")
                     appendLine("【手机音乐自主能力】你已获准根据本人具体理由调用 action=tool, tool=control_music, args={\"command\":\"play|pause|next|previous\"} 操作真实已有的Android媒体会话。想确认播放器时，如也有设备读取授权，可先选 tool=list_media_sessions。play 只可能恢复支持该操作的现有播放会话，不能凭空打开一个音乐App、凭标题点播歌曲或声称知道未读取的曲目；当前未发现可控制的会话时不要反复调用。真实回执为准。")
                 }
                 if (CapabilityRegistry.allows(appContext, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
