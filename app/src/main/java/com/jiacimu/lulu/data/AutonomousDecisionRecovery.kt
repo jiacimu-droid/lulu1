@@ -102,7 +102,7 @@ internal object AutonomousDecisionRecovery {
                             val words = if (bubble is JSONObject) bubble.optString("text")
                                 else if (bubble is String) bubble else ""
                             words.trim().takeIf(String::isNotBlank)
-                        }.joinToString("\n")
+                        }.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
                     }
                 }
             }
