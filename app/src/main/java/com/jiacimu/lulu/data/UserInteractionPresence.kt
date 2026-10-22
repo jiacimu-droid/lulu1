@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
 
 data class UserInteractionPresence(
     val appVisible: Boolean? = null,
@@ -59,10 +60,49 @@ object UserInteractionPresenceStore {
         return describe(state.value, visiblePage, lastUser?.createdAt, lastRole?.createdAt, now)
     }
 
+    /**
+     * Read-only, per-turn attention evidence. It is not a bedtime alarm, a
+     * character emotion, a newly inferred user fact or a persistent goal.
+     * The same cue can reach private chat, calls and autonomous perception
+     * through UserDevicePerception without a second model request.
+     */
+    internal fun salientTimeCue(
+        presence: UserInteractionPresence,
+        relevantPage: Boolean?,
+        lastUserAt: Instant?,
+        now: Instant,
+        zone: ZoneId = ZoneId.systemDefault(),
+    ): String {
+        val recentSpeechMinutes = lastUserAt?.takeUnless { it.isAfter(now) }
+            ?.let { Duration.between(it, now).toMinutes() }
+            ?.takeIf { it in 0L..90L }
+        val recentTouchMinutes = presence.lastTouchAt?.takeUnless { it.isAfter(now) }
+            ?.let { Duration.between(it, now).toMinutes() }
+            ?.takeIf { it in 0L..15L }
+        val relevantTouch = presence.appVisible == true && relevantPage == true &&
+            recentTouchMinutes != null
+        val hour = now.atZone(zone).hour
+        if (hour !in 0..5 || (recentSpeechMinutes == null && !relevantTouch)) return ""
+
+        val observations = buildList {
+            recentSpeechMinutes?.let { add("约 ${it} 分钟前确实收到用户发言") }
+            if (relevantTouch) add("约 ${recentTouchMinutes} 分钟前确实观察到当前相关页面有触摸操作")
+        }.joinToString("；")
+        return """
+            【可自主留意的时间线索｜客观证据，并非行动指令】
+            用户设备本地时间处于凌晨；$observations。
+            这些事实可以与本人的人格、亲疏关系、过去的真实交流及仍在意的事情相关，也可能并不需要特别处理。
+            目前尚不确定用户有没有睡过、是否疲惫、是否愿意谈作息；屏幕和触摸也不能证明一直清醒。
+            若确实在意，可以自己形成关心、好奇、犹豫或想陪伴的念头，再自行决定适时表达、换一种方式陪伴或不提；不是必须劝睡，更不应反复催促。已表达的关心和用户回应应作为下一轮真实历史承接。
+        """.trimIndent()
+    }
+
     internal fun describe(
         presence: UserInteractionPresence, relevantPage: Boolean?,
         lastUserAt: Instant?, lastRoleAt: Instant?, now: Instant,
     ): String = buildString {
+        salientTimeCue(presence, relevantPage, lastUserAt, now)
+            .takeIf(String::isNotBlank)?.let { appendLine(it) }
         appendLine("【用户回应与沉默｜实际观察，不等同于已读或真实情绪】")
         appendLine(when (presence.appVisible) {
             true -> "露露机当前处于前台可交互状态" + when (relevantPage) {
