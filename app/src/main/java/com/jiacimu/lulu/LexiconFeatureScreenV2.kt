@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.core.LexiconEntry
@@ -200,8 +201,9 @@ fun LexiconFeatureScreenV2(
                                         ?.text.orEmpty().take(100),
                                         fontSize = 13.sp, lineHeight = 22.sp,
                                         color = Color(0xFF6A625B), maxLines = 3)
-                                    Text("阅读全文  →", fontSize = 12.sp,
-                                        color = Color(0xFF947E68), fontWeight = FontWeight.Medium)
+                                    Text("阅读全文  ↗", fontSize = 13.sp,
+                                        color = Color(0xFF745138), fontWeight = FontWeight.SemiBold,
+                                        textDecoration = TextDecoration.Underline)
                                 }
                             }
                         }
