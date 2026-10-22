@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:26:28.065926+00:00",
-  "commit": "a97168265ad60b71b37631a10b2a105b455ce405",
+  "generatedAt": "2026-10-22T17:27:19.972268+00:00",
+  "commit": "7395d72e740a32a1c5ed97ebdc15f83c2d920044",
   "branch": "main",
-  "sourceFingerprint": "30b3012e74d0c6b84c9b0e057c7c30a02f3c707390781012ba2c6917b2c60d82",
+  "sourceFingerprint": "be57fa008fe062331af3c0341deb18cb091c74ad5b78dbafed33a24b9a9d4181",
   "summary": {
     "files": 827,
     "lines": 157512,
@@ -13419,7 +13419,7 @@
     {
       "path": "app/src/main/assets/live2d/stage.html",
       "lines": 17,
-      "sha256": "fd9c60f0b21860f8cb1a5f335241d8123d80bbe78c2121ed38fa1ead505b4642",
+      "sha256": "26bf2a4a3c286ae1724b8a4d12c32617f3e0b55616ea721b08fce1bd1c7408d6",
       "symbols": []
     },
     {
