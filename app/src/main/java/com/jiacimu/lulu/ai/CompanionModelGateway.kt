@@ -486,13 +486,18 @@ class CompanionModelGateway(
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
             val recallQuery = "$facts\n$instruction"
             val request = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction)
-            val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(source, request)
-            // A simple conversational expression already has the planner's researched
-            // intent. Recalling all stores again adds cost but no new decision authority.
-            val expressionOnly = com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)
             val dialogueRequest = conversation.isNotEmpty() && contextMode in setOf(
                 CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario,
             )
+            // The same background worker handles both autonomous life and a just-received
+            // private message. A private reply should be recalled as a conversation,
+            // not as a complete world-planning cycle. Explicit history, responsibility,
+            // world and tool questions still promote themselves via forRequest().
+            val promptScene = if (dialogueRequest && source == "后台主动感知") "私聊" else source
+            val budget = com.jiacimu.lulu.data.PromptContextPolicy.forRequest(promptScene, request)
+            // A simple conversational expression already has the planner's researched
+            // intent. Recalling all stores again adds cost but no new decision authority.
+            val expressionOnly = com.jiacimu.lulu.data.CharacterExpressionGuide.isExpressionOnly(source)
             if (dialogueRequest) require(conversation.last().role == ModelConversationMessage.Role.USER) {
                 "聊天必须从当前用户消息接话"
             }
@@ -660,7 +665,8 @@ class CompanionModelGateway(
             else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
-                    characterId, compact = !budget.richInnerLife, query = request.retrievalQuery(), includeActiveCommitments = false)
+                    characterId, compact = dialogueRequest || !budget.richInnerLife,
+                    query = request.retrievalQuery(), includeActiveCommitments = false)
                 // Private chat's second model pass renders text only. It still
                 // receives the same character's unfinished intention, but no
                 // broad timeline or new decision-making authority.
