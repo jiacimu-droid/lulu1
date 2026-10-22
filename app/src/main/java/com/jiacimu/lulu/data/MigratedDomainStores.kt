@@ -323,7 +323,10 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
-        deleted.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
+        deleted.second.forEach {
+            CompanionPresenceStore.forgetDeliveredMessage(it.id)
+            com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id)
+        }
         discardDeletedChatPhotos(deleted.second)
         appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
         return true
@@ -342,7 +345,10 @@ class InMemoryLuluChatStore : LuluChatStore {
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
-        cleared.second.forEach { com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id) }
+        cleared.second.forEach {
+            CompanionPresenceStore.forgetDeliveredMessage(it.id)
+            com.jiacimu.lulu.ChatAutoVoicePlayback.remove(it.id)
+        }
         discardDeletedChatPhotos(cleared.second)
         appContext?.let { CharacterMessageNotifications.cancel(it, conversationId) }
         return true
