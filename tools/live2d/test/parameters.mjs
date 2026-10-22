@@ -49,7 +49,7 @@ assert.equal(access.write(other, 'ParamMouthOpenY', 5), true)
 assert.equal(access.read(other, 'ParamMouthOpenY'), .7)
 assert.equal(access.write(other, 'ParamAngleX', -25), true)
 assert.equal(access.read(other, 'ParamAngleX'), -10)
-assert.equal(other.values[3], 0.4)
+assert.equal(other.values[3], 0.7)
 assert.equal(core.values[3], 0.85)
 
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
