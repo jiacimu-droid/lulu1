@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T14:23:56.599977+00:00",
-  "commit": "b8c26d10282aaf00c04e2c2d7a35b50c1ef8324a",
+  "generatedAt": "2026-10-22T14:25:34.299489+00:00",
+  "commit": "d1ffcbc4581077fcfcb58ffcdca4c8b0c1a6a685",
   "branch": "main",
-  "sourceFingerprint": "ff4935ab54326fe1e6bd3988c0f087288cceebe96ef743d259badd33dfff4dec",
+  "sourceFingerprint": "a1c3cacb3ef7c5d4889f8865ebe7792617726b805e77489744199c10ed76ff00",
   "summary": {
-    "files": 802,
-    "lines": 153420,
-    "symbols": 2300
+    "files": 803,
+    "lines": 153496,
+    "symbols": 2302
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8850,6 +8850,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt",
         "line": 2
+      }
+    ],
+    "groups": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
+        "line": 45
+      }
+    ],
+    "calibratedEstimate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
+        "line": 56
       }
     ],
     "ToolRouter": [
@@ -21669,6 +21681,21 @@
         {
           "name": "EventEvidenceKind",
           "line": 2
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
+      "lines": 76,
+      "sha256": "889c4d881ed004f0b0dc007e0c642096032ef0a767f65fbbcb77a21d243c707f",
+      "symbols": [
+        {
+          "name": "groups",
+          "line": 45
+        },
+        {
+          "name": "calibratedEstimate",
+          "line": 56
         }
       ]
     },
