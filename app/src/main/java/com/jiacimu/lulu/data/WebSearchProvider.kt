@@ -11,9 +11,19 @@ internal data class WebSearchHit(val title: String, val url: String, val preview
 internal object WebSearchProvider {
     private const val PREF = "lulu_learning_web_search_v1"
     private const val KEY = "tavily_api_key"
+    private const val DEEPSEEK_KEY = "deepseek_search_api_key"
     fun savedKey(context: Context): String = context.applicationContext
         .getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY, "").orEmpty()
-    fun isConfigured(context: Context) = savedKey(context).isNotBlank()
+    fun savedDeepSeekKey(context: Context): String = context.applicationContext
+        .getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(DEEPSEEK_KEY, "").orEmpty()
+    fun isConfigured(context: Context) =
+        savedDeepSeekKey(context).isNotBlank() || savedKey(context).isNotBlank()
+    fun saveDeepSeekKey(context: Context, key: String): Boolean {
+        val cleaned = key.trim()
+        require(cleaned.length <= 256 && !cleaned.contains('\n') && !cleaned.contains('\r'))
+        return context.applicationContext.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+            .edit().putString(DEEPSEEK_KEY, cleaned).commit()
+    }
     fun saveKey(context: Context, key: String): Boolean {
         val cleaned = key.trim()
         require(cleaned.length <= 256 && !cleaned.contains('\n') && !cleaned.contains('\r'))
@@ -21,9 +31,47 @@ internal object WebSearchProvider {
             .putString(KEY, cleaned).commit()
     }
 
+    /** Only genuine fetched page contents become source evidence, never search snippets. */
+    internal fun deepSeekFetchContent(response: JSONObject): String {
+        val text = response.optString("content").trim().take(8_000)
+        require(text.length >= 120) { "DeepSeek Fetch 没有返回足够的真实网页正文" }
+        return text
+    }
+
+    private fun deepSeekPost(key: String, endpoint: String, payload: JSONObject): JSONObject {
+        val connection = URL("https://api.deepseek.com/v1/tools/$endpoint")
+            .openConnection() as HttpURLConnection
+        try {
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 12_000
+            connection.readTimeout = 20_000
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            connection.setRequestProperty("Authorization", "Bearer $key")
+            connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
+            val code = connection.responseCode
+            require(code in 200..299) { "DeepSeek 联网工具 HTTP $code" }
+            val content = connection.inputStream.use { input ->
+                val buffer = ByteArray(8192)
+                val output = java.io.ByteArrayOutputStream()
+                while (output.size() < 240_000) {
+                    val read = input.read(buffer, 0, minOf(buffer.size, 240_000 - output.size()))
+                    if (read < 0) break
+                    output.write(buffer, 0, read)
+                }
+                output.toString("UTF-8")
+            }
+            return JSONObject(content)
+        } finally { connection.disconnect() }
+    }
+
     /** Provider-side article extraction is a fallback when websites block direct Android readers. */
     fun extract(context: Context, articleUrl: String): String {
         LearningMaterialSource.validateUrl(articleUrl)
+        val deepSeekKey = savedDeepSeekKey(context)
+        if (deepSeekKey.isNotBlank()) return deepSeekFetchContent(
+            deepSeekPost(deepSeekKey, "fetch", JSONObject().put("url", articleUrl))
+        )
         val key = savedKey(context)
         require(key.isNotBlank()) { "尚未配置 Tavily Search API Key" }
         val connection = URL("https://api.tavily.com/extract").openConnection() as HttpURLConnection
@@ -61,11 +109,32 @@ internal object WebSearchProvider {
         }
     }
 
+    internal fun parseDeepSeekSearch(root: JSONObject): List<WebSearchHit> {
+        val results = root.optJSONArray("results") ?: error("DeepSeek Search 未返回结果列表")
+        return (0 until minOf(results.length(), 10)).mapNotNull { index ->
+            val item = results.optJSONObject(index) ?: return@mapNotNull null
+            val url = item.optString("url").trim()
+            if (runCatching { LearningMaterialSource.validateUrl(url) }.isFailure) return@mapNotNull null
+            val title = item.optString("title").trim().take(160).ifBlank { url }
+            WebSearchHit(title, url, item.optString("snippet").trim().take(500)
+                .ifBlank { item.optString("summary").trim().take(500) })
+        }.distinctBy { it.url }.take(5)
+    }
+
     fun search(context: Context, query: String): List<WebSearchHit> {
-        val key = savedKey(context)
-        require(key.isNotBlank()) { "尚未配置 Tavily Search API Key" }
-        val text = query.trim().take(180)
+        val text = query.trim().take(128)
         require(text.length >= 2) { "请输入具体搜索词" }
+        val deepSeekKey = savedDeepSeekKey(context)
+        if (deepSeekKey.isNotBlank()) {
+            val hits = parseDeepSeekSearch(deepSeekPost(
+                deepSeekKey, "search", JSONObject().put("query", text)
+                    .put("count", 5).put("need_content", false),
+            ))
+            require(hits.isNotEmpty()) { "DeepSeek Search 没有有效 HTTPS 搜索结果" }
+            return hits
+        }
+        val key = savedKey(context)
+        require(key.isNotBlank()) { "尚未配置 DeepSeek Search 或 Tavily Search API Key" }
         val connection = URL("https://api.tavily.com/search").openConnection() as HttpURLConnection
         try {
             connection.requestMethod = "POST"
