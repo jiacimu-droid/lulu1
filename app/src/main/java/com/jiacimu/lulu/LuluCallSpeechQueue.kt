@@ -28,6 +28,7 @@ internal class LuluCallSpeechQueue(
         val messageId: String?,
         val onDelivered: (() -> Unit)?,
         val onStarted: (() -> Unit)?,
+        val onEnded: (() -> Unit)?,
     )
 
     private val appContext = context.applicationContext
@@ -48,15 +49,19 @@ internal class LuluCallSpeechQueue(
         onDelivered: (() -> Unit)? = null,
         messageId: String? = null,
         onStarted: (() -> Unit)? = null,
+        onEnded: (() -> Unit)? = null,
     ) {
         val speech = VoicePerformance.forPlayback(appContext, text)
         if (speech.isBlank()) return
-        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted))
+        pending.addLast(Request(speakerId, speech, voiceId, messageId, onDelivered, onStarted, onEnded))
         if (!active) playNext()
     }
 
     fun stop(clearQueue: Boolean = true) {
         activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
+        // End the visual moment even on barge-in, TTS failure or hangup.
+        // The generation fence below discards the now-stale finish callback.
+        activeRequest?.onEnded?.invoke()
         generation += 1
         if (clearQueue) pending.clear()
         active = false
@@ -69,6 +74,7 @@ internal class LuluCallSpeechQueue(
 
     fun shutdown() {
         activeRequest?.speakerId?.let { AvatarController.playback(it, false) }
+        activeRequest?.onEnded?.invoke()
         generation += 1
         pending.clear()
         active = false
@@ -113,6 +119,7 @@ internal class LuluCallSpeechQueue(
                 val failure = engine.lastError
                 request.speakerId?.let { AvatarController.playback(it, false) }
                 if (succeeded) request.onDelivered?.invoke()
+                request.onEnded?.invoke()
                 active = false
                 activeRequest = null
                 engine.onPlaybackState = null
