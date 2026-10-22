@@ -32,7 +32,7 @@ fix_chromium_exec() {
 }
 detect_chromium() {
   if [[ -n "${LULU_XHS_CHROMIUM:-}" && -x "${LULU_XHS_CHROMIUM}" ]]; then
-    printf '%s\\n' "${LULU_XHS_CHROMIUM}"
+    printf '%s\n' "${LULU_XHS_CHROMIUM}"
     return
   fi
   local binary
@@ -41,7 +41,7 @@ detect_chromium() {
   if [[ -d "$HOME/.cache/ms-playwright" ]]; then
     binary="$(find "$HOME/.cache/ms-playwright" -type f -name chrome -path '*chrome-linux*' -print -quit 2>/dev/null || true)"
     if [[ -n "$binary" && -x "$binary" ]]; then
-      printf '%s\\n' "$binary"
+      printf '%s\n' "$binary"
       return
     fi
   fi
