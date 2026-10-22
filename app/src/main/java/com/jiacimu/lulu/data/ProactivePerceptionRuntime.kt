@@ -1743,9 +1743,7 @@ object ProactivePerceptionRuntime {
                 val extraResult = runCatching {
                     JSONObject(ToolRouter.execute(appContext, character.characterId, name,
                         arguments, requestId = requestId + ":step:" + i,
-                        userRequested = CharacterInitiativeRuntime.isExplicitUserToolRequest(
-                            if (hasFreshUserMessage) decision.toolArgs.optString("_userRequest") else "", name
-                        ) || (name == "capture_screen" && explicitScreenRequest),
+                        userRequested = name == "capture_screen" && explicitScreenRequest,
                         intentionId = decision.intentionId))
                 }.getOrElse { JSONObject().put("success", false)
                     .put("error", it.message.orEmpty().ifBlank { "工具未返回状态" }) }
