@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:25:23.026542+00:00",
-  "commit": "a60bc235f24341eb8fb0c8481009e29ae1d436e8",
+  "generatedAt": "2026-10-22T16:26:01.300654+00:00",
+  "commit": "8956ac44954ccf460423b5efba81bea1c7a952b1",
   "branch": "main",
-  "sourceFingerprint": "309d6bf88b450389690f5e201772e95b9658382f4a0dbbf5788add1c3add8988",
+  "sourceFingerprint": "c134ca396c95ee15fa9bc9e70346ecd379764399528f48d825514372e9aaab59",
   "summary": {
-    "files": 820,
-    "lines": 156671,
-    "symbols": 2367
+    "files": 821,
+    "lines": 156785,
+    "symbols": 2372
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -522,6 +522,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt",
         "line": 60
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt",
+        "line": 26
       }
     ],
     "miniAsrEndpoint": [
@@ -1567,7 +1571,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 399
+        "line": 445
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -2154,106 +2158,112 @@
         "line": 204
       }
     ],
+    "onLive2DTouch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
+        "line": 255
+      }
+    ],
     "isActiveForChat": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 249
+        "line": 295
       }
     ],
     "onTextChatMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 254
+        "line": 300
       }
     ],
     "dial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 418
+        "line": 464
       }
     ],
     "cancelDial": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 473
+        "line": 519
       }
     ],
     "toggleMicrophone": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 477
+        "line": 523
       }
     ],
     "setMicrophoneMuted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 481
+        "line": 527
       }
     ],
     "toggleSleepMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 535
+        "line": 581
       }
     ],
     "selectSleepFocus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 558
+        "line": 604
       }
     ],
     "toggleSpeaker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 628
+        "line": 674
       }
     ],
     "reportPermissionDenied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 632
+        "line": 678
       }
     ],
     "endCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 636
+        "line": 682
       }
     ],
     "sameReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1375
+        "line": 1421
       }
     ],
     "clearWhenHeard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1377
+        "line": 1423
       }
     ],
     "enqueueSpoken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1393
+        "line": 1439
       }
     ],
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1760
+        "line": 1810
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1911
+        "line": 1961
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2072
+        "line": 2122
       }
     ],
     "returnToList": [
@@ -12084,6 +12094,24 @@
         "line": 14
       }
     ],
+    "MusicSignalSketchTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt",
+        "line": 7
+      }
+    ],
+    "put16": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt",
+        "line": 18
+      }
+    ],
+    "put32": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt",
+        "line": 22
+      }
+    ],
     "PromptInputAuditTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt",
@@ -14952,8 +14980,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2158,
-      "sha256": "fb438e1ad5d52713a27a059d1aca0b99b375dda10dcf8d974b31d9427ee702c0",
+      "lines": 2208,
+      "sha256": "4070dd25a34d8c61cafadd80226e5bf7b3e4c27a51fe061536aa0aa0bc58e6e2",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -14968,76 +14996,80 @@
           "line": 204
         },
         {
+          "name": "onLive2DTouch",
+          "line": 255
+        },
+        {
           "name": "isActiveForChat",
-          "line": 249
+          "line": 295
         },
         {
           "name": "onTextChatMessage",
-          "line": 254
+          "line": 300
         },
         {
           "name": "prepare",
-          "line": 399
+          "line": 445
         },
         {
           "name": "dial",
-          "line": 418
+          "line": 464
         },
         {
           "name": "cancelDial",
-          "line": 473
+          "line": 519
         },
         {
           "name": "toggleMicrophone",
-          "line": 477
+          "line": 523
         },
         {
           "name": "setMicrophoneMuted",
-          "line": 481
+          "line": 527
         },
         {
           "name": "toggleSleepMode",
-          "line": 535
+          "line": 581
         },
         {
           "name": "selectSleepFocus",
-          "line": 558
+          "line": 604
         },
         {
           "name": "toggleSpeaker",
-          "line": 628
+          "line": 674
         },
         {
           "name": "reportPermissionDenied",
-          "line": 632
+          "line": 678
         },
         {
           "name": "endCall",
-          "line": 636
+          "line": 682
         },
         {
           "name": "sameReply",
-          "line": 1375
+          "line": 1421
         },
         {
           "name": "clearWhenHeard",
-          "line": 1377
+          "line": 1423
         },
         {
           "name": "enqueueSpoken",
-          "line": 1393
+          "line": 1439
         },
         {
           "name": "sameSession",
-          "line": 1760
+          "line": 1810
         },
         {
           "name": "retryListening",
-          "line": 1911
+          "line": 1961
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2072
+          "line": 2122
         }
       ]
     },
@@ -26260,6 +26292,29 @@
         {
           "name": "MultimodalContentTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt",
+      "lines": 64,
+      "sha256": "22259070abde266d89ac4d8d6f503380003dce2e7584e882c4335f3ec902d681",
+      "symbols": [
+        {
+          "name": "MusicSignalSketchTest",
+          "line": 7
+        },
+        {
+          "name": "put16",
+          "line": 18
+        },
+        {
+          "name": "put32",
+          "line": 22
+        },
+        {
+          "name": "label",
+          "line": 26
         }
       ]
     },

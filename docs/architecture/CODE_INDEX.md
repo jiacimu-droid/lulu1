@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a60bc235f24341eb8fb0c8481009e29ae1d436e8`
+- 基准提交：`8956ac44954ccf460423b5efba81bea1c7a952b1`
 - 分支：`main`
-- 已索引文件：820
-- 已索引代码/文本行：156671
-- 已发现符号：2367
+- 已索引文件：821
+- 已索引代码/文本行：156785
+- 已发现符号：2372
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -124,7 +124,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 748 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2158 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2208 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -651,6 +651,7 @@
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 73 | 1 |
