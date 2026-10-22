@@ -98,6 +98,8 @@ const FACE_BINDINGS = {
   smile: ['ParamMouthForm'],
   eyeSmile: ['ParamEyeLSmile', 'ParamEyeRSmile'],
   browY: ['ParamBrowLY', 'ParamBrowRY'],
+  browAngle: ['ParamBrowLAngle', 'ParamBrowRAngle'],
+  browForm: ['ParamBrowLForm', 'ParamBrowRForm'],
   squint: ['ParamEyeLSquint', 'ParamEyeRSquint'],
   cheekPuff: ['ParamCheekPuff'], pout: ['ParamMouthFunnel'],
 }
