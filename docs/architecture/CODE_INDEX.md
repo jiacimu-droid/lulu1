@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ba99decaa43bafa3a66c4ae6fe4c33bbef1dcb53`
+- 基准提交：`4bbeae81283d757cfa48212ffa8a5d86f73894ff`
 - 分支：`main`
 - 已索引文件：831
-- 已索引代码/文本行：158859
+- 已索引代码/文本行：158860
 - 已发现符号：2400
 
 | 文件 | 行数 | 符号数 |
@@ -582,7 +582,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 368 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 369 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
