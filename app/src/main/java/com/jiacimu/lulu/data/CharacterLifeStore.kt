@@ -256,6 +256,21 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // Upgrade Jiang Du's stock v14 fields only, leaving user-written
+        // personality entries (including intentional empty strings) untouched.
+        CharacterProfileSchema.jiangDuV14Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            val programDefaults = listOfNotNull(
+                CharacterProfileSchema.jiangDuV13Overrides[key],
+                CharacterProfileSchema.jiangDuV12Overrides[key],
+                CharacterProfileSchema.jiangDuV11Overrides[key],
+                CharacterProfileSchema.jiangDuV10Overrides[key],
+                CharacterProfileSchema.jiangDu[key]
+            )
+            if (!profile.has(key) || previous in programDefaults) {
+                profile.put(key, value)
+            }
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
@@ -279,8 +294,9 @@ object CharacterLifeStore {
                 CharacterProfileSchema.jiangDuPersona,
                 CharacterProfileSchema.jiangDuV10Persona,
                 CharacterProfileSchema.jiangDuV11Persona,
-                CharacterProfileSchema.jiangDuV12Persona
-            )) CharacterProfileSchema.jiangDuV13Persona else character.persona
+                CharacterProfileSchema.jiangDuV12Persona,
+                CharacterProfileSchema.jiangDuV13Persona
+            )) CharacterProfileSchema.jiangDuV14Persona else character.persona
         MigratedDomainStores.characters.update(character.copy(
             displayName = restoredName, persona = updatedPersona))
         root.optJSONObject("socialNames")?.let { names ->
