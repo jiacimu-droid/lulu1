@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T04:31:27.650171+00:00",
-  "commit": "e11ce1f90345e47ac2448f1e8d809b413ed9cd77",
+  "generatedAt": "2026-10-22T04:41:10.624315+00:00",
+  "commit": "7d2b1b2fb22abef17d7588111268855f0b4e7907",
   "branch": "main",
-  "sourceFingerprint": "70f00f5435d63fc64148e945441e0743d6164bb82ee4baeaab9fbb6663874dcc",
+  "sourceFingerprint": "ff6cc07df5742e3e0ab09dec5c7f4925a8677673cbddbe63df80e3fd241e5d4b",
   "summary": {
     "files": 791,
-    "lines": 150710,
+    "lines": 150735,
     "symbols": 2264
   },
   "symbolIndex": {
@@ -20626,8 +20626,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 129,
-      "sha256": "51e2483eb0a85319061f500235fc24baf75f569cd06a62717e55bafea5ff65ce",
+      "lines": 133,
+      "sha256": "b846686641c7aff71d77cf5998228441617d226c36d62a7bc6f068383d86ff58",
       "symbols": []
     },
     {
@@ -20729,7 +20729,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 2000,
-      "sha256": "1d51c9abdcfef51f8e10aa8fa07d2cfa1022eadffbb8dd8b962877abb5c863e0",
+      "sha256": "b36471b81f99d26ead8e5781642b84d86ee94610c5c5d66c0f156c3103c37506",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -25546,8 +25546,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 236,
-      "sha256": "1064aef26d08feb70d25f7b1ae0ee61693daef477d789a4ea15422c1f04d88e5",
+      "lines": 257,
+      "sha256": "404298b4809d10a78de1cf8df6180018b9a239c8fa855da7f266130bf3504548",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
