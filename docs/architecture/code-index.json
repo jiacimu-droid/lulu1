@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:40:30.379182+00:00",
-  "commit": "3d7dcd52fc98deb5d549fae39890dd1833205b1b",
+  "generatedAt": "2026-10-22T07:40:55.499761+00:00",
+  "commit": "317131967eea05e5a358319d71468345a9c1e2bf",
   "branch": "main",
-  "sourceFingerprint": "bd7c5da60a02e988d93e9d68753f3a0f7fe7fcc38694b6b3e1ef7553c6aa72a2",
+  "sourceFingerprint": "cc637ded060a87faddfb271d1e931df568b215f4eef1596017376d8f6054886f",
   "summary": {
     "files": 798,
-    "lines": 151836,
+    "lines": 151839,
     "symbols": 2282
   },
   "symbolIndex": {
@@ -1687,7 +1687,7 @@
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 136
+        "line": 139
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -1705,7 +1705,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 168
+        "line": 171
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1715,13 +1715,13 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 180
+        "line": 183
       }
     ],
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 191
+        "line": 194
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -14051,8 +14051,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 220,
-      "sha256": "19a65f63a87e44f7e02558b842fc847309b62b027b514eb4ab1eb6c260deadfa",
+      "lines": 223,
+      "sha256": "1afab6c778b45525606f9fa64071c9b4b504ce89f4f62ed0eba15478bb0b34e3",
       "symbols": [
         {
           "name": "Head",
@@ -14092,19 +14092,19 @@
         },
         {
           "name": "normalized",
-          "line": 136
+          "line": 139
         },
         {
           "name": "publish",
-          "line": 168
+          "line": 171
         },
         {
           "name": "bounded",
-          "line": 180
+          "line": 183
         },
         {
           "name": "boundedBody",
-          "line": 191
+          "line": 194
         }
       ]
     },
