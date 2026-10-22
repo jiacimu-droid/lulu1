@@ -49,6 +49,7 @@ let gpuMaxTexture = 0
 let textureDetails = ''
 let playing = false
 let mouth = 0
+let pcmAvailable = false
 let listening = false
 let paused = false
 let seconds = 0
@@ -398,8 +399,6 @@ function applyAfterMotion(core, deltaMs) {
     // the very first silent frame. Don't permanently own the mouth during
     // idle, either: the model's own expression may need this parameter.
     if (playing) {
-      const audioActive = lastRealMouthSignalAt > 0 &&
-        timeNow - lastRealMouthSignalAt < 350
       const realSignal = Math.min(1, Math.max(0, mouth))
       // The PCM callback is not provided by every platform TTS engine; for
       // those we approximate light syllables, only while speech is audible.
@@ -407,7 +406,8 @@ function applyAfterMotion(core, deltaMs) {
       const syllables = .5 + .5 * Math.sin(duration * .029 + fallbackSpeechSeed) *
         Math.sin(duration * .011 + .4)
       const fallback = .24 + .43 * Math.abs(syllables)
-      const target = audioActive ? Math.max(.10, realSignal) : fallback
+      // A real zero-amplitude PCM sample must remain a genuine silent pause.
+      const target = pcmAvailable ? realSignal : fallback
       const alpha = Math.min(1, deltaMs * (target > smoothedMouthOpen ? .045 : .031))
       smoothedMouthOpen += (target - smoothedMouthOpen) * alpha
       mouthReleaseUntil = timeNow + 470
@@ -611,6 +611,7 @@ function onPlaybackEvent(phase) {
   if (phase !== 'finished' && phase !== 'interrupted') return
   playing = false
   mouth = 0
+  pcmAvailable = false
   lastRealMouthSignalAt = 0
   pendingExpressionName = null
   pendingSpeechParts = null
@@ -630,6 +631,7 @@ function update(next) {
   const wasPlaying = playing
   playing = !!next.speaking
   listening = !!next.listening
+  pcmAvailable = !!next.hasPcmSamples
   const incomingMouth = Number(next.mouth)
   mouth = Number.isFinite(incomingMouth)
     ? Math.max(0, Math.min(1, incomingMouth)) : 0
