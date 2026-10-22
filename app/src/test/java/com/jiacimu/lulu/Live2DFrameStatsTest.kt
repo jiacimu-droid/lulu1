@@ -28,7 +28,7 @@ class Live2DFrameStatsTest {
         val result = stats.frame(300, 1000, 5, 500, 800, "兼容")!!
         // The p95 gap captures an obvious 200ms stall masked by the
         // simple fact that all three frames were eventually decoded.
-        assertEquals(50L, result.p95GapMs) // conservative nearest-rank index
+        assertEquals(200L, result.p95GapMs)
         assertTrue(result.fps < 20)
     }
 }
