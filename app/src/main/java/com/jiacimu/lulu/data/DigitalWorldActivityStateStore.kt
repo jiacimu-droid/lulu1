@@ -94,8 +94,11 @@ internal object DigitalWorldActivityStateStore {
             }
             if (cafeInventory.isNotEmpty()) appendLine("咖啡角随身物品：${cafeInventory.joinToString("；")}。")
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
-                appendLine("浮光咖啡角：原有免费温水、饼干继续可用；新菜单=${DigitalCafeMenu.names()}。")
-                appendLine("点单之后才入库；实际喝完或吃完才结算数字身体。店员是否在场，以实际居民位置为准。")
+                val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
+                    .firstOrNull { it.identity == "浮光咖啡角店员" }
+                if (server != null) appendLine("店员${server.name}在岗，可点=${DigitalCafeMenu.names()}。")
+                else appendLine("店员暂不在岗，现有免费温水、饼干仍可领取。")
+                appendLine("点单只入库；实际喝完或吃完才结算身体。")
             }
             val expansionContext = DigitalWorldExpansionStore.contextFor()
             if (expansionContext.isNotBlank()) {
@@ -151,11 +154,14 @@ internal object DigitalWorldActivityStateStore {
             in DigitalCafeMenu.orderActionIds -> {
                 require(DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) { "需要先到浮光咖啡角点单" }
                 val item = checkNotNull(DigitalCafeMenu.byOrder(activityId))
+                val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
+                    .firstOrNull { it.identity == "浮光咖啡角店员" }
+                    ?: error("咖啡角店员不在岗，暂时无法点这份餐")
                 val key = item.inventoryPrefix + characterId
                 val count = p.getInt(key, 0)
                 require(count < Int.MAX_VALUE) { "已超过数字物品数量上限" }
                 editor.putInt(key, count + 1)
-                "${name}在浮光咖啡角点了一份${item.name}，已放入随身物品；尚未食用。"
+                "浮光咖啡角店员${server.name}实际为${name}准备了一份${item.name}；${name}领取后放入随身物品，尚未食用。"
             }
             in DigitalCafeMenu.consumeActionIds -> {
                 val item = checkNotNull(DigitalCafeMenu.byConsume(activityId))
