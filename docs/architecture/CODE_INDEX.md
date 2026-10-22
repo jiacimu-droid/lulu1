@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd5a1ebaa28c53679d2374427c056ae106a47efb`
+- 基准提交：`3ac425c6a739fcb6a578695b71b0b9c1ceb0d650`
 - 分支：`main`
-- 已索引文件：817
-- 已索引代码/文本行：155946
-- 已发现符号：2348
+- 已索引文件：819
+- 已索引代码/文本行：156369
+- 已发现符号：2363
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -111,7 +111,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 118 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 159 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 510 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 580 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 496 | 2 |
@@ -220,7 +220,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 113 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 63 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 320 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 352 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 149 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
@@ -232,7 +232,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 631 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 212 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 58 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 126 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -257,7 +257,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 236 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 101 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 204 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 206 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1684 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 252 | 5 |
@@ -312,7 +312,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 226 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 743 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 751 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 747 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 570 | 19 |
@@ -423,12 +423,12 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 78 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 150 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 155 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 159 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt` | 161 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt` | 88 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt` | 125 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt` | 106 | 5 |
@@ -569,13 +569,14 @@
 | `app/src/main/java/com/jiacimu/lulu/study/TheaterWorldBookContext.kt` | 25 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmDelivery.kt` | 162 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 100 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 146 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 294 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2050 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 191 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
 | `app/src/main/res/drawable/lulu_app_icon.xml` | 87 | 0 |
@@ -585,7 +586,7 @@
 | `app/src/main/res/values/lulu_icon_colors.xml` | 5 | 0 |
 | `app/src/main/res/values/strings.xml` | 6 | 0 |
 | `app/src/main/res/values/styles.xml` | 11 | 0 |
-| `app/src/main/res/xml/lulu_accessibility_service.xml` | 11 | 0 |
+| `app/src/main/res/xml/lulu_accessibility_service.xml` | 12 | 0 |
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
@@ -816,6 +817,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackStateTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaTransportPolicyTest.kt` | 43 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 60 | 1 |
 | `scripts/DigitalWorldEventRulesTest.java` | 36 | 0 |
 | `scripts/apk_size_report.py` | 38 | 0 |
 | `scripts/generate_code_index.py` | 33 | 0 |
