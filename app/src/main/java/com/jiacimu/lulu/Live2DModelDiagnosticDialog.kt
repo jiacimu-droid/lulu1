@@ -109,6 +109,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     var mouthPreview by remember { mutableStateOf(false) }
     var diagnosticView by remember(roleId, modelUrl, session) { mutableStateOf<WebView?>(null) }
     var mirrorMode by remember(roleId, modelUrl, session) { mutableStateOf(false) }
+    var nativeMirrorMode by remember(roleId, modelUrl, session) { mutableStateOf(false) }
     fun record(message: String) {
         val timestamp = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
             .format(java.util.Date())
@@ -130,7 +131,24 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
         }
         val dialogWindow = (dialogParent as? DialogWindowProvider)?.window
         LaunchedEffect(stagePhase, diagnosticView, dialogWindow, session) {
-            if (stagePhase != "verifying" || diagnosticView == null) return@LaunchedEffect
+            if (diagnosticView == null) return@LaunchedEffect
+            if (stagePhase == "native_verifying") {
+                delay(600)
+                val copied = presentedLive2DColorPixels(dialogWindow, diagnosticView)
+                record("Android 原生 Compose 画面 PixelCopy：${copied ?: "无法采样"}")
+                stagePhase = when {
+                    copied == null -> "unverified"
+                    copied >= 32 -> "ready"
+                    else -> "error"
+                }
+                stageMessage = when (stagePhase) {
+                    "ready" -> "原生 Compose 图片通道已通过 Android 屏幕采样（低帧率兼容模式）"
+                    "unverified" -> "原生图像已解码，Android 窗口采样暂不可用"
+                    else -> "原生图片也无法显示：需进一步排查安卓窗口层叠"
+                }
+                return@LaunchedEffect
+            }
+            if (stagePhase != "verifying") return@LaunchedEffect
             delay(450)
             val first = presentedLive2DColorPixels(dialogWindow, diagnosticView)
             record("Android 屏幕 PixelCopy（中部可见像素）：${first ?: "无法采样"}" +
@@ -154,9 +172,13 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                     stagePhase = "ready"
                     stageMessage = "图片兼容通道可见（约 5fps，仅用于定位设备问题）"
                 } else {
-                    stagePhase = if (second == null) "unverified" else "error"
-                    stageMessage = if (second == null) "图片通道无法执行手机屏幕采样"
-                        else "GPU 已绘图，但图片通道也未呈现在 Android 屏幕；需排查 WebView 层叠"
+                    // Both failed (or PixelCopy is unavailable). The next
+                    // experiment must BYPASS WebView entirely rather than
+                    // draw another HTML element within the same black view.
+                    record("WebView 直显/HTML 图片均未确认可见，启动原生 Compose 帧覆盖")
+                    nativeMirrorMode = true
+                    stagePhase = "native_loading"
+                    stageMessage = "改为 Android Compose 原生图片输出，正在取得首帧"
                 }
             } else {
                 stagePhase = "error"
@@ -227,6 +249,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 mouthLevel = if (mouthPreview) .9f else 0f,
                                 previewHead = manualHead,
                                 previewRevision = motionRevision,
+                                nativeMirrorEnabled = nativeMirrorMode,
                                 onWebViewReady = { view ->
                                     diagnosticView = view
                                     record("Native WebView 硬件加速=${view.isHardwareAccelerated}" +
@@ -234,13 +257,18 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                         (WebView.getCurrentWebViewPackage()?.versionName ?: "未知"))
                                 },
                                 onStatus = { phase, detail ->
-                                    if (phase == "ready") {
+                                    if (nativeMirrorMode && phase == "diagnostic" &&
+                                        detail.startsWith("原生 Compose 画面桥接已取得首帧")) {
+                                        stagePhase = "native_verifying"
+                                        stageMessage = "已取得原生人物帧，验证是否合成到 Android 屏幕"
+                                    } else if (phase == "ready") {
                                         // JavaScript readPixels and drawImage prove only that the
                                         // canvas has pixels. PixelCopy proves Android displays them.
                                         stagePhase = "verifying"
                                         stageMessage = "Canvas 有像素；正在检查手机屏幕实际画面"
                                     } else if (phase !in setOf(
-                                            "diagnostic", "step", "resource", "parameters")) {
+                                            "diagnostic", "step", "resource", "parameters") &&
+                                        stagePhase !in setOf("native_loading", "native_verifying")) {
                                         stagePhase = phase
                                         stageMessage = detail
                                     }
@@ -301,8 +329,22 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                     }, enabled = diagnosticView != null) {
                         Text(if (mirrorMode) "改用 WebGL 直显" else "试试图片兼容通道", fontSize = 12.sp)
                     }
-                    Text("只有 Android 屏幕检测通过才允许测试动作",
-                        color = Color.LightGray, fontSize = 10.sp)
+                    TextButton(onClick = {
+                        if (!nativeMirrorMode) {
+                            record("手动启用原生 Compose 图片桥接")
+                            nativeMirrorMode = true
+                            stagePhase = "native_loading"
+                            stageMessage = "等待原生 Compose 画面首帧"
+                        } else {
+                            record("手动停用原生 Compose 图片桥接")
+                            nativeMirrorMode = false
+                            stagePhase = "verifying"
+                            stageMessage = "切回 WebView 并重新验证"
+                        }
+                    }, enabled = diagnosticView != null) {
+                        Text(if (nativeMirrorMode) "关闭原生画面" else "试试原生画面",
+                            fontSize = 12.sp)
+                    }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("加载日志（最近50条）", color = Color.LightGray, fontSize = 12.sp,
