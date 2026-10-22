@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8599ab9fcdc945857c46f7d0553050960b2ac76f`
+- 基准提交：`ec21b1bd84583ef81df88cc0b43778f908870e65`
 - 分支：`main`
 - 已索引文件：827
-- 已索引代码/文本行：157497
+- 已索引代码/文本行：157502
 - 已发现符号：2389
 
 | 文件 | 行数 | 符号数 |
@@ -155,7 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 412 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 36 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 70 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:22:44.704188+00:00",
-  "commit": "8599ab9fcdc945857c46f7d0553050960b2ac76f",
+  "generatedAt": "2026-10-22T17:23:21.977460+00:00",
+  "commit": "ec21b1bd84583ef81df88cc0b43778f908870e65",
   "branch": "main",
-  "sourceFingerprint": "c1a43887f0fda0ec6550ae467f94a5344a01e6a835c6a6ff89ceeb364662395c",
+  "sourceFingerprint": "5791aa41153ab55df4631cdd2bed6b8127423cef6fd7ee49fcb223c9ee78c449",
   "summary": {
     "files": 827,
-    "lines": 157497,
+    "lines": 157502,
     "symbols": 2389
   },
   "symbolIndex": {
@@ -15603,8 +15603,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt",
-      "lines": 36,
-      "sha256": "6a911d97bee60fa3cb554f14885f13c1ba756962290e14ebac16d709781f3f8b",
+      "lines": 41,
+      "sha256": "51959ad50eaaf891e6be68d46c46b1bcb90467d2a3fd946ec1c09894b0ce9557",
       "symbols": [
         {
           "name": "isConfirmedSpeech",
