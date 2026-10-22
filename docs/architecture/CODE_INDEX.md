@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1c6d38652cbe6a4e6c6b4d7383e4aed4ae1c577a`
+- 基准提交：`b21ab9e00c0445f76a155f906c5e4bf1ec0b3c97`
 - 分支：`main`
 - 已索引文件：827
-- 已索引代码/文本行：157535
+- 已索引代码/文本行：157850
 - 已发现符号：2389
 
 | 文件 | 行数 | 符号数 |
@@ -164,7 +164,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 502 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 294 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 302 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 119 | 0 |
@@ -212,7 +212,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt` | 87 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 542 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 849 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 189 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |

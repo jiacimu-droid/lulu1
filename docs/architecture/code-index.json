@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:32:20.855421+00:00",
-  "commit": "1c6d38652cbe6a4e6c6b4d7383e4aed4ae1c577a",
+  "generatedAt": "2026-10-22T17:36:16.831400+00:00",
+  "commit": "b21ab9e00c0445f76a155f906c5e4bf1ec0b3c97",
   "branch": "main",
-  "sourceFingerprint": "0df220ad1715d8080523883cd67e8df01d3774a2b24fa47da1e6a855f447aa5a",
+  "sourceFingerprint": "a8ad3c890539110c63dab86534d79f36d59e1c8590aabba113015d72f22947cd",
   "summary": {
     "files": 827,
-    "lines": 157535,
+    "lines": 157850,
     "symbols": 2389
   },
   "symbolIndex": {
@@ -119,7 +119,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 176
+        "line": 180
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
@@ -1207,7 +1207,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 189
+        "line": 193
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -1589,7 +1589,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 181
+        "line": 185
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
@@ -2795,13 +2795,13 @@
     "payload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 95
+        "line": 93
       }
     ],
     "clearAttachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 101
+        "line": 99
       }
     ],
     "lastReadStatus": [
@@ -3625,25 +3625,25 @@
     "stamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 56
+        "line": 60
       }
     ],
     "moveTo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 195
+        "line": 199
       }
     ],
     "exit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 204
+        "line": 208
       }
     ],
     "react": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 266
+        "line": 270
       }
     ],
     "setNavigationHandler": [
@@ -15810,16 +15810,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 294,
-      "sha256": "5c10e06ac0d0c79f4380704a8d1072e836b0c68a64d9901a7f6d9d8217dda995",
+      "lines": 302,
+      "sha256": "ab90a808a96084fd5a7f89d62c5385e924d159f942d79d8b6351aac3229d045e",
       "symbols": [
         {
           "name": "payload",
-          "line": 95
+          "line": 93
         },
         {
           "name": "clearAttachment",
-          "line": 101
+          "line": 99
         }
       ]
     },
@@ -16602,36 +16602,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-      "lines": 542,
-      "sha256": "e757f90273e86ed621b299b8920ef1fc5f89a0d5c9a4fc2b5511b7615604853a",
+      "lines": 849,
+      "sha256": "a31d1d53b79398a7c8775572e51c69c9a1a7f0beb5b96f6f4a9126c4fa617373",
       "symbols": [
         {
           "name": "stamp",
-          "line": 56
+          "line": 60
         },
         {
           "name": "refresh",
-          "line": 176
+          "line": 180
         },
         {
           "name": "record",
-          "line": 181
+          "line": 185
         },
         {
           "name": "save",
-          "line": 189
+          "line": 193
         },
         {
           "name": "moveTo",
-          "line": 195
+          "line": 199
         },
         {
           "name": "exit",
-          "line": 204
+          "line": 208
         },
         {
           "name": "react",
-          "line": 266
+          "line": 270
         }
       ]
     },
