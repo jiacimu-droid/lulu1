@@ -129,7 +129,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                 )
             }
             DigitalWorldActionResult(true,
-                "[角色见面|${session.id}] 与${resident.name}交流 · 查看见面记录", summaryId)
+                "已与${resident.name}实际交流，生活小剧场将按真实记录整理", summaryId)
         }.getOrElse {
             provisionalSessionId?.let { id -> runCatching { DigitalWorldStore.deleteMeeting(id) } }
             if (it is CancellationException) throw it
