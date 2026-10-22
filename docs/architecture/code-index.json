@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T10:43:38.789372+00:00",
-  "commit": "ee17c44e3a58aeb0acb7571eed9507aa13c0e68b",
+  "generatedAt": "2026-10-22T10:43:58.873785+00:00",
+  "commit": "ed5827a353fca562aee4dbb541c5666d310ea1c0",
   "branch": "main",
-  "sourceFingerprint": "41608fd7c82823736d2708126183080a115a0ab12fb3daa8048794160c57e2a3",
+  "sourceFingerprint": "50c9708f130ca9e8446dbd3f25fa41f95c542e3754c942819b803105dba09430",
   "summary": {
     "files": 799,
-    "lines": 152279,
+    "lines": 152312,
     "symbols": 2293
   },
   "symbolIndex": {
@@ -13987,8 +13987,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 619,
-      "sha256": "570a984a60c21a4bce52961112c257adfd1e86f0cf6bb0fef3be6eb214b70157",
+      "lines": 651,
+      "sha256": "6060928b82823611fe28d504a1d46015132eab9d517d43048096fd0ac2335799",
       "symbols": []
     },
     {
@@ -14024,8 +14024,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 554,
-      "sha256": "c76e2e89b3e627f7a498df60e06d204f6754c2d75c9a817a32ea59e4cd1d9baa",
+      "lines": 555,
+      "sha256": "2fdfc95c8c28f1fe3072f287193259ef276fdbd78653affe4f4365ef1d39ebf4",
       "symbols": [
         {
           "name": "toggleSelfCamera",
