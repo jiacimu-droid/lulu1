@@ -618,8 +618,11 @@ function onPlaybackEvent(phase) {
   headRequest = null
   bodyRequest = null
   faceRequest = null
-  // The expressionManager fades back to the base expression itself.
-  resetSpeechExpression()
+  // A short reply must still show its facial expression for a moment after
+  // the audio ends; otherwise a one-second star-eye cue is barely visible.
+  // A genuine interruption, on the other hand, clears it immediately.
+  if (phase === 'interrupted') resetSpeechExpression()
+  else lastSpeechSoundAt = Date.now()
   // Keep the mouth's short release tail on normal completion. Interruptions
   // should cancel immediately rather than make the role keep talking.
   if (phase === 'interrupted') {
