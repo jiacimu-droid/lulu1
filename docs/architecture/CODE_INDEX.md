@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`12574c73c68ab87fd2fa4e7189a46297023d0f6e`
+- 基准提交：`3715490172f84ddb6b3f93657855cf32f62524d3`
 - 分支：`main`
 - 已索引文件：793
-- 已索引代码/文本行：151072
+- 已索引代码/文本行：151083
 - 已发现符号：2266
 
 | 文件 | 行数 | 符号数 |
@@ -594,7 +594,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
