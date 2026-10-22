@@ -58,6 +58,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
         Text("本机网页登录仍可手动浏览；想让角色关掉小红书页面后也能访问，就连接常驻云端 MCP 并选“云端优先”。云端浏览器不依赖本机 WebView，安卓后台唤醒仍需单独验证。",
             style = MaterialTheme.typography.bodySmall)
         val scope = rememberCoroutineScope()
+        var xhsRouteGeneration by remember { mutableStateOf(0) }
         listOf("xiaohongshu" to "小红书独立阅读线路", "health" to "华为健康 MCP（可选）").forEach { (service, title) ->
             var mcpUrl by remember(service) { mutableStateOf(LuluExternalMcp.endpoint(context, service)) }
             var mcpToken by remember(service) { mutableStateOf(LuluExternalMcp.savedToken(context, service)) }
@@ -92,10 +93,10 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
             }
             if (service != "xiaohongshu" || optionalMcpExpanded) {
                 if (service == "xiaohongshu") {
-                    var fallbackOn by remember(service) {
+                    var fallbackOn by remember(service, xhsRouteGeneration) {
                         mutableStateOf(XhsReadingEngine.mcpFallbackEnabled(context))
                     }
-                    var remotePrimary by remember(service) {
+                    var remotePrimary by remember(service, xhsRouteGeneration) {
                         mutableStateOf(XhsReadingEngine.mcpPrimaryEnabled(context))
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -183,6 +184,7 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                                 // Only a real search followed by actual matching note
                                 // detail can promote this route for autonomous use.
                                 check(XhsReadingEngine.setMcpPrimaryEnabled(context, true))
+                                xhsRouteGeneration++
                                 mcpStatus = "实际搜索和笔记详情均已验证，已自动设为后台主线路。\\n" + verified
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
