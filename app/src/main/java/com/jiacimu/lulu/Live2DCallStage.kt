@@ -141,51 +141,69 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 statusReceiver.value(phase, detail)
             }
         }
-        // HyperOS displays a native ImageView OVER WebGL. Capture gestures
-        // on the actual visible stage, then hit-test the real Cubism model.
+        // The native ImageView is the actual visible touch surface on HyperOS.
+        // Finger DOWN and MOVE immediately actuate a local reflex. Only the
+        // final action is batched into the real call timeline.
         if (onModelTouch != null) {
             Box(Modifier.fillMaxSize().pointerInput(stage, rendererReady.value) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    val started = android.os.SystemClock.uptimeMillis()
+                    if (!rendererReady.value || size.width < 20 || size.height < 20)
+                        return@awaitEachGesture
+                    val began = android.os.SystemClock.uptimeMillis()
                     var last = down.position
-                    var traveled = 0f
-                    while (true) {
-                        val pointer = awaitPointerEvent().changes
-                            .firstOrNull { it.id == down.id } ?: break
-                        traveled += (pointer.position - last).getDistance()
-                        last = pointer.position
-                        if (!pointer.pressed) break
-                    }
-                    if (!rendererReady.value || size.width < 20 || size.height < 20) return@awaitEachGesture
-                    val duration = android.os.SystemClock.uptimeMillis() - started
-                    val dx = last.x - down.position.x
-                    val dy = last.y - down.position.y
-                    val gesture = when {
-                        traveled > viewConfiguration.touchSlop * 3 && kotlin.math.abs(dx) >= kotlin.math.abs(dy) ->
-                            if (dx >= 0) "stroke-right" else "stroke-left"
-                        traveled > viewConfiguration.touchSlop * 3 ->
-                            if (dy >= 0) "stroke-down" else "stroke-up"
-                        duration >= 520 -> "hold"
-                        else -> "tap"
-                    }
-                    val nx = (down.position.x / size.width).coerceIn(0f, 1f)
-                    val ny = (down.position.y / size.height).coerceIn(0f, 1f)
-                    stage.evaluateJavascript(
-                        "JSON.stringify(window.LuluLive2D && window.LuluLive2D.touch(" +
-                            "$nx,$ny,${JSONObject.quote(gesture)}))",
-                    ) { response ->
-                        val hit = runCatching {
-                            val json = JSONTokener(response).nextValue() as? String
-                            json?.let(::JSONObject)
-                        }.getOrNull()
-                        if (hit?.optBoolean("hit") == true) {
-                            val region = hit.optString("region")
-                            if (region in setOf("head", "arm", "body")) {
-                                touchReceiver.value?.invoke(region, gesture)
+                    var travel = 0f
+                    var lastSent = began
+                    fun send(x: Float, y: Float, kind: String, completed: Boolean = false) {
+                        val nx = (x / size.width).coerceIn(0f, 1f)
+                        val ny = (y / size.height).coerceIn(0f, 1f)
+                        stage.evaluateJavascript(
+                            "JSON.stringify(window.LuluLive2D && window.LuluLive2D.touch(" +
+                                "$nx,$ny,${JSONObject.quote(kind)}))",
+                        ) { response ->
+                            if (completed) {
+                                val hit = runCatching {
+                                    val payload = JSONTokener(response).nextValue() as? String
+                                    payload?.let(::JSONObject)
+                                }.getOrNull()
+                                val region = hit?.takeIf { it.optBoolean("hit") }
+                                    ?.optString("region").orEmpty()
+                                if (Live2DTouchZones.label(region) != null)
+                                    touchReceiver.value?.invoke(region, kind)
                             }
                         }
                     }
+                    send(last.x, last.y, "down")
+                    while (true) {
+                        val pointer = awaitPointerEvent().changes
+                            .firstOrNull { it.id == down.id } ?: break
+                        val moved = pointer.position - last
+                        travel += moved.getDistance()
+                        last = pointer.position
+                        if (!pointer.pressed) break
+                        val now = android.os.SystemClock.uptimeMillis()
+                        if (moved.getDistance() > 1f && now - lastSent >= 70L) {
+                            val dx = last.x - down.position.x
+                            val dy = last.y - down.position.y
+                            val kind = if (kotlin.math.abs(dx) >= kotlin.math.abs(dy)) {
+                                if (dx >= 0) "stroke-right" else "stroke-left"
+                            } else if (dy >= 0) "stroke-down" else "stroke-up"
+                            send(last.x, last.y, kind)
+                            lastSent = now
+                        }
+                    }
+                    val dx = last.x - down.position.x
+                    val dy = last.y - down.position.y
+                    val stroke = travel > viewConfiguration.touchSlop * 3
+                    val kind = when {
+                        stroke && kotlin.math.abs(dx) >= kotlin.math.abs(dy) ->
+                            if (dx >= 0) "stroke-right" else "stroke-left"
+                        stroke -> if (dy >= 0) "stroke-down" else "stroke-up"
+                        android.os.SystemClock.uptimeMillis() - began >= 520L -> "hold"
+                        else -> "tap"
+                    }
+                    val pos = if (stroke) last else down.position
+                    send(pos.x, pos.y, kind, completed = true)
                 }
             })
         }
