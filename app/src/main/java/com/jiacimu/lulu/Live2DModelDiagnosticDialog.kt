@@ -5,7 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
-import android.graphics.PixelCopy
+import android.view.PixelCopy
 import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
