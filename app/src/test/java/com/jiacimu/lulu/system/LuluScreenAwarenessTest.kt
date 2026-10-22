@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.system
 
 import android.content.Context
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -47,6 +49,15 @@ class LuluScreenAwarenessTest {
         assertEquals(300_000L, LuluScreenAwareness.cooldownRemaining(context, 1_000_000L))
         assertEquals(1L, LuluScreenAwareness.cooldownRemaining(context, 1_299_999L))
         assertEquals(0L, LuluScreenAwareness.cooldownRemaining(context, 1_300_000L))
+    }
+
+    @Test fun noConsentCannotPostInvisibleScreenCapture() = runBlocking {
+        val result = JSONObject(LuluScreenAwareness.capture(context,
+            userRequested = false, characterId = "test-role", requestId = "test-request"))
+        assertFalse(result.optBoolean("success"))
+        assertEquals("waiting_user", result.optString("status"))
+        assertTrue(result.optString("error").contains("同意"))
+        assertTrue(LuluScreenAwareness.diagnostics(context).contains("同意"))
     }
 
     @Test fun onDemandCanStayEnabledWhenAutonomyDisabled() {
