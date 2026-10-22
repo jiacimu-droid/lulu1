@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.Live2DTouchZones
+
 import java.time.Instant
 
 /**
@@ -114,12 +116,7 @@ internal object InteractionSignalBridge {
      */
     fun avatarContactDescription(region: String, gesture: String, count: Int): String? {
         if (count < 1) return null
-        val place = when (region) {
-            "head" -> "头部"
-            "arm" -> "手臂"
-            "body" -> "身体"
-            else -> return null
-        }
+        val place = Live2DTouchZones.label(region) ?: return null
         val action = when (gesture) {
             "tap" -> "轻点"
             "hold" -> "按住"
