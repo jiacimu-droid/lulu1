@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`58f1ad1f783a7ae238fd0d106609c7b0f471acb9`
+- 基准提交：`1a2a8be4bfd124575e366b67ec9a7eb035f7ddcc`
 - 分支：`main`
 - 已索引文件：827
-- 已索引代码/文本行：157523
+- 已索引代码/文本行：157520
 - 已发现符号：2389
 
 | 文件 | 行数 | 符号数 |
@@ -98,7 +98,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 64 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 591 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 588 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 420 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt` | 62 | 1 |
