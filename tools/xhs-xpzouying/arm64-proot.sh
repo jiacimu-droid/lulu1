@@ -30,8 +30,26 @@ fix_chromium_exec() {
     find "$cache" -type f \( -name chrome -o -name chrome_crashpad_handler -o -name chrome-sandbox \) -exec chmod u+x {} + || true
   fi
 }
+detect_chromium() {
+  if [[ -n "${LULU_XHS_CHROMIUM:-}" && -x "${LULU_XHS_CHROMIUM}" ]]; then
+    printf '%s\\n' "${LULU_XHS_CHROMIUM}"
+    return
+  fi
+  local binary
+  # The user's ARM64 tutorial uses separately installed Playwright Chromium,
+  # not the upstream Go project's x64-only browser archive.
+  if [[ -d "$HOME/.cache/ms-playwright" ]]; then
+    binary="$(find "$HOME/.cache/ms-playwright" -type f -name chrome -path '*chrome-linux*' -print -quit 2>/dev/null || true)"
+    if [[ -n "$binary" && -x "$binary" ]]; then
+      printf '%s\\n' "$binary"
+      return
+    fi
+  fi
+  return 1
+}
+
 install_xhs() {
-  need curl; need tar; need go
+  need curl; need tar; need go; need python3
   if ! go version | grep -Eq 'go1\.(2[4-9]|[3-9][0-9])'; then
     echo "Go 需要 >=1.24。请安装官方 linux-arm64 包（教程要求 Go 1.24）。" >&2; exit 1
   fi
@@ -43,6 +61,31 @@ install_xhs() {
   curl --fail --location --retry 3 --silent --show-error \
     "https://github.com/xpzouying/xiaohongshu-mcp/archive/refs/tags/$SRC_TAG.tar.gz" \
     | tar -xz --strip-components=1 -C "$sourceDir"
+  # Upstream v2.5.0 checks GOARCH and rejects Linux ARM64 before loading
+  # any browser. The ARM64 tutorial uses a separate Playwright Chromium build.
+  # Patch ONLY the local copied Go source to accept an explicit browser path;
+  # no code is copied from another third-party project.
+  python3 - "$sourceDir/browser/browser_download.go" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+source = p.read_text()
+needle = "func EnsureBrowser() (string, error) {"
+if source.count(needle) != 1:
+    raise SystemExit("无法安全应用 ARM64 浏览器适配：上游源码接口发生变化")
+override = """func EnsureBrowser() (string, error) {
+    if userChrome := os.Getenv("LULU_XHS_CHROMIUM"); userChrome != "" {
+        path, err := filepath.Abs(userChrome)
+        if err != nil { return "", err }
+        info, err := os.Stat(path)
+        if err != nil { return "", fmt.Errorf("ARM64 Chromium 不存在: %w", err) }
+        if info.IsDir() || info.Mode()&0111 == 0 {
+            return "", fmt.Errorf("ARM64 Chromium 不可执行: %s", path)
+        }
+        return path, nil
+    }
+"""
+p.write_text(source.replace(needle, override, 1))
+PY
   (cd "$sourceDir"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$APP" .)
   chmod 700 "$APP"
   ensure_token
@@ -54,6 +97,15 @@ start_xhs() {
   ensure_token
   fix_chromium_exec
   need Xvfb
+  local chrome
+  if ! chrome="$(detect_chromium)"; then
+    echo "缺少 ARM64 Chromium。Go MCP 已编译，但上游 v2.5.0 不提供 Linux ARM64 浏览器。" >&2
+    echo "先在 Ubuntu/proot 安装适用于 ARM64 的 Playwright Chromium；" >&2
+    echo "或通过 LULU_XHS_CHROMIUM=/完整路径/chrome 指定浏览器后重试。" >&2
+    exit 1
+  fi
+  export LULU_XHS_CHROMIUM="$chrome"
+  echo "当前 ARM64 浏览器：$chrome"
   if ! alive "$XVFB_PID_FILE"; then
     Xvfb "$DISPLAY_NO" -screen 0 1280x900x24 > "$LOGDIR/xvfb.log" 2>&1 &
     echo "$!" > "$XVFB_PID_FILE"
