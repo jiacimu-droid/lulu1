@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:55:30.114730+00:00",
-  "commit": "3cb948c31a0f5b559bf48e05bf97560eec558b5a",
+  "generatedAt": "2026-10-22T03:56:35.067371+00:00",
+  "commit": "77b17f26dd8efe26b5363af4902057b7f1dc085e",
   "branch": "main",
-  "sourceFingerprint": "b0353fd79be35e96d5cb6c050312a5c407b36bc951e5d9cd921bda3acf2ffa6a",
+  "sourceFingerprint": "89243226f53c7b646373e98fcd43be5e793fc9c4443bd16252cde6d95db4532b",
   "summary": {
     "files": 791,
-    "lines": 150266,
+    "lines": 150390,
     "symbols": 2262
   },
   "symbolIndex": {
@@ -1537,7 +1537,7 @@
     "record": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
-        "line": 49
+        "line": 110
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
@@ -1567,7 +1567,7 @@
     "attemptReload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
-        "line": 52
+        "line": 113
       }
     ],
     "normalizedSettings": [
@@ -13841,16 +13841,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
-      "lines": 191,
-      "sha256": "53f244fbf58cf6463adb37d23e871318f293fac9faa41c88a3ea4fcad4d57ca6",
+      "lines": 315,
+      "sha256": "77ae6eee1a7b21c1229dc84ff5c00f697dccf3342ea7c028489b241f52d10f52",
       "symbols": [
         {
           "name": "record",
-          "line": 49
+          "line": 110
         },
         {
           "name": "attemptReload",
-          "line": 52
+          "line": 113
         }
       ]
     },
