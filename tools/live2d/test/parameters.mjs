@@ -131,6 +131,17 @@ assert.ok(Math.abs(valuesById.get('ParamMouthForm') + .25) < .05)
 rig.reset()
 frame()
 assert.equal(valuesById.get('ParamAngleX'), 0)
+// Touch recoil fades independently of the character's chosen head movement.
+for (let i = 0; i < 35; i++) {
+  seconds += .016
+  rig.update(core, { deltaMs: 16, touchReflex: {yaw: 3, roll: -1}, seconds })
+}
+assert.ok(valuesById.get('ParamAngleX') > 2)
+for (let i = 0; i < 100; i++) {
+  seconds += .016
+  rig.update(core, { deltaMs: 16, touchReflex: null, seconds })
+}
+assert.ok(Math.abs(valuesById.get('ParamAngleX')) < .05)
 
 // Speech score uses real monotonic time; dropped frames never delay gestures,
 // repeated 'playing' callbacks do not replay any completed beat.
