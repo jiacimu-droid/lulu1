@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:18:16.738118+00:00",
-  "commit": "95ec7a56cc61523e07206ccc825e47c861374edf",
+  "generatedAt": "2026-10-22T03:21:25.557118+00:00",
+  "commit": "7592d0cc200fbab8576091fd4a4860472946dccc",
   "branch": "main",
-  "sourceFingerprint": "981aa1ea270336494a91b9169450d7969a292b44aa2a4897e03957dfb8255319",
+  "sourceFingerprint": "815ba29bd82a1aa23eae540446232e5c5c9b9d349079f37cd7667540ffc0a151",
   "summary": {
-    "files": 790,
-    "lines": 150137,
-    "symbols": 2260
+    "files": 791,
+    "lines": 150197,
+    "symbols": 2261
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11262,6 +11262,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt",
         "line": 18
+      }
+    ],
+    "Live2DSampleModelTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt",
+        "line": 19
       }
     ],
     "Live2DVisualActionBusTest": [
@@ -24669,6 +24675,17 @@
         {
           "name": "Live2DOfficialCoreInstallerTest",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt",
+      "lines": 60,
+      "sha256": "a390ab94f58d6ad03e74a7dc7f2adefc639bea5179e064d79924ad8f32a676ee",
+      "symbols": [
+        {
+          "name": "Live2DSampleModelTest",
+          "line": 19
         }
       ]
     },
