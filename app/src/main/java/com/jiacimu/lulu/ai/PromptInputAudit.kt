@@ -46,7 +46,7 @@ internal object PromptInputAudit {
         return boundaries.zipWithNext().mapIndexed { index, (start, end) ->
             val piece = content.substring(start, end)
             val headingText = heading.find(piece)?.value?.trim()
-            val title = if (headingText in publicHeadings) headingText!!
+            val title = if (headingText != null && headingText in publicHeadings) headingText
                 else if (index == 0 && headingText == null) "开头/说明"
                 else "第" + (index + 1) + "块（标题不记录）"
             (label + " / " + title) to piece
