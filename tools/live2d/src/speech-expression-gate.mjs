@@ -125,3 +125,11 @@ export function createSpeechExpressionGate({ now = () => performance.now() } = {
   function state() { return { active, pending, speaking } }
   return { sample, request, tick, finished, interrupted, started, reset, state }
 }
+
+/** An authored eye shape temporarily owns its eyelid parameters. */
+export function isEyeExclusiveExpression(expressionJson, name = '') {
+  if (/星星眼|爱心眼|闭眼|眨眼|wink|star[ -]?eye|heart[ -]?eye|closed[ -]?eye/i.test(name)) return true
+  const params = expressionJson?.Parameters
+  return Array.isArray(params) && params.some(param =>
+    /^(ParamEye[LR](Open|Smile|Squint)|ParamEyeBallForm)$/.test(String(param?.Id || '')))
+}
