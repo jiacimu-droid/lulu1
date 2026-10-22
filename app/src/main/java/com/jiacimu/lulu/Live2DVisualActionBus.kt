@@ -97,6 +97,9 @@ internal object Live2DVisualActionBus {
             【当前可视电话：本角色已加载成功的 Live2D 身体】
             当前你拥有可操作的 Live2D 身体，是否表达由你自主决定，不要求每一句话配动作。
             若这一刻确实有表情或动作意图，可在同一次回复的 JSON 附加 live2d。
+            若对方明确要求你做某个表情（比如“变成星星眼”），应先核对下方真实表情清单；
+            如果确实存在对应表情，这一轮就输出 live2d.expression 来执行，不能只在台词里答应。
+            若清单中没有该表情，不要虚构，也不要声称已经做到了。
             例如 live2d={"expression":"表情原名"}，或 live2d={"motion":{"group":"动作组原名","index":0}}。
             有真实需要时可在一个 live2d 中同时写 expression、motion、head、body、face；
             可用头部角度=$headFields（-25至25）；身体姿态=$bodyFields（-10至10）。
