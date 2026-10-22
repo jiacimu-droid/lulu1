@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T06:27:07.597514+00:00",
-  "commit": "be080e76e29331e774b473bef1355db4d1d06e54",
+  "generatedAt": "2026-10-22T06:54:55.059368+00:00",
+  "commit": "2f2ad39f77754c7c78c43b59fe5ffe62452a2f5d",
   "branch": "main",
-  "sourceFingerprint": "9a2301df3797ef22fd349bb9c2291881bd843cf47c3e6c5d73028cdb37f51518",
+  "sourceFingerprint": "94a90672ea0b24bbe410eff152a5a62ec1b3ee7e686017ddac590863ab1270e5",
   "summary": {
-    "files": 793,
-    "lines": 151188,
-    "symbols": 2270
+    "files": 794,
+    "lines": 151239,
+    "symbols": 2275
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1574,6 +1574,40 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt",
         "line": 12
+      }
+    ],
+    "Phase": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
+        "line": 16
+      }
+    ],
+    "Event": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
+        "line": 17
+      }
+    ],
+    "started": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
+        "line": 29
+      }
+    ],
+    "finished": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
+        "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
+        "line": 49
+      }
+    ],
+    "interrupted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
+        "line": 44
       }
     ],
     "Head": [
@@ -3152,12 +3186,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt",
         "line": 27
-      }
-    ],
-    "finished": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
-        "line": 49
       }
     ],
     "generated": [
@@ -13930,6 +13958,33 @@
       "lines": 68,
       "sha256": "17dd77173f15984b6c1f0d7022bc4b52250dd4ec39fd113025ceea66d61d7187",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt",
+      "lines": 51,
+      "sha256": "a621e3afa3389b0b04fb82c4b9bac666d5a2abe432a3249e97ab7933bb3329ff",
+      "symbols": [
+        {
+          "name": "Phase",
+          "line": 16
+        },
+        {
+          "name": "Event",
+          "line": 17
+        },
+        {
+          "name": "started",
+          "line": 29
+        },
+        {
+          "name": "finished",
+          "line": 36
+        },
+        {
+          "name": "interrupted",
+          "line": 44
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
