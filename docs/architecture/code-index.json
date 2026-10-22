@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:50:04.602859+00:00",
-  "commit": "b0522b2b8a9172e76d3e30b83fb73b22193f00e4",
+  "generatedAt": "2026-10-22T20:51:20.560820+00:00",
+  "commit": "23cc8c86acdd45942c8bac2168d3573471e4e573",
   "branch": "main",
-  "sourceFingerprint": "ce0f109ab314ee645d29034b2ba840775ace3ac961fc311972168d7b8c197143",
+  "sourceFingerprint": "ab3292f13d3b5af5391af55a7671954010fd8445d11372674e656a12dd52df0a",
   "summary": {
     "files": 833,
-    "lines": 159265,
-    "symbols": 2413
+    "lines": 159371,
+    "symbols": 2414
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
-        "line": 42
+        "line": 43
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -4713,31 +4713,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 92
+        "line": 93
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 137
+        "line": 138
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 139
+        "line": 140
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 154
+        "line": 155
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 159
+        "line": 160
       }
     ],
     "conciseAppraisal": [
@@ -6699,7 +6699,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 135
+        "line": 148
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6810,16 +6810,22 @@
         "line": 104
       }
     ],
+    "fillResidentTraitsIfBlank": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 122
+      }
+    ],
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 121
+        "line": 134
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 154
+        "line": 167
       }
     ],
     "isAmbientMoment": [
@@ -9351,13 +9357,13 @@
     "UserInteractionPresence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
-        "line": 8
+        "line": 9
       }
     ],
     "UserInteractionPresenceStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "UserMessageFavorite": [
@@ -17719,28 +17725,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 163,
-      "sha256": "1ce04f163e2b7235300af3fbd228573ec68a6a506a83683e982672f0cdea0462",
+      "lines": 164,
+      "sha256": "81f3624e1b469f6dec1477047a6737c64f7f28801aa0a0e52f1a730f942f12f9",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 92
+          "line": 93
         },
         {
           "name": "usesSeparateExpression",
-          "line": 137
+          "line": 138
         },
         {
           "name": "chatAction",
-          "line": 139
+          "line": 140
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 154
+          "line": 155
         },
         {
           "name": "speechIntent",
-          "line": 159
+          "line": 160
         }
       ]
     },
@@ -19950,8 +19956,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt",
-      "lines": 299,
-      "sha256": "188974250a7eb97850e18933eb3d289438ffcc09b5ee1363aa29d63b75e5ab62",
+      "lines": 304,
+      "sha256": "4bd08ee83847e9290cc7c814bf222a1f863b3e407a0c86031f498b01f7d22503",
       "symbols": [
         {
           "name": "initialize",
@@ -19976,8 +19982,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 267,
-      "sha256": "c52b19d12043b7ff04b0262e0569cb66280743dcb8738dbc1c4fbc2064a73d15",
+      "lines": 280,
+      "sha256": "f06303566ba1a21c50c70c24459524b5b191ccc52f6188f70f1a6c38bdc7ef49",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -20024,16 +20030,20 @@
           "line": 104
         },
         {
+          "name": "fillResidentTraitsIfBlank",
+          "line": 122
+        },
+        {
           "name": "moveResident",
-          "line": 121
+          "line": 134
         },
         {
           "name": "contextFor",
-          "line": 135
+          "line": 148
         },
         {
           "name": "isExistingLocation",
-          "line": 154
+          "line": 167
         }
       ]
     },
@@ -22769,26 +22779,26 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserDevicePerception.kt",
-      "lines": 163,
-      "sha256": "b4c480ffbce39a0fad9baaeba9d34daca7bcb10f5ce9d127e4e2966daa5b1b76",
+      "lines": 165,
+      "sha256": "4ad02266294d1d0fd884b579c63c3e0f417bcd51a58b9b8f347fccaef4e6350d",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
-      "lines": 88,
-      "sha256": "0a98957820051a4196de66149340b6ea7ce0f3eb8f97601edf1470118d20125a",
+      "lines": 128,
+      "sha256": "a6ba7608108954f0b12c4a36efd108221e7a631e230f47594b97361e3a313a59",
       "symbols": [
         {
           "name": "UserInteractionPresence",
-          "line": 8
+          "line": 9
         },
         {
           "name": "UserInteractionPresenceStore",
-          "line": 17
+          "line": 18
         },
         {
           "name": "context",
-          "line": 42
+          "line": 43
         }
       ]
     },
@@ -27170,8 +27180,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 265,
-      "sha256": "b2695a9605f2f533ed286942914a144aeb22f9119a5a185f3e259fd1abc72e29",
+      "lines": 277,
+      "sha256": "2461c9b4c23d14076ffe7e585e79bac23262edffdd0ce79faf8a7451fcbe4cb1",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
@@ -28412,8 +28422,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
-      "lines": 37,
-      "sha256": "7c19090c3cd09fa5855020477779dd77af7233514661cb4b409c28592708016f",
+      "lines": 70,
+      "sha256": "bcc253e073a19bed98be6bc1b8ebeed5a1d7c197a486155f09a8efa2b7b5adda",
       "symbols": [
         {
           "name": "UserInteractionPresenceTest",
