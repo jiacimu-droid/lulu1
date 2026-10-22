@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:19:56.145196+00:00",
-  "commit": "25f9df89adce26c3eb659447240bdf5eba0b514d",
+  "generatedAt": "2026-10-22T20:23:12.309227+00:00",
+  "commit": "7e0af644b37eb505cdc8635d5fb1ad680fae479d",
   "branch": "main",
-  "sourceFingerprint": "aca616e36c17d93d47529fa69c8271214e2f1d028d4e5613b20fc48ea2777295",
+  "sourceFingerprint": "94d0f0df25ffbc48b9ca20070cb69e1a3c901b020ced452e61423859f1d06cfe",
   "summary": {
     "files": 831,
-    "lines": 158677,
-    "symbols": 2397
+    "lines": 158852,
+    "symbols": 2400
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11687,85 +11687,103 @@
     "LuluScreenAwareness": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 22
+        "line": 35
       }
     ],
     "preferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 40
+        "line": 57
       }
     ],
     "consented": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 42
+        "line": 59
       }
     ],
     "appTracking": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 43
+        "line": 60
       }
     ],
     "onDemandAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 44
+        "line": 61
       }
     ],
     "autonomousAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 48
+        "line": 65
       }
     ],
     "summonAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 50
+        "line": 67
       }
     ],
     "excluded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 52
+        "line": 69
       }
     ],
     "isExcluded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 56
+        "line": 73
       }
     ],
     "cooldownRemaining": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 64
+        "line": 81
       }
     ],
     "diagnostics": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 70
+        "line": 87
+      }
+    ],
+    "decisionIntent": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
+        "line": 127
       }
     ],
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 129
+        "line": 254
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 153
+        "line": 286
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 163
+        "line": 296
+      }
+    ],
+    "LuluScreenRequestReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
+        "line": 326
+      }
+    ],
+    "LuluApprovedScreenWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
+        "line": 338
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -25692,64 +25710,76 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 191,
-      "sha256": "01f97cca163a1ac47785469a292a08c52241f71550cf0f858481525b201e4193",
+      "lines": 366,
+      "sha256": "ef9c6f7dd1bb1b69b762fdeca7a3b2a19ab99a889bf3f39dae0adc4c49783a16",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
-          "line": 22
+          "line": 35
         },
         {
           "name": "preferences",
-          "line": 40
+          "line": 57
         },
         {
           "name": "consented",
-          "line": 42
+          "line": 59
         },
         {
           "name": "appTracking",
-          "line": 43
+          "line": 60
         },
         {
           "name": "onDemandAllowed",
-          "line": 44
+          "line": 61
         },
         {
           "name": "autonomousAllowed",
-          "line": 48
+          "line": 65
         },
         {
           "name": "summonAllowed",
-          "line": 50
+          "line": 67
         },
         {
           "name": "excluded",
-          "line": 52
+          "line": 69
         },
         {
           "name": "isExcluded",
-          "line": 56
+          "line": 73
         },
         {
           "name": "cooldownRemaining",
-          "line": 64
+          "line": 81
         },
         {
           "name": "diagnostics",
-          "line": 70
+          "line": 87
+        },
+        {
+          "name": "decisionIntent",
+          "line": 127
         },
         {
           "name": "summon",
-          "line": 129
+          "line": 254
         },
         {
           "name": "recentAppActivity",
-          "line": 153
+          "line": 286
         },
         {
           "name": "addUntil",
-          "line": 163
+          "line": 296
+        },
+        {
+          "name": "LuluScreenRequestReceiver",
+          "line": 326
+        },
+        {
+          "name": "LuluApprovedScreenWorker",
+          "line": 338
         }
       ]
     },
