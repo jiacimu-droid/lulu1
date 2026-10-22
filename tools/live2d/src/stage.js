@@ -249,15 +249,27 @@ function applyAfterMotion(core, deltaMs) {
   if (!core || paused) return
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
+  // Cubism's authored idle motion, breathing and eye-blink already handle
+  // the body's life. Do not impose a perpetual clock-driven left/right
+  // head sway: it looks arbitrary and can erase the character's intentional
+  // posture. Only a genuine external head cue sets these three targets.
   const axes = [
-    ['ParamAngleX', 'yaw', listening ? 1.3 : Math.sin(seconds * .47) * 1.6],
-    ['ParamAngleY', 'pitch', 0],
-    ['ParamAngleZ', 'roll', Math.sin(seconds * .35) * .5],
+    ['ParamAngleX', 'yaw'],
+    ['ParamAngleY', 'pitch'],
+    ['ParamAngleZ', 'roll'],
   ]
-  for (const [id, axis, idle] of axes) {
+  for (const [id, axis] of axes) {
     if (core.getParameterIndex(id) < 0) continue
-    const target = headRequest?.[axis] ?? idle
-    smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .008)
+    // Let model-authored motion own the neutral posture. Once an explicit
+    // gesture finishes, blend back to neutral, then release this override
+    // entirely so we no longer fight the original motion3 animation.
+    const requested = headRequest?.[axis]
+    if (requested == null && Math.abs(smoothPose[axis]) < .12) {
+      smoothPose[axis] = 0
+      continue
+    }
+    const target = requested ?? 0
+    smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .010)
     core.setParameterValueById(id, smoothPose[axis])
   }
   if (core.getParameterIndex('ParamMouthOpenY') >= 0) {
@@ -607,7 +619,10 @@ function head(target) {
       headRequest[axis] = Math.max(-25, Math.min(25, target[axis]))
     }
   }
-  headRequestEndAt = Date.now() + 1600
+  // Hold a real selected action long enough to be visible even on the
+  // native Compose compatibility bridge (~6-20fps), then yield to the
+  // imported model's authored idle/motion instead of oscillating forever.
+  headRequestEndAt = Date.now() + 2800
 }
 window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
 if (window.__luluNativeViewport) {
