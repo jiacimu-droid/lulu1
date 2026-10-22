@@ -29,3 +29,7 @@ Android MediaSession 原本只获取到曲名，此次增加歌手、专辑，�
 参考：
 - https://github.com/migratorywhale/whale-listen
 - https://github.com/moonlin1213/cove-sensory-mcp
+
+## 2026-10-23 · 身心属性与简体字幕验收
+
+「此刻」只读现有数字身体五项与 CharacterInnerLifeStore 的有效情绪投影，未给每个角色建立第二套属性。CharacterLifeStore 的同一角色 JSON 记录最近一次重要身体变更前后差值与实际写入来源，原始活动仍归时间线。情绪轴未记录时显示缺失，不显示伪造的零值；正常衰减不产生额外模型调用。本地 Whisper 转写结果在送往现有字幕/对话前用 Android ICU Traditional-Simplified 转换显示，不重新请求 API，也不纠正原有语义识别误差。

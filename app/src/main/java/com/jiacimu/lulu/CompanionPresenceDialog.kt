@@ -34,6 +34,7 @@ import kotlinx.coroutines.delay
 import com.jiacimu.lulu.data.*
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 internal fun CompanionPresenceDialog(
@@ -183,6 +184,9 @@ internal fun CompanionPresenceDialog(
                                     }
                                 }
                             }
+                        }
+                        if (messageAnchor == null) item(key = "vitals") {
+                            CharacterVitalsPanel(characterId, now, mindRevision)
                         }
                         if (messageAnchor == null) item(key = "current-thoughts") {
                             PresenceLifeThreads(characterId, now)
@@ -690,6 +694,97 @@ private fun PresenceLifeThreads(characterId: String, now: Instant) {
             TextButton(onClick = { showOlder = !showOlder },
                 modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text(if (showOlder) "收起其他想法" else "再看看其他${unique.size - 4}件事")
+            }
+        }
+    }
+}
+
+@Composable
+private fun CharacterVitalsPanel(characterId: String, now: Instant, revision: Long) {
+    val body = EmbodiedBodyRuntime.sensorySnapshot(characterId, now)
+    val change = if (body != null) CharacterLifeStore.lastBodyChange(characterId) else null
+    val feeling = CharacterInnerLifeStore.snapshot(characterId).optJSONObject("emotion")
+    val influence = CharacterInnerLifeStore.emotionInfluence(feeling, now)
+    // The revision is read so the Composable refreshes when a new emotion is stored.
+    val updatedRevision = revision
+    var expanded by remember(characterId) { mutableStateOf(true) }
+    Column(Modifier.fillMaxWidth().padding(horizontal = 5.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        HorizontalDivider(color = Color(0xFFEAE6E5), thickness = 1.dp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("身心属性", Modifier.weight(1f), fontSize = 14.sp,
+                fontWeight = FontWeight.Medium, color = Color(0xFF292529))
+            TextButton(onClick = { expanded = !expanded }) {
+                Text(if (expanded) "收起" else "展开", fontSize = 12.sp)
+            }
+        }
+        if (expanded) {
+            Text("数字身体 · 0—100 模拟值", fontSize = 11.sp, color = Color(0xFF9C969B))
+            if (body == null) {
+                Text("尚未启用数字身体；请检查角色数字生活设置。",
+                    fontSize = 12.sp, color = Color(0xFF888188))
+            } else {
+                val before = change?.optJSONObject("before")
+                val after = change?.optJSONObject("after")
+                listOf(
+                    Triple("精力", body.energy, "energy"),
+                    Triple("睡眠压力", body.sleepPressure, "sleepPressure"),
+                    Triple("饥饿", body.hunger, "hunger"),
+                    Triple("口渴", body.thirst, "thirst"),
+                    Triple("舒适", body.comfort, "comfort"),
+                ).forEach { (label, value, key) ->
+                    val old = before?.optDouble(key, Double.NaN) ?: Double.NaN
+                    val new = after?.optDouble(key, Double.NaN) ?: Double.NaN
+                    val delta = if (old.isFinite() && new.isFinite()) new - old else Double.NaN
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(label, Modifier.width(65.dp), fontSize = 12.sp, color = Color(0xFF625E62))
+                        LinearProgressIndicator(progress = { (value / 100).toFloat().coerceIn(0f, 1f) },
+                            modifier = Modifier.weight(1f).height(5.dp),
+                            color = Color(0xFF8D98A4), trackColor = Color(0xFFEAE8E7))
+                        Text(value.toInt().toString(), Modifier.width(32.dp), fontSize = 12.sp,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                        val deltaLabel = if (delta.isNaN() || kotlin.math.abs(delta) < 0.5) ""
+                            else String.format(Locale.ROOT, "%+.0f", delta)
+                        Text(deltaLabel, Modifier.width(39.dp), fontSize = 11.sp, color = Color(0xFF898189),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                    }
+                }
+                change?.let {
+                    Text("最近一次变化：" + it.optString("cause") + " · " +
+                        it.optString("at").take(19).replace('T',' '),
+                        fontSize = 11.sp, color = Color(0xFF868086))
+                    Text("右侧 +/- 为本次保存前后差值；不是长期累积变化。",
+                        fontSize = 10.sp, color = Color(0xFFA9A3A9))
+                }
+                if (body.recoveryMode.isNotBlank())
+                    Text("休息进程：" + body.recoveryMode,
+                        fontSize = 11.sp, color = Color(0xFF858085))
+            }
+            HorizontalDivider(color = Color(0xFFEAE6E5), thickness = 1.dp)
+            Text("角色主观情绪 · 不是对你的情绪判定", fontSize = 11.sp, color = Color(0xFF9C969B))
+            if (influence == null) {
+                Text("暂无有效情绪记录；愉悦方向和唤醒度不能虚构。",
+                    fontSize = 12.sp, color = Color(0xFF888188))
+            } else {
+                Text(feeling?.optString("feeling").orEmpty() + " · 影响" + influence.impact,
+                    fontSize = 13.sp, color = Color(0xFF292529))
+                influence.valence?.let {
+                    Text("愉悦方向：" + String.format(Locale.ROOT, "%+.0f", it * 100) + " / 100",
+                        fontSize = 12.sp, color = Color(0xFF625E62))
+                }
+                influence.arousal?.let {
+                    Text("唤醒方向：" + String.format(Locale.ROOT, "%+.0f", it * 100) + " / 100",
+                        fontSize = 12.sp, color = Color(0xFF625E62))
+                }
+                Text("影响强度 " + String.format(Locale.ROOT, "%.2f", influence.remainingStrength) +
+                    " / " + influence.initialStrength + " · " + influence.elapsedMinutes + " 分钟前开始",
+                    fontSize = 11.sp, color = Color(0xFF878087))
+                feeling?.optString("cause")?.takeIf(String::isNotBlank)?.let {
+                    Text("当时缘由：" + it.take(110), fontSize = 11.sp, color = Color(0xFF878087))
+                }
+                feeling?.optString("evidenceId")?.takeIf(String::isNotBlank)?.let {
+                    Text("来源 ID：" + it.take(70), fontSize = 10.sp, color = Color(0xFFA19AA1))
+                }
             }
         }
     }

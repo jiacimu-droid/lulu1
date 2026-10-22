@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.icu.text.Transliterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -94,6 +95,16 @@ internal object LocalWhisperModels {
     }
 }
 
+/** Present locally recognized Chinese in simplified script; no semantic rewriting. */
+internal object LocalWhisperScript {
+    private val converter by lazy {
+        runCatching { Transliterator.getInstance("Traditional-Simplified") }.getOrNull()
+    }
+    fun simplifiedChinese(text: String): String =
+        if (text.isBlank()) text
+        else runCatching { converter?.transliterate(text) ?: text }.getOrDefault(text)
+}
+
 /** JNI speech inference runs on Dispatchers.IO and never makes an ASR network request. */
 internal object LocalWhisperTranscriber {
     private val nativeLoaded by lazy {
@@ -110,6 +121,6 @@ internal object LocalWhisperTranscriber {
         val file = LocalWhisperModels.installedFile(context, model)
             ?: error("请先在语音设置下载 Whisper ${model.id} 模型")
         runtimeError()?.let { error(it) }
-        nativeTranscribe(file.absolutePath, pcm16le).trim()
+        LocalWhisperScript.simplifiedChinese(nativeTranscribe(file.absolutePath, pcm16le).trim())
     }
 }

@@ -66,10 +66,22 @@ object CharacterLifeStore {
     fun bodyStorageReady(): Boolean = prefs != null
 
     fun bodyState(characterId: String): JSONObject? = state(characterId).optJSONObject("embodiedBody")
+    fun lastBodyChange(characterId: String): JSONObject? = state(characterId).optJSONObject("embodiedBodyChange")
 
-    @Synchronized fun saveBodyState(characterId: String, value: JSONObject) {
+    @Synchronized fun saveBodyState(
+        characterId: String, value: JSONObject, cause: String = "时间自然推移",
+    ) {
         if (prefs == null || characterId.isBlank()) return
         val root = state(characterId)
+        val previous = root.optJSONObject("embodiedBody")
+        if (previous != null && listOf("energy", "sleepPressure", "hunger", "thirst", "comfort")
+                .any { kotlin.math.abs(previous.optDouble(it) - value.optDouble(it)) >= 0.5 }) {
+            root.put("embodiedBodyChange", JSONObject()
+                .put("before", JSONObject(previous.toString()))
+                .put("after", JSONObject(value.toString()))
+                .put("cause", cause)
+                .put("at", value.optString("lastAt")))
+        }
         root.put("embodiedBody", value)
         save(characterId, root)
     }
@@ -79,6 +91,7 @@ object CharacterLifeStore {
         val root = state(characterId)
         if (!root.has("embodiedBody")) return
         root.remove("embodiedBody")
+        root.remove("embodiedBodyChange")
         save(characterId, root)
     }
 
@@ -604,6 +617,7 @@ object CharacterLifeStore {
         root.remove("socialNames")
         root.remove("afterglow")
         root.remove("embodiedBody") // Full history/origin reset also resets simulated body.
+        root.remove("embodiedBodyChange")
         save(characterId, root)
     }
 

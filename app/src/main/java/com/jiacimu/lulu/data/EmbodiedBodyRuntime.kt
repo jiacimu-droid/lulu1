@@ -186,7 +186,8 @@ internal object EmbodiedBodyRuntime {
             ?: EmbodiedBodyPhysics.fresh(at)
         if (at.isBefore(before.lastAt)) return
         CharacterLifeStore.saveBodyState(characterId,
-            EmbodiedBodyPhysics.applyWorldActivity(before, activityId, at, plannedEndAt).toJson())
+            EmbodiedBodyPhysics.applyWorldActivity(before, activityId, at, plannedEndAt).toJson(),
+            cause = "数字世界动作：" + activityId)
     }
 
     @Synchronized
@@ -194,6 +195,7 @@ internal object EmbodiedBodyRuntime {
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
         val before = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson) ?: return
         if (before.recoveryMode.isBlank() || at.isBefore(before.lastAt)) return
-        CharacterLifeStore.saveBodyState(characterId, EmbodiedBodyPhysics.endWorldActivity(before, at).toJson())
+        CharacterLifeStore.saveBodyState(characterId, EmbodiedBodyPhysics.endWorldActivity(before, at).toJson(),
+            cause = "休息活动结束")
     }
 }
