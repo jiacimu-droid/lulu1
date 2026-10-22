@@ -183,8 +183,6 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
                                 // Only a real search followed by actual matching note
                                 // detail can promote this route for autonomous use.
                                 check(XhsReadingEngine.setMcpPrimaryEnabled(context, true))
-                                remotePrimary = true
-                                fallbackOn = true
                                 mcpStatus = "实际搜索和笔记详情均已验证，已自动设为后台主线路。\\n" + verified
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
