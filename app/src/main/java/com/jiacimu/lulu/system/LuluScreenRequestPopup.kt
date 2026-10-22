@@ -124,8 +124,13 @@ internal object LuluScreenRequestPopup {
                             isClickable = true
                             setOnClickListener {
                                 if (activeKey != key) return@setOnClickListener
-                                dismissNow()
-                                action.second.invoke()
+                                try {
+                                    // Keep the user-clicked overlay visible while Android
+                                    // evaluates permission to open the requested Activity.
+                                    action.second.invoke()
+                                } finally {
+                                    if (activeKey == key) dismissNow()
+                                }
                             }
                         }
                         val margin = LinearLayout.LayoutParams(
