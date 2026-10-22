@@ -1,7 +1,6 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import android.speech.SpeechRecognizer
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,10 +10,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 internal fun VoiceCallSettings(provider: String) {
     val context = LocalContext.current
+    val downloadScope = rememberCoroutineScope()
+    var selectedLocalModel by remember { mutableStateOf(LocalWhisperModels.selected(context)) }
+    var downloadInProgress by remember { mutableStateOf<LocalWhisperModels.Model?>(null) }
+    var downloadProgress by remember { mutableFloatStateOf(0f) }
+    var downloadNotice by remember { mutableStateOf("") }
+    var modelFilesRevision by remember { mutableIntStateOf(0) }
     val prefs = remember { context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE) }
     // Old Agent preference is retired. Existing installs use normal phone calls.
     LaunchedEffect(provider) { if (prefs.getString("voice_call_mode", "direct") != "direct")
@@ -56,7 +65,7 @@ internal fun VoiceCallSettings(provider: String) {
             style = MaterialTheme.typography.bodySmall)
         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("elevenlabs" to "ElevenLabs Scribe", "system" to "手机识别",
+            listOf("local" to "本地 Whisper", "elevenlabs" to "ElevenLabs Scribe",
                 "groq" to "Groq Whisper", "minimax" to "MiniMax").forEach { (id, title) ->
                 FilterChip(selected = sttMode == id, onClick = {
                     sttMode = id
@@ -117,13 +126,77 @@ internal fun VoiceCallSettings(provider: String) {
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true, modifier = Modifier.fillMaxWidth())
         }
-        if (sttMode == "system") {
-            Text("手机系统 SpeechRecognizer 由手机语音服务收音、断句与降噪，可能联网。与 ElevenLabs 完全分离；长句完整率会受手机系统识别引擎限制。",
+        if (sttMode == "local") {
+            Text("完全离线识别，不上传你的录音，不扣除 ElevenLabs 识别额度。模型只需下载一次。",
+                style = MaterialTheme.typography.bodySmall)
+            LocalWhisperModels.Model.entries.forEach { model ->
+                val installed = remember(modelFilesRevision, model) {
+                    LocalWhisperModels.installedFile(context, model) != null
+                }
+                Row(modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    RadioButton(
+                        selected = selectedLocalModel == model,
+                        onClick = {
+                            selectedLocalModel = model
+                            prefs.edit().putString("local_whisper_model", model.id).apply()
+                        },
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(model.title, style = MaterialTheme.typography.bodyMedium)
+                        Text("${model.sizeLabel} · ${if (installed) "已下载" else "未下载"}",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                    if (installed) {
+                        TextButton(onClick = {
+                            if (downloadInProgress == null) {
+                                if (LocalWhisperModels.remove(context, model)) {
+                                    modelFilesRevision++
+                                    downloadNotice = "${model.title} 已删除"
+                                } else downloadNotice = "删除失败，请检查手机存储"
+                            }
+                        }, enabled = downloadInProgress == null) { Text("删除") }
+                    } else {
+                        TextButton(
+                            enabled = downloadInProgress == null,
+                            onClick = {
+                                downloadInProgress = model
+                                downloadProgress = 0f
+                                downloadNotice = "正在下载 ${model.title}"
+                                downloadScope.launch {
+                                    try {
+                                        LocalWhisperModels.download(context, model) { done, total ->
+                                            withContext(Dispatchers.Main) {
+                                                downloadProgress = if (total > 0L) (done.toFloat() / total).coerceIn(0f, 1f) else 0f
+                                            }
+                                        }
+                                        modelFilesRevision++
+                                        downloadNotice = "${model.title} 已下载，可以离线通话"
+                                    } catch (cancel: CancellationException) {
+                                        downloadNotice = "下载已中止，可以重试"
+                                        throw cancel
+                                    } catch (error: Exception) {
+                                        downloadNotice = "下载失败：${error.message ?: "请检查网络和存储空间"}"
+                                    } finally {
+                                        downloadInProgress = null
+                                    }
+                                }
+                            }
+                        ) { Text(if (downloadInProgress == model) "下载中" else "下载") }
+                    }
+                }
+            }
+            if (downloadInProgress != null) {
+                if (downloadProgress > 0f) LinearProgressIndicator(
+                    progress = { downloadProgress }, modifier = Modifier.fillMaxWidth())
+                else LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
+            if (downloadNotice.isNotBlank()) Text(downloadNotice,
+                style = MaterialTheme.typography.bodySmall)
+            Text("选择的模型会在下一通电话生效；模型未下载时不会暗中改用付费识别。",
                 style = MaterialTheme.typography.bodySmall)
         }
-        if (sttMode == "system" && !SpeechRecognizer.isRecognitionAvailable(context))
-            Text("系统识别不可用，请改选 Groq 并填写 Key。",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         if (sttMode == "minimax") {
             Text("沿用 MiniMax API Key，仅作为语音识别；角色声音可以来自 ElevenLabs。",
                 style = MaterialTheme.typography.bodySmall)
