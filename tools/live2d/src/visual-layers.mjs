@@ -50,7 +50,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, speaking, seconds }) {
+  function update(core, { deltaMs, head, body, face, speaking, voiceLevel = null, seconds }) {
     if (!core) return
     const headPose = headSpring.step(head, deltaMs)
     const bodyPose = bodySpring.step(body, deltaMs)
@@ -79,29 +79,41 @@ export function createVisualLayerRuntime({ has, read, write }) {
       if (ids.some(id => !has(core, id))) continue
       const requested = face?.[key]
       const eyeContact = key === 'gazeX' || key === 'gazeY'
+      let state = smoothedFace[key]
+      if (!eyeContact && requested == null && !state) continue
       const resting = key === 'eyeOpen' ? 1 : 0
-      const prior = Object.prototype.hasOwnProperty.call(smoothedFace, key)
-      // Expressions own their parameters while there is no AI face cue.
-      // Camera gaze is the exception: always override idle gaze drift.
-      if (!eyeContact && requested == null && !prior) continue
-      const from = prior ? smoothedFace[key] :
-        key === 'eyeOpen' ? (read(core, ids[0]) ?? 1) : 0
-      const voiced = speaking && requested != null &&
-        (key === 'smile' || key === 'eyeSmile' || key === 'squint')
-      const proposed = voiced
-        ? requested * (.94 + .06 * Math.sin(seconds * 7.5))
-        : requested
-      const target = proposed ?? resting
-      let next = from + (target - from) * clamp01(deltaMs * .012)
-      if (requested == null && Math.abs(next - resting) < .015) {
-        next = resting
-        delete smoothedFace[key]
-      } else {
-        smoothedFace[key] = next
+      if (!state) {
+        const bases = ids.map(id => read(core, id) ?? resting)
+        state = { values: [...bases], bases, release: null }
+        smoothedFace[key] = state
       }
-      for (const id of ids) write(core, id, next)
+      // Cubism authored motions and expressions ran before this final layer.
+      // After our temporary cue, restore the actual imported model's pose.
+      if (requested == null && !eyeContact && !state.release) {
+        state.release = ids.map((id, i) => {
+          const authored = read(core, id)
+          return Number.isFinite(authored) &&
+            Math.abs(authored - state.values[i]) > .06
+            ? authored : state.bases[i]
+        })
+      }
+      if (requested != null) state.release = null
+      const energy = Number.isFinite(voiceLevel) ? clamp01(voiceLevel) : 1
+      const voiced = speaking && requested != null &&
+        (key === 'smile' || key === 'eyeSmile')
+      // Small PCM-led articulation; no arbitrary sine-wave facial twitch.
+      const target = voiced ? requested * (.94 + .06 * energy) : requested
+      const blend = 1 - Math.exp(-Math.max(0, deltaMs) * .012)
+      let released = requested == null && !eyeContact
+      ids.forEach((id, i) => {
+        const goal = target ?? (eyeContact ? 0 : state.release[i])
+        state.values[i] += (goal - state.values[i]) * blend
+        if (Math.abs(state.values[i] - goal) > .015) released = false
+        else if (requested == null) state.values[i] = goal
+        write(core, id, state.values[i])
+      })
+      if (released) delete smoothedFace[key]
     }
-
     // Unlike head yaw oscillations, the dedicated breathing rig produces
     // subtle life without destroying eye contact. Keep it on its own channel.
     if (has(core, 'ParamBreath')) {
