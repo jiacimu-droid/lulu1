@@ -27,6 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import com.jiacimu.lulu.ai.VisionModelService
 import java.io.File
 
 /**
@@ -70,6 +74,18 @@ internal fun Live2DFullscreenVideoCall(
     // change model assets or interrupt the call/audio session.
     var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
     val cameraContext = LocalContext.current
+    val cameraVisionScope = rememberCoroutineScope()
+    var cameraShared by remember(characterId, state.callExperienceId) { mutableStateOf(false) }
+    var cameraCaptureRequest by remember(characterId, state.callExperienceId) { mutableIntStateOf(0) }
+    var cameraAnalyzing by remember(characterId, state.callExperienceId) { mutableStateOf(false) }
+    var cameraShareStatus by remember(characterId, state.callExperienceId) { mutableStateOf("") }
+    var cameraVisionJob by remember(characterId, state.callExperienceId) { mutableStateOf<Job?>(null) }
+    DisposableEffect(characterId, state.callExperienceId) {
+        onDispose {
+            cameraVisionJob?.cancel()
+            Live2DCallVisionState.disable(characterId, state.callExperienceId)
+        }
+    }
     var selfCameraEnabled by remember { mutableStateOf(false) }
     var cameraFailure by remember { mutableStateOf("") }
     val cameraPermission = rememberLauncherForActivityResult(
@@ -80,6 +96,9 @@ internal fun Live2DFullscreenVideoCall(
     }
     fun toggleSelfCamera() {
         if (selfCameraEnabled) {
+            cameraShared = false
+            cameraVisionJob?.cancel()
+            Live2DCallVisionState.disable(characterId, state.callExperienceId)
             selfCameraEnabled = false
             cameraFailure = ""
         } else if (ContextCompat.checkSelfPermission(cameraContext, Manifest.permission.CAMERA) ==
@@ -88,6 +107,22 @@ internal fun Live2DFullscreenVideoCall(
             selfCameraEnabled = true
         } else {
             cameraPermission.launch(Manifest.permission.CAMERA)
+        }
+    }
+    // Sharing starts with one immediate photo, then refreshes at most every
+    // 45 seconds. Each real vision request is billable; the default is OFF.
+    // Unmounting the video call cancels this loop and revokes observations.
+    LaunchedEffect(cameraShared, selfCameraEnabled, state.connected,
+        state.callExperienceId) {
+        if (cameraShared && selfCameraEnabled && state.connected &&
+            state.callExperienceId.isNotBlank()) {
+            Live2DCallVisionState.enable(characterId, state.callExperienceId)
+            while (true) {
+                if (!cameraAnalyzing) cameraCaptureRequest++
+                delay(45_000L)
+            }
+        } else {
+            Live2DCallVisionState.disable(characterId, state.callExperienceId)
         }
     }
     var renderRetry by remember(modelUrl) { mutableIntStateOf(0) }
@@ -270,16 +305,90 @@ internal fun Live2DFullscreenVideoCall(
             ) {
                 Box(Modifier.size(width = 112.dp, height = 154.dp)
                     .clip(RoundedCornerShape(17.dp)).background(Color(0xFF33363B))) {
-                    Live2DSelfCameraPreview(onFailure = {
-                        cameraFailure = it
-                        selfCameraEnabled = false
-                    })
+                    Live2DSelfCameraPreview(
+                        onFailure = {
+                            cameraFailure = it
+                            cameraShared = false
+                            cameraVisionJob?.cancel()
+                            Live2DCallVisionState.disable(characterId, state.callExperienceId)
+                            selfCameraEnabled = false
+                        },
+                        captureRequest = cameraCaptureRequest.toLong(),
+                        onFrameCaptured = { bitmap ->
+                            if (!cameraShared || !state.connected ||
+                                !Live2DCallVisionState.isEnabled(
+                                    characterId, state.callExperienceId) ||
+                                cameraAnalyzing) {
+                                bitmap.recycle()
+                            } else {
+                                cameraAnalyzing = true
+                                cameraShareStatus = "识图中…"
+                                cameraVisionJob = cameraVisionScope.launch {
+                                    try {
+                                        val result = VisionModelService.describeCameraFrame(
+                                            cameraContext, bitmap)
+                                        if (result.isSuccess) {
+                                            val accepted = Live2DCallVisionState.accept(
+                                                characterId, state.callExperienceId,
+                                                result.getOrThrow())
+                                            if (accepted) cameraShareStatus =
+                                                "已看见 · 下一轮回复可用"
+                                        } else if (cameraShared) {
+                                            cameraShareStatus = "看图失败：" +
+                                                result.exceptionOrNull()?.message.orEmpty().take(85)
+                                        }
+                                    } catch (cancelled: CancellationException) {
+                                        throw cancelled
+                                    } finally {
+                                        bitmap.recycle()
+                                        cameraAnalyzing = false
+                                    }
+                                }
+                            }
+                        },
+                    )
                 }
                 Spacer(Modifier.height(5.dp))
-                Text("本机预览 · 未分享给 AI",
+                Text(if (cameraShared) "已同意共享 · 每45秒取帧"
+                    else "本机预览 · 未分享给AI",
                     color = Color.White, fontSize = 10.sp,
                     modifier = Modifier.background(Color.Black.copy(alpha = .5f))
                         .padding(horizontal = 5.dp, vertical = 3.dp))
+                TextButton(
+                    onClick = {
+                        if (cameraShared) {
+                            cameraShared = false
+                            cameraVisionJob?.cancel()
+                            Live2DCallVisionState.disable(
+                                characterId, state.callExperienceId)
+                            cameraShareStatus = "已停止共享"
+                        } else if (!state.connected || state.callExperienceId.isBlank()) {
+                            cameraShareStatus = "通话接通后才能分享"
+                        } else if (!VisionModelService.canDescribeCamera(cameraContext)) {
+                            cameraShareStatus = "请先在设置中配置支持图片的识图模型"
+                        } else {
+                            cameraShared = true
+                            cameraShareStatus = "共享已开启，正在取第一帧"
+                        }
+                    },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 3.dp),
+                ) {
+                    Text(if (cameraShared) "停止共享" else "共享给江渡",
+                        color = if (cameraShared) Color(0xFFFFC5C5) else Color.White,
+                        fontSize = 11.sp)
+                }
+                if (cameraShared) {
+                    TextButton(
+                        onClick = { if (!cameraAnalyzing) cameraCaptureRequest++ },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    ) { Text("现在看一眼", color = Color.White, fontSize = 10.sp) }
+                }
+                if (cameraShareStatus.isNotBlank()) {
+                    Text(cameraShareStatus, color = Color.White,
+                        fontSize = 10.sp, maxLines = 3,
+                        modifier = Modifier.background(Color.Black.copy(alpha = .5f))
+                            .padding(horizontal = 5.dp, vertical = 3.dp))
+                }
             }
         }
         // A compact gradient over the avatar preserves the video-call feel.
