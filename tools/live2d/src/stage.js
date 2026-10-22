@@ -135,10 +135,16 @@ async function verifyVisibleFrame(loaded, sequence) {
       continue
     }
     fit()
-    // An immediate render + readPixels can verify nontransparent body pixels
-    // without storing or exposing camera/model pixels to any network service.
+    // AIRI explicitly renders before capture and retains the drawing buffer.
+    // Verify that a visible canvas contains CHARACTER COLORED PIXELS instead of
+    // merely checking alpha, which can be 255 even on a black WebView surface.
     try {
-      app.renderer.render(app.stage)
+      app.render()
+      const bounds = app.view.getBoundingClientRect()
+      if (!app.view.isConnected || bounds.width < 20 || bounds.height < 20) {
+        priorError = 'Pixi 画布未显示到页面中'
+        continue
+      }
       const w = app.renderer.width
       const h = app.renderer.height
       const sw = Math.min(96, Math.floor(w / 2))
@@ -151,13 +157,25 @@ async function verifyVisibleFrame(loaded, sequence) {
         priorError = 'GPU 画面读取失败'
         continue
       }
-      for (let i = 3; i < pixels.length; i += 4) {
-        if (pixels[i] > 32) {
-          previewObserved = true
-          return
+      let visibleColoredPixels = 0
+      for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i]
+        const g = pixels[i + 1]
+        const b = pixels[i + 2]
+        const alpha = pixels[i + 3]
+        // A fully opaque black frame is NOT a valid model preview.
+        if (alpha > 32 && (Math.max(r, g, b) > 45 ||
+          Math.max(r, g, b) - Math.min(r, g, b) > 18)) {
+          visibleColoredPixels++
         }
       }
-      priorError = '模型已加载但画布中央没有实际绘制出人物'
+      if (visibleColoredPixels >= 48) {
+        previewObserved = true
+        notify('diagnostic', 'WebGL 已绘制彩色像素 ' + visibleColoredPixels +
+          '；画布 ' + Math.round(bounds.width) + '×' + Math.round(bounds.height))
+        return
+      }
+      priorError = 'Pixi 画布仍为黑色或透明（彩色像素 ' + visibleColoredPixels + ')'
     } catch (error) {
       priorError = error?.message || String(error)
     }
@@ -211,11 +229,25 @@ function ensureApp() {
     width: Math.max(1, root.clientWidth),
     height: Math.max(1, root.clientHeight),
     backgroundAlpha: 0,
+    // AIRI keeps the drawing buffer across WebView compositor frames.
+    // Without this, readback can pass before Android composites a cleared buffer.
+    preserveDrawingBuffer: true,
     antialias: true,
     resolution: Math.min(2, window.devicePixelRatio || 1),
     autoDensity: true,
   })
   root.insertBefore(app.view, notice)
+  app.ticker.remove(app.render, app)
+  // AIRI's Canvas.vue wraps ticker renders so animation exceptions cannot
+  // silently terminate rendering while Android still shows a "ready" status.
+  app.ticker.add(() => {
+    try {
+      app.render()
+    } catch (error) {
+      app.ticker.stop()
+      status('Live2D 动画渲染中断：' + (error?.message || String(error)), 'error')
+    }
+  })
   app.ticker.maxFPS = 30
   window.addEventListener('resize', fit)
   new ResizeObserver(() => fit()).observe(root)
