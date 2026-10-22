@@ -253,8 +253,8 @@ internal fun Live2DFullscreenVideoCall(
         // Small real-world diagnostic: measured native delivery, not claimed 30fps.
         // Keep it out of the call controls and let it vanish before samples exist.
         if (videoPerformance.isNotBlank() && rendered) {
-            Text(videoPerformance, color = Color.White.copy(alpha = .74f),
-                fontSize = 10.sp, maxLines = 1,
+            Text(videoPerformance, color = Color.White.copy(alpha = .78f),
+                fontSize = 10.sp, maxLines = 2,
                 modifier = Modifier.align(Alignment.TopStart).statusBarsPadding()
                     .padding(start = 20.dp, top = 146.dp)
                     .background(Color.Black.copy(alpha = .35f), RoundedCornerShape(6.dp))
