@@ -64,6 +64,9 @@ internal fun Live2DFullscreenVideoCall(
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
     }
     var showDebugMenu by remember(modelUrl) { mutableStateOf(false) }
+    var manualFace by remember(modelUrl) { mutableStateOf<Live2DVisualActionBus.Face?>(null) }
+    var manualBody by remember(modelUrl) { mutableStateOf<Live2DVisualActionBus.Body?>(null) }
+    var manualCueRevision by remember(modelUrl) { mutableIntStateOf(0) }
     // Familiar face-first framing for calls; the user can pull back to a full
     // body without reloading the model or interrupting the call audio.
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
@@ -135,9 +138,10 @@ internal fun Live2DFullscreenVideoCall(
                 previewExpression = cue?.expression ?: previewExpression,
                 previewMotion = cue?.motion ?: previewMotion,
                 previewHead = cue?.head ?: manualHead,
-                previewBody = cue?.body,
-                previewFace = cue?.face,
-                previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
+                previewBody = cue?.body ?: manualBody,
+                previewFace = cue?.face ?: manualFace,
+                previewRevision = if (cue != null) cue.sequence.toInt()
+                    else (previewRevision + manualCueRevision * 10000),
                 // Both imported models and Hiyori were verified on the actual
                 // device only through the native Compose presentation path.
                 nativeMirrorEnabled = true,
@@ -311,6 +315,45 @@ internal fun Live2DFullscreenVideoCall(
                                 DropdownMenuItem(text = { Text("低头再抬头") }, onClick = {
                                     showDebugMenu = false
                                     onPreviewHead(Live2DVisualActionBus.Head(pitch = -18f))
+                                })
+                            }
+                            // This local-only tester bypasses the model decision,
+                            // but uses the exact same semantic controller.
+                            val actual = reportedAngles.split(',').toSet()
+                            if ("ParamMouthForm" in actual) {
+                                DropdownMenuItem(text = { Text("面部测试 · 微笑") }, onClick = {
+                                    showDebugMenu = false
+                                    manualFace = Live2DVisualActionBus.Face(buildMap {
+                                        put("smile", .75f)
+                                        if ("ParamEyeLSmile" in actual &&
+                                            "ParamEyeRSmile" in actual) put("eyeSmile", .55f)
+                                    })
+                                    manualBody = null
+                                    manualCueRevision++
+                                })
+                            }
+                            if ("ParamEyeBallX" in actual) {
+                                DropdownMenuItem(text = { Text("眼神测试 · 看向一边") }, onClick = {
+                                    showDebugMenu = false
+                                    manualFace = Live2DVisualActionBus.Face(mapOf("gazeX" to -.75f))
+                                    manualBody = null
+                                    manualCueRevision++
+                                })
+                            }
+                            if ("ParamCheekPuff" in actual) {
+                                DropdownMenuItem(text = { Text("面部测试 · 鼓脸") }, onClick = {
+                                    showDebugMenu = false
+                                    manualFace = Live2DVisualActionBus.Face(mapOf("cheekPuff" to .8f))
+                                    manualBody = null
+                                    manualCueRevision++
+                                })
+                            }
+                            if ("ParamBodyAngleZ" in actual) {
+                                DropdownMenuItem(text = { Text("身体测试 · 轻轻侧倾") }, onClick = {
+                                    showDebugMenu = false
+                                    manualFace = null
+                                    manualBody = Live2DVisualActionBus.Body(roll = 6f)
+                                    manualCueRevision++
                                 })
                             }
                         }
