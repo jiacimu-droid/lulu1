@@ -49,7 +49,7 @@ internal fun CharacterMusicSensingSettings(characterId: String) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         HorizontalDivider()
         Text("分享音乐给角色听", style = MaterialTheme.typography.titleMedium)
-        Text("从手机文件选一段音乐或声音，模型会实际分析声音，结果归入此角色的统一时间线；相同文件可复用分析。不会录制其他音乐 App 的播放声音。",
+        Text("选音频让角色真正听：有听觉模型时理解乐器、人声和氛围；不配模型也能免费观察 PCM16 WAV 的声音强弱。结果进统一时间线，不会录制其他音乐 App。",
             style = MaterialTheme.typography.bodySmall)
         Text("听觉模型：" + model.ifBlank { "未配置" },
             style = MaterialTheme.typography.bodySmall)
@@ -81,10 +81,9 @@ internal fun CharacterMusicSensingSettings(characterId: String) {
         }
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
-            enabled = !busy && baseUrl.startsWith("https://") && apiKey.isNotBlank() &&
-                model.isNotBlank(),
+            enabled = !busy,
             onClick = { picker.launch(arrayOf("audio/*")) },
-        ) { Text(if (busy) "正在分析音频…" else "选择真实音频 · 分享给此角色") }
+        ) { Text(if (busy) "正在分析音频…" else "选择音频 · 分享给此角色") }
         if (status.isNotBlank()) Text(status, style = MaterialTheme.typography.bodySmall)
     }
 }
