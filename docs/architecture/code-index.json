@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:53:47.837584+00:00",
-  "commit": "78437d471364fefb2bfa5db290284de4dda638ff",
+  "generatedAt": "2026-10-22T15:54:05.708005+00:00",
+  "commit": "83da7a70643722b0a60e6ef8cbfdc525544687c4",
   "branch": "main",
-  "sourceFingerprint": "381e2db26da34c5d5419dff7d7031bbc8981ded99a03d37738e8e50dc6e5a6b1",
+  "sourceFingerprint": "df5e942c891cd3992c61a9c15e874921dcc7a081d3b61545879efb5158d136ea",
   "summary": {
     "files": 809,
-    "lines": 154443,
+    "lines": 154444,
     "symbols": 2316
   },
   "symbolIndex": {
@@ -4459,31 +4459,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 91
+        "line": 92
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 136
+        "line": 137
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 138
+        "line": 139
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 153
+        "line": 154
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 158
+        "line": 159
       }
     ],
     "conciseAppraisal": [
@@ -16993,28 +16993,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 162,
-      "sha256": "e54b1068f83b14880a8b4fc50f6f66e86ce3235c89589e8fa6baae1700a573ee",
+      "lines": 163,
+      "sha256": "1ce04f163e2b7235300af3fbd228573ec68a6a506a83683e982672f0cdea0462",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 91
+          "line": 92
         },
         {
           "name": "usesSeparateExpression",
-          "line": 136
+          "line": 137
         },
         {
           "name": "chatAction",
-          "line": 138
+          "line": 139
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 153
+          "line": 154
         },
         {
           "name": "speechIntent",
-          "line": 158
+          "line": 159
         }
       ]
     },
