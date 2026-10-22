@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`72d984b9be1f3756efb759d67630f02982b5110f`
+- 基准提交：`fd5a1ebaa28c53679d2374427c056ae106a47efb`
 - 分支：`main`
-- 已索引文件：815
-- 已索引代码/文本行：155439
-- 已发现符号：2340
+- 已索引文件：817
+- 已索引代码/文本行：155946
+- 已发现符号：2348
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -161,7 +161,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 502 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 279 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 291 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 119 | 0 |
@@ -173,7 +173,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 900 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 914 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 123 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
@@ -208,6 +208,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoicePerformance.kt` | 183 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 424 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 238 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 189 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
@@ -417,7 +418,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 284 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 637 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 650 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 29 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
@@ -643,6 +644,7 @@
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoicePerformanceTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceSynthesisPolicyTest.kt` | 90 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/WatchTogetherSubtitleTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/WorldLifeEpisodeParagraphsTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
