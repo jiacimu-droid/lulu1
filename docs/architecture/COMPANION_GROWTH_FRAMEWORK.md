@@ -2,6 +2,14 @@
 
 确认日期：2026-10-12。用户已确认采用此框架，后续逐步实现；文档描述目标，不能作为功能全部已实现的证明。
 
+## 2026-10-22：从 Jiwen 借鉴连续状态，但不拆分人物
+
+- 已有的 `CharacterInnerLifeStore.emotion` 是唯一情绪权威：`strength`、`halfLifeMinutes` 与真实 `startedAt/evidenceId` 仍由同一条事件提供。新增 `emotionInfluence` 作为纯读取投影，统一 compact/full 上下文的衰减口径；无新事件不持久化新的心声或情绪、不触发额外模型调用。
+- `innerLife.emotion` 可选 `valence/arousal` 浮点轴（各为 -1 到 1）。仅有角色本轮真实的主观反应且模型愿意表达时记录，异常/缺省不推断；随情绪源半衰期衰减，转换成短的定性背景，不是骄傲值、依恋值、关系评分或固定对话模板。旧记录无这两轴仍可照常召回。
+- 私聊、群聊、电话、见面、数字世界与后台依旧通过共享的 `CharacterRuntime`/`CharacterInnerLifeStore` 取得状态，无独立的场景心理状态机。轻量情绪投影不会强制消息、电话、行动或沉默；角色仍在统一决策阶段自主取舍，客观执行以原回执为准。
+- `emotionInfluenceTrace` 是只读诊断，说明情绪的原始证据、时距及剩余影响；它并不宣称解释所有模型自由选择。回归覆盖跨简版/完整版上下文一致性、浮点边界、角色隔离、将来时事件、自然淡化以及来源撤回。
+- 后台节流继续使用现有 `PerceptionWakePlanStore`、在线消息所有权与 `ProactivePerceptionRuntime`；本轮**没有**直接引入 Jiwen 的五轴计时轮询、强制联系阈值或新的付费情绪分析模型。跨 Android 后台运行、长时真机自然度及 API 成本仍须独立验收。
+
 ## 2026-10-22：想法／心声／决策／回执的单一职责
 
 - **想法**：`appraisal.privateIdeas` 是同一轮并存、甚至相反的简短心理倾向（如想逗、想安慰、想亲近、想克制）；`innerLife.thoughts` 仅记录实际值得跨轮保存的独立未尽念头。二者不是自动执行任务，也不替代持续动机 `innerLife.motives`。不要因为多个想法相反就删除其中一个。
