@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T00:42:12.977051+00:00",
-  "commit": "330088dad967a4d90098f1caea7889e324e2275c",
+  "generatedAt": "2026-10-22T00:42:44.038823+00:00",
+  "commit": "f651131f5b60db90119d25e060d2b72d3ad4a096",
   "branch": "main",
-  "sourceFingerprint": "ab440ed6f1ceda701e56a0450e521e7c055e08cad6e9449295d031730bb33e4c",
+  "sourceFingerprint": "6613508bbc42fd4bbbd900cbe6fbe81eb31b4de30e762e734f7ce778a3b9a587",
   "summary": {
-    "files": 787,
-    "lines": 149517,
-    "symbols": 2255
+    "files": 788,
+    "lines": 149567,
+    "symbols": 2256
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11233,6 +11233,12 @@
     "Live2DAssetsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
+        "line": 17
+      }
+    ],
+    "Live2DMobileTextureAdapterTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt",
         "line": 17
       }
     ],
@@ -24586,6 +24592,17 @@
       "symbols": [
         {
           "name": "Live2DAssetsTest",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt",
+      "lines": 50,
+      "sha256": "cbfc312eeb83f23dadc6288bd11a1dccf8aee7e5ac15b52e96f499cd2ef703cd",
+      "symbols": [
+        {
+          "name": "Live2DMobileTextureAdapterTest",
           "line": 17
         }
       ]
