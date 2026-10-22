@@ -183,6 +183,12 @@ internal object XhsReadingEngine {
                 observed.optBoolean("success", false) -> "已观察到响应"
                 else -> "请求已响应，但返回失败"
             }
+        val elapsed = state?.optLong("elapsedMs", -1L) ?: -1L
+        if (elapsed >= 0L) lines += "本次读取耗时：${elapsed} 毫秒（含等待和导航）"
+        val searchStatus = state?.optJSONObject("search")
+        if (searchStatus != null && location == "搜索页") {
+            lines += "关键词请求：${if (searchStatus.optBoolean("requestObserved")) "实际发出" else "尚未观察到"}；${if (searchStatus.optBoolean("responseMatched")) "结果已匹配" else "未确认匹配"}"
+        }
         val stage = state?.optString("phase").orEmpty().ifBlank {
             tool?.optString("stage").orEmpty()
         }
@@ -598,6 +604,9 @@ internal object XhsReadingEngine {
         var lastStage = "等待阅读窗口"
         onProgress(lastStage)
         var latestReport = JSONObject()
+        val toolStartedAt = System.currentTimeMillis()
+        val phaseTimes = JSONObject()
+        var phaseStartedAt = toolStartedAt
         try {
             // The deadline also covers waiting for another reading to release the session.
             withTimeout(if (kind == "search") 40_000L else 35_000L) {
@@ -616,7 +625,13 @@ internal object XhsReadingEngine {
                     // Do not overwrite the screen's own WebViewClient. That
                     // client holds login, error and native navigation state.
                     fun stage(value: String) {
-                        if (lastStage != value) { lastStage = value; onProgress(value) }
+                        if (lastStage != value) {
+                            val now = System.currentTimeMillis()
+                            phaseTimes.put(lastStage.take(55), now - phaseStartedAt)
+                            phaseStartedAt = now
+                            lastStage = value
+                            onProgress(value)
+                        }
                     }
                     try {
                         // Single owner, single navigation, one clearly scoped
@@ -694,7 +709,9 @@ internal object XhsReadingEngine {
                             val raw = evaluate(view, script + "\nwindow.__luluXhsReader.snapshot(${JSONObject.quote(kind)},${JSONObject.quote(id)},${JSONObject.quote(keyword)});")
                             val root = runCatching { JSONObject(JSONTokener(raw).nextValue() as String) }.getOrNull() ?: continue
                             latestReport = root.optJSONObject("diagnostics") ?: JSONObject()
-                            latestReport.put("stage", kind).put("phase", lastStage)
+                            latestReport.put("elapsedMs", System.currentTimeMillis() - toolStartedAt)
+                                .put("phaseTimesMs", phaseTimes)
+                                .put("stage", kind).put("phase", lastStage)
                                 .put("session", "attached-native-browser")
                                 .put("nativeWidth", view.width).put("nativeHeight", view.height)
                                 .put("ready", root.optBoolean("onPage")).put("result", root.optString("error"))
@@ -769,7 +786,7 @@ internal object XhsReadingEngine {
                             if (kind == "search" && siteSearchStarted &&
                                 !attemptedDirectFallback &&
                                 latestReport.optJSONObject("search")?.optBoolean("requestObserved") != true &&
-                                System.currentTimeMillis() - navigationStartedAt >= 8_000L &&
+                                System.currentTimeMillis() - navigationStartedAt >= 4_000L &&
                                 Uri.parse(view.url.orEmpty()).path in setOf("/", "/explore") &&
                                 (root.optJSONArray("items")?.length() ?: 0) == 0 &&
                                 !root.optBoolean("empty")) {
@@ -808,11 +825,11 @@ internal object XhsReadingEngine {
                                 }
                             }
                             if (kind == "search" && attemptedDirectFallback &&
-                                System.currentTimeMillis() - navigationStartedAt >= 13_000L &&
+                                System.currentTimeMillis() - navigationStartedAt >= 11_000L &&
                                 Uri.parse(view.url.orEmpty()).path.orEmpty() in
                                 setOf("/", "/explore") &&
                                 latestReport.optJSONObject("search")?.optBoolean("responseMatched") != true &&
-                                latestReport.optJSONObject("search")?.optBoolean("pending") != true) {
+                                latestReport.optJSONObject("search")?.optBoolean("requestObserved") != true) {
                                 error("已尝试网站搜索框和官方结果页，但站点仍返回首页，未得到关键词的真实搜索结果；请在网页浏览模式手动搜索")
                             }
                             // Do not click search twice or reload a working SPA.
@@ -855,6 +872,8 @@ internal object XhsReadingEngine {
                 }
             } else lastStage
             latestReport.put("result", "timeout").put("phase", lastStage)
+                .put("elapsedMs", System.currentTimeMillis() - toolStartedAt)
+                .put("phaseTimesMs", phaseTimes)
                 .put("readiness", if (page == null) "reader-script-unavailable"
                      else page.optString("readyState"))
             prefs(context).edit().putString("xiaohongshu:last-diagnostic", latestReport.toString()).apply()
