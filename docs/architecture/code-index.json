@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:09:52.507430+00:00",
-  "commit": "367ba65b450721daed328ac5ab6b202b629e8659",
+  "generatedAt": "2026-10-22T03:10:18.723073+00:00",
+  "commit": "6658f512832e0cc05eba31d79775c25d2c0058c3",
   "branch": "main",
-  "sourceFingerprint": "708f395ef137da66dbf9808cdb0968618564a7e3a0fe061c7711c0bbe0ca7cd3",
+  "sourceFingerprint": "8cb0b459f841f91d8ea7cfb9808de7eb315376dd695040d7631c3bf294753c46",
   "summary": {
-    "files": 789,
-    "lines": 149905,
-    "symbols": 2258
+    "files": 790,
+    "lines": 150081,
+    "symbols": 2260
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1534,6 +1534,42 @@
         "line": 523
       }
     ],
+    "record": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
+        "line": 46
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 74
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
+        "line": 51
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 134
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
+        "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
+        "line": 84
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
+        "line": 33
+      }
+    ],
+    "attemptReload": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
+        "line": 49
+      }
+    ],
     "normalizedSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt",
@@ -2950,32 +2986,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
         "line": 65
-      }
-    ],
-    "record": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
-        "line": 74
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt",
-        "line": 51
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 134
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
-        "line": 35
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
-        "line": 84
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 33
       }
     ],
     "display": [
@@ -13814,6 +13824,21 @@
         {
           "name": "prepare",
           "line": 20
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt",
+      "lines": 176,
+      "sha256": "262f2a65fb32feba8a3a5b5f286a094fb3ad4b2266eab595ca9a55d51d2cb8a5",
+      "symbols": [
+        {
+          "name": "record",
+          "line": 46
+        },
+        {
+          "name": "attemptReload",
+          "line": 49
         }
       ]
     },
