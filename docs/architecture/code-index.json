@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T08:43:11.727943+00:00",
-  "commit": "88473c4924ff5c9951af67ce7990b112d28c76c1",
+  "generatedAt": "2026-10-22T08:43:46.887374+00:00",
+  "commit": "759b1d0d2d802fc9fd67d48d4911b618666e7561",
   "branch": "main",
-  "sourceFingerprint": "f7948bec3271309e588bc77751063de50350696d2c7703b53df83d64c1e71fd8",
+  "sourceFingerprint": "a94f6cdcc92fa9ab0a430b0c7eaf9fff944899be434ed2d582ffe4d6220f0e11",
   "summary": {
     "files": 799,
-    "lines": 152000,
-    "symbols": 2285
+    "lines": 152052,
+    "symbols": 2286
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -789,7 +789,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 7
+        "line": 8
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -4197,7 +4197,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 11
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
@@ -8912,10 +8912,16 @@
         "line": 4
       }
     ],
+    "live2dCallContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
+        "line": 19
+      }
+    ],
     "displayLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-        "line": 40
+        "line": 92
       }
     ],
     "Choice": [
@@ -21698,8 +21704,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserProfileContext.kt",
-      "lines": 48,
-      "sha256": "0730816b422d0d99d3311959bbdfea7ce4dfe97da8d7fc12fc85d2e5d027787c",
+      "lines": 100,
+      "sha256": "8b82edaff5a13129163321c5a7392785b4beaeb0f9e650f2dd7ade1ff4ec2380",
       "symbols": [
         {
           "name": "UserProfileContext",
@@ -21707,15 +21713,19 @@
         },
         {
           "name": "initialize",
-          "line": 7
+          "line": 8
+        },
+        {
+          "name": "live2dCallContext",
+          "line": 19
         },
         {
           "name": "promptSection",
-          "line": 11
+          "line": 63
         },
         {
           "name": "displayLabel",
-          "line": 40
+          "line": 92
         }
       ]
     },
