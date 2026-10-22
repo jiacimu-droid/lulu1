@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T14:22:36.634955+00:00",
-  "commit": "e61e41e28facf6be3b6dc284f4f764f80b13a2ce",
+  "generatedAt": "2026-10-22T14:23:00.056908+00:00",
+  "commit": "309e81de126954d67fab4bb68778c4e23c1560a7",
   "branch": "main",
-  "sourceFingerprint": "864f547759f79082edcabe4b4195c192d6fca1f846f1e0d3ab762d2e87d86c4e",
+  "sourceFingerprint": "fa6b668db9655088c552a45c6191a5e7d8ccb888a7776f4913ee4a8ec81a5384",
   "summary": {
     "files": 802,
-    "lines": 153396,
+    "lines": 153406,
     "symbols": 2300
   },
   "symbolIndex": {
@@ -13304,8 +13304,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt",
-      "lines": 119,
-      "sha256": "9cf11385da99ff5dd3416600d5a97413e14b50dda84fa844517dd24b1bea5188",
+      "lines": 129,
+      "sha256": "791286b3aa0f61831d4803162339385bc9d6ec67e969b15aed5a843051a8b384",
       "symbols": []
     },
     {
