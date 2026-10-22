@@ -31,6 +31,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlinx.coroutines.launch
@@ -221,6 +223,26 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                         Text("AIRI 示例 Hiyori", fontSize = 12.sp,
                             color = if (useSample) Color.White else Color.LightGray)
                     }
+                }
+                if (NativeCubismProbe.nativeCoreLinked) {
+                    TextButton(onClick = {
+                        scope.launch {
+                            record("检查官方 Native ARM64 Core 能否解析本机 Moc3；这不是 GPU 出图验证")
+                            val inspected = withContext(Dispatchers.IO) {
+                                NativeCubismProbe.inspectImportedModel(context, roleId)
+                            }
+                            record(inspected.fold(
+                                onSuccess = { "Native Core 已解析 ${it} 个 drawable；真正 GPU Surface 仍待实现" },
+                                onFailure = { "Native Core 模型检测失败：${it.message}" },
+                            ))
+                        }
+                    }, enabled = modelUrl != null) {
+                        Text("检查 Native Core / Moc3", fontSize = 11.sp)
+                    }
+                } else {
+                    Text("Cubism Native GPU：本 APK 未附授权的 ARM64 Core；" +
+                        "目前使用 WebGL + Android 图片兼容显示",
+                        color = Color.LightGray, fontSize = 10.sp)
                 }
                 if (!coreReady) {
                     Text("① 缺少 Cubism Core。请先在视频页面安装官方 Core。",
