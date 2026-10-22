@@ -13,6 +13,9 @@ internal object Live2DVisualActionBus {
     data class Head(val yaw: Float? = null, val pitch: Float? = null, val roll: Float? = null)
     data class Body(val yaw: Float? = null, val pitch: Float? = null, val roll: Float? = null)
     data class Face(val values: Map<String, Float>)
+    /** Milliseconds from the start of audible TTS, not from API request time. */
+    data class Beat(val atMs: Int, val expression: String? = null,
+        val head: Head? = null, val body: Body? = null, val face: Face? = null)
     // No hard-coded wolf persona: these are semantic channels only when the
     // currently loaded Cubism model confirms each actual parameter ID.
     private val faceChannels = linkedMapOf(
@@ -41,6 +44,7 @@ internal object Live2DVisualActionBus {
         val face: Face? = null,
         val sequence: Long,
         val immediate: Boolean = false,
+        val beats: List<Beat> = emptyList(),
     )
     private val mutableCues = MutableStateFlow<Map<String, Cue>>(emptyMap())
     val cues = mutableCues.asStateFlow()
@@ -102,6 +106,15 @@ internal object Live2DVisualActionBus {
             【当前可视电话：本角色已加载成功的 Live2D 身体】
             当前你拥有可操作的 Live2D 身体，是否表达由你自主决定，不要求每一句话配动作。
             若这一刻确实有表情或动作意图，可在同一次回复的 JSON 附加 live2d。
+            一次自然说话也可以分几次变化小表情：在 live2d 里填写 beats 数组，
+            例如 {"beats":[{"atMs":0,"face":{"smile":0.45,"eyeSmile":0.3}},
+            {"atMs":1250,"face":{"smile":0.75,"eyeOpen":0.65},"head":{"roll":5}},
+            {"atMs":2600,"face":{"smile":0.3},"head":{"roll":0}}]}。
+            atMs 从这一轮真实语音开始播放时计时（毫秒），动作随播放推进；
+            要表达先憋笑、再忍不住笑、最后收敛时才用这样的连续节拍。
+            beats 仅在实际音频播放中运行，不会多调用一次模型。
+            通常只需1至3个自然变化；沉默时仍可只用单个 face/head，
+            不为了凑动作改变人格，也不把文字描述误认为已完成身体动作。
             若对方明确要求你做某个表情（比如“变成星星眼”），应先核对下方真实表情清单；
             如果确实存在对应表情，这一轮就输出 live2d.expression 来执行，不能只在台词里答应。
             若清单中没有该表情，不要虚构，也不要声称已经做到了。
@@ -232,11 +245,61 @@ internal object Live2DVisualActionBus {
             }
         }
         val face = faceValues.takeIf { it.isNotEmpty() }?.let(::Face)
-        if (selected == null && motion == null && angles == null && body == null && face == null) return false
+        // A model may plan a small progression during ONE paid speech turn.
+        // Filter each beat against THIS imported model, not a global catalogue.
+        val beatsJson = request.optJSONArray("beats")
+        val beats = buildList {
+            if (beatsJson != null) for (i in 0 until minOf(beatsJson.length(), 16)) {
+                val item = beatsJson.optJSONObject(i) ?: continue
+                if (!item.has("atMs")) continue
+                val atMs = item.optInt("atMs", -1)
+                if (atMs !in 0..30_000) continue
+                val name = item.optString("expression").trim()
+                    .takeIf(String::isNotBlank)
+                    ?.let { resolveExpression(it, controls.expressions) }
+                val beatHeadJson = item.optJSONObject("head")
+                fun headNumber(key: String, id: String): Float? =
+                    if (beatHeadJson == null || id !in allowed || !beatHeadJson.has(key)) null
+                    else beatHeadJson.optDouble(key, Double.NaN).takeIf(Double::isFinite)
+                        ?.coerceIn(-25.0, 25.0)?.toFloat()
+                val beatHead = Head(
+                    yaw = headNumber("yaw", "ParamAngleX"),
+                    pitch = headNumber("pitch", "ParamAngleY"),
+                    roll = headNumber("roll", "ParamAngleZ"),
+                ).takeIf { it.yaw != null || it.pitch != null || it.roll != null }
+                val beatBodyJson = item.optJSONObject("body")
+                fun bodyNumber(key: String, id: String): Float? =
+                    if (beatBodyJson == null || id !in allowed || !beatBodyJson.has(key)) null
+                    else beatBodyJson.optDouble(key, Double.NaN).takeIf(Double::isFinite)
+                        ?.coerceIn(-10.0, 10.0)?.toFloat()
+                val beatBody = Body(
+                    yaw = bodyNumber("yaw", "ParamBodyAngleX"),
+                    pitch = bodyNumber("pitch", "ParamBodyAngleY"),
+                    roll = bodyNumber("roll", "ParamBodyAngleZ"),
+                ).takeIf { it.yaw != null || it.pitch != null || it.roll != null }
+                val beatFaceJson = item.optJSONObject("face")
+                val beatFaceValues = mutableMapOf<String, Float>()
+                if (beatFaceJson != null) for ((key, ids) in faceChannels) {
+                    if (!beatFaceJson.has(key) || !ids.all { it in allowed }) continue
+                    val value = beatFaceJson.optDouble(key, Double.NaN)
+                    if (value.isFinite()) {
+                        beatFaceValues[key] = value.coerceIn(
+                            if (key in positiveFaceChannels) 0.0 else -1.0, 1.0).toFloat()
+                    }
+                }
+                val beatFace = beatFaceValues.takeIf { it.isNotEmpty() }?.let(::Face)
+                if (name != null || beatHead != null || beatBody != null || beatFace != null) {
+                    add(Beat(atMs, name, beatHead, beatBody, beatFace))
+                }
+            }
+        }.sortedBy(Beat::atMs)
+        if (selected == null && motion == null && angles == null && body == null &&
+            face == null && beats.isEmpty()) return false
         sequence++
         mutableCues.value = mutableCues.value + (characterId to Cue(
             callId, characterId, selected, motion, angles, body, face, sequence,
-            immediate = request.optBoolean("_executeNow", false)
+            immediate = request.optBoolean("_executeNow", false),
+            beats = beats,
         ))
         return true
     }
