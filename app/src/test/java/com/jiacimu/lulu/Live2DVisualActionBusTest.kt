@@ -60,6 +60,37 @@ class Live2DVisualActionBusTest {
             assertEquals("smile", combined?.expression)
             assertEquals("Gesture" to 0, combined?.motion)
             assertEquals(-13f, combined?.head?.yaw)
+
+            // These controls must only become available AFTER an actual
+            // loaded model advertises their parameter IDs.
+            val faceRequest = JSONObject().put("face", JSONObject()
+                .put("gazeX", -0.8).put("smile", 0.75).put("eyeSmile", 0.7))
+            assertFalse(Live2DVisualActionBus.publish(context, role, call, faceRequest))
+            // A partial paired-eye capability is insufficient to drive a
+            // symmetric eyeSmile, but the gaze and smile remain valid.
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamEyeBallX,ParamMouthForm,ParamEyeLSmile,ParamBodyAngleX")
+            assertTrue(Live2DVisualActionBus.publish(context, role, call, faceRequest))
+            val partialFace = Live2DVisualActionBus.cues.value[role]?.face?.values
+            assertEquals(-0.8f, partialFace?.get("gazeX"))
+            assertEquals(0.75f, partialFace?.get("smile"))
+            assertFalse(partialFace?.containsKey("eyeSmile") == true)
+            // Values cannot exceed safe semantic ranges, and unsupported
+            // gestures must never be invented for the imported model.
+            val bodyAndFace = JSONObject()
+                .put("body", JSONObject().put("yaw", 99).put("roll", 20))
+                .put("face", JSONObject().put("gazeX", -2)
+                    .put("eyeSmile", 0.6).put("smile", 3))
+            assertTrue(Live2DVisualActionBus.publish(context, role, call, bodyAndFace))
+            assertEquals(10f, Live2DVisualActionBus.cues.value[role]?.body?.yaw)
+            assertEquals(null, Live2DVisualActionBus.cues.value[role]?.body?.roll)
+            assertEquals(-1f, Live2DVisualActionBus.cues.value[role]?.face?.values?.get("gazeX"))
+            assertEquals(1f, Live2DVisualActionBus.cues.value[role]?.face?.values?.get("smile"))
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamEyeBallX,ParamMouthForm,ParamEyeLSmile,ParamEyeRSmile,ParamBodyAngleX")
+            assertTrue(Live2DVisualActionBus.publish(context, role, call, bodyAndFace))
+            assertEquals(0.6f, Live2DVisualActionBus.cues.value[role]?.face?.values?.get("eyeSmile"))
+            // Even existing dimensions cannot leak across a closed call.
             Live2DVisualActionBus.stageClosed(role, call)
             assertFalse(Live2DVisualActionBus.publish(context, role, call, smile))
         } finally {
