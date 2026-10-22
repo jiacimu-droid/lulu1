@@ -315,7 +315,9 @@ function applyAfterMotion(core, deltaMs) {
   // speaking allows a brief glance away. Deliberate AI gaze overrides both.
   // Never move the whole head or imply a particular emotional state.
   if (timeNow >= gazeReflex.nextAt) {
-    const radius = listening ? .045 : playing ? .13 : .085
+    // Face toward the user during actual conversation. Tiny idle-only eye
+    // movement is fine, but never wander offscreen while responding.
+    const radius = (listening || playing) ? 0 : .035
     gazeReflex.x = (Math.random() * 2 - 1) * radius
     gazeReflex.y = (Math.random() * 2 - 1) * radius * .65
     gazeReflex.nextAt = timeNow + 2500 + Math.random() * 3500
@@ -858,7 +860,23 @@ function startSpeechExpression(name) {
   activeExpressionName = name
   activeExpressionStartedAt = Date.now()
   lastSpeechSoundAt = Date.now()
-  Promise.resolve(model.expression(name)).catch(() => {
+  const manager = model.internalModel?.motionManager?.expressionManager
+  const knownIndex = manager?.getExpressionIndex?.(name) ?? -1
+  if (knownIndex < 0) {
+    notify('diagnostic', '无法找到表情：' + name + '；需与模型 exp3 文件名一致')
+    if (activeExpressionName === name) resetSpeechExpression()
+    return
+  }
+  Promise.resolve(model.expression(name)).then(ok => {
+    if (ok === false) {
+      notify('diagnostic', '表情未切换：' + name +
+        '（资源未加载或当前已在使用）')
+    } else {
+      notify('diagnostic', '表情已提交：' + name)
+    }
+  }).catch(error => {
+    notify('diagnostic', '表情播放异常：' + name + ' ' +
+      (error?.message || String(error)))
     if (activeExpressionName === name) resetSpeechExpression()
   })
 }
