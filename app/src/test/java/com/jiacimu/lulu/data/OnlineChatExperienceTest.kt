@@ -552,8 +552,8 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
         // Explicitly requested rewrite skips additive legacy migrations.
-        assertEquals(16, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("speechHabits"),
+        assertEquals(17, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV17Overrides.getValue("speechHabits"),
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV16Persona, MigratedDomainStores.characters.get(role.characterId).persona)

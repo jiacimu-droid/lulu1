@@ -279,6 +279,16 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v17: restore everyday speech economy in Jiang Du alone. Only replace
+        // known stock wording; preserve manually edited/blank expression fields.
+        CharacterProfileSchema.jiangDuV17Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            val stockDefaults = listOfNotNull(
+                CharacterProfileSchema.jiangDuV15Overrides[key],
+                CharacterProfileSchema.jiangDuV14Overrides[key]
+            )
+            if (!profile.has(key) || previous in stockDefaults) profile.put(key, value)
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
