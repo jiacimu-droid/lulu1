@@ -41,6 +41,7 @@ let nativeStreamWarned = false
 // Avoid JPEG-encoding duplicate frames when the WebView's Pixi ticker runs
 // slower than the Android bridge. Capture only after a NEW rendered frame.
 let nativeStreamLastTickerTime = -1
+let nativeStreamAckMeanMs = 45
 // Full body for diagnostics; video calls may request a closer waist-up view.
 let framingMode = window.__luluFramingMode === 'portrait' ? 'portrait' : 'full'
 let gpuLost = false
@@ -284,7 +285,7 @@ function applyAfterMotion(core, deltaMs) {
   // Expression cues are emotional beats, not permanent faces. Let gaps
   // between TTS fragments breathe, while bounding even long monologues.
   if (activeExpressionName &&
-      ((lastSpeechSoundAt && timeNow - lastSpeechSoundAt > 1050) ||
+      ((!playing && lastSpeechSoundAt && timeNow - lastSpeechSoundAt > 1050) ||
        timeNow - activeExpressionStartedAt > 6200)) {
     resetSpeechExpression()
   }
@@ -693,7 +694,7 @@ function sendNativeStreamFrame() {
         }
         scheduleNativeStreamFrame(250)
       }
-    }, 'image/jpeg', 0.84)
+    }, 'image/jpeg', 0.93)
   } catch (error) {
     nativeStreamBusy = false
     scheduleNativeStreamFrame(300)
@@ -718,8 +719,17 @@ function setNativeStreaming(enabled) {
     const reply = String(event?.data || '')
     if (reply.startsWith('next:')) {
       const maxEdge = Number(reply.substring(5))
+      const ackMs = performance.now() - nativeStreamLastFrameAt
+      nativeStreamAckMeanMs = nativeStreamAckMeanMs * .8 + ackMs * .2
       if (Number.isFinite(maxEdge)) {
-        nativeStreamMaxEdge = Math.min(2200, Math.max(640, Math.floor(maxEdge)))
+        // Android's original adaptive controller capped capture to 1200px
+        // even on a GPU now rendering ~2000px, wasting source detail.
+        // Boost based on measured encode+IPC+decode throughput; if the bridge
+        // gets slow fall back to its conservative requested frame size.
+        const factor = nativeStreamAckMeanMs < 57 ? 1.38 :
+          nativeStreamAckMeanMs < 77 ? 1.17 : 1.0
+        nativeStreamMaxEdge = Math.min(2100,
+          Math.max(760, Math.round(maxEdge * factor)))
       }
     }
     nativeStreamBusy = false
