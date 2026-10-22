@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:36:16.831400+00:00",
-  "commit": "b21ab9e00c0445f76a155f906c5e4bf1ec0b3c97",
+  "generatedAt": "2026-10-22T17:45:28.364515+00:00",
+  "commit": "432ccb7511bd36c625c0be81a262fbe3cc208fb8",
   "branch": "main",
-  "sourceFingerprint": "a8ad3c890539110c63dab86534d79f36d59e1c8590aabba113015d72f22947cd",
+  "sourceFingerprint": "f0ad206114dc7bac842f537fae142c0516d8347e26283aeb86c4ddccae571fce",
   "summary": {
-    "files": 827,
-    "lines": 157850,
-    "symbols": 2389
+    "files": 828,
+    "lines": 157989,
+    "symbols": 2392
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -391,7 +391,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 704
+        "line": 718
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -897,7 +897,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-        "line": 39
+        "line": 40
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
@@ -1785,13 +1785,13 @@
     "Model": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "from": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-        "line": 24
+        "line": 25
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
@@ -1801,7 +1801,7 @@
     "selected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-        "line": 27
+        "line": 28
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -1811,13 +1811,19 @@
     "installedFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-        "line": 36
+        "line": 37
+      }
+    ],
+    "simplifiedChinese": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
+        "line": 103
       }
     ],
     "runtimeError": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-        "line": 104
+        "line": 115
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -5083,7 +5089,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 666
+        "line": 680
       }
     ],
     "cue": [
@@ -5196,16 +5202,22 @@
         "line": 67
       }
     ],
+    "lastBodyChange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
+        "line": 69
+      }
+    ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 210
+        "line": 223
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 638
+        "line": 652
       }
     ],
     "current": [
@@ -7137,7 +7149,7 @@
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 193
+        "line": 194
       }
     ],
     "qualifies": [
@@ -11882,6 +11894,12 @@
         "line": 17
       }
     ],
+    "LocalWhisperScriptTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt",
+        "line": 11
+      }
+    ],
     "LuluCallFloatingWindowTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt",
@@ -14000,8 +14018,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
-      "lines": 697,
-      "sha256": "54d12e4fba295ef511004e2cd747630df4e4eadd1ac0241cd22c243cd5fb735d",
+      "lines": 792,
+      "sha256": "0deb454f22875d04feecaa57265423fe01db851e326757c1effdd515831a3989",
       "symbols": []
     },
     {
@@ -14734,32 +14752,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-      "lines": 116,
-      "sha256": "4da213a0d240a533280c61f144fd93e760d3604d10298f08ced60a62e3551b1f",
+      "lines": 127,
+      "sha256": "caba2d91ffd76c9c3779f3de35cb3b43bc7c703a02b620f7a6687266dfaf19e2",
       "symbols": [
         {
           "name": "Model",
-          "line": 19
+          "line": 20
         },
         {
           "name": "from",
-          "line": 24
+          "line": 25
         },
         {
           "name": "selected",
-          "line": 27
+          "line": 28
         },
         {
           "name": "installedFile",
-          "line": 36
+          "line": 37
         },
         {
           "name": "remove",
-          "line": 39
+          "line": 40
+        },
+        {
+          "name": "simplifiedChinese",
+          "line": 103
         },
         {
           "name": "runtimeError",
-          "line": 104
+          "line": 115
         }
       ]
     },
@@ -18007,8 +18029,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 751,
-      "sha256": "b014f8aae787944b3f6a7de7211ac9cdde69b58cf5e1d3f6a3f23b8ed996f641",
+      "lines": 765,
+      "sha256": "729392e180786164b5933299772d8ea4842462d1b4f494ee29e46bb11a76327f",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -18027,20 +18049,24 @@
           "line": 67
         },
         {
+          "name": "lastBodyChange",
+          "line": 69
+        },
+        {
           "name": "afterglowContext",
-          "line": 210
+          "line": 223
         },
         {
           "name": "profileContext",
-          "line": 638
+          "line": 652
         },
         {
           "name": "compactContext",
-          "line": 666
+          "line": 680
         },
         {
           "name": "context",
-          "line": 704
+          "line": 718
         }
       ]
     },
@@ -20144,8 +20170,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 200,
-      "sha256": "a058324db5fd1ee17b1c928cc31d19b55c2463e43d16a0da3713aef1adcfd4c6",
+      "lines": 202,
+      "sha256": "f7e2e549ad0d1e2dbb1f60341296edbbc878eb59cca6099474d5306188b3e012",
       "symbols": [
         {
           "name": "toJson",
@@ -20205,7 +20231,7 @@
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 193
+          "line": 194
         }
       ]
     },
@@ -26005,6 +26031,17 @@
         {
           "name": "Live2DVisualActionBusTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt",
+      "lines": 17,
+      "sha256": "1822dd989116611e07b44b66e4eb97ecb2d016e492e87fc78d3bf024a037bca1",
+      "symbols": [
+        {
+          "name": "LocalWhisperScriptTest",
+          "line": 11
         }
       ]
     },
