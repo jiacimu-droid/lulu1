@@ -552,13 +552,13 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
         // Explicitly requested rewrite skips additive legacy migrations.
-        assertEquals(14, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("speechHabits"),
+        assertEquals(15, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("speechHabits"),
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV14Persona, MigratedDomainStores.characters.get(role.characterId).persona)
         assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("care"), upgraded.getJSONObject("profile").getString("care"))
-        assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals("用户自定义的人设", upgraded.getJSONObject("jiangDuV9Backup").getString("persona"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("主人"))
@@ -592,7 +592,7 @@ class OnlineChatExperienceTest {
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
         assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
-        assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").toString())
         assertEquals(actualHistory, SharedExperienceTimeline.all(role.characterId))

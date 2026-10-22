@@ -271,6 +271,14 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v15: restore pre-v14 details only when the field still matches the
+        // v14 program default. Never overwrite a user's own edits (even "").
+        CharacterProfileSchema.jiangDuV15Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) || previous == CharacterProfileSchema.jiangDuV14Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
