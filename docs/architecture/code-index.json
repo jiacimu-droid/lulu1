@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:14:55.141288+00:00",
-  "commit": "e0dbdea684ac64d6ddd4ddc40c32ac1296909196",
+  "generatedAt": "2026-10-22T03:17:32.738694+00:00",
+  "commit": "f2dc22f42157f10043dd1feb0a45e26d0ff9fa73",
   "branch": "main",
-  "sourceFingerprint": "07dc53debfd235f6871c0a48bbf59daffcf2ec20cb2f3d0756db67591f75bcc3",
+  "sourceFingerprint": "ebcba9664122212fff8c5d4ebcea41bc30ec57df490d41c80d12158e5f53cfd0",
   "summary": {
     "files": 790,
-    "lines": 150119,
+    "lines": 150122,
     "symbols": 2260
   },
   "symbolIndex": {
@@ -13748,8 +13748,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 286,
-      "sha256": "8c44e0b174d58b72c0fc45745d18fe2f8bcc4c87ee70737078956626c0a91551",
+      "lines": 289,
+      "sha256": "e1cfd3fdfd0cd65231921878a0e2e8be20a29a835ec8bbb7574b269f7b924467",
       "symbols": [
         {
           "name": "notifyCoreChanged",
