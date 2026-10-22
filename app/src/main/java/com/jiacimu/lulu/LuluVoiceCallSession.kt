@@ -1256,7 +1256,7 @@ internal object LuluVoiceCallSession {
                 return@launch
             }
             val spoken = systemUtteranceBuffer.trim()
-            if (spoken.isBlank()) return@launch
+            if (!PhoneTranscriptEvidence.isConfirmedSpeech(spoken)) return@launch
             systemUtteranceBuffer = ""
             systemPartialCandidate = ""
             systemCommitJob = null
@@ -1885,7 +1885,7 @@ internal object LuluVoiceCallSession {
                 // Never interrupt loudspeaker output or publish its tentative
                 // words as the user's speech. Pending synthesis is interruptible;
                 // already audible speech is not. Final text is gated again.
-                if (candidate.isNotBlank() && !isEcho && safeCapture &&
+                if (PhoneTranscriptEvidence.isConfirmedSpeech(candidate) && !isEcho && safeCapture &&
                     PhoneBargeInPolicy.safePartialBargeIn(
                         candidate, privateCallOutput(), characterAudio)) {
                     if (!providerSpeechConfirmed) {
@@ -1896,7 +1896,8 @@ internal object LuluVoiceCallSession {
                     interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
                 }
                 if (!isEcho && safeCapture) mutableState.update {
-                    it.copy(partialTranscript = text, userSpeaking = candidate.isNotBlank())
+                    it.copy(partialTranscript = if (PhoneTranscriptEvidence.isConfirmedSpeech(candidate)) text else "",
+                        userSpeaking = PhoneTranscriptEvidence.isConfirmedSpeech(candidate))
                 }
             } },
             onText = { text, acousticNote ->
@@ -1919,11 +1920,11 @@ internal object LuluVoiceCallSession {
                     // Check BEFORE calling handleUserSpeech: it writes sender=User
                     // and begins another model reply. Speaker TTS must never
                     // manufacture one of those turns.
-                    if (text.isNotBlank() && !isEcho && safeCapture) {
+                    if (PhoneTranscriptEvidence.isConfirmedSpeech(text) && !isEcho && safeCapture) {
                         interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
                         handleUserSpeech(text, allowWhileMuted = true, acousticNote = acousticNote)
                     }
-                    if (isEcho || !safeCapture) mutableState.update {
+                    if (isEcho || !safeCapture || !PhoneTranscriptEvidence.isConfirmedSpeech(text)) mutableState.update {
                         it.copy(partialTranscript = "", userSpeaking = false)
                     }
                 }
