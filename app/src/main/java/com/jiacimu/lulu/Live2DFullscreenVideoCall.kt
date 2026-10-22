@@ -131,6 +131,9 @@ internal fun Live2DFullscreenVideoCall(
                 previewHead = cue?.head ?: manualHead,
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 onStatus = { phase, detail ->
+                    // A dead WebView can still emit queued console messages after
+                    // onRenderProcessGone. Never recreate it without user retry.
+                    if (stageStatus == "fatal" && phase != "fatal") return@Live2DCallStage
                     if (phase == "parameters") {
                         reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
