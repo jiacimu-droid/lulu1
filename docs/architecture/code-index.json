@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T06:59:39.376504+00:00",
-  "commit": "5c85a0362d06dde31ce2bd4916043c8e674612e6",
+  "generatedAt": "2026-10-22T07:00:14.065506+00:00",
+  "commit": "db1fbf03846afaedc5d61c8b82d6e4686d73e1da",
   "branch": "main",
-  "sourceFingerprint": "11b9d62285c0c7c6a165d813845697bd350a635195ca874901031e10afdcfaf0",
+  "sourceFingerprint": "110b6c6bc73e7ea18bd9647476112908c6604c6faab151ff83ecf7116cdf4320",
   "summary": {
-    "files": 795,
-    "lines": 151344,
-    "symbols": 2278
+    "files": 797,
+    "lines": 151413,
+    "symbols": 2280
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11320,6 +11320,12 @@
         "line": 17
       }
     ],
+    "Live2DFrameStatsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt",
+        "line": 7
+      }
+    ],
     "Live2DMobileTextureAdapterTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt",
@@ -11342,6 +11348,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt",
         "line": 19
+      }
+    ],
+    "Live2DSpeechTimelineTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt",
+        "line": 6
       }
     ],
     "Live2DVisualActionBusTest": [
@@ -24817,6 +24829,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt",
+      "lines": 35,
+      "sha256": "bcf35e5687d155980a4b27fe5d8a1f976762df356862ff298a83011827c58acc",
+      "symbols": [
+        {
+          "name": "Live2DFrameStatsTest",
+          "line": 7
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt",
       "lines": 50,
       "sha256": "cbfc312eeb83f23dadc6288bd11a1dccf8aee7e5ac15b52e96f499cd2ef703cd",
@@ -24857,6 +24880,17 @@
         {
           "name": "Live2DSampleModelTest",
           "line": 19
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt",
+      "lines": 34,
+      "sha256": "2d9eb9f2fb48f391194215f9438eaccdb87cfe1cda7b5be90c2484e102bf3d1d",
+      "symbols": [
+        {
+          "name": "Live2DSpeechTimelineTest",
+          "line": 6
         }
       ]
     },

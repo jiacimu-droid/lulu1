@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5c85a0362d06dde31ce2bd4916043c8e674612e6`
+- 基准提交：`db1fbf03846afaedc5d61c8b82d6e4686d73e1da`
 - 分支：`main`
-- 已索引文件：795
-- 已索引代码/文本行：151344
-- 已发现符号：2278
+- 已索引文件：797
+- 已索引代码/文本行：151413
+- 已发现符号：2280
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -592,10 +592,12 @@
 | `app/src/test/java/com/jiacimu/lulu/DigitalResidentFurniturePoseTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 35 | 1 |
