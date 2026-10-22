@@ -48,6 +48,99 @@ detect_chromium() {
   return 1
 }
 
+
+# v2.5.0 detects login through one CSS selector, which can disappear after
+# site updates. Add page-state detection and NEW web_session cookie evidence.
+# Do not infer login merely because the phone acknowledged the QR; an actual
+# authenticated browser state or fresh browser session is required.
+repair_login_source() {
+  local login="$ROOT/source/xiaohongshu/login.go"
+  [[ -f "$login" ]] || { echo "缺少上游登录源码：$login" >&2; return 1; }
+  python3 - "$login" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1])
+s = p.read_text()
+marker = "// LULU_LOGIN_V2_CHECK"
+if marker in s:
+    print("登录兼容补丁已经存在")
+    sys.exit(0)
+checks = [
+    "func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {",
+    "// CurrentUser 当前登录用户的基础信息。",
+    "func (a *LoginAction) WaitForLogin(ctx context.Context) bool {",
+    "func (a *LoginAction) FetchQrcodeImage(ctx context.Context) (string, bool, error) {",
+    "if exists, _, _ := pp.Has(\".main-container .user .link-wrapper .channel\"); exists {",
+]
+if any(s.count(n) != 1 for n in checks) or '"strings"' in s:
+    raise SystemExit("上游登录文件与 v2.5.0 预期不同，未修改")
+s = s.replace('"encoding/json"\n', '"encoding/json"\n\t"strings"\n', 1)
+start = s.index(checks[0])
+end = s.index(checks[1])
+replacement = '''// LULU_LOGIN_V2_CHECK: multiple *actual* browser-login signals.
+// A QR being scanned in the phone app alone is NOT authentication evidence.
+func (a *LoginAction) browserPageLoggedIn(ctx context.Context) bool {
+    pp := a.page.Context(ctx).Timeout(3 * time.Second)
+    res, err := pp.Eval("() => { const state=window.__INITIAL_STATE__; const user=state&&state.user; const info=user&&user.userInfo&&(user.userInfo.value!==undefined?user.userInfo.value:user.userInfo); const hasAccount=!!(info && info.guest!==true && (info.userId||info.user_id)); const oldSelector=!!document.querySelector('.main-container .user .link-wrapper .channel'); return hasAccount || oldSelector; }")
+    return err == nil && res.Value.Bool()
+}
+
+// Only a newly issued session cookie can complete a QR wait. The cookie
+// itself is never logged. A subsequent status probe must still verify the page.
+func (a *LoginAction) loginSessionCookie() string {
+    items, err := a.page.Browser().GetCookies()
+    if err != nil { return "" }
+    for _, item := range items {
+        if item.Name == "web_session" && item.Value != "" &&
+            (item.Domain == "xiaohongshu.com" || strings.HasSuffix(item.Domain, ".xiaohongshu.com")) {
+            return item.Value
+        }
+    }
+    return ""
+}
+
+func (a *LoginAction) CheckLoginStatus(ctx context.Context) (bool, error) {
+    pp := a.page.Context(ctx).Timeout(30 * time.Second)
+    pp.MustNavigate("https://www.xiaohongshu.com/explore").MustWaitLoad()
+    for i := 0; i < 4; i++ {
+        if a.browserPageLoggedIn(ctx) { return true, nil }
+        if err := ctx.Err(); err != nil { return false, err }
+        time.Sleep(750 * time.Millisecond)
+    }
+    return false, nil
+}
+
+'''
+s = s[:start] + replacement + s[end:]
+qr = 'if exists, _, _ := pp.Has(".main-container .user .link-wrapper .channel"); exists {'
+idx = s.index(checks[3])
+start_qr = s[:idx]
+part_qr = s[idx:]
+if part_qr.count(qr) != 1:
+    raise SystemExit("扫码页登录判断与预期不一致，未修改")
+part_qr = part_qr.replace(qr, 'if a.browserPageLoggedIn(ctx) {', 1)
+s = start_qr + part_qr
+start = s.index(checks[2])
+s = s[:start] + '''func (a *LoginAction) WaitForLogin(ctx context.Context) bool {
+    initialCookie := a.loginSessionCookie()
+    ticker := time.NewTicker(500 * time.Millisecond)
+    defer ticker.Stop()
+    for {
+        select {
+        case <-ctx.Done():
+            return false
+        case <-ticker.C:
+            if a.browserPageLoggedIn(ctx) { return true }
+            current := a.loginSessionCookie()
+            if current != "" && current != initialCookie { return true }
+        }
+    }
+}
+'''
+p.write_text(s)
+print("已补充浏览器账号状态和新会话 Cookie 检测（扫码确认仍需真实验证）")
+PY
+}
+
 install_xhs() {
   need curl; need tar; need go; need python3
   if ! go version | grep -Eq 'go1\.(2[4-9]|[3-9][0-9])'; then
@@ -86,6 +179,7 @@ override = """func EnsureBrowser() (string, error) {
 """
 p.write_text(source.replace(needle, override, 1))
 PY
+  repair_login_source
   (cd "$sourceDir"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$APP" .)
   chmod 700 "$APP"
   ensure_token
@@ -146,11 +240,41 @@ status_xhs() {
   fi
   echo "Cookie固定位置：$COOKIE；敏感 Token：$AUTH_FILE"
 }
+
+repair_login() {
+  need python3; need go
+  [[ -f "$ROOT/source/xiaohongshu/login.go" ]] || {
+    echo "缺少上次下载的源码，先核对 $ROOT/source" >&2; exit 1;
+  }
+  # Preserve the original login source and the previous working binary.
+  if [[ ! -f "$ROOT/source/xiaohongshu/login.go.before-lulu" ]]; then
+    cp "$ROOT/source/xiaohongshu/login.go" "$ROOT/source/xiaohongshu/login.go.before-lulu"
+  fi
+  repair_login_source
+  local candidate="$APP.next.$"
+  if ! (cd "$ROOT/source"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$candidate" .); then
+    rm -f "$candidate"
+    echo "Go 编译失败，原 MCP 程序和 Cookie 均保留" >&2
+    exit 1
+  fi
+  chmod 700 "$candidate"
+  mv -f "$candidate" "$APP"
+  echo "登录检测增强版已编译；Cookie、Token 和地址均未改变"
+  if alive "$PID_FILE"; then
+    echo "重启本机 MCP，继续使用指定的 Xvfb DISPLAY"
+    stop_xhs
+    start_xhs
+  else
+    echo "服务原本未运行。请用 LULU_XHS_DISPLAY=:100 bash arm64-proot.sh start 启动"
+  fi
+}
+
 case "$ACTION" in
   install) install_xhs ;;
+  repair-login) repair_login ;;
   start) start_xhs ;;
   restart) stop_xhs; start_xhs ;;
   stop) stop_xhs ;;
   status) status_xhs ;;
-  *) echo "用法：bash arm64-proot.sh {install|start|status|restart|stop}" >&2; exit 2 ;;
+  *) echo "用法：bash arm64-proot.sh {install|repair-login|start|status|restart|stop}" >&2; exit 2 ;;
 esac
