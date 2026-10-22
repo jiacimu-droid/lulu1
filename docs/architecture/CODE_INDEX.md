@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e3fa6388d87dc8cb18ff0192bfe7ae89830ae391`
+- 基准提交：`45cc3878ea354639ca8e8d8221a40466d09e0b88`
 - 分支：`main`
 - 已索引文件：813
-- 已索引代码/文本行：155082
-- 已发现符号：2335
+- 已索引代码/文本行：155110
+- 已发现符号：2336
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -389,7 +389,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 902 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 135 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 38 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulus.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionStimulusLedger.kt` | 58 | 1 |
