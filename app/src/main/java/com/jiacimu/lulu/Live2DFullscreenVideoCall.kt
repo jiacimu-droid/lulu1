@@ -64,6 +64,9 @@ internal fun Live2DFullscreenVideoCall(
         onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
     }
     var showDebugMenu by remember(modelUrl) { mutableStateOf(false) }
+    // Familiar face-first framing for calls; the user can pull back to a full
+    // body without reloading the model or interrupting the call audio.
+    var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
     val cameraContext = LocalContext.current
     var selfCameraEnabled by remember { mutableStateOf(false) }
     var cameraFailure by remember { mutableStateOf("") }
@@ -86,6 +89,7 @@ internal fun Live2DFullscreenVideoCall(
         }
     }
     var renderRetry by remember(modelUrl) { mutableIntStateOf(0) }
+    var nativeFrameReady by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
@@ -116,7 +120,8 @@ internal fun Live2DFullscreenVideoCall(
         creatorPreviewDimensions(creatorPreview)
     }
     Box(Modifier.fillMaxSize().background(Color(0xFF151719))) {
-        // Fill the entire portrait call screen. The complete model remains fitted, not cropped.
+        // The stage can switch between waist-up and full-body framing without
+        // destroying its native WebView or touching the existing audio session.
         // A terminated GPU renderer must be removed from the hierarchy before
         // creating another WebView. Never keep a dead native view on screen.
         if (modelUrl != null && coreReady && stageStatus != "fatal") {
@@ -131,6 +136,10 @@ internal fun Live2DFullscreenVideoCall(
                 previewMotion = cue?.motion ?: previewMotion,
                 previewHead = cue?.head ?: manualHead,
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
+                // Both imported models and Hiyori were verified on the actual
+                // device only through the native Compose presentation path.
+                nativeMirrorEnabled = true,
+                framingMode = framingMode,
                 onStatus = { phase, detail ->
                     // A dead WebView can still emit queued console messages after
                     // onRenderProcessGone. Never recreate it without user retry.
@@ -139,16 +148,35 @@ internal fun Live2DFullscreenVideoCall(
                         reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
                             state.callExperienceId, detail)
+                    } else if (phase == "diagnostic" &&
+                        detail.startsWith("原生 Compose 画面桥接已取得首帧")) {
+                        // A JS 'ready' event validates offscreen pixels only.
+                        // The actual Native Compose image exists at this point.
+                        nativeFrameReady = true
+                        stageStatus = "ready"
+                        stageDetail = detail
+                        Live2DVisualActionBus.stageReady(characterId, state.callExperienceId)
                     } else if (phase == "diagnostic" || phase == "step" || phase == "resource") {
                         // Diagnostics are not model readiness. In particular, a
                         // successful GPU capability probe must never hide the fallback.
                         stageDetail = detail
+                    } else if (phase == "ready") {
+                        // Do not remove the creator portrait while this device
+                        // is still waiting for its FIRST native-frame callback.
+                        if (!nativeFrameReady) {
+                            stageStatus = "loading"
+                            stageDetail = "模型已绘制，正在转为 Android 原生画面…"
+                        }
+                    } else if (nativeFrameReady && phase == "loading") {
+                        // A delayed WebView log must not conceal a live native image.
+                        stageDetail = detail
                     } else {
                         stageStatus = phase
                         stageDetail = detail
-                        if (phase == "ready") Live2DVisualActionBus.stageReady(
-                            characterId, state.callExperienceId)
-                        else Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+                        if (phase == "error" || phase == "fatal") {
+                            nativeFrameReady = false
+                            Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+                        }
                     }
                 },
             )
@@ -169,6 +197,33 @@ internal fun Live2DFullscreenVideoCall(
                         }
                     },
                 )
+            }
+        }
+        // Deliberately keep this switch OUTSIDE the model renderer. It changes
+        // its camera fit in-place, not the character, assets, or phone session.
+        if (modelUrl != null && coreReady) {
+            Row(
+                modifier = Modifier.align(Alignment.TopStart).statusBarsPadding()
+                    .padding(start = 18.dp, top = 92.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color.Black.copy(alpha = .55f))
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                listOf("portrait" to "半身", "full" to "全身").forEach { (mode, label) ->
+                    val selected = framingMode == mode
+                    Box(
+                        modifier = Modifier.clip(RoundedCornerShape(36.dp))
+                            .background(if (selected) Color.White else Color.Transparent)
+                            .clickable { framingMode = mode }
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(label, fontSize = 12.sp,
+                            color = if (selected) Color(0xFF151719) else Color.White,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
+                    }
+                }
             }
         }
         // Opt-in on-device-only front-camera picture-in-picture. No frame ever leaves
@@ -299,6 +354,7 @@ internal fun Live2DFullscreenVideoCall(
                         stageStatus = "loading"
                         stageDetail = "正在重新创建 Live2D 图形画面…"
                         reportedAngles = ""
+                        nativeFrameReady = false
                         renderRetry++
                     }) {
                         Text("重新载入动态人物", color = Color.White, fontSize = 12.sp)
