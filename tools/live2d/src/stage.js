@@ -6,7 +6,8 @@ import * as PIXI from 'pixi.js'
 import { install as installCspShaderAdapter } from '@pixi/unsafe-eval'
 import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 import { CubismParameterAccess } from './cubism-parameters.mjs'
-import { createPoseSpring } from './pose-spring.mjs'
+import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
+import { createPerformanceRuntime } from './speech-performance.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -59,8 +60,6 @@ let headRequest = null
 let headRequestEndAt = 0
 let pendingExpressionName = null
 let pendingSpeechParts = null
-let pendingPerformance = null
-let activePerformance = null
 let activeExpressionName = null
 let activeExpressionStartedAt = 0
 let activeExpressionIsPreview = false
@@ -73,19 +72,6 @@ let faceRequestStartedAt = 0
 let proceduralBlinkEnabled = false
 let blinkClock = 4.4
 let blinkProgress = -1
-const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06)
-const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1)
-const smoothFace = Object.create(null)
-// Imported rigs can have physics-driven secondary skull/torso angles besides
-// the main ParamAngleX/Y/Z. These actual IDs occur in the wolf physics3.json.
-// Keep hair, ears and clothing physics active even when the skull is neutral.
-const SECONDARY_HEAD_IDS = ['ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2']
-const SECONDARY_BODY_IDS = ['body_gensui_x', 'body_gensui_y', 'body_gensui_y2',
-  'body_gensui_y3', 'body_gensui_z']
-let secondaryHeadMotionMix = 0
-let secondaryBodyMotionMix = 0
-// Keep eye contact with the camera while idle. No random gaze wandering:
- // looking away is a deliberate character action with a bounded lifetime.
 let smoothedMouthOpen = 0
 let mouthReleaseUntil = 0
 let lastRealMouthSignalAt = 0
@@ -103,20 +89,10 @@ const hasParameter = (core, id) => cubismParameters.has(core, id)
 const getParameter = (core, id) => cubismParameters.read(core, id)
 const setParameter = (core, id, value) => cubismParameters.write(core, id, value)
 
-const FACE_BINDINGS = {
-  gazeX: ['ParamEyeBallX'], gazeY: ['ParamEyeBallY'],
-  smile: ['ParamMouthForm'],
-  eyeSmile: ['ParamEyeLSmile', 'ParamEyeRSmile'],
-  eyeOpen: ['ParamEyeLOpen', 'ParamEyeROpen'],
-  browX: ['ParamBrowLX', 'ParamBrowRX'],
-  browY: ['ParamBrowLY', 'ParamBrowRY'],
-  browAngle: ['ParamBrowLAngle', 'ParamBrowRAngle'],
-  browForm: ['ParamBrowLForm', 'ParamBrowRForm'],
-  squint: ['ParamEyeLSquint', 'ParamEyeRSquint'],
-  cheekPuff: ['ParamCheekPuff'], pout: ['ParamMouthFunnel'],
-}
-const BODY_BINDINGS = { yaw: 'ParamBodyAngleX', pitch: 'ParamBodyAngleY', roll: 'ParamBodyAngleZ' }
-
+const visualLayers = createVisualLayerRuntime({
+  has: hasParameter, read: getParameter, write: setParameter,
+})
+const performanceRuntime = createPerformanceRuntime()
 
 function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
@@ -318,31 +294,14 @@ function applyFinalParameters(core, deltaMs) {
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   const timeNow = Date.now()
-  // Performance is a series of intentional character-selected beats from
-  // ONE model response. Advance only with audible playback; never spawn
-  // additional LLM calls or random idle head actions.
-  if (activePerformance) {
-    // Spring physics intentionally clamps deltaMs to preserve stability.
-    // Choreography timing MUST instead follow actual audible elapsed time:
-    // a 6fps JPEG bridge still advances ~167 ms per frame, not 60 ms.
-    const actualFrameMs = Math.min(300,
-      Math.max(0, timeNow - activePerformance.lastTickAt))
-    activePerformance.lastTickAt = timeNow
-    if (playing || activePerformance.allowSilent) {
-      activePerformance.elapsedMs += actualFrameMs
-      while (activePerformance.index < activePerformance.beats.length &&
-          activePerformance.beats[activePerformance.index].atMs <= activePerformance.elapsedMs) {
-        const beat = activePerformance.beats[activePerformance.index++]
-        if (beat.expression) startSpeechExpression(beat.expression, activePerformance.allowSilent)
-        if (beat.head) head(beat.head, true)
-        if (beat.body) body(beat.body, true)
-        if (beat.face) face(beat.face, true)
-      }
-      if (activePerformance.index >= activePerformance.beats.length) activePerformance = null
-    } else if (timeNow - activePerformance.createdAt > 22000) {
-      activePerformance = null // a never-resumed TTS must not replay stale beats
-    }
-  }
+  // Score and physics are separate. A low rendering FPS cannot slow the
+  // audio timeline; a failed TTS must never leave queued facial actions.
+  performanceRuntime.tick(beat => {
+    if (beat.expression) startSpeechExpression(beat.expression)
+    if (beat.head) head(beat.head, true)
+    if (beat.body) body(beat.body, true)
+    if (beat.face) face(beat.face, true)
+  })
   // Expression cues are emotional beats, not permanent faces. Let gaps
   // between TTS fragments breathe, while bounding even long monologues.
   if (activeExpressionName &&
@@ -353,82 +312,18 @@ function applyFinalParameters(core, deltaMs) {
   if ((pendingExpressionName &&
        timeNow - pendingExpressionName.queuedAt > 20000) ||
       (pendingSpeechParts &&
-       timeNow - pendingSpeechParts.queuedAt > 20000) ||
-      (pendingPerformance && timeNow - pendingPerformance.queuedAt > 20000)) {
-    // Never carry a previous, unheard body cue to the next phone turn.
+       timeNow - pendingSpeechParts.queuedAt > 20000)) {
     pendingExpressionName = null
     pendingSpeechParts = null
-    pendingPerformance = null
   }
-  // By default the iris must continuously target the center of the screen;
-  // the imported model's idle animation / focus controller can otherwise
-  // rewrite it after a near-zero gaze value was "released".
-  // The user's video-call camera is directly in front of the avatar.
-  // Authored idle animations can swing the entire skull forever, making eye
-  // contact impossible. Override ONLY head angles to a stable front-facing
-  // posture AFTER the authored motion runs. Intentional head cues still work.
-  const axes = [
-    ['ParamAngleX', 'yaw'],
-    ['ParamAngleY', 'pitch'],
-    ['ParamAngleZ', 'roll'],
-  ]
-  // AIRI-style critically damped pose spring: smooth approach to a
-  // deliberate pose, smoothly return to neutral, with no idle oscillation.
-  const headPose = headSpring.step(headRequest, deltaMs)
-  const bodyPose = bodySpring.step(bodyRequest, deltaMs)
-  for (const [id, axis] of axes) {
-    if (hasParameter(core, id)) setParameter(core, id, headPose[axis])
-  }
-  for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-    if (hasParameter(core, id)) setParameter(core, id, bodyPose[axis])
-  }
-  // The physics solver runs before the final parameter callback. Secondary
-  // head/torso follow-through can visibly sway even when the primary angles
-  // are exactly zero. Blend away ONLY these parameters in idle pose.
-  const followStep = Math.min(1, Math.max(0, deltaMs) * .014)
-  secondaryHeadMotionMix += ((headRequest ? 1 : 0) -
-    secondaryHeadMotionMix) * followStep
-  secondaryBodyMotionMix += ((bodyRequest ? 1 : 0) -
-    secondaryBodyMotionMix) * followStep
-  if (!headRequest && secondaryHeadMotionMix < .008) secondaryHeadMotionMix = 0
-  if (!bodyRequest && secondaryBodyMotionMix < .008) secondaryBodyMotionMix = 0
-  for (const id of SECONDARY_HEAD_IDS) {
-    if (!hasParameter(core, id)) continue
-    setParameter(core, id, (getParameter(core, id) ?? 0) * secondaryHeadMotionMix)
-  }
-  for (const id of SECONDARY_BODY_IDS) {
-    if (!hasParameter(core, id)) continue
-    setParameter(core, id, (getParameter(core, id) ?? 0) * secondaryBodyMotionMix)
-  }
-  for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
-    // Eye tracking and facial states can combine with authored expression
-    // files (e.g. blush). They are NOT selected randomly each animation frame.
-    if (ids.some(id => !hasParameter(core, id))) continue
-    const requested = faceRequest?.[key]
-    const eyeContact = key === 'gazeX' || key === 'gazeY'
-    const resting = key === 'eyeOpen' ? 1 : 0
-    const hasPriorCue = Object.prototype.hasOwnProperty.call(smoothFace, key)
-    // Avoid overriding imported expressions during idle. But if we previously
-    // owned this channel, we must write it back to neutral once, then release.
-    if (!eyeContact && requested == null && !hasPriorCue) continue
-    const previous = hasPriorCue ? smoothFace[key] :
-      (key === 'eyeOpen' ? (getParameter(core, ids[0]) ?? 1) : 0)
-    // Subtle voiced modulation only when the character CHOSE a smile/eye
-    // expression. No spontaneous head sway, forced emotional state or API call.
-    const expressiveVoice = playing && requested != null &&
-      (key === 'smile' || key === 'eyeSmile' || key === 'squint')
-    const modulated = expressiveVoice ?
-      requested * (0.94 + 0.06 * Math.sin(seconds * 7.5)) : requested
-    const target = modulated ?? resting
-    let next = previous + (target - previous) * Math.min(1, deltaMs * .012)
-    if (requested == null && Math.abs(next - resting) < .015) {
-      for (const id of ids) setParameter(core, id, resting)
-      delete smoothFace[key]
-      continue
-    }
-    smoothFace[key] = next
-    for (const id of ids) setParameter(core, id, next)
-  }
+  // AIRI-style final-phase ownership: normal motion/physics already ran.
+  // Hold steady eye contact, spring deliberate poses, release expressions,
+  // and preserve subtle dedicated breathing; passive blink and speech mouth
+  // remain subsequent independent layers.
+  visualLayers.update(core, {
+    deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
+    speaking: playing, seconds,
+  })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
@@ -651,15 +546,12 @@ async function load(modelURL) {
 // Moment state is driven by the Android phone player's actual audible
 // events, not merely an LLM response or a pending TTS network request.
 function activatePendingSpeechMoment() {
-  if (!pendingExpressionName && !pendingSpeechParts && !pendingPerformance) return
+  if (!pendingExpressionName && !pendingSpeechParts) return
   const selected = pendingExpressionName?.name
   const parts = pendingSpeechParts
-  const performance = pendingPerformance
   pendingExpressionName = null
   pendingSpeechParts = null
-  pendingPerformance = null
   if (selected) startSpeechExpression(selected)
-  if (performance) beginPerformance(performance.beats, false)
   if (parts?.head) head(parts.head)
   if (parts?.body) body(parts.body)
   if (parts?.face) face(parts.face)
@@ -667,6 +559,7 @@ function activatePendingSpeechMoment() {
 function onPlaybackEvent(phase) {
   if (phase === 'playing') {
     playing = true
+    performanceRuntime.startSpeech()
     lastSpeechSoundAt = Date.now()
     speakingBeganAt = Date.now()
     fallbackSpeechSeed = Math.random() * 4
@@ -675,6 +568,7 @@ function onPlaybackEvent(phase) {
   }
   if (phase !== 'finished' && phase !== 'interrupted') return
   playing = false
+  performanceRuntime.stopSpeech()
   mouth = 0
   pcmAvailable = false
   lastRealMouthSignalAt = 0
@@ -686,11 +580,7 @@ function onPlaybackEvent(phase) {
   // A short reply must still show its facial expression for a moment after
   // the audio ends; otherwise a one-second star-eye cue is barely visible.
   // A genuine interruption, on the other hand, clears it immediately.
-  if (phase === 'interrupted') {
-    resetSpeechExpression()
-    activePerformance = null
-    pendingPerformance = null
-  }
+  if (phase === 'interrupted') resetSpeechExpression()
   else lastSpeechSoundAt = Date.now()
   // Keep the mouth's short release tail on normal completion. Interruptions
   // should cancel immediately rather than make the role keep talking.
@@ -712,10 +602,14 @@ function update(next) {
     lastMouthSignal = mouth
   }
   if (playing && !wasPlaying) {
+    performanceRuntime.startSpeech()
     speakingBeganAt = Date.now()
     fallbackSpeechSeed = Math.random() * 4
   }
-  if (!playing) mouth = 0
+  if (!playing) {
+    mouth = 0
+    if (wasPlaying) performanceRuntime.stopSpeech()
+  }
   if (playing) {
     lastSpeechSoundAt = Date.now()
     // The older call providers only expose speaking status. Real TTS timeline
@@ -972,33 +866,9 @@ function expression(name, immediatePreview = false) {
 }
 // AIRI-inspired staged expressivity: separate authored visual beats use the
 // SAME phone turn and timeline, not an independent personality/animation LLM.
-function beginPerformance(beats, allowSilent) {
-  if (!beats.length) return
-  activePerformance = {
-    beats,
-    index: 0,
-    elapsedMs: 0,
-    createdAt: Date.now(),
-    lastTickAt: Date.now(),
-    allowSilent,
-  }
-}
 function choreography(beats, immediatePreview = false) {
-  if (!model || !Array.isArray(beats) || !beats.length) return
-  // Validate twice: Android already filters by the actual .moc3 model and
-  // exp3 manifest, while JS enforces a bounded, non-executable local script.
-  const eligible = beats.slice(0, 16).filter(beat =>
-    beat && Number.isFinite(beat.atMs) &&
-    beat.atMs >= 0 && beat.atMs <= 30000 &&
-    (beat.expression || beat.face || beat.head || beat.body))
-    .sort((a, b) => a.atMs - b.atMs)
-  if (!eligible.length) return
-  if (playing || immediatePreview) {
-    pendingPerformance = null
-    beginPerformance(eligible, !!immediatePreview)
-  } else {
-    pendingPerformance = { beats: eligible, queuedAt: Date.now() }
-  }
+  if (!model) return
+  performanceRuntime.schedule(beats, !!immediatePreview)
 }
 function motion(group, index) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
