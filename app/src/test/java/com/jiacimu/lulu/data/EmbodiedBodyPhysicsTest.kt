@@ -50,7 +50,7 @@ class EmbodiedBodyPhysicsTest {
     }
 
     @Test fun cafeOrderingAloneDoesNotChangeBodyAndEatingUsesCommittedActions() {
-        val before = EmbodiedBodyPhysics.fresh(start)
+        val before = EmbodiedBodyPhysics.fresh(start).copy(hunger = 80.0, thirst = 80.0)
         val order = EmbodiedBodyPhysics.applyWorldActivity(before, "cafe_order_coffee", start, null)
         assertEquals(before, order)
         val drink = EmbodiedBodyPhysics.applyWorldActivity(order, "cafe_consume_coffee", start, null)
