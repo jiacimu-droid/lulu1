@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:45:53.454893+00:00",
-  "commit": "b3a08223638af8931c1f02ecc15e2f03a5097bcb",
+  "generatedAt": "2026-10-22T13:46:12.232844+00:00",
+  "commit": "14cc4aa105589f4dc898a579e27ede7cfe220ed7",
   "branch": "main",
-  "sourceFingerprint": "42901613c0c4ae7323c489c9fec7f1c3bd79ac5ccfa4e292ebf099720c14ebb8",
+  "sourceFingerprint": "b5fd934e9117dc226b915eac22285c2333a1973567db993815ea308307e3fba9",
   "summary": {
     "files": 802,
-    "lines": 153395,
+    "lines": 153401,
     "symbols": 2300
   },
   "symbolIndex": {
@@ -17918,7 +17918,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
       "lines": 321,
-      "sha256": "2f6f5ceca8b90f7f150a391b83db9f3c875503e38fb89694c147669f8f2e57c6",
+      "sha256": "7caca1462175bbb6eb2a94b80167b209f593e64bf2a6c897189f88637eff81c1",
       "symbols": [
         {
           "name": "entries",
@@ -26900,8 +26900,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
-      "lines": 78,
-      "sha256": "cbd37e21e399e0c084ed7f1c526f01b99b54d7e472b2b637c664f55b4383f1f9",
+      "lines": 84,
+      "sha256": "c8688191edbce55388964fd27255e65e27c4799ba1b78e39fbce8b932b75a961",
       "symbols": [
         {
           "name": "PerformanceAuditPersistenceTest",
