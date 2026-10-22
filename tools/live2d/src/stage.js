@@ -18,6 +18,8 @@ console.info('__LULU_LIVE2D__' + JSON.stringify({
 }))
 let app
 let model
+let nativeViewport = { width: 0, height: 0 }
+let inflightModelUrl = null
 let loadSequence = 0
 let previewObserved = false
 let gpuLost = false
@@ -38,6 +40,37 @@ function status(message, phase = message ? 'loading' : 'ready') {
   console.info('__LULU_LIVE2D__' + JSON.stringify({
     type: phase, detail: String(message || '模型渲染完成').slice(0, 200)
   }))
+}
+// Android attaches and measures WebView asynchronously. The JavaScript stage
+// can load while document.body still measures 0x0; keep Android's true viewport
+// as an independent layout source rather than constructing a permanent 1x1 canvas.
+function setViewport(widthPx, heightPx) {
+  if (!Number.isFinite(widthPx) || !Number.isFinite(heightPx) ||
+      widthPx < 20 || heightPx < 20) return
+  nativeViewport = { width: widthPx, height: heightPx }
+  const scale = Math.max(1, window.devicePixelRatio || 1)
+  const widthCss = Math.max(20, Math.round(widthPx / scale))
+  const heightCss = Math.max(20, Math.round(heightPx / scale))
+  // Only force CSS dimensions when the actual WebView document has no viewport.
+  if (root.clientWidth < 20) root.style.width = widthCss + 'px'
+  if (root.clientHeight < 20) root.style.height = heightCss + 'px'
+  if (app && root.clientWidth >= 20 && root.clientHeight >= 20) fit()
+}
+function validViewport() {
+  return root.clientWidth >= 20 && root.clientHeight >= 20
+}
+async function awaitViewport(sequence) {
+  if (window.__luluNativeViewport) {
+    setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
+  }
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (sequence !== loadSequence) return false
+    if (validViewport()) return true
+    await new Promise(resolve => setTimeout(resolve, 150))
+  }
+  throw new Error('手机视频页面未完成布局：DOM ' + root.clientWidth + '×' +
+    root.clientHeight + '；Android ' + nativeViewport.width + '×' +
+    nativeViewport.height + '。请切回语音再打开视频')
 }
 function fit() {
   if (!app) return
@@ -211,12 +244,18 @@ async function load(modelURL) {
     status('Live2D 模型路径不合法')
     return
   }
+  // Native onPageFinished and the async JS bootstrap may announce the same
+  // model simultaneously. One loading attempt must not cancel the other.
+  if (inflightModelUrl === modelURL) return
+  inflightModelUrl = modelURL
   const sequence = ++loadSequence
   previewObserved = false
   status('正在加载 Live2D 模型…')
   try {
     await loadCore()
     if (sequence !== loadSequence) return
+    status('等待手机视频画布完成布局…')
+    if (!await awaitViewport(sequence)) return
     ensureApp()
     gpuLost = false
     // Check native preprocessing errors BEFORE the Pixi model parser can turn
@@ -250,6 +289,8 @@ async function load(modelURL) {
   } catch (error) {
     if (sequence === loadSequence)
       status('无法呈现 Live2D 动态模型：' + (error?.message || String(error)), 'error')
+  } finally {
+    if (sequence === loadSequence) inflightModelUrl = null
   }
 }
 function update(next) {
@@ -281,7 +322,10 @@ function head(target) {
   }
   headRequestEndAt = Date.now() + 1600
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head }
+window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport }
+if (window.__luluNativeViewport) {
+  setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
+}
 if (window.__luluStageState) update(window.__luluStageState)
 if (window.__luluStageModelUrl) load(window.__luluStageModelUrl)
 else status('请选择 Live2D 模型')
