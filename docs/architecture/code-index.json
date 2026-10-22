@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:31:10.394530+00:00",
-  "commit": "251e268dc348dd47a1ef7bc59329862ae742e945",
+  "generatedAt": "2026-10-22T13:31:36.210953+00:00",
+  "commit": "25e8ec62c26ce724935ebbb7fac2f31e490f03fa",
   "branch": "main",
-  "sourceFingerprint": "d6ac59376cb95ac9c3e50cc0c64710b95f9f08a65bae347a3c8721d9855fad8e",
+  "sourceFingerprint": "aebd04751b8f86fc068180087f368b628dae22ec4f517f2bd193da3da193a2b0",
   "summary": {
     "files": 800,
-    "lines": 152944,
+    "lines": 152990,
     "symbols": 2298
   },
   "symbolIndex": {
@@ -7215,31 +7215,31 @@
     "PerformanceTimingRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 74
+        "line": 84
       }
     ],
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 82
+        "line": 92
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 92
+        "line": 102
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 105
+        "line": 115
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 274
+        "line": 302
       }
     ],
     "LuluAppPreferences": [
@@ -19814,8 +19814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 476,
-      "sha256": "a9eff5fb0e8c145e8f0b39d89e60c703b68a5ea86451495780b41ca9658319c7",
+      "lines": 522,
+      "sha256": "31430a4fe7ac9a246a871f44f19919f8e07fae80f026703625916fa6c448abfc",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -19843,23 +19843,23 @@
         },
         {
           "name": "PerformanceTimingRecord",
-          "line": 74
+          "line": 84
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 82
-        },
-        {
-          "name": "List",
           "line": 92
         },
         {
+          "name": "List",
+          "line": 102
+        },
+        {
           "name": "LocalPerformanceRepository",
-          "line": 105
+          "line": 115
         },
         {
           "name": "updateDurations",
-          "line": 274
+          "line": 302
         }
       ]
     },
