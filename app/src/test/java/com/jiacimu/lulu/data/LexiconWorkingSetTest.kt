@@ -66,6 +66,26 @@ class LexiconWorkingSetTest {
         assertTrue("lexicon:diary" in set.selected)
     }
 
+    @Test fun sameRawEventIsIncludedOnceWhenBothRecentAndRecalled() {
+        val event = SharedTimelineEvent(
+            id = "same-observation",
+            characterId = role,
+            channel = "私聊",
+            speaker = "用户",
+            content = "刚才看见一只橘猫",
+            occurredAt = now,
+            evidenceKind = EventEvidenceKind.UserStatement,
+        )
+        val set = working("橘猫", UnifiedMemoryContext(
+            characterId = role,
+            recentEvents = listOf(event),
+            sourceEvents = listOf(event),
+        ))
+        assertTrue("recent:${event.id}" in set.selected)
+        assertFalse("event:${event.id}" in set.selected)
+        assertEquals(1, set.sections.values.joinToString("\n").split("eventId=${event.id}@").size - 1)
+    }
+
     @Test fun pastEmotionRetainsItsSubjectiveMeaningAlongsideTheOriginalEvent() {
         SharedExperienceTimeline.record("event", role, "观察", "执行器", "考试结果发布", triggerExtraction = false)
         val emotion = MemoryEntry("feeling", role, "当时既替她高兴又松了口气", MemoryKind.Emotion,
