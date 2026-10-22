@@ -210,16 +210,10 @@ object LuluMusicSensoryRuntime {
                 val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 val cacheKey = "shared:" + characterId + ":" + digest + ":" + routeHash
                 requestMutex.withLock {
+                    // Old cache entries cannot identify their provider/endpoint.
+                    // Never treat an old model-name match as proof of same audio route.
                     val cachedId = p.getString(cacheKey, "").orEmpty()
-                    val legacyId = if (cachedId.isBlank() && cfg.ready)
-                        p.getString("shared:" + characterId + ":" + digest, "").orEmpty()
-                        else ""
-                    val old = SharedExperienceTimeline.eventsByIds(characterId, listOf(legacyId))
-                        .firstOrNull()
-                    val sameModelLegacy = old?.source == "sensory-music" &&
-                        runCatching { JSONObject(old.content).optString("model") }.getOrDefault("") == cfg.model
-                    val id = cachedId.ifBlank { if (sameModelLegacy) legacyId else "" }
-                    val existing = SharedExperienceTimeline.eventsByIds(characterId, listOf(id))
+                    val existing = SharedExperienceTimeline.eventsByIds(characterId, listOf(cachedId))
                         .firstOrNull()?.takeIf { it.source == "sensory-music" }
                     if (existing != null) {
                         check(p.edit().putString(cacheKey, existing.id)
