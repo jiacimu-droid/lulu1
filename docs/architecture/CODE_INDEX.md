@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c19c0f73739fc1794a6cc48daff736a08451c1e5`
+- 基准提交：`b154f980dd526728dac98fc45c42aadc211b77cf`
 - 分支：`main`
 - 已索引文件：804
-- 已索引代码/文本行：153617
-- 已发现符号：2303
+- 已索引代码/文本行：153686
+- 已发现符号：2305
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -430,7 +430,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeGoalVerification.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/WakeMusicCoordinator.kt` | 86 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 110 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt` | 179 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt` | 154 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeComposer.kt` | 297 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt` | 228 | 6 |

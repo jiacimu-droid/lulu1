@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T14:36:50.283546+00:00",
-  "commit": "c19c0f73739fc1794a6cc48daff736a08451c1e5",
+  "generatedAt": "2026-10-22T15:08:48.462759+00:00",
+  "commit": "b154f980dd526728dac98fc45c42aadc211b77cf",
   "branch": "main",
-  "sourceFingerprint": "c98fe3b407fd557370a94a53f107f6ea635e1dff0bbe1eee0298ce4b93b035be",
+  "sourceFingerprint": "886b4b9458345eeb0bbe24339dab761f27429e63ec1df477bc99e61d43a6e72b",
   "summary": {
     "files": 804,
-    "lines": 153617,
-    "symbols": 2303
+    "lines": 153686,
+    "symbols": 2305
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5659,7 +5659,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 16
+        "line": 19
       }
     ],
     "configure": [
@@ -9033,25 +9033,37 @@
     "savedKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 14
+        "line": 15
       }
     ],
-    "saveKey": [
+    "savedDeepSeekKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
         "line": 17
       }
     ],
+    "saveDeepSeekKey": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
+        "line": 21
+      }
+    ],
+    "saveKey": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
+        "line": 27
+      }
+    ],
     "extract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 25
+        "line": 69
       }
     ],
     "search": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 63
+        "line": 123
       }
     ],
     "WorldFirstExplorationMemory": [
@@ -21952,28 +21964,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-      "lines": 110,
-      "sha256": "dfeb366a81377fae409f5278d07267fe2c8d0deda403d9226699e6bb274225d1",
+      "lines": 179,
+      "sha256": "8b0d4b532ef1d6b19c242ad178979e2e313e196ca5f5d5eb0a86d7ec05d8f374",
       "symbols": [
         {
           "name": "savedKey",
-          "line": 14
+          "line": 15
         },
         {
-          "name": "isConfigured",
-          "line": 16
-        },
-        {
-          "name": "saveKey",
+          "name": "savedDeepSeekKey",
           "line": 17
         },
         {
+          "name": "isConfigured",
+          "line": 19
+        },
+        {
+          "name": "saveDeepSeekKey",
+          "line": 21
+        },
+        {
+          "name": "saveKey",
+          "line": 27
+        },
+        {
           "name": "extract",
-          "line": 25
+          "line": 69
         },
         {
           "name": "search",
-          "line": 63
+          "line": 123
         }
       ]
     },
