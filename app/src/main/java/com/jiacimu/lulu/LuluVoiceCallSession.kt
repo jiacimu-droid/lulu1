@@ -259,7 +259,7 @@ internal object LuluVoiceCallSession {
         if (!call.connected || !LuluCallWindowController.videoRequested.value ||
             call.characterId != characterId || call.callExperienceId != callId ||
             !InteractionSignalBridge.hasRenderedVideo(characterId, callId) ||
-            region !in setOf("head", "arm", "body") ||
+            Live2DTouchZones.label(region) == null ||
             gesture !in setOf("tap", "hold", "stroke", "stroke-left",
                 "stroke-right", "stroke-up", "stroke-down")) return false
         if (touchBatchRole != characterId || touchBatchCall != callId) {
