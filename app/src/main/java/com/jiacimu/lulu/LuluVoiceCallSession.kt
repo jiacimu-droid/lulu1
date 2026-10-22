@@ -1495,6 +1495,20 @@ internal object LuluVoiceCallSession {
                 }
                 return@launch
             }
+            // The presentation mode is a factual part of THIS live phone call.
+            // It is not a user utterance and must not trigger another LLM turn.
+            // Visibility is verified independently from the user's selected
+            // video mode; a blank/unloaded model must not claim it is on screen.
+            val videoTurnContext = if (LuluCallWindowController.videoRequested.value) {
+                if (Live2DVisualActionBus.isStageVisible(
+                        latest.characterId, latest.callExperienceId)) {
+                    "【当前通话媒介】用户已开启本次 Live2D 虚拟视频通话；你的 Live2D 数字形象已在她的手机画面中真实显示。你知道现在不是纯语音模式。可以依据真实情绪与意图使用已提供的身体动作能力，不必每轮动，也不要反复口头宣布视频已开启。用户自己的摄像头画面没有发送给你，因此不能声称看见她的脸、神情或现实房间。"
+                } else {
+                    "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示，也不能声称看见用户本人。等身体实际可用时再选择可执行动作。"
+                }
+            } else {
+                "【当前通话媒介】本轮为语音电话，用户未开启 Live2D 视频；不要声称彼此正在视频中看到对方。"
+            }
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
                 history = recentHistory,
@@ -1504,11 +1518,20 @@ internal object LuluVoiceCallSession {
                 silenceObservationId = observationId,
                 userEvidenceIds = turnUserEvidenceIds,
                 phoneCallId = latest.callExperienceId,
-                turnContext = if (externalToolResult != null)
-                    "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
-                else if (scheduledWakeReason != null)
-                    "真实事件：电话已经接通，先前约定的叫醒时间刚刚到了；$scheduledWakeReason。这不是用户发言，也不是电话结束指令。"
-                else if (opening) "真实事件：本通电话刚接通；来电缘由=${latest.incomingReason}。这不是用户说的话。" else "",
+                turnContext = buildString {
+                    append(videoTurnContext)
+                    val existingTurnEvent = if (externalToolResult != null)
+                        "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
+                    else if (scheduledWakeReason != null)
+                        "真实事件：电话已经接通，先前约定的叫醒时间刚刚到了；$scheduledWakeReason。这不是用户发言，也不是电话结束指令。"
+                    else if (opening)
+                        "真实事件：本通电话刚接通；来电缘由=${latest.incomingReason}。这不是用户说的话。"
+                    else ""
+                    if (existingTurnEvent.isNotBlank()) {
+                        append('\n')
+                        append(existingTurnEvent)
+                    }
+                },
                 sceneContext = (when {
                     externalToolResult != null -> "一对一电话仍然接通，先前请求的小红书检索刚刚返回真实结果。用户没有新增发言。结合最近对话与本人的情绪，决定是否自然接一句结果或暂时不说；成功才说读到了，失败只依据真实回执，不编造权限原因，不复述工具字段或重复搜索。"
                     autonomousSilence -> silenceContext
