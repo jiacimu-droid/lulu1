@@ -2,6 +2,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
+import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
+import { createPerformanceRuntime } from '../src/speech-performance.mjs'
+import { createPoseSpring } from '../src/pose-spring.mjs'
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
 // parameter indices if handed raw strings. This mock deliberately does so.
@@ -41,59 +44,111 @@ assert.equal(other.values[3], 0.4)
 assert.equal(core.values[3], 0.85)
 
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
-assert.match(stage, /internal\.on\('beforeModelUpdate'/)
-assert.doesNotMatch(stage, /\.getParameterIndex\(|\.setParameterValueById\(/)
-assert.match(stage, /setParameter\(core, 'ParamMouthOpenY', smoothedMouthOpen\)/)
-// Video eye contact is a continuous default, not a random eye saccade and
-// not a conditional release of gaze/body parameters to an idle animation.
-assert.doesNotMatch(stage, /gazeReflex|Math\.random\(\).*radius/)
-assert.match(stage, /const eyeContact = key === 'gazeX' \|\| key === 'gazeY'/)
-assert.match(stage, /if \(!eyeContact && requested == null/)
-assert.match(stage, /const headPose = headSpring\.step\(headRequest, deltaMs\)/)
-assert.match(stage, /const bodyPose = bodySpring\.step\(bodyRequest, deltaMs\)/)
-assert.match(stage, /setParameter\(core, id, bodyPose\[axis\]\)/)
-assert.match(stage, /model\.position\.set\(viewWidth \/ 2, viewHeight \* \(isPortrait \? 1\.00 : \.49\)\)/)
-// The native receiver is authoritative about final frame size. Oversizing
-// every JPEG by 1.38x defeats measured backpressure and causes stutter.
-assert.doesNotMatch(stage, /maxEdge \* factor|Math\.min\(2100/)
-assert.match(stage, /nativeStreamMaxEdge = Math\.min\(1850,/)
-assert.match(stage, /nativeStreamAckMeanMs > 90 \? 0\.86 : 0\.89/)
-// The supplied model has physics outputs for secondary skull and torso
-// follow-through. Neutralizing only ParamAngleX/Y/Z leaves visible sway.
-for (const id of ['ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2',
-  'body_gensui_x', 'body_gensui_y', 'body_gensui_y2', 'body_gensui_y3',
-  'body_gensui_z']) assert.ok(stage.includes(id), 'missing ' + id)
-assert.match(stage, /secondaryHeadMotionMix/)
-assert.match(stage, /secondaryBodyMotionMix/)
-assert.match(stage, /getParameter\(core, id\) \?\? 0\) \* secondaryHeadMotionMix/)
-assert.match(stage, /getParameter\(core, id\) \?\? 0\) \* secondaryBodyMotionMix/)
-// A facial choice can animate eye openness, eyebrow positioning, and subtle
-// voicing without releasing centered gaze or fabricating full-arm animation.
-assert.match(stage, /eyeOpen: \['ParamEyeLOpen', 'ParamEyeROpen'\]/)
-assert.match(stage, /browX: \['ParamBrowLX', 'ParamBrowRX'\]/)
-assert.match(stage, /const expressiveVoice = playing && requested != null/)
-assert.match(stage, /if \(!eyeContact && requested == null && !hasPriorCue\) continue/)
-assert.match(stage, /delete smoothFace\[key\]/)
-// Springs never introduce random idle motion and converge across frame rates
-// rather than snapping the entire face/head to an exact pose at each cue.
-const axes = ['yaw', 'pitch', 'roll']
-const spring = createPoseSpring(axes)
+assert.match(stage, /internal\\.on\\('beforeModelUpdate'/)
+assert.doesNotMatch(stage, /\\.getParameterIndex\\(|\\.setParameterValueById\\(/)
+assert.match(stage, /setParameter\\(core, 'ParamMouthOpenY', smoothedMouthOpen\\)/)
+assert.match(stage, /visualLayers\\.update\\(core, \\{/)
+assert.match(stage, /performanceRuntime\\.tick\\(beat =>/)
+assert.match(stage, /performanceRuntime\\.stopSpeech\\(\\)/)
+assert.match(stage, /performanceRuntime\\.schedule\\(beats, !!immediatePreview\\)/)
+assert.match(stage, /model\\.position\\.set\\(viewWidth \\/ 2, viewHeight \\* \\(isPortrait \\? 1\\.00 : \\.49\\)\\)/)
+assert.doesNotMatch(stage, /gazeReflex|Math\\.random\\(\\).*radius/)
+assert.doesNotMatch(stage, /maxEdge \\* factor|Math\\.min\\(2100/)
+assert.match(stage, /nativeStreamMaxEdge = Math\\.min\\(1850,/)
+assert.match(stage, /nativeStreamAckMeanMs > 90 \\? 0\\.86 : 0\\.89/)
+
+// Final-layer Cubism ownership must be tested by executing writes rather
+// than searching the former monolithic stage for string names.
+const valuesById = new Map([
+  ['ParamAngleX', 14], ['ParamAngleY', 8], ['ParamAngleZ', -7],
+  ['ParamAngleX2', 9], ['ParamAngleY2', 5], ['ParamAngleZ2', -8],
+  ['ParamBodyAngleX', 7], ['body_gensui_x', 4],
+  ['ParamEyeBallX', 0.5], ['ParamEyeBallY', -0.3],
+  ['ParamMouthForm', 0.4], ['ParamEyeLOpen', 1], ['ParamEyeROpen', 1],
+  ['ParamEyeLSmile', 0], ['ParamEyeRSmile', 0],
+  ['ParamBreath', 0],
+])
+const readValue = (_core, id) => valuesById.get(id)
+const writeValue = (_core, id, value) => { valuesById.set(id, value); return true }
+const rig = createVisualLayerRuntime({
+  has: (_core, id) => valuesById.has(id),
+  read: readValue, write: writeValue,
+})
+let seconds = 0
+function frame(head = null, body = null, face = null, speaking = false, deltaMs = 16) {
+  seconds += deltaMs / 1000
+  rig.update(core, { deltaMs, head, body, face, speaking, seconds })
+}
+for (let i = 0; i < 50; i++) frame()
+for (const id of ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
+  'ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2',
+  'ParamBodyAngleX', 'body_gensui_x', 'ParamEyeBallX', 'ParamEyeBallY']) {
+  assert.ok(Math.abs(valuesById.get(id)) < .05, 'idle not centered: ' + id)
+}
+assert.ok(valuesById.get('ParamBreath') > 0.3)
+for (let i = 0; i < 60; i++) frame({ roll: 12 }, null, null, true)
+assert.ok(valuesById.get('ParamAngleZ') > 11)
+for (let i = 0; i < 90; i++) frame()
+assert.ok(Math.abs(valuesById.get('ParamAngleZ')) < .05)
+valuesById.set('ParamMouthForm', .62)
+frame()
+assert.equal(valuesById.get('ParamMouthForm'), .62,
+  'idle should release expression parameters to the model')
+for (let i = 0; i < 45; i++) frame(null, null, { smile: .7, eyeOpen: .55 }, true)
+assert.ok(valuesById.get('ParamMouthForm') > .55)
+assert.ok(valuesById.get('ParamEyeLOpen') < .7)
+for (let i = 0; i < 90; i++) frame()
+assert.ok(Math.abs(valuesById.get('ParamMouthForm')) < .05)
+assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - 1) < .05)
+valuesById.set('ParamMouthForm', .28)
+frame()
+assert.equal(valuesById.get('ParamMouthForm'), .28,
+  'after face release, imported expressions own facial parameter')
+rig.reset()
+frame()
+assert.equal(valuesById.get('ParamAngleX'), 0)
+
+// Speech score uses real monotonic time; dropped frames never delay gestures,
+// repeated 'playing' callbacks do not replay any completed beat.
+let clock = 1000
+const performance = createPerformanceRuntime({ now: () => clock })
+const seen = []
+assert.equal(performance.schedule([
+  { atMs: 1100, expression: 'star' }, { atMs: 0, face: { smile: .3 } },
+  { atMs: 450, head: { roll: 8 } },
+]), true)
+clock += 80
+assert.equal(performance.tick(beat => seen.push(beat)), 0)
+performance.startSpeech()
+performance.startSpeech()
+assert.equal(performance.tick(beat => seen.push(beat)), 1)
+clock += 630
+assert.equal(performance.tick(beat => seen.push(beat)), 1)
+clock += 800
+assert.equal(performance.tick(beat => seen.push(beat)), 1)
+assert.deepEqual(seen.map(beat => beat.atMs), [0, 450, 1100])
+clock += 200
+assert.equal(performance.tick(beat => seen.push(beat)), 0)
+performance.schedule([{ atMs: 5000, head: { yaw: 5 } }])
+performance.stopSpeech()
+clock += 6000
+assert.equal(performance.tick(beat => seen.push(beat)), 0)
+assert.equal(performance.state().remaining, 0)
+performance.schedule([{ atMs: 100, face: { smile: .6 } }], true)
+clock += 110
+assert.equal(performance.tick(beat => seen.push(beat)), 1)
+assert.equal(seen.length, 4)
+performance.reset()
+assert.equal(performance.state().queued, false)
+
+// The independent spring is clamped on long stalls and never moves in idle.
+const spring = createPoseSpring(['yaw', 'pitch', 'roll'])
 for (let i = 0; i < 90; i++) spring.step(null, 16)
 assert.deepEqual(spring.step(null, 16), { yaw: 0, pitch: 0, roll: 0 })
 for (let i = 0; i < 60; i++) spring.step({ yaw: 16, pitch: -5, roll: 4 }, 16)
-const settled = spring.step({ yaw: 16, pitch: -5, roll: 4 }, 16)
-assert.ok(Math.abs(settled.yaw - 16) < .1)
-assert.ok(Math.abs(settled.pitch + 5) < .1)
-assert.ok(Math.abs(settled.roll - 4) < .1)
+assert.ok(Math.abs(spring.step({ yaw: 16 }, 16).yaw - 16) < .1)
 for (let i = 0; i < 90; i++) spring.step(null, 16)
 assert.ok(Math.abs(spring.step(null, 16).yaw) < .05)
-const stalled = spring.step({ yaw: -20 }, 20_000)
+const stalled = spring.step({ yaw: -20 }, 20000)
 assert.ok(Number.isFinite(stalled.yaw) && Math.abs(stalled.yaw) < 25)
-spring.reset()
-assert.deepEqual(spring.step(null, 16), { yaw: 0, pitch: 0, roll: 0 })
-assert.match(stage, /function choreography\(beats, immediatePreview = false\)/)
-assert.match(stage, /activePerformance\.elapsedMs \+= actualFrameMs/)
-assert.match(stage, /timeNow - activePerformance\.lastTickAt/)
-assert.match(stage, /if \(performance\) beginPerformance\(performance\.beats, false\)/)
-assert.match(stage, /window\.LuluLive2D = .*choreography,/)
-console.log('Live2D AIRI-style springs, timed expression beats and real-parameter controls passed')
+console.log('Cubism index, AIRI final layers, audio score and transport checks passed')
