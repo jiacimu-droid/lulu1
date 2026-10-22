@@ -131,6 +131,16 @@ internal fun Live2DFullscreenVideoCall(
     }
     var renderRetry by remember(modelUrl) { mutableIntStateOf(0) }
     var nativeFrameReady by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    // Record only a genuinely visible Android frame during the connected call.
+    // Rendering may finish BEFORE dialing; the connected-state key handles it.
+    LaunchedEffect(nativeFrameReady, state.connected, state.callExperienceId, characterId) {
+        if (nativeFrameReady && state.connected && state.callExperienceId.isNotBlank()) {
+            com.jiacimu.lulu.data.InteractionSignalBridge.recordVideoSelected(
+                characterId, state.callExperienceId)
+            com.jiacimu.lulu.data.InteractionSignalBridge.recordVideoRendered(
+                characterId, state.callExperienceId)
+        }
+    }
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var videoPerformance by remember(modelUrl) { mutableStateOf("") }
