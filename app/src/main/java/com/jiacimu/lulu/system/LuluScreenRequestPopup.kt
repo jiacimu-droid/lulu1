@@ -32,22 +32,19 @@ internal object LuluScreenRequestPopup {
     fun showCapture(context: Context, role: String, id: String,
         stillPending: () -> Boolean, onAllow: () -> Unit, onDeny: () -> Unit,
         onFailure: () -> Unit = {}): Boolean =
-        show(context, "capture:$id", "请求查看屏幕", "$role 想看一眼你现在的屏幕",
-            "只查看当前一帧。点击允许后才会截图并交给识图模型。",
+        show(context, "capture:$id", "$role 想看屏幕", "", "",
             listOf("拒绝" to onDeny, "允许一次" to onAllow),
             120_000L, stillPending, onFailure)
 
     fun showReturn(context: Context, role: String,
         onReturn: () -> Unit, onLater: () -> Unit,
         onFailure: () -> Unit = {}): Boolean =
-        show(context, "summon", "请求返回露露机", "$role 想邀请你回来",
-            "你可以继续忙自己的事，想回来时再点开。",
+        show(context, "summon", "$role 邀请你回来", "", "",
             listOf("稍后" to onLater, "返回露露机" to onReturn), 25_000L,
             onFailure = onFailure)
 
-    fun showProgress(context: Context, text: String): Boolean =
-        show(context, "screen-progress", "正在查看屏幕", text,
-            "本次只读取一帧，不会持续录屏。",
+    fun showProgress(context: Context): Boolean =
+        show(context, "screen-progress", "正在查看屏幕", "", "",
             emptyList(), 120_000L)
 
     fun dismissCapture(id: String) = dismiss("capture:$id")
@@ -105,9 +102,13 @@ internal object LuluScreenRequestPopup {
                     setPadding(0, dp(app, top), 0, 0)
                     gravity = Gravity.CENTER_VERTICAL
                 }
-                card.addView(line("✧  $title", 16f, Color.rgb(28, 30, 34), true, 0))
-                card.addView(line(subtitle, 14f, Color.rgb(44, 46, 52), false, 7))
-                card.addView(line(details, 12f, Color.rgb(110, 114, 123), false, 4))
+                card.addView(line(title, 16f, Color.rgb(28, 30, 34), true, 0))
+                if (subtitle.isNotBlank()) {
+                    card.addView(line(subtitle, 14f, Color.rgb(44, 46, 52), false, 7))
+                }
+                if (details.isNotBlank()) {
+                    card.addView(line(details, 12f, Color.rgb(110, 114, 123), false, 4))
+                }
                 if (actions.isNotEmpty()) {
                     val buttons = LinearLayout(app).apply {
                         orientation = LinearLayout.HORIZONTAL
