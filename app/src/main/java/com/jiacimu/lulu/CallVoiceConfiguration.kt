@@ -51,8 +51,11 @@ internal object CallVoiceConfiguration {
         val provider = provider(context)
         val stt = sttEngine(context)
         when (stt) {
-            "local" -> if (LocalWhisperModels.installedFile(context, LocalWhisperModels.selected(context)) == null)
-                return "请先到语音设置下载所选 Whisper 本地模型（Tiny 或 Base），不会产生语音识别 API 费用"
+            "local" -> {
+                LocalWhisperTranscriber.runtimeError()?.let { return it }
+                if (LocalWhisperModels.installedFile(context, LocalWhisperModels.selected(context)) == null)
+                    return "请先到语音设置下载所选 Whisper 本地模型（Tiny 或 Base），不会产生语音识别 API 费用"
+            }
             "groq" -> if (p.getString("groq_asr_key", "").orEmpty().isBlank())
                 return "请到语音设置填写 Groq API Key（识别语音，与 ElevenLabs 音色无关）"
             "minimax" -> if (p.getString("minimax_api_key", "").orEmpty().isBlank())
