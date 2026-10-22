@@ -57,6 +57,18 @@ let mouth = 0
 let pcmAvailable = false
 let listening = false
 let paused = false
+// Simulated body rhythm is separate from emotional expression choreography.
+let physicalState = { energy: 78, sleepPressure: 22 }
+function setBodyState(next) {
+  if (!next) return
+  const energy = Number(next.energy)
+  const sleep = Number(next.sleepPressure)
+  if (!Number.isFinite(energy) || !Number.isFinite(sleep)) return
+  physicalState = {
+    energy: Math.min(100, Math.max(0, energy)),
+    sleepPressure: Math.min(100, Math.max(0, sleep)),
+  }
+}
 let seconds = 0
 let headRequest = null
 let headRequestEndAt = 0
@@ -336,7 +348,8 @@ function applyFinalParameters(core, deltaMs) {
   // remain subsequent independent layers.
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
-    touchReflex, speaking: playing, voiceLevel: pcmAvailable ? mouth : null, seconds,
+    touchReflex, physical: physicalState,
+    speaking: playing, voiceLevel: pcmAvailable ? mouth : null, seconds,
   })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
@@ -363,7 +376,10 @@ function applyFinalParameters(core, deltaMs) {
       }
       if (blinkProgress >= 1) {
         blinkProgress = -1
-        blinkClock = 3.8 + Math.random() * 2.8
+        // Slightly slower, more frequent natural blinks with sleep pressure.
+        // Do not replace actual model-authored eye motions or expressions.
+        blinkClock = (3.8 + Math.random() * 2.8) *
+          (1.05 - physicalState.sleepPressure / 100 * .25)
       }
     }
   }
@@ -1081,7 +1097,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }

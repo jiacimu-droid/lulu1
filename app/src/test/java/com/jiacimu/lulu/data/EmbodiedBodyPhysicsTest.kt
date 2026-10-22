@@ -60,6 +60,16 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(later.energy < stopped.energy)
     }
 
+    @Test fun outdoorTemperatureIsSimulationNotInventedRealWorldWeather() {
+        val cold = EmbodiedBodyRuntime.environmentalSensation(
+            DigitalWorldPublicPlaces.COURTYARD, 5)
+        assertTrue(cold.contains("明显寒冷"))
+        assertTrue(cold.contains("不是现实天气"))
+        val indoor = EmbodiedBodyRuntime.environmentalSensation("home:role", 5)
+        assertFalse(indoor.contains("明显寒冷"))
+        assertTrue(indoor.contains("没有已确认的户外温度接触"))
+    }
+
     @Test fun corruptMetricsCannotEscapeRangeAndLegacyWithoutBodyCanStartClean() {
         val recovered = EmbodiedBodySnapshot.fromJson(org.json.JSONObject()
             .put("lastAt", start.toString())

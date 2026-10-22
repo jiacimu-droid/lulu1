@@ -49,6 +49,7 @@ import androidx.webkit.WebMessageCompat
 import androidx.webkit.JavaScriptReplyProxy
 import org.json.JSONObject
 import org.json.JSONArray
+import com.jiacimu.lulu.data.EmbodiedBodyRuntime
 import org.json.JSONTokener
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.delay
@@ -190,6 +191,25 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 "window.LuluLive2D && window.LuluLive2D.setNativeStreaming($nativeMirrorEnabled)",
             null,
         )
+    }
+    // Body rhythm is sampled locally at low frequency, independently of
+    // every PCM frame. The model still owns speech and expressive gestures.
+    LaunchedEffect(stage, rendererReady.value, characterId) {
+        if (rendererReady.value) {
+            while (isActive) {
+                val body = EmbodiedBodyRuntime.sensorySnapshot(characterId)
+                if (body != null) {
+                    val physical = JSONObject()
+                        .put("energy", body.energy)
+                        .put("sleepPressure", body.sleepPressure)
+                    stage.evaluateJavascript(
+                        "window.LuluLive2D && window.LuluLive2D.setBodyState(${physical})",
+                        null,
+                    )
+                }
+                delay(60_000L)
+            }
+        }
     }
     LaunchedEffect(stage, framingMode) {
         val mode = if (framingMode == "portrait") "portrait" else "full"

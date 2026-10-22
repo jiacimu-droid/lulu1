@@ -52,7 +52,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, speaking, voiceLevel = null, seconds }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, voiceLevel = null, seconds }) {
     if (!core) return
     const headPose = headSpring.step(head, deltaMs)
     const bodyPose = bodySpring.step(body, deltaMs)
@@ -120,7 +120,13 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // Unlike head yaw oscillations, the dedicated breathing rig produces
     // subtle life without destroying eye contact. Keep it on its own channel.
     if (has(core, 'ParamBreath')) {
-      write(core, 'ParamBreath', .5 + .14 * Math.sin(seconds * 1.35))
+      const stamina = Number.isFinite(physical?.energy)
+        ? clamp01(physical.energy / 100) : .78
+      const fatigue = Number.isFinite(physical?.sleepPressure)
+        ? clamp01(physical.sleepPressure / 100) : .22
+      // A mild physical tempo, not synthetic emotions or a forced gesture.
+      const rate = 1.13 + .34 * stamina - .22 * fatigue
+      write(core, 'ParamBreath', .5 + .14 * Math.sin(seconds * rate))
     }
   }
 

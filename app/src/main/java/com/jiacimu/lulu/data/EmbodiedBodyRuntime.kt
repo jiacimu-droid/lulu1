@@ -140,6 +140,32 @@ internal object EmbodiedBodyPhysics {
 
 /** One adapter into the existing per-character life state and shared character context. */
 internal object EmbodiedBodyRuntime {
+    /**
+     * Read-only physical projection for UI and renderer. Never writes during
+     * video frame or Compose updates and never triggers a model call.
+     */
+    fun sensorySnapshot(characterId: String, now: Instant = Instant.now()): EmbodiedBodySnapshot? {
+        if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return null
+        val saved = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
+            ?: EmbodiedBodyPhysics.fresh(now)
+        return EmbodiedBodyPhysics.advance(saved, now)
+    }
+
+    /** Only confirmed outdoor digital locations expose this simulated temperature. */
+    internal fun environmentalSensation(location: String, temperature: Int): String {
+        val outdoors = location == DigitalWorldStore.CLOUD_MEADOW ||
+            location == DigitalWorldPublicPlaces.COURTYARD
+        if (!outdoors) return "目前没有已确认的户外温度接触；不得把世界室外气温当作当前身体温度。"
+        val feel = when {
+            temperature <= 8 -> "明显寒冷"
+            temperature <= 16 -> "稍有凉意"
+            temperature >= 33 -> "明显炎热"
+            temperature >= 27 -> "偏暖"
+            else -> "较为舒适"
+        }
+        return "当前处于数字世界户外；模拟气温约${temperature}℃，皮肤温感可能${feel}。这是数字环境模拟，不是现实天气或体温测量；穿着、活动和本人感受仍可能改变具体反应。"
+    }
+
     @Synchronized
     fun context(characterId: String, now: Instant = Instant.now()): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return ""
@@ -147,7 +173,10 @@ internal object EmbodiedBodyRuntime {
         val previous = saved?.let(EmbodiedBodySnapshot::fromJson) ?: EmbodiedBodyPhysics.fresh(now)
         val next = EmbodiedBodyPhysics.advance(previous, now)
         if (saved == null || next != previous) CharacterLifeStore.saveBodyState(characterId, next.toJson())
-        return EmbodiedBodyPhysics.prompt(next)
+        val digitalTemperature = DigitalWorldEnvironment.snapshot(now).temperatureCelsius
+        val location = DigitalWorldStore.locationOf(characterId)
+        return EmbodiedBodyPhysics.prompt(next) + "\n" +
+            environmentalSensation(location, digitalTemperature)
     }
 
     @Synchronized
