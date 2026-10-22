@@ -1159,8 +1159,13 @@ object LuluDeviceToolBridge {
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                 momentChanged = privateDelta.meaningful,
             )
-            if (!rewriting && phoneCallId.isNotBlank())
-                plan.live2d?.let { chosen -> runCatching { onLive2DAction?.invoke(chosen) } }
+            if (!rewriting && phoneCallId.isNotBlank()) {
+                // A silent visual reply is a REAL chosen action, not a speech
+                // cue that should wait for TTS which will never arrive.
+                plan.live2d?.let { chosen -> runCatching {
+                    onLive2DAction?.invoke(JSONObject(chosen.toString()).put("_executeNow", true))
+                } }
+            }
             return Result.success(plannedReply.copy(text = "",
                 disposition = CharacterDecisionProtocol.SILENT,
                 phoneMediaReceipt = sideDeviceReceipt.takeIf(String::isNotBlank)))
