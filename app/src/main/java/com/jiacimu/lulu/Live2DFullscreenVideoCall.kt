@@ -102,7 +102,8 @@ internal fun Live2DFullscreenVideoCall(
     LaunchedEffect(modelUrl, coreReady, renderRetry) {
         if (modelUrl != null && coreReady) {
             delay(25_000)
-            if (stageStatus == "loading") {
+            if (stageStatus != "ready" && stageStatus != "error" &&
+                stageStatus != "fatal") {
                 stageStatus = "error"
                 stageDetail = "动态模型加载超过25秒，请检查贴图大小或 Cubism 兼容性"
                 Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
@@ -138,6 +139,10 @@ internal fun Live2DFullscreenVideoCall(
                         reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
                             state.callExperienceId, detail)
+                    } else if (phase == "diagnostic") {
+                        // Diagnostics are not model readiness. In particular, a
+                        // successful GPU capability probe must never hide the fallback.
+                        stageDetail = detail
                     } else {
                         stageStatus = phase
                         stageDetail = detail
