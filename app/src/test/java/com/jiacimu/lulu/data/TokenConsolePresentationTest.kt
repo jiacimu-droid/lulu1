@@ -23,6 +23,29 @@ class TokenConsolePresentationTest {
         assertEquals(parts.toSet(), grouped.flatMap { it.items }.toSet())
     }
 
+    @Test fun providerTotalIsReconciledWithoutClaimingExactCategoryTokenization() {
+        val parts = listOf(
+            TokenBreakdownItem("基础身份与通用规则", 28714, 15954),
+            TokenBreakdownItem("核心记忆", 22643, 12579),
+            TokenBreakdownItem("近期原始时间线", 10092, 5606),
+            TokenBreakdownItem("本轮完整输入 / user", 17494, 9719),
+        )
+        val groups = TokenConsolePresentation.groups(parts)
+        val totalChars = parts.sumOf { it.chars }.toLong()
+        val rec = record("real", 40, 70869, totalChars.toInt())
+            .copy(breakdown = parts)
+        val split = TokenConsolePresentation.allocateReportedInput(rec, groups)!!
+        assertEquals(4, split.size)
+        assertEquals(70869L, split.sum())
+        // The historical character formula is only 43,858 tokens. This is
+        // not 27,011 hidden text tokens: per-section counts are unobserved.
+        assertEquals(43858L, groups.sumOf { it.estimatedTokens })
+        assertTrue(split[0] > groups[0].estimatedTokens)
+        assertNull(TokenConsolePresentation.allocateReportedInput(rec.copy(imageCount = 1), groups))
+        assertNull(TokenConsolePresentation.allocateReportedInput(rec.copy(coveredTextCharacters = 12), groups))
+        assertNull(TokenConsolePresentation.allocateReportedInput(rec.copy(auditVersion = 0), groups))
+    }
+
     private fun record(id: String, at: Long, tokens: Long, chars: Int,
         model: String = "same-model", provider: String = "same-provider",
         imageCount: Int = 0,
