@@ -71,10 +71,12 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // GPU compositor displays an empty WebView in spite of positive readback.
     nativeMirrorEnabled: Boolean = false,
     framingMode: String = "full",
+    qualityMode: String = "quality",
     onWebViewReady: ((WebView) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
     val playbackEvent by Live2DSpeechTimeline.events.collectAsState()
+    val qualityReceiver = rememberUpdatedState(qualityMode)
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val binaryFrames = remember(context, characterId, modelUrl) {
@@ -122,6 +124,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         if (nativeMirrorEnabled) {
             Live2DNativeFrameOverlay(
                 stage, binaryFrames, binarySupported, rendererReady.value,
+                qualityReceiver.value,
             ) { phase, detail ->
                 statusReceiver.value(phase, detail)
             }
@@ -208,6 +211,7 @@ private fun Live2DNativeFrameOverlay(
     binaryFrames: Channel<Live2DBinaryFrame>,
     binarySupported: Boolean,
     rendererReady: Boolean,
+    qualityMode: String,
     onStatus: (String, String) -> Unit,
 ) {
     var picture by remember(webView) {
@@ -217,6 +221,7 @@ private fun Live2DNativeFrameOverlay(
     var lastBinaryFrameAt by remember(webView) { mutableStateOf(0L) }
     var legacyFallback by remember(webView) { mutableStateOf(!binarySupported) }
     val receiver = rememberUpdatedState(onStatus)
+    val currentQuality = rememberUpdatedState(qualityMode)
 
     // Fast path: a message is one JPEG byte[]; there is no Base64, JSON
     // round-trip, continuous evaluateJavascript polling or extra TTS request.
@@ -225,8 +230,13 @@ private fun Live2DNativeFrameOverlay(
         if (!binarySupported) return@LaunchedEffect
         var firstFrame = true
         val stats = Live2DFrameStats()
-        var resolution = 1320
+        var lastQuality = currentQuality.value
+        var resolution = if (lastQuality == "smooth") 920 else 1320
         for (frame in binaryFrames) {
+            if (currentQuality.value != lastQuality) {
+                lastQuality = currentQuality.value
+                resolution = if (lastQuality == "smooth") 920 else 1320
+            }
             val decodeStart = android.os.SystemClock.elapsedRealtime()
             val decoded = withContext(Dispatchers.Default) {
                 runCatching {
@@ -250,15 +260,17 @@ private fun Live2DNativeFrameOverlay(
                     // p95 gaps expose visible stutter that mean FPS hides.
                     // Lower the transport size gradually, preserve face
                     // sharpness whenever the actual delivered cadence allows.
+                    val floor = if (lastQuality == "smooth") 650 else 850
+                    val ceiling = if (lastQuality == "smooth") 1250 else 1950
                     resolution = when {
                         sample.fps < 13f || sample.p95GapMs > 115L ->
-                            (resolution - 200).coerceAtLeast(850)
+                            (resolution - 200).coerceAtLeast(floor)
                         sample.fps < 19f || sample.p95GapMs > 75L ->
-                            (resolution - 110).coerceAtLeast(1020)
+                            (resolution - 110).coerceAtLeast(floor)
                         sample.fps > 26f && sample.p95GapMs < 48L ->
-                            (resolution + 150).coerceAtMost(1950)
+                            (resolution + 150).coerceAtMost(ceiling)
                         sample.fps > 23f && sample.p95GapMs < 60L ->
-                            (resolution + 90).coerceAtMost(1860)
+                            (resolution + 90).coerceAtMost(ceiling)
                         else -> resolution
                     }
                     receiver.value("performance", sample.label())
@@ -301,9 +313,14 @@ private fun Live2DNativeFrameOverlay(
         var consecutiveErrors = 0
         var slowFrames = 0
         var fastFrames = 0
-        var maxEdge = 1050
+        var maxEdge = if (currentQuality.value == "smooth") 720 else 1050
+        var lastQuality = currentQuality.value
         val stats = Live2DFrameStats()
         while (isActive) {
+            if (currentQuality.value != lastQuality) {
+                lastQuality = currentQuality.value
+                maxEdge = if (lastQuality == "smooth") 720 else 1050
+            }
             val startedAt = android.os.SystemClock.elapsedRealtime()
             val rawResult = try {
                 suspendCancellableCoroutine<String?> { continuation ->
@@ -364,10 +381,12 @@ private fun Live2DNativeFrameOverlay(
                     slowFrames = 0
                 }
                 if (slowFrames >= 3) {
-                    maxEdge = (maxEdge - 130).coerceAtLeast(650)
+                    maxEdge = (maxEdge - 130).coerceAtLeast(
+                        if (lastQuality == "smooth") 520 else 750)
                     slowFrames = 0
                 } else if (fastFrames >= 18) {
-                    maxEdge = (maxEdge + 100).coerceAtMost(1450)
+                    maxEdge = (maxEdge + 100).coerceAtMost(
+                        if (lastQuality == "smooth") 1050 else 1450)
                     fastFrames = 0
                 }
             }
