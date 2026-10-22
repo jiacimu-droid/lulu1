@@ -8,7 +8,8 @@ import java.time.Instant
 import java.util.UUID
 
 enum class DevelopmentKind(val label: String) {
-    Interest("兴趣"), Preference("偏好"), Habit("习惯"), ExpressionHabit("表达习惯"), Judgment("判断"),
+    Interest("兴趣"), Preference("偏好"), Habit("习惯"), UserHabit("观察到的用户习惯"),
+    ExpressionHabit("表达习惯"), Judgment("判断"),
     SituationalPattern("情境反应倾向"), NarrativeMeaning("叙事意义"),
     RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
 }
@@ -103,6 +104,21 @@ object CharacterDevelopmentStore {
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
+        if (kind == DevelopmentKind.UserHabit) {
+            // User habits must never be inferred from a companion's subjective
+            // writing, fiction, or a successful tool execution.
+            if (factual.size < 3 || factual.any {
+                    it.evidenceKind != EventEvidenceKind.UserStatement
+                }) return false
+            // Three bubbles in one conversation are not three independent days.
+            val distinctDays = factual.map {
+                it.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            }.toSet()
+            if (distinctDays.size < 3) return false
+            if (counters.any { counter ->
+                    factual.any { it.occurredAt < counter.occurredAt }
+                }) return false
+        }
         if (kind == DevelopmentKind.ExpressionHabit) {
             // A single situational joke is not a durable personal idiom. Require
             // at least two separately authored examples as well as three real
