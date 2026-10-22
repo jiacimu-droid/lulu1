@@ -191,6 +191,7 @@ internal fun Live2DFullscreenVideoCall(
                 previewHead = cue?.head ?: manualHead,
                 previewBody = cue?.body,
                 previewFace = cue?.face,
+                previewBeats = cue?.beats.orEmpty(),
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
                 previewImmediate = cue?.immediate ?: true,
                 // Both imported models and Hiyori were verified on the actual
