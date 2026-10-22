@@ -193,11 +193,13 @@ internal object AutonomousSocialRuntime {
         }
         DigitalWorldStore.endMeeting(session.id, finishedAt)
 
-        val receipt = "${names.joinToString("、")}在${location}见面了。"
+        // One literary chapter per witnessed encounter, without a parallel meeting card.
+        WorldLifeEpisodeStore.initialize(context)
         participantIds.forEach { id ->
-            MigratedDomainStores.chat.appendPrivateActivityNotice(
-                id,
-                "[角色见面|${session.id}] $receipt",
+            WorldLifeEpisodeWorker.enqueue(
+                context = context, characterId = id, location = currentLocation,
+                evidenceId = "meeting-${session.id}-autonomous-summary-viewer-$id",
+                title = "", seed = "", category = "encounter",
             )
         }
     }
