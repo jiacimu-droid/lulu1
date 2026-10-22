@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:15:06.500945+00:00",
-  "commit": "7d6857977fef5f3c1f76e73ddb5cdc15287bb73d",
+  "generatedAt": "2026-10-22T17:15:45.039245+00:00",
+  "commit": "fdef24f196cd57407f7686c7fbf0e9ae1ded47be",
   "branch": "main",
-  "sourceFingerprint": "aaa1cd8d0b089deae8b32ef89a6d9ea35361a146b16a8901fafe90297ccc6152",
+  "sourceFingerprint": "1beeed5801ecadc8719e29b46c9ef58be1f48475d2395e3b25d993431947b11c",
   "summary": {
     "files": 825,
-    "lines": 157103,
+    "lines": 157117,
     "symbols": 2377
   },
   "symbolIndex": {
@@ -15509,8 +15509,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 398,
-      "sha256": "12a3d1b236f9315b344c196b5fa27817ac6c60d1180665ef5c3cd45009ca6c25",
+      "lines": 412,
+      "sha256": "0d3fd2a102d3fea1da8b99b427f8f0a1bb2f14bfc6eda941a9b01eee04f75141",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
