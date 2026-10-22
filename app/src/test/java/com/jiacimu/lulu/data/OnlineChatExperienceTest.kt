@@ -591,7 +591,7 @@ class OnlineChatExperienceTest {
         assertEquals(CharacterProfileSchema.jiangDuV16Persona, MigratedDomainStores.characters.get(role.characterId).persona)
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
         assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
-        assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
+        assertEquals(CharacterProfileSchema.jiangDuV17Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
         assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").toString())
