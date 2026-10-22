@@ -170,7 +170,7 @@ internal object DigitalWorldActivityCatalog {
             "sit_arcade" to "去休息区坐坐",
             "arcade_linger" to "在灯光和音效里待一会儿",
         )
-        DigitalWorldPublicPlaces.CAFE -> listOf(
+        DigitalWorldPublicPlaces.CAFE -> DigitalCafeMenu.locationOptions() + listOf(
             "order_drink" to "领取一杯温水",
             "order_snack" to "领取一份原味饼干",
             "cafe_sit" to "找个座位坐下",
@@ -220,6 +220,10 @@ internal object DigitalWorldActivityCatalog {
             return "${characterName}打开了露露机通往现实世界的信息窗口。"
         }
         if (locationOptions(locationCode).none { it.first == activityId }) return null
+        val ordered = if (locationCode == DigitalWorldPublicPlaces.CAFE) DigitalCafeMenu.byOrder(activityId) else null
+        val consumed = if (locationCode == DigitalWorldPublicPlaces.CAFE) DigitalCafeMenu.byConsume(activityId) else null
+        if (ordered != null) return "$characterName在浮光咖啡角点了一份${ordered.name}。"
+        if (consumed != null) return "$characterName${consumed.verb}了一份${consumed.name}。"
         val action = when (activityId) {
             "cloud_walk" -> "沿着云眠原的感官云面慢慢散了一会儿步"
             "cloud_sit" -> "在云眠原的感官云质上坐了下来"
