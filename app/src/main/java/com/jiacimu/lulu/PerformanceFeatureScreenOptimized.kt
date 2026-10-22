@@ -145,7 +145,24 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 FastMetric("接口输入（实测）", record.reportedInputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
                 FastMetric("接口输出（实测）", record.reportedOutputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
                 val totalEstimate = record.breakdown.sumOf { it.estimatedTokens.toLong() }
-                FastMetric("全文本粗估", totalEstimate.toString() + " tok")
+                // The provider returns only ONE real count. Make reconciliation
+                // visible before any rough estimate, so 70k real vs 44k rough
+                // never looks like 26k missing messages.
+                val groups = com.jiacimu.lulu.data.TokenConsolePresentation.groups(record.breakdown)
+                val allocations = com.jiacimu.lulu.data.TokenConsolePresentation
+                    .allocateReportedInput(record, groups)
+                if (allocations != null) {
+                    FastMetric("四大类合计（参考归属）", allocations.sum().toString() + " tok")
+                    Text(
+                        "已与接口输入总量对账；下面的各类数值按发送文本字符占比分摊，" +
+                            "不是服务商逐类实测。不能凭这个比例确定每段实际分词成本。",
+                        color = FastPerformanceMuted, fontSize = 11.sp,
+                    )
+                } else {
+                    Text("本条无法按文本完整分摊实测 Token（旧记录、图片或字符核对失败）。",
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                }
+                FastMetric("原始字符公式（仅作参考）", totalEstimate.toString() + " tok")
                 val empirical = com.jiacimu.lulu.data.TokenConsolePresentation.calibratedEstimate(record, records)
                 if (empirical != null) {
                     FastMetric("历史同线路校准估算", empirical.tokens.toString() + " tok")
@@ -161,21 +178,10 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                     FastMetric("实测与粗估差额",
                         (if (difference > 0) "+" else "") + difference.toString() + " tok")
                 }
-                val groups = com.jiacimu.lulu.data.TokenConsolePresentation.groups(record.breakdown)
-                val canAllocate = record.auditVersion > 0 && record.imageCount == 0 &&
-                    record.reportedInputTokens > 0 && record.coveredTextCharacters > 0L &&
-                    record.coveredTextCharacters == record.textCharacters.toLong()
                 Text("输入组成 · " + groups.size + " 大类", fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 9.dp))
-                var allocatedSoFar = 0L
                 groups.forEachIndexed { index, group ->
-                    val share = if (!canAllocate) null else if (index == groups.lastIndex) {
-                        record.reportedInputTokens - allocatedSoFar
-                    } else {
-                        (record.reportedInputTokens.toDouble() * group.chars /
-                            record.coveredTextCharacters).toLong().also { allocatedSoFar += it }
-                    }
-                    FastTokenSourceGroup(record.id, group, share)
+                    FastTokenSourceGroup(record.id, group, allocations?.get(index))
                 }
                 var diagnosticsExpanded by rememberSaveable(record.id, "token-diagnostics") { mutableStateOf(false) }
                 TextButton(onClick = { diagnosticsExpanded = !diagnosticsExpanded }) {
@@ -186,6 +192,14 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                 if (diagnosticsExpanded) {
                     HorizontalDivider(color = FastPerformanceBorder)
                     FastMetric("缓存 Token", record.cachedTokens.toString())
+                    FastMetric("归类明细项数", record.breakdown.size.toString())
+                    val groupChars = groups.sumOf { it.chars }
+                    val groupEstimated = groups.sumOf { it.estimatedTokens }
+                    FastMetric("四类原文字符核对", "$groupChars / ${record.textCharacters}")
+                    FastMetric("四类粗估核对", "$groupEstimated / $totalEstimate")
+                    Text("核对的是客户端实际发送的文字，服务商可能计入消息结构或中转额外输入；" +
+                        "只有供应商逐段返回 Token 才能给出严格真实分项。",
+                        color = FastPerformanceMuted, fontSize = 11.sp)
                     if (record.requestSource.isNotBlank()) FastMetric("原始调用来源", record.requestSource)
                     if (record.contextMode.isNotBlank()) FastMetric("实际角色上下文", record.contextMode)
                     if (record.providerHost.isNotBlank()) FastMetric("API服务域名", record.providerHost)
@@ -236,10 +250,10 @@ private fun FastTokenSourceGroup(
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(group.title, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                Text(group.estimatedTokens.toString() + " tok（粗估） · " +
+                if (allocated != null) Text("约 " + allocated.toString() + " tok · 比例归属（非逐项实测）",
+                    fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(group.estimatedTokens.toString() + " tok（字符粗估） · " +
                     group.chars.toString() + " 字符 · " + group.items.size + " 项",
-                    color = FastPerformanceMuted, fontSize = 11.sp)
-                if (allocated != null) Text("等比分摊约 " + allocated + " tok（非实测）",
                     color = FastPerformanceMuted, fontSize = 11.sp)
             }
             TextButton(onClick = { details = !details }) {
