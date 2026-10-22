@@ -157,8 +157,6 @@ fun QqStyleChatDetailScreen(
     var forwardingMessages by remember { mutableStateOf<List<LuluChatMessage>?>(null) }
     var moreExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
-    var callModeChoiceVisible by remember { mutableStateOf(false) }
-    var live2dDiagnosticOpen by remember { mutableStateOf(false) }
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
     var mentionExpanded by remember { mutableStateOf(false) }
@@ -621,9 +619,19 @@ fun QqStyleChatDetailScreen(
                             onCall = {
                                 focusManager.clearFocus(force = true)
                                 keyboardController?.hide()
-                                if (groupChat == null) callModeChoiceVisible = true
-                                else callVisible = true
+                                if (groupChat == null) {
+                                    LuluVoiceCallSession.prepare(context, conversationId,
+                                        characterId, character.displayName)
+                                    LuluCallWindowController.start(video = false)
+                                } else callVisible = true
                             },
+                            onVideoCall = if (groupChat == null) ({
+                                focusManager.clearFocus(force = true)
+                                keyboardController?.hide()
+                                LuluVoiceCallSession.prepare(context, conversationId,
+                                    characterId, character.displayName)
+                                LuluCallWindowController.start(video = true)
+                            }) else null,
                             onSendOnly = { payload -> appendDraft(payload) },
                             onWakeOrReply = { payload -> wakeOnline(payload) },
                             onSendSticker = { sticker ->
@@ -820,47 +828,6 @@ fun QqStyleChatDetailScreen(
         }
     }
 
-    if (callModeChoiceVisible && groupChat == null) {
-        AlertDialog(
-            onDismissRequest = { callModeChoiceVisible = false },
-            title = { Text("选择通话方式") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = {
-                        callModeChoiceVisible = false
-                        LuluVoiceCallSession.prepare(context, conversationId, characterId, character.displayName)
-                        LuluCallWindowController.start(video = false)
-                    }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Outlined.Call, contentDescription = null)
-                        Spacer(Modifier.width(12.dp))
-                        Text("语音通话")
-                    }
-                    TextButton(onClick = {
-                        callModeChoiceVisible = false
-                        LuluVoiceCallSession.prepare(context, conversationId, characterId, character.displayName)
-                        LuluCallWindowController.start(video = true)
-                    }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Outlined.Videocam, contentDescription = null)
-                        Spacer(Modifier.width(12.dp))
-                        Text("Live2D 视频通话")
-                    }
-                    HorizontalDivider()
-                    TextButton(onClick = {
-                        callModeChoiceVisible = false
-                        live2dDiagnosticOpen = true
-                    }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Outlined.BugReport, contentDescription = null)
-                        Spacer(Modifier.width(12.dp))
-                        Text("Live2D 动态检测 · 不拨号")
-                    }
-                }
-            },
-            confirmButton = { TextButton(onClick = { callModeChoiceVisible = false }) { Text("取消") } },
-        )
-    }
-    if (live2dDiagnosticOpen && groupChat == null) {
-        Live2DModelDiagnosticDialog(characterId) { live2dDiagnosticOpen = false }
-    }
     if (callVisible && groupChat != null) {
         LuluGroupVoiceCallScreen(conversationId, groupChat) {
             callVisible = false
