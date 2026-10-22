@@ -49,6 +49,21 @@ internal object DigitalWorldEvolutionRuntime {
         PlaceTemplate("拾光巷", "闲逛 · 停留 · 交流", "连接多个公共节点的窄巷式空间，让角色可以闲逛、碰面并形成地点记忆。"),
     )
 
+    private val npcQualities = mapOf(
+        "闻澜" to ("慢热认真，有原则" to "安静散步"),
+        "弥砂" to ("直率机敏，对含糊指路不耐烦" to "旧地图"),
+        "南汐" to ("外向健谈，有自己的界限" to "街头趣闻"),
+        "椿铃" to ("安静有主见，不喜别人乱碰植物" to "园艺和季节"),
+        "迟墨" to ("严谨克制，常会核对传闻" to "旧公告"),
+        "洛芽" to ("活泼乐观，偶尔迷糊" to "颜色搭配"),
+        "栖迟" to ("独立随性，不喜欢被催促" to "街边小店"),
+        "青禾" to ("谨慎耐心，珍惜约定" to "修理旧物"),
+        "苏弦" to ("热情有分寸，也敢反对" to "小游戏"),
+        "言溪" to ("温和固执，方向感强" to "地名与猜谜"),
+        "岚序" to ("清冷寡言，措辞精确" to "光影"),
+        "照野" to ("爽朗果断，讨厌拖延" to "晨间巡游"),
+    )
+
     private val residentTemplates = listOf(
         ResidentTemplate("闻澜", "数字世界公共区域维护员"),
         ResidentTemplate("弥砂", "数字世界路线与指引整理员"),
@@ -96,12 +111,40 @@ internal object DigitalWorldEvolutionRuntime {
                     homeLocationCode = DigitalWorldPublicPlaces.CAFE,
                     currentLocationCode = DigitalWorldPublicPlaces.CAFE,
                     createdAt = now,
+                    temperament = npcQualities[initial.name]?.first.orEmpty(),
+                    preferences = npcQualities[initial.name]?.second.orEmpty(),
                 ))
             }.getOrNull()
             if (resident != null) {
                 val summary = "数字世界已经登记第一位持久居民“${resident.name}”，她在浮光咖啡角附近拥有自己的家，并在那里值守。角色可以自行决定要不要去遇见她。"
                 results += summary
                 recordEvolution(characterId, "first-resident-${resident.id}", summary, now)
+            }
+        }
+        // Cafe employee is a world resident with an actual registered home.
+        var barista = DigitalWorldExpansionStore.residents().firstOrNull { it.identity == "浮光咖啡角店员" }
+        if (barista == null) {
+            barista = runCatching {
+                DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
+                    name = "岑灯",
+                    identity = "浮光咖啡角店员",
+                    homeLocationCode = DigitalWorldPublicPlaces.CAFE,
+                    createdAt = now,
+                    temperament = "安静细心，重视手艺，有自己的边界",
+                    preferences = "研究咖啡风味，记得真实聊过的顾客",
+                ))
+            }.getOrNull()
+            if (barista != null) {
+                val summary = "浮光咖啡角登记了店员“${barista.name}”，她有自己的住处和轮班。"
+                results += summary
+                recordEvolution(characterId, "cafe-barista-${barista.id}", summary, now)
+            }
+        }
+        barista?.let { employee ->
+            val hour = java.time.ZonedDateTime.ofInstant(now, java.time.ZoneId.systemDefault()).hour
+            val destination = if (hour in 9..20) DigitalWorldPublicPlaces.CAFE else employee.homeLocationCode
+            if (employee.currentLocationCode != destination) {
+                DigitalWorldExpansionStore.moveResident(employee.id, destination, now)
             }
         }
         val daySlot = Math.floorDiv(now.epochSecond, DAY_SECONDS)
@@ -170,6 +213,8 @@ internal object DigitalWorldEvolutionRuntime {
                             name = template.name,
                             identity = template.identity,
                             homeLocationCode = neighborhood,
+                            temperament = npcQualities[template.name]?.first.orEmpty(),
+                            preferences = npcQualities[template.name]?.second.orEmpty(),
                             neighborhoodCode = neighborhood,
                             currentLocationCode = neighborhood,
                             createdAt = now,
@@ -186,7 +231,7 @@ internal object DigitalWorldEvolutionRuntime {
 
         val movementSlot = Math.floorDiv(now.epochSecond, MOVEMENT_SECONDS)
         val consumedMovementSlot = p.getLong(KEY_MOVEMENT_SLOT, -1L)
-        val residents = DigitalWorldExpansionStore.residents()
+        val residents = DigitalWorldExpansionStore.residents().filterNot { it.identity == "浮光咖啡角店员" }
         if (movementSlot > consumedMovementSlot && residents.isNotEmpty()) {
             p.edit().putLong(KEY_MOVEMENT_SLOT, movementSlot).commit()
             val resident = residents[roll("move-resident:$movementSlot", residents.size)]
