@@ -656,6 +656,7 @@ object ProactivePerceptionRuntime {
                 appendLine("本次判断：如果没有待处理的新消息，这仍是角色真实生活的一段时间，不是只能更新状态的空轮询；在线期间也不会因为没有未读消息就被系统强制 SILENT。")
                 appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
                 appendLine(deviceContext)
+                appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
                 appendLine(CharacterPerceptionContext.render(observedWorld))
                 appendLine(DigitalWorldLiveScene.context(characterId))
                 salientInteraction?.let { event ->
@@ -1325,6 +1326,8 @@ object ProactivePerceptionRuntime {
             appContext, character, decision, availableGroups, now,
             goalReviewMode = trigger.startsWith("持续目标定时复盘"),
             hasFreshUserMessage = messageStimulus != null,
+            explicitScreenRequest = CharacterInitiativeRuntime.isExplicitUserToolRequest(
+                onlineUnread.text, decision.tool),
             responseEvidenceIds = onlineUnread.messageIds,
             replyConversationIds = onlineUnread.conversationIds,
             requestId = when {
@@ -1605,6 +1608,7 @@ object ProactivePerceptionRuntime {
         requestId: String,
         goalReviewMode: Boolean = false,
         hasFreshUserMessage: Boolean = false,
+        explicitScreenRequest: Boolean = false,
         responseEvidenceIds: Set<String> = emptySet(),
         replyConversationIds: Set<String> = emptySet(),
     ): ActionExecution {
@@ -1693,7 +1697,8 @@ object ProactivePerceptionRuntime {
             args.put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
         }
         val resultJson = JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
-            requestId = requestId, intentionId = decision.intentionId))
+            requestId = requestId, intentionId = decision.intentionId,
+            userRequested = tool == "capture_screen" && explicitScreenRequest))
         val result = CompanionActionResult(
             resultJson.optBoolean("success"),
             resultJson.optString("summary").ifBlank {
