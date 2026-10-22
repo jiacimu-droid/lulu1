@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:51:59.675323+00:00",
-  "commit": "bd03fd1d5e9d5222b2ecfe35457a268074d08775",
+  "generatedAt": "2026-10-22T20:52:25.959186+00:00",
+  "commit": "d2f036648a22e38b2a37c3a97c3ed0792cfdd042",
   "branch": "main",
-  "sourceFingerprint": "b08b962bc561c1a955a13798a570807f2bb0fe995c45b506f4e41ff98a83ce62",
+  "sourceFingerprint": "e74995e40f2612f6232b72ace813ef20295cc1762c26d83065d280fca75b9e95",
   "summary": {
     "files": 834,
-    "lines": 159390,
-    "symbols": 2415
+    "lines": 159408,
+    "symbols": 2416
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1560,6 +1560,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 127
+      }
+    ],
+    "send": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
+        "line": 157
       }
     ],
     "Sample": [
@@ -14698,9 +14704,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 730,
-      "sha256": "2bddfd0cc0569a65000f017d2625e323bbeb2f933c169797a60d45c404b39402",
-      "symbols": []
+      "lines": 748,
+      "sha256": "5ab673bb13bf15793aac344aba39c80a7bf0cc821c12438eb6a3be2dc88cb773",
+      "symbols": [
+        {
+          "name": "send",
+          "line": 157
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt",
