@@ -42,8 +42,20 @@ internal object LuluCallWindowController {
     fun start(video: Boolean) {
         mutableVideoRequested.value = video
         mutableExpanded.value = true
+        recordConnectedVideoChoice(video)
     }
-    fun setVideoMode(video: Boolean) { mutableVideoRequested.value = video }
+    fun setVideoMode(video: Boolean) {
+        mutableVideoRequested.value = video
+        recordConnectedVideoChoice(video)
+    }
+    private fun recordConnectedVideoChoice(video: Boolean) {
+        if (!video) return
+        val call = LuluVoiceCallSession.state.value
+        if (call.connected) {
+            com.jiacimu.lulu.data.InteractionSignalBridge.recordVideoSelected(
+                call.characterId, call.callExperienceId)
+        }
+    }
     fun show() { mutableExpanded.value = true }
     fun minimize() { mutableExpanded.value = false }
 }
