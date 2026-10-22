@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:36:23.608392+00:00",
-  "commit": "caf4722129855237614ab1fe8ab51c7dedb85f95",
+  "generatedAt": "2026-10-22T16:38:45.678242+00:00",
+  "commit": "d48dc15977f7ab24f409fcbace78b54e00c1e1ef",
   "branch": "main",
-  "sourceFingerprint": "096dc931bdbbf867abe3651bf7a683123513e8649e2dad4673748c2adb34d742",
+  "sourceFingerprint": "6d9c0d5fdf0628cbe76685c2c4ad6e2bd26e75678aca3132e48b1529d409925b",
   "summary": {
-    "files": 823,
-    "lines": 156923,
+    "files": 825,
+    "lines": 157043,
     "symbols": 2375
   },
   "symbolIndex": {
@@ -13378,6 +13378,18 @@
       "path": "app/src/main/assets/xhs-reader.js",
       "lines": 452,
       "sha256": "d0ef5d68d05762dabaa1640dced9ef4141907a04cacf5485504e27daf61c93a0",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/cpp/cubism_native_probe.cpp",
+      "lines": 33,
+      "sha256": "b2afd9f1a59a39ea97c4fedd0dde29de591c914164c7a334d2fe8c70ca20b576",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/cpp/whisper_jni.cpp",
+      "lines": 87,
+      "sha256": "6090c9d66a50ec2968cc78f6a5edcc3699de93ac0ec15b197fccfec415cdac1e",
       "symbols": []
     },
     {
@@ -28367,7 +28379,7 @@
     {
       "path": "scripts/generate_code_index.py",
       "lines": 33,
-      "sha256": "db454feedfdf3568224a509dc2333719045f645726f1c02b7beb067b90a10062",
+      "sha256": "03698b37e17b01c563f50bd079888af467d70fec501ae9e51e78f1f21325b91b",
       "symbols": []
     },
     {
