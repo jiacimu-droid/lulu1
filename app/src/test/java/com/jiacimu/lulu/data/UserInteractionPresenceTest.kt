@@ -33,4 +33,37 @@ class UserInteractionPresenceTest {
         assertFalse(text.contains("触摸操作约"))
         assertFalse(text.contains("当前未处于前台可交互状态"))
     }
+    @Test fun lateNightRecentActualConversationProvidesOptionalAttentionCue() {
+        val at = Instant.parse("2026-10-22T20:30:00Z")
+        val userAt = at.minusSeconds(10 * 60)
+        val presence = UserInteractionPresence(
+            appVisible = true,
+            lastTouchAt = at.minusSeconds(90),
+        )
+        val cue = UserInteractionPresenceStore.salientTimeCue(
+            presence, relevantPage = true, lastUserAt = userAt,
+            now = at, zone = java.time.ZoneId.of("Asia/Shanghai"),
+        )
+        assertTrue(cue.contains("凌晨"))
+        assertTrue(cue.contains("约 10 分钟前确实收到用户发言"))
+        assertTrue(cue.contains("尚不确定用户有没有睡过"))
+        assertTrue(cue.contains("不是必须劝睡"))
+        assertTrue(cue.contains("已表达的关心和用户回应"))
+    }
+
+    @Test fun silenceOrStaleContactCannotBecomeFalseProofOfStayingAwake() {
+        val at = Instant.parse("2026-10-22T20:30:00Z")
+        val zone = java.time.ZoneId.of("Asia/Shanghai")
+        val screenOnly = UserInteractionPresence(appVisible = true)
+        assertEquals("", UserInteractionPresenceStore.salientTimeCue(
+            screenOnly, true, null, at, zone))
+        assertEquals("", UserInteractionPresenceStore.salientTimeCue(
+            screenOnly, true, at.minusSeconds(8 * 3600), at, zone))
+        val touchedUnrelatedPage = screenOnly.copy(lastTouchAt = at.minusSeconds(30))
+        assertEquals("", UserInteractionPresenceStore.salientTimeCue(
+            touchedUnrelatedPage, false, null, at, zone))
+        assertEquals("", UserInteractionPresenceStore.salientTimeCue(
+            touchedUnrelatedPage, true, null, at.minusSeconds(9 * 3600), zone))
+    }
+
 }
