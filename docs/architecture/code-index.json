@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:38:49.929771+00:00",
-  "commit": "ce5a6b31a9f2d862e06d378cfe045d4ef5edf82b",
+  "generatedAt": "2026-10-22T13:40:26.816896+00:00",
+  "commit": "9ab4aa016cd4f6e4065d3a9cecbc708e9aae62ca",
   "branch": "main",
-  "sourceFingerprint": "c7e1db1286dbd7369c5d77cdb2bd98705d480f979214e9ee0d32b84e116625ef",
+  "sourceFingerprint": "0345716025297673e4d10474f1ebe8edbdcb6d5082f5d9e7a531eb83172d2cd1",
   "summary": {
-    "files": 801,
-    "lines": 153259,
-    "symbols": 2299
+    "files": 802,
+    "lines": 153337,
+    "symbols": 2300
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12566,6 +12566,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt",
         "line": 16
+      }
+    ],
+    "PerformanceAuditPersistenceTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
+        "line": 14
       }
     ],
     "PersonalCharacterSettingsTest": [
@@ -26889,6 +26895,17 @@
         {
           "name": "PerceptionWakePlanStoreTest",
           "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
+      "lines": 78,
+      "sha256": "cbd37e21e399e0c084ed7f1c526f01b99b54d7e472b2b637c664f55b4383f1f9",
+      "symbols": [
+        {
+          "name": "PerformanceAuditPersistenceTest",
+          "line": 14
         }
       ]
     },
