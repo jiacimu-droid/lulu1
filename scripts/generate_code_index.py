@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-allowed = {'.kt','.kts','.java','.xml','.py','.js','.css','.html','.json','.md','.yml','.yaml'}
+allowed = {'.kt','.kts','.java','.xml','.py','.js','.css','.html','.json','.md','.yml','.yaml','.cpp','.c','.h','.hpp'}
 files=[]
 symbols={}
 fingerprint=hashlib.sha256()
