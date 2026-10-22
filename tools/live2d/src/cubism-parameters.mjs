@@ -40,7 +40,12 @@ export class CubismParameterAccess {
   write(core, id, value) {
     const i = this.index(core, id)
     if (i < 0 || !Number.isFinite(value)) return false
-    core.setParameterValueByIndex(i, value)
+    const params = core.getModel?.()?.parameters
+    const min = params?.minimumValues?.[i]
+    const max = params?.maximumValues?.[i]
+    const bounded = Math.min(Number.isFinite(max) ? max : Infinity,
+      Math.max(Number.isFinite(min) ? min : -Infinity, value))
+    core.setParameterValueByIndex(i, bounded)
     return true
   }
 }
