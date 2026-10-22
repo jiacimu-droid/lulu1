@@ -100,8 +100,9 @@ internal object LuluExternalMcp {
                     }
                 } finally { connection.disconnect() }
             }.getOrNull()
-            if (legacyHealth == true) return@withContext
-                "本机旧版只读 MCP 已响应（未检测浏览器登录和实际笔记）"
+            if (legacyHealth == true) {
+                return@withContext "本机旧版只读 MCP 已响应（未检测浏览器登录和实际笔记）"
+            }
             // Continue below: validate a real authenticated MCP initialize.
         }
         val init = send(url, savedToken(context, service), null, JSONObject()
