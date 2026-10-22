@@ -201,11 +201,14 @@ private fun FastConsoleTab(onClear: () -> Unit) {
                         "这是帮助定位最大输入来源的推算，不是服务商逐栏目实测，不能用于精确计费。",
                     color = FastPerformanceMuted, fontSize = 11.sp,
                 )
-                sortedParts.forEach { part ->
-                    val allocated = if (canAllocate) (
-                        record.reportedInputTokens.toDouble() * part.chars /
-                            record.coveredTextCharacters
-                    ).toLong() else null
+                var assignedTokens = 0L
+                sortedParts.forEachIndexed { index, part ->
+                    val allocated = if (!canAllocate) null else if (index == sortedParts.lastIndex) {
+                        record.reportedInputTokens - assignedTokens
+                    } else {
+                        (record.reportedInputTokens.toDouble() * part.chars /
+                            record.coveredTextCharacters).toLong().also { assignedTokens += it }
+                    }
                     FastTokenPartLine(part, allocated)
                 }
             }
