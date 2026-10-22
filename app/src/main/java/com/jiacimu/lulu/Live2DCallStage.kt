@@ -156,8 +156,11 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             )
         }
     }
-    LaunchedEffect(stage, previewRevision) {
-        if (previewRevision > 0) {
+    // A visual cue can arrive while the Cubism model is still loading.
+    // Replay it once the actual renderer becomes ready instead of losing the
+    // requested expression (e.g. the wolf's star eyes) in a JS no-op.
+    LaunchedEffect(stage, previewRevision, rendererReady.value) {
+        if (rendererReady.value && previewRevision > 0) {
             val commands = mutableListOf<String>()
             previewExpression?.let {
                 commands += "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(it)})"
