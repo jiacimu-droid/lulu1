@@ -129,6 +129,13 @@ internal fun Live2DFullscreenVideoCall(
             Live2DCallVisionState.disable(characterId, state.callExperienceId)
         }
     }
+    var touchFeedback by remember(characterId, modelUrl) { mutableStateOf("") }
+    LaunchedEffect(touchFeedback) {
+        if (touchFeedback.isNotBlank()) {
+            delay(1_250L)
+            touchFeedback = ""
+        }
+    }
     var renderRetry by remember(modelUrl) { mutableIntStateOf(0) }
     var nativeFrameReady by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     // Record only a genuinely visible Android frame during the connected call.
@@ -199,6 +206,29 @@ internal fun Live2DFullscreenVideoCall(
                 nativeMirrorEnabled = true,
                 framingMode = framingMode,
                 qualityMode = qualityMode,
+                onModelTouch = { region, gesture ->
+                    // The JS renderer only reports real, model-hit touches.
+                    // Do not record a digital-body interaction before Android
+                    // has presented an actual frame in this connected call.
+                    if (nativeFrameReady && state.connected &&
+                        state.callExperienceId.isNotBlank()) {
+                        com.jiacimu.lulu.data.InteractionSignalBridge.recordVideoRendered(
+                            characterId, state.callExperienceId)
+                        if (LuluVoiceCallSession.onLive2DTouch(characterId,
+                                state.callExperienceId, region, gesture)) {
+                            val label = when (region) {
+                                "head" -> "头部"
+                                "arm" -> "手臂"
+                                else -> "身体"
+                            }
+                            touchFeedback = when (gesture) {
+                                "stroke" -> "摸到了 · $label"
+                                "hold" -> "碰到了 · $label"
+                                else -> "戳到了 · $label"
+                            }
+                        }
+                    }
+                },
                 onStatus = { phase, detail ->
                     // A dead WebView can still emit queued console messages after
                     // onRenderProcessGone. Never recreate it without user retry.
@@ -357,6 +387,14 @@ internal fun Live2DFullscreenVideoCall(
                             .padding(horizontal = 5.dp, vertical = 3.dp))
                 }
             }
+        }
+        if (touchFeedback.isNotBlank()) {
+            Text(touchFeedback,
+                modifier = Modifier.align(Alignment.Center)
+                    .offset(y = 98.dp)
+                    .background(Color.Black.copy(alpha = .53f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 13.dp, vertical = 7.dp),
+                color = Color.White, fontSize = 13.sp)
         }
         // A compact gradient over the avatar preserves the video-call feel.
         Box(Modifier.fillMaxWidth().height(162.dp).align(Alignment.TopCenter)
