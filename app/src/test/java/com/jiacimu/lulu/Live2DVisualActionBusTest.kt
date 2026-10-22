@@ -15,6 +15,20 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class Live2DVisualActionBusTest {
+    @Test fun starEyeAliasesOnlyResolveToRealModelExpressions() {
+        val names = listOf("小狼-星星眼", "脸红", "吐舌", "笑眼")
+        assertEquals("小狼-星星眼",
+            Live2DVisualActionBus.resolveExpression("星星眼", names))
+        assertEquals("小狼-星星眼",
+            Live2DVisualActionBus.resolveExpression("StarryEyes", names))
+        assertEquals("吐舌", Live2DVisualActionBus.resolveExpression("吐舌", names))
+        assertEquals("脸红", Live2DVisualActionBus.resolveExpression("害羞", names))
+        assertEquals(null,
+            Live2DVisualActionBus.resolveExpression("星星眼", listOf("笑眼")))
+        assertEquals(null,
+            Live2DVisualActionBus.resolveExpression("挥手", names))
+    }
+
     @Test fun roleCanOnlyExecuteOwnImportedControlsInsideCurrentVideoCall() {
         val context = RuntimeEnvironment.getApplication()
         val role = "live2d-role-" + UUID.randomUUID()
