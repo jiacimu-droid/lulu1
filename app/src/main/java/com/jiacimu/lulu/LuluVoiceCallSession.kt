@@ -725,6 +725,7 @@ internal object LuluVoiceCallSession {
                 endedByCharacter = endedByCharacter,
                 elapsedSeconds = current.elapsedSeconds,
                 confirmedUserSpeechCount = confirmedUserSpeechCount,
+                endsInVideo = LuluCallWindowController.videoRequested.value,
                 secondsSinceConfirmedSpeech = if (lastConfirmedUserSpeechMillis > 0L)
                     (SystemClock.elapsedRealtime() - lastConfirmedUserSpeechMillis).coerceAtLeast(0L) / 1_000L
                     else current.elapsedSeconds,
@@ -1530,7 +1531,15 @@ internal object LuluVoiceCallSession {
                     "【当前通话媒介】用户已选择 Live2D 虚拟视频通话，但你的数字身体尚未确认显示成功；这是视频模式，不要假称画面已显示。$cameraVisibilityRule 等身体实际可用时再选择可执行动作。"
                 }
             } else {
-                "【当前通话媒介】本轮为语音电话，用户未开启 Live2D 视频；不要声称彼此正在视频中看到对方。"
+                if (InteractionSignalBridge.hasRenderedVideo(
+                        latest.characterId, latest.callExperienceId)) {
+                    "【当前通话媒介】用户刚才在这同一通电话里真正看到了你的 Live2D 视频画面，现在切换成语音电话。之前的对话、事件和记忆继续沿用，不是重新拨号。当前没有视频画面，也不能未经摄像头共享就声称看见用户。"
+                } else if (InteractionSignalBridge.hasSelectedVideo(
+                        latest.characterId, latest.callExperienceId)) {
+                    "【当前通话媒介】这同一通电话曾尝试开启 Live2D 视频，后来切为语音；未确认动态画面真正显示，不能伪称视频见面。"
+                } else {
+                    "【当前通话媒介】本轮为语音电话，用户未开启 Live2D 视频；不要声称彼此正在视频中看到对方。"
+                }
             }
             LuluDeviceToolBridge.respond(
                 characterId = latest.characterId,
@@ -2010,8 +2019,19 @@ internal object LuluVoiceCallSession {
         // as a permanent high-strength shared memory. Normal evidence-backed
         // extraction may still retain genuinely important facts or relationship
         // milestones from actual user/character utterances.
+        val wasVideo = InteractionSignalBridge.hasRenderedVideo(
+            current.characterId, current.callExperienceId)
+        val videoAttempted = InteractionSignalBridge.hasSelectedVideo(
+            current.characterId, current.callExperienceId)
+        val summary = when {
+            wasVideo -> "刚刚打了个视频电话" +
+                (if (!LuluCallWindowController.videoRequested.value) "，中途切换回了语音" else "")
+            videoAttempted -> "刚刚打了个电话，中途尝试过开启视频，但未确认画面显示"
+            else -> "刚刚打了个电话"
+        }
         MigratedDomainStores.chat.appendSystemMessage(current.conversationId,
-            if (endedByCharacter) "[共同活动] ${current.characterName}主动结束了电话" else "[共同活动] 刚刚打了个电话")
+            "[共同活动] $summary" +
+                if (endedByCharacter) "，由${current.characterName}主动结束" else "")
         mutableState.update { it.copy(experienceSaved = true) }
     }
 
