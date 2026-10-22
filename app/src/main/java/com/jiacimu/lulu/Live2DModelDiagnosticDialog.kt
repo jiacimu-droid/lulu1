@@ -119,7 +119,7 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 previewHead = manualHead,
                                 previewRevision = motionRevision,
                                 onStatus = { phase, detail ->
-                                    if (phase != "diagnostic") {
+                                    if (phase !in setOf("diagnostic", "step", "resource", "parameters")) {
                                         stagePhase = phase
                                         stageMessage = detail
                                     }
