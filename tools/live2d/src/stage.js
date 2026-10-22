@@ -6,6 +6,7 @@ import * as PIXI from 'pixi.js'
 import { install as installCspShaderAdapter } from '@pixi/unsafe-eval'
 import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 import { CubismParameterAccess } from './cubism-parameters.mjs'
+import { createPoseSpring } from './pose-spring.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -70,8 +71,8 @@ let faceRequestStartedAt = 0
 let proceduralBlinkEnabled = false
 let blinkClock = 4.4
 let blinkProgress = -1
-const smoothPose = { yaw: 0, pitch: 0, roll: 0 }
-const smoothBody = { yaw: 0, pitch: 0, roll: 0 }
+const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06)
+const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1)
 const smoothFace = Object.create(null)
 // Imported rigs can have physics-driven secondary skull/torso angles besides
 // the main ParamAngleX/Y/Z. These actual IDs occur in the wolf physics3.json.
@@ -342,24 +343,15 @@ function applyFinalParameters(core, deltaMs) {
     ['ParamAngleY', 'pitch'],
     ['ParamAngleZ', 'roll'],
   ]
+  // AIRI-style critically damped pose spring: smooth approach to a
+  // deliberate pose, smoothly return to neutral, with no idle oscillation.
+  const headPose = headSpring.step(headRequest, deltaMs)
+  const bodyPose = bodySpring.step(bodyRequest, deltaMs)
   for (const [id, axis] of axes) {
-    if (!hasParameter(core, id)) continue
-    const requested = headRequest?.[axis]
-    const target = requested ?? 0
-    smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .010)
-    if (Math.abs(smoothPose[axis]) < .025) smoothPose[axis] = 0
-    // Always write neutral zero while no intentional cue is active; if we
-    // simply "continue" here, the original idle motion reintroduces swaying.
-    setParameter(core, id, smoothPose[axis])
+    if (hasParameter(core, id)) setParameter(core, id, headPose[axis])
   }
   for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-    if (!hasParameter(core, id)) continue
-    const requested = bodyRequest?.[axis]
-    smoothBody[axis] += ((requested ?? 0) - smoothBody[axis]) *
-      Math.min(1, deltaMs * .008)
-    if (requested == null && Math.abs(smoothBody[axis]) < .025) smoothBody[axis] = 0
-    // Suppress authored idle torso swaying, but preserve short intentional cues.
-    setParameter(core, id, smoothBody[axis])
+    if (hasParameter(core, id)) setParameter(core, id, bodyPose[axis])
   }
   // The physics solver runs before the final parameter callback. Secondary
   // head/torso follow-through can visibly sway even when the primary angles
