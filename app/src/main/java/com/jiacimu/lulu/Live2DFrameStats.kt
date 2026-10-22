@@ -59,7 +59,7 @@ internal class Live2DFrameStats(
         val span = nowMs - startedAt
         if (span < reportIntervalMs) return null
         val sorted = gaps.sorted()
-        val p95 = if (sorted.isEmpty()) 0 else
+        val p95 = if (sorted.isEmpty()) 0L else
             sorted[((sorted.size * 95 + 99) / 100 - 1).coerceAtLeast(0)]
         val result = Sample(
             fps = frames * 1000f / span.coerceAtLeast(1),
