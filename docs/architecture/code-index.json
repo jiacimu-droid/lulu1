@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:07:56.400265+00:00",
-  "commit": "8a4fc601f8d0b26d4f6d6979ecbced3032f5bccc",
+  "generatedAt": "2026-10-22T03:08:56.840030+00:00",
+  "commit": "c42b3c66ca8d5940fb09580b53af43d1ed83a98a",
   "branch": "main",
-  "sourceFingerprint": "8165d1d45f18195b0b672be75bbfcc9ed77a69c664c6de85b53e86cde003c949",
+  "sourceFingerprint": "2ebbc54add88dd7b5605910ae3c329975bd49b12c6f7a86ae3c84750a067b804",
   "summary": {
-    "files": 788,
-    "lines": 149768,
+    "files": 789,
+    "lines": 149843,
     "symbols": 2257
   },
   "symbolIndex": {
@@ -13826,6 +13826,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt",
       "lines": 123,
       "sha256": "70a06ad85b3e8a84d978b1733eaa035b4c41c78a8495717e0be3f3195146aa06",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt",
+      "lines": 75,
+      "sha256": "9058638da102568b785899f644cd196fef0a50fcf5fe4dc04198801e3b4ad27c",
       "symbols": []
     },
     {
