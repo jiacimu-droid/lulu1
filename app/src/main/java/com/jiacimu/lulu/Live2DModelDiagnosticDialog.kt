@@ -3,6 +3,15 @@ package com.jiacimu.lulu
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color as AndroidColor
+import android.graphics.PixelCopy
+import android.graphics.Rect
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.view.Window
+import android.webkit.WebView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,12 +22,62 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import kotlinx.coroutines.launch
+
+/**
+ * Count genuinely visible pixels from the Android dialog WINDOW, rather than
+ * just gl.readPixels or an offscreen DOM canvas. PixelCopy captures the actual
+ * compositor output in the same rectangle the user is looking at.
+ * Null means unavailable / capture failed, NOT proof that the screen is black.
+ */
+private suspend fun presentedLive2DColorPixels(window: Window?, view: WebView?): Int? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+        window == null || view == null || !view.isAttachedToWindow ||
+        view.width < 64 || view.height < 64) return null
+    val location = IntArray(2)
+    view.getLocationInWindow(location)
+    val rectangle = Rect(location[0], location[1],
+        location[0] + view.width, location[1] + view.height)
+    if (rectangle.left < 0 || rectangle.top < 0) return null
+    val bitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888)
+    return suspendCancellableCoroutine { continuation ->
+        try {
+            PixelCopy.request(window, rectangle, bitmap, { result ->
+                var pixels: Int? = null
+                if (result == PixelCopy.SUCCESS) {
+                    var found = 0
+                    // Ignore the edges: they may include controls or a border.
+                    // A dark, empty WebView background never satisfies this.
+                    for (y in 14 until 82) for (x in 14 until 82) {
+                        val value = bitmap.getPixel(x, y)
+                        val r = AndroidColor.red(value)
+                        val g = AndroidColor.green(value)
+                        val b = AndroidColor.blue(value)
+                        val highest = maxOf(r, g, b)
+                        val lowest = minOf(r, g, b)
+                        if (highest > 90 || highest - lowest > 26) found++
+                    }
+                    pixels = found
+                }
+                bitmap.recycle()
+                if (continuation.isActive) continuation.resume(pixels)
+            }, Handler(Looper.getMainLooper()))
+        } catch (_: Exception) {
+            bitmap.recycle()
+            if (continuation.isActive) continuation.resume(null)
+        }
+    }
+}
 
 /**
  * Independent renderer-only diagnostic. Neither LuluVoiceCallSession nor AI
@@ -46,6 +105,8 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     var manualHead by remember { mutableStateOf<Live2DVisualActionBus.Head?>(null) }
     var motionRevision by remember { mutableIntStateOf(0) }
     var mouthPreview by remember { mutableStateOf(false) }
+    var diagnosticView by remember(roleId, modelUrl, session) { mutableStateOf<WebView?>(null) }
+    var mirrorMode by remember(roleId, modelUrl, session) { mutableStateOf(false) }
     fun record(message: String) {
         events = (events + message.take(260)).takeLast(50)
     }
@@ -57,6 +118,43 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
     }
     Dialog(onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        val dialogView = LocalView.current
+        val dialogWindow = ((dialogView as? DialogWindowProvider)
+            ?: (dialogView.parent as? DialogWindowProvider))?.window
+        LaunchedEffect(stagePhase, diagnosticView, dialogWindow, session) {
+            if (stagePhase != "verifying" || diagnosticView == null) return@LaunchedEffect
+            delay(450)
+            val first = presentedLive2DColorPixels(dialogWindow, diagnosticView)
+            record("Android 屏幕 PixelCopy（中部可见像素）：${first ?: "无法采样"}" +
+                if (mirrorMode) " · 图片通道" else " · WebGL 直显")
+            if (first != null && first >= 32) {
+                stagePhase = "ready"
+                stageMessage = if (mirrorMode) "手机画面可见（图片兼容通道约 5fps）"
+                    else "Android 屏幕已确认显示人物"
+            } else if (first == null) {
+                stagePhase = "unverified"
+                stageMessage = "手机合成画面采样不可用，不能认定黑屏已修复；可手动尝试图片通道"
+            } else if (!mirrorMode) {
+                record("Canvas 有内容但屏幕仍黑，自动切换到 HTML 图片兼容通道")
+                diagnosticView?.evaluateJavascript(
+                    "window.LuluLive2D && window.LuluLive2D.setPresentationMode(true)", null)
+                mirrorMode = true
+                delay(850)
+                val second = presentedLive2DColorPixels(dialogWindow, diagnosticView)
+                record("图片兼容通道 PixelCopy：${second ?: "无法采样"}")
+                if (second != null && second >= 32) {
+                    stagePhase = "ready"
+                    stageMessage = "图片兼容通道可见（约 5fps，仅用于定位设备问题）"
+                } else {
+                    stagePhase = if (second == null) "unverified" else "error"
+                    stageMessage = if (second == null) "图片通道无法执行手机屏幕采样"
+                        else "GPU 已绘图，但图片通道也未呈现在 Android 屏幕；需排查 WebView 层叠"
+                }
+            } else {
+                stagePhase = "error"
+                stageMessage = "图片通道未显示到 Android 屏幕；请复制诊断日志"
+            }
+        }
         Surface(color = Color(0xFF121416), modifier = Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
                 .padding(horizontal = 14.dp, vertical = 10.dp)) {
@@ -121,8 +219,20 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 mouthLevel = if (mouthPreview) .9f else 0f,
                                 previewHead = manualHead,
                                 previewRevision = motionRevision,
+                                onWebViewReady = { view ->
+                                    diagnosticView = view
+                                    record("Native WebView 硬件加速=${view.isHardwareAccelerated}" +
+                                        "；渲染引擎=" +
+                                        (WebView.getCurrentWebViewPackage()?.versionName ?: "未知"))
+                                },
                                 onStatus = { phase, detail ->
-                                    if (phase !in setOf("diagnostic", "step", "resource", "parameters")) {
+                                    if (phase == "ready") {
+                                        // JavaScript readPixels and drawImage prove only that the
+                                        // canvas has pixels. PixelCopy proves Android displays them.
+                                        stagePhase = "verifying"
+                                        stageMessage = "Canvas 有像素；正在检查手机屏幕实际画面"
+                                    } else if (phase !in setOf(
+                                            "diagnostic", "step", "resource", "parameters")) {
                                         stagePhase = phase
                                         stageMessage = detail
                                     }
@@ -162,6 +272,20 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                     }, enabled = stagePhase == "ready") {
                         Text(if (mouthPreview) "闭嘴" else "张嘴", fontSize = 12.sp)
                     }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = {
+                        mirrorMode = !mirrorMode
+                        diagnosticView?.evaluateJavascript(
+                            "window.LuluLive2D && window.LuluLive2D.setPresentationMode(${mirrorMode})",
+                            null)
+                        stagePhase = "verifying"
+                        stageMessage = "手动切换显示通道；重新采样手机屏幕"
+                    }, enabled = diagnosticView != null) {
+                        Text(if (mirrorMode) "改用 WebGL 直显" else "试试图片兼容通道", fontSize = 12.sp)
+                    }
+                    Text("只有 Android 屏幕检测通过才允许测试动作",
+                        color = Color.LightGray, fontSize = 10.sp)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("加载日志（最近50条）", color = Color.LightGray, fontSize = 12.sp,
