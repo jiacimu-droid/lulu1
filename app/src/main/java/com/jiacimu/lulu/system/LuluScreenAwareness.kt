@@ -156,7 +156,7 @@ object LuluScreenAwareness {
                 val pending = runCatching {
                     JSONObject(prefs.getString(PENDING_CAPTURE, "{}"))
                 }.getOrNull()
-                pending?.optString("id") == id && pending.optString("characterId") == characterId
+                pending?.optString("id") == id && pending?.optString("characterId") == characterId
             },
             onAllow = { handleCaptureResponse(context.applicationContext, id, characterId, true) },
             onDeny = { handleCaptureResponse(context.applicationContext, id, characterId, false) },
