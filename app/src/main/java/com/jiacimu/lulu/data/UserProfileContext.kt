@@ -30,12 +30,16 @@ object UserProfileContext {
         val actualVisible = videoSelected &&
             com.jiacimu.lulu.Live2DVisualActionBus.isStageVisible(
                 characterId, call.callExperienceId)
-        val rendered = SharedExperienceTimeline.recentEvents(characterId, 320)
-            .lastOrNull {
-                it.source == InteractionSignalBridge.SOURCE &&
-                    it.id.startsWith("interaction-call-video-rendered-") &&
-                    it.evidenceKind == EventEvidenceKind.Observation
-            }
+        val recentCallEvents = SharedExperienceTimeline.recentEvents(characterId, 320)
+        val rendered = recentCallEvents.lastOrNull {
+            it.source == InteractionSignalBridge.SOURCE &&
+                it.id.startsWith("interaction-call-video-rendered-") &&
+                it.evidenceKind == EventEvidenceKind.Observation
+        }
+        val currentModeChange = if (active) recentCallEvents.lastOrNull {
+            it.source == InteractionSignalBridge.SOURCE &&
+                it.id.startsWith("interaction-call-media-switch-${call.callExperienceId}-")
+        } else null
         return buildString {
             appendLine("【露露机当前视频能力与该角色亲历的通话事实】")
             if (installed && coreReady) {
@@ -51,6 +55,9 @@ object UserProfileContext {
                     videoSelected -> appendLine("此刻电话已开启 Live2D 视频模式，画面尚未确认成功渲染。")
                     else -> appendLine("此刻正处于语音电话模式，没有开启视频画面；历史视频经历仍然真实存在。")
                 }
+            }
+            if (currentModeChange != null) {
+                appendLine("本通电话最近的媒介变更：${currentModeChange.content}。通话ID、对话历史与记忆未改变。")
             }
             if (rendered != null) {
                 appendLine("本角色亲历的视频回执：${rendered.occurredAt}，会话证据ID=${rendered.id}。那次角色自己的 Live2D 形象确实成功显示在用户手机上，不能再把它当作只有语音的电话。")
