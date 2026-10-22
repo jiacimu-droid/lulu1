@@ -221,7 +221,12 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 }
                 commands += "window.LuluLive2D && window.LuluLive2D.choreography($beats, $previewImmediate)"
             }
-            commands.forEach { stage.evaluateJavascript(it, null) }
+            // Cross the Android↔WebView boundary ONCE per character decision.
+            // Each call queues a UI task; five separate calls could interleave
+            // with a rendered frame and visibly tear composite expressions.
+            if (commands.isNotEmpty()) {
+                stage.evaluateJavascript(commands.joinToString(";\n"), null)
+            }
         }
     }
     // Do not saturate WebView's main thread with high-frequency audio
