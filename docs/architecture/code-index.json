@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:49:15.962993+00:00",
-  "commit": "50e691dee12a115a3a3ec1f247dd2782ea5c1281",
+  "generatedAt": "2026-10-22T17:50:54.035500+00:00",
+  "commit": "d10d4be1055bb0eefa440362cc808015e4150a27",
   "branch": "main",
-  "sourceFingerprint": "0c5d8a62e4ac39d92212625851d01fa1dfcd1a7846b59326df1bdfda4b57236b",
+  "sourceFingerprint": "9b948baefa99b50e886b256100cb6d636922ae90da31562690bcb439a92b406a",
   "summary": {
-    "files": 830,
-    "lines": 158390,
-    "symbols": 2396
+    "files": 831,
+    "lines": 158434,
+    "symbols": 2397
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11858,6 +11858,12 @@
         "line": 14
       }
     ],
+    "ListenTogetherRoomTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt",
+        "line": 14
+      }
+    ],
     "Live2DAssetsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt",
@@ -14529,7 +14535,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
       "lines": 282,
-      "sha256": "d035a5e8bb33d00e822861059a608bd0a36842aa88a9eb5c1ae61ebac2fa9598",
+      "sha256": "fb0539b9b87aa8aecf90f2304fa7fb31a8dfad56e5c46cf8b97b7792bdfcfe72",
       "symbols": [
         {
           "name": "recordListening",
@@ -25974,6 +25980,17 @@
       "symbols": [
         {
           "name": "ElevenLabsAudioContractsTest",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt",
+      "lines": 44,
+      "sha256": "2b30505d27812f70695df53924e323b9d44efa6abc2769cbc8639d693855f1e9",
+      "symbols": [
+        {
+          "name": "ListenTogetherRoomTest",
           "line": 14
         }
       ]
