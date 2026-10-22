@@ -8,7 +8,7 @@ import { Live2DModel, config } from 'pixi-live2d-display/cubism4'
 import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
-import { createSpeechExpressionGate, isMouthExclusiveExpression } from './speech-expression-gate.mjs'
+import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -96,6 +96,7 @@ const visualLayers = createVisualLayerRuntime({
 const performanceRuntime = createPerformanceRuntime()
 const mouthExpressionGate = createSpeechExpressionGate()
 let mouthExclusiveExpressions = new Set()
+let eyeLockedExpressions = new Set()
 
 function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
@@ -331,12 +332,18 @@ function applyFinalParameters(core, deltaMs) {
   // remain subsequent independent layers.
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
-    speaking: playing, seconds,
+    speaking: playing, voiceLevel: pcmAvailable ? mouth : null, seconds,
   })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
-  if (proceduralBlinkEnabled &&
+  const eyePoseBusy = eyeLockedExpressions.has(activeExpressionName) ||
+    (faceRequest?.eyeOpen != null && faceRequest.eyeOpen < .25)
+  if (eyePoseBusy && blinkProgress >= 0) {
+    blinkProgress = -1
+    blinkClock = 2.5
+  }
+  if (proceduralBlinkEnabled && !eyePoseBusy &&
       hasParameter(core, 'ParamEyeLOpen') &&
       hasParameter(core, 'ParamEyeROpen')) {
     const dt = Math.min(.06, Math.max(0, deltaMs / 1000))
@@ -511,6 +518,7 @@ async function load(modelURL) {
     // Describe what a .exp3 actually changes; do not assume a Chinese or
     // English filename is enough to infer if it blocks mouth movement.
     mouthExclusiveExpressions = new Set()
+    eyeLockedExpressions = new Set()
     const references = modelSettings.FileReferences?.Expressions || []
     await Promise.all(references.map(async entry => {
       if (!entry?.Name || !entry?.File) return
@@ -520,8 +528,9 @@ async function load(modelURL) {
         const response = await fetch(url.href)
         if (!response.ok) return
         const metadata = await response.json()
-        if (sequence === loadSequence && isMouthExclusiveExpression(metadata)) {
-          mouthExclusiveExpressions.add(entry.Name)
+        if (sequence === loadSequence) {
+          if (isMouthExclusiveExpression(metadata)) mouthExclusiveExpressions.add(entry.Name)
+          if (isEyeExclusiveExpression(metadata, entry.Name)) eyeLockedExpressions.add(entry.Name)
         }
       } catch (_) { /* not every model ships valid optional exp3 files */ }
     }))
@@ -529,6 +538,7 @@ async function load(modelURL) {
     // tongue expressions rather than showing a tongue during TTS.
     for (const entry of references) {
       if (/吐舌|tongue/i.test(entry?.Name || '')) mouthExclusiveExpressions.add(entry.Name)
+      if (isEyeExclusiveExpression(null, entry?.Name)) eyeLockedExpressions.add(entry.Name)
     }
     const eyeBlinkGroup = (modelSettings.Groups || []).find(group =>
       group.Name === 'EyeBlink' && group.Target === 'Parameter')
@@ -617,6 +627,11 @@ function activatePendingSpeechMoment() {
 }
 function onPlaybackEvent(phase) {
   if (phase === 'playing') {
+    // PCM/status and utterance events must not restart one speech performance.
+    if (playing) {
+      activatePendingSpeechMoment()
+      return
+    }
     playing = true
     const gate = mouthExpressionGate.started()
     if (gate.reset && activeExpressionName) resetSpeechExpression()
