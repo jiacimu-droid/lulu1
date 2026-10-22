@@ -30,6 +30,7 @@ if (encodedLauncherIcon.exists()) {
 android {
     namespace = "com.jiacimu.lulu"
     compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
         // Keep this stable so every Lulu1 APK can cover-install the previous Lulu1 build.
