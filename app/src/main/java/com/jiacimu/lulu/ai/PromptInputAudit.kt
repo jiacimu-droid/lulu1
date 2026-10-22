@@ -73,7 +73,8 @@ internal object PromptInputAudit {
             if (content.endsWith(suffix)) {
                 val common = content.dropLast(suffix.length)
                 return listOf("基础身份与通用规则" to common).filter { it.second.isNotEmpty() } +
-                    splitHeadings("本轮任务指令", suffix)
+                    listOf("本轮任务指令 / 前缀" to "本次任务：") +
+                    splitHeadings("本轮任务指令", instruction)
             }
         }
         if (label in setOf(
