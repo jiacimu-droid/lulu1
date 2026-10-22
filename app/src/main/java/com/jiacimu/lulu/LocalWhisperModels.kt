@@ -102,8 +102,7 @@ internal object LocalWhisperTranscriber {
 
     private external fun nativeTranscribe(modelPath: String, pcm16le: ByteArray): String
 
-    suspend fun transcribe(context: Context, pcm16le: ByteArray): String = withContext(Dispatchers.IO) {
-        val model = LocalWhisperModels.selected(context)
+    suspend fun transcribe(context: Context, model: LocalWhisperModels.Model, pcm16le: ByteArray): String = withContext(Dispatchers.IO) {
         val file = LocalWhisperModels.installedFile(context, model)
             ?: error("请先在语音设置下载 Whisper ${model.id} 模型")
         nativeLoaded.getOrThrow()
