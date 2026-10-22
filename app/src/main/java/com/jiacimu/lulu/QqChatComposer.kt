@@ -7,8 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -161,8 +159,7 @@ internal fun QqChatComposer(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                .padding(horizontal = 10.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -198,6 +195,14 @@ internal fun QqChatComposer(
                     Icon(Icons.Outlined.AlternateEmail, null, Modifier.size(18.dp)); Spacer(Modifier.width(3.dp)); Text("@", fontSize = 11.sp)
                 }
             }
+        }
+        // Give calls and co-watching an always-visible row on narrow phones.
+        // In particular, 一起看 stays immediately to the right of 视频.
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
             TextButton(onClick = onCall, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp)) {
                 Icon(Icons.Outlined.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("电话", fontSize = 11.sp)
             }
