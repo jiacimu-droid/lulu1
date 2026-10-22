@@ -41,31 +41,52 @@ internal object Live2DAssets {
     }
     fun modelLabel(context: Context, characterId: String) =
         prefs(context).getString("label:$characterId", null).orEmpty()
-    /** Optional full-person preview supplied by the creator. Never display atlas textures as a portrait. */
+    /**
+     * A creator portrait is not an atlas. The previous "largest unreferenced PNG"
+     * heuristic mistakenly selected our generated 4096px atlas cache, particularly
+     * when the texture directory was named 小狼.8192 instead of exactly /8192/.
+     * Only a declared same-directory image matching the model stem may be shown.
+     */
+    private fun genuinePortrait(modelFile: File): File? {
+        val directory = modelFile.parentFile ?: return null
+        val refs = runCatching {
+            JSONObject(modelFile.readText()).getJSONObject("FileReferences")
+                .getJSONArray("Textures")
+        }.getOrNull() ?: return null
+        val referenced = (0 until refs.length()).map { i ->
+            File(directory, refs.getString(i)).canonicalPath
+        }.toSet()
+        val stem = modelFile.name.removeSuffix(".model3.json")
+        if (stem == modelFile.name || stem.isBlank()) return null
+        val filenames = listOf(stem, "$" + "{stem}_preview", "$" + "{stem}_立绘")
+        for (name in filenames) {
+            for (extension in listOf("png", "jpg", "jpeg", "webp")) {
+                val candidate = File(directory, "$" + "{name}.$" + "{extension}")
+                if (candidate.isFile && candidate.canonicalPath !in referenced &&
+                    !candidate.name.contains(".lulu-mobile-", ignoreCase = true) &&
+                    candidate.canonicalPath.startsWith(baseFromModelDirectory(modelFile).canonicalPath + File.separator)) {
+                    return candidate
+                }
+            }
+        }
+        return null
+    }
+
+    private fun baseFromModelDirectory(file: File): File {
+        // The caller has already validated the model belongs to app-private storage.
+        // No public path is ever exposed to an external renderer.
+        return file.parentFile ?: file
+    }
+
+    /** Returns only an explicit creator portrait, never a model texture or derived atlas. */
     fun previewFile(context: Context, characterId: String): File? {
         val root = base(context)
-        val saved = prefs(context).getString("preview:$characterId", null).orEmpty()
-        if (saved.startsWith("models/") && !saved.contains("..")) {
-            File(root, saved).takeIf { inside(root, it) && it.isFile }?.let { return it }
-        }
-        // Older versions already imported the ZIP without saving its preview path.
-        val modelRelative = prefs(context).getString("model:$characterId", null).orEmpty()
-        if (!modelRelative.startsWith("models/") || modelRelative.contains("..")) return null
-        val modelFile = File(root, modelRelative)
+        val relative = prefs(context).getString("model:$" + "{characterId}", null).orEmpty()
+        if (!relative.startsWith("models/") || relative.contains("..")) return null
+        val modelFile = File(root, relative)
         if (!inside(root, modelFile) || !modelFile.isFile) return null
-        return runCatching {
-            val textures = JSONObject(modelFile.readText()).getJSONObject("FileReferences").getJSONArray("Textures")
-            val referenced = (0 until textures.length()).map {
-                File(modelFile.parentFile!!, textures.getString(it)).canonicalPath
-            }.toSet()
-            val folder = modelFile.parentFile ?: return@runCatching null
-            folder.walkTopDown().filter { file ->
-                file.isFile && file.extension.lowercase() in setOf("png", "jpg", "jpeg", "webp") &&
-                    file.canonicalPath !in referenced &&
-                    !file.invariantSeparatorsPath.contains("/8192/") &&
-                    !file.invariantSeparatorsPath.contains("/4096/")
-            }.sortedByDescending { it.length() }.firstOrNull()
-        }.getOrNull()
+        // Re-evaluate every old saved preview path to protect existing installs.
+        return runCatching { genuinePortrait(modelFile) }.getOrNull()
     }
 
     /** An in-memory manifest for the renderer; the imported model3.json stays unmodified. */
@@ -228,18 +249,9 @@ internal object Live2DAssets {
                         settings.parentFile!!, motionsInGroup.getJSONObject(i).getString("File"))
                 }
             }
-            // Creator preview pictures (e.g. 小狼.png) are NOT Live2D texture atlases.
-            // Prefer an image beside the settings file and not referenced as a texture.
-            val texturePaths = (0 until textures.length()).map { i ->
-                File(settings.parentFile!!, textures.getString(i)).canonicalPath
-            }.toSet()
-            val picture = staging.walkTopDown().filter { file ->
-                file.isFile && file.extension.lowercase() in setOf("png", "jpg", "jpeg", "webp") &&
-                    file.canonicalPath !in texturePaths &&
-                    !file.invariantSeparatorsPath.contains("/8192/") &&
-                    !file.invariantSeparatorsPath.contains("/4096/")
-            }.sortedWith(compareBy<File> { it.parentFile != settings.parentFile }
-                .thenByDescending { it.length() }).firstOrNull()
+            // Only select a creator portrait with the model's exact stem, never
+            // a free-floating texture (or a generated .lulu-mobile atlas cache).
+            val picture = genuinePortrait(settings)
             val previewRelative = picture?.relativeTo(staging)?.invariantSeparatorsPath
             val relativeSettings = settings.relativeTo(staging).invariantSeparatorsPath
             destination.parentFile?.mkdirs()
