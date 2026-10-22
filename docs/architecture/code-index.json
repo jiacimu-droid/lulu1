@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T05:26:32.269595+00:00",
-  "commit": "3715490172f84ddb6b3f93657855cf32f62524d3",
+  "generatedAt": "2026-10-22T05:39:52.444635+00:00",
+  "commit": "9cc1fd18aa9e7d6988cf10b5c5b982b3d203cfd5",
   "branch": "main",
-  "sourceFingerprint": "13c4c4f0040c044cc7bdd95b430c0fc8a6d4708a40319076f7a3b00a54f25239",
+  "sourceFingerprint": "61008bf2f2e97995951d8b4e61bfbeb8000f108d113bb38beae4ee6275f5683b",
   "summary": {
     "files": 793,
-    "lines": 151083,
-    "symbols": 2266
+    "lines": 151137,
+    "symbols": 2269
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1582,10 +1582,22 @@
         "line": 13
       }
     ],
-    "Cue": [
+    "Body": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
         "line": 14
+      }
+    ],
+    "Face": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 15
+      }
+    ],
+    "Cue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WakeActionPlanner.kt",
@@ -1595,31 +1607,31 @@
     "stageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 27
+        "line": 47
       }
     ],
     "stageClosed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 32
+        "line": 52
       }
     ],
     "stageParameters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 43
+        "line": 63
       }
     ],
     "capabilityNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 50
+        "line": 70
       }
     ],
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 83
+        "line": 115
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1629,7 +1641,13 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 95
+        "line": 127
+      }
+    ],
+    "boundedBody": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
+        "line": 138
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13909,40 +13927,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 113,
-      "sha256": "b6585d0c46bb85c42a69b62cf990ba2d81d706848f8cf8c8ad3cd1d929d69e0a",
+      "lines": 167,
+      "sha256": "e01f9e9eedf28421d53f4ccfdbf54bf5189d6fffd404970a43771d775a4f73c3",
       "symbols": [
         {
           "name": "Head",
           "line": 13
         },
         {
-          "name": "Cue",
+          "name": "Body",
           "line": 14
         },
         {
-          "name": "stageReady",
-          "line": 27
+          "name": "Face",
+          "line": 15
         },
         {
-          "name": "stageClosed",
+          "name": "Cue",
           "line": 32
         },
         {
+          "name": "stageReady",
+          "line": 47
+        },
+        {
+          "name": "stageClosed",
+          "line": 52
+        },
+        {
           "name": "stageParameters",
-          "line": 43
+          "line": 63
         },
         {
           "name": "capabilityNote",
-          "line": 50
+          "line": 70
         },
         {
           "name": "publish",
-          "line": 83
+          "line": 115
         },
         {
           "name": "bounded",
-          "line": 95
+          "line": 127
+        },
+        {
+          "name": "boundedBody",
+          "line": 138
         }
       ]
     },
