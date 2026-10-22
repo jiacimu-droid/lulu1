@@ -289,6 +289,14 @@ object CharacterLifeStore {
             )
             if (!profile.has(key) || previous in stockDefaults) profile.put(key, value)
         }
+        // v18: only Jiang Du's own stock v17 language defaults become a
+        // stronger selective-turn-taking tendency. User-authored/blank values win.
+        CharacterProfileSchema.jiangDuV18Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) || previous == CharacterProfileSchema.jiangDuV17Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
