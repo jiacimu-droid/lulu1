@@ -75,6 +75,13 @@ const smoothFace = Object.create(null)
 const gazeReflex = { x: 0, y: 0, nextAt: 0 }
 let smoothedMouthOpen = 0
 let mouthReleaseUntil = 0
+let lastRealMouthSignalAt = 0
+let lastMouthSignal = 0
+let speakingBeganAt = 0
+// Audio amplitude is unavailable for some built-in/streaming TTS providers.
+// During actual playback only, use a local syllabic fallback so the mouth
+// never remains glued shut. Real PCM amplitude always takes precedence.
+let fallbackSpeechSeed = 0
 // Only semantic parameters confirmed in the uploaded wolf model's CDI3 and
 // VTube settings. For OTHER models the runtime Cubism parameter probe must
 // independently confirm every individual ID before applying any value.
@@ -313,10 +320,10 @@ function applyAfterMotion(core, deltaMs) {
     gazeReflex.y = (Math.random() * 2 - 1) * radius * .65
     gazeReflex.nextAt = timeNow + 2500 + Math.random() * 3500
   }
-  // Cubism's authored idle motion, breathing and eye-blink already handle
-  // the body's life. Do not impose a perpetual clock-driven left/right
-  // head sway: it looks arbitrary and can erase the character's intentional
-  // posture. Only a genuine external head cue sets these three targets.
+  // The user's video-call camera is directly in front of the avatar.
+  // Authored idle animations can swing the entire skull forever, making eye
+  // contact impossible. Override ONLY head angles to a stable front-facing
+  // posture AFTER the authored motion runs. Intentional head cues still work.
   const axes = [
     ['ParamAngleX', 'yaw'],
     ['ParamAngleY', 'pitch'],
@@ -324,16 +331,12 @@ function applyAfterMotion(core, deltaMs) {
   ]
   for (const [id, axis] of axes) {
     if (core.getParameterIndex(id) < 0) continue
-    // Let model-authored motion own the neutral posture. Once an explicit
-    // gesture finishes, blend back to neutral, then release this override
-    // entirely so we no longer fight the original motion3 animation.
     const requested = headRequest?.[axis]
-    if (requested == null && Math.abs(smoothPose[axis]) < .12) {
-      smoothPose[axis] = 0
-      continue
-    }
     const target = requested ?? 0
     smoothPose[axis] += (target - smoothPose[axis]) * Math.min(1, deltaMs * .010)
+    if (Math.abs(smoothPose[axis]) < .025) smoothPose[axis] = 0
+    // Always write neutral zero while no intentional cue is active; if we
+    // simply "continue" here, the original idle motion reintroduces swaying.
     core.setParameterValueById(id, smoothPose[axis])
   }
   for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
@@ -393,8 +396,17 @@ function applyAfterMotion(core, deltaMs) {
     // the very first silent frame. Don't permanently own the mouth during
     // idle, either: the model's own expression may need this parameter.
     if (playing) {
-      const target = Math.min(1, Math.max(0, mouth))
-      const alpha = Math.min(1, deltaMs * (target > smoothedMouthOpen ? .023 : .015))
+      const audioActive = lastRealMouthSignalAt > 0 &&
+        timeNow - lastRealMouthSignalAt < 350
+      const realSignal = Math.min(1, Math.max(0, mouth))
+      // The PCM callback is not provided by every platform TTS engine; for
+      // those we approximate light syllables, only while speech is audible.
+      const duration = Math.max(0, timeNow - speakingBeganAt)
+      const syllables = .5 + .5 * Math.sin(duration * .029 + fallbackSpeechSeed) *
+        Math.sin(duration * .011 + .4)
+      const fallback = .24 + .43 * Math.abs(syllables)
+      const target = audioActive ? Math.max(.10, realSignal) : fallback
+      const alpha = Math.min(1, deltaMs * (target > smoothedMouthOpen ? .045 : .031))
       smoothedMouthOpen += (target - smoothedMouthOpen) * alpha
       mouthReleaseUntil = timeNow + 470
       core.setParameterValueById('ParamMouthOpenY', smoothedMouthOpen)
@@ -589,12 +601,15 @@ function onPlaybackEvent(phase) {
   if (phase === 'playing') {
     playing = true
     lastSpeechSoundAt = Date.now()
+    speakingBeganAt = Date.now()
+    fallbackSpeechSeed = Math.random() * 4
     activatePendingSpeechMoment()
     return
   }
   if (phase !== 'finished' && phase !== 'interrupted') return
   playing = false
   mouth = 0
+  lastRealMouthSignalAt = 0
   pendingExpressionName = null
   pendingSpeechParts = null
   headRequest = null
@@ -613,8 +628,17 @@ function update(next) {
   const wasPlaying = playing
   playing = !!next.speaking
   listening = !!next.listening
-  mouth = Number.isFinite(Number(next.mouth))
-    ? Math.max(0, Math.min(1, Number(next.mouth))) : 0
+  const incomingMouth = Number(next.mouth)
+  mouth = Number.isFinite(incomingMouth)
+    ? Math.max(0, Math.min(1, incomingMouth)) : 0
+  if (mouth > .015) {
+    lastRealMouthSignalAt = Date.now()
+    lastMouthSignal = mouth
+  }
+  if (playing && !wasPlaying) {
+    speakingBeganAt = Date.now()
+    fallbackSpeechSeed = Math.random() * 4
+  }
   if (!playing) mouth = 0
   if (playing) {
     lastSpeechSoundAt = Date.now()
