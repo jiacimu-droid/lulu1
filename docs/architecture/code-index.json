@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T08:19:53.490578+00:00",
-  "commit": "9f6eb152c828e840e46a4d5a339a1d39b1e7838b",
+  "generatedAt": "2026-10-22T08:21:30.240822+00:00",
+  "commit": "15f316758c8add02a516676ee01a4f23f0af1794",
   "branch": "main",
-  "sourceFingerprint": "5d83e9622d8dd7d7196215758a76eb051f1e19818e9e2184039be8a2aafd34a3",
+  "sourceFingerprint": "aaf62e6cc3dd3dde6e52b51f9e15e5ba6d215edbd06cf340c45f9c960ffd9117",
   "summary": {
     "files": 799,
-    "lines": 151930,
+    "lines": 151931,
     "symbols": 2283
   },
   "symbolIndex": {
@@ -4491,25 +4491,25 @@
     "applyProposal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 95
+        "line": 96
       }
     ],
     "retire": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 196
+        "line": 197
       }
     ],
     "retireSlotWithCounterEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 205
+        "line": 206
       }
     ],
     "invalidateEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 235
+        "line": 236
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -4523,13 +4523,13 @@
     "invalidateEvidenceForAll": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 240
+        "line": 241
       }
     ],
     "clearCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-        "line": 245
+        "line": 246
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
@@ -16821,8 +16821,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
-      "lines": 263,
-      "sha256": "cc2f85989c9fbaba014000b399b094239c4e8c826d65353b1bd17e1f9afaf255",
+      "lines": 264,
+      "sha256": "eeecd797fd9dc4768e240e812005d4a03e9c6d7051872f7a0a21ed3c6a670856",
       "symbols": [
         {
           "name": "DevelopmentKind",
@@ -16850,27 +16850,27 @@
         },
         {
           "name": "applyProposal",
-          "line": 95
+          "line": 96
         },
         {
           "name": "retire",
-          "line": 196
+          "line": 197
         },
         {
           "name": "retireSlotWithCounterEvidence",
-          "line": 205
+          "line": 206
         },
         {
           "name": "invalidateEvidence",
-          "line": 235
+          "line": 236
         },
         {
           "name": "invalidateEvidenceForAll",
-          "line": 240
+          "line": 241
         },
         {
           "name": "clearCharacter",
-          "line": 245
+          "line": 246
         }
       ]
     },
