@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:32:52.302695+00:00",
-  "commit": "c5e25bb5bf1636bf08ee9e3cdfee934fc254d690",
+  "generatedAt": "2026-10-22T16:34:08.373858+00:00",
+  "commit": "f6bc5b0ec7d6ed5315ac498b63ae5794259fd1e9",
   "branch": "main",
-  "sourceFingerprint": "e3f53d5c97289df6a00b3c4520b71ac430ddceb72190793c09691e8e01d39344",
+  "sourceFingerprint": "c3a510dde8a913eff78af5cf6bef374c5fddb37ac74bd3d0eb153ecb0a4c73b2",
   "summary": {
-    "files": 822,
-    "lines": 156869,
-    "symbols": 2374
+    "files": 823,
+    "lines": 156920,
+    "symbols": 2375
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11802,6 +11802,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpeechTimelineTest.kt",
         "line": 6
+      }
+    ],
+    "Live2DTouchAndNativeProbeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt",
+        "line": 15
       }
     ],
     "Live2DVisualActionBusTest": [
@@ -25833,6 +25839,17 @@
         {
           "name": "Live2DSpeechTimelineTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/Live2DTouchAndNativeProbeTest.kt",
+      "lines": 51,
+      "sha256": "179beb949d92044799a251fb9e96f309091938036208b98b364676559155f2ee",
+      "symbols": [
+        {
+          "name": "Live2DTouchAndNativeProbeTest",
+          "line": 15
         }
       ]
     },
