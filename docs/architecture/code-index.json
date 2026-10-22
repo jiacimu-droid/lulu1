@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:25:17.411666+00:00",
-  "commit": "2ff2a9b4dbecae9656d217aa5827470a3d0d3d94",
+  "generatedAt": "2026-10-22T03:25:34.774287+00:00",
+  "commit": "e8750f501b352938dae75614616fd3dd134e9f0d",
   "branch": "main",
-  "sourceFingerprint": "1bcab83b56d5108fb5bf498e8b25e856eb0be0e43e1f7a67f74714ca2bd8be46",
+  "sourceFingerprint": "2089e8bbf38e5ed50a72eb77bdba917f65dcd4e493f1ec75d9d0374c6beb8136",
   "summary": {
     "files": 791,
-    "lines": 150203,
+    "lines": 150204,
     "symbols": 2261
   },
   "symbolIndex": {
@@ -24680,8 +24680,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DSampleModelTest.kt",
-      "lines": 60,
-      "sha256": "a390ab94f58d6ad03e74a7dc7f2adefc639bea5179e064d79924ad8f32a676ee",
+      "lines": 61,
+      "sha256": "6a0fb21d7f2d3c1f74d69f80600a0173a5eeed3d70c2acb560616b1e51e951bf",
       "symbols": [
         {
           "name": "Live2DSampleModelTest",
