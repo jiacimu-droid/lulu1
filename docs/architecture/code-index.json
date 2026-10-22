@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T08:24:22.519729+00:00",
-  "commit": "6940bb579692cf30b0458689c50644dcbf04cdff",
+  "generatedAt": "2026-10-22T08:25:08.406923+00:00",
+  "commit": "05e6df6ca1052658ba6bf25fb39bd0d73489d427",
   "branch": "main",
-  "sourceFingerprint": "64a4a65a2157fedbf44862293bcdc67dc460dee3ecc42309c6205c7e57924ce9",
+  "sourceFingerprint": "55497f80b50ab55e748967869560d7bcf6912036b85b4745a42070c1ae3d3952",
   "summary": {
     "files": 799,
-    "lines": 151931,
+    "lines": 151935,
     "symbols": 2283
   },
   "symbolIndex": {
@@ -1657,37 +1657,37 @@
     "stageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 49
+        "line": 50
       }
     ],
     "stageClosed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "isStageVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 66
+        "line": 67
       }
     ],
     "stageParameters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 71
+        "line": 72
       }
     ],
     "capabilityNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 78
+        "line": 79
       }
     ],
     "normalized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 147
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -1705,7 +1705,7 @@
     "publish": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 179
+        "line": 182
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt",
@@ -1715,13 +1715,13 @@
     "bounded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 191
+        "line": 194
       }
     ],
     "boundedBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-        "line": 202
+        "line": 205
       }
     ],
     "LuluVoiceSettingsScreen": [
@@ -13965,7 +13965,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
       "lines": 544,
-      "sha256": "d0dcbe4b9dbfdf988f8b695f14796da988ce645be17945badce783e77d5b953a",
+      "sha256": "75f72e22c0a091ecf58ef806eae97d6db9ffb832c2c8d0ce574375be44843ab6",
       "symbols": [
         {
           "name": "toggleSelfCamera",
@@ -14057,8 +14057,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
-      "lines": 231,
-      "sha256": "65ebc2a956bcf41b5a8e2339b9f9e761c67fe9eeb193c37a2201e637c671d198",
+      "lines": 235,
+      "sha256": "88954992623a5dd73fe762fcef6236cbe8980f3cb3e3a4cb97d8e65f3cba8608",
       "symbols": [
         {
           "name": "Head",
@@ -14078,39 +14078,39 @@
         },
         {
           "name": "stageReady",
-          "line": 49
+          "line": 50
         },
         {
           "name": "stageClosed",
-          "line": 54
+          "line": 55
         },
         {
           "name": "isStageVisible",
-          "line": 66
+          "line": 67
         },
         {
           "name": "stageParameters",
-          "line": 71
+          "line": 72
         },
         {
           "name": "capabilityNote",
-          "line": 78
+          "line": 79
         },
         {
           "name": "normalized",
-          "line": 147
+          "line": 150
         },
         {
           "name": "publish",
-          "line": 179
+          "line": 182
         },
         {
           "name": "bounded",
-          "line": 191
+          "line": 194
         },
         {
           "name": "boundedBody",
-          "line": 202
+          "line": 205
         }
       ]
     },
