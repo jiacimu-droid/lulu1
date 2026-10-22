@@ -40,6 +40,9 @@ internal object UserDevicePerception {
         HealthRolePerception.initialize(context)
         HealthRolePerception.recordLatestSleep(characterId)
         appendLine("用户现实时间：${now.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}")
+        // Lead with observed user contact/time, before lower-priority device
+        // telemetry; the character still decides for itself what matters.
+        appendLine(UserInteractionPresenceStore.context(characterId, now))
         val isScreenInteractive = (context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager)?.isInteractive
         appendLine("用户屏幕交互状态：${when (isScreenInteractive) { true -> "屏幕可交互（亮屏）"; false -> "屏幕未处于交互状态（可能锁屏或熄屏，绝非睡眠证明）"; null -> "未知" }}")
         appendLine("用户手机电量：${runCatching { batteryContext(context) }.getOrDefault("暂时不可用")}")
@@ -59,7 +62,6 @@ internal object UserDevicePerception {
             .takeIf(String::isNotBlank)?.let(::appendLine)
         appendLine("用户健康/手环数据：${HealthRolePerception.context(now).ifBlank { "未连接健康 App" }}")
         appendLine("用户学习状态：${studyContext(characterId)}")
-        appendLine(UserInteractionPresenceStore.context(characterId, now))
     }.trim() }
 
     private fun batteryContext(context: Context): String {
