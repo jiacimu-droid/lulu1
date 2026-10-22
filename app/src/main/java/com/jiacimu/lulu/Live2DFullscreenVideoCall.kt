@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -355,7 +356,13 @@ internal fun Live2DFullscreenVideoCall(
                 .padding(horizontal = 22.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier.fillMaxWidth()
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(Color.Black.copy(alpha = .32f))
+                    .padding(horizontal = 4.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 IconButton(onClick = onMinimize) {
                     Icon(Icons.Outlined.KeyboardArrowDown, "缩小通话", tint = Color.White)
                 }
@@ -523,12 +530,13 @@ internal fun Live2DFullscreenVideoCall(
 private fun VideoCallButton(icon: ImageVector, label: String, onClick: () -> Unit,
     danger: Boolean = false) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(58.dp).clip(CircleShape)
-            .background(if (danger) Color(0xFFE74B55) else Color.White.copy(alpha = .23f))
+        Box(Modifier.size(56.dp).clip(CircleShape)
+            .background(if (danger) Color(0xFFD94352) else Color(0xFF272C33).copy(alpha = .88f))
+            .border(1.dp, Color.White.copy(alpha = if (danger) .12f else .24f), CircleShape)
             .clickable(onClick = onClick), contentAlignment = Alignment.Center) {
             Icon(icon, label, tint = Color.White, modifier = Modifier.size(25.dp))
         }
         Spacer(Modifier.height(8.dp))
-        Text(label, color = Color.White.copy(alpha = .92f), fontSize = 12.sp)
+        Text(label, color = Color.White.copy(alpha = .88f), fontSize = 11.sp)
     }
 }
