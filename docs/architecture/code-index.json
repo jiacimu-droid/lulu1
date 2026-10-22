@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:26:17.328196+00:00",
-  "commit": "5bf8e55d97f05ba23f429bd4f4eaa6a94a35d416",
+  "generatedAt": "2026-10-22T16:27:13.824612+00:00",
+  "commit": "8e713d8d87dd82baee07abd8795c0858e82473f6",
   "branch": "main",
-  "sourceFingerprint": "c134ca396c95ee15fa9bc9e70346ecd379764399528f48d825514372e9aaab59",
+  "sourceFingerprint": "f6a54f9fa4433c82ada6d0828f905629a00a832a545b6d3c68378a8ef06ed7cf",
   "summary": {
     "files": 821,
-    "lines": 156785,
+    "lines": 156779,
     "symbols": 2372
   },
   "symbolIndex": {
@@ -3723,7 +3723,7 @@
     "roleContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt",
-        "line": 271
+        "line": 265
       }
     ],
     "ModelConversationMessage": [
@@ -16628,8 +16628,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt",
-      "lines": 290,
-      "sha256": "edeaa07fc2f6cd2582ff316ed4807b4e374ce16cb604672c7f9613fd060f130f",
+      "lines": 284,
+      "sha256": "26d95282fa9db9d959cf6f3a6eb658d2b38c620a089fc398512bead5b84e965f",
       "symbols": [
         {
           "name": "LuluMusicSensoryRuntime",
@@ -16637,7 +16637,7 @@
         },
         {
           "name": "roleContext",
-          "line": 271
+          "line": 265
         }
       ]
     },
