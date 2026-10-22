@@ -28,6 +28,23 @@ class ProactiveQuietDecisionTest {
         assertNull(parse("""{"action":"invented_human_action","reason":"这是不存在的工具"}"""))
     }
 
+    @Test fun modelChosenAutonomousBubblesSurviveTheDecisionAndSender() {
+        val decision = parse("""{"action":"message","bubbles":["辛苦啦宝宝，先歇一会儿。","那张震惊猫猫头把我逗笑了。"]}""")!!
+        val field = decision.javaClass.getDeclaredField("text").apply { isAccessible = true }
+        val spoken = field.get(decision) as String
+        assertTrue(spoken.contains(com.jiacimu.lulu.SemanticBubbleSeparator))
+        assertEquals(listOf("辛苦啦宝宝，先歇一会儿。", "那张震惊猫猫头把我逗笑了。"),
+            com.jiacimu.lulu.semanticReplyBubbles(spoken))
+    }
+
+    @Test fun partialAutonomousJsonKeepsCompletedBubblesWithoutInventingAnotherReply() {
+        val incomplete = """{"action":"message","bubbles":["刚学完？","过来让我抱抱。"],"innerLife":{"unfinished":"""
+        val recovered = AutonomousDecisionRecovery.completedPrivateMessage(incomplete)
+        assertNotNull(recovered)
+        assertEquals(listOf("刚学完？", "过来让我抱抱。"),
+            com.jiacimu.lulu.semanticReplyBubbles(recovered!!.optString("text")))
+    }
+
     private fun parse(raw: String): Any? {
         val method = ProactivePerceptionRuntime::class.java.declaredMethods.first {
             it.name == "parseDecision" && it.parameterCount == 2
