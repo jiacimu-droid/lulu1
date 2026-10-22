@@ -198,7 +198,7 @@ internal object CharacterStateHistory {
                         // of its presence moment, not another independently
                         // generated "present". Two *actual* presence changes
                         // with different voices remain separate.
-                        (old.moment == null || row.moment == null))))
+                        (old.moment == null || row.moment == null)))
             }
             if (same < 0) {
                 output += row
