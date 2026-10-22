@@ -7,8 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -160,67 +158,60 @@ internal fun QqChatComposer(
             }
         }
 
+        // The entire chat action tray is ONE row, including image/stickers/model/phone/video/watch.
+        // Equal-width cells keep everything visible on narrow phones without a second row.
         Row(
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                .padding(horizontal = 4.dp, vertical = 2.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 3.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(1.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            TextButton(
+            QqComposerTool(
+                label = "图片", icon = Icons.Outlined.AddPhotoAlternate,
+                modifier = Modifier.weight(1f),
                 onClick = { imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                modifier = Modifier.width(44.dp),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Icon(Icons.Outlined.AddPhotoAlternate, "图片", Modifier.size(20.dp))
-            }
-            TextButton(
-                onClick = { showStickerShelf = !showStickerShelf },
-                modifier = Modifier.width(44.dp),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Text("☺", fontSize = 21.sp, color = QqInk)
-            }
-            ModelArchiveIconButton(
-                usage = ModelUsage.Chat,
-                title = "聊天模型",
-                subtitle = "只切换聊天使用的模型存档；电话、游戏和末世求生不会跟着改变。",
-                icon = Icons.Outlined.SwapHoriz,
-                contentDescription = "切换聊天模型",
-                tint = QqInk,
-                accent = QqInk,
-                background = QqPage,
-                ink = QqInk,
-                muted = QqMuted,
-                border = QqBorder,
             )
+            QqComposerTool(
+                label = "表情", icon = Icons.Outlined.EmojiEmotions,
+                modifier = Modifier.weight(1f),
+                onClick = { showStickerShelf = !showStickerShelf },
+            )
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                ModelArchiveIconButton(
+                    usage = ModelUsage.Chat,
+                    title = "聊天模型",
+                    subtitle = "只切换聊天使用的模型存档；电话、游戏和末世求生不会跟着改变。",
+                    icon = Icons.Outlined.SwapHoriz,
+                    contentDescription = "切换聊天模型",
+                    tint = QqInk,
+                    accent = QqInk,
+                    background = QqPage,
+                    ink = QqInk,
+                    muted = QqMuted,
+                    border = QqBorder,
+                )
+                Text("模型", fontSize = 10.sp, color = QqMuted, maxLines = 1)
+            }
             if (groupMode) {
-                TextButton(onClick = onMention, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp)) {
-                    Icon(Icons.Outlined.AlternateEmail, null, Modifier.size(18.dp)); Spacer(Modifier.width(3.dp)); Text("@", fontSize = 11.sp)
-                }
+                QqComposerTool(
+                    label = "@", icon = Icons.Outlined.AlternateEmail,
+                    modifier = Modifier.weight(1f), onClick = onMention,
+                )
             }
-            // Keep image, stickers, model, telephone, video and co-watch on ONE row.
-            // Narrow screens may scroll this single row; never stack calling controls.
-
-            TextButton(onClick = onCall, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 5.dp)) {
-                Icon(Icons.Outlined.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("电话", fontSize = 11.sp)
-            }
-            // Only one-to-one chats have the user's imported Live2D body.
-            // The right-side video shortcut shares the SAME voice-call session.
+            QqComposerTool(
+                label = "电话", icon = Icons.Outlined.Call,
+                modifier = Modifier.weight(1f), onClick = onCall,
+            )
             if (!groupMode && onVideoCall != null) {
-                TextButton(onClick = onVideoCall,
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 5.dp)) {
-                    Icon(Icons.Outlined.Videocam, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("视频", fontSize = 11.sp)
-                }
+                QqComposerTool(
+                    label = "视频", icon = Icons.Outlined.Videocam,
+                    modifier = Modifier.weight(1f), onClick = onVideoCall,
+                )
             }
             if (!groupMode && onWatchTogether != null) {
-                TextButton(onClick = onWatchTogether,
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 5.dp)) {
-                    Icon(Icons.Outlined.Theaters, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("一起看", fontSize = 11.sp)
-                }
+                QqComposerTool(
+                    label = "一起看", icon = Icons.Outlined.Theaters,
+                    modifier = Modifier.weight(1f), onClick = onWatchTogether,
+                )
             }
         }
 
@@ -289,5 +280,22 @@ internal fun QqChatComposer(
                 )
             }
         }
+    }
+}
+
+
+/** Single-line chat action; each cell retains a 48dp accessible touch target. */
+@Composable
+private fun QqComposerTool(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        IconButton(onClick = onClick, modifier = Modifier.size(48.dp)) {
+            Icon(icon, label, modifier = Modifier.size(21.dp), tint = QqInk)
+        }
+        Text(label, fontSize = 10.sp, color = QqMuted, maxLines = 1)
     }
 }

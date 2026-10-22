@@ -10,6 +10,7 @@ import android.widget.VideoView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +25,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -395,147 +399,450 @@ internal fun WatchTogetherRoom(
         }
     }
 
+    // One compact private-cinema screen: picture first, companion presence second,
+    // conversation last. No system receipts or internal thoughts in chat bubbles.
+    val night = Color(0xFF16191F)
+    val stageInk = Color(0xFFF8F8FA)
+    val gentleBorder = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)
+    val chatEvents = notes.filter {
+        it.evidenceKind == EventEvidenceKind.CharacterStatement ||
+            it.evidenceKind == EventEvidenceKind.UserStatement
+    }
     Dialog(onDismissRequest = ::exit, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = ::exit) { Icon(Icons.Outlined.ArrowBack, "返回聊天") }
-                    Text("一起看 · " + characterName, style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f), maxLines = 1)
-                    TextButton(onClick = { chooseVideo.launch(arrayOf("video/*")) }) { Text("选视频") }
-                    TextButton(enabled = videoUri.isNotBlank(),
-                        onClick = { chooseSubtitle.launch(arrayOf("text/*", "application/x-subrip", "application/octet-stream")) }) {
-                        Text("字幕")
+            Column(
+                Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
+                    .imePadding().padding(horizontal = 14.dp, vertical = 9.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().height(48.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    IconButton(onClick = ::exit, modifier = Modifier.size(43.dp)) {
+                        Icon(Icons.Outlined.ArrowBack, "返回聊天")
                     }
+                    Column(Modifier.weight(1f)) {
+                        Text("一起看", fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onBackground)
+                        Text("和 " + characterName + " 的私人放映室", fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                    }
+                    IconButton(
+                        onClick = { chooseVideo.launch(arrayOf("video/*")) },
+                        modifier = Modifier.size(42.dp),
+                    ) { Icon(Icons.Outlined.VideoLibrary, "更换本地视频") }
+                    IconButton(
+                        onClick = {
+                            chooseSubtitle.launch(arrayOf(
+                                "text/*", "application/x-subrip", "application/octet-stream",
+                            ))
+                        },
+                        enabled = videoUri.isNotBlank(),
+                        modifier = Modifier.size(42.dp),
+                    ) { Icon(Icons.Outlined.Subtitles, "导入字幕") }
                 }
-                Text(
-                    if (videoUri.isBlank()) "已和" + characterName + "进入观影房间 · 等你选片"
-                    else if (playing) "正在一起看 · 已记录真实观看 " + (evidence.observedMs(progress) / 1000) + " 秒"
-                    else "同一观影房间 · 已记录真实观看 " + (evidence.observedMs(progress) / 1000) + " 秒",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
-                )
-                if (videoUri.isBlank()) {
-                    Column(Modifier.fillMaxWidth().height(220.dp)
-                        .background(Color(0xFF171A20), RoundedCornerShape(16.dp)),
-                        verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Outlined.Movie, null, Modifier.size(40.dp), tint = Color.White)
-                        Text("从手机选择一部影片，和 " + characterName + " 一起看", color = Color.White, fontSize = 13.sp)
-                        Button(onClick = { chooseVideo.launch(arrayOf("video/*")) }) { Text("选择视频") }
-                    }
-                } else {
-                    Text(videoTitle, fontSize = 13.sp, maxLines = 1)
-                    AndroidView(factory = { ctx ->
-                        VideoView(ctx).also { view ->
-                            video = view
-                            view.setOnPreparedListener {
-                                ready = true
-                                duration = view.duration.toLong().coerceAtLeast(0L)
-                                val saved = prefs.getLong(key + roomId + ":position",
-                                    prefs.getLong(key + "position", 0L))
-                                if (saved > 0L) view.seekTo(saved.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
-                            }
-                            view.setOnErrorListener { _, _, _ ->
-                                ready = false
-                                playing = false
-                                error = "视频解码失败，可尝试 MP4（H.264/AAC）"
-                                true
-                            }
-                        }
-                    }, update = { v ->
-                        // Update the callback whenever the selected room / evidence changes.
-                        // A listener from an older video must not write into the new room.
-                        v.setOnCompletionListener {
-                            if (playing) evidence.advance(duration, true)
-                            evidence.pause()
-                            playing = false
-                            progress = duration
-                            prefs.edit().putLong(key + roomId + ":position", duration)
-                                .putString(key + roomId + ":watched", evidence.encode()).apply()
-                            record("观影状态", "这次影片已从实际播放进度到达结尾：" + videoTitle,
-                                EventEvidenceKind.Observation, id = "completed")
-                            if (auto && !busy && evidence.observedMs(duration) >= 2_000L) {
-                                react(automatic = true, completed = true)
-                            }
-                        }
-                        if (loadedUri != videoUri) {
-                            loadedUri = videoUri
-                            ready = false
-                            playing = false
-                            v.setVideoURI(Uri.parse(videoUri))
-                        }
-                    }, modifier = Modifier.fillMaxWidth().height(220.dp).background(Color.Black))
-                    cues.lastOrNull { progress >= it.startMs && progress < it.endMs }?.let {
-                        Text(it.text, modifier = Modifier.fillMaxWidth(), fontSize = 14.sp)
-                    }
-                    Slider(value = if (duration > 0) (progress.toFloat() / duration).coerceIn(0f, 1f) else 0f,
-                        onValueChange = { moveTo((it * duration).toLong()) },
-                        enabled = ready && duration > 0)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text((progress / 60_000).toString() + ":" + ((progress / 1000) % 60).toString().padStart(2, '0') +
-                            " / " + (duration / 60_000) + ":" + ((duration / 1000) % 60).toString().padStart(2, '0'),
-                            fontSize = 12.sp)
-                        Spacer(Modifier.weight(1f))
-                        IconButton(enabled = ready, onClick = {
-                            moveTo(progress - 10_000)
-                        }) { Icon(Icons.Outlined.Replay10, "倒退十秒") }
-                        IconButton(enabled = ready, onClick = {
-                            if (playing) {
-                                evidence.advance(video?.currentPosition?.toLong() ?: progress, true)
-                                evidence.pause()
-                                video?.pause()
-                                playing = false
-                                save()
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp), color = night,
+                ) {
+                    Column {
+                        Box(
+                            Modifier.fillMaxWidth().height(226.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (videoUri.isBlank()) {
+                                Column(
+                                    Modifier.fillMaxWidth().padding(14.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    Surface(
+                                        shape = RoundedCornerShape(20.dp),
+                                        color = Color.White.copy(alpha = 0.10f),
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Movie,
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(15.dp).size(35.dp),
+                                            tint = Color.White,
+                                        )
+                                    }
+                                    Text("今晚看点什么？", color = Color.White,
+                                        fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                                    Text(characterName + " 已经在放映室等你", color = Color(0xFFB8BBC3),
+                                        fontSize = 12.sp)
+                                    Button(
+                                        onClick = { chooseVideo.launch(arrayOf("video/*")) },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFFF1F1F5),
+                                            contentColor = night,
+                                        ),
+                                    ) { Text("挑一部本地视频", fontSize = 12.sp) }
+                                }
                             } else {
-                                if (duration > 0L && progress >= duration) moveTo(0)
-                                evidence.begin(video?.currentPosition?.toLong() ?: progress)
-                                video?.start()
-                                playing = true
-                                if (!prefs.getBoolean(key + roomId + ":started", false)) {
-                                    record("观影状态", "你和" + characterName + "从播放器正式开始一起看：" + videoTitle,
-                                        EventEvidenceKind.Observation, id = "started")
-                                    prefs.edit().putBoolean(key + roomId + ":started", true).apply()
+                                AndroidView(
+                                    factory = { ctx ->
+                                        VideoView(ctx).also { view ->
+                                            video = view
+                                            view.setOnPreparedListener {
+                                                ready = true
+                                                duration = view.duration.toLong().coerceAtLeast(0L)
+                                                val saved = prefs.getLong(
+                                                    key + roomId + ":position",
+                                                    prefs.getLong(key + "position", 0L),
+                                                )
+                                                if (saved > 0L) {
+                                                    view.seekTo(saved.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+                                                }
+                                            }
+                                            view.setOnErrorListener { _, _, _ ->
+                                                ready = false
+                                                playing = false
+                                                error = "视频解码失败，可尝试 MP4（H.264/AAC）"
+                                                true
+                                            }
+                                        }
+                                    },
+                                    update = { v ->
+                                        v.setOnCompletionListener {
+                                            if (playing) evidence.advance(duration, true)
+                                            evidence.pause()
+                                            playing = false
+                                            progress = duration
+                                            prefs.edit().putLong(key + roomId + ":position", duration)
+                                                .putString(key + roomId + ":watched", evidence.encode()).apply()
+                                            record(
+                                                "观影状态",
+                                                "这次影片已从实际播放进度到达结尾：" + videoTitle,
+                                                EventEvidenceKind.Observation, id = "completed",
+                                            )
+                                            if (auto && !busy && evidence.observedMs(duration) >= 2_000L) {
+                                                react(automatic = true, completed = true)
+                                            }
+                                        }
+                                        if (loadedUri != videoUri) {
+                                            loadedUri = videoUri
+                                            ready = false
+                                            playing = false
+                                            v.setVideoURI(Uri.parse(videoUri))
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxSize().background(Color.Black),
+                                )
+                                val activeSubtitle = cues.lastOrNull {
+                                    progress >= it.startMs && progress < it.endMs
+                                }
+                                if (activeSubtitle != null) {
+                                    Surface(
+                                        Modifier.align(Alignment.BottomCenter)
+                                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                                        shape = RoundedCornerShape(9.dp),
+                                        color = Color.Black.copy(alpha = 0.78f),
+                                    ) {
+                                        Text(
+                                            activeSubtitle.text,
+                                            modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp),
+                                            fontSize = 13.sp, color = Color.White,
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
                                 }
                             }
-                        }) { Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow, "播放或暂停") }
-                        IconButton(enabled = ready, onClick = {
-                            moveTo(progress + 10_000)
-                        }) { Icon(Icons.Outlined.Forward10, "快进十秒") }
-                    }
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("自主观影交流（调用聊天模型）", fontSize = 12.sp, modifier = Modifier.weight(1f))
-                    Switch(checked = auto, onCheckedChange = {
-                        auto = it
-                        prefs.edit().putBoolean(key + "automatic", it).apply()
-                    })
-                    OutlinedButton(onClick = { react() }, enabled = ready && !busy) { Text("问问他") }
-                }
-                if (error.isNotBlank()) Text(error, fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
-                HorizontalDivider()
-                Text("观影聊天", style = MaterialTheme.typography.titleSmall)
-                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(notes.filter {
-                        it.evidenceKind == EventEvidenceKind.CharacterStatement ||
-                            it.evidenceKind == EventEvidenceKind.UserStatement
-                    }, key = { it.id }) { note ->
-                        Column {
-                            Text(note.speaker, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(note.content, fontSize = 13.sp)
+                        }
+                        Column(
+                            Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 9.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            if (videoUri.isNotBlank()) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Outlined.Movie,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(15.dp),
+                                        tint = Color(0xFFCFD0D5),
+                                    )
+                                    Spacer(Modifier.width(7.dp))
+                                    Text(
+                                        videoTitle, modifier = Modifier.weight(1f),
+                                        fontSize = 12.sp, color = stageInk,
+                                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                                Slider(
+                                    value = if (duration > 0L) {
+                                        (progress.toFloat() / duration).coerceIn(0f, 1f)
+                                    } else 0f,
+                                    onValueChange = { moveTo((it * duration).toLong()) },
+                                    enabled = ready && duration > 0L,
+                                    modifier = Modifier.fillMaxWidth().height(26.dp),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = Color.White,
+                                        activeTrackColor = Color(0xFFDADDE5),
+                                        inactiveTrackColor = Color(0xFF515661),
+                                    ),
+                                )
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        watchClock(progress) + " / " + watchClock(duration),
+                                        color = Color(0xFFB8BBC3), fontSize = 11.sp,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    IconButton(
+                                        enabled = ready,
+                                        modifier = Modifier.size(42.dp),
+                                        onClick = { moveTo(progress - 10_000L) },
+                                    ) {
+                                        Icon(Icons.Outlined.Replay10, "倒退十秒", tint = stageInk)
+                                    }
+                                    FilledIconButton(
+                                        enabled = ready,
+                                        modifier = Modifier.size(44.dp),
+                                        colors = IconButtonDefaults.filledIconButtonColors(
+                                            containerColor = Color.White,
+                                            contentColor = night,
+                                        ),
+                                        onClick = {
+                                            if (playing) {
+                                                evidence.advance(
+                                                    video?.currentPosition?.toLong() ?: progress, true,
+                                                )
+                                                evidence.pause()
+                                                video?.pause()
+                                                playing = false
+                                                save()
+                                            } else {
+                                                if (duration > 0L && progress >= duration) moveTo(0)
+                                                evidence.begin(
+                                                    video?.currentPosition?.toLong() ?: progress,
+                                                )
+                                                video?.start()
+                                                playing = true
+                                                if (!prefs.getBoolean(key + roomId + ":started", false)) {
+                                                    record(
+                                                        "观影状态",
+                                                        "你和" + characterName + "从播放器正式开始一起看：" + videoTitle,
+                                                        EventEvidenceKind.Observation, id = "started",
+                                                    )
+                                                    prefs.edit().putBoolean(key + roomId + ":started", true).apply()
+                                                }
+                                            }
+                                        },
+                                    ) {
+                                        Icon(
+                                            if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                                            "播放或暂停", modifier = Modifier.size(25.dp),
+                                        )
+                                    }
+                                    IconButton(
+                                        enabled = ready,
+                                        modifier = Modifier.size(42.dp),
+                                        onClick = { moveTo(progress + 10_000L) },
+                                    ) {
+                                        Icon(Icons.Outlined.Forward10, "快进十秒", tint = stageInk)
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text("PRIVATE CINEMA", fontSize = 10.sp,
+                                        letterSpacing = 1.5.sp, color = Color(0xFF8E929B))
+                                    Text("与角色一起观看", fontSize = 11.sp,
+                                        color = Color(0xFFCFD0D5))
+                                }
+                            }
                         }
                     }
-                    if (busy) item { Text(characterName + " 正在想这一段……", fontSize = 12.sp) }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(value = input, onValueChange = { input = it },
-                        modifier = Modifier.weight(1f), maxLines = 3, placeholder = { Text("边看边聊……") })
-                    IconButton(enabled = input.isNotBlank() && ready && !busy, onClick = {
-                        val message = input.trim()
-                        input = ""
-                        react(comment = message)
-                    }) { Icon(Icons.Outlined.Send, "发送观影消息") }
+
+                Surface(
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(17.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, gentleBorder),
+                ) {
+                    Row(
+                        Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        ) {
+                            Box(Modifier.size(38.dp), contentAlignment = Alignment.Center) {
+                                Text(characterName.take(1).ifBlank { "角" }, fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(characterName + " · 已入场", fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface)
+                            Text(
+                                if (videoUri.isBlank()) "等你选片"
+                                else "共同观看 " + (evidence.observedMs(progress) / 1000) + " 秒",
+                                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Switch(
+                                checked = auto,
+                                onCheckedChange = {
+                                    auto = it
+                                    prefs.edit().putBoolean(key + "automatic", it).apply()
+                                },
+                                modifier = Modifier.height(32.dp),
+                            )
+                            Text("自主发言", fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, gentleBorder),
+                    shape = RoundedCornerShape(20.dp),
+                ) {
+                    Column {
+                        Row(
+                            Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(Icons.Outlined.Forum, null,
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.width(7.dp))
+                            Text("观影聊天", fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.weight(1f))
+                            TextButton(
+                                onClick = { react() },
+                                enabled = ready && !busy,
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                            ) {
+                                Text("问问他", fontSize = 12.sp)
+                                Spacer(Modifier.width(3.dp))
+                                Icon(Icons.Outlined.ArrowForward, null, modifier = Modifier.size(15.dp))
+                            }
+                        }
+                        HorizontalDivider(color = gentleBorder)
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 9.dp),
+                            verticalArrangement = Arrangement.spacedBy(9.dp),
+                        ) {
+                            if (chatEvents.isEmpty() && !busy) {
+                                item {
+                                    Box(
+                                        Modifier.fillParentMaxSize().padding(12.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Icon(Icons.Outlined.ChatBubbleOutline, null,
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .45f),
+                                                modifier = Modifier.size(29.dp))
+                                            Spacer(Modifier.height(7.dp))
+                                            Text("电影开始了，就可以边看边聊",
+                                                fontSize = 12.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    }
+                                }
+                            }
+                            items(chatEvents, key = { it.id }) { note ->
+                                val mine = note.evidenceKind == EventEvidenceKind.UserStatement
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(0.88f),
+                                        shape = RoundedCornerShape(15.dp),
+                                        color = if (mine) MaterialTheme.colorScheme.primary.copy(alpha = .09f)
+                                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .68f),
+                                    ) {
+                                        Column(Modifier.padding(horizontal = 12.dp, vertical = 9.dp)) {
+                                            Text(
+                                                if (mine) "你" else characterName,
+                                                fontSize = 10.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.Medium,
+                                            )
+                                            Spacer(Modifier.height(3.dp))
+                                            Text(
+                                                note.content, fontSize = 13.sp,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                lineHeight = 19.sp,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            if (busy) {
+                                item {
+                                    Text(characterName + " 正在想这一段…",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (error.isNotBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                    ) {
+                        Text(
+                            error, modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            color = MaterialTheme.colorScheme.onErrorContainer, fontSize = 11.sp,
+                        )
+                    }
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        value = input,
+                        onValueChange = { input = it },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                        maxLines = 3,
+                        placeholder = { Text("聊聊刚才看到的…", fontSize = 13.sp) },
+                        textStyle = LocalTextStyle.current.copy(fontSize = 13.sp),
+                    )
+                    FilledIconButton(
+                        onClick = {
+                            val message = input.trim()
+                            input = ""
+                            react(comment = message)
+                        },
+                        enabled = input.isNotBlank() && ready && !busy,
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(Icons.Outlined.Send, "发送观影消息")
+                    }
                 }
             }
         }
     }
+}
+
+private fun watchClock(value: Long): String {
+    val seconds = value.coerceAtLeast(0L) / 1000L
+    return (seconds / 60L).toString().padStart(2, '0') +
+        ":" + (seconds % 60L).toString().padStart(2, '0')
 }
