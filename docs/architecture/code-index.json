@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:42:50.742011+00:00",
-  "commit": "52c66cafec214e1204a95bf1bfa4a81fb9b1ef66",
+  "generatedAt": "2026-10-22T20:44:32.454635+00:00",
+  "commit": "88c5494d11934465e0c6f26e8ebcdf1e4a7a2934",
   "branch": "main",
-  "sourceFingerprint": "126e0b318f7658a7b9ffd93c503b960fb6a2418ad7604d702a785d973de7b773",
+  "sourceFingerprint": "9c09a20b6d00c650c515b005590c62642ccf8e17b21602a9f0250c5166957655",
   "summary": {
     "files": 832,
-    "lines": 159092,
+    "lines": 159098,
     "symbols": 2409
   },
   "symbolIndex": {
@@ -11799,43 +11799,43 @@
     "showReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 38
+        "line": 39
       }
     ],
     "showProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 44
+        "line": 47
       }
     ],
     "dismissCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 49
+        "line": 52
       }
     ],
     "dismissProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 51
+        "line": 54
       }
     ],
     "dismissReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 52
+        "line": 55
       }
     ],
     "dismiss": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 53
+        "line": 56
       }
     ],
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 95
+        "line": 99
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -25837,8 +25837,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-      "lines": 172,
-      "sha256": "9b89037d2b67d54ba5e41ee3301cd024a61f2b410643300577be3cddecbcc402",
+      "lines": 178,
+      "sha256": "dda42ee53e2ac524411c98ba16bc58d59b2ff10f4cac572ac8aedbfa1b8cbba4",
       "symbols": [
         {
           "name": "available",
@@ -25850,31 +25850,31 @@
         },
         {
           "name": "showReturn",
-          "line": 38
+          "line": 39
         },
         {
           "name": "showProgress",
-          "line": 44
+          "line": 47
         },
         {
           "name": "dismissCapture",
-          "line": 49
-        },
-        {
-          "name": "dismissProgress",
-          "line": 51
-        },
-        {
-          "name": "dismissReturn",
           "line": 52
         },
         {
+          "name": "dismissProgress",
+          "line": 54
+        },
+        {
+          "name": "dismissReturn",
+          "line": 55
+        },
+        {
           "name": "dismiss",
-          "line": 53
+          "line": 56
         },
         {
           "name": "line",
-          "line": 95
+          "line": 99
         }
       ]
     },
