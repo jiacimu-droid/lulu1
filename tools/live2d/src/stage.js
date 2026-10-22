@@ -115,7 +115,10 @@ let eyeLockedExpressions = new Set()
 
 function status(message, phase = message ? 'loading' : 'ready') {
   notice.textContent = message || ''
-  notice.style.display = message ? 'block' : 'none'
+  // In the full-screen call, Android already owns the loading/error UI.
+  // Do not render the internal WebView debug notice over the user's portrait.
+  // The standalone diagnostic stage still receives the full visual notice.
+  notice.style.display = message && !window.__luluNativeStreamEnabled ? 'block' : 'none'
   console.info('__LULU_LIVE2D__' + JSON.stringify({
     type: phase, detail: String(message || '模型渲染完成').slice(0, 200)
   }))
