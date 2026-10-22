@@ -546,7 +546,7 @@ class CharacterLifeStoreTest {
         assertEquals("宝宝", upgraded.getJSONObject("socialNames").getString("preferredAddress"))
         assertEquals(old.getJSONObject("expressionPreferences").toString(), upgraded.getJSONObject("expressionPreferences").toString())
         assertEquals(old.getJSONObject("intention").toString(), upgraded.getJSONObject("intention").toString())
-        assertTrue(CharacterRuntime.definition(role.characterId).persona.contains("AI 前沿"))
+        assertTrue(CharacterRuntime.definition(role.characterId).persona.contains("现实社会议题"))
         val backup = upgraded.getJSONObject("jiangDuV9Backup").toString()
         assertEquals("江一舟", upgraded.getJSONObject("jiangDuV9Backup").getString("displayName"))
 
