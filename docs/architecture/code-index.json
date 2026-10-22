@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:38:48.881252+00:00",
-  "commit": "0e24610af28d907c7694eab95296f57db7b6f047",
+  "generatedAt": "2026-10-22T15:39:33.122747+00:00",
+  "commit": "305e3e0bda90626fd5ada3ce3092e244dd7b9083",
   "branch": "main",
-  "sourceFingerprint": "bfa4a002522c6854429fe058ec51c4444344c8db9713cf0f0ce26eef14ee2740",
+  "sourceFingerprint": "f16b265525375a23d75e2b8298df057f773919ef7224bfdab61b452ac4febf84",
   "summary": {
     "files": 809,
-    "lines": 154054,
+    "lines": 154068,
     "symbols": 2314
   },
   "symbolIndex": {
@@ -89,7 +89,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 458
+        "line": 462
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -451,7 +451,7 @@
     "provider": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 9
+        "line": 8
       }
     ],
     "normalizeSttMode": [
@@ -463,37 +463,37 @@
     "elevenInputPath": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "elevenSttModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 25
+        "line": 26
       }
     ],
     "resolveSttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 29
+        "line": 30
       }
     ],
     "sttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 30
+        "line": 31
       }
     ],
     "sttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 34
+        "line": 35
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 41
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
@@ -511,13 +511,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 42
+        "line": 43
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "CharacterMemoryFeatureScreen": [
@@ -2695,27 +2695,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 252
+        "line": 255
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 275
+        "line": 278
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 325
+        "line": 329
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 372
+        "line": 376
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 414
+        "line": 418
       }
     ],
     "payload": [
@@ -12990,8 +12990,8 @@
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 201,
-      "sha256": "90fb90f7332aa7adba7f8b76f9648312c8337703aae732617491a9a33dc68f47",
+      "lines": 210,
+      "sha256": "4ed07a7f70db73bb7beb5273ef931a7d0be22260cdb727e434a052d269d3a39e",
       "symbols": []
     },
     {
@@ -13294,12 +13294,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 70,
-      "sha256": "d3003148635838036b9ba926a6598f21a9eaf68eab8fbbc5d40fabc7acb16e51",
+      "lines": 71,
+      "sha256": "9bd811fe1dca77d2193a9f30f43d0ccec3eb9c53cde39ef70fcad7448c363ffc",
       "symbols": [
         {
           "name": "provider",
-          "line": 9
+          "line": 8
         },
         {
           "name": "normalizeSttMode",
@@ -13307,35 +13307,35 @@
         },
         {
           "name": "elevenInputPath",
-          "line": 19
+          "line": 20
         },
         {
           "name": "elevenSttModel",
-          "line": 25
+          "line": 26
         },
         {
           "name": "resolveSttEngine",
-          "line": 29
-        },
-        {
-          "name": "sttEngine",
           "line": 30
         },
         {
+          "name": "sttEngine",
+          "line": 31
+        },
+        {
           "name": "sttLabel",
-          "line": 34
+          "line": 35
         },
         {
           "name": "label",
-          "line": 41
-        },
-        {
-          "name": "miniAsrEndpoint",
           "line": 42
         },
         {
+          "name": "miniAsrEndpoint",
+          "line": 43
+        },
+        {
           "name": "preflight",
-          "line": 47
+          "line": 48
         }
       ]
     },
@@ -15319,8 +15319,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 480,
-      "sha256": "35202ece72506c735db19cfd4e361f2ddda72f699d88369f9ff60212b493e4e9",
+      "lines": 484,
+      "sha256": "27f9355576b953ab1690740c5f0c76f796d592faa98d28c127342831d82f00c4",
       "symbols": [
         {
           "name": "start",
@@ -15328,27 +15328,27 @@
         },
         {
           "name": "pauseCapture",
-          "line": 252
+          "line": 255
         },
         {
           "name": "resumeCapture",
-          "line": 275
+          "line": 278
         },
         {
           "name": "field",
-          "line": 325
+          "line": 329
         },
         {
           "name": "field",
-          "line": 372
+          "line": 376
         },
         {
           "name": "field",
-          "line": 414
+          "line": 418
         },
         {
           "name": "stop",
-          "line": 458
+          "line": 462
         }
       ]
     },

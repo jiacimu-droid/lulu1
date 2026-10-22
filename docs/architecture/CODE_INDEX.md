@@ -1,14 +1,14 @@
 # Lulu1 代码索引
 
-- 基准提交：`0e24610af28d907c7694eab95296f57db7b6f047`
+- 基准提交：`305e3e0bda90626fd5ada3ce3092e244dd7b9083`
 - 分支：`main`
 - 已索引文件：809
-- 已索引代码/文本行：154054
+- 已索引代码/文本行：154068
 - 已发现符号：2314
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
-| `app/build.gradle.kts` | 201 | 0 |
+| `app/build.gradle.kts` | 210 | 0 |
 | `app/src/main/AndroidManifest.xml` | 164 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
@@ -32,7 +32,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 70 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 71 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 111 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
@@ -159,7 +159,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 480 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 484 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 279 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |
