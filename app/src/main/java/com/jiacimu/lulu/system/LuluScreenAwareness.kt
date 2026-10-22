@@ -160,6 +160,10 @@ object LuluScreenAwareness {
             },
             onAllow = { handleCaptureResponse(context.applicationContext, id, characterId, true) },
             onDeny = { handleCaptureResponse(context.applicationContext, id, characterId, false) },
+            onFailure = {
+                report(context, if (canNotify) "系统拒绝悬浮弹窗；已保留通知栏中的查看请求"
+                    else "系统拒绝悬浮弹窗；未截图，可到权限与能力页检查悬浮窗权限")
+            },
         )
         if (!canNotify && !popup) {
             prefs.edit().remove(PENDING_CAPTURE).commit()
@@ -168,7 +172,7 @@ object LuluScreenAwareness {
         report(context, if (popup) "请求查看屏幕 · 已尝试悬浮弹窗，等待主人允许（未截图）"
             else "请求查看屏幕 · 通知后备，等待主人允许（未截图）")
         return JSONObject().put("success", true).put("status", "pending")
-            .put("summary", if (popup) "已弹出「请求查看屏幕」，尚未截图；主人可允许一次或拒绝"
+            .put("summary", if (popup) "已请求显示「请求查看屏幕」悬浮弹窗，尚未截图；主人可允许一次或拒绝"
                 else "悬浮窗未授权，已发送「请求查看屏幕」通知；尚未截图").toString()
     }
 
@@ -312,6 +316,10 @@ object LuluScreenAwareness {
             onLater = {
                 manager.cancel(41031)
                 report(context, "主人选择了「稍后」，本次不打开露露机")
+            },
+            onFailure = {
+                report(context, if (channelAvailable) "系统拒绝悬浮弹窗；已保留返回通知"
+                    else "系统拒绝悬浮弹窗，返回邀请未能显示")
             },
         )
         if (!channelAvailable && !popup)
