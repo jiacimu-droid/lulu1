@@ -45,8 +45,10 @@ internal object TokenConsolePresentation {
 
     fun groups(breakdown: List<TokenBreakdownItem>): List<TokenSourceGroup> {
         val buckets = breakdown.groupBy { category(it.label) }
-        return order.mapNotNull { title -> buckets[title]?.takeIf(List<TokenBreakdownItem>::isNotEmpty)
-            ?.let { TokenSourceGroup(title, it.sortedByDescending(TokenBreakdownItem::estimatedTokens)) } }
+        return order.mapNotNull { title ->
+            buckets[title]?.takeIf { it.isNotEmpty() }
+                ?.let { TokenSourceGroup(title, it.sortedByDescending { part -> part.estimatedTokens }) }
+        }
     }
 
     /** Learns a robust provider/model character-to-token ratio from prior complete
