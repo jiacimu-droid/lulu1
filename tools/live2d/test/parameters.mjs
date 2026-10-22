@@ -38,13 +38,13 @@ assert.equal(access.write(core, 'ParamAngleX', 0), true)
 assert.equal(core.values[0], 0)
 assert.equal(access.write(core, 'ParamMouthOpenY', NaN), false)
 const other = makeCore()
-assert.equal(access.index(other, 'ParamMouthOpenY'), 3)
-assert.equal(access.write(other, 'ParamMouthOpenY', 0.4), true)
 other.getModel = () => ({ parameters: {
   ids: other.names, count: other.names.length,
   minimumValues: [-10, -10, -10, 0, 0],
   maximumValues: [10, 10, 10, .7, 1],
 }})
+assert.equal(access.index(other, 'ParamMouthOpenY'), 3)
+assert.equal(access.write(other, 'ParamMouthOpenY', 0.4), true)
 assert.equal(access.write(other, 'ParamMouthOpenY', 5), true)
 assert.equal(access.read(other, 'ParamMouthOpenY'), .7)
 assert.equal(access.write(other, 'ParamAngleX', -25), true)
