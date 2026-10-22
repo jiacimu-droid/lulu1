@@ -284,6 +284,9 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 previewRevision = motionRevision,
                                 previewImmediate = true,
                                 nativeMirrorEnabled = nativeMirrorMode,
+                                onModelTouch = { region, gesture ->
+                                    record("触摸实际命中：$region · $gesture（诊断模式，不生成角色回应）")
+                                },
                                 onWebViewReady = { view ->
                                     diagnosticView = view
                                     record("Native WebView 硬件加速=${view.isHardwareAccelerated}" +
