@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`535365bb5ace4b51aeae6757e284591f0e9d4efb`
+- 基准提交：`f9110b65983cc2d2d69b3baf3c1898a6a093519c`
 - 分支：`main`
 - 已索引文件：809
-- 已索引代码/文本行：154146
+- 已索引代码/文本行：154147
 - 已发现符号：2314
 
 | 文件 | 行数 | 符号数 |
@@ -104,7 +104,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 128 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSpeechTimeline.kt` | 51 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 312 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 113 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 112 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 569 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 340 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
@@ -159,7 +159,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 61 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 243 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 484 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 486 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 279 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 41 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 88 | 1 |

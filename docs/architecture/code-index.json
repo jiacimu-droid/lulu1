@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:42:22.462070+00:00",
-  "commit": "535365bb5ace4b51aeae6757e284591f0e9d4efb",
+  "generatedAt": "2026-10-22T15:43:05.739185+00:00",
+  "commit": "f9110b65983cc2d2d69b3baf3c1898a6a093519c",
   "branch": "main",
-  "sourceFingerprint": "03b2a9d391f67d6ebac62c2f340286c0c716f45885203fec6920e6b77109bb13",
+  "sourceFingerprint": "4211fb9d64436cbe15ee91b1b84473c3031711f6b975f0baae9c616aeee65b50",
   "summary": {
     "files": 809,
-    "lines": 154146,
+    "lines": 154147,
     "symbols": 2314
   },
   "symbolIndex": {
@@ -41,7 +41,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 53
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -89,7 +89,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 462
+        "line": 464
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -2695,27 +2695,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 255
+        "line": 257
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 278
+        "line": 280
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 329
+        "line": 331
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 376
+        "line": 378
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 418
+        "line": 420
       }
     ],
     "payload": [
@@ -14306,8 +14306,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt",
-      "lines": 113,
-      "sha256": "bd5e3f82130b891fac47e19b52e495c5c970a5ba8ecb3cccf3c9cca2c2464fd8",
+      "lines": 112,
+      "sha256": "1ae5ab06c8dd9dfd695ef0f408c00e41b54adcc425b722ca60251111a7380702",
       "symbols": [
         {
           "name": "Model",
@@ -15319,36 +15319,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 484,
-      "sha256": "27f9355576b953ab1690740c5f0c76f796d592faa98d28c127342831d82f00c4",
+      "lines": 486,
+      "sha256": "c3c3f58c04bac768da4b4d3646625afed3d8fbdef77a11fa4c84d52b5f1454ba",
       "symbols": [
         {
           "name": "start",
-          "line": 53
+          "line": 55
         },
         {
           "name": "pauseCapture",
-          "line": 255
+          "line": 257
         },
         {
           "name": "resumeCapture",
-          "line": 278
+          "line": 280
         },
         {
           "name": "field",
-          "line": 329
+          "line": 331
         },
         {
           "name": "field",
-          "line": 376
+          "line": 378
         },
         {
           "name": "field",
-          "line": 418
+          "line": 420
         },
         {
           "name": "stop",
-          "line": 462
+          "line": 464
         }
       ]
     },
