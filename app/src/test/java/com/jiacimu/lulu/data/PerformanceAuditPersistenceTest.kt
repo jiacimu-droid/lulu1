@@ -39,6 +39,8 @@ class PerformanceAuditPersistenceTest {
             requestBodyBytes = 93000,
             messageCount = 4,
             reducedRequest = false,
+            contextMode = "Full",
+            streamedRequest = true,
         )
         val reloaded = LocalPerformanceRepository(app)
         val saved = reloaded.consoleRecords.first().first()
@@ -49,6 +51,10 @@ class PerformanceAuditPersistenceTest {
         assertEquals(1234L, saved.imageDataUrlBytes)
         assertEquals(93000L, saved.requestBodyBytes)
         assertEquals(4, saved.messageCount)
+        assertEquals("example.invalid", saved.providerHost)
+        assertEquals("聊天", saved.requestSource)
+        assertEquals("Full", saved.contextMode)
+        assertTrue(saved.streamedRequest)
         assertEquals(1, saved.breakdown.size)
     }
 
