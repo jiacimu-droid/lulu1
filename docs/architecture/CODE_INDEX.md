@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fc88f42324503d4fff6ad1dc1d85454956928113`
+- 基准提交：`83f8b1f3a79fbdeaead48c0ead84808a8d312335`
 - 分支：`main`
 - 已索引文件：809
-- 已索引代码/文本行：154243
+- 已索引代码/文本行：154294
 - 已发现符号：2315
 
 | 文件 | 行数 | 符号数 |
@@ -632,7 +632,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceDeliveryLedgerTest.kt` | 39 | 1 |
