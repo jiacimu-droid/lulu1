@@ -108,3 +108,21 @@ installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 - WebView 改为不透明视频背景，降低原有透明 WebView 透出聊天页面的问题。
 
 这解决的是已识别的代码缺陷并增加显存保护；APK 构建成功仍不代表小狼真实运动通过，必须在手机验证人物动作、口型、视频切换和 GPU 稳定性。
+
+
+## 2026-10-22 独立 Live2D 动态检测（无电话 / 无角色 API）
+
+原有修复多次出现 APK CI 通过但真机静态预览后黑屏的问题。现在新增与通话分离的最小测试入口：
+
+1. 任一角色私聊 → 电话图标 → 「Live2D 动态检测 · 不拨号」。
+2. 「已导入模型」直接测试该角色此前保存的 Live2D 模型，不会再次导入或修改数据。
+3. 「AIRI 示例 Hiyori」独立测试。首次点击「自动下载安装 Hiyori 示例模型」时，应用从 **AIRI 的 stage-pocket/vite.config.ts 所指向的** `https://dist.ayaka.moe/live2d-models/hiyori_free_zh.zip` 下载，不会把示例嵌入 APK，也不会绑定角色本人的模型。请遵守示例模型授权；该远程源是否能从用户网络直接访问必须真机验证，网络失败会在页面中明确告知。
+4. Stage 复用项目现有 Core/WebView/Live2D 渲染层，**不启动电话会话、不调用 LLM 或 TTS**。成功加载后可手动测试头部左右转、口型开合。
+5. 诊断详细记录 Core、Android WebView 真实尺寸、WebGL 能力与纹理上限、model3.json 加载、moc3 与纹理解析、Canvas 可见像素验证。WebView 报 JavaScript 异常、本地文件缺失、HTTP 错误或图形进程回收时，将具体错误加入最近 50 条记录，可一键复制给开发者。
+
+**故障分流**：
+- AIRI 示例与已有模型均失败：优先检查共同的 Cubism Core、WebView、Pixi、Canvas 渲染层及设备 GPU。
+- AIRI 示例成功、仅已有模型失败：检查已有模型的 Moc 版本、纹理尺寸、model3 引用、表情动作注册。
+- 两者独立检测都通过、只有电话视频失败：检查 Android 全屏叠层、通话更新频率和与动画计时调度的相互影响。
+
+**验收边界**：诊断界面和打包完成，仍不能宣称示例已在用户手机成功动起来。需要收到用户手机独立测试显示人物、动作响应的真实证据后，才给第一关通过。
