@@ -52,6 +52,34 @@ class CharacterPerceptionContextTest {
         assertTrue(actual.single().content.contains("不能由挂断单独推断"))
     }
 
+    @Test fun connectedVideoReceiptsPersistWithoutClaimingAccessToTheUsersCamera() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        UserProfileContext.initialize(app)
+        SharedExperienceTimeline.initialize(app)
+        val role = "video-evidence-" + java.util.UUID.randomUUID()
+        val call = "connected-" + java.util.UUID.randomUUID()
+        val chosenId = "interaction-call-video-selected-$call"
+        val renderedId = "interaction-call-video-rendered-$call"
+        try {
+            InteractionSignalBridge.recordVideoSelected(role, call)
+            val onlySelected = UserProfileContext.live2dCallContext(role)
+            assertFalse(onlySelected.contains("那次角色自己的 Live2D 形象确实成功显示"))
+            assertNotNull(SharedExperienceTimeline.eventsByIds(role, listOf(chosenId)).singleOrNull())
+            InteractionSignalBridge.recordVideoRendered(role, call)
+            InteractionSignalBridge.recordVideoRendered(role, call)
+            val verified = SharedExperienceTimeline.eventsByIds(role, listOf(renderedId))
+            assertEquals(1, verified.size)
+            assertEquals(EventEvidenceKind.Observation, verified.single().evidenceKind)
+            val prompt = UserProfileContext.live2dCallContext(role)
+            assertTrue(prompt.contains("角色自己的 Live2D 形象确实成功显示"))
+            assertTrue(prompt.contains("并不意味着角色可以看见用户本人"))
+            assertFalse(prompt.contains("我们已经看到了用户真人"))
+        } finally {
+            SharedExperienceTimeline.deleteEvent(chosenId)
+            SharedExperienceTimeline.deleteEvent(renderedId)
+        }
+    }
+
     @Test fun witnessedTouchAndVisitSurviveAlongsideNewChatButStaleAndImaginedEventsDoNot() {
         val now = Instant.parse("2026-10-10T06:00:00Z")
         fun event(id: String, age: Long, kind: EventEvidenceKind) = SharedTimelineEvent(
