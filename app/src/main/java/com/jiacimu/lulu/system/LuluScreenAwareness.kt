@@ -174,7 +174,7 @@ object LuluScreenAwareness {
         val work = OneTimeWorkRequestBuilder<LuluApprovedScreenWorker>()
             .setInputData(Data.Builder().putString("characterId", characterId)
                 .putString("requestId", id).putBoolean("approved", canProceed).build())
-            .setInitialDelay(if (canProceed) 2 else 0, java.util.concurrent.TimeUnit.SECONDS).build()
+            .setInitialDelay(if (canProceed) 2L else 0L, java.util.concurrent.TimeUnit.SECONDS).build()
         WorkManager.getInstance(context.applicationContext)
             .enqueueUniqueWork("screen-approved-$id", ExistingWorkPolicy.KEEP, work)
     }
