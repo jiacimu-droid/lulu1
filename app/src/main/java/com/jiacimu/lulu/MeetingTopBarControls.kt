@@ -115,14 +115,7 @@ internal fun MeetingOverflowMenu(
             },
         )
         MeetingMenuDivider()
-        MeetingMenuRow(
-            icon = Icons.Outlined.History,
-            title = "见面记录",
-            onClick = {
-                onDismiss()
-                onOpenHistory()
-            },
-        )
+        // Ended meetings remain source evidence, not a second reader-facing archive.
         if (onOpenRelationshipNetwork != null) MeetingMenuRow(
             icon = Icons.Outlined.People,
             title = "人物关系网络",
