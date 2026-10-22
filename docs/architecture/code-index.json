@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:49:21.760743+00:00",
-  "commit": "1b6c63eed477ed2530c0e1407c1def5a67de38ae",
+  "generatedAt": "2026-10-22T20:49:44.757683+00:00",
+  "commit": "3bd5d2058c380483d76b60b3ed489a0a05e4f43a",
   "branch": "main",
-  "sourceFingerprint": "b160af5e40d08c15eeebdd7d49f2e21c96c43140a460193ed0f4df4935587554",
+  "sourceFingerprint": "3b94838f74f9dc5bc3a679bdcea3547fcfaca550db652edd17a9265e8e38f208",
   "summary": {
     "files": 833,
-    "lines": 159230,
+    "lines": 159249,
     "symbols": 2413
   },
   "symbolIndex": {
@@ -3191,7 +3191,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 618
+        "line": 627
       }
     ],
     "ready": [
@@ -3567,7 +3567,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 266
+        "line": 272
       }
     ],
     "advance": [
@@ -7403,7 +7403,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 280
+        "line": 286
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
@@ -9547,79 +9547,79 @@
     "lastDiagnosticSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 203
+        "line": 209
       }
     ],
     "lastDiagnostic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 205
+        "line": 211
       }
     ],
     "recordToolStage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 215
+        "line": 221
       }
     ],
     "requestVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 231
+        "line": 237
       }
     ],
     "visibleReadTestPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 234
+        "line": 240
       }
     ],
     "consumeVisibleReadTest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 236
+        "line": 242
       }
     ],
     "mcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 241
+        "line": 247
       }
     ],
     "setMcpFallbackEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 244
+        "line": 250
       }
     ],
     "mcpPrimaryEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 250
+        "line": 256
       }
     ],
     "setMcpPrimaryEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 252
+        "line": 258
       }
     ],
     "localEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 259
+        "line": 265
       }
     ],
     "setLocalEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 260
+        "line": 266
       }
     ],
     "resume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 262
+        "line": 268
       }
     ],
     "parseDirect": [
@@ -23081,8 +23081,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 895,
-      "sha256": "9c52be0eae74a639ac9e01e6046d6a7e0d5ccd4d92ccaf684887539c9138b9c0",
+      "lines": 914,
+      "sha256": "1e8949de319924c7cf0b9ddf67d9b1be2b92908ac5abbd617eb5c45dec031979",
       "symbols": [
         {
           "name": "url",
@@ -23106,67 +23106,67 @@
         },
         {
           "name": "lastDiagnosticSummary",
-          "line": 203
+          "line": 209
         },
         {
           "name": "lastDiagnostic",
-          "line": 205
+          "line": 211
         },
         {
           "name": "recordToolStage",
-          "line": 215
+          "line": 221
         },
         {
           "name": "requestVisibleReadTest",
-          "line": 231
+          "line": 237
         },
         {
           "name": "visibleReadTestPending",
-          "line": 234
+          "line": 240
         },
         {
           "name": "consumeVisibleReadTest",
-          "line": 236
+          "line": 242
         },
         {
           "name": "mcpFallbackEnabled",
-          "line": 241
+          "line": 247
         },
         {
           "name": "setMcpFallbackEnabled",
-          "line": 244
-        },
-        {
-          "name": "mcpPrimaryEnabled",
           "line": 250
         },
         {
+          "name": "mcpPrimaryEnabled",
+          "line": 256
+        },
+        {
           "name": "setMcpPrimaryEnabled",
-          "line": 252
+          "line": 258
         },
         {
           "name": "localEnabled",
-          "line": 259
+          "line": 265
         },
         {
           "name": "setLocalEnabled",
-          "line": 260
-        },
-        {
-          "name": "resume",
-          "line": 262
-        },
-        {
-          "name": "pause",
           "line": 266
         },
         {
+          "name": "resume",
+          "line": 268
+        },
+        {
+          "name": "pause",
+          "line": 272
+        },
+        {
           "name": "available",
-          "line": 280
+          "line": 286
         },
         {
           "name": "stage",
-          "line": 618
+          "line": 627
         }
       ]
     },
