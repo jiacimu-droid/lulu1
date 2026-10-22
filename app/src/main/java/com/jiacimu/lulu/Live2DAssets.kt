@@ -195,9 +195,15 @@ internal object Live2DAssets {
                         val file = File(staging, relative)
                         require(inside(staging, file)) { "ZIP 路径越界" }
                         if (entry.isDirectory) file.mkdirs() else {
-                            require(relative.substringAfterLast('.', "").lowercase() in
+                            // AIRI model archives may include README/license/metadata
+                            // or VTube Studio-specific files. Ignore unknown extensions
+                            // rather than rejecting an otherwise valid Cubism ZIP.
+                            // Every required model reference is checked below, so
+                            // skipping extra entries cannot silently omit a needed file.
+                            if (relative.substringAfterLast('.', "").lowercase() !in
                                 setOf("json", "moc3", "png", "jpg", "jpeg", "webp", "wav", "mp3", "ogg")) {
-                                "ZIP 包含不支持的资源类型：$relative"
+                                zip.closeEntry()
+                                continue
                             }
                             file.parentFile?.mkdirs()
                             FileOutputStream(file).use { output ->
