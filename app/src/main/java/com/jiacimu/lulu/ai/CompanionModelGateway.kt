@@ -724,7 +724,6 @@ class CompanionModelGateway(
                 systemSections, systemPrompt, userPrompt, dialogueHistory, imageDataUrls,
                 instruction = instruction,
             )
-            val estimatedInputTokens = fullAudit.estimatedTextTokens
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
             // Build the compact projection from the very same assembled facts
