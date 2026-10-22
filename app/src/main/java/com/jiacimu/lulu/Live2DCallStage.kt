@@ -41,6 +41,8 @@ import androidx.webkit.WebViewAssetLoader
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -55,13 +57,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // Render frames in Compose, outside the WebView surface, when Android's
     // GPU compositor displays an empty WebView in spite of positive readback.
     nativeMirrorEnabled: Boolean = false,
+    framingMode: String = "full",
     onWebViewReady: ((WebView) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val stage = remember(context, characterId, modelUrl) {
-        createLive2DWebView(context, characterId, modelUrl) { phase, detail ->
+        createLive2DWebView(context, characterId, modelUrl, framingMode) { phase, detail ->
             statusReceiver.value(phase, detail)
         }
     }
@@ -90,6 +93,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 statusReceiver.value(phase, detail)
             }
         }
+    }
+    LaunchedEffect(stage, framingMode) {
+        val mode = if (framingMode == "portrait") "portrait" else "full"
+        stage.evaluateJavascript(
+            "window.__luluFramingMode=${JSONObject.quote(mode)};" +
+                "window.LuluLive2D && window.LuluLive2D.setFramingMode(window.__luluFramingMode)",
+            null,
+        )
     }
     LaunchedEffect(stage, previewRevision) {
         if (previewRevision > 0) {
@@ -122,7 +133,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
  * Bypasses the WebView's compositor altogether. Android receives compressed
  * frames from the *local* Pixi drawing buffer over evaluateJavascript and
  * draws them as a native Compose image on top of the WebView. This is a
- * compatibility path: capped at ~6 fps / 480 px, never sent over the network.
+ * compatibility path: adaptive 520-940px at roughly 8-12fps, never sent over the network.
  */
 @Composable
 private fun Live2DNativeFrameOverlay(
@@ -136,44 +147,83 @@ private fun Live2DNativeFrameOverlay(
     LaunchedEffect(webView) {
         var reportedFirstFrame = false
         var consecutiveErrors = 0
+        var slowFrames = 0
+        var fastFrames = 0
+        var maxEdge = 860
         while (isActive) {
-            val encoded = try {
+            val startedAt = android.os.SystemClock.elapsedRealtime()
+            val rawResult = try {
                 suspendCancellableCoroutine<String?> { continuation ->
                     webView.evaluateJavascript(
                         "window.LuluLive2D && window.LuluLive2D.captureNativeFrame" +
-                            " ? window.LuluLive2D.captureNativeFrame() : null",
+                            " ? window.LuluLive2D.captureNativeFrame($maxEdge) : null",
                     ) { result ->
-                        val decoded = runCatching {
-                            org.json.JSONTokener(result).nextValue() as? String
-                        }.getOrNull()
-                        if (continuation.isActive) continuation.resume(decoded)
+                        if (continuation.isActive) continuation.resume(result)
                     }
                 }
             } catch (_: Exception) {
                 null
             }
-            if (encoded != null && encoded.startsWith("data:image/jpeg;base64,") &&
-                encoded.length < 2_000_000) {
-                try {
-                    val bytes = Base64.decode(encoded.substringAfter(','), Base64.DEFAULT)
-                    val decoded = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    if (decoded != null) {
-                        picture = decoded.asImageBitmap()
-                        consecutiveErrors = 0
-                        if (!reportedFirstFrame) {
-                            reportedFirstFrame = true
-                            receiver.value("diagnostic",
-                                "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height}")
-                        }
-                    } else consecutiveErrors++
-                } catch (_: Exception) {
-                    consecutiveErrors++
+            // JSON parsing, base64 decoding and JPEG bitmap decoding must not
+            // compete with audio controls or the Compose UI on the main thread.
+            val decoded = withContext(Dispatchers.Default) {
+                runCatching {
+                    val encoded = rawResult?.let {
+                        org.json.JSONTokener(it).nextValue() as? String
+                    }
+                    if (encoded == null || !encoded.startsWith("data:image/jpeg;base64,") ||
+                        encoded.length > 3_500_000) null
+                    else {
+                        val bytes = Base64.decode(encoded.substringAfter(','), Base64.DEFAULT)
+                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    }
+                }.getOrNull()
+            }
+            if (decoded != null) {
+                picture = decoded.asImageBitmap()
+                consecutiveErrors = 0
+                if (!reportedFirstFrame) {
+                    reportedFirstFrame = true
+                    receiver.value("diagnostic",
+                        "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height}")
+                }
+            } else if (rawResult != null && rawResult != "null" && rawResult != "undefined") {
+                consecutiveErrors++
+                if (consecutiveErrors == 3) {
+                    receiver.value("error", "原生画面桥接连续解码失败；已保留最后有效帧")
                 }
             }
-            if (consecutiveErrors == 3) {
-                receiver.value("error", "原生画面桥接解码失败，请复制诊断日志")
+            val costMs = android.os.SystemClock.elapsedRealtime() - startedAt
+            if (decoded != null) {
+                // Keep the quality budget responsive to low-end devices and long
+                // calls rather than forcing fixed 960px JPEGs onto every frame.
+                if (costMs > 145) {
+                    slowFrames++
+                    fastFrames = 0
+                } else if (costMs < 65) {
+                    fastFrames++
+                    slowFrames = 0
+                } else {
+                    fastFrames = 0
+                    slowFrames = 0
+                }
+                if (slowFrames >= 3) {
+                    maxEdge = when (maxEdge) {
+                        in 801..960 -> 720
+                        in 681..800 -> 600
+                        else -> 520
+                    }
+                    slowFrames = 0
+                } else if (fastFrames >= 18) {
+                    maxEdge = when (maxEdge) {
+                        in 0..599 -> 680
+                        in 600..799 -> 820
+                        else -> 940
+                    }
+                    fastFrames = 0
+                }
             }
-            delay(160)
+            delay((95L - costMs).coerceAtLeast(15L))
         }
     }
     val current = picture
@@ -220,6 +270,7 @@ private fun reportNativeLive2DViewport(view: WebView) {
 }
 
 private fun createLive2DWebView(context: Context, characterId: String, modelUrl: String,
+    initialFramingMode: String,
     onStatus: (String, String) -> Unit): WebView {
     val loader = WebViewAssetLoader.Builder()
         .setDomain("appassets.androidplatform.net")
@@ -341,9 +392,11 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
                         val height = current.height
                         current.evaluateJavascript(
                             "window.__luluStageModelUrl = ${JSONObject.quote(modelUrl)};" +
+                                "window.__luluFramingMode=${JSONObject.quote(initialFramingMode)};" +
                                 "window.__luluNativeViewport={width:$width,height:$height};" +
                                 "if(window.LuluLive2D){" +
                                 "window.LuluLive2D.setViewport($width,$height);" +
+                                "window.LuluLive2D.setFramingMode(window.__luluFramingMode);" +
                                 "window.LuluLive2D.load(window.__luluStageModelUrl)}", null)
                     }
                 }
