@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T14:35:59.386351+00:00",
-  "commit": "99e51eff368ee490107ab95238ccf5c334f0237c",
+  "generatedAt": "2026-10-22T14:36:50.283546+00:00",
+  "commit": "c19c0f73739fc1794a6cc48daff736a08451c1e5",
   "branch": "main",
-  "sourceFingerprint": "fe418135be2840bafaa5b99f88c1610f88d3d7d62b6c3a6f63a24c7f5f77550f",
+  "sourceFingerprint": "c98fe3b407fd557370a94a53f107f6ea635e1dff0bbe1eee0298ce4b93b035be",
   "summary": {
     "files": 804,
     "lines": 153617,
@@ -21693,7 +21693,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
       "lines": 78,
-      "sha256": "b81827a18f4d5e18a9e441c21d29eeb2e733c74af16838086590ae500acc4dc8",
+      "sha256": "8a2403a06b2be40297b3471b71f1075e0cd868bf946b3a5b9d5f1dbbcd6bdebe",
       "symbols": [
         {
           "name": "groups",
