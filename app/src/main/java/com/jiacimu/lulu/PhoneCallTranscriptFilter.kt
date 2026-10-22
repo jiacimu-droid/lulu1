@@ -26,7 +26,7 @@ internal fun actualPhoneCaptions(
  */
 internal object PhoneTranscriptEvidence {
     private val captionToken = Regex(
-        """(?:（[^（）]{1,24}）|\\([^()]{1,24}\\)|【[^【】]{1,24}】|\\[[^\\[\\]]{1,24}\\])"""
+        """(?:（[^（）]{1,24}）|\([^()]{1,24}\)|【[^【】]{1,24}】|\[[^\[\]]{1,24}\])"""
     )
     fun isConfirmedSpeech(raw: String): Boolean {
         val value = raw.trim()
