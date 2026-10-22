@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T00:39:56.514800+00:00",
-  "commit": "e4f4c7eef9cbae4d65c7aa6bea65855f00722627",
+  "generatedAt": "2026-10-22T00:41:58.092632+00:00",
+  "commit": "18a0ad2c98663bb7d00465e8f8db4b1122afa073",
   "branch": "main",
-  "sourceFingerprint": "7a8193cefadaa04924c4277e2fa8ebe938ade99969d038d065dd6ec6f0ba726d",
+  "sourceFingerprint": "bc7da7acd46b49371a47efb591a2366c4e4e1e0b47780b033822871c86ce2d11",
   "summary": {
-    "files": 786,
-    "lines": 149436,
-    "symbols": 2254
+    "files": 787,
+    "lines": 149508,
+    "symbols": 2255
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1520,6 +1520,20 @@
         "line": 76
       }
     ],
+    "prepare": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt",
+        "line": 20
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
+        "line": 399
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
+        "line": 523
+      }
+    ],
     "normalizedSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DModelManifestAdapter.kt",
@@ -1930,16 +1944,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
         "line": 254
-      }
-    ],
-    "prepare": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 399
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 523
       }
     ],
     "dial": [
@@ -13781,6 +13785,17 @@
         {
           "name": "toggleSelfCamera",
           "line": 76
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt",
+      "lines": 72,
+      "sha256": "b27f2a17ddd6c3e8fba320f1d9d2a0d81825de7546e13425c7133bc440a4a55c",
+      "symbols": [
+        {
+          "name": "prepare",
+          "line": 20
         }
       ]
     },
