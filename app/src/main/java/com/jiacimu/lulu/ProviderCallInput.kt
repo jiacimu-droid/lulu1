@@ -71,6 +71,9 @@ internal class ProviderCallInput(private val context: Context, private val scope
             }
             CallVoiceConfiguration.ElevenInputPath.OTHER -> Unit
         }
+        if (sttEngine == "local") {
+            onStatus("本地 Whisper ${LocalWhisperModels.selected(context).id} · 离线识别，无云端转写费用")
+        }
         // A running user monologue can outlast cloud upload latency; never
         // silently drop earlier chunks because an arbitrary six-item queue filled.
         val queue = Channel<AudioChunk>(Channel.UNLIMITED)
@@ -78,7 +81,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         // A second utterance must not cancel or discard the first utterance
         // while cloud ASR is still working. Serialize responses in mic order.
         transcription = scope.launch {
-            // Start the next upload while earlier ASR is being decoded. Preserve
+            // Run local inference or cloud recognition in capture order. Preserve
             // the original PCM order when assembling the final transcript.
             val completed = Channel<Triple<Long, AudioChunk, Deferred<Result<String>>>>(Channel.UNLIMITED)
             val permits = kotlinx.coroutines.sync.Semaphore(2)
@@ -294,10 +297,11 @@ internal class ProviderCallInput(private val context: Context, private val scope
 
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
         when (sttEngine) {
+            "local" -> LocalWhisperTranscriber.transcribe(context, pcm)
             "groq" -> transcribeGroq(pcm)
             "minimax" -> transcribeMiniMax(pcm, onIncremental)
             "elevenlabs" -> transcribeElevenLabs(pcm)
-            else -> error("未配置可用云端语音识别")
+            else -> error("未配置语音转文字线路")
         }
 
     /**
