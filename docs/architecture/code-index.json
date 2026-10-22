@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T06:56:46.042581+00:00",
-  "commit": "b280f7db48fdb61ca5393b28c11431c24d8ace71",
+  "generatedAt": "2026-10-22T06:58:44.438075+00:00",
+  "commit": "4095766266530480fde99b89e8efb720d56d29b9",
   "branch": "main",
-  "sourceFingerprint": "6d76838a52c9882059dc80ef261bc86ceed48f533b0eef5eb7b7d8c0801f1ab7",
+  "sourceFingerprint": "9e87d0354cdf0b05be030d4e39fdb84ee1fab97f39b2a1d81f4e5b8e21671b58",
   "summary": {
-    "files": 794,
-    "lines": 151270,
-    "symbols": 2275
+    "files": 795,
+    "lines": 151352,
+    "symbols": 2278
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -494,6 +494,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
         "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicPlaces.kt",
@@ -1512,6 +1516,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
         "line": 127
+      }
+    ],
+    "Sample": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
+        "line": 13
+      }
+    ],
+    "frame": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
+        "line": 34
       }
     ],
     "toggleSelfCamera": [
@@ -13892,6 +13908,25 @@
       "lines": 64,
       "sha256": "d587357b293c223bc98b263a15f15491307d1c4ae9ccedf6e5ef25db66f5e180",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
+      "lines": 82,
+      "sha256": "a31d0de9f0cf55fb6e2fc686cac3e7f35668fe5dcad83c9ff3259fea9c1b8cc4",
+      "symbols": [
+        {
+          "name": "Sample",
+          "line": 13
+        },
+        {
+          "name": "label",
+          "line": 22
+        },
+        {
+          "name": "frame",
+          "line": 34
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
