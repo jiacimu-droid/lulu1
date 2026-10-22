@@ -199,8 +199,6 @@ assert.equal(gate.request('吐舌', false), true,
   'visual-only, silent reactions remain possible')
 assert.equal(gate.started().reset, true,
   'a new sentence closes an existing tongue before playing sound')
-assert.match(stage, /mouthExpressionGate\\.tick\\(\\)/)
-assert.match(stage, /mouthExpressionGate\\.finished\\(\\)/)
 assert.ok(stage.includes('mouthExpressionGate.tick()'))
 assert.ok(stage.includes('mouthExpressionGate.finished()'))
 assert.ok(stage.includes('mouthExpressionGate.interrupted()'))
