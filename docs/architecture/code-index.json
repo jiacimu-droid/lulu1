@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T00:41:58.092632+00:00",
-  "commit": "18a0ad2c98663bb7d00465e8f8db4b1122afa073",
+  "generatedAt": "2026-10-22T00:42:12.977051+00:00",
+  "commit": "330088dad967a4d90098f1caea7889e324e2275c",
   "branch": "main",
-  "sourceFingerprint": "bc7da7acd46b49371a47efb591a2366c4e4e1e0b47780b033822871c86ce2d11",
+  "sourceFingerprint": "ab440ed6f1ceda701e56a0450e521e7c055e08cad6e9449295d031730bb33e4c",
   "summary": {
     "files": 787,
-    "lines": 149508,
+    "lines": 149517,
     "symbols": 2255
   },
   "symbolIndex": {
@@ -1501,7 +1501,7 @@
     "controls": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 81
+        "line": 90
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
@@ -1511,7 +1511,7 @@
     "removeModel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-        "line": 103
+        "line": 112
       }
     ],
     "toggleSelfCamera": [
@@ -13720,8 +13720,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
-      "lines": 271,
-      "sha256": "9bc2744a06ead1b72e4eb72ef46a01e26828a5a1e712c85805479aa928cc1aaf",
+      "lines": 280,
+      "sha256": "19807f0c1a82b485f787acad2aaa0b4199f353433717ba3ca52e79126c72ffcf",
       "symbols": [
         {
           "name": "notifyCoreChanged",
@@ -13757,11 +13757,11 @@
         },
         {
           "name": "controls",
-          "line": 81
+          "line": 90
         },
         {
           "name": "removeModel",
-          "line": 103
+          "line": 112
         }
       ]
     },
