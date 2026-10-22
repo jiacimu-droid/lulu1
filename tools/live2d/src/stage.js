@@ -322,8 +322,14 @@ function applyFinalParameters(core, deltaMs) {
   // ONE model response. Advance only with audible playback; never spawn
   // additional LLM calls or random idle head actions.
   if (activePerformance) {
+    // Spring physics intentionally clamps deltaMs to preserve stability.
+    // Choreography timing MUST instead follow actual audible elapsed time:
+    // a 6fps JPEG bridge still advances ~167 ms per frame, not 60 ms.
+    const actualFrameMs = Math.min(300,
+      Math.max(0, timeNow - activePerformance.lastTickAt))
+    activePerformance.lastTickAt = timeNow
     if (playing || activePerformance.allowSilent) {
-      activePerformance.elapsedMs += Math.min(60, Math.max(0, deltaMs))
+      activePerformance.elapsedMs += actualFrameMs
       while (activePerformance.index < activePerformance.beats.length &&
           activePerformance.beats[activePerformance.index].atMs <= activePerformance.elapsedMs) {
         const beat = activePerformance.beats[activePerformance.index++]
@@ -973,6 +979,7 @@ function beginPerformance(beats, allowSilent) {
     index: 0,
     elapsedMs: 0,
     createdAt: Date.now(),
+    lastTickAt: Date.now(),
     allowSilent,
   }
 }
