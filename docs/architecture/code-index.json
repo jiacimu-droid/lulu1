@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:48:27.489939+00:00",
-  "commit": "35dedb59b1c635f8e157ea4b297f94eaafcb710b",
+  "generatedAt": "2026-10-22T15:50:37.651699+00:00",
+  "commit": "fc88f42324503d4fff6ad1dc1d85454956928113",
   "branch": "main",
-  "sourceFingerprint": "f2d5ae89ecab36e5a18a0e946ad843864273705a432c6a5d2772902a932d53b5",
+  "sourceFingerprint": "4137a9973a998731feeae2d20eebae1243c0e578a548fc38ae53ee67a7b9d5b1",
   "summary": {
     "files": 809,
-    "lines": 154155,
+    "lines": 154243,
     "symbols": 2315
   },
   "symbolIndex": {
@@ -3181,7 +3181,7 @@
     "score": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt",
-        "line": 9
+        "line": 75
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
@@ -15892,12 +15892,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt",
-      "lines": 32,
-      "sha256": "e4a566b6e4f6dcb8a22f3907caba4ae566c33bed662e03bdf8b6b89fe657143d",
+      "lines": 120,
+      "sha256": "2fa30b637fee093a2726cfd75590112b83014910951913605b94f6ce5e94c0d6",
       "symbols": [
         {
           "name": "score",
-          "line": 9
+          "line": 75
         }
       ]
     },
