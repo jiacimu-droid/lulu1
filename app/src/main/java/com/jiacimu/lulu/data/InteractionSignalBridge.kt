@@ -109,6 +109,43 @@ internal object InteractionSignalBridge {
         )
     }
 
+    /** Text-only factual description; the model decides how it feels about a touch. */
+    fun avatarContactDescription(region: String, gesture: String, count: Int): String? {
+        val place = when (region) {
+            "head" -> "头部"
+            "arm" -> "手臂"
+            "body" -> "身体"
+            else -> return null
+        }
+        val action = when (gesture) {
+            "tap" -> "轻点了"
+            "hold" -> "按住了"
+            "stroke" -> "抚摸了"
+            else -> return null
+        }
+        return "用户在这通 Live2D 视频中真实触碰了角色数字形象的${place}，" +
+            "动作是${action}${place}" +
+            (if (count > 1) "，这组动作共${count}次" else "") +
+            "。这是用户触摸屏幕的设备事件，并非角色真的拥有物理触觉；" +
+            "不替角色推断情绪或规定回应。"
+    }
+
+    /** Only emit after a successful screen hit-test and a genuinely visible frame. */
+    fun recordAvatarTouch(characterId: String, callId: String, region: String,
+        gesture: String, count: Int, now: Instant = Instant.now()): String? {
+        if (!hasRenderedVideo(characterId, callId)) return null
+        val fact = avatarContactDescription(region, gesture, count) ?: return null
+        val id = "interaction-call-touch-$callId-${java.util.UUID.randomUUID()}"
+        SharedExperienceTimeline.record(
+            eventId = id, characterId = characterId, channel = "电话互动",
+            speaker = "真实触摸操作", content = fact,
+            occurredAt = now, triggerExtraction = false,
+            sessionId = callId, source = SOURCE,
+            evidenceKind = EventEvidenceKind.Observation,
+        )
+        return id
+    }
+
     /** Whether THIS call has actually rendered video, not merely opened a UI. */
     fun hasRenderedVideo(characterId: String, callId: String): Boolean =
         characterId.isNotBlank() && callId.isNotBlank() &&
