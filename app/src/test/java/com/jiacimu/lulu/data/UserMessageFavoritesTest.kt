@@ -60,6 +60,28 @@ class UserMessageFavoritesTest {
         assertEquals("好好睡。", MigratedDomainStores.chat.messages(conversation.id).value.single().content)
     }
 
+    @Test fun deletingChatBubblesWithdrawsTheirSharedHeartVoiceOnlyAfterTheLastBubble() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CompanionPresenceStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("心声级联删除测试", "角色")
+        CompanionPresenceStore.clearCharacter(role.characterId)
+        val conversation = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        val now = Instant.now()
+        val thought = "这是同一轮回复时没有说出口的心声"
+        CompanionPresenceStore.update(
+            role.characterId, "正在聊天", null, thought, "开心", "聊天回复", now,
+        )
+        val first = MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "第一句。", role.characterId)
+        val second = MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "第二句。", role.characterId)
+        assertTrue(CompanionPresenceStore.histories.value[role.characterId].orEmpty().any { it.innerThought == thought })
+        assertTrue(MigratedDomainStores.chat.deleteMessage(first.id))
+        assertTrue(CompanionPresenceStore.histories.value[role.characterId].orEmpty().any { it.innerThought == thought })
+        assertTrue(MigratedDomainStores.chat.deleteMessage(second.id))
+        assertFalse(CompanionPresenceStore.histories.value[role.characterId].orEmpty().any { it.innerThought == thought })
+        CompanionPresenceStore.clearCharacter(role.characterId)
+    }
+
     @Test fun transientGestureEndsWhenLaterObservationOmitsItButSustainedActivityCanContinue() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
