@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:22:46.969493+00:00",
-  "commit": "86ae86a3dc82402fbcc70e63d91cc43814e3f4c4",
+  "generatedAt": "2026-10-22T07:23:09.929006+00:00",
+  "commit": "a1374fa915313c3257dbe6a1bdf65ee71bd00838",
   "branch": "main",
-  "sourceFingerprint": "4ebe9e5f59a1222646a3e3dc17a804989efe39de56d61f1f2f7897e648c285e7",
+  "sourceFingerprint": "eef6b2600acdb919e2ceb3d9cb82bb57b814bbcaad6c6de8b7d193bf01e2f622",
   "summary": {
     "files": 798,
-    "lines": 151535,
-    "symbols": 2280
+    "lines": 151571,
+    "symbols": 2281
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3628,16 +3628,22 @@
         "line": 27
       }
     ],
+    "canDescribeCamera": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
+        "line": 122
+      }
+    ],
     "xhsConnectionOverride": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 109
+        "line": 145
       }
     ],
     "PreparedXhsImages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 117
+        "line": 153
       }
     ],
     "CharacterSummary": [
@@ -16108,8 +16114,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 284,
-      "sha256": "ec10d933a2612d86b1466e7d23f7779496b02c3da611e1c2c67c490833421b55",
+      "lines": 320,
+      "sha256": "87350e445e0cfcf211da6e15a721e32c094e91def792db00872616f64b082bac",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -16124,12 +16130,16 @@
           "line": 39
         },
         {
+          "name": "canDescribeCamera",
+          "line": 122
+        },
+        {
           "name": "xhsConnectionOverride",
-          "line": 109
+          "line": 145
         },
         {
           "name": "PreparedXhsImages",
-          "line": 117
+          "line": 153
         }
       ]
     },
