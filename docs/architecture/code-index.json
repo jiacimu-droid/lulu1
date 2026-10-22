@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T04:08:50.891441+00:00",
-  "commit": "3b455acb935c1ef7482016684ece8a0048e94575",
+  "generatedAt": "2026-10-22T04:26:00.981042+00:00",
+  "commit": "dbb408827c318379c31a7f58fc26e5be14ffe0a4",
   "branch": "main",
-  "sourceFingerprint": "8d83966f1edc00b6f7f838194dca133d8333e2e5ae8a2341e6f981c299624f75",
+  "sourceFingerprint": "aaa209d2531598dac7dc521afd3e4451a7fe72eed53f3efe1ff0e5f7385d3500",
   "summary": {
     "files": 791,
-    "lines": 150481,
-    "symbols": 2263
+    "lines": 150634,
+    "symbols": 2264
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -379,7 +379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 667
+        "line": 675
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -4691,7 +4691,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 629
+        "line": 637
       }
     ],
     "cue": [
@@ -4801,7 +4801,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 601
+        "line": 609
       }
     ],
     "current": [
@@ -11862,52 +11862,58 @@
         "line": 388
       }
     ],
-    "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles": [
+    "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 425
       }
     ],
+    "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 474
+      }
+    ],
     "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 475
+        "line": 524
       }
     ],
     "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 523
+        "line": 572
       }
     ],
     "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 570
+        "line": 619
       }
     ],
     "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 619
+        "line": 668
       }
     ],
     "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 662
+        "line": 711
       }
     ],
     "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 716
+        "line": 765
       }
     ],
     "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 744
+        "line": 793
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -13813,8 +13819,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 240,
-      "sha256": "98c769ef21b520bbed0dc7bfe2b997490bb610c2ed9bf07fc8814a99841b8c15",
+      "lines": 331,
+      "sha256": "81d71da521d4fd46d3550900d4abb3630941ff4d91ff9479d202ae33a18f4a5e",
       "symbols": []
     },
     {
@@ -17002,8 +17008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 714,
-      "sha256": "8fc1016464724b9b5257557dce616d0f67dad914774b80fc34ab0206621f55ea",
+      "lines": 722,
+      "sha256": "ae4e1ebc646371062efb04cb75aec45f793709d61bd2c946ef7afb578def5f70",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -17019,15 +17025,15 @@
         },
         {
           "name": "profileContext",
-          "line": 601
+          "line": 609
         },
         {
           "name": "compactContext",
-          "line": 629
+          "line": 637
         },
         {
           "name": "context",
-          "line": 667
+          "line": 675
         }
       ]
     },
@@ -17325,8 +17331,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 173,
-      "sha256": "990796d21599a085327c6b8d39c6979baf5718ee59f71f8cf91e68e8d740619d",
+      "lines": 178,
+      "sha256": "c1d081b957e250d6878e7c6da9bed74837dabb800599708ea4e4d663e305df02",
       "symbols": [
         {
           "name": "groupedFields",
@@ -25636,8 +25642,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 773,
-      "sha256": "030dce7a6d6278303254ff44720044a55a6fee060e572dee6d15abfe1ac030a6",
+      "lines": 822,
+      "sha256": "a2fc702a076f2dfc27a0dfa517f0d62df8377d40165ced3c2632da699a12d11f",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -25668,36 +25674,40 @@
           "line": 388
         },
         {
-          "name": "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles",
+          "name": "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices",
           "line": 425
         },
         {
+          "name": "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles",
+          "line": 474
+        },
+        {
           "name": "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona",
-          "line": 475
+          "line": 524
         },
         {
           "name": "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits",
-          "line": 523
+          "line": 572
         },
         {
           "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
-          "line": 570
-        },
-        {
-          "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
           "line": 619
         },
         {
+          "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
+          "line": 668
+        },
+        {
           "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 662
+          "line": 711
         },
         {
           "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 716
+          "line": 765
         },
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 744
+          "line": 793
         }
       ]
     },
@@ -26419,7 +26429,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 636,
-      "sha256": "72c286dc4903b286b8f7267ac21418f0fb4afd154098e5fee62f631bca5900a9",
+      "sha256": "6de0c16cff3935c4ec2a0211988375814ba676c768b5df248825d4194b0d606a",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
