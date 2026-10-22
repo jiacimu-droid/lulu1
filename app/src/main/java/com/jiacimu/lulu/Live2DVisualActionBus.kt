@@ -59,6 +59,12 @@ internal object Live2DVisualActionBus {
         }
     }
 
+    /** True only while this call actually has a visible, ready character body. */
+    @Synchronized
+    fun isStageVisible(characterId: String, callId: String): Boolean =
+        characterId.isNotBlank() && callId.isNotBlank() &&
+            visibleStages[characterId] == callId
+
     @Synchronized
     fun stageParameters(characterId: String, callId: String, ids: String) {
         if (visibleStages[characterId] != callId) return
