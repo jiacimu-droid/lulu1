@@ -29,6 +29,9 @@ internal fun VoiceCallSettings(provider: String) {
     LaunchedEffect(provider) { if (prefs.getString("voice_call_mode", "direct") != "direct")
         prefs.edit().putString("voice_call_mode", "direct").apply() }
     var ringing by remember { mutableStateOf(prefs.getBoolean("voice_call_ringtone_enabled", true)) }
+    var acousticCuesEnabled by remember {
+        mutableStateOf(prefs.getBoolean("call_acoustic_cues_enabled", true))
+    }
     var threshold by remember { mutableFloatStateOf(prefs.getFloat("voice_vad_threshold", 195f)) }
     var silence by remember { mutableFloatStateOf(prefs.getInt("voice_end_silence_ms", 2_500).toFloat().coerceIn(1_450f, 4_500f)) }
     var advanced by remember { mutableStateOf(false) }
@@ -60,6 +63,16 @@ internal fun VoiceCallSettings(provider: String) {
             })
         }
         HorizontalDivider()
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("本地声音线索", style = MaterialTheme.typography.bodyMedium)
+                Text("通话中分析音高、录音电平与停顿；不判断情绪、不保存录音、不额外调用 API。", style = MaterialTheme.typography.bodySmall)
+            }
+            Switch(checked = acousticCuesEnabled, onCheckedChange = { enabled ->
+                acousticCuesEnabled = enabled
+                prefs.edit().putBoolean("call_acoustic_cues_enabled", enabled).apply()
+            })
+        }
         Text("你的声音如何转成文字", style = MaterialTheme.typography.titleSmall)
         Text("明确选择识别渠道，不自动切换；电话始终使用这里选择的识别渠道。",
             style = MaterialTheme.typography.bodySmall)

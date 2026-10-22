@@ -19,11 +19,14 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val accept: () -> Boolean, private val onReady: () -> Unit,
     private val onLevel: (Float) -> Unit, private val onSpeech: () -> Unit,
     private val onCaptureFinished: () -> Unit = {},
-    private val onPartial: (String) -> Unit, private val onText: (String) -> Unit,
+    private val onPartial: (String) -> Unit, private val onText: (String, String?) -> Unit,
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
     private val microphone = CallAudioInput(scope)
     // Snapshot once per call; changing settings never mixes Tiny and Base mid-utterance.
     private val localModel = LocalWhisperModels.selected(context)
+    private val acousticEnabled = context.getSharedPreferences("lulu_advanced_settings", 0)
+        .getBoolean("call_acoustic_cues_enabled", true)
+    private var realtimeAcoustics = VoiceAcousticAnalyzer()
     private var transcription: Job? = null
     private var realtime: ElevenLabsRealtimeStt? = null
     private var realtimeStartedAtElapsed = 0L
@@ -58,6 +61,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         queuedChunks.set(0)
         presentingChunk.set(-1)
         currentPhrase = ""
+        realtimeAcoustics.clear()
         val prefs = context.getSharedPreferences("lulu_advanced_settings", 0)
         when (elevenPath) {
             CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME -> {
@@ -115,6 +119,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
                 }
             }
             val phrase = StringBuilder()
+            val phraseAcoustics = if (acousticEnabled) VoiceAcousticAnalyzer() else null
             var failed = false
             try {
                 for ((id, chunk, task) in completed) {
@@ -122,6 +127,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     currentPhrase = phrase.toString()
                     val result = task.await()
                     if (epoch != generation) break
+                    if (phraseAcoustics != null && chunk.pcm.isNotEmpty()) {
+                        // A separate local computation; never a second cloud STT or LLM call.
+                        withContext(Dispatchers.Default) { phraseAcoustics.consume(chunk.pcm) }
+                    }
                     result.onSuccess { spoken ->
                         if (spoken.isNotBlank() && !failed) {
                             phrase.clear()
@@ -139,7 +148,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
                     // conversational turn. Wait for all recorded PCM chunks.
                     delay(500)
                     if (epoch != generation || capturingVoice || queuedChunks.get() > 0) continue
-                    if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim())
+                    val acousticNote = phraseAcoustics?.finish()
+                    if (!failed && phrase.isNotBlank()) onText(phrase.toString().trim(), acousticNote)
                     else if (!failed) onError("没有识别出文字，请提高麦克风灵敏度或再说一次")
                     phrase.clear()
                     currentPhrase = ""
@@ -180,7 +190,8 @@ internal class ProviderCallInput(private val context: Context, private val scope
             },
             endSilenceMs = prefs.getInt("voice_end_silence_ms", 2_500),
             onPartial = { if (epoch == generation) onPartial(it) },
-            onText = { if (epoch == generation) onText(it) },
+            onText = { if (epoch == generation) onText(it,
+                if (acousticEnabled) realtimeAcoustics.finish() else null) },
             onError = { if (epoch == generation) onError(it) },
         )
         realtime = recognizer
@@ -200,7 +211,10 @@ internal class ProviderCallInput(private val context: Context, private val scope
             onReady = { if (epoch == generation) onReady() },
             onLevel = { if (epoch == generation) onLevel(it) },
             onSpeech = {}, // Scribe transcript events own speech onset/end.
-            onFrame = { if (epoch == generation) recognizer.audioFrame(it) },
+            onFrame = { if (epoch == generation) {
+                if (acousticEnabled) realtimeAcoustics.consume(it)
+                recognizer.audioFrame(it)
+            } },
             onSegment = { _, _ -> },
             continuousFrames = true,
             onError = { message ->
@@ -288,6 +302,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         // Fresh realtime socket ONLY when the user explicitly unmutes.
         // Never leave a Scribe billable keepalive session running through mute.
         if (elevenPath == CallVoiceConfiguration.ElevenInputPath.CONTINUOUS_REALTIME) {
+            realtimeAcoustics.clear()
             capturePaused = false
             startRealtime(generation, prefs)
             return
@@ -470,6 +485,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
         capturePaused = false
         microphone.stop()
         closeRealtimeSession()
+        realtimeAcoustics.clear()
         segments?.close()
         segments = null
         transcription?.cancel()

@@ -1247,6 +1247,7 @@ internal object LuluVoiceCallSession {
         autonomousSilence: Boolean = false,
         externalToolResult: com.jiacimu.lulu.data.SharedTimelineEvent? = null,
         persistedUserEvidenceIds: List<String> = emptyList(),
+        acousticNote: String? = null,
     ) {
         val current = mutableState.value
         if (!current.connected || (!opening && !autonomousSleep && !autonomousSilence && ((current.microphoneMuted && !allowWhileMuted) || current.opening)) ||
@@ -1556,6 +1557,11 @@ internal object LuluVoiceCallSession {
                         append('\n')
                         append(sharedCameraObservation)
                     }
+                    if (!opening && !autonomousSleep && !autonomousSilence &&
+                        !alreadyPersisted && spoken.isNotBlank() && !acousticNote.isNullOrBlank()) {
+                        append('\n')
+                        append(acousticNote)
+                    }
                     val existingTurnEvent = if (externalToolResult != null)
                         "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
                     else if (scheduledWakeReason != null)
@@ -1844,7 +1850,7 @@ internal object LuluVoiceCallSession {
                     it.copy(partialTranscript = text, userSpeaking = candidate.isNotBlank())
                 }
             } },
-            onText = { text ->
+            onText = { text, acousticNote ->
                 if (sameSession()) {
                     val isEcho = isPlaybackEchoFromCloud(text)
                     val call = mutableState.value
@@ -1866,7 +1872,7 @@ internal object LuluVoiceCallSession {
                     // manufacture one of those turns.
                     if (text.isNotBlank() && !isEcho && safeCapture) {
                         interruptSystemReplyForSpeech(confirmedCloudSpeech = true)
-                        handleUserSpeech(text, allowWhileMuted = true)
+                        handleUserSpeech(text, allowWhileMuted = true, acousticNote = acousticNote)
                     }
                     if (isEcho || !safeCapture) mutableState.update {
                         it.copy(partialTranscript = "", userSpeaking = false)

@@ -1,3 +1,12 @@
+## 2026-10-22：ears 思路借鉴 · 本机客观声学线索
+
+- 参考：https://github.com/eveacla11/ears ，MIT；**独立 Kotlin 实现**，未复制 Python 算法、模型或项目文件。
+- 只在现有 16 kHz PCM 电话转写链中计算本轮录音电平、部分可估计基频、强度起伏及可能停顿。无需新增网络服务、识别模型或收费情绪分类调用。
+- 仅在提供商返回非空且经电话防回声门禁接受的语音识别文本时，将即时声学提示加入同一角色模型的本轮 turnContext。原始用户文本与存储的电话消息不拼接技术文字，不创建长期情绪或声纹记录。
+- Scribe Realtime 复用 onFrame；本地 Whisper、Groq、MiniMax、Scribe v2 使用 STT 同一录音分块。Android 系统 SpeechRecognizer 不提供本应用 PCM，此版不在该线路假造分析结果。
+- 声学量受录音增益/环境噪声影响，不代表主人的主观情绪、身份或真实语速。过短、静音或识别失败不产生额外角色发言。开关在通话语音设置，下一通电话生效。
+- 真机收音、耳机/扬声器回声、低声与嘈杂环境需要 APK 验收。
+
 ## 2026-10-22：本地 Whisper Tiny / Base 离线识别
 
 - 目标：替换设置页旧 Android `SpeechRecognizer` 普通通话输入，保留云端 Groq / MiniMax / ElevenLabs 作为显式手选方案。
