@@ -142,77 +142,116 @@ private fun FastConsoleTab(onClear: () -> Unit) {
             FastMetric("计入输出", record.effectiveOutputTokens.fastTokens())
             if (expanded) {
                 HorizontalDivider(color = FastPerformanceBorder)
-                FastMetric("接口输入", record.reportedInputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
-                FastMetric("接口输出", record.reportedOutputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
-                FastMetric("缓存 Token", record.cachedTokens.toString())
-                if (record.requestSource.isNotBlank()) FastMetric("原始调用来源", record.requestSource)
-                if (record.contextMode.isNotBlank()) FastMetric("实际角色上下文", record.contextMode)
-                if (record.providerHost.isNotBlank()) FastMetric("API服务域名", record.providerHost)
-                if (record.auditVersion > 0) FastMetric("请求方式", if (record.streamedRequest) "流式" else "非流式")
-                val estimatedParts = record.breakdown.sumOf { it.estimatedTokens.toLong() }
-                FastMetric("全部文本分项估算", estimatedParts.toString() + " tok")
+                FastMetric("接口输入（实测）", record.reportedInputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
+                FastMetric("接口输出（实测）", record.reportedOutputTokens.takeIf { it > 0 }?.toString() ?: "未返回")
+                val totalEstimate = record.breakdown.sumOf { it.estimatedTokens.toLong() }
+                FastMetric("全文本粗估", totalEstimate.toString() + " tok")
+                val empirical = com.jiacimu.lulu.data.TokenConsolePresentation.calibratedEstimate(record, records)
+                if (empirical != null) {
+                    FastMetric("历史同线路校准估算", empirical.tokens.toString() + " tok")
+                    Text(
+                        "由之前 " + empirical.sampleCount + " 次同模型/服务商的完整纯文本记录得到" +
+                            (if (empirical.sameSource) "（同调用来源）" else "") +
+                            "；仍不是这次的实际分项 Token。",
+                        color = FastPerformanceMuted, fontSize = 11.sp,
+                    )
+                }
                 if (record.reportedInputTokens > 0L) {
-                    val difference = record.reportedInputTokens - estimatedParts
-                    FastMetric("接口与估算差额", (if (difference > 0) "+" else "") + difference.toString() + " tok")
-                } else {
-                    Text("服务商没有返回输入用量，此次计入输入使用本地估算。", color = FastPerformanceMuted, fontSize = 11.sp)
+                    val difference = record.reportedInputTokens - totalEstimate
+                    FastMetric("实测与粗估差额",
+                        (if (difference > 0) "+" else "") + difference.toString() + " tok")
                 }
-                if (record.auditVersion > 0) {
-                    FastMetric("输入文本字符（实际）", record.textCharacters.toString())
-                    FastMetric("逐项已覆盖字符", record.coveredTextCharacters.toString())
-                    val coverageOk = record.textCharacters.toLong() == record.coveredTextCharacters
-                    Text(
-                        if (coverageOk) "文本来源覆盖完整：分项字符之和与实际发送文本完全相等。"
-                        else "文本来源未完全覆盖！差异为 " +
-                            (record.textCharacters.toLong() - record.coveredTextCharacters) + " 字符，请检查拼装链路。",
-                        color = if (coverageOk) FastPerformanceMuted else MaterialTheme.colorScheme.error,
-                        fontSize = 11.sp,
-                    )
-                    FastMetric("实际消息数（含 system）", record.messageCount.toString())
-                    FastMetric("文本 UTF-8", record.textUtf8Bytes.toString() + " 字节")
-                    FastMetric("图片数量", record.imageCount.toString())
-                    FastMetric("图片 DataURL 载荷", record.imageDataUrlBytes.toString() + " 字节")
-                    FastMetric("实际请求 JSON", record.requestBodyBytes.toString() + " 字节")
-                    if (record.requestBodyBytes > 0) {
-                        FastMetric("JSON封装/转义/媒体差额",
-                            (record.requestBodyBytes - record.textUtf8Bytes - record.imageDataUrlBytes).toString() + " 字节")
-                    }
-                    if (record.reducedRequest) Text(
-                        "本次实际发送的是 Relay 精简重试版本，下面只统计最终发送版本。",
-                        color = FastPerformanceMuted, fontSize = 11.sp,
-                    )
-                    Text(
-                        "真实总 Token 来自 API；单独栏目只提供文本字符和粗略 Token 估算。" +
-                            "若包含图片，服务商通常不会逐张提供准确 Token；不能把 JSON 字节当 Token，也不能把差额断定为漏统计。",
-                        color = FastPerformanceMuted, fontSize = 11.sp,
-                    )
-                } else {
-                    Text(
-                        "旧版记录没有保存完整请求审计信息，无法追溯当时的图片、JSON 体积和字符覆盖率；更新后新调用才具备这些数据。",
-                        color = FastPerformanceMuted, fontSize = 11.sp,
-                    )
-                }
-                val sortedParts = record.breakdown.sortedByDescending { it.estimatedTokens }
+                val groups = com.jiacimu.lulu.data.TokenConsolePresentation.groups(record.breakdown)
                 val canAllocate = record.auditVersion > 0 && record.imageCount == 0 &&
                     record.reportedInputTokens > 0 && record.coveredTextCharacters > 0L &&
                     record.coveredTextCharacters == record.textCharacters.toLong()
-                if (canAllocate) Text(
-                    "参考分布：右侧“等比分摊”按各部分字符数占比，将服务商总 Token 分摊到各栏目。" +
-                        "这是帮助定位最大输入来源的推算，不是服务商逐栏目实测，不能用于精确计费。",
-                    color = FastPerformanceMuted, fontSize = 11.sp,
-                )
-                var assignedTokens = 0L
-                sortedParts.forEachIndexed { index, part ->
-                    val allocated = if (!canAllocate) null else if (index == sortedParts.lastIndex) {
-                        record.reportedInputTokens - assignedTokens
+                Text("输入组成 · " + groups.size + " 大类", fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 9.dp))
+                var allocatedSoFar = 0L
+                groups.forEachIndexed { index, group ->
+                    val share = if (!canAllocate) null else if (index == groups.lastIndex) {
+                        record.reportedInputTokens - allocatedSoFar
                     } else {
-                        (record.reportedInputTokens.toDouble() * part.chars /
-                            record.coveredTextCharacters).toLong().also { assignedTokens += it }
+                        (record.reportedInputTokens.toDouble() * group.chars /
+                            record.coveredTextCharacters).toLong().also { allocatedSoFar += it }
                     }
-                    FastTokenPartLine(part, allocated)
+                    FastTokenSourceGroup(record.id, group, share)
+                }
+                var diagnosticsExpanded by rememberSaveable(record.id, "token-diagnostics") { mutableStateOf(false) }
+                TextButton(onClick = { diagnosticsExpanded = !diagnosticsExpanded }) {
+                    Text(if (diagnosticsExpanded) "收起请求核对" else "查看请求核对与技术数据")
+                    Icon(if (diagnosticsExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                        null, modifier = Modifier.size(17.dp))
+                }
+                if (diagnosticsExpanded) {
+                    HorizontalDivider(color = FastPerformanceBorder)
+                    FastMetric("缓存 Token", record.cachedTokens.toString())
+                    if (record.requestSource.isNotBlank()) FastMetric("原始调用来源", record.requestSource)
+                    if (record.contextMode.isNotBlank()) FastMetric("实际角色上下文", record.contextMode)
+                    if (record.providerHost.isNotBlank()) FastMetric("API服务域名", record.providerHost)
+                    if (record.auditVersion > 0) {
+                        FastMetric("请求方式", if (record.streamedRequest) "流式" else "非流式")
+                        FastMetric("输入文本字符", record.textCharacters.toString())
+                        FastMetric("分项覆盖字符", record.coveredTextCharacters.toString())
+                        val coverageOk = record.textCharacters.toLong() == record.coveredTextCharacters
+                        Text(
+                            if (coverageOk) "文本覆盖完整：所有分项字符之和与实际发送文本相等。"
+                            else "文本覆盖不完整！差 " +
+                                (record.textCharacters.toLong() - record.coveredTextCharacters) + " 字符。",
+                            color = if (coverageOk) FastPerformanceMuted else MaterialTheme.colorScheme.error,
+                            fontSize = 11.sp,
+                        )
+                        FastMetric("实际消息数（含 system）", record.messageCount.toString())
+                        FastMetric("文本 UTF-8", record.textUtf8Bytes.toString() + " 字节")
+                        FastMetric("图片数量", record.imageCount.toString())
+                        FastMetric("图片 DataURL 载荷", record.imageDataUrlBytes.toString() + " 字节")
+                        FastMetric("实际请求 JSON", record.requestBodyBytes.toString() + " 字节")
+                        if (record.requestBodyBytes > 0L) FastMetric("JSON封装/转义/媒体差额",
+                            (record.requestBodyBytes - record.textUtf8Bytes -
+                                record.imageDataUrlBytes).toString() + " 字节")
+                        if (record.reducedRequest) Text("本次统计的是 Relay 精简重试实际发送的版本。",
+                            color = FastPerformanceMuted, fontSize = 11.sp)
+                    } else Text("旧版记录未保存完整请求审计，不能反推遗漏的请求细节。",
+                        color = FastPerformanceMuted, fontSize = 11.sp)
+                    Text(
+                        "服务商只提供整次真实 Token；分项为字符粗估。无图片且覆盖完整时，" +
+                            "大类可按字符比例分摊实测总量供定位；字节不等于 Token，差额不能直接视为漏统计。",
+                        color = FastPerformanceMuted, fontSize = 11.sp,
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FastTokenSourceGroup(
+    recordId: String, group: com.jiacimu.lulu.data.TokenSourceGroup, allocated: Long?,
+) {
+    var details by rememberSaveable(recordId, group.title) { mutableStateOf(false) }
+    Column(
+        Modifier.fillMaxWidth().padding(vertical = 3.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(group.title, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(group.estimatedTokens.toString() + " tok（粗估） · " +
+                    group.chars.toString() + " 字符 · " + group.items.size + " 项",
+                    color = FastPerformanceMuted, fontSize = 11.sp)
+                if (allocated != null) Text("等比分摊约 " + allocated + " tok（非实测）",
+                    color = FastPerformanceMuted, fontSize = 11.sp)
+            }
+            TextButton(onClick = { details = !details }) {
+                Text(if (details) "收起" else "明细", fontSize = 12.sp)
+                Icon(if (details) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                    null, Modifier.size(17.dp))
+            }
+        }
+        if (details) {
+            group.items.forEach { part -> FastTokenPartLine(part, null) }
+        }
+        HorizontalDivider(color = FastPerformanceBorder)
     }
 }
 
