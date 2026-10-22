@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T12:04:59.356435+00:00",
-  "commit": "fd884683b699902d0f1bd9edece90449acaadc6f",
+  "generatedAt": "2026-10-22T12:51:53.640571+00:00",
+  "commit": "757ecf819dd8901f42ee73c695715fc654c06642",
   "branch": "main",
-  "sourceFingerprint": "9b7264b80d9d9faf3cdf6d028f6139406aaf8550bfab4a473796ecb8b1583b64",
+  "sourceFingerprint": "c5306bc597d851344695520ac3df63e66ae1772c551300a719c9cee8a62f8e57",
   "summary": {
     "files": 799,
-    "lines": 152345,
+    "lines": 152532,
     "symbols": 2293
   },
   "symbolIndex": {
@@ -881,7 +881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 121
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -3063,7 +3063,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-        "line": 568
+        "line": 601
       }
     ],
     "ready": [
@@ -4677,7 +4677,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "CharacterIdentityStore": [
@@ -4737,7 +4737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 118
+        "line": 180
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -5455,7 +5455,7 @@
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 74
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -13264,8 +13264,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt",
-      "lines": 42,
-      "sha256": "7dd93466370ce7005e0da746f88a81b47e8ad2b980d2df63154433fc896d8ef1",
+      "lines": 91,
+      "sha256": "fbb8b3f35530488edced26b7d6d4c4de9bf8ff8c74980122dc353dccb5c9f401",
       "symbols": []
     },
     {
@@ -17862,24 +17862,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 133,
-      "sha256": "ebd760888eed747e2b8199d9f36b62fad054364bd170c702700d3e2bff8044a1",
+      "lines": 196,
+      "sha256": "2258332941e7f27a6f86fd7a2d9e9caa3742c4fed3fb130f1f0037d3705003b2",
       "symbols": [
         {
           "name": "entries",
-          "line": 17
+          "line": 18
         },
         {
           "name": "collect",
-          "line": 74
+          "line": 80
         },
         {
           "name": "delete",
-          "line": 118
+          "line": 180
         },
         {
           "name": "remove",
-          "line": 121
+          "line": 184
         }
       ]
     },
@@ -21579,8 +21579,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 28,
-      "sha256": "3f953c9657195388e40ac52f1f1f1fe52ac3849189a12c9b86ca3aafd8089e19",
+      "lines": 29,
+      "sha256": "f6c16c6cdf4c837a5f520a296ff12b68dcaf458a9c677c2cd900cba752ecf089",
       "symbols": []
     },
     {
@@ -22003,8 +22003,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
-      "lines": 845,
-      "sha256": "d7b8538cecd00008128f845a22601b7304dd1ef6bf54b9d063220d72926c9b9c",
+      "lines": 878,
+      "sha256": "09d904cf07bfdeea58b67ac6ec22930975170f2bdd44a088eec0f59322deb9fd",
       "symbols": [
         {
           "name": "url",
@@ -22088,7 +22088,7 @@
         },
         {
           "name": "stage",
-          "line": 568
+          "line": 601
         }
       ]
     },
@@ -26141,8 +26141,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 143,
-      "sha256": "db364263e8e8c270647aa50241e99e78f6b63cc94674c50071c38234486edb3e",
+      "lines": 184,
+      "sha256": "ff009751be796c23fa8ac45890f076eca46d9e293658c3cc2ad6058b4f25595c",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",

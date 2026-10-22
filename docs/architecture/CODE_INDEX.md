@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd884683b699902d0f1bd9edece90449acaadc6f`
+- 基准提交：`757ecf819dd8901f42ee73c695715fc654c06642`
 - 分支：`main`
 - 已索引文件：799
-- 已索引代码/文本行：152345
+- 已索引代码/文本行：152532
 - 已发现符号：2293
 
 | 文件 | 行数 | 符号数 |
@@ -39,7 +39,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterLearningPlans.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLifeSettings.kt` | 265 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt` | 11 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt` | 42 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt` | 91 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 283 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 536 | 3 |
@@ -282,7 +282,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 43 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStaleGoalPolicy.kt` | 31 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 133 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 196 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 30 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 379 | 2 |
@@ -412,7 +412,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 284 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 637 | 19 |
-| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 28 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 29 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 150 | 2 |
@@ -436,7 +436,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt` | 24 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 845 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 878 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 180 | 2 |
@@ -688,7 +688,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 132 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 140 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneFavoriteIntentTest.kt` | 21 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt` | 143 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt` | 184 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationalInitiativeTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 208 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 102 | 1 |
