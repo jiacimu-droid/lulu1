@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T08:15:00.292999+00:00",
-  "commit": "4fe7387db3e934f05a6dd1f6af6ed9fc7168cb5b",
+  "generatedAt": "2026-10-22T08:15:22.906824+00:00",
+  "commit": "9f798c7dac39717177ea344cfad8518072877da4",
   "branch": "main",
-  "sourceFingerprint": "27a10ac8b2178234e413690161dc74e0aa49606124e850817b911a4eaa60ac29",
+  "sourceFingerprint": "28fdf369d76fad8d7b65ed51c7dcb6eafc1635000fce7df082571e441b71fde7",
   "summary": {
     "files": 799,
-    "lines": 151894,
+    "lines": 151909,
     "symbols": 2283
   },
   "symbolIndex": {
@@ -5283,19 +5283,19 @@
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 140
+        "line": 155
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 145
+        "line": 160
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 149
+        "line": 164
       }
     ],
     "parse": [
@@ -17606,8 +17606,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 153,
-      "sha256": "94ee7e298eef5a4928e04b97ab1ae417879ab66bd3aef498c7f5a2529994ed0b",
+      "lines": 168,
+      "sha256": "8b6f3b8c56f1205d8855159e88664cc284cbd875792063394a2b93c8ee12588e",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -17643,15 +17643,15 @@
         },
         {
           "name": "learningContext",
-          "line": 140
+          "line": 155
         },
         {
           "name": "leanExpressionContext",
-          "line": 145
+          "line": 160
         },
         {
           "name": "developmentContext",
-          "line": 149
+          "line": 164
         }
       ]
     },
