@@ -316,8 +316,10 @@ internal object PrivateStateDeltaEngine {
                 .any { key ->
                     val next = appraisal.optString(key).trim()
                     next.isNotBlank() && normalize(next) != normalize(previousAppraisal?.optString(key).orEmpty())
-                } || alternativeInterpretations(appraisal) != "" &&
-                    alternativeInterpretations(appraisal) != alternativeInterpretations(previousAppraisal)
+                } || (alternativeInterpretations(appraisal).isNotBlank() &&
+                    alternativeInterpretations(appraisal) != alternativeInterpretations(previousAppraisal)) ||
+                    (privateIdeaSignature(appraisal).isNotBlank() &&
+                    privateIdeaSignature(appraisal) != privateIdeaSignature(previousAppraisal))
             )
 
         val interactions = previous.optJSONObject("interactions")
@@ -340,6 +342,7 @@ internal object PrivateStateDeltaEngine {
             append("meaning=").append(normalize(appraisal?.optString("meaning").orEmpty())).append('|')
             append("tension=").append(normalize(appraisal?.optString("tension").orEmpty())).append('|')
             append("possibilities=").append(alternativeInterpretations(appraisal)).append('|')
+            append("privateIdeas=").append(privateIdeaSignature(appraisal)).append('|')
             append("emotion=").append(normalize(proposedEmotion?.optString("feeling").orEmpty())).append(':')
                 .append(normalize(proposedEmotion?.optString("cause").orEmpty())).append('|')
             append("motive=").append(motiveSignature(proposal?.optJSONArray("motives"))).append('|')
@@ -359,6 +362,13 @@ internal object PrivateStateDeltaEngine {
             privateResidue = privateResidue,
             fingerprint = fingerprint,
         )
+    }
+
+    /** Short simultaneous wishes are psychological changes, not actions. */
+    private fun privateIdeaSignature(appraisal: JSONObject?): String {
+        val ideas = appraisal?.optJSONArray("privateIdeas") ?: return ""
+        return (0 until ideas.length()).map { normalize(ideas.optString(it)) }
+            .filter(String::isNotBlank).distinct().sorted().joinToString("|")
     }
 
     private fun alternativeInterpretations(appraisal: JSONObject?): String {

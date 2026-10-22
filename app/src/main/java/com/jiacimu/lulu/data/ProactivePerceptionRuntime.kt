@@ -1433,7 +1433,12 @@ object ProactivePerceptionRuntime {
             deliberateFollowThrough = previousEvidence.isNotBlank(),
             awakeReflection = awakeReflection,
         )
-        if (!readingUpdatedPresence && appearanceHasCause) {
+        // A genuine new A/B private idea may arise during silent independent
+        // reflection even without a new outward action. It may update the
+        // existing presence projection, but does not execute that idea.
+        val novelPrivateIdeas = privateDelta.appraisalChanged &&
+            (decision.appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) > 0
+        if (!readingUpdatedPresence && (appearanceHasCause || novelPrivateIdeas)) {
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             val hasMeaningfulInnerUpdate = freshStimulus || previousEvidence.isNotBlank() ||
                 decision.action != Action.SILENT || canonicalInnerLife != null
@@ -1463,7 +1468,8 @@ object ProactivePerceptionRuntime {
                 innerThoughtFingerprint = privateDelta.fingerprint,
                 momentReflection = if ((hasMeaningfulInnerUpdate && privateDelta.meaningful) ||
                     decision.appraisal?.optJSONObject("spontaneousBid") != null ||
-                    decision.appraisal?.optJSONObject("ownActivity") != null)
+                    decision.appraisal?.optJSONObject("ownActivity") != null ||
+                    (decision.appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) > 0)
                     CharacterMomentSnapshot.reflection(
                         canonicalInnerLife, decision.innerThoughtBasis, decision.appraisal,
                         innerThought = groundedInnerThought,

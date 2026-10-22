@@ -1992,7 +1992,8 @@ object LuluDeviceToolBridge {
             source = source,
             innerThoughtFingerprint = heartVoiceFingerprint,
             momentReflection = if (momentChanged || plan.appraisal?.optJSONObject("spontaneousBid") != null ||
-                plan.appraisal?.optJSONObject("ownActivity") != null)
+                plan.appraisal?.optJSONObject("ownActivity") != null ||
+                (plan.appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) > 0)
                 com.jiacimu.lulu.data.CharacterMomentSnapshot.reflection(
                 plan.innerLife, plan.innerThoughtBasis, plan.appraisal,
                 outward = plan.text.ifBlank { plan.speechIntent },

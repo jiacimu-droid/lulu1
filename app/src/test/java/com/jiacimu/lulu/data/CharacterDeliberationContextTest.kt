@@ -98,4 +98,20 @@ class CharacterDeliberationContextTest {
             innerThought = mind)
         assertEquals("", noImpulse)
     }
+
+    @Test fun aNewPrivateIdeaIsARealInnerDeltaEvenWithoutNewEmotionOrSpeech() {
+        val previous = JSONObject().put("causalTransitions", JSONArray().put(JSONObject()
+            .put("appraisal", JSONObject().put("privateIdeas",
+                JSONArray().put("想先逗她开心")))))
+        val changed = PrivateStateDeltaEngine.evaluate(previous, null,
+            JSONObject().put("privateIdeas", JSONArray()
+                .put("想先逗她开心").put("又想认真陪她说说话")),
+            null, "")
+        assertTrue(changed.appraisalChanged)
+        assertTrue(changed.meaningful)
+        val unchanged = PrivateStateDeltaEngine.evaluate(previous, null,
+            JSONObject().put("privateIdeas", JSONArray().put("想先逗她开心")),
+            null, "")
+        assertFalse(unchanged.appraisalChanged)
+    }
 }

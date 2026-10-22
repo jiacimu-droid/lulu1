@@ -179,7 +179,8 @@ internal object CharacterCausalAppraisalStage {
         CharacterInnerLifeStore.recordInnerVoice(
             characterId, verified.evidenceId, grounded, now, delta.fingerprint,
         )
-        if (mood.isNotBlank() || grounded.isNotBlank()) {
+        if (mood.isNotBlank() || grounded.isNotBlank() ||
+            (appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) > 0) {
             CompanionPresenceStore.update(
                 characterId = characterId, statusText = null, gesture = null,
                 innerThought = grounded.takeIf(String::isNotBlank),
