@@ -42,4 +42,32 @@ class Live2DAssetsTest {
         file.parentFile?.deleteRecursively()
         prefs.edit().remove("model:$role").commit()
     }
+    @Test fun oldWolfImportUsesOnlyRealPortraitNeverMobileTextureCache() {
+        val context = RuntimeEnvironment.getApplication()
+        val role = "wolf-" + UUID.randomUUID()
+        val relative = "models/wolf-" + UUID.randomUUID() + "/小狼.model3.json"
+        val model = File(Live2DAssets.base(context), relative)
+        val folder = model.parentFile!!
+        val atlasFolder = File(folder, "小狼.8192").apply { mkdirs() }
+        model.writeText(
+            """{"FileReferences":{"Moc":"小狼.moc3","Textures":["小狼.8192/texture.png"]}}"""
+        )
+        File(atlasFolder, "texture.png").writeText("texture")
+        val cache = File(atlasFolder, "texture.lulu-mobile-4096.png").apply { writeText("atlas") }
+        val prefs = context.getSharedPreferences("lulu_live2d_models_v1", 0)
+        prefs.edit().putString("model:" + role, relative)
+            .putString("preview:" + role, cache.relativeTo(Live2DAssets.base(context))
+                .invariantSeparatorsPath).commit()
+        try {
+            // The old preferences may point directly at an atlas cache.
+            assertNull(Live2DAssets.previewFile(context, role))
+            val portrait = File(folder, "小狼.png").apply { writeText("portrait") }
+            assertEquals(portrait.canonicalPath,
+                Live2DAssets.previewFile(context, role)?.canonicalPath)
+        } finally {
+            folder.deleteRecursively()
+            prefs.edit().remove("model:" + role).remove("preview:" + role).commit()
+        }
+    }
+
 }
