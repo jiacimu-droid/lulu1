@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:30:38.834370+00:00",
-  "commit": "46ac67e443bb60f833b4defb7a8c5d1e43dbdc7e",
+  "generatedAt": "2026-10-22T15:31:12.487342+00:00",
+  "commit": "3d9e8c35c36dae7529d2e652f0b8197fe06cd2d4",
   "branch": "main",
-  "sourceFingerprint": "e0d75648cebb7d851658dc5b4589ab51c97930d922b0a28529e5d4b4b91c071b",
+  "sourceFingerprint": "fc07c368d7ceabf9587052b4312f26f0bc4b1ecac88c7a22390d7eeb7aa4d973",
   "summary": {
-    "files": 807,
-    "lines": 153867,
-    "symbols": 2308
+    "files": 808,
+    "lines": 153938,
+    "symbols": 2309
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12828,6 +12828,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpCompatibilityTest.kt",
         "line": 12
+      }
+    ],
+    "XhsGoMcpHandshakeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt",
+        "line": 17
       }
     ],
     "XhsImagePolicyTest": [
@@ -27396,6 +27402,17 @@
         {
           "name": "XhsGoMcpCompatibilityTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/XhsGoMcpHandshakeTest.kt",
+      "lines": 71,
+      "sha256": "819fe6d6f17b8654b047fce28c5fd9ef4b677363e2a0d339134ded79b7df361d",
+      "symbols": [
+        {
+          "name": "XhsGoMcpHandshakeTest",
+          "line": 17
         }
       ]
     },
