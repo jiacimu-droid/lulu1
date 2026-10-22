@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:24:38.409885+00:00",
-  "commit": "40e37d457ce313a8cc80114b48067f5025d3902a",
+  "generatedAt": "2026-10-22T16:25:23.026542+00:00",
+  "commit": "a60bc235f24341eb8fb0c8481009e29ae1d436e8",
   "branch": "main",
-  "sourceFingerprint": "d54d80c44ca2a03fe6afa21a495d59f4941a38f53796d4438a5338e2dc9aaa37",
+  "sourceFingerprint": "309d6bf88b450389690f5e201772e95b9658382f4a0dbbf5788add1c3add8988",
   "summary": {
     "files": 820,
-    "lines": 156672,
+    "lines": 156671,
     "symbols": 2367
   },
   "symbolIndex": {
@@ -13682,8 +13682,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterMusicSensingSettings.kt",
-      "lines": 91,
-      "sha256": "6a667e240792d65151f4c1cfbc06de4555c09343aaef6c0ad92f09e6d2935c4a",
+      "lines": 90,
+      "sha256": "9781e3d5e2cf6f1995e21b2402d67637cc1fab3a9b789dcea39968c523421440",
       "symbols": []
     },
     {
