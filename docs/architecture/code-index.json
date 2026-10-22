@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T15:52:46.624575+00:00",
-  "commit": "1d172c5824f8de231a3a8e64def9b643a9768f49",
+  "generatedAt": "2026-10-22T15:53:47.837584+00:00",
+  "commit": "78437d471364fefb2bfa5db290284de4dda638ff",
   "branch": "main",
-  "sourceFingerprint": "757ec514c638c70ad88cc02db4c6c91a43b303163f9ba841e6c7f7524c3f1788",
+  "sourceFingerprint": "381e2db26da34c5d5419dff7d7031bbc8981ded99a03d37738e8e50dc6e5a6b1",
   "summary": {
     "files": 809,
-    "lines": 154367,
+    "lines": 154443,
     "symbols": 2316
   },
   "symbolIndex": {
@@ -12067,13 +12067,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 251
+        "line": 327
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 350
+        "line": 426
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -26166,8 +26166,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 510,
-      "sha256": "68e8845090b007eaadca19015e7f9c85604852812f9dc94254c87777c3e65fc5",
+      "lines": 586,
+      "sha256": "faa7b74b904e14636cab931691e035f853fefa40b5c6c44341d7d398286c8350",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -26175,11 +26175,11 @@
         },
         {
           "name": "social",
-          "line": 251
+          "line": 327
         },
         {
           "name": "feeling",
-          "line": 350
+          "line": 426
         }
       ]
     },
