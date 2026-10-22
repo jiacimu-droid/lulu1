@@ -20,6 +20,82 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear("inside-test-b")
     }
 
+    @Test fun timedEmotionIsOneProjectionForCompactAndFullAcrossScenes() {
+        start()
+        val role = "inside-test-a"
+        val otherRole = "inside-test-b"
+        val origin = Instant.parse("2026-10-22T12:00:00Z")
+        val emotion = JSONObject().put("emotion", JSONObject()
+            .put("feeling", "有一点兴奋和紧张")
+            .put("cause", "刚刚发现一本很有意思的书")
+            .put("strength", 3)
+            .put("halfLifeMinutes", 30)
+            .put("valence", 0.8)
+            .put("arousal", -0.8))
+        CharacterInnerLifeStore.observe(
+            role, "reading-event-unified", "确实开始读一本新书", emotion, now = origin)
+        val saved = CharacterInnerLifeStore.snapshot(role).getJSONObject("emotion")
+        assertEquals("reading-event-unified", saved.getString("evidenceId"))
+        assertNull(CharacterInnerLifeStore.emotionInfluence(saved, origin.minusSeconds(1)))
+        assertEquals(3.0, CharacterInnerLifeStore.emotionInfluence(saved, origin)!!
+            .remainingStrength, 0.0001)
+
+        val halfLifeLater = origin.plusSeconds(30L * 60)
+        val shared = CharacterInnerLifeStore.emotionInfluence(saved, halfLifeLater)!!
+        assertEquals(1.5, shared.remainingStrength, 0.0001)
+        assertEquals(0.4, shared.valence!!, 0.0001)
+        assertEquals(-0.4, shared.arousal!!, 0.0001)
+        val compact = CharacterInnerLifeStore.compactContext(role, halfLifeLater)
+        val full = CharacterInnerLifeStore.context(role, halfLifeLater)
+        assertTrue(compact.contains("当前影响=中等"))
+        assertTrue(full.contains("当前影响=中等"))
+        assertTrue(compact.contains("刚刚发现一本很有意思的书"))
+        assertTrue(full.contains("刚刚发现一本很有意思的书"))
+        assertTrue(compact.contains("愉悦体验偏正向"))
+        assertTrue(full.contains("情绪激活偏低"))
+        assertNull(CharacterInnerLifeStore.emotionInfluence(
+            CharacterInnerLifeStore.snapshot(otherRole).optJSONObject("emotion"), halfLifeLater))
+        assertTrue(CharacterInnerLifeStore.emotionInfluenceTrace(role, halfLifeLater)
+            .contains("reading-event-unified"))
+
+        val afterFade = origin.plusSeconds(30L * 60 * 6)
+        assertNull(CharacterInnerLifeStore.emotionInfluence(saved, afterFade))
+        assertFalse(CharacterInnerLifeStore.compactContext(role, afterFade).contains("现在感受="))
+        assertFalse(CharacterInnerLifeStore.context(role, afterFade).contains("当前情绪："))
+        // The underlying evidence and historical source do NOT disappear when affect fades.
+        assertEquals("reading-event-unified", CharacterInnerLifeStore.snapshot(role)
+            .getJSONObject("emotion").getString("evidenceId"))
+        CharacterInnerLifeStore.invalidateEvidence("reading-event-unified")
+        assertNull(CharacterInnerLifeStore.snapshot(role).optJSONObject("emotion"))
+        assertNull(CharacterInnerLifeStore.emotionInfluence(
+            CharacterInnerLifeStore.snapshot(role).optJSONObject("emotion"), halfLifeLater))
+        CharacterInnerLifeStore.clear(role)
+    }
+
+    @Test fun optionalAffectDimensionsDoNotCreateSyntheticEmotionsOrPersonaRules() {
+        start()
+        val now = Instant.parse("2026-10-22T14:00:00Z")
+        assertNull(CharacterInnerLifeStore.emotionInfluence(null, now))
+        val role = "inside-test-a"
+        CharacterInnerLifeStore.observe(role, "role-a-genuine-event", "角色真实听到一段趣事",
+            JSONObject().put("emotion", JSONObject()
+                .put("feeling", "有点好笑")
+                .put("cause", "自己听到了有趣的故事")
+                .put("strength", 2)
+                .put("halfLifeMinutes", 60)
+                .put("valence", 5.0)
+                .put("arousal", "unknown")), now = now)
+        val saved = CharacterInnerLifeStore.snapshot(role).getJSONObject("emotion")
+        assertEquals(1.0, saved.getDouble("valence"), 0.0001)
+        assertFalse(saved.has("arousal"))
+        val current = CharacterInnerLifeStore.emotionInfluence(saved, now)!!
+        assertEquals(1.0, current.valence!!, 0.0001)
+        assertNull(current.arousal)
+        assertTrue(CharacterInnerLifeStore.context(role, now).contains("当前影响=中等"))
+        assertFalse(CharacterInnerLifeStore.context("inside-test-b", now).contains("有点好笑"))
+        CharacterInnerLifeStore.clear(role)
+    }
+
     @Test fun preActionExpectationsAndLaterAppraisalUseOneStateAndDeletionRetractsBoth() {
         start()
         val role = "inside-test-expectation-result"
