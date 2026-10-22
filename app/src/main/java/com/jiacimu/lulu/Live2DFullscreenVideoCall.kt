@@ -182,7 +182,7 @@ internal fun Live2DFullscreenVideoCall(
                 previewBody = cue?.body,
                 previewFace = cue?.face,
                 previewRevision = if (cue != null) cue.sequence.toInt() else previewRevision,
-                previewImmediate = cue == null,
+                previewImmediate = cue?.immediate ?: true,
                 // Both imported models and Hiyori were verified on the actual
                 // device only through the native Compose presentation path.
                 nativeMirrorEnabled = true,
