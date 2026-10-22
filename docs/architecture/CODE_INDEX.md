@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9e1bb2e2a56e3b4c833ac8d014fdd431bcd642d0`
+- 基准提交：`d1aba16306e58d446dd064fb8357df26dd037f45`
 - 分支：`main`
 - 已索引文件：825
-- 已索引代码/文本行：157043
-- 已发现符号：2375
+- 已索引代码/文本行：157065
+- 已发现符号：2376
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -126,7 +126,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 748 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2208 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2207 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -356,7 +356,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 374 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 224 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 247 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/KeyedWorkMutex.kt` | 27 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCompetencyPolicy.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LearningCyclePolicy.kt` | 21 | 4 |
