@@ -347,7 +347,11 @@ internal fun LuluAvatarPicker(
 }
 
 @Composable
-internal fun LuluSelectedPhoto(imageUri: String?, modifier: Modifier = Modifier) {
+internal fun LuluSelectedPhoto(
+    imageUri: String?,
+    modifier: Modifier = Modifier,
+    keepFullImage: Boolean = false,
+) {
     val context = LocalContext.current
     val bitmap by produceState<Bitmap?>(initialValue = cachedLuluAvatarFullBitmap(imageUri), imageUri) {
         val source = imageUri?.takeIf(String::isNotBlank)
@@ -355,14 +359,21 @@ internal fun LuluSelectedPhoto(imageUri: String?, modifier: Modifier = Modifier)
             loadLuluAvatarBitmap(context, source, preferPreview = false)
         }
     }
+    // Full chat photos use their source ratio; only avatars/stickers retain square cropping.
+    val photoModifier = if (keepFullImage) {
+        val ratio = bitmap?.let { it.width.toFloat() / it.height.coerceAtLeast(1) } ?: 1f
+        modifier.size(minOf(248f, 260f * ratio).dp,
+            minOf(260f, 248f / ratio.coerceAtLeast(0.01f)).dp)
+    } else modifier
     Surface(
-        modifier = modifier,
+        modifier = photoModifier,
         color = Color(0xFFF4F4F4),
         shape = RoundedCornerShape(18.dp),
         border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
     ) {
         if (bitmap != null) {
-            Image(bitmap!!.asImageBitmap(), null, Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)), contentScale = ContentScale.Crop)
+            Image(bitmap!!.asImageBitmap(), null, Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)),
+                contentScale = if (keepFullImage) ContentScale.Fit else ContentScale.Crop)
         } else {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Icon(Icons.Outlined.AddAPhoto, "插入照片", tint = Color(0xFF7A7A7E))
