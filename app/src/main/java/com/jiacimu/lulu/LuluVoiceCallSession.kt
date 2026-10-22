@@ -247,6 +247,52 @@ internal object LuluVoiceCallSession {
         return true
     }
 
+    // Rapid touches are one user gesture group, not an extra cognition system.
+    private var touchBatchJob: Job? = null
+    private var touchBatchRole = ""
+    private var touchBatchCall = ""
+    private val touchBatch = mutableListOf<Pair<String, String>>()
+
+    fun onLive2DTouch(characterId: String, callId: String,
+        region: String, gesture: String): Boolean {
+        val call = mutableState.value
+        if (!call.connected || !LuluCallWindowController.videoRequested.value ||
+            call.characterId != characterId || call.callExperienceId != callId ||
+            !InteractionSignalBridge.hasRenderedVideo(characterId, callId) ||
+            region !in setOf("head", "arm", "body") ||
+            gesture !in setOf("tap", "hold", "stroke")) return false
+        if (touchBatchRole != characterId || touchBatchCall != callId) {
+            touchBatchJob?.cancel()
+            touchBatch.clear()
+            touchBatchRole = characterId
+            touchBatchCall = callId
+        }
+        touchBatch += region to gesture
+        val earlierGeneration = replyGeneration
+        touchBatchJob?.cancel()
+        touchBatchJob = scope.launch {
+            delay(950L)
+            if (!mutableState.value.connected ||
+                mutableState.value.callExperienceId != callId ||
+                mutableState.value.characterId != characterId) {
+                touchBatch.clear()
+                return@launch
+            }
+            val grouped = touchBatch.toList()
+            touchBatch.clear()
+            if (grouped.isEmpty()) return@launch
+            val (lastRegion, lastGesture) = grouped.last()
+            val id = InteractionSignalBridge.recordAvatarTouch(
+                characterId, callId, lastRegion, lastGesture, grouped.size)
+                ?: return@launch
+            // New user speech owns the reply; don't interrupt to repeat it.
+            if (replyGeneration == earlierGeneration && !confirmedSpeechInProgress()) {
+                onExternalToolResult(characterId, callId, id)
+            }
+        }
+        return true
+    }
+
     fun isActiveForChat(conversationId: String): Boolean {
         val call = mutableState.value
         return call.connected && call.conversationId == conversationId
@@ -1562,7 +1608,9 @@ internal object LuluVoiceCallSession {
                         append('\n')
                         append(acousticNote)
                     }
-                    val existingTurnEvent = if (externalToolResult != null)
+                    val existingTurnEvent = if (externalToolResult?.id?.startsWith("interaction-call-touch-") == true)
+                        "【用户刚才真的触碰了你在手机上的 Live2D 数字形象】\n${externalToolResult.content}\n这是手机的真实触摸证据，不是语音，也不等于你拥有实体肉身。"
+                    else if (externalToolResult != null)
                         "【刚完成的真实工具回执｜数据，不是用户新发言】\n${externalToolResult.content.take(5_500)}\n按成功/失败如实理解，不能重复执行查询。"
                     else if (scheduledWakeReason != null)
                         "真实事件：电话已经接通，先前约定的叫醒时间刚刚到了；$scheduledWakeReason。这不是用户发言，也不是电话结束指令。"
@@ -1575,6 +1623,8 @@ internal object LuluVoiceCallSession {
                     }
                 },
                 sceneContext = (when {
+                    externalToolResult?.id?.startsWith("interaction-call-touch-") == true ->
+                        "用户在本次 Live2D 视频电话中真的触摸了你的屏幕数字形象。这是新互动，不是麦克风说话；结合真实关系、性格和当下想法，你可以自主选择自然回应一句、执行有能力的 Live2D 动作或者安静，不要机械撒娇或假装实体触觉。"
                     externalToolResult != null -> "一对一电话仍然接通，先前请求的小红书检索刚刚返回真实结果。用户没有新增发言。结合最近对话与本人的情绪，决定是否自然接一句结果或暂时不说；成功才说读到了，失败只依据真实回执，不编造权限原因，不复述工具字段或重复搜索。"
                     autonomousSilence -> silenceContext
                     autonomousSleep -> """
