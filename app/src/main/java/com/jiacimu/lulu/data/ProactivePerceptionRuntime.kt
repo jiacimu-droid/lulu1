@@ -804,7 +804,7 @@ object ProactivePerceptionRuntime {
                 }
                 if (privateDialogue.isEmpty() && recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
             },
-            instruction = proactiveDecisionInstruction(characterId) + "\n" +
+            instruction = proactiveDecisionInstruction(characterId, directPrivateChat = privateDialogue.isNotEmpty()) + "\n" +
                 (if (privateDialogue.isNotEmpty()) privateConversationInstruction(privateInput, recent) + "\n" else "") +
                 (if (onlineExpiryAtMillis > 0L) """
                     【五分钟自主续醒决定｜本轮必须回答】

@@ -84,6 +84,27 @@ class CharacterExpressionGuideTest {
         assertFalse(secondVoice.contains("爱说冷笑话的独特节奏"))
     }
 
+    @Test fun onlineUnreadPrivateChatUsesPrivateSpeechChannelRatherThanAutonomousBroadcast() {
+        val freshPrivate = proactiveDecisionInstruction("ordinary-role-without-life", directPrivateChat = true)
+        val autonomous = proactiveDecisionInstruction("ordinary-role-without-life")
+        assertTrue(freshPrivate.contains("【私聊呈现】像熟人一对一接话"))
+        assertFalse(freshPrivate.contains("【自主分享呈现】"))
+        assertTrue(autonomous.contains("【自主分享呈现】"))
+        assertFalse(autonomous.contains("【私聊呈现】"))
+        assertTrue(freshPrivate.contains("优先选择对应的真实 action"))
+    }
+
+    @Test fun directPrivateReplyIsSpokenConversationNotAnExhaustivePlanningReport() {
+        val shortExchange = privateConversationInstruction("那宝宝喜欢哪个？给你发了六个", "之前已经看了发来的图")
+        assertTrue(shortExchange.contains("text 会原样进入聊天气泡"))
+        assertTrue(shortExchange.contains("已说过的事实不必先复述确认"))
+        assertTrue(shortExchange.contains("也不必一口气做总评"))
+        assertTrue(shortExchange.contains("同一轮拆成几个气泡也仍只是这一轮发言"))
+        assertTrue(shortExchange.contains("认真请教、要完整分析"))
+        assertTrue(shortExchange.contains("不改变已有可选行动"))
+        assertFalse(shortExchange.contains("最多回复"))
+    }
+
     @Test fun situationalPlayfulnessIsAChoiceNotAFlirtingTemplate() {
         val expression = CharacterExpressionGuide.promptSection()
         val initiative = proactiveDecisionInstruction("ordinary-role-without-life")

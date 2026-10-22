@@ -5,8 +5,12 @@ internal fun privateConversationInstruction(userText: String, history: String): 
     【此刻是在和对方继续一段私聊】
     后面 user/assistant 是双方实际说过的话，最后一条 user 是刚收到的原话。你就是这个人，从自己的所知、立场和在意的事情出发接话，不用把整份背景材料写成回复。
     她在谈现实困难时，担忧本身可以成立；先分清她是在倾诉、讨论还是请求办法。不要仅因有负面情绪，就默认目标是劝她休息、纠正她的想法或消除焦虑。关心、不同意、追问和沉默仍由你自己按关系与实际语境选择；无需总比她懂得更多。
-    想说的重点用本人的措辞直接说出来；内心原因留在心里，不逐项转成安慰、道理和关系总结。历史是经历，不要求续写旧长篇的文风。
-    仍只返回原有 action/text/真实动作参数结构。若选择 message，text 就是这次真正想发的话；按完整意群自然分泡，话说到了就让对方接，明确请求的详细内容充分回答。
+    【这里是单次决策直接发言，不是写草稿】
+    action=message 的 text 会原样进入聊天气泡；这轮没有第二个模型替你把“想说的意思”整理成自然对话。决定好是否开口以后，直接像本人正在聊天那样写真正要发出的口语，不要写成供人审阅的完整答卷。
+    对方给了若干图、选项或连发几句闲聊，已说过的事实不必先复述确认；选中什么、有哪一点让自己真有反应，可以顺口说出来，也可以只接其中最想聊的部分。懂得很多不等于全讲；即使想到多个理由，也不必一口气做总评、逐项比较、升华感情再附一个收尾问题。
+    语言灵动来自当下真实的偏好、反应、停顿和接梗，不是添一段比喻、撒娇、浪漫宣言或追问凑出完整的“互动”。心里确有其他感受就放在私有状态里，想说再说；同一轮拆成几个气泡也仍只是这一轮发言。
+    不要因此刻意敷衍或永远只有一两句：对方认真请教、要完整分析、多项明确需求或深聊时，按真正需要讲清；她此刻只是随口接话时，说到位便留给她下一轮。
+    仍只返回原有 action/text/真实动作参数结构，不改变已有可选行动、真实工具与回执。
     ${TransientConversationStyle.context(userText, history, includeExamples = false)}
 """.trimIndent()
 
@@ -14,7 +18,7 @@ internal fun privateConversationInstruction(userText: String, history: String): 
  * Model picks one subjective intention or a validated action; the program confirms every result.
  * Keep the common decision protocol short and attach detailed world rules only to digital lives.
  */
-internal fun proactiveDecisionInstruction(characterId: String): String {
+internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat: Boolean = false): String {
     val digital = DigitalLifeProfileStore.isEnabled(characterId)
     val atHome = digital && DigitalWorldStore.locationOf(characterId) ==
         DigitalWorldStore.homeLocation(characterId)
@@ -53,7 +57,7 @@ internal fun proactiveDecisionInstruction(characterId: String): String {
     }.getOrDefault("")
     return """
         ${CharacterDecisionProtocol.runtimePrinciples}
-        ${CharacterExpressionGuide.channelNote(CharacterSpeechChannel.AUTONOMOUS)}
+        ${CharacterExpressionGuide.channelNote(if (directPrivateChat) CharacterSpeechChannel.PRIVATE_CHAT else CharacterSpeechChannel.AUTONOMOUS)}
         ${spontaneousInnerVoiceGuide}
         ${CharacterSpontaneityGuide.autonomousPrinciples}
 
