@@ -110,7 +110,7 @@ internal object ModelStructuredOutput {
         val pieces = mutableListOf<String>()
         stable.forEach { bubble ->
             // Never split technical payloads or already short human responses.
-            if (bubble.length <= 54 || bubble.startsWith("[") || bubble.startsWith("⟪")) {
+            if (bubble.length <= 38 || bubble.startsWith("[") || bubble.startsWith("⟪")) {
                 pieces += bubble
                 return@forEach
             }
