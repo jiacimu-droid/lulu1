@@ -92,6 +92,14 @@ class CharacterExpressionGuideTest {
         assertTrue(autonomous.contains("【自主分享呈现】"))
         assertFalse(autonomous.contains("【私聊呈现】"))
         assertTrue(freshPrivate.contains("优先选择对应的真实 action"))
+        assertTrue(freshPrivate.contains("innerThoughtBasis"))
+        assertTrue(freshPrivate.contains("sideActions"))
+        assertTrue(freshPrivate.contains("一个完整 JSON"))
+        assertTrue(freshPrivate.length < autonomous.length)
+        // The self-directed life instructions still exist for genuinely
+        // autonomous turns; they no longer burden a casual incoming message.
+        assertTrue(autonomous.contains("【本轮自主决策】"))
+        assertFalse(freshPrivate.contains("【本轮自主决策】"))
     }
 
     @Test fun directPrivateReplyIsSpokenConversationNotAnExhaustivePlanningReport() {
