@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T09:48:13.837546+00:00",
-  "commit": "e96a8c0b25fe73a9850e43a76d0d0539e6761b9c",
+  "generatedAt": "2026-10-22T09:48:29.160975+00:00",
+  "commit": "b202cea8a4db0c8b4d9f8a0f855d0cfad2df3fe0",
   "branch": "main",
-  "sourceFingerprint": "ab3c57e08fabc8f9b2ff5be5068228960b17677716553313434aa24f5da43945",
+  "sourceFingerprint": "ddb3c4e95d98ac21f0a2f18df059f3ac13b2a5f1df7bcf848b8bf52ed555c413",
   "summary": {
     "files": 799,
-    "lines": 152140,
+    "lines": 152142,
     "symbols": 2290
   },
   "symbolIndex": {
@@ -1757,19 +1757,19 @@
     "setVideoMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "show": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 59
+        "line": 61
       }
     ],
     "minimize": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-        "line": 60
+        "line": 62
       }
     ],
     "enabled": [
@@ -14196,8 +14196,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
-      "lines": 143,
-      "sha256": "bd2a222f8bb23da5b36fb18085bd54f0415f394d73f0dd1b25639fa5dcaa6b87",
+      "lines": 145,
+      "sha256": "6168c92e938008f351e1c796e4bb635dd3149d042575e634f80c7812398efc67",
       "symbols": [
         {
           "name": "start",
@@ -14205,15 +14205,15 @@
         },
         {
           "name": "setVideoMode",
-          "line": 47
+          "line": 48
         },
         {
           "name": "show",
-          "line": 59
+          "line": 61
         },
         {
           "name": "minimize",
-          "line": 60
+          "line": 62
         }
       ]
     },
