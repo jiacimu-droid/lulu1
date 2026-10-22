@@ -13,6 +13,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -219,8 +220,20 @@ private fun Live2DNativeFrameOverlay(
     qualityMode: String,
     onStatus: (String, String) -> Unit,
 ) {
-    var picture by remember(webView) {
-        mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
+    // The old Compose Image(bitmap = picture) performed snapshot writes and
+    // recomposition for *every* decoded video frame. Keep the existing visible
+    // Android overlay but update its pixels directly, avoiding video-rate
+    // Compose tree recomposition and associated GPU upload scheduling jitter.
+    val nativeImage = remember(webView) {
+        ImageView(webView.context).apply {
+            scaleType = ImageView.ScaleType.FIT_XY
+            setBackgroundColor(AndroidColor.rgb(21, 23, 25))
+            contentDescription = "Live2D Android 原生帧显示"
+        }
+    }
+    var receivedFirstFrame by remember(webView) { mutableStateOf(false) }
+    DisposableEffect(nativeImage) {
+        onDispose { nativeImage.setImageDrawable(null) }
     }
     var gotBinaryFrame by remember(webView) { mutableStateOf(false) }
     var lastBinaryFrameAt by remember(webView) { mutableStateOf(0L) }
@@ -249,7 +262,8 @@ private fun Live2DNativeFrameOverlay(
                 }.getOrNull()
             }
             if (decoded != null) {
-                picture = decoded.asImageBitmap()
+                nativeImage.setImageBitmap(decoded)
+                if (!receivedFirstFrame) receivedFirstFrame = true
                 gotBinaryFrame = true
                 lastBinaryFrameAt = android.os.SystemClock.elapsedRealtime()
                 if (firstFrame) {
@@ -354,7 +368,8 @@ private fun Live2DNativeFrameOverlay(
                 }.getOrNull()
             }
             if (decoded != null) {
-                picture = decoded.asImageBitmap()
+                nativeImage.setImageBitmap(decoded)
+                if (!receivedFirstFrame) receivedFirstFrame = true
                 consecutiveErrors = 0
                 val nowMs = android.os.SystemClock.elapsedRealtime()
                 stats.frame(
@@ -399,15 +414,11 @@ private fun Live2DNativeFrameOverlay(
         }
     }
 
-    val current = picture
-    if (current != null) {
-        Image(
-            bitmap = current,
-            contentDescription = "Live2D Android 原生帧显示",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.FillBounds,
-        )
-    } else {
+    AndroidView(
+        factory = { nativeImage },
+        modifier = Modifier.fillMaxSize(),
+    )
+    if (!receivedFirstFrame) {
         Box(
             modifier = Modifier.fillMaxSize().background(Color(0xFF15354C)),
             contentAlignment = Alignment.Center,
