@@ -124,10 +124,6 @@ internal object LuluExternalMcp {
         when {
             state.loggedIn -> "MCP 已连接，小红书已登录" +
                 state.displayName.takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
-            status?.optBoolean("isLoggedIn") == true || status?.optBoolean("is_logged_in") == true ->
-                "MCP 已连接，小红书已登录" +
-                    (status.optString("nickname").ifBlank { status.optString("username") })
-                        .takeIf { it.isNotBlank() }?.let { "：$it" }.orEmpty()
             state.explicitlyLoggedOut ->
                 "MCP 已连接，小红书尚未登录；请获取二维码后使用小红书 App 扫码"
             message.contains("Failed to launch", ignoreCase = true) ||
