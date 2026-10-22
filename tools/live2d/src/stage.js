@@ -356,6 +356,14 @@ function applyFinalParameters(core, deltaMs) {
       }
     }
   }
+  // Cubism's expression fade can take several hundred milliseconds to
+  // reset. Audio owns this *physical* tongue channel at the final drawing
+  // stage, so a previously playing tongue will never remain visible across
+  // the first syllable of the next utterance.
+  const audibleMouth = playing && (!pcmAvailable || mouth > .055)
+  if (audibleMouth && hasParameter(core, 'ParamTongueOut')) {
+    setParameter(core, 'ParamTongueOut', 0)
+  }
   if (hasParameter(core, 'ParamMouthOpenY')) {
     // AIRI uses a speech-release tail rather than snapping the jaw shut on
     // the very first silent frame. Don't permanently own the mouth during
