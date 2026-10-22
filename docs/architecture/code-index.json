@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T20:44:32.454635+00:00",
-  "commit": "88c5494d11934465e0c6f26e8ebcdf1e4a7a2934",
+  "generatedAt": "2026-10-22T20:44:48.077149+00:00",
+  "commit": "97ff3878bba4fba5ec1e76d03899aae2f9b08e87",
   "branch": "main",
-  "sourceFingerprint": "9c09a20b6d00c650c515b005590c62642ccf8e17b21602a9f0250c5166957655",
+  "sourceFingerprint": "9306ce018a940932bc71ee6d5dbcb5246a582303245b3486a75b10221cc8b6e7",
   "summary": {
     "files": 832,
-    "lines": 159098,
+    "lines": 159106,
     "symbols": 2409
   },
   "symbolIndex": {
@@ -11763,31 +11763,31 @@
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 274
+        "line": 278
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 328
+        "line": 336
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 338
+        "line": 346
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 368
+        "line": 376
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 380
+        "line": 388
       }
     ],
     "showCapture": [
@@ -25762,8 +25762,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 414,
-      "sha256": "24371037e23d8b88bf2b6da835533747bb6d3f610540c38a9b1518b5acc39a36",
+      "lines": 422,
+      "sha256": "016d3b2fd2cd983827b2426c4ea87a4d650c098de7bf829ce82d4846be49e3ae",
       "symbols": [
         {
           "name": "LuluScreenAwareness",
@@ -25815,23 +25815,23 @@
         },
         {
           "name": "summon",
-          "line": 274
+          "line": 278
         },
         {
           "name": "recentAppActivity",
-          "line": 328
+          "line": 336
         },
         {
           "name": "addUntil",
-          "line": 338
+          "line": 346
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 368
+          "line": 376
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 380
+          "line": 388
         }
       ]
     },
