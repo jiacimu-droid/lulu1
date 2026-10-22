@@ -114,6 +114,20 @@ valuesById.set('ParamMouthForm', .28)
 frame()
 assert.equal(valuesById.get('ParamMouthForm'), .28,
   'after face release, imported expressions own facial parameter')
+// A wink must not be flattened into two identical eyelids on release.
+valuesById.set('ParamEyeLOpen', .54)
+valuesById.set('ParamEyeROpen', 1)
+for (let i = 0; i < 45; i++) frame(null, null, { eyeOpen: .25 })
+for (let i = 0; i < 90; i++) frame()
+assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - .54) < .05)
+assert.ok(Math.abs(valuesById.get('ParamEyeROpen') - 1) < .05)
+// If the authored expression changes while the AI cue is playing, the new
+// author's value must win when the temporary visual cue ends.
+valuesById.set('ParamMouthForm', .3)
+for (let i = 0; i < 45; i++) frame(null, null, { smile: .8 })
+valuesById.set('ParamMouthForm', -.25)
+for (let i = 0; i < 90; i++) frame()
+assert.ok(Math.abs(valuesById.get('ParamMouthForm') + .25) < .05)
 rig.reset()
 frame()
 assert.equal(valuesById.get('ParamAngleX'), 0)
