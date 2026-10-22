@@ -195,6 +195,67 @@ class CharacterRecordArchitectureTest {
         assertEquals(0, CharacterInnerLifeStore.snapshot(role)
             .optJSONArray("causalTransitions")?.length() ?: 0)
     }
+    @Test fun sameGenerationCreatesOneCompleteMomentAcrossPresenceDecisionAndInnerStores() {
+        SharedExperienceTimeline.record("choice-source", role, "数字世界", "云汀平台",
+            "江渡在平台吹风并决定继续阅读", now, triggerExtraction = false,
+            source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        val voice = "晚风吹得人有点想笑，刚刚那个星星眼倒是挺有趣。回头还想看看能不能动得更自然。"
+        val mind = JSONObject()
+            .put("causalTransitions", JSONArray().put(JSONObject()
+                .put("evidenceId", "choice-source")
+                .put("innerThought", voice)
+                .put("selectedAction", "digital_world")
+                .put("at", now.toString())))
+            .put("thoughts", JSONArray().put(JSONObject()
+                .put("evidenceId", "choice-source")
+                .put("thought", voice)
+                .put("at", now.plusSeconds(10).toString())))
+        val current = CompanionPresenceState(role, innerThought = voice,
+            mood = "轻松好奇 · 轻松好奇", statusText = "在平台坐着吹风",
+            gesture = "江渡在云汀平台停留", updatedAt = now.plusSeconds(14))
+        val decision = CharacterRecordProjection.DecisionMoment("choice", now.plusSeconds(8),
+            "在数字世界活动", "想享受一会儿晚风", "江渡在平台停留", "choice-source")
+        val rows = CharacterStateHistory.entries(role, listOf(current),
+            now.plusSeconds(90), mind, listOf(decision))
+        assertEquals(1, rows.size)
+        val row = rows.single()
+        assertEquals(1, row.decisions.size)
+        assertEquals(1, Regex(Regex.escape(voice)).findAll(row.detail).count())
+        val presented = CharacterStateHistory.display(row)
+        assertEquals(voice, presented.voice)
+        assertEquals("轻松好奇", presented.mood)
+        assertEquals("在平台坐着吹风", presented.status)
+        assertEquals("江渡在云汀平台停留", presented.gesture)
+        assertTrue(presented.otherThoughts.none { it.second == voice })
+    }
+
+    @Test fun differentStructuredThoughtFromSameCallStaysInsideOneMoment() {
+        val moment = CompanionPresenceState(role,
+            innerThought = "看着她调试视频，我想坐在平台上歇一会儿。",
+            updatedAt = now.plusSeconds(7), provenanceId = "cycle-id")
+        val primary = CharacterStateHistoryRow("moment", moment.updatedAt, "轻松",
+            moment.innerThought, moment, evidenceIds = listOf("cycle-id"),
+            deletionKind = "moment")
+        val supporting = CharacterStateHistoryRow("transition", now, "做出行动选择",
+            "顺便想起来还没看完的那本小说。", evidenceIds = listOf("cycle-id"),
+            deletionKind = "transition", deletionKey = "cycle-id")
+        val rows = CharacterStateHistory.compactRepeatedMoments(listOf(primary, supporting))
+        assertEquals(1, rows.size)
+        val shown = CharacterStateHistory.display(rows.single())
+        assertTrue(shown.voice.contains("调试视频"))
+        assertTrue(shown.otherThoughts.any { it.second.contains("小说") })
+    }
+
+    @Test fun sameEvidenceButGenuinelyNewThoughtIsAnotherMoment() {
+        val first = CompanionPresenceState(role, innerThought = "这会儿听着风声，感觉坐在这里还挺自在。",
+            updatedAt = now, provenanceId = "shared-wind")
+        val next = CompanionPresenceState(role, innerThought = "突然想起来明天的约定，还是先回去准备一下。",
+            updatedAt = now.plusSeconds(14), provenanceId = "shared-wind")
+        val rows = CharacterStateHistory.entries(role, listOf(first, next),
+            now.plusSeconds(90), JSONObject(), emptyList())
+        assertEquals(2, rows.size)
+    }
+
     @Test fun longInnerVoiceUsesNaturalParagraphsWithoutLosingItsWords() {
         val prose = (1..7).joinToString("") {
             "夜风吹来时，他忽然想到那个期待已久的测试结果，也想起刚刚在聊天里看到的消息。"

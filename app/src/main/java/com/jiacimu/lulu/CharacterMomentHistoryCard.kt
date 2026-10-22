@@ -15,43 +15,68 @@ import com.jiacimu.lulu.design.LuluColors
 internal fun CharacterMomentHistoryCard(characterId: String, row: CharacterStateHistoryRow) {
     var expanded by rememberSaveable(row.key) { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
+    val moment = CharacterStateHistory.display(row)
     CharacterRecordCard {
         Text(recordTime(row.at), fontSize = 11.sp, color = LuluColors.Muted)
-        Text(row.title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-        if (row.detail.isNotBlank()) {
-            // Let an authored inner voice breathe: prose is not a debug log.
-            // Render metadata separately, without altering or truncating the saved text.
+        val heading = row.title.takeUnless {
+            it == moment.mood || it in setOf("当时的心声与状态", "当时的感想与取舍", "当时的念头")
+        }.orEmpty().ifBlank { "这一刻" }
+        Text(heading, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        if (moment.voice.isNotBlank()) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 3.dp, bottom = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
             ) {
-                row.detail.lines().filter(String::isNotBlank).forEach { line ->
-                    val isMetadata = listOf("想法：", "状态：", "动作：", "仍在权衡：",
-                        "想调整：", "当时怎样理解这段关系：", "当时的念头：",
-                        "当时挂心的事：").any(line::startsWith)
-                    if (isMetadata) {
-                        Text(line, fontSize = 13.sp, lineHeight = 22.sp,
-                            color = LuluColors.Muted)
-                    } else {
-                        heartVoiceParagraphs(line).forEach { paragraph ->
-                            Text(paragraph, fontSize = 14.sp, lineHeight = 26.sp,
-                                modifier = Modifier.fillMaxWidth())
-                        }
+                Text("心声", fontSize = 11.sp, color = LuluColors.Muted)
+                moment.voice.lines().filter(String::isNotBlank).forEach { line ->
+                    heartVoiceParagraphs(line).forEach { paragraph ->
+                        Text(paragraph, fontSize = 15.sp, lineHeight = 27.sp)
                     }
                 }
             }
         }
-        row.decisions.distinctBy { Triple(it.action, it.reason, it.result) }.forEach { decision ->
-            val voice = row.moment?.innerThought.orEmpty()
-            if (row.title != decision.action) Text("当时选择：${decision.action}", fontSize = 13.sp)
-            if (decision.reason.isNotBlank() &&
-                !CharacterHeartVoicePolicy.sameMeaning(decision.reason, voice) &&
-                !CharacterHeartVoicePolicy.sameMeaning(decision.reason, row.detail)) {
-                Text("缘由：${decision.reason}", fontSize = 13.sp, lineHeight = 21.sp,
-                    color = LuluColors.Muted)
+        val mood = moment.mood.split("·").map(String::trim)
+            .filter(String::isNotBlank).distinct().joinToString(" · ")
+        if (mood.isNotBlank() || moment.status.isNotBlank() || moment.gesture.isNotBlank()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                if (mood.isNotBlank() &&
+                    !CharacterHeartVoicePolicy.sameMeaning(mood, moment.voice)) {
+                    MomentFactLine("心情", mood)
+                }
+                if (moment.status.isNotBlank() &&
+                    !CharacterHeartVoicePolicy.sameMeaning(moment.status, moment.voice)) {
+                    MomentFactLine("状态", moment.status)
+                }
+                if (moment.gesture.isNotBlank() &&
+                    !CharacterHeartVoicePolicy.sameMeaning(moment.gesture, moment.status)) {
+                    MomentFactLine("动作", moment.gesture)
+                }
             }
-            if (decision.result.isNotBlank()) Text("结果：${decision.result}",
-                fontSize = 13.sp, lineHeight = 21.sp, color = LuluColors.Muted)
+        }
+        moment.otherThoughts.forEach { (label, content) ->
+            MomentFactLine(label, content)
+        }
+        row.decisions.distinctBy { it.id }.forEach { decision ->
+            // "Why" is useful only if it adds something to what the role
+            // already thought or what the executor demonstrably accomplished.
+            if (decision.action != row.title &&
+                !CharacterHeartVoicePolicy.sameMeaning(decision.action, moment.gesture)) {
+                MomentFactLine("选择", decision.action)
+            }
+            val alreadySaid = listOf(moment.voice, moment.status, moment.gesture,
+                moment.otherThoughts.joinToString("；") { it.second })
+            if (decision.reason.isNotBlank() && alreadySaid.none {
+                    CharacterHeartVoicePolicy.sameMeaning(decision.reason, it)
+                }) {
+                MomentFactLine("缘由", decision.reason)
+            }
+            if (decision.result.isNotBlank() &&
+                !CharacterHeartVoicePolicy.sameMeaning(decision.result, moment.gesture)) {
+                MomentFactLine("结果", decision.result)
+            }
         }
         Row {
             if (row.evidenceIds.isNotEmpty()) TextButton(onClick = { expanded = !expanded }) {
@@ -67,6 +92,19 @@ internal fun CharacterMomentHistoryCard(characterId: String, row: CharacterState
         confirmButton = { TextButton(onClick = { CharacterStateHistory.delete(characterId, row); deleting = false }) {
             Text("删除", color = MaterialTheme.colorScheme.error)
         } }, dismissButton = { TextButton(onClick = { deleting = false }) { Text("取消") } })
+}
+
+@Composable
+private fun MomentFactLine(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(11.dp),
+    ) {
+        Text(label, modifier = Modifier.width(51.dp), fontSize = 11.sp,
+            color = LuluColors.Muted, lineHeight = 22.sp)
+        Text(value, modifier = Modifier.weight(1f), fontSize = 13.sp,
+            lineHeight = 22.sp)
+    }
 }
 
 /** Presentation only: preserve every character and every intentional line break.

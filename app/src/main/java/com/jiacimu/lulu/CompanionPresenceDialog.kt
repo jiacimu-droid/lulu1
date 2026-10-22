@@ -78,9 +78,6 @@ internal fun CompanionPresenceDialog(
     val latestHeartMoment = PresenceHistoryPresentation.latestVoice(
         displayState, displayHistory, messageAnchored = messageAnchor != null,
     )
-    val latestThinkingMoment = PresenceHistoryPresentation.latestReflection(
-        displayState, displayHistory, messageAnchored = messageAnchor != null,
-    )
     val dismiss = {
         CompanionPresenceStore.clearMessageAnchor()
         onDismiss()
@@ -157,8 +154,17 @@ internal fun CompanionPresenceDialog(
                                     modifier = Modifier.padding(vertical = 18.dp),
                                 )
                             } else {
-                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    PresenceStateContent(displayState, latestHeartMoment)
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(22.dp),
+                                    color = Color.White,
+                                    border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
+                                ) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(15.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        PresenceStateContent(displayState, latestHeartMoment)
                                     if (messageAnchor == null) {
                                         TextButton(
                                             onClick = { deleteCurrentConfirm = true },
@@ -168,11 +174,12 @@ internal fun CompanionPresenceDialog(
                                             Text("删除记录", color = Color(0xFF9C9297), fontSize = 11.sp)
                                         }
                                     }
+                                    }
                                 }
                             }
                         }
                         if (messageAnchor == null) item(key = "current-thoughts") {
-                            PresenceLifeThreads(characterId, now, latestThinkingMoment)
+                            PresenceLifeThreads(characterId, now)
                             CharacterLearningPlans(characterId)
                         }
                         if (messageAnchor == null) item(key = "character-perception") {
@@ -339,6 +346,10 @@ private fun PresenceStateContent(
     val status = fields["状态"].orEmpty()
     val gesture = fields["动作"].orEmpty()
     val voice = heartMoment?.innerThought.orEmpty()
+    val reflection = heartMoment?.momentReflection.orEmpty().takeUnless {
+        it.isBlank() || (voice.isNotBlank() &&
+            CharacterHeartVoicePolicy.sameMeaning(it, voice))
+    }.orEmpty()
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(top = 7.dp),
@@ -372,12 +383,25 @@ private fun PresenceStateContent(
                 ) {
                     Text(label, fontSize = 11.sp, color = Color(0xFF8D858B),
                         fontWeight = FontWeight.Medium)
-                    Text(voice, fontSize = 15.sp, lineHeight = 25.sp,
-                        color = Color(0xFF292629))
+                    voice.lines().filter(String::isNotBlank).forEach { line ->
+                        heartVoiceParagraphs(line).forEach { paragraph ->
+                            Text(paragraph, fontSize = 15.sp, lineHeight = 26.sp,
+                                color = Color(0xFF292629))
+                        }
+                    }
                 }
             }
         }
-        if (fields.isEmpty() && voice.isBlank()) {
+        if (reflection.isNotBlank()) {
+            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text("小念头", color = Color(0xFF928D92), fontSize = 11.sp)
+                reflection.lines().filter(String::isNotBlank).forEach { thought ->
+                    Text(thought, fontSize = 13.sp, lineHeight = 22.sp,
+                        color = Color(0xFF514E52))
+                }
+            }
+        }
+        if (fields.isEmpty() && voice.isBlank() && reflection.isBlank()) {
             Text("这一刻还没有留下状态或心声。",
                 color = Color(0xFF8C888C), fontSize = 14.sp)
         }
@@ -423,7 +447,7 @@ private data class LifeThoughtEntry(
 )
 
 @Composable
-private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment: CompanionPresenceState?) {
+private fun PresenceLifeThreads(characterId: String, now: Instant) {
     val context = LocalContext.current
     val revisions by CharacterInnerLifeStore.revisions.collectAsState()
     val lives by CharacterLifeStore.states.collectAsState()
@@ -443,13 +467,6 @@ private fun PresenceLifeThreads(characterId: String, now: Instant, thoughtMoment
     var expandedKey by remember(characterId) { mutableStateOf("") }
     var showOlder by remember(characterId) { mutableStateOf(false) }
     val ideas = mutableListOf<LifeThoughtEntry>()
-    thoughtMoment?.momentReflection?.takeIf { it.isNotBlank() &&
-        !CharacterHeartVoicePolicy.sameMeaning(it, thoughtMoment.innerThought) }?.let { reflection ->
-        val date = thoughtMoment.updatedAt.atZone(ZoneId.systemDefault())
-            .format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))
-        ideas += LifeThoughtEntry("想法与顾虑", reflection.take(250), "记录于 $date",
-            onDelete = { CompanionPresenceStore.deleteMoment(characterId, thoughtMoment.updatedAt); Unit })
-    }
     CharacterLifeVisibility.current(characterId, now).forEach { entry ->
         if (entry.title == "还在挂心") {
             val concern = (0 until (mind.optJSONArray("openConcerns")?.length() ?: 0))

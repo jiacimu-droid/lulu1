@@ -147,43 +147,133 @@ internal object CharacterStateHistory {
      */
     internal fun compactRepeatedMoments(input: List<CharacterStateHistoryRow>): List<CharacterStateHistoryRow> {
         val output = mutableListOf<CharacterStateHistoryRow>()
-        for (row in input.sortedBy { it.at }) {
-            val voice = row.moment?.innerThought.orEmpty().trim()
-            val match = if (voice.isBlank()) -1 else output.indexOfLast { existing ->
-                val oldVoice = existing.moment?.innerThought.orEmpty().trim()
-                oldVoice.isNotBlank() &&
-                    kotlin.math.abs(java.time.Duration.between(existing.at, row.at).toMillis()) <= 60_000 &&
-                    CharacterHeartVoicePolicy.sameMeaning(oldVoice, voice)
+        fun voiceOf(row: CharacterStateHistoryRow): String =
+            row.moment?.innerThought?.trim().orEmpty().ifBlank {
+                row.detail.lineSequence().map(String::trim).firstOrNull {
+                    it.length >= 12 && !it.startsWith("状态：") &&
+                        !it.startsWith("动作：") && !it.startsWith("想法：") &&
+                        !it.startsWith("当时的念头：") && !it.startsWith("缘由：") &&
+                        !it.startsWith("结果：") && !it.startsWith("仍在权衡：") &&
+                        !it.startsWith("想调整：") && !it.startsWith("当时怎样理解")
+                }.orEmpty()
             }
-            if (match < 0) {
+        fun equivalent(a: String, b: String) =
+            a.isNotBlank() && b.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(a, b)
+        fun supportingDeletion(row: CharacterStateHistoryRow): Pair<String, String>? =
+            when (row.deletionKind) {
+                "transition" -> "transition" to "${row.deletionKey}|${row.at}"
+                "emotion" -> "emotion" to "${row.at}|${row.deletionKey}"
+                "thought", "concern", "closure" -> row.deletionKind to row.deletionKey
+                else -> null
+            }
+        // A "moment" is one authored psychological/decision event, not one
+        // JSON record. Build ONE read-only card from its projections.
+        for (row in input.sortedBy { it.at }) {
+            val same = output.indexOfLast { old ->
+                val elapsedMs = kotlin.math.abs(java.time.Duration.between(old.at, row.at).toMillis())
+                val nearby = elapsedMs <= 120_000
+                // A later independent decision can reference the SAME old
+                // evidence. Do not swallow it just because the IDs match.
+                val sameExecutionWindow = elapsedMs <= 20_000
+                val overlap = old.evidenceIds.any { it.isNotBlank() && it in row.evidenceIds }
+                val oldVoice = voiceOf(old)
+                val nextVoice = voiceOf(row)
+                val sameVoice = equivalent(oldVoice, nextVoice)
+                val fingerprint = old.moment?.innerThoughtFingerprint.orEmpty()
+                val sameFingerprint = fingerprint.isNotBlank() &&
+                    fingerprint == row.moment?.innerThoughtFingerprint
+                // Two different inner voices about the same source are genuine
+                // changes, not duplicates. Do not merge merely by clock minute.
+                nearby && (sameVoice || sameFingerprint ||
+                    (sameExecutionWindow && overlap &&
+                        // A decision's structured thoughts are supporting fields
+                        // of its presence moment, not another independently
+                        // generated "present". Two *actual* presence changes
+                        // with different voices remain separate.
+                        (old.moment == null || row.moment == null))))
+            }
+            if (same < 0) {
                 output += row
                 continue
             }
-            val old = output[match]
-            // Prefer the richer authored moment; append only genuinely new
-            // state or action details, never a second copy of the monologue.
-            val primary = if (row.moment!!.innerThought.length > old.moment!!.innerThought.length) row else old
-            val secondary = if (primary === row) old else row
-            val lines = primary.detail.lines().filter(String::isNotBlank).toMutableList()
-            for (part in secondary.detail.lines().filter(String::isNotBlank)) {
-                val value = part.substringAfter('：', part)
-                val repeated = lines.any { existing ->
-                    existing.contains(part) || part.contains(existing) ||
-                        CharacterHeartVoicePolicy.sameMeaning(existing.substringAfter('：', existing), value)
-                }
-                if (!repeated) lines += part
+            val old = output[same]
+            val preferred = when {
+                row.moment != null && old.moment == null -> row
+                row.moment == null && old.moment != null -> old
+                voiceOf(row).length > voiceOf(old).length -> row
+                else -> old
             }
-            val moments = (listOfNotNull(old.moment?.updatedAt, row.moment?.updatedAt) +
+            val other = if (preferred === row) old else row
+            val mergedText = preferred.detail.lines().filter(String::isNotBlank).toMutableList()
+            for (part in other.detail.lines().filter(String::isNotBlank)) {
+                val partValue = part.substringAfter('：', part).trim()
+                val echo = mergedText.any { existing ->
+                    existing == part || existing.contains(part) || part.contains(existing) ||
+                        equivalent(existing.substringAfter('：', existing).trim(), partValue)
+                }
+                if (!echo) mergedText += part
+            }
+            val allMomentTimes = (listOfNotNull(old.moment?.updatedAt, row.moment?.updatedAt) +
                 old.mergedMomentTimes + row.mergedMomentTimes).distinct()
-            output[match] = primary.copy(
-                detail = lines.joinToString("\n"),
+            output[same] = preferred.copy(
+                detail = mergedText.joinToString("\n"),
                 decisions = (old.decisions + row.decisions).distinctBy { it.id },
                 evidenceIds = (old.evidenceIds + row.evidenceIds).distinct(),
-                extraDeletions = (old.extraDeletions + row.extraDeletions).distinct(),
-                mergedMomentTimes = moments.filter { it != primary.moment?.updatedAt },
+                extraDeletions = (old.extraDeletions + row.extraDeletions +
+                    listOfNotNull(supportingDeletion(other))).distinct(),
+                mergedMomentTimes = allMomentTimes.filter { it != preferred.moment?.updatedAt },
             )
         }
         return output
+    }
+
+    /** A single read model for the "此刻" card; persisted data remains owned by
+     * its original stores. Every section needs distinct information, not a
+     * renamed copy of the same inner monologue. */
+    internal data class MomentDisplay(
+        val voice: String,
+        val mood: String,
+        val status: String,
+        val gesture: String,
+        val otherThoughts: List<Pair<String, String>>,
+    )
+
+    internal fun display(row: CharacterStateHistoryRow): MomentDisplay {
+        val lines = row.detail.lines().map(String::trim).filter(String::isNotBlank)
+        val labels = setOf("状态", "动作", "想法", "当时的念头",
+            "仍在权衡", "想调整", "当时怎样理解这段关系", "当时挂心的事")
+        val voice = row.moment?.innerThought?.trim().orEmpty().ifBlank {
+            lines.firstOrNull { it.substringBefore('：') !in labels }.orEmpty()
+        }
+        val mood = row.moment?.mood.orEmpty()
+            .split(Regex("\\s*[·•；;]+\\s*")).map(String::trim)
+            .filter(String::isNotBlank).distinct().joinToString(" · ")
+        val status = lines.firstOrNull { it.startsWith("状态：") }
+            ?.removePrefix("状态：").orEmpty()
+        val gesture = lines.firstOrNull { it.startsWith("动作：") }
+            ?.removePrefix("动作：").orEmpty()
+        val extras = mutableListOf<Pair<String, String>>()
+        val reserved = setOf("状态", "动作")
+        for (line in lines) {
+            if (line == voice) continue
+            val label = line.substringBefore('：')
+            if (label in reserved) continue
+            val content = if (label in labels) line.substringAfter('：').trim() else line
+            if (content.isBlank() ||
+                (voice.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(content, voice)) ||
+                (mood.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(content, mood)) ||
+                extras.any { CharacterHeartVoicePolicy.sameMeaning(it.second, content) }) continue
+            val section = when (label) {
+                "想法", "当时的念头" -> "小念头"
+                "仍在权衡" -> "尚在权衡"
+                "想调整" -> "新的打算"
+                "当时怎样理解这段关系" -> "关系理解"
+                "当时挂心的事" -> "挂心"
+                else -> "心里的话"
+            }
+            extras += section to content
+        }
+        return MomentDisplay(voice, mood, status, gesture, extras)
     }
 
     fun delete(characterId: String, row: CharacterStateHistoryRow) {
