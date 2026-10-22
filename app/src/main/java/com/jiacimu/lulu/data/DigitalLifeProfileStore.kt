@@ -146,6 +146,7 @@ object DigitalLifeProfileStore {
             persistLocked()
         }
         DigitalWorldStore.clearCharacter(cleanId)
+        CharacterLifeStore.clearBodyState(cleanId)
     }
 
     /** Explicit history reset starts a new traceable life; persona and life form stay intact. */
@@ -155,6 +156,7 @@ object DigitalLifeProfileStore {
         synchronized(lock) {
             val previous = get(cleanId)
             if (!previous.enabled) return
+            CharacterLifeStore.clearBodyState(cleanId)
             val profile = previous.copy(bornAt = now)
             mutable.value = mutable.value + (cleanId to profile)
             persistLocked()

@@ -191,6 +191,8 @@ internal object DigitalWorldActivityStateStore {
                 .toString(),
         )
         check(editor.commit()) { "活动状态保存失败" }
+        // World activity is already committed: only now change simulated sensations.
+        EmbodiedBodyRuntime.onWorldActivity(characterId, activityId, now, plannedEndAt)
         return result
     }
 
@@ -227,7 +229,9 @@ internal object DigitalWorldActivityStateStore {
         activity.put("status", "paused")
             .put("pausedAt", now.toString())
             .put("outcome", reason.take(300))
-        p.edit().putString("activity:$characterId", activity.toString()).commit()
+        if (p.edit().putString("activity:$characterId", activity.toString()).commit()) {
+            EmbodiedBodyRuntime.onWorldActivityEnded(characterId, now)
+        }
     }
 
     @Synchronized
@@ -242,7 +246,9 @@ internal object DigitalWorldActivityStateStore {
         activity.put("status", "completed")
             .put("endedAt", now.toString())
             .put("outcome", outcome.take(300))
-        p.edit().putString("activity:$characterId", activity.toString()).commit()
+        if (p.edit().putString("activity:$characterId", activity.toString()).commit()) {
+            EmbodiedBodyRuntime.onWorldActivityEnded(characterId, now)
+        }
     }
 
     private fun settleTimedActivity(characterId: String, now: Instant) {
@@ -257,7 +263,9 @@ internal object DigitalWorldActivityStateStore {
         activity.put("status", "completed")
             .put("endedAt", planned.toString())
             .put("outcome", "达到该活动的程序时长后自然结束；结束时间由世界状态结算，不由模型猜测")
-        p.edit().putString("activity:$characterId", activity.toString()).commit()
+        if (p.edit().putString("activity:$characterId", activity.toString()).commit()) {
+            EmbodiedBodyRuntime.onWorldActivityEnded(characterId, planned)
+        }
     }
 
     private fun activityDuration(activityId: String): Duration = when (activityId) {

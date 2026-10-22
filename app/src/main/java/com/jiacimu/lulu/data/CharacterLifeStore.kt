@@ -62,6 +62,26 @@ object CharacterLifeStore {
         }
     }
 
+    /** Digital body is one optional section of the EXISTING role life record. */
+    fun bodyStorageReady(): Boolean = prefs != null
+
+    fun bodyState(characterId: String): JSONObject? = state(characterId).optJSONObject("embodiedBody")
+
+    @Synchronized fun saveBodyState(characterId: String, value: JSONObject) {
+        if (prefs == null || characterId.isBlank()) return
+        val root = state(characterId)
+        root.put("embodiedBody", value)
+        save(characterId, root)
+    }
+
+    @Synchronized fun clearBodyState(characterId: String) {
+        if (prefs == null || characterId.isBlank()) return
+        val root = state(characterId)
+        if (!root.has("embodiedBody")) return
+        root.remove("embodiedBody")
+        save(characterId, root)
+    }
+
     /** User-authored per-person relationship baseline. It is separate from the
      * evidence-backed, changeable subjective bonds in CharacterInnerLifeStore.
      * An empty saved entry is intentional and must not be reseeded on launch.
@@ -575,6 +595,7 @@ object CharacterLifeStore {
         root.remove("previousIntention")
         root.remove("socialNames")
         root.remove("afterglow")
+        root.remove("embodiedBody") // Full history/origin reset also resets simulated body.
         save(characterId, root)
     }
 

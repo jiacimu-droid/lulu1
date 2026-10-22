@@ -98,6 +98,7 @@ object CharacterRuntime {
             // one brief anatomy is enough even for a full context request.
             appendLine(CharacterPersonalityArchitecture.promptSection(compact = true))
             appendLine(CompanionContactClock.context(characterId))
+            EmbodiedBodyRuntime.context(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else
                 CharacterLifeStore.context(characterId, includeProfile = false))
             appendLine(if (compact) CharacterInnerLifeStore.compactContext(characterId) else
