@@ -1,5 +1,10 @@
 package com.jiacimu.lulu
 
+import android.content.Context
+import android.net.Uri
+import org.json.JSONObject
+import java.io.File
+
 /**
  * Optional official ARM64 Cubism Core readiness check.
  * Core parsing is not a renderer or proof of a visible Android GPU frame.
@@ -26,4 +31,27 @@ internal object NativeCubismProbe {
                 count
             }
     }
+    fun inspectImportedModel(context: Context, characterId: String): Result<Int> {
+        return runCatching {
+            val modelUrl = Live2DAssets.modelUrl(context, characterId)
+                ?: error("当前角色没有可读取的模型")
+            val base = Live2DAssets.base(context).canonicalFile
+            val relative = Uri.decode(Uri.parse(modelUrl).encodedPath.orEmpty()
+                .removePrefix("/private/"))
+            require(relative.startsWith("models/")) { "非法模型路径" }
+            val modelJson = File(base, relative).canonicalFile
+            check(modelJson.path.startsWith(base.path + File.separator) && modelJson.isFile) {
+                "模型路径不在角色专属资源目录"
+            }
+            val mocRelative = JSONObject(modelJson.readText())
+                .getJSONObject("FileReferences").getString("Moc")
+            val moc = File(modelJson.parentFile, mocRelative).canonicalFile
+            check(moc.path.startsWith(base.path + File.separator) && moc.isFile &&
+                moc.length() in 1..(100L * 1024L * 1024L)) {
+                "Moc3 引用缺失、超出允许的单次加载内存或指向了外部路径"
+            }
+            inspect(moc.readBytes()).getOrThrow()
+        }
+    }
+
 }
