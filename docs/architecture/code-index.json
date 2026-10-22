@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:02:16.623290+00:00",
-  "commit": "c5c0ca15e97ac917cc61f5ced67e478a9d639ae6",
+  "generatedAt": "2026-10-22T16:03:56.381126+00:00",
+  "commit": "99090f28d5cbfd8d91f5bebcfb9500d0c26affe5",
   "branch": "main",
-  "sourceFingerprint": "2b119130c36d4feb2d3581ec28f83cf3e2d5e4f8e504e7af197e77d242888f26",
+  "sourceFingerprint": "648ea1ae303aae808595346e1f8d9f043a982cc33760421a5b18c91b6b8e6f48",
   "summary": {
-    "files": 811,
-    "lines": 154808,
-    "symbols": 2318
+    "files": 813,
+    "lines": 155082,
+    "symbols": 2335
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -244,6 +244,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt",
         "line": 61
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 128
       }
     ],
     "update": [
@@ -379,7 +383,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 675
+        "line": 696
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
@@ -412,6 +416,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLiveScene.kt",
         "line": 43
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 144
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -1726,6 +1734,14 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
         "line": 221
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 85
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 105
       }
     ],
     "boundedBody": [
@@ -4271,7 +4287,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 165
+        "line": 167
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -4627,7 +4643,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 271
+        "line": 279
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -4865,7 +4881,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 637
+        "line": 658
       }
     ],
     "cue": [
@@ -4966,16 +4982,28 @@
         "line": 21
       }
     ],
+    "bodyStorageReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
+        "line": 66
+      }
+    ],
+    "bodyState": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
+        "line": 67
+      }
+    ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 190
+        "line": 210
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 609
+        "line": 630
       }
     ],
     "current": [
@@ -5359,19 +5387,19 @@
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 155
+        "line": 156
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 160
+        "line": 161
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 164
+        "line": 165
       }
     ],
     "parse": [
@@ -6391,7 +6419,7 @@
     "restartOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 152
+        "line": 153
       }
     ],
     "optionsFor": [
@@ -6455,25 +6483,25 @@
     "beginReading": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 199
+        "line": 201
       }
     ],
     "ongoingActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 211
+        "line": 213
       }
     ],
     "pauseActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 222
+        "line": 224
       }
     ],
     "endActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-        "line": 234
+        "line": 238
       }
     ],
     "recipients": [
@@ -6868,6 +6896,70 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt",
         "line": 771
+      }
+    ],
+    "toJson": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 22
+      }
+    ],
+    "fromJson": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 34
+      }
+    ],
+    "stat": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 37
+      }
+    ],
+    "fresh": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 59
+      }
+    ],
+    "advance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 60
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
+        "line": 625
+      }
+    ],
+    "applyWorldActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 98
+      }
+    ],
+    "endWorldActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 124
+      }
+    ],
+    "number": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 130
+      }
+    ],
+    "onWorldActivity": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 154
+      }
+    ],
+    "onWorldActivityEnded": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 164
       }
     ],
     "qualifies": [
@@ -9726,12 +9818,6 @@
         "line": 283
       }
     ],
-    "advance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalApp.kt",
-        "line": 625
-      }
-    ],
     "addPieces": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Domain.kt",
@@ -12434,6 +12520,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStoreTest.kt",
         "line": 15
+      }
+    ],
+    "EmbodiedBodyPhysicsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
+        "line": 6
       }
     ],
     "GoalDeadlinePerceptionPolicyTest": [
@@ -17477,8 +17569,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 722,
-      "sha256": "ae4e1ebc646371062efb04cb75aec45f793709d61bd2c946ef7afb578def5f70",
+      "lines": 743,
+      "sha256": "2671d0b6222b0fe3ac3f565c28e476642d827f4ef35a168793b4b3c876973953",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -17489,20 +17581,28 @@
           "line": 56
         },
         {
+          "name": "bodyStorageReady",
+          "line": 66
+        },
+        {
+          "name": "bodyState",
+          "line": 67
+        },
+        {
           "name": "afterglowContext",
-          "line": 190
+          "line": 210
         },
         {
           "name": "profileContext",
-          "line": 609
+          "line": 630
         },
         {
           "name": "compactContext",
-          "line": 637
+          "line": 658
         },
         {
           "name": "context",
-          "line": 675
+          "line": 696
         }
       ]
     },
@@ -17891,8 +17991,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 168,
-      "sha256": "8b6f3b8c56f1205d8855159e88664cc284cbd875792063394a2b93c8ee12588e",
+      "lines": 169,
+      "sha256": "36f50ace8a9b707cf11e9676287151bce334ed06da85f0b6f4474ab3e6047498",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -17928,15 +18028,15 @@
         },
         {
           "name": "learningContext",
-          "line": 155
+          "line": 156
         },
         {
           "name": "leanExpressionContext",
-          "line": 160
+          "line": 161
         },
         {
           "name": "developmentContext",
-          "line": 164
+          "line": 165
         }
       ]
     },
@@ -19028,8 +19128,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-      "lines": 242,
-      "sha256": "b733a87c283693f94b31895f0c5468974d39bfa223d2750bb587846a2d92c066",
+      "lines": 244,
+      "sha256": "126f31744b01286377743abcdd61a737210b3cbf5174f1b47ce4bcd81e702e34",
       "symbols": [
         {
           "name": "CharacterLifeForm",
@@ -19089,11 +19189,11 @@
         },
         {
           "name": "restartOrigin",
-          "line": 152
+          "line": 153
         },
         {
           "name": "promptSection",
-          "line": 165
+          "line": 167
         }
       ]
     },
@@ -19132,8 +19232,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
-      "lines": 280,
-      "sha256": "f0fec5d1d3bdd523bb81d528418e932363d42e48f2ad566037bd935c55c368d6",
+      "lines": 288,
+      "sha256": "4f58034cf1f1be77b846ebba265d4f69ee86d92137f9571cc527608981363f6c",
       "symbols": [
         {
           "name": "initialize",
@@ -19153,23 +19253,23 @@
         },
         {
           "name": "beginReading",
-          "line": 199
+          "line": 201
         },
         {
           "name": "ongoingActivity",
-          "line": 211
+          "line": 213
         },
         {
           "name": "pauseActivity",
-          "line": 222
+          "line": 224
         },
         {
           "name": "endActivity",
-          "line": 234
+          "line": 238
         },
         {
           "name": "clearCharacter",
-          "line": 271
+          "line": 279
         }
       ]
     },
@@ -19601,6 +19701,69 @@
         {
           "name": "clearCharacter",
           "line": 840
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+      "lines": 171,
+      "sha256": "1e5888a05fe9979ef1d6057c4b22da1a65591ffe9e19f2d0d9e384d91738900c",
+      "symbols": [
+        {
+          "name": "toJson",
+          "line": 22
+        },
+        {
+          "name": "fromJson",
+          "line": 34
+        },
+        {
+          "name": "stat",
+          "line": 37
+        },
+        {
+          "name": "fresh",
+          "line": 59
+        },
+        {
+          "name": "advance",
+          "line": 60
+        },
+        {
+          "name": "bounded",
+          "line": 85
+        },
+        {
+          "name": "applyWorldActivity",
+          "line": 98
+        },
+        {
+          "name": "bounded",
+          "line": 105
+        },
+        {
+          "name": "endWorldActivity",
+          "line": 124
+        },
+        {
+          "name": "prompt",
+          "line": 128
+        },
+        {
+          "name": "number",
+          "line": 130
+        },
+        {
+          "name": "context",
+          "line": 144
+        },
+        {
+          "name": "onWorldActivity",
+          "line": 154
+        },
+        {
+          "name": "onWorldActivityEnded",
+          "line": 164
         }
       ]
     },
@@ -26744,6 +26907,17 @@
         {
           "name": "DigitalWorldResidentEpisodeStoreTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
+      "lines": 71,
+      "sha256": "2ab7a8d63427f52cc269227cc1f2de7f390920ab38389b6bc2495b1ac94fb8e8",
+      "symbols": [
+        {
+          "name": "EmbodiedBodyPhysicsTest",
+          "line": 6
         }
       ]
     },
