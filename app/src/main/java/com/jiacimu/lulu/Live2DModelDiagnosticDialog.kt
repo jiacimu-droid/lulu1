@@ -1,5 +1,8 @@
 package com.jiacimu.lulu
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -160,7 +163,19 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                         Text(if (mouthPreview) "闭嘴" else "张嘴", fontSize = 12.sp)
                     }
                 }
-                Text("加载日志（最近50条）", color = Color.LightGray, fontSize = 12.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("加载日志（最近50条）", color = Color.LightGray, fontSize = 12.sp,
+                        modifier = Modifier.weight(1f))
+                    TextButton(onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                            as? ClipboardManager
+                        clipboard?.setPrimaryClip(
+                            ClipData.newPlainText("Live2D 诊断", (
+                                "模型：" + if (useSample) "AIRI Hiyori" else "当前角色" ) +
+                                "\n阶段：$stagePhase · $stageMessage\n" +
+                                events.joinToString("\n")))
+                    }) { Text("复制诊断", fontSize = 12.sp) }
+                }
                 val scrollState = rememberScrollState()
                 LaunchedEffect(events.size) { scrollState.scrollTo(scrollState.maxValue) }
                 Column(Modifier.fillMaxWidth().height(145.dp).verticalScroll(scrollState)
