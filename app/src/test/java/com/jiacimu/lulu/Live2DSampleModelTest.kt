@@ -30,7 +30,8 @@ class Live2DSampleModelTest {
                     "hiyori/hiyori.model3.json" to
                         """{"FileReferences":{"Moc":"hiyori.moc3","Textures":["texture.png"],"Physics":null}}""",
                     "hiyori/hiyori.moc3" to "mock-moc3-for-import-validation-only",
-                    "hiyori/texture.png" to "mock-png-for-import-validation-only"
+                    "hiyori/texture.png" to "mock-png-for-import-validation-only",
+                    "hiyori/README.txt" to "extra metadata must not block the model"
                 )
                 for ((name, body) in files) {
                     zip.putNextEntry(ZipEntry(name))
