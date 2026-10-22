@@ -119,7 +119,10 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
             if (width >= 20 && height >= 20 &&
                 (width != oldRight - oldLeft || height != oldBottom - oldTop)) {
                 // Dispatch only after WebView has actually committed its layout.
-                view.post { reportNativeLive2DViewport(view as WebView) }
+                view.post {
+                    reportNativeLive2DViewport(view as WebView)
+                    onStatus("step", "Android WebView 布局：${width}×${height}")
+                }
             }
         }
         isVerticalScrollBarEnabled = false
@@ -149,8 +152,10 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
                     return true
                 }
                 if (message?.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
-                    // Avoid exposing local file paths or application internals to the call UI.
-                    onStatus("error", "模型渲染脚本发生错误；请检查模型或 SDK 兼容性")
+                    // Keep the actual JS error category, but not the full local
+                    // resource URL or model data.
+                    onStatus("error", "Live2D JS: " +
+                        source.lineSequence().firstOrNull().orEmpty().take(170))
                     return true
                 }
                 return super.onConsoleMessage(message)
@@ -181,10 +186,27 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
                                 ByteArrayInputStream(json.toByteArray(Charsets.UTF_8)))
                         }
                     }
-                    return loader.shouldInterceptRequest(uri)
-                        ?: WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
+                    val served = loader.shouldInterceptRequest(uri)
+                    if (served == null) {
+                        view?.post {
+                            onStatus("resource", "未找到本地资源：" +
+                                uri.lastPathSegment.orEmpty().take(80))
+                        }
+                        return WebResourceResponse("text/plain", "utf-8", 404,
+                            "Not Found", emptyMap(),
+                            ByteArrayInputStream(ByteArray(0)))
+                    }
+                    return served
                 }
                 return WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
+            }
+            override fun onReceivedHttpError(view: WebView?,
+                request: WebResourceRequest, errorResponse: WebResourceResponse) {
+                if (request.url.host == "appassets.androidplatform.net" &&
+                    errorResponse.statusCode >= 400) {
+                    onStatus("resource", "HTTP ${errorResponse.statusCode}：" +
+                        request.url.lastPathSegment.orEmpty().take(80))
+                }
             }
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?,
                 error: android.webkit.WebResourceError?) {
@@ -194,6 +216,9 @@ private fun createLive2DWebView(context: Context, characterId: String, modelUrl:
             }
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (url == "https://appassets.androidplatform.net/assets/live2d/stage.html") {
+                    onStatus("step", "Live2D 页面 HTML 加载完成；WebView " +
+                        "${view?.width ?: 0}×${view?.height ?: 0}；引擎 " +
+                        (WebView.getCurrentWebViewPackage()?.versionName ?: "未知"))
                     view?.let { current ->
                         val width = current.width
                         val height = current.height
