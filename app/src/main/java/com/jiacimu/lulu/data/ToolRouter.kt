@@ -77,9 +77,9 @@ object ToolRouter {
                         JSONObject().put("success", true).put("status", "pending").put("requestId", job.getString("requestId"))
                             .put("summary", "已保存云端任务请求，尚未生成文件").toString()
                     } else if (name == "capture_screen") {
-                        LuluScreenAwareness.capture(context, userRequested)
+                        LuluScreenAwareness.capture(context, userRequested, characterId, requestId)
                     } else if (name == "summon_lulu") {
-                        LuluScreenAwareness.summon(context)
+                        LuluScreenAwareness.summon(context, characterId)
                     } else if (cap.domain == "phone") {
                         LuluDeviceToolBridge.executeRegistered(context, characterId, name, args, requestId)
                     } else CompanionActionRuntime.execute(context, characterId, name, args).asJson()
