@@ -32,14 +32,17 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     previewExpression: String? = null, previewMotion: Pair<String, Int>? = null,
     previewRevision: Int = 0,
     previewHead: Live2DVisualActionBus.Head? = null,
+    onWebViewReady: ((WebView) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
     val statusReceiver = rememberUpdatedState(onStatus)
+    val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val stage = remember(context, characterId, modelUrl) {
         createLive2DWebView(context, characterId, modelUrl) { phase, detail ->
             statusReceiver.value(phase, detail)
         }
     }
+    LaunchedEffect(stage) { webViewReceiver.value?.invoke(stage) }
     DisposableEffect(stage) {
         onDispose {
             runCatching { stage.stopLoading() }
