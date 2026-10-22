@@ -157,6 +157,7 @@ fun QqStyleChatDetailScreen(
     var forwardingMessages by remember { mutableStateOf<List<LuluChatMessage>?>(null) }
     var moreExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
+    var watchTogetherVisible by remember(conversationId) { mutableStateOf(false) }
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
     var mentionExpanded by remember { mutableStateOf(false) }
@@ -632,6 +633,11 @@ fun QqStyleChatDetailScreen(
                                     characterId, character.displayName)
                                 LuluCallWindowController.start(video = true)
                             }) else null,
+                            onWatchTogether = if (groupChat == null) ({
+                                focusManager.clearFocus(force = true)
+                                keyboardController?.hide()
+                                watchTogetherVisible = true
+                            }) else null,
                             onSendOnly = { payload -> appendDraft(payload) },
                             onWakeOrReply = { payload -> wakeOnline(payload) },
                             onSendSticker = { sticker ->
@@ -880,6 +886,14 @@ fun QqStyleChatDetailScreen(
                 Spacer(Modifier.navigationBarsPadding())
             }
         }
+    }
+    if (watchTogetherVisible && groupChat == null) {
+        WatchTogetherRoom(
+            conversationId = conversationId,
+            characterId = characterId,
+            characterName = character.displayName,
+            onClose = { watchTogetherVisible = false },
+        )
     }
 }
 

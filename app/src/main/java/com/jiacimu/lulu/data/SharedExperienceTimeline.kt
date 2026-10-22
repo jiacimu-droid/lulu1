@@ -417,6 +417,11 @@ object SharedExperienceTimeline {
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
         if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** Query one real shared activity without loading years of unrelated conversations. */
+    fun sessionEvents(characterId: String, sessionId: String, limit: Int = 160): List<SharedTimelineEvent> =
+        if (characterId.isBlank() || sessionId.isBlank() || limit <= 0) emptyList()
+        else query(characterId, limit, sessionId).sortedBy(SharedTimelineEvent::occurredAt)
+
     fun recentContext(characterId: String, limit: Int = 24, characterBudget: Int = 7_000): String {
         val events = recentEvents(characterId, limit)
         if (events.isEmpty()) return ""
@@ -466,12 +471,20 @@ object SharedExperienceTimeline {
         }
     }
 
-    private fun query(characterId: String, limit: Int?): List<SharedTimelineEvent> {
+    private fun query(characterId: String, limit: Int?, sessionId: String? = null): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
         val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC"
         val birth = DigitalLifeProfileStore.birthAt(characterId)
-        val selection = if (birth == null) "character_id = ?" else "character_id = ? AND occurred_at >= ?"
-        val args = if (birth == null) arrayOf(characterId) else arrayOf(characterId, birth.toEpochMilli().toString())
+        val selection = buildList {
+            add("character_id = ?")
+            if (birth != null) add("occurred_at >= ?")
+            if (sessionId != null) add("session_id = ?")
+        }.joinToString(" AND ")
+        val args = buildList {
+            add(characterId)
+            if (birth != null) add(birth.toEpochMilli().toString())
+            if (sessionId != null) add(sessionId)
+        }.toTypedArray()
         return database.query(
             "timeline_events",
             EVENT_COLUMNS,

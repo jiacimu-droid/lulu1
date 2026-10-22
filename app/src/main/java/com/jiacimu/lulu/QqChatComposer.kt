@@ -7,6 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +41,7 @@ internal fun QqChatComposer(
     onMention: () -> Unit,
     onCall: () -> Unit,
     onVideoCall: (() -> Unit)? = null,
+    onWatchTogether: (() -> Unit)? = null,
     onSendOnly: (QqComposerPayload) -> Boolean,
     onWakeOrReply: (QqComposerPayload) -> Boolean,
     onSendSticker: (LuluSticker) -> Boolean,
@@ -158,7 +161,8 @@ internal fun QqChatComposer(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                .padding(horizontal = 10.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -205,6 +209,14 @@ internal fun QqChatComposer(
                     Icon(Icons.Outlined.Videocam, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("视频", fontSize = 11.sp)
+                }
+            }
+            if (!groupMode && onWatchTogether != null) {
+                TextButton(onClick = onWatchTogether,
+                    contentPadding = PaddingValues(horizontal = 7.dp, vertical = 5.dp)) {
+                    Icon(Icons.Outlined.Theaters, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("一起看", fontSize = 11.sp)
                 }
             }
         }
