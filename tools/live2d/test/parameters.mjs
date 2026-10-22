@@ -4,7 +4,7 @@ import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createPoseSpring } from '../src/pose-spring.mjs'
-import { createSpeechExpressionGate, isMouthExclusiveExpression } from '../src/speech-expression-gate.mjs'
+import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from '../src/speech-expression-gate.mjs'
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
 // parameter indices if handed raw strings. This mock deliberately does so.
@@ -40,6 +40,15 @@ assert.equal(access.write(core, 'ParamMouthOpenY', NaN), false)
 const other = makeCore()
 assert.equal(access.index(other, 'ParamMouthOpenY'), 3)
 assert.equal(access.write(other, 'ParamMouthOpenY', 0.4), true)
+other.getModel = () => ({ parameters: {
+  ids: other.names, count: other.names.length,
+  minimumValues: [-10, -10, -10, 0, 0],
+  maximumValues: [10, 10, 10, .7, 1],
+}})
+assert.equal(access.write(other, 'ParamMouthOpenY', 5), true)
+assert.equal(access.read(other, 'ParamMouthOpenY'), .7)
+assert.equal(access.write(other, 'ParamAngleX', -25), true)
+assert.equal(access.read(other, 'ParamAngleX'), -10)
 assert.equal(other.values[3], 0.4)
 assert.equal(core.values[3], 0.85)
 
@@ -98,7 +107,8 @@ for (let i = 0; i < 45; i++) frame(null, null, { smile: .7, eyeOpen: .55 }, true
 assert.ok(valuesById.get('ParamMouthForm') > .55)
 assert.ok(valuesById.get('ParamEyeLOpen') < .7)
 for (let i = 0; i < 90; i++) frame()
-assert.ok(Math.abs(valuesById.get('ParamMouthForm')) < .05)
+assert.ok(Math.abs(valuesById.get('ParamMouthForm') - .62) < .05,
+  'released smile must restore the imported model expression')
 assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - 1) < .05)
 valuesById.set('ParamMouthForm', .28)
 frame()
@@ -162,6 +172,13 @@ assert.equal(isMouthExclusiveExpression({
 assert.equal(isMouthExclusiveExpression({
   Parameters: [{ Id: 'ParamTongueOut', Value: 0 }]
 }), false)
+assert.equal(isEyeExclusiveExpression({
+  Parameters: [{ Id: 'ParamEyeLOpen', Value: .25 }]
+}, 'sleepy'), true)
+assert.equal(isEyeExclusiveExpression({
+  Parameters: [{ Id: 'ParamMouthForm', Value: .25 }]
+}, 'blush'), false)
+assert.equal(isEyeExclusiveExpression(null, '小狼-星星眼'), true)
 let audioMs = 1000
 const gate = createSpeechExpressionGate({ now: () => audioMs })
 assert.equal(gate.started().reset, false)
@@ -200,6 +217,9 @@ assert.equal(gate.request('吐舌', false), true,
 assert.equal(gate.started().reset, true,
   'a new sentence closes an existing tongue before playing sound')
 assert.ok(stage.includes('mouthExpressionGate.tick()'))
+assert.ok(stage.includes('!eyePoseBusy'))
+assert.ok(stage.includes('voiceLevel: pcmAvailable ? mouth : null'))
+assert.ok(stage.includes('if (playing) {\n      activatePendingSpeechMoment()'))
 assert.ok(stage.includes('mouthExpressionGate.finished()'))
 assert.ok(stage.includes('mouthExpressionGate.interrupted()'))
 assert.ok(stage.includes("setParameter(core, 'ParamTongueOut', 0)"))
