@@ -22,6 +22,11 @@ let nativeViewport = { width: 0, height: 0 }
 let inflightModelUrl = null
 let loadSequence = 0
 let previewObserved = false
+// A diagnostic-only compositor workaround. A decoded WebGL frame can remain
+// invisible in Android WebView even when readPixels / drawImage both succeed.
+let mirrorImage = null
+let mirrorTimer = null
+let mirrorErrorSent = false
 let gpuLost = false
 let gpuMaxTexture = 0
 let textureDetails = ''
@@ -194,7 +199,8 @@ async function verifyVisibleFrame(loaded, sequence) {
         }
         if (presentedColored >= 32) {
           previewObserved = true
-          notify('diagnostic', 'Canvas 已实际绘制角色（彩色像素 ' +
+          // This proves the canvas buffer, NOT Android's onscreen compositor.
+          notify('diagnostic', 'Canvas 缓冲区有角色（彩色像素 ' +
             presentedColored + '）；画布 ' +
             Math.round(bounds.width) + '×' + Math.round(bounds.height))
           return
@@ -255,7 +261,10 @@ function ensureApp() {
   app = new PIXI.Application({
     width: Math.max(1, root.clientWidth),
     height: Math.max(1, root.clientHeight),
-    backgroundAlpha: 0,
+    // Android WebView can fail to composite a transparent WebGL surface onto
+    // an opaque WebView. Render a truly opaque drawing buffer instead.
+    backgroundColor: 0x151719,
+    backgroundAlpha: 1,
     // AIRI keeps the drawing buffer across WebView compositor frames.
     // Without this, readback can pass before Android composites a cleared buffer.
     preserveDrawingBuffer: true,
@@ -308,6 +317,7 @@ async function load(modelURL) {
   if (inflightModelUrl === modelURL) return
   inflightModelUrl = modelURL
   const sequence = ++loadSequence
+  setPresentationMode(false)
   previewObserved = false
   notify('step', '① Cubism Core：检查引擎')
   status('正在加载 Live2D 模型…')
@@ -355,7 +365,7 @@ async function load(modelURL) {
     await verifyVisibleFrame(model, sequence)
     if (sequence !== loadSequence) return
     status('', 'ready')
-    notify('step', '⑥ 画面通过验证：动态人物可见')
+    notify('step', '⑥ 仅通过 WebGL/Canvas 验证；Android 屏幕仍需独立确认')
     const coreModel = model.internalModel?.coreModel
     const available = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ']
       .filter(id => coreModel?.getParameterIndex(id) >= 0)
@@ -374,6 +384,47 @@ function update(next) {
   listening = !!next.listening
   mouth = Number.isFinite(Number(next.mouth)) ? Math.max(0, Math.min(1, Number(next.mouth))) : 0
   if (!playing) mouth = 0
+}
+// Debug option: mirror decoded WebGL frames through an ordinary HTML image.
+// This deliberately uses a different Chromium compositing path. Kept behind
+// an explicit diagnostic call to avoid JPEG encoding during normal phone calls.
+function setPresentationMode(useMirror) {
+  if (!useMirror) {
+    if (mirrorTimer !== null) clearInterval(mirrorTimer)
+    mirrorTimer = null
+    mirrorImage?.remove()
+    mirrorImage = null
+    notify('diagnostic', '已关闭图片通道，恢复原生 WebGL 画面')
+    return
+  }
+  if (!app || !model) {
+    notify('error', '图片通道尚未获得已解码的 Live2D 画面')
+    return
+  }
+  if (mirrorImage) return
+  mirrorErrorSent = false
+  mirrorImage = document.createElement('img')
+  mirrorImage.id = 'lulu-live2d-frame-mirror'
+  mirrorImage.alt = ''
+  mirrorImage.setAttribute('aria-hidden', 'true')
+  mirrorImage.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:1'
+  root.appendChild(mirrorImage)
+  const refresh = () => {
+    if (!app || !model || !mirrorImage || paused || document.hidden) return
+    try {
+      // Avoid fetching images or models again. This is a same-origin canvas snapshot.
+      app.render()
+      mirrorImage.src = app.view.toDataURL('image/jpeg', 0.76)
+    } catch (error) {
+      if (!mirrorErrorSent) {
+        mirrorErrorSent = true
+        notify('error', '图片通道无法截取画面：' + (error?.message || String(error)))
+      }
+    }
+  }
+  refresh()
+  mirrorTimer = setInterval(refresh, 200)
+  notify('diagnostic', '已启用普通图片通道（本机约 5 帧/秒，不调用 API）')
 }
 function setPaused(value) {
   paused = !!value
@@ -398,7 +449,7 @@ function head(target) {
   }
   headRequestEndAt = Date.now() + 1600
 }
-window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport }
+window.LuluLive2D = { load, update, setPaused, expression, motion, head, setViewport, setPresentationMode }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
