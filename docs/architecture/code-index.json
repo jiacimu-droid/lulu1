@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T17:19:55.992215+00:00",
-  "commit": "eddb9be15a3e5c0abe0f5268bd4ff8ba036ff05d",
+  "generatedAt": "2026-10-22T17:20:16.547636+00:00",
+  "commit": "23e0b36301a1001907fc49036d0a8071bdc65466",
   "branch": "main",
-  "sourceFingerprint": "c602c8dcc922c17297a51b04615996c1b668f613b37c63495621511b47dbdd2c",
+  "sourceFingerprint": "32d4ca383149692f7f03a80bf018942f184c0d8b2fc95a8280fea41182be8af6",
   "summary": {
     "files": 827,
-    "lines": 157446,
+    "lines": 157463,
     "symbols": 2388
   },
   "symbolIndex": {
@@ -3637,7 +3637,7 @@
     "react": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-        "line": 265
+        "line": 266
       }
     ],
     "setNavigationHandler": [
@@ -16591,8 +16591,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
-      "lines": 537,
-      "sha256": "28421e17c022f5d94c0af6faedcc1913cec43908c4d8eaf45f99bab9ea88329f",
+      "lines": 542,
+      "sha256": "e757f90273e86ed621b299b8920ef1fc5f89a0d5c9a4fc2b5511b7615604853a",
       "symbols": [
         {
           "name": "stamp",
@@ -16620,7 +16620,7 @@
         },
         {
           "name": "react",
-          "line": 265
+          "line": 266
         }
       ]
     },
@@ -26164,8 +26164,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
-      "lines": 121,
-      "sha256": "179ff79c46324843da22f9aeb945c494da8bfaad71d2b3dffc70bf5aa7b4e1af",
+      "lines": 133,
+      "sha256": "9d16e7180b1fde676ddcb3a6edfcfa22fff40893ed5a2b125ed5d8a380e118cc",
       "symbols": [
         {
           "name": "QqMessageGroupingTest",
