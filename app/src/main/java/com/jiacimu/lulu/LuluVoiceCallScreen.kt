@@ -72,10 +72,10 @@ fun LuluVoiceCallScreen(
     val presenceHistories by com.jiacimu.lulu.data.CompanionPresenceStore.histories.collectAsState()
     val currentCharacterId = state.characterId.ifBlank { characterId }
     val scope = rememberCoroutineScope()
-    val preferredVideo by LuluCallWindowController.videoRequested.collectAsState()
-    var videoEnabled by rememberSaveable(currentCharacterId, state.callExperienceId) {
-        mutableStateOf(preferredVideo)
-    }
+    // One source of truth for presentation, shared with the call-session
+    // model context and the floating-window controller. A minimized or
+    // externally re-opened call must not show a stale voice/video mode.
+    val videoEnabled by LuluCallWindowController.videoRequested.collectAsState()
     var importingModel by remember { mutableStateOf(false) }
     var showCoreLicense by remember { mutableStateOf(false) }
     val coreLicensePrefs = remember(context) {
@@ -248,7 +248,6 @@ fun LuluVoiceCallScreen(
                     },
                     setupMessage = modelNotice,
                     onSwitchToVoice = {
-                        videoEnabled = false
                         LuluCallWindowController.setVideoMode(false)
                     },
                     onMinimize = onDismiss,
@@ -288,9 +287,9 @@ fun LuluVoiceCallScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(onClick = {
-                        videoEnabled = !videoEnabled
-                        LuluCallWindowController.setVideoMode(videoEnabled)
-                        if (videoEnabled && visualModelUrl != null && !coreReady) installCoreIfNeeded()
+                        val nextMode = !videoEnabled
+                        LuluCallWindowController.setVideoMode(nextMode)
+                        if (nextMode && visualModelUrl != null && !coreReady) installCoreIfNeeded()
                     }) {
                         Icon(if (videoEnabled) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam,
                             contentDescription = null, modifier = Modifier.size(19.dp))
