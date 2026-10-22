@@ -110,14 +110,19 @@ internal object StickerLibraryStore {
         }
     }
 
-    fun prompt(context: Context, limit: Int = 40, cues: String = ""): String {
+    fun prompt(
+        context: Context, limit: Int = 8, cues: String = "",
+        recentConversation: String = "", actorMood: String = "",
+    ): String {
         initialize(context)
-        val available = selectPromptStickers(items.value, limit, cues)
+        val available = selectPromptStickers(items.value, limit, StickerRetrievalContext(
+            userMessage = cues, recentConversation = recentConversation, actorMood = actorMood,
+        ))
         if (available.isEmpty()) return "角色支持图片表情包（与颜文字是两种不同功能），但本次真实可选图库暂时为空或内置素材仍在加载。此时不要捏造 stickerId、不要尝试发送不存在的图片；也不要说角色永远没有表情包功能。仍可用颜文字、emoji 和正常语言。" 
         return buildString {
-            appendLine("【真实可发送的分组表情包｜开源素材已按类别自动标注】")
+            appendLine("【本轮社交语境检索的真实可发送表情包候选】")
             appendLine("模型没有看到图片。每条的「实际画面」是已存好的视觉说明，「可能用法」只是社交语气建议。不能把用法误认为画面上真的发生了相应动作。")
-            appendLine("仅从下列准确 stickerId 中挑选；可不选，不要按比例凑表情。依据语境与角色本人兴趣选择，不要捏造图中文字。")
+            appendLine("这些只是候选，不代表本轮必须发表情。用户的情绪不等于你自己的态度：依据自己的表达意图、人格和关系挑选；认真反馈先认真回应，无合适图片就不发。只能选择下列真实 stickerId，不按频率凑图。")
             available.forEach { sticker ->
                 appendLine("- stickerId=${sticker.id}；分组=${sticker.pack}；表情名=${sticker.name}；实际画面=${sticker.visualDescription.ifBlank { "未经识图，画面内容尚不确定" }}；可能用法=${sticker.usageHint.ifBlank { sticker.name }}；${if (sticker.favorite) "用户收藏" else "普通"}")
             }
