@@ -104,6 +104,29 @@ class Live2DVisualActionBusTest {
                 "ParamEyeBallX,ParamMouthForm,ParamEyeLSmile,ParamEyeRSmile,ParamBodyAngleX")
             assertTrue(Live2DVisualActionBus.publish(context, role, call, bodyAndFace))
             assertEquals(0.6f, Live2DVisualActionBus.cues.value[role]?.face?.values?.get("eyeSmile"))
+            // Multi-beat choreography is STILL one speech turn and is
+            // strictly validated against that imported model's real assets.
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamAngleX,ParamEyeLOpen,ParamEyeROpen,ParamMouthForm")
+            val beats = org.json.JSONArray()
+                .put(JSONObject().put("atMs", 1400)
+                    .put("face", JSONObject().put("eyeOpen", 0.55)
+                        .put("smile", 0.6).put("squint", 0.8)))
+                .put(JSONObject().put("atMs", 0)
+                    .put("head", JSONObject().put("yaw", 80))
+                    .put("expression", "smile"))
+                .put(JSONObject().put("atMs", 2000).put("expression", "invented"))
+                .put(JSONObject().put("atMs", -2).put("expression", "smile"))
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("beats", beats)))
+            val planned = Live2DVisualActionBus.cues.value[role]?.beats.orEmpty()
+            assertEquals(2, planned.size)
+            assertEquals(0, planned.first().atMs)
+            assertEquals("smile", planned.first().expression)
+            assertEquals(25f, planned.first().head?.yaw)
+            assertEquals(1400, planned.last().atMs)
+            assertEquals(0.55f, planned.last().face?.values?.get("eyeOpen"))
+            assertFalse(planned.last().face?.values?.containsKey("squint") == true)
             // Even existing dimensions cannot leak across a closed call.
             Live2DVisualActionBus.stageClosed(role, call)
             assertFalse(Live2DVisualActionBus.publish(context, role, call, smile))
