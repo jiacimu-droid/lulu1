@@ -229,7 +229,10 @@ internal object Live2DAssets {
             require(textures.length() > 0) { "缺少纹理贴图" }
             for (i in 0 until textures.length()) validateReference(staging, settings.parentFile!!, textures.getString(i))
             for (name in listOf("Physics", "Pose", "UserData", "DisplayInfo")) {
-                if (refs.has(name)) validateReference(staging, settings.parentFile!!, refs.getString(name))
+                if (refs.has(name) && !refs.isNull(name) &&
+                    refs.optString(name).isNotBlank()) {
+                    validateReference(staging, settings.parentFile!!, refs.getString(name))
+                }
             }
             refs.optJSONArray("Expressions")?.let { expressions ->
                 for (i in 0 until expressions.length()) validateReference(staging,
