@@ -10,6 +10,7 @@ internal data class CharacterStateHistoryRow(
     val evidenceIds: List<String> = emptyList(),
     val deletionKind: String = "", val deletionKey: String = "",
     val extraDeletions: List<Pair<String, String>> = emptyList(),
+    val mergedMomentTimes: List<Instant> = emptyList(),
 )
 
 /** One chronological view of the original snapshots, thoughts and decisions. No new persistence. */
@@ -35,7 +36,8 @@ internal object CharacterStateHistory {
             ).joinToString("\n")
             rows += CharacterStateHistoryRow("moment:${moment.updatedAt}", moment.updatedAt,
                 entry.mood.ifBlank { "当时的心声与状态" }, detail, moment, linked,
-                linked.map { it.evidenceId }.filter(String::isNotBlank), "moment")
+                (linked.map { it.evidenceId } + moment.provenanceId)
+                    .filter(String::isNotBlank).distinct(), "moment")
         }
         decisions.filterNot { it.id in consumed }.forEach { decision ->
             rows += CharacterStateHistoryRow("decision:${decision.id}", decision.at, decision.action, "",
@@ -63,7 +65,11 @@ internal object CharacterStateHistory {
             val existing = rows.indexOfFirst { it.at == at }
             if (existing >= 0) {
                 val row = rows[existing]
-                val added = parts.filterNot { part -> row.detail.contains(part) }
+                val voice = row.moment?.innerThought.orEmpty()
+                val added = parts.filterNot { part ->
+                    row.detail.contains(part) ||
+                        (voice.isNotBlank() && CharacterHeartVoicePolicy.sameMeaning(part, voice))
+                }
                 rows[existing] = row.copy(detail = (listOf(row.detail) + added)
                     .filter(String::isNotBlank).joinToString("\n"), evidenceIds = (row.evidenceIds + evidenceId).distinct(),
                     extraDeletions = (row.extraDeletions + ("transition" to evidenceId)).distinct())
@@ -84,12 +90,18 @@ internal object CharacterStateHistory {
                         listOf(evidence)).isEmpty()) continue
                 val (title, detail) = describe(item)
                 if (detail.isBlank()) continue
-                val existing = rows.indexOfFirst { it.at == at }
+                val existing = rows.indexOfFirst { row ->
+                    row.at == at || (evidence.isNotBlank() && evidence in row.evidenceIds &&
+                        kotlin.math.abs(java.time.Duration.between(row.at, at).toMillis()) <= 60_000)
+                }
                 if (existing >= 0) {
                     val row = rows[existing]
-                    val compact = detail.filterNot(Char::isWhitespace)
+                    val alreadyExpressed = row.detail.contains(detail) ||
+                        CharacterHeartVoicePolicy.sameMeaning(detail, row.moment?.innerThought.orEmpty()) ||
+                        (kind == "emotion" && (title == row.title ||
+                            CharacterHeartVoicePolicy.sameMeaning(title, row.title)))
                     rows[existing] = row.copy(
-                        detail = if (row.detail.filterNot(Char::isWhitespace).contains(compact)) row.detail
+                        detail = if (alreadyExpressed) row.detail
                             else listOf(row.detail, "$title：$detail").filter(String::isNotBlank).joinToString("\n"),
                         evidenceIds = (row.evidenceIds + evidence).filter(String::isNotBlank).distinct(),
                         extraDeletions = (row.extraDeletions + (kind to item.optString(keyField))).distinct())
@@ -113,10 +125,61 @@ internal object CharacterStateHistory {
             "一段心事的结束" to listOf(it.optString("focus"), it.optString("resolution"))
                 .filter(String::isNotBlank).joinToString("\n")
         }
-        return rows.distinctBy { it.key }.sortedWith(compareByDescending<CharacterStateHistoryRow> { it.at }.thenBy { it.key })
+        return compactRepeatedMoments(rows.distinctBy { it.key })
+            .sortedWith(compareByDescending<CharacterStateHistoryRow> { it.at }.thenBy { it.key })
+    }
+
+
+    /**
+     * A single authored heart voice may have several projections: a presence
+     * snapshot, a causal transition and a decision record. Older versions also
+     * saved near-identical snapshots seconds apart. Collapse those *read-only*
+     * projections, not their underlying evidence, and never collapse distinct
+     * changes merely because they occurred in the same minute.
+     */
+    internal fun compactRepeatedMoments(input: List<CharacterStateHistoryRow>): List<CharacterStateHistoryRow> {
+        val output = mutableListOf<CharacterStateHistoryRow>()
+        for (row in input.sortedBy { it.at }) {
+            val voice = row.moment?.innerThought.orEmpty().trim()
+            val match = if (voice.isBlank()) -1 else output.indexOfLast { existing ->
+                val oldVoice = existing.moment?.innerThought.orEmpty().trim()
+                oldVoice.isNotBlank() &&
+                    kotlin.math.abs(java.time.Duration.between(existing.at, row.at).toMillis()) <= 60_000 &&
+                    CharacterHeartVoicePolicy.sameMeaning(oldVoice, voice)
+            }
+            if (match < 0) {
+                output += row
+                continue
+            }
+            val old = output[match]
+            // Prefer the richer authored moment; append only genuinely new
+            // state or action details, never a second copy of the monologue.
+            val primary = if (row.moment!!.innerThought.length > old.moment!!.innerThought.length) row else old
+            val secondary = if (primary === row) old else row
+            val lines = primary.detail.lines().filter(String::isNotBlank).toMutableList()
+            for (part in secondary.detail.lines().filter(String::isNotBlank)) {
+                val value = part.substringAfter('：', part)
+                val repeated = lines.any { existing ->
+                    existing.contains(part) || part.contains(existing) ||
+                        CharacterHeartVoicePolicy.sameMeaning(existing.substringAfter('：', existing), value)
+                }
+                if (!repeated) lines += part
+            }
+            val moments = (listOfNotNull(old.moment?.updatedAt, row.moment?.updatedAt) +
+                old.mergedMomentTimes + row.mergedMomentTimes).distinct()
+            output[match] = primary.copy(
+                detail = lines.joinToString("\n"),
+                decisions = (old.decisions + row.decisions).distinctBy { it.id },
+                evidenceIds = (old.evidenceIds + row.evidenceIds).distinct(),
+                extraDeletions = (old.extraDeletions + row.extraDeletions).distinct(),
+                mergedMomentTimes = moments.filter { it != primary.moment?.updatedAt },
+            )
+        }
+        return output
     }
 
     fun delete(characterId: String, row: CharacterStateHistoryRow) {
+        row.mergedMomentTimes.forEach { CompanionPresenceStore.deleteMoment(characterId, it) }
         row.decisions.forEach { CharacterInnerLifeStore.forgetDecision(characterId, it.id) }
         fun remove(kind: String, key: String) { when (kind) {
             "moment" -> row.moment?.let { CompanionPresenceStore.deleteMoment(characterId, it.updatedAt) }

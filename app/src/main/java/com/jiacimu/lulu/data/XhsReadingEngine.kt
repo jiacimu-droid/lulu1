@@ -338,9 +338,42 @@ internal object XhsReadingEngine {
             throw cancelled
         } catch (error: Exception) {
             val mcpFailure = error.message.orEmpty().take(140).ifBlank { "MCP 未能返回笔记" }
+            // MCP-priority is a preference, not permission to ignore a real
+            // attached logged-in WebView after the remote process is down.
+            if (preferMcp && canUseLocal) {
+                try {
+                    onProgress("MCP 不可用，正在使用已登录的内置网页")
+                    val root = loadPage(context, searchUrl(query),
+                        if (query.isBlank()) "feed" else "search", "", query, onProgress)
+                    val values = root.optJSONArray("items")
+                    val found = (0 until (values?.length() ?: 0)).mapNotNull { index ->
+                        val item = values?.optJSONObject(index) ?: return@mapNotNull null
+                        card(item, query, "webview")
+                    }.distinctBy { it.id }
+                    if (found.isNotEmpty()) {
+                        rememberFeed(query, found)
+                        return found
+                    }
+                    localFailure = "内置网页没有返回可读笔记"
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (localError: Exception) {
+                    localFailure = localError.message.orEmpty().take(120)
+                }
+            }
+            val endpoint = LuluExternalMcp.endpoint(context, "xiaohongshu")
+            val localEndpoint = endpoint.startsWith("http://127.0.0.1:") ||
+                endpoint.startsWith("http://localhost:")
+            val connectionRefused = mcpFailure.contains("Failed to connect", true) ||
+                mcpFailure.contains("Connection refused", true) ||
+                mcpFailure.contains("ECONNREFUSED", true)
+            val remoteReason = if (localEndpoint && connectionRefused) {
+                "手机本机小红书 MCP 未接通（127.0.0.1 是这部手机，不是云端）。" +
+                    "若要后台阅读，须启动本机 Termux MCP 或配置真实可达的远程 HTTPS 服务"
+            } else "小红书 MCP 读取失败：$mcpFailure"
             throw IllegalStateException(
-                if (localFailure.isBlank()) "小红书 MCP 读取失败：$mcpFailure"
-                else "小红书本机读取失败：$localFailure；备用 MCP 也失败：$mcpFailure",
+                if (localFailure.isBlank()) "$remoteReason；本次没有读到笔记"
+                else "$remoteReason；内置网页也未读到笔记：$localFailure",
                 error,
             )
         }

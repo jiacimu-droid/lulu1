@@ -139,4 +139,45 @@ class CharacterRecordArchitectureTest {
         assertEquals(2, laterView.size)
         assertTrue(laterView.first { it.moment != null }.decisions.isEmpty())
     }
+
+    @Test fun repeatedHeartVoiceSnapshotsAreOneReadableMomentNotTwoCards() {
+        val thought = "刚刚那个星星眼终于显示出来了，她一看效果就去继续调试。\\n有点想笑，等她忙完再聊吧。"
+        val earlier = CompanionPresenceState(role, innerThought = thought,
+            mood = "轻松好奇", updatedAt = now)
+        val later = CompanionPresenceState(role, innerThought = thought,
+            mood = "轻松好奇", statusText = "在云汀平台坐着吹风",
+            updatedAt = now.plusSeconds(18))
+        val rows = CharacterStateHistory.entries(role, listOf(earlier, later),
+            now.plusSeconds(120), JSONObject(), emptyList())
+        assertEquals(1, rows.size)
+        assertTrue(rows.single().detail.contains("星星眼"))
+        assertTrue(rows.single().detail.contains("在云汀平台"))
+        assertEquals(1, rows.single().mergedMomentTimes.size)
+    }
+
+    @Test fun aRealTurnInPrivateThoughtMustRemainASeparateMoment() {
+        val earlier = CompanionPresenceState(role, innerThought = "还想看看屏幕上那个表情会不会动。",
+            updatedAt = now)
+        val later = CompanionPresenceState(role, innerThought = "风太冷了，还是回家暖和一会儿吧。",
+            updatedAt = now.plusSeconds(23))
+        val rows = CharacterStateHistory.entries(role, listOf(earlier, later),
+            now.plusSeconds(120), JSONObject(), emptyList())
+        assertEquals(2, rows.size)
+    }
+
+    @Test fun parallelMindFieldsForOneEvidenceDoNotRestateAuthoredVoice() {
+        SharedExperienceTimeline.record("one-inner-event", role, "独处", "云汀平台", "在平台吹风",
+            now, triggerExtraction = false, source = "digital-world",
+            evidenceKind = EventEvidenceKind.Observation)
+        val voice = "今天吹风有点舒服，先在这里静静坐一会儿。"
+        val mind = JSONObject().put("thoughts", JSONArray().put(JSONObject()
+            .put("thought", voice).put("evidenceId", "one-inner-event")
+            .put("at", now.plusSeconds(8).toString())))
+        val snapshot = CompanionPresenceState(role, innerThought = voice,
+            updatedAt = now, provenanceId = "one-inner-event")
+        val rows = CharacterStateHistory.entries(role, listOf(snapshot),
+            now.plusSeconds(120), mind, emptyList())
+        assertEquals(1, rows.size)
+        assertEquals(1, Regex(Regex.escape(voice)).findAll(rows.single().detail).count())
+    }
 }
