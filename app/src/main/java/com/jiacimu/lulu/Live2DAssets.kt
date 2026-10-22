@@ -58,13 +58,13 @@ internal object Live2DAssets {
         }.toSet()
         val stem = modelFile.name.removeSuffix(".model3.json")
         if (stem == modelFile.name || stem.isBlank()) return null
-        val filenames = listOf(stem, "$" + "{stem}_preview", "$" + "{stem}_立绘")
+        val filenames = listOf(stem, stem + "_preview", stem + "_立绘")
         for (name in filenames) {
             for (extension in listOf("png", "jpg", "jpeg", "webp")) {
-                val candidate = File(directory, "$" + "{name}.$" + "{extension}")
+                val candidate = File(directory, name + "." + extension)
                 if (candidate.isFile && candidate.canonicalPath !in referenced &&
                     !candidate.name.contains(".lulu-mobile-", ignoreCase = true) &&
-                    candidate.canonicalPath.startsWith(baseFromModelDirectory(modelFile).canonicalPath + File.separator)) {
+                    candidate.canonicalFile.parentFile == directory.canonicalFile) {
                     return candidate
                 }
             }
@@ -72,16 +72,10 @@ internal object Live2DAssets {
         return null
     }
 
-    private fun baseFromModelDirectory(file: File): File {
-        // The caller has already validated the model belongs to app-private storage.
-        // No public path is ever exposed to an external renderer.
-        return file.parentFile ?: file
-    }
-
     /** Returns only an explicit creator portrait, never a model texture or derived atlas. */
     fun previewFile(context: Context, characterId: String): File? {
         val root = base(context)
-        val relative = prefs(context).getString("model:$" + "{characterId}", null).orEmpty()
+        val relative = prefs(context).getString("model:" + characterId, null).orEmpty()
         if (!relative.startsWith("models/") || relative.contains("..")) return null
         val modelFile = File(root, relative)
         if (!inside(root, modelFile) || !modelFile.isFile) return null
