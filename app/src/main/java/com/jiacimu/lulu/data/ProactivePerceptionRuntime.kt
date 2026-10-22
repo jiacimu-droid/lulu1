@@ -630,6 +630,10 @@ object ProactivePerceptionRuntime {
                 if (onlineExpiryAtMillis > 0L) {
                     appendLine("【此刻的真实状态】原定五分钟在线窗口刚结束。")
                     appendLine("你可以依照自己的真实愿望决定再在线五分钟，或现在休眠。")
+                    // A single role-owned emotion projection is also used in chat,
+                    // phone and meetings. Neither the axes nor time alone decide sleep.
+                    OnlineContinuationPolicy.affectCue(characterId, now)
+                        .takeIf(String::isNotBlank)?.let(::appendLine)
                     appendLine("考虑当前多条挂心、心情、正在做的事、是否真的还想沟通或继续独处；")
                     appendLine("【目标与行为严格区分】做出了道歉、安慰、叫醒、发消息等动作，只证明动作发生，并不证明和好、开心、醒来等最终目标已经达到。")
                     appendLine("判断是否已经收到明确且可信的目标结果证据；如果没有，保留目标，选择等待新的信号、五分钟后有理由地再次复盘、改变行动方法，或暂停。")
@@ -812,6 +816,7 @@ object ProactivePerceptionRuntime {
                     你的原在线窗口已经到期。这次仍使用平时同一套人格、记忆、情绪、挂心、决策与行动能力。
                     额外返回 onlineDecision={"choice":"continue|sleep","reason":"你自己的具体理由"}。
                     想再保持五分钟在线可选择 continue；之后仍会重新考虑，不是永久在线。
+                    当已有可参考的愉悦度或唤醒度时，结合个人习惯和真实活动考虑它们：低唤醒度可以休眠但不代表一定疲倦，高唤醒度也可以主动休眠；数值不设硬阈值、不替你选。缺少数值就依据已有情绪、动机和事实自己判断。
                     暂时休息、觉得没必要继续在线、想留空间给对方，可选择 sleep。
                     你的同时行动由正常 action 决定，可以是发送消息或保持安静；不要重复道歉刷屏。
                     不能因有挂心就被迫续时，也不能把时间到了当作所有挂心自动完成。
