@@ -66,6 +66,9 @@ internal fun Live2DFullscreenVideoCall(
     // Familiar face-first framing for calls; the user can pull back to a full
     // body without reloading the model or interrupting the call audio.
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
+    // These only tune the JPEG bridge's resolution budget; they do not
+    // change model assets or interrupt the call/audio session.
+    var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
     val cameraContext = LocalContext.current
     var selfCameraEnabled by remember { mutableStateOf(false) }
     var cameraFailure by remember { mutableStateOf("") }
@@ -143,6 +146,7 @@ internal fun Live2DFullscreenVideoCall(
                 // device only through the native Compose presentation path.
                 nativeMirrorEnabled = true,
                 framingMode = framingMode,
+                qualityMode = qualityMode,
                 onStatus = { phase, detail ->
                     // A dead WebView can still emit queued console messages after
                     // onRenderProcessGone. Never recreate it without user retry.
@@ -230,6 +234,19 @@ internal fun Live2DFullscreenVideoCall(
                             color = if (selected) Color(0xFF151719) else Color.White,
                             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
                     }
+                }
+                Box(
+                    modifier = Modifier.clip(RoundedCornerShape(36.dp))
+                        .background(Color.White.copy(alpha = .13f))
+                        .clickable {
+                            qualityMode = if (qualityMode == "quality") "smooth" else "quality"
+                        }
+                        .padding(horizontal = 11.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(if (qualityMode == "quality") "高清" else "流畅",
+                        fontSize = 12.sp, color = Color.White,
+                        fontWeight = FontWeight.SemiBold)
                 }
             }
         }
