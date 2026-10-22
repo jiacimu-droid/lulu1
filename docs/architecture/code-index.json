@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:43:54.874877+00:00",
-  "commit": "7d978c2c9ecd5ef1dcee41b7ea489c85a9b9fa5f",
+  "generatedAt": "2026-10-22T17:15:06.500945+00:00",
+  "commit": "7d6857977fef5f3c1f76e73ddb5cdc15287bb73d",
   "branch": "main",
-  "sourceFingerprint": "72600f23523aa269aca128b2ed31694987176b6cdd77d9a1bd5b57887502604d",
+  "sourceFingerprint": "aaa1cd8d0b089deae8b32ef89a6d9ea35361a146b16a8901fafe90297ccc6152",
   "summary": {
     "files": 825,
-    "lines": 157080,
-    "symbols": 2376
+    "lines": 157103,
+    "symbols": 2377
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9130,10 +9130,16 @@
         "line": 45
       }
     ],
+    "allocateReportedInput": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
+        "line": 61
+      }
+    ],
     "calibratedEstimate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 58
+        "line": 81
       }
     ],
     "ToolRouter": [
@@ -22339,16 +22345,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-      "lines": 78,
-      "sha256": "8a2403a06b2be40297b3471b71f1075e0cd868bf946b3a5b9d5f1dbbcd6bdebe",
+      "lines": 101,
+      "sha256": "29afaf6511df70d673895b8dda1ed558d5df2dcd11fde24300a2b5de50216647",
       "symbols": [
         {
           "name": "groups",
           "line": 45
         },
         {
+          "name": "allocateReportedInput",
+          "line": 61
+        },
+        {
           "name": "calibratedEstimate",
-          "line": 58
+          "line": 81
         }
       ]
     },
