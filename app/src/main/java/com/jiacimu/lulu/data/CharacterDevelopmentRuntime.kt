@@ -103,7 +103,7 @@ object CharacterDevelopmentRuntime {
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
                 events.joinToString("\n") {
-                    "eventId=${it.id} revision=${it.revision} at=${it.occurredAt} source=${it.source} channel=${it.channel} " +
+                    "eventId=${it.id} revision=${it.revision} atLocal=${it.occurredAt.atZone(java.time.ZoneId.systemDefault())} source=${it.source} channel=${it.channel} " +
                         "kind=${it.evidenceKind} ${it.evidenceContent.take(390)}"
                 },
             instruction = """
