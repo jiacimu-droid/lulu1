@@ -136,6 +136,26 @@ for (let i = 0; i < 45; i++) frame(null, null, { smile: .8 })
 valuesById.set('ParamMouthForm', -.25)
 for (let i = 0; i < 90; i++) frame()
 assert.ok(Math.abs(valuesById.get('ParamMouthForm') + .25) < .05)
+// A head caress may briefly soften eyelids and lift the head without
+// replacing the character's own authored expression. Releasing the touch
+// must restore the imported neutral face without extra model/API turns.
+for (let i = 0; i < 55; i++) {
+  rig.update(core, {
+    deltaMs: 16, head: null, body: null, face: null,
+    touchReflex: { yaw: 2, pitch: 7, roll: -2, face: { eyeOpen: .52, eyeSmile: .42 } },
+    speaking: false, seconds,
+  })
+}
+assert.ok(valuesById.get('ParamAngleY') > 4, 'caress should lift an authored head parameter')
+assert.ok(valuesById.get('ParamEyeLOpen') < .7, 'caress should soften available eyelids')
+for (let i = 0; i < 110; i++) {
+  rig.update(core, {
+    deltaMs: 16, head: null, body: null, face: null,
+    touchReflex: null, speaking: false, seconds,
+  })
+}
+assert.ok(Math.abs(valuesById.get('ParamEyeLOpen') - 1) < .05,
+  'eyelids must release to model-authored opening after the caress')
 rig.reset()
 frame()
 assert.equal(valuesById.get('ParamAngleX'), 0)
