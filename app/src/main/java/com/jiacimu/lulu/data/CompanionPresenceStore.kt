@@ -229,7 +229,16 @@ object CompanionPresenceStore {
     }
 
     @Synchronized fun forgetDeliveredMessage(messageId: String) {
-        if (messageMoments.remove(messageId) != null) persist()
+        val removed = messageMoments.remove(messageId) ?: return
+        // Multiple semantic bubbles may belong to the same psychological turn.
+        // Remove that turn's chat-only thought only after its LAST bubble is deleted.
+        val stillDelivered = messageMoments.values.any {
+            it.characterId == removed.characterId && it.updatedAt == removed.updatedAt &&
+                it.provenanceId == removed.provenanceId
+        }
+        if (!stillDelivered && (removed.source.contains("聊天") || removed.source.contains("群聊"))) {
+            if (!deleteMoment(removed.characterId, removed.updatedAt)) persist()
+        } else persist()
     }
 
     fun selectedMessageAnchor(characterId: String): CompanionPresenceMessageAnchor? =
