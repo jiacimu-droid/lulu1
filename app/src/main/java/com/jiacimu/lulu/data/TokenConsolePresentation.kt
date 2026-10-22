@@ -24,21 +24,21 @@ internal object TokenConsolePresentation {
     private fun category(label: String): String = when {
         listOf("角色身份", "角色人设", "用户资料", "基础身份与通用规则",
             "任务规则/工具协议", "本轮任务指令", "角色视频能力和通话实况",
-            "全局世界书", "角色世界书/设计书", "系统段落间隔").any(label::startsWith) ->
+            "全局世界书", "角色世界书/设计书", "系统段落间隔").any { label.startsWith(it) } ->
             "人物与固定规则"
 
         listOf("核心记忆", "未完成责任", "当前状态", "成长与持续动机",
             "跨场景连续性锚点", "数字世界权威状态", "生活记录",
-            "已读材料与可修订的理解", "辞海", "往事与当前理解").any(label::startsWith) ->
+            "已读材料与可修订的理解", "辞海", "往事与当前理解").any { label.startsWith(it) } ->
             "长期记忆与状态"
 
         listOf("本轮背景依据", "近期原始时间线", "近期时间线",
             "召回的原始依据", "召回原始证据", "召回记忆摘要", "真实聊天/",
-            "历史对话 #", "近期聊天", "召回的原始依据").any(label::startsWith) ->
+            "历史对话 #", "近期聊天", "召回的原始依据").any { label.startsWith(it) } ->
             "近期历史与召回"
 
         listOf("本轮完整输入", "本次感知/聊天素材", "本轮完整用户输入",
-            "段落分隔").any(label::startsWith) -> "本轮感知与消息"
+            "段落分隔").any { label.startsWith(it) } -> "本轮感知与消息"
 
         else -> "其他／合并上下文"
     }
