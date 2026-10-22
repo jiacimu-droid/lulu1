@@ -38,6 +38,7 @@ internal fun QqChatComposer(
     receiving: Boolean,
     onMention: () -> Unit,
     onCall: () -> Unit,
+    onVideoCall: (() -> Unit)? = null,
     onSendOnly: (QqComposerPayload) -> Boolean,
     onWakeOrReply: (QqComposerPayload) -> Boolean,
     onSendSticker: (LuluSticker) -> Boolean,
@@ -195,6 +196,16 @@ internal fun QqChatComposer(
             }
             TextButton(onClick = onCall, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 5.dp)) {
                 Icon(Icons.Outlined.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("电话", fontSize = 11.sp)
+            }
+            // Only one-to-one chats have the user's imported Live2D body.
+            // The right-side video shortcut shares the SAME voice-call session.
+            if (!groupMode && onVideoCall != null) {
+                TextButton(onClick = onVideoCall,
+                    contentPadding = PaddingValues(horizontal = 7.dp, vertical = 5.dp)) {
+                    Icon(Icons.Outlined.Videocam, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("视频", fontSize = 11.sp)
+                }
             }
         }
 
