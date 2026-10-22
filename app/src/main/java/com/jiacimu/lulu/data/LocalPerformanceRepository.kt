@@ -80,6 +80,10 @@ data class TokenConsoleRecord(
     val requestBodyBytes: Long = 0L,
     val messageCount: Int = 0,
     val reducedRequest: Boolean = false,
+    val providerHost: String = "",
+    val requestSource: String = "",
+    val contextMode: String = "",
+    val streamedRequest: Boolean = false,
 )
 
 data class PerformanceTimingRecord(
@@ -217,6 +221,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         requestBodyBytes: Long = 0L,
         messageCount: Int = 0,
         reducedRequest: Boolean = false,
+        contextMode: String = "",
+        streamedRequest: Boolean = false,
     ) {
         val effectiveInput = reportedInputTokens.takeIf { value -> value > 0 }
             ?: estimatedInputTokens.coerceAtLeast(0)
@@ -255,6 +261,10 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             requestBodyBytes = requestBodyBytes,
             messageCount = messageCount,
             reducedRequest = reducedRequest,
+            providerHost = provider,
+            requestSource = source,
+            contextMode = contextMode,
+            streamedRequest = streamedRequest,
         )
         val timings = listOf(
             PerformanceTimingRecord(
@@ -425,6 +435,10 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("requestBodyBytes", value.requestBodyBytes)
         .put("messageCount", value.messageCount)
         .put("reducedRequest", value.reducedRequest)
+        .put("providerHost", value.providerHost)
+        .put("requestSource", value.requestSource)
+        .put("contextMode", value.contextMode)
+        .put("streamedRequest", value.streamedRequest)
         .put(
             "breakdown",
             JSONArray().apply {
@@ -460,6 +474,10 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         requestBodyBytes = item.optLong("requestBodyBytes").coerceAtLeast(0L),
         messageCount = item.optInt("messageCount").coerceAtLeast(0),
         reducedRequest = item.optBoolean("reducedRequest"),
+        providerHost = item.optString("providerHost"),
+        requestSource = item.optString("requestSource"),
+        contextMode = item.optString("contextMode"),
+        streamedRequest = item.optBoolean("streamedRequest"),
         breakdown = item.optJSONArray("breakdown").decodeObjects { part ->
             TokenBreakdownItem(
                 label = part.optString("label"),
