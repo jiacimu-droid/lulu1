@@ -259,23 +259,39 @@ internal fun LuluIntegrationsSettingsScreen(onBack: () -> Unit, onOpenBrowserPro
 
         HorizontalDivider()
         Text("网络搜索（所有角色共用）", style = MaterialTheme.typography.titleMedium)
+        var deepSeekKey by remember { mutableStateOf(WebSearchProvider.savedDeepSeekKey(context)) }
         var searchKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
         var searchStatus by remember { mutableStateOf("") }
+        Text("通用实时搜索使用 DeepSeek Search & Fetch（非聊天补全 API）；仅用于公开网页。小红书完整笔记仍走已登录浏览器/MCP。DeepSeek 有独立请求费用，是否调用由角色当前真实行动决定。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedTextField(
+            value = deepSeekKey,
+            onValueChange = { deepSeekKey = it.take(256); searchStatus = "" },
+            label = { Text("DeepSeek 官方 Search API Key（优先）") },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+        )
         OutlinedTextField(
             value = searchKey,
             onValueChange = { searchKey = it.take(256); searchStatus = "" },
-            label = { Text("Tavily Search API Key") },
+            label = { Text("Tavily Search API Key（可选备选）") },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible()
+            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(if (WebSearchProvider.isConfigured(context)) "已配置通用网页搜索" else "未配置：仍可使用百科搜索",
-                style = MaterialTheme.typography.bodySmall)
-            TextButton(onClick = {
-                searchStatus = if (WebSearchProvider.saveKey(context, searchKey)) "已保存（仅本机）" else "保存失败"
-            }) { Text("保存／清除") }
-        }
+        Text(if (WebSearchProvider.savedDeepSeekKey(context).isNotBlank()) "当前：DeepSeek Search"
+            else if (WebSearchProvider.savedKey(context).isNotBlank()) "当前：Tavily Search"
+            else "未配置：使用百科检索",
+            style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = {
+            searchStatus = runCatching {
+                check(WebSearchProvider.saveDeepSeekKey(context, deepSeekKey))
+                check(WebSearchProvider.saveKey(context, searchKey))
+                "已保存；可用线路按 DeepSeek → Tavily → 百科（仅未配置时）选择。请通过一次真实学习检索验证。"
+            }.getOrElse { "保存失败：" + it.message.orEmpty() }
+        }) { Text("保存通用搜索线路") }
         if (searchStatus.isNotBlank()) Text(searchStatus, style = MaterialTheme.typography.bodySmall)
         }
     }
