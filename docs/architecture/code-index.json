@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T13:21:25.322966+00:00",
-  "commit": "4dd5fa5fe7b74d098077858499674ba977b82a5e",
+  "generatedAt": "2026-10-22T13:31:10.394530+00:00",
+  "commit": "251e268dc348dd47a1ef7bc59329862ae742e945",
   "branch": "main",
-  "sourceFingerprint": "e9833ad0c2f87f71a0bedbb74460a8110f8e3389d777ac75ce7bf3be4eb67ca9",
+  "sourceFingerprint": "d6ac59376cb95ac9c3e50cc0c64710b95f9f08a65bae347a3c8721d9855fad8e",
   "summary": {
-    "files": 799,
-    "lines": 152855,
-    "symbols": 2296
+    "files": 800,
+    "lines": 152944,
+    "symbols": 2298
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3198,6 +3198,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
         "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
+        "line": 50
       }
     ],
     "reset": [
@@ -3592,6 +3596,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt",
         "line": 8
+      }
+    ],
+    "Snapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
+        "line": 10
       }
     ],
     "isMemoryGuard": [
@@ -16151,6 +16161,21 @@
         {
           "name": "user",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt",
+      "lines": 89,
+      "sha256": "83bde9b05e7f11c2be4ca1dcc5abfb02fd9a1f3bdac74034582b0d5a9fe647a1",
+      "symbols": [
+        {
+          "name": "Snapshot",
+          "line": 10
+        },
+        {
+          "name": "inspect",
+          "line": 50
         }
       ]
     },
