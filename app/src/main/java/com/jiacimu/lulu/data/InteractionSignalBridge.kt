@@ -51,6 +51,41 @@ internal object InteractionSignalBridge {
             evidenceKind = EventEvidenceKind.Observation)
     }
 
+    /**
+     * One actual, connected session can record that video mode was selected.
+     * This does NOT claim a real rendered Live2D frame or any view of the
+     * user's camera. The separate renderer callback provides that evidence.
+     */
+    fun recordVideoSelected(characterId: String, callId: String, now: Instant = Instant.now()) {
+        if (characterId.isBlank() || callId.isBlank()) return
+        val id = "interaction-call-video-selected-$callId"
+        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) return
+        SharedExperienceTimeline.record(
+            eventId = id, characterId = characterId, channel = "电话互动",
+            speaker = "视频通话操作",
+            content = "这次已接通的电话切换到 Live2D 视频模式；角色的数字形象正尝试在用户手机上显示。尚未证明画面成功渲染，更没有自动获得用户摄像头画面。",
+            occurredAt = now, triggerExtraction = false, sessionId = callId,
+            source = SOURCE, evidenceKind = EventEvidenceKind.Observation,
+        )
+    }
+
+    /**
+     * Called only after the actual Android native frame has appeared while
+     * THIS call is connected, never from a static portrait or WebGL probe.
+     */
+    fun recordVideoRendered(characterId: String, callId: String, now: Instant = Instant.now()) {
+        if (characterId.isBlank() || callId.isBlank()) return
+        val id = "interaction-call-video-rendered-$callId"
+        if (SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) return
+        SharedExperienceTimeline.record(
+            eventId = id, characterId = characterId, channel = "电话互动",
+            speaker = "视频画面回执",
+            content = "这通电话已实际成功显示角色本人的 Live2D 数字形象，用户在手机上看到了角色动态视频画面；不是只有声音的语音电话。是否看到用户本人取决于用户另行开启摄像头共享，显示数字形象并不表示角色看见了用户。",
+            occurredAt = now, triggerExtraction = false, sessionId = callId,
+            source = SOURCE, evidenceKind = EventEvidenceKind.Observation,
+        )
+    }
+
     fun recordCallQuiet(
         characterId: String,
         callId: String,
