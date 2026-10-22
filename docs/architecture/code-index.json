@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T16:22:58.122255+00:00",
-  "commit": "dd293e00ada249a6932a4e163b5e2bcf1d01838e",
+  "generatedAt": "2026-10-22T16:23:26.248013+00:00",
+  "commit": "9faa9d46c080b188036c71f0c5007ee63128daf1",
   "branch": "main",
-  "sourceFingerprint": "99eaa0ba2637ea59f89bc1665b06d98aab1a8dcf9dd0d5b180c2f57d53a2d37d",
+  "sourceFingerprint": "71e9109ec5672eb72afb82d79fe400eb85fbb3d8acd2ce87d55b6c76256a4b4e",
   "summary": {
     "files": 820,
-    "lines": 156509,
-    "symbols": 2364
+    "lines": 156605,
+    "symbols": 2367
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -427,7 +427,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 144
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -7026,16 +7026,22 @@
         "line": 130
       }
     ],
+    "sensorySnapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
+        "line": 147
+      }
+    ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 154
+        "line": 183
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 164
+        "line": 193
       }
     ],
     "qualifies": [
@@ -7182,34 +7188,46 @@
         "line": 94
       }
     ],
-    "hasRenderedVideo": [
+    "avatarContactDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
         "line": 113
       }
     ],
+    "recordAvatarTouch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 134
+      }
+    ],
+    "hasRenderedVideo": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
+        "line": 150
+      }
+    ],
     "hasSelectedVideo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 117
+        "line": 154
       }
     ],
     "callMediaSummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 122
+        "line": 159
       }
     ],
     "recordCallQuiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 133
+        "line": 170
       }
     ],
     "recordCallEnd": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-        "line": 158
+        "line": 195
       }
     ],
     "retryAt": [
@@ -14387,8 +14405,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 705,
-      "sha256": "ca2dd180e81567605cca5fa78541a144bd163d39e6023e9be9819e9c36bfc960",
+      "lines": 725,
+      "sha256": "7f2ef76becd701c33996d5074513475b19fcd71a736ccced4fe67f8f3f6ff0d6",
       "symbols": []
     },
     {
@@ -19927,8 +19945,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 171,
-      "sha256": "1e5888a05fe9979ef1d6057c4b22da1a65591ffe9e19f2d0d9e384d91738900c",
+      "lines": 200,
+      "sha256": "a058324db5fd1ee17b1c928cc31d19b55c2463e43d16a0da3713aef1adcfd4c6",
       "symbols": [
         {
           "name": "toJson",
@@ -19975,16 +19993,20 @@
           "line": 130
         },
         {
+          "name": "sensorySnapshot",
+          "line": 147
+        },
+        {
           "name": "context",
-          "line": 144
+          "line": 170
         },
         {
           "name": "onWorldActivity",
-          "line": 154
+          "line": 183
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 164
+          "line": 193
         }
       ]
     },
@@ -20117,8 +20139,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
-      "lines": 187,
-      "sha256": "5caa6a7a8bc47e4eff0839b9eae75c58968e6e8744087d3816827e4213933418",
+      "lines": 224,
+      "sha256": "cb77e5e0ef26292e4a31d8d5318eeda6fc7d7dc62099a5a718072ea5a2219f9f",
       "symbols": [
         {
           "name": "callEndDescription",
@@ -20145,24 +20167,32 @@
           "line": 94
         },
         {
-          "name": "hasRenderedVideo",
+          "name": "avatarContactDescription",
           "line": 113
         },
         {
+          "name": "recordAvatarTouch",
+          "line": 134
+        },
+        {
+          "name": "hasRenderedVideo",
+          "line": 150
+        },
+        {
           "name": "hasSelectedVideo",
-          "line": 117
+          "line": 154
         },
         {
           "name": "callMediaSummary",
-          "line": 122
+          "line": 159
         },
         {
           "name": "recordCallQuiet",
-          "line": 133
+          "line": 170
         },
         {
           "name": "recordCallEnd",
-          "line": 158
+          "line": 195
         }
       ]
     },
@@ -27226,8 +27256,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-      "lines": 76,
-      "sha256": "f495aa343d78b13477b39388a4818e89db5ac74ccdbcd5b7034e0002e2f9ff8f",
+      "lines": 86,
+      "sha256": "5b6d674341723ecf7bdeddeaa3f13c7ed9b8a0d9bcaf1eb6f120e6766dab5870",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",
