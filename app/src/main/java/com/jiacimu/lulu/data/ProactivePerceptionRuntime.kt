@@ -1151,10 +1151,57 @@ object ProactivePerceptionRuntime {
             innerLife = null, appraisal = null, intention = null,
             afterglow = null, relationshipInitiative = null,
         ) else fallbackDecision
-        val decision = continuityChecked.copy(innerThought =
+        // Rare protocol repair: the character agreed to a live user's search
+        // request but forgot to select a tool. Never interpret their prose as
+        // tool authorization or guess the query. Ask the SAME role once for
+        // actual parameters, then execute through the usual permission gate.
+        val missingPromisedSearch = SearchActionIntegrity.needsFollowThrough(
+            onlineUnread.text, continuityChecked.text,
+            continuityChecked.action.name.lowercase(), continuityChecked.tool,
+            continuityChecked.sideActions,
+        )
+        val repairedSearchAction = if (missingPromisedSearch) {
+            val correction = runCatching {
+                LuluAiServices.gateway.generate(
+                    characterId = characterId,
+                    facts = "用户当前请求：${onlineUnread.text.take(900)}\n" +
+                        "此前真实交谈：${recent.takeLast(1_500)}\n" +
+                        "你本轮已经决定说：${continuityChecked.text.take(650)}",
+                    instruction = """
+                        你自己刚决定答应帮她联网搜索，但没有提交任何搜索工具动作。
+                        现在只补上你本人愿意执行的真实工具动作，不重写情绪、人设、言语或意图。
+                        若愿意执行，输出 JSON {"tool":"web_search|image_search",
+                        "args":{"op":"search|search_read|search_send","query":"准确具体的搜索词"}}。
+                        查文本/官网用 web_search；查图片用 image_search。op 要与工具兼容。
+                        真实限制、可用服务和权限仍由执行器判定，不允许替服务端捏造结果。
+                        若你确实收回搜索意愿，返回 {"tool":""}；不能再伪称已经搜索。
+                    """.trimIndent(),
+                    source = "在线搜寻承诺的工具执行补全",
+                    title = "${character.displayName}补齐自己选定的实际搜索动作",
+                    contextMode = CompanionContextMode.CharacterAndScenario,
+                    maxTokens = 450,
+                    connectionOverride = connection,
+                ).getOrThrow().text
+            }.getOrNull()
+            correction?.let(SearchActionIntegrity::validatedAction)
+        } else null
+        val completedDecision = if (repairedSearchAction != null) {
+            val steps = continuityChecked.sideActions?.let { org.json.JSONArray(it.toString()) }
+                ?: org.json.JSONArray()
+            steps.put(repairedSearchAction)
+            continuityChecked.copy(sideActions = steps)
+        } else continuityChecked
+        if (missingPromisedSearch && repairedSearchAction == null) {
+            (onlineUnread.conversationIds + conversation.id).forEach { id ->
+                com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
+                    "角色说要搜索，但尚未提交可执行的搜索动作；本轮不能认定已联网"
+                )
+            }
+        }
+        val decision = completedDecision.copy(innerThought =
             CharacterAccountabilityContext.guardUnfoundedInnerBlame(
                 listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
-                continuityChecked.innerThought,
+                completedDecision.innerThought,
             ))
         // The very SAME autonomous decision chooses attention and outward action.
         // Commit the online choice first so a chosen message is sent while awake;
