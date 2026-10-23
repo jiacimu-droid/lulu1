@@ -23,6 +23,8 @@ import com.jiacimu.lulu.data.WebSearchProvider
 import com.jiacimu.lulu.data.XhsReadingEngine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Compact integrations screen. Configuration, login, read verification and
@@ -63,6 +65,7 @@ internal fun LuluIntegrationsSettingsScreen(
     var deepSeekKey by remember { mutableStateOf(WebSearchProvider.savedDeepSeekKey(context)) }
     var tavilyKey by remember { mutableStateOf(WebSearchProvider.savedKey(context)) }
     var searchStatus by remember { mutableStateOf("") }
+    var searchBusy by remember { mutableStateOf(false) }
     var searchExpanded by remember { mutableStateOf(false) }
 
 
@@ -349,11 +352,7 @@ internal fun LuluIntegrationsSettingsScreen(
                     )
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            when {
-                                WebSearchProvider.savedDeepSeekKey(context).isNotBlank() -> "当前：DeepSeek"
-                                WebSearchProvider.savedKey(context).isNotBlank() -> "当前：Tavily"
-                                else -> "当前：百科检索"
-                            },
+                            "当前：${WebSearchProvider.configuredProvider(context)}",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.weight(1f),
                         )
@@ -364,6 +363,23 @@ internal fun LuluIntegrationsSettingsScreen(
                                 "已保存"
                             }.getOrElse { "保存失败：" + it.message.orEmpty() }
                         }) { Text("保存") }
+                        TextButton(
+                            enabled = !searchBusy && WebSearchProvider.isConfigured(context),
+                            onClick = {
+                                searchBusy = true
+                                searchStatus = "正在测试…"
+                                scope.launch {
+                                    val outcome = withContext(Dispatchers.IO) {
+                                        runCatching { WebSearchProvider.search(context, "DeepSeek").size }
+                                    }
+                                    searchStatus = outcome.fold(
+                                        onSuccess = { "搜索成功 · ${it} 条结果" },
+                                        onFailure = { "搜索失败：${it.message.orEmpty().take(130)}" },
+                                    )
+                                    searchBusy = false
+                                }
+                            },
+                        ) { Text("测试搜索") }
                     }
                     IntegrationFeedback(searchStatus)
                 }
