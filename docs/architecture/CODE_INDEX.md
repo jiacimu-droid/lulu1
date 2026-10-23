@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ed14422723466f2aa7f2fc79337a087efbde13fe`
+- 基准提交：`8914237807b1d9d6de9ca2e6e628b419cb702a0d`
 - 分支：`main`
 - 已索引文件：835
-- 已索引代码/文本行：159459
+- 已索引代码/文本行：159444
 - 已发现符号：2417
 
 | 文件 | 行数 | 符号数 |
@@ -128,7 +128,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 748 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2209 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2198 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
@@ -647,7 +647,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 102 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt` | 67 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 59 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 55 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt` | 40 | 1 |
