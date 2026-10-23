@@ -428,7 +428,8 @@ function applyFinalParameters(core, deltaMs) {
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
     touchReflex, physical: physicalState,
-    speaking: playing, voiceLevel: pcmAvailable ? mouth : null, seconds,
+    speaking: playing, expressionActive: !!activeExpressionName,
+    voiceLevel: pcmAvailable ? mouth : null, seconds,
   })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
