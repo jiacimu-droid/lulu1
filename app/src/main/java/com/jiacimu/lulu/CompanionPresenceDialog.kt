@@ -84,7 +84,7 @@ internal fun CompanionPresenceDialog(
         historyLoading = true
         val cutoff = messageAnchor?.messageAt ?: Instant.now()
         val built = withContext(Dispatchers.Default) {
-            CharacterStateHistory.entries(characterId, displayHistory, cutoff)
+            CharacterStateHistory.entries(characterId, displayHistory, cutoff, maxEntries = 50)
         }
         past = built
         historyLoading = false
