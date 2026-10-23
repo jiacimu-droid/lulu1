@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T09:58:47.080935+00:00",
-  "commit": "158373e4a505577fd527b0bfeefd1b9988b77667",
+  "generatedAt": "2026-10-23T10:00:12.712144+00:00",
+  "commit": "e252a40d3c027c4548099a2b093cf59778fbe34b",
   "branch": "main",
-  "sourceFingerprint": "6558457d01fc2ae32d386b07839ee1c31e1862671c5abcbf323a4f78845c0e08",
+  "sourceFingerprint": "5dee44147bb5e361aff04176be7cd4051434bf82ec9a7ec96f1b44fac1b12e6e",
   "summary": {
-    "files": 849,
-    "lines": 162648,
-    "symbols": 2463
+    "files": 850,
+    "lines": 162779,
+    "symbols": 2464
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6213,7 +6213,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 902
+        "line": 899
       }
     ],
     "age": [
@@ -12348,6 +12348,12 @@
         "line": 6
       }
     ],
+    "QqChatImageDisplayTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt",
+        "line": 12
+      }
+    ],
     "QqChatPhotoAttachmentStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt",
@@ -16290,8 +16296,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt",
-      "lines": 41,
-      "sha256": "4cf0123e6dd4f65d11d9e93cebae719e92e837f2a5cacbfd6865437d8ee9b0d7",
+      "lines": 77,
+      "sha256": "d86bafdb17d4c7d40a34145193fb105e5dc2835f7a4966c070e77442b924e302",
       "symbols": []
     },
     {
@@ -16307,8 +16313,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt",
-      "lines": 125,
-      "sha256": "662e3204fbfacbf9746e3c2bd38df5a90d6fafbc2c3d9bd032f5060d4a4e82b9",
+      "lines": 161,
+      "sha256": "8535d1a18eac4389cf50ba45f32e4be5044d54b3a5d4b867c58bae16abba205b",
       "symbols": []
     },
     {
@@ -19598,8 +19604,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 989,
-      "sha256": "3a01aa33cc1ef50e56479bbd8d6ddeca811f1816ca0a439da4f1d1a90b84270e",
+      "lines": 986,
+      "sha256": "913894989e9542c3b271873f3436b142ad65e3f67ca090cddc6ccb57169f11ec",
       "symbols": [
         {
           "name": "asJson",
@@ -19611,7 +19617,7 @@
         },
         {
           "name": "world",
-          "line": 902
+          "line": 899
         }
       ]
     },
@@ -26956,6 +26962,17 @@
         {
           "name": "PresencePresentationTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt",
+      "lines": 62,
+      "sha256": "d6302ca81091612368c28a2b387c6e36ced2a7b605d97273470ec6c3314808c3",
+      "symbols": [
+        {
+          "name": "QqChatImageDisplayTest",
+          "line": 12
         }
       ]
     },
