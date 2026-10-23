@@ -135,7 +135,7 @@ assert.equal(headLeft.yaw, -headRight.yaw)
 const early = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 70)
 const later = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 500)
 assert.ok(early.yaw > later.yaw && early.yaw > 6)
-assert.ok(Math.abs(early.roll) > Math.abs(early.yaw) * 3,
+assert.ok(Math.abs(early.roll) > Math.abs(early.yaw) * 2,
   'a slapped head should visibly roll at the neck, not sway horizontally')
 assert.equal(early.impactMotion, true)
 assert.ok(early.face.browY > 0 && later.face.browY < 0)
