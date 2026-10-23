@@ -100,6 +100,28 @@ for (const id of ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   assert.ok(Math.abs(valuesById.get(id)) < bound, 'idle unexpectedly wandered: ' + id)
 }
 assert.ok(valuesById.get('ParamBreath') > 0.3)
+// Actual touch -> Cubism body/secondary parameters, not just an expression.
+// Drive the real final-stage runtime at video cadence, then verify release.
+const cheekContact = touchReflexFor('cheek-left', 'stroke-right', 1, { force: .65 }, 350)
+for (let i = 0; i < 65; i++) {
+  valuesById.set('ParamAngleX2', 3)
+  valuesById.set('body_gensui_x', 4)
+  seconds += .016
+  rig.update(core, { deltaMs: 16, touchReflex: cheekContact, speaking: false, seconds })
+}
+assert.ok(Math.abs(valuesById.get('ParamBodyAngleX')) > 2,
+  'touch must animate the actual torso parameter even without an AI motion')
+assert.ok(Math.abs(valuesById.get('ParamAngleX2')) > 1,
+  'touch must not suppress secondary head follow-through')
+assert.ok(Math.abs(valuesById.get('body_gensui_x')) > 1,
+  'touch must not suppress secondary torso physics')
+for (let i = 0; i < 140; i++) frame()
+assert.ok(Math.abs(valuesById.get('ParamBodyAngleX')) < .8,
+  'touch torso should return to an idle pose')
+assert.ok(Math.abs(valuesById.get('ParamAngleX2')) < .05,
+  'secondary touch pose must fully release when not touching')
+assert.ok(Math.abs(valuesById.get('body_gensui_x')) < .05,
+  'secondary torso physics must settle without idle wandering')
 // Same imported rig, same clock: only physical breathing cadence varies.
 rig.update(core, { deltaMs: 16, seconds: 1.4, physical: { energy: 95, sleepPressure: 8 } })
 const restedBreath = valuesById.get('ParamBreath')
