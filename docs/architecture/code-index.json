@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:12:34.434490+00:00",
-  "commit": "0b2f32feb515c4c7e38f54bd0fafe402b96ea010",
+  "generatedAt": "2026-10-23T18:12:59.718084+00:00",
+  "commit": "f4c4080f161d97f22a0e599a872fb1b6575e1fdf",
   "branch": "main",
-  "sourceFingerprint": "5d700ed7ccf9d104ffd083ab1605d7696a4a023243a50af960bfed93019c0804",
+  "sourceFingerprint": "396a47f2627fb4ae2ae9a7e888dd7cc90675809aa40043efc31cb7cc519318ef",
   "summary": {
     "files": 864,
-    "lines": 165702,
+    "lines": 165714,
     "symbols": 2501
   },
   "symbolIndex": {
@@ -16507,7 +16507,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
       "lines": 502,
-      "sha256": "c87922ff497909438c335adae37081a82631be7f3abc008bdaa6980c64e79f12",
+      "sha256": "b9b406c61ece7834c5c6784247f99406706aed51abe6cc3ca91372ac0e831e8e",
       "symbols": [
         {
           "name": "start",
@@ -17183,7 +17183,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
       "lines": 246,
-      "sha256": "9ba8e15857e074e95efb123e3e01cf11bef59713ddfbf39ada67fc4788408eb7",
+      "sha256": "220b96ed7ba58d382dedebccfc98310966b693d1418e0714b1024d6c0f045b29",
       "symbols": []
     },
     {
@@ -26606,8 +26606,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2097,
-      "sha256": "720316619c5a204804d1929cb52d93209d592e769620d623d7515f53b1bea340",
+      "lines": 2109,
+      "sha256": "84a9bfd2c129acb182724d43769726ba1ed722bb174ca65c1225115cc4601f9e",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
