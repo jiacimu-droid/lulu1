@@ -145,5 +145,15 @@ class AutonomousActionWireProtocolTest {
         val thoughtsOnly = AutonomousActionWireProtocol.normalize(
             JSONObject().put("innerThought", "好想读书"))
         assertEquals("", thoughtsOnly.optString("action"))
+
+        val emptyBubbles = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("bubbles", org.json.JSONArray().put(JSONObject().put("mood", "happy"))))
+        assertEquals("", emptyBubbles.optString("action"))
+
+        val caseVariant = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "tool").put("tool", "WEB_SEARCH")
+                .put("args", JSONObject().put("query", "第五人格")))
+        assertEquals("tool", caseVariant.getString("action"))
+        assertEquals("web_search", caseVariant.getString("tool"))
     }
 }
