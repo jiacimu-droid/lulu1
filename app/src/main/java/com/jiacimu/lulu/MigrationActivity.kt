@@ -129,6 +129,9 @@ class MigrationActivity : ComponentActivity() {
             com.jiacimu.lulu.data.UserInteractionPresenceStore.initialize(applicationContext)
             com.jiacimu.lulu.data.UserInteractionPresenceStore.setAppVisible(true)
         }
+        resumePeripheral("居民每日低频自主安排") {
+            com.jiacimu.lulu.data.ResidentDailyDecision.schedule(applicationContext)
+        }
         resumePeripheral("后台陪伴前台服务（受 Android 设备限制）") {
             com.jiacimu.lulu.data.BackgroundCompanionControl.refresh(applicationContext)
         }
