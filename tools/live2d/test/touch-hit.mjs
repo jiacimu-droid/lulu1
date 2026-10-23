@@ -134,11 +134,20 @@ const headRight = touchReflexFor('cheek-right', 'stroke-right')
 assert.equal(headLeft.yaw, -headRight.yaw)
 const early = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 70)
 const later = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 500)
-assert.ok(early.yaw > later.yaw && early.yaw > 15)
+assert.ok(early.yaw > later.yaw && early.yaw > 6)
+assert.ok(Math.abs(early.roll) > Math.abs(early.yaw) * 3,
+  'a slapped head should visibly roll at the neck, not sway horizontally')
+assert.equal(early.impactMotion, true)
 assert.ok(early.face.browY > 0 && later.face.browY < 0)
 assert.ok(touchReflexFor('cheek-left', 'slap-left').yaw < 0)
 assert.ok(touchReflexFor('cheek-left', 'slap', 0, { force: .9 }).yaw >
   touchReflexFor('cheek-left', 'slap', 0, { force: .25 }).yaw)
+const petVariants = [0, 1, 2].map(i =>
+  touchReflexFor('cheek-left', 'stroke-right', i, { shyness: 30, force: .55 }, 250))
+assert.ok(new Set(petVariants.map(p => p.face.eyeOpen)).size >= 2,
+  'soft touches should not show the same eye squint every time')
+assert.ok(petVariants.every(p => p.face.eyeOpen >= .45),
+  'a caress should not force tightly closed eyes on every gesture')
 const unilateral = touchReflexFor('eye-left', 'kiss')
 assert.ok(unilateral.face.eyeLeftOpen < .1 && unilateral.face.eyeRightOpen == null)
 assert.ok(Object.hasOwn(touchReflexFor('beast-ear-right', 'stroke').parameters, 'se_wuli_x_r'))
@@ -146,7 +155,11 @@ runtime.reset()
 const impact = runtime.complete('cheek-left', 'slap')
 assert.equal(touchExpressionFor('cheek-left', wolf, 0, 'slap', false, impact), '流泪')
 for (let i = 0; i < 5; i++) runtime.complete('cheek-left', 'slap')
-assert.equal(touchExpressionFor('cheek-left', wolf, 0, 'slap', false, runtime.snapshot()), '脸黑')
+assert.equal(touchExpressionFor('cheek-left', wolf, 0, 'slap', false, runtime.snapshot()), '流泪',
+  'repeated contact should not inevitably turn every response into a dark face')
+runtime.complete('cheek-left', 'slap', .9)
+assert.equal(touchExpressionFor('cheek-left', wolf, 4, 'slap', false, runtime.snapshot()), '脸黑',
+  'a high-force/high-impact reaction may still have an authored dark expression')
 assert.equal(touchExpressionFor('hair', ['流泪', '爱心眼', '兽耳'], 99, 'stroke'), null,
   'a missing mild expression must not fall back to an inappropriate one')
 assert.equal(touchCompanionOverlayFor('脸红', wolf, metadata, 'kiss', { shyness: 20 }), null)
