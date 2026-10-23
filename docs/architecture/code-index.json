@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T16:20:28.142335+00:00",
-  "commit": "8ef71956b79e63bdd2eca50dd77a0e37530314ee",
+  "generatedAt": "2026-10-23T16:27:43.416647+00:00",
+  "commit": "bfe29267cc34dafef6d570228b5a8ddc0cd173eb",
   "branch": "main",
-  "sourceFingerprint": "74c6cb74e04b5a1ad6c266afa0a2b72a4384b4320571fec93f8639ecb1266c93",
+  "sourceFingerprint": "18b134ce8a3bc4d28944d520c4793753aa5b06a0e88f97e894a922ecdbbafe74",
   "summary": {
     "files": 862,
-    "lines": 164679,
+    "lines": 164681,
     "symbols": 2492
   },
   "symbolIndex": {
@@ -5015,7 +5015,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 382
+        "line": 384
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -9435,19 +9435,19 @@
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 347
+        "line": 349
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 359
+        "line": 361
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 389
+        "line": 391
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -23205,8 +23205,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 412,
-      "sha256": "2b3e742f5aea3b3d89630c405ca6d6c74bbdb93ab00107598c503d8f57a4c147",
+      "lines": 414,
+      "sha256": "1f4033a9129cc9b583aa1b37256bb10c8387a014e4119cfd6474b95fb49a3222",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -23254,19 +23254,19 @@
         },
         {
           "name": "markDue",
-          "line": 347
+          "line": 349
         },
         {
           "name": "dueContext",
-          "line": 359
+          "line": 361
         },
         {
           "name": "clearCharacter",
-          "line": 382
+          "line": 384
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 389
+          "line": 391
         }
       ]
     },
