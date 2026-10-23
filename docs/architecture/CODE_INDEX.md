@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6a40268aae6553340b55b1a56e2aaa98573ef5cb`
+- 基准提交：`70f1a6eb0ceefce505b847b4ed3d8450420bfd77`
 - 分支：`main`
 - 已索引文件：862
-- 已索引代码/文本行：164571
+- 已索引代码/文本行：164644
 - 已发现符号：2492
 
 | 文件 | 行数 | 符号数 |
@@ -296,7 +296,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 130 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 170 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 362 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 379 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 216 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 43 | 1 |
@@ -326,7 +326,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 226 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1025 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 1026 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 781 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |
@@ -437,7 +437,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 270 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 139 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 395 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 412 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 690 | 21 |
@@ -445,7 +445,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 101 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 160 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 179 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -818,7 +818,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 95 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 90 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 48 | 1 |
