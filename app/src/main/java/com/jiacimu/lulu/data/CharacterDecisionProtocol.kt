@@ -101,8 +101,10 @@ internal object CharacterDecisionProtocol {
         if (includeAppraisalDetails) appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
             appendLine("对这轮输入的理解：${it.take(240)}")
         }
-        // The selected response aim survives the lean handoff; it is not an extra decision.
-        appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
+        // The model may preserve this aim when the full appraisal is passed.
+        // Focused expression carries uncertainty/feeling without reassigning
+        // a long psychological analysis as a mandatory dialogue task.
+        if (includeAppraisalDetails) appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
             appendLine("表达目的：${it.take(180)}")
         }
         if (includeAppraisalDetails) appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
