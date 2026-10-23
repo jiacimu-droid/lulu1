@@ -14,6 +14,7 @@ import com.jiacimu.lulu.design.LuluColors
 @Composable
 internal fun CharacterDevelopmentSettings(characterId: String) {
     val revision by CharacterDevelopmentStore.revisions.collectAsState()
+    val reflectionRevision by CharacterDevelopmentRuntime.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
     val settings by MigratedDomainStores.characters.settings.collectAsState()
     val profiles by CharacterLifeStore.states.collectAsState()
@@ -24,6 +25,11 @@ internal fun CharacterDevelopmentSettings(characterId: String) {
     var historyOpen by remember(characterId) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("经历形成的倾向", fontWeight = FontWeight.SemiBold, fontSize = 17.sp)
+        val lastReflection = remember(characterId, reflectionRevision) {
+            CharacterDevelopmentRuntime.lastStatus(characterId)
+        }
+        if (lastReflection.isNotBlank())
+            Text(lastReflection, color = LuluColors.Muted, fontSize = 12.sp)
         if (current.isEmpty()) Text("还没有形成持续的变化", color = LuluColors.Muted, fontSize = 13.sp)
         current.groupBy { it.kind }.forEach { (kind, records) ->
             Text(kind.label, fontWeight = FontWeight.Medium, fontSize = 14.sp)
