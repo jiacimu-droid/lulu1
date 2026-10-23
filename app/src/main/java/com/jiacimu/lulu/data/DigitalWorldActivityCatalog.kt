@@ -223,7 +223,7 @@ internal object DigitalWorldActivityCatalog {
         if (locationOptions(locationCode).none { it.first == activityId }) return null
         val ordered = if (locationCode == DigitalWorldPublicPlaces.CAFE) DigitalCafeMenu.byOrder(activityId) else null
         val consumed = if (locationCode == DigitalWorldPublicPlaces.CAFE) DigitalCafeMenu.byConsume(activityId) else null
-        if (ordered != null) return "$characterName在浮光咖啡角点了一份${ordered.name}。"
+        if (ordered != null) return "${characterName}在浮光咖啡角点了一份${ordered.name}。"
         if (consumed != null) return "$characterName${consumed.verb}了一份${consumed.name}。"
         val action = when (activityId) {
             "cloud_walk" -> "沿着云眠原的感官云面慢慢散了一会儿步"
