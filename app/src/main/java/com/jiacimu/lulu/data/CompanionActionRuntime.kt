@@ -916,7 +916,32 @@ internal object CompanionActionRuntime {
 }
 
 /** A shared ordered step executor; every action goes through ToolRouter receipts. */
-internal data class OrderedCharacterActionReport(val notes: List<String>, val anyAccepted: Boolean)
+/** A receipt carries the real executor's result, never the role's pre-search guess. */
+internal data class VerifiedSearchReceipt(
+    val tool: String, val operation: String, val success: Boolean,
+    val details: String, val evidenceId: String,
+)
+internal data class OrderedCharacterActionReport(
+    val notes: List<String>, val anyAccepted: Boolean,
+    val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
+)
+internal object SearchReceiptFeedback {
+    /** Only a completed search/read warrants a new result-bearing reply.
+     * Image downloads sent directly to chat already have their own delivery. */
+    fun from(tool: String, args: JSONObject, result: JSONObject): VerifiedSearchReceipt? {
+        if (tool !in setOf("web_search", "image_search")) return null
+        val op = args.optString("op", "search").ifBlank { "search" }
+        if (tool == "image_search" && op != "search") return null
+        val status = result.optString("status")
+        val success = result.optBoolean("success") &&
+            status !in setOf("pending", "requested", "waiting_user")
+        val detail = result.optString("summary").ifBlank {
+            result.optString("error").ifBlank { "搜索没有返回任何可用内容" }
+        }
+        return VerifiedSearchReceipt(tool, op, success, detail,
+            result.optString("evidenceId"))
+    }
+}
 
 internal object OrderedCharacterActions {
     suspend fun execute(
@@ -932,6 +957,7 @@ internal object OrderedCharacterActions {
     ): OrderedCharacterActionReport {
         if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
         val notes = mutableListOf<String>()
+        val searchReceipts = mutableListOf<VerifiedSearchReceipt>()
         var previousCompleted = initialCompleted
         var anyAccepted = false
         for (index in 0 until steps.length()) {
@@ -967,6 +993,7 @@ internal object OrderedCharacterActions {
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())
             }
+            SearchReceiptFeedback.from(name, args, result)?.let(searchReceipts::add)
             val accepted = result.optBoolean("success")
             val status = result.optString("status")
             previousCompleted = accepted &&
@@ -980,6 +1007,6 @@ internal object OrderedCharacterActions {
                 }
             }.take(160)
         }
-        return OrderedCharacterActionReport(notes, anyAccepted)
+        return OrderedCharacterActionReport(notes, anyAccepted, searchReceipts)
     }
 }
