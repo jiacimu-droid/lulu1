@@ -144,6 +144,14 @@ internal object CommitmentDecisionRuntime {
         val before = CommitmentTaskStore.snapshot(characterId).associate { it.id to it.revision }
         applyCommitmentTaskDrafts(characterId, sourceTurnId, evidenceIds, drafts)
         val changed = CommitmentTaskStore.snapshot(characterId).filter { before[it.id] != it.revision }
+        if (changed.any {
+                it.dueAt == null && it.status == CommitmentTaskStatus.WaitingForFeedback
+            } && RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {
+            // The extractor records an accepted promise, not a model-chosen clock time.
+            // Re-enter the existing role decision loop once so the owner can choose a
+            // concrete appointment without requiring the user to supply an hour.
+            ProactivePerceptionScheduler.scheduleOwnIdeaFollowThrough(context, characterId)
+        }
         if (evidenceIds.isNotEmpty()) {
             val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             val saved = prefs.getStringSet("handled", emptySet()).orEmpty().toMutableList()
