@@ -22,7 +22,7 @@ internal class ProviderCallInput(private val context: Context, private val scope
     private val onPartial: (String) -> Unit, private val onText: (String, String?) -> Unit,
     private val onStatus: (String) -> Unit, private val onError: (String) -> Unit) {
     private val microphone = CallAudioInput(scope)
-    // Snapshot once per call; changing settings never mixes Tiny and Base mid-utterance.
+    // Snapshot once per input instance; hot-switch creates a new instance after the utterance finishes.
     private val localModel = LocalWhisperModels.selected(context)
     private val acousticEnabled = context.getSharedPreferences("lulu_advanced_settings", 0)
         .getBoolean("call_acoustic_cues_enabled", true)
