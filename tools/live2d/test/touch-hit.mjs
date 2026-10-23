@@ -157,8 +157,8 @@ assert.equal(touchExpressionFor('cheek-left', wolf, 0, 'slap', false, impact), '
 for (let i = 0; i < 5; i++) runtime.complete('cheek-left', 'slap')
 assert.equal(touchExpressionFor('cheek-left', wolf, 0, 'slap', false, runtime.snapshot()), '流泪',
   'repeated contact should not inevitably turn every response into a dark face')
-runtime.complete('cheek-left', 'slap', .9)
-assert.equal(touchExpressionFor('cheek-left', wolf, 4, 'slap', false, runtime.snapshot()), '脸黑',
+const strongImpact = runtime.complete('cheek-left', 'slap', .9)
+assert.equal(touchExpressionFor('cheek-left', wolf, 4, 'slap', false, strongImpact), '脸黑',
   'a high-force/high-impact reaction may still have an authored dark expression')
 assert.equal(touchExpressionFor('hair', ['流泪', '爱心眼', '兽耳'], 99, 'stroke'), null,
   'a missing mild expression must not fall back to an inappropriate one')
