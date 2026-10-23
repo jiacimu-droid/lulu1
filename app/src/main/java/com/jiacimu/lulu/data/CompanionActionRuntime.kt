@@ -56,6 +56,12 @@ internal object CompanionActionRuntime {
         } else {
             "- web_search 尚未配置：在『联网与阅读 → 网络搜索』设置 DeepSeek Search（可复用官方 DeepSeek API 配置）或 Tavily；不可假称已联网查询。"
         })
+        if (ImageSearchProvider.configured(context, "serper") ||
+            ImageSearchProvider.configured(context, "giphy")) {
+            appendLine("- image_search：独立联网搜图，不需要修改聊天模型。args={\"op\":\"search\",\"provider\":\"serper|giphy|auto\",\"query\":\"想找的图片关键词\"} 取得带 searchId 和编号的真实候选，Serper 适合全网静态图、GIPHY 适合动图；结果标题不是视觉理解。args={\"op\":\"send\",\"searchId\":\"实际搜索回执中的ID\",\"index\":0,\"caption\":\"自选配文\"} 下载被选中的真实图片并在私聊发送。也可以一次选 image_search 的 op=search_send，使用搜索靠前且实际可下载的图片立即发送，但该选择由排序完成、本人尚未目视确认；不应假装自己看到了图。搜图、发图分开记录回执，未成功下载绝不能自称已经发图。图片来自第三方网站，展示来源，转载及使用应尊重权利人；发送 GIPHY 附带 Powered By GIPHY。可在同轮 JSON 的 steps 与文本一起安排，但不得臆造尚未生成的 searchId。")
+        } else {
+            appendLine("- image_search 目前没有配置 Serper / GIPHY Key，无法实际搜图；可在『联网与阅读』配置。")
+        }
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
@@ -144,6 +150,39 @@ internal object CompanionActionRuntime {
         }
     }.trim()
 
+    private fun sendSearchedImage(
+        characterId: String,
+        characterName: String,
+        hit: ImageSearchHit,
+        imageUri: String,
+        caption: String,
+        replyEvidenceIds: Set<String>,
+    ): CompanionActionResult {
+        val conversation = privateConversation(characterId, characterName)
+        val credit = if (hit.provider == "giphy") "Powered By GIPHY · " else "图片来源 · "
+        val safeCaption = caption.trim().take(300)
+        val rendered = com.jiacimu.lulu.encodeQqChatImage(
+            imageUri,
+            caption = buildString {
+                if (safeCaption.isNotBlank()) append(safeCaption).append("\n")
+                append(credit).append(hit.sourceUrl)
+            },
+            imageDescription = "联网图片；搜索标题：${hit.title}；来源：${hit.sourceUrl}；未经视觉模型核实具体画面",
+            sticker = hit.provider == "giphy",
+        )
+        val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
+            MigratedDomainStores.chat.appendCharacterMessage(conversation.id,
+                rendered, characterId)
+        }
+        if (replyEvidenceIds.isNotEmpty()) {
+            CompanionOnlineStore.acknowledgeDeliveredReply(
+                characterId, conversation.id, replyEvidenceIds)
+        }
+        return CompanionActionResult(true,
+            "已下载并在私聊真实发送${if (hit.provider == "giphy") " GIF" else "图片"}：${hit.title}；来源=${hit.sourceUrl}",
+            conversation.id, delivered.id)
+    }
+
     suspend fun execute(
         context: Context,
         characterId: String,
@@ -212,6 +251,44 @@ internal object CompanionActionRuntime {
                             material.text.take(5_800))
                     }
                     else -> error("web_search 只支持 search、search_read 或 read")
+                }
+            }
+            "image_search" -> {
+                val op = args.optString("op", "search").ifBlank { "search" }
+                val provider = args.optString("provider", "auto").ifBlank { "auto" }
+                require(op in setOf("search", "search_send", "send")) {
+                    "image_search 仅支持 search、search_send 或 send"
+                }
+                if (op == "send") {
+                    val searchId = args.optString("searchId")
+                    val index = args.optInt("index", -1)
+                    val chosen = ImageSearchProvider.select(context, characterId, searchId, index)
+                    val uri = withContext(Dispatchers.IO) { ImageSearchProvider.download(context, chosen) }
+                    sendSearchedImage(characterId, character.displayName, chosen, uri,
+                        args.optString("caption"), replyEvidenceIds)
+                } else {
+                    val query = args.optString("query").trim()
+                    val hits = withContext(Dispatchers.IO) {
+                        ImageSearchProvider.search(context, provider, query)
+                    }
+                    val searchId = ImageSearchProvider.remember(context, characterId, hits)
+                    if (op == "search_send") {
+                        val selection = withContext(Dispatchers.IO) {
+                            hits.take(4).mapIndexedNotNull { index, hit ->
+                                runCatching {
+                                    index to ImageSearchProvider.download(context, hit)
+                                }.getOrNull()
+                            }.firstOrNull()
+                        } ?: error("搜到图片候选，但下载均失败；没有发送图片，请改关键词或用 send 选择其他候选")
+                        sendSearchedImage(characterId, character.displayName, hits[selection.first],
+                            selection.second, args.optString("caption"), replyEvidenceIds)
+                    } else {
+                        CompanionActionResult(true,
+                            "找到 ${hits.size} 张联网候选；仅基于搜索标题，尚未视觉查看或发送。searchId=$searchId\n" +
+                                hits.mapIndexed { index, hit ->
+                                    "index=$index；来源=${hit.provider}；标题=${hit.title}；原网页=${hit.sourceUrl}"
+                                }.joinToString("\n"))
+                    }
                 }
             }
             "read_xiaohongshu" -> LuluExternalMcp.browse(context, characterId, args)
