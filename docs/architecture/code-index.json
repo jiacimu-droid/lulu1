@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:17:25.932555+00:00",
-  "commit": "9b4f4ba298dd3126fb90ee6a681659b9c70d4350",
+  "generatedAt": "2026-10-23T05:17:48.198001+00:00",
+  "commit": "b4b276ebf5c4809b72144914d7d888e8aa4597cc",
   "branch": "main",
-  "sourceFingerprint": "d70015fed7acb3f130b14ee6636f88acb4d5f2101d25f25182902990b7000494",
+  "sourceFingerprint": "8001b141ed3af126f7e648c928ea52a77b94db87c265a098fc7319cec762aabf",
   "summary": {
     "files": 836,
-    "lines": 160063,
+    "lines": 160068,
     "symbols": 2419
   },
   "symbolIndex": {
@@ -14726,8 +14726,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 809,
-      "sha256": "ba884628bbe4ab0c2c483c9d3ca7350686e5c8c22c6e48b7bae8db0262898be3",
+      "lines": 814,
+      "sha256": "7cf93618315ae8cdbea562a6cd0df7a19ef07ceec42ad6bae52d26a65226b14e",
       "symbols": [
         {
           "name": "send",
@@ -19892,7 +19892,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
       "lines": 265,
-      "sha256": "c42d6eca43d197dadb45669b9ba403e1b7ff1b52919198b2452c02ba7b377814",
+      "sha256": "d4afc422e4950daf8ea63f1f44884267b9eba5dce8b7c952c101d07b9b583a00",
       "symbols": [
         {
           "name": "optionsFor",
@@ -19919,7 +19919,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
       "lines": 318,
-      "sha256": "e69d0f840f173db584bfec062904fa46e9c9f2a4c280e01f7a08d9a281dec9cb",
+      "sha256": "7567a2e4f3aa21b7d4832d91fe3329d6d0d93dfbf97c1cc6a440c0c856e37fbe",
       "symbols": [
         {
           "name": "initialize",
@@ -20248,7 +20248,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt",
       "lines": 161,
-      "sha256": "07e305be88c2ac982ff7583d374f24625186a10dce519c9127b1ad3a7d41737b",
+      "sha256": "c562059ea1fe61f7ff9ffc64680c48bd0452c2862e13bdf11583e0c4a554a53d",
       "symbols": []
     },
     {
