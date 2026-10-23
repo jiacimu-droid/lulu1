@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:40:07.339195+00:00",
-  "commit": "ec4be39222f481e17e583ff0bf7b8fe3a5d4fb01",
+  "generatedAt": "2026-10-23T07:40:24.892839+00:00",
+  "commit": "7427ff734a1c46b836ad07e87ef6f9d0180c2d81",
   "branch": "main",
-  "sourceFingerprint": "cd84382b546734f6ee36193a65d6510a4063d2c99a38d477f951f49c33c165dd",
+  "sourceFingerprint": "d203218b9653b4d76edb98b9eb7d4db974c1897656d11b81ef9113f438ecd00a",
   "summary": {
-    "files": 842,
-    "lines": 161511,
-    "symbols": 2446
+    "files": 843,
+    "lines": 161606,
+    "symbols": 2448
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -128,6 +128,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt",
         "line": 50
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
+        "line": 45
       }
     ],
     "preferredMicrophoneType": [
@@ -9210,6 +9214,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
         "line": 74
+      }
+    ],
+    "plan": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
+        "line": 23
       }
     ],
     "RoleDayPlan": [
@@ -22765,6 +22775,21 @@
         {
           "name": "fixedContext",
           "line": 74
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
+      "lines": 95,
+      "sha256": "cdf30929886656fdf0df07c87dd1e1665ee75cbdb3ae9e9d89b8cc0ae5231720",
+      "symbols": [
+        {
+          "name": "plan",
+          "line": 23
+        },
+        {
+          "name": "refresh",
+          "line": 45
         }
       ]
     },
