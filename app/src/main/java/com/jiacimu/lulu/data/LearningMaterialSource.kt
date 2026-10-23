@@ -68,7 +68,7 @@ internal object LearningMaterialSource {
             val raw = runCatching { get(url) }.getOrElse { error ->
                 if (context != null && WebSearchProvider.isConfigured(context)) {
                     return LearningMaterial("网页正文：" + url, url,
-                        WebSearchProvider.extract(context, url), "Tavily网页正文提取节选，来源待核实")
+                        WebSearchProvider.extract(context, url), "联网工具实际提取的网页正文节选，来源待核实")
                 }
                 throw error
             }
