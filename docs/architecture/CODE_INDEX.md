@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`197ad3bf70df54de7ad43e226c52affc8577f59c`
+- 基准提交：`55829fd153fcd1b19c217b32ffe47599911e6750`
 - 分支：`main`
 - 已索引文件：836
-- 已索引代码/文本行：160389
+- 已索引代码/文本行：160392
 - 已发现符号：2424
 
 | 文件 | 行数 | 符号数 |
@@ -233,7 +233,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 89 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 74 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 77 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 138 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 247 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 96 | 1 |
