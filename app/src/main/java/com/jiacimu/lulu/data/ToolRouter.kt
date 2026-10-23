@@ -75,7 +75,8 @@ object ToolRouter {
             val goalReceiptId = "tool-$characterId-$requestId"
             CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
-                .put("tool", name).put("fingerprint", fingerprint).put("status", "running").put("startedAt", Instant.now().toString())
+                .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
+                .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
             CharacterInnerLifeStore.initialize(context)
             CharacterInnerLifeStore.beginActivityExpectation(characterId, goalReceiptId, name,
                 args.optJSONObject("expectation"))
