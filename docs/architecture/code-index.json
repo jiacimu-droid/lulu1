@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:19:37.614613+00:00",
-  "commit": "848577427711899c0c90f8354291ba69e121afbd",
+  "generatedAt": "2026-10-23T18:19:56.740307+00:00",
+  "commit": "695d899a7f810607a2b5eb7fe2750a22a8da1a03",
   "branch": "main",
-  "sourceFingerprint": "1668733dd90220bc22308e38465cedaab4c9097c30cdeee39aa79f019d0f6002",
+  "sourceFingerprint": "4e7836173c01b8d435b9b767aa89e80ce81528908e2e095d3775785e59f93aac",
   "summary": {
-    "files": 866,
-    "lines": 165830,
-    "symbols": 2505
+    "files": 867,
+    "lines": 165855,
+    "symbols": 2506
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13280,6 +13280,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentSemanticPersistenceTest.kt",
         "line": 30
+      }
+    ],
+    "CommitmentTaskCallScopeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt",
+        "line": 5
       }
     ],
     "ConversationDominantImpulseTest": [
@@ -28582,6 +28588,17 @@
         {
           "name": "CommitmentSemanticPersistenceTest",
           "line": 30
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentTaskCallScopeTest.kt",
+      "lines": 25,
+      "sha256": "8411aae3b67154d3b2ed11050ac2d638a1967a6e9eefab4835cfac06b932f305",
+      "symbols": [
+        {
+          "name": "CommitmentTaskCallScopeTest",
+          "line": 5
         }
       ]
     },
