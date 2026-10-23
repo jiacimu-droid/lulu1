@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f15eb36bc43769b292bbac35065b09fc758eb673`
+- 基准提交：`902aff44ada9d1ae9670c5240555f3de7137d744`
 - 分支：`main`
 - 已索引文件：853
-- 已索引代码/文本行：163280
+- 已索引代码/文本行：163316
 - 已发现符号：2469
 
 | 文件 | 行数 | 符号数 |
@@ -392,7 +392,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 112 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 72 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 337 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 373 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 199 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |

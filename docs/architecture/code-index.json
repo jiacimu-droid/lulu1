@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:42:09.940835+00:00",
-  "commit": "f15eb36bc43769b292bbac35065b09fc758eb673",
+  "generatedAt": "2026-10-23T11:42:37.592956+00:00",
+  "commit": "902aff44ada9d1ae9670c5240555f3de7137d744",
   "branch": "main",
-  "sourceFingerprint": "95a48f7baebbf466b7ccd11bd3d406fe131fbfc77ceef49b068883d7d4c7605b",
+  "sourceFingerprint": "8f63a11d3233bd0b3a44049368202aa08f61cafbb5e6bdb8f86bd640b934db43",
   "summary": {
     "files": 853,
-    "lines": 163280,
+    "lines": 163316,
     "symbols": 2469
   },
   "symbolIndex": {
@@ -8255,7 +8255,7 @@
     "pendingBatches": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-        "line": 161
+        "line": 167
       }
     ],
     "replacementId": [
@@ -21814,8 +21814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
-      "lines": 337,
-      "sha256": "bac467d232157153d14d27fea7f3b66e36bef5d1b9515ead3a32ac375e3cbaf4",
+      "lines": 373,
+      "sha256": "0b31268d5eaa8b887a254a4fa327fb2bc18301fe84cabbb29195dedd85c0ecbb",
       "symbols": [
         {
           "name": "report",
@@ -21835,7 +21835,7 @@
         },
         {
           "name": "pendingBatches",
-          "line": 161
+          "line": 167
         }
       ]
     },
