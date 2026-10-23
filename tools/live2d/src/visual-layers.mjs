@@ -94,12 +94,22 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // Physics follow-through on a neutral head/torso causes the user's
     // unwanted wandering. Suppress just those bones, not ears or hair.
     const mixStep = Math.min(1, Math.max(0, deltaMs) * .014)
-    secondaryHeadMix += ((head || authoredMotion ? 1 : 0) - secondaryHeadMix) * mixStep
-    secondaryBodyMix += ((body || authoredMotion ? 1 : 0) - secondaryBodyMix) * mixStep
+    // Touch is deliberate movement too. The previous gate muted secondary
+    // head/torso follow-through whenever there was no separate AI pose or
+    // authored Motion3, even though a live touch reflex was in progress.
+    secondaryHeadMix += ((head || authoredMotion || touchReflex ? 1 : 0) - secondaryHeadMix) * mixStep
+    secondaryBodyMix += ((body || authoredMotion || touchReflex ? 1 : 0) - secondaryBodyMix) * mixStep
     if (!head && !authoredMotion && secondaryHeadMix < .008) secondaryHeadMix = 0
     if (!body && !authoredMotion && secondaryBodyMix < .008) secondaryBodyMix = 0
-    for (const id of SECONDARY_HEAD) {
-      if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryHeadMix)
+    for (let i = 0; i < SECONDARY_HEAD.length; i++) {
+      const id = SECONDARY_HEAD[i]
+      if (!has(core, id)) continue
+      const axis = ['yaw', 'pitch', 'roll'][i]
+      // The wolf rig has secondary head axes; reflect some of the short touch
+      // impulse there as well, while retaining authored physics and release.
+      const follow = touchReflex && Number.isFinite(touchReflex[axis])
+        ? touchReflex[axis] * .25 : 0
+      write(core, id, (read(core, id) ?? 0) * secondaryHeadMix + follow)
     }
     for (const id of SECONDARY_BODY) {
       if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryBodyMix)
