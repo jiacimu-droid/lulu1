@@ -338,6 +338,15 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v20: correct Jiang Du's own stock judgement of everyday requests.
+        // Never overwrite a manually edited profile, even if deliberately
+        // empty. Other characters and the user's relationship edits are intact.
+        CharacterProfileSchema.jiangDuV20Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            if (!profile.has(key) || previous == CharacterProfileSchema.jiangDuV14Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
