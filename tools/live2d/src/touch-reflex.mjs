@@ -83,7 +83,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   // The same pet is not a permanent squint. Alongside accumulated shyness,
   // real contact direction/side and touch ordinal choose different visible
   // eye and brow articulations, without inventing an emotion from random data.
-  const receptiveEyes = Math.min(.96, .62 + variation * .13 - shy * .11)
+  const receptiveEyes = Math.max(.48, [.94, .68, .84][variation] - shy * .13)
   switch (family) {
     case 'hair': case 'forehead':
       response.pitch = kiss ? -3 : soft ? 10 + variation * 2 : 4
