@@ -326,7 +326,7 @@ object RoleDayScheduleStore {
             (action in verifiableActions ||
                 (plan.activityAction == action && canSchedule(action))) &&
             (plan.activityAction.isBlank() || plan.activityAction == action) &&
-            (plan.status == "due" || (plan.status == "planned" && !plan.dueAt.isAfter(now))) &&
+            plan.status in setOf("due", "planned") && !plan.dueAt.isAfter(now) &&
             (plan.targetCharacterId.isBlank() || when (action) {
                 "send_character_message", "digital_world_action" ->
                     args?.optString("targetCharacterId") == plan.targetCharacterId
