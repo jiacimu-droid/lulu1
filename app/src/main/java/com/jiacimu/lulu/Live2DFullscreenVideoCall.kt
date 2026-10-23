@@ -82,7 +82,7 @@ internal fun Live2DFullscreenVideoCall(
     var expressionPickerExpanded by remember(modelUrl) { mutableStateOf(false) }
     // These only tune the JPEG bridge's resolution budget; they do not
     // change model assets or interrupt the call/audio session.
-    var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
+    var qualityMode by remember(modelUrl) { mutableStateOf("smooth") }
     var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
     var interactionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
     var interactionForce by remember(modelUrl) { mutableFloatStateOf(.55f) }
