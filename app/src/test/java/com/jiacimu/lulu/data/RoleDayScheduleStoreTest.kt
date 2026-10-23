@@ -98,6 +98,22 @@ class RoleDayScheduleStoreTest {
             "role-a", "capture_screen", "not-an-appointment", after))
     }
 
+    @Test fun chosenAppointmentLinksAcceptedResponsibilityWithoutInventingAnOutcome() {
+        val actual = plan.copy(
+            activityAction = "send_private_message",
+            commitmentTaskId = "earlier-accepted-promise",
+            activityArgs = """{"text":"来看看你准备休息了没有"}""",
+        )
+        assertEquals("earlier-accepted-promise", actual.commitmentTaskId)
+        assertEquals(plan.createdAt, actual.createdAt)
+        assertTrue(RoleDayScheduleStore.canComplete(actual, "role-a", "send_private_message",
+            "real-message", after))
+        assertFalse(RoleDayScheduleStore.canComplete(actual, "role-a", "send_private_message",
+            "", after))
+        assertFalse(RoleDayScheduleStore.canComplete(actual, "role-a", "send_private_message",
+            "premature", due.minusSeconds(60)))
+    }
+
     @Test fun legacyUnrestrictedPlansStillDemandActualEvidenceAndAllowedActions() {
         val legacy = plan.copy(activityAction = "")
         assertTrue(RoleDayScheduleStore.canComplete(legacy, "role-a", "play_solo_game",
