@@ -164,6 +164,9 @@ internal object EmbodiedBodyRuntime {
 
     /** Physical sleep follows the one authoritative online lease, not a second timer. */
     private fun alignedToPresence(characterId: String, before: EmbodiedBodySnapshot, now: Instant): EmbodiedBodySnapshot {
+        // Native citizens can be offline in chat while actively living their
+        // verified duties. A phone-chat lease is not physical sleep for them.
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) return before
         val presence = CompanionOnlineStore.states.value[characterId] ?: return before
         if (presence.isOnline(now) || before.recoveryMode == "offline_sleep") return before
         val sleepAt = maxOf(presence.onlineUntil, before.lastAt)
@@ -173,6 +176,7 @@ internal object EmbodiedBodyRuntime {
 
     @Synchronized
     fun onPresenceSleep(characterId: String, at: Instant) {
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) return
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
         val before = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
             ?: EmbodiedBodyPhysics.fresh(at)
@@ -185,6 +189,7 @@ internal object EmbodiedBodyRuntime {
 
     @Synchronized
     fun onPresenceWake(characterId: String, previous: CompanionOnlineState?, at: Instant) {
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) return
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
         val before = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
             ?: EmbodiedBodyPhysics.fresh(at)
