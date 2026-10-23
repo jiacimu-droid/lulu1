@@ -65,6 +65,36 @@ class AutonomousLearningRuntimeTest {
         assertFalse(CharacterLifeFollowThroughStore.hasOpenOpportunity(role, result.evidenceId))
         assertEquals("", CharacterLearningLedger.context(role, "幽默"))
     }
+    @Test fun newSubjectCanActuallyStudyInOneChosenToolAction() = runBlocking {
+        var fetches = 0
+        val result = AutonomousLearningRuntime.execute(context, role, JSONObject()
+            .put("op", "study").put("topic", "幽默表达")
+            .put("question", "如何用短铺垫创造意外反转")
+            .put("why", "想更自然地开玩笑")
+            .put("sourceEvidenceId", "learning-origin"),
+            materialLoader = { _, _ -> fetches++; material() },
+            understand = { _, _ -> note })
+        assertTrue(result.summary, result.success)
+        assertEquals(1, fetches)
+        assertEquals(1, CharacterLearningAgenda.goals(role).size)
+        val goal = CharacterLearningAgenda.goals(role).single()
+        assertEquals("practice", goal.optString("status"))
+        assertEquals(result.evidenceId, goal.optString("materialId"))
+        assertEquals(1, CharacterLearningAgenda.budget(role).used)
+    }
+
+    @Test fun newSubjectWithoutRealOriginCannotCreateAnIllusoryStudy() = runBlocking {
+        val result = runCatching {
+            AutonomousLearningRuntime.execute(context, role, JSONObject()
+                .put("op", "study").put("topic", "幽默表达")
+                .put("question", "如何用短铺垫创造意外反转"),
+                materialLoader = { _, _ -> error("未授权起因时不能联网") })
+        }
+        assertTrue(result.isFailure)
+        assertTrue(CharacterLearningAgenda.goals(role).isEmpty())
+        assertEquals(0, CharacterLearningAgenda.budget(role).used)
+    }
+
     @Test fun alreadyReadMaterialCanBeUnderstoodAfterModelFailureWithoutAnotherFetch() = runBlocking {
         val id = goal().getString("id")
         assertFalse(AutonomousLearningRuntime.execute(context, role, args(id, "study"),
