@@ -19,7 +19,11 @@ object ToolRouter {
         intentionId: String = ""): String = requests.withLock("$characterId:$requestId") {
         // A slow read-only website request must not hold up an in-call favorite
         // or another short action. Exact request ids still serialize across tools.
-        mutex.withLock("$characterId:" + if (name == "read_xiaohongshu") "xhs" else "actions") {
+        mutex.withLock("$characterId:" + when (name) {
+            "read_xiaohongshu" -> "xhs"
+            "web_search" -> "web"
+            else -> "actions"
+        }) {
             fun rejected(message: String, status: String = "failed"): String {
                 // A rejected command did not run; do not mark any unrelated desire complete.
                 return failure(message, status)
