@@ -152,8 +152,19 @@ import pathlib, shutil, sys
 p = pathlib.Path(sys.argv[1])
 s = p.read_text()
 marker = "// LULU_SEARCH_PAGE_READY_V1"
+ready_marker = "// LULU_SEARCH_NOTES_READY_V2"
+valid_predicate = """// LULU_SEARCH_NOTES_READY_V2: an empty array is only the initial loading state.
+			return Array.isArray(rows) && rows.some(row =>
+				row && row.modelType === "note" && typeof row.id === "string" && row.id.length > 0);"""
+if ready_marker in s:
+    print("搜索真实笔记等待修复已存在")
+    sys.exit(0)
 if marker in s:
-    print("搜索等待修复已存在")
+    prior = "return Array.isArray(rows);"
+    if s.count(prior) != 1:
+        raise SystemExit("旧版搜索补丁不符合预期，拒绝覆盖原程序")
+    p.write_text(s.replace(prior, valid_predicate, 1))
+    print("已升级搜索等待：必须有真实笔记，空数组不再误判成功")
     sys.exit(0)
 needle = """	searchURL := makeSearchURL(keyword)
 	page.MustNavigate(searchURL)
@@ -169,17 +180,19 @@ replacement = """	// LULU_SEARCH_PAGE_READY_V1: dynamic feeds rarely become glob
 	if err := rod.Try(func() { page.MustNavigate(searchURL) }); err != nil {
 		return nil, fmt.Errorf("小红书搜索导航失败: %w", err)
 	}
-	logrus.Info("小红书搜索：页面已导航，等待真实搜索结果")
+	logrus.Info("小红书搜索：页面已导航，等待真实笔记（不会将初始空数组视为成功）")
 	if err := rod.Try(func() {
 		page.MustWait(`() => {
 			const state = window.__INITIAL_STATE__;
 			const feeds = state && state.search && state.search.feeds;
 			if (!feeds) return false;
 			const rows = feeds.value !== undefined ? feeds.value : feeds._value;
-			return Array.isArray(rows);
+			// LULU_SEARCH_NOTES_READY_V2: don't mistake [] during loading for results.
+			return Array.isArray(rows) && rows.some(row =>
+				row && row.modelType === "note" && typeof row.id === "string" && row.id.length > 0);
 		}`)
 	}); err != nil {
-		return nil, fmt.Errorf("小红书搜索结果未就绪（可能为网络慢、验证页面或网页结构变化）: %w", err)
+		return nil, fmt.Errorf("小红书搜索未取得有效笔记（可能是加载未完成、无结果、验证页或网站结构变化）: %w", err)
 	}
 	logrus.Info("小红书搜索：已取得搜索数据")
 """
