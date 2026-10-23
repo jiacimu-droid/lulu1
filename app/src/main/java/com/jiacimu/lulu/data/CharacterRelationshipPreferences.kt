@@ -114,7 +114,7 @@ internal object CharacterRelationshipPreferences {
         val coreTexts = allCore.map { normalize(it.content) }
         val preferences = snapshot(characterId).preferences.filterNot { preference ->
             val quote = normalize(preference.quote)
-            quote.isNotBlank() && coreTexts.any { it == quote || it.contains(quote) }
+            includeCore && quote.isNotBlank() && coreTexts.any { it == quote || it.contains(quote) }
         }
         val core = if (includeCore) allCore else emptyList()
         if (preferences.isEmpty() && core.isEmpty()) return ""
