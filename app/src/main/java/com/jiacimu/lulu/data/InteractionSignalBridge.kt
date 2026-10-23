@@ -130,9 +130,9 @@ internal object InteractionSignalBridge {
             "stroke-down" -> "用手掌向下抚摸"
             "kiss" -> "用嘴唇亲吻"
             "kick" -> "用脚轻踢" // Historical descriptions only; no new kick can be recorded.
-            "slap" -> "用手掌拍击"
-            "slap-left" -> "从右向左轻拍"
-            "slap-right" -> "从左向右轻拍"
+            "slap" -> "用手掌扇了一下"
+            "slap-left" -> "从右向左扇了一下"
+            "slap-right" -> "从左向右扇了一下"
             else -> return null
         }
         return "用户在屏幕上${action}了数字形象的${place}" +
