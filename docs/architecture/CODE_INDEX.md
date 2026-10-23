@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9af7684afaa3c133e83d26ffd76e6025620f46d5`
+- 基准提交：`6a4ae0a168dea8f0f9b7285584b8f4dd97a0d2ea`
 - 分支：`main`
 - 已索引文件：864
-- 已索引代码/文本行：165650
-- 已发现符号：2500
+- 已索引代码/文本行：165659
+- 已发现符号：2501
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -34,7 +34,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 74 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 82 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 66 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 171 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
@@ -131,7 +131,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 838 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2301 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2302 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 123 | 7 |
