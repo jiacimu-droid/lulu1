@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T12:21:26.113380+00:00",
-  "commit": "5d73e0fb28c64ac2dcd49def8cef5c86b802d458",
+  "generatedAt": "2026-10-23T12:28:28.330731+00:00",
+  "commit": "0fbecae444a0e44b98b588001c01e69eab0b359d",
   "branch": "main",
-  "sourceFingerprint": "564b3d81e3885f4de2145c54dd58a665f80f788b3cec27c0bb3643c7a055788e",
+  "sourceFingerprint": "6c644593eb24013e9a74cc62faab76463fde59ff25c32292ba52ce8776f08390",
   "summary": {
-    "files": 853,
-    "lines": 163452,
-    "symbols": 2470
+    "files": 855,
+    "lines": 163683,
+    "symbols": 2473
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4248,6 +4248,10 @@
         "line": 9
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
+        "line": 69
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
         "line": 98
       },
@@ -4558,6 +4562,12 @@
         "line": 84
       }
     ],
+    "memoryLane": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
+        "line": 24
+      }
+    ],
     "Basis": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
@@ -4743,31 +4753,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 95
+        "line": 97
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 157
+        "line": 159
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 159
+        "line": 161
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 174
+        "line": 176
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 179
+        "line": 181
       }
     ],
     "conciseAppraisal": [
@@ -8845,7 +8855,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2150
+        "line": 2152
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -12732,6 +12742,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt",
         "line": 5
+      }
+    ],
+    "CharacterAssociativeRecallTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
+        "line": 11
       }
     ],
     "CharacterBehaviorMotivationTest": [
@@ -17911,6 +17927,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
+      "lines": 173,
+      "sha256": "c66f3753152c7f5a12b6fe6b21020b29290aaba3a3f9c75796b0e0518cb8ed5e",
+      "symbols": [
+        {
+          "name": "memoryLane",
+          "line": 24
+        },
+        {
+          "name": "render",
+          "line": 69
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt",
       "lines": 113,
       "sha256": "aa37f12b2ecaaecbf7887f8d730b959d1664878484d9ca0ee2103370c590a401",
@@ -18065,28 +18096,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 183,
-      "sha256": "2b78ac7f5139c309142783ea2ac0d4f3f26a5c6300ef8b0dbb08ece5f9dfaa09",
+      "lines": 185,
+      "sha256": "eb9a8acdf9ffd6660c015a4b768a1541fbe315f4234c8a871e5826743e94ede9",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 95
+          "line": 97
         },
         {
           "name": "usesSeparateExpression",
-          "line": 157
-        },
-        {
-          "name": "chatAction",
           "line": 159
         },
         {
+          "name": "chatAction",
+          "line": 161
+        },
+        {
           "name": "groupIsExplicitlySilent",
-          "line": 174
+          "line": 176
         },
         {
           "name": "speechIntent",
-          "line": 179
+          "line": 181
         }
       ]
     },
@@ -21936,7 +21967,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
       "lines": 84,
-      "sha256": "431951b1df12708729b1bf2fb1cbd12936a9b06af5b72f5fb65692bec896af8a",
+      "sha256": "69d32b7592136aa6759308927430261546bfdaec4d80ff0616add9dd4ccad90c",
       "symbols": [
         {
           "name": "assemble",
@@ -22495,8 +22526,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2217,
-      "sha256": "a52250c56e9134dcb1e0f1e758818b008f829e1ad78b5f9a7dbe6ea82866ab1b",
+      "lines": 2219,
+      "sha256": "2971b3a0e4b36f89582b2320d19cc34740eaab329cf03db6e1e0a48380bf7fae",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -22528,7 +22559,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2150
+          "line": 2152
         }
       ]
     },
@@ -27622,6 +27653,17 @@
         {
           "name": "CharacterAddressPreferenceTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
+      "lines": 54,
+      "sha256": "0a48a88a446077ec9f271bc114da9c597f66d6163110b1912662b58b73f14335",
+      "symbols": [
+        {
+          "name": "CharacterAssociativeRecallTest",
+          "line": 11
         }
       ]
     },
