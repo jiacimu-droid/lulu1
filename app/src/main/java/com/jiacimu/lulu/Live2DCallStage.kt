@@ -477,11 +477,11 @@ private fun Live2DNativeFrameOverlay(
         // whose WebGL readback + JPEG path cannot sustain smooth motion.
         val stats = Live2DFrameStats(reportIntervalMs = 2_000L)
         var lastQuality = currentQuality.value
-        var resolution = if (lastQuality == "smooth") 860 else 1320
+        var resolution = if (lastQuality == "smooth") 980 else 1320
         for (frame in binaryFrames) {
             if (currentQuality.value != lastQuality) {
                 lastQuality = currentQuality.value
-                resolution = if (lastQuality == "smooth") 860 else 1320
+                resolution = if (lastQuality == "smooth") 980 else 1320
             }
             val decodeStart = android.os.SystemClock.elapsedRealtime()
             val decoded = withContext(Dispatchers.Default) {
@@ -507,17 +507,20 @@ private fun Live2DNativeFrameOverlay(
                     // p95 gaps expose visible stutter that mean FPS hides.
                     // Lower the transport size gradually, preserve face
                     // sharpness whenever the actual delivered cadence allows.
-                    val floor = if (lastQuality == "smooth") 650 else 850
-                    val ceiling = if (lastQuality == "smooth") 1250 else 1950
+                    // The old 650px smooth floor blurred the face, while
+                    // 1950px bursts could overwhelm the JPEG readback path.
+                    // Prefer bounded changes and use actual received FPS/jitter.
+                    val floor = if (lastQuality == "smooth") 800 else 1000
+                    val ceiling = if (lastQuality == "smooth") 1350 else 1600
                     resolution = when {
                         sample.fps < 13f || sample.p95GapMs > 115L ->
-                            (resolution - 200).coerceAtLeast(floor)
+                            (resolution - 130).coerceAtLeast(floor)
                         sample.fps < 19f || sample.p95GapMs > 75L ->
-                            (resolution - 110).coerceAtLeast(floor)
+                            (resolution - 75).coerceAtLeast(floor)
                         sample.fps > 26f && sample.p95GapMs < 48L ->
-                            (resolution + 150).coerceAtMost(ceiling)
-                        sample.fps > 23f && sample.p95GapMs < 60L ->
                             (resolution + 90).coerceAtMost(ceiling)
+                        sample.fps > 23f && sample.p95GapMs < 60L ->
+                            (resolution + 65).coerceAtMost(ceiling)
                         else -> resolution
                     }
                     receiver.value("performance", sample.label())
@@ -561,13 +564,13 @@ private fun Live2DNativeFrameOverlay(
         var consecutiveErrors = 0
         var slowFrames = 0
         var fastFrames = 0
-        var maxEdge = if (currentQuality.value == "smooth") 720 else 1050
+        var maxEdge = if (currentQuality.value == "smooth") 840 else 1050
         var lastQuality = currentQuality.value
         val stats = Live2DFrameStats()
         while (isActive) {
             if (currentQuality.value != lastQuality) {
                 lastQuality = currentQuality.value
-                maxEdge = if (lastQuality == "smooth") 720 else 1050
+                maxEdge = if (lastQuality == "smooth") 840 else 1050
             }
             val startedAt = android.os.SystemClock.elapsedRealtime()
             val rawResult = try {
@@ -631,11 +634,11 @@ private fun Live2DNativeFrameOverlay(
                 }
                 if (slowFrames >= 3) {
                     maxEdge = (maxEdge - 130).coerceAtLeast(
-                        if (lastQuality == "smooth") 520 else 750)
+                        if (lastQuality == "smooth") 700 else 850)
                     slowFrames = 0
                 } else if (fastFrames >= 18) {
                     maxEdge = (maxEdge + 100).coerceAtMost(
-                        if (lastQuality == "smooth") 1050 else 1450)
+                        if (lastQuality == "smooth") 1150 else 1450)
                     fastFrames = 0
                 }
             }
