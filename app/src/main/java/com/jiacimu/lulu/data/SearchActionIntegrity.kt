@@ -10,7 +10,7 @@ import org.json.JSONObject
  * it does not automatically search, assign a query or overrule a refusal.
  */
 internal object SearchActionIntegrity {
-    private val requests = Regex("搜索|搜一?下|搜搜|搜点|搜个|查一?下|查查|检索|上网查|网上找|帮我找|结果呢")
+    private val requests = Regex("搜索|搜|查一下|查查|查找|检索|上网查|网上找|帮我找|结果呢")
     private val commits = Regex("我.{0,24}(?:搜|搜索|查|查找|检索)|这就.{0,12}(?:搜|查)|马上.{0,12}(?:搜|查)|(?:搜|查).{0,8}(?:一下|看看)")
     private val declines = Regex("不搜|不查|没搜|没查|不会搜|不能搜|不打算搜|没有搜|没办法查|不想搜")
     private val toolNames = setOf("web_search", "image_search")
