@@ -22,6 +22,11 @@ import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
 import com.jiacimu.lulu.data.ImageSearchProvider
 import com.jiacimu.lulu.data.XhsReadingEngine
+import com.jiacimu.lulu.data.XhsReadingReceipt
+import com.jiacimu.lulu.data.SharedExperienceTimeline
+import com.jiacimu.lulu.data.MigratedDomainStores
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +59,20 @@ internal fun LuluIntegrationsSettingsScreen(
     var mcpFallback by remember { mutableStateOf(XhsReadingEngine.mcpFallbackEnabled(context)) }
     var keyword by remember { mutableStateOf("") }
     var readingBusy by remember { mutableStateOf(false) }
+    var receiptHistoryOpen by remember { mutableStateOf(false) }
+    var receiptPageSize by remember { mutableIntStateOf(12) }
+    val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val receiptRows by produceState<List<XhsReadingReceipt>>(
+        initialValue = emptyList(), timelineRevision, receiptHistoryOpen, receiptPageSize,
+    ) {
+        val count = if (receiptHistoryOpen) receiptPageSize + 1 else 1
+        value = withContext(Dispatchers.IO) {
+            SharedExperienceTimeline.recentXhsReadings(count).mapNotNull(XhsReadingReceipt::from)
+        }
+    }
+    val receiptDateFormat = remember {
+        DateTimeFormatter.ofPattern("MM-dd HH:mm").withZone(ZoneId.systemDefault())
+    }
     var qr by remember { mutableStateOf<LuluExternalMcp.XhsLoginQr?>(null) }
     var qrBusy by remember { mutableStateOf(false) }
     var qrStatus by remember { mutableStateOf("") }
@@ -330,6 +349,49 @@ internal fun LuluIntegrationsSettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(if (readingBusy) "读取中…" else "搜索并读帖") }
                 IntegrationFeedback(readingStatus)
+            }
+
+            IntegrationSettingsCard {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("阅读记录", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    TextButton(onClick = {
+                        receiptHistoryOpen = !receiptHistoryOpen
+                        if (!receiptHistoryOpen) receiptPageSize = 12
+                    }) { Text(if (receiptHistoryOpen) "收起" else "查看历史") }
+                }
+                if (receiptRows.isEmpty()) {
+                    Text("暂无阅读记录", color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                receiptRows.take(if (receiptHistoryOpen) receiptPageSize else 1).forEach { receipt ->
+                    HorizontalDivider()
+                    Text(receipt.title, style = MaterialTheme.typography.titleSmall,
+                        maxLines = 2)
+                    Text(
+                        "${MigratedDomainStores.characters.get(receipt.characterId).displayName} · " +
+                            receiptDateFormat.format(receipt.occurredAt),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(receipt.bodyLabel, style = MaterialTheme.typography.labelSmall)
+                        Text(receipt.commentsLabel, style = MaterialTheme.typography.labelSmall)
+                        Text(receipt.imagesLabel, style = MaterialTheme.typography.labelSmall)
+                    }
+                    if (receiptHistoryOpen && receipt.imagesLinked != null && receipt.imagesLinked > 0 &&
+                        receipt.imagesAnalyzed == 0) {
+                        Text("图片尚未取得有效视觉分析",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+                if (receiptHistoryOpen && receiptRows.size > receiptPageSize) {
+                    TextButton(onClick = { receiptPageSize += 12 }) { Text("加载更多") }
+                }
             }
 
             IntegrationSettingsCard {
