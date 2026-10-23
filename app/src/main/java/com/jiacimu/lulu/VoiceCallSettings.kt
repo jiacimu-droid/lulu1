@@ -129,7 +129,7 @@ internal fun VoiceCallSettings(provider: String) {
                     "实时版经 WebSocket 连续接收收音、更新临时字幕；只有收到最终识别结果才交给角色回复。"
                 else "普通 Scribe v2：接通后直接讲话，手机自动检测自然停顿、分段录音后上传转写；长句分段按顺序拼接，不用每句话点击录音按钮。它不是流式识别，字幕会等上传返回后出现。",
                 style = MaterialTheme.typography.bodySmall)
-            Text("两条转写线路只在此设置：实时版连续上传并显示临时字幕；普通 v2 在录音分段完成后上传。均使用 ElevenLabs API Key（无需 Voice ID），计费以账户为准。电话内无需再次选择，也无需手动发送录音；下次接通生效。",
+            Text("两条转写线路只在此设置：实时版连续上传并显示临时字幕；普通 v2 在录音分段完成后上传。均使用 ElevenLabs API Key（无需 Voice ID），计费以账户为准。电话内无需手动发送录音；切换后从下一段收音生效。",
                 style = MaterialTheme.typography.bodySmall)
             var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
             OutlinedTextField(value = elevenKey, onValueChange = {
