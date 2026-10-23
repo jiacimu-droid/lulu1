@@ -26,7 +26,7 @@ internal object CharacterLearningAgenda {
     }
     private fun day(now: Instant): String = now.atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()
     fun budget(role: String, now: Instant = Instant.now()): Budget = Budget(
-        policy?.getInt("$role:learning_daily_limit", 2)?.coerceIn(0, 10) ?: 2,
+        policy?.getInt("$role:learning_daily_limit", 5)?.coerceIn(0, 30) ?: 5,
         prefs?.getInt("budget:$role:${day(now)}", 0)?.coerceAtLeast(0) ?: 0,
     )
     private fun items(role: String): List<JSONObject> {
@@ -167,9 +167,9 @@ internal object CharacterLearningAgenda {
         if (goals.isEmpty()) return ""
         val budget = budget(role, now)
         return buildString {
-            appendLine("【本人持续学习意向｜不是已经学会】")
-            appendLine("今日学习步骤：已用${budget.used}/${budget.limit}，剩余${budget.remaining}；搜索/阅读理解/练习/复习分别计一步，失败也计入。")
-            if (budget.remaining == 0) appendLine("本轮不再请求收费学习步骤；仍可运用或自选分享已有理解，也可暂缓/放下目标，等待额度恢复。")
+            appendLine("【本人自主想改进的事｜不是每日必做学习计划】")
+            appendLine("自主研究调用保护：今日已用${budget.used}/${budget.limit}；搜索/阅读/私人练习/复查实际执行才扣额度，失败也计入。不要求每天学习。")
+            if (budget.remaining == 0) appendLine("今日不再执行新的研究操作；仍可直接用已经会的办法与主人自然相处，也可暂缓目标。")
             goals.forEach { g ->
                 val available = LearningCyclePolicy.available(g.optString("status"), instant(g, "retryAt"), now)
                 val due = instant(g, "reviewAt")?.let { !it.isAfter(now) } == true
@@ -185,7 +185,7 @@ internal object CharacterLearningAgenda {
                     "本人缘由=${g.optString("why").take(120)}；阶段=${g.optString("status")}；材料证据=$material；" +
                     "同一课题真实材料数=${g.optJSONArray("sourceIds")?.length() ?: 0}；" +
                     "本人上次打算=${g.optString("nextStep").take(150)}；${g.optString("error").take(100)}")
-                if (available && budget.remaining > 0) appendLine("  可选的一步：tool=learn_topic，args=" +
+                if (available && budget.remaining > 0) appendLine("  仅当本人真的想继续，才可选一步：tool=learn_topic，args=" +
                     JSONObject().put("op", next).put("goalId", g.optString("id")) +
                     "；也可重新研究、暂缓、放下或自然应用/分享；候选不是必须执行的命令。")
                 else appendLine("  当前暂不执行学习步骤；重试时间=${g.optString("retryAt")}；复习时间=${g.optString("reviewAt")}")
