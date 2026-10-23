@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:47:36.429224+00:00",
-  "commit": "35a993e8c96cbe076d6fdb5cbd43b29f170db73e",
+  "generatedAt": "2026-10-23T08:48:07.756718+00:00",
+  "commit": "20b4a3093cbcf4faf10379ed10cbb39ce715e124",
   "branch": "main",
-  "sourceFingerprint": "4836afd348d1ea54139f4701c9636b789a48343c49604bcc9c7d6c798e20e6b3",
+  "sourceFingerprint": "b575d98d8bb8e0d4e7142c94c6bcee99f0dc7adb66a0d1d6646887d720887ce9",
   "summary": {
     "files": 849,
-    "lines": 162522,
+    "lines": 162543,
     "symbols": 2462
   },
   "symbolIndex": {
@@ -28277,8 +28277,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DigitalWorldPersistentIncidentContextTest.kt",
-      "lines": 58,
-      "sha256": "be2c6e023c3cd255850fc8880872b7fca6dc72090d9c2d0fc0289cd88ee3173c",
+      "lines": 79,
+      "sha256": "fb30058fa92edb13ca457ee4ee4a59dc51441cfb0a830f4325e77558c00c1fd7",
       "symbols": [
         {
           "name": "DigitalWorldPersistentIncidentContextTest",
