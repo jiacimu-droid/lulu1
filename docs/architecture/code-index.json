@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:03:49.720573+00:00",
-  "commit": "abca091916daf7b523fcadbfbd777ce3a304df9d",
+  "generatedAt": "2026-10-23T18:04:15.625005+00:00",
+  "commit": "baf964cf47bb97ca1d23280f792f0002c29fa071",
   "branch": "main",
-  "sourceFingerprint": "e310de8dd0f225c270f3805348503b7c53c78966c040149b6108c68b912a0317",
+  "sourceFingerprint": "c612c4ce216f15ec4038d48faae959d5bb7822868c3f6b1c640215ff26bb8937",
   "summary": {
     "files": 864,
     "lines": 165387,
@@ -28175,7 +28175,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
       "lines": 872,
-      "sha256": "0de3a9a5c25470cfbb72cd79d55e8811aa6031947ed3c878b8f8058323135cdc",
+      "sha256": "66e9a616686bb165d6c057dd9d6e11e852acf36aac88498f8d97951710e7242c",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -29042,7 +29042,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 714,
-      "sha256": "677b493c4ae582945ecd362dd1c85751aa11e8ef3e4cfad99d3b8fd2117df775",
+      "sha256": "5450547529e4f3d21eceb682352890dcdbaf4f2be232142ac0b5bd4b506c69ae",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
