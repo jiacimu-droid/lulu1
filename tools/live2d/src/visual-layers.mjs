@@ -101,15 +101,11 @@ export function createVisualLayerRuntime({ has, read, write }) {
     secondaryBodyMix += ((body || authoredMotion || touchReflex ? 1 : 0) - secondaryBodyMix) * mixStep
     if (!head && !authoredMotion && secondaryHeadMix < .008) secondaryHeadMix = 0
     if (!body && !authoredMotion && secondaryBodyMix < .008) secondaryBodyMix = 0
-    for (let i = 0; i < SECONDARY_HEAD.length; i++) {
-      const id = SECONDARY_HEAD[i]
-      if (!has(core, id)) continue
-      const axis = ['yaw', 'pitch', 'roll'][i]
-      // The wolf rig has secondary head axes; reflect some of the short touch
-      // impulse there as well, while retaining authored physics and release.
-      const follow = touchReflex && Number.isFinite(touchReflex[axis])
-        ? touchReflex[axis] * .25 : 0
-      write(core, id, (read(core, id) ?? 0) * secondaryHeadMix + follow)
+    // Secondary axes are authored physics outputs, not a per-frame additive
+    // accumulator. Gate them on during touch; never add our own previous
+    // result back each frame or the angles would grow without bound.
+    for (const id of SECONDARY_HEAD) {
+      if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryHeadMix)
     }
     for (const id of SECONDARY_BODY) {
       if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryBodyMix)
