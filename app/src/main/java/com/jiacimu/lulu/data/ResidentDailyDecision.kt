@@ -79,7 +79,7 @@ internal object ResidentDailyDecision {
             .asSequence()
             .filter { it.source in setOf("resident-duty", "meeting", "character-message",
                 "owner-on-behalf", "digital-world", "moment:self", "resident-daily") }
-            .takeLast(9).joinToString("\n") {
+            .toList().takeLast(9).joinToString("\n") {
                 "${it.occurredAt} | ${it.channel} | ${it.speaker}：${it.content.take(180)}"
             }
 
