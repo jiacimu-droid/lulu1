@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T14:11:19.870560+00:00",
-  "commit": "0ba8cbdbef2cab7c4c73f1f24b7842c89ca401e8",
+  "generatedAt": "2026-10-23T14:16:51.684080+00:00",
+  "commit": "20b3b778cdc746a6fd1e4bafda8e8a9fc98a1d6c",
   "branch": "main",
-  "sourceFingerprint": "c2ce3bde33d590bc2ab2b31f15f46687f8d9ac65f190ee4ce2ca9c961ea9b3fa",
+  "sourceFingerprint": "0af7fcf200f7a47b2b53fa08c87643ce8d52d0e32eafab89ff29dc7212ea5b3a",
   "summary": {
-    "files": 861,
-    "lines": 164480,
-    "symbols": 2490
+    "files": 862,
+    "lines": 164567,
+    "symbols": 2492
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4319,7 +4319,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-        "line": 69
+        "line": 108
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
@@ -12738,6 +12738,10 @@
         "line": 38
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
+        "line": 44
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 123
       }
@@ -13082,6 +13086,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
         "line": 88
+      }
+    ],
+    "CharacterMomentSnapshotIdeasTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt",
+        "line": 8
       }
     ],
     "CharacterMotivationOwnershipTest": [
@@ -18076,8 +18086,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-      "lines": 191,
-      "sha256": "1d42bd629c939a7ad9f6ed5aad71929dcc9e086b0fa6742909c9e90c75f05c79",
+      "lines": 229,
+      "sha256": "e520b32ab4f7d2ee82189799f90f4468ee43435a047635d126d60f8e66f7dc95",
       "symbols": [
         {
           "name": "memoryLane",
@@ -18085,7 +18095,7 @@
         },
         {
           "name": "render",
-          "line": 69
+          "line": 108
         }
       ]
     },
@@ -18803,7 +18813,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
       "lines": 135,
-      "sha256": "3787fa3573deebc062f374d4122f7fb0c7f42e3727ad8d616254a9942aad2cad",
+      "sha256": "03324391e42ad13b690e258b907169b12674eed7f4eff035452a5313103477ba",
       "symbols": [
         {
           "name": "reflection",
@@ -23388,7 +23398,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
       "lines": 30,
-      "sha256": "1437d8b99d32a024cd446bb6e753a297689311689c3064b54b2a8a9f9afe8a1c",
+      "sha256": "b367d8318f8e558627aa8738232d72215e07fd8e009a977a8cb9f9f5a6a4e23b",
       "symbols": []
     },
     {
@@ -27851,12 +27861,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt",
-      "lines": 54,
-      "sha256": "0a48a88a446077ec9f271bc114da9c597f66d6163110b1912662b58b73f14335",
+      "lines": 80,
+      "sha256": "df25e178f48096c75b3ea5ebf4056dc963d1cc1d99edfe5c1c19dccc1effd3d6",
       "symbols": [
         {
           "name": "CharacterAssociativeRecallTest",
           "line": 11
+        },
+        {
+          "name": "event",
+          "line": 44
         }
       ]
     },
@@ -28186,6 +28200,17 @@
         {
           "name": "followThrough",
           "line": 88
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt",
+      "lines": 23,
+      "sha256": "75e82fcd9068c2b0800d2f9499e38349c7c5a403baa005aafbd1fccaf9a49cfd",
+      "symbols": [
+        {
+          "name": "CharacterMomentSnapshotIdeasTest",
+          "line": 8
         }
       ]
     },

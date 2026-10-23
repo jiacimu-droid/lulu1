@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0ba8cbdbef2cab7c4c73f1f24b7842c89ca401e8`
+- 基准提交：`20b3b778cdc746a6fd1e4bafda8e8a9fc98a1d6c`
 - 分支：`main`
-- 已索引文件：861
-- 已索引代码/文本行：164480
-- 已发现符号：2490
+- 已索引文件：862
+- 已索引代码/文本行：164567
+- 已发现符号：2492
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -250,7 +250,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt` | 69 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt` | 56 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 79 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt` | 191 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt` | 229 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStage.kt` | 217 | 10 |
@@ -703,7 +703,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicyTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterActivityExpectationTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterAddressPreferenceTest.kt` | 32 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterAssociativeRecallTest.kt` | 80 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterBehaviorMotivationTest.kt` | 140 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalActionPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterCausalAppraisalStageTest.kt` | 89 | 1 |
@@ -727,6 +727,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 872 | 17 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 110 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveDeliberationTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 68 | 1 |
