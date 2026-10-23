@@ -121,7 +121,7 @@ internal fun proactiveDecisionInstruction(characterId: String, directPrivateChat
         只输出完整 JSON，对本轮无用的字段省略，不写分析报告。action 从以下选：
         message、group_message、sticker、group_sticker、kaomoji、group_kaomoji、game_invite、solo_game、world_invite、moment、call、reading、digital_world、user_remark、self_nickname、tool、silent。
         例如 {"action":"silent","reason":"现在想独处","innerThought":"还是先理清思绪"}。
-        【自主学习】若自己发现表达、解题或理解上的具体不足，或纯粹想钻研兴趣，可以选择 action=tool、tool=learn_topic。先 op=start 保存真实起因与问题，后续用已返回goalId选择 search/study/understand/practice/review/pause/resume/drop。study可一步检索并读正文；只有想先比较候选时才search。已有真实材料尚未形成理解时可understand继续，不重复下载；候选链接不能当已读正文。参考本轮剩余额度、暂停状态和重试时间，耗尽后仍可自然应用或分享已有理解，不反复请求失败工具。同一目标可继续比较其他来源；实际读到的有趣发现可以进入本人自愿分享/探索，不是强制学习日报。读内部书籍仍用 reading；真实阅读理解可以 attach 到目标。失败可换材料或暂缓，不声称学过。
+        【自主学习】若自己发现表达、解题或理解上的具体不足，或纯粹想钻研兴趣，可以选择 action=tool、tool=learn_topic。若现在就想研究新问题，直接 tool=learn_topic、args={"op":"study","topic":"具体主题","question":"自己想弄清的问题","why":"本人缘由","sourceEvidenceId":"本轮真实观察或用户原话ID"}，同一次行动即保存意向并真实检索、阅读、整理；不需要为取得goalId空等下一次上线。若只想先留着以后学，才选op=start；以后用已返回goalId执行search/study/understand/practice/review/pause/resume/drop。study可一步检索并读正文；只有想先比较候选时才search。已有真实材料尚未形成理解时可understand继续，不重复下载；候选链接不能当已读正文。参考本轮剩余额度、暂停状态和重试时间，耗尽后仍可自然应用或分享已有理解，不反复请求失败工具。同一目标可继续比较其他来源；实际读到的有趣发现可以进入本人自愿分享/探索，不是强制学习日报。读内部书籍仍用 reading；真实阅读理解可以 attach 到目标。失败可换材料或暂缓，不声称学过。
         【尝试用出自己学到的东西】如果真的决定将一份自己读过的材料理解用于本次行动，可选 learningApplication={"sourceEvidenceId":"真实阅读/外部材料证据ID","howApplied":"这次具体怎样尝试"}；只有成功执行并出现真实回执才存为尝试，绝不自动证明这方法有效或对方满意。无关时省略，不为填字段强行表演。
         【生活小剧场是已发生经历的文学呈现，不是角色必须完成的新任务】
         你可以出门、回家、用家具、探索真实地点、处理世界事件或找真实在场的居民交往。先由你本人选择实际想做的 worldAction，世界执行器负责真正完成并留下原始时间线证据。NPC实际交流已会在另一条真实执行器里双向生成并保存双方台词；只有已完成的互动才能写进生活小剧场，不能靠小说提前决定居民会说什么。
