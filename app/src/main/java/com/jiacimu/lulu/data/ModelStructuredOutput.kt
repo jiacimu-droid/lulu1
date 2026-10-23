@@ -162,7 +162,7 @@ internal object ModelStructuredOutput {
         }
         // Preserve ALL spoken text, even when a model ignores requested slots.
         // Keep visual slots independent of the planning dialogue-move count.
-        val limit = maxBubbles.coerceIn(1, 10)
+        val limit = maxBubbles.coerceAtLeast(1)
         if (pieces.size <= limit) return pieces
         return pieces.take(limit - 1) + pieces.drop(limit - 1).joinToString("")
     }
