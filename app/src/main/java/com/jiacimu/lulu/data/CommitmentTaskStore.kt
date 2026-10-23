@@ -68,6 +68,22 @@ object CommitmentTaskStore {
         var changed = false
         val next = mutableTasks.value.map { task ->
             when {
+                // Old releases could schedule a new call for an instruction to
+                // END the currently connected call. Revoke that stale alarm on
+                // upgrade without deleting the original conversation evidence.
+                task.status == CommitmentTaskStatus.Scheduled &&
+                    task.isMisroutedLiveHangup() -> {
+                    task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+                    changed = true
+                    task.copy(
+                        status = CommitmentTaskStatus.Blocked,
+                        nextCheckAt = null,
+                        linkedAlarmId = null,
+                        revision = task.revision + 1L,
+                        updatedAt = now,
+                        lastActionResult = "旧版误将当前电话的挂断登记为新来电；已取消错误闹钟，请在通话中重新安排",
+                    )
+                }
                 task.status == CommitmentTaskStatus.Running &&
                     (task.executionToken == null || inFlight[task.id] != task.executionToken) -> {
                     changed = true
@@ -133,6 +149,16 @@ object CommitmentTaskStore {
         val current = mutableTasks.value.firstOrNull {
             it.linkedAlarmId == alarmId && it.status.isActive()
         } ?: return null
+        // The alarm receiver can launch the process before Activity recovery.
+        // Never let a legacy misrouted alarm trigger an unwanted new call.
+        if (current.isMisroutedLiveHangup()) {
+            current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+            update(current.id) { task -> task.copy(
+                status = CommitmentTaskStatus.Blocked, linkedAlarmId = null, nextCheckAt = null,
+                lastActionResult = "旧版错误定时挂断已阻止，不能使用来电闹钟挂断当前电话",
+            ) }
+            return null
+        }
         val deadline = scheduledAt ?: current.nextCheckAt ?: current.dueAt
         if (deadline != null && !CommitmentAlarmTiming.due(deadline, receivedAt)) {
             if (CommitmentAlarmTiming.expired(deadline, receivedAt)) update(current.id) { old -> old.copy(
