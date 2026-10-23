@@ -18,6 +18,23 @@ object CharacterDevelopmentRuntime {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
     private var prefs: android.content.SharedPreferences? = null
+    private val statusChanges = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val revisions: kotlinx.coroutines.flow.StateFlow<Long> = statusChanges
+
+    fun lastStatus(characterId: String): String =
+        prefs?.getString("status:$characterId", "").orEmpty()
+
+    private fun note(characterId: String, summary: String) {
+        val whenLocal = java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm")
+            .format(Instant.now().atZone(java.time.ZoneId.systemDefault()))
+        prefs?.edit()?.putString("status:$characterId", "$whenLocal · $summary")?.apply()
+        statusChanges.value += 1
+    }
+
+    /** A sleeping role never buys a second reflection call; resume on its next real wake. */
+    fun resumePending(characterId: String) {
+        if (prefs?.getBoolean("pending:$characterId", false) == true) request(characterId)
+    }
 
     fun initialize(context: android.content.Context) {
         prefs = context.applicationContext.getSharedPreferences("lulu_development_reflection", android.content.Context.MODE_PRIVATE)
@@ -31,7 +48,8 @@ object CharacterDevelopmentRuntime {
     private val waitingLock = Any()
 
     fun request(characterId: String) {
-        if (characterId.isBlank()) return
+        if (characterId.isBlank() || prefs == null) return
+        prefs?.edit()?.putBoolean("pending:$characterId", true)?.apply()
         synchronized(waitingLock) {
             if (waitingJobs[characterId]?.isActive == true) return
             val job = scope.launch {
@@ -47,7 +65,13 @@ object CharacterDevelopmentRuntime {
                             ChatGenerationActivity.isRunning(conv.id)
                     }
                     if (!inCall && !inChat) {
-                        mutex.withLock { reflect(characterId) }
+                        if (!CompanionOnlineStore.isOnline(characterId)) {
+                            note(characterId, "休眠中，醒来再整理")
+                            return@launch
+                        }
+                        mutex.withLock {
+                            if (CompanionOnlineStore.isOnline(characterId)) reflect(characterId)
+                        }
                         return@launch
                     }
                     delay(45_000L)
@@ -67,7 +91,10 @@ object CharacterDevelopmentRuntime {
         val now = Instant.now().toEpochMilli()
         val persona = CharacterRuntime.personaConstraintSnapshot(characterId)
         val sameDefinition = p.getString("persona:$characterId", "") == persona
-        if (sameDefinition && now - p.getLong("attempt:$characterId", 0) < 3_600_000) return
+        if (sameDefinition && now - p.getLong("attempt:$characterId", 0) < 3_600_000) {
+            note(characterId, "成长反思间隔中")
+            return
+        }
         val timeline = SharedExperienceTimeline.all(characterId)
         // Consolidating a repeated USER routine is distinct from learning the
         // companion's own Habit. Sample real messages across separate days so
@@ -96,9 +123,17 @@ object CharacterDevelopmentRuntime {
             timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
                 it.source in setOf("journal:own", "moment:self") }.takeLast(8))
             .distinctBy { it.id }.sortedBy { it.occurredAt }
-        if (independentDevelopmentExposures(events).size < 2) return
+        if (independentDevelopmentExposures(events).size < 2) {
+            p.edit().putBoolean("pending:$characterId", false).apply()
+            note(characterId, "真实经历还不足")
+            return
+        }
         val fingerprint = persona + "\n" + events.joinToString("|") { "${it.id}:${it.revision}" }
-        if (fingerprint == p.getString("batch:$characterId", "")) return
+        if (fingerprint == p.getString("batch:$characterId", "")) {
+            p.edit().putBoolean("pending:$characterId", false).apply()
+            note(characterId, "暂无新经历")
+            return
+        }
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
@@ -123,11 +158,14 @@ object CharacterDevelopmentRuntime {
             source = "增量成长反思", title = "角色成长", maxTokens = 1400,
             contextMode = CompanionContextMode.Isolated).getOrNull() ?: run {
                 p.edit().putLong("attempt:$characterId", now - 3_300_000).commit()
+                note(characterId, "模型请求失败")
                 return
             }
         runCatching {
             val array = decodeMemoryResponseArray(reply.text)
-            for (i in 0 until minOf(array.length(), 3)) {
+            var accepted = 0
+            val considered = minOf(array.length(), 3)
+            for (i in 0 until considered) {
                 val item = array.getJSONObject(i)
                 fun ids(key: String): List<String> {
                     val a = item.optJSONArray(key) ?: return emptyList()
@@ -135,7 +173,7 @@ object CharacterDevelopmentRuntime {
                 }
                 val slot = item.getString("slot")
                 val disposition = item.optString("disposition", "upsert").lowercase()
-                if (disposition == "retire") {
+                val changed = if (disposition == "retire") {
                     CharacterDevelopmentStore.retireSlotWithCounterEvidence(
                         characterId, slot, ids("counterIds"), persona,
                     )
@@ -144,8 +182,18 @@ object CharacterDevelopmentRuntime {
                         DevelopmentKind.valueOf(item.getString("kind")), item.getString("content"),
                         ids("evidenceIds"), ids("counterIds"), persona)
                 }
+                if (changed) accepted++
             }
-            p.edit().putString("batch:$characterId", fingerprint).commit()
-        }.onFailure { p.edit().putLong("attempt:$characterId", now - 3_300_000).commit() }
+            p.edit().putString("batch:$characterId", fingerprint)
+                .putBoolean("pending:$characterId", false).commit()
+            note(characterId, when {
+                accepted > 0 -> "形成 $accepted 项变化"
+                considered > 0 -> "候选未通过经历校验"
+                else -> "这次没有可靠变化"
+            })
+        }.onFailure {
+            p.edit().putLong("attempt:$characterId", now - 3_300_000).commit()
+            note(characterId, "反思结果解析失败")
+        }
     }
 }
