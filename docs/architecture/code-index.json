@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:50:37.963519+00:00",
-  "commit": "9b076f31a4697b00b6fc26b51b9638b101d3e11a",
+  "generatedAt": "2026-10-23T11:52:28.948498+00:00",
+  "commit": "079cf77f0478513d34db90ea5da873ee596996c2",
   "branch": "main",
-  "sourceFingerprint": "67b77c6df5167ebd707e48ca570d23db59c4ecfe7e30d8ecc3fb629ddadc9613",
+  "sourceFingerprint": "97e124850b216e08bef47782e4782d88566ef1979bb41a9d35b7e67528b6bb2a",
   "summary": {
     "files": 853,
-    "lines": 163328,
+    "lines": 163326,
     "symbols": 2469
   },
   "symbolIndex": {
@@ -15854,8 +15854,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
-      "lines": 368,
-      "sha256": "78066ae3bf16e452604e85bc107772854a747182794fb1c73af264d85f013df1",
+      "lines": 366,
+      "sha256": "deb9eb577386a74dc706cf4a0d9d9ce4b092ffc6539eb33e47c9e9f13f6a5a8c",
       "symbols": []
     },
     {
@@ -18926,7 +18926,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
       "lines": 130,
-      "sha256": "2adcdaf319396e3644395d9e4d624c1ac0f233a9234e3dc2d0fdf21aa10df02e",
+      "sha256": "e3dee80a1df6d2b14ad84dfbfea6b5a78510a22e4ffc8b0a683fa1ec8ab48cbf",
       "symbols": [
         {
           "name": "invalidate",
