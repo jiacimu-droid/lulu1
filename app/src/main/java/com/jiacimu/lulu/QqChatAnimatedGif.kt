@@ -25,11 +25,12 @@ internal fun QqChatAnimatedGif(imageUri: String) {
         update = { view ->
             if (view.tag != imageUri) {
                 (view.drawable as? AnimatedImageDrawable)?.stop()
-                val file = Uri.parse(imageUri).path?.let(::File)
-                // This path is provided by the app's existing persisted chat
-                // image URI and is never passed to an external process.
+                // Only the locally persisted file is loaded, never a remote
+                // image address or a path supplied by external web content.
                 val animation = runCatching {
-                    require(file?.isFile == true)
+                    val file = Uri.parse(imageUri).path?.let(::File)
+                        ?: error("GIF 文件路径不可用")
+                    require(file.isFile)
                     ImageDecoder.decodeDrawable(ImageDecoder.createSource(file))
                 }.getOrNull()
                 view.setImageDrawable(animation)
