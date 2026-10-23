@@ -9,7 +9,7 @@ import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
-import { resolveTouchRegion } from './touch-hit.mjs'
+import { resolveTouchRegion, sanitizeTouchCalibration, TOUCH_REGIONS } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor } from './touch-reflex.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
@@ -76,6 +76,72 @@ let headRequestEndAt = 0
 let touchReflex = null
 let touchReflexEndAt = 0
 let touchSequence = 0
+let touchCalibration = Object.create(null)
+let calibrationVisible = false
+let calibrationGuide = null
+// Visual regions belong to the currently imported model, not to the character.
+const defaultZoneAnchors = {
+  'ear-left': [.2,.06], 'ear-right': [.8,.06],
+  'hair': [.5,.045], 'forehead': [.5,.09],
+  'eye-left': [.37,.145], 'eye-right': [.63,.145],
+  'nose': [.5,.205], 'cheek-left': [.32,.235],
+  'cheek-right': [.68,.235], 'mouth': [.5,.275],
+  'neck': [.5,.365], 'collarbone': [.5,.415],
+  'chest': [.5,.545], 'arm-left': [.22,.55],
+  'arm-right': [.78,.55], 'hand-left': [.2,.82],
+  'hand-right': [.8,.82], 'body': [.5,.79],
+}
+function drawCalibrationGuide() {
+  if (!app || !model) return
+  if (!calibrationGuide) {
+    calibrationGuide = new PIXI.Graphics()
+    app.stage.addChild(calibrationGuide)
+  }
+  calibrationGuide.clear()
+  if (!calibrationVisible) return
+  const b = model.getBounds()
+  for (const [index, zone] of TOUCH_REGIONS.entries()) {
+    const saved = touchCalibration[zone]
+    const anchor = defaultZoneAnchors[zone] || [.5,.5]
+    const u = saved?.u ?? anchor[0]
+    const v = saved?.v ?? anchor[1]
+    const rx = (saved?.rx ?? .065) * b.width
+    const ry = (saved?.ry ?? .065 * b.width / Math.max(1,b.height)) * b.height
+    calibrationGuide.lineStyle(saved ? 2.5 : 1, saved ? 0xC5F7FF : 0xC0D0DC, saved ? .9 : .48)
+    calibrationGuide.beginFill(saved ? 0x70D3F1 : 0xA9BCCA, saved ? .28 : .10)
+    calibrationGuide.drawEllipse(b.x + u * b.width, b.y + v * b.height, rx, ry)
+    calibrationGuide.endFill()
+  }
+}
+function setCalibrationMode(enabled) {
+  calibrationVisible = !!enabled
+  drawCalibrationGuide()
+}
+function setTouchCalibration(value) {
+  touchCalibration = sanitizeTouchCalibration(value)
+  drawCalibrationGuide()
+}
+function calibrateTouch(nx, ny, zone, radius = .085) {
+  if (!model || !TOUCH_REGIONS.includes(zone) || !Number.isFinite(nx) ||
+      !Number.isFinite(ny) || !Number.isFinite(radius)) return null
+  const b = model.getBounds()
+  const u = (nx * root.clientWidth - b.x) / b.width
+  const v = (ny * root.clientHeight - b.y) / b.height
+  if (![u, v].every(Number.isFinite) || u < 0 || u > 1 || v < 0 || v > 1)
+    return null
+  const rx = Math.max(.025, Math.min(.3, radius))
+  const ry = Math.max(.025, Math.min(.35, rx * b.width / Math.max(1,b.height)))
+  touchCalibration = sanitizeTouchCalibration({
+    ...touchCalibration, [zone]: { u, v, rx, ry },
+  })
+  drawCalibrationGuide()
+  return { zone, calibration: touchCalibration }
+}
+function clearTouchCalibration() {
+  touchCalibration = Object.create(null)
+  drawCalibrationGuide()
+}
+
 let touchExpressionNames = []
 let activeTouchExpression = null
 let activeTouchExpressionUntil = 0
@@ -187,6 +253,7 @@ function fit() {
   model.scale.set(Math.min(widthTarget / originalWidth, heightTarget / originalHeight))
   model.anchor.set(.5, .5)
   model.position.set(viewWidth / 2, viewHeight * (isPortrait ? 1.00 : .49))
+  drawCalibrationGuide()
 }
 function setFramingMode(nextMode) {
   framingMode = nextMode === 'portrait' ? 'portrait' : 'full'
@@ -618,6 +685,7 @@ async function load(modelURL) {
     describeTextureLimits(model)
     if (!installFinalParameterControl(model)) throw new Error('缺少 Cubism 最终参数控制阶段')
     app.stage.addChild(model)
+    if (calibrationGuide) app.stage.addChild(calibrationGuide)
     fit()
     notify('step', '⑥ Canvas：验证真实可见人物像素')
     status('模型已解码，正在验证实际绘制画面…')
@@ -956,22 +1024,25 @@ function touch(normalizedX, normalizedY, gesture = 'tap') {
   const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
   const region = resolveTouchRegion({
     hits, authoredAreas, bounds: model.getBounds(), x, y,
+    calibration: touchCalibration,
   })
   if (!region) return { hit: false }
   const kind = ['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
-    'stroke-up', 'stroke-down'].includes(gesture) ? gesture : 'tap'
+    'stroke-up', 'stroke-down', 'kiss', 'kick', 'slap-left', 'slap-right'
+  ].includes(gesture) ? gesture : 'tap'
   if (kind === 'down') touchSequence++
   // Touch changes pose immediately and for as long as a finger moves.
   // This physical reflex costs ZERO model calls.
   touchReflex = touchReflexFor(region, kind, touchSequence)
   touchReflexEndAt = performance.now() +
-    (kind.startsWith('stroke') ? 560 : kind === 'hold' ? 1100 : 420)
+    (kind === 'kick' || kind.startsWith('slap') ? 750 :
+      kind === 'kiss' ? 1100 : kind.startsWith('stroke') ? 650 :
+      kind === 'hold' ? 1100 : 460)
   // The character's authored speaking expression always wins. Silent
   // touches may briefly borrow a REAL exp3 animation when one exists.
   if (!playing && !activeExpressionName &&
-      kind !== 'down' && kind !== 'hold' &&
-      (region === 'hair' || region.includes('cheek') || region === 'forehead')) {
-    const selected = touchExpressionFor(region, touchExpressionNames, touchSequence)
+      kind !== 'down' && kind !== 'hold') {
+    const selected = touchExpressionFor(region, touchExpressionNames, touchSequence, kind)
     const manager = model.internalModel?.motionManager?.expressionManager
     if (selected && manager?.getExpressionIndex?.(selected) >= 0 &&
         !mouthExclusiveExpressions.has(selected)) {
@@ -1129,7 +1200,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
