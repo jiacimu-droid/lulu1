@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T06:33:52.512064+00:00",
-  "commit": "332bcab0c29267e9dacaf26b25f2bf388f8ea35d",
+  "generatedAt": "2026-10-23T06:35:17.534529+00:00",
+  "commit": "a1085a0198670c6c12aaa1cddca9167c620f1347",
   "branch": "main",
-  "sourceFingerprint": "fe18362d970a165f099f2261c7a546522ef73e796ab67b22542022eaf75ebdce",
+  "sourceFingerprint": "843666445c27a4eeac5ea3a23185aa4110d63d2e97720c2beafd0c0dec4c40d7",
   "summary": {
-    "files": 836,
-    "lines": 160531,
-    "symbols": 2426
+    "files": 837,
+    "lines": 160571,
+    "symbols": 2427
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12950,6 +12950,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CoreMemoryDeliveryIntegrationTest.kt",
         "line": 28
+      }
+    ],
+    "DeepSeekSearchIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt",
+        "line": 14
       }
     ],
     "DevelopmentPolicyTest": [
@@ -27796,6 +27802,17 @@
         {
           "name": "CoreMemoryDeliveryIntegrationTest",
           "line": 28
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/DeepSeekSearchIntegrationTest.kt",
+      "lines": 40,
+      "sha256": "3dbd7d808191fad812e9291327e790dbaa4f3e6fd5dc770fcfa9dfe82ebbf337",
+      "symbols": [
+        {
+          "name": "DeepSeekSearchIntegrationTest",
+          "line": 14
         }
       ]
     },
