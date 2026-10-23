@@ -269,6 +269,7 @@ object CompanionOnlineStore {
         if (characterId.isBlank()) return
         synchronized(lock) {
             val previous = mutableStates.value[characterId]
+            EmbodiedBodyRuntime.onPresenceWake(characterId, previous, now)
             val state = (previous ?: CompanionOnlineState(characterId, now, reason)).copy(
                 onlineUntil = now.plus(onlineDuration),
                 reason = reason,
@@ -284,28 +285,36 @@ object CompanionOnlineStore {
     }
 
     /** One real role-selected sleep action. Old expiry jobs see an obsolete lease. */
-    fun goOfflineByChoice(characterId: String, now: Instant = Instant.now()): Boolean =
-        synchronized(lock) {
+    fun goOfflineByChoice(characterId: String, now: Instant = Instant.now()): Boolean {
+        val wentOffline = synchronized(lock) {
             if (characterId.isBlank() || CompanionPresenceStore.isInCall(characterId))
                 return@synchronized false
             val current = mutableStates.value[characterId] ?: return@synchronized false
-            if (!current.isOnline(now)) return@synchronized true
+            if (!current.isOnline(now)) {
+                EmbodiedBodyRuntime.onPresenceSleep(characterId, current.onlineUntil)
+                return@synchronized true
+            }
+            // Going offline IS sleep: settle awake time before writing the lease.
+            EmbodiedBodyRuntime.onPresenceSleep(characterId, now)
             mutableStates.value = mutableStates.value + (characterId to current.copy(
                 onlineUntil = now, reason = CompanionOnlineReason.SelfChosenSleep,
             ))
             // Do not cancel the active model worker that is executing this tool.
-            // A future genuine user message can still wake the character.
             lifePulseJobs.remove(characterId)?.cancel()
             expiryJobs.remove(characterId)?.cancel()
             persistLocked()
             true
         }
+        if (wentOffline) appContext?.let(ProactivePerceptionScheduler::scheduleNextDue)
+        return wentOffline
+    }
 
     fun recordActivity(characterId: String, now: Instant = Instant.now()) {
         if (characterId.isBlank()) return
         synchronized(lock) {
             val previous = mutableStates.value[characterId]
                 ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.NewActivity)
+            EmbodiedBodyRuntime.onPresenceWake(characterId, mutableStates.value[characterId], now)
             val updated = previous.copy(
                 onlineUntil = maxOf(previous.onlineUntil, now.plus(onlineDuration)),
                 reason = CompanionOnlineReason.NewActivity,
@@ -328,6 +337,7 @@ object CompanionOnlineStore {
             groupFocusUntil = groupFocusUntil + (conversation.id to now.plus(onlineDuration))
             memberIds.forEach { characterId ->
                 val previous = mutableStates.value[characterId]
+                EmbodiedBodyRuntime.onPresenceWake(characterId, previous, now)
                 val state = (previous ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.GroupWake)).copy(
                     onlineUntil = now.plus(onlineDuration),
                     reason = CompanionOnlineReason.GroupWake,
@@ -417,6 +427,7 @@ object CompanionOnlineStore {
                 groupFocusUntil = groupFocusUntil + (conversation.id to now.plus(onlineDuration))
                 members.forEach { characterId ->
                     val previous = mutableStates.value[characterId]
+                    EmbodiedBodyRuntime.onPresenceWake(characterId, previous, now)
                     val state = (previous ?: CompanionOnlineState(characterId, now, CompanionOnlineReason.NewActivity)).copy(
                         onlineUntil = now.plus(onlineDuration),
                         reason = CompanionOnlineReason.NewActivity,
@@ -612,6 +623,7 @@ object CompanionOnlineStore {
         // New activity may already have awakened the character. If so, the stale
         // expiry cannot overwrite that session's purpose or expiry.
         if (current.isOnline(now)) return@synchronized false
+        EmbodiedBodyRuntime.onPresenceWake(characterId, current, now)
         mutableStates.value = mutableStates.value + (characterId to current.copy(
             onlineUntil = now.plus(onlineDuration),
             reason = CompanionOnlineReason.SelfChosenExtension,
@@ -661,6 +673,7 @@ object CompanionOnlineStore {
             val ended = synchronized(lock) {
                 val current = mutableStates.value[characterId]
                 if (current == null || current.isOnline()) false else {
+                    EmbodiedBodyRuntime.onPresenceSleep(characterId, until)
                     mutableStates.value = mutableStates.value + (
                         // Keep the original persisted deadline: the background
                         // expiry worker must still recognize this same boundary.
