@@ -254,6 +254,9 @@ object ProactivePerceptionRuntime {
                         trigger.startsWith("角色自己刚完成") ||
                         trigger.startsWith("居民小事到了") ||
                         trigger.startsWith("强烈情绪的后续整理") ||
+                        trigger.startsWith("新发生的互动体验") ||
+                        trigger.startsWith("互动事件二次重试") ||
+                        trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER) ||
                         trigger.startsWith("在线持续感知")
                     if (sleeping && sleepDeferredReview && onlineExpiryAtMillis == 0L &&
                         !explicitUserWake) continue
