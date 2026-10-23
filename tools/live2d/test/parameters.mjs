@@ -234,6 +234,17 @@ assert.equal(seen.length, 4)
 performance.reset()
 assert.equal(performance.state().queued, false)
 
+// Start promptly, release slowly, and eventually regain the neutral pose.
+const soft = createPoseSpring(['yaw'], 100, 1.04, 25)
+for (let i = 0; i < 65; i++) soft.step({ yaw: 12 }, 16)
+const engaged = soft.step({ yaw: 12 }, 16).yaw
+for (let i = 0; i < 20; i++) soft.step(null, 16, true)
+const returning = soft.step(null, 16, true).yaw
+assert.ok(returning > 3 && returning < engaged,
+  'short poses must retain a visible, gradually releasing tail')
+for (let i = 0; i < 110; i++) soft.step(null, 16, true)
+assert.ok(Math.abs(soft.step(null, 16, true).yaw) < .15,
+  'a released pose must eventually settle')
 // The independent spring is clamped on long stalls and never moves in idle.
 const spring = createPoseSpring(['yaw', 'pitch', 'roll'])
 for (let i = 0; i < 90; i++) spring.step(null, 16)
