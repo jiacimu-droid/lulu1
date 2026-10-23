@@ -158,3 +158,31 @@ export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 't
   const ordered = pools.flatMap(group => group.map(item => item.name))
   return ordered[offset % ordered.length] || null
 }
+
+/**
+ * Opt-in second authored facial layer for a real model that has independent
+ * additive expression channels (e.g. wolf bq4 blush + bq6 heart eyes).
+ * Never merge outfit switches or conflicting parameters. No model assets are
+ * redistributed: metadata is read from the imported exp3 files on-device.
+ */
+export function touchCompanionOverlayFor(primary, names = [], metadata = {}, gesture = '') {
+  const primaryKind = touchExpressionCategory(primary)
+  if (!['heart', 'star', 'blush'].includes(primaryKind)) return null
+  const nextKind = primaryKind === 'blush'
+    ? (gesture === 'kiss' ? 'heart' : 'star') : 'blush'
+  const candidate = names.find(name =>
+    name !== primary && touchExpressionCategory(name) === nextKind)
+  if (!candidate) return null
+  const primaryParams = metadata[primary]?.Parameters
+  const extraParams = metadata[candidate]?.Parameters
+  if (!Array.isArray(primaryParams) || !Array.isArray(extraParams) ||
+      extraParams.length !== 1) return null
+  const extra = extraParams[0]
+  const id = String(extra?.Id || '')
+  const value = Number(extra?.Value)
+  const occupied = new Set(primaryParams.map(param => String(param?.Id || '')))
+  if (!/^[A-Za-z][A-Za-z0-9_]{0,60}$/.test(id) || occupied.has(id) ||
+      extra.Blend !== 'Add' || !Number.isFinite(value) || value <= 0 || value > 1)
+    return null
+  return { name: candidate, id, value }
+}
