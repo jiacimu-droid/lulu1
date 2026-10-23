@@ -8,7 +8,8 @@ import java.time.Instant
 import java.util.UUID
 
 enum class DevelopmentKind(val label: String) {
-    Interest("兴趣"), Preference("偏好"), Habit("习惯"), UserHabit("观察到的用户习惯"),
+    Interest("兴趣"), Preference("偏好"), Habit("习惯"),
+    UserPreference("主人的偏好"), UserHabit("主人的习惯"),
     ExpressionHabit("表达习惯"), Judgment("判断"),
     SituationalPattern("情境反应倾向"), NarrativeMeaning("叙事意义"),
     RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
@@ -86,7 +87,7 @@ object CharacterDevelopmentStore {
     fun active(characterId: String): List<DevelopmentRecord> {
         val authorized = authorizedPersonaSnapshots(characterId)
         return history(characterId).filter { record ->
-            record.active && (record.kind == DevelopmentKind.UserHabit ||
+            record.active && (record.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) ||
                 record.personaSnapshot in authorized) &&
                 (record.evidence + record.counterEvidence).all { (id, revision) ->
                     SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()?.revision == revision
@@ -105,17 +106,28 @@ object CharacterDevelopmentStore {
         val explicit = factual.any { it.evidenceKind == EventEvidenceKind.UserStatement &&
             Regex("以后|下次|记住|不要再|我喜欢|我不喜欢|我希望").containsMatchIn(it.content) }
         if (!DevelopmentPolicy.accepts(kind, factual.size, explicit, counters.size)) return false
-        if (kind == DevelopmentKind.UserHabit) {
-            // User habits must never be inferred from a companion's subjective
-            // writing, fiction, or a successful tool execution.
-            if (factual.size < 3 || factual.any {
-                    it.evidenceKind != EventEvidenceKind.UserStatement
+        if (kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit)) {
+            // Keep what the user actually said distinct from the companion's own
+            // traits. A clear first-person preference/self-report is useful now;
+            // a pattern inferred from behaviour still needs independent days.
+            if (factual.isEmpty() || factual.any {
+                    it.evidenceKind != EventEvidenceKind.UserStatement ||
+                        (it.channel != "私聊" && !it.channel.contains("电话") &&
+                            !it.channel.contains("见面"))
                 }) return false
-            // Three bubbles in one conversation are not three independent days.
+            val direct = factual.any { event ->
+                val text = event.content
+                if (kind == DevelopmentKind.UserPreference)
+                    Regex("我.{0,8}(喜欢|不喜欢|更喜欢|偏爱|讨厌|希望|不希望|想要|不想)|别总|别再|不要再|下次.{0,14}(请|别|不要)|就这样")
+                        .containsMatchIn(text)
+                else Regex("我(一般|通常|经常|习惯|总是|平时|每次|基本)")
+                    .containsMatchIn(text)
+            }
             val distinctDays = factual.map {
                 it.occurredAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
             }.toSet()
-            if (distinctDays.size < 3) return false
+            if (!direct && (factual.size < 3 || distinctDays.size < 3)) return false
+            // Later contrary USER evidence must not be silently ignored.
             if (counters.any { counter ->
                     factual.any { it.occurredAt < counter.occurredAt }
                 }) return false
@@ -149,33 +161,38 @@ object CharacterDevelopmentStore {
             if (counters.any { it.occurredAt > factual.maxOf { event -> event.occurredAt } }) return false
         }
         if (kind == DevelopmentKind.VerifiedMethod) {
-            val successfulActions = factual.filter { event ->
-                event.evidenceKind == EventEvidenceKind.ToolResult && runCatching {
-                    val outcome = JSONObject(event.content)
-                    outcome.optString("status") == "succeeded" &&
-                        (outcome.optString("result").let { raw ->
-                            if (raw.startsWith("{")) JSONObject(raw).optBoolean("success") else true
-                        })
-                }.getOrDefault(false)
+            // A real sent message/gesture can be a tried method; tool execution
+            // alone cannot establish interpersonal success. Validate the named
+            // exchange against the original timeline, not the model's verdict.
+            val claimedMessages = events.filter {
+                it.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                    it.source == "message" &&
+                    (it.channel == "私聊" || it.channel.contains("电话") || it.channel.contains("见面"))
             }
-            if (successfulActions.size < 3) return false
-            // "The tool ran" does not prove "this helps the user". A verified interpersonal
-            // method also needs the user's own later feedback in the proposed evidence set.
             val positiveFeedback = factual.filter { event ->
                 event.evidenceKind == EventEvidenceKind.UserStatement &&
-                    Regex("喜欢|好喜欢|开心|好多了|舒服多了|有用|有效|这招可以|下次还|就这样|谢谢|太好了|被哄好|缓过来了|笑死|笑出来了")
+                    (event.channel == "私聊" || event.channel.contains("电话") || event.channel.contains("见面")) &&
+                    Regex("我喜欢|喜欢你|好喜欢|被哄好|哄好了|好多了|舒服多了|有用|有效|这招可以|下次还|这样就好|就这样|开心了|笑出来了|你哄得|这次对了")
                         .containsMatchIn(event.content) &&
-                    !Regex("不喜欢|没用|没有用|没效果|更烦|别这样|不要这样").containsMatchIn(event.content)
+                    !Regex("不喜欢|不太喜欢|没用|没有用|没效果|没好|不开心|更烦|别这样|不要这样|反话").containsMatchIn(event.content)
             }
-            val feedbackFollowsAction = positiveFeedback.any { feedback ->
-                successfulActions.any { action ->
-                    val minutes = runCatching {
-                        Duration.between(action.occurredAt, feedback.occurredAt).toMinutes()
-                    }.getOrNull()
-                    minutes != null && minutes in 0..240
+            if (claimedMessages.isEmpty() || positiveFeedback.isEmpty()) return false
+            val timeline = SharedExperienceTimeline.all(characterId)
+            val matched = positiveFeedback.any { feedback ->
+                claimedMessages.any { action ->
+                    val minutes = Duration.between(action.occurredAt, feedback.occurredAt).toMinutes()
+                    minutes in 0..30 && action.channel == feedback.channel &&
+                        // One conversational scene: do not credit a distant message
+                        // when another character reply came in between.
+                        timeline.none { later ->
+                            later.id != action.id && later.evidenceKind == EventEvidenceKind.CharacterStatement &&
+                                later.source == "message" && later.channel == action.channel &&
+                                later.occurredAt.isAfter(action.occurredAt) &&
+                                later.occurredAt.isBefore(feedback.occurredAt)
+                        }
                 }
             }
-            if (!feedbackFollowsAction) return false
+            if (!matched) return false
         }
         synchronized(this) {
         if (CharacterRuntime.personaConstraintSnapshot(characterId) != personaSnapshot ||
