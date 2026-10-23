@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e2a5b6d5af05b6026a82dc990ad7881920dcd817`
+- 基准提交：`8dffdc8e5546d7d4cdce96e4454a61a1bc60fab7`
 - 分支：`main`
 - 已索引文件：853
-- 已索引代码/文本行：163140
+- 已索引代码/文本行：163150
 - 已发现符号：2469
 
 | 文件 | 行数 | 符号数 |
@@ -811,8 +811,8 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 48 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 43 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 75 | 1 |

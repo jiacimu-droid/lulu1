@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T10:22:11.654085+00:00",
-  "commit": "e2a5b6d5af05b6026a82dc990ad7881920dcd817",
+  "generatedAt": "2026-10-23T11:11:33.307806+00:00",
+  "commit": "8dffdc8e5546d7d4cdce96e4454a61a1bc60fab7",
   "branch": "main",
-  "sourceFingerprint": "0383bda29c7ab33183ac71c33713eb6b3ab4eb10fea2db3cbdf97a30f08c42a1",
+  "sourceFingerprint": "d02b789eb72a3b88ea993436cb32415819c660f36393181adc3f4e83d704c70d",
   "summary": {
     "files": 853,
-    "lines": 163140,
+    "lines": 163150,
     "symbols": 2469
   },
   "symbolIndex": {
@@ -13577,13 +13577,13 @@
     "SearchActionIntegrityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "SearchReceiptFeedbackTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-        "line": 8
+        "line": 13
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -28991,23 +28991,23 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt",
-      "lines": 48,
-      "sha256": "e555ae6dce4ce57d51c1b99eb669bfb1c52ead799b65973a89b1469c9ced1061",
+      "lines": 53,
+      "sha256": "914f8a6e5789b570e4408f29dd99abb651b9ab98696b12ac1814c1e1290668da",
       "symbols": [
         {
           "name": "SearchActionIntegrityTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-      "lines": 43,
-      "sha256": "b002b29a24c01dc696c73a3cff8be42a1fa285b4f1820c6cc6f1fd3f5e9a8030",
+      "lines": 48,
+      "sha256": "4d33e9d40d2e74723231ffe22ff649afa865af4aaa6bc0c1da637077becc58b5",
       "symbols": [
         {
           "name": "SearchReceiptFeedbackTest",
-          "line": 8
+          "line": 13
         }
       ]
     },
