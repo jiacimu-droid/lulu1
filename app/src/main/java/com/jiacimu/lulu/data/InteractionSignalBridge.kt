@@ -125,6 +125,10 @@ internal object InteractionSignalBridge {
             "stroke-right" -> "向右抚摸"
             "stroke-up" -> "向上抚摸"
             "stroke-down" -> "向下抚摸"
+            "kiss" -> "亲吻"
+            "kick" -> "轻踢"
+            "slap-left" -> "从右向左轻拍"
+            "slap-right" -> "从左向右轻拍"
             else -> return null
         }
         return "用户在屏幕上${action}了数字形象的${place}" +
