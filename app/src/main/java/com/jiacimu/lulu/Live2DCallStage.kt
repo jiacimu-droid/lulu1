@@ -82,10 +82,18 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     nativeMirrorEnabled: Boolean = false,
     framingMode: String = "full",
     qualityMode: String = "quality",
+    interactionMode: String = "hand",
+    calibrationMode: Boolean = false,
+    calibrationRegion: String = "cheek-left",
+    calibrationRadius: Float = .085f,
+    calibrationResetRevision: Int = 0,
     onWebViewReady: ((WebView) -> Unit)? = null,
     onModelTouch: ((region: String, gesture: String) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
+    val calibrationPrefs = remember(context) {
+        context.getSharedPreferences("lulu_live2d_touch_zones_v1", Context.MODE_PRIVATE)
+    }
     val playbackEvent by Live2DSpeechTimeline.events.collectAsState()
     val qualityReceiver = rememberUpdatedState(qualityMode)
     val statusReceiver = rememberUpdatedState(onStatus)
@@ -145,7 +153,10 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         // Finger DOWN and MOVE immediately actuate a local reflex. Only the
         // final action is batched into the real call timeline.
         if (onModelTouch != null) {
-            Box(Modifier.fillMaxSize().pointerInput(stage, rendererReady.value) {
+            Box(Modifier.fillMaxSize().pointerInput(
+                stage, rendererReady.value, interactionMode, calibrationMode,
+                calibrationRegion, calibrationRadius,
+            ) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     if (!rendererReady.value || size.width < 20 || size.height < 20)
@@ -155,21 +166,35 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                     var travel = 0f
                     var lastSent = began
                     fun send(x: Float, y: Float, kind: String, completed: Boolean = false) {
-                        val nx = (x / size.width).coerceIn(0f, 1f)
-                        val ny = (y / size.height).coerceIn(0f, 1f)
+                        // Ignore coordinates outside the real stage; clamping formerly
+                        // converted overscroll/background contact into model contact.
+                        if (x < 0 || y < 0 || x >= size.width || y >= size.height) return
+                        val nx = x / size.width
+                        val ny = y / size.height
+                        val js = if (calibrationMode) {
+                            "window.LuluLive2D.calibrateTouch(" +
+                                "$nx,$ny,${JSONObject.quote(calibrationRegion)},$calibrationRadius)"
+                        } else {
+                            "window.LuluLive2D.touch(" +
+                                "$nx,$ny,${JSONObject.quote(kind)})"
+                        }
                         stage.evaluateJavascript(
-                            "JSON.stringify(window.LuluLive2D && window.LuluLive2D.touch(" +
-                                "$nx,$ny,${JSONObject.quote(kind)}))",
+                            "JSON.stringify(window.LuluLive2D && ($js))",
                         ) { response ->
-                            if (completed) {
-                                val hit = runCatching {
-                                    val payload = JSONTokener(response).nextValue() as? String
-                                    payload?.let(::JSONObject)
-                                }.getOrNull()
-                                val region = hit?.takeIf { it.optBoolean("hit") }
+                            if (!completed) return@evaluateJavascript
+                            val hit = runCatching {
+                                val payload = JSONTokener(response).nextValue() as? String
+                                payload?.let(::JSONObject)
+                            }.getOrNull() ?: return@evaluateJavascript
+                            if (calibrationMode) {
+                                val zones = hit.optJSONObject("calibration") ?: return@evaluateJavascript
+                                calibrationPrefs.edit().putString(modelUrl, zones.toString()).apply()
+                            } else {
+                                val region = hit.takeIf { it.optBoolean("hit") }
                                     ?.optString("region").orEmpty()
+                                val acceptedGesture = hit.optString("gesture")
                                 if (Live2DTouchZones.label(region) != null)
-                                    touchReceiver.value?.invoke(region, kind)
+                                    touchReceiver.value?.invoke(region, acceptedGesture)
                             }
                         }
                     }
@@ -203,9 +228,45 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                         else -> "tap"
                     }
                     val pos = if (stroke) last else down.position
-                    send(pos.x, pos.y, kind, completed = true)
+                    val performed = if (calibrationMode) "calibrate" else when (interactionMode) {
+                        "kiss" -> "kiss"
+                        "foot" -> "kick"
+                        "pat" -> if (stroke) {
+                            if (dx >= 0) "slap-right" else "slap-left"
+                        } else "tap"
+                        else -> kind
+                    }
+                    send(pos.x, pos.y, performed, completed = true)
                 }
             })
+        }
+    }
+    // The imported model, rather than the character, owns calibration.
+    // Keep positions normalized to its bounds across portrait/full-body views.
+    LaunchedEffect(stage, rendererReady.value, modelUrl) {
+        if (rendererReady.value) {
+            val saved = runCatching {
+                JSONObject(calibrationPrefs.getString(modelUrl, "{}") ?: "{}")
+            }.getOrDefault(JSONObject())
+            stage.evaluateJavascript(
+                "window.LuluLive2D && window.LuluLive2D.setTouchCalibration($saved)",
+                null,
+            )
+        }
+    }
+    LaunchedEffect(stage, rendererReady.value, calibrationMode) {
+        if (rendererReady.value) stage.evaluateJavascript(
+            "window.LuluLive2D && window.LuluLive2D.setCalibrationMode($calibrationMode)",
+            null,
+        )
+    }
+    LaunchedEffect(stage, calibrationResetRevision) {
+        if (calibrationResetRevision > 0) {
+            calibrationPrefs.edit().remove(modelUrl).apply()
+            stage.evaluateJavascript(
+                "window.LuluLive2D && window.LuluLive2D.clearTouchCalibration()",
+                null,
+            )
         }
     }
     LaunchedEffect(stage, nativeMirrorEnabled) {
