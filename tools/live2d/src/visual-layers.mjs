@@ -36,13 +36,16 @@ const MAIN_HEAD = [
 const clamp01 = v => Math.min(1, Math.max(0, v))
 
 export function createVisualLayerRuntime({ has, read, write }) {
-  const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06)
-  const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1)
-  const touchSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.1)
-  const touchBodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 105, 1.08)
+  // Enter a selected pose promptly, relax out of it without a fast snap.
+  const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06, 25)
+  const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1, 23)
+  const touchSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.1, 25)
+  const touchBodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 105, 1.08, 23)
   const smoothedFace = Object.create(null)
   let secondaryHeadMix = 0
   let secondaryBodyMix = 0
+  let headHandoff = 0
+  let bodyHandoff = 0
 
   function reset() {
     headSpring.reset()
@@ -51,6 +54,8 @@ export function createVisualLayerRuntime({ has, read, write }) {
     touchBodySpring.reset()
     secondaryHeadMix = 0
     secondaryBodyMix = 0
+    headHandoff = 0
+    bodyHandoff = 0
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
@@ -76,31 +81,47 @@ export function createVisualLayerRuntime({ has, read, write }) {
       [axis, read(core, id) ?? 0])) : null
     const authoredBody = authoredMotion ? Object.fromEntries(Object.entries(BODY_BINDINGS).map(([axis, id]) =>
       [axis, read(core, id) ?? 0])) : null
-    const headPose = headSpring.step(head || authoredHead || idleHead, deltaMs)
-    const bodyPose = bodySpring.step(body || authoredBody || idleBody, deltaMs)
-    const reflexPose = touchSpring.step(touchReflex, deltaMs)
-    const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs)
+    const headPose = headSpring.step(head || authoredHead || idleHead, deltaMs,
+      !head && !authoredMotion)
+    const bodyPose = bodySpring.step(body || authoredBody || idleBody, deltaMs,
+      !body && !authoredMotion)
+    const reflexPose = touchSpring.step(touchReflex, deltaMs, !touchReflex)
+    const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs, !touchReflex)
+    // The original Motion3 still updates underneath a short touch or voice cue.
+    // Don't hand it control in one frame when that override expires.
+    if (authoredMotion) {
+      headHandoff = head || touchReflex ? 1 : Math.max(0, headHandoff - deltaMs / 1050)
+      bodyHandoff = body || touchReflex ? 1 : Math.max(0, bodyHandoff - deltaMs / 1050)
+    } else {
+      headHandoff = 0
+      bodyHandoff = 0
+    }
+    const eased = t => t * t * (3 - 2 * t)
+    const headMix = !authoredMotion || head || touchReflex ? 1 : eased(headHandoff)
+    const bodyMix = !authoredMotion || body || touchReflex ? 1 : eased(bodyHandoff)
     for (const [id, axis] of MAIN_HEAD) {
-      if (has(core, id) && (!authoredMotion || head || touchReflex)) {
-        write(core, id, headPose[axis] + (reflexPose[axis] || 0))
-      }
+      if (!has(core, id) || (authoredMotion && !head && !touchReflex && headHandoff === 0)) continue
+      const desired = headPose[axis] + (reflexPose[axis] || 0)
+      write(core, id, (authoredHead?.[axis] ?? 0) * (1 - headMix) + desired * headMix)
     }
     for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-      if (has(core, id) && (!authoredMotion || body || touchReflex)) {
-        write(core, id, bodyPose[axis] + bodyReflex[axis])
-      }
+      if (!has(core, id) || (authoredMotion && !body && !touchReflex && bodyHandoff === 0)) continue
+      const desired = bodyPose[axis] + bodyReflex[axis]
+      write(core, id, (authoredBody?.[axis] ?? 0) * (1 - bodyMix) + desired * bodyMix)
     }
 
     // Physics follow-through on a neutral head/torso causes the user's
     // unwanted wandering. Suppress just those bones, not ears or hair.
-    const mixStep = Math.min(1, Math.max(0, deltaMs) * .014)
-    // Touch is deliberate movement too. The previous gate muted secondary
-    // head/torso follow-through whenever there was no separate AI pose or
-    // authored Motion3, even though a live touch reflex was in progress.
-    secondaryHeadMix += ((head || authoredMotion || touchReflex ? 1 : 0) - secondaryHeadMix) * mixStep
-    secondaryBodyMix += ((body || authoredMotion || touchReflex ? 1 : 0) - secondaryBodyMix) * mixStep
-    if (!head && !authoredMotion && secondaryHeadMix < .008) secondaryHeadMix = 0
-    if (!body && !authoredMotion && secondaryBodyMix < .008) secondaryBodyMix = 0
+    // Follow-through fades gently instead of disappearing as soon as the
+    // pointer is released. Rise stays fast; return is deliberately slower.
+    const headActive = !!(head || authoredMotion || touchReflex)
+    const bodyActive = !!(body || authoredMotion || touchReflex)
+    const headStep = 1 - Math.exp(-Math.max(0, deltaMs) / (headActive ? 120 : 650))
+    const bodyStep = 1 - Math.exp(-Math.max(0, deltaMs) / (bodyActive ? 120 : 700))
+    secondaryHeadMix += ((headActive ? 1 : 0) - secondaryHeadMix) * headStep
+    secondaryBodyMix += ((bodyActive ? 1 : 0) - secondaryBodyMix) * bodyStep
+    if (!headActive && secondaryHeadMix < .008) secondaryHeadMix = 0
+    if (!bodyActive && secondaryBodyMix < .008) secondaryBodyMix = 0
     // Secondary axes are authored physics outputs, not a per-frame additive
     // accumulator. Gate them on during touch; never add our own previous
     // result back each frame or the angles would grow without bound.
