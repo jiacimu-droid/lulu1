@@ -29,6 +29,29 @@ class Live2DModelManifestAdapterTest {
         } finally { dir.deleteRecursively() }
     }
 
+    @Test fun realWolfNineUnreferencedExpressionsAreVisibleWithoutReimport() {
+        val dir = Files.createTempDirectory("lulu-wolf-nine-").toFile()
+        try {
+            val model = File(dir, "小狼.model3.json")
+            val original = """{"FileReferences":{"Moc":"小狼.moc3","Textures":["小狼.8192/texture_00.png"]}}"""
+            model.writeText(original)
+            val names = listOf("兽耳", "吐舌", "星星眼", "流泪",
+                "爱心眼", "耳机", "脸红", "脸黑", "麦")
+            names.forEach { name ->
+                File(dir, "$name.exp3.json").writeText(
+                    """{"Type":"Live2D Expression","Parameters":[]}""")
+            }
+            val expressions = Live2DModelManifestAdapter.normalizedSettings(model)
+                .getJSONObject("FileReferences").getJSONArray("Expressions")
+            val discovered = (0 until expressions.length()).map {
+                expressions.getJSONObject(it).getString("Name")
+            }
+            assertEquals(names.toSet(), discovered.toSet())
+            assertEquals(names.size, discovered.size)
+            assertEquals(original, model.readText())
+        } finally { dir.deleteRecursively() }
+    }
+
     @Test fun referencedActionsAreNotDuplicatedAndNullPhysicsIsRemoved() {
         val dir = Files.createTempDirectory("lulu-live2d-").toFile()
         try {
