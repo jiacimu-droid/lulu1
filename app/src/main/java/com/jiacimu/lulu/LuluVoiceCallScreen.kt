@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -68,6 +69,8 @@ fun LuluVoiceCallScreen(
     val context = LocalContext.current
     val state by LuluVoiceCallSession.state.collectAsState()
     var showPresence by remember { mutableStateOf(false) }
+    var showCallModelPicker by remember { mutableStateOf(false) }
+    var showSttPicker by remember { mutableStateOf(false) }
     val presenceStates by com.jiacimu.lulu.data.CompanionPresenceStore.states.collectAsState()
     val presenceHistories by com.jiacimu.lulu.data.CompanionPresenceStore.histories.collectAsState()
     val currentCharacterId = state.characterId.ifBlank { characterId }
@@ -255,6 +258,8 @@ fun LuluVoiceCallScreen(
                         modelPicker.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
                     },
                     onRetryCore = { installCoreIfNeeded() },
+                    onSelectCallModel = { showCallModelPicker = true },
+                    onSelectStt = { showSttPicker = true },
                     onStartCall = {
                         val permissions = buildList {
                             add(Manifest.permission.RECORD_AUDIO)
@@ -355,6 +360,26 @@ fun LuluVoiceCallScreen(
                     ) {
                         Text(liveStatus, color = CallInk, fontSize = 13.sp, fontWeight = FontWeight.Medium,
                             maxLines = 1)
+                    }
+                }
+                if (state.connected) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TextButton(onClick = { showCallModelPicker = true }) {
+                            Icon(Icons.Outlined.Tune, null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("模型 · ${activeArchive?.model ?: "未选择"}",
+                                fontSize = 12.sp, maxLines = 1,
+                                modifier = Modifier.widthIn(max = 135.dp))
+                        }
+                        TextButton(onClick = { showSttPicker = true }) {
+                            Icon(Icons.Outlined.Mic, null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("语音识别", fontSize = 12.sp)
+                        }
                     }
                 }
                 Spacer(Modifier.height(7.dp))
@@ -532,6 +557,22 @@ fun LuluVoiceCallScreen(
                 }
             }
         }
+    }
+    if (showCallModelPicker) {
+        ModelArchivePickerSheet(
+            title = "电话模型",
+            subtitle = "切换后下一轮回复生效",
+            usage = ModelUsage.VoiceCall,
+            selectedArchiveId = voiceArchiveId,
+            onSelect = { id ->
+                LuluAiServices.connectionStore.selectArchive(id, ModelUsage.VoiceCall)
+                showCallModelPicker = false
+            },
+            onDismiss = { showCallModelPicker = false },
+        )
+    }
+    if (showSttPicker) {
+        CallSttPickerDialog(onDismiss = { showSttPicker = false })
     }
     if (showCoreLicense) {
         AlertDialog(
@@ -744,4 +785,53 @@ private fun formatCallDuration(seconds: Long): String {
     val minutes = seconds / 60
     val remain = seconds % 60
     return "%02d:%02d".format(minutes, remain)
+}
+
+/** Single ASR picker shared by ordinary phone calls and Live2D video calls. */
+@Composable
+internal fun CallSttPickerDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val prefs = remember(context) {
+        context.getSharedPreferences("lulu_advanced_settings", android.content.Context.MODE_PRIVATE)
+    }
+    val currentEngine = CallVoiceConfiguration.sttEngine(context)
+    val currentModel = when (currentEngine) {
+        "local" -> LocalWhisperModels.selected(context).id
+        "elevenlabs" -> CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null))
+        "groq" -> prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()
+        else -> ""
+    }
+    var error by remember { mutableStateOf("") }
+    val choices = listOf(
+        Triple("local", "tiny", "本地 Whisper · Tiny"),
+        Triple("local", "base", "本地 Whisper · Base"),
+        Triple("elevenlabs", CallVoiceConfiguration.SCRIBE_V2, "ElevenLabs · Scribe v2"),
+        Triple("elevenlabs", CallVoiceConfiguration.SCRIBE_V2_REALTIME, "ElevenLabs · Scribe 实时"),
+        Triple("groq", "whisper-large-v3-turbo", "Groq · Whisper Turbo"),
+        Triple("groq", "whisper-large-v3", "Groq · Whisper V3"),
+        Triple("minimax", "", "MiniMax 识别"),
+    )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("语音转文字") },
+        text = {
+            Column(Modifier.heightIn(max = 390.dp).verticalScroll(rememberScrollState())) {
+                choices.forEach { (engine, model, name) ->
+                    TextButton(
+                        onClick = {
+                            val problem = LuluVoiceCallSession.selectStt(engine, model)
+                            if (problem == null) onDismiss() else error = problem
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(if (engine == currentEngine && model == currentModel) "✓ $name" else name,
+                            modifier = Modifier.fillMaxWidth())
+                    }
+                }
+                if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("关闭") } },
+    )
 }
