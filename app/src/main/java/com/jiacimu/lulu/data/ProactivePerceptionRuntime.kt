@@ -245,6 +245,18 @@ object ProactivePerceptionRuntime {
                         trigger.startsWith("居民小事到了") ||
                         trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
                         isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
+                    // Routine review queues are not wake permissions. Their evidence
+                    // remains in the timeline for the next actual awake decision.
+                    val sleeping = !CompanionOnlineStore.isOnline(characterId, now)
+                    val sleepDeferredReview = trigger.startsWith("合并后的自主生活回顾") ||
+                        trigger.startsWith("真实生活后续回想") ||
+                        trigger.startsWith("角色自己先前有过") ||
+                        trigger.startsWith("角色自己刚完成") ||
+                        trigger.startsWith("居民小事到了") ||
+                        trigger.startsWith("强烈情绪的后续整理") ||
+                        trigger.startsWith("在线持续感知")
+                    if (sleeping && sleepDeferredReview && onlineExpiryAtMillis == 0L &&
+                        !explicitUserWake) continue
                     if (!force) {
                         if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
                                 CommitmentTaskStore.snapshot(characterId), now)) continue
@@ -362,8 +374,13 @@ object ProactivePerceptionRuntime {
             .maxByOrNull(LuluChatMessage::createdAt)?.createdAt ?: conversation.updatedAt
         val lastEvaluation = prefs.getLong("last_evaluation_$characterId", 0L)
             .takeIf { it > 0L }?.let(Instant::ofEpochMilli)
-        val anchor = listOfNotNull(lastChat, lastEvaluation).maxOrNull() ?: now
-        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}"
+        val offline = !CompanionOnlineStore.isOnline(characterId, now)
+        val asleepSince = if (offline) CompanionOnlineStore.states.value[characterId]?.onlineUntil else null
+        val anchor = listOfNotNull(lastChat, lastEvaluation, asleepSince).maxOrNull() ?: now
+        // A personally arranged activity is an actual appointment, not the
+        // periodic fallback. Preserve the selected timestamp across process restarts.
+        val personalDue = if (offline) RoleDayScheduleStore.nextPlannedWakeAt(context, characterId, now) else null
+        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:personal=${personalDue ?: "none"}"
         val plan = PerceptionWakePlanStore.resolve(characterId, anchor, signature) {
             val timingVariation = if (policy.adaptiveFrequency) {
                 val latestUserAt = messages.asSequence()
@@ -384,14 +401,20 @@ object ProactivePerceptionRuntime {
                 )
             } else 1.0
             val interval = policy.intervalMinutes(timingVariation)
-            PerceptionWakePlan(characterId, anchor,
-                deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy), interval, signature)
+            val ordinaryDue = deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy)
+            val selectedDue = chooseAutonomousWakeTime(ordinaryDue, personalDue, offline)
+            val selectedMinutes = Duration.between(anchor, selectedDue).toMinutes().coerceAtLeast(1L)
+            PerceptionWakePlan(characterId, anchor, selectedDue, selectedMinutes, signature)
         }
         if (plan.dueAt <= now && isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) {
             return PerceptionWakePlanStore.deferUntil(characterId, deferPastQuietHours(now, policy))?.dueAt ?: plan.dueAt
         }
         return plan.dueAt
     }
+
+    /** Explicit personal appointments override, rather than merely add to, idle polling. */
+    internal fun chooseAutonomousWakeTime(ordinaryDue: Instant, personalDue: Instant?, offline: Boolean): Instant =
+        if (offline && personalDue != null) personalDue else ordinaryDue
 
     private fun stableTimingVariation(characterId: String, anchor: Instant): Double {
         val unsignedHash = "$characterId:${anchor.toEpochMilli()}".hashCode().toLong() and 0xffff_ffffL
