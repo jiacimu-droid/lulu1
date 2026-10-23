@@ -34,6 +34,36 @@ class SearchReceiptFeedbackTest {
             JSONObject().put("op", "search_send"), failure))
     }
 
+    @Test fun xiaohongshuReadReturnsVerifiedOutcomeToTheSameRoleForAReply() {
+        val args = JSONObject().put("keyword", "川大法硕")
+        val result = JSONObject().put("success", true).put("status", "succeeded")
+            .put("summary", "实际读到小红书《备考记录》；链接=https://www.xiaohongshu.com/explore/123")
+            .put("evidenceId", "xhs-read-role-1")
+        val feedback = SearchReceiptFeedback.from("read_xiaohongshu", args, result)
+        assertNotNull(feedback)
+        assertEquals("read_xiaohongshu", feedback!!.tool)
+        assertEquals("search_read", feedback.operation)
+        assertTrue(feedback.success)
+        assertEquals("xhs-read-role-1", feedback.evidenceId)
+        assertTrue(feedback.details.contains("备考记录"))
+    }
+
+    @Test fun xiaohongshuFailuresReturnTruthfulFeedbackButPendingIsNotFinishedReading() {
+        val specified = JSONObject().put("url", "https://www.xiaohongshu.com/explore/123")
+        val unavailable = JSONObject().put("success", false).put("status", "failed")
+            .put("error", "本机阅读会话不可用")
+        val failure = SearchReceiptFeedback.from("read_xiaohongshu", specified, unavailable)
+        assertNotNull(failure)
+        assertFalse(failure!!.success)
+        assertEquals("shared_link", failure.operation)
+        assertEquals("本机阅读会话不可用", failure.details)
+        val pending = JSONObject().put("success", true).put("status", "pending")
+            .put("summary", "只提交了阅读请求")
+        assertNull(SearchReceiptFeedback.from("read_xiaohongshu", specified, pending))
+        assertNull(SearchReceiptFeedback.from("read_xiaohongshu", specified,
+            JSONObject().put("success", true).put("status", "running")))
+    }
+
     @Test fun imageCandidateDiscoveryNeedsFollowupButSendingImageAlreadyDeliveredIt() {
         val args = JSONObject().put("op", "search")
         val result = JSONObject().put("success", true)
