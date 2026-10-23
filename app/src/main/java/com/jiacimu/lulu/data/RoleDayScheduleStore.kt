@@ -312,7 +312,9 @@ object RoleDayScheduleStore {
     fun completeFromReceipt(context: Context, characterId: String, planId: String,
         action: String, evidenceId: String, summary: String, now: Instant = Instant.now(),
         args: JSONObject? = null): Boolean {
-        if (planId.isBlank() || evidenceId.isBlank() || action !in verifiableActions) return false
+        // canComplete is the single authoritative action/owner/time/target gate.
+        // Do not silently discard verified receipts from newly schedulable tools.
+        if (planId.isBlank() || evidenceId.isBlank()) return false
         val previous = all(context)
         val plan = previous.firstOrNull { it.id == planId &&
             canComplete(it, characterId, action, evidenceId, now, args) &&
