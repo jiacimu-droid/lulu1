@@ -71,11 +71,17 @@ internal fun QqChatImageRow(
                         Text(quoted, Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp), color = if (mine) Color.White.copy(alpha = 0.72f) else QqMuted, fontSize = 10.sp, maxLines = 2)
                     }
                 }
-                LuluSelectedPhoto(
-                    imageUri = image.imageUri,
-                    modifier = if (image.sticker) Modifier.size(154.dp) else Modifier,
-                    keepFullImage = !image.sticker,
-                )
+                if (android.os.Build.VERSION.SDK_INT >= 28 &&
+                    image.imageUri.substringBefore('?').endsWith(".gif", ignoreCase = true) &&
+                    image.imageUri.startsWith("file://")) {
+                    QqChatAnimatedGif(image.imageUri)
+                } else {
+                    LuluSelectedPhoto(
+                        imageUri = image.imageUri,
+                        modifier = if (image.sticker) Modifier.size(154.dp) else Modifier,
+                        keepFullImage = !image.sticker,
+                    )
+                }
                 if (image.imageDescription.isNotBlank() && !image.sticker) {
                     TextButton(onClick = { descriptionOpen = true }) {
                         Text("查看完整识图描述 ›", fontSize = 12.sp,
