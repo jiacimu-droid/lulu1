@@ -10,6 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterDevelopmentStore
+import com.jiacimu.lulu.data.CharacterLearningLedger
+import com.jiacimu.lulu.data.CharacterLearningAgenda
+import com.jiacimu.lulu.data.SharedExperienceTimeline
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun CharacterExecutionSettings(characterId: String) {
@@ -92,8 +97,25 @@ internal fun CharacterLearningSettings(characterId: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
     var limit by remember(characterId) { mutableIntStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10)) }
-    val revision by com.jiacimu.lulu.data.CharacterLearningAgenda.revisions.collectAsState()
-    val budget = remember(characterId, revision, limit) { com.jiacimu.lulu.data.CharacterLearningAgenda.budget(characterId) }
+    val revision by CharacterLearningAgenda.revisions.collectAsState()
+    val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val learnedRevision by CharacterLearningLedger.revisions.collectAsState()
+    val budget = remember(characterId, revision, limit) { CharacterLearningAgenda.budget(characterId) }
+    val goals = remember(characterId, revision, timelineRevision) {
+        CharacterLearningAgenda.goals(characterId).filter { it.optString("status") != "dropped" }
+    }
+    val actualSteps = remember(characterId, timelineRevision) {
+        SharedExperienceTimeline.recentEvents(characterId, 200)
+            .asSequence().filter { event ->
+                event.source.startsWith("learning-material:") ||
+                    event.source.startsWith("learning-search:") ||
+                    event.source.startsWith("learning-practice:") ||
+                    event.source.startsWith("learning-review:")
+            }.sortedByDescending { it.occurredAt }.take(4).toList()
+    }
+    val insights = remember(characterId, learnedRevision, timelineRevision) {
+        CharacterLearningLedger.listInsights(characterId)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("学习与探索", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -107,5 +129,37 @@ internal fun CharacterLearningSettings(characterId: String) {
         }
         Text("今日已用 ${budget.used} 步 · 剩余 ${budget.remaining} 步",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        HorizontalDivider()
+        Text("正在琢磨 · ${goals.size}", style = MaterialTheme.typography.titleSmall)
+        goals.take(4).forEach { goal ->
+            val stage = when (goal.optString("status")) {
+                "planned" -> "准备了解"
+                "running" -> "正在学习"
+                "research" -> "已读，待理解"
+                "practice" -> "已理解，可练习"
+                "failed" -> "上次失败"
+                "paused" -> "暂缓"
+                else -> "待继续"
+            }
+            Text("${goal.optString("topic")} · $stage", style = MaterialTheme.typography.bodySmall)
+            goal.optString("error").takeIf(String::isNotBlank)?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error)
+            }
+        }
+        if (goals.isEmpty()) Text("暂无学习计划", style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        HorizontalDivider()
+        Text("实际学习记录", style = MaterialTheme.typography.titleSmall)
+        actualSteps.forEach { event ->
+            val time = event.occurredAt.atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("M/d HH:mm"))
+            Text("$time · ${event.channel}", style = MaterialTheme.typography.bodySmall)
+        }
+        if (actualSteps.isEmpty()) Text("暂无真实执行记录",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("有效理解 · ${insights.size}", style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
