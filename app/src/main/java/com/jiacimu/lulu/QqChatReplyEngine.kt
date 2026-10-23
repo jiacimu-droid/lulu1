@@ -58,12 +58,24 @@ internal fun sanitizePersistedChatText(text: String): String =
             .replace(Regex("[ \\t]+"), " "),
     )
 
-internal fun semanticReplyBubbles(text: String): List<String> =
-    com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
-        normalizeLegacyBubbleTokens(text).split(SemanticBubbleSeparator)
+internal fun semanticReplyBubbles(text: String): List<String> {
+    val normalized = normalizeLegacyBubbleTokens(text)
+    // Each actual paragraph is a completed conversational beat. Preserve a
+    // lone newline inside an author's sentence, but do not pack two separate
+    // paragraphs into one giant bubble with visible blank lines.
+    // Media payloads are atomic and must never be split into partial images.
+    val separated = if (normalized.trimStart().startsWith("[") ||
+        normalized.contains("⟪QQ_IMAGE")) normalized else
+        normalized.replace(Regex("""\n[ \t]*\n+"""), SemanticBubbleSeparator)
+    return com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
+        separated.split(SemanticBubbleSeparator)
             .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank),
-        maxBubbles = 8,
+        // The historic 8-bubble overflow rule fused EVERY remaining paragraph
+        // into one huge unsplittable bubble. The actual model output already
+        // bounds the total content; do not concatenate unrelated speaking acts.
+        maxBubbles = Int.MAX_VALUE,
     )
+}
 
 internal fun normalizeSemanticBubbles(text: String): String {
     val raw = normalizeLegacyBubbleTokens(text).trim()
