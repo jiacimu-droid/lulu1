@@ -158,13 +158,13 @@ internal object CharacterSelfActivityRuntime {
             candidate.copy(label = "尝试处理数字世界里尚未解决的生活事件")
         } else candidate
         val whyNow = intended.optString("whyNow").trim().take(200)
-        if (!hasRealReason(whyNow)) return false
+        // A validated, explicitly chosen action must not disappear because the model
+        // omitted an optional private explanation. Keep the actual reason if present.
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val previous = prefs.getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
         val now = System.currentTimeMillis()
-        if (previous?.optString("status") in setOf("pending", "running") &&
-            now - (previous?.optLong("createdAt") ?: 0L) in 0L..(60 * 60_000L)) return false
+        // Independent choices can coexist; each has a durable ID and worker below.
         if (previous?.optString("signature") == selected.signature &&
             now - (previous?.optLong("createdAt") ?: 0L) in 0L..REPEAT_WINDOW_MS) return false
         if (evidenceId.isNotBlank() && previous?.optString("evidenceId") == evidenceId) return false
@@ -177,7 +177,14 @@ internal object CharacterSelfActivityRuntime {
             .put("motiveId", linkedMotiveId)
             .put("label", selected.label).put("tool", selected.tool)
             .put("args", selected.args).put("status", "pending")
-        if (!prefs.edit().putString("activity:$characterId", record.toString()).commit()) return false
+        val previousId = previous?.optString("id").orEmpty()
+        val editor = prefs.edit()
+        // Migrate an already queued legacy record before replacing its 'latest' UI slot.
+        if (previousId.isNotBlank() &&
+            !prefs.contains("activity:$characterId:$previousId"))
+            editor.putString("activity:$characterId:$previousId", previous.toString())
+        if (!editor.putString("activity:$characterId:$id", record.toString())
+                .putString("activity:$characterId", record.toString()).commit()) return false
         val work = OneTimeWorkRequestBuilder<CharacterSelfActivityWorker>()
             .setInitialDelay(8_000L, TimeUnit.MILLISECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -238,6 +245,14 @@ internal object CharacterSelfActivityRuntime {
             .getString("activity:$characterId", null)
             ?.let { runCatching { JSONObject(it) }.getOrNull() }
 
+    /** WorkManager must read its OWN accepted intention, not the latest UI card. */
+    internal fun byId(context: Context, characterId: String, id: String): JSONObject? {
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getString("activity:$characterId:$id", null)
+            ?.let { runCatching { JSONObject(it) }.getOrNull() }
+            ?: latest(context, characterId)?.takeIf { it.optString("id") == id }
+    }
+
     /** Removing an origin revokes queued intent; removing its tool receipt
      * also removes the cached completed summary from future model context. */
     internal fun invalidateEvidence(context: Context, evidenceId: String) {
@@ -248,7 +263,7 @@ internal object CharacterSelfActivityRuntime {
             val entry = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
                 ?: return@forEach
             val origin = entry.optString("evidenceId")
-            val role = key.substringAfter(':')
+            val role = key.substringAfter(':').substringBefore(':')
             if (origin == evidenceId || origin.contains(":$evidenceId:") ||
                 key.startsWith("activity:") && "tool-$role-self-activity-${entry.optString("id")}" == evidenceId)
                 editor.remove(key)
@@ -258,27 +273,30 @@ internal object CharacterSelfActivityRuntime {
 
     internal fun markRunning(context: Context, characterId: String, id: String) {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val key = "activity:$characterId"
-        val entry = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
-            ?: return
-        if (entry.optString("id") == id && entry.optString("status") == "pending") {
+        val key = "activity:$characterId:$id"
+        val entry = byId(context, characterId, id) ?: return
+        if (entry.optString("status") == "pending") {
             entry.put("status", "running")
-            prefs.edit().putString(key, entry.toString()).commit()
+            val editor = prefs.edit().putString(key, entry.toString())
+            if (latest(context, characterId)?.optString("id") == id)
+                editor.putString("activity:$characterId", entry.toString())
+            editor.commit()
         }
     }
 
     internal fun markResult(context: Context, characterId: String, id: String,
                             success: Boolean, summary: String, attempted: Boolean = true) {
         val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val key = "activity:$characterId"
-        val prior = prefs.getString(key, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
-            ?: return
-        if (prior.optString("id") != id ||
-            prior.optString("status") in setOf("completed", "failed")) return
+        val key = "activity:$characterId:$id"
+        val prior = byId(context, characterId, id) ?: return
+        if (prior.optString("status") in setOf("completed", "failed")) return
         val finishedAt = Instant.now()
         prior.put("status", if (success) "completed" else "failed")
             .put("result", summary.take(240)).put("finishedAt", finishedAt.toString())
-        if (!prefs.edit().putString(key, prior.toString()).commit()) return
+        val editor = prefs.edit().putString(key, prior.toString())
+        if (latest(context, characterId)?.optString("id") == id)
+            editor.putString("activity:$characterId", prior.toString())
+        if (!editor.commit()) return
         if (attempted) CharacterInnerLifeStore.recordActionResult(
             characterId, prior.optString("motiveId"),
             "tool-$characterId-self-activity-$id",
@@ -296,10 +314,9 @@ class CharacterSelfActivityWorker(context: Context, params: WorkerParameters) :
         if (id.isBlank() || characterId.isBlank()) return Result.success()
         return try {
             initializeBackgroundRuntime(applicationContext)
-            val entry = CharacterSelfActivityRuntime.latest(applicationContext, characterId)
+            val entry = CharacterSelfActivityRuntime.byId(applicationContext, characterId, id)
                 ?: return Result.success()
-            if (entry.optString("id") != id ||
-                entry.optString("status") !in setOf("pending", "running"))
+            if (entry.optString("status") !in setOf("pending", "running"))
                 return Result.success()
             val elapsed = System.currentTimeMillis() - entry.optLong("createdAt")
             if (elapsed !in 0L..(60 * 60_000L)) {
