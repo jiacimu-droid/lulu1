@@ -116,9 +116,7 @@ internal object CharacterRelationshipPreferences {
             val quote = normalize(preference.quote)
             quote.isNotBlank() && coreTexts.any { it == quote || it.contains(quote) }
         }
-        val core = if (includeCore) allCore.filter {
-            true
-        } else emptyList()
+        val core = if (includeCore) allCore else emptyList()
         if (preferences.isEmpty() && core.isEmpty()) return ""
         return buildString {
             appendLine("【当前相处偏好与核心记忆｜按真实原话和来源理解】")
