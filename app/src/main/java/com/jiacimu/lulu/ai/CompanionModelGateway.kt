@@ -508,7 +508,7 @@ class CompanionModelGateway(
             // Native-world citizens never inherit the protagonist's broad
             // real-device/user-profile recall. Keep their OWN core identity,
             // configured persona, direct conversation, and explicit scene.
-            val citizen = com.jiacimu.lulu.data.ResidentCharacterBridge.nativeResident(characterId) != null
+            val citizen = characterId.startsWith("resident:")
             val effectiveMode = if ((leanExpression || citizen) &&
                 contextMode == CompanionContextMode.Full)
                 CompanionContextMode.CharacterAndScenario else contextMode
