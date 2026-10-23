@@ -752,7 +752,7 @@ class ProactivePerceptionWorker(
         }
         // Follow the latest deadline, not the first bubble's deadline. The
         // same pending revision may be extended while this worker is asleep.
-        // A new bubble must get a full three seconds before perception starts.
+        // A new typed bubble gets its full eight-second quiet window before perception.
         if (requireOnline && characterId != null && onlineRevision != null) {
             while (true) {
                 if (!CompanionOnlineStore.isOnline(characterId) ||
