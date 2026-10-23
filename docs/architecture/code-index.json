@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:17:10.891013+00:00",
-  "commit": "e5e860e10e37b34d1a0bf7ceb947e8515376b193",
+  "generatedAt": "2026-10-23T08:17:44.705507+00:00",
+  "commit": "1d9785d671a028815f70f2035a274209632363d7",
   "branch": "main",
-  "sourceFingerprint": "33e4fb19d13273edf359bd5db9aab3c32c187ec347f0557e5a5b435be306133e",
+  "sourceFingerprint": "e8e8dd0f0d647d7e04cf9a682bb06456db6a9bdfa12aed7170a9fa0bf1d221ac",
   "summary": {
     "files": 848,
-    "lines": 162297,
+    "lines": 162312,
     "symbols": 2460
   },
   "symbolIndex": {
@@ -131,7 +131,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-        "line": 45
+        "line": 56
       }
     ],
     "preferredMicrophoneType": [
@@ -609,7 +609,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 17
+        "line": 18
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -2971,7 +2971,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 43
+        "line": 44
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
@@ -3825,7 +3825,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 22
+        "line": 23
       }
     ],
     "resolveConnection": [
@@ -3835,7 +3835,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "archiveLabel": [
@@ -15844,8 +15844,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 288,
-      "sha256": "fdef46c72c62f05f033638067ce98975ae898a2112864a4ad5b04ccf2b666f51",
+      "lines": 291,
+      "sha256": "dc28fd1c6825be3fea8eff5bee7838b3df8ed762899ad8b13e4b1f8855edace4",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -17359,8 +17359,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 63,
-      "sha256": "a3f1e324aca691e7d46853d76360bbdf1620fd5622735f9a96c4116a3864e847",
+      "lines": 64,
+      "sha256": "932a599eaab881ade443bf882b93be1e041ce6486ec7698e2732a98968cf6964",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -17368,19 +17368,19 @@
         },
         {
           "name": "initialize",
-          "line": 17
+          "line": 18
         },
         {
           "name": "selectedArchiveId",
-          "line": 22
+          "line": 23
         },
         {
           "name": "select",
-          "line": 43
+          "line": 44
         },
         {
           "name": "resolveConnection",
-          "line": 52
+          "line": 53
         }
       ]
     },
@@ -22882,8 +22882,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 112,
-      "sha256": "0bf2893aae623138d79bfcf1c0575fca002ce0915b0758ef58fe0e83f208f641",
+      "lines": 123,
+      "sha256": "384159b63294360d071d52527cd85fa1eff5a94c12bc4024d75e04f40bf45075",
       "symbols": [
         {
           "name": "plan",
@@ -22891,7 +22891,7 @@
         },
         {
           "name": "refresh",
-          "line": 45
+          "line": 56
         }
       ]
     },
