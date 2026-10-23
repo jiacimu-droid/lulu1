@@ -25,6 +25,14 @@ class CallContractsTest {
         assertEquals("scribe_v2", CallVoiceConfiguration.elevenSttModel("scribe_v2"))
         assertEquals("scribe_v2_realtime", CallVoiceConfiguration.elevenSttModel("scribe_v2_realtime"))
     }
+    @Test fun hotSwitchWaitsForRealUtteranceBoundaryWithoutRedial() {
+        val now = 100_000L
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(true, false, 0L, now))
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, true, 0L, now))
+        assertFalse(CallVoiceConfiguration.canSwitchSttNow(false, false, now + 1L, now))
+        assertTrue(CallVoiceConfiguration.canSwitchSttNow(false, false, now, now))
+        assertTrue(CallVoiceConfiguration.canSwitchSttNow(false, false, 0L, now))
+    }
     @Test fun elevenLabsUploadAndRealtimeUseDistinctPathsFromSettings() {
         assertEquals(CallVoiceConfiguration.ElevenInputPath.SEGMENTED_UPLOAD,
             CallVoiceConfiguration.elevenInputPath("elevenlabs", "scribe_v2"))
