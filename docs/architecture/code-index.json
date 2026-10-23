@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T14:16:51.684080+00:00",
-  "commit": "20b3b778cdc746a6fd1e4bafda8e8a9fc98a1d6c",
+  "generatedAt": "2026-10-23T14:18:44.895606+00:00",
+  "commit": "8005062a26d8d213abf500e37dcd675509a113b7",
   "branch": "main",
-  "sourceFingerprint": "0af7fcf200f7a47b2b53fa08c87643ce8d52d0e32eafab89ff29dc7212ea5b3a",
+  "sourceFingerprint": "844971652388e1e2411624340b6c25d8ffccaf287c29c4c7add1c5024c797d9f",
   "summary": {
     "files": 862,
-    "lines": 164567,
+    "lines": 164577,
     "symbols": 2492
   },
   "symbolIndex": {
@@ -13091,7 +13091,7 @@
     "CharacterMomentSnapshotIdeasTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "CharacterMotivationOwnershipTest": [
@@ -13685,7 +13685,7 @@
     "RoleDayScheduleStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 12
+        "line": 17
       }
     ],
     "ScreenVisionCapabilityContextTest": [
@@ -28205,12 +28205,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt",
-      "lines": 23,
-      "sha256": "75e82fcd9068c2b0800d2f9499e38349c7c5a403baa005aafbd1fccaf9a49cfd",
+      "lines": 28,
+      "sha256": "f060bc5fe8ea6ad659b3b84a62f21130a411a6f6e425fefa3161c12001115d7c",
       "symbols": [
         {
           "name": "CharacterMomentSnapshotIdeasTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
@@ -29246,12 +29246,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 90,
-      "sha256": "4bbcbbd9bd18d38569dd904c39b0e8e0a60e344d1d8a148af6822d0b144e79f0",
+      "lines": 95,
+      "sha256": "27bd19b53049cb3a57860e60862efd2be666425c22bbe4ad8ccadd37b204fc23",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
-          "line": 12
+          "line": 17
         }
       ]
     },
