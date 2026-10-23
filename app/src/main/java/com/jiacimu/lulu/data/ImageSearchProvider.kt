@@ -233,6 +233,13 @@ internal object ImageSearchProvider {
                     }
                     val actual = sniff(bytes)
                     require(actual != null && actual == mime) { "图片格式与内容不符" }
+                    val dimensions = android.graphics.BitmapFactory.Options().apply {
+                        inJustDecodeBounds = true
+                    }
+                    android.graphics.BitmapFactory.decodeFile(temp.absolutePath, dimensions)
+                    require(dimensions.outWidth > 0 && dimensions.outHeight > 0) {
+                        "图片无法正常解码，不发送损坏的附件"
+                    }
                     val ext = when (actual) {
                         "image/gif" -> "gif"
                         "image/png" -> "png"
