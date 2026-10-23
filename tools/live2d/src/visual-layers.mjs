@@ -54,7 +54,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, voiceLevel = null, seconds }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, expressionActive = false, voiceLevel = null, seconds }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -62,7 +62,8 @@ export function createVisualLayerRuntime({ has, read, write }) {
     const idleHead = !head && !touchReflex ? {
       yaw: .46 * Math.sin(seconds * .37),
       pitch: .3 * Math.sin(seconds * .29 + .8),
-      roll: .34 * Math.sin(seconds * .21 + .3),
+      // A visible, slow side tilt instead of constant jaw yaw swaying.
+      roll: 3.5 * Math.sin(seconds * .25 + .4),
     } : null
     const idleBody = !body && !touchReflex ? {
       yaw: .5 * Math.sin(seconds * .19 + .5),
@@ -96,7 +97,11 @@ export function createVisualLayerRuntime({ has, read, write }) {
 
     for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
       if (ids.some(id => !has(core, id))) continue
-      const requested = face?.[key] ?? touchReflex?.face?.[key]
+      // Slight occasional corner-of-mouth smiles while the actual audio is
+      // playing. Authored exp3, role-selected face cues and touch always win.
+      const speechSmile = key === 'smile' && speaking && !expressionActive
+        ? .12 + .13 * Math.max(0, Math.sin(seconds * .74)) : null
+      const requested = face?.[key] ?? touchReflex?.face?.[key] ?? speechSmile
       const eyeContact = key === 'gazeX' || key === 'gazeY'
       let state = smoothedFace[key]
       if (!eyeContact && requested == null && !state) continue
