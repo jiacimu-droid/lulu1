@@ -95,7 +95,6 @@ internal object CharacterAssociativeRecall {
         val eligible = events.filter {
             it.characterId == characterId && !it.occurredAt.isAfter(now) &&
                 it.occurredAt.isBefore(now.minus(Duration.ofMinutes(20))) &&
-                !it.occurredAt.isBefore(now.minus(Duration.ofDays(30))) &&
                 it.evidenceKind != EventEvidenceKind.Inference
         }
         return ExperienceLane.entries.flatMap { lane ->
