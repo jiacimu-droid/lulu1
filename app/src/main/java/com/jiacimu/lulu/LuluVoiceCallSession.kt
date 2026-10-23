@@ -122,8 +122,9 @@ internal object LuluVoiceCallSession {
             while (true) {
                 val live = mutableState.value
                 if (!live.connected || live.callExperienceId != callId) return@launch
-                if (!userSpeechInProgress && !live.userSpeaking &&
-                    providerRecognitionPendingUntilMillis <= SystemClock.elapsedRealtime()) break
+                if (CallVoiceConfiguration.canSwitchSttNow(
+                        userSpeechInProgress, live.userSpeaking,
+                        providerRecognitionPendingUntilMillis, SystemClock.elapsedRealtime())) break
                 delay(160L)
             }
             if (sttConfiguration(context) == activeSttConfiguration) return@launch
