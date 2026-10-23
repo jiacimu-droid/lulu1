@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:35:17.331406+00:00",
-  "commit": "b13911f427dde34be74b9eb4e53976d3db2ec20c",
+  "generatedAt": "2026-10-23T07:37:45.141000+00:00",
+  "commit": "56b00440402410f34718e8b8ba764cc4abcf03e7",
   "branch": "main",
-  "sourceFingerprint": "ca60b2ed275a70ed2c4a50ed36427eceba2a644750fb1e20149bcb06fabb672d",
+  "sourceFingerprint": "35d536ff2f136b64da80a023bc35213319a351a8e24b539b3dc7772b8e842329",
   "summary": {
-    "files": 840,
-    "lines": 161200,
-    "symbols": 2436
+    "files": 841,
+    "lines": 161286,
+    "symbols": 2441
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9164,6 +9164,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
         "line": 242
+      }
+    ],
+    "characterId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
+        "line": 16
+      }
+    ],
+    "nativeResident": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
+        "line": 17
+      }
+    ],
+    "seedPersona": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
+        "line": 23
+      }
+    ],
+    "sync": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
+        "line": 31
+      }
+    ],
+    "fixedContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
+        "line": 74
       }
     ],
     "RoleDayPlan": [
@@ -22672,6 +22702,33 @@
         {
           "name": "formatForPrompt",
           "line": 242
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
+      "lines": 86,
+      "sha256": "67196ca7cf6852352df2ad3cc08d530147c47d2f14099b7f5c2602caf5264ba5",
+      "symbols": [
+        {
+          "name": "characterId",
+          "line": 16
+        },
+        {
+          "name": "nativeResident",
+          "line": 17
+        },
+        {
+          "name": "seedPersona",
+          "line": 23
+        },
+        {
+          "name": "sync",
+          "line": 31
+        },
+        {
+          "name": "fixedContext",
+          "line": 74
         }
       ]
     },
