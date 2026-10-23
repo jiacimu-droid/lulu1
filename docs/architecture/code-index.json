@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T14:19:44.410633+00:00",
-  "commit": "d0de437f52069493960b7c8c688c22218c7a69ed",
+  "generatedAt": "2026-10-23T14:21:25.834710+00:00",
+  "commit": "48ff17b25c80c4750cfa8c28886321f9c2673419",
   "branch": "main",
-  "sourceFingerprint": "26c6f6c6d0787d2fb23043896b2e0f63d82427d3c46de4dfe4fe6dee8ad937fa",
+  "sourceFingerprint": "8ff5beffbc5c7a8e02aa4505ecf1b1c7267be00eca7704732e55d5c157c85bfb",
   "summary": {
     "files": 862,
-    "lines": 164576,
+    "lines": 164571,
     "symbols": 2492
   },
   "symbolIndex": {
@@ -13685,7 +13685,7 @@
     "RoleDayScheduleStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 17
+        "line": 12
       }
     ],
     "ScreenVisionCapabilityContextTest": [
@@ -29246,12 +29246,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 95,
-      "sha256": "27bd19b53049cb3a57860e60862efd2be666425c22bbe4ad8ccadd37b204fc23",
+      "lines": 90,
+      "sha256": "4bbcbbd9bd18d38569dd904c39b0e8e0a60e344d1d8a148af6822d0b144e79f0",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
-          "line": 17
+          "line": 12
         }
       ]
     },
