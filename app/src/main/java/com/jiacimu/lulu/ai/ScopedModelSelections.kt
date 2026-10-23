@@ -12,6 +12,7 @@ object ScopedModelSelections {
     const val APOCALYPSE = "apocalypse_survival"
     const val THEATER = "star_wish_theater"
     const val MEETING = "meeting"
+    const val RESIDENT_DAILY = "resident_daily"
 
     private var prefs: android.content.SharedPreferences? = null
 
