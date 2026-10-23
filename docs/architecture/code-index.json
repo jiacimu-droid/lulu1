@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:46:28.276920+00:00",
-  "commit": "b58f471fb692924db8d0525a323216ba429c6fd6",
+  "generatedAt": "2026-10-23T07:47:36.742148+00:00",
+  "commit": "19d3d27a5bc889af0344d0a2426ba6e2cab457a4",
   "branch": "main",
-  "sourceFingerprint": "5aab6a0a1e8420497d47875b72311652010d8b515552153a7f2a57ce89aaf6b2",
+  "sourceFingerprint": "fd002de2ac3f02014ea957ac5073aae046136bfc0a3a11995f54055b306dbfa4",
   "summary": {
     "files": 844,
-    "lines": 161739,
+    "lines": 161753,
     "symbols": 2449
   },
   "symbolIndex": {
@@ -285,7 +285,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 80
+        "line": 94
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
@@ -22306,8 +22306,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-      "lines": 141,
-      "sha256": "69d3bd13e7914e1afd939b6b5eb0c4d3b7ac6d49ddac5dd592e62a11b3d1d998",
+      "lines": 155,
+      "sha256": "20aa6a6cc4c0a174173644cf543383de7b31f3ea5351fb92f28bedc92651080c",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -22339,7 +22339,7 @@
         },
         {
           "name": "update",
-          "line": 80
+          "line": 94
         }
       ]
     },
