@@ -76,6 +76,24 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(later.energy < stopped.energy)
     }
 
+    @Test fun offlineSleepRecoversUntilActualWakeAndNeverDoubleCountsAfterResume() {
+        val bedtime = start.plusSeconds(3600)
+        val awake = EmbodiedBodyPhysics.advance(EmbodiedBodyPhysics.fresh(start), bedtime)
+        val sleeping = awake.copy(recoveryMode = "offline_sleep", recoveryUntil = null)
+        val twoHours = EmbodiedBodyPhysics.advance(sleeping, bedtime.plusSeconds(7200))
+        assertTrue(twoHours.energy > awake.energy)
+        assertTrue(twoHours.sleepPressure < awake.sleepPressure)
+        assertTrue(twoHours.thirst > awake.thirst)
+        assertEquals("offline_sleep", twoHours.recoveryMode)
+        val restored = EmbodiedBodySnapshot.fromJson(twoHours.toJson())
+        assertEquals(twoHours, restored)
+        val resumed = restored!!.copy(recoveryMode = "", recoveryUntil = null)
+        val later = EmbodiedBodyPhysics.advance(resumed, bedtime.plusSeconds(10800))
+        assertTrue(later.energy < resumed.energy)
+        assertTrue(later.sleepPressure > resumed.sleepPressure)
+        assertEquals(later, EmbodiedBodyPhysics.advance(later, later.lastAt))
+    }
+
     @Test fun outdoorTemperatureIsSimulationNotInventedRealWorldWeather() {
         val cold = EmbodiedBodyRuntime.environmentalSensation(
             DigitalWorldPublicPlaces.COURTYARD, 5)
