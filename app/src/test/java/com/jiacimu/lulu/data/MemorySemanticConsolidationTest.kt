@@ -17,6 +17,18 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class MemorySemanticConsolidationTest {
+    @Test fun overlappingWindowsKeepAllCandidatesAndCompareBothEnds() {
+        val items = (1..110).toList()
+        val windows = MemorySemanticConsolidation.overlappingReviewWindows(items)
+        assertEquals(items.toSet(), windows.flatten().toSet())
+        assertTrue(windows.any { 1 in it && 110 in it })
+        assertTrue(windows.all { it.size in 2..70 })
+    }
+
+    @Test fun singleRecordNeverCreatesPaidReviewBatch() {
+        assertTrue(MemorySemanticConsolidation.overlappingReviewWindows(listOf("only")).isEmpty())
+    }
+
     @Test fun exactIdsOnlyAndNoGroupMayConsumeAnotherGroup() {
         val result = MemorySemanticConsolidation.parseGroups(
             """{"groups":[["a","b"],["b","c"],["a","missing"],["c","d"]]}""",
