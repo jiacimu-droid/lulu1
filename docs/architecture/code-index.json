@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T06:39:01.069528+00:00",
-  "commit": "9c307a82a2701aedab7192f1d2889dba0681f98d",
+  "generatedAt": "2026-10-23T06:58:18.508568+00:00",
+  "commit": "9f2fca1a19a9ea45b76443afdba764e5ae26a089",
   "branch": "main",
-  "sourceFingerprint": "1517470f00c308a179a72a06d3635c36449697ffbf9632f953bf6c94214b5f52",
+  "sourceFingerprint": "7969a8e6ec586c664e799f62a051d1cc93ac367330a8cd8ae195cb71a2494fe5",
   "summary": {
-    "files": 837,
-    "lines": 160598,
-    "symbols": 2427
+    "files": 838,
+    "lines": 160851,
+    "symbols": 2435
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2964,6 +2964,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
         "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
@@ -6020,6 +6024,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
         "line": 108
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 181
       }
     ],
     "CloudTaskWorker": [
@@ -7314,6 +7322,54 @@
         "line": 58
       }
     ],
+    "serperKey": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 30
+      }
+    ],
+    "giphyKey": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 31
+      }
+    ],
+    "configured": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
+        "line": 50
+      }
+    ],
+    "saveKeys": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 37
+      }
+    ],
+    "search": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 112
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
+        "line": 164
+      }
+    ],
+    "remember": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+        "line": 149
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 440
+      }
+    ],
     "ImportantEventBridge": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt",
@@ -7788,12 +7844,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt",
         "line": 105
-      }
-    ],
-    "configured": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
-        "line": 50
       }
     ],
     "endpoint": [
@@ -9290,12 +9340,6 @@
         "line": 144
       }
     ],
-    "remember": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 440
-      }
-    ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -9526,12 +9570,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
         "line": 110
-      }
-    ],
-    "search": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 164
       }
     ],
     "WorldFirstExplorationMemory": [
@@ -20591,6 +20629,45 @@
         {
           "name": "hasRequestedSpace",
           "line": 58
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
+      "lines": 253,
+      "sha256": "60954416682b91c08e4894916fdc489d7a9d947cd137720e49938bf70fb96696",
+      "symbols": [
+        {
+          "name": "serperKey",
+          "line": 30
+        },
+        {
+          "name": "giphyKey",
+          "line": 31
+        },
+        {
+          "name": "configured",
+          "line": 32
+        },
+        {
+          "name": "saveKeys",
+          "line": 37
+        },
+        {
+          "name": "search",
+          "line": 112
+        },
+        {
+          "name": "remember",
+          "line": 149
+        },
+        {
+          "name": "select",
+          "line": 164
+        },
+        {
+          "name": "download",
+          "line": 181
         }
       ]
     },
