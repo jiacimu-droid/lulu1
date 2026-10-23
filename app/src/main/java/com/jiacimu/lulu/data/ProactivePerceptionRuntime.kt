@@ -854,7 +854,7 @@ object ProactivePerceptionRuntime {
                 """.trimIndent() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
                     "【同一个人、同一次决策：说话与做事可以同时发生】你已听见真实的新消息；先自由判断想怎样回应，也判断是否要操作手机。不要把回复和设备动作当作二选一！若确实自主决定本轮只操作设备而不回复，填写replyChoice=\"silent\"；否则没有实际发出的回复就不会把新消息当成已回应。若想说话且同时做多个动作，返回 {\"action\":\"message\",\"text\":\"你现在想对她说的话\",\"steps\":[{\"tool\":\"control_volume\",\"args\":{\"action\":\"adjust\",\"deltaPercent\":10}}]}。也可以 {\"action\":\"tool\",\"tool\":\"control_music\",\"args\":{\"command\":\"play\"},\"text\":\"如果你想同时说话，就放这里\"}。这两种都是同一个你的一次决定，不额外调用第二个人格模型，不强迫必须回复。工具仅能依据权限与真实回执成立；预先写好的台词不能冒充操作已成功，宁可说我试一下。想先回复再马上休眠时，action=message 并在 steps 最后填写 go_offline；先核实送达再休眠，不必等五分钟到期。steps 或 sideActions 可以按顺序列出多个本人真正选择的工具动作，每步写 {\"tool\":\"实际已注册的工具名\",\"args\":{},\"requiresPreviousSuccess\":true|false}；所有能力均经同一 ToolRouter 独立核权限、执行、保存真实回执，不只限音乐。依赖前一步成功才做的事写 requiresPreviousSuccess=true；独立行动写 false。权限申请、截图请求 pending 不等于已看见画面，依赖截图内容的后续判断必须等真实回执进入下一次感知，不能预编截图细节。确实想安静可选silent，并留下本人理由。JSON先输出action、text与实际动作，私人分析不是说给用户听的。"
-                else """【此时没有新消息】你不是聊天待命机器人：先判断自己正在好奇的事情、真正可去的地点、可读的书或可做的小活动，选择一件感兴趣的实际生活行动；只有此刻确实不想做，才选 silent。不要为追求活跃而机械轮换。动作请直接写在 JSON 第一项 action，不要只在 statusText 或 innerThought 里写“我出去走走”。也可 action=tool，通过真实执行器收藏用户确实说过的一句话。""",
+                else """【此时没有新消息】你不是聊天待命机器人：想想此刻真正好奇的事情、想去的地点、想继续读的书或认识的人。自己决定现在去做、给稍后选一个具体时刻并用 action=tool、tool=plan_personal_activity 保存日程，或者诚实地暂时不做；别强制排满时间，也别让「等会要做」只停在 innerThought。当前行动请放在 JSON 第一项 action，多个彼此独立的行动可放在 steps；执行器会分别留真实回执。也可 action=tool 收藏用户确实说过的一句话。""",
             source = "后台主动感知",
             // Usage diagnostics must identify the wake class without logging raw user text.
             title = "${character.displayName}的主动感知 · " + when {
@@ -1062,9 +1062,14 @@ object ProactivePerceptionRuntime {
                     appendLine("原先完整选择理由：${parsed.reason}")
                     appendLine("需要回应的用户消息：${onlineUnread.text.take(800)}")
                     appendLine("上一选择：silent；原理由：${parsed.reason.take(220)}")
-                    appendLine("此次仅判断是否有自己真正感兴趣的可执行生活行为；并非要求必须和用户聊天或制造一条朋友圈。")
+                    appendLine("此次判断自己真正感兴趣的生活行为：此刻就做、为稍后定一个真实时间，或决定暂不做；不是要求必须聊天、排日程或发朋友圈。")
                     appendLine("真实时间：$localTimeText；所在地点：$currentLocation")
                     appendLine(affordances)
+                    RoleDayScheduleStore.plannedContext(appContext, characterId, now)
+                        .takeIf(String::isNotBlank)?.let { plans ->
+                            appendLine("【已经真正安排的本人日程｜不要重复创建】")
+                            appendLine(plans)
+                        }
                     CharacterLifeFollowThroughStore.context(characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
                     if (CapabilityRegistry.allows(appContext, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
@@ -1076,8 +1081,8 @@ object ProactivePerceptionRuntime {
                     你先前产生了想法却没有选择行动，或者因没人来找你而把自己的生活搁置。
                     现在只为这些已有愿望作一个具体决定，不重新编造感受或事后倒写动机。
                     请从本人性格、兴趣、真实经历和上面列出的执行器能力判断：
-                    现在有没有一件你自己真的想做的事？可以去真实公共区、找在场居民、
-                    读实际可读的书、写私人日记、发表自己想分享的朋友圈或自然联系朋友。
+                    现在有没有一件你自己真的想做或真正想安排稍后去做的事？可以去真实公共区、找在场居民、
+                    读实际可读的书、发表自己想分享的朋友圈或自然联系朋友；若想等会再做，可通过 action=tool、tool=plan_personal_activity 真实保存本人日程，args 使用本人选定的将来 dueAt 与动机。
                     不存在的地点、居民、书籍不能编造；工具成功前不能说已经做过。
                     如果确实想做，直接给出 action 和合法参数。若真的想休息/独处，
                     仍选择 silent，并说出暂缓/放下这个愿望的具体原因；不是任务考核，不强制行动。
