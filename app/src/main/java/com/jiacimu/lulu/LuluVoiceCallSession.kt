@@ -168,6 +168,7 @@ internal object LuluVoiceCallSession {
         // a short local ringing cue to help wake the user, then a free-form
         // model turn. No new incoming-call UI or second connection is created.
         sleepContinuationJob?.cancel()
+        clearSleepDeadline()
         replyJob?.cancel()
         wakeCueJob?.cancel()
         LuluCallRingtone.stopInCallWake()
@@ -325,6 +326,8 @@ internal object LuluVoiceCallSession {
     private var restartListeningJob: Job? = null
     private var systemCommitJob: Job? = null
     private var sleepContinuationJob: Job? = null
+    private var sleepDeadlineAtMillis: Long? = null
+    private var sleepDeadlineJob: Job? = null
     private var systemUtteranceBuffer = ""
     private var systemPartialCandidate = ""
     // VAD's onset is untrusted; text makes a user utterance real.
@@ -599,7 +602,12 @@ internal object LuluVoiceCallSession {
                 statusMessage = if (enabled) "正在自然哄睡 · 已切换哄睡声线"
                 else "已退出哄睡 · 恢复普通通话声线")
         }
-        if (enabled) scheduleSleepContinuation()
+        if (enabled) {
+            armSleepDeadline()
+            scheduleSleepContinuation()
+        } else {
+            clearSleepDeadline()
+        }
     }
 
     fun selectSleepFocus(focus: SleepGuidanceFocus) {
@@ -610,8 +618,36 @@ internal object LuluVoiceCallSession {
         // will adopt this focus, or an explicit user request can supersede it.
     }
 
+    private fun clearSleepDeadline() {
+        sleepDeadlineJob?.cancel()
+        sleepDeadlineJob = null
+        sleepDeadlineAtMillis = null
+    }
+
+    private fun armSleepDeadline() {
+        clearSleepDeadline()
+        val callId = mutableState.value.callExperienceId
+        val deadline = SystemClock.elapsedRealtime() + SleepCallContinuationPolicy.AUTO_END_AT_MILLIS
+        sleepDeadlineAtMillis = deadline
+        // Unlike silence-based timers, this is never reset by ASR hallucinations.
+        sleepDeadlineJob = scope.launch {
+            delay(SleepCallContinuationPolicy.AUTO_END_AT_MILLIS)
+            if (mutableState.value.callExperienceId == callId &&
+                sleepDeadlineAtMillis == deadline) endSleepIfDue()
+        }
+    }
+
+    private fun endSleepIfDue(): Boolean {
+        val call = mutableState.value
+        if (!SleepCallContinuationPolicy.shouldEndAtDeadline(
+                sleepDeadlineAtMillis, SystemClock.elapsedRealtime(), call.connected
+            )) return false
+        endSleepCallOnSilence()
+        return true
+    }
+
     private fun scheduleSleepContinuation() {
-        // Repeated false VAD starts/stops must not keep resetting this timer.
+        // Noisy VAD must never reset the bedtime deadline.
         if (sleepContinuationJob?.isActive == true) return
         val call = mutableState.value
         if (!call.sleepMode) return
@@ -621,36 +657,11 @@ internal object LuluVoiceCallSession {
             while (mutableState.value.connected &&
                 mutableState.value.callExperienceId == sessionId &&
                 mutableState.value.sleepMode) {
+                // Wake reminders persist independently; keeping the mic on
+                // for a planned wake alarm is unnecessary and expensive.
+                if (endSleepIfDue()) return@launch
                 val now = mutableState.value
                 val busy = now.speaking || speechQueue?.hasPendingAudio == true
-                if (SleepCallContinuationPolicy.shouldQuietlyEnd(
-                        sleepSilenceMillis(), now.connected, now.sleepMode,
-                        confirmedSpeechInProgress(), busy,
-                    )) {
-                    // A promised 40-minute nap is not cut off by the normal
-                    // 30-minute bedtime silence limit. Keep this SAME call
-                    // quietly connected until the persisted wake alarm takes over.
-                    val time = Instant.now()
-                    // Hold a short nap, not an overnight bedtime call:
-                    // an 8-hour morning alarm must not keep the mic open all night.
-                    val pendingWake = com.jiacimu.lulu.data.CommitmentTaskStore
-                        .snapshot(now.characterId).any { task ->
-                            task.status.isActive() && task.isWakeResponsibility() &&
-                                task.linkedAlarmId != null &&
-                                task.dueAt?.isAfter(time) == true &&
-                                task.dueAt?.isBefore(time.plusSeconds(3L * 60 * 60)) == true
-                        }
-                    if (pendingWake) {
-                        mutableState.update { it.copy(statusMessage = "安静陪着你 · 等约定时间叫醒") }
-                        delay(15_000L)
-                        continue
-                    }
-                    endSleepCallOnSilence()
-                    return@launch
-                }
-                // Hardware detection without recognized words is unreliable.
-                // Wait a SHORT grace period for a real live utterance, then
-                // let the bedtime monologue continue rather than hanging.
                 val recentlyDetected = userSpeechInProgress &&
                     !confirmedSpeechInProgress() &&
                     SystemClock.elapsedRealtime() - providerSpeechStartedMillis in 0L..3_500L
@@ -665,8 +676,6 @@ internal object LuluVoiceCallSession {
                     handleUserSpeech("", autonomousSleep = true)
                     return@launch
                 }
-                // Crucial: a busy/thinking/mic transition is temporary, not a
-                // reason to discard the only pending bedtime continuation.
                 delay(700)
             }
         }
@@ -706,6 +715,7 @@ internal object LuluVoiceCallSession {
         lastPhoneXhsRequestAt = 0L
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
+        clearSleepDeadline()
         resetSystemRecognitionTurn()
         incomingChatJob?.cancel()
         incomingChatJob = null
@@ -943,8 +953,8 @@ internal object LuluVoiceCallSession {
                 }
                 mutableState.update { it.copy(speaking = false, errorMessage = "发声失败：$error", statusMessage = "回复已生成，但声音播放失败") }
                 if (mutableState.value.sleepMode && ++sleepFailures >= 3) {
-                    sleepContinuationJob?.cancel()
-                    mutableState.update { it.copy(sleepMode = false, statusMessage = "哄睡发声连续失败，已停止自动续讲以免反复请求") }
+                    // Failed bedtime narration must release the paid STT capture.
+                    endSleepCallOnSilence()
                 }
             } },
         )
@@ -1696,7 +1706,7 @@ internal object LuluVoiceCallSession {
                     mutableState.update { it.copy(thinking = false, opening = false, statusMessage = "刚才没有听清回复，再说一句吧") }
                     scheduleListening(300)
                     if (autonomousSleep && ++sleepFailures >= 3) {
-                        mutableState.update { it.copy(sleepMode = false, statusMessage = "哄睡自动续讲连续失败，已暂停") }
+                        endSleepCallOnSilence()
                     } else scheduleSleepContinuation()
                     return@onSuccess
                 }
@@ -1736,7 +1746,7 @@ internal object LuluVoiceCallSession {
                         errorMessage = "回复没生成完整，继续说话或重试即可") }
                     scheduleListening(300)
                     if (autonomousSleep && ++sleepFailures >= 3) {
-                        mutableState.update { it.copy(sleepMode = false, statusMessage = "哄睡续讲解析连续失败，已暂停") }
+                        endSleepCallOnSilence()
                     } else scheduleSleepContinuation()
                     return@onSuccess
                 }
@@ -1796,7 +1806,7 @@ internal object LuluVoiceCallSession {
                 }
                 scheduleListening(500)
                 if (autonomousSleep && ++sleepFailures >= 3) {
-                    mutableState.update { it.copy(sleepMode = false, statusMessage = "哄睡服务连续请求失败，已停止自动重试") }
+                    endSleepCallOnSilence()
                 } else scheduleSleepContinuation()
             }
         }
@@ -2001,28 +2011,7 @@ internal object LuluVoiceCallSession {
                     com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.characterId)
                 }
                 val current = mutableState.value
-                if (SleepCallContinuationPolicy.shouldQuietlyEnd(
-                        sinceUserReplyMillis = sleepSilenceMillis(),
-                        connected = current.connected,
-                        sleepMode = current.sleepMode,
-                        userSpeaking = confirmedSpeechInProgress(),
-                        audioInProgress = current.speaking || speechQueue?.hasPendingAudio == true,
-                    )) {
-                    // Do not hang up a planned short nap before its saved
-                    // alarm fires. Ordinary overnight calls still end normally.
-                    val now = Instant.now()
-                    val promisedNap = com.jiacimu.lulu.data.CommitmentTaskStore
-                        .snapshot(current.characterId).any { task ->
-                            task.status.isActive() && task.isWakeResponsibility() &&
-                                task.linkedAlarmId != null &&
-                                task.dueAt?.isAfter(now) == true &&
-                                task.dueAt?.isBefore(now.plusSeconds(3L * 60L * 60L)) == true
-                        }
-                    if (!promisedNap) {
-                        endSleepCallOnSilence()
-                        break
-                    }
-                }
+                if (endSleepIfDue()) break
                 val clock = SystemClock.elapsedRealtime()
                 if (CallSilencePolicy.shouldRecoverStuckCapture(
                         providerActive = providerInput?.usesServerVad == false &&
