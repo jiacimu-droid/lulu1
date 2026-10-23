@@ -58,7 +58,7 @@ internal object CompanionActionRuntime {
         })
         if (ImageSearchProvider.configured(context, "serper") ||
             ImageSearchProvider.configured(context, "giphy")) {
-            appendLine("- image_search：独立联网搜图，不需要修改聊天模型。args={\"op\":\"search\",\"provider\":\"serper|giphy|auto\",\"query\":\"想找的图片关键词\"} 取得带 searchId 和编号的真实候选，Serper 适合全网静态图、GIPHY 适合动图；结果标题不是视觉理解。args={\"op\":\"send\",\"searchId\":\"实际搜索回执中的ID\",\"index\":0,\"caption\":\"自选配文\"} 下载被选中的真实图片并在私聊发送。也可以一次选 image_search 的 op=search_send，使用搜索靠前且实际可下载的图片立即发送，但该选择由排序完成、本人尚未目视确认；不应假装自己看到了图。搜图、发图分开记录回执，未成功下载绝不能自称已经发图。图片来自第三方网站，展示来源，转载及使用应尊重权利人；发送 GIPHY 附带 Powered By GIPHY。可在同轮 JSON 的 steps 与文本一起安排，但不得臆造尚未生成的 searchId。")
+            appendLine("- image_search：独立联网搜图，不需要修改聊天模型。args={\"op\":\"search\",\"provider\":\"serper|giphy|auto\",\"kind\":\"gif|sticker\",\"query\":\"想找的图片关键词\"} 取得带 searchId 和编号的真实候选，Serper 适合全网静态图、GIPHY 适合动图；结果标题不是视觉理解。args={\"op\":\"send\",\"searchId\":\"实际搜索回执中的ID\",\"index\":0,\"caption\":\"自选配文\"} 下载被选中的真实图片并在私聊发送。也可以一次选 image_search 的 op=search_send，使用搜索靠前且实际可下载的图片立即发送，但该选择由排序完成、本人尚未目视确认；不应假装自己看到了图。搜图、发图分开记录回执，未成功下载绝不能自称已经发图。图片来自第三方网站，展示来源，转载及使用应尊重权利人；发送 GIPHY 附带 Powered By GIPHY。可在同轮 JSON 的 steps 与文本一起安排，但不得臆造尚未生成的 searchId。")
         } else {
             appendLine("- image_search 目前没有配置 Serper / GIPHY Key，无法实际搜图；可在『联网与阅读』配置。")
         }
@@ -256,6 +256,7 @@ internal object CompanionActionRuntime {
             "image_search" -> {
                 val op = args.optString("op", "search").ifBlank { "search" }
                 val provider = args.optString("provider", "auto").ifBlank { "auto" }
+                val kind = args.optString("kind", "gif").ifBlank { "gif" }
                 require(op in setOf("search", "search_send", "send")) {
                     "image_search 仅支持 search、search_send 或 send"
                 }
@@ -269,12 +270,12 @@ internal object CompanionActionRuntime {
                 } else {
                     val query = args.optString("query").trim()
                     val hits = withContext(Dispatchers.IO) {
-                        ImageSearchProvider.search(context, provider, query)
+                        ImageSearchProvider.search(context, provider, query, kind)
                     }
                     val searchId = ImageSearchProvider.remember(context, characterId, hits)
                     if (op == "search_send") {
                         val selection = withContext(Dispatchers.IO) {
-                            hits.take(4).mapIndexedNotNull { index, hit ->
+                            hits.take(4).asSequence().mapIndexedNotNull { index, hit ->
                                 runCatching {
                                     index to ImageSearchProvider.download(context, hit)
                                 }.getOrNull()
