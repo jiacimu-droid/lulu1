@@ -134,11 +134,16 @@ export function touchExpressionCategory(name) {
  * auto-activate. Calling with speaking=true excludes tongue, not blush/hearts.
  */
 export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 'tap', speaking = false) {
-  const available = [...new Set(names.filter(name => typeof name === 'string' && name.trim()))]
+  const impact = gesture === 'kick' || gesture.startsWith('slap')
+  const all = [...new Set(names.filter(name => typeof name === 'string' && name.trim()))]
     .map(name => ({ name, category: touchExpressionCategory(name) }))
     .filter(item => item.category !== 'appearance' && (!speaking || item.category !== 'tongue'))
+  // Tears/shadow belong to playful impact or a character-selected cue,
+  // not a later step of the owner's gentle kiss or petting loop.
+  const appropriate = impact
+    ? all : all.filter(item => item.category !== 'tear' && item.category !== 'dark')
+  const available = appropriate.length ? appropriate : all
   if (!available.length) return null
-  const impact = gesture === 'kick' || gesture.startsWith('slap')
   const affection = gesture === 'kiss'
   const curious = region === 'nose' || region.includes('ear') || region.includes('eye')
   const preference = impact
