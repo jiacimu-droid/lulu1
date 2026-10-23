@@ -122,6 +122,13 @@ for (const region of TOUCH_REGIONS) {
   }
 }
 assert.notEqual(touchFamily('beast-ear-left'), touchFamily('ear-left'))
+// Every real touch region must cause at least one observable torso-axis
+// request on rigs with body rotation, not only a face expression.
+for (const region of TOUCH_REGIONS) {
+  const reflex = touchReflexFor(region, 'stroke-right', 1, { force: .65 }, 300)
+  assert.ok(Object.values(reflex.body).some(value => Math.abs(value) >= 1),
+    region + ' should have a visible coordinated body response')
+}
 const headLeft = touchReflexFor('cheek-left', 'stroke-right')
 const headRight = touchReflexFor('cheek-right', 'stroke-right')
 assert.equal(headLeft.yaw, -headRight.yaw)
