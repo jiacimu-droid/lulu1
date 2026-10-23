@@ -47,7 +47,7 @@ internal object MemoryWorkingSet {
             }
             context.memories.forEach { memory ->
                 add(MemoryPromptCandidate("memory:${memory.id}", SUMMARY,
-                    "- [${memory.occurredAt ?: memory.createdAt}] [${memory.kind}] memoryId=${memory.id} ${memory.content}" +
+                    "- [${memory.occurredAt ?: memory.createdAt}] [${CharacterAssociativeRecall.memoryLane(memory).label}] memoryId=${memory.id} ${memory.content}" +
                         if (memory.kind == com.jiacimu.lulu.core.MemoryKind.Emotion) "（当时的情绪印象，不代表此刻状态）" else "",
                     650, payload = memory.content, sources = memory.sourceIds().toSet(),
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
