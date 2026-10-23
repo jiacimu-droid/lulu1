@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:04:49.293861+00:00",
-  "commit": "db5558c7c0021e4730f76faf21ce69c76eb1d118",
+  "generatedAt": "2026-10-23T18:05:11.525437+00:00",
+  "commit": "19ce779586c2d20593832fa09130d4d170099e64",
   "branch": "main",
-  "sourceFingerprint": "de8270d963900bdffba99b47e4bec4bc013cad0f9cc16f45c5f515a1610397cc",
+  "sourceFingerprint": "28c61d8a7c0f8ae0970609d3239c787d2ed1cccd945e272bfe2cc899ec4ba44b",
   "summary": {
     "files": 864,
-    "lines": 165404,
-    "symbols": 2498
+    "lines": 165444,
+    "symbols": 2499
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13036,70 +13036,76 @@
         "line": 362
       }
     ],
-    "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry": [
+    "v22OwnerRespectUpgradePreservesHandwrittenViewsAndActualPlans": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
         "line": 407
       }
     ],
+    "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 447
+      }
+    ],
     "relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 437
+        "line": 477
       }
     ],
     "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 475
+        "line": 515
       }
     ],
     "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 524
+        "line": 564
       }
     ],
     "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 574
+        "line": 614
       }
     ],
     "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 622
+        "line": 662
       }
     ],
     "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 669
+        "line": 709
       }
     ],
     "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 718
+        "line": 758
       }
     ],
     "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 761
+        "line": 801
       }
     ],
     "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 815
+        "line": 855
       }
     ],
     "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 843
+        "line": 883
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -28174,8 +28180,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 872,
-      "sha256": "66e9a616686bb165d6c057dd9d6e11e852acf36aac88498f8d97951710e7242c",
+      "lines": 912,
+      "sha256": "22b1ae2bcd71b99151b1261f947c304e0de09b287188c35fbd89299a9286b5eb",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -28202,48 +28208,52 @@
           "line": 362
         },
         {
-          "name": "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry",
+          "name": "v22OwnerRespectUpgradePreservesHandwrittenViewsAndActualPlans",
           "line": 407
         },
         {
+          "name": "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry",
+          "line": 447
+        },
+        {
           "name": "relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona",
-          "line": 437
+          "line": 477
         },
         {
           "name": "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices",
-          "line": 475
+          "line": 515
         },
         {
           "name": "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles",
-          "line": 524
+          "line": 564
         },
         {
           "name": "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona",
-          "line": 574
+          "line": 614
         },
         {
           "name": "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits",
-          "line": 622
+          "line": 662
         },
         {
           "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
-          "line": 669
+          "line": 709
         },
         {
           "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
-          "line": 718
+          "line": 758
         },
         {
           "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 761
+          "line": 801
         },
         {
           "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 815
+          "line": 855
         },
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 843
+          "line": 883
         }
       ]
     },
