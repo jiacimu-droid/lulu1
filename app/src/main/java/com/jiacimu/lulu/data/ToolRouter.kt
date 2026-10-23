@@ -22,6 +22,7 @@ object ToolRouter {
         mutex.withLock("$characterId:" + when (name) {
             "read_xiaohongshu" -> "xhs"
             "web_search" -> "web"
+            "image_search" -> "images"
             else -> "actions"
         }) {
             fun rejected(message: String, status: String = "failed"): String {
