@@ -115,7 +115,8 @@ internal object CompanionActionRuntime {
             appendLine("- read_health_mcp，args={\"data_type\":\"current_status|sleep|steps|heart_rate|daily_summary\"}：只读用户真实手环数据；未经成功调用不能捏造实时数值。")
         }
         appendLine("【本人日程工具的时间基准】本机现在为 ${java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)}。dueAt 须由本人真实选择未来时刻，使用含时区偏移的 ISO8601 日期时间；不可把提示里的日期示例当固定作息。")
-        appendLine("- plan_personal_activity，args={\"title\":\"自己真想安排的具体活动\",\"intent\":\"本人动机\",\"dueAt\":\"本人决定的真实未来ISO8601时间\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|publish_moment|send_private_message\",\"repeat\":\"once|daily\"}：可以现在做、也可以真的想留到稍后、今晚或某个合适时刻再做；选定未来时间后才调用，不能照抄示意 dueAt。确实关联某个现有愿望时可附带准确 motiveId，暂停或放下的愿望不能自动执行旧计划。一次性计划不清楚日后具体执行器时可省略 activityAction；daily 必须指定真实执行动作。不需每日重新计划，也不要机械排满日程。安排用户提醒时以 send_private_message 为验证动作，未来真正发送并带 planId 才算兑现。")
+        appendLine("- plan_personal_activity，args={\"title\":\"自己真想安排的具体活动\",\"intent\":\"本人动机\",\"dueAt\":\"本人决定的真实未来ISO8601时间\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|publish_moment|send_private_message|send_character_message\",\"repeat\":\"once|daily\"}：可以现在做、也可以真的想留到稍后、今晚或某个合适时刻再做；选定未来时间后才调用，不能照抄示意 dueAt。确实关联某个现有愿望时可附带准确 motiveId，暂停或放下的愿望不能自动执行旧计划。一次性计划不清楚日后具体执行器时可省略 activityAction；daily 必须指定真实执行动作。不需每日重新计划，也不要机械排满日程。安排用户提醒时以 send_private_message 为验证动作，未来真正发送并带 planId 才算兑现。")
+        appendLine("想以后联系熟人：在日程里提供 targetCharacterId=真实角色ID、activityAction=send_character_message；想亲自找居民则可提供 targetResidentId=已登记居民ID、locationCode=真实公共地点码、activityAction=digital_world_action。到点前可改期或取消。出门不是已见面；只在最终真实发信/交流的动作附上 planId，不能靠标题、心声和路过就算完成。")
         appendLine("- reschedule_personal_activity，args={\"planId\":\"已有本人日程ID\",\"dueAt\":\"新的ISO时间\",\"reason\":\"自己为什么改期\"}：可在到点前或到点后主动改期，不算已经执行。")
         appendLine("- cancel_personal_activity，args={\"planId\":\"已有本人日程ID\",\"reason\":\"自己为什么放下这件事\"}：真的改变想法时取消，不必装成完成。")
         appendLine("【日程闭环】按本人真实欲望选择行动，已计划事项也可以在下一次醒来后重新评估、改期或取消。对方已在学习、睡觉或不希望被打扰时可晚点提醒或不提醒；绝不为了打卡硬打电话。阅读、游戏、真实数字世界、朋友圈及私聊提醒必须由动作真实成功并带 planId，收到执行回执才算完成。普通口头声称不算；每天重复任务只在真的完成后顺延次日。")
@@ -212,6 +213,13 @@ internal object CompanionActionRuntime {
     ): CompanionActionResult = runCatching {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
+        if (args.optString("planId").isNotBlank() &&
+            normalizedAction in RoleDayScheduleStore.verifiableActions) {
+            require(RoleDayScheduleStore.canBegin(context, characterId,
+                args.optString("planId"), normalizedAction, args, now)) {
+                "原日程尚未到期、已取消、关联意愿已暂停，或真实执行对象不匹配；请重新考虑或改期"
+            }
+        }
         if (characterId.startsWith("resident:")) {
             require(normalizedAction in setOf(
                 "digital_world_action", "publish_moment", "send_private_message",
@@ -494,6 +502,9 @@ internal object CompanionActionRuntime {
                     activityAction = args.optString("activityAction"),
                     repeat = args.optString("repeat", "once").lowercase(),
                     motiveId = args.optString("motiveId"),
+                    targetCharacterId = args.optString("targetCharacterId"),
+                    targetResidentId = args.optString("targetResidentId"),
+                    locationCode = args.optString("locationCode"),
                 )
                 CompanionActionResult(true, "已为本人安排「${plan.title}」，到时再决定如何行动",
                     evidenceId = "own-plan-${plan.id}")
@@ -665,7 +676,7 @@ internal object CompanionActionRuntime {
             args.optString("planId").isNotBlank() && result.evidenceId.isNotBlank()) {
             runCatching {
                 RoleDayScheduleStore.completeFromReceipt(context, characterId, args.optString("planId"),
-                    normalizedAction, result.evidenceId, result.summary, now)
+                    normalizedAction, result.evidenceId, result.summary, now, args)
             }.onFailure {
                 android.util.Log.w("RoleDaySchedule", "Real action succeeded; plan closure pending", it)
             }
