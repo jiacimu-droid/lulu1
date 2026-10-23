@@ -12,6 +12,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,6 +78,7 @@ internal fun Live2DFullscreenVideoCall(
     // body without reloading the model or interrupting the call audio.
     var framingMode by remember(modelUrl) { mutableStateOf("portrait") }
     var videoMenuExpanded by remember(modelUrl) { mutableStateOf(false) }
+    var expressionPickerExpanded by remember(modelUrl) { mutableStateOf(false) }
     // These only tune the JPEG bridge's resolution budget; they do not
     // change model assets or interrupt the call/audio session.
     var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
@@ -418,6 +421,35 @@ internal fun Live2DFullscreenVideoCall(
                     .padding(horizontal = 13.dp, vertical = 7.dp),
                 color = Color.White, fontSize = 13.sp)
         }
+        if (expressionPickerExpanded) {
+            AlertDialog(
+                onDismissRequest = { expressionPickerExpanded = false },
+                title = { Text("模型表情 · ${availableAnimations.expressions.size}") },
+                text = {
+                    Column(
+                        Modifier.heightIn(max = 420.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        availableAnimations.expressions.forEach { name ->
+                            TextButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    expressionPickerExpanded = false
+                                    onPreviewExpression(name)
+                                },
+                            ) {
+                                Text(name, modifier = Modifier.fillMaxWidth())
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { expressionPickerExpanded = false }) {
+                        Text("关闭")
+                    }
+                },
+            )
+        }
         // A compact gradient over the avatar preserves the video-call feel.
         Box(Modifier.fillMaxWidth().height(162.dp).align(Alignment.TopCenter)
             .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .55f), Color.Transparent))))
@@ -494,6 +526,16 @@ internal fun Live2DFullscreenVideoCall(
                             },
                             leadingIcon = { Icon(Icons.Outlined.CameraFront, null) },
                         )
+                        if (availableAnimations.expressions.isNotEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("模型表情 · ${availableAnimations.expressions.size}") },
+                                onClick = {
+                                    videoMenuExpanded = false
+                                    expressionPickerExpanded = true
+                                },
+                                leadingIcon = { Icon(Icons.Outlined.SentimentSatisfied, null) },
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text("更换 Live2D 模型") },
                             onClick = {
