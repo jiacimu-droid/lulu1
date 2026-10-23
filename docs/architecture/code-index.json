@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:03:15.187639+00:00",
-  "commit": "7f5535aa7a34d5ad67a6c30654f1730188c4c43e",
+  "generatedAt": "2026-10-23T18:03:36.341838+00:00",
+  "commit": "a7ebdb4fb2528f4627a347f87d193a77fed4135c",
   "branch": "main",
-  "sourceFingerprint": "0d77c44ae9f1688eadbb21d8568d8a157111e765b631bb567583a7d722ff60bf",
+  "sourceFingerprint": "e310de8dd0f225c270f3805348503b7c53c78966c040149b6108c68b912a0317",
   "summary": {
     "files": 864,
-    "lines": 165380,
+    "lines": 165387,
     "symbols": 2498
   },
   "symbolIndex": {
@@ -4511,7 +4511,7 @@
     "challengeGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 122
+        "line": 123
       }
     ],
     "resolve": [
@@ -17992,8 +17992,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-      "lines": 131,
-      "sha256": "3a6571c12540bac13d0866cc650e5660c8a0cb2a4fbedc45c1b93f21c51f8a37",
+      "lines": 132,
+      "sha256": "11ab2cf12a2ebc50b48cfc8d10bc6e669c36217af81c0c0804ad198fb8cb0d12",
       "symbols": [
         {
           "name": "prompt",
@@ -18021,7 +18021,7 @@
         },
         {
           "name": "challengeGuidance",
-          "line": 122
+          "line": 123
         }
       ]
     },
@@ -26580,8 +26580,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2091,
-      "sha256": "29bda6827007158300e4f8a810401ed64a1ff2f4788c35054e0931a5b44d0aa4",
+      "lines": 2097,
+      "sha256": "720316619c5a204804d1929cb52d93209d592e769620d623d7515f53b1bea340",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
