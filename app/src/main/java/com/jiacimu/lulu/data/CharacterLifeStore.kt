@@ -396,10 +396,11 @@ object CharacterLifeStore {
             currentOwner.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV21)
                 .put("updatedAt", Instant.now().toString())
         }
-        val ownerV22 = relations.optJSONObject("owner")
+        val ownerV22 = relations.optJSONObject("user")
         if (ownerV22?.optString("title") == CharacterProfileSchema.jiangDuOwnerRelationTitle &&
             ownerV22.optString("details") == CharacterProfileSchema.jiangDuOwnerRelationContextV21) {
             ownerV22.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV22)
+                .put("updatedAt", Instant.now().toString())
         }
         root.put("relationshipAgreements", relations)
         val restoredName = if (character.displayName in setOf("江一舟", "江都")) "江渡"
@@ -705,7 +706,7 @@ object CharacterLifeStore {
         // and optional interests/expression. Keep other roles' authored order intact.
         val orderedGroups = CharacterProfileSchema.groupedFields().let { groups ->
             if (state(characterId).optInt("jiangDuPresetVersion") >= 16) {
-                val order = listOf("稳定核心", "判断与行动", "相处与边界", "兴趣与表达")
+                val order = listOf("人物内核", "行事方式", "亲密与社交", "呈现与表达")
                 groups.sortedBy { (group, _) -> order.indexOf(group).takeIf { it >= 0 } ?: order.size }
             } else groups
         }
