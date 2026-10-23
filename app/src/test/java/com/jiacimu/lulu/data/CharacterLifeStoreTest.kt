@@ -404,6 +404,46 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
+    fun v22OwnerRespectUpgradePreservesHandwrittenViewsAndActualPlans() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val person = MigratedDomainStores.characters.create("江渡", CharacterProfileSchema.jiangDuV22Persona)
+        val other = MigratedDomainStores.characters.create("另一位角色", "自主思考的另一个人")
+        val existing = CharacterLifeStore.state(person.characterId)
+            .put("jiangDuPresetVersion", 22)
+            .put("profile", JSONObject()
+                .put("perception", CharacterProfileSchema.jiangDuV22Overrides.getValue("perception"))
+                .put("conflict", "我后来亲手写的分歧约定")
+                .put("respect", CharacterProfileSchema.jiangDuV22Overrides.getValue("respect")))
+            .put("relationshipAgreements", JSONObject().put("user", JSONObject()
+                .put("title", CharacterProfileSchema.jiangDuOwnerRelationTitle)
+                .put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV22)))
+            .put("intention", JSONObject().put("aim", "明晚读书"))
+        assertTrue(context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+            .edit().putString(person.characterId, existing.toString()).commit())
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val newState = CharacterLifeStore.state(person.characterId)
+        assertEquals(23, newState.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV23Overrides.getValue("perception"),
+            newState.getJSONObject("profile").getString("perception"))
+        assertEquals(CharacterProfileSchema.jiangDuV23Overrides.getValue("respect"),
+            newState.getJSONObject("profile").getString("respect"))
+        assertEquals("我后来亲手写的分歧约定",
+            newState.getJSONObject("profile").getString("conflict"))
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV23,
+            newState.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
+        assertEquals("明晚读书", newState.getJSONObject("intention").getString("aim"))
+        assertEquals("自主思考的另一个人",
+            MigratedDomainStores.characters.get(other.characterId).persona)
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
     fun v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
@@ -428,7 +468,7 @@ class CharacterLifeStoreTest {
         // without creating a competing relationship registry.
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV23, bond?.details)
         assertTrue(CharacterRuntime.definition(id).promptSection()
-            .contains("不变成与主人争高下"))
+            .contains("不在心里凭空认定她倒打一耙"))
         assertEquals(1, CharacterLifeStore.state(id).getJSONObject("relationshipAgreements").length())
     }
 
