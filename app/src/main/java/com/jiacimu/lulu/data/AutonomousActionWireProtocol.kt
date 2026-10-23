@@ -31,7 +31,8 @@ internal object AutonomousActionWireProtocol {
         "incidentId", "approach", "targetCharacterId",
         "title", "content", "nickname", "messageId", "reason", "name", "appearance",
         "position", "itemType", "journalTitle", "journalContent",
-        "planId", "dueAt", "intent", "activityAction",
+        "planId", "dueAt", "intent", "activityAction", "activityArgs",
+        "commitmentTaskId", "repeat",
     )
 
     fun normalize(original: JSONObject): JSONObject {
