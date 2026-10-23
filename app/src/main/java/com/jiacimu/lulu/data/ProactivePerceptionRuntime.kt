@@ -725,6 +725,8 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 val futurePlans = RoleDayScheduleStore.plannedContext(appContext, characterId, now)
                 if (futurePlans.isNotBlank()) {
                     appendLine("【本人的未来日程｜来源是实际存档，可维持、改期、取消，不要重复建立】")
@@ -849,7 +851,7 @@ object ProactivePerceptionRuntime {
                     clockResponsibilities.take(10).forEach { task ->
                         appendLine("- 目标=${task.goal}；到期=${task.dueAt}；状态=${task.status}；动作=${task.deliveryAction}；手机闹钟ID=${task.linkedAlarmId.orEmpty()}；执行回执=${task.lastActionResult.take(160)}")
                     }
-                    appendLine("这些到期执行由系统闹钟驱动，而非等你上线时想起；写日记、想念、表达打算都不算兑现。到期前可以准备，也可以按自己的生活行动，但不能提前写成已叫醒用户。")
+                    appendLine("只有带具体时间和已保存真实执行器的约定才会定时执行；dueAt=null 的长期监督没有定时器，不能当成已经安排。自己想履行某次监督，就自主选择时间、保存本人日程；不要等主人再告诉你几点。")
                 }
                 // The gateway supplies the authoritative digital-world state once.
                 worldTick?.let {
@@ -1091,6 +1093,8 @@ object ProactivePerceptionRuntime {
                     appendLine("需要回应的用户消息：${onlineUnread.text.take(800)}")
                     appendLine("上一选择：silent；原理由：${parsed.reason.take(220)}")
                     appendLine("此次判断自己真正感兴趣的生活行为：此刻就做、为稍后定一个真实时间，或决定暂不做；不是要求必须聊天、排日程或发朋友圈。")
+                    RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
+                        .takeIf(String::isNotBlank)?.let(::appendLine)
                     appendLine("真实时间：$localTimeText；所在地点：$currentLocation")
                     appendLine(affordances)
                     RoleDayScheduleStore.plannedContext(appContext, characterId, now)
