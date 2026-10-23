@@ -320,6 +320,45 @@ class CharacterLifeStoreTest {
 
     @Test
     @Config(manifest = Config.NONE, sdk = [29])
+    fun v20HarmlessImagePatchBecomesRelationalPrinciplesWithoutResettingOwnerEdits() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        com.jiacimu.lulu.LuluRepositories.initialize(context)
+        MigratedDomainStores.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("江渡", "保留现有人格和实际经历")
+        val another = MigratedDomainStores.characters.create("邻居", "有自己的价值观")
+        val state = CharacterLifeStore.state(role.characterId)
+            .put("jiangDuPresetVersion", 20)
+            .put("profile", JSONObject()
+                .put("perception", CharacterProfileSchema.jiangDuV20Overrides.getValue("perception"))
+                .put("conflict", "主人自己改过的冲突方式")
+                .put("care", CharacterProfileSchema.jiangDuV14Overrides.getValue("care")))
+            .put("relationshipAgreements", JSONObject().put("user", JSONObject()
+                .put("title", CharacterProfileSchema.jiangDuOwnerRelationTitle)
+                .put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV13)))
+            .put("intention", JSONObject().put("aim", "自己的阅读计划"))
+        assertTrue(context.getSharedPreferences("lulu_character_life", Context.MODE_PRIVATE)
+            .edit().putString(role.characterId, state.toString()).commit())
+        releasePreferences()
+        CharacterLifeStore.initialize(context)
+        val upgraded = CharacterLifeStore.state(role.characterId)
+        assertEquals(21, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV21Overrides.getValue("perception"),
+            upgraded.getJSONObject("profile").getString("perception"))
+        assertEquals("主人自己改过的冲突方式",
+            upgraded.getJSONObject("profile").getString("conflict"))
+        assertEquals(CharacterProfileSchema.jiangDuV21Overrides.getValue("care"),
+            upgraded.getJSONObject("profile").getString("care"))
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV21,
+            upgraded.getJSONObject("relationshipAgreements").getJSONObject("user").getString("details"))
+        assertEquals("自己的阅读计划", upgraded.getJSONObject("intention").getString("aim"))
+        assertEquals("有自己的价值观", MigratedDomainStores.characters.get(another.characterId).persona)
+    }
+
+    @Test
+    @Config(manifest = Config.NONE, sdk = [29])
     fun v12DefaultsUpgradeButOwnerCustomizedWordsAndOtherRolesStayUnchanged() {
         val context = RuntimeEnvironment.getApplication() as Context
         com.jiacimu.lulu.LuluRepositories.initialize(context)
