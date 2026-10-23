@@ -98,6 +98,10 @@ internal object CharacterInitiativeRuntime {
         val ownPreferences = relevant(
             learned.filter { it.kind == DevelopmentKind.Preference }, cue, limit = 3, allowFallback = true,
         )
+        val ownerPreferences = relevant(
+            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) },
+            cue, limit = 4, allowFallback = true,
+        )
         val userMemories = userSupportMemories(characterId, cue)
         return buildString {
             appendLine("【相关经历的检索线索｜程序不替角色判断用户的心情或需求】")
@@ -105,12 +109,16 @@ internal object CharacterInitiativeRuntime {
             appendLine("下述材料只按文字线索检索，可能有关，也可能完全无关；不提供虚假的情绪置信度。用户可能是在引用、否认、开玩笑或描述过去，不能把检索标签当作事实。")
             appendLine("请你自己结合完整语境、关系和现在的感受决定是否介入、如何表达、是否行动或保持安静；允许真诚地询问，不自动把任何回应判作敷衍。")
             if (verified.isNotEmpty()) {
-                appendLine("过去多次有结果支持的做法（只作候选，不机械复刻）：")
+                appendLine("有真实正面反馈的具体做法（可能仅适用过一次，不机械复刻）：")
                 verified.forEach { appendLine("- ${it.content}") }
             }
             if (routines.isNotEmpty()) {
                 appendLine("这段关系里逐渐形成的相处方式：")
                 routines.forEach { appendLine("- ${it.content}") }
+            }
+            if (ownerPreferences.isNotEmpty()) {
+                appendLine("主人真实表达的喜恶/自述习惯与跨日观察，优先自己考虑怎样照顾这些偏好，不要把所有主意都反问她：")
+                ownerPreferences.forEach { appendLine("- ${it.content}") }
             }
             if (userMemories.isNotEmpty()) {
                 appendLine("用户本人历史发言里的相关线索（保留原意理解；可能是喜欢、不喜欢、抱怨或一次性情况，不能只凭关键词当成正反馈）：")
@@ -120,7 +128,7 @@ internal object CharacterInitiativeRuntime {
                 appendLine("角色自己逐渐形成的偏好（只用于判断“我自己想不想这么做”，绝不代表用户也喜欢）：")
                 ownPreferences.forEach { appendLine("- ${it.content}") }
             }
-            appendLine("如果没有可靠历史方法，也可以只做一个低风险、可撤回、能力内的小回应/邀请；不要为了显得主动编造“以前这样一定能让她开心”。")
+            appendLine("有负面反馈时先顾及当下感受，再主动尝试不同的合适做法；没把握也可先做低风险的小回应，不必让主人教自己如何哄人。任何尝试必须等她真实反馈后才有资格形成相处经验，不能把查到的方法当成偏好。")
             appendLine("露露机内的聊天、邀请、日记、朋友圈、阅读、游戏和数字世界行为可由角色按已有产品权限自主选择；真正操作用户手机、闹钟、屏幕、定位/通知等仍按能力授权判断，不能因为‘关心’就越权。")
         }.trim()
     }
