@@ -21,17 +21,26 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.DigitalWorldPublicPlaces
 import com.jiacimu.lulu.data.DigitalWorldResident
+import com.jiacimu.lulu.data.MeetingSession
 import com.jiacimu.lulu.data.DigitalWorldStore
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import com.jiacimu.lulu.design.LuluColors
 
 /** Native digital residents live alongside, but never inside, the companion character directory. */
 @Composable
 internal fun DigitalWorldResidentProfiles() {
     val context = LocalContext.current
-    remember(context) { DigitalWorldExpansionStore.initialize(context.applicationContext); true }
+    remember(context) {
+        DigitalWorldExpansionStore.initialize(context.applicationContext)
+        DigitalWorldStore.initialize(context.applicationContext)
+        true
+    }
     val revision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val world by DigitalWorldStore.state.collectAsState()
     val residents = remember(revision) { DigitalWorldExpansionStore.residents() }
     var editingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var historyId by rememberSaveable { mutableStateOf<String?>(null) }
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         HorizontalDivider(color = Color(0xFFE1E5E2))
@@ -43,6 +52,9 @@ internal fun DigitalWorldResidentProfiles() {
             Text("暂时没有居民", color = LuluColors.Muted, fontSize = 13.sp)
         }
         residents.forEach { resident ->
+            val encounters = world.meetings.filter { session ->
+                session.turns.any { it.speakerId == "resident:${resident.id}" }
+            }
             val place = when (resident.currentLocationCode) {
                 resident.homeLocationCode -> "在家"
                 DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
@@ -73,14 +85,57 @@ internal fun DigitalWorldResidentProfiles() {
                         Text(traits.joinToString(" · "), fontSize = 12.sp, color = Color(0xFF5B6C64),
                             maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
-                    Text(place, color = LuluColors.Muted, fontSize = 11.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(place, color = LuluColors.Muted, fontSize = 11.sp, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { historyId = resident.id }, enabled = encounters.isNotEmpty()) {
+                            Text("相处记录 ${encounters.size}")
+                        }
+                    }
                 }
             }
         }
     }
+    residents.firstOrNull { it.id == historyId }?.let { resident ->
+        val encounters = world.meetings.filter { session ->
+            session.turns.any { it.speakerId == "resident:${resident.id}" }
+        }
+        ResidentProfileHistoryDialog(resident, encounters, onDismiss = { historyId = null })
+    }
     residents.firstOrNull { it.id == editingId }?.let { resident ->
         ResidentProfileEditDialog(resident, onDismiss = { editingId = null }, onSaved = { editingId = null })
     }
+}
+
+@Composable
+private fun ResidentProfileHistoryDialog(
+    resident: DigitalWorldResident,
+    sessions: List<MeetingSession>,
+    onDismiss: () -> Unit,
+) {
+    val formatter = remember { DateTimeFormatter.ofPattern("MM/dd HH:mm").withZone(ZoneId.systemDefault()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("${resident.name} · 相处记录") },
+        text = {
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 480.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                sessions.takeLast(20).asReversed().forEach { session ->
+                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(formatter.format(session.startedAt), color = LuluColors.Muted, fontSize = 11.sp)
+                        session.turns.forEach { turn ->
+                            if (turn.dialogue.isNotBlank()) {
+                                Text("${turn.speakerName}：${turn.dialogue}", fontSize = 13.sp)
+                            }
+                        }
+                    }
+                    HorizontalDivider(color = Color(0xFFE1E5E2))
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("关闭") } },
+    )
 }
 
 @Composable
