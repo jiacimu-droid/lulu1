@@ -79,6 +79,25 @@ class RoleDayScheduleStoreTest {
             "outgoing-call", after))
     }
 
+    @Test fun explicitlyScheduledDeviceActionsKeepTheSamePermissionAndReceiptBoundary() {
+        assertTrue(RoleDayScheduleStore.canSchedule("capture_screen"))
+        assertTrue(RoleDayScheduleStore.canSchedule("summon_lulu"))
+        assertTrue(RoleDayScheduleStore.canSchedule("send_private_message"))
+        assertFalse(RoleDayScheduleStore.canSchedule("plan_personal_activity"))
+        assertFalse(RoleDayScheduleStore.canSchedule("write_journal"))
+        assertFalse(RoleDayScheduleStore.canSchedule("invented_tool"))
+        val scheduled = plan.copy(activityAction = "capture_screen", activityArgs = "{}")
+        assertTrue(RoleDayScheduleStore.canComplete(scheduled, "role-a",
+            "capture_screen", "real-screenshot-receipt", after))
+        assertFalse(RoleDayScheduleStore.canComplete(scheduled, "role-a",
+            "summon_lulu", "different-action", after))
+        assertFalse(RoleDayScheduleStore.canComplete(scheduled, "role-b",
+            "capture_screen", "other-role", after))
+        // An unspecified old plan cannot be accidentally satisfied by an unrelated device read.
+        assertFalse(RoleDayScheduleStore.canComplete(plan.copy(activityAction = ""),
+            "role-a", "capture_screen", "not-an-appointment", after))
+    }
+
     @Test fun legacyUnrestrictedPlansStillDemandActualEvidenceAndAllowedActions() {
         val legacy = plan.copy(activityAction = "")
         assertTrue(RoleDayScheduleStore.canComplete(legacy, "role-a", "play_solo_game",
