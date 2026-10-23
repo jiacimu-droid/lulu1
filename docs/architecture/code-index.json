@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:05:28.703001+00:00",
-  "commit": "6725467669f9ef0de81917a34487a0e86f8a1747",
+  "generatedAt": "2026-10-23T07:07:03.886841+00:00",
+  "commit": "aa1bd1b9d4e8d8e56e193b7290fae2994b7585c8",
   "branch": "main",
-  "sourceFingerprint": "b225c70a35fe5f83398389ca4391fe7c8c39977fea8834957692fffd22e367cb",
+  "sourceFingerprint": "542e1ccab9b280b23eaed3d675f415ea70a06df5212dc996655abd0d66461466",
   "summary": {
     "files": 840,
-    "lines": 161130,
+    "lines": 161131,
     "symbols": 2436
   },
   "symbolIndex": {
@@ -16115,8 +16115,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt",
-      "lines": 42,
-      "sha256": "3cd91ad4f83209399c161357f49e1c22cf6385e28e9a88db2cd8330b524bf514",
+      "lines": 43,
+      "sha256": "17afc5d2e48797383120ef93c71522fe4a043884e95c52267f82fe9cba8c4567",
       "symbols": []
     },
     {
