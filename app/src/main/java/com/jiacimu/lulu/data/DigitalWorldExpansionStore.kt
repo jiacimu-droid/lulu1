@@ -187,7 +187,13 @@ internal object DigitalWorldExpansionStore {
                 lastInteractionAt = now,
             ).also { changed = it }
         }
-        if (changed != null) persist()
+        if (changed != null) {
+            persist()
+            val characterId = ResidentCharacterBridge.characterId(residentId)
+            if (MigratedDomainStores.characters.settings.value.containsKey(characterId)) {
+                DigitalWorldStore.syncNativeResidentLocation(characterId, locationCode, now)
+            }
+        }
         return changed
     }
 
