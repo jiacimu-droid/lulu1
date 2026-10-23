@@ -78,6 +78,7 @@ let touchReflexEndAt = 0
 let touchSequence = 0
 let touchCalibration = Object.create(null)
 let calibrationVisible = false
+let calibrationSelection = 'cheek-left'
 let calibrationGuide = null
 // Visual regions belong to the currently imported model, not to the character.
 const defaultZoneAnchors = {
@@ -107,14 +108,23 @@ function drawCalibrationGuide() {
     const v = saved?.v ?? anchor[1]
     const rx = (saved?.rx ?? .065) * b.width
     const ry = (saved?.ry ?? .065 * b.width / Math.max(1,b.height)) * b.height
-    calibrationGuide.lineStyle(saved ? 2.5 : 1, saved ? 0xC5F7FF : 0xC0D0DC, saved ? .9 : .48)
-    calibrationGuide.beginFill(saved ? 0x70D3F1 : 0xA9BCCA, saved ? .28 : .10)
+    const selected = calibrationSelection === zone
+    calibrationGuide.lineStyle(selected ? 3 : saved ? 2 : 1,
+      selected ? 0xFFE4EF : saved ? 0xC5F7FF : 0xC0D0DC,
+      selected ? 1 : saved ? .85 : .48)
+    calibrationGuide.beginFill(selected ? 0xFF86BA :
+      saved ? 0x70D3F1 : 0xA9BCCA, selected ? .3 : saved ? .24 : .10)
     calibrationGuide.drawEllipse(b.x + u * b.width, b.y + v * b.height, rx, ry)
     calibrationGuide.endFill()
   }
 }
 function setCalibrationMode(enabled) {
   calibrationVisible = !!enabled
+  drawCalibrationGuide()
+}
+function setCalibrationSelection(zone) {
+  if (!TOUCH_REGIONS.includes(zone)) return
+  calibrationSelection = zone
   drawCalibrationGuide()
 }
 function setTouchCalibration(value) {
@@ -1239,7 +1249,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
