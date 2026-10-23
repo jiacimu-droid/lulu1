@@ -505,7 +505,12 @@ class CompanionModelGateway(
             }
             val leanExpression = expressionOnly &&
                 !budget.precise && !budget.worldDetails
-            val effectiveMode = if (leanExpression && contextMode == CompanionContextMode.Full)
+            // Native-world citizens never inherit the protagonist's broad
+            // real-device/user-profile recall. Keep their OWN core identity,
+            // configured persona, direct conversation, and explicit scene.
+            val citizen = com.jiacimu.lulu.data.ResidentCharacterBridge.nativeResident(characterId) != null
+            val effectiveMode = if ((leanExpression || citizen) &&
+                contextMode == CompanionContextMode.Full)
                 CompanionContextMode.CharacterAndScenario else contextMode
             val fullContext = effectiveMode == CompanionContextMode.Full
             val personaContext = effectiveMode == CompanionContextMode.PersonaAndScenario ||
@@ -531,8 +536,8 @@ class CompanionModelGateway(
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
             val userProfileSection = if (fullContext) UserProfileContext.promptSection() else ""
-            val live2dCapabilitySection = if (fullContext ||
-                effectiveMode == CompanionContextMode.CharacterAndScenario)
+            val live2dCapabilitySection = if (!citizen && (fullContext ||
+                effectiveMode == CompanionContextMode.CharacterAndScenario))
                 UserProfileContext.live2dCallContext(characterId) else ""
             val lexicon = if (fullContext) com.jiacimu.lulu.data.LexiconMemoryContext.select(characterId, request.retrievalQuery()) else emptyList()
             // Stable world rules constrain the SAME person even in a lean renderer.
