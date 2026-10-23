@@ -115,6 +115,28 @@ for (const id of ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   assert.ok(Math.abs(valuesById.get(id)) < bound, 'idle unexpectedly wandered: ' + id)
 }
 assert.ok(valuesById.get('ParamBreath') > 0.3)
+// A strong palm contact must reach a visible neck-roll impulse within
+// a few real video frames. Head yaw should stay smaller than the tilt, and
+// the same spring should return smoothly after the actual impact ends.
+rig.reset()
+for (let i = 0; i < 18; i++) frame()
+const slapContact = touchReflexFor('cheek-left', 'slap-right', 0, {
+  force: .9, impact: 70, shyness: 0,
+}, 90)
+for (let i = 0; i < 8; i++) {
+  seconds += .016
+  rig.update(core, { deltaMs: 16, touchReflex: slapContact, seconds })
+}
+const rollAfterSlap = Math.abs(valuesById.get('ParamAngleZ'))
+const yawAfterSlap = Math.abs(valuesById.get('ParamAngleX'))
+assert.ok(rollAfterSlap > 12,
+  'the palm recoil must be visible before the initial impact expires')
+assert.ok(rollAfterSlap > yawAfterSlap * 2,
+  'palm contact must primarily tilt around the neck, not shake the jaw')
+for (let i = 0; i < 135; i++) frame()
+assert.ok(Math.abs(valuesById.get('ParamAngleZ')) < 4,
+  'recoil must release naturally to neutral side tilt')
+rig.reset()
 // Actual touch -> Cubism body/secondary parameters, not just an expression.
 // Drive the real final-stage runtime at video cadence, then verify release.
 const cheekContact = touchReflexFor('cheek-left', 'stroke-right', 1, { force: .65 }, 350)
