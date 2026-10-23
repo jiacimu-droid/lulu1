@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dbd8333f960fe88e9450271754e961b0f36b15ab`
+- 基准提交：`7e371e6891efb14cd52fa8c5518e6c6378ce56e4`
 - 分支：`main`
-- 已索引文件：865
-- 已索引代码/文本行：165753
-- 已发现符号：2503
+- 已索引文件：866
+- 已索引代码/文本行：165793
+- 已发现符号：2504
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -624,6 +624,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechRecordingTest.kt` | 69 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatErrorNoticeTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReceiptRunsTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ChatReplyTurnActionsTest.kt` | 27 | 1 |

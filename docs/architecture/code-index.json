@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:15:02.803674+00:00",
-  "commit": "dbd8333f960fe88e9450271754e961b0f36b15ab",
+  "generatedAt": "2026-10-23T18:15:20.890449+00:00",
+  "commit": "7e371e6891efb14cd52fa8c5518e6c6378ce56e4",
   "branch": "main",
-  "sourceFingerprint": "a350b43d20c31ca72b403044cb1cdbfbb29daf19b6b8c62f773c335c505ac676",
+  "sourceFingerprint": "15ae51a49f4977d6d7015ceb79e02dea99dbf84cb4c109c9b2f1c02aee011433",
   "summary": {
-    "files": 865,
-    "lines": 165753,
-    "symbols": 2503
+    "files": 866,
+    "lines": 165793,
+    "symbols": 2504
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12318,6 +12318,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallSpokenHangupPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "CallTimedHangupTimingTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt",
+        "line": 8
       }
     ],
     "ChatErrorNoticeTest": [
@@ -27009,6 +27015,17 @@
         {
           "name": "CallSpokenHangupPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/CallTimedHangupTimingTest.kt",
+      "lines": 40,
+      "sha256": "11977ed0c354fea07d342f9d56e208e41b2fea4b81d26ee1762bb639845f8537",
+      "symbols": [
+        {
+          "name": "CallTimedHangupTimingTest",
+          "line": 8
         }
       ]
     },
