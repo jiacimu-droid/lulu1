@@ -128,7 +128,7 @@ class AutonomousActionWireProtocolTest {
             JSONObject().put("text", "我还在呢")
                 .put("steps", org.json.JSONArray().put(
                     JSONObject().put("tool", "control_music")
-                        .put("args", JSONObject().put("command", "pause"))))
+                        .put("args", JSONObject().put("command", "pause")))))
         assertEquals("message", words.getString("action"))
         assertEquals(1, words.getJSONArray("steps").length())
 
