@@ -22,17 +22,27 @@ class OnlineChatBatchStoreTest {
     @Test fun threeBubblesBeforeReadingHaveOneRevisionAndAnExtendedDeadline() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
-        assertEquals(100_000L + OnlineChatBatchStore.QUIET_MILLIS, first.dueAtMillis)
+        assertEquals(108_000L, first.dueAtMillis)
         val second = OnlineChatBatchStore.onUserBubble(app, role, 102_000L)
         val third = OnlineChatBatchStore.onUserBubble(app, role, 103_000L)
         assertEquals(first.revision, second.revision)
         assertEquals(first.revision, third.revision)
-        assertEquals(108_000L, second.dueAtMillis)
-        assertEquals(109_000L, third.dueAtMillis)
-        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 108_999L))
+        assertEquals(110_000L, second.dueAtMillis)
+        assertEquals(111_000L, third.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 110_999L))
         assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, third.dueAtMillis))
         OnlineChatBatchStore.finish(app, role, first.revision)
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
+    }
+
+    @Test fun noNetworkClaimBeforeEightSecondsEvenIfWorkerWakesAtOldSixSecondDeadline() {
+        OnlineChatBatchStore.cancel(app, role)
+        val batch = OnlineChatBatchStore.onUserBubble(app, role, 300_000L)
+        assertEquals(308_000L, OnlineChatBatchStore.pendingDueAt(app, role))
+        assertFalse(OnlineChatBatchStore.claim(app, role, batch.revision, 306_000L))
+        assertFalse(OnlineChatBatchStore.claim(app, role, batch.revision, 307_999L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, batch.revision, 308_000L))
+        OnlineChatBatchStore.finish(app, role, batch.revision)
     }
 
     @Test fun bubbleDuringModelGenerationSupersedesOldReplyWithoutLosingOriginals() {
@@ -56,28 +66,28 @@ class OnlineChatBatchStoreTest {
         assertNull(OnlineChatBatchStore.pendingDueAt(app, role))
     }
 
-    @Test fun secondBubbleAtFiveSecondsRestartsSameSixSecondQuietWindowWithoutCallingFirstApi() {
+    @Test fun secondBubbleAtFiveSecondsRestartsSameEightSecondQuietWindowWithoutCallingFirstApi() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
         assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 105_000L))
         val second = OnlineChatBatchStore.onUserBubble(app, role, 105_000L)
         assertEquals(first.revision, second.revision)
-        assertEquals(111_000L, second.dueAtMillis)
-        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 106_000L))
-        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 111_000L))
+        assertEquals(113_000L, second.dueAtMillis)
+        assertFalse(OnlineChatBatchStore.claim(app, role, first.revision, 108_000L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, first.revision, 113_000L))
         OnlineChatBatchStore.finish(app, role, first.revision)
     }
 
-    @Test fun threeBubblesAtFiveAndSixSecondsDoNotWaitTenAfterThird() {
+    @Test fun threeBubblesAtFiveAndSixSecondsDoNotAddExtraWaitAfterThird() {
         OnlineChatBatchStore.cancel(app, role)
         val first = OnlineChatBatchStore.onUserBubble(app, role, 100_000L)
         val second = OnlineChatBatchStore.onUserBubble(app, role, 105_000L)
         val third = OnlineChatBatchStore.onUserBubble(app, role, 106_000L)
         assertEquals(first.revision, third.revision)
-        assertEquals(111_000L, second.dueAtMillis)
-        assertEquals(112_000L, third.dueAtMillis)
+        assertEquals(113_000L, second.dueAtMillis)
+        assertEquals(114_000L, third.dueAtMillis)
         assertFalse(OnlineChatBatchStore.claim(app, role, third.revision, 109_000L))
-        assertTrue(OnlineChatBatchStore.claim(app, role, third.revision, 112_000L))
+        assertTrue(OnlineChatBatchStore.claim(app, role, third.revision, 114_000L))
         OnlineChatBatchStore.finish(app, role, third.revision)
     }
 
