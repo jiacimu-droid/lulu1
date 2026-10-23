@@ -55,6 +55,21 @@ assert.equal(access.read(other, 'ParamAngleX'), -10)
 assert.equal(other.values[3], 0.7)
 assert.equal(core.values[3], 0.85)
 
+// A native decoded frame must not invalidate the entire Compose stage.
+// This is especially important on the HyperOS ImageView compatibility route.
+const androidStage = readFileSync(new URL(
+  '../../../app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt',
+  import.meta.url), 'utf8')
+const fullscreenVideo = readFileSync(new URL(
+  '../../../app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt',
+  import.meta.url), 'utf8')
+assert.match(androidStage, /AtomicLong\(0L\)/)
+assert.match(androidStage, /lastBinaryFrameAt\.set\(/)
+assert.match(androidStage, /lastBinaryFrameAt\.get\(\)/)
+assert.doesNotMatch(androidStage, /var lastBinaryFrameAt by remember\(webView\)/)
+assert.match(androidStage, /Live2DFrameStats\(reportIntervalMs = 2_000L\)/)
+assert.match(fullscreenVideo, /qualityMode by remember\(modelUrl\) \{ mutableStateOf\("smooth"\) \}/)
+
 const stage = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
 assert.match(stage, /internal\.on\('beforeModelUpdate'/)
 assert.doesNotMatch(stage, /\.getParameterIndex\(|\.setParameterValueById\(/)
