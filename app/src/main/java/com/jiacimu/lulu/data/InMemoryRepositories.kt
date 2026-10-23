@@ -228,6 +228,8 @@ class InMemoryLexiconRepository : LexiconRepository {
     }
 }
 
+data class WorldBookImportResult(val imported: Int, val duplicates: Int)
+
 class InMemoryWorldBookRepository : WorldBookRepository {
     private val entries = MutableStateFlow<List<WorldBookEntry>>(emptyList())
     private var prefs: android.content.SharedPreferences? = null
@@ -261,6 +263,32 @@ class InMemoryWorldBookRepository : WorldBookRepository {
 
     override suspend fun delete(id: String) {
         mutate { current -> current.filterNot { entry -> entry.id == id } }
+    }
+
+    /** Atomically append new entries in original file order. Never replace existing
+     * IDs, switches, role overrides or ordering; exact reimports are idempotent. */
+    suspend fun importEntries(candidates: List<WorldBookEntry>): WorldBookImportResult {
+        require(candidates.all { it.title.isNotBlank() && it.content.isNotBlank() }) {
+            "导入内容存在无效的世界书条目"
+        }
+        var inserted = 0
+        var duplicates = 0
+        mutate { current ->
+            val known = current.mapTo(mutableSetOf()) { it.title.trim() to it.content.trim() }
+            val additions = buildList {
+                candidates.forEach { entry ->
+                    if (!known.add(entry.title.trim() to entry.content.trim())) {
+                        duplicates++
+                    } else {
+                        inserted++
+                        // Imported UUIDs are never trusted to overwrite an existing record.
+                        add(entry.copy(id = UUID.randomUUID().toString()))
+                    }
+                }
+            }
+            current + additions
+        }
+        return WorldBookImportResult(inserted, duplicates)
     }
 
     /** Prompt and UI both use this exact persisted order. */
