@@ -96,7 +96,7 @@ internal fun CharacterExecutionSettings(characterId: String) {
 internal fun CharacterLearningSettings(characterId: String) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
-    var limit by remember(characterId) { mutableIntStateOf(prefs.getInt("$characterId:learning_daily_limit", 2).coerceIn(0, 10)) }
+    var limit by remember(characterId) { mutableIntStateOf(prefs.getInt("$characterId:learning_daily_limit", 5).coerceIn(0, 30)) }
     val revision by CharacterLearningAgenda.revisions.collectAsState()
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
     val learnedRevision by CharacterLearningLedger.revisions.collectAsState()
@@ -128,7 +128,7 @@ internal fun CharacterLearningSettings(characterId: String) {
                 TextButton(enabled = limit > 0, onClick = {
                     limit--; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
                 }) { Text("−") }
-                TextButton(enabled = limit < 10, onClick = {
+                TextButton(enabled = limit < 30, onClick = {
                     limit++; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
                 }) { Text("+") }
             }
