@@ -140,6 +140,60 @@ print("已补充浏览器账号状态和新会话 Cookie 检测（扫码确认�
 PY
 }
 
+
+# Replace full-page network-idle waiting with actual search payload readiness.
+# This is intentionally restricted to the pinned v2.5.0 source layout.
+# It preserves cookies, browser settings, tokens and other MCP tools.
+repair_search_source() {
+  local source="$ROOT/source/xiaohongshu/search.go"
+  [[ -f "$source" ]] || { echo "缺少上游搜索源码：$source；请检查原本的安装目录" >&2; return 1; }
+  python3 - "$source" <<'PY'
+import pathlib, shutil, sys
+p = pathlib.Path(sys.argv[1])
+s = p.read_text()
+marker = "// LULU_SEARCH_PAGE_READY_V1"
+if marker in s:
+    print("搜索等待修复已存在")
+    sys.exit(0)
+needle = """	searchURL := makeSearchURL(keyword)
+	page.MustNavigate(searchURL)
+	page.MustWaitStable()
+	page.MustWait(`() => window.__INITIAL_STATE__ !== undefined`)
+"""
+if s.count(needle) != 1 or s.count("page := s.page.Context(ctx).Timeout(60 * time.Second)") != 1:
+    raise SystemExit("上游搜索源码与预期 v2.5.0 不符，拒绝修改，以保护现有程序")
+replacement = """	// LULU_SEARCH_PAGE_READY_V1: dynamic feeds rarely become globally stable.
+	// Total browser budget stays below the Android MCP 70-second request limit.
+	searchURL := makeSearchURL(keyword)
+	logrus.Info("小红书搜索：正在打开搜索页")
+	if err := rod.Try(func() { page.MustNavigate(searchURL) }); err != nil {
+		return nil, fmt.Errorf("小红书搜索导航失败: %w", err)
+	}
+	logrus.Info("小红书搜索：页面已导航，等待真实搜索结果")
+	if err := rod.Try(func() {
+		page.MustWait(`() => {
+			const state = window.__INITIAL_STATE__;
+			const feeds = state && state.search && state.search.feeds;
+			if (!feeds) return false;
+			const rows = feeds.value !== undefined ? feeds.value : feeds._value;
+			return Array.isArray(rows);
+		}`)
+	}); err != nil {
+		return nil, fmt.Errorf("小红书搜索结果未就绪（可能为网络慢、验证页面或网页结构变化）: %w", err)
+	}
+	logrus.Info("小红书搜索：已取得搜索数据")
+"""
+backup = p.with_name("search.go.before-lulu-search")
+if not backup.exists():
+    shutil.copy2(p, backup)
+s = s.replace(needle, replacement, 1)
+s = s.replace("page := s.page.Context(ctx).Timeout(60 * time.Second)",
+              "page := s.page.Context(ctx).Timeout(50 * time.Second)", 1)
+p.write_text(s)
+print("已修正动态搜索页等待逻辑，旧源码已备份")
+PY
+}
+
 install_xhs() {
   need curl; need tar; need go; need python3
   if ! go version | grep -Eq 'go1\.(2[4-9]|[3-9][0-9])'; then
@@ -179,6 +233,7 @@ override = """func EnsureBrowser() (string, error) {
 p.write_text(source.replace(needle, override, 1))
 PY
   repair_login_source
+  repair_search_source
   (cd "$sourceDir"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$APP" .)
   chmod 700 "$APP"
   ensure_token
@@ -240,6 +295,29 @@ status_xhs() {
   echo "Cookie固定位置：$COOKIE；敏感 Token：$AUTH_FILE"
 }
 
+
+# Repair only search.go; retain current login, cookie, token and installed Chromium.
+# A failed build never replaces the existing executable.
+repair_search() {
+  need python3; need go
+  repair_search_source
+  local candidate="$APP.next.$BASHPID"
+  if ! (cd "$ROOT/source"; CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -o "$candidate" .); then
+    rm -f "$candidate"
+    echo "搜索修复编译失败；原 MCP 程序和登录数据未改动" >&2
+    return 1
+  fi
+  chmod 700 "$candidate"
+  [[ ! -f "$APP.before-search" ]] && cp -p "$APP" "$APP.before-search"
+  mv -f "$candidate" "$APP"
+  echo "搜索修复版已安装，Cookie / Token / Chromium 未改变"
+  if alive "$PID_FILE"; then
+    echo "当前旧服务仍在运行；请在无搜索进行时执行本脚本 restart 以加载修复程序"
+  else
+    echo "服务当前没有运行；请执行本脚本 start"
+  fi
+}
+
 repair_login() {
   need python3; need go
   [[ -f "$ROOT/source/xiaohongshu/login.go" ]] || {
@@ -271,9 +349,10 @@ repair_login() {
 case "$ACTION" in
   install) install_xhs ;;
   repair-login) repair_login ;;
+  repair-search) repair_search ;;
   start) start_xhs ;;
   restart) stop_xhs; start_xhs ;;
   stop) stop_xhs ;;
   status) status_xhs ;;
-  *) echo "用法：bash arm64-proot.sh {install|repair-login|start|status|restart|stop}" >&2; exit 2 ;;
+  *) echo "用法：bash arm64-proot.sh {install|repair-login|repair-search|start|status|restart|stop}" >&2; exit 2 ;;
 esac
