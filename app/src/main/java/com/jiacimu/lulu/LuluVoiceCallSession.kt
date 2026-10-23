@@ -429,10 +429,15 @@ internal object LuluVoiceCallSession {
         timedHangupJob?.cancel()
         timedHangupJob = null
         val receiptId = "timed-call-hangup:${call.callExperienceId}"
-        if (seconds == 0) {
-            MigratedDomainStores.chat.appendSystemReceipt(
-                call.conversationId, receiptId, "本次通话的定时挂断已取消",
+        fun showReceipt(content: String) {
+            val receipt = MigratedDomainStores.chat.appendSystemReceipt(
+                call.conversationId, receiptId, content,
             )
+            if (receipt.content != content)
+                MigratedDomainStores.chat.editMessage(receiptId, content)
+        }
+        if (seconds == 0) {
+            showReceipt("本次通话的定时挂断已取消")
             return
         }
         // Relative times belong to the actual user turn, not the end of a slow
@@ -440,17 +445,12 @@ internal object LuluVoiceCallSession {
         val deadline = CallTimedHangupTiming.deadline(requestedAt, seconds) ?: return
         val remainingMs = CallTimedHangupTiming.remainingMillis(deadline, Instant.now())
         if (remainingMs == null) {
-            MigratedDomainStores.chat.appendSystemReceipt(
-                call.conversationId, receiptId, "本次通话约定的挂断时刻已过去，未补做迟到挂断",
-            )
+            showReceipt("本次通话约定的挂断时刻已过去，未补做迟到挂断")
             return
         }
         val local = deadline.atZone(java.time.ZoneId.systemDefault())
-        MigratedDomainStores.chat.appendSystemReceipt(
-            call.conversationId, receiptId,
-            "已安排本次通话于 ${local.monthValue}月${local.dayOfMonth}日 " +
-                "%02d:%02d".format(local.hour, local.minute) + " 挂断",
-        )
+        showReceipt("已安排本次通话于 ${local.monthValue}月${local.dayOfMonth}日 " +
+            "%02d:%02d".format(local.hour, local.minute) + " 挂断")
         timedHangupJob = scope.launch {
             delay(remainingMs)
             val active = mutableState.value
