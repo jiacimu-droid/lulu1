@@ -38,10 +38,28 @@ internal object AutonomousActionWireProtocol {
     fun normalize(original: JSONObject): JSONObject {
         val result = JSONObject(original.toString())
         val specified = result.optString("action").trim().lowercase()
-        val toolName = if (specified == "tool")
+        val toolName = if (specified == "tool" || specified.isBlank())
             result.optString("tool").trim().lowercase() else specified
         val friendly = friendlyActionForTool[toolName]
-        if (friendly != null) result.put("action", friendly)
+        when {
+            friendly != null -> result.put("action", friendly)
+            // Registered tools can be named directly as action. The executor
+            // still checks authorization and writes the actual outcome.
+            toolName.isNotBlank() && CapabilityRegistry.find(toolName) != null -> {
+                result.put("action", "tool")
+                result.put("tool", toolName)
+            }
+            // An explicit top-level utterance is a message even if a provider
+            // omitted the label. Never infer a tool from prose or nested thoughts.
+            specified.isBlank() && toolName.isBlank() &&
+                (result.optString("text").isNotBlank() ||
+                    result.optJSONArray("bubbles")?.let { bubbles ->
+                        (0 until bubbles.length()).any { index ->
+                            bubbles.optString(index).isNotBlank() ||
+                                bubbles.optJSONObject(index)?.optString("text").isNullOrBlank().not()
+                        }
+                    } == true) -> result.put("action", "message")
+        }
         // Some models return {"action":"tool","args":{"tool":"read_xiaohongshu",...}}
         // instead of the top-level name. Normalize the explicit name; NEVER
         // guess a tool merely from an unrelated piece of reply text.
