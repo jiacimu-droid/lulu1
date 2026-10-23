@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:58:06.787021+00:00",
-  "commit": "b4f031e3b6796daa1a9dc35d93b762f1aae8f8d2",
+  "generatedAt": "2026-10-23T11:59:44.887856+00:00",
+  "commit": "e63654b54691cbac988361396dca46aaf16ac5e2",
   "branch": "main",
-  "sourceFingerprint": "2a7b9bc8b9832b4c854d9fb5ecd74f841f9ba28f1f2085d6f05cb48f469618c4",
+  "sourceFingerprint": "921649f7fdf51cd373097b8aa50127608dc199f03df23a1ecfce3edcfad71c27",
   "summary": {
     "files": 853,
-    "lines": 163383,
+    "lines": 163389,
     "symbols": 2469
   },
   "symbolIndex": {
@@ -14222,7 +14222,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
       "lines": 171,
-      "sha256": "3a54835ea80aebe3e13669bc20340a56fb7e7d2671242a0936f5c7383a433479",
+      "sha256": "2c75b67e83ea2ec623dcd3dca8284134912bbd0dc4a546dcf47014a6ff96c329",
       "symbols": []
     },
     {
@@ -18414,7 +18414,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt",
       "lines": 252,
-      "sha256": "35e56ed33dd53369d3ff3ea9c876a0b5d0f00ce4e504fa45e494d0477684cece",
+      "sha256": "79c5f5f05ef16c07f457ea9417d1fe0840c3be2499094cff25776126b98c7e2e",
       "symbols": [
         {
           "name": "Budget",
@@ -28263,8 +28263,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DevelopmentPolicyTest.kt",
-      "lines": 60,
-      "sha256": "cf3715d9e757cd9cb6d71271138df76035bf7ddd9d26e3bfe3f96e4a6ad39401",
+      "lines": 66,
+      "sha256": "2b142cb6f980b49ec0e42ae12668487213fbf145ca84332b4688fd68b547d529",
       "symbols": [
         {
           "name": "DevelopmentPolicyTest",
