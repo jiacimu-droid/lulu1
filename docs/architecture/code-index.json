@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:38:20.904057+00:00",
-  "commit": "bdb3da9648d3e27ef82101b5b69d48d2302ae916",
+  "generatedAt": "2026-10-23T07:38:55.159499+00:00",
+  "commit": "9bea6d59da81ae84b66402701ceff94d04c70998",
   "branch": "main",
-  "sourceFingerprint": "34d805abc0528f0bd806113420f48497d6037376539f1f160a55d76f04eaedae",
+  "sourceFingerprint": "0441e08fce7ca17e3513f8eeb356455bb18089282481cc6d5e15d2720a79a2c1",
   "summary": {
-    "files": 841,
-    "lines": 161345,
-    "symbols": 2443
+    "files": 842,
+    "lines": 161416,
+    "symbols": 2445
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1818,6 +1818,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
         "line": 23
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
+        "line": 36
       }
     ],
     "selected": [
@@ -5053,13 +5057,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 91
+        "line": 92
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -9774,6 +9778,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt",
         "line": 268
+      }
+    ],
+    "count": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
+        "line": 43
       }
     ],
     "parseDirect": [
@@ -18163,8 +18173,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 101,
-      "sha256": "8c9a4cb9233f72d9e6c5b4019e36f20d22c4a3201d66c1cf71f4c26a9f9c5fb8",
+      "lines": 102,
+      "sha256": "f485b96dcccfa477d0b40da9acb751765ae38ee29d5c96abff88d51ff0403ab4",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -18180,11 +18190,11 @@
         },
         {
           "name": "set",
-          "line": 79
+          "line": 80
         },
         {
           "name": "delete",
-          "line": 91
+          "line": 92
         }
       ]
     },
@@ -23475,6 +23485,21 @@
         {
           "name": "stage",
           "line": 627
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
+      "lines": 70,
+      "sha256": "7623b5355dab7145afd64f42fefd62460e638d39f4ba530af88e0b15a0b8821f",
+      "symbols": [
+        {
+          "name": "from",
+          "line": 36
+        },
+        {
+          "name": "count",
+          "line": 43
         }
       ]
     },

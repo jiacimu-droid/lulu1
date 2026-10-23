@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bdb3da9648d3e27ef82101b5b69d48d2302ae916`
+- 基准提交：`9bea6d59da81ae84b66402701ceff94d04c70998`
 - 分支：`main`
-- 已索引文件：841
-- 已索引代码/文本行：161345
-- 已发现符号：2443
+- 已索引文件：842
+- 已索引代码/文本行：161416
+- 已发现符号：2445
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -265,7 +265,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 236 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 101 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 102 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 206 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1684 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
@@ -458,6 +458,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 33 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsNoteReadiness.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsReadingEngine.kt` | 914 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt` | 70 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt` | 83 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 180 | 2 |
