@@ -48,7 +48,9 @@ class AutonomousAffordanceContextTest {
         assertTrue(text.contains("本人日程工具"))
         assertTrue(text.contains("只在心声里写"))
         assertTrue(text.contains("暂时不行动"))
-        assertTrue(text.contains("到点现场重新校验"))
+        assertTrue(text.contains("到点由本人醒来选择真实执行"))
+        assertTrue(text.contains("同一 ToolRouter 权限和状态核验"))
+        assertTrue(text.contains("无需主人发号施令或者指定几点"))
     }
 
     @Test fun nonDigitalCharactersDoNotGetInventedWorldAccess() {
