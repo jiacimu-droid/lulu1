@@ -346,12 +346,30 @@ repair_login() {
   fi
 }
 
+
+# Reuse a running instance's browser/display configuration during restart.
+# Some ARM64 proot installs use :100 instead of the default :99.
+reuse_runtime_settings() {
+  alive "$PID_FILE" || return 0
+  local envfile="/proc/$(cat "$PID_FILE")/environ"
+  [[ -r "$envfile" ]] || return 0
+  local live_display="" live_chrome=""
+  live_display="$(tr '\0' '\n' < "$envfile" | sed -n 's/^DISPLAY=//p' | head -n 1 || true)"
+  live_chrome="$(tr '\0' '\n' < "$envfile" | sed -n 's/^LULU_XHS_CHROMIUM=//p' | head -n 1 || true)"
+  if [[ -z "${LULU_XHS_DISPLAY:-}" && "$live_display" =~ ^:[0-9]+$ ]]; then
+    DISPLAY_NO="$live_display"
+  fi
+  if [[ -z "${LULU_XHS_CHROMIUM:-}" && -x "$live_chrome" ]]; then
+    export LULU_XHS_CHROMIUM="$live_chrome"
+  fi
+}
+
 case "$ACTION" in
   install) install_xhs ;;
   repair-login) repair_login ;;
   repair-search) repair_search ;;
   start) start_xhs ;;
-  restart) stop_xhs; start_xhs ;;
+  restart) reuse_runtime_settings; stop_xhs; start_xhs ;;
   stop) stop_xhs ;;
   status) status_xhs ;;
   *) echo "用法：bash arm64-proot.sh {install|repair-login|repair-search|start|status|restart|stop}" >&2; exit 2 ;;
