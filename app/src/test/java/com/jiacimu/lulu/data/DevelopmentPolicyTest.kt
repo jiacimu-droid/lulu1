@@ -8,9 +8,11 @@ class DevelopmentPolicyTest {
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.Habit, 1, true, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.Habit, 3, false, 0))
     }
-    @Test fun learnedUserHabitRequiresMultiDayEvidenceNotOneInstruction() {
-        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 1, true, 0))
-        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 2, true, 0))
+    @Test fun directOwnerPreferenceOrSelfReportedHabitCanBeProvisional() {
+        // The Store separately checks the original user quote; this policy
+        // does not falsely turn a single observation into an established routine.
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.UserPreference, 1, true, 0))
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 1, true, 0))
         assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 3, false, 0))
         assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.UserHabit, 4, false, 1))
         assertEquals(DevelopmentMaturity.Emerging,
@@ -43,9 +45,13 @@ class DevelopmentPolicyTest {
             DevelopmentPolicy.maturity(DevelopmentKind.Interest, 5))
     }
 
-    @Test fun verifiedMethodCannotComeFromOneSuccessfulResult() {
-        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 1, true, 0))
-        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 3, false, 0))
+    @Test fun oneOwnerEndorsedAttemptIsProvisionalRatherThanPermanentSkill() {
+        // Actual sent message + later explicit user feedback are validated by Store.
+        assertTrue(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 1, true, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 0, true, 0))
+        assertFalse(DevelopmentPolicy.accepts(DevelopmentKind.VerifiedMethod, 2, true, 1))
+        assertEquals(DevelopmentMaturity.Emerging,
+            DevelopmentPolicy.maturity(DevelopmentKind.VerifiedMethod, 1))
     }
     @Test fun maturityNeedsMoreEvidenceThanInitialFormation() {
         assertEquals(DevelopmentMaturity.Emerging,
