@@ -369,6 +369,14 @@ object CharacterLifeStore {
             )
             if (!profile.has(key) || previous in defaults) profile.put(key, value)
         }
+        // v23: only the known v22 stock judgement/relationship defaults
+        // change. Explicit owner edits (including blank values) stay intact.
+        CharacterProfileSchema.jiangDuV23Overrides.forEach { (key, value) ->
+            if (!profile.has(key) ||
+                profile.optString(key) == CharacterProfileSchema.jiangDuV22Overrides[key]) {
+                profile.put(key, value)
+            }
+        }
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
         val ownerBond = relations.optJSONObject("user")
@@ -400,6 +408,12 @@ object CharacterLifeStore {
         if (ownerV22?.optString("title") == CharacterProfileSchema.jiangDuOwnerRelationTitle &&
             ownerV22.optString("details") == CharacterProfileSchema.jiangDuOwnerRelationContextV21) {
             ownerV22.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV22)
+                .put("updatedAt", Instant.now().toString())
+        }
+        val ownerV23 = relations.optJSONObject("user")
+        if (ownerV23?.optString("title") == CharacterProfileSchema.jiangDuOwnerRelationTitle &&
+            ownerV23.optString("details") == CharacterProfileSchema.jiangDuOwnerRelationContextV22) {
+            ownerV23.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV23)
                 .put("updatedAt", Instant.now().toString())
         }
         root.put("relationshipAgreements", relations)
