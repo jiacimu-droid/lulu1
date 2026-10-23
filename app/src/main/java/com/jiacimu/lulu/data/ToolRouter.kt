@@ -65,6 +65,13 @@ object ToolRouter {
                     }
                 }
             }
+            // A future plan does not grant extra permissions; reject the wrong role, time
+            // or tool before producing side effects, including Android phone tools.
+            val scheduledPlanId = args.optString("planId")
+            if (scheduledPlanId.isNotBlank() &&
+                name !in setOf("reschedule_personal_activity", "cancel_personal_activity") &&
+                !RoleDayScheduleStore.canBegin(context, characterId, scheduledPlanId, name, args))
+                return@withLock rejected("这项日程已取消、未到期或所选工具与原计划不符")
             val goalReceiptId = "tool-$characterId-$requestId"
             CharacterLifeStore.markExecuting(characterId, intentionId, goalReceiptId, name)
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
@@ -114,6 +121,18 @@ object ToolRouter {
                 }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                     execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
+                // Only the actual executor receipt can settle a plan. Pending consent,
+                // screenshot requests and cloud jobs must NOT count as completion.
+                if (parsed.optBoolean("success") &&
+                    execution.optString("status") !in setOf("pending", "waiting_user", "requested", "running") &&
+                    scheduledPlanId.isNotBlank()) {
+                    runCatching {
+                        RoleDayScheduleStore.completeFromReceipt(
+                            context, characterId, scheduledPlanId, name,
+                            parsed.optString("evidenceId"), parsed.optString("summary"),
+                            Instant.now(), args)
+                    }.onFailure { android.util.Log.w("RoleDaySchedule", "Plan receipt projection failed", it) }
+                }
                 CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
                     parsed.optString("evidenceId").ifBlank { receiptId },
                     parsed.optBoolean("success"), parsed.optString("summary").ifBlank { parsed.optString("error") })
