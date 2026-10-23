@@ -156,8 +156,7 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
     // A new incoming-call alarm can never hang up the call already in progress.
     // Fail visibly instead of turning a same-session hangup request into a
     // surprise midnight callback. The live call owns its own timer.
-    if (listOf("挂断电话", "挂电话", "挂掉电话", "结束通话", "挂断这通", "挂断本次")
-            .any(task.goal::contains)) {
+    if (task.isMisroutedLiveHangup()) {
         CommitmentTaskStore.update(task.id) { current ->
             current.copy(
                 status = CommitmentTaskStatus.Blocked,
