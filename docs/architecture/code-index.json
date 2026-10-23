@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T16:47:06.891409+00:00",
-  "commit": "0822d7cc3d5ff231c98d5ac910363d4e499e51a6",
+  "generatedAt": "2026-10-23T16:58:27.363265+00:00",
+  "commit": "4fda58e615582e299d39b6ee4f05031d002b0360",
   "branch": "main",
-  "sourceFingerprint": "cb5589de4f8d7edda939fcb582dcf4bd63d8f54b71ea9412f121b1ccba21e152",
+  "sourceFingerprint": "4c9488bf6cda29b1ba91e3eb964aee92a9618b673f588c3af667a3c5f35a5b48",
   "summary": {
     "files": 862,
-    "lines": 164800,
+    "lines": 164804,
     "symbols": 2494
   },
   "symbolIndex": {
@@ -23218,7 +23218,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
       "lines": 465,
-      "sha256": "2b3ea48a014a127e6688931d50695fbaa047a21dc66266931c2d0ec8a884b5f3",
+      "sha256": "db595dad361a1f8296e6e4b29f9afb2e5d8566c7f7a4d742fa6176de21a0996a",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -27719,8 +27719,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 63,
-      "sha256": "bcacbe988a177cab47f8efa55008880844539e98673d5f81830518338741ddfa",
+      "lines": 65,
+      "sha256": "80c75eeb842b0123d69826844f5eb7b1b9501cc35a3f955df63840c8d538d321",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -28039,8 +28039,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 358,
-      "sha256": "7bf61d0a1e29a6e817e79e06fb67467a07ac6d95b54c22ea22702c5cbffa39ac",
+      "lines": 360,
+      "sha256": "b858d3dd784ea9246acf687912215fd376244199defea85b4347db536b7a8d1a",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
