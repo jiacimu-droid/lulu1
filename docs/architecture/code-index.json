@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T14:18:44.895606+00:00",
-  "commit": "8005062a26d8d213abf500e37dcd675509a113b7",
+  "generatedAt": "2026-10-23T14:19:44.410633+00:00",
+  "commit": "d0de437f52069493960b7c8c688c22218c7a69ed",
   "branch": "main",
-  "sourceFingerprint": "844971652388e1e2411624340b6c25d8ffccaf287c29c4c7add1c5024c797d9f",
+  "sourceFingerprint": "26c6f6c6d0787d2fb23043896b2e0f63d82427d3c46de4dfe4fe6dee8ad937fa",
   "summary": {
     "files": 862,
-    "lines": 164577,
+    "lines": 164576,
     "symbols": 2492
   },
   "symbolIndex": {
@@ -4319,7 +4319,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-        "line": 108
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
@@ -18086,8 +18086,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-      "lines": 229,
-      "sha256": "e520b32ab4f7d2ee82189799f90f4468ee43435a047635d126d60f8e66f7dc95",
+      "lines": 228,
+      "sha256": "ca85bfa03c729ff5b492955601639e8072fcf74919ef3349bf3f890688d7dd84",
       "symbols": [
         {
           "name": "memoryLane",
@@ -18095,7 +18095,7 @@
         },
         {
           "name": "render",
-          "line": 108
+          "line": 107
         }
       ]
     },
