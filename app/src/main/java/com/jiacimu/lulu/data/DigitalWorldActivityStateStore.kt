@@ -95,7 +95,7 @@ internal object DigitalWorldActivityStateStore {
             if (cafeInventory.isNotEmpty()) appendLine("咖啡角随身物品：${cafeInventory.joinToString("；")}。")
             if (DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) {
                 val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
-                    .firstOrNull { it.identity == "浮光咖啡角店员" }
+                    .firstOrNull { it.isCafeBarista }
                 if (server != null) appendLine("店员${server.name}在岗，可点=${DigitalCafeMenu.names()}。")
                 else appendLine("店员暂不在岗，现有免费温水、饼干仍可领取。")
                 appendLine("点单只入库；实际喝完或吃完才结算身体。")
@@ -155,7 +155,7 @@ internal object DigitalWorldActivityStateStore {
                 require(DigitalWorldStore.locationOf(characterId) == DigitalWorldPublicPlaces.CAFE) { "需要先到浮光咖啡角点单" }
                 val item = checkNotNull(DigitalCafeMenu.byOrder(activityId))
                 val server = DigitalWorldExpansionStore.residentsAt(DigitalWorldPublicPlaces.CAFE)
-                    .firstOrNull { it.identity == "浮光咖啡角店员" }
+                    .firstOrNull { it.isCafeBarista }
                     ?: error("咖啡角店员不在岗，暂时无法点这份餐")
                 val key = item.inventoryPrefix + characterId
                 val count = p.getInt(key, 0)
