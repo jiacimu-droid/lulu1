@@ -65,6 +65,20 @@ object ProactivePerceptionPolicyStore {
     fun get(characterId: String): ProactivePerceptionPolicy {
         mutablePolicies.value[characterId]?.let { return it }
         val legacy = MigratedDomainStores.characters.get(characterId).contactPolicy
+        // Native citizens have a genuine independent mind, but twelve
+        // residents must not silently create twelve two-hourly paid model
+        // loops. Their deterministic jobs are free; editable companionship
+        // settings still allow more frequent autonomous thoughts if desired.
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+            return ProactivePerceptionPolicy(
+                enabled = legacy.enabled,
+                adaptiveFrequency = false,
+                rememberedAdaptiveFrequency = false,
+                quietHoursEnabled = true,
+                intervalValue = 24,
+                intervalUnit = PerceptionIntervalUnit.Hours,
+            )
+        }
         return ProactivePerceptionPolicy(
             enabled = legacy.enabled,
             adaptiveFrequency = legacy.adaptiveFrequency,
