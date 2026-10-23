@@ -32,6 +32,10 @@ import com.jiacimu.lulu.data.CharacterLifeForm
 import com.jiacimu.lulu.data.CharacterRecordReset
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
+import com.jiacimu.lulu.data.DigitalWorldExpansionStore
+import com.jiacimu.lulu.data.ResidentCharacterBridge
+import com.jiacimu.lulu.data.ResidentDailyRoutine
+import com.jiacimu.lulu.data.EmbodiedBodyRuntime
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -72,6 +76,18 @@ fun CharacterSettingsScreenV2(
     val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
+    val residentRevision by DigitalWorldExpansionStore.revisions.collectAsState()
+    val nativeResident = remember(characterId, residentRevision) {
+        ResidentCharacterBridge.nativeResident(characterId)
+    }
+    var editNativeProfile by remember(characterId) { mutableStateOf(false) }
+    LaunchedEffect(characterId) {
+        if (nativeResident != null) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                ResidentDailyRoutine.refresh(context)
+            }
+        }
+    }
     val digitalLife = digitalLifeProfiles[characterId] ?: DigitalLifeProfileStore.get(characterId)
     val perceptionPolicy = perceptionPolicies[characterId] ?: ProactivePerceptionPolicyStore.get(characterId)
     LaunchedEffect(characterId, perceptionPolicy) {
@@ -204,16 +220,29 @@ fun CharacterSettingsScreenV2(
                         )
                         Column(Modifier.weight(1f)) { Text("角色头像", fontWeight = FontWeight.SemiBold) }
                     }
-                    OutlinedTextField(value = displayName, onValueChange = { displayName = it; persistDefinition() }, label = { Text("角色名称") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                    OutlinedTextField(value = displayName, onValueChange = { displayName = it; persistDefinition() }, label = { Text("角色名称") }, singleLine = true, enabled = nativeResident == null, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     OutlinedTextField(
                         value = identity,
                         onValueChange = { identity = it; persistDefinition() },
                         label = { Text("身份与背景事实") },
+                        enabled = nativeResident == null,
                         placeholder = { Text("身份、背景与已知事实") },
                         minLines = 3,
                         maxLines = 8,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
+                }
+            }
+            if (nativeResident != null) item {
+                CharacterV2Card {
+                    Text("数字世界原住民", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text(nativeResident.identity, style = MaterialTheme.typography.bodyMedium)
+                    Text(nativeResident.dutyActivity.ifBlank { "当前自由活动" },
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedButton(
+                        onClick = { editNativeProfile = true },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("编辑原住民档案") }
                 }
             }
             item {
@@ -352,6 +381,19 @@ fun CharacterSettingsScreenV2(
             }
             }
             if (section == 3 || section == 4) {
+            if (nativeResident != null) item {
+                CharacterV2Card {
+                    Text("工作与身体", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    Text("固定职责 · ${nativeResident.identity}")
+                    Text("当前活动 · ${nativeResident.dutyActivity.ifBlank { "自由活动" }}")
+                    Text("所在地点 · ${nativeResident.currentLocationCode}")
+                    val body = EmbodiedBodyRuntime.sensorySnapshot(characterId)
+                    if (body != null) {
+                        Text("精力 ${body.energy.toInt()}  ·  饥饿 ${body.hunger.toInt()}  ·  口渴 ${body.thirst.toInt()}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
             item { CharacterV2Card { CharacterLearningSettings(characterId) } }
             item {
                 CharacterV2Card {
@@ -417,6 +459,14 @@ fun CharacterSettingsScreenV2(
         )
     }
 
+    if (editNativeProfile && nativeResident != null) {
+        ResidentProfileEditDialog(nativeResident,
+            onDismiss = { editNativeProfile = false },
+            onSaved = {
+                ResidentCharacterBridge.sync(context)
+                editNativeProfile = false
+            })
+    }
     if (confirmClearRecords) {
         AlertDialog(
             onDismissRequest = { if (!clearingRecords) confirmClearRecords = false },
