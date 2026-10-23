@@ -30,7 +30,7 @@ class Live2DFineTouchTest {
         val singleTap = Live2DTouchGesture.performed("pat", "tap")
         assertEquals("slap", singleTap)
         assertTrue(InteractionSignalBridge.avatarContactDescription(
-            "cheek-left", singleTap, 1)?.contains("手掌拍击") == true)
+            "cheek-left", singleTap, 1)?.contains("手掌扇了一下") == true)
         assertEquals("slap-left", Live2DTouchGesture.performed("pat", "stroke-left"))
         assertEquals("slap-right", Live2DTouchGesture.performed("pat", "stroke-right"))
         for (hand in listOf("tap", "hold", "stroke-left", "stroke-down")) {
