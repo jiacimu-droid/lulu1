@@ -1746,6 +1746,13 @@ internal object LuluVoiceCallSession {
                 userText = if (opening || autonomousSleep || autonomousSilence) "" else spoken,
                 title = activeLabel,
                 archiveId = archiveId,
+                // Tell the shared character gateway the ACTUAL scene. Previously
+                // the default text-chat label suppressed phone-specific decisions.
+                sceneContext = if (latest.sleepMode)
+                    "正在与用户进行一对一电话，当前开启哄睡陪伴。"
+                else if (LuluCallWindowController.videoRequested.value)
+                    "正在与用户进行一对一视频电话。"
+                else "正在与用户进行一对一语音电话。",
                 silenceObservationId = observationId,
                 userEvidenceIds = turnUserEvidenceIds,
                 phoneCallId = latest.callExperienceId,
