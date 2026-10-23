@@ -61,6 +61,7 @@ fun CharacterWorldBookScreenV2(
                         while (true) {
                             val bytes = input.read(buffer)
                             if (bytes == -1) break
+                            if (bytes == 0) continue
                             require(output.size() + bytes <= maxFileBytes) {
                                 "单个 JSON 超过 16MB，请拆分文件导入"
                             }
@@ -224,7 +225,7 @@ fun CharacterWorldBookScreenV2(
                     Text("可导入 ${preview.entries.size} 条")
                     if (preview.skipped > 0) Text("无效条目 ${preview.skipped} 条已跳过", color = LuluColors.Muted)
                     if (preview.foreignFormat) {
-                        Text("外部格式仅对所选角色导入；关键词型条目默认关闭，需手动开启。", color = LuluColors.Muted)
+                        Text("仅导入所选角色；关键词型 ${preview.conditionalEntries} 条默认关闭。", color = LuluColors.Muted)
                     }
                 }
             },
