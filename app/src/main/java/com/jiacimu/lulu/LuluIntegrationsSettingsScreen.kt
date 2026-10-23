@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.LuluExternalMcp
 import com.jiacimu.lulu.data.WebSearchProvider
+import com.jiacimu.lulu.data.ImageSearchProvider
 import com.jiacimu.lulu.data.XhsReadingEngine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -67,6 +68,11 @@ internal fun LuluIntegrationsSettingsScreen(
     var searchStatus by remember { mutableStateOf("") }
     var searchBusy by remember { mutableStateOf(false) }
     var searchExpanded by remember { mutableStateOf(false) }
+    var imageExpanded by remember { mutableStateOf(false) }
+    var serperKey by remember { mutableStateOf(ImageSearchProvider.serperKey(context)) }
+    var giphyKey by remember { mutableStateOf(ImageSearchProvider.giphyKey(context)) }
+    var imageBusy by remember { mutableStateOf(false) }
+    var imageStatus by remember { mutableStateOf("") }
 
 
     Scaffold(
@@ -382,6 +388,77 @@ internal fun LuluIntegrationsSettingsScreen(
                         ) { Text("测试搜索") }
                     }
                     IntegrationFeedback(searchStatus)
+                }
+            }
+
+            IntegrationSettingsCard {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("图片搜索", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { imageExpanded = !imageExpanded }) {
+                        Text(if (imageExpanded) "收起" else "设置")
+                    }
+                }
+                if (imageExpanded) {
+                    OutlinedTextField(
+                        value = serperKey,
+                        onValueChange = { serperKey = it.take(256); imageStatus = "" },
+                        label = { Text("Serper API Key") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    OutlinedTextField(
+                        value = giphyKey,
+                        onValueChange = { giphyKey = it.take(256); imageStatus = "" },
+                        label = { Text("GIPHY API Key") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                    )
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = {
+                            imageStatus = runCatching {
+                                check(ImageSearchProvider.saveKeys(context, serperKey, giphyKey))
+                                "已保存"
+                            }.getOrElse { "保存失败：${it.message.orEmpty()}" }
+                        }) { Text("保存") }
+                        Spacer(Modifier.weight(1f))
+                        TextButton(
+                            enabled = !imageBusy && ImageSearchProvider.configured(context, "serper"),
+                            onClick = {
+                                imageBusy = true
+                                imageStatus = "正在测试 Serper…"
+                                scope.launch {
+                                    val result = withContext(Dispatchers.IO) {
+                                        runCatching { ImageSearchProvider.search(context, "serper", "熊猫头表情包").size }
+                                    }
+                                    imageStatus = result.fold(
+                                        onSuccess = { "Serper · ${it} 张" },
+                                        onFailure = { "Serper 失败：${it.message.orEmpty().take(110)}" },
+                                    )
+                                    imageBusy = false
+                                }
+                            },
+                        ) { Text("测 Serper") }
+                        TextButton(
+                            enabled = !imageBusy && ImageSearchProvider.configured(context, "giphy"),
+                            onClick = {
+                                imageBusy = true
+                                imageStatus = "正在测试 GIPHY…"
+                                scope.launch {
+                                    val result = withContext(Dispatchers.IO) {
+                                        runCatching { ImageSearchProvider.search(context, "giphy", "funny cat").size }
+                                    }
+                                    imageStatus = result.fold(
+                                        onSuccess = { "GIPHY · ${it} 张" },
+                                        onFailure = { "GIPHY 失败：${it.message.orEmpty().take(110)}" },
+                                    )
+                                    imageBusy = false
+                                }
+                            },
+                        ) { Text("测 GIPHY") }
+                    }
+                    IntegrationFeedback(imageStatus)
                 }
             }
 
