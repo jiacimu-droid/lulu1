@@ -36,6 +36,11 @@ object CapabilityRegistry {
     fun find(name: String): Capability? = (device + application + external).firstOrNull { it.name == name }
 
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+            return capability.name in setOf("digital_world_action", "publish_moment",
+                "send_private_message", "send_group_message", "send_character_message",
+                "play_solo_game", "go_offline")
+        }
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
         if (capability.name == "capture_screen") return if (userRequested)
             com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
@@ -80,9 +85,13 @@ object CapabilityRegistry {
         }.trim()
     }
 
-    fun context(context: Context, characterId: String): String = device.joinToString("\n", "统一手机/云端能力（离线手机操作不能由云端宣称成功）：\n") { cap ->
+    fun context(context: Context, characterId: String): String {
+        if (ResidentCharacterBridge.nativeResident(characterId) != null)
+            return "数字世界原住民没有现实设备或云端能力；只能感知亲历的地点、社交与已公开的数字世界消息。"
+        return device.joinToString("\n", "统一手机/云端能力（离线手机操作不能由云端宣称成功）：\n") { cap ->
         "- ${cap.name}；主动允许=${allows(context, characterId, cap, false)}；依据=${cap.successEvidence}" +
             if (cap.name == "cloud_task") "；args={kind:research|pptx|docx,request:需求,sources:[真实HTTPS网址],notes:提供的原文}；服务已配置=${CloudTaskBridge.isConfigured()}"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步" else ""
+        }
     }
 }
