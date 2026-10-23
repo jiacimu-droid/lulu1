@@ -279,6 +279,7 @@ object CompanionOnlineStore {
             persistLocked()
             scheduleExpiryLocked(characterId)
         }
+        CharacterDevelopmentRuntime.resumePending(characterId)
         if (perceiveNow) {
             appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger, collectMessages = true) }
         }
@@ -349,6 +350,7 @@ object CompanionOnlineStore {
             persistLocked()
         }
         memberIds.forEach { characterId ->
+            CharacterDevelopmentRuntime.resumePending(characterId)
             appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger, collectMessages = true) }
         }
     }
