@@ -4,9 +4,10 @@ import android.content.Context
 
 /** Durable chat turns wait for the last user bubble; an unsent older reply must yield to newer input. */
 internal object OnlineChatBatchStore {
-    // Each actual new user bubble extends ONE fixed quiet window.
+    // One quiet window per text bubble. Eight seconds gives slower typing time
+    // to finish a follow-up bubble; calls use a separate speech turn path.
     // Never grow the wait with message count or trigger the paid API mid-burst.
-    const val QUIET_MILLIS = 6_000L
+    const val QUIET_MILLIS = 8_000L
     data class Batch(val revision: Long, val dueAtMillis: Long)
     private val reading = mutableSetOf<Pair<String, Long>>()
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences("lulu_online_chat_batches", Context.MODE_PRIVATE)
@@ -45,7 +46,7 @@ internal object OnlineChatBatchStore {
         val revision = p.getLong("revision:$characterId", 0L)
         if (p.contains("due:$characterId") && (characterId to revision) !in reading) {
             // Another bubble means the user may still be typing. The quiet
-            // period restarts from this latest persisted bubble, always 6s.
+            // period restarts from this latest persisted bubble, always 8s.
             val due = maxOf(p.getLong("due:$characterId", atMillis), atMillis + QUIET_MILLIS)
             check(p.edit().putLong("due:$characterId", due)
                 .putBoolean("messageWindow:$characterId", true).commit()) {
