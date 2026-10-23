@@ -27,15 +27,26 @@ internal object ResidentDailyRoutine {
         if (person.isCafeBarista) return if (minute in 9 * 60 until 21 * 60)
             Plan("shift", DigitalWorldPublicPlaces.CAFE, "经营咖啡角、接待真实在场的顾客")
         else Plan("home", person.homeLocationCode, "下班休息")
+        // The same local-day decision can adjust leisure without overriding
+        // the worker's fixed job. Missing plan preserves the old stable shift.
+        val daily = ResidentDailyDecision.planForApp(person.id, at)
+        val lunchPlace = daily?.optString("lunch")?.let(ResidentDailyDecision::allowedLeisureLocation)
+            ?.let { ResidentDailyDecision.publicPlace(it, person.homeLocationCode) }
+            ?: DigitalWorldPublicPlaces.CAFE
+        val eveningPlace = daily?.optString("evening")?.let(ResidentDailyDecision::allowedLeisureLocation)
+            ?.let { ResidentDailyDecision.publicPlace(it, person.homeLocationCode) }
+            ?: DigitalWorldPublicPlaces.CAFE
+        val eveningActivity = daily?.optString("eveningActivity").orEmpty()
+            .ifBlank { "下班后按自己的心意休息或逛逛" }
         // Different residents stagger the breaks, allowing simultaneous
         // visitors instead of rerolling a crowd per encounter.
         val offset = Math.floorMod(person.id.hashCode(), 35)
         return when {
             minute < 8 * 60 -> Plan("night", person.homeLocationCode, "在家休息")
             minute < 12 * 60 + offset -> Plan("morning", dutyPlace(person), "履行${person.identity}的日常职责")
-            minute < 13 * 60 + offset -> Plan("lunch", DigitalWorldPublicPlaces.CAFE, "午间休息、看看咖啡角")
+            minute < 13 * 60 + offset -> Plan("lunch", lunchPlace, "按当天自己的计划过午休")
             minute < 18 * 60 -> Plan("afternoon", dutyPlace(person), "继续完成${person.identity}的工作")
-            minute < 19 * 60 + offset -> Plan("evening", DigitalWorldPublicPlaces.CAFE, "下班后到咖啡角坐坐")
+            minute < 19 * 60 + offset -> Plan("evening", eveningPlace, eveningActivity)
             else -> Plan("home", person.homeLocationCode, "回家休息")
         }
     }
