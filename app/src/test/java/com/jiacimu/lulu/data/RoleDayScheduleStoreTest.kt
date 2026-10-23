@@ -2,8 +2,13 @@ package com.jiacimu.lulu.data
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class RoleDayScheduleStoreTest {
     private val due = Instant.parse("2026-10-20T09:00:00Z")
     private val after = due.plusSeconds(30)

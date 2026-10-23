@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T14:02:09.763171+00:00",
-  "commit": "3dc176f50b319453ef21e7079c8404c1f0bf2d59",
+  "generatedAt": "2026-10-23T14:10:35.663278+00:00",
+  "commit": "4ced5a9be9a70fd0927f6de5a92826a65a3de55f",
   "branch": "main",
-  "sourceFingerprint": "32e7af03136d8d2bc66c85b29a8af4c7bbff07b3a6cd2114af32ac591f1dedd6",
+  "sourceFingerprint": "c2ce3bde33d590bc2ab2b31f15f46687f8d9ac65f190ee4ce2ca9c961ea9b3fa",
   "summary": {
     "files": 861,
-    "lines": 164472,
+    "lines": 164480,
     "symbols": 2490
   },
   "symbolIndex": {
@@ -1637,7 +1637,7 @@
     "part": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 107
+        "line": 109
       }
     ],
     "Sample": [
@@ -13675,7 +13675,7 @@
     "RoleDayScheduleStoreTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 6
+        "line": 12
       }
     ],
     "ScreenVisionCapabilityContextTest": [
@@ -15147,8 +15147,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-      "lines": 130,
-      "sha256": "3608c04c60aba0bd3f14ee93011660974d82440d6dd1caadaea64c986534f7dc",
+      "lines": 132,
+      "sha256": "9b5408fb12e6b2154327fdcb5fbd99d949acd2b047759a6bd132b6f8de3cef38",
       "symbols": [
         {
           "name": "capabilityNote",
@@ -15172,7 +15172,7 @@
         },
         {
           "name": "part",
-          "line": 107
+          "line": 109
         }
       ]
     },
@@ -26969,8 +26969,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt",
-      "lines": 82,
-      "sha256": "63f9cfd76e19fab46faa6d912ccabacd03b9a88c4671c8df1c7d41d296dc2810",
+      "lines": 83,
+      "sha256": "16a32036137fd01c8885dcd0f4ac2dec36cecd40810d38aeee39ec32847e8a27",
       "symbols": [
         {
           "name": "Live2DConversationPerformanceTest",
@@ -29221,12 +29221,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 85,
-      "sha256": "fad53ad066c0f7c917bcaf000ae0e64198b9ab4cc5aa33489a5545c03aad4641",
+      "lines": 90,
+      "sha256": "4bbcbbd9bd18d38569dd904c39b0e8e0a60e344d1d8a148af6822d0b144e79f0",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
-          "line": 6
+          "line": 12
         }
       ]
     },

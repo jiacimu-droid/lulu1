@@ -41,6 +41,7 @@ class Live2DConversationPerformanceTest {
         assertTrue(peak(plan("thinking", "glance", side = "left"))
             .getJSONObject("face").getDouble("gazeX") < 0)
         val beats = Live2DConversationPerformance.expand(plan(movement = "nod")).getJSONArray("beats")
+        assertTrue(beats.getJSONObject(0).getJSONObject("head").getDouble("pitch") < 0)
         assertTrue(beats.getJSONObject(1).getJSONObject("head").getDouble("pitch") < 0)
         assertTrue(beats.getJSONObject(2).getJSONObject("head").getDouble("pitch") > 0)
         assertEquals(0.0, beats.getJSONObject(beats.length() - 1).getJSONObject("head").getDouble("pitch"), .0001)

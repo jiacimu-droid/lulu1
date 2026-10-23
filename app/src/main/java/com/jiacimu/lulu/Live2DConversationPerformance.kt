@@ -96,7 +96,9 @@ internal object Live2DConversationPerformance {
         val times = listOf(0, 240, 540, 900, 1380)
         val feelingCurve = listOf(.55, 1.0, .9, .6, .25)
         val movementCurve = when (movement) {
-            "nod" -> listOf(0.0, -1.0, .28, 0.0, 0.0)
+            // Even a brief spoken acknowledgement starts its chosen nod;
+            // it must not finish TTS before the first non-neutral keyframe.
+            "nod" -> listOf(-.35, -1.0, .28, 0.0, 0.0)
             "shake" -> listOf(.15, 1.0, -.85, .25, 0.0)
             else -> listOf(.45, 1.0, .9, .5, 0.0)
         }
