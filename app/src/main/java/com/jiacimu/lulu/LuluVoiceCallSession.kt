@@ -420,6 +420,36 @@ internal object LuluVoiceCallSession {
     private var sleepContinuationJob: Job? = null
     private var sleepDeadlineAtMillis: Long? = null
     private var sleepDeadlineJob: Job? = null
+    /** Only while this exact call is connected; distinct from tomorrow's call alarms. */
+    private var timedHangupJob: Job? = null
+
+    private fun setTimedHangup(seconds: Int) {
+        val call = mutableState.value
+        if (!call.connected || seconds !in 0..86_400) return
+        timedHangupJob?.cancel()
+        timedHangupJob = null
+        val receiptId = "timed-call-hangup:${call.callExperienceId}"
+        if (seconds == 0) {
+            MigratedDomainStores.chat.appendSystemReceipt(
+                call.conversationId, receiptId, "本次通话的定时挂断已取消",
+            )
+            return
+        }
+        val deadline = Instant.now().plusSeconds(seconds.toLong())
+        val local = deadline.atZone(java.time.ZoneId.systemDefault())
+        MigratedDomainStores.chat.appendSystemReceipt(
+            call.conversationId, receiptId,
+            "已安排本次通话于 ${local.monthValue}月${local.dayOfMonth}日 " +
+                "%02d:%02d".format(local.hour, local.minute) + " 挂断",
+        )
+        timedHangupJob = scope.launch {
+            delay(seconds.toLong() * 1_000L)
+            val active = mutableState.value
+            if (active.connected && active.callExperienceId == call.callExperienceId) {
+                endCallByCharacter()
+            }
+        }
+    }
     private var systemUtteranceBuffer = ""
     private var systemPartialCandidate = ""
     // VAD's onset is untrusted; text makes a user utterance real.
@@ -808,6 +838,8 @@ internal object LuluVoiceCallSession {
         sleepContinuationJob?.cancel()
         sleepContinuationJob = null
         clearSleepDeadline()
+        timedHangupJob?.cancel()
+        timedHangupJob = null
         resetSystemRecognitionTurn()
         incomingChatJob?.cancel()
         incomingChatJob = null
@@ -1752,6 +1784,9 @@ internal object LuluVoiceCallSession {
                 }) + if (xhsDispatched)
                     "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果将留在私聊，电话空下来时也会收到同一份回执。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
+                onTimedHangup = { seconds ->
+                    if (sameReply()) setTimedHangup(seconds)
+                },
                 onCharacterHangup = ({
                     // A bedtime continuation is still a real character decision:
                     // it may end the call after a spoken farewell, before the
