@@ -122,12 +122,12 @@ internal object DigitalWorldEvolutionRuntime {
             }
         }
         DigitalWorldExpansionStore.residents().forEach { resident ->
-            npcQualities[resident.name]?.let { (temperament, preferences) ->
+            npcQualities[resident.templateName]?.let { (temperament, preferences) ->
                 DigitalWorldExpansionStore.fillResidentTraitsIfBlank(resident.id, temperament, preferences)
             }
         }
         // Cafe employee is a world resident with an actual registered home.
-        var barista = DigitalWorldExpansionStore.residents().firstOrNull { it.identity == "浮光咖啡角店员" }
+        var barista = DigitalWorldExpansionStore.residents().firstOrNull { it.isCafeBarista }
         if (barista == null) {
             barista = runCatching {
                 DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
@@ -199,7 +199,7 @@ internal object DigitalWorldEvolutionRuntime {
         if (daySlot > consumedResidentSlot) {
             p.edit().putLong(KEY_RESIDENT_SLOT, daySlot).commit()
             val existingResidents = DigitalWorldExpansionStore.residents()
-            val availableResidents = residentTemplates.filter { template -> existingResidents.none { it.name == template.name } }
+            val availableResidents = residentTemplates.filter { template -> existingResidents.none { it.templateName == template.name } }
             val shouldCreate = availableResidents.isNotEmpty() &&
                 (roll("resident:$daySlot", 100) < if (existingResidents.isEmpty()) 30 else 18)
             if (shouldCreate) {
@@ -236,7 +236,7 @@ internal object DigitalWorldEvolutionRuntime {
 
         val movementSlot = Math.floorDiv(now.epochSecond, MOVEMENT_SECONDS)
         val consumedMovementSlot = p.getLong(KEY_MOVEMENT_SLOT, -1L)
-        val residents = DigitalWorldExpansionStore.residents().filterNot { it.identity == "浮光咖啡角店员" }
+        val residents = DigitalWorldExpansionStore.residents().filterNot { it.isCafeBarista }
         if (movementSlot > consumedMovementSlot && residents.isNotEmpty()) {
             p.edit().putLong(KEY_MOVEMENT_SLOT, movementSlot).commit()
             val resident = residents[roll("move-resident:$movementSlot", residents.size)]
