@@ -29,6 +29,27 @@ class CharacterSelfActivityRuntimeTest {
         assertNull(CharacterSelfActivityRuntime.latest(context, "keep-other"))
     }
 
+    @Test fun queuedIndependentActivitiesKeepTheirOwnExecutionAndResult() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val prefs = context.getSharedPreferences("lulu_own_activity_followthrough_v1", 0)
+        val role = "concurrent-self-choices"
+        val earlier = JSONObject().put("id", "one").put("tool", "play_solo_game")
+            .put("status", "pending")
+        val later = JSONObject().put("id", "two").put("tool", "read_book")
+            .put("status", "pending")
+        prefs.edit().putString("activity:$role:one", earlier.toString())
+            .putString("activity:$role:two", later.toString())
+            .putString("activity:$role", later.toString()).commit()
+        CharacterSelfActivityRuntime.markRunning(context, role, "one")
+        assertEquals("running", CharacterSelfActivityRuntime.byId(context, role, "one")?.optString("status"))
+        assertEquals("pending", CharacterSelfActivityRuntime.byId(context, role, "two")?.optString("status"))
+        CharacterSelfActivityRuntime.markResult(context, role, "one",
+            success = false, summary = "first task failed", attempted = false)
+        assertEquals("failed", CharacterSelfActivityRuntime.byId(context, role, "one")?.optString("status"))
+        assertEquals("pending", CharacterSelfActivityRuntime.latest(context, role)?.optString("status"))
+        assertEquals("two", CharacterSelfActivityRuntime.latest(context, role)?.optString("id"))
+    }
+
     @Test fun personalNpcChoicesAndPreGameTargetsReachTheSameRealExecutor() {
         val idea = JSONObject().put("stage", "decided").put("action", "digital_world")
             .put("worldAction", "interact_resident").put("itemId", "actual-npc")
