@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:21:34.177205+00:00",
-  "commit": "d5d273bb4cb8b901920050d078c132a65f729a2f",
+  "generatedAt": "2026-10-23T08:22:48.836842+00:00",
+  "commit": "b29cb222794248e589c68704415ca67bd77964f6",
   "branch": "main",
-  "sourceFingerprint": "9c7808b7353450988dd2a3ac69415a983d090c963c5542602c6d500a9ec33766",
+  "sourceFingerprint": "b3fdf7c37fdb199473cb9d6d63fee801a78a61048df2573689d0be16b268c70d",
   "summary": {
     "files": 848,
-    "lines": 162368,
+    "lines": 162372,
     "symbols": 2461
   },
   "symbolIndex": {
@@ -285,7 +285,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 94
+        "line": 97
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
@@ -2971,7 +2971,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 44
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt",
@@ -3835,7 +3835,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 53
+        "line": 54
       }
     ],
     "archiveLabel": [
@@ -17365,8 +17365,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-      "lines": 64,
-      "sha256": "932a599eaab881ade443bf882b93be1e041ce6486ec7698e2732a98968cf6964",
+      "lines": 65,
+      "sha256": "eb9178351fca99ad25c905c320e11101ffe1a3e49e49f434ee8d81c9792f383d",
       "symbols": [
         {
           "name": "ScopedModelSelections",
@@ -17382,11 +17382,11 @@
         },
         {
           "name": "select",
-          "line": 44
+          "line": 45
         },
         {
           "name": "resolveConnection",
-          "line": 53
+          "line": 54
         }
       ]
     },
@@ -22389,8 +22389,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-      "lines": 155,
-      "sha256": "20aa6a6cc4c0a174173644cf543383de7b31f3ea5351fb92f28bedc92651080c",
+      "lines": 158,
+      "sha256": "e68d6b54a86bd1500f8b3d519db39efce0addeca6d3606f5a574f47fc7cf8699",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
@@ -22422,7 +22422,7 @@
         },
         {
           "name": "update",
-          "line": 94
+          "line": 97
         }
       ]
     },

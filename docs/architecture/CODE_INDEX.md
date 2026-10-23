@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d5d273bb4cb8b901920050d078c132a65f729a2f`
+- 基准提交：`b29cb222794248e589c68704415ca67bd77964f6`
 - 分支：`main`
 - 已索引文件：848
-- 已索引代码/文本行：162368
+- 已索引代码/文本行：162372
 - 已发现符号：2461
 
 | 文件 | 行数 | 符号数 |
@@ -228,7 +228,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 126 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 113 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 64 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 65 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 352 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 149 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
@@ -413,7 +413,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 159 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 132 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 155 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2042 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 881 | 26 |
