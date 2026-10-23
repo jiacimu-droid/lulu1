@@ -17,8 +17,11 @@ internal object AutonomousAffordanceContext {
         currentItems: List<Pair<String, List<Pair<String, String>>>> = emptyList(),
         currentResidents: List<Triple<String, String, String>> = emptyList(),
     ): String = buildString {
-        appendLine("【此刻可实际尝试的自主行动｜不是强制任务或固定动作轮换】")
-        appendLine("- 想对某件已知小事发表意见：可以自己写日记或发朋友圈；只有真的有话想说时才做。")
+        appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
+        appendLine("不仅可以现在去做，也可以因为确实有自己的期待，决定稍后、今晚或其他合适时间再做；同一次自主决策自由选择立即执行、正式安排未来日程或暂时不行动。")
+        appendLine("- 真心决定稍后再做：action=tool，tool=plan_personal_activity，args={\"title\":\"具体想做的活动\",\"intent\":\"为什么本人想做\",\"dueAt\":\"根据本轮真实本地时间选定的未来ISO8601时间，带时区偏移\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|publish_moment|send_private_message\",\"repeat\":\"once\"}。dueAt 必须替换成真实未来时间，不能照抄示意文字；若尚不能确定对应执行动作，一次性日程可省略 activityAction，到点再自主判断真实能力。")
+        appendLine("- 安排只是持久的本人意愿，不等于提前完成；到点由本人醒来选择执行、改期或放下，依赖真实地点、居民或书籍时在到点现场重新校验。别重复创建已有日程，别因为想显得忙就机械排任务。")
+        appendLine("- 想对某件已知小事发表意见：可以自己发朋友圈；只有真的有话想说时才做。")
         appendLine("- 想自己找消遣：solo_game + gameId=memory_match 能运行真实的一局游戏；无须用户陪同。")
         appendLine("- 如果某句真实用户原话打动了自己，可在聊天原始ID可核实的前提下选择 tool=favorite_user_message 保存到辞海收藏；不能凭空收藏。")
         if (books.isNotEmpty()) {
@@ -67,7 +70,7 @@ internal object AutonomousAffordanceContext {
                 }
             }
         }
-        appendLine("若准备现在做一件事，直接选择对应 action 和参数；心声中想做不算执行。若暂缓，请说具体原因；自己的愿望不需要等用户询问才行动。")
+        appendLine("若准备现在做，直接选择对应 action；若决定晚些做，通过本人日程工具保存真实计划与到点时间。只在心声里写「待会去」不会自动安排，也不等于已执行；若暂缓或放下，则尊重自己的真实决定。")
         appendLine("先看本人此刻真正想做什么，再从真实能力选择；没有可执行内容可保持安静。")
     }
 }
