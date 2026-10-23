@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T04:26:19.960476+00:00",
-  "commit": "aa3d669acf09891588d354f64a9ca7cf86265f79",
+  "generatedAt": "2026-10-23T04:34:26.655262+00:00",
+  "commit": "2a81d97b7a92863b1797752a562c718d48e6f68d",
   "branch": "main",
-  "sourceFingerprint": "a9e94748be880209f1e71d41e1db065c8b6cc328b7abbdbe16adf81603c145d0",
+  "sourceFingerprint": "f23547db202e86737a4fde97af96cf045f4005bc512368aa2846a977900fd194",
   "summary": {
     "files": 835,
-    "lines": 159521,
+    "lines": 159539,
     "symbols": 2417
   },
   "symbolIndex": {
@@ -909,7 +909,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 314
+        "line": 320
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -5047,7 +5047,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 310
+        "line": 316
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -18816,8 +18816,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 335,
-      "sha256": "242852cdcd6a94807a2c5b11e547763ebf355c327662113c2d59a4759bddd8ee",
+      "lines": 341,
+      "sha256": "0f5d2dd669fc8191fa0b24654909c7b5e4492c0df044f5f51d1892273e93c06c",
       "symbols": [
         {
           "name": "entries",
@@ -18841,11 +18841,11 @@
         },
         {
           "name": "delete",
-          "line": 310
+          "line": 316
         },
         {
           "name": "remove",
-          "line": 314
+          "line": 320
         }
       ]
     },
@@ -27488,8 +27488,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
-      "lines": 320,
-      "sha256": "1cf6c01f92d6955f9d47ec4bd2f7c299dc6331a150919a122323034cdb994bba",
+      "lines": 332,
+      "sha256": "cab484484fb7740bd508ee6317197fa0ed98dd64a97ed6ce3f670225338bfcbd",
       "symbols": [
         {
           "name": "CharacterRecordArchitectureTest",
