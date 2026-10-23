@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`47dba4656a76262400130d666e1ce6de828b04d2`
+- 基准提交：`a0d7fd83bc17b8376046fb8d66841a8383227cfe`
 - 分支：`main`
 - 已索引文件：836
-- 已索引代码/文本行：160123
-- 已发现符号：2419
+- 已索引代码/文本行：160164
+- 已发现符号：2421
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -355,7 +355,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 161 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1127 | 35 |
-| `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 210 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 251 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
