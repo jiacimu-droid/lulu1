@@ -505,6 +505,7 @@ internal object CompanionActionRuntime {
                     targetCharacterId = args.optString("targetCharacterId"),
                     targetResidentId = args.optString("targetResidentId"),
                     locationCode = args.optString("locationCode"),
+                    activityArgs = args.optJSONObject("activityArgs") ?: JSONObject(),
                 )
                 CompanionActionResult(true, "已为本人安排「${plan.title}」，到时再决定如何行动",
                     evidenceId = "own-plan-${plan.id}")
