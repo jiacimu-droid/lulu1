@@ -170,6 +170,18 @@ class CharacterRecordArchitectureTest {
         assertEquals(75, snapshots.size)
     }
 
+    @Test fun similarlyWordedButDistinctMomentVoicesAreNotDeduplicated() {
+        val first = CompanionPresenceState(role,
+            innerThought = "新想法编号25", updatedAt = now)
+        val next = CompanionPresenceState(role,
+            innerThought = "新想法编号26", updatedAt = now.plusSeconds(120))
+        val entries = CharacterStateHistory.entries(role, listOf(first, next),
+            now.plusSeconds(125), JSONObject(), emptyList())
+        assertEquals(2, entries.size)
+        assertTrue(entries.any { it.detail.contains("编号25") })
+        assertTrue(entries.any { it.detail.contains("编号26") })
+    }
+
     @Test fun aRealTurnInPrivateThoughtMustRemainASeparateMoment() {
         val earlier = CompanionPresenceState(role, innerThought = "还想看看屏幕上那个表情会不会动。",
             updatedAt = now)
