@@ -169,4 +169,39 @@ for (let i = 0; i < 60; i++) rig.update({}, {
 assert.ok(Math.abs(values.get('ParamAngleX') + 5) < .1)
 assert.ok(Math.abs(values.get('ParamBodyAngleX') - 2) < .1)
 assert.ok(Math.abs(values.get('ParamEyeBallX') + .25) < .02)
+// Authored movement underneath touch must return via a crossfade, not snap.
+const handoffValues = new Map([['ParamAngleX', 7], ['ParamBodyAngleX', -3]])
+const handoffWrites = []
+const handoff = createVisualLayerRuntime({
+  has: (_c, id) => handoffValues.has(id),
+  read: (_c, id) => handoffValues.get(id),
+  write: (_c, id, value) => { handoffValues.set(id, value); handoffWrites.push(id) },
+})
+for (let i = 0; i < 65; i++) {
+  handoffValues.set('ParamAngleX', 7)
+  handoffValues.set('ParamBodyAngleX', -3)
+  handoff.update({}, { deltaMs: 16, seconds: i * .016, authoredMotion: true,
+    touchReflex: { yaw: -11, pitch: 0, roll: 0,
+      body: { yaw: 6, pitch: 0, roll: 0 } } })
+}
+const heldHead = handoffValues.get('ParamAngleX')
+const heldBody = handoffValues.get('ParamBodyAngleX')
+handoffValues.set('ParamAngleX', 7)
+handoffValues.set('ParamBodyAngleX', -3)
+handoff.update({}, { deltaMs: 16, seconds: 1.1, authoredMotion: true })
+assert.ok(Math.abs(handoffValues.get('ParamAngleX') - heldHead) < 1,
+  'head must not snap to authored center after touch')
+assert.ok(Math.abs(handoffValues.get('ParamBodyAngleX') - heldBody) < 1,
+  'body must not snap to authored center after touch')
+for (let i = 0; i < 100; i++) {
+  handoffValues.set('ParamAngleX', 7)
+  handoffValues.set('ParamBodyAngleX', -3)
+  handoff.update({}, { deltaMs: 16, seconds: 1.2 + i * .016, authoredMotion: true })
+}
+handoffWrites.length = 0
+handoffValues.set('ParamAngleX', 7)
+handoffValues.set('ParamBodyAngleX', -3)
+handoff.update({}, { deltaMs: 16, seconds: 4, authoredMotion: true })
+assert.ok(!handoffWrites.includes('ParamAngleX') && !handoffWrites.includes('ParamBodyAngleX'),
+  'fully released authored motion must regain ownership')
 console.log('Live2D ordinary conversation performance, audio timing, cancellation and authored motion ownership passed')
