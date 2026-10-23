@@ -55,7 +55,16 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val life by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Life).collectAsState(initial = emptyList())
     val concerns by LuluRepositories.lexicon.observeEntries(characterId, LexiconSection.Concern).collectAsState(initial = emptyList())
     val knowledgeRevision by CharacterLearningLedger.revisions.collectAsState()
+    val ownerRevision by CharacterDevelopmentStore.revisions.collectAsState()
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val ownerFacts = remember(characterId, ownerRevision, timelineRevision) {
+        CharacterDevelopmentStore.active(characterId)
+            .filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit, DevelopmentKind.VerifiedMethod) }
+            .sortedByDescending { it.createdAt }
+    }
+    val ownerMatches = ownerFacts.filter {
+        search.isBlank() || (it.kind.label + it.content).contains(search.trim(), ignoreCase = true)
+    }
     val scope = rememberCoroutineScope()
     val notices = remember { SnackbarHostState() }
     LaunchedEffect(characters.keys, personalCharacterId) {
@@ -112,15 +121,38 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
             }, colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            CharacterSectionTabs(listOf("记住的事", "核心记忆", "原始时间线"), area, onSelect = { area = it })
+            CharacterSectionTabs(listOf("记住的事", "核心记忆", "原始时间线", "关于主人"), area, onSelect = { area = it })
             OutlinedTextField(value = search, onValueChange = { search = it }, singleLine = true,
-                placeholder = { Text(if (area == 2) "搜索原始记录" else "搜索记忆") },
+                placeholder = { Text(when (area) { 2 -> "搜索原始记录"; 3 -> "搜索偏好与习惯"; else -> "搜索记忆" }) },
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
             LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(18.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (area != 2) {
+                if (area == 3) {
+                    if (ownerMatches.isEmpty()) item {
+                        Text("还没有发现明确的偏好或相处经验", color = LuluColors.Muted)
+                    }
+                    items(ownerMatches.take(count), key = { "owner:${it.id}" }) { record ->
+                        var expanded by remember(record.id) { mutableStateOf(false) }
+                        CharacterRecordCard {
+                            Text(record.kind.label, color = LuluColors.Muted, fontSize = 12.sp)
+                            Text(record.content, fontSize = 16.sp, lineHeight = 24.sp)
+                            Text(if (record.maturity == DevelopmentMaturity.Established) "多次得到支持" else "初步认识",
+                                color = LuluColors.Muted, fontSize = 11.sp)
+                            TextButton(onClick = { expanded = !expanded }) {
+                                Text(if (expanded) "收起依据" else "查看来源")
+                            }
+                            if (expanded) {
+                                CharacterEvidenceDetails(characterId,
+                                    record.evidence.keys + record.counterEvidence.keys, showInfluences = false)
+                                TextButton(onClick = { CharacterDevelopmentStore.retire(characterId, record.id) }) {
+                                    Text("撤回这项认识", color = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                    }
+                } else if (area != 2) {
                     val rows = if (area == 1) coreRemembered else remembered
                     if (area == 1) item(key = "core-intro") {
                         Surface(color = Color(0xFFE8F3EF),
@@ -155,7 +187,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         CharacterOriginalEventCard(event, onDelete = { deletingEvent = event })
                     }
                 }
-                val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; else -> timeline.size }
+                val total = when (area) { 0 -> remembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
                 if (total > count) item { TextButton(onClick = { count += 40 }, modifier = Modifier.fillMaxWidth()) {
                     Text("继续加载 · 还有 ${total - count} 条")
                 } }
