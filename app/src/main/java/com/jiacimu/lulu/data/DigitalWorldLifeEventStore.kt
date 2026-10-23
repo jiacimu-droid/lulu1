@@ -65,7 +65,11 @@ internal object DigitalWorldLifeEventStore {
     fun initialize(context: Context) {
         if (prefs != null) return
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        incidents = decode(prefs?.getString(KEY_INCIDENTS, null))
+        // Remove the two recurring nuisance incident types from existing
+        // saves as well as future rolls. They are not real social events.
+        val loaded = decode(prefs?.getString(KEY_INCIDENTS, null))
+        incidents = loaded.filterNot { it.kind in setOf("roach", "dust_layer") }
+        if (incidents.size != loaded.size) persistLocked()
     }
 
     fun tick(
@@ -394,14 +398,12 @@ internal object DigitalWorldLifeEventStore {
             DigitalFurnitureKind.SHELF -> listOf("shelf_tilt")
             DigitalFurnitureKind.BED -> listOf("surface_ripple")
             DigitalFurnitureKind.TV -> listOf("screen_static")
-            else -> listOf("dust_layer")
+            else -> emptyList()
         }
         // A pest is a rare physical circumstance tied to an actual hiding
         // surface, not a generic event produced by EVERY furniture item.
         // Existing active incidents stay persisted until a real response.
-        val pests = if (kind in setOf(DigitalFurnitureKind.RUG, DigitalFurnitureKind.PLANT))
-            listOf("roach") else emptyList()
-        return physical + stumbling + ambience + actualIssue + pests
+        return physical + stumbling + ambience + actualIssue
     }
 
     private fun responseOptions(kind: String): List<String> = when (kind) {
