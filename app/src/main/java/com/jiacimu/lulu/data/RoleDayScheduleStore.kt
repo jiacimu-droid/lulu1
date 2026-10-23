@@ -272,11 +272,11 @@ object RoleDayScheduleStore {
             (plan.targetCharacterId.isBlank() || when (action) {
                 "send_character_message", "digital_world_action" ->
                     args?.optString("targetCharacterId") == plan.targetCharacterId
-                else -> true
+                else -> false
             }) &&
-            (plan.targetResidentId.isBlank() || action != "digital_world_action" ||
-                (args?.optString("worldAction") == "interact_resident" &&
-                    args?.optString("itemId") == plan.targetResidentId)) &&
+            (plan.targetResidentId.isBlank() || (action == "digital_world_action" &&
+                args?.optString("worldAction") == "interact_resident" &&
+                args?.optString("itemId") == plan.targetResidentId)) &&
             (plan.locationCode.isBlank() || action != "digital_world_action" ||
                 args?.optString("worldAction") != "visit_public_place" ||
                 (args?.optString("locationCode").orEmpty()

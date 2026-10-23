@@ -43,8 +43,13 @@ class RoleDayScheduleStoreTest {
             "actual-mail", after, org.json.JSONObject().put("targetCharacterId", "stranger")))
         assertFalse(RoleDayScheduleStore.canComplete(friend, "role-a", "send_character_message",
             "actual-mail", after))
+        assertFalse(RoleDayScheduleStore.canComplete(friend.copy(activityAction = ""),
+            "role-a", "send_private_message", "unrelated-private-message", after))
         val meeting = plan.copy(activityAction = "digital_world_action",
             targetResidentId = "cafe-worker")
+        assertFalse(RoleDayScheduleStore.canComplete(
+            plan.copy(activityAction = "", targetResidentId = "cafe-worker"),
+            "role-a", "send_private_message", "unrelated-message", after))
         assertFalse(RoleDayScheduleStore.canComplete(meeting, "role-a", "digital_world_action",
             "only-arrival", after, org.json.JSONObject().put("worldAction", "visit_public_place")))
         assertTrue(RoleDayScheduleStore.canComplete(meeting, "role-a", "digital_world_action",
