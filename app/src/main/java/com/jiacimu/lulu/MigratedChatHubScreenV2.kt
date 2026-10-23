@@ -34,6 +34,10 @@ import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.MomentsStore
+import com.jiacimu.lulu.data.ResidentDailyRoutine
+import com.jiacimu.lulu.data.ResidentCharacterBridge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.jiacimu.lulu.data.UserProfileContext
 import com.jiacimu.lulu.design.LuluColors
 import java.time.ZoneId
@@ -309,6 +313,12 @@ private fun ChatHubV2Characters(
     onWorldBook: (String) -> Unit,
     onOpenConversation: (String) -> Unit,
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(context) {
+        withContext(Dispatchers.IO) {
+            ResidentDailyRoutine.refresh(context)
+        }
+    }
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val presenceStates by CompanionPresenceStore.states.collectAsState()
@@ -327,7 +337,7 @@ private fun ChatHubV2Characters(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "companion-heading") {
-            Text("陪伴角色", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text("人物与原住民", fontWeight = FontWeight.Bold, fontSize = 17.sp)
         }
         items(sortedCharacters, key = CharacterSettings::characterId, contentType = { "character" }) { character ->
             val privateChat = privateByCharacter[character.characterId]
@@ -351,6 +361,11 @@ private fun ChatHubV2Characters(
                         Text(
                             when {
                                 character.characterId == "lulu" -> "默认陪伴角色"
+                                character.characterId.startsWith("resident:") -> {
+                                    val resident = ResidentCharacterBridge.nativeResident(character.characterId)
+                                    if (resident != null) "数字世界原住民 · ${resident.dutyActivity.ifBlank { resident.identity }}"
+                                    else "数字世界原住民"
+                                }
                                 privateChat != null -> "已有私聊 · ${privateChat.updatedAt.atZone(ZoneId.systemDefault()).format(ChatHubV2Time)}"
                                 else -> "已创建，尚无私聊记录"
                             },
@@ -391,9 +406,6 @@ private fun ChatHubV2Characters(
                     Text(if (privateChat == null) "开始和${character.displayName}私聊" else "继续和${character.displayName}私聊", fontWeight = FontWeight.Bold)
                 }
             }
-        }
-        item(key = "digital-world-resident-profiles") {
-            DigitalWorldResidentProfiles()
         }
     }
 }
