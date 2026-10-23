@@ -129,6 +129,8 @@ internal object MemorySemanticConsolidation {
             if (due(storage.getString(dailyKey, null), now, Duration.ofDays(1))) {
                 LuluRepositories.memory.maintain(characterId)
                 check(storage.edit().putString(dailyKey, now.toString()).commit()) { "每日维护进度保存失败" }
+                // Reuse the existing evidence-linked user habit learning engine.
+                CharacterDevelopmentRuntime.request(characterId)
             }
             val weeklyKey = "weekly:$characterId"
             val previous = storage.getString(weeklyKey, null)
@@ -145,7 +147,11 @@ internal object MemorySemanticConsolidation {
                 check(storage.edit().putString(retryKey, now.toString()).commit()) { "每周尝试时间保存失败" }
                 try {
                     consolidateUnderLock(characterId, false)
-                    check(storage.edit().putString(weeklyKey, now.toString()).remove(retryKey).commit()) { "每周维护进度保存失败" }
+                    // Partial batches must resume next time, not mark the week done.
+                    if (report(characterId).phase in setOf(MemoryReviewPhase.Completed, MemoryReviewPhase.Skipped)) {
+                        check(storage.edit().putString(weeklyKey, now.toString()).remove(retryKey).commit()) { "每周维护进度保存失败" }
+                        CharacterDevelopmentRuntime.request(characterId)
+                    }
                 } catch (cancelled: CancellationException) {
                     publish(characterId, report(characterId).copy(phase = MemoryReviewPhase.Interrupted,
                         detail = "后台维护被中断，未完成的批次保留"))
@@ -165,7 +171,10 @@ internal object MemorySemanticConsolidation {
     suspend fun consolidateNow(characterId: String): Int = lock.withLock {
         require(characterId.isNotBlank())
         val archived = consolidateUnderLock(characterId, true)
-        prefs?.edit()?.putString("weekly:$characterId", Instant.now().toString())?.commit()
+        if (report(characterId).phase in setOf(MemoryReviewPhase.Completed, MemoryReviewPhase.Skipped)) {
+            prefs?.edit()?.putString("weekly:$characterId", Instant.now().toString())?.commit()
+            CharacterDevelopmentRuntime.request(characterId)
+        }
         archived
     }
 
@@ -174,8 +183,8 @@ internal object MemorySemanticConsolidation {
         val allMemories = LuluRepositories.memory.snapshot(characterId)
         val activeFacts = candidates(characterId)
         val totalRecords = allMemories.size
-        val snapshotKey = "reviewSnapshot:$characterId"
-        val cursorKey = "cursor:$characterId"
+        val snapshotKey = "reviewSnapshotV2:$characterId"
+        val cursorKey = "cursorV2:$characterId"
         val previousIds = runCatching {
             val saved = JSONArray(storage.getString(snapshotKey, "[]"))
             (0 until saved.length()).map { saved.getString(it) }
@@ -189,13 +198,19 @@ internal object MemorySemanticConsolidation {
         if (facts.size < 2) {
             publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Skipped,
                 totalRecords = totalRecords, eligibleRecords = facts.size,
-                detail = "仅 ${facts.size} 条长期事实符合安全审核条件（至少需要2条），未发起模型调用"))
+                detail = "仅 ${facts.size} 条记忆有可核对的有效来源（至少需要2条），未发起模型调用"))
             return 0
         }
         val fingerprint = fingerprint(activeFacts)
-        val windows = facts.windowed(size = 70, step = 50, partialWindows = true)
+        val windows = reviewWindows(facts)
+        if (windows.isEmpty()) {
+            publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Skipped,
+                totalRecords = totalRecords, eligibleRecords = facts.size,
+                detail = "不同类别中没有两条可相互比较的有效记忆，未调用模型"))
+            return 0
+        }
         val start = if (canResume) storage.getInt(cursorKey, 0).coerceIn(0, windows.lastIndex) else 0
-        if (start == 0 && !force && storage.getString("digest:$characterId", null) == fingerprint) {
+        if (start == 0 && !force && storage.getString("digestV2:$characterId", null) == fingerprint) {
             publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Skipped,
                 totalRecords = totalRecords, eligibleRecords = facts.size,
                 reviewedBatches = windows.size, totalBatches = windows.size,
@@ -218,24 +233,25 @@ internal object MemorySemanticConsolidation {
         publish(characterId, MemoryReviewStatus(phase = MemoryReviewPhase.Running,
             totalRecords = totalRecords, eligibleRecords = facts.size,
             reviewedBatches = start, totalBatches = windows.size,
-            detail = "正在审核第 ${start + 1} / ${windows.size} 批长期事实"))
+            detail = "正在审核第 ${start + 1} / ${windows.size} 批有效来源记忆"))
         for ((offset, window) in windows.subList(start, end).withIndex()) {
             if (window.size < 2) continue
             val evidence = window.joinToString("\n") { memory ->
-                "id=${memory.id} | 对象=${memory.subject} | 槽位=${memory.slot} | 时间=${memory.occurredAt ?: memory.createdAt} | ${memory.content.replace('\n', ' ')}"
+                "id=${memory.id} | 类型=${memory.kind} | 来源=${memory.sourceIds().joinToString(",")} | 对象=${memory.subject} | 槽位=${memory.slot} | 时间=${memory.occurredAt ?: memory.createdAt} | ${memory.content.replace('\n', ' ')}"
             }
             val reply = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = evidence,
                 instruction = """
-                    仅对当前列表的长期事实做严格语义去重，不修改、不推测任何事实。
+                    对当前列表中有真实来源的记忆做严格语义去重，不修改、不推测任何事实。
                     输出完整 JSON 对象 {"groups":[["idA","idB"]]}，没有可确证的重复返回 {"groups":[]}。
                     每组至少两个真实 id，同一 id 不得出现在两组。
-                    只把人物、含义、条件和适用时间完全一致的事实归为一组。
-                    相似主题、不同时间的重复经历、相反偏好、纠正和事实过期、主观印象、互相补充的细节都不是重复。
+                    只把同一人物、类型、含义、适用条件和时间完全一致的记录归为一组。
+                    经历与情绪必须指向同一个原始事件；不同时间的重复经历与不同情绪不合并。
+                    相似主题、相反偏好、纠正和事实过期、主观印象、互相补充的细节都不是重复。
                     不确定就不合并。无需输出说明。
                 """.trimIndent(),
-                source = "记忆维护", title = "长期事实语义去重", maxTokens = 2_000,
+                source = "记忆维护", title = "记忆语义去重", maxTokens = 2_000,
                 contextMode = CompanionContextMode.Isolated, connectionOverride = connection,
             ).getOrThrow()
             // A malformed provider response is a retryable failure, not "no duplicates".
@@ -290,7 +306,7 @@ internal object MemorySemanticConsolidation {
             reviewedBatches = end, totalBatches = windows.size,
             archived = archived,
             detail = when {
-                fullyReviewed -> "本轮已检查全部 ${windows.size} 批候选长期事实，确认归档 ${archived} 条；其他记忆类型未处理"
+                fullyReviewed -> "本轮已检查全部 ${windows.size} 批有效来源记忆，确认归档 ${archived} 条；手动记忆不自动合并"
                 newFactsLeft -> "原定批次审核完毕，但审核期间又出现新记忆；请再次点击审核新增内容"
                 else -> "本轮归档 ${archived} 条，剩余 ${windows.size - end} 批尚未审核；再次点击可以继续"
             },
@@ -300,10 +316,27 @@ internal object MemorySemanticConsolidation {
 
     private fun candidates(characterId: String): List<MemoryEntry> =
         LuluRepositories.memory.snapshot(characterId).filter {
-            it.kind == MemoryKind.Fact && it.canRecallProactively &&
-                it.source.startsWith("timeline-events:") && MemoryValidityStore.isActive(it.id) &&
+            it.source.startsWith("timeline-events:") && MemoryValidityStore.isActive(it.id) &&
                 memoryHasLiveSources(it, characterId)
-        }.sortedWith(compareBy<MemoryEntry> { it.subject }.thenBy { it.slot }.thenBy { it.content })
+        }.sortedWith(compareBy<MemoryEntry> { it.kind.name }.thenBy { it.subject }
+            .thenBy { it.slot }.thenBy { it.content })
+
+    /** Larger collections are batched by kind and overlap; for 71-140 entries
+     * an extra bridge lets even distant near-duplicates reach the model. */
+    internal fun <T> overlappingReviewWindows(items: List<T>, size: Int = 70): List<List<T>> {
+        if (items.size < 2) return emptyList()
+        if (items.size <= size) return listOf(items)
+        val windows = items.windowed(size, size / 2, partialWindows = true)
+            .filter { it.size >= 2 }.toMutableList()
+        if (items.size in (size + 1)..(size * 2)) {
+            val half = size / 2
+            windows += items.take(half) + items.takeLast(size - half)
+        }
+        return windows.distinct()
+    }
+
+    private fun reviewWindows(items: List<MemoryEntry>): List<List<MemoryEntry>> =
+        items.groupBy(MemoryEntry::kind).values.flatMap { overlappingReviewWindows(it) }
 
     private fun fingerprint(memories: List<MemoryEntry>): String {
         val bytes = memories.joinToString("|") { "${it.id}:${it.content}:${it.sourceRevisions}" }.toByteArray(Charsets.UTF_8)
@@ -312,6 +345,9 @@ internal object MemorySemanticConsolidation {
 
     private fun equivalentScope(memories: List<MemoryEntry>): Boolean =
         memories.map { it.characterId }.distinct().size == 1 &&
+            memories.map { it.kind }.distinct().size == 1 &&
+            (memories.first().kind == MemoryKind.Fact ||
+                memories.map { it.sourceIds().toSet() }.reduce { left, right -> left.intersect(right) }.isNotEmpty()) &&
             memories.map { it.subject.trim() }.filter(String::isNotBlank).distinct().size <= 1 &&
             memories.map { it.slot.trim() }.filter(String::isNotBlank).distinct().size <= 1
 
