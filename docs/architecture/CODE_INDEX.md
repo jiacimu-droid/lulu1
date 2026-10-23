@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6282ed9a7a3173a9a909f64eaf6c525ea426451d`
+- 基准提交：`70f872fe245870cbf86bdd7d1e7ba5febcd5fa18`
 - 分支：`main`
 - 已索引文件：836
-- 已索引代码/文本行：160264
+- 已索引代码/文本行：160272
 - 已发现符号：2424
 
 | 文件 | 行数 | 符号数 |
@@ -35,7 +35,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 74 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 60 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 66 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterLearningPlans.kt` | 50 | 0 |
@@ -322,7 +322,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 819 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 52 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 779 | 18 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 781 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 574 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 38 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 274 | 4 |
