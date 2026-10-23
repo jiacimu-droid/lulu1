@@ -25,6 +25,10 @@ data class DigitalWorldResident(
     val templateName: String = name,
     /** Explicit edits, including deliberately blank traits, outrank default templates. */
     val profileEdited: Boolean = false,
+    /** Last confirmed duty transition, persisted with canonical location. */
+    val dutyKey: String = "",
+    val dutyActivity: String = "",
+    val dutySince: Instant? = null,
 ) {
     val isCafeBarista: Boolean get() = templateName == "岑灯"
 }
@@ -187,6 +191,23 @@ internal object DigitalWorldExpansionStore {
         return changed
     }
 
+    /** Atomic native movement + activity. Replaying a slot never duplicates a meal or work event. */
+    @Synchronized
+    fun commitResidentDuty(residentId: String, locationCode: String, key: String,
+        activity: String, at: Instant): DigitalWorldResident? {
+        if (!isExistingLocation(locationCode) || key.isBlank()) return null
+        val original = residents.firstOrNull { it.id == residentId } ?: return null
+        if (original.dutyKey == key) return original
+        val next = original.copy(currentLocationCode = locationCode,
+            dutyKey = key, dutyActivity = activity, dutySince = at)
+        val before = residents
+        residents = residents.map { if (it.id == residentId) next else it }
+        return try { persist(); next } catch (failure: Throwable) {
+            residents = before
+            throw failure
+        }
+    }
+
     @Synchronized
     fun contextFor(locationCode: String? = null): String {
         val relevantResidents = if (locationCode == null) residents else residents.filter {
@@ -200,7 +221,7 @@ internal object DigitalWorldExpansionStore {
                 appendLine("- 地点 id=${place.code}；${place.label}；用途=${place.purpose}；连接=${place.connectedTo.joinToString("/")}")
             }
             relevantResidents.forEach { resident ->
-                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}；背景=${resident.background.ifBlank { "暂未登记" }}")
+                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}；背景=${resident.background.ifBlank { "暂未登记" }}；正在做=${resident.dutyActivity.ifBlank { "自由活动" }}；上次确认=${resident.dutySince ?: "未确认"}")
             }
             append("未列出的新地点、新居民都不存在；模型不能只靠叙述把它们变成世界事实。")
         }
@@ -248,7 +269,10 @@ internal object DigitalWorldExpansionStore {
                     .put("preferences", resident.preferences)
                     .put("background", resident.background)
                     .put("templateName", resident.templateName)
-                    .put("profileEdited", resident.profileEdited))
+                    .put("profileEdited", resident.profileEdited)
+                    .put("dutyKey", resident.dutyKey)
+                    .put("dutyActivity", resident.dutyActivity)
+                    .put("dutySince", resident.dutySince?.toString() ?: JSONObject.NULL))
             }
         }
         check(prefs?.edit()?.putString(KEY_PLACES, placeArray.toString())?.putString(KEY_RESIDENTS, residentArray.toString())?.commit() == true) {
@@ -311,6 +335,10 @@ internal object DigitalWorldExpansionStore {
                         background = item.optString("background").take(1200),
                         templateName = item.optString("templateName").ifBlank { name },
                         profileEdited = item.optBoolean("profileEdited", false),
+                        dutyKey = item.optString("dutyKey"),
+                        dutyActivity = item.optString("dutyActivity"),
+                        dutySince = item.optString("dutySince").takeUnless { it.isBlank() || it == "null" }
+                            ?.let { runCatching { Instant.parse(it) }.getOrNull() },
                         lastInteractionAt = item.optString("lastInteractionAt").takeUnless { it.isBlank() || it.equals("null", true) }
                             ?.let { runCatching { Instant.parse(it) }.getOrNull() },
                     ))
