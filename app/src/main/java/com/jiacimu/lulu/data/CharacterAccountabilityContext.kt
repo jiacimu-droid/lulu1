@@ -103,7 +103,8 @@ internal object CharacterAccountabilityContext {
         if (thought.isBlank()) return thought
         val subject = userText + "\n" + thought
         val hasOwnDuty = listOf("答应", "约定", "承诺", "准时", "打电话", "来电",
-            "提醒", "闹钟", "叫醒", "到点", "失约", "拨过去", "没做到").any(subject::contains)
+            "提醒", "闹钟", "叫醒", "到点", "失约", "拨过去", "没做到",
+            "食言", "监督睡觉", "监督我睡觉").any(subject::contains)
         if (!hasOwnDuty) return thought
         val unearnedAccusation = Regex("抓.{0,6}把柄|挑.{0,3}刺|找.{0,4}茬|无理取闹|故意刁难|恶意找错|小题大做|倒打一耙|甩锅|找借口|嘴硬|还敢质问")
             .containsMatchIn(thought)
