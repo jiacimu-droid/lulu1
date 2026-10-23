@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T17:34:51.764545+00:00",
-  "commit": "5e9228c61f3c073c29b9583a8ae08e5a30010a83",
+  "generatedAt": "2026-10-23T17:35:33.464050+00:00",
+  "commit": "8f9f5857988a804a4be3c652a1130ab70371a4fb",
   "branch": "main",
-  "sourceFingerprint": "4ab640b61bd8fbb69367f582e16b419b1e8871c506e961c3e0bb7f8d2407b6f2",
+  "sourceFingerprint": "f7a765bae2136698963931dd1640090be42565344162bde435de012d35017dc5",
   "summary": {
-    "files": 863,
-    "lines": 165060,
-    "symbols": 2497
+    "files": 864,
+    "lines": 165163,
+    "symbols": 2498
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13812,6 +13812,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/WakeMusicCoordinatorTest.kt",
         "line": 14
+      }
+    ],
+    "WorldBookJsonImporterTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt",
+        "line": 15
       }
     ],
     "WorldInteractionRegressionTest": [
@@ -29475,6 +29481,17 @@
         {
           "name": "WakeMusicCoordinatorTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldBookJsonImporterTest.kt",
+      "lines": 103,
+      "sha256": "f954cd4f0e3b05cd6ba7a1c47ee0352082832b9d8ea4f223f424bf163478d92c",
+      "symbols": [
+        {
+          "name": "WorldBookJsonImporterTest",
+          "line": 15
         }
       ]
     },
