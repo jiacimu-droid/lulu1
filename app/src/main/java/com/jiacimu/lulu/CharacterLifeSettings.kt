@@ -100,7 +100,7 @@ internal fun CharacterLifeSettings(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         CharacterProfileSchema.groupedFields().forEach { (group, fields) ->
-            var expanded by remember(characterId, group) { mutableStateOf(group == "兴趣与表达") }
+            var expanded by remember(characterId, group) { mutableStateOf(group == "人物内核" || group == "呈现与表达") }
             Row(Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
@@ -126,7 +126,7 @@ internal fun CharacterLifeSettings(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (field.key == "speechHabits") {
-                    Text("颜文字与图片表情包的个人使用习惯",
+                    Text("表情偏好",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     CharacterExpressionPreferencesSettings(characterId)
@@ -137,11 +137,11 @@ internal fun CharacterLifeSettings(
         HorizontalDivider()
         Text("后天形成的倾向", style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold)
-        Text("角色经真实经历形成的兴趣、习惯、判断和相处方式。它们参与以后的表现，但不修改上方的原始设定。",
+        Text("从真实经历形成的长期倾向",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (growth.isEmpty()) {
-            Text("尚无足够证据形成长期倾向。即时心声、念头或一次行动不自动算成长。",
+            Text("尚无可靠的成长记录",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -217,23 +217,6 @@ internal fun CharacterSocialNamesSettings(characterId: String) {
         if (relationship.rejectedAddresses.isNotEmpty()) Text(
             "避免这样称呼你：" + relationship.rejectedAddresses.joinToString("、"),
             style = MaterialTheme.typography.bodyMedium)
-        if (relationship.preferences.isNotEmpty()) {
-            var showingAgreements by remember(characterId) { mutableStateOf(false) }
-            TextButton(onClick = { showingAgreements = true }) { Text("相处约定 · ${relationship.preferences.size}") }
-            if (showingAgreements) AlertDialog(onDismissRequest = { showingAgreements = false },
-                title = { Text("持续记住的相处约定") },
-                text = { Column(Modifier.verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    relationship.preferences.forEach { preference ->
-                        Text(preference.quote, style = MaterialTheme.typography.bodyMedium)
-                        Text(java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm")
-                            .withZone(java.time.ZoneId.systemDefault()).format(preference.occurredAt),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                } },
-                confirmButton = { TextButton(onClick = { showingAgreements = false }) { Text("关闭") } })
-        }
         val userRemark = socialNames?.optString("userRemark").orEmpty()
         val selfNickname = socialNames?.optString("selfNickname").orEmpty()
         Text("给你的私人备注：" + userRemark.ifBlank { "还没有设置" }, style = MaterialTheme.typography.bodyMedium)
