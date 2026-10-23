@@ -95,6 +95,12 @@ internal object DigitalWorldEvolutionRuntime {
     fun maybeEvolve(characterId: String, now: Instant = Instant.now()): List<String> {
         val p = prefs ?: return emptyList()
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return emptyList()
+        // Citizens are not authorised to pay for arbitrary WORLD SPAWN model
+        // proposals every time they check their own job or answer a message.
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+            appContext?.let { ResidentDailyRoutine.refresh(it, now) }
+            return emptyList()
+        }
         scheduleValidatedModelProposal(characterId, now)
         val results = mutableListOf<String>()
         // A brand-new persistent world with literally ZERO residents has no
