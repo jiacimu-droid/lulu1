@@ -61,6 +61,22 @@ Compose 只映射 `127.0.0.1:18060`，要让手机跨网络访问必须另配受
 
 脚本保证启动时 `cd /` 且显式 `COOKIES_PATH`，避免源码目录里空 Cookie 抢占有效会话；每次启动检查 Chromium 可执行位。**它不能消除 Android 对 Termux/proot 进程保活的限制**，因此不是建议的长期主线路。
 
+## 2026-10-23：登录正常但关键词搜索 60 秒后超时
+
+若手机终端日志包含 `tool=search_feeds panic="context deadline exceeded"`，说明 Go MCP 接到了请求，但搜索浏览器操作超过超时，不能把 HTTP 200 或 `check_login_status` 已登录误判为搜索成功。v2.5.0 在 `xiaohongshu/search.go` 使用 `MustWaitStable()` 等待动态搜索整页稳定，可能被长连接/不断更新的网页拖住。现提供 **不清除 Cookie 的本地热修复编译**，改为等待 `__INITIAL_STATE__.search.feeds` 搜索结果数据，并提供分阶段错误。
+
+在**已安装 Go 1.24+、已运行过本项目本机脚本的 Ubuntu/proot shell 内**执行（不是 Termux 普通 shell）：
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jiacimu-droid/lulu1/main/tools/xhs-xpzouying/arm64-proot.sh -o /tmp/lulu-xhs-repair.sh
+bash /tmp/lulu-xhs-repair.sh repair-search
+bash /tmp/lulu-xhs-repair.sh restart
+```
+
+该动作保留 `~/.local/share/lulu-xhs/data/cookies.json`、`auth-token` 和浏览器安装。修复前的二进制保存在 `bin/xhs-mcp.before-search`，旧版 `search.go` 保存在源码目录下的 `xiaohongshu/search.go.before-lulu-search`。若源码不符合 v2.5.0 或 Go 编译失败，**拒绝覆盖现有二进制**；不要用 `install` 强制重新下载覆盖现有源码来“碰碰运气”。
+
+重启后先点击「检查登录」，再点击「搜索并读帖」，必须实际拿到笔记正文才能认定成功。若仍超时，查看 `~/.local/share/lulu-xhs/log/xhs.log` 中新增的「正在打开搜索页 / 页面已导航，等待真实搜索结果 / 已取得搜索数据」阶段；如果网页触发人机验证、网络不稳定或页面结构已变，该补丁无法保证搜到结果，需要按新错误继续排查。
+
 ## 关键排错（按真实执行阶段区分）
 
 | 症状 | 应检查 |
