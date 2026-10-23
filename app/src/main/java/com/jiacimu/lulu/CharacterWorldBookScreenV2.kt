@@ -104,7 +104,7 @@ fun CharacterWorldBookScreenV2(
                             importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
                         },
                     ) {
-                        Icon(Icons.Outlined.FileUpload, null, Modifier.size(18.dp))
+                        Icon(Icons.Outlined.UploadFile, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("导入 JSON")
                     }
