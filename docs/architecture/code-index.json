@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:26:06.722524+00:00",
-  "commit": "b3053b4e88eafb44ef2c60d881ef49e8abd3120a",
+  "generatedAt": "2026-10-23T08:26:59.607374+00:00",
+  "commit": "b3117efeea99894099e4761598bce44a6b723a1d",
   "branch": "main",
-  "sourceFingerprint": "e35f09db5acc457d56080be3fd02b2dacfc57bc0eea79b76b09ba670fce4765d",
+  "sourceFingerprint": "4c17aa63bb0010a21e9fcad1a59a218afdc6cc2e8c217fb61b1c4a2b0b6dfecf",
   "summary": {
-    "files": 848,
-    "lines": 162405,
-    "symbols": 2461
+    "files": 849,
+    "lines": 162479,
+    "symbols": 2462
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13526,6 +13526,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt",
         "line": 12
+      }
+    ],
+    "ResidentAutonomyBoundaryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
+        "line": 15
       }
     ],
     "RoleDayScheduleStoreTest": [
@@ -28873,6 +28879,17 @@
         {
           "name": "ReplyReplacementTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
+      "lines": 74,
+      "sha256": "a50cecc5e39f526ac7528559a71d419a618f2c1dd0d992e28d611cfe9108196e",
+      "symbols": [
+        {
+          "name": "ResidentAutonomyBoundaryTest",
+          "line": 15
         }
       ]
     },

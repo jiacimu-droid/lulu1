@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b3053b4e88eafb44ef2c60d881ef49e8abd3120a`
+- 基准提交：`b3117efeea99894099e4761598bce44a6b723a1d`
 - 分支：`main`
-- 已索引文件：848
-- 已索引代码/文本行：162405
-- 已发现符号：2461
+- 已索引文件：849
+- 已索引代码/文本行：162479
+- 已发现符号：2462
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -806,6 +806,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 71 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
