@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:07:03.886841+00:00",
-  "commit": "aa1bd1b9d4e8d8e56e193b7290fae2994b7585c8",
+  "generatedAt": "2026-10-23T07:09:17.516668+00:00",
+  "commit": "fc159c48247bcdf77d54a4abf72d61249b0d34ce",
   "branch": "main",
-  "sourceFingerprint": "542e1ccab9b280b23eaed3d675f415ea70a06df5212dc996655abd0d66461466",
+  "sourceFingerprint": "6a575395f6bc3a2ca160125e599e90c6b0a2bb9a086d60b4855479b22ca0be92",
   "summary": {
     "files": 840,
-    "lines": 161131,
+    "lines": 161138,
     "symbols": 2436
   },
   "symbolIndex": {
@@ -20646,8 +20646,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
-      "lines": 262,
-      "sha256": "9320f0be5b52622e89f5b8bdd5a53e4adfea09ddf98e5e830cc364ac92c4c899",
+      "lines": 269,
+      "sha256": "7604f1462a7a9b230b2b7c00f47dbccd6a5f2d835456106bcb10139a52f51b9a",
       "symbols": [
         {
           "name": "serperKey",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`aa1bd1b9d4e8d8e56e193b7290fae2994b7585c8`
+- 基准提交：`fc159c48247bcdf77d54a4abf72d61249b0d34ce`
 - 分支：`main`
 - 已索引文件：840
-- 已索引代码/文本行：161131
+- 已索引代码/文本行：161138
 - 已发现符号：2436
 
 | 文件 | 行数 | 符号数 |
@@ -360,7 +360,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalDeadlinePerceptionPolicy.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/GoalFollowUpPolicy.kt` | 62 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 262 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt` | 269 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ImportantEventBridge.kt` | 45 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt` | 374 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt` | 252 | 14 |
