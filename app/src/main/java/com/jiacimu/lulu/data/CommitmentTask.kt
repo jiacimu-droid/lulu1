@@ -39,3 +39,8 @@ internal fun CommitmentTaskStatus.isActive(): Boolean = this in setOf(
     CommitmentTaskStatus.WaitingForFeedback,
     CommitmentTaskStatus.Blocked,
 )
+
+/** A fresh incoming call or alarm cannot terminate an already-connected call. */
+internal fun CommitmentTask.isMisroutedLiveHangup(): Boolean =
+    listOf("挂断电话", "挂电话", "挂掉电话", "结束通话", "挂断这通", "挂断本次")
+        .any(goal::contains)
