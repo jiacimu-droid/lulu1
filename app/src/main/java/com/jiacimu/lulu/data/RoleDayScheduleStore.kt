@@ -109,6 +109,17 @@ object RoleDayScheduleStore {
                 "状态=${plan.status}，动作=${plan.activityAction}。"
         }
 
+    /** Already persisted personal commitments outrank a generic periodic sleep timer.
+     * Overdue plans are owned by their existing worker; don't replay them every sweep. */
+    fun nextPlannedWakeAt(context: Context, characterId: String, now: Instant): Instant? =
+        plans(context, characterId).asSequence()
+            .filter { it.status == "planned" && it.dueAt.isAfter(now) }
+            .minOfOrNull { it.dueAt }
+
+    private fun refreshAutonomousWake(context: Context) {
+        ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
+    }
+
     private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant) {
         val delay = Duration.between(now, plan.dueAt).toMillis().coerceAtLeast(1_000L)
         val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
@@ -147,6 +158,7 @@ object RoleDayScheduleStore {
             persist(context, existing)
             throw failure
         }
+        refreshAutonomousWake(context)
         return plan
     }
 
@@ -162,6 +174,7 @@ object RoleDayScheduleStore {
         })
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("role-own-plan-$planId")
+        refreshAutonomousWake(context)
         return true
     }
 
@@ -183,6 +196,7 @@ object RoleDayScheduleStore {
             runCatching { scheduleWake(context, original, now) }
             throw failure
         }
+        refreshAutonomousWake(context)
         return revised
     }
 
@@ -223,6 +237,7 @@ object RoleDayScheduleStore {
             }
         } else WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("role-own-plan-$planId")
+        refreshAutonomousWake(context)
         return true
     }
 
@@ -256,6 +271,7 @@ object RoleDayScheduleStore {
         val targets = all(context).filter { it.characterId == characterId }
         targets.forEach { WorkManager.getInstance(context).cancelUniqueWork("role-own-plan-${it.id}") }
         persist(context, all(context).filterNot { it.characterId == characterId })
+        refreshAutonomousWake(context)
     }
 }
 
