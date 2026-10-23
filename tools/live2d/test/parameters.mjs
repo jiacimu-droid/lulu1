@@ -94,8 +94,9 @@ for (let i = 0; i < 50; i++) frame()
 for (const id of ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamAngleX2', 'ParamAngleY2', 'ParamAngleZ2',
   'ParamBodyAngleX', 'body_gensui_x', 'ParamEyeBallX', 'ParamEyeBallY']) {
-  const minorMotion = ['ParamAngleX', 'ParamAngleY', 'ParamAngleZ', 'ParamBodyAngleX'].includes(id)
-  assert.ok(Math.abs(valuesById.get(id)) < (minorMotion ? .8 : .05), 'idle unexpectedly wandered: ' + id)
+  const minorMotion = ['ParamAngleX', 'ParamAngleY', 'ParamBodyAngleX'].includes(id)
+  const bound = id === 'ParamAngleZ' ? 4 : minorMotion ? .8 : .05
+  assert.ok(Math.abs(valuesById.get(id)) < bound, 'idle unexpectedly wandered: ' + id)
 }
 assert.ok(valuesById.get('ParamBreath') > 0.3)
 // Same imported rig, same clock: only physical breathing cadence varies.
@@ -109,7 +110,8 @@ assert.ok(tiredBreath >= .35 && tiredBreath <= .65)
 for (let i = 0; i < 60; i++) frame({ roll: 12 }, null, null, true)
 assert.ok(valuesById.get('ParamAngleZ') > 11)
 for (let i = 0; i < 90; i++) frame()
-assert.ok(Math.abs(valuesById.get('ParamAngleZ')) < .8)
+assert.ok(Math.abs(valuesById.get('ParamAngleZ')) < 4,
+  'the selected head tilt must release into a subtle idle side tilt')
 valuesById.set('ParamMouthForm', .62)
 frame()
 assert.equal(valuesById.get('ParamMouthForm'), .62,
