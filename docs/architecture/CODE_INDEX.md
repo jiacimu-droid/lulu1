@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`29606d35178f8e8abc0dad87eabb3bec9f627928`
+- 基准提交：`8d85fa1e17aa17debd87646d8bb0192c70c8df92`
 - 分支：`main`
 - 已索引文件：835
-- 已索引代码/文本行：159697
+- 已索引代码/文本行：159758
 - 已发现符号：2418
 
 | 文件 | 行数 | 符号数 |
@@ -95,7 +95,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 453 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 282 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 295 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 748 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 809 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
