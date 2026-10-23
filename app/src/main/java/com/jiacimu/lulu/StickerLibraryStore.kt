@@ -122,7 +122,7 @@ internal object StickerLibraryStore {
         return buildString {
             appendLine("【本轮社交语境检索的真实可发送表情包候选】")
             appendLine("模型没有看到图片。每条的「实际画面」是已存好的视觉说明，「可能用法」只是社交语气建议。不能把用法误认为画面上真的发生了相应动作。")
-            appendLine("这些只是候选，不代表本轮必须发表情。用户的情绪不等于你自己的态度：依据自己的表达意图、人格和关系挑选；认真反馈先认真回应，无合适图片就不发。只能选择下列真实 stickerId，不按频率凑图。")
+            appendLine("这些只是候选，不代表本轮必须发表情。用户的情绪不等于你自己的态度：先决定自己这一拍想表达的情绪和话外音，再考虑纯文字、颜文字、文字配图或独立一张图哪种更贴切。独立发图不必追加解释情绪的长段；认真反馈先认真回应，不用玩笑图回避责任。无合适图片就不发。只能选择下列真实 stickerId，不按频率凑图。")
             available.forEach { sticker ->
                 appendLine("- stickerId=${sticker.id}；分组=${sticker.pack}；表情名=${sticker.name}；实际画面=${sticker.visualDescription.ifBlank { "未经识图，画面内容尚不确定" }}；可能用法=${sticker.usageHint.ifBlank { sticker.name }}；${if (sticker.favorite) "用户收藏" else "普通"}")
             }
