@@ -26,6 +26,14 @@ internal object CallVoiceConfiguration {
     fun elevenSttModel(raw: String?): String =
         if (raw == SCRIBE_V2_REALTIME) SCRIBE_V2_REALTIME else SCRIBE_V2
 
+    /** An active utterance or unfinished cloud transcript must keep its original decoder. */
+    fun canSwitchSttNow(
+        capturingSpeech: Boolean,
+        userSpeaking: Boolean,
+        recognitionPendingUntil: Long,
+        now: Long,
+    ): Boolean = !capturingSpeech && !userSpeaking && recognitionPendingUntil <= now
+
     /** STT is independent from character TTS. Never silently switch paid ASR providers. */
     fun resolveSttEngine(mode: String): String = normalizeSttMode(mode)
     fun sttEngine(context: Context): String {
