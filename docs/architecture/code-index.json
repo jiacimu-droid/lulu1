@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:23:03.673098+00:00",
-  "commit": "382bc690abde8a6d91d105be02f720ed70cfcae2",
+  "generatedAt": "2026-10-23T08:23:59.554035+00:00",
+  "commit": "7d756862913aa3d563066262a0762f7130df190c",
   "branch": "main",
-  "sourceFingerprint": "b3fdf7c37fdb199473cb9d6d63fee801a78a61048df2573689d0be16b268c70d",
+  "sourceFingerprint": "8ff11f83e830be99d86465dcce8f809937b22cf3333f8bd64eef4cc9ce13d4b8",
   "summary": {
     "files": 848,
-    "lines": 162372,
+    "lines": 162380,
     "symbols": 2461
   },
   "symbolIndex": {
@@ -5065,13 +5065,13 @@
     "set": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 80
+        "line": 87
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 92
+        "line": 99
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -18263,8 +18263,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-      "lines": 102,
-      "sha256": "f485b96dcccfa477d0b40da9acb751765ae38ee29d5c96abff88d51ff0403ab4",
+      "lines": 109,
+      "sha256": "ba7ff7ad08fbb33c7d727b7430a7b6ddb22c2d797530d807a967db318b458ecf",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -18280,11 +18280,11 @@
         },
         {
           "name": "set",
-          "line": 80
+          "line": 87
         },
         {
           "name": "delete",
-          "line": 92
+          "line": 99
         }
       ]
     },
@@ -22842,8 +22842,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
-      "lines": 89,
-      "sha256": "fb39751c6a4882c790f5007b71af74d286756cd923d66c3dcda340f690c74f05",
+      "lines": 90,
+      "sha256": "97750ec66c5b59ee383f675e80ffe3bbb41dcae49f88f270a132b1359fb921c9",
       "symbols": [
         {
           "name": "characterId",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`382bc690abde8a6d91d105be02f720ed70cfcae2`
+- 基准提交：`7d756862913aa3d563066262a0762f7130df190c`
 - 分支：`main`
 - 已索引文件：848
-- 已索引代码/文本行：162372
+- 已索引代码/文本行：162380
 - 已发现符号：2461
 
 | 文件 | 行数 | 符号数 |
@@ -265,7 +265,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 236 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 102 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 206 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1684 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
@@ -428,7 +428,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 89 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 238 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 103 | 5 |
