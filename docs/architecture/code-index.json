@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:17:59.553118+00:00",
-  "commit": "11e58159515cd582f489b08b624a521cf8e3ca58",
+  "generatedAt": "2026-10-23T05:20:55.413658+00:00",
+  "commit": "47dba4656a76262400130d666e1ce6de828b04d2",
   "branch": "main",
-  "sourceFingerprint": "8001b141ed3af126f7e648c928ea52a77b94db87c265a098fc7319cec762aabf",
+  "sourceFingerprint": "2e190bc3cfad5ceb548c3b19becfb25f27b33b1928797380d657d9c64d0a0361",
   "summary": {
     "files": 836,
-    "lines": 160068,
+    "lines": 160123,
     "symbols": 2419
   },
   "symbolIndex": {
@@ -14476,8 +14476,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt",
-      "lines": 132,
-      "sha256": "c6b14b6b270051b4e40b1335aa83c150168d3499924a96861f9ba6753de8498f",
+      "lines": 187,
+      "sha256": "f47d4c84fed9136d2e224bda39c3d44e0a75f4f7a035a24855fef7a698cde5a9",
       "symbols": []
     },
     {
