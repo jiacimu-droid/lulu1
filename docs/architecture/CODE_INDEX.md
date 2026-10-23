@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fc159c48247bcdf77d54a4abf72d61249b0d34ce`
+- 基准提交：`345e22546b04a668ee070ad5d6514019224d0949`
 - 分支：`main`
 - 已索引文件：840
-- 已索引代码/文本行：161138
+- 已索引代码/文本行：161197
 - 已发现符号：2436
 
 | 文件 | 行数 | 符号数 |
@@ -255,13 +255,13 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterConversationAgency.kt` | 86 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityEvidence.kt` | 32 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt` | 376 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 164 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt` | 172 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt` | 92 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt` | 48 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 200 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 264 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 82 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 73 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 86 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 236 | 4 |
@@ -702,7 +702,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDeliberationContextTest.kt` | 118 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterDevelopmentRecallTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 58 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 320 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 358 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |

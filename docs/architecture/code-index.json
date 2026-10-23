@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:09:17.516668+00:00",
-  "commit": "fc159c48247bcdf77d54a4abf72d61249b0d34ce",
+  "generatedAt": "2026-10-23T07:27:20.244672+00:00",
+  "commit": "345e22546b04a668ee070ad5d6514019224d0949",
   "branch": "main",
-  "sourceFingerprint": "6a575395f6bc3a2ca160125e599e90c6b0a2bb9a086d60b4855479b22ca0be92",
+  "sourceFingerprint": "4f2380418542552fb91940884490ad1a7131a6acd008807fb871625bcd028d8c",
   "summary": {
     "files": 840,
-    "lines": 161138,
+    "lines": 161197,
     "symbols": 2436
   },
   "symbolIndex": {
@@ -4495,7 +4495,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 54
+        "line": 67
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
@@ -4733,25 +4733,25 @@
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 138
+        "line": 146
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 140
+        "line": 148
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 155
+        "line": 163
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 160
+        "line": 168
       }
     ],
     "conciseAppraisal": [
@@ -4943,19 +4943,19 @@
     "isExpressionOnly": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 17
+        "line": 29
       }
     ],
     "forGeneration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 22
+        "line": 35
       }
     ],
     "channelNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-        "line": 36
+        "line": 49
       }
     ],
     "relationships": [
@@ -16615,7 +16615,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
       "lines": 318,
-      "sha256": "8febdae0daf4c8a4a5d280dc1a9d2300d4ccb3037045ca5e1bef5b77e03f4497",
+      "sha256": "818bc4e72dff1d0a1e7d2e0d13e9f4b5bc82d6d32f59e08b3477e991a09575d5",
       "symbols": [
         {
           "name": "byId",
@@ -17871,8 +17871,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 164,
-      "sha256": "81f3624e1b469f6dec1477047a6737c64f7f28801aa0a0e52f1a730f942f12f9",
+      "lines": 172,
+      "sha256": "aba2a8d9d1aadf58a43f6f5554d51dcd8681735586ffd3bff3aaf6a1c6d7f9cc",
       "symbols": [
         {
           "name": "expressionContext",
@@ -17880,19 +17880,19 @@
         },
         {
           "name": "usesSeparateExpression",
-          "line": 138
+          "line": 146
         },
         {
           "name": "chatAction",
-          "line": 140
+          "line": 148
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 155
+          "line": 163
         },
         {
           "name": "speechIntent",
-          "line": 160
+          "line": 168
         }
       ]
     },
@@ -18041,24 +18041,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
-      "lines": 73,
-      "sha256": "2f9cda69ffcc607c64ea00cd319fb3c27c73e5ef3b50e2e208fc1cb9ff8ec8b4",
+      "lines": 86,
+      "sha256": "cbd9f9d8d24e54e58370ed43f67ae6e6402b8428a0b40782d43d2c50987ff4ac",
       "symbols": [
         {
           "name": "isExpressionOnly",
-          "line": 17
+          "line": 29
         },
         {
           "name": "forGeneration",
-          "line": 22
+          "line": 35
         },
         {
           "name": "channelNote",
-          "line": 36
+          "line": 49
         },
         {
           "name": "promptSection",
-          "line": 54
+          "line": 67
         }
       ]
     },
@@ -25952,7 +25952,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2091,
-      "sha256": "9f0fe9a1a6c8cb216c85dd5bab55f7c00bc452bd380d633440c98c66bcf7e726",
+      "sha256": "29bda6827007158300e4f8a810401ed64a1ff2f4788c35054e0931a5b44d0aa4",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -27412,8 +27412,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 320,
-      "sha256": "19b6614d43d3b9d216eea2e70f83eddcaf926a309b8a9ed9b72f4b61a317f2a0",
+      "lines": 358,
+      "sha256": "7bf61d0a1e29a6e817e79e06fb67467a07ac6d95b54c22ea22702c5cbffa39ac",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
