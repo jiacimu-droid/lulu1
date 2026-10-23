@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6a3d594d0369a2ae1dea366e79a15126a9b5208f`
+- 基准提交：`3bb9bd4a1fa3ba3ca0dfd4dd45e92249b3238046`
 - 分支：`main`
 - 已索引文件：835
-- 已索引代码/文本行：159870
+- 已索引代码/文本行：159876
 - 已发现符号：2418
 
 | 文件 | 行数 | 符号数 |
@@ -614,7 +614,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 23 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 44 | 1 |
