@@ -37,6 +37,44 @@ class CharacterExpressionGuideTest {
         assertTrue(spontaneousInnerVoiceGuide.contains("持续感知不等于持续写独白"))
     }
 
+    @Test fun emotionalSubtextSurvivesTheLeanPlannerToRendererHandoff() {
+        val appraisal = JSONObject()
+            .put("responseAim", "接住对方的疲惫，不把倾诉变成作息指导")
+            .put("expression", JSONObject()
+                .put("stance", "心疼又有点愧疚")
+                .put("subtext", "在意她为这段关系做的努力")
+                .put("device", "一句轻声的接话")
+                .put("restraint", "不把所有理由说透"))
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            appraisal, null, "", "", "", includeAppraisalDetails = false,
+        )
+        assertTrue(handoff.contains("接住对方的疲惫"))
+        assertTrue(handoff.contains("心疼又有点愧疚"))
+        assertTrue(handoff.contains("在意她为这段关系做的努力"))
+        assertTrue(handoff.contains("有意留白"))
+        assertFalse(handoff.contains("自己选的表达倾向：；"))
+        val rendering = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        val repair = CharacterExpressionGuide.forGeneration("聊天表达自然度修复")
+        assertTrue(rendering.contains("情绪潜台词"))
+        assertTrue(repair.contains("情绪潜台词"))
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains("appraisal.expression"))
+        assertTrue(CharacterDecisionProtocol.principles.contains("subtext"))
+        assertTrue(CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE).contains("话外音"))
+        assertFalse(rendering.contains("是我太坏了"))
+    }
+
+    @Test fun missingExpressionStateDoesNotManufactureEmotionsOrForceBriefReplies() {
+        val handoff = CharacterDecisionProtocol.expressionContext(
+            null, null, "", "", "", includeAppraisalDetails = false,
+        )
+        assertFalse(handoff.contains("角色自选的情绪表达线索"))
+        val principles = CharacterExpressionGuide.subtextPrinciples
+        assertTrue(principles.contains("不必把一切说透"))
+        assertTrue(principles.contains("有时需要认真解释"))
+        assertTrue(principles.contains("不模仿固定示例"))
+        assertTrue(principles.contains("独立一张恰当的表情包"))
+    }
+
     @Test fun sharedPrinciplesLeaveRoomForBothBriefAndExpressiveChat() {
         val prompt = CharacterExpressionGuide.promptSection()
         assertTrue(prompt.contains("表达已经足够时可以直接停下来"))
