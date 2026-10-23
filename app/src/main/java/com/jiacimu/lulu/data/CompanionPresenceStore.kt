@@ -73,6 +73,9 @@ object CompanionPresenceStore {
     private const val PREFS_NAME = "lulu_companion_presence"
     private const val KEY_STATES = "states_v1"
     private const val KEY_HISTORY = "history_v1"
+    // Older visible moments were separately recorded in SharedExperienceTimeline.
+    // Reduce repeated UI-snapshot serialization; exact message anchors are separate.
+    private const val RECENT_HISTORY_COUNT = 50
     private const val KEY_MESSAGE_MOMENTS = "message_moments_v1"
     // Separate diagnostic metadata, NOT an alternate source of character memory.
     // A recovery "started" note must never overwrite evidence of what last failed.
@@ -379,7 +382,7 @@ object CompanionPresenceStore {
             mutableHistories.value = mutableHistories.value +
                 (characterId to (listOf(historySnapshot) + mutableHistories.value[characterId].orEmpty())
                     .distinctBy { it.updatedAt }
-                    .take(500))
+                    .take(RECENT_HISTORY_COUNT))
             if (historySnapshot.showInHistory) recordPresenceTimeline(historySnapshot)
         }
         persist()
@@ -507,7 +510,8 @@ object CompanionPresenceStore {
             root.keys().forEach { characterId ->
                 val array = root.optJSONArray(characterId) ?: return@forEach
                 put(characterId, buildList {
-                    for (index in 0 until array.length()) array.optJSONObject(index)?.toPresenceState(characterId)?.let(::add)
+                    for (index in 0 until minOf(array.length(), RECENT_HISTORY_COUNT))
+                        array.optJSONObject(index)?.toPresenceState(characterId)?.let(::add)
                 })
             }
         }
