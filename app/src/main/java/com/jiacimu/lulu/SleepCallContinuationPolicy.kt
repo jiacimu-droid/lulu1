@@ -20,15 +20,15 @@ internal object SleepCallContinuationPolicy {
         else -> 2_000L
     }
 
-    fun shouldQuietlyEnd(
-        sinceUserReplyMillis: Long,
+    /** A hard, monotonic timeout; recognition, TTS, wake plans or narration
+     * errors may not keep the paid microphone connection open indefinitely.
+     * Null means this is an ordinary phone call without a sleep deadline. */
+    fun shouldEndAtDeadline(
+        deadlineElapsedMillis: Long?,
+        nowElapsedMillis: Long,
         connected: Boolean,
-        sleepMode: Boolean,
-        userSpeaking: Boolean,
-        audioInProgress: Boolean,
-    ): Boolean = connected && sleepMode &&
-        sinceUserReplyMillis >= AUTO_END_AT_MILLIS &&
-        !userSpeaking && !audioInProgress
+    ): Boolean = connected && deadlineElapsedMillis != null &&
+        nowElapsedMillis >= deadlineElapsedMillis
 
     fun canContinue(
         connected: Boolean,
