@@ -423,7 +423,7 @@ internal object LuluVoiceCallSession {
     /** Only while this exact call is connected; distinct from tomorrow's call alarms. */
     private var timedHangupJob: Job? = null
 
-    private fun setTimedHangup(seconds: Int) {
+    private fun setTimedHangup(seconds: Int, requestedAt: Instant) {
         val call = mutableState.value
         if (!call.connected || seconds !in 0..86_400) return
         timedHangupJob?.cancel()
@@ -435,7 +435,16 @@ internal object LuluVoiceCallSession {
             )
             return
         }
-        val deadline = Instant.now().plusSeconds(seconds.toLong())
+        // Relative times belong to the actual user turn, not the end of a slow
+        // model/TTS round-trip. In particular 02:05 + 30min is 02:35 today.
+        val deadline = requestedAt.plusSeconds(seconds.toLong())
+        val remainingMs = java.time.Duration.between(Instant.now(), deadline).toMillis()
+        if (remainingMs <= 0L) {
+            MigratedDomainStores.chat.appendSystemReceipt(
+                call.conversationId, receiptId, "本次通话约定的挂断时刻已过去，未补做迟到挂断",
+            )
+            return
+        }
         val local = deadline.atZone(java.time.ZoneId.systemDefault())
         MigratedDomainStores.chat.appendSystemReceipt(
             call.conversationId, receiptId,
@@ -443,7 +452,7 @@ internal object LuluVoiceCallSession {
                 "%02d:%02d".format(local.hour, local.minute) + " 挂断",
         )
         timedHangupJob = scope.launch {
-            delay(seconds.toLong() * 1_000L)
+            delay(remainingMs)
             val active = mutableState.value
             if (active.connected && active.callExperienceId == call.callExperienceId) {
                 endCallByCharacter()
@@ -1473,6 +1482,7 @@ internal object LuluVoiceCallSession {
                 mutableState.update { it.copy(sleepFocus = focus) }
             }
         }
+        val userTurnReceivedAt = Instant.now()
         replyGeneration++
         cancelPendingCharacterHangup()
         subtitleRevealJob?.cancel()
@@ -1785,7 +1795,7 @@ internal object LuluVoiceCallSession {
                     "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果将留在私聊，电话空下来时也会收到同一份回执。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
                 onTimedHangup = { seconds ->
-                    if (sameReply()) setTimedHangup(seconds)
+                    if (sameReply()) setTimedHangup(seconds, userTurnReceivedAt)
                 },
                 onCharacterHangup = ({
                     // A bedtime continuation is still a real character decision:
