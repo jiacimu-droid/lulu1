@@ -604,7 +604,7 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
         // Explicitly requested rewrite skips additive legacy migrations.
-        assertEquals(22, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(23, upgraded.getInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("speechHabits"),
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
@@ -668,7 +668,7 @@ class OnlineChatExperienceTest {
             .apply { isAccessible = true }.set(CharacterLifeStore, null)
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        assertEquals(22, upgraded.optInt("jiangDuPresetVersion"))
+        assertEquals(23, upgraded.optInt("jiangDuPresetVersion"))
         assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("expression"),
             upgraded.getJSONObject("profile").getString("expression"))
         assertEquals("用户自己写的语言习惯，不可覆盖",
