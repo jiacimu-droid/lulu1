@@ -201,7 +201,13 @@ internal object CharacterStateHistory {
                 val overlap = old.evidenceIds.any { it.isNotBlank() && it in row.evidenceIds }
                 val oldVoice = voiceOf(old)
                 val nextVoice = voiceOf(row)
-                val sameVoice = equivalent(oldVoice, nextVoice)
+                // A broad semantic match is sufficient to attach another
+                // projection of one authored event, but not to erase two
+                // independently authored presence moments. Different thoughts
+                // sharing a template or subject must remain separate.
+                val independentMoments = old.moment != null && row.moment != null
+                val sameVoice = equivalent(oldVoice, nextVoice) &&
+                    (!independentMoments || oldVoice == nextVoice)
                 val fingerprint = old.moment?.innerThoughtFingerprint.orEmpty()
                 val sameFingerprint = fingerprint.isNotBlank() &&
                     fingerprint == row.moment?.innerThoughtFingerprint
