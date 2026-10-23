@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:02:52.034187+00:00",
-  "commit": "68c7d41f6e4ceeea87d301aad30052aa47f9a805",
+  "generatedAt": "2026-10-23T18:03:15.187639+00:00",
+  "commit": "7f5535aa7a34d5ad67a6c30654f1730188c4c43e",
   "branch": "main",
-  "sourceFingerprint": "08506c1e449b7ee301666d8db94da10631cfb3a4f360f399d00330f63e7b2751",
+  "sourceFingerprint": "0d77c44ae9f1688eadbb21d8568d8a157111e765b631bb567583a7d722ff60bf",
   "summary": {
     "files": 864,
-    "lines": 165375,
+    "lines": 165380,
     "symbols": 2498
   },
   "symbolIndex": {
@@ -4493,25 +4493,25 @@
     "containsUnfoundedBlame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 74
+        "line": 76
       }
     ],
     "guardUnfairBlame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 91
+        "line": 93
       }
     ],
     "guardUnfoundedInnerBlame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 99
+        "line": 101
       }
     ],
     "challengeGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 117
+        "line": 122
       }
     ],
     "resolve": [
@@ -17992,8 +17992,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-      "lines": 126,
-      "sha256": "a230691042beb27d0944f8fdc72aab001dc485638816576fd881a2c0ceb10970",
+      "lines": 131,
+      "sha256": "3a6571c12540bac13d0866cc650e5660c8a0cb2a4fbedc45c1b93f21c51f8a37",
       "symbols": [
         {
           "name": "prompt",
@@ -18009,19 +18009,19 @@
         },
         {
           "name": "containsUnfoundedBlame",
-          "line": 74
+          "line": 76
         },
         {
           "name": "guardUnfairBlame",
-          "line": 91
+          "line": 93
         },
         {
           "name": "guardUnfoundedInnerBlame",
-          "line": 99
+          "line": 101
         },
         {
           "name": "challengeGuidance",
-          "line": 117
+          "line": 122
         }
       ]
     },
