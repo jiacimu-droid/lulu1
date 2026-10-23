@@ -324,8 +324,6 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 }
             }
             Text("每日小整理 · 每周大整理", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-            Text("每日维护、每周分批审核；相处习惯从真实经历进入角色成长。",
-                fontSize = 12.sp, color = FeatureBlueGray)
             val habitRevision by CharacterDevelopmentRuntime.revisions.collectAsState()
             val latestHabits = remember(characterId, habitRevision) {
                 CharacterDevelopmentRuntime.lastStatus(characterId)
