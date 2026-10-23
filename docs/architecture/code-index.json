@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T16:16:38.611158+00:00",
-  "commit": "cf973eae97d54fe8333748b3ddf9f62f8dcb302e",
+  "generatedAt": "2026-10-23T16:18:58.888533+00:00",
+  "commit": "e70cb233a24e087af4248429abd62e530ef956ac",
   "branch": "main",
-  "sourceFingerprint": "ed88d7533f700daabdaf221dccb6cdd98b3064ea63b6206bc87fdcda9848ab7c",
+  "sourceFingerprint": "d367d7f04f199470eebcdc439fe09a0932706d9d62a2b8ab9942f1fa71279a6e",
   "summary": {
     "files": 862,
-    "lines": 164644,
+    "lines": 164658,
     "symbols": 2492
   },
   "symbolIndex": {
@@ -23444,8 +23444,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 179,
-      "sha256": "3619e8e1c7fcb412c512983a99bd0ebca537e02d2521eb9d4244c11b35f95cc7",
+      "lines": 180,
+      "sha256": "879dcdadb9ea2c2f0b8e4628f3e30fa8c60751d87c0bffa4140756add8f4f3c5",
       "symbols": [
         {
           "name": "ToolRouter",
@@ -26608,8 +26608,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 420,
-      "sha256": "edf7b0459ee5edf2e48777957e45138fdeb319cdc49329f08ec22bf2aa8ee908",
+      "lines": 433,
+      "sha256": "5ace50894a1c676fa81d932fdc548609286950f0bb216620cdc092cc5f53298c",
       "symbols": [
         {
           "name": "LuluScreenAwareness",

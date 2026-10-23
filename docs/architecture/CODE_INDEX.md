@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`cf973eae97d54fe8333748b3ddf9f62f8dcb302e`
+- 基准提交：`e70cb233a24e087af4248429abd62e530ef956ac`
 - 分支：`main`
 - 已索引文件：862
-- 已索引代码/文本行：164644
+- 已索引代码/文本行：164658
 - 已发现符号：2492
 
 | 文件 | 行数 | 符号数 |
@@ -445,7 +445,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 101 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 179 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 180 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 123 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 261 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -599,7 +599,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 420 | 17 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 433 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 179 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/res/drawable/ic_lulu.xml` | 12 | 0 |
