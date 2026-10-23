@@ -18,12 +18,24 @@ internal object CharacterStateHistory {
     fun entries(characterId: String, history: List<CompanionPresenceState>, cutoff: Instant,
         mind: JSONObject = CharacterInnerLifeStore.snapshot(characterId),
         decisions: List<CharacterRecordProjection.DecisionMoment> = CharacterRecordProjection.decisions(characterId, cutoff),
+        maxEntries: Int = Int.MAX_VALUE,
     ): List<CharacterStateHistoryRow> {
+        // The "此刻" panel is a recent preview, not the source of truth.
+        // Select candidates before the costly history/evidence joins rather
+        // than building hundreds of cards and throwing them away afterward.
+        val visibleHistory = if (maxEntries == Int.MAX_VALUE) history else history
+            .asSequence().filter { !it.updatedAt.isAfter(cutoff) }
+            .sortedByDescending { it.updatedAt }
+            .take(maxEntries.coerceAtLeast(1) * 3).toList()
+        val visibleDecisions = if (maxEntries == Int.MAX_VALUE) decisions else decisions
+            .asSequence().filter { !it.at.isAfter(cutoff) }
+            .sortedByDescending { it.at }
+            .take(maxEntries.coerceAtLeast(1) * 3).toList()
         val rows = mutableListOf<CharacterStateHistoryRow>()
         val consumed = mutableSetOf<String>()
-        PresenceHistoryPresentation.entries(history.filter { !it.updatedAt.isAfter(cutoff) }).forEach { entry ->
+        PresenceHistoryPresentation.entries(visibleHistory.filter { !it.updatedAt.isAfter(cutoff) }).forEach { entry ->
             val moment = entry.state
-            val linked = decisions.filter { it.id !in consumed && (it.at == moment.updatedAt ||
+            val linked = visibleDecisions.filter { it.id !in consumed && (it.at == moment.updatedAt ||
                 (moment.provenanceId.isNotBlank() && it.evidenceId == moment.provenanceId &&
                     kotlin.math.abs(java.time.Duration.between(it.at, moment.updatedAt).toMillis()) <= 2_000)) }
             consumed += linked.map { it.id }
@@ -41,13 +53,15 @@ internal object CharacterStateHistory {
                 (linked.map { it.evidenceId } + moment.provenanceId)
                     .filter(String::isNotBlank).distinct(), "moment")
         }
-        decisions.filterNot { it.id in consumed }.forEach { decision ->
+        visibleDecisions.filterNot { it.id in consumed }.forEach { decision ->
             rows += CharacterStateHistoryRow("decision:${decision.id}", decision.at, decision.action, "",
                 decisions = listOf(decision), evidenceIds = listOf(decision.evidenceId).filter(String::isNotBlank),
                 deletionKind = "decision", deletionKey = decision.id)
         }
         val transitions = mind.optJSONArray("causalTransitions")
-        for (index in 0 until (transitions?.length() ?: 0)) {
+        val transitionStart = if (maxEntries == Int.MAX_VALUE) 0 else
+            ((transitions?.length() ?: 0) - maxEntries.coerceAtLeast(1) * 3).coerceAtLeast(0)
+        for (index in transitionStart until (transitions?.length() ?: 0)) {
             val change = transitions?.optJSONObject(index) ?: continue
             val at = runCatching { Instant.parse(change.optString("at")) }.getOrNull() ?: continue
             if (at.isAfter(cutoff)) continue
@@ -143,6 +157,7 @@ internal object CharacterStateHistory {
         }
         return compactRepeatedMoments(rows.distinctBy { it.key })
             .sortedWith(compareByDescending<CharacterStateHistoryRow> { it.at }.thenBy { it.key })
+            .take(maxEntries.coerceAtLeast(0))
     }
 
 
