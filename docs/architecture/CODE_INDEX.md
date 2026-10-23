@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7427ff734a1c46b836ad07e87ef6f9d0180c2d81`
+- 基准提交：`429f9c61d0759d943575eea7ea6778d460716b0f`
 - 分支：`main`
-- 已索引文件：843
-- 已索引代码/文本行：161606
-- 已发现符号：2448
+- 已索引文件：844
+- 已索引代码/文本行：161647
+- 已发现符号：2449
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -345,7 +345,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt` | 71 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt` | 50 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEventRules.java` | 69 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 304 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEvolutionRuntime.kt` | 291 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionProposalRuntime.kt` | 212 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt` | 357 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt` | 684 | 10 |
@@ -826,6 +826,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsImagePolicyTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsMcpLoginStatusTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 171 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
