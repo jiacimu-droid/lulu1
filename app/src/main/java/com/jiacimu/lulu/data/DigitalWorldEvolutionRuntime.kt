@@ -234,25 +234,12 @@ internal object DigitalWorldEvolutionRuntime {
             }
         }
 
-        val movementSlot = Math.floorDiv(now.epochSecond, MOVEMENT_SECONDS)
-        val consumedMovementSlot = p.getLong(KEY_MOVEMENT_SLOT, -1L)
-        val residents = DigitalWorldExpansionStore.residents().filterNot { it.isCafeBarista }
-        if (movementSlot > consumedMovementSlot && residents.isNotEmpty()) {
-            p.edit().putLong(KEY_MOVEMENT_SLOT, movementSlot).commit()
-            val resident = residents[roll("move-resident:$movementSlot", residents.size)]
-            val destinations = residentDestinations(resident).filterNot { it == resident.currentLocationCode }
-            if (destinations.isNotEmpty() && roll("move:$movementSlot:${resident.id}", 100) < 46) {
-                val destination = destinations[roll("move-target:$movementSlot:${resident.id}", destinations.size)]
-                DigitalWorldExpansionStore.moveResident(resident.id, destination, now)?.let { moved ->
-                    val label = DigitalWorldPublicPlaces.label(destination)
-                        ?: DigitalWorldExpansionStore.places().firstOrNull { it.code == destination }?.label
-                        ?: DigitalWorldExpansionStore.residenceLabel(destination)
-                        ?: if (destination == DigitalWorldStore.CLOUD_MEADOW) "云眠原" else destination
-                    val summary = "居民“${moved.name}”真实移动到了“$label”。"
-                    results += summary
-                    recordEvolution(characterId, "resident-move-${moved.id}-$movementSlot", summary, now)
-                }
-            }
+        // Native citizens now follow their own persisted responsibilities
+        // and physical needs. The old single randomly teleported resident
+        // could not prove that two real people were in the cafe together.
+        // Refresh all residents together, no extra character-model API call.
+        appContext?.let { application ->
+            ResidentDailyRoutine.refresh(application, now)
         }
         return results
     }
