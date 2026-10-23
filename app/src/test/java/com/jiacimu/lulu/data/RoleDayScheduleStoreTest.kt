@@ -98,6 +98,32 @@ class RoleDayScheduleStoreTest {
             "role-a", "capture_screen", "not-an-appointment", after))
     }
 
+    @Test fun undatedOngoingPromiseInvitesItsOwnerToChooseTimeWithoutFabricatingAnAlarm() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "self-owned-sleep-check-test"
+        val accepted = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role,
+            goal = "今晚留意她是否准备休息",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            createdAt = Instant.parse("2026-10-23T14:00:00Z"),
+            dueAt = null,
+        ))
+        try {
+            val pending = RoleDayScheduleStore.undatedCommitmentsToPlan(context, role)
+            assertTrue(pending.any { it.id == accepted.id })
+            val cue = RoleDayScheduleStore.planningOpportunityContext(
+                context, role, Instant.parse("2026-10-23T15:00:00Z"))
+            assertTrue(cue.contains("commitmentTaskId=${accepted.id}"))
+            assertTrue(cue.contains("plan_personal_activity"))
+            assertTrue(cue.contains("自己选"))
+            assertNull(accepted.dueAt)
+            assertNull(accepted.linkedAlarmId)
+        } finally {
+            CommitmentTaskStore.remove(accepted.id)
+        }
+    }
+
     @Test fun chosenAppointmentLinksAcceptedResponsibilityWithoutInventingAnOutcome() {
         val actual = plan.copy(
             activityAction = "send_private_message",
