@@ -19,8 +19,8 @@ internal object AutonomousAffordanceContext {
     ): String = buildString {
         appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
         appendLine("不仅可以现在去做，也可以因为确实有自己的期待，决定稍后、今晚或其他合适时间再做；同一次自主决策自由选择立即执行、正式安排未来日程或暂时不行动。")
-        appendLine("- 真心决定稍后再做：action=tool，tool=plan_personal_activity，args={\"title\":\"具体想做的活动\",\"intent\":\"为什么本人想做\",\"dueAt\":\"根据本轮真实本地时间选定的未来ISO8601时间，带时区偏移\",\"activityAction\":\"read_book|play_solo_game|digital_world_action|publish_moment|send_private_message\",\"repeat\":\"once\"}。dueAt 必须替换成真实未来时间，不能照抄示意文字；若尚不能确定对应执行动作，一次性日程可省略 activityAction，到点再自主判断真实能力。")
-        appendLine("- 安排只是持久的本人意愿，不等于提前完成；到点由本人醒来选择执行、改期或放下，依赖真实地点、居民或书籍时在到点现场重新校验。别重复创建已有日程，别因为想显得忙就机械排任务。")
+        appendLine("- 真心决定稍后再做：action=tool，tool=plan_personal_activity，args={\"title\":\"具体安排\",\"intent\":\"本人的真实目的\",\"dueAt\":\"未来真实ISO8601时间含时区偏移\",\"activityAction\":\"已注册工具名\",\"activityArgs\":{\"text\":\"本人选定的提醒内容\"},\"repeat\":\"once|daily\"}。activityArgs 是届时建议执行的工具参数，不是已执行的动作；没有具体工具时，单次日程可不指定 activityAction，到点再决定。")
+        appendLine("- 安排只是持久的本人意愿，不等于提前完成；到点由本人醒来选择真实执行、改期或放下。可安排读书、交朋友、在主人同意下提醒学习/休息、请求查看屏幕或邀请回到露露机；这些都只是候选行为，绝不预设主人已经答应。所有工具到点仍经过原 ToolRouter 权限和状态核验；请求授权不等于已经看到屏幕或主人已回来。")
         appendLine("- 想对某件已知小事发表意见：可以自己发朋友圈；只有真的有话想说时才做。")
         appendLine("- 想自己找消遣：solo_game + gameId=memory_match 能运行真实的一局游戏；无须用户陪同。")
         appendLine("- 如果某句真实用户原话打动了自己，可在聊天原始ID可核实的前提下选择 tool=favorite_user_message 保存到辞海收藏；不能凭空收藏。")
