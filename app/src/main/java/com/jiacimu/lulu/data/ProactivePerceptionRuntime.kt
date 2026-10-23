@@ -1755,7 +1755,7 @@ object ProactivePerceptionRuntime {
         // Every step uses the existing permission boundary and its own durable receipt.
         // Do not silently narrow these to music/volume or invent a second planner.
         val searchIncluded = (0 until (decision.sideActions?.length() ?: 0)).any { index ->
-            decision.sideActions?.optJSONObject(index)?.optString("tool") in
+            decision.sideActions?.optJSONObject(index)?.optString("tool").orEmpty() in
                 setOf("web_search", "image_search")
         }
         val stepReport = if (hasFreshUserMessage && searchIncluded) {
