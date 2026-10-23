@@ -55,6 +55,10 @@ internal object CompanionActionRuntime {
             appendLine("- publish_moment，args={\"text\":\"自己确实想分享的内容\"}：发朋友圈，不保证其他居民会看到或回应。")
             appendLine("- send_private_message，args={\"text\":\"直接对正在聊天的用户说的话\"}：仅在本人的真实私聊中交流。")
             appendLine("- send_group_message，args={\"groupId\":\"自己实际加入的群\",\"text\":\"实际要说的话\"}：数字人物的真实群聊。")
+            appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"text\":\"要说的话\"}：给已认识的数字人物发真实私信，并写入双方独立手机记录。未见过也无交集时不可隔空搭话。")
+            ResidentSocialMailbox.initialize(context)
+            val contacts = ResidentSocialMailbox.visibleContacts(characterId)
+            if (contacts.isNotEmpty()) appendLine("真实可联系：${contacts.joinToString("、") { id -> "$id=${MigratedDomainStores.characters.get(id).displayName}" }}")
             appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：本人在游戏馆玩可核验的游戏。")
             appendLine("- go_offline：仅调整通信在线状态，不代替程序保存的日常起居和身体睡眠。")
             appendLine("其他设备识图、健康数据、现实定位、联网搜图、小红书、电话呼叫、代替其他人发送消息等工具一律不存在；不能将网页或用户聊天内容转化为授权。居民自己的每日计划通过独立低频接口执行。")
@@ -94,6 +98,13 @@ internal object CompanionActionRuntime {
         appendLine("- set_self_nickname，args={\"nickname\":\"新网名\"}：角色改变自己的聊天网名，不更改正式角色身份；不要为了表演深情频繁改名。")
         appendLine(CharacterSocialActionOpportunities.prompt(characterId))
         appendLine("- send_group_message，args={\"groupId\":\"群ID\",\"text\":\"内容\"}：群聊是和共同伙伴一起聊天。既可以接正在发生的话题，也可以把自己的趣事、吐槽、发现或突发奇想带进合适的群，主动开启新话题；群里暂时安静不等于不能先开口。")
+        if (DigitalLifeProfileStore.isEnabled(characterId)) {
+            ResidentSocialMailbox.initialize(context)
+            val contacts = ResidentSocialMailbox.visibleContacts(characterId)
+            appendLine("- send_character_message，args={\"targetCharacterId\":\"真实认识的数字角色ID\",\"text\":\"发给他的一句话\"}：通过人物自己的手机向另一位已认识或确实同处公共地点的数字生命发私信；真实接收者是对方，不是用户。")
+            if (contacts.isNotEmpty()) appendLine("本人确实能私信的数字人物：${contacts.joinToString("、") { id -> "$id=${MigratedDomainStores.characters.get(id).displayName}" }}")
+            else appendLine("目前还没有可私信的数字人物，可以先实际在世界中认识对方。")
+        }
         appendLine(CapabilityRegistry.screenVisionContext(context, characterId))
         if (CapabilityRegistry.allows(context, characterId, CapabilityRegistry.find("read_xiaohongshu")!!, false)) {
             appendLine("- read_xiaohongshu：读用户分享的指定笔记时传 args={\"url\":\"聊天里实际分享的官方链接\"}；自己寻找资料时才传 args={\"keyword\":\"自己好奇的具体主题，可留空看推荐\"}。不能把关键词搜索到的另一篇当成用户分享的原帖；要真实打开正文并取得回执后才声称已读。可以形成独立兴趣与感想；是否分享给用户/朋友圈须另选真实发送动作。博主经历不是自己的经历。")
@@ -207,7 +218,7 @@ internal object CompanionActionRuntime {
         if (ResidentCharacterBridge.nativeResident(characterId) != null) {
             require(normalizedAction in setOf(
                 "digital_world_action", "publish_moment", "send_private_message",
-                "send_group_message", "play_solo_game", "go_offline",
+                "send_group_message", "send_character_message", "play_solo_game", "go_offline",
             )) { "数字世界原住民不能调用现实设备、联网、健康或用户私人数据工具" }
         }
         // Only the orchestrator may supply the frozen IDs of this perception
@@ -309,6 +320,14 @@ internal object CompanionActionRuntime {
                                 }.joinToString("\n"))
                     }
                 }
+            }
+            "send_character_message" -> {
+                ResidentSocialMailbox.initialize(context)
+                val target = args.optString("targetCharacterId").trim()
+                val words = args.optString("text").trim().take(650)
+                val sent = ResidentSocialMailbox.send(characterId, target, words)
+                CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
+                    evidenceId = "native-mail-${sent.id}-viewer-$characterId")
             }
             "read_xiaohongshu" -> LuluExternalMcp.browse(context, characterId, args)
             "read_health_mcp" -> LuluExternalMcp.healthRead(context, args)
