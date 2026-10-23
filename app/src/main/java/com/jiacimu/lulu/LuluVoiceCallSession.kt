@@ -94,6 +94,92 @@ internal object LuluVoiceCallSession {
     private var appContext: Context? = null
     private var recognizer: SpeechRecognizer? = null
     private var providerInput: ProviderCallInput? = null
+    private var activeSttConfiguration = ""
+    private var sttRefreshJob: Job? = null
+    private var sttSettingsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
+
+    /** Only the microphone/ASR connection changes. The call, TTS, context and timer remain intact. */
+    private fun sttConfiguration(context: Context): String {
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val engine = CallVoiceConfiguration.sttEngine(context)
+        val model = when (engine) {
+            "local" -> LocalWhisperModels.selected(context).id
+            "groq" -> prefs.getString("groq_asr_model", "whisper-large-v3-turbo").orEmpty()
+            "elevenlabs" -> CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null))
+            else -> ""
+        }
+        return "$engine:$model"
+    }
+
+    /** Also applies changes made in Settings while the phone is minimized. */
+    private fun requestSttRefresh() {
+        val context = appContext ?: return
+        if (!mutableState.value.connected || sttConfiguration(context) == activeSttConfiguration) return
+        sttRefreshJob?.cancel()
+        val callId = mutableState.value.callExperienceId
+        sttRefreshJob = scope.launch {
+            // Do not cut off an unfinished utterance or discard an upload still awaiting text.
+            while (true) {
+                val live = mutableState.value
+                if (!live.connected || live.callExperienceId != callId) return@launch
+                if (!userSpeechInProgress && !live.userSpeaking &&
+                    providerRecognitionPendingUntilMillis <= SystemClock.elapsedRealtime()) break
+                delay(160L)
+            }
+            if (sttConfiguration(context) == activeSttConfiguration) return@launch
+            val live = mutableState.value
+            providerInput?.stop()
+            providerInput = null
+            runCatching { recognizer?.cancel(); recognizer?.destroy() }
+            recognizer = null
+            recognitionActive = false
+            cloudCaptureTurnAllowed = false
+            providerSpeechConfirmed = false
+            providerSpeechStartedMillis = 0L
+            providerRecognitionPendingUntilMillis = 0L
+            mutableState.update {
+                it.copy(listening = false, userSpeaking = false, partialTranscript = "",
+                    inputLevel = 0f, inputMeterAvailable = false,
+                    statusMessage = "正在切换语音识别…")
+            }
+            // Never re-dial: startProviderInput only recreates the input path.
+            startProviderInput()
+            if (live.microphoneMuted) providerInput?.pauseCapture()
+        }
+    }
+
+    /** Returns a user-visible error instead of switching to an unconfigured paid service. */
+    fun selectStt(engine: String, model: String): String? {
+        val context = appContext ?: return "通话尚未初始化"
+        val normalized = CallVoiceConfiguration.resolveSttEngine(engine)
+        if (normalized != engine) return "无法识别的语音识别渠道"
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val error = when (engine) {
+            "local" -> {
+                val selected = LocalWhisperModels.Model.from(model)
+                LocalWhisperTranscriber.runtimeError()
+                    ?: if (LocalWhisperModels.installedFile(context, selected) == null)
+                        "请先在语音设置下载 ${selected.title}" else null
+            }
+            "groq" -> if (prefs.getString("groq_asr_key", "").orEmpty().isBlank())
+                "请先在语音设置填写 Groq API Key" else null
+            "elevenlabs" -> if (prefs.getString("eleven_api_key", "").orEmpty().isBlank())
+                "请先在语音设置填写 ElevenLabs API Key" else null
+            "minimax" -> if (prefs.getString("minimax_api_key", "").orEmpty().isBlank())
+                "请先在语音设置填写 MiniMax API Key" else null
+            else -> "无法识别的语音识别渠道"
+        }
+        if (error != null) return error
+        val edit = prefs.edit().putString("call_stt_mode", engine)
+        when (engine) {
+            "local" -> edit.putString("local_whisper_model", LocalWhisperModels.Model.from(model).id)
+            "groq" -> edit.putString("groq_asr_model", model)
+            "elevenlabs" -> edit.putString("eleven_asr_model", CallVoiceConfiguration.elevenSttModel(model))
+        }
+        if (!edit.commit()) return "无法保存识别模型设置"
+        requestSttRefresh()
+        return null
+    }
     private var lastPhoneXhsRequest = ""
     private var lastPhoneXhsRequestAt = 0L
     private var speechQueue: LuluCallSpeechQueue? = null
@@ -762,8 +848,11 @@ internal object LuluVoiceCallSession {
         dialJob?.cancel()
         replyGeneration++
         replyJob?.cancel()
+        sttRefreshJob?.cancel()
+        sttRefreshJob = null
         providerInput?.stop()
         providerInput = null
+        activeSttConfiguration = ""
         AvatarController.audio(current.characterId, 0f)
         AvatarController.listening(current.characterId, false)
         timerJob?.cancel()
@@ -855,6 +944,11 @@ internal object LuluVoiceCallSession {
         if (appContext != null) return
         appContext = context.applicationContext
         CharacterVoicePreferenceStore.initialize(context.applicationContext)
+        val settings = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        sttSettingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key in setOf("call_stt_mode", "local_whisper_model",
+                    "groq_asr_model", "eleven_asr_model")) requestSttRefresh()
+        }.also(settings::registerOnSharedPreferenceChangeListener)
         // Observe the actual call phase, not just the call page (it may be minimized).
         scope.launch {
             var previousPhase: CallPhase? = null
@@ -1823,6 +1917,7 @@ internal object LuluVoiceCallSession {
     private fun startProviderInput() {
         val context = appContext ?: return
         providerInput?.stop()
+        activeSttConfiguration = sttConfiguration(context)
         cloudCaptureTurnAllowed = false
         val id = mutableState.value.callExperienceId
         fun sameSession() = mutableState.value.callExperienceId == id && mutableState.value.phase in setOf(CallPhase.Dialing, CallPhase.Connected)
