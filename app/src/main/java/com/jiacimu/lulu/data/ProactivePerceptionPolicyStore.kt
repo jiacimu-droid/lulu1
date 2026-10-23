@@ -71,7 +71,10 @@ object ProactivePerceptionPolicyStore {
         // settings still allow more frequent autonomous thoughts if desired.
         if (ResidentCharacterBridge.nativeResident(characterId) != null) {
             return ProactivePerceptionPolicy(
-                enabled = legacy.enabled,
+                // Ordinary user-directed chat still wakes the recipient.
+                // Unsolicited world/day planning belongs to the separate
+                // once-daily native planner, not a second paid general sweep.
+                enabled = false,
                 adaptiveFrequency = false,
                 rememberedAdaptiveFrequency = false,
                 quietHoursEnabled = true,
