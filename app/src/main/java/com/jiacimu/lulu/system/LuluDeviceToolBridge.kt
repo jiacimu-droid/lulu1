@@ -317,7 +317,7 @@ object LuluDeviceToolBridge {
             一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
             若既想说话又想操作已授权能力，可以在一次决策中使用 action=reply 配合 steps=[{"tool":"真实能力名","args":{},"requiresPreviousSuccess":false},...]；按顺序执行多项实际动作，记录每一项结果，不限于音乐或音量。若希望保持安静，只操作设备，通话中可选 action=silent 加 steps。依赖前一步完成的动作写 requiresPreviousSuccess=true；尚在等待同意的屏幕请求不是已看见画面，需要真实回执才能继续基于画面作判断。
             若文字聊天想先回复再休眠，选择 action=reply，steps 最后填写 {"tool":"go_offline","args":{},"requiresPreviousSuccess":true}。必须等真实消息送达后下线；这不是结束电话。多步顺序由你自主决定。
-            媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。通话中最多5项，按列表顺序逐项执行；普通聊天最多2项。
+            媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。按你真正选定的顺序执行，不因任意固定动作数量上限丢掉决定；实际授权、设备执行能力及回执仍须逐项校验。
             private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
             你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
             即将执行的动作不能预先说成已经完成。外部工具会真正执行、分别产生回执。
@@ -1709,7 +1709,7 @@ object LuluDeviceToolBridge {
         }
     }
 
-    suspend fun executeDeferredReplyActions(
+    internal suspend fun executeDeferredReplyActions(
         characterId: String,
         steps: String?,
         requestId: String,
