@@ -18,6 +18,8 @@ import com.jiacimu.lulu.ai.archiveIdFor
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.qqForwardContextText
 import com.jiacimu.lulu.study.ReadingBackgroundBridge
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import org.json.JSONObject
@@ -1752,7 +1754,25 @@ object ProactivePerceptionRuntime {
         // One model choice can include multiple distinct, ordered actions.
         // Every step uses the existing permission boundary and its own durable receipt.
         // Do not silently narrow these to music/volume or invent a second planner.
-        val stepReport = OrderedCharacterActions.execute(
+        val searchIncluded = (0 until (decision.sideActions?.length() ?: 0)).any { index ->
+            decision.sideActions?.optJSONObject(index)?.optString("tool") in
+                setOf("web_search", "image_search")
+        }
+        val stepReport = if (hasFreshUserMessage && searchIncluded) {
+            // Once a user-requested search step has been accepted, finish its
+            // persisted side effects even if a newer bubble supersedes this
+            // online perception job. It must not strand the initial "I'll check".
+            withContext(NonCancellable) {
+                OrderedCharacterActions.execute(
+                    appContext, character.characterId, decision.sideActions,
+                    requestId = requestId, intentionId = decision.intentionId,
+                    initialCompleted = result.success &&
+                        resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
+                    userEvidenceIds = responseEvidenceIds,
+                    explicitScreenRequest = explicitScreenRequest,
+                )
+            }
+        } else OrderedCharacterActions.execute(
             appContext, character.characterId, decision.sideActions,
             requestId = requestId, intentionId = decision.intentionId,
             initialCompleted = result.success &&
@@ -1806,10 +1826,12 @@ object ProactivePerceptionRuntime {
                     it.characterId == character.characterId
             }
             if (destination != null) {
-                val delivered = deliverVerifiedSearchFeedback(
-                    appContext, character, destination.id, verifiedSearch,
-                    decision.text, requestId, responseEvidenceIds,
-                )
+                val delivered = withContext(NonCancellable) {
+                    deliverVerifiedSearchFeedback(
+                        appContext, character, destination.id, verifiedSearch,
+                        decision.text, requestId, responseEvidenceIds,
+                    )
+                }
                 deliveredExtra = delivered || deliveredExtra
                 if (delivered) extraConversationId = destination.id
                 else effectNotes += "已取得搜索回执，但最终回复未送达"
