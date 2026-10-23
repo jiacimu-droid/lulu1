@@ -106,18 +106,55 @@ export function touchReflexFor(region, gesture, ordinal = 0) {
   return response
 }
 
-export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 'tap') {
-  // Keep actual exp3 variety rather than filtering down to the same closed-eye
-  // animation. Speech owns tongue/mouth-exclusive expressions separately.
-  const safe = names.filter(name =>
-    name && !/(?:tongue|吐舌|anger|生气|生氣|cry|哭|痛|hurt|injur)/i.test(name))
-  if (!safe.length) return null
-  const preferences = gesture === 'kiss'
-    ? /(?:kiss|love|shy|blush|wink|喜|害羞|脸红|臉紅|笑|甜)/i
-    : gesture === 'kick' || gesture.startsWith('slap')
-      ? /(?:surpris|shock|awkward|startle|驚|惊|慌|愣|鼓嘴|pout)/i
-      : /(?:smile|happy|relax|shy|blush|wink|laugh|calm|笑|眯眼|闭眼|閉眼|害羞|温柔|溫柔|眨|星|开心|開心)/i
-  const matched = safe.filter(name => preferences.test(name))
-  const candidates = matched.length ? matched : safe
-  return candidates[(Math.abs(ordinal) + (region.includes('cheek') ? 1 : 0)) % candidates.length]
+/**
+ * Runtime catalogue of real .exp3 resources. Never create a visual expression
+ * that the imported model did not actually provide. Appearance switches (ears,
+ * headphones, microphone) are available in the manual expression picker, but
+ * are NOT automatically toggled by an accidental cheek touch.
+ */
+export function touchExpressionCategory(name) {
+  const n = String(name || '').toLowerCase().replace(/[\s_-]+/g, '')
+  if (/(?:兽耳|獸耳|耳机|耳機|头饰|頭飾|衣服|服装|服裝|麦克风|麥克風|立麦|立麥|microphone|headphone|headset|accessor|costume|outfit|^麦$|^麥$)/i.test(n)) return 'appearance'
+  if (/(?:吐舌|舌头|舌頭|tongue)/i.test(n)) return 'tongue'
+  if (/(?:爱心|愛心|心形眼|hearteye|loveeye|heartshape)/i.test(n)) return 'heart'
+  if (/(?:星星|星眼|星形眼|stareye|starryeye|sparkleeye)/i.test(n)) return 'star'
+  if (/(?:脸红|臉紅|羞|blush|flush|shy|embarras)/i.test(n)) return 'blush'
+  if (/(?:流泪|流淚|眼泪|眼淚|哭|tear|cry|sob)/i.test(n)) return 'tear'
+  if (/(?:脸黑|臉黑|黑脸|黑臉|阴影脸|陰影臉|暗脸|暗臉|darkface|shadowface|gloom)/i.test(n)) return 'dark'
+  if (/(?:惊|驚|shock|surpris|startle|慌|pout|鼓嘴)/i.test(n)) return 'surprise'
+  if (/(?:微笑|笑|开心|開心|happy|smil|wink|relax|calm|warm)/i.test(n)) return 'smile'
+  return 'other'
+}
+
+/**
+ * Every touch advances a predictable category rotation. Gentle interactions
+ * prefer affection/playful eyes; playful hits can show surprise, tears or dark
+ * face. Unknown expressive .exp3 files remain reachable as fallbacks instead
+ * of being silently discarded by a tiny keyword allow-list. Accessories never
+ * auto-activate. Calling with speaking=true excludes tongue, not blush/hearts.
+ */
+export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 'tap', speaking = false) {
+  const available = [...new Set(names.filter(name => typeof name === 'string' && name.trim()))]
+    .map(name => ({ name, category: touchExpressionCategory(name) }))
+    .filter(item => item.category !== 'appearance' && (!speaking || item.category !== 'tongue'))
+  if (!available.length) return null
+  const impact = gesture === 'kick' || gesture.startsWith('slap')
+  const affection = gesture === 'kiss'
+  const curious = region === 'nose' || region.includes('ear') || region.includes('eye')
+  const preference = impact
+    ? ['dark', 'surprise', 'tear', 'blush', 'other', 'smile', 'star', 'heart', 'tongue']
+    : affection
+      ? ['heart', 'blush', 'star', 'smile', 'other', 'tongue', 'surprise', 'tear', 'dark']
+      : curious
+        ? ['star', 'blush', 'smile', 'heart', 'other', 'tongue', 'surprise', 'tear', 'dark']
+        : ['blush', 'smile', 'heart', 'star', 'other', 'tongue', 'surprise', 'tear', 'dark']
+  // Organize by category so model filenames and filesystem ordering cannot
+  // accidentally make the same emotion the only one ever displayed.
+  const pools = preference.map(kind => available.filter(item => item.category === kind))
+    .filter(group => group.length)
+  const offset = Math.abs(Number.isFinite(ordinal) ? Math.trunc(ordinal) : 0)
+  // A cycle visits each distinct expression before repeating, while its order
+  // depends on the kind of interaction. Body gestures are not emotions.
+  const ordered = pools.flatMap(group => group.map(item => item.name))
+  return ordered[offset % ordered.length] || null
 }
