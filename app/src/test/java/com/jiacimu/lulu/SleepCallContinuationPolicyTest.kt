@@ -23,22 +23,18 @@ class SleepCallContinuationPolicyTest {
         assertEquals(24_000L, SleepCallContinuationPolicy.nextPauseMillis(30 * 60_000L))
     }
 
-    @Test fun unattendedSleepCallEndsOnlyAfterDeadlineAndNoAudibleOrUserSpeech() {
-        fun canEnd(silence: Long, connected: Boolean = true, enabled: Boolean = true,
-            userSpeaking: Boolean = false, audioBusy: Boolean = false) =
-            SleepCallContinuationPolicy.shouldQuietlyEnd(silence, connected, enabled,
-                userSpeaking, audioBusy)
-        assertFalse(canEnd(20 * 60_000L))
-        assertFalse(canEnd(27 * 60_000L))
-        assertFalse(canEnd(30 * 60_000L - 1L))
-        assertTrue(canEnd(30 * 60_000L))
-        assertTrue(canEnd(32 * 60_000L))
-        assertFalse(canEnd(30 * 60_000L, connected = false))
-        assertFalse(canEnd(30 * 60_000L, enabled = false))
-        assertFalse(canEnd(30 * 60_000L, userSpeaking = true))
-        assertFalse(canEnd(30 * 60_000L, audioBusy = true))
-        // Any newly recognized response resets the elapsed-silence input.
-        assertFalse(canEnd(0L))
+    @Test fun bedtimeDeadlineIsAbsoluteEvenWithPlaybackOrHallucinatedSpeech() {
+        val deadline = 10_000L + SleepCallContinuationPolicy.AUTO_END_AT_MILLIS
+        fun due(now: Long, connected: Boolean = true, deadlineAt: Long? = deadline) =
+            SleepCallContinuationPolicy.shouldEndAtDeadline(deadlineAt, now, connected)
+        assertFalse(due(10_000L))
+        assertFalse(due(deadline - 1L))
+        assertTrue(due(deadline))
+        assertTrue(due(deadline + 8L * 60L * 60_000L))
+        assertFalse(due(deadline, connected = false))
+        assertFalse(due(deadline, deadlineAt = null))
+        // Unlike the old policy, false STT, in-flight TTS, or sleepMode
+        // disabled by a prior error cannot postpone an armed deadline.
     }
 
     @Test fun doNotAutogenerateOverActualSpeechOrAudioOrWhileDisconnected() {
