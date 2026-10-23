@@ -36,7 +36,7 @@ object CapabilityRegistry {
     fun find(name: String): Capability? = (device + application + external).firstOrNull { it.name == name }
 
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+        if (characterId.startsWith("resident:")) {
             return capability.name in setOf("digital_world_action", "publish_moment",
                 "send_private_message", "send_group_message", "send_character_message",
                 "play_solo_game", "go_offline")
@@ -86,7 +86,7 @@ object CapabilityRegistry {
     }
 
     fun context(context: Context, characterId: String): String {
-        if (ResidentCharacterBridge.nativeResident(characterId) != null)
+        if (characterId.startsWith("resident:"))
             return "数字世界原住民没有现实设备或云端能力；只能感知亲历的地点、社交与已公开的数字世界消息。"
         return device.joinToString("\n", "统一手机/云端能力（离线手机操作不能由云端宣称成功）：\n") { cap ->
         "- ${cap.name}；主动允许=${allows(context, characterId, cap, false)}；依据=${cap.successEvidence}" +
