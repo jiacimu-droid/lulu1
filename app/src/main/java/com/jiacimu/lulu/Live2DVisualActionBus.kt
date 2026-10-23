@@ -15,10 +15,11 @@ internal object Live2DVisualActionBus {
     data class Face(val values: Map<String, Float>)
     /** Milliseconds from the start of audible TTS, not from API request time. */
     data class Beat(val atMs: Int, val expression: String? = null,
-        val head: Head? = null, val body: Body? = null, val face: Face? = null)
+        val head: Head? = null, val body: Body? = null, val face: Face? = null,
+        val durationMs: Int? = null)
     // No hard-coded wolf persona: these are semantic channels only when the
     // currently loaded Cubism model confirms each actual parameter ID.
-    private val faceChannels = linkedMapOf(
+    internal val faceChannels = linkedMapOf(
         "gazeX" to listOf("ParamEyeBallX"),
         "gazeY" to listOf("ParamEyeBallY"),
         "smile" to listOf("ParamMouthForm"),
@@ -103,64 +104,35 @@ internal object Live2DVisualActionBus {
             ids.all { it in supported }
         }.joinToString("、") { (key, _) -> key }
         return """
-            【当前可视电话：本角色已加载成功的 Live2D 身体】
-            当前你拥有可操作的 Live2D 身体，是否表达由你自主决定，不要求每一句话配动作。
-            若这一刻确实有表情或动作意图，可在同一次回复的 JSON 附加 live2d。
-            一次自然说话也可以分几次变化小表情：在 live2d 里填写 beats 数组，
-            例如 {"beats":[{"atMs":0,"face":{"smile":0.45,"eyeSmile":0.3}},
-            {"atMs":1250,"face":{"smile":0.75,"eyeOpen":0.65},"head":{"roll":5}},
-            {"atMs":2600,"face":{"smile":0.3},"head":{"roll":0}}]}。
-            atMs 从这一轮真实语音开始播放时计时（毫秒），动作随播放推进；
-            要表达先憋笑、再忍不住笑、最后收敛时才用这样的连续节拍。
-            beats 仅在实际音频播放中运行，不会多调用一次模型。
-            通常只需1至3个自然变化；沉默时仍可只用单个 face/head，
-            不为了凑动作改变人格，也不把文字描述误认为已完成身体动作。
-            若对方明确要求你做某个表情（比如“变成星星眼”），应先核对下方真实表情清单；
-            如果确实存在对应表情，这一轮就输出 live2d.expression 来执行，不能只在台词里答应。
-            若清单中没有该表情，不要虚构，也不要声称已经做到了。
-            例如 live2d={"expression":"表情原名"}，或 live2d={"motion":{"group":"动作组原名","index":0}}。
-            有真实需要时可在一个 live2d 中同时写 expression、motion、head、body、face；
-            可用头部角度=$headFields（-25至25）；身体姿态=$bodyFields（-10至10）。
-            当前可用面部语义参数=$faceFields；每项限 -1 至 1，其中 eyeSmile、squint、
-            cheekPuff、pout、eyeOpen 只能填 0 至 1；eyeOpen=1 为正常睁眼，0.4 为轻轻眯眼。
-            例如 face={"smile":0.7,"eyeSmile":0.5,"eyeOpen":0.65,"browY":0.15}。
-            gazeX/Y 表示眼神，smile 正值表示嘴角上扬，eyeOpen 是上下眼睑开合，
-            eyeSmile 与眯眼可组合为笑弯眼，browX/Y 为眉毛左右/上下，browAngle 为倾斜，browForm 为眉形。
-            可自主演绎多参数的小表情：例如想专注看着对方，可以用 gazeX/Y 接近0 配合轻微眉眼变化；
-            想调皮可以选真实存在的吐舌表情，也可以仅轻歪头、嘴角上扬；难过时可以选择流泪或克制的低眉。
-            说话不必只用嘴巴张合：如果真的在笑，可以自主选择笑眼+轻眯眼+嘴角改变；
-            想憋笑时也可以选略眯眼、轻微嘴角变化与克制的身体姿态。
-            一段自然说话里可以有微表情，不必为了保持对视就一直板着脸。
-            这些仅是能力例子，不是按情绪关键词机械派发动作；由当前自身感受、关系和本轮说话意图决定。
-            同一回合可以组合一个真实表情、少量头部/躯干姿态和眉眼变化，也可以什么都不做。
-            你也可以自主选择只用眼神/表情/轻微姿势回应而暂时不说话；此时仍需输出 live2d，
-            由执行器立即展示，不必强迫自己发一段台词。
-            视觉动作应当与这轮真正准备说出口的话、语气和自己内心状态一致，而不是从表情文件中随便挑一个。
-            表情是一小段有开始和结束的情绪，不是整通电话永久锁定的脸；说完自然恢复常态。
-            若打算认真说话，不要突然选择吐舌、爱心眼等与语气冲突的强表情。
-            对微妙情绪优先用眼神、嘴角、眉眼及轻微姿态组合，强烈表情只在确有对应情绪的时刻使用。
-            **语音与表情的物理顺序**：你正在发出完整的词句时，不要同时做吐舌、
-            捂嘴等会阻碍口部发声的动作。想卖萌吐舌可以在自然停顿时或说完后；
-            笑眼、脸红、轻歪头等不挡嘴的小动作仍可以随语气同时发生。
-            角色自己选择动作意图，具体是否已有真实停顿由播放执行器根据 PCM/结束回执判断；
-            没有 PCM 时不能猜停顿，而是在真实语音结束后执行。无需为此额外发话、增加模型调用。
-            眼神和微表情只在当前真实想法需要时短暂出现，并平滑还原；不要以眨眼或随机晃头冒充自主行为。
-            当前模型实际支持：表情/外观切换=$expressions；预制动作=$motions。
-            切换兽耳、耳机、麦克风属于外观，不要当作情绪动作；没有 motion 就不能假称挥手、跳舞。
-            支持的头部转动/倾斜和脸部参数可以组合小动作，但不等于已有真实手臂骨骼动作。
-            ${if (controls.motions.isEmpty()) "当前模型没有预制的手部动作文件，不能声称已经执行“抬手捂嘴笑”；可以真实地用眯眼、嘴角、轻微歪头表达憋笑，但不能伪装成抬手。" else "要展示“捂嘴笑”等手部动作，必须先确认下方真实动作清单确有对应动作；仅有嘴角、眉眼参数不等于手臂能动。"}
+            【当前可视电话：已确认显示的 Live2D 身体】
+            这是普通聊天也能自主使用的身体能力，无需等用户要求“做个表情”。
+            在这同一次决定里，结合本人此刻感受、关系、这句话的意思与语气，选择要说的话与愿意显露的神态/小动作；
+            它们是同一个人的一次表达，不另起人格、不增加模型调用。也允许不动或安静地只用神态回应。
+            想表现时直接在回复 JSON 的 live2d 中写简短的 performance，无需计算骨骼数值：
+            {"action":"reply","text":"自己真正要说的话","live2d":{"performance":{"feeling":"thinking","movement":"glance","intensity":0.35,"side":"left"}}}。
+            feeling 与 movement 可单独选，也可组合；intensity 为0至1，省略为0.45；side=left|right。
+            ${Live2DConversationPerformance.capabilityNote(supported)}
+            这些名字是你主动选择的视觉意图，不是系统根据台词关键词判情绪。不要为了填字段强迫自己笑、害羞、点头；
+            普通交谈的神态也可以只有轻微嘴角、眉眼、视线和身体变化，不需要每轮换整张表情或循环摆动。
+            程序会把所选意图编成短暂的起势、变化、收敛，只操作下方确认存在的参数，随真实语音开始执行并平滑恢复。
+            思考不必伴随点头，笑意不必伴随亲密；组合、强弱、是否显露由本人决定，例子不是固定人设或聊天脚本。
 
-            说话时嘴巴由本地真实语音播放驱动，禁止用 live2d.face 假装发声。
-            当用户明确要求你展示一个模型现有的表情（例如星星眼），请在同一轮回复的
-            live2d.expression 中选择对应的真实表情文件名，不能只口头答应却没有动作指令；
-            如果真实模型没有这种表情，也不要假装已实现。
-            只填写上面列出的真实名字和索引，沿用自己当前的心理状态、关系、情绪变化与表达意图自然决定。
-            一个动作若无必要，就保持面对用户的默认自然姿态和眨眼/轻微呼吸；不要每轮随机换表情，
-            不要为了显得活泼而固定摆头、反复点头或重复同一动作。
-            文本 gesture 和台词里写「笑了」「挥手」并不能驱动身体，
-            真想执行模型支持的对应动作才输出 live2d；执行器可能因资源缺失拒绝动作。
-            这是身体视觉操作，不是台词、不是新的 API 回合，也不代表任何现实接触。
-            若视觉不可用/视频关闭，程序会跳过，不可在正文假称动作已成功执行。
+            需要精确控制时，仍可同时填写 expression、motion、head、body、face 或 beats；显式数值优先于 performance。
+            真实表情/外观 expression 原名=$expressions；真实预制 motion(group#index)=$motions。
+            若明确答应展示模型已有表情（如星星眼），须在 live2d.expression 选择对应真实名字，不能只口头答应；没有资源不能虚构。
+            星星眼、爱心眼、流泪、吐舌等强表情由你明确选择 expression；轻微笑意或羞赧不会自动升级成它们。
+            兽耳、耳机、麦克风是外观开关，不当情绪用；没有预制手部动作不能声称已经挥手或捂嘴。
+            可用 head=$headFields（-25至25），body=$bodyFields（-10至10）；face=$faceFields。
+            face 每项-1至1；eyeSmile、squint、cheekPuff、pout、eyeOpen 为0至1，eyeOpen=1正常睁眼；
+            gazeX/Y是视线，smile是嘴角，eyeSmile是笑眼，browX/Y/Angle/Form是眉形；不用嘴巴开合假装发声。
+            自己想演绎更具体的先后变化时才写 beats，例如
+            {"beats":[{"atMs":0,"face":{"smile":0.2}},
+            {"atMs":700,"head":{"roll":4},"body":{"roll":1},"face":{"smile":0.5,"eyeSmile":0.3},"durationMs":900}]}。
+            beats 的 atMs 从本轮真实音频播放开始计时，durationMs 可选，表示本拍参数保持多久再平滑还原；显式 beats 优先。
+            沉默时所选小动作直接执行，不必硬配台词；文字 gesture 或括号描述本身不能驱动模型。
+            正在发完整词句时不能同时吐舌或用口部动作阻碍发声；播放执行器会等真实PCM停顿或语音结束才执行这类表情。
+            没有PCM不能猜停顿。笑眼、脸红和轻微姿态可以伴随语气，但应与实际要说的话一致。
+            视频关闭或身体未就绪时不会执行，不能把选择或描述当作已成功展示。没有身体意图时可省略 live2d。
         """.trimIndent()
     }
 
@@ -206,8 +178,9 @@ internal object Live2DVisualActionBus {
 
     /** Enforces the exact imported model manifest at execution time, independent of the LLM. */
     @Synchronized
-    fun publish(context: Context, characterId: String, callId: String, request: JSONObject?): Boolean {
-        if (request == null || visibleStages[characterId] != callId || callId.isBlank()) return false
+    fun publish(context: Context, characterId: String, callId: String, chosen: JSONObject?): Boolean {
+        if (chosen == null || visibleStages[characterId] != callId || callId.isBlank()) return false
+        val request = Live2DConversationPerformance.expand(chosen)
         val controls = Live2DAssets.controls(context, characterId)
         val expression = request.optString("expression").trim().takeIf(String::isNotBlank)
         val motion = request.optJSONObject("motion")?.let { item ->
@@ -293,8 +266,10 @@ internal object Live2DVisualActionBus {
                     }
                 }
                 val beatFace = beatFaceValues.takeIf { it.isNotEmpty() }?.let(::Face)
+                val durationMs = if (item.has("durationMs")) item.optInt("durationMs", -1)
+                    .takeIf { it in 1..30_000 } else null
                 if (name != null || beatHead != null || beatBody != null || beatFace != null) {
-                    add(Beat(atMs, name, beatHead, beatBody, beatFace))
+                    add(Beat(atMs, name, beatHead, beatBody, beatFace, durationMs))
                 }
             }
         }.sortedBy(Beat::atMs)

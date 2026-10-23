@@ -54,7 +54,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, expressionActive = false, voiceLevel = null, seconds }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, voiceLevel = null, seconds }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -70,24 +70,34 @@ export function createVisualLayerRuntime({ has, read, write }) {
       pitch: .28 * Math.sin(seconds * .23),
       roll: .35 * Math.sin(seconds * .17 + .9),
     } : null
-    const headPose = headSpring.step(head || idleHead, deltaMs)
-    const bodyPose = bodySpring.step(body || idleBody, deltaMs)
+    // Authored motion files can contain head/torso movement as well as arms.
+    // Sample their real pose instead of overwriting it with our resting pose.
+    const authoredHead = authoredMotion ? Object.fromEntries(MAIN_HEAD.map(([id, axis]) =>
+      [axis, read(core, id) ?? 0])) : null
+    const authoredBody = authoredMotion ? Object.fromEntries(Object.entries(BODY_BINDINGS).map(([axis, id]) =>
+      [axis, read(core, id) ?? 0])) : null
+    const headPose = headSpring.step(head || authoredHead || idleHead, deltaMs)
+    const bodyPose = bodySpring.step(body || authoredBody || idleBody, deltaMs)
     const reflexPose = touchSpring.step(touchReflex, deltaMs)
     const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs)
     for (const [id, axis] of MAIN_HEAD) {
-      if (has(core, id)) write(core, id, headPose[axis] + (reflexPose[axis] || 0))
+      if (has(core, id) && (!authoredMotion || head || touchReflex)) {
+        write(core, id, headPose[axis] + (reflexPose[axis] || 0))
+      }
     }
     for (const [axis, id] of Object.entries(BODY_BINDINGS)) {
-      if (has(core, id)) write(core, id, bodyPose[axis] + bodyReflex[axis])
+      if (has(core, id) && (!authoredMotion || body || touchReflex)) {
+        write(core, id, bodyPose[axis] + bodyReflex[axis])
+      }
     }
 
     // Physics follow-through on a neutral head/torso causes the user's
     // unwanted wandering. Suppress just those bones, not ears or hair.
     const mixStep = Math.min(1, Math.max(0, deltaMs) * .014)
-    secondaryHeadMix += ((head ? 1 : 0) - secondaryHeadMix) * mixStep
-    secondaryBodyMix += ((body ? 1 : 0) - secondaryBodyMix) * mixStep
-    if (!head && secondaryHeadMix < .008) secondaryHeadMix = 0
-    if (!body && secondaryBodyMix < .008) secondaryBodyMix = 0
+    secondaryHeadMix += ((head || authoredMotion ? 1 : 0) - secondaryHeadMix) * mixStep
+    secondaryBodyMix += ((body || authoredMotion ? 1 : 0) - secondaryBodyMix) * mixStep
+    if (!head && !authoredMotion && secondaryHeadMix < .008) secondaryHeadMix = 0
+    if (!body && !authoredMotion && secondaryBodyMix < .008) secondaryBodyMix = 0
     for (const id of SECONDARY_HEAD) {
       if (has(core, id)) write(core, id, (read(core, id) ?? 0) * secondaryHeadMix)
     }
@@ -97,12 +107,14 @@ export function createVisualLayerRuntime({ has, read, write }) {
 
     for (const [key, ids] of Object.entries(FACE_BINDINGS)) {
       if (ids.some(id => !has(core, id))) continue
-      // Slight occasional corner-of-mouth smiles while the actual audio is
-      // playing. Authored exp3, role-selected face cues and touch always win.
-      const speechSmile = key === 'smile' && speaking && !expressionActive
-        ? .12 + .13 * Math.max(0, Math.sin(seconds * .74)) : null
-      const requested = face?.[key] ?? touchReflex?.face?.[key] ?? speechSmile
+      // Speech amplitude articulates a selected smile; speech alone never
+      // assigns a happy face to a serious, sad or otherwise neutral reply.
+      const requested = face?.[key] ?? touchReflex?.face?.[key]
       const eyeContact = key === 'gazeX' || key === 'gazeY'
+      if (authoredMotion && requested == null) {
+        delete smoothedFace[key]
+        continue
+      }
       let state = smoothedFace[key]
       if (!eyeContact && requested == null && !state) continue
       const resting = key === 'eyeOpen' ? 1 : 0

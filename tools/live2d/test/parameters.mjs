@@ -7,6 +7,7 @@ import { createPoseSpring } from '../src/pose-spring.mjs'
 import { resolveTouchRegion } from '../src/touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor } from '../src/touch-reflex.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from '../src/speech-expression-gate.mjs'
+import './conversation-performance.mjs'
 
 // The real Cubism SDK expects CubismIdHandle and can fabricate nonexistent
 // parameter indices if handed raw strings. This mock deliberately does so.

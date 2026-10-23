@@ -127,6 +127,25 @@ class Live2DVisualActionBusTest {
             assertEquals(1400, planned.last().atMs)
             assertEquals(0.55f, planned.last().face?.values?.get("eyeOpen"))
             assertFalse(planned.last().face?.values?.containsKey("squint") == true)
+            // Ordinary conversation can choose a compact performance in the
+            // SAME reply. Generated channels still pass the exact rig gate.
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamAngleZ,ParamBodyAngleX,ParamMouthForm")
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("performance", JSONObject().put("feeling", "shy")
+                    .put("movement", "turn").put("intensity", .5))))
+            val automatic = Live2DVisualActionBus.cues.value[role]!!
+            assertEquals(5, automatic.beats.size)
+            assertTrue(automatic.beats[1].body?.yaw != null)
+            assertEquals(null, automatic.beats[1].head?.yaw)
+            assertFalse(automatic.beats[1].face?.values?.containsKey("eyeOpen") == true)
+            assertEquals(420, automatic.beats[2].durationMs)
+            assertEquals(null, automatic.expression)
+            assertFalse(automatic.immediate)
+            assertTrue(Live2DVisualActionBus.publish(context, role, call,
+                JSONObject().put("performance", JSONObject().put("movement", "tilt"))
+                    .put("_executeNow", true)))
+            assertTrue(Live2DVisualActionBus.cues.value[role]!!.immediate)
             // Even existing dimensions cannot leak across a closed call.
             Live2DVisualActionBus.stageClosed(role, call)
             assertFalse(Live2DVisualActionBus.publish(context, role, call, smile))

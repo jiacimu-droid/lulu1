@@ -40,6 +40,10 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
 
   function stopSpeech() {
     speaking = false
+    clearScore()
+  }
+
+  function clearScore() {
     current = null
     pending = null
   }
@@ -73,5 +77,5 @@ export function createPerformanceRuntime({ now = () => performance.now() } = {})
       remaining: current ? current.beats.length - current.index : 0 }
   }
 
-  return { schedule, startSpeech, stopSpeech, tick, reset, state }
+  return { schedule, startSpeech, stopSpeech, clearScore, tick, reset, state }
 }

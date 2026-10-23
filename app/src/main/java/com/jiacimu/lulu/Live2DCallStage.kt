@@ -378,68 +378,38 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // requested expression (e.g. the wolf's star eyes) in a JS no-op.
     LaunchedEffect(stage, previewRevision, rendererReady.value) {
         if (rendererReady.value && previewRevision > 0) {
-            val commands = mutableListOf<String>()
-            previewExpression?.let {
-                commands += "window.LuluLive2D && window.LuluLive2D.expression(${JSONObject.quote(it)}, $previewImmediate)"
+            val cue = JSONObject()
+            fun angles(yaw: Float?, pitch: Float?, roll: Float?) = JSONObject().also { values ->
+                yaw?.let { values.put("yaw", it.toDouble()) }
+                pitch?.let { values.put("pitch", it.toDouble()) }
+                roll?.let { values.put("roll", it.toDouble()) }
             }
-            previewMotion?.let {
-                commands += "window.LuluLive2D && window.LuluLive2D.motion(${JSONObject.quote(it.first)}, ${it.second})"
-            }
-            previewHead?.let { head ->
-                val values = JSONObject()
-                head.yaw?.let { values.put("yaw", it.toDouble()) }
-                head.pitch?.let { values.put("pitch", it.toDouble()) }
-                head.roll?.let { values.put("roll", it.toDouble()) }
-                commands += "window.LuluLive2D && window.LuluLive2D.head($values, $previewImmediate)"
-            }
-            previewBody?.let { body ->
-                val values = JSONObject()
-                body.yaw?.let { values.put("yaw", it.toDouble()) }
-                body.pitch?.let { values.put("pitch", it.toDouble()) }
-                body.roll?.let { values.put("roll", it.toDouble()) }
-                commands += "window.LuluLive2D && window.LuluLive2D.body($values, $previewImmediate)"
-            }
-            previewFace?.let { face ->
-                val values = JSONObject()
+            fun faceValues(face: Live2DVisualActionBus.Face) = JSONObject().also { values ->
                 face.values.forEach { (key, value) -> values.put(key, value.toDouble()) }
-                commands += "window.LuluLive2D && window.LuluLive2D.face($values, $previewImmediate)"
             }
+            previewExpression?.let { cue.put("expression", it) }
+            previewMotion?.let { cue.put("motion", JSONObject().put("group", it.first).put("index", it.second)) }
+            previewHead?.let { cue.put("head", angles(it.yaw, it.pitch, it.roll)) }
+            previewBody?.let { cue.put("body", angles(it.yaw, it.pitch, it.roll)) }
+            previewFace?.let { cue.put("face", faceValues(it)) }
             if (previewBeats.isNotEmpty()) {
                 val beats = JSONArray()
                 previewBeats.forEach { beat ->
                     val item = JSONObject().put("atMs", beat.atMs)
+                    beat.durationMs?.let { item.put("durationMs", it) }
                     beat.expression?.let { item.put("expression", it) }
-                    beat.head?.let { head ->
-                        val values = JSONObject()
-                        head.yaw?.let { values.put("yaw", it.toDouble()) }
-                        head.pitch?.let { values.put("pitch", it.toDouble()) }
-                        head.roll?.let { values.put("roll", it.toDouble()) }
-                        item.put("head", values)
-                    }
-                    beat.body?.let { body ->
-                        val values = JSONObject()
-                        body.yaw?.let { values.put("yaw", it.toDouble()) }
-                        body.pitch?.let { values.put("pitch", it.toDouble()) }
-                        body.roll?.let { values.put("roll", it.toDouble()) }
-                        item.put("body", values)
-                    }
-                    beat.face?.let { face ->
-                        val values = JSONObject()
-                        face.values.forEach { (key, value) ->
-                            values.put(key, value.toDouble())
-                        }
-                        item.put("face", values)
-                    }
+                    beat.head?.let { item.put("head", angles(it.yaw, it.pitch, it.roll)) }
+                    beat.body?.let { item.put("body", angles(it.yaw, it.pitch, it.roll)) }
+                    beat.face?.let { item.put("face", faceValues(it)) }
                     beats.put(item)
                 }
-                commands += "window.LuluLive2D && window.LuluLive2D.choreography($beats, $previewImmediate)"
+                cue.put("beats", beats)
             }
-            // Cross the Android↔WebView boundary ONCE per character decision.
-            // Each call queues a UI task; five separate calls could interleave
-            // with a rendered frame and visibly tear composite expressions.
-            if (commands.isNotEmpty()) {
-                stage.evaluateJavascript(commands.joinToString(";\n"), null)
-            }
+            // One decision crosses the bridge atomically. Starting a new cue
+            // also cancels old, unplayed beats, including an expression-only turn.
+            if (cue.length() > 0) stage.evaluateJavascript(
+                "window.LuluLive2D && window.LuluLive2D.perform($cue, $previewImmediate)", null,
+            )
         }
     }
     // Do not saturate WebView's main thread with high-frequency audio

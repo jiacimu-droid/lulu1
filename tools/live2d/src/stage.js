@@ -18,7 +18,10 @@ installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
 // Pixi v6 is bundled by the existing APK workflow; the official Cubism Core remains user-supplied.
 Live2DModel.registerTicker(PIXI.Ticker)
-if (config) config.sound = false // Do not mix motion sound effects into the existing phone's TTS.
+if (config) {
+  config.sound = false // Do not mix motion sounds into the existing phone's TTS.
+  config.preserveExpressionOnMotion = true // A chosen face and motion are one combined performance.
+}
 const root = document.getElementById('stage')
 const notice = document.getElementById('notice')
 console.info('__LULU_LIVE2D__' + JSON.stringify({
@@ -171,6 +174,8 @@ let bodyRequestEndAt = 0
 let faceRequest = null
 let faceRequestEndAt = 0
 let faceRequestStartedAt = 0
+let authoredMotion = null
+let motionRevision = 0
 let proceduralBlinkEnabled = false
 let blinkClock = 4.4
 let blinkProgress = -1
@@ -396,6 +401,26 @@ async function verifyVisibleFrame(loaded, sequence) {
   }
   throw new Error(priorError || '模型虽然载入，但未能产生可见的视频画面')
 }
+function applyPerformanceBeat(beat) {
+  if (beat.expression) startSpeechExpression(beat.expression)
+  if (beat.head) head(beat.head, true)
+  if (beat.body) body(beat.body, true)
+  if (beat.face) face(beat.face, true)
+  // A short score controls its leases instead of leaving every partial pose
+  // latched for the old 3-6.5 second default.
+  if (Number.isFinite(beat.durationMs) && beat.durationMs > 0) {
+    const until = Date.now() + Math.min(30000, beat.durationMs)
+    if (beat.head) headRequestEndAt = until
+    if (beat.body) bodyRequestEndAt = until
+    if (beat.face) faceRequestEndAt = until
+  }
+}
+function settleSpeechMoment() {
+  const until = Date.now() + 900
+  headRequestEndAt = Math.min(headRequestEndAt, until)
+  bodyRequestEndAt = Math.min(bodyRequestEndAt, until)
+  faceRequestEndAt = Math.min(faceRequestEndAt, until)
+}
 // Apply at the LAST mutable stage: after motion, expressions, focus, auto
 // breathing, physics and pose, but before core.update computes the drawables.
 // The former motionManager.update hook ran before breathing and physics.
@@ -413,10 +438,7 @@ function applyFinalParameters(core, deltaMs) {
   // Score and physics are separate. A low rendering FPS cannot slow the
   // audio timeline; a failed TTS must never leave queued facial actions.
   performanceRuntime.tick(beat => {
-    if (beat.expression) startSpeechExpression(beat.expression)
-    if (beat.head) head(beat.head, true)
-    if (beat.body) body(beat.body, true)
-    if (beat.face) face(beat.face, true)
+    applyPerformanceBeat(beat)
   })
   // Mouth-occupying gestures are deferred to a CONFIRMED audio pause or
   // utterance completion, not blindly triggered at a model-chosen millisecond.
@@ -445,14 +467,24 @@ function applyFinalParameters(core, deltaMs) {
   // An authored star/heart/closed-eye exp3 owns its eye shape. Keep local
   // tactile neck/cheek pose and smile, but don't close over the special eyes.
   const touchEyesLocked = eyeLockedExpressions.has(visibleTouchExpression)
+  const eyesLocked = eyeLockedExpressions.has(activeExpressionName) || touchEyesLocked
   const tactilePose = touchReflex && (eyeLockedExpressions.has(activeExpressionName) || touchEyesLocked)
     ? { ...touchReflex, face: {
         ...touchReflex.face, eyeOpen: undefined, eyeSmile: undefined, squint: undefined,
         eyeLeftOpen: undefined, eyeRightOpen: undefined,
       } }
     : touchReflex
+  const visibleFace = eyesLocked && faceRequest ? { ...faceRequest,
+    eyeOpen: undefined, eyeSmile: undefined, squint: undefined,
+    eyeLeftOpen: undefined, eyeRightOpen: undefined,
+  } : faceRequest
+  const manager = model?.internalModel?.motionManager
+  const motionActive = !!authoredMotion?.started && authoredMotion.model === model &&
+    manager?.isFinished?.() === false
+  if (authoredMotion?.started && !motionActive) authoredMotion = null
   visualLayers.update(core, {
-    deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
+    deltaMs, head: headRequest, body: bodyRequest, face: visibleFace,
+    authoredMotion: motionActive,
     touchReflex: tactilePose, physical: physicalState,
     speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds,
@@ -686,7 +718,7 @@ async function load(modelURL) {
     }
     if (sequence !== loadSequence) return
     if (model) {
-      resetSpeechExpression()
+      clearSpeechMoment()
       pendingExpressionName = null
       pendingSpeechParts = null
       app.stage.removeChild(model)
@@ -757,6 +789,8 @@ function activatePendingSpeechMoment() {
   const parts = pendingSpeechParts
   pendingExpressionName = null
   pendingSpeechParts = null
+  if (parts?.replace) clearSpeechMoment()
+  if (parts?.motion) motion(parts.motion.group, parts.motion.index, true)
   if (selected) startSpeechExpression(selected)
   if (parts?.head) head(parts.head)
   if (parts?.body) body(parts.body)
@@ -791,9 +825,12 @@ function onPlaybackEvent(phase) {
   lastRealMouthSignalAt = 0
   pendingExpressionName = null
   pendingSpeechParts = null
-  headRequest = null
-  bodyRequest = null
-  faceRequest = null
+  if (phase === 'interrupted') clearSpeechMoment()
+  else {
+    // A brief utterance still gets a visible settling tail. The normal spring
+    // and facial release then return to the imported pose without snapping.
+    settleSpeechMoment()
+  }
   // A short reply must still show its facial expression for a moment after
   // the audio ends; otherwise a one-second star-eye cue is barely visible.
   // A genuine interruption, on the other hand, clears it immediately.
@@ -829,6 +866,7 @@ function update(next) {
     mouth = 0
     if (wasPlaying) {
       performanceRuntime.stopSpeech()
+      settleSpeechMoment()
       const gate = mouthExpressionGate.finished()
       if (gate.play) playVerifiedSpeechExpression(gate.play, true)
     }
@@ -1178,11 +1216,7 @@ function setPaused(value) {
     // Do not play a stale animation score in a burst when Android restores
     // the WebView after it was hidden while TTS continued in the background.
     performanceRuntime.stopSpeech()
-    mouthExpressionGate.interrupted()
-    resetSpeechExpression()
-    headRequest = null
-    bodyRequest = null
-    faceRequest = null
+    clearSpeechMoment()
     touchReflex = null
     activeTouchExpression = null
     tactileContact = null
@@ -1204,6 +1238,19 @@ function resetSpeechExpression() {
   activeExpressionName = null
   activeExpressionStartedAt = 0
   activeExpressionIsPreview = false
+}
+function clearSpeechMoment() {
+  resetSpeechExpression()
+  mouthExpressionGate.reset()
+  if (playing) mouthExpressionGate.started()
+  headRequest = null
+  bodyRequest = null
+  faceRequest = null
+  motionRevision++
+  if (authoredMotion) {
+    try { authoredMotion.model?.internalModel?.motionManager?.stopAllMotions?.() } catch (_) {}
+    authoredMotion = null
+  }
 }
 function startSpeechExpression(name, immediatePreview = false) {
   if (!model || !name) return
@@ -1263,9 +1310,46 @@ function choreography(beats, immediatePreview = false) {
   if (!model) return
   performanceRuntime.schedule(beats, !!immediatePreview)
 }
-function motion(group, index) {
+// One atomic character decision, including ordinary chat performances. A new
+// expression-only cue must also supersede an older, queued choreography.
+function perform(cue, immediatePreview = false) {
+  if (!model || !cue || typeof cue !== 'object') return false
+  performanceRuntime.clearScore()
+  pendingExpressionName = null
+  pendingSpeechParts = null
+  if (playing || immediatePreview) clearSpeechMoment()
+  else pendingSpeechParts = { queuedAt: Date.now(), replace: true }
+  if (cue.motion) motion(cue.motion.group, cue.motion.index, immediatePreview)
+  if (cue.expression) expression(cue.expression, immediatePreview)
+  if (cue.head) head(cue.head, immediatePreview)
+  if (cue.body) body(cue.body, immediatePreview)
+  if (cue.face) face(cue.face, immediatePreview)
+  if (cue.beats) choreography(cue.beats, immediatePreview)
+  return true
+}
+function motion(group, index, immediatePreview = false) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
-  Promise.resolve(model.motion(group, index)).catch(() => {})
+  if (!playing && !immediatePreview) {
+    pendingSpeechParts = pendingSpeechParts || { queuedAt: Date.now() }
+    pendingSpeechParts.motion = { group, index }
+    return
+  }
+  const target = model
+  const revision = ++motionRevision
+  const chosen = { model: target, revision, group, index, started: false }
+  authoredMotion = chosen
+  Promise.resolve(target.motion(group, index)).then(ok => {
+    if (revision !== motionRevision || target !== model) {
+      const manager = target.internalModel?.motionManager
+      // A resource load may finish after cancellation. Stop only that stale
+      // motion, never an already-started motion from a newer decision.
+      if (!authoredMotion?.started && manager?.state?.currentGroup === group &&
+          manager?.state?.currentIndex === index) manager.stopAllMotions?.()
+      return
+    }
+    if (ok === false) authoredMotion = null
+    else chosen.started = true
+  }).catch(() => { if (authoredMotion === chosen) authoredMotion = null })
 }
 document.addEventListener('visibilitychange', () => setPaused(document.hidden))
 function face(target, immediatePreview = false) {
@@ -1325,7 +1409,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection, resizeCalibrationZone }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, perform, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection, resizeCalibrationZone }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
