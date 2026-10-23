@@ -52,6 +52,7 @@ internal object CompanionActionRuntime {
         HealthRolePerception.initialize(context)
         appendLine("角色可执行的露露机内动作（前台聊天与后台主动感知共用同一个真实执行层）：")
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
+        appendLine("- go_offline，args={}：角色自主立刻休眠/下线。不必等五分钟到期；要先告别就先回复，然后把 go_offline 作为 steps 最后一步，依赖消息真正送达。不会清除记忆、未读、计划或唤醒闹钟；通话中需先挂断。")
         com.jiacimu.lulu.StickerLibraryStore.initialize(context)
         val stickerChoices = com.jiacimu.lulu.StickerLibraryStore.items.value
         if (stickerChoices.isNotEmpty()) {
@@ -152,6 +153,11 @@ internal object CompanionActionRuntime {
             }.toSet()
         }.orEmpty()
         val result = when (normalizedAction) {
+            "go_offline" -> {
+                val success = CompanionOnlineStore.goOfflineByChoice(characterId, now)
+                CompanionActionResult(success, if (success) "角色自主休眠成功，在线状态已关闭"
+                    else "当前还在通话或角色状态未就绪，不能执行下线")
+            }
             "learn_topic" -> AutonomousLearningRuntime.execute(context, characterId, args)
             "read_xiaohongshu" -> LuluExternalMcp.browse(context, characterId, args)
             "read_health_mcp" -> LuluExternalMcp.healthRead(context, args)
@@ -739,5 +745,74 @@ internal object CompanionActionRuntime {
         // The physical approach has its own persistent world evidence; posting a preliminary
         // chat bubble for every chapter creates duplicate notices and can outlive a failed read.
         return ReadingStation(shelf, arriving.summary, arriving.evidenceId)
+    }
+}
+
+/** A shared ordered step executor; every action goes through ToolRouter receipts. */
+internal data class OrderedCharacterActionReport(val notes: List<String>, val anyAccepted: Boolean)
+
+internal object OrderedCharacterActions {
+    suspend fun execute(
+        context: Context,
+        characterId: String,
+        steps: org.json.JSONArray?,
+        requestId: String,
+        intentionId: String = "",
+        initialCompleted: Boolean = true,
+        userEvidenceIds: Set<String> = emptySet(),
+        userText: String = "",
+        explicitScreenRequest: Boolean = false,
+    ): OrderedCharacterActionReport {
+        if (steps == null) return OrderedCharacterActionReport(emptyList(), false)
+        val notes = mutableListOf<String>()
+        var previousCompleted = initialCompleted
+        var anyAccepted = false
+        for (index in 0 until steps.length()) {
+            val step = steps.optJSONObject(index)
+            if (step == null) {
+                notes += "第${index + 1}步未执行：动作格式无效"
+                previousCompleted = false
+                continue
+            }
+            val name = step.optString("tool").trim()
+            if (CapabilityRegistry.find(name) == null) {
+                notes += "第${index + 1}步未执行：未知工具${name.take(40)}"
+                previousCompleted = false
+                continue
+            }
+            if (step.optBoolean("requiresPreviousSuccess", false) && !previousCompleted) {
+                notes += "第${index + 1}步${name}未执行：前一步尚未成功"
+                previousCompleted = false
+                continue
+            }
+            val args = JSONObject((step.optJSONObject("args") ?: JSONObject()).toString())
+            if (name in setOf("send_private_message", "send_group_message") &&
+                userEvidenceIds.isNotEmpty()) {
+                args.put("_replyEvidenceIds", org.json.JSONArray(userEvidenceIds.toList()))
+            }
+            val result = runCatching {
+                JSONObject(ToolRouter.execute(context, characterId, name, args,
+                    requestId = "${requestId}:step:${index}",
+                    intentionId = intentionId,
+                    userRequested = if (name == "capture_screen") explicitScreenRequest
+                        else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
+                ))
+            }.getOrElse {
+                JSONObject().put("success", false).put("error", it.message.orEmpty())
+            }
+            val accepted = result.optBoolean("success")
+            val status = result.optString("status")
+            previousCompleted = accepted &&
+                status !in setOf("pending", "waiting_user", "requested")
+            anyAccepted = anyAccepted || accepted
+            notes += "第${index + 1}步${name}：" + result.optString("summary").ifBlank {
+                result.optString("error").ifBlank {
+                    result.optString("verification").ifBlank {
+                        status.ifBlank { "状态未确认" }
+                    }
+                }
+            }.take(160)
+        }
+        return OrderedCharacterActionReport(notes, anyAccepted)
     }
 }

@@ -102,6 +102,8 @@ data class ModelReply(
     val musicAfterSpeech: String? = null,
     /** Persistent device receipt; UI/debug only, never a TTS line. */
     val phoneMediaReceipt: String? = null,
+    /** Model-selected ordered chat steps; execute after the actual chat delivery. */
+    val deferredActions: String? = null,
 )
 
 class ModelConnectionStore private constructor(context: Context) {

@@ -24,6 +24,7 @@ enum class CompanionOnlineReason {
     NewActivity,
     ScheduledCommitment,
     SelfChosenExtension,
+    SelfChosenSleep,
 }
 
 data class CompanionOnlineState(
@@ -281,6 +282,24 @@ object CompanionOnlineStore {
             appContext?.let { ProactivePerceptionScheduler.scheduleOnline(it, characterId, trigger, collectMessages = true) }
         }
     }
+
+    /** One real role-selected sleep action. Old expiry jobs see an obsolete lease. */
+    fun goOfflineByChoice(characterId: String, now: Instant = Instant.now()): Boolean =
+        synchronized(lock) {
+            if (characterId.isBlank() || CompanionPresenceStore.isInCall(characterId))
+                return@synchronized false
+            val current = mutableStates.value[characterId] ?: return@synchronized false
+            if (!current.isOnline(now)) return@synchronized true
+            mutableStates.value = mutableStates.value + (characterId to current.copy(
+                onlineUntil = now, reason = CompanionOnlineReason.SelfChosenSleep,
+            ))
+            // Do not cancel the active model worker that is executing this tool.
+            // A future genuine user message can still wake the character.
+            lifePulseJobs.remove(characterId)?.cancel()
+            expiryJobs.remove(characterId)?.cancel()
+            persistLocked()
+            true
+        }
 
     fun recordActivity(characterId: String, now: Instant = Instant.now()) {
         if (characterId.isBlank()) return

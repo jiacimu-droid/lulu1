@@ -293,8 +293,17 @@ internal suspend fun runGroupReplies(
                     pendingUserIds,
                     interactionReceipt = reply.interactionReceipt,
                 )
-                if (shown.isNotBlank() || phonePerformance && flow.content.isNotBlank())
+                if (shown.isNotBlank() || phonePerformance && flow.content.isNotBlank()) {
+                    if (!phonePerformance && shown.isNotBlank() && reply.deferredActions != null &&
+                        currentCoroutineContext().isActive) {
+                        LuluDeviceToolBridge.executeDeferredReplyActions(
+                            member.characterId, reply.deferredActions,
+                            requestId = "group-${conversationId}-${member.characterId}-${pendingUserIds.firstOrNull() ?: index}",
+                            userEvidenceIds = pendingUserIds, userText = pendingText,
+                        )
+                    }
                     afterReply(member.characterId, if (phonePerformance) flow.content.replace(SemanticBubbleSeparator, "\n") else shown)
+                }
             }
             if (group.allowCharacterConversation && !flow.shouldEnd && index + 1 < replyLimit) {
                 flow.nextSpeakerName?.let { requested ->

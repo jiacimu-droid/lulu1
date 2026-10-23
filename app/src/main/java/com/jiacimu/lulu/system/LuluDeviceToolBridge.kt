@@ -316,6 +316,7 @@ object LuluDeviceToolBridge {
             【同一模型决定可以兼有回复与设备行为】
             一次决策可以同时决定你想怎么回答，以及是否调用真实媒体工具。
             若既想说话又想操作已授权能力，可以在一次决策中使用 action=reply 配合 steps=[{"tool":"真实能力名","args":{},"requiresPreviousSuccess":false},...]；按顺序执行多项实际动作，记录每一项结果，不限于音乐或音量。若希望保持安静，只操作设备，通话中可选 action=silent 加 steps。依赖前一步完成的动作写 requiresPreviousSuccess=true；尚在等待同意的屏幕请求不是已看见画面，需要真实回执才能继续基于画面作判断。
+            若文字聊天想先回复再休眠，选择 action=reply，steps 最后填写 {"tool":"go_offline","args":{},"requiresPreviousSuccess":true}。必须等真实消息送达后下线；这不是结束电话。多步顺序由你自主决定。
             媒体操作还可选择 control_music、list_media_sessions；通话内获准使用闹钟能力时还可选 ring_in_call_wake（args.seconds=1到15，播放本地铃声，不会生成来电页面）。通话中最多5项，按列表顺序逐项执行；普通聊天最多2项。
             private chat 仍用 speechIntent/dialogueMove；phone 直接返回 text。
             你也可以只说话、只操作、或者真的选择沉默，按自己的个性判断，不需填满字段。
@@ -806,8 +807,8 @@ object LuluDeviceToolBridge {
         } else ""
         val plannedSideActions = plan.sideActions
         val sideDeviceReceipt = if (!rewriting && plannedSideActions != null &&
-            (plan.action == "reply" || (sceneContext.contains("电话") &&
-                plan.action == CharacterDecisionProtocol.SILENT))) {
+            sceneContext.contains("电话") &&
+            (plan.action == "reply" || plan.action == CharacterDecisionProtocol.SILENT)) {
             val notes = mutableListOf<String>()
             var verifiedWakeAudio = false
             var raisedVolumeThisTurn = false
@@ -1184,6 +1185,14 @@ object LuluDeviceToolBridge {
                     onLive2DAction?.invoke(JSONObject(chosen.toString()).put("_executeNow", true))
                 } }
             }
+            if (!sceneContext.contains("电话") && !rewriting && plannedSideActions != null) {
+                com.jiacimu.lulu.data.OrderedCharacterActions.execute(
+                    appContext, characterId, plannedSideActions,
+                    requestId = "chat-silent-${userEvidenceIds.lastOrNull() ?: now.toEpochMilli()}",
+                    intentionId = plan.intentionId, userText = userText,
+                    userEvidenceIds = userEvidenceIds.toSet(),
+                )
+            }
             return Result.success(plannedReply.copy(text = "",
                 disposition = CharacterDecisionProtocol.SILENT,
                 phoneMediaReceipt = sideDeviceReceipt.takeIf(String::isNotBlank)))
@@ -1470,6 +1479,8 @@ object LuluDeviceToolBridge {
                 statusText = plan.statusText.takeIf(String::isNotBlank),
             ))
             return Result.success(expressed.copy(text = sendText,
+                deferredActions = if (!rewriting && !sceneContext.contains("电话"))
+                    plan.sideActions?.toString() else null,
                 bedtimeContinuation = plan.sleepContinuation?.toString(),
                 sleepDecision = plan.sleepDecision.takeIf { sceneContext.contains("电话") && it in setOf("enable", "disable") },
                 musicAfterSpeech = plan.musicAfterSpeech.takeIf { sceneContext.contains("电话") && it in setOf("resume", "stay_paused") },
@@ -1696,6 +1707,22 @@ object LuluDeviceToolBridge {
                 cachedTokens = result.cachedTokens + plannedReply.cachedTokens,
             )
         }
+    }
+
+    suspend fun executeDeferredReplyActions(
+        characterId: String,
+        steps: String?,
+        requestId: String,
+        userEvidenceIds: Set<String>,
+        userText: String,
+    ): com.jiacimu.lulu.data.OrderedCharacterActionReport? {
+        val app = context ?: return null
+        val parsed = runCatching { org.json.JSONArray(steps ?: return null) }.getOrNull()
+            ?: return null
+        return com.jiacimu.lulu.data.OrderedCharacterActions.execute(
+            app, characterId, parsed, requestId = requestId,
+            userEvidenceIds = userEvidenceIds, userText = userText,
+        )
     }
 
     suspend fun executeRegistered(context: Context, characterId: String, tool: String, args: JSONObject, requestId: String): String = runCatching {

@@ -14,6 +14,56 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class OnlineChatExperienceTest {
+    @Test fun roleCanGoOfflineImmediatelyWithoutErasingItsNextWake() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val characterId = MigratedDomainStores.characters.create("即时休眠工具测试").characterId
+        val chat = MigratedDomainStores.chat.ensureConversation(characterId, "即时休眠工具测试")
+        CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.NewActivity,
+            "角色进入聊天", perceiveNow = false)
+        assertTrue(CompanionOnlineStore.isOnline(characterId))
+        assertNotNull(CapabilityRegistry.find("go_offline"))
+
+        val step = org.json.JSONArray()
+            .put(JSONObject().put("tool", "go_offline")
+                .put("args", JSONObject()).put("requiresPreviousSuccess", true))
+        val result = OrderedCharacterActions.execute(context, characterId, step,
+            requestId = "sleep-after-real-reply", initialCompleted = true)
+        assertTrue(result.notes.toString(), result.anyAccepted)
+        assertEquals(CompanionOnlineReason.SelfChosenSleep,
+            CompanionOnlineStore.states.value.getValue(characterId).reason)
+        assertFalse(CompanionOnlineStore.isOnline(characterId))
+
+        // Idempotent replay cannot restart the five-minute window.
+        val replay = OrderedCharacterActions.execute(context, characterId, step,
+            requestId = "sleep-after-real-reply", initialCompleted = true)
+        assertTrue(replay.anyAccepted)
+        assertFalse(CompanionOnlineStore.isOnline(characterId))
+
+        // An actual later message remains a valid reason to wake up again.
+        MigratedDomainStores.chat.sendUserMessage(chat.id, "宝宝，回来一下")
+        assertTrue(CompanionOnlineStore.isOnline(characterId))
+        OnlineChatBatchStore.cancel(context, characterId)
+    }
+
+    @Test fun failedPreviousStepDoesNotExecuteDependentSleep() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val characterId = MigratedDomainStores.characters.create("顺序依赖测试").characterId
+        CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.NewActivity,
+            "开始行动", perceiveNow = false)
+        val plan = org.json.JSONArray()
+            .put(JSONObject().put("tool", "go_offline")
+                .put("args", JSONObject()).put("requiresPreviousSuccess", true))
+        val skipped = OrderedCharacterActions.execute(context, characterId, plan,
+            requestId = "reply-not-delivered", initialCompleted = false)
+        assertFalse(skipped.anyAccepted)
+        assertTrue(skipped.notes.first().contains("前一步尚未成功"))
+        assertTrue(CompanionOnlineStore.isOnline(characterId))
+    }
+
     @Test fun aNewPrivateMessageWakesAnOfflineCharacterWithoutWaitingFiveMinutes() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)

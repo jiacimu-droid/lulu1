@@ -327,7 +327,7 @@ fun QqStyleChatDetailScreen(
                 result.onSuccess { reply ->
                     val presentation = parseCharacterReplyPresentation(reply.text)
                     if (presentation.content.isNotBlank()) {
-                        appendRoleReplyWithPacing(
+                        val deliveredText = appendRoleReplyWithPacing(
                             conversationId = conversationId,
                             characterId = characterId,
                             characterLabel = character.displayName,
@@ -335,6 +335,17 @@ fun QqStyleChatDetailScreen(
                             actionableUserMessageIds = actionable.mapTo(mutableSetOf(), LuluChatMessage::id),
                             interactionReceipt = reply.interactionReceipt,
                         )
+                        if (deliveredText.isNotBlank() && currentCoroutineContext().isActive &&
+                            reply.deferredActions != null) {
+                            val report = LuluDeviceToolBridge.executeDeferredReplyActions(
+                                characterId, reply.deferredActions,
+                                requestId = "chat-${actionable.lastOrNull()?.id ?: conversationId}",
+                                userEvidenceIds = actionable.mapTo(mutableSetOf(), LuluChatMessage::id),
+                                userText = pendingText,
+                            )
+                            if (report?.notes?.any { it.contains("未执行") || it.contains("未成功") } == true)
+                                reportError("部分动作未完成，可在性能监测查看真实回执")
+                        }
                     } else if (reply.disposition != "silent") reportError("对方刚才没有说清，再点一次试试")
                 }.onFailure { reportError(it.message ?: "回复失败") }
             } else {
