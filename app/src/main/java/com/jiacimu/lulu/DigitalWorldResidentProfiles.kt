@@ -139,7 +139,7 @@ private fun ResidentProfileHistoryDialog(
 }
 
 @Composable
-private fun ResidentProfileEditDialog(
+internal fun ResidentProfileEditDialog(
     resident: DigitalWorldResident,
     onDismiss: () -> Unit,
     onSaved: () -> Unit,
