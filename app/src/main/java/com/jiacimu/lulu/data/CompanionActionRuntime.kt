@@ -150,7 +150,7 @@ internal object CompanionActionRuntime {
         }
     }.trim()
 
-    private fun sendSearchedImage(
+    private suspend fun sendSearchedImage(
         characterId: String,
         characterName: String,
         hit: ImageSearchHit,
