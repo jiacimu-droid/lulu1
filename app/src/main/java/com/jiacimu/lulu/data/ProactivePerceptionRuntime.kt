@@ -954,15 +954,25 @@ object ProactivePerceptionRuntime {
         val invalidTool = initialDecision?.let { decision ->
             decision.action == Action.TOOL && CapabilityRegistry.find(decision.tool) == null
         } == true
-        val needsCorrection = initialDecision == null || invalidTool
+        // A labelled message without any authored words is not a choice to
+        // remain quiet. Avoid consuming the unread batch as a successful turn.
+        val emptySpeech = initialDecision?.let { decision ->
+            decision.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE,
+                Action.KAOMOJI, Action.GROUP_KAOMOJI) &&
+                decision.conversationWords().isBlank()
+        } == true
+        val needsCorrection = initialDecision == null || invalidTool || emptySpeech
         val recoveredDecision = if (needsCorrection && onlineUnread.text.isNotBlank()) {
             val correction = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
                     appendLine("当前仍待处理的真实用户消息：${onlineUnread.text.takeLast(1_400)}")
                     appendLine("上一轮模型原始输出（格式无效、完全没有执行）：${result.text.take(1_300)}")
-                    appendLine(if (invalidTool) "失败原因：工具名称未注册或为空。" else
-                        "失败原因：上一轮没有解析出合法的顶层 action 或完整 JSON。")
+                    appendLine(when {
+                        invalidTool -> "失败原因：工具名称未注册或为空。"
+                        emptySpeech -> "失败原因：模型选择了发消息，却没有给出可发送的正文。"
+                        else -> "失败原因：上一轮没有解析出合法的顶层 action 或完整 JSON。"
+                    })
                     appendLine("当前角色真正可以选择的操作：")
                     appendLine(CompanionActionRuntime.capabilityContext(appContext, characterId, false).take(2_800))
                 },
@@ -982,8 +992,12 @@ object ProactivePerceptionRuntime {
                 maxTokens = 1_200,
                 connectionOverride = connection,
             ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
-            correction?.takeUnless { it.action == Action.TOOL &&
-                CapabilityRegistry.find(it.tool) == null }?.let { validCorrection ->
+            correction?.takeUnless {
+                (it.action == Action.TOOL && CapabilityRegistry.find(it.tool) == null) ||
+                    (it.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE,
+                        Action.KAOMOJI, Action.GROUP_KAOMOJI) &&
+                        it.conversationWords().isBlank())
+            }?.let { validCorrection ->
                 // When only a tool name was invalid, retain the already parsed
                 // first-stage psychology rather than letting a repair rewrite it.
                 if (initialDecision == null) validCorrection else validCorrection.copy(
@@ -1007,7 +1021,7 @@ object ProactivePerceptionRuntime {
             return Action.SILENT
         }
         if (batchSuperseded()) return deferSupersededDecision()
-        val parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool }) ?: run {
+        val parsed = (recoveredDecision ?: initialDecision?.takeUnless { invalidTool || emptySpeech }) ?: run {
             // Invalid action output cannot execute, but never triggers a second
             // private-reflection model call.
             CompanionPresenceStore.recordPerceptionAttempt(
@@ -1016,8 +1030,11 @@ object ProactivePerceptionRuntime {
             if (onlineUnread.text.isNotBlank()) {
                 (onlineUnread.conversationIds + conversation.id).forEach { id ->
                     com.jiacimu.lulu.ChatReplyTaskManager.TaskContext(id).reportError(
-                        if (invalidTool) "模型未返回有效工具，消息仍未回复，可点击「回复」重试"
-                        else "模型输出格式不完整，消息仍未回复，可点击「回复」重试"
+                        when {
+                            invalidTool -> "模型未返回有效工具，消息仍未回复，可点击「回复」重试"
+                            emptySpeech -> "模型未写出回复正文，消息仍未回复，可点击「回复」重试"
+                            else -> "模型输出格式不完整，消息仍未回复，可点击「回复」重试"
+                        }
                     )
                 }
                 // A malformed model output is NOT a character's deliberate
