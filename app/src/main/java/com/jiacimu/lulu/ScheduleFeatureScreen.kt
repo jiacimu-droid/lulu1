@@ -151,6 +151,25 @@ fun ScheduleFeatureScreen(
                                 Text(plan.title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                                 Text(plan.intent, fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                val personName = when {
+                                    plan.targetCharacterId.isNotBlank() ->
+                                        characters[plan.targetCharacterId]?.displayName ?: plan.targetCharacterId
+                                    plan.targetResidentId.isNotBlank() ->
+                                        com.jiacimu.lulu.data.DigitalWorldExpansionStore.residents()
+                                            .firstOrNull { it.id == plan.targetResidentId }?.name
+                                            ?: plan.targetResidentId
+                                    else -> ""
+                                }
+                                val placeName = com.jiacimu.lulu.data.DigitalWorldPublicPlaces.all
+                                    .firstOrNull { it.code == plan.locationCode }?.label
+                                    ?: plan.locationCode
+                                if (personName.isNotBlank() || placeName.isNotBlank()) {
+                                    Text(listOfNotNull(
+                                        personName.takeIf(String::isNotBlank)?.let { "人物 · $it" },
+                                        placeName.takeIf(String::isNotBlank)?.let { "地点 · $it" },
+                                    ).joinToString("  ·  "), fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                                 if (plan.repeat == "daily") Text("↻ 每天重复 · 角色可主动改期或取消",
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.primary)

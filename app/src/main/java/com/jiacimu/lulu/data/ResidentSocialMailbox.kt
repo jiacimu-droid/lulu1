@@ -59,7 +59,7 @@ internal object ResidentSocialMailbox {
     internal fun unconsidered(incoming: List<ResidentDirectMessage>,
         throughId: String, max: Int = 8): List<ResidentDirectMessage> {
         val index = incoming.indexOfLast { it.id == throughId }
-        return incoming.drop(if (index >= 0) index + 1 else 0).takeLast(max.coerceAtLeast(1))
+        return incoming.drop(if (index >= 0) index + 1 else 0).take(max.coerceAtLeast(1))
     }
 
     @Synchronized fun pendingIncoming(role: String, max: Int = 8): List<ResidentDirectMessage> {

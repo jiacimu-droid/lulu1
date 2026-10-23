@@ -35,6 +35,19 @@ class ResidentAutonomyBoundaryTest {
         assertNull(tuesday)
     }
 
+    @Test fun socialInboxConsiderationIsOldestFirstAndNeverLosesUnseenLetters() {
+        val messages = (1..5).map { i ->
+            ResidentDirectMessage("mail-$i", "sender", "receiver",
+                "消息$i", now.plusSeconds(i.toLong()), "character")
+        }
+        assertEquals(listOf("mail-1", "mail-2"),
+            ResidentSocialMailbox.unconsidered(messages, "", 2).map { it.id })
+        assertEquals(listOf("mail-3", "mail-4"),
+            ResidentSocialMailbox.unconsidered(messages, "mail-2", 2).map { it.id })
+        assertEquals(listOf("mail-5"),
+            ResidentSocialMailbox.unconsidered(messages, "mail-4", 2).map { it.id })
+    }
+
     @Test fun dailyPlannerCannotCreateFantasyWorldLocations() {
         assertEquals(DigitalWorldPublicPlaces.CAFE,
             ResidentDailyDecision.publicPlace("cafe", "resident-home:r"))
@@ -66,6 +79,14 @@ class ResidentAutonomyBoundaryTest {
         assertEquals("character", msg.author)
         assertTrue(ResidentSocialMailbox.inbox(first.characterId).any { it.id == msg.id })
         assertTrue(ResidentSocialMailbox.inbox(second.characterId).any { it.id == msg.id })
+        assertEquals(listOf(msg.id),
+            ResidentSocialMailbox.pendingIncoming(second.characterId).map { it.id })
+        assertFalse(ResidentSocialMailbox.acknowledgeIncoming(first.characterId, msg.id))
+        assertTrue(ResidentSocialMailbox.acknowledgeIncoming(second.characterId, msg.id))
+        assertTrue(ResidentSocialMailbox.pendingIncoming(second.characterId).isEmpty())
+        val later = ResidentSocialMailbox.send(first.characterId, second.characterId, "哪天有空再聊")
+        assertEquals(listOf(later.id),
+            ResidentSocialMailbox.pendingIncoming(second.characterId).map { it.id })
         val outsider = MigratedDomainStores.characters.create("第三人-" + UUID.randomUUID())
         assertFalse(ResidentSocialMailbox.inbox(outsider.characterId).any { it.id == msg.id })
         assertTrue(ResidentSocialMailbox.canContact(first.characterId, second.characterId))
