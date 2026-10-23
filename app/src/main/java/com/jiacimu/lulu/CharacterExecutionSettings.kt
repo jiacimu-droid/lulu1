@@ -117,20 +117,25 @@ internal fun CharacterLearningSettings(characterId: String) {
         CharacterLearningLedger.listInsights(characterId)
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("学习与探索", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text("每日学习步骤上限 · $limit", Modifier.weight(1f))
-            TextButton(enabled = limit > 0, onClick = {
-                limit--; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
-            }) { Text("减少") }
-            TextButton(enabled = limit < 10, onClick = {
-                limit++; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
-            }) { Text("增加") }
+        Text("自主成长", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        var quotaOpen by remember(characterId) { mutableStateOf(false) }
+        TextButton(onClick = { quotaOpen = !quotaOpen }) {
+            Text(if (quotaOpen) "收起研究调用额度" else "研究调用额度")
         }
-        Text("今日已用 ${budget.used} 步 · 剩余 ${budget.remaining} 步",
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (quotaOpen) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text("每天最多 $limit 次研究操作", Modifier.weight(1f))
+                TextButton(enabled = limit > 0, onClick = {
+                    limit--; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
+                }) { Text("−") }
+                TextButton(enabled = limit < 10, onClick = {
+                    limit++; prefs.edit().putInt("$characterId:learning_daily_limit", limit).commit()
+                }) { Text("+") }
+            }
+            Text("今日已用 ${budget.used} 次", style = MaterialTheme.typography.bodySmall)
+        }
         HorizontalDivider()
-        Text("正在琢磨 · ${goals.size}", style = MaterialTheme.typography.titleSmall)
+        Text("自己想改进的事 · ${goals.size}", style = MaterialTheme.typography.titleSmall)
         goals.take(4).forEach { goal ->
             val stage = when (goal.optString("status")) {
                 "planned" -> "准备了解"
@@ -147,10 +152,10 @@ internal fun CharacterLearningSettings(characterId: String) {
                     color = MaterialTheme.colorScheme.error)
             }
         }
-        if (goals.isEmpty()) Text("暂无学习计划", style = MaterialTheme.typography.bodySmall,
+        if (goals.isEmpty()) Text("暂无", style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         HorizontalDivider()
-        Text("实际学习记录", style = MaterialTheme.typography.titleSmall)
+        Text("真实探索与尝试", style = MaterialTheme.typography.titleSmall)
         actualSteps.forEach { event ->
             val time = event.occurredAt.atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("M/d HH:mm"))
