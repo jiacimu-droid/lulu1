@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T12:00:45.119823+00:00",
-  "commit": "bf07366c875f6e2647aa3144d7d6a483c76229c4",
+  "generatedAt": "2026-10-23T12:02:00.847920+00:00",
+  "commit": "dcb7a0fb1ffaad947c51a67c89474fe8e4702825",
   "branch": "main",
-  "sourceFingerprint": "02c5a832802f6d3b028fb4cb21b5ef33a259f9a35e9e4885df68e1353ebed46e",
+  "sourceFingerprint": "cf2478008241c8941d622a85ea969372981db5d58ecf4991f1546822e9d8867a",
   "summary": {
     "files": 853,
-    "lines": 163436,
+    "lines": 163444,
     "symbols": 2470
   },
   "symbolIndex": {
@@ -4695,7 +4695,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-        "line": 127
+        "line": 135
       }
     ],
     "rememberInquiry": [
@@ -5103,7 +5103,7 @@
     "isExplicitUserToolRequest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-        "line": 168
+        "line": 176
       }
     ],
     "CharacterInnerLifeStore": [
@@ -18342,8 +18342,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
-      "lines": 206,
-      "sha256": "e96bdb0441b8bd2a5b19561aab744bac061a17fd2f265728df4ddab184487a3d",
+      "lines": 214,
+      "sha256": "eb64538434472cf6e2d2368754234a579e60167f4aa1f850a7705c34f738c5f9",
       "symbols": [
         {
           "name": "detect",
@@ -18355,11 +18355,11 @@
         },
         {
           "name": "proactiveContext",
-          "line": 127
+          "line": 135
         },
         {
           "name": "isExplicitUserToolRequest",
-          "line": 168
+          "line": 176
         }
       ]
     },
