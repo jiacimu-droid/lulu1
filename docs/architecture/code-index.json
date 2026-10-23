@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T04:08:43.535686+00:00",
-  "commit": "9bbca295a845bfbc5665cc395a97a194d9a1052c",
+  "generatedAt": "2026-10-23T04:25:12.097862+00:00",
+  "commit": "a05763555fdd6ca0d28b64792b6bf69591e97fa2",
   "branch": "main",
-  "sourceFingerprint": "ced26c44e8b0db5f5285eab36ffcaf4302c265f45cb268b4e62b9c8a0edd8009",
+  "sourceFingerprint": "aa8b3fc56e9895f83e5c3f0e57a12e67419c7e4a3edf8172d3aa6e2a674479e9",
   "summary": {
     "files": 835,
-    "lines": 159444,
+    "lines": 159476,
     "symbols": 2417
   },
   "symbolIndex": {
@@ -909,7 +909,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 299
+        "line": 314
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -2279,19 +2279,19 @@
     "sameSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1820
+        "line": 1823
       }
     ],
     "retryListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 1972
+        "line": 1975
       }
     ],
     "LuluVoiceCallService": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-        "line": 2112
+        "line": 2115
       }
     ],
     "returnToList": [
@@ -5047,7 +5047,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 295
+        "line": 310
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -5773,7 +5773,7 @@
     "collect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 95
+        "line": 109
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldBulletin.kt",
@@ -5783,19 +5783,19 @@
     "voiceOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 158
+        "line": 173
       }
     ],
     "equivalent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 168
+        "line": 183
       }
     ],
     "supportingDeletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-        "line": 170
+        "line": 185
       }
     ],
     "CharacterVoicePreferenceStore": [
@@ -15275,8 +15275,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
-      "lines": 2198,
-      "sha256": "be4d8a15d4e84ab814f24666dbcfcfdee12fe45faaff190b73dec8b7d24b9499",
+      "lines": 2201,
+      "sha256": "f4d41e6dc91c5e3665a5c1a4646e5fb91c5a692f40f50a58d3b33804717e796b",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -15356,15 +15356,15 @@
         },
         {
           "name": "sameSession",
-          "line": 1820
+          "line": 1823
         },
         {
           "name": "retryListening",
-          "line": 1972
+          "line": 1975
         },
         {
           "name": "LuluVoiceCallService",
-          "line": 2112
+          "line": 2115
         }
       ]
     },
@@ -18816,8 +18816,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
-      "lines": 320,
-      "sha256": "2620a9df1aa35f494221176d9352ead3ab483aaf7c7c0e98a77adea3cca51115",
+      "lines": 335,
+      "sha256": "242852cdcd6a94807a2c5b11e547763ebf355c327662113c2d59a4759bddd8ee",
       "symbols": [
         {
           "name": "entries",
@@ -18825,27 +18825,27 @@
         },
         {
           "name": "collect",
-          "line": 95
+          "line": 109
         },
         {
           "name": "voiceOf",
-          "line": 158
+          "line": 173
         },
         {
           "name": "equivalent",
-          "line": 168
+          "line": 183
         },
         {
           "name": "supportingDeletion",
-          "line": 170
+          "line": 185
         },
         {
           "name": "delete",
-          "line": 295
+          "line": 310
         },
         {
           "name": "remove",
-          "line": 299
+          "line": 314
         }
       ]
     },
@@ -19550,8 +19550,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 433,
-      "sha256": "8a268cbf91fda3bcaae0e2d48d7f033c9cc01a0cd0fb3669eae440a1d5a24e27",
+      "lines": 439,
+      "sha256": "b6e2c5227f3b25ab56c33b9378d612dda94bce43295c1538f2cb4a57c401a883",
       "symbols": [
         {
           "name": "fromWire",
@@ -22659,8 +22659,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 29,
-      "sha256": "148aafcc2705a0fadf8d0898813d89d793e54ffb670507bd4be68e882451a35a",
+      "lines": 30,
+      "sha256": "1437d8b99d32a024cd446bb6e753a297689311689c3064b54b2a8a9f9afe8a1c",
       "symbols": []
     },
     {
@@ -25760,8 +25760,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2057,
-      "sha256": "617b0d0f5a70d08deefe61a3ae849c108784db8bcd5c421bab8f27a75a733cdb",
+      "lines": 2064,
+      "sha256": "aa172d82bc8ee545063e2bf91dd2eff89b53e5e0c69ac442e8097916252f0a01",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
