@@ -29,8 +29,10 @@ object DevelopmentPolicy {
         if (kind == DevelopmentKind.SituationalPattern) return evidenceCount >= 3 && counterCount == 0
         if (evidenceCount <= 0 || counterCount > 0) return false
         return when (kind) {
-            DevelopmentKind.Habit, DevelopmentKind.UserHabit, DevelopmentKind.ExpressionHabit,
-            DevelopmentKind.VerifiedMethod -> evidenceCount >= 3
+            DevelopmentKind.Habit, DevelopmentKind.ExpressionHabit -> evidenceCount >= 3
+            // User facts and interpersonal methods have stricter source validation in
+            // CharacterDevelopmentStore, not a blanket three-day requirement.
+            DevelopmentKind.UserPreference, DevelopmentKind.UserHabit, DevelopmentKind.VerifiedMethod -> evidenceCount >= 1
             else -> evidenceCount >= 3 || explicitUserInstruction
         }
     }
