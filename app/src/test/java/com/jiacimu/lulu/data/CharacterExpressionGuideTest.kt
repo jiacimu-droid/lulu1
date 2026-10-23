@@ -179,6 +179,33 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun freshTopicWithAuthoredPrivateInterpretationIsNotSilentlyDropped() {
+        val previous = JSONObject().put("causalTransitions", org.json.JSONArray().put(JSONObject()
+            .put("innerThoughtBasis", JSONObject().put("focus", "正在聊昨晚睡眠"))
+            .put("appraisal", JSONObject().put("meaning", "她在准备休息"))))
+        val basis = JSONObject().put("focus", "她忽然开始聊新读到的小说")
+            .put("change", "开始好奇这本书的伏笔")
+        val appraisal = JSONObject().put("meaning", "这次在聊文学而不是睡眠")
+        val delta = PrivateStateDeltaEngine.evaluate(previous, null, appraisal, basis,
+            "原来她也会注意到那种伏笔，真想问问后面怎么写的。")
+        assertTrue(delta.focusChanged)
+        assertTrue(delta.appraisalChanged)
+        assertTrue(delta.privateResidue)
+        assertEquals("原来她也会注意到那种伏笔，真想问问后面怎么写的。",
+            CharacterHeartVoicePolicy.keepOrBlank(
+                thought = "原来她也会注意到那种伏笔，真想问问后面怎么写的。",
+                outward = "那本小说讲了什么？",
+                basis = basis, delta = delta, hasFreshEvidence = true))
+        val repeated = PrivateStateDeltaEngine.evaluate(
+            JSONObject().put("causalTransitions", org.json.JSONArray().put(JSONObject()
+                .put("innerThoughtBasis", basis).put("appraisal", appraisal))),
+            null, appraisal, basis, "还是先等等她")
+        assertFalse(repeated.meaningful)
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "还是先等等她", basis = basis,
+            delta = repeated, hasFreshEvidence = true))
+    }
+
     @Test fun surfacedHeartVoiceStaysCompactAndDoesNotEchoOutwardSpeech() {
         val changed = JSONObject().put("emotion", JSONObject()
             .put("feeling", "委屈")
