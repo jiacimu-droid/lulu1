@@ -69,7 +69,7 @@ object ProactivePerceptionPolicyStore {
         // residents must not silently create twelve two-hourly paid model
         // loops. Their deterministic jobs are free; editable companionship
         // settings still allow more frequent autonomous thoughts if desired.
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+        if (characterId.startsWith("resident:")) {
             return ProactivePerceptionPolicy(
                 // Ordinary user-directed chat still wakes the recipient.
                 // Unsolicited world/day planning belongs to the separate
