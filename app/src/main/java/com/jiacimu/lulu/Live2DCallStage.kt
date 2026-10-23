@@ -455,8 +455,14 @@ private fun Live2DNativeFrameOverlay(
     DisposableEffect(nativeImage) {
         onDispose { nativeImage.setImageDrawable(null) }
     }
-    var gotBinaryFrame by remember(webView) { mutableStateOf(false) }
-    var lastBinaryFrameAt by remember(webView) { mutableStateOf(0L) }
+    // Frame timestamps must not invalidate Compose's whole stage every
+    // frame: only native ImageView pixels change on the rendering fast path.
+    val gotBinaryFrame = remember(webView) {
+        java.util.concurrent.atomic.AtomicBoolean(false)
+    }
+    val lastBinaryFrameAt = remember(webView) {
+        java.util.concurrent.atomic.AtomicLong(0L)
+    }
     var legacyFallback by remember(webView) { mutableStateOf(!binarySupported) }
     val receiver = rememberUpdatedState(onStatus)
     val currentQuality = rememberUpdatedState(qualityMode)
@@ -486,16 +492,16 @@ private fun Live2DNativeFrameOverlay(
             if (decoded != null) {
                 nativeImage.setImageBitmap(decoded)
                 if (!receivedFirstFrame) receivedFirstFrame = true
-                gotBinaryFrame = true
-                lastBinaryFrameAt = android.os.SystemClock.elapsedRealtime()
+                gotBinaryFrame.set(true)
+                lastBinaryFrameAt.set(android.os.SystemClock.elapsedRealtime())
                 if (firstFrame) {
                     firstFrame = false
                     receiver.value("diagnostic",
                         "原生 Compose 画面桥接已取得首帧：${decoded.width}×${decoded.height} · 二进制通道")
                 }
                 stats.frame(
-                    lastBinaryFrameAt, frame.jpeg.size,
-                    lastBinaryFrameAt - decodeStart,
+                    lastBinaryFrameAt.get(), frame.jpeg.size,
+                    lastBinaryFrameAt.get() - decodeStart,
                     decoded.width, decoded.height, "高速",
                 )?.let { sample ->
                     // p95 gaps expose visible stutter that mean FPS hides.
@@ -533,8 +539,9 @@ private fun Live2DNativeFrameOverlay(
         }
         delay(3_500)
         while (isActive && !legacyFallback) {
-            val silence = android.os.SystemClock.elapsedRealtime() - lastBinaryFrameAt
-            if ((!gotBinaryFrame) || (lastBinaryFrameAt != 0L && silence > 4_000)) {
+            val lastFrame = lastBinaryFrameAt.get()
+            val silence = android.os.SystemClock.elapsedRealtime() - lastFrame
+            if ((!gotBinaryFrame.get()) || (lastFrame != 0L && silence > 4_000)) {
                 webView.evaluateJavascript(
                     "window.LuluLive2D && window.LuluLive2D.setNativeStreaming(false)",
                     null,
