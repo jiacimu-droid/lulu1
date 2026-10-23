@@ -13,8 +13,9 @@ export function createPoseSpring(axes, stiffness = 100, dampingRatio = 1.04, rel
     for (const axis of axes) { value[axis] = 0; velocity[axis] = 0 }
   }
 
-  function step(target, elapsedMs, releasing = false) {
-    const frequency = releasing ? releaseStiffness : stiffness
+  function step(target, elapsedMs, releasing = false, selectedStiffness = null) {
+    const frequency = releasing ? releaseStiffness :
+      Number.isFinite(selectedStiffness) && selectedStiffness > 0 ? selectedStiffness : stiffness
     const damping = 2 * dampingRatio * Math.sqrt(frequency)
     const seconds = Math.min(.05, Math.max(0, elapsedMs / 1000))
     const count = Math.max(1, Math.ceil(seconds * 120))
