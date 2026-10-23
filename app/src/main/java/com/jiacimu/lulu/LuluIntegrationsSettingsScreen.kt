@@ -63,7 +63,7 @@ internal fun LuluIntegrationsSettingsScreen(
     var receiptPageSize by remember { mutableIntStateOf(12) }
     val timelineRevision by SharedExperienceTimeline.revisions.collectAsState()
     val receiptRows by produceState<List<XhsReadingReceipt>>(
-        initialValue = emptyList(), timelineRevision, receiptHistoryOpen, receiptPageSize,
+        emptyList(), timelineRevision, receiptHistoryOpen, receiptPageSize,
     ) {
         val count = if (receiptHistoryOpen) receiptPageSize + 1 else 1
         value = withContext(Dispatchers.IO) {
