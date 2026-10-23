@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:47:51.115342+00:00",
-  "commit": "64a5f6843bdfec75624baf8dc772531c64334093",
+  "generatedAt": "2026-10-23T07:48:35.482411+00:00",
+  "commit": "ddfe909f81c0f69dba1a7f3f428d6a9a2dbf3d8b",
   "branch": "main",
-  "sourceFingerprint": "8485dec684749242447bd547fc4f86b25bd75f486c7249a8ff314b303ef9b3b7",
+  "sourceFingerprint": "b8e80dfb2e81351a6caeb593f7bd67d5aa80778a7dce25b485475481e8e48cc5",
   "summary": {
-    "files": 844,
-    "lines": 161759,
-    "symbols": 2449
+    "files": 845,
+    "lines": 161848,
+    "symbols": 2450
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13314,6 +13314,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
         "line": 11
+      }
+    ],
+    "NativeResidentLifeIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
+        "line": 15
       }
     ],
     "OnlineChatBatchStoreTest": [
@@ -28465,6 +28471,17 @@
         {
           "name": "ModelStructuredOutputTest",
           "line": 11
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt",
+      "lines": 89,
+      "sha256": "e58e6fefa5e9f72807e78e4f97453bf476e413e03e72f2319ce79d2fd942616a",
+      "symbols": [
+        {
+          "name": "NativeResidentLifeIntegrationTest",
+          "line": 15
         }
       ]
     },
