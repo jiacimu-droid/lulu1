@@ -168,6 +168,8 @@ object DigitalWorldStore {
 
     fun itemsAtLocation(characterId: String): List<DigitalWorldItem> {
         val location = locationOf(characterId)
+        if (location.startsWith("resident-home:"))
+            return itemsAtHome(ResidentCharacterBridge.characterId(location.removePrefix("resident-home:")))
         if (!location.startsWith("home:")) return emptyList()
         return itemsAtHome(location.removePrefix("home:"))
     }
@@ -318,10 +320,13 @@ object DigitalWorldStore {
                 }
                 "use_home_item" -> {
                     val currentLocation = locationOf(characterId)
-                    require(currentLocation.startsWith("home:")) { "当前地点没有可使用的家具" }
+                    require(currentLocation.startsWith("home:") ||
+                        currentLocation.startsWith("resident-home:")) { "当前地点没有可使用的家具" }
                     val itemId = args.optString("itemId").trim()
                     val activityId = args.optString("activityId").trim().lowercase()
-                    val ownerId = currentLocation.removePrefix("home:")
+                    val ownerId = if (currentLocation.startsWith("resident-home:"))
+                        ResidentCharacterBridge.characterId(currentLocation.removePrefix("resident-home:"))
+                        else currentLocation.removePrefix("home:")
                     val item = mutable.value.items.firstOrNull { it.id == itemId && it.ownerCharacterId == ownerId }
                         ?: error("指定家具不在角色当前所在地点")
                     val blocked = DigitalWorldLifeEventStore.blockingSummaryForItem(item.id)
@@ -382,6 +387,17 @@ object DigitalWorldStore {
         synchronized(lock) {
             appendEventLocked(characterId, normalizedAction, summary, now)
             persistLocked()
+        }
+        // A native citizen changing place through their REAL character tools
+        // must also change the authoritative resident locator used by
+        // encounters, shop duty and other roles' perception.
+        ResidentCharacterBridge.nativeResident(characterId)?.let { native ->
+            val newPlace = locationOf(characterId)
+            if (newPlace != native.currentLocationCode) {
+                check(DigitalWorldExpansionStore.moveResident(native.id, newPlace, now) != null) {
+                    "原住民地点未能同步，世界位置不可确认"
+                }
+            }
         }
         val evidenceId = if (normalizedAction == "handle_incident")
             "world-fact-${args.optString("incidentId")}-${UUID.randomUUID()}"
@@ -493,7 +509,7 @@ object DigitalWorldStore {
             val nativeId = "resident:$residentId"
             require(turns.isNotEmpty() && turns.all { it.speakerId in setOf(characterId, nativeId) && it.dialogue.isNotBlank() })
             require(turns.any { it.speakerId == characterId } && turns.any { it.speakerId == nativeId })
-            val session = MeetingSession(UUID.randomUUID().toString(), listOf(characterId),
+            val session = MeetingSession(UUID.randomUUID().toString(), listOf(characterId, nativeId),
                 MeetingReality.DIGITAL_WORLD, locationLabel(locationCode), now,
                 initiatedByCharacterId = characterId, invitationText = "与${resident.name}相处",
                 endedAt = now.plusMillis(turns.size.toLong()), turns = turns)
