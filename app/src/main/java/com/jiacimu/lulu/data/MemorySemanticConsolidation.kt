@@ -221,7 +221,7 @@ internal object MemorySemanticConsolidation {
         // The original candidate set is persisted before the first paid request.
         if (start == 0) {
             check(storage.edit().putString(snapshotKey, JSONArray(facts.map(MemoryEntry::id)).toString())
-                .putInt(cursorKey, 0).remove("digest:$characterId").commit()) {
+                .putInt(cursorKey, 0).remove("digestV2:$characterId").commit()) {
                 "未能保存审核范围，本次不调用 API"
             }
         }
@@ -296,9 +296,9 @@ internal object MemorySemanticConsolidation {
             .putInt(cursorKey, if (end == windows.size) 0 else end)
         if (end == windows.size) {
             editor.remove(snapshotKey)
-            if (fullyReviewed) editor.putString("digest:$characterId", fingerprint(candidates(characterId)))
-            else editor.remove("digest:$characterId")
-        } else editor.remove("digest:$characterId")
+            if (fullyReviewed) editor.putString("digestV2:$characterId", fingerprint(candidates(characterId)))
+            else editor.remove("digestV2:$characterId")
+        } else editor.remove("digestV2:$characterId")
         check(editor.commit()) { "语义整理检查点保存失败" }
         publish(characterId, MemoryReviewStatus(
             phase = if (fullyReviewed) MemoryReviewPhase.Completed else MemoryReviewPhase.Partial,
