@@ -146,7 +146,7 @@ class WorldInteractionRegressionTest {
                 .put("text", "喜欢，待在云边会让我放松。")))
         val turns = DigitalWorldResidentInteractionRuntime.parseTurns(json, role.characterId, resident, Instant.now())
         val record = DigitalWorldStore.commitResidentEncounter(role.characterId, resident.id, location, turns)
-        assertEquals(listOf(role.characterId), record.participantIds)
+        assertEquals(listOf(role.characterId, "resident:${resident.id}"), record.participantIds)
         assertNotNull(record.endedAt)
         assertEquals(2, record.turns.size)
         assertTrue(record.turns.none { it.speakerId == null })
