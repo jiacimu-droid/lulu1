@@ -93,7 +93,10 @@ class CharacterExpressionGuideTest {
         assertFalse(autonomous.contains("【私聊呈现】"))
         assertTrue(freshPrivate.contains("优先选择对应的真实 action"))
         assertTrue(freshPrivate.contains("innerThoughtBasis"))
-        assertTrue(freshPrivate.contains("sideActions"))
+        // The current online decision protocol executes ordered steps with
+        // independent receipts; the former sideActions wording is obsolete.
+        assertTrue(freshPrivate.contains("steps=["))
+        assertTrue(freshPrivate.contains("requiresPreviousSuccess"))
         assertTrue(freshPrivate.contains("一个完整 JSON"))
         assertTrue(freshPrivate.length < autonomous.length)
         // The self-directed life instructions still exist for genuinely
