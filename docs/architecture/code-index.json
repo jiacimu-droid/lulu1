@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:41:43.328868+00:00",
-  "commit": "693762523decb7e0f0da86ad1bcf908a7cc35ee0",
+  "generatedAt": "2026-10-23T07:42:10.194544+00:00",
+  "commit": "08db206bbfdb2ae30f501617aac08d808c328ed5",
   "branch": "main",
-  "sourceFingerprint": "045574d150a877ba724d2992dd7cb8e722385fe5bdc8c99e32ae49be81e44ceb",
+  "sourceFingerprint": "79ba00e2cef00a35f33bacac9171506ac6692972ce0ece5d895d7961327f45be",
   "summary": {
     "files": 844,
-    "lines": 161659,
+    "lines": 161664,
     "symbols": 2449
   },
   "symbolIndex": {
@@ -431,7 +431,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 219
+        "line": 224
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -7255,25 +7255,25 @@
     "onPresenceSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 175
+        "line": 178
       }
     ],
     "onPresenceWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 187
+        "line": 191
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 232
+        "line": 237
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 243
+        "line": 248
       }
     ],
     "qualifies": [
@@ -20588,8 +20588,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 251,
-      "sha256": "8aef34b44a6ff5c939d94d6d51eee0c6bd66b4b1bffeb7d38a1400ba7eee9824",
+      "lines": 256,
+      "sha256": "72d9f83bc238dd6cc4dff84b599a72a45154f9892af299d1e464f22d87ef4d23",
       "symbols": [
         {
           "name": "toJson",
@@ -20641,23 +20641,23 @@
         },
         {
           "name": "onPresenceSleep",
-          "line": 175
+          "line": 178
         },
         {
           "name": "onPresenceWake",
-          "line": 187
+          "line": 191
         },
         {
           "name": "context",
-          "line": 219
+          "line": 224
         },
         {
           "name": "onWorldActivity",
-          "line": 232
+          "line": 237
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 243
+          "line": 248
         }
       ]
     },
