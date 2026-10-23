@@ -89,6 +89,8 @@ internal object ResidentDailyDecision {
         val contacts = ResidentSocialMailbox.visibleContacts(characterId).map { target ->
             "$target=${MigratedDomainStores.characters.get(target).displayName}"
         }
+        val relations = CharacterSocialRelationship.perspectivesFor(characterId,
+            ResidentSocialMailbox.visibleContacts(characterId))
         val mail = ResidentSocialMailbox.inbox(characterId, 8).joinToString("\n") {
             val speaker = MigratedDomainStores.characters.get(it.fromId).displayName
             "$speaker: ${it.content.take(220)}"
@@ -112,6 +114,8 @@ internal object ResidentDailyDecision {
             ${mail.ifBlank { "无" }}
             自己确实经历过的事情：
             ${recentOwnExperience(characterId).ifBlank { "暂未积累" }}
+            自己对熟人的真实个人印象（对方未必这么想）：
+            ${relations.ifBlank { "暂无" }}
             自己的身体：
             $body
             ${DigitalWorldPublicBulletin.publicContext(at).ifBlank { "今天没有新的公共活动公告" }}
@@ -145,7 +149,8 @@ internal object ResidentDailyDecision {
                  "thought":"自己内心一闪而过的念头，可为空",
                  "post":"如果今天真的想发朋友圈，填自己的短文；否则留空",
                  "messageTo":"上文列出的确实认识的角色ID，否则为空",
-                 "message":"给这位角色真正想说的私信，否则为空"}
+                 "message":"给这位角色真正想说的私信，否则为空",
+                 "innerLife":{"emotion":{"feeling":"确实发生变化时的情绪","cause":"本人真实经历的原因"},"social":{"targetId":"确实认识的对象ID","interpretation":"本人对其个人看法","reason":"双方实际来往的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}}
                 不能为了活跃指标强制发帖/发消息；不能凭空接触不在身边的人或替别人决定是否喜欢你。
                 发布只是你的选择，不代表对方一定读过；关系随各自真实来往慢慢改变，不能宣告双方已相爱。
                 用户只允许数字世界内社交与行动，禁止现实设备感知、联网、购买和自主联系现实用户。
@@ -176,6 +181,20 @@ internal object ResidentDailyDecision {
             evidenceKind = EventEvidenceKind.CharacterStatement, triggerExtraction = false,
             content = "今天想法：${plan.optString("thought")}；心情：${plan.optString("mood")}；午休=$lunch；晚间=$evening；晚间想做：${plan.optString("eveningActivity")}。这是计划，尚未执行。",
         )
+        // The same private thought and social perspective channel used by
+        // protagonists. An unsupported stranger's bond is never invented.
+        val known = ResidentSocialMailbox.visibleContacts(id).toSet()
+        json.optJSONObject("innerLife")?.let { raw ->
+            val scoped = JSONObject(raw.toString())
+            val target = scoped.optJSONObject("social")?.optString("targetId").orEmpty()
+            if (target !in known) scoped.remove("social")
+            runCatching {
+                CharacterInnerLifeStore.observe(
+                    id, eventId, "今天自己的真实处境与已收到的私人消息",
+                    scoped, known, now,
+                )
+            }
+        }
         val post = json.optString("post").trim().take(MAX_MESSAGE)
         if (post.isNotBlank()) runCatching {
             MomentsStore.initialize(app)
@@ -195,6 +214,7 @@ internal object ResidentDailyDecision {
         appContext = app
         ResidentDailyRoutine.refresh(app, now)
         ResidentSocialMailbox.initialize(app)
+        CharacterInnerLifeStore.initialize(app)
         ScopedModelSelections.initialize(app)
         var succeeded = 0
         for (native in DigitalWorldExpansionStore.residents().take(MAX_RESIDENTS_PER_DAY)) {
