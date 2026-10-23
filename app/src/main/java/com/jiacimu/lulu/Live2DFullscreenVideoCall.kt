@@ -37,6 +37,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import com.jiacimu.lulu.ai.VisionModelService
 import java.io.File
+import org.json.JSONObject
 
 /**
  * True portrait full-screen virtual video call; existing audio-only UI remains untouched.
@@ -84,10 +85,24 @@ internal fun Live2DFullscreenVideoCall(
     var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
     var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
     var interactionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
+    var interactionForce by remember(modelUrl) { mutableFloatStateOf(.55f) }
+    var forceMenuOpen by remember(modelUrl) { mutableStateOf(false) }
     var touchCalibrationMode by remember(modelUrl) { mutableStateOf(false) }
     var touchRegionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
     var touchRegion by remember(modelUrl) { mutableStateOf("cheek-left") }
-    var touchRadius by remember(modelUrl) { mutableFloatStateOf(.085f) }
+    val touchCalibrationContext = LocalContext.current
+    val touchCalibrationPrefs = remember(touchCalibrationContext) {
+        touchCalibrationContext.getSharedPreferences("lulu_live2d_touch_zones_v1",
+            android.content.Context.MODE_PRIVATE)
+    }
+    var touchRadius by remember(modelUrl, touchRegion) {
+        val savedRadius = runCatching {
+            JSONObject(touchCalibrationPrefs.getString(modelUrl, "{}") ?: "{}")
+                .optJSONObject(touchRegion)?.optDouble("rx")?.toFloat()
+        }.getOrNull()?.takeIf { it.isFinite() && it >= Live2DTouchZones.minimumRadius }
+        mutableFloatStateOf(savedRadius ?: Live2DTouchZones.defaultRadius(touchRegion))
+    }
+    var touchSizeRevision by remember(modelUrl) { mutableIntStateOf(0) }
     var touchCalibrationReset by remember(modelUrl) { mutableIntStateOf(0) }
     val cameraContext = LocalContext.current
     val cameraVisionScope = rememberCoroutineScope()
@@ -225,12 +240,14 @@ internal fun Live2DFullscreenVideoCall(
                 framingMode = framingMode,
                 qualityMode = qualityMode,
                 interactionMode = interactionMode,
+                interactionForce = interactionForce,
                 calibrationMode = touchCalibrationMode,
                 calibrationRegion = touchRegion,
                 calibrationRadius = touchRadius,
+                calibrationSizeRevision = touchSizeRevision,
                 calibrationResetRevision = touchCalibrationReset,
                 onWebViewReady = { expressionStage = it },
-                onModelTouch = { region, gesture ->
+                onModelTouch = { region, gesture, force, durationMillis ->
                     // The JS renderer only reports real, model-hit touches.
                     // Do not record a digital-body interaction before Android
                     // has presented an actual frame in this connected call.
@@ -239,11 +256,11 @@ internal fun Live2DFullscreenVideoCall(
                         com.jiacimu.lulu.data.InteractionSignalBridge.recordVideoRendered(
                             characterId, state.callExperienceId)
                         if (LuluVoiceCallSession.onLive2DTouch(characterId,
-                                state.callExperienceId, region, gesture)) {
+                                state.callExperienceId, region, gesture, force, durationMillis)) {
                             val label = Live2DTouchZones.label(region) ?: "身体"
                             touchFeedback = when (gesture) {
                                 "kiss" -> "亲亲 · $label"
-                                "kick" -> "轻踢 · $label"
+                                "slap" -> "拍击 · $label"
                                 "slap-left" -> "向左轻拍 · $label"
                                 "slap-right" -> "向右轻拍 · $label"
                                 "stroke-left" -> "轻轻向左抚摸 · $label"
@@ -641,7 +658,6 @@ internal fun Live2DFullscreenVideoCall(
                                 when (interactionMode) {
                                     "pat" -> "手掌 · 拍击"
                                     "kiss" -> "嘴唇 · 亲吻"
-                                    "foot" -> "脚 · 轻踢"
                                     else -> "手掌 · 抚摸"
                                 },
                                 color = Color.White,
@@ -656,7 +672,6 @@ internal fun Live2DFullscreenVideoCall(
                                 "hand" to "手掌 · 抚摸",
                                 "pat" to "手掌 · 拍击",
                                 "kiss" to "嘴唇 · 亲吻",
-                                "foot" to "脚 · 轻踢",
                             ).forEach { (id, label) ->
                                 DropdownMenuItem(
                                     text = { Text(if (interactionMode == id) "✓ $label" else label) },
@@ -665,6 +680,23 @@ internal fun Live2DFullscreenVideoCall(
                                         interactionMenuOpen = false
                                     },
                                 )
+                            }
+                        }
+                    }
+                    Box {
+                        TextButton(modifier = Modifier.width(48.dp),
+                            onClick = { forceMenuOpen = true }) {
+                            Text(if (interactionForce < .4f) "轻" else
+                                if (interactionForce > .75f) "重" else "中",
+                                color = Color.White, fontSize = 12.sp)
+                        }
+                        DropdownMenu(expanded = forceMenuOpen,
+                            onDismissRequest = { forceMenuOpen = false }) {
+                            listOf(.25f to "轻", .55f to "中", .9f to "重").forEach { (force, label) ->
+                                DropdownMenuItem(text = { Text(label) }, onClick = {
+                                    interactionForce = force
+                                    forceMenuOpen = false
+                                })
                             }
                         }
                     }
@@ -706,11 +738,14 @@ internal fun Live2DFullscreenVideoCall(
                         }
                         Slider(
                             value = touchRadius,
-                            onValueChange = { touchRadius = it },
-                            valueRange = .035f.. .26f,
+                            onValueChange = { touchRadius = it; touchSizeRevision++ },
+                            valueRange = Live2DTouchZones.minimumRadius.. .30f,
                             modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
                         )
-                        TextButton(onClick = { touchCalibrationReset++ }) {
+                        TextButton(onClick = {
+                            touchCalibrationReset++
+                            touchRadius = Live2DTouchZones.defaultRadius(touchRegion)
+                        }) {
                             Text("重置", color = Color.White, fontSize = 12.sp)
                         }
                     }

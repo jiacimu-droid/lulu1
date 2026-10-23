@@ -1,117 +1,159 @@
-/**
- * Fast local tactile actuation; NEVER infers the character's wishes or
- * injects a second paid decision. Each returned parameter is optional and
- * validated against the imported Cubism rig before it can affect a frame.
+import { isImpact, touchFamily, touchForce } from './touch-response.mjs'
+
+const PALM_IMPACT = Object.freeze({
+  hair: [7, -13, 8, 3], forehead: [10, -11, 8, 3],
+  'beast-ear': [14, -5, 10, 3], ear: [21, -6, 14, 4],
+  eye: [12, -6, 8, 3], nose: [4, -12, 3, 4],
+  cheek: [25, -4, 16, 3], mouth: [18, -8, 10, 4],
+  neck: [7, -12, 6, 6], throat: [4, -13, 4, 7],
+  collarbone: [5, -8, 4, 8], chest: [5, -5, 4, 10],
+  arm: [7, -3, 5, 5], hand: [5, -2, 3, 3], body: [5, -5, 4, 9],
+})
+
+/** All axes are optional actuators, validated against the imported rig.
+ * Region × tool × force × elapsed time; ordinal only varies tiny mannerisms.
+ * It never rotates emotions or bypasses the gradual visual response state.
  */
-export function touchReflexFor(region, gesture, ordinal = 0) {
-  const stroking = gesture.startsWith('stroke')
+export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsedMs = 0) {
+  const family = touchFamily(region)
   const side = region.endsWith('-left') ? -1 : region.endsWith('-right') ? 1 : 0
-  const direction = gesture === 'stroke-left' ? -1
-    : gesture === 'stroke-right' ? 1 : 0
-  const up = gesture === 'stroke-up'
-  const variant = Math.abs(ordinal) % 5
-  const gentle = stroking || gesture === 'hold' || gesture === 'kiss'
-  const eyeFace = gentle
-    ? { eyeOpen: [.92, .48, .74, .34, .83][variant],
-        eyeSmile: [.1, .42, .28, .57, .24][variant],
-        smile: [.25, .38, .12, .46, .3][variant] }
-    : { eyeOpen: .85, eyeSmile: .14, smile: .17 }
-  // Tool-specific physical reflexes are not claims about feelings or consent.
-  // A cheek kiss, playful foot nudge and palm swat have different motion arcs.
-  if (gesture === 'kiss') return {
-    yaw: side * 5, pitch: 6, roll: -side * 8,
-    body: { yaw: 0, pitch: 2, roll: -side * 2 },
-    face: { eyeOpen: variant % 2 ? .48 : .9, eyeSmile: .47,
-      smile: .55, cheekPuff: .25 },
-  }
-  if (gesture === 'kick') return {
-    yaw: -side * 13, pitch: -7, roll: (side || 1) * 13,
-    body: { yaw: -side * 7, pitch: -8, roll: (side || 1) * 6 },
-    face: { eyeOpen: .94, browY: .4, pout: variant % 2 ? .33 : 0 },
-  }
-  if (gesture === 'slap-left' || gesture === 'slap-right') {
-    const swipe = gesture === 'slap-right' ? 1 : -1
-    return {
-      yaw: swipe * 19, pitch: -3, roll: swipe * 15,
-      body: { yaw: swipe * 4, pitch: 0, roll: swipe * 4 },
-      face: { eyeOpen: .89, browY: .39, smile: variant % 2 ? .1 : -.25 },
-    }
-  }
+  const direction = gesture === 'stroke-left' || gesture === 'slap-left' ? -1
+    : gesture === 'stroke-right' || gesture === 'slap-right' ? 1 : 0
+  const variation = Math.abs(ordinal) % 3
+  const force = touchForce(state.force)
+  const scale = .55 + force * .85
+  const shy = Math.min(1, Math.max(0, (state.shyness || 0) / 100))
   const response = {
     yaw: 0, pitch: 0, roll: 0,
-    body: { yaw: 0, pitch: 0, roll: 0 },
-    face: {},
+    body: { yaw: 0, pitch: 0, roll: 0 }, face: {}, parameters: {},
   }
-  switch (region) {
+  const closeTouchedEye = (value) => {
+    response.face[side < 0 ? 'eyeLeftOpen' : 'eyeRightOpen'] = value
+  }
+  if (isImpact(gesture)) {
+    // First recoil in the actual direction, THEN knitted brows/pout/tears.
+    const recoil = elapsedMs < 180 ? 1 : Math.max(.12, 1 - (elapsedMs - 180) / 650)
+    const swipe = direction || -side || 1
+    const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
+    response.yaw = swipe * yaw * scale * recoil
+    response.roll = swipe * roll * scale * recoil
+    response.pitch = pitch * scale * recoil
+    response.body = {
+      yaw: swipe * torso * .65 * scale * recoil,
+      pitch: -torso * scale * recoil,
+      roll: swipe * torso * .6 * scale * recoil,
+    }
+    response.face = elapsedMs < 180
+      ? { eyeOpen: .12, browY: .35, smile: -.15 }
+      : { eyeOpen: .72 - force * .2, browY: -.23, browAngle: -.45,
+          browForm: -.4, smile: -.32, pout: .2 + force * .22,
+          gazeX: -swipe * .2, gazeY: -.14 }
+    if (family === 'eye') closeTouchedEye(elapsedMs < 180 ? .02 : .3)
+    if (family === 'beast-ear') {
+      response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] = -.7 * scale * recoil
+    }
+    return response
+  }
+
+  const kiss = gesture === 'kiss'
+  const stroking = gesture.startsWith('stroke') || gesture === 'hold'
+  const soft = stroking || kiss
+  const blink = variation === 1 ? .1 : 0
+  switch (family) {
     case 'hair': case 'forehead':
-      response.pitch = gentle ? 10 + variant * 2 : 4
-      response.yaw = direction * 8
-      response.roll = (direction || (variant % 2 ? -1 : 1)) * 4
-      response.face = { ...eyeFace, smile: gentle ? eyeFace.smile : .08 }
+      response.pitch = kiss ? -3 : soft ? 10 + variation * 2 : 4
+      response.yaw = direction * 7
+      response.roll = (direction || (variation === 1 ? -1 : 1)) * (kiss ? 3 : 4)
+      response.face = { eyeOpen: kiss ? .24 : soft ? .48 + blink : .85,
+        eyeSmile: kiss ? .25 : .32, smile: kiss ? .25 : .22 }
       break
-    case 'ear-left': case 'ear-right':
-      response.yaw = -side * (7 + variant * 2)
-      response.roll = side * (9 + variant)
-      response.pitch = gentle ? 4 : -3
-      response.face = { eyeOpen: variant % 2 ? .8 : .58,
-        browY: .16, smile: variant % 2 ? .26 : .08 }
+    case 'beast-ear':
+      response.yaw = -side * (kiss ? 9 : 5)
+      response.pitch = kiss ? -4 : 5
+      response.roll = side * (kiss ? 9 : 6)
+      response.face = { eyeOpen: kiss ? .48 : .68, smile: .17 + shy * .15 }
+      response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] =
+        (kiss ? -.52 : .28 + .16 * Math.sin(elapsedMs / 120)) * scale
       break
-    case 'eye-left': case 'eye-right':
-      response.yaw = -side * 7
-      response.pitch = -3
-      response.face = { eyeOpen: gentle ? .45 : .8, squint: gentle ? .1 : 0 }
+    case 'ear':
+      response.yaw = -side * (kiss ? 12 : 7)
+      response.roll = side * (kiss ? 11 : 7)
+      response.pitch = kiss ? -4 : 2
+      response.body.roll = -side * 2
+      response.face = { eyeOpen: kiss ? .46 : .7, browY: .12,
+        smile: kiss ? .13 : .2, gazeX: side * .25 }
+      break
+    case 'eye':
+      response.yaw = -side * (kiss ? 3 : 6)
+      response.pitch = kiss ? -1 : -3
+      response.face = { eyeOpen: .9, eyeSmile: kiss ? .2 : 0, smile: kiss ? .2 : .05 }
+      closeTouchedEye(kiss ? .03 : .12)
       break
     case 'nose':
-      response.pitch = -5
-      response.face = { smile: .25, eyeSmile: variant % 2 ? .38 : .1 }
+      response.pitch = kiss ? 5 : -5
+      response.face = { eyeOpen: kiss ? .55 : .65, smile: kiss ? .3 : .16,
+        browY: kiss ? .1 : .18 }
       break
-    case 'cheek-left': case 'cheek-right':
-      response.yaw = side * (8 + variant * 3)
-      response.roll = -side * 7
-      response.pitch = gentle ? 7 : 2
-      response.face = { ...eyeFace, smile: eyeFace.smile }
+    case 'cheek':
+      response.yaw = side * (kiss ? 5 : 9 + variation)
+      response.roll = -side * (kiss ? 8 : 5)
+      response.pitch = kiss ? -2 - shy * 6 : 6
+      response.face = { eyeOpen: kiss ? .8 - shy * .35 : .58,
+        eyeSmile: kiss ? .2 : .32, smile: kiss ? .2 + shy * .2 : .28,
+        gazeX: kiss ? -side * .3 : side * .15,
+        cheekPuff: kiss ? .08 : .04 }
       break
     case 'mouth':
-      response.pitch = -7
-      response.face = { eyeOpen: .84, browY: .1, smile: variant % 2 ? .35 : .12 }
+      response.pitch = kiss ? -3 - shy * 6 : -4
+      response.roll = kiss ? (variation === 1 ? -1 : 1) * 3 : 0
+      response.face = kiss
+        ? { eyeOpen: elapsedMs < 160 ? .95 : .22, eyeSmile: .12,
+            smile: .08, pout: .3, gazeY: -.2 }
+        : { eyeOpen: .88, browY: .08, smile: .02, pout: .17, gazeY: -.25 }
       break
     case 'neck':
-      response.yaw = direction * 7 || (variant ? 7 : -7)
-      response.roll = (side || 1) * 5
+      response.yaw = kiss ? 9 : direction * 7 || (variation === 1 ? -6 : 6)
+      response.roll = kiss ? 8 : 5
+      response.pitch = kiss ? -4 : 1
       response.body.roll = -response.roll * .35
-      response.face = { eyeOpen: .76, smile: .18 }
+      response.face = { eyeOpen: kiss ? .44 : .76, smile: kiss ? .13 : .16, gazeX: .2 }
+      break
+    case 'throat':
+      response.pitch = kiss ? (elapsedMs < 230 ? 10 : -6) : (elapsedMs < 180 ? 5 : -2)
+      response.yaw = kiss ? 6 : 0
+      response.face = { eyeOpen: kiss ? .38 : .8, browY: .12, smile: .03, gazeY: -.2 }
       break
     case 'collarbone':
-      response.pitch = -7
-      response.body.pitch = -3
-      response.face = { eyeOpen: .75 }
+      response.pitch = kiss ? -11 : -6
+      response.body.pitch = kiss ? -5 : -2
+      response.body.roll = kiss ? 3 : 0
+      response.face = { eyeOpen: kiss ? .46 : .78, browY: .1, gazeY: -.35, smile: .1 }
       break
     case 'chest':
-      response.pitch = -8
-      response.body.pitch = -6
+      response.pitch = kiss ? -12 : -8
+      response.body.pitch = kiss ? -6 : -4
       response.body.roll = direction * 3
+      response.face = { eyeOpen: kiss ? .65 : .85, smile: kiss ? .16 : .06, gazeY: -.4 }
       break
-    case 'arm-left': case 'arm-right':
-    case 'hand-left': case 'hand-right':
-      response.yaw = side * 5
-      response.body.yaw = side * (5 + variant * 2)
-      response.body.roll = side * 3
+    case 'arm': case 'hand':
+      response.yaw = side * (kiss ? 9 : 5)
+      response.body.yaw = side * (family === 'hand' ? 3 : 6)
+      response.body.roll = side * (kiss ? 4 : 2)
+      response.face = { gazeX: side * .3, gazeY: -.15, smile: kiss ? .3 : .14,
+        eyeOpen: kiss ? .72 : .92 }
       break
     default:
-      response.body.pitch = gentle ? -4 : -2
+      response.body.pitch = kiss ? -5 : soft ? -4 : -2
+      response.face = { eyeOpen: kiss ? .72 : .9, smile: kiss ? .2 : .06 }
   }
-  if (up) response.pitch += 3
-  // Returning a new object on each event means springs can smoothly follow
-  // the changing fingertip, rather than replaying a canned animation.
+  if (gesture === 'stroke-up') response.pitch += 2
+  response.yaw *= scale
+  response.pitch *= scale
+  response.roll *= scale
+  for (const key of Object.keys(response.body)) response.body[key] *= scale
   return response
 }
 
-/**
- * Runtime catalogue of real .exp3 resources. Never create a visual expression
- * that the imported model did not actually provide. Appearance switches (ears,
- * headphones, microphone) are available in the manual expression picker, but
- * are NOT automatically toggled by an accidental cheek touch.
- */
 export function touchExpressionCategory(name) {
   const n = String(name || '').toLowerCase().replace(/[\s_-]+/g, '')
   if (/(?:兽耳|獸耳|耳机|耳機|头饰|頭飾|衣服|服装|服裝|麦克风|麥克風|立麦|立麥|microphone|headphone|headset|accessor|costume|outfit|^麦$|^麥$)/i.test(n)) return 'appearance'
@@ -126,68 +168,56 @@ export function touchExpressionCategory(name) {
   return 'other'
 }
 
-/**
- * Every touch advances a predictable category rotation. Gentle interactions
- * prefer affection/playful eyes; playful hits can show surprise, tears or dark
- * face. Unknown expressive .exp3 files remain reachable as fallbacks instead
- * of being silently discarded by a tiny keyword allow-list. Accessories never
- * auto-activate. Calling with speaking=true excludes tongue, not blush/hearts.
+/** No emotion roulette. No fallback from a missing mild smile to heart eyes,
+ * tears, tongue or accessories. Optional authored channels enrich the pose.
  */
-export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 'tap', speaking = false) {
-  const impact = gesture === 'kick' || gesture.startsWith('slap')
-  const all = [...new Set(names.filter(name => typeof name === 'string' && name.trim()))]
-    .map(name => ({ name, category: touchExpressionCategory(name) }))
-    .filter(item => item.category !== 'appearance' && (!speaking || item.category !== 'tongue'))
-  // Tears/shadow belong to playful impact or a character-selected cue,
-  // not a later step of the owner's gentle kiss or petting loop.
-  const appropriate = impact
-    ? all : all.filter(item => item.category !== 'tear' && item.category !== 'dark')
-  const available = appropriate.length ? appropriate : all
-  if (!available.length) return null
-  const affection = gesture === 'kiss'
-  const curious = region === 'nose' || region.includes('ear') || region.includes('eye')
-  const preference = impact
-    ? ['dark', 'surprise', 'tear', 'blush', 'other', 'smile', 'star', 'heart', 'tongue']
-    : affection
-      ? ['heart', 'blush', 'star', 'smile', 'other', 'tongue', 'surprise', 'tear', 'dark']
-      : curious
-        ? ['star', 'blush', 'smile', 'heart', 'other', 'tongue', 'surprise', 'tear', 'dark']
-        : ['blush', 'smile', 'heart', 'star', 'other', 'tongue', 'surprise', 'tear', 'dark']
-  // Organize by category so model filenames and filesystem ordering cannot
-  // accidentally make the same emotion the only one ever displayed.
-  const pools = preference.map(kind => available.filter(item => item.category === kind))
-    .filter(group => group.length)
-  const offset = Math.abs(Number.isFinite(ordinal) ? Math.trunc(ordinal) : 0)
-  // A cycle visits each distinct expression before repeating, while its order
-  // depends on the kind of interaction. Body gestures are not emotions.
-  const ordered = pools.flatMap(group => group.map(item => item.name))
-  return ordered[offset % ordered.length] || null
+export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 'tap', speaking = false, state = {}) {
+  const available = names.filter(name => typeof name === 'string' && name.trim())
+  const first = kinds => {
+    for (const kind of kinds) {
+      const name = available.find(n => touchExpressionCategory(n) === kind)
+      if (name) return name
+    }
+    return null
+  }
+  const shy = state.shyness || 0
+  if (isImpact(gesture)) {
+    const impact = state.impact || 0
+    return first(impact >= 72 ? ['dark', 'tear', 'surprise']
+      : impact >= 20 ? ['tear', 'surprise'] : ['surprise'])
+  }
+  const family = touchFamily(region)
+  if (gesture === 'kiss' && shy >= 86 &&
+      ['mouth', 'neck', 'throat', 'collarbone'].includes(family)) return first(['heart', 'blush', 'smile'])
+  if (shy >= 60 && ['nose', 'beast-ear'].includes(family) && gesture !== 'kiss')
+    return first(['star', 'blush', 'smile'])
+  return first(shy >= 14 ? ['blush', 'smile'] : ['smile'])
 }
 
-/**
- * Opt-in second authored facial layer for a real model that has independent
- * additive expression channels (e.g. wolf bq4 blush + bq6 heart eyes).
- * Never merge outfit switches or conflicting parameters. No model assets are
- * redistributed: metadata is read from the imported exp3 files on-device.
- */
-export function touchCompanionOverlayFor(primary, names = [], metadata = {}, gesture = '') {
-  const primaryKind = touchExpressionCategory(primary)
-  if (!['heart', 'star', 'blush'].includes(primaryKind)) return null
-  const nextKind = primaryKind === 'blush'
-    ? (gesture === 'kiss' ? 'heart' : 'star') : 'blush'
-  const candidate = names.find(name =>
-    name !== primary && touchExpressionCategory(name) === nextKind)
+export function touchExpressionWeight(name, state = {}) {
+  switch (touchExpressionCategory(name)) {
+    case 'blush': return Math.min(.9, Math.max(.08, (state.shyness || 0) / 115))
+    case 'heart': case 'star': return Math.min(1, Math.max(.45, (state.shyness || 0) / 100))
+    case 'tear': return Math.min(.85, Math.max(.16, (state.impact || 0) / 85))
+    case 'dark': return Math.min(.8, (state.impact || 0) / 120)
+    default: return .55
+  }
+}
+
+/** Combine only a real independent additive blush with high-tier eyes. */
+export function touchCompanionOverlayFor(primary, names = [], metadata = {}, gesture = '', state = {}) {
+  if (!['heart', 'star'].includes(touchExpressionCategory(primary)) ||
+      isImpact(gesture) || (state.shyness || 0) < 60) return null
+  const candidate = names.find(name => name !== primary && touchExpressionCategory(name) === 'blush')
   if (!candidate) return null
   const primaryParams = metadata[primary]?.Parameters
   const extraParams = metadata[candidate]?.Parameters
-  if (!Array.isArray(primaryParams) || !Array.isArray(extraParams) ||
-      extraParams.length !== 1) return null
+  if (!Array.isArray(primaryParams) || !Array.isArray(extraParams) || extraParams.length !== 1) return null
   const extra = extraParams[0]
   const id = String(extra?.Id || '')
   const value = Number(extra?.Value)
-  const occupied = new Set(primaryParams.map(param => String(param?.Id || '')))
-  if (!/^[A-Za-z][A-Za-z0-9_]{0,60}$/.test(id) || occupied.has(id) ||
-      extra.Blend !== 'Add' || !Number.isFinite(value) || value <= 0 || value > 1)
-    return null
-  return { name: candidate, id, value }
+  if (!/^[A-Za-z][A-Za-z0-9_]{0,60}$/.test(id) ||
+      primaryParams.some(p => p.Id === id) || extra.Blend !== 'Add' ||
+      !Number.isFinite(value) || value <= 0 || value > 1) return null
+  return { name: candidate, id, value: value * touchExpressionWeight(candidate, state) }
 }

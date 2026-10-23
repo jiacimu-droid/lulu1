@@ -252,25 +252,27 @@ internal object LuluVoiceCallSession {
     private var touchBatchJob: Job? = null
     private var touchBatchRole = ""
     private var touchBatchCall = ""
-    private val touchBatch = mutableListOf<Pair<String, String>>()
+    private val touchBatch = mutableListOf<Live2DTouchContact>()
 
     fun onLive2DTouch(characterId: String, callId: String,
-        region: String, gesture: String): Boolean {
+        region: String, gesture: String, force: Float = .55f,
+        durationMillis: Long = 0L): Boolean {
         val call = mutableState.value
         if (!call.connected || !LuluCallWindowController.videoRequested.value ||
             call.characterId != characterId || call.callExperienceId != callId ||
             !InteractionSignalBridge.hasRenderedVideo(characterId, callId) ||
             Live2DTouchZones.label(region) == null ||
+            !force.isFinite() || force !in .1f..1f || durationMillis < 0 ||
             gesture !in setOf("tap", "hold", "stroke", "stroke-left",
                 "stroke-right", "stroke-up", "stroke-down",
-                "kiss", "kick", "slap-left", "slap-right")) return false
+                "kiss", "slap", "slap-left", "slap-right")) return false
         if (touchBatchRole != characterId || touchBatchCall != callId) {
             touchBatchJob?.cancel()
             touchBatch.clear()
             touchBatchRole = characterId
             touchBatchCall = callId
         }
-        touchBatch += region to gesture
+        touchBatch += Live2DTouchContact(region, gesture, force, durationMillis)
         val earlierGeneration = replyGeneration
         touchBatchJob?.cancel()
         touchBatchJob = scope.launch {
@@ -285,7 +287,9 @@ internal object LuluVoiceCallSession {
             touchBatch.clear()
             if (grouped.isEmpty()) return@launch
             val id = InteractionSignalBridge.recordAvatarTouches(
-                characterId, callId, grouped)
+                characterId, callId, grouped.map { it.region to it.gesture },
+                forces = grouped.map { it.force },
+                durationsMillis = grouped.map { it.durationMillis })
                 ?: return@launch
             // New user speech owns the reply; don't interrupt to repeat it.
             if (replyGeneration == earlierGeneration && !confirmedSpeechInProgress()) {

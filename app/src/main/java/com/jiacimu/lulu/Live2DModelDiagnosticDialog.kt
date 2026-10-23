@@ -284,8 +284,8 @@ internal fun Live2DModelDiagnosticDialog(characterId: String, onDismiss: () -> U
                                 previewRevision = motionRevision,
                                 previewImmediate = true,
                                 nativeMirrorEnabled = nativeMirrorMode,
-                                onModelTouch = { region, gesture ->
-                                    record("触摸实际命中：$region · $gesture（诊断模式，不生成角色回应）")
+                                onModelTouch = { region, gesture, force, durationMillis ->
+                                    record("触摸实际命中：$region · $gesture · $force · ${durationMillis}ms（诊断模式，不生成角色回应）")
                                 },
                                 onWebViewReady = { view ->
                                     diagnosticView = view

@@ -130,13 +130,22 @@ export function createVisualLayerRuntime({ has, read, write }) {
       const blend = 1 - Math.exp(-Math.max(0, deltaMs) * .012)
       let released = requested == null && !eyeContact
       ids.forEach((id, i) => {
-        const goal = target ?? (eyeContact ? 0 : state.release[i])
+        // Single-eye contact closes just that eyelid. Keep a single owner per
+        // parameter so the bilateral release cannot flatten an authored wink.
+        const sideKey = key === 'eyeOpen' ? (i === 0 ? 'eyeLeftOpen' : 'eyeRightOpen') : null
+        const sideTarget = sideKey ? face?.[sideKey] ?? touchReflex?.face?.[sideKey] : null
+        const goal = sideTarget ?? target ?? (eyeContact ? 0 : state.release[i])
         state.values[i] += (goal - state.values[i]) * blend
         if (Math.abs(state.values[i] - goal) > .015) released = false
         else if (requested == null) state.values[i] = goal
         write(core, id, state.values[i])
       })
       if (released) delete smoothedFace[key]
+    }
+    // These optional physics channels exist in the supplied wolf CDI3.
+    // An absent channel is skipped; appearance toggles are never touched.
+    for (const [id, value] of Object.entries(touchReflex?.parameters || {})) {
+      if (has(core, id) && Number.isFinite(value)) write(core, id, value)
     }
     // Unlike head yaw oscillations, the dedicated breathing rig produces
     // subtle life without destroying eye contact. Keep it on its own channel.

@@ -83,12 +83,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     framingMode: String = "full",
     qualityMode: String = "quality",
     interactionMode: String = "hand",
+    interactionForce: Float = .55f,
     calibrationMode: Boolean = false,
     calibrationRegion: String = "cheek-left",
-    calibrationRadius: Float = .085f,
+    calibrationRadius: Float = .042f,
+    calibrationSizeRevision: Int = 0,
     calibrationResetRevision: Int = 0,
     onWebViewReady: ((WebView) -> Unit)? = null,
-    onModelTouch: ((region: String, gesture: String) -> Unit)? = null,
+    onModelTouch: ((region: String, gesture: String, force: Float, durationMillis: Long) -> Unit)? = null,
     onStatus: (phase: String, detail: String) -> Unit = { _, _ -> }) {
     val context = LocalContext.current
     val calibrationPrefs = remember(context) {
@@ -99,6 +101,8 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val touchReceiver = rememberUpdatedState(onModelTouch)
+    val latestCalibrationReset = rememberUpdatedState(calibrationResetRevision)
+    val latestCalibrationSize = rememberUpdatedState(calibrationSizeRevision)
     val binaryFrames = remember(context, characterId, modelUrl) {
         Channel<Live2DBinaryFrame>(Channel.CONFLATED)
     }
@@ -154,7 +158,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         // final action is batched into the real call timeline.
         if (onModelTouch != null) {
             Box(Modifier.fillMaxSize().pointerInput(
-                stage, rendererReady.value, interactionMode, calibrationMode,
+                stage, rendererReady.value, interactionMode, interactionForce, calibrationMode,
                 calibrationRegion, calibrationRadius,
             ) {
                 awaitEachGesture {
@@ -165,18 +169,28 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                     var last = down.position
                     var travel = 0f
                     var lastSent = began
+                    var lastStrokeGesture: String? = null
                     fun send(x: Float, y: Float, kind: String, completed: Boolean = false) {
                         // Ignore coordinates outside the real stage; clamping formerly
                         // converted overscroll/background contact into model contact.
-                        if (x < 0 || y < 0 || x >= size.width || y >= size.height) return
+                        if (x < 0 || y < 0 || x >= size.width || y >= size.height) {
+                            if (!calibrationMode) stage.evaluateJavascript(
+                                "window.LuluLive2D && window.LuluLive2D.touch(0,0,'cancel')", null)
+                            return
+                        }
                         val nx = x / size.width
                         val ny = y / size.height
+                        val elapsed = (android.os.SystemClock.uptimeMillis() - began).coerceAtLeast(0L)
                         val js = if (calibrationMode) {
                             "window.LuluLive2D.calibrateTouch(" +
                                 "$nx,$ny,${JSONObject.quote(calibrationRegion)},$calibrationRadius)"
                         } else {
+                            val options = JSONObject()
+                                .put("phase", if (completed) "complete" else "move")
+                                .put("mode", interactionMode)
+                                .put("force", interactionForce.toDouble())
                             "window.LuluLive2D.touch(" +
-                                "$nx,$ny,${JSONObject.quote(kind)})"
+                                "$nx,$ny,${JSONObject.quote(kind)},$options)"
                         }
                         stage.evaluateJavascript(
                             "JSON.stringify(window.LuluLive2D && ($js))",
@@ -187,56 +201,70 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                                 payload?.let(::JSONObject)
                             }.getOrNull() ?: return@evaluateJavascript
                             if (calibrationMode) {
+                                if (latestCalibrationReset.value != calibrationResetRevision)
+                                    return@evaluateJavascript
                                 val zones = hit.optJSONObject("calibration") ?: return@evaluateJavascript
                                 calibrationPrefs.edit().putString(modelUrl, zones.toString()).apply()
                             } else {
                                 val region = hit.takeIf { it.optBoolean("hit") }
                                     ?.optString("region").orEmpty()
                                 val acceptedGesture = hit.optString("gesture")
+                                val acceptedForce = hit.optDouble("force",
+                                    interactionForce.toDouble()).toFloat()
                                 if (Live2DTouchZones.label(region) != null)
-                                    touchReceiver.value?.invoke(region, acceptedGesture)
+                                    touchReceiver.value?.invoke(region, acceptedGesture, acceptedForce,
+                                        elapsed)
                             }
                         }
                     }
-                    send(last.x, last.y, "down")
-                    while (true) {
-                        val pointer = awaitPointerEvent().changes
-                            .firstOrNull { it.id == down.id } ?: break
-                        val moved = pointer.position - last
-                        travel += moved.getDistance()
-                        last = pointer.position
-                        if (!pointer.pressed) break
-                        val now = android.os.SystemClock.uptimeMillis()
-                        if (moved.getDistance() > 1f && now - lastSent >= 70L) {
-                            val dx = last.x - down.position.x
-                            val dy = last.y - down.position.y
-                            val kind = if (kotlin.math.abs(dx) >= kotlin.math.abs(dy)) {
-                                if (dx >= 0) "stroke-right" else "stroke-left"
-                            } else if (dy >= 0) "stroke-down" else "stroke-up"
-                            send(last.x, last.y, kind)
-                            lastSent = now
+                    var released = false
+                    try {
+                        send(last.x, last.y, "down")
+                        while (true) {
+                            val pointer = awaitPointerEvent().changes
+                                .firstOrNull { it.id == down.id } ?: break
+                            val moved = pointer.position - last
+                            travel += moved.getDistance()
+                            last = pointer.position
+                            if (!pointer.pressed) {
+                                released = true
+                                break
+                            }
+                            val now = android.os.SystemClock.uptimeMillis()
+                            if (moved.getDistance() > 1f) {
+                                lastStrokeGesture = if (kotlin.math.abs(moved.x) >= kotlin.math.abs(moved.y)) {
+                                    if (moved.x >= 0) "stroke-right" else "stroke-left"
+                                } else if (moved.y >= 0) "stroke-down" else "stroke-up"
+                            }
+                            if ((interactionMode == "hand" || calibrationMode) &&
+                                moved.getDistance() > 1f && now - lastSent >= 70L) {
+                                send(last.x, last.y, lastStrokeGesture ?: "stroke-right")
+                                lastSent = now
+                            }
                         }
+                        if (!released) {
+                            if (!calibrationMode) send(last.x, last.y, "cancel")
+                            return@awaitEachGesture
+                        }
+                        val dx = last.x - down.position.x
+                        val dy = last.y - down.position.y
+                        val stroke = travel > viewConfiguration.touchSlop * 3
+                        val kind = when {
+                            stroke && lastStrokeGesture != null -> lastStrokeGesture!!
+                            stroke && kotlin.math.abs(dx) >= kotlin.math.abs(dy) ->
+                                if (dx >= 0) "stroke-right" else "stroke-left"
+                            stroke -> if (dy >= 0) "stroke-down" else "stroke-up"
+                            android.os.SystemClock.uptimeMillis() - began >= 520L -> "hold"
+                            else -> "tap"
+                        }
+                        val pos = if (stroke) last else down.position
+                        val performed = if (calibrationMode) "calibrate"
+                            else Live2DTouchGesture.performed(interactionMode, kind)
+                        send(pos.x, pos.y, performed, completed = true)
+                    } finally {
+                        if (!released && !calibrationMode) stage.evaluateJavascript(
+                            "window.LuluLive2D && window.LuluLive2D.touch(0,0,'cancel')", null)
                     }
-                    val dx = last.x - down.position.x
-                    val dy = last.y - down.position.y
-                    val stroke = travel > viewConfiguration.touchSlop * 3
-                    val kind = when {
-                        stroke && kotlin.math.abs(dx) >= kotlin.math.abs(dy) ->
-                            if (dx >= 0) "stroke-right" else "stroke-left"
-                        stroke -> if (dy >= 0) "stroke-down" else "stroke-up"
-                        android.os.SystemClock.uptimeMillis() - began >= 520L -> "hold"
-                        else -> "tap"
-                    }
-                    val pos = if (stroke) last else down.position
-                    val performed = if (calibrationMode) "calibrate" else when (interactionMode) {
-                        "kiss" -> "kiss"
-                        "foot" -> "kick"
-                        "pat" -> if (stroke) {
-                            if (dx >= 0) "slap-right" else "slap-left"
-                        } else "tap"
-                        else -> kind
-                    }
-                    send(pos.x, pos.y, performed, completed = true)
                 }
             })
         }
@@ -261,6 +289,33 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
                 "window.LuluLive2D.setCalibrationSelection(${JSONObject.quote(calibrationRegion)}))",
             null,
         )
+    }
+    // Resizing updates both the visible ellipse and its saved hit boundary,
+    // without requiring another tap to apply the slider value.
+    val handledCalibrationSize = remember(stage) {
+        androidx.compose.runtime.mutableIntStateOf(calibrationSizeRevision)
+    }
+    LaunchedEffect(stage, rendererReady.value, calibrationSizeRevision) {
+        if (rendererReady.value && calibrationMode &&
+            calibrationSizeRevision > handledCalibrationSize.intValue) {
+            handledCalibrationSize.intValue = calibrationSizeRevision
+            stage.evaluateJavascript(
+                "JSON.stringify(window.LuluLive2D && " +
+                    "window.LuluLive2D.resizeCalibrationZone(" +
+                    "${JSONObject.quote(calibrationRegion)},$calibrationRadius))",
+            ) { response ->
+                if (latestCalibrationReset.value != calibrationResetRevision ||
+                    latestCalibrationSize.value != calibrationSizeRevision)
+                    return@evaluateJavascript
+                val payload = runCatching {
+                    JSONTokener(response).nextValue() as? String
+                }.getOrNull()
+                val zones = payload?.let { runCatching { JSONObject(it)
+                    .optJSONObject("calibration") }.getOrNull() }
+                if (zones != null) calibrationPrefs.edit()
+                    .putString(modelUrl, zones.toString()).apply()
+            }
+        }
     }
     // A renderer restart must not replay an old reset and erase subsequent edits.
     val handledCalibrationReset = remember(stage) { androidx.compose.runtime.mutableIntStateOf(calibrationResetRevision) }

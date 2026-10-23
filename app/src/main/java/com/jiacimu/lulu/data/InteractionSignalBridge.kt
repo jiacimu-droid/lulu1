@@ -114,41 +114,57 @@ internal object InteractionSignalBridge {
     /** Describe genuine screen contacts, never assert that the role felt a
      * physical touch or infer the owner's emotion or relationship intention.
      */
-    fun avatarContactDescription(region: String, gesture: String, count: Int): String? {
+    fun avatarContactDescription(region: String, gesture: String, count: Int,
+        force: Float? = null, durationMillis: Long? = null): String? {
         if (count < 1) return null
+        if (force != null && (!force.isFinite() || force !in .1f..1f)) return null
+        if (durationMillis != null && durationMillis < 0) return null
         val place = Live2DTouchZones.label(region) ?: return null
         val action = when (gesture) {
-            "tap" -> "轻点"
-            "hold" -> "按住"
-            "stroke" -> "抚摸"
-            "stroke-left" -> "向左抚摸"
-            "stroke-right" -> "向右抚摸"
-            "stroke-up" -> "向上抚摸"
-            "stroke-down" -> "向下抚摸"
-            "kiss" -> "亲吻"
-            "kick" -> "轻踢"
+            "tap" -> "用手轻点"
+            "hold" -> "用手掌按住"
+            "stroke" -> "用手掌抚摸"
+            "stroke-left" -> "用手掌向左抚摸"
+            "stroke-right" -> "用手掌向右抚摸"
+            "stroke-up" -> "用手掌向上抚摸"
+            "stroke-down" -> "用手掌向下抚摸"
+            "kiss" -> "用嘴唇亲吻"
+            "kick" -> "用脚轻踢" // Historical descriptions only; no new kick can be recorded.
+            "slap" -> "用手掌拍击"
             "slap-left" -> "从右向左轻拍"
             "slap-right" -> "从左向右轻拍"
             else -> return null
         }
         return "用户在屏幕上${action}了数字形象的${place}" +
-            (if (count > 1) "，共${count}次" else "")
+            (if (force != null) "（力度${if (force < .4f) "轻" else if (force > .75f) "重" else "中"}）" else "") +
+            (if (count > 1) "，共${count}次" else "") +
+            (if (durationMillis != null && durationMillis > 0)
+                "，手势总时长${String.format(java.util.Locale.ROOT, "%.1f", durationMillis / 1000.0)}秒" else "")
     }
 
     /** Preserve EVERY distinct touched region in a burst, not just the last
      * region with an inaccurate total count. One batch is one original event.
      */
     fun recordAvatarTouches(characterId: String, callId: String,
-        contacts: List<Pair<String, String>>, now: Instant = Instant.now()): String? {
+        contacts: List<Pair<String, String>>, now: Instant = Instant.now(),
+        forces: List<Float> = emptyList(), durationsMillis: List<Long> = emptyList()): String? {
         if (!hasRenderedVideo(characterId, callId) || contacts.isEmpty()) return null
-        val counts = linkedMapOf<Pair<String, String>, Int>()
-        for ((region, gesture) in contacts) {
-            if (avatarContactDescription(region, gesture, 1) == null) return null
-            val key = region to gesture
+        if (forces.isNotEmpty() && forces.size != contacts.size) return null
+        if (durationsMillis.isNotEmpty() && durationsMillis.size != contacts.size) return null
+        val counts = linkedMapOf<Triple<String, String, Float?>, Int>()
+        val durations = linkedMapOf<Triple<String, String, Float?>, Long>()
+        for ((index, contact) in contacts.withIndex()) {
+            val (region, gesture) = contact
+            val force = forces.getOrNull(index)
+            val duration = durationsMillis.getOrNull(index)
+            if (gesture == "kick" ||
+                avatarContactDescription(region, gesture, 1, force, duration) == null) return null
+            val key = Triple(region, gesture, force)
             counts[key] = (counts[key] ?: 0) + 1
+            if (duration != null) durations[key] = (durations[key] ?: 0L) + duration
         }
         val descriptions = counts.mapNotNull { (key, n) ->
-            avatarContactDescription(key.first, key.second, n)
+            avatarContactDescription(key.first, key.second, n, key.third, durations[key])
         }
         if (descriptions.isEmpty()) return null
         val fact = "这通 Live2D 视频里发生了真实的屏幕触摸："+

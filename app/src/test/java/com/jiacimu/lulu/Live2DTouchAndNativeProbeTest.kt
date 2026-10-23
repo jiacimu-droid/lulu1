@@ -49,6 +49,25 @@ class Live2DTouchAndNativeProbeTest {
             } finally {
                 mixed?.let(SharedExperienceTimeline::deleteEvent)
             }
+            val withForces = InteractionSignalBridge.recordAvatarTouches(role, call,
+                listOf("throat" to "kiss", "throat" to "kiss",
+                    "beast-ear-right" to "stroke"), forces = listOf(.25f, .9f, .55f),
+                durationsMillis = listOf(200L, 400L, 12_500L))
+            assertNotNull(withForces)
+            try {
+                val row = SharedExperienceTimeline.eventsByIds(role, listOf(withForces!!)).single()
+                assertTrue(row.content.contains("喉结（力度轻）"))
+                assertTrue(row.content.contains("喉结（力度重）"))
+                assertTrue(row.content.contains("右兽耳（力度中）"))
+                assertTrue(row.content.contains("手势总时长12.5秒"))
+                assertFalse(row.content.contains("共2次"))
+            } finally {
+                withForces?.let(SharedExperienceTimeline::deleteEvent)
+            }
+            assertNull(InteractionSignalBridge.recordAvatarTouches(role, call,
+                listOf("throat" to "kiss"), forces = listOf(.25f, .9f)))
+            assertNull(InteractionSignalBridge.recordAvatarTouches(role, call,
+                listOf("cheek-left" to "kick")))
         } finally {
             recordedId?.let(SharedExperienceTimeline::deleteEvent)
             SharedExperienceTimeline.deleteEvent(renderedId)

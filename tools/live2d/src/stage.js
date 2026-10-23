@@ -9,8 +9,10 @@ import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
-import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS } from './touch-hit.mjs'
+import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor } from './touch-reflex.mjs'
+import { createTouchResponseRuntime, isImpact } from './touch-response.mjs'
+import { createTouchExpressionLayer } from './touch-expression-layer.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -75,23 +77,14 @@ let headRequest = null
 let headRequestEndAt = 0
 let touchReflex = null
 let touchReflexEndAt = 0
+let tactileContact = null
+const touchResponse = createTouchResponseRuntime()
 let touchSequence = 0
 let touchCalibration = Object.create(null)
 let calibrationVisible = false
 let calibrationSelection = 'cheek-left'
 let calibrationGuide = null
 // Visual regions belong to the currently imported model, not to the character.
-const defaultZoneAnchors = {
-  'ear-left': [.2,.06], 'ear-right': [.8,.06],
-  'hair': [.5,.045], 'forehead': [.5,.09],
-  'eye-left': [.37,.145], 'eye-right': [.63,.145],
-  'nose': [.5,.205], 'cheek-left': [.32,.235],
-  'cheek-right': [.68,.235], 'mouth': [.5,.275],
-  'neck': [.5,.365], 'collarbone': [.5,.415],
-  'chest': [.5,.545], 'arm-left': [.22,.55],
-  'arm-right': [.78,.55], 'hand-left': [.2,.82],
-  'hand-right': [.8,.82], 'body': [.5,.79],
-}
 function drawCalibrationGuide() {
   if (!app || !model) return
   if (!calibrationGuide) {
@@ -103,17 +96,17 @@ function drawCalibrationGuide() {
   const b = model.getBounds()
   for (const [index, zone] of TOUCH_REGIONS.entries()) {
     const saved = touchCalibration[zone]
-    const anchor = defaultZoneAnchors[zone] || [.5,.5]
-    const u = saved?.u ?? anchor[0]
-    const v = saved?.v ?? anchor[1]
-    const rx = (saved?.rx ?? .065) * b.width
-    const ry = (saved?.ry ?? .065 * b.width / Math.max(1,b.height)) * b.height
+    const area = saved || touchZoneArea(zone, b)
+    if (!area) continue
+    const { u, v } = area
+    const rx = area.rx * b.width
+    const ry = area.ry * b.height
     const selected = calibrationSelection === zone
-    calibrationGuide.lineStyle(selected ? 3 : saved ? 2 : 1,
+    calibrationGuide.lineStyle(selected ? 1.5 : 1,
       selected ? 0xFFE4EF : saved ? 0xC5F7FF : 0xC0D0DC,
-      selected ? 1 : saved ? .85 : .48)
+      selected ? .95 : saved ? .6 : .3)
     calibrationGuide.beginFill(selected ? 0xFF86BA :
-      saved ? 0x70D3F1 : 0xA9BCCA, selected ? .3 : saved ? .24 : .10)
+      saved ? 0x70D3F1 : 0xA9BCCA, selected ? .06 : 0)
     calibrationGuide.drawEllipse(b.x + u * b.width, b.y + v * b.height, rx, ry)
     calibrationGuide.endFill()
   }
@@ -131,19 +124,26 @@ function setTouchCalibration(value) {
   touchCalibration = sanitizeTouchCalibration(value)
   drawCalibrationGuide()
 }
-function calibrateTouch(nx, ny, zone, radius = .085) {
+function calibrateTouch(nx, ny, zone, radius = null) {
   if (!model || !TOUCH_REGIONS.includes(zone) || !Number.isFinite(nx) ||
-      !Number.isFinite(ny) || !Number.isFinite(radius)) return null
+      !Number.isFinite(ny) || (radius != null && !Number.isFinite(radius))) return null
   const b = model.getBounds()
   const u = (nx * root.clientWidth - b.x) / b.width
   const v = (ny * root.clientHeight - b.y) / b.height
   if (![u, v].every(Number.isFinite) || u < 0 || u > 1 || v < 0 || v > 1)
     return null
-  const rx = Math.max(.025, Math.min(.3, radius))
-  const ry = Math.max(.025, Math.min(.35, rx * b.width / Math.max(1,b.height)))
+  const area = touchZoneArea(zone, b, touchCalibration[zone], radius)
   touchCalibration = sanitizeTouchCalibration({
-    ...touchCalibration, [zone]: { u, v, rx, ry },
+    ...touchCalibration, [zone]: { ...area, u, v },
   })
+  drawCalibrationGuide()
+  return { zone, calibration: touchCalibration }
+}
+function resizeCalibrationZone(zone, radius) {
+  if (!model || !Number.isFinite(radius)) return null
+  const area = touchZoneArea(zone, model.getBounds(), touchCalibration[zone], radius)
+  if (!area) return null
+  touchCalibration = sanitizeTouchCalibration({ ...touchCalibration, [zone]: area })
   drawCalibrationGuide()
   return { zone, calibration: touchCalibration }
 }
@@ -154,16 +154,12 @@ function clearTouchCalibration() {
 
 let touchExpressionNames = []
 let touchExpressionMetadata = Object.create(null)
-let touchCompanionLayer = null
 function clearTouchCompanion() {
-  const id = touchCompanionLayer?.id
-  const core = model?.internalModel?.coreModel
-  if (id && core && hasParameter(core, id)) setParameter(core, id, 0)
-  touchCompanionLayer = null
+  tactileExpressionLayer.clear(model?.internalModel?.coreModel)
+  activeTouchExpression = null
 }
 let activeTouchExpression = null
 let activeTouchExpressionUntil = 0
-let lastTouchExpressionAt = -Infinity
 let pendingExpressionName = null
 let pendingSpeechParts = null
 let activeExpressionName = null
@@ -194,6 +190,9 @@ const cubismParameters = new CubismParameterAccess()
 const hasParameter = (core, id) => cubismParameters.has(core, id)
 const getParameter = (core, id) => cubismParameters.read(core, id)
 const setParameter = (core, id, value) => cubismParameters.write(core, id, value)
+const tactileExpressionLayer = createTouchExpressionLayer({
+  has: hasParameter, read: getParameter, write: setParameter,
+})
 
 const visualLayers = createVisualLayerRuntime({
   has: hasParameter, read: getParameter, write: setParameter,
@@ -404,23 +403,10 @@ function applyFinalParameters(core, deltaMs) {
   if (!core || paused) return
   seconds += Math.min(Math.max(deltaMs / 1000, 0), .05)
   if (headRequest && Date.now() > headRequestEndAt) headRequest = null
-  if (touchReflex && performance.now() > touchReflexEndAt) touchReflex = null
-  if (activeTouchExpression && performance.now() > activeTouchExpressionUntil) {
-    if (activeExpressionName === activeTouchExpression) resetSpeechExpression()
-    activeTouchExpression = null
-  }
-  // A complementary real exp3 channel fades along with the primary touch.
-  // Reset just that channel once, so an old blush cannot stick on a new cue.
-  if (touchCompanionLayer) {
-    const extra = touchCompanionLayer
-    if (performance.now() >= extra.until) clearTouchCompanion()
-    else if (hasParameter(core, extra.id)) {
-      const time = performance.now()
-      const fade = Math.min(1, (time - extra.start) / 220,
-        (extra.until - time) / 360)
-      setParameter(core, extra.id, extra.value * Math.max(0, fade))
-    }
-  }
+  const tactileNow = performance.now()
+  tickTactileContact(tactileNow)
+  const visibleTouchExpression = tactileExpressionLayer.update(core, tactileNow)
+  if (activeTouchExpression && tactileNow > activeTouchExpressionUntil) activeTouchExpression = null
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   const timeNow = Date.now()
@@ -458,23 +444,26 @@ function applyFinalParameters(core, deltaMs) {
   // remain subsequent independent layers.
   // An authored star/heart/closed-eye exp3 owns its eye shape. Keep local
   // tactile neck/cheek pose and smile, but don't close over the special eyes.
-  const tactilePose = touchReflex && eyeLockedExpressions.has(activeExpressionName)
+  const touchEyesLocked = eyeLockedExpressions.has(visibleTouchExpression)
+  const tactilePose = touchReflex && (eyeLockedExpressions.has(activeExpressionName) || touchEyesLocked)
     ? { ...touchReflex, face: {
         ...touchReflex.face, eyeOpen: undefined, eyeSmile: undefined, squint: undefined,
+        eyeLeftOpen: undefined, eyeRightOpen: undefined,
       } }
     : touchReflex
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
     touchReflex: tactilePose, physical: physicalState,
-    speaking: playing, expressionActive: !!activeExpressionName,
+    speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
     voiceLevel: pcmAvailable ? mouth : null, seconds,
   })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
   // Avoid overwriting eye opening outside the brief blink interval.
-  const eyePoseBusy = eyeLockedExpressions.has(activeExpressionName) ||
+  const eyePoseBusy = eyeLockedExpressions.has(activeExpressionName) || touchEyesLocked ||
     (faceRequest?.eyeOpen != null && faceRequest.eyeOpen < .25) ||
-    (touchReflex?.face?.eyeOpen != null && touchReflex.face.eyeOpen < .7)
+    (touchReflex?.face?.eyeOpen != null && touchReflex.face.eyeOpen < .7) ||
+    touchReflex?.face?.eyeLeftOpen != null || touchReflex?.face?.eyeRightOpen != null
   if (eyePoseBusy && blinkProgress >= 0) {
     blinkProgress = -1
     blinkClock = 2.5
@@ -661,9 +650,7 @@ async function load(modelURL) {
     touchExpressionNames = []
     touchExpressionMetadata = Object.create(null)
     clearTouchCompanion()
-    activeTouchExpression = null
-    clearTouchCompanion()
-    lastTouchExpressionAt = -Infinity
+    touchResponse.reset()
     const references = modelSettings.FileReferences?.Expressions || []
     touchExpressionNames = references.map(entry => entry?.Name).filter(Boolean)
     await Promise.all(references.map(async entry => {
@@ -711,6 +698,7 @@ async function load(modelURL) {
     // score is allowed to bleed into the next imported model.
     visualLayers.reset()
     touchReflex = null
+    tactileContact = null
     performanceRuntime.reset()
     mouthExpressionGate.reset()
     if (playing) performanceRuntime.startSpeech()
@@ -1084,79 +1072,109 @@ function actualAvatarPixel(nx, ny) {
  * normalized point to the actual Pixi model. Never pretend background is a hit.
  * The renderer handles only physical feedback, not AI decisions.
  */
-function touch(normalizedX, normalizedY, gesture = 'tap') {
-  if (!model || !previewObserved || paused ||
+function tickTactileContact(tactileNow) {
+  if (tactileContact && (tactileContact.pressed || tactileNow <= touchReflexEndAt)) {
+    if (tactileContact.pressed) {
+      tactileContact.state = touchResponse.snapshot()
+      if (!isImpact(tactileContact.kind) && tactileContact.kind !== 'kiss')
+        updateTactileExpression(tactileContact.region, tactileContact.kind,
+          tactileContact.state, tactileNow)
+    }
+    const poseKind = tactileContact.pressed && tactileContact.kind === 'tap' &&
+      tactileNow - tactileContact.start > 520 ? 'hold' : tactileContact.kind
+    touchReflex = touchReflexFor(tactileContact.region, poseKind,
+      tactileContact.ordinal, tactileContact.state, tactileNow - tactileContact.start)
+  } else { touchReflex = null; tactileContact = null }
+}
+function updateTactileExpression(region, kind, state, now) {
+  if (activeExpressionName) return
+  const selected = touchExpressionFor(region, touchExpressionNames,
+    touchSequence, kind, playing, state)
+  if (selected === activeTouchExpression && selected && now < activeTouchExpressionUntil) {
+    tactileExpressionLayer.retarget(state, now)
+    activeTouchExpressionUntil = now + 2200
+    return
+  }
+  clearTouchCompanion()
+  if (!selected || (playing && mouthExclusiveExpressions.has(selected))) return
+  const extra = touchCompanionOverlayFor(selected, touchExpressionNames,
+    touchExpressionMetadata, kind, state)
+  const delay = isImpact(kind) ? 180 : 0
+  const duration = kind === 'kiss' ? 2800 : 2200
+  if (tactileExpressionLayer.start(model.internalModel.coreModel, selected,
+      touchExpressionMetadata, extra, state, now, delay, duration)) {
+    activeTouchExpression = selected
+    activeTouchExpressionUntil = now + delay + duration
+  }
+}
+function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
+  if (gesture === 'cancel') {
+    touchResponse.end()
+    tactileContact = null
+    touchReflex = null
+    return { hit: false }
+  }
+  if (!model || !previewObserved || paused || calibrationVisible ||
       !Number.isFinite(normalizedX) || !Number.isFinite(normalizedY) ||
       normalizedX < 0 || normalizedX > 1 ||
-      normalizedY < 0 || normalizedY > 1) return { hit: false }
+      normalizedY < 0 || normalizedY > 1) {
+    touchResponse.end()
+    if (tactileContact) tactileContact.pressed = false
+    return { hit: false }
+  }
+  if (!['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
+      'stroke-up', 'stroke-down', 'kiss', 'slap', 'slap-left', 'slap-right'].includes(gesture))
+    return { hit: false }
   const x = normalizedX * root.clientWidth
   const y = normalizedY * root.clientHeight
   const bounds = model.getBounds()
   const manualZone = calibratedRegion(
-    (x - bounds.x) / bounds.width, (y - bounds.y) / bounds.height,
-    touchCalibration,
-  )
-  // Manual calibration can correct missed pixels in dark/transparent models.
-  // Automatic touches still require visibly rendered character pixels where
-  // the Android native image has a fresh CPU-accessible frame.
-  if (!manualZone && actualAvatarPixel(normalizedX, normalizedY) === false)
+    (x - bounds.x) / bounds.width, (y - bounds.y) / bounds.height, touchCalibration)
+  if (!manualZone && actualAvatarPixel(normalizedX, normalizedY) === false) {
+    touchResponse.end()
+    if (tactileContact) tactileContact.pressed = false
     return { hit: false }
+  }
   let hits = []
   try { hits = model.hitTest(x, y) || [] } catch (_) { /* optional HitAreas */ }
   const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
-  const region = resolveTouchRegion({
-    hits, authoredAreas, bounds, x, y,
-    calibration: touchCalibration,
-  })
-  if (!region) return { hit: false }
-  const kind = ['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
-    'stroke-up', 'stroke-down', 'kiss', 'kick', 'slap-left', 'slap-right'
-  ].includes(gesture) ? gesture : 'tap'
-  if (kind === 'down') touchSequence++
-  // Touch changes pose immediately and for as long as a finger moves.
-  // This physical reflex costs ZERO model calls.
-  touchReflex = touchReflexFor(region, kind, touchSequence)
-  touchReflexEndAt = performance.now() +
-    (kind === 'kick' || kind.startsWith('slap') ? 750 :
-      kind === 'kiss' ? 1100 : kind.startsWith('stroke') ? 650 :
-      kind === 'hold' ? 1100 : 460)
-  // Only an actual completed contact can borrow an authored expression.
-  // Different contacts rotate through the available expressions; don't
-  // repeatedly overwrite the character's own cue. Eye/blush expressions are
-  // allowed while speaking; tongue waits until the mouth is free.
-  const now = performance.now()
-  if (kind !== 'down' && now - lastTouchExpressionAt >= 580 &&
-      (!activeExpressionName || activeExpressionName === activeTouchExpression)) {
-    const selected = touchExpressionFor(
-      region, touchExpressionNames, touchSequence, kind, playing)
-    const manager = model.internalModel?.motionManager?.expressionManager
-    if (selected && manager?.getExpressionIndex?.(selected) >= 0 &&
-        (!playing || !mouthExclusiveExpressions.has(selected))) {
-      // Do not replay the same exp3 for rapid fingertip MOVE samples.
-      if (selected !== activeTouchExpression || now >= activeTouchExpressionUntil) {
-        clearTouchCompanion()
-        playVerifiedSpeechExpression(selected, true)
-        activeTouchExpression = selected
-        activeTouchExpressionUntil = now + (kind === 'kiss' ? 2100 :
-          kind === 'hold' || kind.startsWith('stroke') ? 1950 : 1550)
-        const extra = touchCompanionOverlayFor(
-          selected, touchExpressionNames, touchExpressionMetadata, kind)
-        const core = model.internalModel?.coreModel
-        if (extra && core && hasParameter(core, extra.id)) {
-          touchCompanionLayer = {
-            ...extra, start: now, until: activeTouchExpressionUntil,
-          }
-        }
-        lastTouchExpressionAt = now
-      }
-    }
+  const region = resolveTouchRegion({ hits, authoredAreas, bounds, x, y,
+    calibration: touchCalibration })
+  if (!region) {
+    touchResponse.end()
+    if (tactileContact) tactileContact.pressed = false
+    return { hit: false }
   }
-  return { hit: true, region, gesture: kind }
+  let kind = ['down', 'hold', 'tap', 'stroke-left', 'stroke-right',
+    'stroke-up', 'stroke-down', 'kiss', 'slap', 'slap-left', 'slap-right'
+  ].includes(gesture) ? gesture : 'tap'
+  const completed = options.phase ? options.phase === 'complete' : kind !== 'down'
+  const starting = kind === 'down'
+  if (starting) {
+    touchSequence++
+    kind = options.mode === 'kiss' ? 'kiss' : options.mode === 'pat' ? 'slap' : 'tap'
+  }
+  const now = performance.now()
+  const point = { x: x / bounds.width, y: y / bounds.width }
+  const state = completed ? touchResponse.complete(region, kind, options.force)
+    : starting ? touchResponse.begin(region, kind, options.force, point)
+    : touchResponse.move(region, kind, options.force, point)
+  tactileContact = { region, kind, ordinal: touchSequence, state,
+    start: starting || !tactileContact ? now : tactileContact.start, pressed: !completed }
+  touchReflex = touchReflexFor(region, kind, touchSequence, state)
+  touchReflexEndAt = now + (isImpact(kind) ? 1700 : kind === 'kiss' ? 1850
+    : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
+  // A new impact clears affectionate eyes. Petting grows with actual time
+  // and path length while held, not with the number of MOVE callbacks.
+  if (isImpact(kind)) clearTouchCompanion()
+  if (completed) updateTactileExpression(region, kind, state, now)
+  return { hit: true, region, gesture: kind, force: state.force }
 }
 
 function setPaused(value) {
   paused = !!value
   if (paused) {
+    touchResponse.end()
     // Do not play a stale animation score in a burst when Android restores
     // the WebView after it was hidden while TTS continued in the background.
     performanceRuntime.stopSpeech()
@@ -1167,7 +1185,8 @@ function setPaused(value) {
     faceRequest = null
     touchReflex = null
     activeTouchExpression = null
-    lastTouchExpressionAt = -Infinity
+    tactileContact = null
+    clearTouchCompanion()
   } else if (playing) {
     // Audio may have kept running while the renderer was hidden; resume
     // present-time mouth animation without resurrecting skipped gestures.
@@ -1188,7 +1207,7 @@ function resetSpeechExpression() {
 }
 function startSpeechExpression(name, immediatePreview = false) {
   if (!model || !name) return
-  if (name !== activeTouchExpression) clearTouchCompanion()
+  clearTouchCompanion()
   if (mouthExclusiveExpressions.has(name)) {
     // Playing audio takes precedence over an animated tongue. Wait for a
     // PCM-confirmed pause or a real playback-finished event.
@@ -1306,7 +1325,7 @@ function head(target, immediatePreview = false) {
   // imported model's authored idle/motion instead of oscillating forever.
   headRequestEndAt = Date.now() + 2800
 }
-window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection }
+window.LuluLive2D = { load, update, onPlaybackEvent, setPaused, expression, motion, head, face, body, choreography, touch, setViewport, setPresentationMode, captureNativeFrame, setFramingMode, setNativeStreaming, setBodyState, setTouchCalibration, setCalibrationMode, calibrateTouch, clearTouchCalibration, setCalibrationSelection, resizeCalibrationZone }
 if (window.__luluNativeViewport) {
   setViewport(window.__luluNativeViewport.width, window.__luluNativeViewport.height)
 }
