@@ -149,6 +149,9 @@ internal fun Live2DFullscreenVideoCall(
         }
     }
     var renderRetry by remember(modelUrl) { mutableIntStateOf(0) }
+    var expressionStage by remember(modelUrl, renderRetry) {
+        mutableStateOf<android.webkit.WebView?>(null)
+    }
     var nativeFrameReady by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     // Record only a genuinely visible Android frame during the connected call.
     // Rendering may finish BEFORE dialing; the connected-state key handles it.
@@ -226,6 +229,7 @@ internal fun Live2DFullscreenVideoCall(
                 calibrationRegion = touchRegion,
                 calibrationRadius = touchRadius,
                 calibrationResetRevision = touchCalibrationReset,
+                onWebViewReady = { expressionStage = it },
                 onModelTouch = { region, gesture ->
                     // The JS renderer only reports real, model-hit touches.
                     // Do not record a digital-body interaction before Android
@@ -435,7 +439,20 @@ internal fun Live2DFullscreenVideoCall(
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
                                     expressionPickerExpanded = false
-                                    onPreviewExpression(name)
+                                    // An audition is an explicit immediate visual
+                                    // action, not a new character-model decision.
+                                    // It must not be hidden behind an older live2d
+                                    // cue's previewRevision on this connected call.
+                                    val stage = expressionStage
+                                    if (nativeFrameReady && stage != null) {
+                                        stage.evaluateJavascript(
+                                            "window.LuluLive2D && window.LuluLive2D.expression(" +
+                                                org.json.JSONObject.quote(name) + ", true)",
+                                            null,
+                                        )
+                                    } else {
+                                        onPreviewExpression(name)
+                                    }
                                 },
                             ) {
                                 Text(name, modifier = Modifier.fillMaxWidth())
@@ -533,7 +550,7 @@ internal fun Live2DFullscreenVideoCall(
                                     videoMenuExpanded = false
                                     expressionPickerExpanded = true
                                 },
-                                leadingIcon = { Icon(Icons.Outlined.SentimentSatisfied, null) },
+                                leadingIcon = { Icon(Icons.Outlined.Face, null) },
                             )
                         }
                         DropdownMenuItem(
