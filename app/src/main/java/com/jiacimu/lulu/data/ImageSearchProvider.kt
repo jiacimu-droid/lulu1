@@ -110,7 +110,7 @@ internal object ImageSearchProvider {
         JSONObject(bytes)
     } finally { connection.disconnect() }
 
-    fun search(context: Context, provider: String, query: String): List<ImageSearchHit> {
+    fun search(context: Context, provider: String, query: String, kind: String = "gif"): List<ImageSearchHit> {
         val q = query.trim()
         require(q.length in 2..100) { "请填写具体搜图关键词" }
         val route = if (provider == "auto") {
@@ -121,6 +121,9 @@ internal object ImageSearchProvider {
             "serper" -> {
                 val connection = URL("https://google.serper.dev/images").openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
+                connection.connectTimeout = 12_000
+                connection.readTimeout = 20_000
+                connection.instanceFollowRedirects = false
                 connection.doOutput = true
                 connection.setRequestProperty("X-API-KEY", serperKey(context))
                 connection.setRequestProperty("Content-Type", "application/json")
@@ -134,7 +137,9 @@ internal object ImageSearchProvider {
                 // GIPHY requires searches from the client and exact query text.
                 val encoded = URLEncoder.encode(q.take(50), "UTF-8")
                 val key = URLEncoder.encode(giphyKey(context), "UTF-8")
-                val connection = URL("https://api.giphy.com/v1/gifs/search?" +
+                require(kind in setOf("gif", "sticker")) { "GIPHY 只支持 gif 或 sticker" }
+                val endpoint = if (kind == "sticker") "stickers" else "gifs"
+                val connection = URL("https://api.giphy.com/v1/$endpoint/search?" +
                     "api_key=$key&q=$encoded&limit=10&rating=pg-13")
                     .openConnection() as HttpURLConnection
                 parseGiphy(fetchJson(connection))
@@ -221,7 +226,11 @@ internal object ImageSearchProvider {
                             }
                         }
                     }
-                    val bytes = temp.inputStream().use { it.readNBytes(16) }
+                    val bytes = temp.inputStream().use { input ->
+                        val header = ByteArray(16)
+                        val n = input.read(header)
+                        if (n <= 0) ByteArray(0) else header.copyOf(n)
+                    }
                     val actual = sniff(bytes)
                     require(actual != null && actual == mime) { "图片格式与内容不符" }
                     val ext = when (actual) {
