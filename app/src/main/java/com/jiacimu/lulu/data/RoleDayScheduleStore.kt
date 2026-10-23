@@ -29,6 +29,8 @@ data class RoleDayPlan(
     val resultSummary: String = "",
     val rescheduleCount: Int = 0,
     val repeat: String = "once",
+    /** Reference into innerLife.motives, never another goal record. */
+    val motiveId: String = "",
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -57,7 +59,7 @@ object RoleDayScheduleStore {
                     o.optString("resolvedAt").takeIf(String::isNotBlank)?.let(Instant::parse),
                     o.optString("resultEvidenceId"), o.optString("resultSummary"),
                     o.optInt("rescheduleCount", 0),
-                    o.optString("repeat", "once"))
+                    o.optString("repeat", "once"), o.optString("motiveId"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -75,7 +77,7 @@ object RoleDayScheduleStore {
                 .put("resultEvidenceId", p.resultEvidenceId)
                 .put("resultSummary", p.resultSummary)
                 .put("rescheduleCount", p.rescheduleCount)
-                .put("repeat", p.repeat))
+                .put("repeat", p.repeat).put("motiveId", p.motiveId))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -106,7 +108,8 @@ object RoleDayScheduleStore {
         }.take(8).joinToString("\n") { plan ->
             "planId=${plan.id}，${plan.title}，${plan.dueAt}，" +
                 "动机=${plan.intent}，重复=${plan.repeat}，" +
-                "状态=${plan.status}，动作=${plan.activityAction}。"
+                "状态=${plan.status}，动作=${plan.activityAction}，" +
+                "关联意愿=${plan.motiveId.ifBlank { "无" }}。"
         }
 
     /** Already persisted personal commitments outrank a generic periodic sleep timer.
@@ -120,7 +123,8 @@ object RoleDayScheduleStore {
         ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
     }
 
-    private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant) {
+    private fun scheduleWake(context: Context, plan: RoleDayPlan, now: Instant,
+        replace: Boolean = true) {
         val delay = Duration.between(now, plan.dueAt).toMillis().coerceAtLeast(1_000L)
         val request = OneTimeWorkRequestBuilder<RoleScheduleWakeWorker>()
             .setInputData(Data.Builder().putString("roleId", plan.characterId)
@@ -128,13 +132,24 @@ object RoleDayScheduleStore {
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
-            "role-own-plan-${plan.id}", ExistingWorkPolicy.REPLACE, request)
+            "role-own-plan-${plan.id}",
+            if (replace) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP, request)
+    }
+
+    /** Restore future self-appointed wakeups, but do not replay potentially
+     * executed activities. Old due plans remain visible at the next decision. */
+    fun restorePending(context: Context, now: Instant = Instant.now()) {
+        all(context).filter { it.status == "planned" && it.dueAt.isAfter(now) }
+            .forEach { plan ->
+                runCatching { scheduleWake(context, plan, now, replace = false) }
+                    .onFailure { android.util.Log.w("LuluSchedule", "Role wake restoration failed", it) }
+            }
     }
 
     @Synchronized
     fun arrange(context: Context, characterId: String, title: String, intent: String,
         dueAt: Instant, now: Instant = Instant.now(), activityAction: String = "",
-        repeat: String = "once"): RoleDayPlan {
+        repeat: String = "once", motiveId: String = ""): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
@@ -145,12 +160,19 @@ object RoleDayScheduleStore {
         require(action.isBlank() || action in schedulableActions) { "这项日程尚无可验证的执行动作" }
         require(repeat in setOf("once", "daily")) { "只支持单次或每日重复" }
         require(repeat != "daily" || action.isNotBlank()) { "每日计划需要明确真实执行动作" }
+        val linkedId = motiveId.trim()
+        if (linkedId.isNotBlank()) {
+            require(CharacterMotiveProgress.resolveMotiveId(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+                linkedId, "", "") == linkedId) { "关联意愿必须属于本人且尚未暂停或放下" }
+        }
         val existing = all(context)
         require(existing.count { it.characterId == characterId && it.status in setOf("planned", "due") } < 12) {
             "当前日程过多，请先完成或取消此前的安排"
         }
         val plan = RoleDayPlan(UUID.randomUUID().toString(), characterId,
-            title.trim(), intent.trim(), dueAt, now, activityAction = action, repeat = repeat)
+            title.trim(), intent.trim(), dueAt, now, activityAction = action,
+            repeat = repeat, motiveId = linkedId)
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
@@ -259,6 +281,12 @@ object RoleDayScheduleStore {
             (it.status == "planned" && !it.dueAt.isAfter(now)) }
             .take(3).joinToString("\n") {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
+                    "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；" +
+                    (if (it.motiveId.isNotBlank() &&
+                        CharacterMotiveProgress.resolveMotiveId(
+                            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+                            it.motiveId, "", "") != it.motiveId)
+                        "关联意愿已暂停或放下：先重新考虑是否执行、改期或取消；" else "") +
                     "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}。" +
                     "想做就执行真实工具并把 planId 放入同一次 args；只有成功回执才算完成。" +
                     "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +

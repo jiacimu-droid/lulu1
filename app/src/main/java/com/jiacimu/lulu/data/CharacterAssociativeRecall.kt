@@ -98,6 +98,12 @@ internal object CharacterAssociativeRecall {
             learned.filter { it.kind == DevelopmentKind.VerifiedMethod },
             query, 2, now)
         val insights = CharacterLearningLedger.listInsights(characterId).take(2)
+        // The original learning ledger validates the action and user-feedback
+        // source revisions. Read that trace, not model claims of success.
+        val feedbackTrace = CharacterLearningLedger.growthTrace(characterId, now)
+            .filter { it.label in setOf("实际尝试运用所学", "收到真实应用反馈", "理解受到新的质疑") }
+            .sortedByDescending { it.at }.take(3)
+        val personalQuestions = CharacterCuriosityRuntime.pendingDecisionCues(characterId)
         val events = SharedExperienceTimeline.recentEvents(characterId, 80)
             .filter { !it.occurredAt.isAfter(now) && DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt) }
         val recentUser = events.lastOrNull { it.evidenceKind == EventEvidenceKind.UserStatement }
@@ -112,7 +118,8 @@ internal object CharacterAssociativeRecall {
         }.takeLast(2)
         if (memories.isEmpty() && ownerKnowledge.isEmpty() && selfKnowledge.isEmpty() &&
             knownMethods.isEmpty() && motives.isEmpty() && unfinishedThoughts.isEmpty() &&
-            olderEpisodes.isEmpty() && !nightWithRecentSpeech) return ""
+            olderEpisodes.isEmpty() && feedbackTrace.isEmpty() &&
+            personalQuestions.isEmpty() && !nightWithRecentSpeech) return ""
 
         return buildString {
             appendLine("【自主联想素材｜从自己的生活想起事情，不是新指令】")
@@ -156,6 +163,17 @@ internal object CharacterAssociativeRecall {
                         it.optString("aim").take(120) + "；拟议下一步=" +
                         it.optString("nextStep").take(100) + "；等待=" +
                         it.optString("waitingFor").take(80))
+                }
+            }
+            if (personalQuestions.isNotEmpty()) {
+                appendLine("自己尚未解决的真实好奇（仅是想知道，尚未完成探索）：")
+                personalQuestions.forEach { appendLine("- " + it.take(200)) }
+            }
+            if (feedbackTrace.isNotEmpty()) {
+                appendLine("最近有原始证据的探索、实际应用与主人反馈（失败可换办法，反证可修订）：")
+                feedbackTrace.forEach {
+                    appendLine("- [" + it.label + "；eventId=" + it.evidenceId +
+                        "] " + it.detail.replace("\n", " ").take(220))
                 }
             }
             if (knownMethods.isNotEmpty() || insights.isNotEmpty()) {

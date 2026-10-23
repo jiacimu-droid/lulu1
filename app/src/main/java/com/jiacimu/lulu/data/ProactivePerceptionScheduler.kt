@@ -133,6 +133,9 @@ object ProactivePerceptionScheduler {
             ExistingPeriodicWorkPolicy.UPDATE,
             watchdog,
         )
+        // Restore persisted future plans after boot/app upgrade. No action
+        // is dispatched here, and an existing WorkManager job is kept.
+        RoleDayScheduleStore.restorePending(appContext)
         scheduleNextDue(appContext)
         restoreGoalReviews(appContext)
     }
