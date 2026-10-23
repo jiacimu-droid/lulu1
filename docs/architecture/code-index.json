@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:00:44.536409+00:00",
-  "commit": "e28b56a2a75713f12631aa749414850f20092ca1",
+  "generatedAt": "2026-10-23T07:01:35.579797+00:00",
+  "commit": "08043617c987eb23fd115d0c64eb2885dee8dea8",
   "branch": "main",
-  "sourceFingerprint": "a726a56a1ab8251091295a267c7d3f8c5ff7f0208c2152f164f0be383ab71aa4",
+  "sourceFingerprint": "1db9544d843313ad6a5b564d8c61a506c2fafea1a927e747d61b3f4221966e85",
   "summary": {
     "files": 838,
-    "lines": 161005,
+    "lines": 161014,
     "symbols": 2435
   },
   "symbolIndex": {
@@ -2967,7 +2967,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
-        "line": 164
+        "line": 169
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
@@ -6027,7 +6027,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
-        "line": 181
+        "line": 186
       }
     ],
     "CloudTaskWorker": [
@@ -7363,7 +7363,7 @@
     "remember": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
-        "line": 149
+        "line": 154
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -20634,8 +20634,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ImageSearchProvider.kt",
-      "lines": 253,
-      "sha256": "60954416682b91c08e4894916fdc489d7a9d947cd137720e49938bf70fb96696",
+      "lines": 262,
+      "sha256": "9320f0be5b52622e89f5b8bdd5a53e4adfea09ddf98e5e830cc364ac92c4c899",
       "symbols": [
         {
           "name": "serperKey",
@@ -20659,15 +20659,15 @@
         },
         {
           "name": "remember",
-          "line": 149
+          "line": 154
         },
         {
           "name": "select",
-          "line": 164
+          "line": 169
         },
         {
           "name": "download",
-          "line": 181
+          "line": 186
         }
       ]
     },
