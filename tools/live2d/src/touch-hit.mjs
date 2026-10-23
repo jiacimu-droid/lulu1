@@ -10,6 +10,38 @@ export const TOUCH_REGIONS = Object.freeze([
   'chest', 'arm-left', 'arm-right', 'hand-left', 'hand-right', 'body',
 ])
 
+// Local per-model calibration. Coordinates are fractions of the transformed
+// model bounds (not phone pixels), so they survive camera framing/resizing.
+export function sanitizeTouchCalibration(value) {
+  const clean = Object.create(null)
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return clean
+  for (const zone of TOUCH_REGIONS) {
+    const item = value[zone]
+    if (!item || typeof item !== 'object') continue
+    const { u, v, rx, ry } = item
+    if (![u, v, rx, ry].every(Number.isFinite) ||
+        u < 0 || u > 1 || v < 0 || v > 1 ||
+        rx < .015 || rx > .35 || ry < .015 || ry > .35) continue
+    clean[zone] = { u, v, rx, ry }
+  }
+  return clean
+}
+
+export function calibratedRegion(u, v, calibration) {
+  let winner = null
+  let nearest = Infinity
+  for (const [zone, area] of Object.entries(calibration || {})) {
+    if (!TOUCH_REGIONS.includes(zone)) continue
+    const distance = ((u - area.u) / area.rx) ** 2 +
+      ((v - area.v) / area.ry) ** 2
+    if (Number.isFinite(distance) && distance <= 1 && distance < nearest) {
+      winner = zone
+      nearest = distance
+    }
+  }
+  return winner
+}
+
 const namesMatch = (names, pattern) => names.some(name => pattern.test(name))
 function anatomicalZone(u, v) {
   if (v < .34) {
@@ -33,19 +65,27 @@ function anatomicalZone(u, v) {
   return v < .69 ? 'chest' : 'body'
 }
 
-export function resolveTouchRegion({ hits = [], authoredAreas = 0, bounds, x, y }) {
+export function resolveTouchRegion({ hits = [], authoredAreas = 0, bounds, x, y, calibration = null }) {
   if (!Number.isFinite(x) || !Number.isFinite(y) || !bounds ||
       !Number.isFinite(bounds.width) || !Number.isFinite(bounds.height) ||
       bounds.width <= 0 || bounds.height <= 0) return null
   const u = (x - bounds.x) / bounds.width
   const v = (y - bounds.y) / bounds.height
   if (u < 0 || u > 1 || v < 0 || v > 1) return null
+  const manual = calibratedRegion(u, v, calibration)
+  if (manual) return manual
   const names = Array.isArray(hits) ? hits.map(hit => String(hit).toLowerCase()) : []
   // Never turn a rejected authored hit area into a phantom touch.
   if (authoredAreas > 0 && names.length === 0) return null
   if (!names.length) {
     // Conservative silhouette for models without author-defined areas.
-    const halfWidth = .25 + .18 * Math.sin(Math.PI * v)
+    // Bounds include transparent hair/accessory margins. An ellipse-style
+    // conservative silhouette is safer than counting the entire rectangle.
+    // User-calibrated ellipses above can expand or shrink individual zones.
+    const halfWidth = v < .34
+      ? .29 * Math.sqrt(Math.max(0, 1 - ((v - .17) / .19) ** 2))
+      : v < .46 ? .19 + (v - .34) * .68
+      : .27 + .08 * Math.sin(Math.PI * Math.min(1, (v - .46) / .54))
     if (Math.abs(u - .5) > halfWidth) return null
   }
   const side = u < .5 ? 'left' : 'right'
