@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:30:16.440631+00:00",
-  "commit": "e20d493c6aaae23aeb3f8b4fe61b737dd6060191",
+  "generatedAt": "2026-10-23T08:31:05.835913+00:00",
+  "commit": "8393fcdd1f8f7a3f1d5fcb262435b5b4a7b644ab",
   "branch": "main",
-  "sourceFingerprint": "b5002a8ed6a546e5d2af4982f9335b252e506078c3864ce5c1000c5ccbab1423",
+  "sourceFingerprint": "11a671d56ea0dfbc72739e1d17cc5233ce4c963ca855b3a0c740470f9be72949",
   "summary": {
     "files": 849,
     "lines": 162521,
@@ -17144,7 +17144,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1217,
-      "sha256": "e84aced37196f3baa2e5be64be637143e723c4cd0a56e3fed43aea3ca6155a9e",
+      "sha256": "c0a1e95dca132e65478907e992830b1df75853bff79bde9ce6415a60cb8105e3",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -17710,7 +17710,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 98,
-      "sha256": "e463ad61d80d1dce617b2195ea4968f4dfd7d6c241d48428f055206f86a3fa7f",
+      "sha256": "97bfb659c773cb247067ceb71344ad3f513b73a17e5f7812ac9000abd08ac3bf",
       "symbols": [
         {
           "name": "Capability",
@@ -18270,7 +18270,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
       "lines": 109,
-      "sha256": "ba7ff7ad08fbb33c7d727b7430a7b6ddb22c2d797530d807a967db318b458ecf",
+      "sha256": "30eb65393aa5dae52b868a67a52a63503a7e6b5f9059ca34ec846c3bb98f1d76",
       "symbols": [
         {
           "name": "CharacterIdentityStore",
@@ -19593,7 +19593,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 989,
-      "sha256": "bc9eebccfc46520506e83c9e7af3bb392cf43816de8db7fc4488cbf85d156688",
+      "sha256": "3a01aa33cc1ef50e56479bbd8d6ddeca811f1816ca0a439da4f1d1a90b84270e",
       "symbols": [
         {
           "name": "asJson",
@@ -22396,7 +22396,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
       "lines": 158,
-      "sha256": "e68d6b54a86bd1500f8b3d519db39efce0addeca6d3606f5a574f47fc7cf8699",
+      "sha256": "961d63e4b68720bd6a511b9722040f41f1a5993e57a76a0ef3b44d726784b50e",
       "symbols": [
         {
           "name": "PerceptionIntervalUnit",
