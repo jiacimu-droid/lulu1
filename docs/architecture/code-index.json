@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:15:45.065856+00:00",
-  "commit": "8fb5f724cb47d76b537c2a4dd903c918caf2d2a9",
+  "generatedAt": "2026-10-23T05:16:47.864842+00:00",
+  "commit": "9867e0611c1815d44c0abd6c6e1cee8798176e5e",
   "branch": "main",
-  "sourceFingerprint": "b4f170af5b3867b1bb3f34a6fc66e5fa31efee3726ca9ad46b4913a759df3e9e",
+  "sourceFingerprint": "cc429bc19f42363951cb82d079211fbf65ed4da0b0a79bbbb0c49de66a766dc0",
   "summary": {
-    "files": 835,
-    "lines": 159925,
+    "files": 836,
+    "lines": 160057,
     "symbols": 2419
   },
   "symbolIndex": {
@@ -14472,6 +14472,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldPublicPlaceArt.kt",
       "lines": 364,
       "sha256": "a7d1ce27a67692f29da2ade5a9bf31f85097569af99e5048bbc731113b64feb3",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt",
+      "lines": 132,
+      "sha256": "c6b14b6b270051b4e40b1335aa83c150168d3499924a96861f9ba6753de8498f",
       "symbols": []
     },
     {
