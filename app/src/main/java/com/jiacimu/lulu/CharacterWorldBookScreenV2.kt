@@ -2,6 +2,8 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,8 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.core.WorldBookEntry
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.WorldBookJsonImporter
 import com.jiacimu.lulu.design.LuluColors
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import java.io.ByteArrayOutputStream
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +41,44 @@ fun CharacterWorldBookScreenV2(
     onBack: () -> Unit,
 ) {
     val repository = LuluRepositories.worldBook
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val notices = remember { SnackbarHostState() }
+    var importBusy by remember { mutableStateOf(false) }
+    var importRole by remember { mutableStateOf(initialCharacterId) }
+    var importPreview by remember { mutableStateOf<WorldBookJsonImporter.Preview?>(null) }
+    val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null && !importBusy) scope.launch {
+            importBusy = true
+            try {
+                val preview = withContext(Dispatchers.IO) {
+                    val json = context.contentResolver.openInputStream(uri)?.use { input ->
+                        val output = ByteArrayOutputStream()
+                        val buffer = ByteArray(8192)
+                        // Only one import is held in RAM for JSON parsing; this does
+                        // not cap accumulated world-book history in the repository.
+                        val maxFileBytes = 16 * 1024 * 1024
+                        while (true) {
+                            val bytes = input.read(buffer)
+                            if (bytes == -1) break
+                            require(output.size() + bytes <= maxFileBytes) {
+                                "单个 JSON 超过 16MB，请拆分文件导入"
+                            }
+                            output.write(buffer, 0, bytes)
+                        }
+                        output.toString(Charsets.UTF_8.name())
+                    } ?: error("无法读取选中的文件")
+                    WorldBookJsonImporter.parse(json, importRole)
+                }
+                importPreview = preview
+            } catch (failure: Exception) {
+                if (failure is kotlinx.coroutines.CancellationException) throw failure
+                notices.showSnackbar(failure.message ?: "导入失败")
+            } finally {
+                importBusy = false
+            }
+        }
+    }
     val books by repository.observeWorldBooks().collectAsState(initial = emptyList())
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     var selectedCharacterId by rememberSaveable(initialCharacterId, characters.keys) {
@@ -46,11 +90,25 @@ fun CharacterWorldBookScreenV2(
 
     Scaffold(
         containerColor = LuluColors.Paper,
+        snackbarHost = { SnackbarHost(notices) },
         topBar = {
             TopAppBar(
                 title = { Text("世界书", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                actions = { IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新建世界书") } },
+                actions = {
+                    TextButton(
+                        enabled = !importBusy,
+                        onClick = {
+                            importRole = selectedCharacterId
+                            importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
+                        },
+                    ) {
+                        Icon(Icons.Outlined.FileUpload, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("导入 JSON")
+                    }
+                    IconButton(onClick = { creating = true }) { Icon(Icons.Outlined.Add, "新建世界书") }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),
             )
         },
@@ -155,6 +213,47 @@ fun CharacterWorldBookScreenV2(
                 }
             }
         }
+    }
+
+    importPreview?.let { preview ->
+        AlertDialog(
+            onDismissRequest = { if (!importBusy) importPreview = null },
+            title = { Text("导入世界书") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("可导入 ${preview.entries.size} 条")
+                    if (preview.skipped > 0) Text("无效条目 ${preview.skipped} 条已跳过", color = LuluColors.Muted)
+                    if (preview.foreignFormat) {
+                        Text("外部格式仅对所选角色导入；关键词型条目默认关闭，需手动开启。", color = LuluColors.Muted)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !importBusy,
+                    onClick = {
+                        importBusy = true
+                        scope.launch {
+                            try {
+                                val outcome = withContext(Dispatchers.IO) {
+                                    repository.importEntries(preview.entries)
+                                }
+                                importPreview = null
+                                notices.showSnackbar("已导入 ${outcome.imported} 条，跳过重复 ${outcome.duplicates} 条")
+                            } catch (failure: Exception) {
+                                if (failure is kotlinx.coroutines.CancellationException) throw failure
+                                notices.showSnackbar(failure.message ?: "世界书保存失败")
+                            } finally {
+                                importBusy = false
+                            }
+                        }
+                    },
+                ) { Text("确认导入") }
+            },
+            dismissButton = {
+                TextButton(enabled = !importBusy, onClick = { importPreview = null }) { Text("取消") }
+            },
+        )
     }
 
     val dialogBook = editingBook ?: WorldBookEntry(
