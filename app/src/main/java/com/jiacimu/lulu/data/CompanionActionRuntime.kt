@@ -182,16 +182,13 @@ internal object CompanionActionRuntime {
         replyEvidenceIds: Set<String>,
     ): CompanionActionResult {
         val conversation = privateConversation(characterId, characterName)
-        val credit = if (hit.provider == "giphy") "Powered By GIPHY · " else "图片来源 · "
-        val safeCaption = caption.trim().take(300)
         val rendered = com.jiacimu.lulu.encodeQqChatImage(
             imageUri,
-            caption = buildString {
-                if (safeCaption.isNotBlank()) append(safeCaption).append("\n")
-                append(credit).append(hit.sourceUrl)
-            },
+            caption = caption.trim().take(300),
             imageDescription = "联网图片；搜索标题：${hit.title}；来源：${hit.sourceUrl}；未经视觉模型核实具体画面",
             sticker = hit.provider == "giphy",
+            sourceUrl = hit.sourceUrl,
+            sourceProvider = hit.provider,
         )
         val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
             MigratedDomainStores.chat.appendCharacterMessage(conversation.id,
