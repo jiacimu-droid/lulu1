@@ -36,6 +36,9 @@ import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.ResidentCharacterBridge
 import com.jiacimu.lulu.data.ResidentDailyRoutine
 import com.jiacimu.lulu.data.EmbodiedBodyRuntime
+import com.jiacimu.lulu.data.ResidentDailyDecision
+import com.jiacimu.lulu.ai.ScopedModelSelections
+import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
@@ -66,6 +69,7 @@ fun CharacterSettingsScreenV2(
         DigitalLifeProfileStore.initialize(context.applicationContext)
         com.jiacimu.lulu.data.CharacterLifeStore.initialize(context.applicationContext)
         UserProfileContext.initialize(context.applicationContext)
+        ScopedModelSelections.initialize(context.applicationContext)
         Unit
     }
     val settings by MigratedDomainStores.characters.settings.collectAsState()
@@ -81,6 +85,10 @@ fun CharacterSettingsScreenV2(
         ResidentCharacterBridge.nativeResident(characterId)
     }
     var editNativeProfile by remember(characterId) { mutableStateOf(false) }
+    var chooseResidentModel by remember { mutableStateOf(false) }
+    var residentModelId by remember { mutableStateOf(
+        ScopedModelSelections.selectedArchiveId(ScopedModelSelections.RESIDENT_DAILY)
+    ) }
     LaunchedEffect(characterId) {
         if (nativeResident != null) {
             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -387,6 +395,17 @@ fun CharacterSettingsScreenV2(
                     Text("固定职责 · ${nativeResident.identity}")
                     Text("当前活动 · ${nativeResident.dutyActivity.ifBlank { "自由活动" }}")
                     Text("所在地点 · ${nativeResident.currentLocationCode}")
+                    val today = ResidentDailyDecision.planFor(context, nativeResident.id, Instant.now())
+                    if (today != null) {
+                        Text("今天想法 · ${today.optString("thought").take(95)}")
+                        Text("午休 / 晚间 · ${today.optString("lunch")} / ${today.optString("evening")}")
+                    }
+                    OutlinedButton(onClick = { chooseResidentModel = true },
+                        modifier = Modifier.fillMaxWidth()) {
+                        val picked = LuluAiServices.connectionStore.library.value.archives
+                            .firstOrNull { it.id == residentModelId }
+                        Text("每天一次自主规划模型 · ${picked?.model ?: "选择低价模型"}")
+                    }
                     val body = EmbodiedBodyRuntime.sensorySnapshot(characterId)
                     if (body != null) {
                         Text("精力 ${body.energy.toInt()}  ·  饥饿 ${body.hunger.toInt()}  ·  口渴 ${body.thirst.toInt()}",
@@ -459,6 +478,19 @@ fun CharacterSettingsScreenV2(
         )
     }
 
+    if (chooseResidentModel) {
+        ModelArchivePickerSheet(
+            title = "原住民每日规划",
+            subtitle = "所有 NPC 共用这一低成本模型，每人最多每天一次；与江渡聊天模型独立。",
+            selectedArchiveId = residentModelId,
+            onSelect = { id ->
+                ScopedModelSelections.select(ScopedModelSelections.RESIDENT_DAILY, id)
+                residentModelId = id
+                chooseResidentModel = false
+            },
+            onDismiss = { chooseResidentModel = false },
+        )
+    }
     if (editNativeProfile && nativeResident != null) {
         ResidentProfileEditDialog(nativeResident,
             onDismiss = { editNativeProfile = false },
