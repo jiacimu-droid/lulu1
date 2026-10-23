@@ -57,9 +57,11 @@ internal object CharacterAccountabilityContext {
         if (text.isBlank()) return false
         val compact = text.replace(Regex("\\s+"), "").take(500)
         val theme = listOf("叫我", "叫醒", "喊我", "提醒", "十点", "10点", "起床",
-            "承诺", "说好", "答应", "闹钟", "打电话", "来电").any(compact::contains)
+            "承诺", "说好", "答应", "闹钟", "打电话", "来电", "食言",
+            "监督睡觉", "监督我睡觉").any(compact::contains)
         val challenge = listOf("没", "没有", "忘", "为什么", "怎么", "失约", "没做到",
-            "没听到", "没响", "没叫", "没提醒", "没打").any(compact::contains)
+            "没听到", "没响", "没叫", "没提醒", "没打", "食言", "没有反应",
+            "一点反应都没有").any(compact::contains)
         return theme && challenge
     }
 
@@ -103,11 +105,14 @@ internal object CharacterAccountabilityContext {
         val hasOwnDuty = listOf("答应", "约定", "承诺", "准时", "打电话", "来电",
             "提醒", "闹钟", "叫醒", "到点", "失约", "拨过去", "没做到").any(subject::contains)
         if (!hasOwnDuty) return thought
-        val unearnedAccusation = Regex("抓.{0,6}把柄|挑.{0,3}刺|找.{0,4}茬|无理取闹|故意刁难|恶意找错|小题大做")
+        val unearnedAccusation = Regex("抓.{0,6}把柄|挑.{0,3}刺|找.{0,4}茬|无理取闹|故意刁难|恶意找错|小题大做|倒打一耙|甩锅|找借口|嘴硬|还敢质问")
             .containsMatchIn(thought)
         if (!unearnedAccusation) return thought
         val admittingMistake = listOf("我不该觉得她", "我不该说她", "不是她在挑刺",
-            "她不是在挑刺", "不能怪她", "不应把她", "我误会了她").any(thought::contains)
+            "她不是在挑刺", "不能怪她", "不应把她", "我误会了她",
+            "她没有倒打一耙", "她不是倒打一耙", "她不是在甩锅",
+            "不是她甩锅", "我不该说她倒打一耙", "不能说她倒打一耙",
+            "不是她找借口", "我不该说她找借口", "她不是嘴硬").any(thought::contains)
         // Omitting an unsupported attribution is safer than forging a nicer
         // "real thought". The model can simply return an empty innerThought.
         return if (admittingMistake) thought else ""
