@@ -10,6 +10,21 @@ const PALM_IMPACT = Object.freeze({
   arm: [7, -3, 5, 5], hand: [5, -2, 3, 3], body: [5, -5, 4, 9],
 })
 
+// A face reflex needs a matching torso response. Previously most soft touch
+// regions only animated eyebrows/eyes/head while body yaw/pitch/roll stayed
+// exactly zero, so the on-screen character appeared glued in place.
+// These are modest upper-body angles, not fabricated arm/shoulder motions.
+const BODY_FOLLOW = Object.freeze({
+  hair: [1.4, 3.8, 2.8], forehead: [1, 3.2, 2.2],
+  'beast-ear': [2.6, -1.6, 3.2], ear: [2.6, -1.8, 3.4],
+  eye: [1.5, -2.5, 1.8], nose: [1.2, -3.2, 1.8],
+  cheek: [4.5, 1.2, -4.2], mouth: [2, -3.2, 2.2],
+  neck: [2.8, -3.2, 4.4], throat: [1.4, -2.5, 2.2],
+  collarbone: [2, -2.2, 3], chest: [1.6, -2.2, 3.2],
+  arm: [3.2, -1, 4], hand: [2.6, -1, 3.6],
+  body: [2.5, -2.4, 3.5],
+})
+
 /** All axes are optional actuators, validated against the imported rig.
  * Region × tool × force × elapsed time; ordinal only varies tiny mannerisms.
  * It never rotates emotions or bypasses the gradual visual response state.
@@ -147,6 +162,15 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       response.face = { eyeOpen: kiss ? .72 : .9, smile: kiss ? .2 : .06 }
   }
   if (gesture === 'stroke-up') response.pitch += 2
+  // Couple the real torso rig to each local touch. Mirror left/right and
+  // follow the travel direction for central zones. Do not perform an authored
+  // full-body motion: imported rigs with no torso parameters simply skip it.
+  const [followYaw, followPitch, followRoll] = BODY_FOLLOW[family] || BODY_FOLLOW.body
+  const followSide = side || direction || (variation === 1 ? -1 : 1)
+  const followStrength = kiss ? 1.15 : stroking ? 1 : .75
+  response.body.yaw += followSide * followYaw * followStrength
+  response.body.pitch += followPitch * followStrength
+  response.body.roll += followSide * followRoll * followStrength
   response.yaw *= scale
   response.pitch *= scale
   response.roll *= scale
