@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:02:06.036320+00:00",
-  "commit": "12dcb084ee17f7005a01e0d84f78fd639d8cce3f",
+  "generatedAt": "2026-10-23T07:02:47.741638+00:00",
+  "commit": "0820425ce3b41f15e9ca90ce39c052109c6dd70a",
   "branch": "main",
-  "sourceFingerprint": "171ba0f1accfdadb23f04c8ebba33ae81cc773864686ff9b09a16ad9f0d788b7",
+  "sourceFingerprint": "b89279e8e641527496df1cd9ff55812198728b3ed4cd2abc7b25abaef7b690ff",
   "summary": {
-    "files": 838,
-    "lines": 161015,
-    "symbols": 2435
+    "files": 839,
+    "lines": 161081,
+    "symbols": 2436
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13083,6 +13083,12 @@
     "GroupTimelineDeletionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/GroupTimelineDeletionTest.kt",
+        "line": 17
+      }
+    ],
+    "ImageSearchProviderTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt",
         "line": 17
       }
     ],
@@ -28054,6 +28060,17 @@
       "symbols": [
         {
           "name": "GroupTimelineDeletionTest",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt",
+      "lines": 66,
+      "sha256": "44cb8bbc32fd8c1233a6dff0bb972cdd52cbf5bf0920b19580ea28f89d032200",
+      "symbols": [
+        {
+          "name": "ImageSearchProviderTest",
           "line": 17
         }
       ]
