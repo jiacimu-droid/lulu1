@@ -486,6 +486,7 @@ fun CharacterSettingsScreenV2(
             onSelect = { id ->
                 ScopedModelSelections.select(ScopedModelSelections.RESIDENT_DAILY, id)
                 residentModelId = id
+                ResidentDailyDecision.schedule(context.applicationContext)
                 chooseResidentModel = false
             },
             onDismiss = { chooseResidentModel = false },
