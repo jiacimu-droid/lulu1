@@ -123,7 +123,14 @@ object CharacterDevelopmentRuntime {
             timeline.filter { it.evidenceKind == EventEvidenceKind.CharacterStatement &&
                 it.source in setOf("journal:own", "moment:self") }.takeLast(8))
             .distinctBy { it.id }.sortedBy { it.occurredAt }
-        if (independentDevelopmentExposures(events).size < 2) {
+        val directOwnerSignal = events.any { event ->
+            event.evidenceKind == EventEvidenceKind.UserStatement &&
+                (event.channel == "私聊" || event.channel.contains("电话") ||
+                    event.channel.contains("见面")) &&
+                Regex("我.{0,8}(喜欢|不喜欢|更喜欢|讨厌|希望|想要|不想)|我(一般|经常|通常|习惯|平时)|别总|别再|不要再")
+                    .containsMatchIn(event.content)
+        }
+        if (independentDevelopmentExposures(events).size < 2 && !directOwnerSignal) {
             p.edit().putBoolean("pending:$characterId", false).apply()
             note(characterId, "真实经历还不足")
             return
