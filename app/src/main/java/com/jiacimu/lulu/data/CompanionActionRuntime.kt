@@ -49,7 +49,7 @@ internal object CompanionActionRuntime {
         allowSleepReward: Boolean = true,
         includeWorldContext: Boolean = true,
     ): String = buildString {
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+        if (characterId.startsWith("resident:")) {
             appendLine("【数字世界原住民专用能力】你生活在数字世界，只能感知亲历的所在地点、社交记录与真正发布的世界公告。")
             appendLine("- digital_world_action：在真实存在的数字世界地点移动、休息、玩耍，按原执行回执结算。")
             appendLine("- publish_moment，args={\"text\":\"自己确实想分享的内容\"}：发朋友圈，不保证其他居民会看到或回应。")
@@ -215,7 +215,7 @@ internal object CompanionActionRuntime {
     ): CompanionActionResult = runCatching {
         val character = MigratedDomainStores.characters.get(characterId)
         val normalizedAction = action.trim().lowercase()
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+        if (characterId.startsWith("resident:")) {
             require(normalizedAction in setOf(
                 "digital_world_action", "publish_moment", "send_private_message",
                 "send_group_message", "send_character_message", "play_solo_game", "go_offline",
