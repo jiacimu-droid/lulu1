@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T17:41:32.426696+00:00",
-  "commit": "625ab1ae78a89ed5475d9455ed7bcb50eadf6d49",
+  "generatedAt": "2026-10-23T17:41:46.946159+00:00",
+  "commit": "961bccec97967aae1563da55cfa76c108871b5f7",
   "branch": "main",
-  "sourceFingerprint": "6ea5d643d176439ed394aeb84120636a14bf8299cc62f51bf830fb3756d5082b",
+  "sourceFingerprint": "c56edec63596952c1583f9815b7d79ac5b48afc06e8c9a183d3b6ba208e555df",
   "summary": {
     "files": 864,
-    "lines": 165291,
+    "lines": 165331,
     "symbols": 2498
   },
   "symbolIndex": {
@@ -27747,8 +27747,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 150,
-      "sha256": "79e3ab16faeb39b81fb2c3cf3831cf631d607a980acb94c86473108b3984eaa2",
+      "lines": 160,
+      "sha256": "3576a909929cf079f532757c874f62d7e3f775ada8b55c8d84c4bbd78f5d9d36",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
@@ -29338,8 +29338,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
-      "lines": 48,
-      "sha256": "4d33e9d40d2e74723231ffe22ff649afa865af4aaa6bc0c1da637077becc58b5",
+      "lines": 78,
+      "sha256": "e7d7d0b001b70d267b0a720cd061a155bfbdac7d86bc212a8b5a5c00fe2d91b8",
       "symbols": [
         {
           "name": "SearchReceiptFeedbackTest",
