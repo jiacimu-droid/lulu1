@@ -417,6 +417,42 @@ object SharedExperienceTimeline {
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
         if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /**
+     * Read-only cross-character Xiaohongshu receipts directly from canonical evidence.
+     * Deletion/retraction is automatically reflected; no duplicate preference history.
+     * The bounded indexed query does not scan unrelated conversation payloads.
+     */
+    fun recentXhsReadings(limit: Int = 12): List<SharedTimelineEvent> {
+        if (limit <= 0) return emptyList()
+        val db = helper?.readableDatabase ?: return emptyList()
+        return db.query(
+            "timeline_events",
+            EVENT_COLUMNS,
+            "channel = ? AND source IN (?, ?) AND evidence_kind = ?",
+            arrayOf("小红书阅读", "xiaohongshu-webview", "xiaohongshu-mcp", EventEvidenceKind.Observation.name),
+            null, null, "occurred_at DESC",
+            limit.coerceAtMost(120).toString(),
+        ).use { cursor ->
+            buildList {
+                while (cursor.moveToNext()) {
+                    add(SharedTimelineEvent(
+                        id = cursor.getString(0),
+                        characterId = cursor.getString(1),
+                        channel = cursor.getString(2),
+                        speaker = cursor.getString(3),
+                        content = cursor.getString(4),
+                        occurredAt = Instant.ofEpochMilli(cursor.getLong(5)),
+                        sessionId = cursor.getString(6),
+                        source = cursor.getString(7),
+                        evidenceKind = EventEvidenceKind.valueOf(cursor.getString(8)),
+                        taskId = cursor.getString(9),
+                        revision = cursor.getLong(10),
+                    ))
+                }
+            }
+        }
+    }
+
     /** Query one real shared activity without loading years of unrelated conversations. */
     fun sessionEvents(characterId: String, sessionId: String, limit: Int = 160): List<SharedTimelineEvent> =
         if (characterId.isBlank() || sessionId.isBlank() || limit <= 0) emptyList()
@@ -605,7 +641,7 @@ object SharedExperienceTimeline {
     private val EVENT_COLUMNS = arrayOf("id", "character_id", "channel", "speaker", "content", "occurred_at",
         "session_id", "source", "evidence_kind", "task_id", "revision")
 
-    private class TimelineDatabase(context: Context) : SQLiteOpenHelper(context, "shared_experience_timeline.db", null, 3) {
+    private class TimelineDatabase(context: Context) : SQLiteOpenHelper(context, "shared_experience_timeline.db", null, 4) {
         override fun onCreate(db: SQLiteDatabase) {
             db.execSQL(
                 """CREATE TABLE timeline_events (
@@ -623,6 +659,7 @@ object SharedExperienceTimeline {
                 )""".trimIndent(),
             )
             db.execSQL("CREATE INDEX timeline_character_time ON timeline_events(character_id, occurred_at)")
+            db.execSQL("CREATE INDEX timeline_source_time ON timeline_events(source, occurred_at DESC)")
             createDeletionTable(db)
         }
 
@@ -634,6 +671,9 @@ object SharedExperienceTimeline {
                 db.execSQL("ALTER TABLE timeline_events ADD COLUMN evidence_kind TEXT NOT NULL DEFAULT 'Legacy'")
                 db.execSQL("ALTER TABLE timeline_events ADD COLUMN task_id TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE timeline_events ADD COLUMN revision INTEGER NOT NULL DEFAULT 1")
+            }
+            if (oldVersion < 4) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS timeline_source_time ON timeline_events(source, occurred_at DESC)")
             }
         }
 
