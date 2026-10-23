@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T16:46:21.048569+00:00",
-  "commit": "01e914d47c61adbbd868fb8b37ce798298afe7ce",
+  "generatedAt": "2026-10-23T16:47:06.891409+00:00",
+  "commit": "0822d7cc3d5ff231c98d5ac910363d4e499e51a6",
   "branch": "main",
-  "sourceFingerprint": "b82357549309ee053a7181b80d3647e87c6ee500dea6a375e41a2dd9041ea9b8",
+  "sourceFingerprint": "cb5589de4f8d7edda939fcb582dcf4bd63d8f54b71ea9412f121b1ccba21e152",
   "summary": {
     "files": 862,
     "lines": 164800,
@@ -19675,7 +19675,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
       "lines": 40,
-      "sha256": "f1ec1aa47f32e68f2eaef2304ceec004fd78650e6db01ec889fa25e2b4f732f2",
+      "sha256": "144b8559f1aa1e338af7e5b7fec750accc6ca56412465c4b4e0e2a2a08ae9396",
       "symbols": [
         {
           "name": "context",
