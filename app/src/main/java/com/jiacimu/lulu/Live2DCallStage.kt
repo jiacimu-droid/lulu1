@@ -254,14 +254,19 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             )
         }
     }
-    LaunchedEffect(stage, rendererReady.value, calibrationMode) {
+    LaunchedEffect(stage, rendererReady.value, calibrationMode, calibrationRegion) {
         if (rendererReady.value) stage.evaluateJavascript(
-            "window.LuluLive2D && window.LuluLive2D.setCalibrationMode($calibrationMode)",
+            "window.LuluLive2D && (" +
+                "window.LuluLive2D.setCalibrationMode($calibrationMode)," +
+                "window.LuluLive2D.setCalibrationSelection(${JSONObject.quote(calibrationRegion)}))",
             null,
         )
     }
+    // A renderer restart must not replay an old reset and erase subsequent edits.
+    val handledCalibrationReset = remember(stage) { androidx.compose.runtime.mutableIntStateOf(calibrationResetRevision) }
     LaunchedEffect(stage, calibrationResetRevision) {
-        if (calibrationResetRevision > 0) {
+        if (calibrationResetRevision > handledCalibrationReset.intValue) {
+            handledCalibrationReset.intValue = calibrationResetRevision
             calibrationPrefs.edit().remove(modelUrl).apply()
             stage.evaluateJavascript(
                 "window.LuluLive2D && window.LuluLive2D.clearTouchCalibration()",
