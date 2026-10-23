@@ -334,7 +334,13 @@ internal object PrivateStateDeltaEngine {
         val privateResidue = thought.isNotBlank() && (
             basis?.optString("unsaidWhy").orEmpty().isNotBlank() ||
                 basis?.optString("conflict").orEmpty().isNotBlank() ||
-                emotionChanged || motiveChanged || conflictChanged
+                emotionChanged || motiveChanged || conflictChanged ||
+                // An actually new conversational focus can change the
+                // character's unspoken interpretation without changing their
+                // mood or adding a permanent motive. Require an authored
+                // causal change as well: fresh input alone is insufficient.
+                (focusChanged && appraisalChanged &&
+                    basis?.optString("change").orEmpty().isNotBlank())
             )
 
         val fingerprintMaterial = buildString {
