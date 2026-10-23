@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:01:26.388634+00:00",
-  "commit": "4ac1413fb2372502d3d14b098afbd2011f6709ef",
+  "generatedAt": "2026-10-23T18:02:36.173299+00:00",
+  "commit": "4cdd9552da20d7343e0d9c94c80c99bf177ba888",
   "branch": "main",
-  "sourceFingerprint": "7630c2939d427de4f8348cd37756b77e620db10d1fd28c72fd428e791f0a97ab",
+  "sourceFingerprint": "08506c1e449b7ee301666d8db94da10631cfb3a4f360f399d00330f63e7b2751",
   "summary": {
     "files": 864,
-    "lines": 165349,
+    "lines": 165375,
     "symbols": 2498
   },
   "symbolIndex": {
@@ -395,7 +395,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 768
+        "line": 782
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -5233,7 +5233,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 730
+        "line": 744
       }
     ],
     "cue": [
@@ -5361,7 +5361,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 702
+        "line": 716
       }
     ],
     "current": [
@@ -18756,8 +18756,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 815,
-      "sha256": "b522d2839a5cc50b976104141c966bf4e1b928e88bcf2b3353e03f096f9eae5d",
+      "lines": 829,
+      "sha256": "e031022fd34547b183045588b6fec23ba6a68235dc8fa323696a3f3b6d54a51f",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -18785,15 +18785,15 @@
         },
         {
           "name": "profileContext",
-          "line": 702
+          "line": 716
         },
         {
           "name": "compactContext",
-          "line": 730
+          "line": 744
         },
         {
           "name": "context",
-          "line": 768
+          "line": 782
         }
       ]
     },
@@ -19102,8 +19102,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 225,
-      "sha256": "f76ad60084882fc6887520a3d18184b581e588cea40a83201157dd2fff85f1fa",
+      "lines": 237,
+      "sha256": "0cde44c62fc03448b21369c62a818da98aa7193c884d19b7a96d9688d1ddaf07",
       "symbols": [
         {
           "name": "groupedFields",
