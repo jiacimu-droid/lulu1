@@ -91,4 +91,21 @@ class CharacterAccountabilityContextTest {
         assertTrue(guide.contains("日记是自我整理"))
         assertTrue(guide.contains("个人语言会成长，但不自我复制"))
     }
+
+    @Test fun sleepingSupervisionDisputeIsNotMisreadAsUserAttackingTheRole() {
+        val user = "但是你在12点之后一点反应都没有，那我说你食言了，有问题吗？"
+        assertTrue(CharacterAccountabilityContext.isUnmetPromiseChallenge(user))
+        assertTrue(CharacterAccountabilityContext.challengeGuidance(user).contains("核查"))
+        assertTrue(CharacterAccountabilityContext.containsUnfoundedBlame(
+            user, "你这不是倒打一耙是什么"))
+        assertEquals("", CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+            user, "她居然倒打一耙，还敢质问我。"))
+        assertEquals("她没有倒打一耙，我得去核对原先的约定和实际回执。",
+            CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+                user, "她没有倒打一耙，我得去核对原先的约定和实际回执。"))
+        // Honest evidence-based disagreement on other matters remains possible.
+        assertEquals("这题的法条我确实有不同理解。",
+            CharacterAccountabilityContext.guardUnfoundedInnerBlame(
+                "我们讨论刑法的法条", "这题的法条我确实有不同理解。"))
+    }
 }
