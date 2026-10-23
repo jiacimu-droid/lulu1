@@ -91,6 +91,15 @@ internal object ResidentDailyDecision {
         }
         val relations = CharacterSocialRelationship.perspectivesFor(characterId,
             ResidentSocialMailbox.visibleContacts(characterId))
+        val publicMoments = MomentsStore.posts.value.asSequence()
+            .filter { it.authorType == MomentAuthorType.Character &&
+                it.authorCharacterId != characterId &&
+                it.authorCharacterId?.let(DigitalLifeProfileStore::isEnabled) == true }
+            .take(8)
+            .joinToString("\n") {
+                val author = it.authorCharacterId.orEmpty()
+                "${MigratedDomainStores.characters.get(author).displayName}：${it.content.take(200)}"
+            }
         val mail = ResidentSocialMailbox.inbox(characterId, 8).joinToString("\n") {
             val speaker = MigratedDomainStores.characters.get(it.fromId).displayName
             "$speaker: ${it.content.take(220)}"
@@ -110,6 +119,8 @@ internal object ResidentDailyDecision {
             实际在场的原住民：${witnesses.ifBlank { "未遇见" }}。
             实际在场的其他数字人物：${otherRoles.ifBlank { "无" }}。
             认识或真实相遇后才可私信的对象：${contacts.ifEmpty { listOf("暂无") }.joinToString("、")}。
+            数字世界社交网络公开动态（不代表本人已经与作者见面）：
+            ${publicMoments.ifBlank { "暂无" }}
             只属于你本人的最近通信：
             ${mail.ifBlank { "无" }}
             自己确实经历过的事情：
@@ -214,6 +225,7 @@ internal object ResidentDailyDecision {
         appContext = app
         ResidentDailyRoutine.refresh(app, now)
         ResidentSocialMailbox.initialize(app)
+        MomentsStore.initialize(app)
         CharacterInnerLifeStore.initialize(app)
         ScopedModelSelections.initialize(app)
         var succeeded = 0
