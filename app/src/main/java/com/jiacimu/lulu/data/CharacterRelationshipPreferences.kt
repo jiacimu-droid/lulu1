@@ -106,13 +106,22 @@ internal object CharacterRelationshipPreferences {
     private fun normalize(text: String): String = text.lowercase().filter(Char::isLetterOrDigit)
 
     fun promptSection(characterId: String, includeCore: Boolean = false): String {
-        val preferences = snapshot(characterId).preferences
-        val core = if (includeCore) LuluRepositories.memory.snapshot(characterId).filter {
+        val allCore = LuluRepositories.memory.snapshot(characterId).filter {
             it.isCoreMemory() && MemoryValidityStore.isActive(it.id) && memoryHasLiveSources(it, characterId)
+        }
+        // User-authored Core facts already carry the same agreement. Avoid
+        // injecting a second "agreement" copy when the quote is the same.
+        val coreTexts = allCore.map { normalize(it.content) }
+        val preferences = snapshot(characterId).preferences.filterNot { preference ->
+            val quote = normalize(preference.quote)
+            quote.isNotBlank() && coreTexts.any { it == quote || it.contains(quote) }
+        }
+        val core = if (includeCore) allCore.filter {
+            true
         } else emptyList()
         if (preferences.isEmpty() && core.isEmpty()) return ""
         return buildString {
-            appendLine("【持续生效的相处约定与重要记忆｜独立于普通召回，不因时间久而遗忘】")
+            appendLine("【当前相处偏好与核心记忆｜按真实原话和来源理解】")
             appendLine("以下用户原话的明确边界与约定比通用人设举例、旧习惯和模型惯性更具体。按原话范围理解；有条件的约定仅在条件成立时履行，不能把喜欢某种互动变成每轮强制动作。新的明确纠正优先于同一范围的旧要求，临时要求只作用于当次；不向他人公开私人来源。")
             preferences.forEach { appendLine("- [${it.occurredAt}] [来源=${it.sourceId}] 用户原话：${it.quote}") }
             core.forEach { appendLine("- 核心记忆：${it.content}") }
