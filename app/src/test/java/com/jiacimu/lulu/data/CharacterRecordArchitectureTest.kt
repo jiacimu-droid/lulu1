@@ -156,6 +156,20 @@ class CharacterRecordArchitectureTest {
         assertEquals(1, rows.single().mergedMomentTimes.size)
     }
 
+    @Test fun historyPanelReadsOnlyTheLatestFiftyWithoutDeletingOldEvidence() {
+        val snapshots = (0 until 75).map { index ->
+            CompanionPresenceState(role, innerThought = "新想法编号$index",
+                updatedAt = now.plusSeconds(index.toLong() * 120))
+        }
+        val bounded = CharacterStateHistory.entries(
+            role, snapshots, now.plusSeconds(76 * 120L),
+            JSONObject(), emptyList(), maxEntries = 50)
+        assertEquals(50, bounded.size)
+        assertTrue(bounded.first().detail.contains("编号74"))
+        assertTrue(bounded.last().detail.contains("编号25"))
+        assertEquals(75, snapshots.size)
+    }
+
     @Test fun aRealTurnInPrivateThoughtMustRemainASeparateMoment() {
         val earlier = CompanionPresenceState(role, innerThought = "还想看看屏幕上那个表情会不会动。",
             updatedAt = now)
