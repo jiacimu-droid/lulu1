@@ -50,7 +50,7 @@ object CharacterIdentityStore {
         // People born inside this world do not inherit the protagonist's
         // external-device ontology. To them these streets and relationships
         // simply ARE the real world. This still preserves their own persona.
-        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+        if (characterId.startsWith("resident:")) {
             return listOf(ResidentCharacterBridge.fixedContext(characterId), rawIdentity)
                 .filter(String::isNotBlank).joinToString("\n\n")
         }
