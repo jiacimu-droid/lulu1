@@ -326,6 +326,9 @@ private fun ChatHubV2Characters(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        item(key = "companion-heading") {
+            Text("陪伴角色", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+        }
         items(sortedCharacters, key = CharacterSettings::characterId, contentType = { "character" }) { character ->
             val privateChat = privateByCharacter[character.characterId]
             val presence = presenceStates[character.characterId]
@@ -388,6 +391,9 @@ private fun ChatHubV2Characters(
                     Text(if (privateChat == null) "开始和${character.displayName}私聊" else "继续和${character.displayName}私聊", fontWeight = FontWeight.Bold)
                 }
             }
+        }
+        item(key = "digital-world-resident-profiles") {
+            DigitalWorldResidentProfiles()
         }
     }
 }
