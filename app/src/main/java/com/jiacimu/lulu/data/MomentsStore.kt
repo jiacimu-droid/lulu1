@@ -268,7 +268,7 @@ object MomentsStore {
         val post = mutablePosts.value.firstOrNull { it.id == postId && it.authorType == MomentAuthorType.User } ?: return
         val candidates = MigratedDomainStores.characters.settings.value.values
             .filter { CompanionOnlineStore.isOnline(it.characterId) &&
-                ResidentCharacterBridge.nativeResident(it.characterId) == null }
+                !it.characterId.startsWith("resident:") }
             .sortedBy(CharacterSettings::displayName)
         candidates.forEach { character ->
             runIndependentReaction(post, character, UserProfileContext.displayLabel())
@@ -283,7 +283,7 @@ object MomentsStore {
         val author = MigratedDomainStores.characters.get(authorId)
         val candidates = MigratedDomainStores.characters.settings.value.values
             .filter { it.characterId != authorId && CompanionOnlineStore.isOnline(it.characterId) &&
-                ResidentCharacterBridge.nativeResident(it.characterId) == null }
+                !it.characterId.startsWith("resident:") }
             .sortedBy(CharacterSettings::displayName)
         candidates.forEach { character -> runIndependentReaction(post, character, author.displayName) }
     }
