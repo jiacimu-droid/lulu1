@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T17:49:47.652095+00:00",
-  "commit": "5ee4e31c8ee926a21fb614e81838816fff165439",
+  "generatedAt": "2026-10-23T18:00:06.816901+00:00",
+  "commit": "febb05959ee435e6cb31a364813edeb0062a9fc2",
   "branch": "main",
-  "sourceFingerprint": "1485d64bac1514240882fe4c5fca5ccbf6bb815157796feaa7084cafe5738fd5",
+  "sourceFingerprint": "c1d3da898f9d1f01896989c5077d45fdfc6fd3d129f3e8270b411a47fdfc8fac",
   "summary": {
     "files": 864,
     "lines": 165346,
@@ -15246,7 +15246,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
       "lines": 794,
-      "sha256": "46953d01440d10a7ebefda185d033c36f5a3e4ad20901b923359e1594c56cc35",
+      "sha256": "58016f6237484f72475c7ed00e4ccd3a3c67bed1e6345852981b5ff774e943f4",
       "symbols": [
         {
           "name": "toggleSelfCamera",
@@ -21216,7 +21216,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InteractionSignalBridge.kt",
       "lines": 268,
-      "sha256": "cc9860ca1239b071bd0e2892efc44c75319ca24a82922cd2fa42ffc34410c88f",
+      "sha256": "e10d42b78837d6702f74f2003e90b5ade28a23d7dd439333432a20dd29506553",
       "symbols": [
         {
           "name": "callEndDescription",
@@ -27050,7 +27050,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt",
       "lines": 51,
-      "sha256": "aa1321cf6cfd9e7d049deb2dcf9295681a1706e71aff72b65c3ee300eaf0cee2",
+      "sha256": "5db2cfc6cf093d4467b377e20220df2ab3218566042bb2ef3d3c982be0649edb",
       "symbols": [
         {
           "name": "Live2DFineTouchTest",
