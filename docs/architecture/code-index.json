@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:50:05.516075+00:00",
-  "commit": "bca96a1bd0759e7c6bc068ab102dd42f33361f29",
+  "generatedAt": "2026-10-23T11:50:37.963519+00:00",
+  "commit": "9b076f31a4697b00b6fc26b51b9638b101d3e11a",
   "branch": "main",
-  "sourceFingerprint": "39daf2d9baf342e0774c676a72632185b0060c800785f412a13918d0ee42e4fd",
+  "sourceFingerprint": "67b77c6df5167ebd707e48ca570d23db59c4ecfe7e30d8ecc3fb629ddadc9613",
   "summary": {
     "files": 853,
-    "lines": 163316,
+    "lines": 163328,
     "symbols": 2469
   },
   "symbolIndex": {
@@ -28639,8 +28639,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt",
-      "lines": 74,
-      "sha256": "318d8de74679996cc268c9878c91b4a0422ebbf98c72cec5fd62563a52fe864e",
+      "lines": 86,
+      "sha256": "c1681a404c9262d404ee53b4305add042744bc69d5b84517f01ed82256573622",
       "symbols": [
         {
           "name": "MemorySemanticConsolidationTest",
