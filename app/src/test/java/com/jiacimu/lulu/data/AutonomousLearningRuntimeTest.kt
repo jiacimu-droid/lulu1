@@ -157,8 +157,8 @@ class AutonomousLearningRuntimeTest {
         CharacterLearningAgenda.begin(context, role, id, now)
         CharacterLearningAgenda.failed(role, id, "真实网络失败", now)
         val prompt = CharacterLearningAgenda.prompt(role, now.plusSeconds(3_600))
-        assertTrue(prompt.contains("剩余0"))
-        assertFalse(prompt.contains("可选的一步："))
+        assertTrue(prompt, prompt.contains("今日已用1/1"))
+        assertFalse(prompt, prompt.contains("tool=learn_topic"))
         assertEquals(0, CharacterLearningAgenda.budget(role, now).remaining)
     }
     @Test fun webSearchOnlyDiscoversLinksWithoutCreatingKnowledge() = runBlocking {
