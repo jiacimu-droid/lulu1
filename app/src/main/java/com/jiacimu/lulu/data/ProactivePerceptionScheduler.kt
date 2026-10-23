@@ -260,6 +260,25 @@ object ProactivePerceptionScheduler {
             "lulu-arrival-$characterId", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
+    /** Genuine delivered digital mail can wake its recipient once. Later
+     * letters replace the queued cue; the durable inbox preserves all content.
+     * Respect the recipient's autonomy switch and quiet hours at execution. */
+    fun scheduleResidentMail(context: Context, characterId: String, evidenceId: String) {
+        if (characterId.isBlank() || evidenceId.isBlank()) return
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInitialDelay(12_000L, TimeUnit.MILLISECONDS)
+            .setInputData(Data.Builder()
+                .putString("trigger", "数字人物新私信：来自真实联系人；本人可回复、晚些联系或不回复")
+                .putString("characterId", characterId)
+                .putString("interactionEvidenceId", evidenceId)
+                .putBoolean("force", true)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-native-mail-$characterId", ExistingWorkPolicy.REPLACE, request)
+    }
+
     /** Legacy API kept only so old code can compile; it never creates an event-triggered model run. */
     fun scheduleSoon(context: Context, trigger: String) {
         scheduleNextDue(context.applicationContext)

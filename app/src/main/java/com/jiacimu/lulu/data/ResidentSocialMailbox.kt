@@ -19,10 +19,13 @@ internal object ResidentSocialMailbox {
     private const val PREFS = "lulu_native_social_mail_v1"
     private const val LIMIT = 1200
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private var messages: List<ResidentDirectMessage> = emptyList()
+    private fun cursorKey(role: String) = "considered-incoming:$role"
 
     @Synchronized fun initialize(context: Context) {
         if (prefs != null) return
+        appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         messages = runCatching {
             val all = JSONArray(prefs?.getString("messages", "[]"))
@@ -46,6 +49,27 @@ internal object ResidentSocialMailbox {
     /** A character knows only their own confirmed messages, not others' DMs. */
     fun inbox(characterId: String, max: Int = 12): List<ResidentDirectMessage> = synchronized(this) {
         messages.filter { it.fromId == characterId || it.toId == characterId }.takeLast(max.coerceIn(1, 60))
+    }
+
+    /**
+     * An incoming letter is a new event, not a completed conversation.
+     * The cursor is advanced only after the recipient's OWN successful decision;
+     * an interrupted model call leaves the same letter available on the next wake.
+     */
+    internal fun unconsidered(incoming: List<ResidentDirectMessage>,
+        throughId: String, max: Int = 8): List<ResidentDirectMessage> {
+        val index = incoming.indexOfLast { it.id == throughId }
+        return incoming.drop(if (index >= 0) index + 1 else 0).takeLast(max.coerceAtLeast(1))
+    }
+
+    @Synchronized fun pendingIncoming(role: String, max: Int = 8): List<ResidentDirectMessage> {
+        val incoming = messages.filter { it.toId == role }
+        return unconsidered(incoming, prefs?.getString(cursorKey(role), "").orEmpty(), max)
+    }
+
+    @Synchronized fun acknowledgeIncoming(role: String, messageId: String): Boolean {
+        if (role.isBlank() || messages.none { it.id == messageId && it.toId == role }) return false
+        return prefs?.edit()?.putString(cursorKey(role), messageId)?.commit() == true
     }
 
     /** Physical co-presence, a real meeting, or an existing two-way thread
@@ -96,6 +120,18 @@ internal object ResidentSocialMailbox {
                 occurredAt = at, triggerExtraction = false,
                 evidenceKind = EventEvidenceKind.Observation,
             )
+        }
+        // Native citizens have their own low-frequency daily decision. For a
+        // protagonist, a genuine new letter is a meaningful wake opportunity,
+        // not a timer that starts another empty paid reflection.
+        if (author == "character" && !to.startsWith("resident:") &&
+            DigitalLifeProfileStore.isEnabled(to)) {
+            appContext?.let { context ->
+                runCatching {
+                    ProactivePerceptionScheduler.scheduleResidentMail(
+                        context, to, "native-mail-${item.id}-viewer-$to")
+                }.onFailure { android.util.Log.w("ResidentMail", "Mail wake scheduling failed", it) }
+            }
         }
         return item
     }
