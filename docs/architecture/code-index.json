@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T12:02:00.847920+00:00",
-  "commit": "dcb7a0fb1ffaad947c51a67c89474fe8e4702825",
+  "generatedAt": "2026-10-23T12:06:05.704623+00:00",
+  "commit": "54a7818648ed26419da8722de330a3578a7cd032",
   "branch": "main",
-  "sourceFingerprint": "cf2478008241c8941d622a85ea969372981db5d58ecf4991f1546822e9d8867a",
+  "sourceFingerprint": "92e7f9a2202c40f19f5ad586a49b3a76df2faa523aaeecbfabc251c8969a12f1",
   "summary": {
     "files": 853,
-    "lines": 163444,
+    "lines": 163452,
     "symbols": 2470
   },
   "symbolIndex": {
@@ -379,7 +379,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 67
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
@@ -4797,7 +4797,7 @@
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 170
+        "line": 177
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -5005,13 +5005,13 @@
     "relevantFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 49
+        "line": 50
       }
     ],
     "entries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-        "line": 131
+        "line": 132
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMomentSnapshot.kt",
@@ -18118,8 +18118,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 200,
-      "sha256": "f24b1f8efa74d4295ca3aa05c604704d49888bd7a7cda949a9c9b65668fa2e98",
+      "lines": 207,
+      "sha256": "1360718664b8aba190a5dfbee719caff9b338ef29f7c9577ebfc49990ea5e8a3",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
@@ -18143,7 +18143,7 @@
         },
         {
           "name": "ids",
-          "line": 170
+          "line": 177
         }
       ]
     },
@@ -18292,8 +18292,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt",
-      "lines": 236,
-      "sha256": "8f152cba21a12521ccda09cedda7e60c0afaca35a22bc1b194b92e9c0716029c",
+      "lines": 237,
+      "sha256": "2ea22f57df55db3b27103a0403f18c00e0d596a1b6b14c923ab5eace89fc8749",
       "symbols": [
         {
           "name": "feedbackTopic",
@@ -18301,15 +18301,15 @@
         },
         {
           "name": "relevantFeedback",
-          "line": 49
+          "line": 50
         },
         {
           "name": "context",
-          "line": 67
+          "line": 68
         },
         {
           "name": "entries",
-          "line": 131
+          "line": 132
         }
       ]
     },
