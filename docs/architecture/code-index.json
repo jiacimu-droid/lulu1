@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:29:27.497020+00:00",
-  "commit": "a0d7fd83bc17b8376046fb8d66841a8383227cfe",
+  "generatedAt": "2026-10-23T05:30:38.715257+00:00",
+  "commit": "82696dda3c57646931cee7e1bfbdea1c8a9c4802",
   "branch": "main",
-  "sourceFingerprint": "321a272a40ead8a8c6b15d45d9eaa16860169f6699a289933cfe62e8ff73f7ab",
+  "sourceFingerprint": "5c712eff25d4ca25ce2fb4414baa33a9dd1f5f00913b44870761cf814ba473a9",
   "summary": {
     "files": 836,
-    "lines": 160164,
+    "lines": 160177,
     "symbols": 2421
   },
   "symbolIndex": {
@@ -6229,37 +6229,37 @@
     "goOfflineByChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 287
+        "line": 288
       }
     ],
     "recordActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 303
+        "line": 311
       }
     ],
     "wakeGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 319
+        "line": 328
       }
     ],
     "onConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 347
+        "line": 357
       }
     ],
     "unreadChatSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 473
+        "line": 484
       }
     ],
     "markSeen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 529
+        "line": 540
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
@@ -6269,25 +6269,25 @@
     "resetCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 543
+        "line": 554
       }
     ],
     "schedulePersistedConcernReview": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 573
+        "line": 584
       }
     ],
     "claimOnlineExpiry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 590
+        "line": 601
       }
     ],
     "extendByOwnChoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 605
+        "line": 616
       }
     ],
     "repeatsConfirmedAction": [
@@ -19388,8 +19388,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 766,
-      "sha256": "9d7bf931766306ea539ad6024a505927f5ff431681e4d72f27bbaf54882e0fe9",
+      "lines": 779,
+      "sha256": "45c9b4f3b9dd2a14654cc650e627699b461b01f59d855a8a022427fd7068a029",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -19425,43 +19425,43 @@
         },
         {
           "name": "goOfflineByChoice",
-          "line": 287
+          "line": 288
         },
         {
           "name": "recordActivity",
-          "line": 303
+          "line": 311
         },
         {
           "name": "wakeGroup",
-          "line": 319
+          "line": 328
         },
         {
           "name": "onConversationMessage",
-          "line": 347
+          "line": 357
         },
         {
           "name": "unreadChatSnapshot",
-          "line": 473
+          "line": 484
         },
         {
           "name": "markSeen",
-          "line": 529
+          "line": 540
         },
         {
           "name": "resetCharacter",
-          "line": 543
+          "line": 554
         },
         {
           "name": "schedulePersistedConcernReview",
-          "line": 573
+          "line": 584
         },
         {
           "name": "claimOnlineExpiry",
-          "line": 590
+          "line": 601
         },
         {
           "name": "extendByOwnChoice",
-          "line": 605
+          "line": 616
         }
       ]
     },
