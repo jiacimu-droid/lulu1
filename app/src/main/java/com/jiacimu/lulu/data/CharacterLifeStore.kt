@@ -347,6 +347,15 @@ object CharacterLifeStore {
                 profile.put(key, value)
             }
         }
+        // v21: Jiang Du's voluntary relationship is more important than
+        // getting the last word. Change only stock defaults, not personal
+        // customizations or traits belonging to any other character.
+        CharacterProfileSchema.jiangDuV21Overrides.forEach { (key, value) ->
+            val previous = profile.optString(key)
+            val stock = CharacterProfileSchema.jiangDuV20Overrides[key]
+                ?: CharacterProfileSchema.jiangDuV14Overrides[key]
+            if (!profile.has(key) || previous == stock) profile.put(key, value)
+        }
         // Ownership, operator facts and the specific romantic/service bond
         // live next to ALL other relationships in the single relation registry.
         val relations = root.optJSONObject("relationshipAgreements") ?: JSONObject()
@@ -361,6 +370,18 @@ object CharacterLifeStore {
             // Default-only migration. Do not replace a relationship the user
             // rewrote, and never create a competing owner-bond store.
             ownerBond.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV13)
+                .put("updatedAt", Instant.now().toString())
+        }
+        // Keep the ONE existing editable social agreement. Upgrade only
+        // original stock Jiang Du wording; never replace a user-edited bond.
+        val currentOwner = relations.optJSONObject("user")
+        if (currentOwner != null &&
+            currentOwner.optString("title") == CharacterProfileSchema.jiangDuOwnerRelationTitle &&
+            currentOwner.optString("details") in setOf(
+                CharacterProfileSchema.jiangDuOwnerRelationContext,
+                CharacterProfileSchema.jiangDuOwnerRelationContextV13,
+            )) {
+            currentOwner.put("details", CharacterProfileSchema.jiangDuOwnerRelationContextV21)
                 .put("updatedAt", Instant.now().toString())
         }
         root.put("relationshipAgreements", relations)
