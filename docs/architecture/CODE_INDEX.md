@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`529f546af68f1b915ffb48544688ab295625830a`
+- 基准提交：`c035e8fbfa4a5eddfa21536b973d44c44a5b29d4`
 - 分支：`main`
 - 已索引文件：849
-- 已索引代码/文本行：162507
+- 已索引代码/文本行：162521
 - 已发现符号：2462
 
 | 文件 | 行数 | 符号数 |
@@ -401,7 +401,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 62 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1059 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 269 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 902 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 904 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 136 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 66 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionNativeWake.kt` | 40 | 0 |
@@ -429,7 +429,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 559 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 90 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 258 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 270 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 123 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 300 | 13 |

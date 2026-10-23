@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:29:14.789916+00:00",
-  "commit": "529f546af68f1b915ffb48544688ab295625830a",
+  "generatedAt": "2026-10-23T08:30:01.841189+00:00",
+  "commit": "c035e8fbfa4a5eddfa21536b973d44c44a5b29d4",
   "branch": "main",
-  "sourceFingerprint": "6ddb75366788b64d711fdc1b26a83c61c3d01b6c26bec06dcfaba83a87cda5e7",
+  "sourceFingerprint": "b5002a8ed6a546e5d2af4982f9335b252e506078c3864ce5c1000c5ccbab1423",
   "summary": {
     "files": 849,
-    "lines": 162507,
+    "lines": 162521,
     "symbols": 2462
   },
   "symbolIndex": {
@@ -5083,7 +5083,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 622
+        "line": 624
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -5415,7 +5415,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 228
+        "line": 240
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -8639,25 +8639,25 @@
     "toggleUserLike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 421
+        "line": 423
       }
     ],
     "addUserComment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 435
+        "line": 437
       }
     ],
     "addUserReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 457
+        "line": 459
       }
     ],
     "clearCharacterData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-        "line": 639
+        "line": 641
       }
     ],
     "Batch": [
@@ -22145,8 +22145,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
-      "lines": 902,
-      "sha256": "97d34f221f3bb3a12cc6c135660a8c9220217877862b75e415d29f0f2f2e9ba9",
+      "lines": 904,
+      "sha256": "5e22636a10025c68f551d0d2b9c402acbcb40dbd16f578f611cdab71e945247e",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -22194,23 +22194,23 @@
         },
         {
           "name": "toggleUserLike",
-          "line": 421
+          "line": 423
         },
         {
           "name": "addUserComment",
-          "line": 435
+          "line": 437
         },
         {
           "name": "addUserReply",
-          "line": 457
+          "line": 459
         },
         {
           "name": "delete",
-          "line": 622
+          "line": 624
         },
         {
           "name": "clearCharacterData",
-          "line": 639
+          "line": 641
         }
       ]
     },
@@ -22875,8 +22875,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 258,
-      "sha256": "877eb350d86da41c70f78ea0b4779d9a1ad440e1a0857c3806a64018f22105e8",
+      "lines": 270,
+      "sha256": "5368481a98db9263818813d25f7831a1b6491859a2543080d6ea57c80560ba3d",
       "symbols": [
         {
           "name": "planForApp",
@@ -22892,7 +22892,7 @@
         },
         {
           "name": "schedule",
-          "line": 228
+          "line": 240
         }
       ]
     },
