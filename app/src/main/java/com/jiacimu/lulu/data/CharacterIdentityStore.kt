@@ -52,7 +52,8 @@ object CharacterIdentityStore {
         val digitalLife = DigitalLifeProfileStore.promptSection(characterId, displayName)
         val locationOntology = digitalLifeLocationOntology(characterId, displayName)
         val lifeRhythm = DigitalLifeDriveContext.promptSection(characterId, displayName)
-        return listOf(digitalLife, locationOntology, lifeRhythm, rawIdentity)
+        return listOf(digitalLife, locationOntology, lifeRhythm,
+            ResidentCharacterBridge.fixedContext(characterId), rawIdentity)
             .filter(String::isNotBlank)
             .joinToString("\n\n")
     }
