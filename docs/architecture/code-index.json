@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T10:21:50.919122+00:00",
-  "commit": "d71ddb97c429ba303a701de0fa10c01e96281c53",
+  "generatedAt": "2026-10-23T10:22:11.654085+00:00",
+  "commit": "e2a5b6d5af05b6026a82dc990ad7881920dcd817",
   "branch": "main",
-  "sourceFingerprint": "bd65ae9b2fa0e9fa4777a32269e330cab37a61353c98e9209907e8b90d8809a3",
+  "sourceFingerprint": "0383bda29c7ab33183ac71c33713eb6b3ab4eb10fea2db3cbdf97a30f08c42a1",
   "summary": {
-    "files": 852,
-    "lines": 163092,
-    "symbols": 2468
+    "files": 853,
+    "lines": 163140,
+    "symbols": 2469
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13572,6 +13572,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
         "line": 15
+      }
+    ],
+    "SearchActionIntegrityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt",
+        "line": 7
       }
     ],
     "SearchReceiptFeedbackTest": [
@@ -28980,6 +28986,17 @@
         {
           "name": "ScreenVisionCapabilityContextTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt",
+      "lines": 48,
+      "sha256": "e555ae6dce4ce57d51c1b99eb669bfb1c52ead799b65973a89b1469c9ced1061",
+      "symbols": [
+        {
+          "name": "SearchActionIntegrityTest",
+          "line": 7
         }
       ]
     },
