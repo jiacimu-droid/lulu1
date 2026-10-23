@@ -20,7 +20,14 @@ data class DigitalWorldResident(
     /** Stable, distinct qualities of this NPC. Old saves retain empty defaults. */
     val temperament: String = "",
     val preferences: String = "",
-)
+    val background: String = "",
+    /** Immutable origin: editing a display name must not regenerate a template NPC. */
+    val templateName: String = name,
+    /** Explicit edits, including deliberately blank traits, outrank default templates. */
+    val profileEdited: Boolean = false,
+) {
+    val isCafeBarista: Boolean get() = templateName == "岑灯"
+}
 
 data class DigitalWorldDiscoveredPlace(
     val code: String = "shared:discovered:${UUID.randomUUID()}",
@@ -117,12 +124,48 @@ internal object DigitalWorldExpansionStore {
         return settled
     }
 
+    /** User-authored resident profile; identity and location IDs, encounters and relationships stay intact. */
+    @Synchronized
+    fun updateResidentProfile(
+        residentId: String, name: String, identity: String,
+        temperament: String, preferences: String, background: String,
+    ): DigitalWorldResident {
+        checkNotNull(prefs) { "数字世界居民存档尚未初始化" }
+        val cleanName = name.trim()
+        val cleanIdentity = identity.trim()
+        require(cleanName.length in 1..24) { "居民姓名须为 1—24 字" }
+        require(cleanIdentity.length in 1..80) { "身份须为 1—80 字" }
+        require(temperament.length <= 400 && preferences.length <= 400 && background.length <= 1200) {
+            "居民档案内容过长"
+        }
+        require(residents.none { it.id != residentId && it.name == cleanName }) { "已有同名居民" }
+        val original = residents.firstOrNull { it.id == residentId } ?: error("找不到这位居民")
+        val updated = original.copy(
+            name = cleanName,
+            identity = cleanIdentity,
+            temperament = temperament.trim(),
+            preferences = preferences.trim(),
+            background = background.trim(),
+            profileEdited = true,
+        )
+        if (updated == original) return updated
+        val before = residents
+        residents = residents.map { if (it.id == residentId) updated else it }
+        try {
+            persist()
+        } catch (error: Throwable) {
+            residents = before
+            throw error
+        }
+        return updated
+    }
+
     /** Enrich old residents only where their saved profile has no authored traits. */
     @Synchronized
     fun fillResidentTraitsIfBlank(residentId: String, temperament: String, preferences: String) {
         var changed = false
         residents = residents.map { person ->
-            if (person.id != residentId) person else person.copy(
+            if (person.id != residentId || person.profileEdited) person else person.copy(
                 temperament = person.temperament.ifBlank { temperament },
                 preferences = person.preferences.ifBlank { preferences },
             ).also { if (it != person) changed = true }
@@ -157,7 +200,7 @@ internal object DigitalWorldExpansionStore {
                 appendLine("- 地点 id=${place.code}；${place.label}；用途=${place.purpose}；连接=${place.connectedTo.joinToString("/")}")
             }
             relevantResidents.forEach { resident ->
-                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}")
+                appendLine("- 居民 id=${resident.id}；姓名=${resident.name}；身份=${resident.identity}；私人住宅=${resident.homeLocationCode}（${resident.name}的家）；所属生活区=${resident.neighborhoodCode}；当前位置=${resident.currentLocationCode}；气质=${resident.temperament.ifBlank { "暂未登记" }}；偏好=${resident.preferences.ifBlank { "暂未登记" }}；背景=${resident.background.ifBlank { "暂未登记" }}")
             }
             append("未列出的新地点、新居民都不存在；模型不能只靠叙述把它们变成世界事实。")
         }
@@ -202,7 +245,10 @@ internal object DigitalWorldExpansionStore {
                     .put("createdAt", resident.createdAt.toString())
                     .put("lastInteractionAt", resident.lastInteractionAt?.toString() ?: JSONObject.NULL)
                     .put("temperament", resident.temperament)
-                    .put("preferences", resident.preferences))
+                    .put("preferences", resident.preferences)
+                    .put("background", resident.background)
+                    .put("templateName", resident.templateName)
+                    .put("profileEdited", resident.profileEdited))
             }
         }
         check(prefs?.edit()?.putString(KEY_PLACES, placeArray.toString())?.putString(KEY_RESIDENTS, residentArray.toString())?.commit() == true) {
@@ -260,8 +306,11 @@ internal object DigitalWorldExpansionStore {
                         currentLocationCode = if (earlierLocation == originalHome || earlierLocation == DigitalWorldPublicPlaces.READING_LOUNGE) realHome else earlierLocation,
                         neighborhoodCode = neighborhood,
                         createdAt = item.optString("createdAt").expansionInstant(),
-                        temperament = item.optString("temperament").take(260),
-                        preferences = item.optString("preferences").take(260),
+                        temperament = item.optString("temperament").take(400),
+                        preferences = item.optString("preferences").take(400),
+                        background = item.optString("background").take(1200),
+                        templateName = item.optString("templateName").ifBlank { name },
+                        profileEdited = item.optBoolean("profileEdited", false),
                         lastInteractionAt = item.optString("lastInteractionAt").takeUnless { it.isBlank() || it.equals("null", true) }
                             ?.let { runCatching { Instant.parse(it) }.getOrNull() },
                     ))
