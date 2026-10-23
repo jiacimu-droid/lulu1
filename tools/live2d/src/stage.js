@@ -619,7 +619,10 @@ function ensureApp() {
       status('Live2D 动画渲染中断：' + (error?.message || String(error)), 'error')
     }
   })
-  app.ticker.maxFPS = 30
+  // Allow smoother Cubism motion on capable Android GPUs. The native frame
+  // bridge remains backpressured by its real decode ACK; do not capture
+  // duplicate frames or tie pose timing to JPEG delivery.
+  app.ticker.maxFPS = 36
   window.addEventListener('resize', fit)
   new ResizeObserver(() => fit()).observe(root)
   app.view.addEventListener('webglcontextlost', event => {
@@ -1056,6 +1059,11 @@ function setNativeStreaming(enabled) {
       const maxEdge = Number(reply.substring(5))
       const ackMs = performance.now() - nativeStreamLastFrameAt
       nativeStreamAckMeanMs = nativeStreamAckMeanMs * .8 + ackMs * .2
+    // Avoid wasting render/GPU readback bandwidth when JPEG transport cannot
+    // sustain high cadence. Raise the ticker only after stable fast ACKs.
+    if (app?.ticker) app.ticker.maxFPS =
+      nativeStreamAckMeanMs < 30 ? 45 :
+      nativeStreamAckMeanMs < 45 ? 36 : 30
       if (Number.isFinite(maxEdge)) {
         // Android already has an adaptive quality controller based on actual
         // decoded FPS/p95. Previously multiplying its requested dimension by
@@ -1197,8 +1205,12 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   const state = completed ? touchResponse.complete(region, kind, options.force)
     : starting ? touchResponse.begin(region, kind, options.force, point)
     : touchResponse.move(region, kind, options.force, point)
+  // A palm impact belongs to the moment of release/contact. A long finger
+  // hold in slap mode must not consume the visible recoil before the slap.
+  const contactStart = isImpact(kind) && completed ? now
+    : starting || !tactileContact ? now : tactileContact.start
   tactileContact = { region, kind, ordinal: touchSequence, state,
-    start: starting || !tactileContact ? now : tactileContact.start, pressed: !completed }
+    start: contactStart, pressed: !completed }
   touchReflex = touchReflexFor(region, kind, touchSequence, state)
   touchReflexEndAt = now + (isImpact(kind) ? 1700 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
