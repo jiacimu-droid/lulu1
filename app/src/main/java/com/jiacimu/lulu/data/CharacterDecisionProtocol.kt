@@ -101,10 +101,16 @@ internal object CharacterDecisionProtocol {
         if (includeAppraisalDetails) appraisal?.optString("meaning")?.takeIf(String::isNotBlank)?.let {
             appendLine("对这轮输入的理解：${it.take(240)}")
         }
-        // Preserve the planner's chosen response intention even in lean
-        // rendering; it is a bounded outcome, not a demand to recite analysis.
-        // Only verbose meaning and context-update fields are omitted below.
-        appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
+        // In a focused handoff, keep a response aim only when the planner
+        // deliberately supplied actual expression cues. A bare, potentially
+        // over-reaching psychological aim must not become a new speech task.
+        // Full handoffs retain the complete authored intent either way.
+        val hasExpressionCues = appraisal?.optJSONObject("expression")?.let { expression ->
+            listOf("stance", "subtext", "device", "restraint")
+                .any { key -> expression.optString(key).isNotBlank() }
+        } == true
+        if (includeAppraisalDetails || hasExpressionCues)
+            appraisal?.optString("responseAim")?.takeIf(String::isNotBlank)?.let {
             appendLine("表达目的：${it.take(180)}")
         }
         if (includeAppraisalDetails) appraisal?.optString("commonGroundUpdate")?.takeIf(String::isNotBlank)?.let {
