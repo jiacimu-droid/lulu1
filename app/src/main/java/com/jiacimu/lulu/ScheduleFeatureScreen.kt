@@ -59,7 +59,7 @@ fun ScheduleFeatureScreen(
         .collectAsState(initial = emptyList())
     val tasks = commitments.filter { task ->
         task.characterId == selectedCharacterId && (task.dueAt?.atZone(ZoneId.systemDefault())?.toLocalDate()
-            ?.let { it == selectedDate } ?: (task.status.isActive() && selectedDate == LocalDate.now()))
+            ?.let { it == selectedDate } ?: (task.createdAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate))
     }
     val linkedNotes = commitments.filter { it.characterId == selectedCharacterId }.mapNotNull { it.lexiconEntryId }.toSet()
     val legacyPromises = promiseNotes.filter { entry -> entry.characterId == selectedCharacterId && entry.id !in linkedNotes &&
@@ -133,7 +133,8 @@ fun ScheduleFeatureScreen(
                         "completed" -> "已完成 · 有真实执行依据"
                         "cancelled" -> "本人已取消"
                         "due" -> "时间已到 · 待本人决定"
-                        else -> "本人安排 · 等待到时"
+                        else -> if (plan.dueAt.isBefore(java.time.Instant.now()))
+                            "已过约定时间 · 待核实处理" else "本人安排 · 等待到时"
                     }
                     Surface(
                         shape = RoundedCornerShape(18.dp),
