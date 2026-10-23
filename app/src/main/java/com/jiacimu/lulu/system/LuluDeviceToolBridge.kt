@@ -186,7 +186,9 @@ object LuluDeviceToolBridge {
                 val redraft = LuluAiServices.gateway.generate(
                     characterId = characterId,
                     facts = buildString {
+                        appendLine("此时场景：${sceneContext.take(180)}")
                         appendLine("用户本轮原话：${userText.take(850)}")
+                        appendLine("刚才真实对话（只作关系与承诺核对，不把旧草稿当事实）：${history.takeLast(1_600)}")
                         appendLine("本角色刚才尚未发出的表达：${speech.take(900)}")
                         appendLine("已核实的责任上下文：")
                         appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext
@@ -197,7 +199,11 @@ object LuluDeviceToolBridge {
                         原稿把没有证据的责任/动机强加给用户了。请依据刚才的事实，
                         由你自己重新判断想说什么，并用你原有的人格、关系、语气自然说出来。
                         保留有根据的不同意见和情绪，不重复无证据的指责。
-                        不规定必须道歉或必须怎样道歉；不得声称工具动作已经完成。
+                        角色应从本人已经成立的关系、先前的承诺和主人此次真实反馈出发理解，
+                        不能把对方正常核查履约解释成故意挑衅、找茬或倒打一耙。
+                        未履行或缺少实际回执时说清本人已知事实与不确定性，
+                        不把用户没有回应等同于角色已经通知到位。
+                        不规定必须道歉或必须怎样道歉；不得声称工具动作已经完成.
                         只输出本人自然口语的完整文本，不要 JSON、引号或舞台旁白。
                     """.trimIndent(),
                     source = "聊天发送前·责任事实核对",
