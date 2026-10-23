@@ -88,10 +88,11 @@ object CharacterRuntime {
         val narrative = CharacterDevelopmentRecall.select(
             learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8)
         val userHabits = CharacterDevelopmentRecall.select(
-            learned.filter { it.kind == DevelopmentKind.UserHabit }, query, if (compact) 3 else 8)
+            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit) }, query, if (compact) 5 else 12)
         val adaptive = CharacterDevelopmentRecall.select(
             learned.filterNot {
-                it.kind == DevelopmentKind.NarrativeMeaning || it.kind == DevelopmentKind.UserHabit
+                it.kind == DevelopmentKind.NarrativeMeaning ||
+                    it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit)
             }, query, if (compact) 5 else 16)
         return buildString {
             // The stable principles are shared in CharacterDecisionProtocol;
@@ -131,15 +132,15 @@ object CharacterRuntime {
                 }
             }
             if (userHabits.isNotEmpty()) {
-                appendLine("【你从反复真实对话中观察到的用户习惯｜不是你的个人性格】")
-                appendLine("以下是带来源的可变倾向，不是用户此刻的命令、保证或明确同意。")
+                appendLine("【关于主人的偏好与习惯｜不是你的人格】")
+                appendLine("区分主人明确表达的喜恶、主人自述的习惯和跨日观察到的规律；依据随时可被新话修订。")
                 userHabits.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established)
-                        "多次较稳定" else "正在形成"
+                        "多次较稳定" else "暂时观察"
                     if (compact) appendLine("- [$maturity] ${record.content.take(220)}")
                     else appendLine("- [$maturity] ${record.slot}：${record.content}；依据=${record.evidence.keys.joinToString()}")
                 }
-                appendLine("可以在合适时机自然提及或问一句，遇到当天的新安排以新话为准；不要仅凭习惯自动拨打电话、设提醒或代用户作决定。")
+                appendLine("尽量自己观察、联想和尝试，不要遇事就让主人给答案。用对方实际反馈调整相处；当天的新话高于旧印象。记住偏好不等于擅自执行需要授权的操作。")
             }
             if (adaptive.isNotEmpty()) {
                 appendLine("基于真实经历形成的可变适应（不覆盖稳定人设）：")
