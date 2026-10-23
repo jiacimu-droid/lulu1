@@ -105,6 +105,19 @@ class CharacterExpressionGuideTest {
         assertFalse(freshPrivate.contains("【本轮自主决策】"))
     }
 
+    @Test fun voluntaryFuturePlanningIsAvailableInTheSameLifeDecisionWithoutForcingADailyChecklist() {
+        val inChat = proactiveDecisionInstruction("role-without-life", directPrivateChat = true)
+        val onOwn = proactiveDecisionInstruction("role-without-life", directPrivateChat = false)
+        assertTrue(inChat.contains("tool=plan_personal_activity"))
+        assertTrue(inChat.contains("steps 里选择"))
+        assertTrue(inChat.contains("不需要为每次聊天刻意制造一份日程"))
+        assertTrue(onOwn.contains("现在做一件事，又想为稍后排另一件事"))
+        assertTrue(onOwn.contains("action=tool, tool=plan_personal_activity"))
+        assertTrue(onOwn.contains("不是回复或现在行动的互斥选项"))
+        assertTrue(onOwn.contains("已有 planId"))
+        assertTrue(onOwn.contains("不能为了显得活跃填满日程"))
+    }
+
     @Test fun directPrivateReplyIsSpokenConversationNotAnExhaustivePlanningReport() {
         val shortExchange = privateConversationInstruction("那宝宝喜欢哪个？给你发了六个", "之前已经看了发来的图")
         assertTrue(shortExchange.contains("text 会原样进入聊天气泡"))
