@@ -940,17 +940,22 @@ internal data class OrderedCharacterActionReport(
     val searchReceipts: List<VerifiedSearchReceipt> = emptyList(),
 )
 internal object SearchReceiptFeedback {
-    /** Only a completed search/read warrants a new result-bearing reply.
-     * Image downloads sent directly to chat already have their own delivery. */
+    /** A search/read finishes the original user's turn only after its receipt
+     * is returned to the character. Image sends already deliver the image.
+     * Pending tools have no content yet; never synthesize a finished read. */
     fun from(tool: String, args: JSONObject, result: JSONObject): VerifiedSearchReceipt? {
-        if (tool !in setOf("web_search", "image_search")) return null
-        val op = args.optString("op", "search").ifBlank { "search" }
+        if (tool !in setOf("web_search", "image_search", "read_xiaohongshu")) return null
+        val op = if (tool == "read_xiaohongshu") when {
+            args.optString("url").isNotBlank() -> "shared_link"
+            args.optString("keyword").isNotBlank() -> "search_read"
+            else -> "home_read"
+        } else args.optString("op", "search").ifBlank { "search" }
         if (tool == "image_search" && op != "search") return null
         val status = result.optString("status")
-        val success = result.optBoolean("success") &&
-            status !in setOf("pending", "requested", "waiting_user")
+        if (status in setOf("pending", "requested", "running")) return null
+        val success = result.optBoolean("success") && status != "waiting_user"
         val detail = result.optString("summary").ifBlank {
-            result.optString("error").ifBlank { "搜索没有返回任何可用内容" }
+            result.optString("error").ifBlank { "检索或阅读没有返回可用内容" }
         }
         return VerifiedSearchReceipt(tool, op, success, detail,
             result.optString("evidenceId"))
