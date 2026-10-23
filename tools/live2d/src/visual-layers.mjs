@@ -39,8 +39,8 @@ export function createVisualLayerRuntime({ has, read, write }) {
   // Enter a selected pose promptly, relax out of it without a fast snap.
   const headSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 95, 1.06, 25)
   const bodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 72, 1.1, 23)
-  const touchSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.1, 25)
-  const touchBodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 105, 1.08, 23)
+  const touchSpring = createPoseSpring(['yaw', 'pitch', 'roll'], 135, 1.02, 32)
+  const touchBodySpring = createPoseSpring(['yaw', 'pitch', 'roll'], 105, 1.08, 26)
   const smoothedFace = Object.create(null)
   let secondaryHeadMix = 0
   let secondaryBodyMix = 0
@@ -65,13 +65,14 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // movements keep the body alive without ever pulling eyes off camera.
     // Touch and the character's own explicit pose take precedence.
     const idleHead = !head && !touchReflex ? {
-      yaw: .46 * Math.sin(seconds * .37),
-      pitch: .3 * Math.sin(seconds * .29 + .8),
-      // A visible, slow side tilt instead of constant jaw yaw swaying.
-      roll: 3.5 * Math.sin(seconds * .25 + .4),
+      // Idle should tilt around the neck, not yaw as though the jaw travels
+      // left/right. Explicit speaking/character motion may still turn the head.
+      yaw: 0,
+      pitch: .25 * Math.sin(seconds * .23 + .8),
+      roll: 3.1 * Math.sin(seconds * .21 + .4),
     } : null
     const idleBody = !body && !touchReflex ? {
-      yaw: .5 * Math.sin(seconds * .19 + .5),
+      yaw: .08 * Math.sin(seconds * .19 + .5),
       pitch: .28 * Math.sin(seconds * .23),
       roll: .35 * Math.sin(seconds * .17 + .9),
     } : null
@@ -85,8 +86,13 @@ export function createVisualLayerRuntime({ has, read, write }) {
       !head && !authoredMotion)
     const bodyPose = bodySpring.step(body || authoredBody || idleBody, deltaMs,
       !body && !authoredMotion)
-    const reflexPose = touchSpring.step(touchReflex, deltaMs, !touchReflex)
-    const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs, !touchReflex)
+    // Soft stroking gets a gentle spring; a palm hit needs a sharp visible
+    // attack at the neck, then a long recovery. A single slow spring for both
+    // formerly swallowed the entire 200ms impact peak.
+    const reflexPose = touchSpring.step(touchReflex, deltaMs, !touchReflex,
+      touchReflex?.impactMotion ? 540 : null)
+    const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs, !touchReflex,
+      touchReflex?.impactMotion ? 230 : null)
     // The original Motion3 still updates underneath a short touch or voice cue.
     // Don't hand it control in one frame when that override expires.
     if (authoredMotion) {
