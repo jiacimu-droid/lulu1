@@ -60,11 +60,16 @@ internal object ResidentDailyRoutine {
             val before = CharacterLifeStore.bodyState(characterId)
                 ?.let(EmbodiedBodySnapshot::fromJson) ?: EmbodiedBodyPhysics.fresh(at)
             var body = EmbodiedBodyPhysics.advance(before, at)
+                .copy(recoveryMode = "", recoveryUntil = null)
             var activity = plan.activity
-            if (plan.slot in setOf("morning", "afternoon", "shift")) {
+            if (plan.slot in setOf("home", "night")) {
+                body = body.copy(recoveryMode = "offline_sleep", recoveryUntil = null)
+            } else if (plan.slot in setOf("morning", "afternoon", "shift")) {
                 body = body.copy(energy = (body.energy - 3.0).coerceAtLeast(0.0),
                     comfort = (body.comfort - 1.5).coerceAtLeast(0.0))
             }
+            CharacterLifeStore.saveBodyState(characterId, body.toJson(),
+                cause = "原住民真实日程：" + activity)
             if (plan.slot in setOf("lunch", "evening") &&
                 residents.any { it.isCafeBarista && plan(it, at).location == DigitalWorldPublicPlaces.CAFE }) {
                 val choice = when {
@@ -73,12 +78,24 @@ internal object ResidentDailyRoutine {
                     else -> null
                 }
                 if (choice != null) {
-                    body = EmbodiedBodyPhysics.applyWorldActivity(body, choice.consumeActivity, at, null)
-                    activity = "到咖啡角购买并${choice.verb}${choice.name}"
+                    // Use the very same inventory/receipt executor used by the
+                    // main companion. Ordering is not eating; a failed order
+                    // must never reduce hunger or fabricate a purchase.
+                    val order = runCatching {
+                        DigitalWorldActivityStateStore.apply(characterId, null,
+                            choice.orderActivity, "向在岗店员点单", at)
+                    }.getOrNull()
+                    if (order != null) {
+                        val consumed = runCatching {
+                            DigitalWorldActivityStateStore.apply(characterId, null,
+                                choice.consumeActivity, "实际吃喝", at)
+                        }.getOrNull()
+                        activity = if (consumed != null)
+                            "在咖啡角点单并实际${choice.verb}${choice.name}"
+                        else "在咖啡角领取${choice.name}，尚未食用"
+                    }
                 }
             }
-            CharacterLifeStore.saveBodyState(characterId, body.toJson(),
-                cause = "原住民真实日程：" + activity)
             SharedExperienceTimeline.record(
                 eventId = "native-routine-${resident.id}-$key",
                 characterId = characterId,
