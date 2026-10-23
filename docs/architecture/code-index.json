@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:10:46.075591+00:00",
-  "commit": "3bb9bd4a1fa3ba3ca0dfd4dd45e92249b3238046",
+  "generatedAt": "2026-10-23T05:15:45.065856+00:00",
+  "commit": "8fb5f724cb47d76b537c2a4dd903c918caf2d2a9",
   "branch": "main",
-  "sourceFingerprint": "f6c84491ff067f1b7f72e7299d593f1ad88c4231c40a26aa48babcf6643ec58b",
+  "sourceFingerprint": "b4f170af5b3867b1bb3f34a6fc66e5fa31efee3726ca9ad46b4913a759df3e9e",
   "summary": {
     "files": 835,
-    "lines": 159876,
-    "symbols": 2418
+    "lines": 159925,
+    "symbols": 2419
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -693,7 +693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 55
+        "line": 62
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6719,7 +6719,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 148
+        "line": 191
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6779,73 +6779,79 @@
     "DigitalWorldDiscoveredPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 24
+        "line": 31
       }
     ],
     "places": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 68
+        "line": 75
       }
     ],
     "residents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 71
+        "line": 78
       }
     ],
     "residentsAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 74
+        "line": 81
       }
     ],
     "residentHomeLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 77
+        "line": 84
       }
     ],
     "residentHome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 81
+        "line": 88
       }
     ],
     "residenceLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 84
+        "line": 91
       }
     ],
     "registerPlace": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 90
+        "line": 97
       }
     ],
     "registerResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 104
+        "line": 111
+      }
+    ],
+    "updateResidentProfile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
+        "line": 129
       }
     ],
     "fillResidentTraitsIfBlank": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 122
+        "line": 165
       }
     ],
     "moveResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 134
+        "line": 177
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 167
+        "line": 210
       }
     ],
     "isAmbientMoment": [
@@ -20022,8 +20028,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 280,
-      "sha256": "f06303566ba1a21c50c70c24459524b5b191ccc52f6188f70f1a6c38bdc7ef49",
+      "lines": 329,
+      "sha256": "9b410f7c598cda953728c45a4c425e273595a2bb11b3e14da37d8d16a47d2f99",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -20031,59 +20037,63 @@
         },
         {
           "name": "DigitalWorldDiscoveredPlace",
-          "line": 24
+          "line": 31
         },
         {
           "name": "initialize",
-          "line": 55
+          "line": 62
         },
         {
           "name": "places",
-          "line": 68
+          "line": 75
         },
         {
           "name": "residents",
-          "line": 71
+          "line": 78
         },
         {
           "name": "residentsAt",
-          "line": 74
-        },
-        {
-          "name": "residentHomeLocation",
-          "line": 77
-        },
-        {
-          "name": "residentHome",
           "line": 81
         },
         {
-          "name": "residenceLabel",
+          "name": "residentHomeLocation",
           "line": 84
         },
         {
+          "name": "residentHome",
+          "line": 88
+        },
+        {
+          "name": "residenceLabel",
+          "line": 91
+        },
+        {
           "name": "registerPlace",
-          "line": 90
+          "line": 97
         },
         {
           "name": "registerResident",
-          "line": 104
+          "line": 111
+        },
+        {
+          "name": "updateResidentProfile",
+          "line": 129
         },
         {
           "name": "fillResidentTraitsIfBlank",
-          "line": 122
+          "line": 165
         },
         {
           "name": "moveResident",
-          "line": 134
+          "line": 177
         },
         {
           "name": "contextFor",
-          "line": 148
+          "line": 191
         },
         {
           "name": "isExistingLocation",
-          "line": 167
+          "line": 210
         }
       ]
     },
