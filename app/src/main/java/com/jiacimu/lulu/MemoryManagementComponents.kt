@@ -37,6 +37,7 @@ import com.jiacimu.lulu.data.CoreMemoryDelivery
 import com.jiacimu.lulu.data.CoreMemoryInjectionAudit
 import com.jiacimu.lulu.data.LocalMemoryRepository
 import com.jiacimu.lulu.data.MemorySemanticConsolidation
+import com.jiacimu.lulu.data.CharacterDevelopmentRuntime
 import com.jiacimu.lulu.data.MemoryReviewPhase
 import com.jiacimu.lulu.data.MemoryValidityStore
 import com.jiacimu.lulu.data.LocalPerformanceRepository
@@ -275,10 +276,10 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
             Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF4F6F8),
                 border = BorderStroke(1.dp, FeatureBorder)) {
                 Column(Modifier.fillMaxWidth().padding(15.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("长期事实去重 · 审核记录", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                    Text("现有记忆 ${memories.size} 条 · 可审核长期事实 ${eligible} 条 · 其他 ${(memories.size - eligible).coerceAtLeast(0)} 条未参与",
+                    Text("记忆整理 · 审核记录", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text("现有 ${memories.size} 条 · 有来源可审核 ${eligible} 条 · 其余 ${(memories.size - eligible).coerceAtLeast(0)} 条",
                         fontSize = 12.sp, color = FeatureBlueGray)
-                    Text("这里只核对有原始证据的长期事实；经历、情绪、手动记忆及历史失效条目不会自动合并。",
+                    Text("经历、情绪仅核对同一事件的重复；手动记忆与无效来源不会自动归档。",
                         fontSize = 12.sp, color = FeatureBlueGray)
                     val statusText = when (report.phase) {
                         MemoryReviewPhase.Idle -> "尚无可追溯的整理报告（旧版点击结果无法确认）"
@@ -305,8 +306,8 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                     }, modifier = Modifier.fillMaxWidth()) {
                         Text(when {
                             reviewing -> "后台正在审核…"
-                            report.phase == MemoryReviewPhase.Partial -> "继续审核剩余批次（后台记忆 API）"
-                            else -> "审核长期事实中的同义重复（后台记忆 API）"
+                            report.phase == MemoryReviewPhase.Partial -> "继续审核剩余批次"
+                            else -> "审核重复记忆"
                         })
                     }
                     if (aliases.isNotEmpty()) {
@@ -319,10 +320,15 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                                 fontSize = 12.sp, lineHeight = 18.sp, color = FeatureBlueGray)
                         }
                     }
-                    Text("关闭此页面不取消已开始的审核；后台模型可能产生费用。需要时可重新打开查看结果。",
-                        fontSize = 11.sp, color = FeatureBlueGray)
+                    Text("审核使用后台记忆模型，可能产生费用。", fontSize = 11.sp, color = FeatureBlueGray)
                 }
             }
+            Text("每日小整理 · 每周大整理", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text("每日维护、每周分批审核；相处习惯从真实经历进入角色成长。",
+                fontSize = 12.sp, color = FeatureBlueGray)
+            val habitStatus by CharacterDevelopmentRuntime.revisions.collectAsState()
+            Text(CharacterDevelopmentRuntime.lastStatus(characterId).ifBlank { "习惯学习 · 暂无记录" },
+                fontSize = 12.sp, color = FeatureBlueGray)
             Text("自动记忆规则", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             OutlinedTextField(excluded, { excluded = it.filter(Char::isDigit) }, singleLine = true,
                 label = { Text("最近 N 条暂不总结") }, modifier = Modifier.fillMaxWidth())
