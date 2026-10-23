@@ -260,9 +260,9 @@ internal fun Live2DFullscreenVideoCall(
                             val label = Live2DTouchZones.label(region) ?: "身体"
                             touchFeedback = when (gesture) {
                                 "kiss" -> "亲亲 · $label"
-                                "slap" -> "拍击 · $label"
-                                "slap-left" -> "向左轻拍 · $label"
-                                "slap-right" -> "向右轻拍 · $label"
+                                "slap" -> "扇了一下 · $label"
+                                "slap-left" -> "向左扇了一下 · $label"
+                                "slap-right" -> "向右扇了一下 · $label"
                                 "stroke-left" -> "轻轻向左抚摸 · $label"
                                 "stroke-right" -> "轻轻向右抚摸 · $label"
                                 "stroke-up" -> "向上抚摸 · $label"
@@ -656,7 +656,7 @@ internal fun Live2DFullscreenVideoCall(
                         TextButton(onClick = { interactionMenuOpen = true }) {
                             Text(
                                 when (interactionMode) {
-                                    "pat" -> "手掌 · 拍击"
+                                    "pat" -> "手掌 · 扇"
                                     "kiss" -> "嘴唇 · 亲吻"
                                     else -> "手掌 · 抚摸"
                                 },
@@ -670,7 +670,7 @@ internal fun Live2DFullscreenVideoCall(
                         ) {
                             listOf(
                                 "hand" to "手掌 · 抚摸",
-                                "pat" to "手掌 · 拍击",
+                                "pat" to "手掌 · 扇",
                                 "kiss" to "嘴唇 · 亲吻",
                             ).forEach { (id, label) ->
                                 DropdownMenuItem(
