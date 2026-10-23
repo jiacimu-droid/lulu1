@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T13:58:17.037815+00:00",
-  "commit": "c208c54823f065b68f6884f0a758e5c5d413a17c",
+  "generatedAt": "2026-10-23T14:00:29.941602+00:00",
+  "commit": "494b6f14942bde0d4c1e8490da88f5b9308d37c7",
   "branch": "main",
-  "sourceFingerprint": "4fe17cec34a68fc420b2b9f8b3b18637c23b996ec270504295b1c4cc8c7f5f32",
+  "sourceFingerprint": "18d1ab220fe019f7e85bb273b388c2718676dfef4928ce1f757cd681419ae9d6",
   "summary": {
     "files": 861,
-    "lines": 164427,
+    "lines": 164467,
     "symbols": 2490
   },
   "symbolIndex": {
@@ -16648,8 +16648,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-      "lines": 198,
-      "sha256": "53ababf97070ff5b81e3d3f713ac5eb9326585b5c84da3a9dc4c4dcd4a8404c6",
+      "lines": 217,
+      "sha256": "c3c3e052486f4d574a76571f60e9f694126994dcdf58f291440471112fd7eb30",
       "symbols": [
         {
           "name": "ScheduleFeatureScreen",
@@ -23169,7 +23169,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
       "lines": 139,
-      "sha256": "61355d46e3e61d913c542342fbba959d012f052b80476eb46d40c5fa96539d54",
+      "sha256": "26d1b7fb4b763871b22a901c0ec297ce69bf8677aea4fe64daa9a8f7fe76b3f6",
       "symbols": [
         {
           "name": "contactsOf",
@@ -29210,8 +29210,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 74,
-      "sha256": "a50cecc5e39f526ac7528559a71d419a618f2c1dd0d992e28d611cfe9108196e",
+      "lines": 95,
+      "sha256": "4bdf7ed933b883f4670af4085167864dc6bfd669bf31c9fb2a9550dcbd4193ba",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",
