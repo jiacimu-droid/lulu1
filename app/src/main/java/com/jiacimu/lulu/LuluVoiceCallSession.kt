@@ -262,7 +262,8 @@ internal object LuluVoiceCallSession {
             !InteractionSignalBridge.hasRenderedVideo(characterId, callId) ||
             Live2DTouchZones.label(region) == null ||
             gesture !in setOf("tap", "hold", "stroke", "stroke-left",
-                "stroke-right", "stroke-up", "stroke-down")) return false
+                "stroke-right", "stroke-up", "stroke-down",
+                "kiss", "kick", "slap-left", "slap-right")) return false
         if (touchBatchRole != characterId || touchBatchCall != callId) {
             touchBatchJob?.cancel()
             touchBatch.clear()
