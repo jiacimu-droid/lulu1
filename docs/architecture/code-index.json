@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:34:10.175498+00:00",
-  "commit": "f080bdcd775959fecf612f8392720658f92abea9",
+  "generatedAt": "2026-10-23T05:35:06.142539+00:00",
+  "commit": "13c5d2b4152fd4deb4200ca881e937351b8cc16e",
   "branch": "main",
-  "sourceFingerprint": "ffe37f5397dbce82796d59bb096dcd7036f0bfc664ba1aea77a90d1ae8085143",
+  "sourceFingerprint": "4d413aa12556c2865296da9151a894d8e3adbb69382e198e9ca52ed416849570",
   "summary": {
     "files": 836,
-    "lines": 160272,
+    "lines": 160346,
     "symbols": 2424
   },
   "symbolIndex": {
@@ -1583,7 +1583,7 @@
     "toggleSelfCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-        "line": 110
+        "line": 113
       }
     ],
     "prepare": [
@@ -14798,12 +14798,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt",
-      "lines": 700,
-      "sha256": "ddca55439f60be009e66b5e3994b277e26f8ee2092d919156334e4cf588e516a",
+      "lines": 742,
+      "sha256": "6b6e7af4df26fea797bce9962969d6a057d8780e09c961faa70b9e495c6c121c",
       "symbols": [
         {
           "name": "toggleSelfCamera",
-          "line": 110
+          "line": 113
         }
       ]
     },
@@ -27902,8 +27902,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
-      "lines": 102,
-      "sha256": "f8a1724aeaac3e1fd35d69e58f0af6c14a19e06e3a5ffadfd7f5cc4a3973da6d",
+      "lines": 120,
+      "sha256": "5635c5bfc05e20b40e5c2ba26d30be58b2fa711b93ac9b25a76e046936f85d03",
       "symbols": [
         {
           "name": "EmbodiedBodyPhysicsTest",
@@ -28245,8 +28245,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt",
-      "lines": 84,
-      "sha256": "26fb90d2c8125658d45963c335b0c210224bc69b22cab078e8024773c13e8049",
+      "lines": 98,
+      "sha256": "e55269d84ad83f9a46e90b8bf4c1d4cc39297d9722619da01fda0ceb6b39d2c2",
       "symbols": [
         {
           "name": "PerceptionWakePlanStoreTest",
