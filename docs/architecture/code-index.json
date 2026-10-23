@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T09:55:28.225838+00:00",
-  "commit": "e52ba5163d2b7199c11b37b6823cc5fc1d6c82bc",
+  "generatedAt": "2026-10-23T09:55:52.735912+00:00",
+  "commit": "a7570a19bac1fea1e814c0a53c7096bf7ce6cedf",
   "branch": "main",
-  "sourceFingerprint": "a9d857057575bd0a7c2ae3ff3f0f7a0a79f3da68e9c92a8d1b5661a364112cab",
+  "sourceFingerprint": "ab9bc1d0ad9aa1efdef4f8101761c1241ebf3b8ba4e86872a2b7060cc5e12711",
   "summary": {
     "files": 849,
-    "lines": 162604,
+    "lines": 162609,
     "symbols": 2462
   },
   "symbolIndex": {
@@ -12871,73 +12871,73 @@
     "v12DefaultsUpgradeButOwnerCustomizedWordsAndOtherRolesStayUnchanged": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 318
+        "line": 323
       }
     ],
     "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 363
+        "line": 368
       }
     ],
     "relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 391
+        "line": 396
       }
     ],
     "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 428
+        "line": 433
       }
     ],
     "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 477
+        "line": 482
       }
     ],
     "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 527
+        "line": 532
       }
     ],
     "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 575
+        "line": 580
       }
     ],
     "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 622
+        "line": 627
       }
     ],
     "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 671
+        "line": 676
       }
     ],
     "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 714
+        "line": 719
       }
     ],
     "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 768
+        "line": 773
       }
     ],
     "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 796
+        "line": 801
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -27790,8 +27790,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 825,
-      "sha256": "d3f454241887e4d13a8dbc4a050e8ceaede3c34c5b094500751337b9137b80df",
+      "lines": 830,
+      "sha256": "d1d427d7280ecc61a1b8554c9b0e308327f275235fcf7656a83905e799c69b5c",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -27811,51 +27811,51 @@
         },
         {
           "name": "v12DefaultsUpgradeButOwnerCustomizedWordsAndOtherRolesStayUnchanged",
-          "line": 318
+          "line": 323
         },
         {
           "name": "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry",
-          "line": 363
+          "line": 368
         },
         {
           "name": "relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona",
-          "line": 391
+          "line": 396
         },
         {
           "name": "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices",
-          "line": 428
+          "line": 433
         },
         {
           "name": "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles",
-          "line": 477
+          "line": 482
         },
         {
           "name": "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona",
-          "line": 527
+          "line": 532
         },
         {
           "name": "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits",
-          "line": 575
+          "line": 580
         },
         {
           "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
-          "line": 622
+          "line": 627
         },
         {
           "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
-          "line": 671
+          "line": 676
         },
         {
           "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 714
+          "line": 719
         },
         {
           "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 768
+          "line": 773
         },
         {
           "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 796
+          "line": 801
         }
       ]
     },
@@ -28632,7 +28632,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
       "lines": 714,
-      "sha256": "63f8e39f184afa4dd1a87a1923579b15b45e50cf5e0f415dc90618c7a14de53d",
+      "sha256": "c155a13a1c6f65773a80624e9db3b4be3d311c9c3c482cf91096d377f5f9275e",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
