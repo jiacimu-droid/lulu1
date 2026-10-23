@@ -9,7 +9,7 @@ import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
-import { resolveTouchRegion, sanitizeTouchCalibration, TOUCH_REGIONS } from './touch-hit.mjs'
+import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor } from './touch-reflex.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
@@ -1008,6 +1008,34 @@ function setNativeStreaming(enabled) {
   scheduleNativeStreamFrame()
 }
 
+// Native mirrored video already maintains a recent CPU-side 2D frame.
+// Sampling its 5x5 pixels avoids a new WebGL readPixels stall on each touch.
+// A true background pixel must not become a virtual head just because it falls
+// inside coarse model bounds. null means unknown: rely on authored HitAreas.
+function actualAvatarPixel(nx, ny) {
+  if (!nativeCaptureCanvas || !nativeCaptureContext || !nativeStreamEnabled ||
+      performance.now() - nativeStreamLastFrameAt > 1200) return null
+  const w = nativeCaptureCanvas.width
+  const h = nativeCaptureCanvas.height
+  if (w < 32 || h < 32) return null
+  const x = Math.max(0, Math.min(w - 1, Math.round(nx * w)))
+  const y = Math.max(0, Math.min(h - 1, Math.round(ny * h)))
+  const left = Math.max(0, x - 2), top = Math.max(0, y - 2)
+  const width = Math.min(5, w - left), height = Math.min(5, h - top)
+  try {
+    const rgb = nativeCaptureContext.getImageData(left, top, width, height).data
+    let colored = 0
+    for (let i = 0; i < rgb.length; i += 4) {
+      // Opaque stage background is exactly #151719.
+      const delta = Math.max(Math.abs(rgb[i] - 21),
+        Math.abs(rgb[i + 1] - 23), Math.abs(rgb[i + 2] - 25))
+      if (delta > 12) colored++
+    }
+    return colored >= 2
+  } catch (_) {
+    return null
+  }
+}
 /**
  * Android's visible Compose image captures the finger and forwards the
  * normalized point to the actual Pixi model. Never pretend background is a hit.
@@ -1020,11 +1048,21 @@ function touch(normalizedX, normalizedY, gesture = 'tap') {
       normalizedY < 0 || normalizedY > 1) return { hit: false }
   const x = normalizedX * root.clientWidth
   const y = normalizedY * root.clientHeight
+  const bounds = model.getBounds()
+  const manualZone = calibratedRegion(
+    (x - bounds.x) / bounds.width, (y - bounds.y) / bounds.height,
+    touchCalibration,
+  )
+  // Manual calibration can correct missed pixels in dark/transparent models.
+  // Automatic touches still require visibly rendered character pixels where
+  // the Android native image has a fresh CPU-accessible frame.
+  if (!manualZone && actualAvatarPixel(normalizedX, normalizedY) === false)
+    return { hit: false }
   let hits = []
   try { hits = model.hitTest(x, y) || [] } catch (_) { /* optional HitAreas */ }
   const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
   const region = resolveTouchRegion({
-    hits, authoredAreas, bounds: model.getBounds(), x, y,
+    hits, authoredAreas, bounds, x, y,
     calibration: touchCalibration,
   })
   if (!region) return { hit: false }
