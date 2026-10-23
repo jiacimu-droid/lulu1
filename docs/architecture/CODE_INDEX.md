@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`81c8c4307f7276ef6698deda8d00449d1cfd0f70`
+- 基准提交：`e5bf6c482447c7286945fa52fb8824a7fd994742`
 - 分支：`main`
-- 已索引文件：851
-- 已索引代码/文本行：163000
-- 已发现符号：2466
+- 已索引文件：852
+- 已索引代码/文本行：163045
+- 已发现符号：2468
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -434,6 +434,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 300 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 690 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt` | 30 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt` | 64 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T10:19:14.815859+00:00",
-  "commit": "81c8c4307f7276ef6698deda8d00449d1cfd0f70",
+  "generatedAt": "2026-10-23T10:20:48.466165+00:00",
+  "commit": "e5bf6c482447c7286945fa52fb8824a7fd994742",
   "branch": "main",
-  "sourceFingerprint": "cce5a08a1089e679b9a6fba6635fa5f8f10ead768294b0caf7d641f6202a388d",
+  "sourceFingerprint": "c5efe3fc75f07492f36a6ca4c99c6394bfe8a2ff36caf80b3ee81fd856785c83",
   "summary": {
-    "files": 851,
-    "lines": 163000,
-    "symbols": 2466
+    "files": 852,
+    "lines": 163045,
+    "symbols": 2468
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -9362,6 +9362,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt",
         "line": 26
+      }
+    ],
+    "needsFollowThrough": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt",
+        "line": 17
+      }
+    ],
+    "validatedAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt",
+        "line": 30
       }
     ],
     "SharedTimelineEvent": [
@@ -23039,6 +23051,21 @@
         {
           "name": "shutdown",
           "line": 63
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt",
+      "lines": 45,
+      "sha256": "6c47054c213b3061729d2be1541c11d5cb3cbf57196658bb704f29dfa09300b2",
+      "symbols": [
+        {
+          "name": "needsFollowThrough",
+          "line": 17
+        },
+        {
+          "name": "validatedAction",
+          "line": 30
         }
       ]
     },
