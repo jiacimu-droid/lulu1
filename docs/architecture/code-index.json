@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T16:41:13.218859+00:00",
-  "commit": "b036442bc20a15c49355dfaf0eef949ec4dc02f2",
+  "generatedAt": "2026-10-23T16:41:49.322167+00:00",
+  "commit": "c91d0d12d2818e2e1a2fbedbc11460d0270c1898",
   "branch": "main",
-  "sourceFingerprint": "191eca4f2bb91e1d86c5522418e846f8414cd2ea864f9393102305bbcd60b041",
+  "sourceFingerprint": "e68433721629b4720508d08f486662c0e8dfeb03cff5f8049217ee088f36ce5d",
   "summary": {
     "files": 862,
-    "lines": 164748,
+    "lines": 164773,
     "symbols": 2494
   },
   "symbolIndex": {
@@ -16670,8 +16670,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-      "lines": 217,
-      "sha256": "c3c3e052486f4d574a76571f60e9f694126994dcdf58f291440471112fd7eb30",
+      "lines": 218,
+      "sha256": "60158bd1338867916ef50742e3c88a9a4ccfc019dfa93aeee08a70e266b1674e",
       "symbols": [
         {
           "name": "ScheduleFeatureScreen",
@@ -19675,7 +19675,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
       "lines": 40,
-      "sha256": "32e8e53bf04d08b0fa9ebfbf5cf82758b46af422778b8e805de34bcff773ce76",
+      "sha256": "f1ec1aa47f32e68f2eaef2304ceec004fd78650e6db01ec889fa25e2b4f732f2",
       "symbols": [
         {
           "name": "context",
@@ -19689,8 +19689,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 164,
-      "sha256": "1e2f0d21b5fa89ec50eedef463ae83490c76060cb6de94c366845b5cbc2d2284",
+      "lines": 172,
+      "sha256": "a96e5c7cf5c690bdfb64574d1d9de48b82ab988fa0dc77cfd881200d400e8aba",
       "symbols": [
         {
           "name": "handled",
@@ -29266,8 +29266,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 109,
-      "sha256": "8230d98e0b8a29b604410fd29125cf0e7f435006c66971247bc6c8388cc61861",
+      "lines": 125,
+      "sha256": "c8d12156935f51d72c3622a5e81c96fc0fbef7e93edd922270ca5b0a4a248eb4",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
