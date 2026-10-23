@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:38:23.160998+00:00",
-  "commit": "bb93d1ef51107b5855398de6785ef0ba664d92ca",
+  "generatedAt": "2026-10-23T05:39:08.417429+00:00",
+  "commit": "3d3b0cc0115833f888e10b738993cd51f5c58773",
   "branch": "main",
-  "sourceFingerprint": "194d94a3e024b3a51da8725ebd4bdab4a510f5602efedc6d970daf47ab78ded6",
+  "sourceFingerprint": "5a163510232e957dd4ddf42de55946d34f0f0f0b8b15a9d50c1d08ce6bd470f9",
   "summary": {
     "files": 836,
-    "lines": 160369,
+    "lines": 160372,
     "symbols": 2424
   },
   "symbolIndex": {
@@ -8739,19 +8739,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 502
+        "line": 505
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 504
+        "line": 507
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 1967
+        "line": 1970
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -19377,7 +19377,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 819,
-      "sha256": "4ae58fd475f9c2da31612c5deda1851068b097b83a0a20509660f4f5bd35aba1",
+      "sha256": "3ee7b925cd1ad5efc58bbc5c21a7eb57aa8c7e8e4702e7d783297d66fb0a8c12",
       "symbols": [
         {
           "name": "asJson",
@@ -22167,8 +22167,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2034,
-      "sha256": "299d024e7399b1094d5f5f1c3612fc29cf3aa41eb884b9131910c05f01a8bd2c",
+      "lines": 2037,
+      "sha256": "c9f65620767c59418197346ace35ce01c5a2987e2947dbc5280bca6a83a028df",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -22192,15 +22192,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 502
+          "line": 505
         },
         {
           "name": "deferSupersededDecision",
-          "line": 504
+          "line": 507
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 1967
+          "line": 1970
         }
       ]
     },
