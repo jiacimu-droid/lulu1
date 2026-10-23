@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e63654b54691cbac988361396dca46aaf16ac5e2`
+- 基准提交：`bf07366c875f6e2647aa3144d7d6a483c76229c4`
 - 分支：`main`
 - 已索引文件：853
-- 已索引代码/文本行：163389
-- 已发现符号：2469
+- 已索引代码/文本行：163436
+- 已发现符号：2470
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -814,7 +814,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 89 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt` | 136 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:59:44.887856+00:00",
-  "commit": "e63654b54691cbac988361396dca46aaf16ac5e2",
+  "generatedAt": "2026-10-23T12:00:45.119823+00:00",
+  "commit": "bf07366c875f6e2647aa3144d7d6a483c76229c4",
   "branch": "main",
-  "sourceFingerprint": "921649f7fdf51cd373097b8aa50127608dc199f03df23a1ecfce3edcfad71c27",
+  "sourceFingerprint": "02c5a832802f6d3b028fb4cb21b5ef33a259f9a35e9e4885df68e1353ebed46e",
   "summary": {
     "files": 853,
-    "lines": 163389,
-    "symbols": 2469
+    "lines": 163436,
+    "symbols": 2470
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1639,7 +1639,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 33
+        "line": 80
       }
     ],
     "attemptReload": [
@@ -13598,10 +13598,16 @@
         "line": 17
       }
     ],
+    "say": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
+        "line": 29
+      }
+    ],
     "propose": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-        "line": 58
+        "line": 105
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt",
@@ -29024,20 +29030,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
-      "lines": 89,
-      "sha256": "4b4c115d1d2b03ce421aed7e8f579979286be5e83522897c1862592c21062f7d",
+      "lines": 136,
+      "sha256": "8c4e318d99a4b68fa68ed614a24854dda42671972af456eb023f0f05b82516a8",
       "symbols": [
         {
           "name": "TimelineLedgerTest",
           "line": 17
         },
         {
+          "name": "say",
+          "line": 29
+        },
+        {
           "name": "record",
-          "line": 33
+          "line": 80
         },
         {
           "name": "propose",
-          "line": 58
+          "line": 105
         }
       ]
     },
