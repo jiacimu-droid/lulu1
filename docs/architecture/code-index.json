@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T10:14:32.855348+00:00",
-  "commit": "03f8b6bf75ed480f2794aa399587af3f5cbbb999",
+  "generatedAt": "2026-10-23T10:15:21.895434+00:00",
+  "commit": "8368c9c753ec0a3d036bd6fcd97f710d8143872b",
   "branch": "main",
-  "sourceFingerprint": "85d01ef317e1c0ba23c3c6e383f104817e85765fe13485d7540fa5ff9398a7ee",
+  "sourceFingerprint": "cbe8265fd786d2c7e5f4c074ae93758d7c7de4fd5e82b48900357a2c6dd1c739",
   "summary": {
-    "files": 850,
-    "lines": 162935,
-    "symbols": 2465
+    "files": 851,
+    "lines": 162978,
+    "symbols": 2466
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13560,6 +13560,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
         "line": 15
+      }
+    ],
+    "SearchReceiptFeedbackTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
+        "line": 8
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -28947,6 +28953,17 @@
         {
           "name": "ScreenVisionCapabilityContextTest",
           "line": 15
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
+      "lines": 43,
+      "sha256": "b002b29a24c01dc696c73a3cff8be42a1fa285b4f1820c6cc6f1fd3f5e9a8030",
+      "symbols": [
+        {
+          "name": "SearchReceiptFeedbackTest",
+          "line": 8
         }
       ]
     },
