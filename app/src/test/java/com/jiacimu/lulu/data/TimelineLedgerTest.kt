@@ -17,6 +17,53 @@ import java.time.Instant
 class TimelineLedgerTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
+    @Test fun ownerPreferenceAndHelpfulComfortMethodFollowRealDialogueEvidence() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterDevelopmentStore.initialize(context)
+        MigratedDomainStores.characters.initialize(context)
+        val role = "comfort-evidence-role"
+        val snapshot = CharacterRuntime.personaConstraintSnapshot(role)
+        val now = Instant.parse("2026-10-23T09:00:00Z")
+
+        fun say(id: String, words: String, afterSeconds: Long, fromUser: Boolean = true) {
+            SharedExperienceTimeline.record(id, role, "私聊",
+                if (fromUser) "用户" else "江渡", words, now.plusSeconds(afterSeconds),
+                source = "message", triggerExtraction = false,
+                evidenceKind = if (fromUser) EventEvidenceKind.UserStatement
+                    else EventEvidenceKind.CharacterStatement)
+        }
+
+        say("pref", "我喜欢你主动想办法哄我，不喜欢一直反问我", 0)
+        assertTrue(CharacterDevelopmentStore.applyProposal(role, "user:comfort-style",
+            DevelopmentKind.UserPreference, "主人喜欢我主动尝试，不喜欢总把答案推给她",
+            listOf("pref"), emptyList(), snapshot))
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "user:invented",
+            DevelopmentKind.UserPreference, "根据网页推测主人爱听土味情话",
+            listOf("missing"), emptyList(), snapshot))
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "user:habit-guessed",
+            DevelopmentKind.UserHabit, "主人每天喜欢土味情话",
+            listOf("pref"), emptyList(), snapshot))
+
+        say("first-attempt", "宝宝，你看我这拙劣的土味情话能不能换你一个笑？", 10, fromUser = false)
+        say("positive", "哈哈，我喜欢你这样哄我，好多了", 20)
+        assertTrue(CharacterDevelopmentStore.applyProposal(role, "comfort:playful",
+            DevelopmentKind.VerifiedMethod, "她难过时，我用轻松俏皮的玩笑哄她，这次她明确说好多了",
+            listOf("first-attempt", "positive"), emptyList(), snapshot))
+        assertEquals(DevelopmentMaturity.Emerging,
+            CharacterDevelopmentStore.active(role).first { it.slot == "comfort:playful" }.maturity)
+
+        say("negative", "不喜欢，你这样哄我更烦了", 30)
+        assertFalse(CharacterDevelopmentStore.applyProposal(role, "comfort:wrong",
+            DevelopmentKind.VerifiedMethod, "这办法永远有效",
+            listOf("first-attempt", "negative"), emptyList(), snapshot))
+        assertTrue(CharacterDevelopmentStore.active("somebody-else").isEmpty())
+
+        SharedExperienceTimeline.deleteEvent("positive")
+        assertFalse(CharacterDevelopmentStore.active(role).any { it.slot == "comfort:playful" })
+    }
+
     @Test fun migrationDedupIsolationCorrectionAndDeletionAreDurable() {
         val context = RuntimeEnvironment.getApplication() as Context
         context.openOrCreateDatabase("shared_experience_timeline.db", 0, null).use { db ->
