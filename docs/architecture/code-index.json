@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:45:43.492649+00:00",
-  "commit": "2458f5305603a304c84ae7ee6e8059ca855ed465",
+  "generatedAt": "2026-10-23T07:46:28.276920+00:00",
+  "commit": "b58f471fb692924db8d0525a323216ba429c6fd6",
   "branch": "main",
-  "sourceFingerprint": "d78b37b6c1d685451afd818e694ac7f46d2694cdc217acb6271ce8dc27b962d8",
+  "sourceFingerprint": "5aab6a0a1e8420497d47875b72311652010d8b515552153a7f2a57ce89aaf6b2",
   "summary": {
     "files": 844,
-    "lines": 161733,
+    "lines": 161739,
     "symbols": 2449
   },
   "symbolIndex": {
@@ -6747,7 +6747,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 212
+        "line": 218
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -6879,13 +6879,13 @@
     "commitResidentDuty": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 196
+        "line": 202
       }
     ],
     "isExistingLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-        "line": 231
+        "line": 237
       }
     ],
     "isAmbientMoment": [
@@ -20214,8 +20214,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldExpansionStore.kt",
-      "lines": 357,
-      "sha256": "7c3fb67d8f1fc4cb0f8d1eca5690461b469dc6767714ccae679b59272d414eef",
+      "lines": 363,
+      "sha256": "ba3ddb1188e4db8088255948786bebf1652adece81d06a8e3ab891c7bafdea8b",
       "symbols": [
         {
           "name": "DigitalWorldResident",
@@ -20275,15 +20275,15 @@
         },
         {
           "name": "commitResidentDuty",
-          "line": 196
+          "line": 202
         },
         {
           "name": "contextFor",
-          "line": 212
+          "line": 218
         },
         {
           "name": "isExistingLocation",
-          "line": 231
+          "line": 237
         }
       ]
     },
