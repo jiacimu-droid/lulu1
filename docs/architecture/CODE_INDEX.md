@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d0bf80516f5546c73ac155231528cc76624ab7bd`
+- 基准提交：`c25c1c91deae936c204c42eecac01bf539eb4a4a`
 - 分支：`main`
-- 已索引文件：858
-- 已索引代码/文本行：164019
-- 已发现符号：2478
+- 已索引文件：859
+- 已索引代码/文本行：164154
+- 已发现符号：2480
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -262,6 +262,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRecall.kt` | 48 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 207 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 281 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 66 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 82 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 86 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
@@ -418,8 +419,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 25 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2228 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 884 | 26 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 2242 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 903 | 27 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 101 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
@@ -434,7 +435,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 90 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 270 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 123 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 103 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 139 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 328 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
