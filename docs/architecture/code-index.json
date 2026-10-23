@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:44:52.751780+00:00",
-  "commit": "70b37f7a5fc04b3afc836da9fdbae6f14c5c76b4",
+  "generatedAt": "2026-10-23T11:47:28.938830+00:00",
+  "commit": "d9e5c6627867449c8f6776e658f82e6b628cbdaf",
   "branch": "main",
-  "sourceFingerprint": "c3ef85cf35be1ae87c1de67d4b3a2bdcc05f50d22259971469b0d3cdae56299a",
+  "sourceFingerprint": "9544d27d6a5c1dab258c182deb2fd2eaaf3696ee1a1cc71b0fe13e9fd0dd53fe",
   "summary": {
     "files": 853,
     "lines": 163314,
@@ -18854,7 +18854,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
       "lines": 225,
-      "sha256": "238d39c9ef4429011923d1eca65564605a1676eb6bef84573fca1267a2b89eef",
+      "sha256": "f76ad60084882fc6887520a3d18184b581e588cea40a83201157dd2fff85f1fa",
       "symbols": [
         {
           "name": "groupedFields",
@@ -21815,7 +21815,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
       "lines": 373,
-      "sha256": "0b31268d5eaa8b887a254a4fa327fb2bc18301fe84cabbb29195dedd85c0ecbb",
+      "sha256": "e4871b156342272e35ca3de1ee6fcbafb0ba76556236445add5d05456de2f9d1",
       "symbols": [
         {
           "name": "report",
