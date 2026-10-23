@@ -65,10 +65,18 @@ class QqMessageGroupingTest {
             semanticReplyBubbles("嗯～⟪BUBBLE⟫你先睡吧。"))
     }
 
-    @Test fun repeatedNewlinesAndNoSeparatorStayOneBubble() {
+    @Test fun realParagraphBreaksAreSeparateDeliveredBubbles() {
         val text = "你还在忙呀？\n\n嗯，没事。\n我等你。"
         val parsed = parseCharacterReplyPresentation(text)
-        assertEquals(listOf(text), semanticReplyBubbles(parsed.content))
+        assertEquals(listOf("你还在忙呀？", "嗯，没事。\n我等你。"),
+            semanticReplyBubbles(parsed.content))
+    }
+
+    @Test fun searchResultWithMultipleCompleteIdeasNeverBecomesGiantLastBubble() {
+        val parts = (1..15).map { "我找到了第${it}个可靠来源，内容和出处都得等真正查完再发给你。" }
+        val actual = semanticReplyBubbles(parts.joinToString("⟪BUBBLE⟫"))
+        assertEquals(parts, actual)
+        assertTrue(actual.none { it.length > 85 })
     }
 
     @Test fun longHumanSentencesBecomeSeveralReadableBubblesWithoutRewritingFacts() {
