@@ -153,6 +153,21 @@ private fun findTargetTask(characterId: String, draft: CommitmentTaskDraft): Com
 
 private fun scheduleTaskAlarm(task: CommitmentTask) {
     val dueAt = task.dueAt ?: return
+    // A new incoming-call alarm can never hang up the call already in progress.
+    // Fail visibly instead of turning a same-session hangup request into a
+    // surprise midnight callback. The live call owns its own timer.
+    if (listOf("挂断电话", "挂电话", "挂掉电话", "结束通话", "挂断这通", "挂断本次")
+            .any(task.goal::contains)) {
+        CommitmentTaskStore.update(task.id) { current ->
+            current.copy(
+                status = CommitmentTaskStatus.Blocked,
+                nextCheckAt = null,
+                linkedAlarmId = null,
+                lastActionResult = "当前电话的定时挂断不能使用新来电闹钟；请在通话中单独安排",
+            )
+        }
+        return
+    }
     if (!dueAt.isAfter(Instant.now().plusSeconds(5))) {
         CommitmentTaskStore.update(task.id) { current ->
             current.copy(
