@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T17:05:44.066377+00:00",
-  "commit": "d4fc1a564a90ae0d6273dd2bc33cfafa110c4573",
+  "generatedAt": "2026-10-23T17:33:35.143155+00:00",
+  "commit": "ae31f9b5cf4fbfb217531ba2a19873550ed3de1a",
   "branch": "main",
-  "sourceFingerprint": "0af7c64b12839aaca874cb67b9ee72d9a4f5ec64201538e559390f963357459c",
+  "sourceFingerprint": "55d462ce5628c7e0171839e20902d7c47ff7ac4986dc8d6cadaddc43034dd3c4",
   "summary": {
-    "files": 862,
-    "lines": 164804,
-    "symbols": 2494
+    "files": 863,
+    "lines": 164933,
+    "symbols": 2496
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5776,6 +5776,10 @@
         "line": 30
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
+        "line": 24
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
         "line": 18
       },
@@ -9106,6 +9110,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
         "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
+        "line": 18
       }
     ],
     "isReadingNotice": [
@@ -23747,6 +23755,21 @@
         {
           "name": "search",
           "line": 164
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
+      "lines": 129,
+      "sha256": "b4588c0b94ab6199613dd9d3340aa2e3223cc7d03fc874bcc4fa84eed56beaa8",
+      "symbols": [
+        {
+          "name": "Preview",
+          "line": 18
+        },
+        {
+          "name": "parse",
+          "line": 24
         }
       ]
     },
