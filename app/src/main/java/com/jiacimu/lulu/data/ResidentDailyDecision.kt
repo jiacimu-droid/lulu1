@@ -34,6 +34,10 @@ internal object ResidentDailyDecision {
     private const val WORK_NOW = "lulu-resident-daily-initial-v1"
     private const val MAX_RESIDENTS_PER_DAY = 24
     private const val MAX_MESSAGE = 500
+    @Volatile private var appContext: Context? = null
+
+    fun planForApp(residentId: String, at: Instant): JSONObject? =
+        appContext?.let { planFor(it, residentId, at) }
 
     private fun prefs(context: Context) = context.applicationContext
         .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -188,6 +192,7 @@ internal object ResidentDailyDecision {
 
     suspend fun tick(context: Context, now: Instant = Instant.now()): Int {
         val app = context.applicationContext
+        appContext = app
         ResidentDailyRoutine.refresh(app, now)
         ResidentSocialMailbox.initialize(app)
         ScopedModelSelections.initialize(app)
@@ -203,6 +208,7 @@ internal object ResidentDailyDecision {
 
     fun schedule(context: Context) {
         val app = context.applicationContext
+        appContext = app
         val network = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         val periodic = PeriodicWorkRequestBuilder<ResidentDailyDecisionWorker>(24, TimeUnit.HOURS)
             .setConstraints(network).build()
