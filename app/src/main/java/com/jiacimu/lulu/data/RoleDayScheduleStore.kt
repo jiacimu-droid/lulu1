@@ -34,6 +34,8 @@ data class RoleDayPlan(
     val targetCharacterId: String = "",
     val targetResidentId: String = "",
     val locationCode: String = "",
+    /** Planned tool arguments are a suggestion, not permission to execute without a new decision. */
+    val activityArgs: String = "",
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -64,7 +66,7 @@ object RoleDayScheduleStore {
                     o.optInt("rescheduleCount", 0),
                     o.optString("repeat", "once"), o.optString("motiveId"),
                     o.optString("targetCharacterId"), o.optString("targetResidentId"),
-                    o.optString("locationCode"))
+                    o.optString("locationCode"), o.optString("activityArgs"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -85,7 +87,8 @@ object RoleDayScheduleStore {
                 .put("repeat", p.repeat).put("motiveId", p.motiveId)
                 .put("targetCharacterId", p.targetCharacterId)
                 .put("targetResidentId", p.targetResidentId)
-                .put("locationCode", p.locationCode))
+                .put("locationCode", p.locationCode)
+                .put("activityArgs", p.activityArgs))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -99,7 +102,16 @@ object RoleDayScheduleStore {
         "send_private_message", "send_character_message",
     )
 
-    private val schedulableActions = verifiableActions - "write_journal"
+    /** Every registered real tool can be planned; the live executor still checks actual permission.
+     * Exclude lifecycle and planning operations rather than inventing a second tool registry. */
+    private val scheduleControlTools = setOf(
+        "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity",
+        "go_offline", "write_journal", "ring_in_call_wake", "cloud_task",
+    )
+
+    internal fun canSchedule(action: String): Boolean =
+        action.isNotBlank() && action !in scheduleControlTools &&
+            CapabilityRegistry.find(action) != null
 
     /** Preserve the role's selected wall-clock slot in UTC calendar days.
      * Skipped occurrences never create a backlog of automatic messages. */
@@ -118,7 +130,8 @@ object RoleDayScheduleStore {
                 "动机=${plan.intent}，重复=${plan.repeat}，" +
                 "状态=${plan.status}，动作=${plan.activityAction}，" +
                 "对象=${plan.targetCharacterId.ifBlank { plan.targetResidentId }}，地点=${plan.locationCode}，" +
-                "关联意愿=${plan.motiveId.ifBlank { "无" }}。"
+                "关联意愿=${plan.motiveId.ifBlank { "无" }}，" +
+                "预选参数=${plan.activityArgs.take(360)}。"
         }
 
     /** Already persisted personal commitments outrank a generic periodic sleep timer.
@@ -160,15 +173,18 @@ object RoleDayScheduleStore {
         dueAt: Instant, now: Instant = Instant.now(), activityAction: String = "",
         repeat: String = "once", motiveId: String = "",
         targetCharacterId: String = "", targetResidentId: String = "",
-        locationCode: String = ""): RoleDayPlan {
+        locationCode: String = "", activityArgs: JSONObject = JSONObject()): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
         }
-        require(dueAt.isAfter(now.plusSeconds(60)) &&
-            dueAt.isBefore(now.plus(Duration.ofDays(14)))) { "请选择未来两周内的时间" }
+        require(dueAt.isAfter(now.plusSeconds(60))) { "日程需要明确的未来时间" }
         val action = activityAction.trim().lowercase()
-        require(action.isBlank() || action in schedulableActions) { "这项日程尚无可验证的执行动作" }
+        require(action.isBlank() || canSchedule(action)) { "日程动作不是已注册的可执行工具" }
+        require(action.isNotBlank() || activityArgs.length() == 0) { "预选参数必须对应一个真实工具" }
+        require(activityArgs.keys().asSequence().none { it == "planId" || it.startsWith("_") }) {
+            "预选参数不能提前携带任务回执或执行身份"
+        }
         require(repeat in setOf("once", "daily")) { "只支持单次或每日重复" }
         require(repeat != "daily" || action.isNotBlank()) { "每日计划需要明确真实执行动作" }
         val linkedId = motiveId.trim()
@@ -205,13 +221,12 @@ object RoleDayScheduleStore {
                 linkedId, "", "") == linkedId) { "关联意愿必须属于本人且尚未暂停或放下" }
         }
         val existing = all(context)
-        require(existing.count { it.characterId == characterId && it.status in setOf("planned", "due") } < 12) {
-            "当前日程过多，请先完成或取消此前的安排"
-        }
+        // No arbitrary per-person plan quota: an ongoing life may have many distinct intentions.
         val plan = RoleDayPlan(UUID.randomUUID().toString(), characterId,
             title.trim(), intent.trim(), dueAt, now, activityAction = action,
             repeat = repeat, motiveId = linkedId, targetCharacterId = targetRole,
-            targetResidentId = targetNative, locationCode = place)
+            targetResidentId = targetNative, locationCode = place,
+            activityArgs = activityArgs.toString())
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
@@ -242,8 +257,7 @@ object RoleDayScheduleStore {
     @Synchronized
     fun reschedule(context: Context, characterId: String, planId: String,
         dueAt: Instant, reason: String, now: Instant = Instant.now()): RoleDayPlan {
-        require(dueAt.isAfter(now.plusSeconds(60)) &&
-            dueAt.isBefore(now.plus(Duration.ofDays(14)))) { "改期只能安排在未来两周内" }
+        require(dueAt.isAfter(now.plusSeconds(60))) { "改期必须是未来时间" }
         val previous = all(context)
         val original = previous.firstOrNull { it.characterId == characterId && it.id == planId &&
             it.status in setOf("planned", "due") } ?: error("没有可改期的本人日程")
@@ -266,7 +280,8 @@ object RoleDayScheduleStore {
     internal fun canComplete(plan: RoleDayPlan, characterId: String, action: String,
         evidenceId: String, now: Instant, args: JSONObject? = null): Boolean =
         plan.characterId == characterId && evidenceId.isNotBlank() &&
-            action in verifiableActions &&
+            (action in verifiableActions ||
+                (plan.activityAction == action && canSchedule(action))) &&
             (plan.activityAction.isBlank() || plan.activityAction == action) &&
             (plan.status == "due" || (plan.status == "planned" && !plan.dueAt.isAfter(now))) &&
             (plan.targetCharacterId.isBlank() || when (action) {
@@ -354,7 +369,9 @@ object RoleDayScheduleStore {
                             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
                             it.motiveId, "", "") != it.motiveId)
                         "关联意愿已暂停或放下：先重新考虑是否执行、改期或取消；" else "") +
-                    "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}。" +
+                    "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}；" +
+                    "上次选定的参数：${it.activityArgs.ifBlank { "{}" }.take(1200)}。" +
+                    "重新核实场景与用户意愿，可按原参数执行，也可适当调整；不自动调用。" +
                     "想做就执行真实工具并把 planId 放入同一次最终动作 args；只有成功回执才算完成。" +
                     "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +
                     "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +
