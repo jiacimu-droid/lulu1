@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:50:37.496590+00:00",
-  "commit": "a9d5fadbb699dff2bb7e2e9f3438cbd5978c865c",
+  "generatedAt": "2026-10-23T07:53:05.515345+00:00",
+  "commit": "53ffae1040144432bccd0ebb9011a3575c81782f",
   "branch": "main",
-  "sourceFingerprint": "3ea93313f0cd61a31159f958896759c595b30c497189351f5f51bf19eed75baf",
+  "sourceFingerprint": "379fcfc60a49412eb5155d0cca307edc4304253f83e55c8a5df99d6a35752562",
   "summary": {
     "files": 845,
-    "lines": 161901,
+    "lines": 161918,
     "symbols": 2450
   },
   "symbolIndex": {
@@ -22792,8 +22792,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
-      "lines": 95,
-      "sha256": "cdf30929886656fdf0df07c87dd1e1665ee75cbdb3ae9e9d89b8cc0ae5231720",
+      "lines": 112,
+      "sha256": "0bf2893aae623138d79bfcf1c0575fca002ce0915b0758ef58fe0e83f208f641",
       "symbols": [
         {
           "name": "plan",
