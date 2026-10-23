@@ -604,13 +604,13 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
         // Explicitly requested rewrite skips additive legacy migrations.
-        assertEquals(21, upgraded.getInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV19Overrides.getValue("speechHabits"),
+        assertEquals(22, upgraded.getInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("speechHabits"),
             upgraded.getJSONObject("profile").getString("speechHabits"))
         assertEquals("用户自定义身份", CharacterIdentityStore.identities.value[role.characterId])
-        assertEquals(CharacterProfileSchema.jiangDuV16Persona, MigratedDomainStores.characters.get(role.characterId).persona)
-        assertEquals(CharacterProfileSchema.jiangDuV21Overrides.getValue("care"), upgraded.getJSONObject("profile").getString("care"))
-        assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Persona, MigratedDomainStores.characters.get(role.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("care"), upgraded.getJSONObject("profile").getString("care"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals("用户自定义的人设", upgraded.getJSONObject("jiangDuV9Backup").getString("persona"))
         assertTrue(CharacterRuntime.definition(role.characterId).promptSection().contains("主人"))
@@ -640,11 +640,11 @@ class OnlineChatExperienceTest {
         CharacterLifeStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CharacterLifeStore, null)
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        assertEquals(CharacterProfileSchema.jiangDuV16Persona, MigratedDomainStores.characters.get(role.characterId).persona)
+        assertEquals(CharacterProfileSchema.jiangDuV22Persona, MigratedDomainStores.characters.get(role.characterId).persona)
         assertEquals(CharacterProfileSchema.jiangDuIdentity, CharacterIdentityStore.identities.value[role.characterId])
-        assertEquals(CharacterProfileSchema.jiangDuV14Overrides.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
-        assertEquals(CharacterProfileSchema.jiangDuV19Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
-        assertEquals(CharacterProfileSchema.jiangDuV15Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("values"), upgraded.getJSONObject("profile").getString("values"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("expression"), upgraded.getJSONObject("profile").getString("expression"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("interests"), upgraded.getJSONObject("profile").getString("interests"))
         assertEquals("继续看书", upgraded.getJSONObject("intention").getString("aim"))
         assertEquals(old.getJSONObject("profile").toString(), upgraded.getJSONObject("jiangDuV9Backup").getJSONObject("profile").toString())
         assertEquals(actualHistory, SharedExperienceTimeline.all(role.characterId))
@@ -668,8 +668,8 @@ class OnlineChatExperienceTest {
             .apply { isAccessible = true }.set(CharacterLifeStore, null)
         CharacterLifeStore.initialize(context)
         val upgraded = CharacterLifeStore.state(role.characterId)
-        assertEquals(21, upgraded.optInt("jiangDuPresetVersion"))
-        assertEquals(CharacterProfileSchema.jiangDuV19Overrides.getValue("expression"),
+        assertEquals(22, upgraded.optInt("jiangDuPresetVersion"))
+        assertEquals(CharacterProfileSchema.jiangDuV22Overrides.getValue("expression"),
             upgraded.getJSONObject("profile").getString("expression"))
         assertEquals("用户自己写的语言习惯，不可覆盖",
             upgraded.getJSONObject("profile").getString("speechHabits"))
