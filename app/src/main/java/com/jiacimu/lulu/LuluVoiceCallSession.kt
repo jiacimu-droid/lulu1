@@ -437,9 +437,9 @@ internal object LuluVoiceCallSession {
         }
         // Relative times belong to the actual user turn, not the end of a slow
         // model/TTS round-trip. In particular 02:05 + 30min is 02:35 today.
-        val deadline = requestedAt.plusSeconds(seconds.toLong())
-        val remainingMs = java.time.Duration.between(Instant.now(), deadline).toMillis()
-        if (remainingMs <= 0L) {
+        val deadline = CallTimedHangupTiming.deadline(requestedAt, seconds) ?: return
+        val remainingMs = CallTimedHangupTiming.remainingMillis(deadline, Instant.now())
+        if (remainingMs == null) {
             MigratedDomainStores.chat.appendSystemReceipt(
                 call.conversationId, receiptId, "本次通话约定的挂断时刻已过去，未补做迟到挂断",
             )
