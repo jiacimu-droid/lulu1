@@ -105,7 +105,9 @@ object DigitalWorldStore {
         DigitalWorldResidentEpisodeStore.initialize(context.applicationContext)
     }
 
-    fun homeLocation(characterId: String): String = "home:$characterId"
+    fun homeLocation(characterId: String): String =
+        if (characterId.startsWith("resident:")) "resident-home:${characterId.removePrefix("resident:")}"
+        else "home:$characterId"
 
     fun ensureHome(characterId: String, displayName: String, now: Instant = Instant.now()): DigitalHome {
         require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命拥有数字世界原生家园" }
@@ -168,6 +170,23 @@ object DigitalWorldStore {
         val location = locationOf(characterId)
         if (!location.startsWith("home:")) return emptyList()
         return itemsAtHome(location.removePrefix("home:"))
+    }
+
+    /** Mirrors a committed native movement into the SAME character-location projection.
+     * No second autonomous movement decision or fake encounter is generated. */
+    fun syncNativeResidentLocation(characterId: String, nativeLocation: String,
+        at: Instant = Instant.now()): Boolean {
+        if (!characterId.startsWith("resident:") ||
+            !DigitalWorldExpansionStore.isExistingLocation(nativeLocation)) return false
+        synchronized(lock) {
+            if (mutable.value.characterLocations[characterId] == nativeLocation) return true
+            mutable.value = mutable.value.copy(characterLocations =
+                mutable.value.characterLocations + (characterId to nativeLocation))
+            appendEventLocked(characterId, "native_resident_location",
+                "原住民的真实位置更新：$nativeLocation", at)
+            persistLocked()
+            return true
+        }
     }
 
     fun locationOf(characterId: String): String = mutable.value.characterLocations[characterId]
