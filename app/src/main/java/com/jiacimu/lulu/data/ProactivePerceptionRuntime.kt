@@ -1826,12 +1826,22 @@ object ProactivePerceptionRuntime {
             responseEvidenceIds.isNotEmpty()) {
             args.put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
         }
+        val resultBearingTools = setOf("web_search", "image_search", "read_xiaohongshu")
         val resultJson = if (tool.isBlank()) {
             JSONObject().put("success", true).put("status", "skipped")
                 .put("summary", "本轮不发言，继续执行角色实际选定的步骤")
-        } else JSONObject(ToolRouter.execute(appContext, character.characterId, tool, args,
-            requestId = requestId, intentionId = decision.intentionId,
-            userRequested = tool == "capture_screen" && explicitScreenRequest))
+        } else {
+            suspend fun runTool(): JSONObject = JSONObject(ToolRouter.execute(
+                appContext, character.characterId, tool, args,
+                requestId = requestId, intentionId = decision.intentionId,
+                userRequested = (tool == "capture_screen" && explicitScreenRequest) ||
+                    CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, tool),
+            ))
+            // A genuine user's read/search must finish with a receipt and follow-up,
+            // even when the live online worker is superseded by another chat bubble.
+            if (hasFreshUserMessage && tool in resultBearingTools)
+                withContext(NonCancellable) { runTool() } else runTool()
+        }
         val result = CompanionActionResult(
             resultJson.optBoolean("success"),
             resultJson.optString("summary").ifBlank {
@@ -1849,7 +1859,6 @@ object ProactivePerceptionRuntime {
         // One model choice can include multiple distinct, ordered actions.
         // Every step uses the existing permission boundary and its own durable receipt.
         // Do not silently narrow these to music/volume or invent a second planner.
-        val resultBearingTools = setOf("web_search", "image_search", "read_xiaohongshu")
         val searchIncluded = tool in resultBearingTools ||
             (0 until (decision.sideActions?.length() ?: 0)).any { index ->
                 decision.sideActions?.optJSONObject(index)?.optString("tool").orEmpty() in resultBearingTools
