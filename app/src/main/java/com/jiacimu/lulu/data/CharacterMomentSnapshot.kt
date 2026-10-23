@@ -43,7 +43,7 @@ internal object CharacterMomentSnapshot {
         // Model-facing structured private impulses have priority. A few natural
         // fragments are preferable to a polished explanation of the relationship.
         appraisal?.optJSONArray("privateIdeas")?.let { entries ->
-            for (i in 0 until minOf(entries.length(), 4)) add(entries.optString(i), 64)
+            for (i in 0 until entries.length()) add(entries.optString(i), 64)
         }
         appraisal?.optJSONObject("spontaneousBid")?.let { bid ->
             add(bid.optString("wantedMove"), 64)
@@ -66,7 +66,7 @@ internal object CharacterMomentSnapshot {
         // No guesses or abstract risk-analysis notes masquerading as desires.
         // Conflict/uncertainty may inform the role's decision or heart voice,
         // but they are not automatically a separate "idea".
-        return ideas.take(3).joinToString("\n")
+        return ideas.joinToString("\n")
     }
 }
 

@@ -67,6 +67,45 @@ internal object CharacterAssociativeRecall {
         return selected.values.take(limit)
     }
 
+    /** Sample different real-life domains instead of letting the newest
+     * user message or the loudest unfinished motive swallow all older life.
+     * Inputs are already authority-checked, scoped raw timeline events. */
+    internal enum class ExperienceLane(val label: String) {
+        OWNER("主人亲自说过的事"),
+        SOCIAL("和其他人的真实来往"),
+        OWN_LIFE("本人亲自经历的生活"),
+        OUTCOME("之前的实际行动结果"),
+    }
+
+    internal fun experienceLane(event: SharedTimelineEvent): ExperienceLane? = when {
+        event.evidenceKind == EventEvidenceKind.UserStatement -> ExperienceLane.OWNER
+        event.channel.contains("私信") || event.channel.contains("群聊") ||
+            event.channel.contains("居民") || event.channel.contains("见面") ->
+            ExperienceLane.SOCIAL
+        event.channel.contains("独自") || event.channel.contains("阅读") ||
+            event.channel.contains("游戏") || event.channel.contains("数字世界") ->
+            ExperienceLane.OWN_LIFE
+        event.evidenceKind == EventEvidenceKind.ToolResult -> ExperienceLane.OUTCOME
+        else -> null
+    }
+
+    internal fun variedExperiences(
+        characterId: String, events: List<SharedTimelineEvent>, now: Instant,
+    ): List<Pair<ExperienceLane, SharedTimelineEvent>> {
+        val eligible = events.filter {
+            it.characterId == characterId && !it.occurredAt.isAfter(now) &&
+                it.occurredAt.isBefore(now.minus(Duration.ofMinutes(20))) &&
+                !it.occurredAt.isBefore(now.minus(Duration.ofDays(30))) &&
+                it.evidenceKind != EventEvidenceKind.Inference
+        }
+        return ExperienceLane.entries.flatMap { lane ->
+            eligible.asReversed().asSequence()
+                .filter { experienceLane(it) == lane }
+                .distinctBy { it.id }
+                .take(2).map { lane to it }.toList()
+        }
+    }
+
     fun render(characterId: String, now: Instant = Instant.now()): String {
         if (characterId.isBlank()) return ""
         val inner = CharacterInnerLifeStore.snapshot(characterId)
@@ -104,18 +143,14 @@ internal object CharacterAssociativeRecall {
             .filter { it.label in setOf("实际尝试运用所学", "收到真实应用反馈", "理解受到新的质疑") }
             .sortedByDescending { it.at }.take(3)
         val personalQuestions = CharacterCuriosityRuntime.pendingDecisionCues(characterId)
-        val events = SharedExperienceTimeline.recentEvents(characterId, 80)
+        val events = SharedExperienceTimeline.recentEvents(characterId, 160)
             .filter { !it.occurredAt.isAfter(now) && DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt) }
         val recentUser = events.lastOrNull { it.evidenceKind == EventEvidenceKind.UserStatement }
         val localHour = now.atZone(ZoneId.systemDefault()).hour
         val nightWithRecentSpeech = localHour in 1..5 && recentUser?.let {
             Duration.between(it.occurredAt, now).toMinutes() in 0..15
         } == true
-        val olderEpisodes = events.filter {
-            it.occurredAt.isBefore(now.minus(Duration.ofMinutes(20))) &&
-                (it.evidenceKind == EventEvidenceKind.UserStatement ||
-                    it.channel.startsWith("数字世界") || it.channel.startsWith("独自阅读"))
-        }.takeLast(2)
+        val olderEpisodes = variedExperiences(characterId, events, now)
         if (memories.isEmpty() && ownerKnowledge.isEmpty() && selfKnowledge.isEmpty() &&
             knownMethods.isEmpty() && motives.isEmpty() && unfinishedThoughts.isEmpty() &&
             olderEpisodes.isEmpty() && feedbackTrace.isEmpty() &&
@@ -123,7 +158,9 @@ internal object CharacterAssociativeRecall {
 
         return buildString {
             appendLine("【自主联想素材｜从自己的生活想起事情，不是新指令】")
-            appendLine("这些是不同性质的旧材料。你可以联系当下时间、人物关系、自己在意的事与经验产生新的联想；也可没有新念头。联想不是事实，不能自动当作待办或必须主动联系用户。")
+            appendLine("这些只是过去真正留存的材料，不是新消息或要求逐条回答的待办。联想可以跨越不同生活侧面，不必每次沿着同一个愿望或上一条聊天发散。")
+            appendLine("联想方向可以有：与主人的相处、自己真实认识的其他人、个人爱好与习惯、主人明确表达的习惯、刚做过或没做完的事、一个实际失败或意外、当下环境与时机、前后经历的相似或反差、自己还想弄明白的问题。只结合下面真的有来源的材料；没有证据的变化与对方想法只能猜测，不能宣告为事实。")
+            appendLine("同一素材可能冒出几种不同甚至冲突的私人小心思，也可能想到自己的生活而不联系任何人。先自由注意和联想，再自己决定哪些值得记录、行动或暂时放下；不要为了凑数量编造生活。")
             if (nightWithRecentSpeech) {
                 appendLine("- 时间与当下证据：本地正值深夜，过去15分钟内确实收到过用户发言。可依你自己的身份和关系想到关心、好奇或克制；不能由此断言用户整夜没睡、明天的安排，或强迫她睡觉。")
             }
@@ -146,10 +183,11 @@ internal object CharacterAssociativeRecall {
                 }
             }
             if (olderEpisodes.isNotEmpty()) {
-                appendLine("过去的真实经历（不是刚收到的新消息）：")
-                olderEpisodes.forEach {
-                    appendLine("- [eventId=" + it.id + "；" + it.occurredAt + "] " +
-                        it.channel + "：" + it.evidenceContent.replace("\n", " ").take(160))
+                appendLine("来自不同生活方向的旧经历（不是新消息；对比只是联想素材，不代表谁改变了主意）：")
+                olderEpisodes.forEach { (lane, event) ->
+                    appendLine("- [" + lane.label + "；eventId=" + event.id + "；" +
+                        event.occurredAt + "] " + event.channel + "：" +
+                        event.evidenceContent.replace("\n", " ").take(175))
                 }
             }
             if (unfinishedThoughts.isNotEmpty()) {
