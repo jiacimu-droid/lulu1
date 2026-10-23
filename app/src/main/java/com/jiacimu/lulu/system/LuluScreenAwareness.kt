@@ -409,6 +409,19 @@ class LuluApprovedScreenWorker(context: Context, params: WorkerParameters) :
             evidenceKind = if (success) EventEvidenceKind.Observation
                 else EventEvidenceKind.ToolResult)
         if (success) {
+            // A planned screen request was only 'pending' when initially posted.
+            // Fulfil that plan only after an approved screenshot was really understood.
+            val original = runCatching {
+                JSONObject(applicationContext.getSharedPreferences("lulu_tool_executions",
+                    Context.MODE_PRIVATE).getString("$role:$requestId", "{}"))
+            }.getOrNull()
+            val planId = original?.optString("planId").orEmpty()
+            if (planId.isNotBlank()) runCatching {
+                com.jiacimu.lulu.data.RoleDayScheduleStore.completeFromReceipt(
+                    applicationContext, role, planId, "capture_screen",
+                    "screen-observation-$role-$requestId",
+                    response.optString("summary"), Instant.now())
+            }.onFailure { android.util.Log.w("LuluScreen", "Scheduled screen receipt not settled", it) }
             runCatching {
                 ProactivePerceptionRuntime.runDueCycle(applicationContext,
                     trigger = "主人同意的屏幕识图已取得真实观察", targetCharacterId = role, force = true)
