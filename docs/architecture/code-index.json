@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T17:33:35.143155+00:00",
-  "commit": "ae31f9b5cf4fbfb217531ba2a19873550ed3de1a",
+  "generatedAt": "2026-10-23T17:33:51.740360+00:00",
+  "commit": "5fb6dbf386281540904f7013fa145a9ef0d84c1f",
   "branch": "main",
-  "sourceFingerprint": "55d462ce5628c7e0171839e20902d7c47ff7ac4986dc8d6cadaddc43034dd3c4",
+  "sourceFingerprint": "bf170a24302cd7cd175d955cb8b1e28abc4955f41da8387192ddccc9692a2411",
   "summary": {
     "files": 863,
-    "lines": 164933,
-    "symbols": 2496
+    "lines": 164961,
+    "symbols": 2497
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -717,7 +717,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 235
+        "line": 237
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -4761,7 +4761,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 267
+        "line": 295
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -7538,10 +7538,16 @@
         "line": 145
       }
     ],
-    "InMemoryWorldBookRepository": [
+    "WorldBookImportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
         "line": 230
+      }
+    ],
+    "InMemoryWorldBookRepository": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 232
       }
     ],
     "callEndDescription": [
@@ -21156,8 +21162,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-      "lines": 374,
-      "sha256": "89a2dc9c733934ce74d79264793c84ad25cf1c27eccfca93211b07ff4cd62ba2",
+      "lines": 402,
+      "sha256": "d6eacf7b6f4d0ec8063e2c703137459450be04c96a1dada7cd693d4a1aec8c46",
       "symbols": [
         {
           "name": "InMemoryMemoryRepository",
@@ -21184,16 +21190,20 @@
           "line": 145
         },
         {
-          "name": "InMemoryWorldBookRepository",
+          "name": "WorldBookImportResult",
           "line": 230
         },
         {
+          "name": "InMemoryWorldBookRepository",
+          "line": 232
+        },
+        {
           "name": "initialize",
-          "line": 235
+          "line": 237
         },
         {
           "name": "snapshot",
-          "line": 267
+          "line": 295
         }
       ]
     },
