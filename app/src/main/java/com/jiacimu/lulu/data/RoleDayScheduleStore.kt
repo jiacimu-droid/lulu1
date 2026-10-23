@@ -31,6 +31,9 @@ data class RoleDayPlan(
     val repeat: String = "once",
     /** Reference into innerLife.motives, never another goal record. */
     val motiveId: String = "",
+    val targetCharacterId: String = "",
+    val targetResidentId: String = "",
+    val locationCode: String = "",
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -59,7 +62,9 @@ object RoleDayScheduleStore {
                     o.optString("resolvedAt").takeIf(String::isNotBlank)?.let(Instant::parse),
                     o.optString("resultEvidenceId"), o.optString("resultSummary"),
                     o.optInt("rescheduleCount", 0),
-                    o.optString("repeat", "once"), o.optString("motiveId"))
+                    o.optString("repeat", "once"), o.optString("motiveId"),
+                    o.optString("targetCharacterId"), o.optString("targetResidentId"),
+                    o.optString("locationCode"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -77,7 +82,10 @@ object RoleDayScheduleStore {
                 .put("resultEvidenceId", p.resultEvidenceId)
                 .put("resultSummary", p.resultSummary)
                 .put("rescheduleCount", p.rescheduleCount)
-                .put("repeat", p.repeat).put("motiveId", p.motiveId))
+                .put("repeat", p.repeat).put("motiveId", p.motiveId)
+                .put("targetCharacterId", p.targetCharacterId)
+                .put("targetResidentId", p.targetResidentId)
+                .put("locationCode", p.locationCode))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -88,7 +96,7 @@ object RoleDayScheduleStore {
     /** Only real, independently verifiable actions can settle a plan. */
     val verifiableActions = setOf(
         "read_book", "play_solo_game", "digital_world_action", "write_journal", "publish_moment",
-        "send_private_message",
+        "send_private_message", "send_character_message",
     )
 
     private val schedulableActions = verifiableActions - "write_journal"
@@ -109,6 +117,7 @@ object RoleDayScheduleStore {
             "planId=${plan.id}，${plan.title}，${plan.dueAt}，" +
                 "动机=${plan.intent}，重复=${plan.repeat}，" +
                 "状态=${plan.status}，动作=${plan.activityAction}，" +
+                "对象=${plan.targetCharacterId.ifBlank { plan.targetResidentId }}，地点=${plan.locationCode}，" +
                 "关联意愿=${plan.motiveId.ifBlank { "无" }}。"
         }
 
@@ -149,7 +158,9 @@ object RoleDayScheduleStore {
     @Synchronized
     fun arrange(context: Context, characterId: String, title: String, intent: String,
         dueAt: Instant, now: Instant = Instant.now(), activityAction: String = "",
-        repeat: String = "once", motiveId: String = ""): RoleDayPlan {
+        repeat: String = "once", motiveId: String = "",
+        targetCharacterId: String = "", targetResidentId: String = "",
+        locationCode: String = ""): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
@@ -161,6 +172,33 @@ object RoleDayScheduleStore {
         require(repeat in setOf("once", "daily")) { "只支持单次或每日重复" }
         require(repeat != "daily" || action.isNotBlank()) { "每日计划需要明确真实执行动作" }
         val linkedId = motiveId.trim()
+        val targetRole = targetCharacterId.trim()
+        val targetNative = targetResidentId.trim()
+        val place = locationCode.trim()
+        if (targetRole.isNotBlank() || targetNative.isNotBlank() || place.isNotBlank()) {
+            require(DigitalLifeProfileStore.isEnabled(characterId)) {
+                "人物或地点日程需要真实的数字生活"
+            }
+        }
+        if (targetRole.isNotBlank()) {
+            require(targetRole != characterId &&
+                MigratedDomainStores.characters.settings.value[targetRole] != null) {
+                "日程关联的数字人物必须真实存在"
+            }
+        }
+        if (targetNative.isNotBlank()) {
+            require(DigitalWorldExpansionStore.residents().any { it.id == targetNative }) {
+                "日程关联的居民必须真实存在"
+            }
+        }
+        if (place.isNotBlank()) {
+            require(DigitalWorldPublicPlaces.all.any { it.code == place }) {
+                "日程地点必须是已登记的公共地点"
+            }
+        }
+        if (action == "send_character_message") {
+            require(targetRole.isNotBlank()) { "安排给数字人物发信时需指定真实收件人" }
+        }
         if (linkedId.isNotBlank()) {
             require(CharacterMotiveProgress.resolveMotiveId(
                 CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
@@ -172,7 +210,8 @@ object RoleDayScheduleStore {
         }
         val plan = RoleDayPlan(UUID.randomUUID().toString(), characterId,
             title.trim(), intent.trim(), dueAt, now, activityAction = action,
-            repeat = repeat, motiveId = linkedId)
+            repeat = repeat, motiveId = linkedId, targetCharacterId = targetRole,
+            targetResidentId = targetNative, locationCode = place)
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
@@ -225,20 +264,46 @@ object RoleDayScheduleStore {
     /** Pure eligibility gate: a plan cannot be 'completed' by prose, another role,
      * the wrong action, or a tool result before its scheduled time. */
     internal fun canComplete(plan: RoleDayPlan, characterId: String, action: String,
-        evidenceId: String, now: Instant): Boolean =
+        evidenceId: String, now: Instant, args: JSONObject? = null): Boolean =
         plan.characterId == characterId && evidenceId.isNotBlank() &&
             action in verifiableActions &&
             (plan.activityAction.isBlank() || plan.activityAction == action) &&
-            (plan.status == "due" || (plan.status == "planned" && !plan.dueAt.isAfter(now)))
+            (plan.status == "due" || (plan.status == "planned" && !plan.dueAt.isAfter(now))) &&
+            (plan.targetCharacterId.isBlank() || when (action) {
+                "send_character_message", "digital_world_action" ->
+                    args?.optString("targetCharacterId") == plan.targetCharacterId
+                else -> true
+            }) &&
+            (plan.targetResidentId.isBlank() || action != "digital_world_action" ||
+                (args?.optString("worldAction") == "interact_resident" &&
+                    args?.optString("itemId") == plan.targetResidentId)) &&
+            (plan.locationCode.isBlank() || action != "digital_world_action" ||
+                args?.optString("worldAction") != "visit_public_place" ||
+                (args?.optString("locationCode").orEmpty()
+                    .ifBlank { args?.optString("location").orEmpty() } == plan.locationCode))
+
+    /** Do not perform an action for a revoked wish, wrong target or old appointment. */
+    fun canBegin(context: Context, characterId: String, planId: String, action: String,
+        args: JSONObject, now: Instant = Instant.now()): Boolean {
+        val plan = plans(context, characterId).firstOrNull { it.id == planId } ?: return false
+        if (!canComplete(plan, characterId, action, "pending-action", now, args)) return false
+        return plan.motiveId.isBlank() || CharacterMotiveProgress.resolveMotiveId(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+            plan.motiveId, "", "") == plan.motiveId
+    }
 
     /** Status projection only; the execution evidence remains in the canonical raw timeline. */
     @Synchronized
     fun completeFromReceipt(context: Context, characterId: String, planId: String,
-        action: String, evidenceId: String, summary: String, now: Instant = Instant.now()): Boolean {
+        action: String, evidenceId: String, summary: String, now: Instant = Instant.now(),
+        args: JSONObject? = null): Boolean {
         if (planId.isBlank() || evidenceId.isBlank() || action !in verifiableActions) return false
         val previous = all(context)
         val plan = previous.firstOrNull { it.id == planId &&
-            canComplete(it, characterId, action, evidenceId, now) } ?: return false
+            canComplete(it, characterId, action, evidenceId, now, args) &&
+                (it.motiveId.isBlank() || CharacterMotiveProgress.resolveMotiveId(
+                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+                    it.motiveId, "", "") == it.motiveId) } ?: return false
         // A daily plan is a single durable intention, not a new duplicate every morning.
         // Evidence always remains in the authoritative timeline; the next occurrence
         // cannot be completed using the previous day's receipt.
@@ -282,13 +347,15 @@ object RoleDayScheduleStore {
             .take(3).joinToString("\n") {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
                     "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；" +
+                    "相关人物：${it.targetCharacterId.ifBlank { it.targetResidentId.ifBlank { "无" } }}；" +
+                    "相关地点：${it.locationCode.ifBlank { "未指定" }}；" +
                     (if (it.motiveId.isNotBlank() &&
                         CharacterMotiveProgress.resolveMotiveId(
                             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
                             it.motiveId, "", "") != it.motiveId)
                         "关联意愿已暂停或放下：先重新考虑是否执行、改期或取消；" else "") +
                     "对应动作：${it.activityAction.ifBlank { "按具体活动选择真实执行工具" }}。" +
-                    "想做就执行真实工具并把 planId 放入同一次 args；只有成功回执才算完成。" +
+                    "想做就执行真实工具并把 planId 放入同一次最终动作 args；只有成功回执才算完成。" +
                     "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +
                     "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +
                     "仅想一想、聊天、失败、没有证据都不能冒充完成。"

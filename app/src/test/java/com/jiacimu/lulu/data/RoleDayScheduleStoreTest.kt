@@ -34,6 +34,24 @@ class RoleDayScheduleStoreTest {
             "actual-read", after))
     }
 
+    @Test fun scheduledSocialActionMustMatchTheRealRecipient() {
+        val friend = plan.copy(activityAction = "send_character_message",
+            targetCharacterId = "role-friend")
+        assertTrue(RoleDayScheduleStore.canComplete(friend, "role-a", "send_character_message",
+            "actual-mail", after, org.json.JSONObject().put("targetCharacterId", "role-friend")))
+        assertFalse(RoleDayScheduleStore.canComplete(friend, "role-a", "send_character_message",
+            "actual-mail", after, org.json.JSONObject().put("targetCharacterId", "stranger")))
+        assertFalse(RoleDayScheduleStore.canComplete(friend, "role-a", "send_character_message",
+            "actual-mail", after))
+        val meeting = plan.copy(activityAction = "digital_world_action",
+            targetResidentId = "cafe-worker")
+        assertFalse(RoleDayScheduleStore.canComplete(meeting, "role-a", "digital_world_action",
+            "only-arrival", after, org.json.JSONObject().put("worldAction", "visit_public_place")))
+        assertTrue(RoleDayScheduleStore.canComplete(meeting, "role-a", "digital_world_action",
+            "real-encounter", after, org.json.JSONObject()
+                .put("worldAction", "interact_resident").put("itemId", "cafe-worker")))
+    }
+
     @Test fun futureDailyRemindersKeepOriginalSlotAndSkipMissedDays() {
         val dayLater = RoleDayScheduleStore.nextDailyDue(due, due.plusSeconds(120))
         assertEquals(due.plusSeconds(86400), dayLater)
