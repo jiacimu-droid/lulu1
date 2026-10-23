@@ -47,6 +47,13 @@ object CharacterIdentityStore {
      */
     fun get(characterId: String): String {
         val rawIdentity = mutable.value[characterId].orEmpty()
+        // People born inside this world do not inherit the protagonist's
+        // external-device ontology. To them these streets and relationships
+        // simply ARE the real world. This still preserves their own persona.
+        if (ResidentCharacterBridge.nativeResident(characterId) != null) {
+            return listOf(ResidentCharacterBridge.fixedContext(characterId), rawIdentity)
+                .filter(String::isNotBlank).joinToString("\n\n")
+        }
         val displayName = runCatching { MigratedDomainStores.characters.get(characterId).displayName }
             .getOrDefault("角色")
         val digitalLife = DigitalLifeProfileStore.promptSection(characterId, displayName)
