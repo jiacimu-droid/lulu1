@@ -71,6 +71,20 @@ class PerceptionWakePlanStoreTest {
         }.intervalMinutes)
     }
 
+    @Test fun personalAppointmentsOverrideTwoHourFallbackOnlyWhileAsleep() {
+        val ordinary = anchor.plusSeconds(2 * 3600)
+        val reading = anchor.plusSeconds(3 * 3600)
+        val friendVisit = anchor.plusSeconds(6 * 3600)
+        assertEquals(reading,
+            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, reading, offline = true))
+        assertEquals(friendVisit,
+            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, friendVisit, offline = true))
+        assertEquals(ordinary,
+            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, reading, offline = false))
+        assertEquals(ordinary,
+            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, null, offline = true))
+    }
+
     @Test fun onlineThinkingCadenceIsIndependentOfBackgroundTimingAndNeverFastByAccident() {
         val defaultPolicy = ProactivePerceptionPolicy()
         assertEquals(120L, defaultPolicy.baseIntervalMinutes)
