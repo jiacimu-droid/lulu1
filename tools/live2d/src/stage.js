@@ -10,7 +10,7 @@ import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS } from './touch-hit.mjs'
-import { touchReflexFor, touchExpressionFor } from './touch-reflex.mjs'
+import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor } from './touch-reflex.mjs'
 
 installCspShaderAdapter({ ShaderSystem: PIXI.ShaderSystem })
 window.PIXI = PIXI
@@ -153,6 +153,14 @@ function clearTouchCalibration() {
 }
 
 let touchExpressionNames = []
+let touchExpressionMetadata = Object.create(null)
+let touchCompanionLayer = null
+function clearTouchCompanion() {
+  const id = touchCompanionLayer?.id
+  const core = model?.internalModel?.coreModel
+  if (id && core && hasParameter(core, id)) setParameter(core, id, 0)
+  touchCompanionLayer = null
+}
 let activeTouchExpression = null
 let activeTouchExpressionUntil = 0
 let lastTouchExpressionAt = -Infinity
@@ -401,6 +409,18 @@ function applyFinalParameters(core, deltaMs) {
     if (activeExpressionName === activeTouchExpression) resetSpeechExpression()
     activeTouchExpression = null
   }
+  // A complementary real exp3 channel fades along with the primary touch.
+  // Reset just that channel once, so an old blush cannot stick on a new cue.
+  if (touchCompanionLayer) {
+    const extra = touchCompanionLayer
+    if (performance.now() >= extra.until) clearTouchCompanion()
+    else if (hasParameter(core, extra.id)) {
+      const time = performance.now()
+      const fade = Math.min(1, (time - extra.start) / 220,
+        (extra.until - time) / 360)
+      setParameter(core, extra.id, extra.value * Math.max(0, fade))
+    }
+  }
   if (bodyRequest && Date.now() > bodyRequestEndAt) bodyRequest = null
   if (faceRequest && Date.now() > faceRequestEndAt) faceRequest = null
   const timeNow = Date.now()
@@ -639,7 +659,10 @@ async function load(modelURL) {
     mouthExclusiveExpressions = new Set()
     eyeLockedExpressions = new Set()
     touchExpressionNames = []
+    touchExpressionMetadata = Object.create(null)
+    clearTouchCompanion()
     activeTouchExpression = null
+    clearTouchCompanion()
     lastTouchExpressionAt = -Infinity
     const references = modelSettings.FileReferences?.Expressions || []
     touchExpressionNames = references.map(entry => entry?.Name).filter(Boolean)
@@ -652,6 +675,7 @@ async function load(modelURL) {
         if (!response.ok) return
         const metadata = await response.json()
         if (sequence === loadSequence) {
+          touchExpressionMetadata[entry.Name] = metadata
           if (isMouthExclusiveExpression(metadata)) mouthExclusiveExpressions.add(entry.Name)
           if (isEyeExclusiveExpression(metadata, entry.Name)) eyeLockedExpressions.add(entry.Name)
         }
@@ -1110,10 +1134,19 @@ function touch(normalizedX, normalizedY, gesture = 'tap') {
         (!playing || !mouthExclusiveExpressions.has(selected))) {
       // Do not replay the same exp3 for rapid fingertip MOVE samples.
       if (selected !== activeTouchExpression || now >= activeTouchExpressionUntil) {
+        clearTouchCompanion()
         playVerifiedSpeechExpression(selected, true)
         activeTouchExpression = selected
         activeTouchExpressionUntil = now + (kind === 'kiss' ? 2100 :
           kind === 'hold' || kind.startsWith('stroke') ? 1950 : 1550)
+        const extra = touchCompanionOverlayFor(
+          selected, touchExpressionNames, touchExpressionMetadata, kind)
+        const core = model.internalModel?.coreModel
+        if (extra && core && hasParameter(core, extra.id)) {
+          touchCompanionLayer = {
+            ...extra, start: now, until: activeTouchExpressionUntil,
+          }
+        }
         lastTouchExpressionAt = now
       }
     }
@@ -1155,6 +1188,7 @@ function resetSpeechExpression() {
 }
 function startSpeechExpression(name, immediatePreview = false) {
   if (!model || !name) return
+  if (name !== activeTouchExpression) clearTouchCompanion()
   if (mouthExclusiveExpressions.has(name)) {
     // Playing audio takes precedence over an animated tongue. Wait for a
     // PCM-confirmed pause or a real playback-finished event.
@@ -1191,6 +1225,10 @@ function playVerifiedSpeechExpression(name, immediatePreview = false) {
 }
 function expression(name, immediatePreview = false) {
   if (!model || !name || name.length > 128) return
+  // Explicit manual/role-selected expressions take priority over the local
+  // touch companion (but still respect the speech/mouth gate below).
+  clearTouchCompanion()
+  activeTouchExpression = null
   if (playing || immediatePreview) {
     pendingExpressionName = null
     startSpeechExpression(name, immediatePreview)
