@@ -57,12 +57,15 @@ internal object ResidentCharacterBridge {
                 ))
             }
             prefs.edit().putString("seed:$id", seed).apply()
+            val priorIdentity = prefs.getString("identity-seed:$id", null)
+            val writtenIdentity = CharacterIdentityStore.identities.value[id].orEmpty()
+            if (writtenIdentity.isBlank() ||
+                (priorIdentity != null && writtenIdentity == priorIdentity)) {
+                CharacterIdentityStore.set(id, resident.identity)
+            }
+            prefs.edit().putString("identity-seed:$id", resident.identity).apply()
             if (!DigitalLifeProfileStore.isResolved(id)) {
                 DigitalLifeProfileStore.registerNewLife(id, resident.name, "数字世界原住民", resident.createdAt)
-            }
-            // Don't replace an explicitly customised identity with a template.
-            if (CharacterIdentityStore.identities.value[id].isNullOrBlank()) {
-                CharacterIdentityStore.set(id, resident.identity)
             }
             if (CharacterLifeStore.bodyState(id) == null) {
                 CharacterLifeStore.saveBodyState(id, EmbodiedBodyPhysics.fresh(now).toJson())
