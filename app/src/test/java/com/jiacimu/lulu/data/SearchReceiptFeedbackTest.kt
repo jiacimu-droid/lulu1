@@ -3,8 +3,13 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Search must be completed by ToolRouter before a role can report results. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class SearchReceiptFeedbackTest {
     @Test fun webSearchAndReadPreserveRealExecutorEvidence() {
         val args = JSONObject().put("op", "search_read").put("query", "第五人格活动")
