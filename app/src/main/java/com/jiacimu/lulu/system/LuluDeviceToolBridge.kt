@@ -153,6 +153,7 @@ object LuluDeviceToolBridge {
         sceneContext: String = "正在和用户进行文字聊天。",
         onReplyStream: ((String) -> Unit)? = null,
         onCharacterHangup: (() -> Unit)? = null,
+        onTimedHangup: ((Int) -> Unit)? = null,
         silenceObservationId: String = "",
         turnContext: String = "",
         reconsiderationEvidenceId: String = "",
@@ -370,6 +371,8 @@ object LuluDeviceToolBridge {
             可以因为困倦、自然聊完、有已知的其他事情、吵架想冷静等选择离开；也可以舍不得挂。不要随机挂断、机械挂断、编造紧急事故或陌生人来电。
             text 应是确实要说的最后一句口语，可自然道别、说明想法或设立边界；结束语实际播放完毕后由电话系统真正挂断并记录。没有想挂断就省略该字段。
             不要把“我先挂了”当成完成挂断的证明，必须设置 endCall=true。只有发言才可申请结束，不输出无声终止的空 text。
+            【稍后结束本次通话】如果本人明确答应用户“半小时后挂断当前电话”等要求，可在本轮 reply JSON 中额外填写 "hangupAfterSeconds":1800，表示从本轮决定起1800秒后真正挂断【当前】通话；后续正常对话不重置计时。如果答应取消原来的定时挂断，填写0。没有新决定就省略。
+            这是活跃电话会话内的计时控制，不是“明天打电话”的日程，绝不能通过 commitmentChanges、start_call、alarm_only 或 plan_personal_activity 来假装执行挂断。单独的每日监督、次日来电等约定应另建独立任务，不得把两个时间合并到同一个 goal/dueAt。若是精确钟点，根据提供的当前本地时间换算秒数；不要把当天凌晨错排到下一天的零点。尚未确认同意时不要设置；不能同时设置 endCall=true 和延时挂断。
         """.trimIndent() else ""
         // Group members must decide and speak within their own single model turn.
         // Private text chat retains its deliberate two-stage renderer.
@@ -1471,6 +1474,10 @@ object LuluDeviceToolBridge {
                     runCatching { onLive2DAction?.invoke(chosen) }
                 }
             }
+            if (!invalidBlame && !rewriting && !plan.endCall &&
+                sceneContext.contains("电话") && phoneCallId.isNotBlank() &&
+                plan.hangupAfterSeconds in 0..86_400)
+                onTimedHangup?.invoke(plan.hangupAfterSeconds)
             if (!invalidBlame && !rewriting && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
             if (rewriting) onReconsiderationDraft?.invoke(ReconsideredChatReply(
@@ -1692,6 +1699,9 @@ object LuluDeviceToolBridge {
                     finalPlan.innerThought,
                     causeFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
                 )
+                if (!finalPlan.endCall && sceneContext.contains("电话") &&
+                    phoneCallId.isNotBlank() && finalPlan.hangupAfterSeconds in 0..86_400)
+                    onTimedHangup?.invoke(finalPlan.hangupAfterSeconds)
                 if (finalPlan.endCall && checkedResultText.isNotBlank() && sceneContext.contains("电话"))
                     onCharacterHangup?.invoke()
             }
@@ -2001,6 +2011,7 @@ object LuluDeviceToolBridge {
                 motiveId = json.optString("motiveId"),
                 intentionId = json.optString("intentionId").trim().take(70),
                 endCall = json.optBoolean("endCall", false),
+                hangupAfterSeconds = json.optInt("hangupAfterSeconds", -1),
                 sleepDecision = json.optString("sleepDecision").trim().lowercase(),
                 afterCallMedia = json.optJSONObject("afterCallMedia"),
                 sideActions = json.optJSONArray("steps") ?: json.optJSONArray("sideActions"),
@@ -2072,6 +2083,7 @@ private data class ToolPlan(
     val motiveId: String = "",
     val intentionId: String = "",
     val endCall: Boolean = false,
+    val hangupAfterSeconds: Int = -1,
     val sleepDecision: String = "",
     val afterCallMedia: JSONObject? = null,
     val sideActions: org.json.JSONArray? = null,
