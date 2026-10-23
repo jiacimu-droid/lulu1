@@ -35,6 +35,7 @@ object ScopedModelSelections {
         val fallback = when (scope) {
             APOCALYPSE, THEATER -> library.archiveIdFor(ModelUsage.Game)
             MEETING -> library.archiveIdFor(ModelUsage.Chat)
+            RESIDENT_DAILY -> null // Explicit inexpensive archive choice; never silently bill Chat.
             else -> library.activeArchiveId?.takeIf { candidate -> library.archives.any { it.id == candidate } }
                 ?: library.archives.firstOrNull()?.id
         }
