@@ -424,9 +424,11 @@ class CharacterLifeStoreTest {
         CharacterLifeStore.initialize(context)
         val bond = CharacterSocialRelationship.agreement(id, "user")
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationTitle, bond?.title)
-        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV13, bond?.details)
+        // Default-only upgrades must resolve to the latest V21 contract,
+        // without creating a competing relationship registry.
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV21, bond?.details)
         assertTrue(CharacterRuntime.definition(id).promptSection()
-            .contains("不在心里擅自说成"))
+            .contains("不以和主人争高下"))
         assertEquals(1, CharacterLifeStore.state(id).getJSONObject("relationshipAgreements").length())
     }
 
@@ -444,7 +446,8 @@ class CharacterLifeStoreTest {
         val id = person.characterId
         val initial = CharacterSocialRelationship.agreement(id, "user")
         assertEquals(CharacterProfileSchema.jiangDuOwnerRelationTitle, initial?.title)
-        assertTrue(CharacterRuntime.definition(id).promptSection().contains("运营与维护者"))
+        assertEquals(CharacterProfileSchema.jiangDuOwnerRelationContextV21, initial?.details)
+        assertTrue(CharacterRuntime.definition(id).promptSection().contains("运营维护者"))
         assertEquals(CharacterProfileSchema.jiangDuV16Persona,
             MigratedDomainStores.characters.get(id).persona)
 
