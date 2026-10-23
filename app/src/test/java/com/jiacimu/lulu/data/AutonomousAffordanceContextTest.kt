@@ -36,6 +36,21 @@ class AutonomousAffordanceContextTest {
         assertTrue(empty.contains("没有登记在场的居民"))
     }
 
+    @Test fun actualLifeChoiceOffersVoluntaryFuturePlanningWithoutMandatoryScheduling() {
+        val text = AutonomousAffordanceContext.render(
+            digital = true, location = DigitalWorldPublicPlaces.CAFE,
+            books = listOf(AutonomousAffordanceContext.Book("readable-1", "晚点想读的书")),
+            groups = emptyList(),
+        )
+        assertTrue(text.contains("plan_personal_activity"))
+        assertTrue(text.contains("activityAction"))
+        assertTrue(text.contains("ISO8601"))
+        assertTrue(text.contains("本人日程工具"))
+        assertTrue(text.contains("只在心声里写"))
+        assertTrue(text.contains("暂时不行动"))
+        assertTrue(text.contains("到点现场重新校验"))
+    }
+
     @Test fun nonDigitalCharactersDoNotGetInventedWorldAccess() {
         val text = AutonomousAffordanceContext.render(
             digital = false, location = "", books = emptyList(), groups = emptyList(),
