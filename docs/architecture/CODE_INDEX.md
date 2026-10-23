@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`67ad9ed8314f1f9b2a1f03e0a44b2fc6d347da00`
+- 基准提交：`75245b925ed9f664b920a49f25fb4cc4b3140ffb`
 - 分支：`main`
 - 已索引文件：866
-- 已索引代码/文本行：165800
+- 已索引代码/文本行：165804
 - 已发现符号：2505
 
 | 文件 | 行数 | 符号数 |
@@ -318,8 +318,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt` | 172 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentExecutor.kt` | 247 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentLexiconSync.kt` | 137 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 42 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 226 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 47 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 225 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 66 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 17 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 36 | 0 |
