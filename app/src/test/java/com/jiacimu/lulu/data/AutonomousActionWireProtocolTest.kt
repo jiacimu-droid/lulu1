@@ -100,4 +100,50 @@ class AutonomousActionWireProtocolTest {
         assertEquals("silent", parsed.getString("action"))
         assertEquals(original.getString("reason"), parsed.getString("reason"))
     }
+
+    @Test fun directRegisteredToolActionKeepsItsRealExecutorAndParameters() {
+        val scheduled = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "plan_personal_activity")
+                .put("args", JSONObject().put("title", "读会书")
+                    .put("dueAt", "2026-10-25T15:00:00+08:00")))
+        assertEquals("tool", scheduled.getString("action"))
+        assertEquals("plan_personal_activity", scheduled.getString("tool"))
+        assertEquals("读会书", scheduled.getJSONObject("args").getString("title"))
+
+        val screenshot = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "capture_screen")
+                .put("args", JSONObject().put("purpose", "看看当前画面")))
+        assertEquals("tool", screenshot.getString("action"))
+        assertEquals("capture_screen", screenshot.getString("tool"))
+
+        val unknown = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("action", "invented_external_tool")
+                .put("args", JSONObject().put("text", "假的")))
+        assertEquals("invented_external_tool", unknown.getString("action"))
+        assertEquals("", unknown.optString("tool"))
+    }
+
+    @Test fun explicitSpeechOrToolWithoutActionLabelDoesNotBecomeFalseSilence() {
+        val words = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("text", "我还在呢")
+                .put("steps", org.json.JSONArray().put(
+                    JSONObject().put("tool", "control_music")
+                        .put("args", JSONObject().put("command", "pause"))))
+        assertEquals("message", words.getString("action"))
+        assertEquals(1, words.getJSONArray("steps").length())
+
+        val bubbles = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("bubbles", org.json.JSONArray().put("等一下").put("我试试。")))
+        assertEquals("message", bubbles.getString("action"))
+
+        val directTool = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("tool", "read_xiaohongshu")
+                .put("args", JSONObject().put("keyword", "第五人格")))
+        assertEquals("tool", directTool.getString("action"))
+        assertEquals("read_xiaohongshu", directTool.getString("tool"))
+
+        val thoughtsOnly = AutonomousActionWireProtocol.normalize(
+            JSONObject().put("innerThought", "好想读书"))
+        assertEquals("", thoughtsOnly.optString("action"))
+    }
 }
