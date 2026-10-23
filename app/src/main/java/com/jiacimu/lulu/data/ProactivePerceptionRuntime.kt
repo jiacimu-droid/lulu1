@@ -962,6 +962,17 @@ object ProactivePerceptionRuntime {
                 decision.conversationWords().isBlank()
         } == true
         val needsCorrection = initialDecision == null || invalidTool || emptySpeech
+        // Diagnostics contain only format categories, never the user's message
+        // or the model's private/possibly sensitive unparsed response.
+        val firstFailure = when {
+            invalidTool -> "工具名未注册"
+            emptySpeech -> "消息缺少正文"
+            result.text.isBlank() -> "模型没有返回内容"
+            ModelStructuredOutput.objectOrNull(result.text) == null -> "JSON不完整"
+            initialDecision == null -> "action字段无法识别"
+            else -> ""
+        }
+        var correctionFailure = ""
         val recoveredDecision = if (needsCorrection && onlineUnread.text.isNotBlank()) {
             val correction = LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -991,7 +1002,9 @@ object ProactivePerceptionRuntime {
                 title = "${character.displayName}修正行动格式",
                 maxTokens = 1_200,
                 connectionOverride = connection,
-            ).getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
+            ).onFailure { failure ->
+                correctionFailure = "补正请求失败：${failure::class.java.simpleName}"
+            }.getOrNull()?.text?.let { parseDecision(it, actionOnly = false) }
             correction?.takeUnless {
                 (it.action == Action.TOOL && CapabilityRegistry.find(it.tool) == null) ||
                     (it.action in setOf(Action.MESSAGE, Action.GROUP_MESSAGE,
@@ -1041,7 +1054,9 @@ object ProactivePerceptionRuntime {
                 // choice to remain silent. Let the durable batch/foreground
                 // recovery retry the same unread evidence, without charging
                 // the user for a fabricated second life-reflection call.
-                throw IllegalStateException("新消息的模型决定无效，保留未读批次等待重试")
+                throw IllegalStateException(
+                    "新消息的模型决定无效（$firstFailure；${correctionFailure.ifBlank { "补正仍无效" }}），未读批次保留"
+                )
             }
             // No valid action means no autonomous choice was made. In the
             // absence of user messages this still requires a bounded recovery
