@@ -241,6 +241,9 @@ internal object LuluExternalMcp {
                 .put("topic", if (fromShare) title else keyword.ifBlank { title })
                 .put("discoveryMode", if (fromShare) "shared_link" else if (keyword.isBlank()) "home" else "search")
                 .put("imageCount", article.images.size).put("imageReadingStatus", visualStatus)
+                .put("bodyActuallyLoaded", article.body.isNotBlank())
+                .put("imageDownloadedCount", data.size)
+                .put("imageAnalyzedCount", 0)
                 .put("commentCountActuallyLoaded", article.comments.size)
                 .put("commentsActuallyLoaded", org.json.JSONArray(article.comments.take(8)))
                 .put("imageUnderstanding", "")
@@ -275,6 +278,8 @@ internal object LuluExternalMcp {
             val body = article.body + if (visualText.isNotBlank()) "\n[图片理解，可能有误]\n$visualText" else ""
             val thought = personalThought?.optString("thought").orEmpty().trim().take(280)
             val observation = baseObservation.put("imageReadingStatus", visualStatus)
+                // A vision request with no usable interpretation is not an understood image.
+                .put("imageAnalyzedCount", if (visualText.isNotBlank()) data.size else 0)
                 .put("imageUnderstanding", visualText)
                 .put("text", article.body.ifBlank { "[图片理解，非作者原始文字] $visualText" })
                 .apply { if (thought.isNotBlank()) put("personalThought", thought) }.toString()
