@@ -155,6 +155,7 @@ function clearTouchCalibration() {
 let touchExpressionNames = []
 let activeTouchExpression = null
 let activeTouchExpressionUntil = 0
+let lastTouchExpressionAt = -Infinity
 let pendingExpressionName = null
 let pendingSpeechParts = null
 let activeExpressionName = null
@@ -435,9 +436,16 @@ function applyFinalParameters(core, deltaMs) {
   // Hold steady eye contact, spring deliberate poses, release expressions,
   // and preserve subtle dedicated breathing; passive blink and speech mouth
   // remain subsequent independent layers.
+  // An authored star/heart/closed-eye exp3 owns its eye shape. Keep local
+  // tactile neck/cheek pose and smile, but don't close over the special eyes.
+  const tactilePose = touchReflex && eyeLockedExpressions.has(activeExpressionName)
+    ? { ...touchReflex, face: {
+        ...touchReflex.face, eyeOpen: undefined, eyeSmile: undefined, squint: undefined,
+      } }
+    : touchReflex
   visualLayers.update(core, {
     deltaMs, head: headRequest, body: bodyRequest, face: faceRequest,
-    touchReflex, physical: physicalState,
+    touchReflex: tactilePose, physical: physicalState,
     speaking: playing, expressionActive: !!activeExpressionName,
     voiceLevel: pcmAvailable ? mouth : null, seconds,
   })
@@ -632,6 +640,7 @@ async function load(modelURL) {
     eyeLockedExpressions = new Set()
     touchExpressionNames = []
     activeTouchExpression = null
+    lastTouchExpressionAt = -Infinity
     const references = modelSettings.FileReferences?.Expressions || []
     touchExpressionNames = references.map(entry => entry?.Name).filter(Boolean)
     await Promise.all(references.map(async entry => {
@@ -1087,17 +1096,26 @@ function touch(normalizedX, normalizedY, gesture = 'tap') {
     (kind === 'kick' || kind.startsWith('slap') ? 750 :
       kind === 'kiss' ? 1100 : kind.startsWith('stroke') ? 650 :
       kind === 'hold' ? 1100 : 460)
-  // The character's authored speaking expression always wins. Silent
-  // touches may briefly borrow a REAL exp3 animation when one exists.
-  if (!playing && !activeExpressionName &&
-      kind !== 'down' && kind !== 'hold') {
-    const selected = touchExpressionFor(region, touchExpressionNames, touchSequence, kind)
+  // Only an actual completed contact can borrow an authored expression.
+  // Different contacts rotate through the available expressions; don't
+  // repeatedly overwrite the character's own cue. Eye/blush expressions are
+  // allowed while speaking; tongue waits until the mouth is free.
+  const now = performance.now()
+  if (kind !== 'down' && now - lastTouchExpressionAt >= 580 &&
+      (!activeExpressionName || activeExpressionName === activeTouchExpression)) {
+    const selected = touchExpressionFor(
+      region, touchExpressionNames, touchSequence, kind, playing)
     const manager = model.internalModel?.motionManager?.expressionManager
     if (selected && manager?.getExpressionIndex?.(selected) >= 0 &&
-        !mouthExclusiveExpressions.has(selected)) {
-      playVerifiedSpeechExpression(selected, true)
-      activeTouchExpression = selected
-      activeTouchExpressionUntil = performance.now() + 1000
+        (!playing || !mouthExclusiveExpressions.has(selected))) {
+      // Do not replay the same exp3 for rapid fingertip MOVE samples.
+      if (selected !== activeTouchExpression || now >= activeTouchExpressionUntil) {
+        playVerifiedSpeechExpression(selected, true)
+        activeTouchExpression = selected
+        activeTouchExpressionUntil = now + (kind === 'kiss' ? 2100 :
+          kind === 'hold' || kind.startsWith('stroke') ? 1950 : 1550)
+        lastTouchExpressionAt = now
+      }
     }
   }
   return { hit: true, region, gesture: kind }
@@ -1116,6 +1134,7 @@ function setPaused(value) {
     faceRequest = null
     touchReflex = null
     activeTouchExpression = null
+    lastTouchExpressionAt = -Infinity
   } else if (playing) {
     // Audio may have kept running while the renderer was hidden; resume
     // present-time mouth animation without resurrecting skipped gestures.
