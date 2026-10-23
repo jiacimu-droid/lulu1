@@ -58,7 +58,27 @@ jobs:
       - name: Install Whisper native build tools
         run: |
           set -euo pipefail
-          sdkmanager "cmake;3.22.1" "ndk;27.0.12077973"
+          sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          # Downloading the large NDK archive occasionally yields a truncated
+          # ZIP ("Error on ZipFile unknown archive") on GitHub runners.
+          # Retry only this transient SDK installation, not APK builds or tests.
+          for attempt in 1 2 3; do
+            echo "SDK install attempt ${attempt}/3"
+            if sdkmanager --install "cmake;3.22.1" "ndk;27.0.12077973" &&
+               test -f "${sdk_root}/cmake/3.22.1/source.properties" &&
+               test -f "${sdk_root}/ndk/27.0.12077973/source.properties"; then
+              echo "CMake and NDK verified"
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "::error::CMake/NDK installation failed after three verified attempts"
+              exit 1
+            fi
+            # SDK manager may retain a partial NDK download, causing every
+            # following attempt to replay the same broken archive.
+            rm -rf "${sdk_root}/.temp" "${sdk_root}/ndk/27.0.12077973"
+            sleep "$((attempt * 5))"
+          done
 
       - name: Test and build phone APK
         run: |
