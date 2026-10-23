@@ -1653,7 +1653,10 @@ internal object LuluVoiceCallSession {
                     "\n【真实异步动作】已经向本机的小红书只读执行器派发本轮检索；无需暂停电话或等网页。现在可以自然说‘我去看看’，真正结果将留在私聊，电话空下来时也会收到同一份回执。尚未拿到执行回执，绝不能说已搜到，更不能说没有注册这个工具。"
                 else "",
                 onCharacterHangup = ({
-                    if (sameReply() && !autonomousSleep && !wakeOpening)
+                    // A bedtime continuation is still a real character decision:
+                    // it may end the call after a spoken farewell, before the
+                    // separate thirty-minute billing safety deadline.
+                    if (sameReply() && !wakeOpening)
                         autonomousHangup.request(latest.callExperienceId, generation)
                 }),
                 onLive2DAction = { visualAction ->
