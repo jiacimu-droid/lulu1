@@ -79,6 +79,13 @@ internal fun Live2DFullscreenVideoCall(
     // These only tune the JPEG bridge's resolution budget; they do not
     // change model assets or interrupt the call/audio session.
     var qualityMode by remember(modelUrl) { mutableStateOf("quality") }
+    var interactionMode by remember(modelUrl) { mutableStateOf("hand") }
+    var interactionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
+    var touchCalibrationMode by remember(modelUrl) { mutableStateOf(false) }
+    var touchRegionMenuOpen by remember(modelUrl) { mutableStateOf(false) }
+    var touchRegion by remember(modelUrl) { mutableStateOf("cheek-left") }
+    var touchRadius by remember(modelUrl) { mutableFloatStateOf(.085f) }
+    var touchCalibrationReset by remember(modelUrl) { mutableIntStateOf(0) }
     val cameraContext = LocalContext.current
     val cameraVisionScope = rememberCoroutineScope()
     var cameraShared by remember(characterId, state.callExperienceId) { mutableStateOf(false) }
@@ -211,6 +218,11 @@ internal fun Live2DFullscreenVideoCall(
                 nativeMirrorEnabled = true,
                 framingMode = framingMode,
                 qualityMode = qualityMode,
+                interactionMode = interactionMode,
+                calibrationMode = touchCalibrationMode,
+                calibrationRegion = touchRegion,
+                calibrationRadius = touchRadius,
+                calibrationResetRevision = touchCalibrationReset,
                 onModelTouch = { region, gesture ->
                     // The JS renderer only reports real, model-hit touches.
                     // Do not record a digital-body interaction before Android
@@ -223,6 +235,10 @@ internal fun Live2DFullscreenVideoCall(
                                 state.callExperienceId, region, gesture)) {
                             val label = Live2DTouchZones.label(region) ?: "身体"
                             touchFeedback = when (gesture) {
+                                "kiss" -> "亲亲 · $label"
+                                "kick" -> "轻踢 · $label"
+                                "slap-left" -> "向左轻拍 · $label"
+                                "slap-right" -> "向右轻拍 · $label"
                                 "stroke-left" -> "轻轻向左抚摸 · $label"
                                 "stroke-right" -> "轻轻向右抚摸 · $label"
                                 "stroke-up" -> "向上抚摸 · $label"
@@ -551,6 +567,97 @@ internal fun Live2DFullscreenVideoCall(
                     lineHeight = 23.sp, color = Color.White, textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp))
             } else Spacer(Modifier.height(18.dp))
+            if (modelUrl != null && state.connected) {
+                Row(
+                    Modifier.fillMaxWidth()
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(Color.Black.copy(alpha = .48f))
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box {
+                        TextButton(onClick = { interactionMenuOpen = true }) {
+                            Text(
+                                when (interactionMode) {
+                                    "pat" -> "手掌 · 拍击"
+                                    "kiss" -> "嘴唇 · 亲吻"
+                                    "foot" -> "脚 · 轻踢"
+                                    else -> "手掌 · 抚摸"
+                                },
+                                color = Color.White,
+                                fontSize = 12.sp,
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = interactionMenuOpen,
+                            onDismissRequest = { interactionMenuOpen = false },
+                        ) {
+                            listOf(
+                                "hand" to "手掌 · 抚摸",
+                                "pat" to "手掌 · 拍击",
+                                "kiss" to "嘴唇 · 亲吻",
+                                "foot" to "脚 · 轻踢",
+                            ).forEach { (id, label) ->
+                                DropdownMenuItem(
+                                    text = { Text(if (interactionMode == id) "✓ $label" else label) },
+                                    onClick = {
+                                        interactionMode = id
+                                        interactionMenuOpen = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = { touchCalibrationMode = !touchCalibrationMode }) {
+                        Text(if (touchCalibrationMode) "完成校准" else "触摸校准",
+                            color = Color.White, fontSize = 12.sp)
+                    }
+                }
+                if (touchCalibrationMode) {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .padding(top = 5.dp)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(Color.Black.copy(alpha = .6f))
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box {
+                            TextButton(onClick = { touchRegionMenuOpen = true }) {
+                                Text(Live2DTouchZones.label(touchRegion) ?: "脸颊",
+                                    color = Color.White, fontSize = 12.sp)
+                            }
+                            DropdownMenu(
+                                expanded = touchRegionMenuOpen,
+                                onDismissRequest = { touchRegionMenuOpen = false },
+                            ) {
+                                Live2DTouchZones.labels.filterKeys {
+                                    it !in setOf("head", "arm")
+                                }.forEach { (id, label) ->
+                                    DropdownMenuItem(text = {
+                                        Text(if (touchRegion == id) "✓ $label" else label)
+                                    }, onClick = {
+                                        touchRegion = id
+                                        touchRegionMenuOpen = false
+                                    })
+                                }
+                            }
+                        }
+                        Slider(
+                            value = touchRadius,
+                            onValueChange = { touchRadius = it },
+                            valueRange = .035f.. .26f,
+                            modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                        )
+                        TextButton(onClick = { touchCalibrationReset++ }) {
+                            Text("重置", color = Color.White, fontSize = 12.sp)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically) {
                 VideoCallButton(Icons.Outlined.VideocamOff, "切为语音", onSwitchToVoice)
