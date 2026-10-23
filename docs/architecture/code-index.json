@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T06:35:34.155842+00:00",
-  "commit": "cb65db1240dbc6097946f29bca0d3c8e321e6336",
+  "generatedAt": "2026-10-23T06:36:59.082579+00:00",
+  "commit": "7734fc5a2b729ae5204644f21b1af2c25136e8f0",
   "branch": "main",
-  "sourceFingerprint": "0431505d0bb5c6204bfcdd26ed388a4e6b1c442c5cb189146c8484c25cb0619b",
+  "sourceFingerprint": "bed6281d04d8fa875bd6a0156b9f33f7b97698a6270b7b44fe495f3f9ba7dd53",
   "summary": {
     "files": 837,
     "lines": 160575,
@@ -20762,7 +20762,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LearningMaterialSource.kt",
       "lines": 113,
-      "sha256": "5cd4516ab2a3f497d1a67c53ca2b98f5e5b0e4f997c83ec99728ba57ec7cd55e",
+      "sha256": "a263aa192d51c3ad75fe6a929193b6c11b3f297389eb432d39fd7abdaa68bc31",
       "symbols": [
         {
           "name": "validateUrl",
