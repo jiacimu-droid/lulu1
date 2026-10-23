@@ -151,6 +151,9 @@ internal object CharacterInitiativeRuntime {
             if (hasCommitment) appendLine("- 有未完成承诺：优先确认真实到期状态与可执行能力；履约比表达‘我记得’更重要。")
             if (hasConcern) appendLine("- 有仍在挂心的事情：可以在合适时机回访，也可以因为时机不对暂时不打扰。")
             if (motives.isNotEmpty()) appendLine("- 角色自己的未完动机：${motives.joinToString("；")}。它们可以驱动阅读、日记、游戏、数字世界或联系用户。")
+            CharacterMotiveDeliberation.context(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"), now,
+            ).takeIf(String::isNotBlank)?.let(::appendLine)
             continuity.minutesSinceInteraction?.let { minutes ->
                 when {
                     minutes >= 7 * 24 * 60 ->

@@ -308,8 +308,11 @@ object ProactivePerceptionRuntime {
                         pendingConcern -> "挂心/承诺待回看"
                         else -> trigger
                     }
-                    if (motiveReviewId.isNotBlank() && !CharacterInnerLifeStore.claimMotiveReview(
-                            characterId, motiveReviewId, motiveReviewToken, Instant.now())) continue
+                    // A failed or interrupted model call must not consume the future
+                    // appointment. Check plan identity now; acknowledge only on success.
+                    if (motiveReviewId.isNotBlank() &&
+                        CharacterMotiveReview.pending(CharacterInnerLifeStore.snapshot(characterId))
+                            .none { it.id == motiveReviewId && it.token == motiveReviewToken }) continue
                     check(prefs.edit().putLong("last_evaluation_$characterId", now.toEpochMilli()).commit()) {
                         "感知时间未保存"
                     }
@@ -325,6 +328,12 @@ object ProactivePerceptionRuntime {
                             requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision)
                     }
                     result.onSuccess { action ->
+                        if (motiveReviewId.isNotBlank()) {
+                            // A genuine plan revision may have replaced this old token
+                            // while deciding. Never consume the newer appointment.
+                            CharacterInnerLifeStore.claimMotiveReview(
+                                characterId, motiveReviewId, motiveReviewToken, Instant.now())
+                        }
                         AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
                         evaluated += 1
                         CharacterDevelopmentRuntime.request(characterId)
