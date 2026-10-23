@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T11:40:04.666815+00:00",
-  "commit": "a4cae0ab6e073a552a0d3ae9bfcb310e67eb96f3",
+  "generatedAt": "2026-10-23T11:42:09.940835+00:00",
+  "commit": "f15eb36bc43769b292bbac35065b09fc758eb673",
   "branch": "main",
-  "sourceFingerprint": "e8a548caf462bf0e4558d7ee8f24ff6905f8e89a312a213f81117c85b6851159",
+  "sourceFingerprint": "95a48f7baebbf466b7ccd11bd3d406fe131fbfc77ceef49b068883d7d4c7605b",
   "summary": {
     "files": 853,
-    "lines": 163189,
+    "lines": 163280,
     "symbols": 2469
   },
   "symbolIndex": {
@@ -14221,8 +14221,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt",
-      "lines": 112,
-      "sha256": "3c957a308c01f8355834c93d59e94b257e1c778d04b257ba000331cd7e08ff0f",
+      "lines": 166,
+      "sha256": "c5ce3512f4fe897de4a148140ebc9d77e3dc27487ec8a0e61ee654f6ceb129da",
       "symbols": []
     },
     {
@@ -17675,8 +17675,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt",
-      "lines": 247,
-      "sha256": "4de6164124a177774e4f08eed6a8d619f2ecc156c4c21e0e2863f6317afa9571",
+      "lines": 254,
+      "sha256": "8bfa919c86bd76d27e4b68c8966776d4ab0146e618b7fd36563807ca45aa57f3",
       "symbols": [
         {
           "name": "capabilityContext",
@@ -22388,7 +22388,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 159,
-      "sha256": "c078bb394b794d4f1b38df60f9c5324759cd3c84ca0c5645005fafea891aaec7",
+      "sha256": "8b27cd9f2361ad1509a57dbba341c43e11590d293fdcefb625f9abe42325c6e8",
       "symbols": []
     },
     {
@@ -27492,8 +27492,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
-      "lines": 250,
-      "sha256": "1b7b02782a884d904e8a2b71fd21ce142249820ade8f13c83a64a2b5e4c9c1dc",
+      "lines": 280,
+      "sha256": "b02f450c3e1d81b8432414f3de4a032f7d7997b3e09edea10b9c03701865551d",
       "symbols": [
         {
           "name": "AutonomousLearningRuntimeTest",
