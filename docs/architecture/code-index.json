@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T12:06:22.851273+00:00",
-  "commit": "c306b1551a177e97a269d94edf10d8e3178eb717",
+  "generatedAt": "2026-10-23T12:21:26.113380+00:00",
+  "commit": "5d73e0fb28c64ac2dcd49def8cef5c86b802d458",
   "branch": "main",
-  "sourceFingerprint": "92e7f9a2202c40f19f5ad586a49b3a76df2faa523aaeecbfabc251c8969a12f1",
+  "sourceFingerprint": "564b3d81e3885f4de2145c54dd58a665f80f788b3cec27c0bb3643c7a055788e",
   "summary": {
     "files": 853,
     "lines": 163452,
@@ -27499,7 +27499,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousLearningRuntimeTest.kt",
       "lines": 280,
-      "sha256": "b02f450c3e1d81b8432414f3de4a032f7d7997b3e09edea10b9c03701865551d",
+      "sha256": "1469fe92529c073f97fb5f66c39b02b2e4192e0ff6dac88f5f65dae5571f2a93",
       "symbols": [
         {
           "name": "AutonomousLearningRuntimeTest",
@@ -27562,7 +27562,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
       "lines": 95,
-      "sha256": "0a5a4de61cf8ac368cafb4c4af54fd08804103c30c21550fc7b9351b05a7cfa6",
+      "sha256": "13d180539094a71f4fa5e591d4bd7cf31f7ed3a92de92e8ad7dfb28de76e1376",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
