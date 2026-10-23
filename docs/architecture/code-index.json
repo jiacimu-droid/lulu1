@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T18:14:34.602948+00:00",
-  "commit": "fcaa0ee0233d4caa0f8fb9d26793f932150e05f5",
+  "generatedAt": "2026-10-23T18:15:02.803674+00:00",
+  "commit": "dbd8333f960fe88e9450271754e961b0f36b15ab",
   "branch": "main",
-  "sourceFingerprint": "e0f9c15a26ba58c998a3bf48eb479f8bcc4f1064ac81da5ff3e673f80d8548ec",
+  "sourceFingerprint": "a350b43d20c31ca72b403044cb1cdbfbb29daf19b6b8c62f773c335c505ac676",
   "summary": {
-    "files": 864,
-    "lines": 165739,
-    "symbols": 2501
+    "files": 865,
+    "lines": 165753,
+    "symbols": 2503
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -470,6 +470,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt",
         "line": 27
+      }
+    ],
+    "deadline": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt",
+        "line": 8
+      }
+    ],
+    "remainingMillis": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt",
+        "line": 10
       }
     ],
     "provider": [
@@ -14343,6 +14355,21 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt",
+      "lines": 14,
+      "sha256": "7ac28dbbf992a7af90d21d5009324338f9d4cc6eae1397b1bd67cda352f49a27",
+      "symbols": [
+        {
+          "name": "deadline",
+          "line": 8
+        },
+        {
+          "name": "remainingMillis",
+          "line": 10
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
       "lines": 82,
       "sha256": "b7cbad3ee00b80367beef6d3a93fc72e28f8978b365fbed9db161741c8148497",
@@ -15808,7 +15835,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 2347,
-      "sha256": "2499157edf37a03ede2fe45f62ba30224c144e5c5cc1f3fa337e67ff63f371d6",
+      "sha256": "72839333f0d6e3da9f03e697f9c348c4e0b0c74152ce4f1272090c83abf19f30",
       "symbols": [
         {
           "name": "selectStt",
