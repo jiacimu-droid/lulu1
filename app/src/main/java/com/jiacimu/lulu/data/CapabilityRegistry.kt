@@ -27,7 +27,7 @@ object CapabilityRegistry {
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game",
-        "publish_moment", "write_journal", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic")
+        "publish_moment", "write_journal", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "grant_sleep_reward", "learn_topic", "web_search")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", false) }
     val external = listOf(
         Capability("read_xiaohongshu", "external", "xhs_read", "Shared local/MCP reader + confirmed note body and source", false),
