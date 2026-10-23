@@ -467,13 +467,15 @@ private fun Live2DNativeFrameOverlay(
     LaunchedEffect(webView, binarySupported) {
         if (!binarySupported) return@LaunchedEffect
         var firstFrame = true
-        val stats = Live2DFrameStats()
+        // Shorter feedback window lowers the resolution sooner on a phone
+        // whose WebGL readback + JPEG path cannot sustain smooth motion.
+        val stats = Live2DFrameStats(reportIntervalMs = 2_000L)
         var lastQuality = currentQuality.value
-        var resolution = if (lastQuality == "smooth") 920 else 1320
+        var resolution = if (lastQuality == "smooth") 860 else 1320
         for (frame in binaryFrames) {
             if (currentQuality.value != lastQuality) {
                 lastQuality = currentQuality.value
-                resolution = if (lastQuality == "smooth") 920 else 1320
+                resolution = if (lastQuality == "smooth") 860 else 1320
             }
             val decodeStart = android.os.SystemClock.elapsedRealtime()
             val decoded = withContext(Dispatchers.Default) {
@@ -630,7 +632,9 @@ private fun Live2DNativeFrameOverlay(
                     fastFrames = 0
                 }
             }
-            delay((65L - costMs).coerceAtLeast(12L))
+            // Capture and decode already serialize frames; remove the
+            // additional idle wait after slow frames in the fallback route.
+            delay((50L - costMs).coerceAtLeast(4L))
         }
     }
 
