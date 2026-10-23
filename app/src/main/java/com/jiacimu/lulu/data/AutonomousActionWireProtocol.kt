@@ -55,10 +55,17 @@ internal object AutonomousActionWireProtocol {
                 (result.optString("text").isNotBlank() ||
                     result.optJSONArray("bubbles")?.let { bubbles ->
                         (0 until bubbles.length()).any { index ->
-                            bubbles.optString(index).isNotBlank() ||
-                                bubbles.optJSONObject(index)?.optString("text").isNullOrBlank().not()
+                            when (val bubble = bubbles.opt(index)) {
+                                is String -> bubble.isNotBlank()
+                                is JSONObject -> bubble.optString("text").isNotBlank()
+                                else -> false
+                            }
                         }
                     } == true) -> result.put("action", "message")
+        }
+        if (result.optString("action") == "tool" &&
+            result.optString("tool").isNotBlank()) {
+            result.put("tool", result.optString("tool").trim().lowercase())
         }
         // Some models return {"action":"tool","args":{"tool":"read_xiaohongshu",...}}
         // instead of the top-level name. Normalize the explicit name; NEVER
@@ -67,8 +74,9 @@ internal object AutonomousActionWireProtocol {
             val nestedName = result.optJSONObject("args")?.optString("tool").orEmpty()
                 .ifBlank { result.optJSONObject("args")?.optString("name").orEmpty() }
             if (nestedName.isNotBlank()) {
-                result.put("tool", nestedName)
-                friendlyActionForTool[nestedName]?.let { result.put("action", it) }
+                val registeredName = nestedName.trim().lowercase()
+                result.put("tool", registeredName)
+                friendlyActionForTool[registeredName]?.let { result.put("action", it) }
             }
         }
         // Favorites have no top-level "favorite" enum: they must remain a
