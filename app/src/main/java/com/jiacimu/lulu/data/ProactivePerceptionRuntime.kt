@@ -1457,6 +1457,7 @@ object ProactivePerceptionRuntime {
                 onlineUnread.text, decision.tool),
             responseEvidenceIds = onlineUnread.messageIds,
             replyConversationIds = onlineUnread.conversationIds,
+            userText = onlineUnread.text,
             requestId = when {
                 // A new user message is a NEW decision. Never reuse the older
                 // call-end/world-event request key while the user is waiting.
@@ -1738,6 +1739,7 @@ object ProactivePerceptionRuntime {
         explicitScreenRequest: Boolean = false,
         responseEvidenceIds: Set<String> = emptySet(),
         replyConversationIds: Set<String> = emptySet(),
+        userText: String = "",
     ): ActionExecution {
         if (decision.action == Action.SILENT && (decision.sideActions?.length() ?: 0) == 0)
             return ActionExecution(false, "角色选择保持安静")
@@ -1847,10 +1849,11 @@ object ProactivePerceptionRuntime {
         // One model choice can include multiple distinct, ordered actions.
         // Every step uses the existing permission boundary and its own durable receipt.
         // Do not silently narrow these to music/volume or invent a second planner.
-        val searchIncluded = (0 until (decision.sideActions?.length() ?: 0)).any { index ->
-            decision.sideActions?.optJSONObject(index)?.optString("tool").orEmpty() in
-                setOf("web_search", "image_search")
-        }
+        val resultBearingTools = setOf("web_search", "image_search", "read_xiaohongshu")
+        val searchIncluded = tool in resultBearingTools ||
+            (0 until (decision.sideActions?.length() ?: 0)).any { index ->
+                decision.sideActions?.optJSONObject(index)?.optString("tool").orEmpty() in resultBearingTools
+            }
         val stepReport = if (hasFreshUserMessage && searchIncluded) {
             // Once a user-requested search step has been accepted, finish its
             // persisted side effects even if a newer bubble supersedes this
@@ -1861,7 +1864,7 @@ object ProactivePerceptionRuntime {
                     requestId = requestId, intentionId = decision.intentionId,
                     initialCompleted = result.success &&
                         resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
-                    userEvidenceIds = responseEvidenceIds,
+                    userEvidenceIds = responseEvidenceIds, userText = userText,
                     explicitScreenRequest = explicitScreenRequest,
                 )
             }
@@ -1870,7 +1873,8 @@ object ProactivePerceptionRuntime {
             requestId = requestId, intentionId = decision.intentionId,
             initialCompleted = result.success &&
                 resultJson.optString("status") !in setOf("pending", "waiting_user", "requested"),
-            userEvidenceIds = responseEvidenceIds, explicitScreenRequest = explicitScreenRequest,
+            userEvidenceIds = responseEvidenceIds, userText = userText,
+            explicitScreenRequest = explicitScreenRequest,
         )
         val sideActionSucceeded = stepReport.anyAccepted
         effectNotes.addAll(stepReport.notes)
@@ -1968,8 +1972,28 @@ object ProactivePerceptionRuntime {
     ): Boolean {
         val evidence = receipts.joinToString("\n\n") { entry ->
             val outcome = if (entry.success) "成功" else "失败"
+            // The real observation owns note body, loaded comments, and image
+            // verification; a short tool summary alone would discard this detail.
+            val readingEvidence = if (entry.tool == "read_xiaohongshu" && entry.success) {
+                SharedExperienceTimeline.eventsByIds(character.characterId,
+                    listOf(entry.evidenceId)).firstOrNull { observed ->
+                    observed.channel == "小红书阅读" &&
+                        observed.source in setOf("xiaohongshu-mcp", "xiaohongshu-webview") &&
+                        observed.evidenceKind == EventEvidenceKind.Observation
+                }?.let { observed ->
+                    runCatching { JSONObject(observed.content) }.getOrNull()?.let { note ->
+                        "实际笔记标题=${note.optString("title")}；URL=${note.optString("url")}；" +
+                            "正文已加载=${note.optBoolean("bodyActuallyLoaded")}；" +
+                            "加载评论数=${note.optInt("commentCountActuallyLoaded")}；" +
+                            "图片状态=${note.optString("imageReadingStatus")}\n" +
+                            "正文：${note.optString("text").take(5_000)}\n" +
+                            "实际加载评论：${note.optJSONArray("commentsActuallyLoaded")?.toString().orEmpty().take(1_000)}"
+                    }
+                }.orEmpty()
+            } else ""
             "工具=${entry.tool}；操作=${entry.operation}；实际状态=$outcome；证据ID=${entry.evidenceId}\n" +
-                entry.details.take(9_000)
+                entry.details.take(2_000) +
+                (if (readingEvidence.isNotBlank()) "\n$readingEvidence" else "")
         }
         val modelText = runCatching {
             LuluAiServices.gateway.generate(
@@ -1981,7 +2005,7 @@ object ProactivePerceptionRuntime {
                     ${earlierSpeech.take(600)}
                 """.trimIndent(),
                 instruction = """
-                    你现在收到了自己刚才执行搜索的真实回执，要把完成情况亲自告诉正在等结果的人。
+                    你现在收到了自己刚才执行搜索或小红书阅读的真实回执，要把完成情况亲自告诉正在等结果的人。
                     只依据真实执行回执，自己选择最想分享的发现；引用来源时给出真实网页 URL。
                     成功仅意味着获得对应网页标题、摘要或已明确读取的正文，不能假装验证内容真假、
                     打开了未打开的网页、看见了仅有标题的图片，或实际发送了还没有发送的图片。
