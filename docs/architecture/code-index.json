@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T06:26:52.817208+00:00",
-  "commit": "9440fccfc6a6c821d3929a139cc671661bdef677",
+  "generatedAt": "2026-10-23T06:32:04.409941+00:00",
+  "commit": "5897eefec1a714679d3409a54cb3a0cd0d3d19b6",
   "branch": "main",
-  "sourceFingerprint": "348553751df8cf99255fc98dfadce332bd71f542b39afe8be9e84ac1b8047641",
+  "sourceFingerprint": "4cda5a3dae0d8ce6a730b879f52218f0491a7864a92f619e457b5a1e8bc27d5d",
   "summary": {
     "files": 836,
-    "lines": 160443,
-    "symbols": 2424
+    "lines": 160484,
+    "symbols": 2426
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5979,7 +5979,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 19
+        "line": 53
       }
     ],
     "configure": [
@@ -9489,37 +9489,49 @@
     "savedKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 15
+        "line": 17
       }
     ],
     "savedDeepSeekKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 17
+        "line": 19
+      }
+    ],
+    "hasOfficialSavedConfiguration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
+        "line": 34
+      }
+    ],
+    "configuredProvider": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
+        "line": 39
       }
     ],
     "saveDeepSeekKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 21
+        "line": 56
       }
     ],
     "saveKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 27
+        "line": 62
       }
     ],
     "extract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 69
+        "line": 110
       }
     ],
     "search": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 123
+        "line": 164
       }
     ],
     "WorldFirstExplorationMemory": [
@@ -23027,36 +23039,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-      "lines": 179,
-      "sha256": "8b0d4b532ef1d6b19c242ad178979e2e313e196ca5f5d5eb0a86d7ec05d8f374",
+      "lines": 220,
+      "sha256": "a3efef29a66d25b28b3a39016f6a751fb492ea3b11d512428c6e9958c827e73d",
       "symbols": [
         {
           "name": "savedKey",
-          "line": 15
-        },
-        {
-          "name": "savedDeepSeekKey",
           "line": 17
         },
         {
-          "name": "isConfigured",
+          "name": "savedDeepSeekKey",
           "line": 19
         },
         {
+          "name": "hasOfficialSavedConfiguration",
+          "line": 34
+        },
+        {
+          "name": "configuredProvider",
+          "line": 39
+        },
+        {
+          "name": "isConfigured",
+          "line": 53
+        },
+        {
           "name": "saveDeepSeekKey",
-          "line": 21
+          "line": 56
         },
         {
           "name": "saveKey",
-          "line": 27
+          "line": 62
         },
         {
           "name": "extract",
-          "line": 69
+          "line": 110
         },
         {
           "name": "search",
-          "line": 123
+          "line": 164
         }
       ]
     },
