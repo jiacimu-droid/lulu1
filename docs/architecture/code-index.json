@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T08:14:02.405458+00:00",
-  "commit": "70df6deb9d2a344765fc748272c7122cda890c85",
+  "generatedAt": "2026-10-23T08:14:28.879269+00:00",
+  "commit": "ceb826ee1922d55f5f02af3014e42f59e6696e72",
   "branch": "main",
-  "sourceFingerprint": "b9665a90c01d5e1de4f1a8bf2a4bd09a6d242f4079575dde3058c642881b6838",
+  "sourceFingerprint": "f1a9baad894409afb538f78652504e3ff37c7d09d6963f2009a39d8bef524874",
   "summary": {
-    "files": 846,
-    "lines": 162025,
-    "symbols": 2455
+    "files": 847,
+    "lines": 162065,
+    "symbols": 2457
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6988,6 +6988,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldNavigationStore.kt",
         "line": 53
+      }
+    ],
+    "forDate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
+        "line": 18
+      }
+    ],
+    "publicContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
+        "line": 35
       }
     ],
     "explorationPlaces": [
@@ -20415,6 +20427,21 @@
         {
           "name": "consumeEpisode",
           "line": 53
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldPublicBulletin.kt",
+      "lines": 40,
+      "sha256": "eee2b7ab242776061499e553b25a742ed6058e3b093bc6d27c3c4fee3d73dfa8",
+      "symbols": [
+        {
+          "name": "forDate",
+          "line": 18
+        },
+        {
+          "name": "publicContext",
+          "line": 35
         }
       ]
     },
