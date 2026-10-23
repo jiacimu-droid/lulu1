@@ -39,7 +39,7 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   const scale = .55 + force * .85
   const shy = Math.min(1, Math.max(0, (state.shyness || 0) / 100))
   const response = {
-    yaw: 0, pitch: 0, roll: 0,
+    yaw: 0, pitch: 0, roll: 0, impactMotion: false,
     body: { yaw: 0, pitch: 0, roll: 0 }, face: {}, parameters: {},
   }
   const closeTouchedEye = (value) => {
@@ -47,22 +47,28 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   }
   if (isImpact(gesture)) {
     // First recoil in the actual direction, THEN knitted brows/pout/tears.
-    const recoil = elapsedMs < 180 ? 1 : Math.max(.12, 1 - (elapsedMs - 180) / 650)
+    const recoil = elapsedMs < 230 ? 1 : Math.max(0, 1 - (elapsedMs - 230) / 1050)
     const swipe = direction || -side || 1
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
-    response.yaw = swipe * yaw * scale * recoil
-    response.roll = swipe * roll * scale * recoil
-    response.pitch = pitch * scale * recoil
+    // A slap is a fast NECK ROLL recoil, not the whole face sliding side
+    // to side on yaw. The torso follows later with a much smaller angle.
+    // The impact spring has a quicker attack, a deliberately slower release.
+    response.impactMotion = true
+    response.yaw = swipe * yaw * .4 * scale * recoil
+    response.roll = swipe * roll * 1.5 * scale * recoil
+    response.pitch = pitch * .7 * scale * recoil
     response.body = {
-      yaw: swipe * torso * .65 * scale * recoil,
-      pitch: -torso * scale * recoil,
-      roll: swipe * torso * .6 * scale * recoil,
+      yaw: swipe * torso * .22 * scale * recoil,
+      pitch: -torso * .65 * scale * recoil,
+      roll: swipe * torso * .35 * scale * recoil,
     }
-    response.face = elapsedMs < 180
-      ? { eyeOpen: .12, browY: .35, smile: -.15 }
-      : { eyeOpen: .72 - force * .2, browY: -.23, browAngle: -.45,
-          browForm: -.4, smile: -.32, pout: .2 + force * .22,
-          gazeX: -swipe * .2, gazeY: -.14 }
+    const startled = elapsedMs < 230
+    response.face = startled
+      ? { eyeOpen: .14, browY: .38, browAngle: -.13, smile: -.25, pout: .1 }
+      : { eyeOpen: .62 + .15 * (1 - force), eyeSmile: -.06,
+          browY: -.2 - force * .12, browAngle: -.5,
+          browForm: -.5, smile: -.42, pout: .35 + force * .25,
+          gazeX: -swipe * .15, gazeY: -.2 }
     if (family === 'eye') closeTouchedEye(elapsedMs < 180 ? .02 : .3)
     if (family === 'beast-ear') {
       response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] = -.7 * scale * recoil
@@ -74,19 +80,25 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   const stroking = gesture.startsWith('stroke') || gesture === 'hold'
   const soft = stroking || kiss
   const blink = variation === 1 ? .1 : 0
+  // The same pet is not a permanent squint. Alongside accumulated shyness,
+  // real contact direction/side and touch ordinal choose different visible
+  // eye and brow articulations, without inventing an emotion from random data.
+  const receptiveEyes = Math.min(.96, .62 + variation * .13 - shy * .11)
   switch (family) {
     case 'hair': case 'forehead':
       response.pitch = kiss ? -3 : soft ? 10 + variation * 2 : 4
       response.yaw = direction * 7
       response.roll = (direction || (variation === 1 ? -1 : 1)) * (kiss ? 3 : 4)
-      response.face = { eyeOpen: kiss ? .24 : soft ? .48 + blink : .85,
-        eyeSmile: kiss ? .25 : .32, smile: kiss ? .25 : .22 }
+      response.face = { eyeOpen: kiss ? .42 + variation * .16 : soft ? receptiveEyes : .9,
+        eyeSmile: kiss ? .24 : .2, smile: kiss ? .22 : .16 + variation * .06,
+        browY: soft ? .06 + shy * .1 : 0 }
       break
     case 'beast-ear':
       response.yaw = -side * (kiss ? 9 : 5)
       response.pitch = kiss ? -4 : 5
       response.roll = side * (kiss ? 9 : 6)
-      response.face = { eyeOpen: kiss ? .48 : .68, smile: .17 + shy * .15 }
+      response.face = { eyeOpen: kiss ? .48 + variation * .11 : receptiveEyes,
+        smile: .15 + shy * .15, browY: variation === 0 ? .16 : -.04 }
       response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] =
         (kiss ? -.52 : .28 + .16 * Math.sin(elapsedMs / 120)) * scale
       break
@@ -95,8 +107,8 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       response.roll = side * (kiss ? 11 : 7)
       response.pitch = kiss ? -4 : 2
       response.body.roll = -side * 2
-      response.face = { eyeOpen: kiss ? .46 : .7, browY: .12,
-        smile: kiss ? .13 : .2, gazeX: side * .25 }
+      response.face = { eyeOpen: kiss ? .5 : receptiveEyes, browY: .12,
+        smile: kiss ? .13 : .14 + variation * .07, gazeX: side * .25 }
       break
     case 'eye':
       response.yaw = -side * (kiss ? 3 : 6)
@@ -106,16 +118,18 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       break
     case 'nose':
       response.pitch = kiss ? 5 : -5
-      response.face = { eyeOpen: kiss ? .55 : .65, smile: kiss ? .3 : .16,
+      response.face = { eyeOpen: kiss ? .67 : receptiveEyes, smile: kiss ? .3 : .16,
         browY: kiss ? .1 : .18 }
       break
     case 'cheek':
       response.yaw = side * (kiss ? 5 : 9 + variation)
       response.roll = -side * (kiss ? 8 : 5)
       response.pitch = kiss ? -2 - shy * 6 : 6
-      response.face = { eyeOpen: kiss ? .8 - shy * .35 : .58,
-        eyeSmile: kiss ? .2 : .32, smile: kiss ? .2 + shy * .2 : .28,
+      response.face = { eyeOpen: kiss ? .8 - shy * .2 : receptiveEyes,
+        eyeSmile: kiss ? .15 : .12 + variation * .08,
+        smile: kiss ? .2 + shy * .2 : .14 + variation * .08,
         gazeX: kiss ? -side * .3 : side * .15,
+        browY: variation === 2 ? .16 : -.04,
         cheekPuff: kiss ? .08 : .04 }
       break
     case 'mouth':
@@ -207,8 +221,13 @@ export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 't
   const shy = state.shyness || 0
   if (isImpact(gesture)) {
     const impact = state.impact || 0
-    return first(impact >= 72 ? ['dark', 'tear', 'surprise']
-      : impact >= 20 ? ['tear', 'surprise'] : ['surprise'])
+    // A stronger strike normally looks startled/tearful or aggrieved.
+    // Darkness remains an occasional high-impact choice, not the only
+    // expression merely because the cumulative impact meter rose.
+    const veryAngry = impact >= 85 && touchForce(state.force) >= .85 &&
+      Math.abs(ordinal) % 5 === 4
+    return first(veryAngry ? ['dark', 'tear', 'surprise'] :
+      impact >= 24 ? ['tear', 'surprise', 'dark'] : ['surprise', 'tear'])
   }
   const family = touchFamily(region)
   if (gesture === 'kiss' && shy >= 86 &&
