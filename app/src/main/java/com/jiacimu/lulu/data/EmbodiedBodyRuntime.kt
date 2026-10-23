@@ -43,7 +43,7 @@ internal data class EmbodiedBodySnapshot(
                 hunger = stat("hunger", 18.0),
                 thirst = stat("thirst", 16.0),
                 comfort = stat("comfort", 78.0),
-                recoveryMode = value.optString("recoveryMode").takeIf { it in setOf("sleep", "nap", "rest") }.orEmpty(),
+                recoveryMode = value.optString("recoveryMode").takeIf { it in setOf("sleep", "nap", "rest", "offline_sleep") }.orEmpty(),
                 recoveryUntil = runCatching { Instant.parse(value.optString("recoveryUntil")) }.getOrNull(),
             )
         }
@@ -63,7 +63,8 @@ internal object EmbodiedBodyPhysics {
         val duration = Duration.between(before.lastAt, now)
         val hours = duration.seconds.toDouble() / 3600.0 + duration.nano.toDouble() / 3_600_000_000_000.0
         val end = before.recoveryUntil
-        val recoveryHours = if (before.recoveryMode.isNotBlank() && end != null && end.isAfter(before.lastAt)) {
+        val offlineSleep = before.recoveryMode == "offline_sleep"
+        val recoveryHours = if (offlineSleep) hours else if (before.recoveryMode.isNotBlank() && end != null && end.isAfter(before.lastAt)) {
             val boundedEnd = if (end.isBefore(now)) end else now
             if (boundedEnd.isAfter(before.lastAt))
                 Duration.between(before.lastAt, boundedEnd).toMillis().toDouble() / 3_600_000.0 else 0.0
@@ -71,19 +72,19 @@ internal object EmbodiedBodyPhysics {
         val awakeHours = (hours - recoveryHours).coerceAtLeast(0.0)
         val mode = before.recoveryMode
         val energyGain = when (mode) {
-            "sleep" -> 19.0
+            "sleep", "offline_sleep" -> 19.0
             "nap" -> 15.0
             "rest" -> 6.0
             else -> 0.0
         }
         val sleepRelief = when (mode) {
-            "sleep" -> 23.0
+            "sleep", "offline_sleep" -> 23.0
             "nap" -> 20.0
             "rest" -> 5.0
             else -> 0.0
         }
         fun bounded(n: Double) = n.coerceIn(0.0, 100.0)
-        val finished = end == null || !end.isAfter(now)
+        val finished = !offlineSleep && (end == null || !end.isAfter(now))
         return before.copy(
             lastAt = now,
             energy = bounded(before.energy - awakeHours * 1.4 + recoveryHours * energyGain),
@@ -138,7 +139,9 @@ internal object EmbodiedBodyPhysics {
         return buildString {
             appendLine("【数字身体模拟｜持续的身体线索，不是情绪、人格或真实传感器数据】")
             appendLine("精力=${number(snapshot.energy)}；睡眠压力=${number(snapshot.sleepPressure)}；饥饿感=${number(snapshot.hunger)}；口渴感=${number(snapshot.thirst)}；舒适度=${number(snapshot.comfort)}（0—100，均为数字世界内模拟值）。")
-            if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
+            if (snapshot.recoveryMode == "offline_sleep")
+                appendLine("当前离线休眠中；模拟身体正在按真实经过的时间恢复。")
+            else if (snapshot.recoveryMode.isNotBlank() && snapshot.recoveryUntil != null)
                 appendLine("有真实开始、已存档的${when (snapshot.recoveryMode) { "sleep" -> "睡眠"; "nap" -> "小睡"; else -> "休息" }}活动，预计结束于${snapshot.recoveryUntil}；未到时间不冒充完成。")
             appendLine("饥饿和口渴可成为本人去真实咖啡角点单、用餐、喝水或暂时做别的事的动机；由本人决定，不因固定阈值强迫行动或额外发起模型请求。点单不等于已经食用。")
             appendLine("这些感受可影响本人的注意、节奏、行动选择及数字身体表现，也完全可以被本人忽略或克制；不强制说困、说饿、求陪伴或使用特定台词。没有真实活动/设备证据不得声称吃过、睡过、触摸过现实人物、测得体温或感受到现实天气。")
@@ -156,7 +159,45 @@ internal object EmbodiedBodyRuntime {
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return null
         val saved = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
             ?: EmbodiedBodyPhysics.fresh(now)
-        return EmbodiedBodyPhysics.advance(saved, now)
+        return EmbodiedBodyPhysics.advance(alignedToPresence(characterId, saved, now), now)
+    }
+
+    /** Physical sleep follows the one authoritative online lease, not a second timer. */
+    private fun alignedToPresence(characterId: String, before: EmbodiedBodySnapshot, now: Instant): EmbodiedBodySnapshot {
+        val presence = CompanionOnlineStore.states.value[characterId] ?: return before
+        if (presence.isOnline(now) || before.recoveryMode == "offline_sleep") return before
+        val sleepAt = maxOf(presence.onlineUntil, before.lastAt)
+        return EmbodiedBodyPhysics.advance(before, sleepAt).copy(
+            recoveryMode = "offline_sleep", recoveryUntil = null)
+    }
+
+    @Synchronized
+    fun onPresenceSleep(characterId: String, at: Instant) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
+        val before = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
+            ?: EmbodiedBodyPhysics.fresh(at)
+        if (before.recoveryMode == "offline_sleep") return
+        val sleepAt = maxOf(at, before.lastAt)
+        val after = EmbodiedBodyPhysics.advance(before, sleepAt).copy(
+            recoveryMode = "offline_sleep", recoveryUntil = null)
+        CharacterLifeStore.saveBodyState(characterId, after.toJson(), cause = "角色下线休眠")
+    }
+
+    @Synchronized
+    fun onPresenceWake(characterId: String, previous: CompanionOnlineState?, at: Instant) {
+        if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return
+        val before = CharacterLifeStore.bodyState(characterId)?.let(EmbodiedBodySnapshot::fromJson)
+            ?: EmbodiedBodyPhysics.fresh(at)
+        if (previous?.isOnline(at) == true && before.recoveryMode != "offline_sleep") return
+        val sleeping = if (previous != null && !previous.isOnline(at)) {
+            val started = maxOf(previous.onlineUntil, before.lastAt)
+            if (before.recoveryMode == "offline_sleep") before
+            else EmbodiedBodyPhysics.advance(before, started).copy(
+                recoveryMode = "offline_sleep", recoveryUntil = null)
+        } else before
+        val awake = EmbodiedBodyPhysics.advance(sleeping, at).copy(
+            recoveryMode = "", recoveryUntil = null)
+        if (awake != before) CharacterLifeStore.saveBodyState(characterId, awake.toJson(), cause = "角色醒来")
     }
 
     /** Only confirmed outdoor digital locations expose this simulated temperature. */
@@ -179,7 +220,7 @@ internal object EmbodiedBodyRuntime {
         if (!DigitalLifeProfileStore.isEnabled(characterId) || !CharacterLifeStore.bodyStorageReady()) return ""
         val saved = CharacterLifeStore.bodyState(characterId)
         val previous = saved?.let(EmbodiedBodySnapshot::fromJson) ?: EmbodiedBodyPhysics.fresh(now)
-        val next = EmbodiedBodyPhysics.advance(previous, now)
+        val next = EmbodiedBodyPhysics.advance(alignedToPresence(characterId, previous, now), now)
         if (saved == null || next != previous) CharacterLifeStore.saveBodyState(characterId, next.toJson())
         val digitalTemperature = DigitalWorldEnvironment.snapshot(now).temperatureCelsius
         val location = DigitalWorldStore.locationOf(characterId)
