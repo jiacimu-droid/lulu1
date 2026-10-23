@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T05:32:21.052007+00:00",
-  "commit": "717a664731ab780c41a3894d20ca35079053fca2",
+  "generatedAt": "2026-10-23T05:33:34.801887+00:00",
+  "commit": "6282ed9a7a3173a9a909f64eaf6c525ea426451d",
   "branch": "main",
-  "sourceFingerprint": "a54b3c2f75d59a1441f96f288f76edff2cb0db6c3604a1f59fabf63c2f23ad3f",
+  "sourceFingerprint": "334f56b45e503a9cd0ae314346d7a0c5730699041494501d06a5d27493af1b39",
   "summary": {
     "files": 836,
-    "lines": 160216,
-    "symbols": 2422
+    "lines": 160264,
+    "symbols": 2424
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -161,7 +161,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 32
+        "line": 49
       }
     ],
     "cancel": [
@@ -609,7 +609,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 21
+        "line": 38
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt",
@@ -4762,10 +4762,22 @@
         "line": 17
       }
     ],
+    "lastStatus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
+        "line": 23
+      }
+    ],
+    "resumePending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
+        "line": 35
+      }
+    ],
     "ids": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 132
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
@@ -17844,24 +17856,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-      "lines": 152,
-      "sha256": "364e7713e9aff428979eb327d5e1b28f3027bfdaee231fb3e899f54b78634a74",
+      "lines": 200,
+      "sha256": "605e130edf2507db026f40d0587186680984f96d9dedd4638732fe4dc02e6541",
       "symbols": [
         {
           "name": "CharacterDevelopmentRuntime",
           "line": 17
         },
         {
+          "name": "lastStatus",
+          "line": 23
+        },
+        {
+          "name": "resumePending",
+          "line": 35
+        },
+        {
           "name": "initialize",
-          "line": 21
+          "line": 38
         },
         {
           "name": "request",
-          "line": 32
+          "line": 49
         },
         {
           "name": "ids",
-          "line": 132
+          "line": 170
         }
       ]
     },
