@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T13:57:25.283668+00:00",
-  "commit": "8d304fff1b8846f9b77aa1aebfb58fecb39eac9c",
+  "generatedAt": "2026-10-23T13:58:17.037815+00:00",
+  "commit": "c208c54823f065b68f6884f0a758e5c5d413a17c",
   "branch": "main",
-  "sourceFingerprint": "a317ab75fd3ba7bbece13ae699961d9ac2151eb97817eed91d15472a78b79386",
+  "sourceFingerprint": "4fe17cec34a68fc420b2b9f8b3b18637c23b996ec270504295b1c4cc8c7f5f32",
   "summary": {
     "files": 861,
-    "lines": 164415,
+    "lines": 164427,
     "symbols": 2490
   },
   "symbolIndex": {
@@ -1899,7 +1899,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 932
+        "line": 943
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -6301,7 +6301,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 900
+        "line": 911
       }
     ],
     "age": [
@@ -19839,8 +19839,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1014,
-      "sha256": "b67346980b4d6fe5b15b7eaa20de02a5ec8f08cd01104ae661cfac9e469fd33e",
+      "lines": 1025,
+      "sha256": "cec118e389a5c69b0bc9de0bf155fa5c47f554029202d10b45adadf81febeaa3",
       "symbols": [
         {
           "name": "asJson",
@@ -19852,11 +19852,11 @@
         },
         {
           "name": "world",
-          "line": 900
+          "line": 911
         },
         {
           "name": "from",
-          "line": 932
+          "line": 943
         }
       ]
     },
@@ -22594,8 +22594,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 159,
-      "sha256": "2bcf47468289c60a25a60a6f8f547128d1cb3a4510c7d487a2fb48fa24642753",
+      "lines": 160,
+      "sha256": "c6109631a66f278dee60d993f18b0e65a340ba380affe976e1e813f3dcd42f0c",
       "symbols": []
     },
     {
