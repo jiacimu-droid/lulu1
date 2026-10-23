@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-23T07:48:35.482411+00:00",
-  "commit": "ddfe909f81c0f69dba1a7f3f428d6a9a2dbf3d8b",
+  "generatedAt": "2026-10-23T07:49:56.221727+00:00",
+  "commit": "bfb081fdd8645e96573c784d3e94acbea23bcb48",
   "branch": "main",
-  "sourceFingerprint": "b8e80dfb2e81351a6caeb593f7bd67d5aa80778a7dce25b485475481e8e48cc5",
+  "sourceFingerprint": "793f9723137eae239c5b7d223c654d7195109fb629ad6c9b37b1dc175257452b",
   "summary": {
     "files": 845,
-    "lines": 161848,
+    "lines": 161851,
     "symbols": 2450
   },
   "symbolIndex": {
@@ -9213,7 +9213,7 @@
     "fixedContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
-        "line": 74
+        "line": 77
       }
     ],
     "plan": [
@@ -14649,7 +14649,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldResidentProfiles.kt",
       "lines": 187,
-      "sha256": "f47d4c84fed9136d2e224bda39c3d44e0a75f4f7a035a24855fef7a698cde5a9",
+      "sha256": "dc9bdab3a1d0df289f3aaa6a693614a3e5da8e58299889ff84e6c609d563f689",
       "symbols": []
     },
     {
@@ -22765,8 +22765,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt",
-      "lines": 86,
-      "sha256": "67196ca7cf6852352df2ad3cc08d530147c47d2f14099b7f5c2602caf5264ba5",
+      "lines": 89,
+      "sha256": "fb39751c6a4882c790f5007b71af74d286756cd923d66c3dcda340f690c74f05",
       "symbols": [
         {
           "name": "characterId",
@@ -22786,7 +22786,7 @@
         },
         {
           "name": "fixedContext",
-          "line": 74
+          "line": 77
         }
       ]
     },
