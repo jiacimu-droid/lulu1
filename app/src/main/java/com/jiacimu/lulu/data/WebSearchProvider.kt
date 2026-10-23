@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import com.jiacimu.lulu.ai.LuluAiServices
+import java.net.URI
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -16,8 +18,41 @@ internal object WebSearchProvider {
         .getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY, "").orEmpty()
     fun savedDeepSeekKey(context: Context): String = context.applicationContext
         .getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(DEEPSEEK_KEY, "").orEmpty()
+
+    /**
+     * Reuse only a saved *official* DeepSeek endpoint. Custom OpenAI-compatible
+     * relays may expose DeepSeek chat models but do not inherit Search API access,
+     * and must never receive a key intended for api.deepseek.com.
+     */
+    internal fun isOfficialDeepSeekBaseUrl(value: String): Boolean = runCatching {
+        val uri = URI(value.trim())
+        uri.scheme.equals("https", ignoreCase = true) &&
+            uri.host.equals("api.deepseek.com", ignoreCase = true) &&
+            uri.userInfo == null && uri.port in setOf(-1, 443) &&
+            uri.path.trimEnd('/') in setOf("", "/v1")
+    }.getOrDefault(false)
+
+    fun hasOfficialSavedConfiguration(): Boolean =
+        LuluAiServices.connectionStore.library.value.configurations.any {
+            isOfficialDeepSeekBaseUrl(it.baseUrl) && it.apiKey.isNotBlank()
+        }
+
+    fun configuredProvider(context: Context): String = when {
+        savedDeepSeekKey(context).isNotBlank() -> "DeepSeek Search"
+        hasOfficialSavedConfiguration() -> "DeepSeek · 复用 API 配置"
+        savedKey(context).isNotBlank() -> "Tavily"
+        else -> "百科检索"
+    }
+
+    private fun resolvedDeepSeekKey(context: Context): String =
+        savedDeepSeekKey(context).ifBlank {
+            LuluAiServices.connectionStore.library.value.configurations
+                .firstOrNull { isOfficialDeepSeekBaseUrl(it.baseUrl) && it.apiKey.isNotBlank() }
+                ?.apiKey.orEmpty()
+        }
+
     fun isConfigured(context: Context) =
-        savedDeepSeekKey(context).isNotBlank() || savedKey(context).isNotBlank()
+        resolvedDeepSeekKey(context).isNotBlank() || savedKey(context).isNotBlank()
     fun saveDeepSeekKey(context: Context, key: String): Boolean {
         val cleaned = key.trim()
         require(cleaned.length <= 256 && !cleaned.contains('\n') && !cleaned.contains('\r'))
@@ -50,7 +85,13 @@ internal object WebSearchProvider {
             connection.setRequestProperty("Authorization", "Bearer $key")
             connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
             val code = connection.responseCode
-            require(code in 200..299) { "DeepSeek 联网工具 HTTP $code" }
+            require(code in 200..299) {
+                "DeepSeek 联网工具 HTTP $code" + when (code) {
+                    401, 403 -> "，请检查 API Key 是否有效且具有 Search / Fetch 访问权限"
+                    429 -> "，请求过于频繁或额度不足"
+                    else -> ""
+                }
+            }
             val content = connection.inputStream.use { input ->
                 val buffer = ByteArray(8192)
                 val output = java.io.ByteArrayOutputStream()
@@ -68,7 +109,7 @@ internal object WebSearchProvider {
     /** Provider-side article extraction is a fallback when websites block direct Android readers. */
     fun extract(context: Context, articleUrl: String): String {
         LearningMaterialSource.validateUrl(articleUrl)
-        val deepSeekKey = savedDeepSeekKey(context)
+        val deepSeekKey = resolvedDeepSeekKey(context)
         if (deepSeekKey.isNotBlank()) return deepSeekFetchContent(
             deepSeekPost(deepSeekKey, "fetch", JSONObject().put("url", articleUrl))
         )
@@ -124,7 +165,7 @@ internal object WebSearchProvider {
     fun search(context: Context, query: String): List<WebSearchHit> {
         val text = query.trim().take(128)
         require(text.length >= 2) { "请输入具体搜索词" }
-        val deepSeekKey = savedDeepSeekKey(context)
+        val deepSeekKey = resolvedDeepSeekKey(context)
         if (deepSeekKey.isNotBlank()) {
             val hits = parseDeepSeekSearch(deepSeekPost(
                 deepSeekKey, "search", JSONObject().put("query", text)
