@@ -141,7 +141,7 @@ object RoleDayScheduleStore {
         if (tasks.isEmpty()) return ""
         return buildString {
             appendLine("【已接受但未安排下次行动时间的持续约定】")
-            appendLine("现在=$now。以下约定没有闹钟、不会自动兑现；旧约定不能因为日期变化就算作次日新日程。")
+            appendLine("当前本地时间=${now.atZone(java.time.ZoneId.systemDefault())}。以下约定没有闹钟、不会自动兑现；旧约定不能因为日期变化就算作次日新日程。")
             tasks.take(6).forEach {
                 appendLine("- commitmentTaskId=${it.id}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
             }
