@@ -683,6 +683,9 @@ class OnlineChatExperienceTest {
         val conversation = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
         CompanionOnlineStore.initialize(context)
         MigratedDomainStores.chat.appendVoiceMessage(conversation.id, "voice-test-user", "电话里刚说的话", false)
+        // Phone and video share the live call session; speech must never enter
+        // the eight-second text batch or spawn a second proactive chat reply.
+        assertNull(OnlineChatBatchStore.pendingDueAt(context, role.characterId))
         assertFalse(CompanionOnlineStore.unreadChatSnapshot(role.characterId).text.contains("电话里刚说的话"))
         assertTrue(CompanionOnlineStore.isOnline(role.characterId))
         assertTrue(MigratedDomainStores.chat.messages(conversation.id).value.any { it.id == "voice-test-user" })
