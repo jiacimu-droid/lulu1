@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:16:04.973670+00:00",
-  "commit": "ac3735899928adc8472f65d675d2d046ebff932d",
+  "generatedAt": "2026-10-24T12:21:16.745965+00:00",
+  "commit": "b44ceca930729c7e24318451f4c2c874c3d6c0dc",
   "branch": "main",
-  "sourceFingerprint": "e8add20adcbebfd75dda90a7090af68ba9a26aea5ade9bf80bc69df01b226dfc",
+  "sourceFingerprint": "a08a62856a111818618eba965b9a0926bed3a1d75e848d16addcef478364bd4d",
   "summary": {
-    "files": 878,
-    "lines": 170812,
-    "symbols": 2556
+    "files": 879,
+    "lines": 170916,
+    "symbols": 2562
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1742,6 +1742,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
         "line": 97
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -3564,6 +3568,10 @@
         "line": 159
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 93
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
         "line": 70
       },
@@ -5356,6 +5364,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
         "line": 179
+      }
+    ],
+    "isArchiveKey": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 21
+      }
+    ],
+    "fields": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 22
+      }
+    ],
+    "hasMatch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 30
+      }
+    ],
+    "tail": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 75
       }
     ],
     "CharacterInnerLifeStore": [
@@ -19052,6 +19084,37 @@
         {
           "name": "isExplicitUserToolRequest",
           "line": 179
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+      "lines": 104,
+      "sha256": "39594fc6c348fe6f1a6324cb41a7d25613766d54b2d65f0dbb7f9e9236ce12e3",
+      "symbols": [
+        {
+          "name": "isArchiveKey",
+          "line": 21
+        },
+        {
+          "name": "fields",
+          "line": 22
+        },
+        {
+          "name": "hasMatch",
+          "line": 30
+        },
+        {
+          "name": "prepare",
+          "line": 42
+        },
+        {
+          "name": "tail",
+          "line": 75
+        },
+        {
+          "name": "clear",
+          "line": 93
         }
       ]
     },
