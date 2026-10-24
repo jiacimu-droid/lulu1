@@ -45,7 +45,9 @@ import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CommitmentTaskStatus
 import com.jiacimu.lulu.data.isActive
 import com.jiacimu.lulu.design.LuluColors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -255,8 +257,13 @@ private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = M
     val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
     val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
     val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
-    val entries = remember(characterId, mindRevision, curiosityRevision, evidenceRevision) {
-        CharacterLifeVisibility.matters(characterId)
+    val entries by produceState(
+        initialValue = emptyList<com.jiacimu.lulu.data.CharacterLifeVisible>(),
+        characterId, mindRevision, curiosityRevision, evidenceRevision,
+    ) {
+        value = withContext(Dispatchers.Default) {
+            CharacterLifeVisibility.matters(characterId)
+        }
     }
     val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声", "心路历程")
     LazyColumn(modifier = modifier.fillMaxWidth(),
