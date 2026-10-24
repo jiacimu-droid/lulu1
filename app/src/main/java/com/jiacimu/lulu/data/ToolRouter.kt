@@ -16,7 +16,7 @@ object ToolRouter {
 
     suspend fun execute(context: Context, characterId: String, name: String, args: JSONObject,
         requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false,
-        intentionId: String = ""): String = requests.withLock("$characterId:$requestId") {
+        intentionId: String = "", autonomousLifeTurn: Boolean = false): String = requests.withLock("$characterId:$requestId") {
         // A slow read-only website request must not hold up an in-call favorite
         // or another short action. Exact request ids still serialize across tools.
         mutex.withLock("$characterId:" + when (name) {
@@ -95,7 +95,8 @@ object ToolRouter {
                         LuluScreenAwareness.summon(context, characterId)
                     } else if (cap.domain == "phone") {
                         LuluDeviceToolBridge.executeRegistered(context, characterId, name, args, requestId)
-                    } else CompanionActionRuntime.execute(context, characterId, name, args).asJson()
+                    } else CompanionActionRuntime.execute(context, characterId, name, args,
+                        selfInitiatedLifeTurn = autonomousLifeTurn && !userRequested).asJson()
                 }.getOrElse { failure(it.message.orEmpty()) }
                 val parsed = runCatching { JSONObject(result) }.getOrElse {
                     JSONObject().put("success", false).put("error", result.take(400))
