@@ -398,10 +398,13 @@ object ProactivePerceptionRuntime {
         val offline = !CompanionOnlineStore.isOnline(characterId, now)
         val asleepSince = if (offline) CompanionOnlineStore.states.value[characterId]?.onlineUntil else null
         val anchor = listOfNotNull(lastChat, lastEvaluation, asleepSince).maxOrNull() ?: now
-        // A personally arranged activity is an actual appointment, not the
-        // periodic fallback. Preserve the selected timestamp across process restarts.
-        val personalDue = if (offline) RoleDayScheduleStore.nextPlannedWakeAt(context, characterId, now) else null
-        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:personal=${personalDue ?: "none"}"
+        // Personal appointments have their own durable RoleScheduleWakeWorker.
+        // They must NEVER replace or postpone the independent passive thinking
+        // deadline: an 11-hour gap between two activities still needs its ordinary
+        // (possibly adaptive) perception opportunities. A real activity wake
+        // advances last_evaluation, naturally moving the fallback forward.
+        // Version the signature to replace old persisted personal-only wake plans.
+        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:passive-v3"
         val plan = PerceptionWakePlanStore.resolve(characterId, anchor, signature) {
             val timingVariation = if (policy.adaptiveFrequency) {
                 val latestUserAt = messages.asSequence()
@@ -423,19 +426,14 @@ object ProactivePerceptionRuntime {
             } else 1.0
             val interval = policy.intervalMinutes(timingVariation)
             val ordinaryDue = deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy)
-            val selectedDue = chooseAutonomousWakeTime(ordinaryDue, personalDue, offline)
-            val selectedMinutes = Duration.between(anchor, selectedDue).toMinutes().coerceAtLeast(1L)
-            PerceptionWakePlan(characterId, anchor, selectedDue, selectedMinutes, signature)
+            val selectedMinutes = Duration.between(anchor, ordinaryDue).toMinutes().coerceAtLeast(1L)
+            PerceptionWakePlan(characterId, anchor, ordinaryDue, selectedMinutes, signature)
         }
         if (plan.dueAt <= now && isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) {
             return PerceptionWakePlanStore.deferUntil(characterId, deferPastQuietHours(now, policy))?.dueAt ?: plan.dueAt
         }
         return plan.dueAt
     }
-
-    /** Explicit personal appointments override, rather than merely add to, idle polling. */
-    internal fun chooseAutonomousWakeTime(ordinaryDue: Instant, personalDue: Instant?, offline: Boolean): Instant =
-        if (offline && personalDue != null) personalDue else ordinaryDue
 
     private fun stableTimingVariation(characterId: String, anchor: Instant): Double {
         val unsignedHash = "$characterId:${anchor.toEpochMilli()}".hashCode().toLong() and 0xffff_ffffL
