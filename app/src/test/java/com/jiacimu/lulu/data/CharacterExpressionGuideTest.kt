@@ -232,6 +232,27 @@ class CharacterExpressionGuideTest {
         ))
     }
 
+    @Test fun toolFirstTurnCanKeepGenuineNewPrivateThoughtWithoutFabricatedEmotion() {
+        val basis = JSONObject().put("focus", "发现云眠原有一条可走的路线")
+            .put("change", "从无聊转为想亲自去看看")
+        val thought = "不知道沿着云缘往前走是什么感觉。倒是真的有点想去试试。"
+        val ordinary = PrivateStateDeltaEngine.evaluate(JSONObject(), null, null, basis, thought)
+        assertFalse(ordinary.privateResidue)
+        val toolFirst = PrivateStateDeltaEngine.evaluate(JSONObject(), null, null, basis,
+            thought, hasChosenToolAction = true)
+        assertTrue(toolFirst.focusChanged)
+        assertTrue(toolFirst.privateResidue)
+        assertEquals(thought, CharacterHeartVoicePolicy.keepOrBlank(
+            thought = thought, basis = basis, delta = toolFirst, hasFreshEvidence = true))
+        val samePrevious = JSONObject().put("causalTransitions",
+            org.json.JSONArray().put(JSONObject().put("innerThoughtBasis", basis)))
+        val repeated = PrivateStateDeltaEngine.evaluate(samePrevious, null, null, basis,
+            thought, hasChosenToolAction = true)
+        assertFalse(repeated.meaningful)
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = thought, basis = basis, delta = repeated, hasFreshEvidence = true))
+    }
+
     @Test fun freshTopicWithAuthoredPrivateInterpretationIsNotSilentlyDropped() {
         val previous = JSONObject().put("causalTransitions", org.json.JSONArray().put(JSONObject()
             .put("innerThoughtBasis", JSONObject().put("focus", "正在聊昨晚睡眠"))
