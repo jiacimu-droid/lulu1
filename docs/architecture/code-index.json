@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:37:05.166748+00:00",
-  "commit": "79718ce2f612b3966bc27a3dabc1ad56ee2c27bc",
+  "generatedAt": "2026-10-24T10:38:23.836433+00:00",
+  "commit": "45ab01598b2833c720527b7279aadd0d15b5b035",
   "branch": "main",
-  "sourceFingerprint": "d091142209bdf0813b8a4ffc06c083e0becb7ba7c195449621acee26ce4b1089",
+  "sourceFingerprint": "d2f2b32fd914e0d60e59549e244e65b9bf0608e43bc711141d3df1f4c9ffabfc",
   "summary": {
     "files": 874,
-    "lines": 169184,
-    "symbols": 2531
+    "lines": 169246,
+    "symbols": 2532
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -13878,6 +13878,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 22
+      }
+    ],
+    "item": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
+        "line": 62
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -29660,12 +29666,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 132,
-      "sha256": "4ee25f240d0a66bb5c8e0ea6287141c3271db8de0d4999caed9af9c5098bb586",
+      "lines": 194,
+      "sha256": "b39ac6ca7f6a148687c586a4b0b884b79a0a5ed36fc34693e97e6cd29f58825d",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
           "line": 22
+        },
+        {
+          "name": "item",
+          "line": 62
         }
       ]
     },
