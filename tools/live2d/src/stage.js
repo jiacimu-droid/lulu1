@@ -1258,6 +1258,19 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     touchSequence++
     kind = options.mode === 'kiss' ? 'kiss' : options.mode === 'pat' ? 'slap' : 'tap'
   }
+  const downPoint = starting || !tactileContact
+    ? { x, y } : tactileContact.downPoint
+  if (completed && isImpact(kind) && impactRegion && downPoint) {
+    const dx = x - downPoint.x
+    const dy = y - downPoint.y
+    // Android's final MOVE sample can point opposite the whole swipe.
+    // Trust the complete screen-space path, never the final tiny segment.
+    // Vertical and stationary palm impacts still use their actual cheek.
+    if (Math.abs(dx) >= Math.max(12, bounds.width * .06) &&
+        Math.abs(dx) > Math.abs(dy) * 1.15) {
+      kind = dx > 0 ? 'slap-right' : 'slap-left'
+    }
+  }
   const now = performance.now()
   const point = { x: x / bounds.width, y: y / bounds.width }
   const state = completed ? touchResponse.complete(region, kind, options.force)
@@ -1268,7 +1281,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   const contactStart = isImpact(kind) && completed ? now
     : starting || !tactileContact ? now : tactileContact.start
   tactileContact = { region, kind, ordinal: touchSequence, state,
-    start: contactStart, pressed: !completed }
+    start: contactStart, pressed: !completed, downPoint }
   touchReflex = !completed && isImpact(kind) ? null :
     touchReflexFor(region, kind, touchSequence, state)
   touchReflexEndAt = now + (isImpact(kind) ? 1700 : kind === 'kiss' ? 1850

@@ -272,6 +272,17 @@ const acrossFace = bridge.touch(.68, .235, 'slap-right',
   { phase: 'complete', mode: 'pat', force: .9 })
 assert.equal(acrossFace.region, 'cheek-left', 'slap is anchored to DOWN')
 assert.ok(bridge.touchReflex.roll > 20, 'rightward sweep bends the head right')
+// Even if Android's last MOVE was leftward, net rightward travel wins.
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
+const jitteredRight = bridge.touch(.68, .235, 'slap-left',
+  { phase: 'complete', mode: 'pat', force: .7 })
+assert.equal(jitteredRight.gesture, 'slap-right')
+assert.ok(bridge.touchReflex.roll > 20)
+bridge.touch(.68, .235, 'down', { phase: 'move', mode: 'pat' })
+const jitteredLeft = bridge.touch(.32, .235, 'slap-right',
+  { phase: 'complete', mode: 'pat', force: .7 })
+assert.equal(jitteredLeft.gesture, 'slap-left')
+assert.ok(bridge.touchReflex.roll < -20)
 bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
 bridge.actualAvatarPixel = nx => nx < .9
 const beyondFace = bridge.touch(.96, .235, 'slap-right',
