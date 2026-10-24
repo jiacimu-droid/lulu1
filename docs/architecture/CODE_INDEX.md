@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6b5534af5ec240bce1eef7080033f1f7ab391d24`
+- 基准提交：`856291f2d353b06187583b52339016efaca708b1`
 - 分支：`main`
 - 已索引文件：874
-- 已索引代码/文本行：168331
+- 已索引代码/文本行：168430
 - 已发现符号：2528
 
 | 文件 | 行数 | 符号数 |
@@ -189,7 +189,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 178 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 253 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 116 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 215 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 703 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt` | 177 | 0 |
