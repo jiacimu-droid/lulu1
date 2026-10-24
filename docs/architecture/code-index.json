@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T11:56:59.216346+00:00",
-  "commit": "d341df620a897f44e6d78bf1ecff551096f4537a",
+  "generatedAt": "2026-10-24T11:57:29.088420+00:00",
+  "commit": "e862b9dbc1f6a7add80b610e96a8e7fecb069966",
   "branch": "main",
-  "sourceFingerprint": "36753a21ebab54d7ab10a2732492c1fea86dc22fc9d8817c61fb48dbd4891816",
+  "sourceFingerprint": "d1a7dfaa7ad7396f7223200d78f1174bd6d4d9b1e0b2c09168810ba762a0edb9",
   "summary": {
     "files": 878,
-    "lines": 170609,
-    "symbols": 2555
+    "lines": 170635,
+    "symbols": 2556
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1543,13 +1543,19 @@
     "recordListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 100
+        "line": 105
       }
     ],
     "refreshExternal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 110
+        "line": 115
+      }
+    ],
+    "analyzeSharedFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 121
       }
     ],
     "notifyCoreChanged": [
@@ -15451,16 +15457,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-      "lines": 282,
-      "sha256": "fb0539b9b87aa8aecf90f2304fa7fb31a8dfad56e5c46cf8b97b7792bdfcfe72",
+      "lines": 308,
+      "sha256": "b8bb60f63fc2184ee1fecc9c9517e98b53809b2e61385d8c74fb83d034a87e97",
       "symbols": [
         {
           "name": "recordListening",
-          "line": 100
+          "line": 105
         },
         {
           "name": "refreshExternal",
-          "line": 110
+          "line": 115
+        },
+        {
+          "name": "analyzeSharedFile",
+          "line": 121
         }
       ]
     },
@@ -19254,7 +19264,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
       "lines": 166,
-      "sha256": "5abd890b7fb5fbab50d6b19247b2066da58ff445de799f838d3833531ed68cc3",
+      "sha256": "6acbf1d51e335e4812e3e8551a9e0faf01e19d2147ee66a043f2c83b7c0e9b22",
       "symbols": [
         {
           "name": "current",
