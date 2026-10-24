@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T11:57:59.578478+00:00",
-  "commit": "20bc0ceaa159d71ad1e5905a333bf4b264af3158",
+  "generatedAt": "2026-10-24T12:01:08.382346+00:00",
+  "commit": "252d13ec1d0afe28b8ed7c9d80be8f993d7a4933",
   "branch": "main",
-  "sourceFingerprint": "04f839dbaed17a1efaf12ae559840acfdd868e9b6e802add2cde88d11a86be91",
+  "sourceFingerprint": "ca900ef2119eebab254e82f19f250cd583f630487f385300f5514ed445d765ed",
   "summary": {
     "files": 878,
-    "lines": 170646,
+    "lines": 170681,
     "symbols": 2556
   },
   "symbolIndex": {
@@ -15447,7 +15447,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
       "lines": 511,
-      "sha256": "2e827c88aa0b311f74b28d3adf50f17e4b7d1426c70f0f3a4992951650e38fb3",
+      "sha256": "5843e5e5501cd7616a8636135c6254320da1bd1f9bc9274d937eb0223c72a312",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
@@ -19263,8 +19263,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 166,
-      "sha256": "6acbf1d51e335e4812e3e8551a9e0faf01e19d2147ee66a043f2c83b7c0e9b22",
+      "lines": 201,
+      "sha256": "c69480764e273961caa95ee943cd1af2fc61c9042beecbf834d5ed2353971851",
       "symbols": [
         {
           "name": "current",
