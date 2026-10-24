@@ -48,7 +48,10 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   if (isImpact(gesture)) {
     // First recoil in the actual direction, THEN knitted brows/pout/tears.
     const recoil = elapsedMs < 230 ? 1 : Math.max(0, 1 - (elapsedMs - 230) / 1050)
-    const swipe = direction || (family === 'cheek' ? -1 : -side || -1)
+    // A cheek strike recoils away on that cheek's side. The gesture suffix
+    // names the hand/stroke, which is not a reliable screen-space force vector;
+    // letting it override the actual contact side reversed the face on slap-right.
+    const swipe = family === 'cheek' && side !== 0 ? side : direction || -side || -1
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
     // A slap is a fast NECK ROLL recoil, not the whole face sliding side
     // to side on yaw. The torso follows later with a much smaller angle.
