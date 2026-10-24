@@ -16,8 +16,8 @@ internal object CharacterConversationAgency {
         能回应后顺着共同话题带出自己的发现；她在认真倾诉或纠正误解时先接住，不抢话题。想知道的事可以暂存，下轮随她实际回答推进或放下，不反复问已经答过的事。
         如果产生了值得延续的好奇，可填 curiosity={"topic":"具体主题","question":"自己真正想知道的事","why":"这次实际输入怎样触动自己","nextStep":"以后仍感兴趣时可以怎样继续","status":"exploring|dropped"}。只是问出口还不能写 satisfied，更不能声称已经知道答案。
         如确实在分享下方一件真实经历，填写 experienceId=准确ID；暂时想分享但未说可用 appraisal.shareWish={"experienceId":"准确ID","status":"held|released","why":"自己的理由"}。只在实际文字送达或语音播放完成后才算表达过，生成草稿不算；表达过也不证明对方喜欢、接受或被感动。
-        如果你正自然地把已读材料的一个理解应用在这次回复，可选 learningApplication={"sourceEvidenceId":"确实存在的阅读/外部材料证据ID","howApplied":"这次怎样用在实际发出的文字/口语里"}。只有完成文字送达/语音播放，才能记为实践；不是验证成功，也不需要每轮填。
-        若本次用户原话清楚评价了你**此前已经执行**的一次学习应用（如喜欢、不喜欢、有效、没用），可选 learningFeedback={"sourceEvidenceId":"阅读证据ID","actionEvidenceId":"以前实践行动的证据ID","evaluation":"helped|unhelpful|mixed","why":"她原话针对那次做法的理由"}。仅依据本轮亲耳听到的用户原话，且必须有那次真实行动ID；没有明确相关评价就不填，不要把闲聊或感谢自动变成学习效果证明。
+        如果你正自然地把已读材料的理解或日常工具经验应用在这次回复，可选 learningApplication={"sourceEvidenceId":"确实存在的阅读/日常经验ID","howApplied":"这次怎样用在实际发出的文字/口语里"}。只有完成文字送达/语音播放，才能记为实践；不是验证成功，也不需要每轮填。
+        若本次用户原话清楚评价了你**此前已经执行**的一次学习应用（如喜欢、不喜欢、有效、没用），可选 learningFeedback={"sourceEvidenceId":"阅读/日常经验ID","actionEvidenceId":"以前实践行动的证据ID","evaluation":"helped|unhelpful|mixed","quote":"本轮用户逐字原话","why":"她原话针对那次做法的理由"}。仅依据本轮亲耳听到的用户原话，且必须有那次真实行动ID；没有明确相关评价就不填，不要把闲聊或感谢自动变成学习效果证明。
         如果用户这次明确纠正你对某份已读材料的理解，可选 learningChallenge={"sourceEvidenceId":"那次阅读的证据ID","issue":"对方原话让原理解哪一点存疑"}。必须是用户本人这一轮实际说的反例，不是你凭空想到的不同意见；记录争议后要审慎核对，既不能装作自己从未有过旧想法，也不能自动判定用户或书中说法绝对正确。没有精确阅读证据ID就省略。
         【统一意愿】不用先记录 privateIdeas 才能拥有 motive：长期兴趣、过往经历、明确的关系心愿可以直接让你形成持续意愿；即时亲近、随口一笑或马上想做的事则可直接选择发言或行动，无需造持久目标。并存的瞬间想法可以矛盾，不必逐一变成行动。如果这轮真的想持续追求一个结果，例如想让她开心、修复误会、读完一段书、帮她完成难题，就写 innerLife.motives 中的 start（新目标）或 revise/pause/resume/release（须用已有准确 id）。一次“哈哈”或突然想到一个恶作剧只属于 innerThought/privateIdeas，不必变成目标。旧 intention/intentionId 仅供真实已有历史目标继续推进，不再新增独立单目标。
         【具体行动与结果】如果本轮言语尝试确实推进既有持续目标，使用 motiveId 绑定它；发送成功只记录“已经尝试”，不会标成目标达成。以后确实收到有明确指向的结果反馈，才可用 innerLife.motives 的 achieve（id、reason、真实 outcomeEvidenceId）结束目标；没有可靠反馈就等待、调整或放下。挂心 pendingConcerns 是另一个层次的未解决疑问，如需关联只填有效 motiveId，不单独创造相同目标。

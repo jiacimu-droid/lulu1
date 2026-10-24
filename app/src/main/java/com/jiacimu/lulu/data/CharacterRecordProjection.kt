@@ -52,7 +52,7 @@ internal object CharacterRecordProjection {
         } + insights.filter { SharedExperienceTimeline.eventsByIds(characterId,
             listOf(it.sourceEvidenceId)).isNotEmpty() }.map { insight ->
             CharacterRememberedItem("understanding:${insight.sourceEvidenceId}", insight.topic,
-                insight.understanding, insight.occurredAt, listOf(insight.sourceEvidenceId), insight = insight)
+                insight.understanding, insight.occurredAt, insight.sourceIds.ifEmpty { listOf(insight.sourceEvidenceId) }, insight = insight)
         } + notes.filter { it.characterId == characterId &&
             it.section in setOf(LexiconSection.Life, LexiconSection.Concern) && lexiconHasLiveSources(it) }
             .map { note -> CharacterRememberedItem("note:${note.id}", note.title, note.content,

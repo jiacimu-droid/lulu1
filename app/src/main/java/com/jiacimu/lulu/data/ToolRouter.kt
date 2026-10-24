@@ -16,7 +16,9 @@ object ToolRouter {
 
     suspend fun execute(context: Context, characterId: String, name: String, args: JSONObject,
         requestId: String = UUID.randomUUID().toString(), userRequested: Boolean = false,
-        intentionId: String = "", autonomousLifeTurn: Boolean = false): String = requests.withLock("$characterId:$requestId") {
+        intentionId: String = "", autonomousLifeTurn: Boolean = false,
+        learningApplication: JSONObject? = null, causeEvidenceId: String = "",
+        reason: String = ""): String = requests.withLock("$characterId:$requestId") {
         // A slow read-only website request must not hold up an in-call favorite
         // or another short action. Exact request ids still serialize across tools.
         mutex.withLock("$characterId:" + when (name) {
@@ -50,6 +52,8 @@ object ToolRouter {
                                 evidenceKind = EventEvidenceKind.ToolResult)
                         }
                         if (SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId)).isNotEmpty()) {
+                            runCatching { projectLearning(characterId, receiptId, old) }
+                                .onFailure { android.util.Log.w("CharacterLearning", "Learning projection failed", it) }
                             runCatching { JSONObject(saved) }.getOrNull()?.let { result ->
                                 CharacterLifeStore.recordLinkedOutcome(characterId, intentionId, receiptId,
                                     name, result.optBoolean("success"),
@@ -77,6 +81,10 @@ object ToolRouter {
             val execution = JSONObject().put("characterId", characterId).put("requestId", requestId)
                 .put("tool", name).put("fingerprint", fingerprint).put("status", "running")
                 .put("planId", scheduledPlanId).put("startedAt", Instant.now().toString())
+                .put("learningApplication", learningApplication)
+                .put("causeEvidenceId", CharacterActionEvidence.resolve(characterId, causeEvidenceId)
+                    ?.takeIf { it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }?.id.orEmpty())
+                .put("reason", reason)
             CharacterInnerLifeStore.initialize(context)
             CharacterInnerLifeStore.beginActivityExpectation(characterId, goalReceiptId, name,
                 args.optJSONObject("expectation"))
@@ -123,6 +131,12 @@ object ToolRouter {
                 }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                     execution.toString(), source = "tool-router", taskId = requestId, evidenceKind = EventEvidenceKind.ToolResult)
+                runCatching { projectLearning(characterId, receiptId, execution) }
+                    .onFailure { android.util.Log.w("CharacterLearning", "Learning projection failed", it) }
+                // Failures are useful learning evidence too. This queues the existing,
+                // coalesced reflection, never a second per-tool model request.
+                if (CharacterActionEvidence.resolve(characterId, receiptId)?.let(CharacterExperienceLearning::receipt) != null)
+                    CharacterDevelopmentRuntime.request(characterId)
                 // Only the actual executor receipt can settle a plan. Pending consent,
                 // screenshot requests and cloud jobs must NOT count as completion.
                 if (parsed.optBoolean("success") &&
@@ -165,6 +179,35 @@ object ToolRouter {
                 confirmedResult
             }
         }
+    }
+
+    private fun projectLearning(characterId: String, receiptId: String, execution: JSONObject) {
+        val event = CharacterActionEvidence.resolve(characterId, receiptId) ?: return
+        val receipt = CharacterExperienceLearning.receipt(event) ?: return
+        val result = runCatching { JSONObject(execution.optString("result")) }.getOrNull() ?: return
+        val outboundAction = when (receipt.tool) {
+            "send_private_message", "send_group_message" -> "message"
+            "publish_moment" -> "moment"
+            "write_journal" -> "journal"
+            else -> receipt.tool
+        }
+        val native = CharacterActionEvidence.resolve(characterId, result.optString("evidenceId"))
+            ?.takeIf { CharacterActionEvidence.supports(it, outboundAction) }
+        CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
+            native?.id ?: receiptId, if (native != null) outboundAction else receipt.tool,
+            receipt.success, receipt.summary)
+    }
+
+    /** Permission acceptance is not the screenshot. Apply only the later real observation. */
+    internal fun projectDeferredScreenLearning(characterId: String, requestId: String, observationId: String) {
+        val original = CharacterActionEvidence.resolve(characterId, "tool-$characterId-$requestId") ?: return
+        val execution = runCatching { JSONObject(original.content) }.getOrNull() ?: return
+        val observed = CharacterActionEvidence.resolve(characterId, observationId) ?: return
+        val receipt = CharacterExperienceLearning.receipt(observed) ?: return
+        if (receipt.requestEvidenceId != original.id) return
+        CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
+            observed.id, "capture_screen", receipt.success, receipt.summary)
+        CharacterDevelopmentRuntime.request(characterId)
     }
 
     /** Human-readable diagnostics even when native tools return status/verification only. */

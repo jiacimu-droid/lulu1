@@ -473,7 +473,7 @@ object LuluDeviceToolBridge {
                 requestId = "direct-xhs-" + groundingEvidenceId.ifBlank {
                     userEvidenceIds.lastOrNull() ?: userText.hashCode().toString()
                 },
-                userRequested = true,
+                userRequested = true, causeEvidenceId = groundingEvidenceId,
             )
         }
         val planner = LuluAiServices.gateway.generate(
@@ -855,7 +855,9 @@ object LuluDeviceToolBridge {
                         requestId = "reply-side-" + inputKey + "-" + i,
                         userRequested = com.jiacimu.lulu.data.CharacterInitiativeRuntime
                             .isExplicitUserToolRequest(userText, tool),
-                        intentionId = plan.intentionId))
+                        intentionId = plan.intentionId,
+                        learningApplication = effect.optJSONObject("learningApplication"),
+                        causeEvidenceId = groundingEvidenceId, reason = plan.reason))
                 }.getOrElse { error ->
                     JSONObject().put("success", false)
                         .put("error", error.message.orEmpty().ifBlank { "工具执行异常" })
@@ -1111,11 +1113,9 @@ object LuluDeviceToolBridge {
                 else -> ""
             }
             if (!callSilence && reconsiderationEvidenceId.isBlank()) {
-                com.jiacimu.lulu.data.CharacterLearningLedger.recordFeedback(
-                    characterId, plan.learningFeedback, interactionEvidenceId,
-                )
-                com.jiacimu.lulu.data.CharacterLearningLedger.recordChallenge(
-                    characterId, plan.learningChallenge, interactionEvidenceId,
+                com.jiacimu.lulu.data.CharacterLearningLedger.observeInteraction(
+                    characterId, plan.experienceLearning, plan.learningFeedback,
+                    plan.learningChallenge, verifiedSources.map { it.id },
                 )
             }
             com.jiacimu.lulu.data.CharacterInnerLifeStore.recordInteractionAppraisal(
@@ -1526,7 +1526,9 @@ object LuluDeviceToolBridge {
             directXhsResult // The same real receipt: no second navigation/search.
         } else com.jiacimu.lulu.data.ToolRouter.execute(appContext, characterId, plan.tool, plan.args,
             requestId = requestId,
-            userRequested = explicitUserToolRequest, intentionId = plan.intentionId)
+            userRequested = explicitUserToolRequest, intentionId = plan.intentionId,
+            learningApplication = plan.learningApplication,
+            causeEvidenceId = groundingEvidenceId, reason = plan.reason)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
         val actionReceipt = "tool-$characterId-$requestId"
         val executedSuccess = actual?.optBoolean("success") == true
@@ -2036,6 +2038,7 @@ object LuluDeviceToolBridge {
                 sleepContinuation = json.optJSONObject("sleepContinuation"),
                 curiosity = json.optJSONObject("curiosity"),
                 learningApplication = json.optJSONObject("learningApplication"),
+                experienceLearning = json.optJSONObject("experienceLearning"),
                 learningFeedback = json.optJSONObject("learningFeedback"),
                 learningChallenge = json.optJSONObject("learningChallenge"),
                 experienceId = json.optString("experienceId").trim().take(180),
@@ -2106,6 +2109,7 @@ private data class ToolPlan(
     val dialogueMove: JSONObject? = null,
     val curiosity: JSONObject? = null,
     val learningApplication: JSONObject? = null,
+    val experienceLearning: JSONObject? = null,
     val learningFeedback: JSONObject? = null,
     val learningChallenge: JSONObject? = null,
     val sleepContinuation: JSONObject? = null,

@@ -461,8 +461,12 @@ class LuluApprovedScreenWorker(context: Context, params: WorkerParameters) :
         SharedExperienceTimeline.record("screen-observation-$role-$requestId",
             role, if (success) "屏幕观察" else "屏幕观察失败", "手机",
             response.toString(), source = "screen-consent",
+            taskId = requestId,
             evidenceKind = if (success) EventEvidenceKind.Observation
                 else EventEvidenceKind.ToolResult)
+        runCatching { com.jiacimu.lulu.data.ToolRouter.projectDeferredScreenLearning(role, requestId,
+            "screen-observation-$role-$requestId") }
+            .onFailure { android.util.Log.w("CharacterLearning", "Screen learning projection failed", it) }
         if (success) {
             // A planned screen request was only 'pending' when initially posted.
             // Fulfil that plan only after an approved screenshot was really understood.

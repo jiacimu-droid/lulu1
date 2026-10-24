@@ -1095,6 +1095,9 @@ internal object OrderedCharacterActions {
                     userRequested = if (name == "capture_screen") explicitScreenRequest
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
                     autonomousLifeTurn = autonomousLifeTurn,
+                    learningApplication = step.optJSONObject("learningApplication"),
+                    causeEvidenceId = userEvidenceIds.lastOrNull().orEmpty(),
+                    reason = step.optString("reason"),
                 ))
             }.getOrElse {
                 JSONObject().put("success", false).put("error", it.message.orEmpty())

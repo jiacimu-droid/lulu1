@@ -9,11 +9,14 @@ internal object CharacterActionEvidence {
         else SharedExperienceTimeline.eventsByIds(role, listOf(id, "$id:group:$role")).firstOrNull()
 
     private fun successfulTool(e: SharedTimelineEvent): String? {
+        if (e.source == "screen-consent") return CharacterExperienceLearning.receipt(e)
+            ?.takeIf { it.success }?.tool
         if (e.evidenceKind != EventEvidenceKind.ToolResult || e.source != "tool-router") return null
         val wrapper = runCatching { JSONObject(e.content) }.getOrNull() ?: return null
         val result = runCatching { JSONObject(wrapper.optString("result")) }.getOrNull() ?: return null
         if (!result.optBoolean("success") || wrapper.optString("status") in
-            setOf("running", "failed", "waiting_user")) return null
+            setOf("running", "failed", "waiting_user", "waiting_permission", "pending", "requested",
+                "requested_unverified", "denied")) return null
         if (wrapper.optString("tool") == "learn_topic") {
             val args = runCatching { JSONObject(wrapper.optString("fingerprint").substringAfter(':')) }.getOrNull()
             if (args?.optString("op").orEmpty().ifBlank { "study" } !in setOf("study", "practice", "review"))

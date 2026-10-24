@@ -84,6 +84,9 @@ object ProactivePerceptionRuntime {
         val curiosity: JSONObject? = null,
         val relationshipInitiative: JSONObject? = null,
         val learningApplication: JSONObject? = null,
+        val learningFeedback: JSONObject? = null,
+        val learningChallenge: JSONObject? = null,
+        val experienceLearning: JSONObject? = null,
         val experienceId: String = "",
         val alternatives: org.json.JSONArray? = null,
         val onlineChoice: String = "",
@@ -1462,6 +1465,8 @@ object ProactivePerceptionRuntime {
             awakeReflection -> awakeObservationId
             else -> "perception:${now.toEpochMilli()}:${trigger.take(35)}"
         }
+        CharacterLearningLedger.observeInteraction(characterId, decision.experienceLearning,
+            decision.learningFeedback, decision.learningChallenge, onlineUnread.messageIds)
         CharacterInnerLifeStore.recordCausalTransition(
             characterId = characterId,
             evidenceId = causalEvidenceId,
@@ -1904,6 +1909,9 @@ object ProactivePerceptionRuntime {
                 userRequested = (tool == "capture_screen" && explicitScreenRequest) ||
                     CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, tool),
                 autonomousLifeTurn = !hasFreshUserMessage,
+                learningApplication = decision.learningApplication,
+                causeEvidenceId = responseEvidenceIds.lastOrNull().orEmpty(),
+                reason = decision.reason,
             ))
             // A genuine user's read/search must finish with a receipt and follow-up,
             // even when the live online worker is superseded by another chat bubble.
@@ -2243,6 +2251,9 @@ object ProactivePerceptionRuntime {
             curiosity = json.optJSONObject("curiosity"),
             relationshipInitiative = json.optJSONObject("relationshipInitiative"),
             learningApplication = json.optJSONObject("learningApplication"),
+            learningFeedback = json.optJSONObject("learningFeedback"),
+            learningChallenge = json.optJSONObject("learningChallenge"),
+            experienceLearning = json.optJSONObject("experienceLearning"),
             experienceId = json.optString("experienceId").trim().take(180),
             alternatives = json.optJSONArray("alternatives"),
             onlineChoice = json.optJSONObject("onlineDecision")?.optString("choice")

@@ -229,7 +229,7 @@ private fun RememberedItemCard(row: CharacterRememberedItem, characterId: String
     var expanded by rememberSaveable(row.id) { mutableStateOf(false) }
     CharacterRecordCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (row.insight != null) "知识与理解 · ${row.title}" else row.title,
+            Text(if (row.insight != null) "${if (row.insight.fromExperience) "相处与工具经验" else "知识与理解"} · ${row.title}" else row.title,
                 color = LuluColors.Muted, fontSize = 12.sp, modifier = Modifier.weight(1f))
             if (row.memory?.isCoreMemory() == true) Icon(Icons.Outlined.PushPin, "置顶记忆", Modifier.size(16.dp))
         }
@@ -246,7 +246,7 @@ private fun RememberedItemCard(row: CharacterRememberedItem, characterId: String
             }
             row.insight?.let { insight ->
                 listOf("仍不确定" to insight.uncertainty, "还想弄清" to insight.question,
-                    "可能适用" to insight.applicableWhen).filter { it.second.isNotBlank() }.forEach {
+                    "可能适用" to insight.applicableWhen, "不适用/停止条件" to insight.avoidWhen).filter { it.second.isNotBlank() }.forEach {
                     Text("${it.first}：${it.second}", fontSize = 13.sp)
                 }
                 if (trail.isNotEmpty()) Text("后来的尝试与反馈", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)

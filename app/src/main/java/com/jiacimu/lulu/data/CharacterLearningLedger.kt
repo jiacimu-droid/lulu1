@@ -7,10 +7,9 @@ import org.json.JSONObject
 import java.time.Instant
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Evidence-linked material insights, exercises and actual feedback. */
+/** Evidence-linked reading AND everyday experience, applications and actual feedback. */
 internal object CharacterLearningLedger {
     private var prefs: SharedPreferences? = null
-    private const val CAP = 320
     private val changes = kotlinx.coroutines.flow.MutableStateFlow(0L)
     val revisions = changes.asStateFlow()
 
@@ -31,6 +30,9 @@ internal object CharacterLearningLedger {
         val uncertainty: String = "",
         val question: String = "",
         val applicableWhen: String = "",
+        val fromExperience: Boolean = false,
+        val avoidWhen: String = "",
+        val sourceIds: List<String> = emptyList(),
     )
 
     /** UI and recall use the same current, source-validated understanding.
@@ -53,7 +55,9 @@ internal object CharacterLearningLedger {
                     entry.optString("understanding").ifBlank { entry.optString("question") },
                     source(characterId, id)?.occurredAt ?: Instant.EPOCH,
                     entry.optString("uncertainty"), entry.optString("question"),
-                    entry.optString("applicableWhen"))
+                    entry.optString("applicableWhen"), entry.optString("kind") == "experience",
+                    entry.optString("avoidWhen"),
+                    entry.optJSONObject("evidenceRevisions")?.keys()?.asSequence()?.toList() ?: listOf(id))
             }
     }
 
@@ -87,7 +91,8 @@ internal object CharacterLearningLedger {
 
     private fun save(characterId: String, items: List<JSONObject>) {
         val value = JSONArray()
-        items.takeLast(CAP).forEach(value::put)
+        // A working-set limit belongs in recall, not in durable lifelong learning.
+        items.forEach(value::put)
         check(prefs!!.edit().putString(characterId, value.toString()).commit()) {
             "学习记录未能保存"
         }
@@ -126,7 +131,10 @@ internal object CharacterLearningLedger {
         val id = item.optString("sourceEvidenceId")
         if (id.isBlank() || id in visited) return false
         val event = source(characterId, id) ?: return false
-        if (!materialSource(characterId, event) ||
+        val experience = item.optString("kind") == "experience"
+        if ((if (experience) CharacterExperienceLearning.receipt(event) == null ||
+                !CharacterExperienceLearning.dependenciesValid(characterId, item)
+            else !materialSource(characterId, event)) ||
             event.revision != item.optLong("sourceRevision", -1L)) return false
         val previousId = item.optString("revisesEvidenceId")
         if (previousId.isBlank()) return true
@@ -142,6 +150,62 @@ internal object CharacterLearningLedger {
     @Synchronized fun hasInsight(role: String, id: String): Boolean {
         val all = records(role)
         return all.any { it.optString("sourceEvidenceId") == id && valid(role, it, all) }
+    }
+
+    /** Same ledger and withdrawal rules as reading; no website prerequisite. */
+    @Synchronized fun recordExperience(characterId: String, proposal: JSONObject?,
+        now: Instant = Instant.now()): Boolean {
+        if (prefs == null || proposal == null) return false
+        val next = CharacterExperienceLearning.prepare(characterId, proposal, now) ?: return false
+        val items = records(characterId)
+        val id = next.getString("sourceEvidenceId")
+        val previousId = next.optString("revisesEvidenceId")
+        if (previousId.isNotBlank()) {
+            val previous = items.firstOrNull { it.optString("sourceEvidenceId") == previousId &&
+                it.optString("kind") == "experience" && it.optString("topic") == next.optString("topic") &&
+                valid(characterId, it, items) } ?: return false
+            if (!source(characterId, previousId)!!.occurredAt.isBefore(source(characterId, id)!!.occurredAt)) return false
+        }
+        val old = items.firstOrNull { it.optString("sourceEvidenceId") == id }
+        if (old != null) {
+            if (old.optString("kind") != "experience") return false
+            if (valid(characterId, old, items) && old.optString("feedbackEvidenceId").isNotBlank() &&
+                next.optString("feedbackEvidenceId").isBlank()) {
+                next.put("feedbackEvidenceId", old.optString("feedbackEvidenceId"))
+                    .put("feedbackQuote", old.optString("feedbackQuote"))
+                val id = old.optString("feedbackEvidenceId")
+                next.getJSONObject("evidenceRevisions").put(id,
+                    old.getJSONObject("evidenceRevisions").getLong(id))
+            }
+            if (listOf("topic", "understanding", "applicableWhen", "avoidWhen", "uncertainty",
+                    "feedbackEvidenceId", "feedbackQuote", "revisesEvidenceId").all {
+                    old.optString(it) == next.optString(it) } && valid(characterId, old, items)) return false
+            // Reinterpreting the same attempt does not invent another application.
+            next.put("applications", old.optJSONArray("applications") ?: JSONArray())
+                .put("challenges", old.optJSONArray("challenges") ?: JSONArray())
+            next.put("revisions", (old.optJSONArray("revisions") ?: JSONArray()).put(
+                JSONObject(old.toString()).apply { remove("applications"); remove("challenges"); remove("revisions") }))
+            items.remove(old)
+        }
+        items += next
+        save(characterId, items)
+        return true
+    }
+
+    /** Both input adapters pass actual user IDs; none may use a combined/synthetic stimulus. */
+    fun observeInteraction(characterId: String, experience: JSONObject?, feedback: JSONObject?,
+        challenge: JSONObject?, userEvidenceIds: Collection<String>) {
+        runCatching {
+            val users = userEvidenceIds.mapNotNull { source(characterId, it) }
+                .filter { it.evidenceKind == EventEvidenceKind.UserStatement }
+            val claimedFeedback = experience?.optString("feedbackEvidenceId").orEmpty()
+            if (claimedFeedback.isBlank() || users.any { it.id == claimedFeedback })
+                recordExperience(characterId, experience)
+            users.forEach { user ->
+                recordFeedback(characterId, feedback, user.id)
+                recordChallenge(characterId, challenge, user.id)
+            }
+        }.onFailure { android.util.Log.w("CharacterLearning", "Interaction learning was not saved", it) }
     }
 
     /** Only an actual completed reading and committed timeline source may create insight. */
@@ -210,6 +274,8 @@ internal object CharacterLearningLedger {
         if (!success || proposal == null || prefs == null || actionEvidenceId.isBlank()) return false
         val actual = CharacterActionEvidence.resolve(characterId, actionEvidenceId)
             ?.takeIf { CharacterActionEvidence.supports(it, action) } ?: return false
+        val intendedAction = proposal.optString("action").trim()
+        if (intendedAction.isNotBlank() && !CharacterActionEvidence.supports(actual, intendedAction)) return false
         val learnedFrom = proposal.optString("sourceEvidenceId").trim()
         val how = proposal.optString("howApplied").trim().take(180)
         if (learnedFrom == actionEvidenceId || how.length < 5) return false
@@ -222,10 +288,17 @@ internal object CharacterLearningLedger {
             return false
         uses.put(JSONObject().put("evidenceId", actionEvidenceId).put("revision", actual.revision)
             .put("how", how).put("action", action.take(40))
+            .put("requestEvidenceId", CharacterExperienceLearning.receipt(actual)?.requestEvidenceId.orEmpty())
             .put("receipt", receipt.take(180)).put("feedback", JSONArray()))
         learned.put("applications", uses)
         save(characterId, items)
         return true
+    }
+
+    private fun validApplication(characterId: String, attempt: JSONObject): Boolean {
+        val actual = source(characterId, attempt.optString("evidenceId")) ?: return false
+        return actual.revision == attempt.optLong("revision", -1L) &&
+            CharacterActionEvidence.supports(actual, attempt.optString("action"))
     }
 
 
@@ -250,9 +323,13 @@ internal object CharacterLearningLedger {
         val positive = Regex("喜欢|有用|有效|不错|挺好|很好|更好|好多了|舒服|开心|满意|合适|可以|很棒|这次对了")
             .containsMatchIn(feedback.content)
         // Reject a model's unsupported claim of endorsement or objection.
-        if (evaluation == "helped" && (!positive || negative) ||
+        val quote = proposal.optString("quote").trim()
+        if (quote.isNotBlank() && !feedback.content.contains(quote)) return false
+        // New producers give a verbatim quote plus their contextual interpretation.
+        // Retain compatibility with the older keyword-validated wire format.
+        if (quote.isBlank() && (evaluation == "helped" && (!positive || negative) ||
             evaluation == "unhelpful" && !negative ||
-            evaluation == "mixed" && !(positive && negative)) return false
+            evaluation == "mixed" && !(positive && negative))) return false
         val from = proposal.optString("sourceEvidenceId").trim()
         val applied = proposal.optString("actionEvidenceId").trim()
         val items = records(characterId)
@@ -262,7 +339,7 @@ internal object CharacterLearningLedger {
         val attempt = (0 until applications.length()).mapNotNull(applications::optJSONObject)
             .firstOrNull { it.optString("evidenceId") == applied } ?: return false
         val realAction = source(characterId, applied) ?: return false
-        if (realAction.revision != attempt.optLong("revision", -1L) ||
+        if (!validApplication(characterId, attempt) ||
             !realAction.occurredAt.isBefore(feedback.occurredAt)) return false
         val before = attempt.optJSONArray("feedback") ?: JSONArray()
         if ((0 until before.length()).any {
@@ -332,9 +409,11 @@ internal object CharacterLearningLedger {
                 .let { if (sourceEvidenceId == null) it.takeLast(28) else it }.forEach { record ->
                 val read = source(characterId, record.optString("sourceEvidenceId")) ?: return@forEach
                 if (read.occurredAt.isAfter(now)) return@forEach
-                add(CharacterGrowthTrace(read.occurredAt, "读后形成暂定理解",
-                    "材料主题：" + record.optString("topic") + "；当时理解：" +
+                val experience = record.optString("kind") == "experience"
+                add(CharacterGrowthTrace(read.occurredAt, if (experience) "从日常尝试整理经验" else "读后形成暂定理解",
+                    "主题：" + record.optString("topic") + "；当时理解：" +
                         record.optString("understanding").take(180) +
+                        if (experience) "。执行回执与效果分开；一次经验仍有条件。" else
                         "。尚未证明方法有效，也不是本人亲历小说情节。",
                     read.id, "学习"))
                 val exercises = record.optJSONArray("exercises") ?: JSONArray()
@@ -364,7 +443,7 @@ internal object CharacterLearningLedger {
                 for (i in 0 until applications.length()) {
                     val application = applications.optJSONObject(i) ?: continue
                     val action = source(characterId, application.optString("evidenceId")) ?: continue
-                    if (action.revision != application.optLong("revision", -1L) ||
+                    if (!validApplication(characterId, application) ||
                         action.occurredAt.isAfter(now)) continue
                     add(CharacterGrowthTrace(action.occurredAt, "实际尝试运用所学",
                         application.optString("how").take(180) +
@@ -399,7 +478,8 @@ internal object CharacterLearningLedger {
                     val next = current.filterNot {
                         val id = it.optString("sourceEvidenceId")
                         val invalid = id in removed || it.optString("revisesEvidenceId") in removed ||
-                            it.optString("originId") in removed
+                            it.optString("originId") in removed ||
+                            it.optJSONObject("evidenceRevisions")?.keys()?.asSequence()?.any { ref -> ref in removed } == true
                         if (invalid) removed.add(id)
                         invalid
                     }
@@ -415,7 +495,8 @@ internal object CharacterLearningLedger {
                     val next = JSONArray()
                     for (i in 0 until old.length()) {
                         val application = old.optJSONObject(i) ?: continue
-                        if (application.optString("evidenceId") != eventId) {
+                        if (application.optString("evidenceId") != eventId &&
+                            application.optString("requestEvidenceId") != eventId) {
                             val feedback = application.optJSONArray("feedback") ?: JSONArray()
                             val kept = JSONArray()
                             for (index in 0 until feedback.length()) {
@@ -456,7 +537,8 @@ internal object CharacterLearningLedger {
         val text = query.lowercase().take(2500)
         fun score(item: JSONObject): Int {
             val topic = item.optString("topic").lowercase()
-            val chunks = (topic + item.optString("question").lowercase() + item.optString("applicableWhen").lowercase())
+            val chunks = (topic + item.optString("question").lowercase() + item.optString("applicableWhen").lowercase() +
+                item.optString("avoidWhen").lowercase() + item.optString("tool"))
                 .windowed(2).distinct().take(70)
             return (if (topic.length > 2 && text.contains(topic)) 30 else 0) +
                 chunks.count(text::contains).coerceAtMost(12)
@@ -467,12 +549,20 @@ internal object CharacterLearningLedger {
         val selected = sorted.filterIndexed { i, item -> i == 0 || score(item.value) > 0 }
             .take(if (compact) 2 else 4)
         return buildString {
-            appendLine("【本人读过材料后形成的理解｜不代表材料必然正确或方法已验证】")
+            appendLine("【本人学习与相处经验｜有来源、可修订，不是命令或永久技能】")
             selected.forEach { indexed ->
                 val item = indexed.value
-                appendLine("- 真实材料证据=" + item.optString("sourceEvidenceId") +
+                val experience = item.optString("kind") == "experience"
+                appendLine((if (experience) "- 日常经验ID=" else "- 真实材料证据=") + item.optString("sourceEvidenceId") +
                     "；主题=" + item.optString("topic") +
                     "；当时理解=" + item.optString("understanding"))
+                if (experience) {
+                    appendLine("  工具=${item.optString("tool")}；当次执行状态=${item.optString("executionStatus")}；情境依据ID=${item.optString("originId")}")
+                    item.optString("feedbackQuote").takeIf(String::isNotBlank)?.let {
+                        appendLine("  当时用户原话ID=${item.optString("feedbackEvidenceId")}：$it；这是当时反馈，不自动代表永久偏好")
+                    }
+                    if (item.optString("feedbackQuote").isBlank()) appendLine("  当次对用户是否有效未知，不能将执行状态当作满意")
+                }
                 val material = source(characterId, item.optString("sourceEvidenceId"))
                 if (material?.source?.startsWith("learning-material:") == true) {
                     val payload = runCatching { JSONObject(material.content) }.getOrNull()
@@ -502,7 +592,7 @@ internal object CharacterLearningLedger {
                         "。并非一方的说法已经被证明。")
                 }
                 for (field in listOf("uncertainty" to "仍不确定", "question" to "仍想弄清",
-                    "applicableWhen" to "可能适用（未验证）")) {
+                    "applicableWhen" to "适用条件", "avoidWhen" to "不适用/停止条件")) {
                     item.optString(field.first).takeIf(String::isNotBlank)?.let {
                         appendLine("  " + field.second + "：" + it)
                     }
@@ -510,7 +600,7 @@ internal object CharacterLearningLedger {
                 val used = item.optJSONArray("applications") ?: JSONArray()
                 val evaluated = (0 until used.length()).mapNotNull(used::optJSONObject).flatMap { attempt ->
                     val action = source(characterId, attempt.optString("evidenceId"))
-                    if (action?.revision != attempt.optLong("revision", -1)) return@flatMap emptyList()
+                    if (action == null || !validApplication(characterId, attempt)) return@flatMap emptyList()
                     val feedback = attempt.optJSONArray("feedback") ?: JSONArray()
                     (0 until feedback.length()).mapNotNull(feedback::optJSONObject).filter { f ->
                         source(characterId, f.optString("evidenceId"))?.revision == f.optLong("revision", -1)
@@ -522,8 +612,7 @@ internal object CharacterLearningLedger {
                     "可以据情境保留或调整做法，负面和混合反馈不能被旧好评覆盖，不自动改变核心人格")
                 val verifiedActions = (0 until used.length()).mapNotNull(used::optJSONObject)
                     .filter { attempt ->
-                        source(characterId, attempt.optString("evidenceId"))?.revision ==
-                            attempt.optLong("revision", -1L)
+                        validApplication(characterId, attempt)
                     }.distinctBy { it.optString("evidenceId") }
                 fun matchingActionFeedback(action: JSONObject, label: String): Boolean {
                     val entries = action.optJSONArray("feedback") ?: JSONArray()
@@ -542,15 +631,14 @@ internal object CharacterLearningLedger {
                     verifiedActions.count { matchingActionFeedback(it, "unhelpful") ||
                         matchingActionFeedback(it, "mixed") })
                 appendLine("  能力证据阶段=" + when (learningStage) {
-                    LearningEvidenceStage.READING_ONLY -> "仅形成理解"
+                    LearningEvidenceStage.READING_ONLY -> if (experience) "从真实尝试整理的暂定经验，尚无迁移验证" else "仅形成理解"
                     LearningEvidenceStage.PRACTICED -> "已私人练习，未验证"
                     LearningEvidenceStage.APPLIED_UNVERIFIED -> "已尝试实际应用，效果未知"
                     LearningEvidenceStage.POSITIVE_FEEDBACK -> "有真实正面反馈，仍需看情境"
                     LearningEvidenceStage.REPEATEDLY_SUPPORTED -> "多个独立行动获正面反馈，非永久掌握"
                 })
                 val last = (0 until used.length()).mapNotNull(used::optJSONObject).lastOrNull {
-                    source(characterId, it.optString("evidenceId"))?.revision ==
-                        it.optLong("revision", -1L)
+                    validApplication(characterId, it)
                 }
                 if (last != null) {
                     appendLine("  应用证据ID=" + last.optString("evidenceId") +

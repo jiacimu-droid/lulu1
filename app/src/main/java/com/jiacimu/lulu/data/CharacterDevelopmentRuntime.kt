@@ -111,7 +111,8 @@ object CharacterDevelopmentRuntime {
         // Balance exposure SOURCES. Chat volume must never erase actual books,
         // games, world encounters and independently visited information sources.
         // These are real records, not invented offline history or quotas.
-        val events = (timeline.filter { it.channel.startsWith("独自阅读") }.takeLast(10) +
+        val toolEpisodes = CharacterExperienceLearning.episodeEvidence(timeline)
+        val events = (toolEpisodes + timeline.filter { it.channel.startsWith("独自阅读") }.takeLast(10) +
             timeline.filter { it.channel.startsWith("独自游戏") }.takeLast(8) +
             timeline.filter { it.channel.startsWith("数字世界") }.takeLast(10) +
             timeline.filter { it.channel.startsWith("现实世界窗口") }.takeLast(8) +
@@ -130,7 +131,7 @@ object CharacterDevelopmentRuntime {
                 Regex("我.{0,8}(喜欢|不喜欢|更喜欢|讨厌|希望|想要|不想)|我(一般|经常|通常|习惯|平时)|别总|别再|不要再")
                     .containsMatchIn(event.content)
         }
-        if (independentDevelopmentExposures(events).size < 2 && !directOwnerSignal) {
+        if (independentDevelopmentExposures(events).size < 2 && !directOwnerSignal && toolEpisodes.isEmpty()) {
             p.edit().putBoolean("pending:$characterId", false).apply()
             note(characterId, "真实经历还不足")
             return
@@ -144,13 +145,15 @@ object CharacterDevelopmentRuntime {
         p.edit().putLong("attempt:$characterId", now).putString("persona:$characterId", persona).commit()
         val reply = LuluAiServices.gateway.generate(characterId,
             facts = "锁定人设，不可改写：$persona\n当前已有成长：${CharacterRuntime.developmentContext(characterId)}\n" +
+                CharacterLearningLedger.context(characterId, events.takeLast(12).joinToString(" ") { CharacterExperienceLearning.evidenceText(it) }, compact = false) + "\n" +
                 events.joinToString("\n") {
                     "eventId=${it.id} revision=${it.revision} atLocal=${it.occurredAt.atZone(java.time.ZoneId.systemDefault())} source=${it.source} channel=${it.channel} " +
-                        "kind=${it.evidenceKind} ${it.evidenceContent.take(390)}"
+                        "kind=${it.evidenceKind} ${CharacterExperienceLearning.evidenceText(it).take(700)}"
                 },
             instruction = """
+                ${CharacterExperienceLearning.reflectionInstruction}
                 从角色真实经历中反思可改变的兴趣、偏好、习惯、判断，以及多次经历逐渐形成的叙事意义；绝不改写用户明确限定的人设字段。
-                返回 JSON 数组，最多3项；没有可信变化就返回[]。每项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserPreference/UserHabit/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
+                返回 JSON 数组，最多3项；没有可信变化就返回[]。普通成长项含 disposition(upsert|retire)、slot(稳定主题键)、kind(Interest/Preference/Habit/UserPreference/UserHabit/ExpressionHabit/Judgment/SituationalPattern/NarrativeMeaning/RelationshipRoutine/VerifiedMethod)、content、evidenceIds、counterIds。upsert 表示形成/修订倾向；retire 只用于已有 slot 已被多次独立反例推翻，content 可沿用原描述，evidenceIds 可为空，但 counterIds 必须给出真实反例。
                 【认识主人，不等她给答案】UserPreference 记录主人明确表达的喜恶与相处边界：真实的一句“我不喜欢你总反问”“我更喜欢你主动试”就足够成为可修订的偏好。evidenceIds 必须包含对应 UserStatement 原话；不能把角色猜测、网页或小说当成她的偏好。UserHabit 记录用户自述的常态（如“我通常午睡后学习”），或至少3个不同自然日独立出现的真实 UserStatement 模式；一天的零散对话不能冒充长期规律。描述保留情境与不确定性，不能把“昨晚四点还醒着”记成“每天四点睡”。两者都用稳定 user: 主题 slot 更新，新的反例高于旧印象。记住偏好后应自然尝试合适的相处方式，不靠反复追问主人获取答案；但不能据此擅自替她设闹钟、操作设备、获取私密数据。
                 【多来源的成长】可以分别从已实际阅读的小说和文本学习措辞与审美，从与真实群友的互动学习幽默、表达边界或相处方式，从独自游戏的成败中改变耐心和竞争心，从数字世界真正发生的偶遇、家具活动、事件结果形成处事习惯，从现实世界窗口实际看到并有来源的资料扩大知识与兴趣，也可以通过日记重新审视自己。每种来源只能影响它真实提供的方面。模型作者和书中人物的遭遇不是角色亲历，现实资讯也不代表角色到过那个地方。没有新可用经历时可以保持，不能因为几小时没上线就假装阅历增长。
                 【成熟与阅历分开】数字生命从创建起可以拥有已设定的成熟判断、价值取向、边界感与成人情感能力，同时没有相应的亲历和发展出的语言习惯；这不意味着是儿童，也不能虚构童年、工作资历、社会身份。成长优先发生在具体文化接触、兴趣、感受、表达习惯、关系和自主选择上，不因学习新梗就把底层人格推翻。
@@ -163,7 +166,8 @@ object CharacterDevelopmentRuntime {
                 【学会相处，不是完成作业】当真实交流显示自己没安慰好、没讲清或让对方失望，先顾及她的情绪，再本人决定要不要查资料、试不同方式、回想过去的成功经验；不必每次都问主人该怎么办，也不要每次都联网。资料上的技巧只是候选，不能当她的喜好。VerifiedMethod 应指向实际已经发出去的一种具体做法，和随后主人明确表示“好多了”“这招有用”“我喜欢你这样”等的原始 UserStatement，evidenceIds 必须同时含该次实际发送的 CharacterStatement 及用户本人的正面反馈。不要拿泛泛的“谢谢”、仅成功执行工具或自己主观感觉推导出哄好了；一次具体正面反馈只是初步适用，多次不同情境的反馈才更稳定。尝试三个办法，只能归功于对应得到明确反馈的具体一个，其他方法仍未知或无效；新的负面反馈要修正。用相同 slot 复盘，不要堆重复条目。形成后的倾向也不是永久标签：当后续出现反复、独立且更晚的反例时，对已有 slot 使用 disposition=retire，让程序按成熟度阈值决定是否撤回；不要因为一次反常表现就退役稳定倾向。所有ID必须来自输入；主观表达只证明感受，不证明行动成功。不强求每轮成长，经历不足时保持原状。
             """.trimIndent(),
             source = "增量成长反思", title = "角色成长", maxTokens = 1400,
-            contextMode = CompanionContextMode.Isolated).getOrNull() ?: run {
+            contextMode = CompanionContextMode.Isolated,
+            connectionOverride = MemoryModelRuntime.extractionConnection()).getOrNull() ?: run {
                 p.edit().putLong("attempt:$characterId", now - 3_300_000).commit()
                 note(characterId, "模型请求失败")
                 return
@@ -177,6 +181,17 @@ object CharacterDevelopmentRuntime {
                 fun ids(key: String): List<String> {
                     val a = item.optJSONArray(key) ?: return emptyList()
                     return (0 until a.length()).map { a.getString(it) }
+                }
+                if (item.optString("kind") == "ToolExperience") {
+                    val ids = listOf("situationEvidenceId", "actionEvidenceId", "feedbackEvidenceId")
+                        .map { item.optString(it) }.filter(String::isNotBlank)
+                    // Never let a stale model response bless revised/deleted evidence.
+                    if (ids.all { id -> events.any { it.id == id } } && ids.all { id ->
+                            val expected = events.first { it.id == id }
+                            SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull()?.revision == expected.revision
+                        } && CharacterRuntime.personaConstraintSnapshot(characterId) == persona &&
+                        CharacterLearningLedger.recordExperience(characterId, item)) accepted++
+                    continue
                 }
                 val slot = item.getString("slot")
                 val disposition = item.optString("disposition", "upsert").lowercase()

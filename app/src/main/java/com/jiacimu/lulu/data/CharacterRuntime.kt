@@ -98,6 +98,7 @@ object CharacterRuntime {
             // The stable principles are shared in CharacterDecisionProtocol;
             // one brief anatomy is enough even for a full context request.
             appendLine(CharacterPersonalityArchitecture.promptSection(compact = true))
+            CharacterExperienceLearning.recentContext(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(CompanionContactClock.context(characterId))
             EmbodiedBodyRuntime.context(characterId).takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(if (compact) CharacterLifeStore.compactContext(characterId) else

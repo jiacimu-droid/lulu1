@@ -45,7 +45,7 @@ internal object CharacterDecisionProtocol {
         若以 innerLife.emotion.impulse 表达想做的事，须同时提供 emotion.action 对应本轮真实动作；与动作不相关的情绪冲动不能替代本次 reason。
         并存的私人想法与心声有不同职责：privateIdeas / innerLife.thoughts 记录「想试 A、又想试 B」这样的心理倾向；innerThought 可写这两者如何碰撞、想象、心软、迟疑、改变倾向的私人独白。真实选择仍由 action/text/sideActions 或既有 ownActivity 决定，不能根据心声文字自动执行。reason 简短留作执行与事后审计，不复述独白；执行结果只来自回执。心声没有真正新增时可以留空。
 
-    """.trimIndent() + "\n" + ConversationDominantImpulse.causalRule
+    """.trimIndent() + "\n" + ConversationDominantImpulse.causalRule + "\n" + CharacterExperienceLearning.instruction
 
     val principles: String = causalPrinciples + "\n" + """
         每轮理解全部新输入与现场变化：谁做了什么、对方的主要意思与关系诉求是什么、哪些只是推测；结合记忆与上一刻感受，形成自己的看法，再选择行动及表达方向。不要仅抓一个词接梗，也不逐条机械作答。
