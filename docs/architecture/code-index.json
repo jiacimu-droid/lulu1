@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:19:12.373084+00:00",
-  "commit": "2f53e21038b63ee3e0b6187f857659717a30a3fe",
+  "generatedAt": "2026-10-24T02:21:23.210824+00:00",
+  "commit": "60e2eb18822a1a99672202813db24ebc103a5e60",
   "branch": "main",
-  "sourceFingerprint": "e5e56d0a8a7885ab196ce599e5bb1964b43dd5b22142173893eb64c077c8b8a8",
+  "sourceFingerprint": "411486938f020d6c6754fe5af9648b364faa8b536cb29af656de56b3a56dc20c",
   "summary": {
     "files": 868,
-    "lines": 166087,
+    "lines": 166117,
     "symbols": 2509
   },
   "symbolIndex": {
@@ -1623,7 +1623,7 @@
     "capabilityNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 68
+        "line": 98
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
@@ -1633,19 +1633,19 @@
     "supported": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 70
+        "line": 100
       }
     ],
     "options": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 73
+        "line": 103
       }
     ],
     "expand": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 79
+        "line": 109
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
@@ -1659,13 +1659,13 @@
     "choice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 82
+        "line": 112
       }
     ],
     "part": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 109
+        "line": 139
       }
     ],
     "Sample": [
@@ -15276,32 +15276,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-      "lines": 132,
-      "sha256": "9b5408fb12e6b2154327fdcb5fbd99d949acd2b047759a6bd132b6f8de3cef38",
+      "lines": 162,
+      "sha256": "e1894704f477bed821b8149e46759f25b7377322575a85095841a9a363a817d0",
       "symbols": [
         {
           "name": "capabilityNote",
-          "line": 68
+          "line": 98
         },
         {
           "name": "supported",
-          "line": 70
+          "line": 100
         },
         {
           "name": "options",
-          "line": 73
+          "line": 103
         },
         {
           "name": "expand",
-          "line": 79
+          "line": 109
         },
         {
           "name": "choice",
-          "line": 82
+          "line": 112
         },
         {
           "name": "part",
-          "line": 109
+          "line": 139
         }
       ]
     },
