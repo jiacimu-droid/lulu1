@@ -123,9 +123,9 @@ internal object EmbodiedBodyPhysics {
         }
         // A real-world action can break monotony; merely ordering food is not
         // a completed experience. Keep the motive distinct from food/energy.
-        val engaging = activityId !in setOf("cafe_order_coffee", "cafe_order_cake",
-            "cafe_order_sandwich", "cafe_order_cocoa", "cafe_order_tea") &&
-            (activityId !in setOf("sleep", "nap", "rest", "cloud_rest", "reading_rest", "home_quiet_rest"))
+        val engaging = !activityId.startsWith("cafe_order_") &&
+            activityId !in setOf("sleep", "nap", "rest", "cloud_rest",
+                "reading_rest", "home_quiet_rest", "lie_down", "lie_on_rug", "curl_up")
         val experienced = if (engaging) current.copy(boredom = bounded(current.boredom - 10.0)) else current
         DigitalCafeMenu.byConsume(activityId)?.let { item ->
             return experienced.copy(
