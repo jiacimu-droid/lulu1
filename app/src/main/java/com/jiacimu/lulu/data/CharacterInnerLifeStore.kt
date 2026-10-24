@@ -22,7 +22,7 @@ object CharacterInnerLifeStore {
         if (prefs == null) {
             prefs = context.applicationContext
                 .getSharedPreferences("lulu_inner_life_v1", Context.MODE_PRIVATE)
-            prefs?.all?.keys?.toList()?.forEach(::retireDormantGenericMotives)
+            prefs?.all?.keys?.filterNot(CharacterInnerHistoryArchive::isArchiveKey)?.forEach(::retireDormantGenericMotives)
         }
     }
 
@@ -63,7 +63,18 @@ object CharacterInnerLifeStore {
         runCatching { JSONObject(prefs?.getString(characterId, "{}") ?: "{}") }.getOrDefault(JSONObject())
 
     @Synchronized fun clear(characterId: String) {
-        if (prefs?.edit()?.remove(characterId)?.commit() == true) revisionState.value += 1L
+        val store = prefs ?: return
+        val edit = store.edit()
+        CharacterInnerHistoryArchive.clear(characterId, snapshot(characterId), edit)
+        if (edit.remove(characterId).commit()) revisionState.value += 1L
+    }
+
+    @Synchronized fun historySnapshot(characterId: String, lastPerField: Int = 160): JSONObject {
+        val root = snapshot(characterId)
+        for (field in CharacterInnerHistoryArchive.fields())
+            root.put(field, CharacterInnerHistoryArchive.tail(
+                prefs, characterId, root, field, lastPerField))
+        return root
     }
 
     /**
@@ -100,7 +111,7 @@ object CharacterInnerLifeStore {
         val target = thought.trim()
         if (target.isBlank() || prefs == null) return false
         val root = snapshot(characterId)
-        val old = root.optJSONArray("thoughts") ?: return false
+        val old = root.optJSONArray("thoughts") ?: JSONArray()
         val retained = JSONArray()
         var removed = false
         for (i in 0 until old.length()) {
@@ -108,11 +119,16 @@ object CharacterInnerLifeStore {
             if (item.optString("thought").trim() == target) removed = true
             else retained.put(item)
         }
-        if (removed) {
-            root.put("thoughts", retained)
-            save(characterId, root)
+        val archived = CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root) { field, item ->
+            field == "thoughts" && item.optString("thought").trim() == target
         }
-        return removed
+        if (removed || archived) {
+            root.put("thoughts", retained)
+            save(characterId, root) { field, item ->
+                field == "thoughts" && item.optString("thought").trim() == target
+            }
+        }
+        return removed || archived
     }
 
     @Synchronized fun forgetPrivateEmotion(characterId: String, startedAt: String, feeling: String): Boolean {
@@ -133,8 +149,15 @@ object CharacterInnerLifeStore {
             root.remove("emotion")
             changed = true
         }
-        if (changed) save(characterId, root)
-        return changed
+        val archived = CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root) { field, item ->
+            field == "emotionHistory" && item.optString("startedAt") == startedAt &&
+                item.optString("feeling") == feeling
+        }
+        if (changed || archived) save(characterId, root) { field, item ->
+            field == "emotionHistory" && item.optString("startedAt") == startedAt &&
+                item.optString("feeling") == feeling
+        }
+        return changed || archived
     }
 
     @Synchronized fun forgetClosedConcern(characterId: String, id: String): Boolean =
@@ -149,15 +172,21 @@ object CharacterInnerLifeStore {
     private fun deletePrivateArrayItem(characterId: String, key: String, id: String): Boolean {
         if (id.isBlank() || prefs == null) return false
         val root = snapshot(characterId)
-        val old = root.optJSONArray(key) ?: return false
+        val old = root.optJSONArray(key) ?: JSONArray()
         val retained = JSONArray()
         var removed = false
         for (i in 0 until old.length()) {
             val item = old.optJSONObject(i) ?: continue
             if (item.optString("id") == id) removed = true else retained.put(item)
         }
-        if (removed) { root.put(key, retained); save(characterId, root) }
-        return removed
+        val archived = CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root) { field, item ->
+            field == key && item.optString("id") == id
+        }
+        if (removed || archived) {
+            root.put(key, retained)
+            save(characterId, root) { field, item -> field == key && item.optString("id") == id }
+        }
+        return removed || archived
     }
 
     /**
@@ -202,7 +231,7 @@ object CharacterInnerLifeStore {
         if (changed) {
             root.put("openConcerns", kept)
             root.put("closedConcerns", JSONArray().apply {
-                for (i in maxOf(0, closed.length() - 12) until closed.length()) put(closed.opt(i))
+                for (i in 0 until closed.length()) put(closed.opt(i))
             })
         }
         val motives = root.optJSONArray("motives") ?: JSONArray()
@@ -228,10 +257,11 @@ object CharacterInnerLifeStore {
         val root = snapshot(characterId)
         listOf("thoughts", "emotion", "emotionHistory", "openConcerns", "decisions")
             .forEach(root::remove)
-        save(characterId, root)
+        save(characterId, root) { field, _ -> field in setOf("thoughts", "emotionHistory") }
     }
 
-    @Synchronized internal fun characterIds(): Set<String> = prefs?.all?.keys.orEmpty().toSet()
+    @Synchronized internal fun characterIds(): Set<String> =
+        prefs?.all?.keys.orEmpty().filterNot(CharacterInnerHistoryArchive::isArchiveKey).toSet()
 
     @Synchronized internal fun claimMotiveReview(role: String, id: String, token: String,
         now: Instant = Instant.now(), coalesceDue: Boolean = true): Boolean {
@@ -251,8 +281,12 @@ object CharacterInnerLifeStore {
         return true
     }
 
-    private fun save(id: String, state: JSONObject) {
-        check(prefs?.edit()?.putString(id, state.toString())?.commit() == true) {
+    private fun save(id: String, state: JSONObject,
+        removeArchive: ((String, JSONObject) -> Boolean)? = null) {
+        val store = prefs ?: error("内在生活状态尚未初始化")
+        val edit = store.edit()
+        CharacterInnerHistoryArchive.prepare(store, id, state, edit, removeArchive)
+        check(edit.putString(id, state.toString()).commit()) {
             "内在生活状态尚未初始化或保存失败"
         }
         revisionState.value += 1L
@@ -351,7 +385,7 @@ object CharacterInnerLifeStore {
         CharacterLifeFollowThroughStore.invalidateEvidence(eventId)
         DigitalWorldResidentEpisodeStore.invalidateEvidence(eventId)
         dispatchContext?.let { CharacterSelfActivityRuntime.invalidateEvidence(it, eventId) }
-        val ids = prefs?.all?.keys.orEmpty()
+        val ids = characterIds()
         fun backedBy(value: String): Boolean =
             value == eventId || value.contains(":$eventId:")
         ids.forEach { characterId ->
@@ -470,7 +504,12 @@ object CharacterInnerLifeStore {
                     }
                 }
             }
-            if (changed) save(characterId, root)
+            val removeArchive: (String, JSONObject) -> Boolean = { _, entry ->
+                backedBy(entry.optString("evidenceId")) ||
+                    backedBy(entry.optString("closureEvidenceId"))
+            }
+            if (changed || CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root, removeArchive))
+                save(characterId, root, removeArchive)
         }
     }
 
@@ -551,7 +590,7 @@ object CharacterInnerLifeStore {
                 // a complex reaction every time the model supplies a fresh feeling.
                 val history = root.optJSONArray("emotionHistory") ?: JSONArray()
                 val nextHistory = JSONArray()
-                for (i in maxOf(0, history.length() - 9) until history.length()) {
+                for (i in 0 until history.length()) {
                     nextHistory.put(history.opt(i))
                 }
                 if (previous != null && previous.optString("evidenceId") != evidenceId) {
@@ -566,7 +605,7 @@ object CharacterInnerLifeStore {
         proposal.optJSONArray("thoughts")?.let { proposed ->
             val history = root.optJSONArray("thoughts") ?: JSONArray()
             val updated = mutableListOf<JSONObject>()
-            for (index in maxOf(0, history.length() - 15) until history.length()) {
+            for (index in 0 until history.length()) {
                 history.optJSONObject(index)?.let(updated::add)
             }
             val seenThoughts = updated.map { it.optString("thought") }.toMutableSet()
@@ -580,7 +619,7 @@ object CharacterInnerLifeStore {
                     .put("hesitation", item.optString("hesitation").trim().take(120))
                     .put("evidenceId", evidenceId).put("at", now.toString())
             }
-            root.put("thoughts", JSONArray().apply { updated.takeLast(16).forEach { put(it) } })
+            root.put("thoughts", JSONArray().apply { updated.forEach { put(it) } })
         }
         val motives = root.optJSONArray("motives") ?: JSONArray()
         val records = (0 until motives.length()).mapNotNull(motives::optJSONObject).toMutableList()
@@ -1062,7 +1101,7 @@ object CharacterInnerLifeStore {
         if (recentMinutes != null && recentMinutes in 0..10 &&
             sameInnerVoiceMeaning(latest?.optString("thought").orEmpty(), clean)) return
         root.put("innerVoices", JSONArray().apply {
-            for (i in maxOf(0, old.length() - 5) until old.length()) put(old.opt(i))
+            for (i in 0 until old.length()) put(old.opt(i))
             put(JSONObject().put("evidenceId", evidenceId).put("thought", clean)
                 .put("causeFingerprint", cleanFingerprint)
                 .put("occurredAt", now.toString()))
@@ -1203,7 +1242,7 @@ object CharacterInnerLifeStore {
         // after only a short, busy day. Prompt recall still reads only a small
         // recent selection, so this does not inflate every later API call.
         root.put("causalTransitions", JSONArray().apply {
-            for (i in maxOf(0, past.length() - 95) until past.length()) put(past.opt(i))
+            for (i in 0 until past.length()) put(past.opt(i))
             put(entry)
         })
         val userConfirmedSettlement = SharedExperienceTimeline.eventsByIds(
@@ -1219,7 +1258,7 @@ object CharacterInnerLifeStore {
             if (closures.isNotEmpty()) {
                 val pastClosures = root.optJSONArray("closedConcerns") ?: JSONArray()
                 root.put("closedConcerns", JSONArray().apply {
-                    for (i in maxOf(0, pastClosures.length() - 8) until pastClosures.length()) put(pastClosures.opt(i))
+                    for (i in 0 until pastClosures.length()) put(pastClosures.opt(i))
                     closures.take(4).forEach(::put)
                 })
             }
@@ -1280,15 +1319,22 @@ object CharacterInnerLifeStore {
     @Synchronized fun forgetTransition(characterId: String, evidenceId: String, at: Instant): Boolean {
         if (prefs == null || evidenceId.isBlank()) return false
         val root = snapshot(characterId)
-        val previous = root.optJSONArray("causalTransitions") ?: return false
+        val previous = root.optJSONArray("causalTransitions") ?: JSONArray()
         val kept = JSONArray()
         for (i in 0 until previous.length()) {
             val item = previous.optJSONObject(i) ?: continue
             if (item.optString("evidenceId") != evidenceId || item.optString("at") != at.toString()) kept.put(item)
         }
-        if (previous.length() == kept.length()) return false
+        val archived = CharacterInnerHistoryArchive.hasMatch(prefs, characterId, root) { field, item ->
+            field == "causalTransitions" && item.optString("evidenceId") == evidenceId &&
+                item.optString("at") == at.toString()
+        }
+        if (previous.length() == kept.length() && !archived) return false
         root.put("causalTransitions", kept)
-        save(characterId, root)
+        save(characterId, root) { field, item ->
+            field == "causalTransitions" && item.optString("evidenceId") == evidenceId &&
+                item.optString("at") == at.toString()
+        }
         return true
     }
 
