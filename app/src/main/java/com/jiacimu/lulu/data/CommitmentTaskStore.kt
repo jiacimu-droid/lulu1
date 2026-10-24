@@ -209,6 +209,62 @@ object CommitmentTaskStore {
         }
     }
 
+    /**
+     * A daily incoming-call promise is ONE durable task. A completed attempt
+     * advances its local clock to tomorrow, independently of whether the user
+     * answered; it does not replay today's missed phone call.
+     */
+    @Synchronized
+    internal fun advanceDailyAfterAttempt(
+        context: Context,
+        taskId: String,
+        executionToken: String?,
+        now: Instant = Instant.now(),
+    ) {
+        val task = mutableTasks.value.firstOrNull { it.id == taskId } ?: return
+        if (task.repeat != "daily" || task.executionToken == null ||
+            task.executionToken != executionToken ||
+            task.status in setOf(CommitmentTaskStatus.Cancelled, CommitmentTaskStatus.Expired,
+                CommitmentTaskStatus.NeedsClarification)) return
+        val previousDue = task.dueAt ?: return
+        val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+            ?: java.time.ZoneId.systemDefault()
+        val next = nextDailyCommitmentDue(previousDue, now, zone)
+        task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+        val allowed = task.deliveryAction != "start_call" ||
+            MigratedDomainStores.characters.get(task.characterId).contactPolicy.proactiveCallsEnabled
+        if (!allowed) {
+            update(taskId) { it.copy(status = CommitmentTaskStatus.Blocked,
+                linkedAlarmId = null, nextCheckAt = null, executionToken = null,
+                lastActionResult = "下次每日来电无法登记：角色主动来电权限已关闭") }
+            return
+        }
+        val name = MigratedDomainStores.characters.get(task.characterId).displayName
+        val result = LuluAlarmSystem.create(task.characterId, name, next, task.goal,
+            commitmentTaskId = task.id)
+        result.onSuccess { alarm ->
+            update(taskId) { current ->
+                if (current.executionToken != executionToken ||
+                    current.status == CommitmentTaskStatus.Cancelled) current else current.copy(
+                    status = CommitmentTaskStatus.Scheduled,
+                    dueAt = next,
+                    nextCheckAt = next,
+                    linkedAlarmId = alarm.id,
+                    executionToken = null,
+                    attemptCount = 0,
+                    lastActionResult = current.lastActionResult.take(220) +
+                        "；每日循环已登记下次时刻：${next.atZone(zone)}",
+                )
+            }
+        }.onFailure { error ->
+            update(taskId) { current -> current.copy(
+                status = CommitmentTaskStatus.Blocked,
+                linkedAlarmId = null, nextCheckAt = null, executionToken = null,
+                lastActionResult = "每日循环下次登记失败：${error.message.orEmpty().take(150)}",
+            ) }
+        }
+    }
+
     /** Removing a 辞海 promise removes the executable obligation and alarm. */
     @Synchronized
     fun remove(id: String): Boolean {
