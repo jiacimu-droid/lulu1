@@ -9,6 +9,14 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ModelStructuredOutputTest {
+    @Test fun structuredVoiceChoiceKeepsExactTranscriptAndSurroundingText() {
+        val raw = """{"action":"reply","bubbles":[{"text":"先给你一个抱抱。"},{"text":"过来，亲亲你，mua～","delivery":"voice"},{"text":"好啦，今天早点休息。"}]}"""
+        assertEquals(listOf("过来，亲亲你，mua～"), ModelStructuredOutput.voiceBubbleTexts(raw))
+        assertEquals(listOf("先给你一个抱抱。", "过来，亲亲你，mua～", "好啦，今天早点休息。"),
+            ModelStructuredOutput.voiceAwareReplyBubbles(raw))
+        assertTrue(ModelStructuredOutput.voiceBubbleTexts("""{"action":"tool","bubbles":[{"text":"假语音","delivery":"voice"}]}""").isEmpty())
+    }
+
     @Test fun characterSelectedVoiceBubbleIsNotSplitApart() {
         val short = "今天辛苦啦。"
         val spoken = "我想认真告诉你，今天能和你一起聊天是很开心的事。你想听的话，点一下这条语音就能听到我的声音。"

@@ -1315,7 +1315,7 @@ object LuluDeviceToolBridge {
                         情绪表达落在真实措辞、语气、停顿或具体反应里，不用连续堆“石头、重担、绷紧的弦、长路、天塌”等修辞换词表达同一恐惧。只要一句已经说到心坎，就留给她下一轮接话。
                         有交接具体社交小尝试时，在话里自然做出那件小事；幽默、亲昵、颜文字和 emoji 都依本人习惯与现场选择。只有真实执行回执才能证明操作或现实接触发生。
                         独处小说另有专属文学表达层，不把小说里的心理旁白和剧情评价照搬进即时聊天。详细问题、求助步骤和完整创作则应充分回答。按完整意群自然分泡；所有气泡合起来才是本轮回复，心声留在心里。
-                        只返回完整 JSON：{"action":"reply","bubbles":[{"text":"实际发出的聊天"}]}。引用或收藏仅在明确给出真实消息ID时使用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；图片由程序发送。
+                        只返回完整 JSON：{"action":"reply","bubbles":[{"text":"实际发出的聊天"},{"text":"更适合用声音表达的一句","delivery":"voice"}]}。delivery 默认为 text，只有本人确实想让对方听到这一句的语气时才选 voice；普通文字与语音可以自然混排，不强制音频或亲昵情节，音频会直接显示原文转写。引用或收藏仅在明确给出真实消息ID时使用 ⟪QUOTE:消息ID⟫ 或 ⟪FAVORITE:消息ID⟫；图片由程序发送。
                     """.trimIndent(),
                     source = "聊天表达渲染",
                     title = title,
@@ -1374,7 +1374,7 @@ object LuluDeviceToolBridge {
                             本轮只需说角色真正想说的重点。删去重复解释、繁琐铺垫、歉意三连和任务答复式收尾；保留真实立场、情绪与不可丢的事实。保留角色自选的情绪话外音，不把一句含蓄的真心话改写成解释它含义的长篇独白；也不要以压短为由漏掉必要答案。
                             已有的幽默、态度、颜文字或 emoji 如果仍贴合语境就保留，不要把消除客服腔误做成删掉全部情绪。
                             保持这个角色自己的词汇、节奏、幽默感、关系称呼与分寸；不要把“自然”理解成统一的短句网感，也不要故意加口头禅。
-                            只返回完整 JSON：{"action":"reply","bubbles":[{"text":"重写后的自然聊天"}]}。
+                            只返回完整 JSON：{"action":"reply","bubbles":[{"text":"重写后的自然聊天"}]}。确实更适合传达声音的一句可设 delivery="voice"，但无须为了润色强行增加语音；不要改变角色本人已经选好的语气意图。
                             每个气泡是容易阅读的完整意群；规划阶段的互动动作数量不是可视气泡的数量。一个动作可用数个短气泡说清，不要强塞成一个长框；不把没说完的词句拆开，也不为了凑数量发空话。
                         """.trimIndent(),
                         source = "聊天表达自然度修复",
@@ -1407,11 +1407,13 @@ object LuluDeviceToolBridge {
                 // dialoguePlan.maxBubbles is a count of *conversation moves*,
                 // not a visual clamp. A single thought may need two complete
                 // sentences in separate chat bubbles. Never discard the rest.
-                val spoken = com.jiacimu.lulu.data.ModelStructuredOutput
-                    .readableReplyBubbles(chosenBubbles, maxBubbles = 8)
+                val voiceChoices = com.jiacimu.lulu.data.ModelStructuredOutput.voiceBubbleTexts(chosenResult.text)
+                val spoken = (com.jiacimu.lulu.data.ModelStructuredOutput.voiceAwareReplyBubbles(chosenResult.text)
+                    ?: com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(chosenBubbles, maxBubbles = 8))
                     .joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
                 chosenResult.copy(
                     text = spoken,
+                    voiceBubbleTexts = voiceChoices,
                     inputTokens = generated.inputTokens + (rerendered?.inputTokens ?: 0) + plannedReply.inputTokens,
                     outputTokens = generated.outputTokens + (rerendered?.outputTokens ?: 0) + plannedReply.outputTokens,
                     cachedTokens = generated.cachedTokens + (rerendered?.cachedTokens ?: 0) + plannedReply.cachedTokens,

@@ -167,6 +167,36 @@ internal object ModelStructuredOutput {
         return pieces.take(limit - 1) + pieces.drop(limit - 1).joinToString("")
     }
 
+    /** Optional per-bubble voice decision. The text is the authoritative transcript. */
+    fun voiceBubbleTexts(raw: String): List<String> {
+        val json = objectOrNull(raw) ?: return emptyList()
+        if (json.optString("action", "reply").lowercase() !in setOf("reply", "message", "chat", "group_message")) return emptyList()
+        val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
+        return (0 until minOf(bubbles.length(), 8)).mapNotNull { index ->
+            bubbles.optJSONObject(index)?.takeIf { it.optString("delivery").equals("voice", true) }
+                ?.optString("text")?.trim()?.takeIf(String::isNotBlank)
+        }
+    }
+
+    /** Keep voice performances atomic, while ordinary text keeps the usual readable spacing. */
+    fun voiceAwareReplyBubbles(raw: String): List<String>? {
+        val json = objectOrNull(raw) ?: return null
+        if (json.optString("action", "reply").lowercase() != "reply") return null
+        val bubbles = json.optJSONArray("bubbles") ?: return null
+        val result = mutableListOf<String>()
+        for (i in 0 until minOf(bubbles.length(), 8)) {
+            val entry = bubbles.opt(i)
+            val value = when (entry) {
+                is JSONObject -> entry.optString("text")
+                else -> bubbles.optString(i)
+            }.trim().take(2_000)
+            if (value.isBlank()) continue
+            if (entry is JSONObject && entry.optString("delivery").equals("voice", true)) result += value
+            else result += readableReplyBubbles(listOf(value), maxBubbles = Int.MAX_VALUE)
+        }
+        return result.takeIf { it.isNotEmpty() }
+    }
+
     /**
      * Preferred text-chat protocol: bubbles are structural JSON, never magic strings inside text.
      * Supports either ["text"] or [{"text":"..."}] during migration.

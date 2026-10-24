@@ -256,9 +256,11 @@ fun QqStyleChatDetailScreen(
             scope.launch { snackbar.showSnackbar("请先选择聊天模型") }
             return false
         }
-        payload?.let { appendDraft(it) }
+        val sentNewMessage = payload?.let { appendDraft(it) } == true
         if (groupChat == null) {
-            CompanionOnlineStore.wakeCharacter(
+            // appendDraft already fires the unique unread online worker.
+            // Only an explicit wake without a fresh message requests a new look.
+            if (!sentNewMessage) CompanionOnlineStore.wakeCharacter(
                 characterId = characterId,
                 reason = CompanionOnlineReason.PrivateWake,
                 trigger = "用户在私聊呼唤上线",
@@ -270,97 +272,81 @@ fun QqStyleChatDetailScreen(
     }
 
     fun sendAndReceive(includeDraft: Boolean = true) {
+        // In private chat the authoritative online perception worker already owns
+        // every newly persisted user bubble. Never start a second model reply from
+        // the foreground screen: that races the background worker and forks the
+        // very same character's language/decision pipeline.
         if (groupChat == null && LuluVoiceCallSession.isActiveForChat(conversationId)) {
             if (includeDraft && input.isNotBlank()) appendDraft(QqComposerPayload(input))
             return
         }
-        if (ChatReplyTaskManager.state(conversationId).running || ChatGenerationActivity.isRunning(conversationId)) return
         if (activeArchive == null) {
             scope.launch { snackbar.showSnackbar("请先选择聊天模型") }
             return
         }
-        if (includeDraft && input.isNotBlank()) {
-            appendDraft(QqComposerPayload(input))
+        if (groupChat == null) {
+            if (includeDraft && input.isNotBlank()) {
+                // sendUserMessage -> onConversationMessage already schedules the
+                // debounced online decision. No extra model call or wake required.
+                appendDraft(QqComposerPayload(input))
+                return
+            }
+            val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
+            val lastCharacterIndex = latestMessages.indexOfLast {
+                it.sender == LuluChatMessage.Sender.Character
+            }
+            val hasPendingUserMessage = latestMessages.drop(lastCharacterIndex + 1).any {
+                it.sender == LuluChatMessage.Sender.User
+            }
+            if (hasPendingUserMessage) {
+                CompanionOnlineStore.wakeCharacter(
+                    characterId = characterId,
+                    reason = CompanionOnlineReason.PrivateWake,
+                    trigger = "用户在私聊点击回复",
+                    perceiveNow = false,
+                )
+                ProactivePerceptionScheduler.scheduleOnline(
+                    context, characterId, "用户在私聊点击回复",
+                    collectMessages = true, requiresUnread = true,
+                )
+            }
+            return
         }
+        if (ChatReplyTaskManager.state(conversationId).running ||
+            ChatGenerationActivity.isRunning(conversationId)) return
+        if (includeDraft && input.isNotBlank()) appendDraft(QqComposerPayload(input))
         val latestMessages = MigratedDomainStores.chat.messages(conversationId).value
-        val lastCharacterIndex = latestMessages.indexOfLast { it.sender == LuluChatMessage.Sender.Character }
-        val latestPending = latestMessages.drop(lastCharacterIndex + 1).filter { message ->
-            message.sender == LuluChatMessage.Sender.User ||
-                (message.sender == LuluChatMessage.Sender.System && message.content.startsWith("[戳一戳] 你戳了戳"))
+        val lastCharacterIndex = latestMessages.indexOfLast {
+            it.sender == LuluChatMessage.Sender.Character
         }
-        if (latestPending.isEmpty()) return
-        val pendingIds = latestPending.mapTo(mutableSetOf(), LuluChatMessage::id)
-        val pendingText = latestPending.joinToString("\n") { message ->
-            if (message.sender == LuluChatMessage.Sender.System) message.content.removePrefix("[戳一戳]").trim()
+        val pending = latestMessages.drop(lastCharacterIndex + 1).filter {
+            it.sender == LuluChatMessage.Sender.User ||
+                (it.sender == LuluChatMessage.Sender.System && it.content.startsWith("[戳一戳] 你戳了戳"))
+        }
+        if (pending.isEmpty()) return
+        val pendingText = pending.joinToString("\n") { message ->
+            if (message.sender == LuluChatMessage.Sender.System)
+                message.content.removePrefix("[戳一戳]").trim()
             else qqForwardContextText(message.content)
         }
         val characterNamesSnapshot = characters.mapValues { it.value.displayName }
         val history = buildBoundedHistory(
-            messages = latestMessages.filterNot { it.id in pendingIds },
+            messages = latestMessages.filterNot { item -> pending.any { it.id == item.id } },
             characterName = character.displayName,
             characterNames = characterNamesSnapshot,
         )
         ChatReplyTaskManager.launch(conversationId) {
-            if (groupChat == null) {
-                setTypingCharacter(characterId)
-                val actionable = latestPending.filter { it.sender == LuluChatMessage.Sender.User }
-                val privateTurnContext = buildString {
-                    appendLine("这是连续发生的一对一即时通讯私聊；角色只代表自己，从上一刻的人物状态、关系和话题位置继续。")
-                    appendLine("气泡边界由系统结构化处理；不要输出任何内部气泡控制标记。")
-                    appendLine("撤回和戳用户只在真的自然时偶尔使用。")
-                    if (actionable.isNotEmpty()) {
-                        appendLine("本轮可引用/收藏的真实用户消息：")
-                        actionable.forEach { appendLine("消息ID=${it.id} 内容=${qqForwardContextText(it.content).take(500)}") }
-                        appendLine("收藏是低频强意图，只有真的想长期留住时才使用；只能引用这里给出的真实ID。")
-                    }
-                }
-                val result = LuluDeviceToolBridge.respond(
-                    characterId = characterId,
-                    history = history,
-                    userText = pendingText,
-                    title = activeLabel,
-                    archiveId = chatArchiveId,
-                    turnContext = privateTurnContext,
-                    userEvidenceIds = actionable.map { it.id },
-                )
-                if (!currentCoroutineContext().isActive) return@launch
-                result.onSuccess { reply ->
-                    val presentation = parseCharacterReplyPresentation(reply.text)
-                    if (presentation.content.isNotBlank()) {
-                        val deliveredText = appendRoleReplyWithPacing(
-                            conversationId = conversationId,
-                            characterId = characterId,
-                            characterLabel = character.displayName,
-                            presentation = presentation,
-                            actionableUserMessageIds = actionable.mapTo(mutableSetOf(), LuluChatMessage::id),
-                            interactionReceipt = reply.interactionReceipt,
-                        )
-                        if (deliveredText.isNotBlank() && currentCoroutineContext().isActive &&
-                            reply.deferredActions != null) {
-                            val report = LuluDeviceToolBridge.executeDeferredReplyActions(
-                                characterId, reply.deferredActions,
-                                requestId = "chat-${actionable.lastOrNull()?.id ?: conversationId}",
-                                userEvidenceIds = actionable.mapTo(mutableSetOf(), LuluChatMessage::id),
-                                userText = pendingText,
-                            )
-                            if (report?.notes?.any { it.contains("未执行") || it.contains("未成功") } == true)
-                                reportError("部分动作未完成，可在性能监测查看真实回执")
-                        }
-                    } else if (reply.disposition != "silent") reportError("对方刚才没有说清，再点一次试试")
-                }.onFailure { reportError(it.message ?: "回复失败") }
-            } else {
-                runGroupReplies(
-                    conversationId = conversationId,
-                    group = groupChat,
-                    pendingText = pendingText,
-                    initialHistory = history,
-                    activeLabel = activeLabel,
-                    archiveId = chatArchiveId,
-                    characterNames = characterNamesSnapshot,
-                    onError = { reportError(it) },
-                    onSpeakerChange = { setTypingCharacter(it) },
-                )
-            }
+            runGroupReplies(
+                conversationId = conversationId,
+                group = groupChat,
+                pendingText = pendingText,
+                initialHistory = history,
+                activeLabel = activeLabel,
+                archiveId = chatArchiveId,
+                characterNames = characterNamesSnapshot,
+                onError = { reportError(it) },
+                onSpeakerChange = { setTypingCharacter(it) },
+            )
         }
     }
 

@@ -106,6 +106,8 @@ data class ModelReply(
     val phoneMediaReceipt: String? = null,
     /** Model-selected ordered chat steps; execute after the actual chat delivery. */
     val deferredActions: String? = null,
+    /** Structured expression choice carried separately from user-visible words. */
+    val voiceBubbleTexts: List<String> = emptyList(),
 )
 
 class ModelConnectionStore private constructor(context: Context) {
