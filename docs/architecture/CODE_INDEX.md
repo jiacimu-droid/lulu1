@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f39b96eb501735b7bbbe73d928fd08f06dbeb348`
+- 基准提交：`a786e61252dac398ef154626e2f4b8907fed9e5b`
 - 分支：`main`
 - 已索引文件：879
-- 已索引代码/文本行：171066
-- 已发现符号：2562
+- 已索引代码/文本行：171121
+- 已发现符号：2564
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -276,7 +276,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 217 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 104 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1727 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 1728 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 252 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 670 | 6 |
@@ -290,7 +290,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveProgress.kt` | 69 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt` | 114 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 30 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt` | 62 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt` | 303 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt` | 119 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterPersonalityArchitecture.kt` | 152 | 2 |
@@ -733,7 +733,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 665 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 687 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 177 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 974 | 19 |

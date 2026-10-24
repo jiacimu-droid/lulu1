@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:29:25.958768+00:00",
-  "commit": "f39b96eb501735b7bbbe73d928fd08f06dbeb348",
+  "generatedAt": "2026-10-24T12:31:23.530419+00:00",
+  "commit": "a786e61252dac398ef154626e2f4b8907fed9e5b",
   "branch": "main",
-  "sourceFingerprint": "ae51df5ddf710ead022d8ca0f5e85ab5056bbd30d1a9bb25f60509019c8378fa",
+  "sourceFingerprint": "cd667462b710080108d20acdcddd3870918c1435e69a152370b740989c67c214",
   "summary": {
     "files": 879,
-    "lines": 171066,
-    "symbols": 2562
+    "lines": 171121,
+    "symbols": 2564
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5015,7 +5015,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 17
+        "line": 19
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -5737,7 +5737,7 @@
     "isActive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 13
+        "line": 15
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
@@ -5747,7 +5747,19 @@
     "paused": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-        "line": 20
+        "line": 22
+      }
+    ],
+    "workingSet": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
+        "line": 33
+      }
+    ],
+    "rotate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
+        "line": 38
       }
     ],
     "hasProposals": [
@@ -13291,13 +13303,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 406
+        "line": 428
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 505
+        "line": 527
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -19120,8 +19132,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 1727,
-      "sha256": "f20c138bd26fe4de06252dc58862eb16cdcdb565dd38afabdfb9f635f652aa10",
+      "lines": 1728,
+      "sha256": "0b977c79802364dde26cb02427ab426b93dd93e49e5055097f9037779591ef26",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -19422,7 +19434,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
       "lines": 44,
-      "sha256": "dc20312deb5d2f9b21c67b7b35dfc491c4b5eb15b4e28040faf5009bdc75f78d",
+      "sha256": "056f5c8ac0ebbfe2707354a044d299c865d8173c779e148e357388f2c28d0b7c",
       "symbols": [
         {
           "name": "context",
@@ -19494,20 +19506,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveState.kt",
-      "lines": 30,
-      "sha256": "af4afe692bdc2cb37302660e80b6f110c39eccfc5e49369c31bd198067e853d7",
+      "lines": 62,
+      "sha256": "2813f89923ee59a6f9b482f1a91045eaeeac45e354246d3dc4973d768d7d56f7",
       "symbols": [
         {
           "name": "isActive",
-          "line": 13
+          "line": 15
         },
         {
           "name": "active",
-          "line": 17
+          "line": 19
         },
         {
           "name": "paused",
-          "line": 20
+          "line": 22
+        },
+        {
+          "name": "workingSet",
+          "line": 33
+        },
+        {
+          "name": "rotate",
+          "line": 38
         }
       ]
     },
@@ -28783,8 +28803,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 665,
-      "sha256": "15976ab3623b74c7fab88fe8cc676d19fbe0f5a73babba55b096d2446143aef1",
+      "lines": 687,
+      "sha256": "e0c3274b417ed4009a48031ffda341390eab002f220c1d9fc6e8b46c881328a7",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -28792,11 +28812,11 @@
         },
         {
           "name": "social",
-          "line": 406
+          "line": 428
         },
         {
           "name": "feeling",
-          "line": 505
+          "line": 527
         }
       ]
     },
