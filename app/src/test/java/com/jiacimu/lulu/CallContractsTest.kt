@@ -236,7 +236,7 @@ class CallContractsTest {
         assertFalse(opening.claim("outgoing"))
         assertTrue(opening.claim("incoming"))
         assertFalse(opening.claim("incoming"))
-        assertTrue(CallOpeningTurn.prompt().contains("用户确实接听"))
+        assertTrue(CallOpeningTurn.prompt().contains("本通电话已经接通"))
         assertTrue(CallOpeningTurn.prompt("想聊昨天那本书").contains("想聊昨天那本书"))
         // A pre-dial call choice must describe the first audible, post-answer turn.
         assertTrue(CallOpeningTurn.incomingLineContract.contains("双方电话已接通"))
