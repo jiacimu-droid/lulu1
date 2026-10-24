@@ -356,23 +356,6 @@ object LuluScreenAwareness {
         val roleName = runCatching { MigratedDomainStores.characters.get(characterId).displayName }
             .getOrNull()?.takeIf(String::isNotBlank) ?: "角色"
         val shortTitle = title.trim().take(34).ifBlank { "约好的时间到了" }
-        // Legacy versions could schedule the same study wake in both the
-        // commitment alarm and the character's personal plan. One real
-        // invitation is enough; keep unrelated topics independent.
-        val family = when {
-            Regex("学习|复习|背书|做题|作业").containsMatchIn(title) -> "study"
-            Regex("睡觉|睡前|入睡|哄睡|休息").containsMatchIn(title) -> "rest"
-            Regex("起床|叫醒|醒来").containsMatchIn(title) -> "wake"
-            else -> shortTitle
-        }
-        val key = "$characterId:$family"
-        val nowMillis = System.currentTimeMillis()
-        val prefs = preferences(app)
-        val alreadyOffered = prefs.getString("last_schedule_popup_key", "") == key &&
-            nowMillis - prefs.getLong("last_schedule_popup_at", 0L) in 0L..90_000L
-        if (alreadyOffered) return JSONObject()
-            .put("success", true).put("status", "duplicate_suppressed")
-            .put("summary", "同一事项的近期弹窗已请求，未重复打扰").toString()
         val manager = app.getSystemService(NotificationManager::class.java)
         val channel = "lulu_scheduled_return_v1"
         manager.createNotificationChannel(NotificationChannel(channel,
@@ -395,8 +378,6 @@ object LuluScreenAwareness {
         )
         if (!popup && !notificationReady)
             return rejected(app, "悬浮窗被禁止，通知不可用", "failed")
-        prefs.edit().putString("last_schedule_popup_key", key)
-            .putLong("last_schedule_popup_at", nowMillis).apply()
         report(app, if (popup) "已尝试显示定时提醒悬浮弹窗，等待主人选择"
             else "定时提醒改用通知后备")
         return JSONObject().put("success", true)
