@@ -210,6 +210,9 @@ object RoleDayScheduleStore {
     fun nextSelfDirectedWakeAt(context: Context, characterId: String, now: Instant): Instant? =
         plans(context, characterId).asSequence()
             .filter { it.selfInitiated && it.commitmentTaskId.isBlank() &&
+                // Only executable intentions can replace fallback attention;
+                // a vague calendar note alone cannot account for the day.
+                it.activityAction.isNotBlank() &&
                 it.status == "planned" && it.dueAt.isAfter(now) &&
                 it.dueAt <= now.plus(Duration.ofDays(1)) }
             .minOfOrNull { it.dueAt }
