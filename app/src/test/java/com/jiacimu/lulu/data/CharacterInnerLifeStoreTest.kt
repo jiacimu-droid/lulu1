@@ -225,6 +225,22 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear(id)
     }
 
+
+    @Test fun manyDistinctLiveMotivesSurviveWithoutArbitrarySixItemCap() {
+        start()
+        val role = "inside-test-many-motives"
+        CharacterInnerLifeStore.clear(role)
+        repeat(14) { n ->
+            CharacterInnerLifeStore.observe(role, "source-motive-$n", "在考虑一个不同的真实方向",
+                JSONObject().put("motives", JSONArray().put(JSONObject()
+                    .put("op", "start").put("aim", "研究不同方向第$n 项")
+                    .put("why", "这个独立方向有自己不同的条件"))))
+        }
+        val saved = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives")
+        assertEquals(14, CharacterMotiveState.active(saved).size)
+        assertTrue(CharacterInnerLifeStore.compactContext(role).contains("研究不同方向"))
+        CharacterInnerLifeStore.clear(role)
+    }
     @Test fun endedWishesDoNotExhaustCapacityOrPolluteCurrentDeliberation() {
         start()
         val role = "inside-test-closed-goal-capacity"

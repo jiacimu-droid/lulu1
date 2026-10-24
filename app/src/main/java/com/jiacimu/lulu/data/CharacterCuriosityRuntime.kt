@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
+import java.util.UUID
 
 /**
  * Questions are subjective; experiences are executor receipts. Neither creates a
@@ -36,6 +37,33 @@ internal object CharacterCuriosityRuntime {
     }
 
     private fun normalized(value: String) = value.lowercase().filter(Char::isLetterOrDigit)
+
+
+    private fun entries(array: JSONArray?): List<JSONObject> =
+        (0 until (array?.length() ?: 0)).mapNotNull { array?.optJSONObject(it) }
+
+    private fun sameQuestion(a: JSONObject, b: JSONObject): Boolean =
+        normalized(a.optString("topic")) == normalized(b.optString("topic")) &&
+            normalized(a.optString("question")) == normalized(b.optString("question"))
+
+    private fun matching(existing: List<JSONObject>, proposal: JSONObject?): JSONObject? {
+        val p = proposal ?: return null
+        val requested = p.optString("threadId").trim()
+        if (requested.isNotBlank()) return existing.firstOrNull { it.optString("threadId") == requested }
+        return existing.firstOrNull { sameQuestion(it, p) }
+    }
+
+    /** Old records without an ID retain a stable identity based on their original source. */
+    private fun identity(record: JSONObject): String =
+        record.optString("threadId").ifBlank {
+            "legacy-" + listOf(record.optString("topic"), record.optString("question"),
+                record.optString("observedId")).joinToString(":").hashCode().toUInt().toString(16)
+        }
+
+    private fun sameIdentity(a: JSONObject, b: JSONObject): Boolean =
+        identity(a) == identity(b) || (
+            a.optString("threadId").isBlank() && b.optString("threadId").isBlank() &&
+                sameQuestion(a, b))
 
     private fun proposalFields(proposal: JSONObject?): List<String>? {
         val p = proposal ?: return null
@@ -78,11 +106,11 @@ internal object CharacterCuriosityRuntime {
     fun visibleQuestions(role: String): List<JSONObject> = pendingQuestions(role, snapshot(role))
 
     fun activeThreads(role: String, root: JSONObject = snapshot(role)): List<JSONObject> {
-        val pendingTopics = pendingQuestions(role, root).mapTo(hashSetOf()) { normalized(it.optString("topic")) }
+        val pending = pendingQuestions(role, root)
         val threads = root.optJSONArray("threads") ?: return emptyList()
-        return (0 until threads.length()).mapNotNull(threads::optJSONObject).filter {
-            it.optString("status") == "exploring" && normalized(it.optString("topic")) !in pendingTopics &&
-                lastRealStep(role, it) != null
+        return entries(threads).filter { thread ->
+            thread.optString("status") == "exploring" &&
+                pending.none { sameIdentity(it, thread) } && lastRealStep(role, thread) != null
         }
     }
 
@@ -107,11 +135,12 @@ internal object CharacterCuriosityRuntime {
                 .mapNotNull { lastRealStep(role, it)?.optString("evidenceId") }
     }
 
-    private fun previousResult(role: String, root: JSONObject, topic: String): String {
-        val threads = root.optJSONArray("threads") ?: return ""
-        return (0 until threads.length()).mapNotNull(threads::optJSONObject)
-            .firstOrNull { normalized(it.optString("topic")) == normalized(topic) }
-            ?.let { lastRealStep(role, it)?.optString("receipt") }.orEmpty()
+    private fun previousResult(role: String, root: JSONObject, question: JSONObject): String {
+        val threads = entries(root.optJSONArray("threads"))
+        val exact = matching(threads, question)
+        val legacy = threads.filter { normalized(it.optString("topic")) ==
+            normalized(question.optString("topic")) }.singleOrNull()
+        return (exact ?: legacy)?.let { lastRealStep(role, it)?.optString("receipt") }.orEmpty()
     }
 
     /** A genuine observed situation may make the character wonder; it is NOT progress. */
@@ -124,33 +153,41 @@ internal object CharacterCuriosityRuntime {
         if (observed.occurredAt.isAfter(now) || !CharacterExplorationContinuity.canGroundQuestion(observed)) return false
         val fields = proposalFields(proposal) ?: return false
         val root = snapshot(characterId)
-        val threads = root.optJSONArray("threads") ?: JSONArray()
-        val old = root.optJSONArray("questions") ?: JSONArray()
-        val all = (0 until old.length()).mapNotNull(old::optJSONObject) +
-            (0 until threads.length()).mapNotNull(threads::optJSONObject)
+        val old = entries(root.optJSONArray("questions"))
+        val existingThreads = entries(root.optJSONArray("threads"))
+        val all = old + existingThreads
+        val parentId = proposal?.optString("parentThreadId").orEmpty().trim()
         val parentTopic = proposal?.optString("parentTopic").orEmpty().trim()
-        val parent = if (parentTopic.isBlank()) null else {
-            all.firstOrNull { normalized(it.optString("topic")) == normalized(parentTopic) } ?: return false
+        val parent = when {
+            parentId.isNotBlank() -> all.firstOrNull { identity(it) == parentId } ?: return false
+            parentTopic.isNotBlank() -> all.filter {
+                normalized(it.optString("topic")) == normalized(parentTopic)
+            }.distinctBy(::identity).singleOrNull() ?: return false
+            else -> null
         }
+        val existing = matching(old, proposal)
+        val continuingThread = matching(existingThreads, proposal)
+        val assignedId = existing?.let(::identity) ?: continuingThread?.let(::identity) ?: UUID.randomUUID().toString()
         if (parent != null) {
             var ancestor: JSONObject? = parent
-            val visited = mutableSetOf(normalized(fields[0]))
+            val visited = mutableSetOf(assignedId)
             while (ancestor != null) {
-                if (!visited.add(normalized(ancestor.optString("topic")))) return false
-                val key = normalized(ancestor.optString("parentTopic"))
-                ancestor = all.firstOrNull { normalized(it.optString("topic")) == key }
+                if (!visited.add(identity(ancestor))) return false
+                val ancestorId = ancestor.optString("parentThreadId")
+                ancestor = if (ancestorId.isNotBlank()) all.firstOrNull { identity(it) == ancestorId }
+                    else ancestor.optString("parentTopic").takeIf(String::isNotBlank)?.let { legacy ->
+                        all.filter { normalized(it.optString("topic")) == normalized(legacy) }
+                            .distinctBy(::identity).singleOrNull()
+                    }
             }
-        }
-        val existing = (0 until old.length()).mapNotNull(old::optJSONObject).firstOrNull {
-            normalized(it.optString("topic")) == normalized(fields[0])
         }
         if (existing?.optString("observedId") == observedId &&
             existing.optLong("observedRevision", observed.revision) == observed.revision &&
             existing.optString("question") == fields[1] && existing.optString("nextStep") == fields[3] &&
             existing.optString("hypothesis") == proposal?.optString("hypothesis").orEmpty()) return false
-        // A deeper question is a new subjective state, even after this topic has
-        // actual steps. Keep the old receipts, rather than discarding the question.
-        val item = JSONObject().put("topic", fields[0]).put("question", fields[1])
+        // Topic is a shelf, never an identity. Distinct questions can share it.
+        val item = JSONObject().put("threadId", assignedId)
+            .put("topic", fields[0]).put("question", fields[1])
             .put("why", fields[2]).put("nextStep", fields[3])
             .put("motiveId", linkedMotiveId(characterId, proposal))
             .put("hypothesis", proposal?.optString("hypothesis").orEmpty())
@@ -158,16 +195,16 @@ internal object CharacterCuriosityRuntime {
             .put("observedId", observedId).put("observedRevision", observed.revision)
             .put("observed", observedText.take(220)).put("at", now.toString())
         if (parent != null) {
+            item.put("parentThreadId", identity(parent))
             val id = parent.optString("observedId").ifBlank {
                 val steps = parent.optJSONArray("steps")
-                steps?.optJSONObject((steps.length() - 1))?.optString("evidenceId").orEmpty()
+                steps?.optJSONObject(steps.length() - 1)?.optString("evidenceId").orEmpty()
             }
             val event = SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).firstOrNull() ?: return false
             item.put("parentEvidenceId", id).put("parentRevision", event.revision)
         }
         root.put("questions", JSONArray().apply {
-            (0 until old.length()).mapNotNull(old::optJSONObject)
-                .filterNot { normalized(it.optString("topic")) == normalized(fields[0]) }.forEach(::put)
+            old.filterNot { existing != null && identity(it) == identity(existing) }.forEach(::put)
             put(item)
         })
         save(characterId, root)
@@ -191,11 +228,20 @@ internal object CharacterCuriosityRuntime {
             SharedExperienceTimeline.eventsByIds(characterId, listOf(origin)).isEmpty()) return
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
-        val old = root.optJSONArray("threads") ?: JSONArray()
-        val entries = (0 until old.length()).mapNotNull(old::optJSONObject)
-            .map { JSONObject(it.toString()) }.toMutableList()
-        val index = entries.indexOfFirst { normalized(it.optString("topic")) == normalized(fields[0]) }
-        val current = if (index >= 0) entries.removeAt(index) else JSONObject()
+        val entries = entries(root.optJSONArray("threads")).map { JSONObject(it.toString()) }.toMutableList()
+        val pending = entries(root.optJSONArray("questions"))
+        val selectedQuestion = matching(pending, proposal)
+        val match = matching(entries, proposal)
+        // Legacy callers that have no ID can continue a uniquely named prior topic,
+        // but must never steal the history of one of several same-topic branches.
+        val legacyThread = if (proposal?.optString("threadId").isNullOrBlank() &&
+            selectedQuestion == null && match == null) entries.filter {
+                normalized(it.optString("topic")) == normalized(fields[0])
+            }.singleOrNull() else null
+        val selected = match ?: legacyThread
+        val assignedId = selectedQuestion?.let(::identity) ?: selected?.let(::identity)
+            ?: UUID.randomUUID().toString()
+        val current = selected?.let { JSONObject(it.toString()) } ?: JSONObject()
         val steps = current.optJSONArray("steps") ?: JSONArray()
         if ((0 until steps.length()).any { steps.optJSONObject(it)?.optString("evidenceId") == evidenceId }) return
         val kept = JSONArray()
@@ -208,31 +254,35 @@ internal object CharacterCuriosityRuntime {
             .put("action", action.take(60)).put("receipt", receipt.take(240))
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status))
-        current.put("topic", fields[0]).put("steps", kept)
+        current.put("threadId", assignedId)
+            .put("topic", fields[0]).put("steps", kept)
             .put("motiveId", linkedMotiveId(characterId, proposal)
                 .ifBlank { current.optString("motiveId") })
             .put("question", fields[1]).put("why", fields[2])
             .put("nextStep", fields[3]).put("status", status)
+            .put("parentThreadId", selectedQuestion?.optString("parentThreadId").orEmpty()
+                .ifBlank { current.optString("parentThreadId") })
             .put("parentTopic", proposal?.optString("parentTopic").orEmpty().ifBlank { current.optString("parentTopic") })
             .put("updatedAt", now.toString())
+        if (selected != null) entries.removeAll { identity(it) == identity(selected) }
         entries.add(current)
-        root.put("threads", JSONArray().apply { entries.forEach { put(it) } })
-        // An actually explored question is no longer an untouched curiosity.
+        root.put("threads", JSONArray().apply { entries.forEach(::put) })
+        // Only resolve the exact inquiry that produced this action, not sibling
+        // questions under the same topic.
         val questions = root.optJSONArray("questions") ?: JSONArray()
         root.put("questions", JSONArray().apply {
             for (i in 0 until questions.length()) {
                 val q = questions.optJSONObject(i) ?: continue
                 val at = runCatching { Instant.parse(q.optString("at")) }.getOrNull()
-                if (normalized(q.optString("topic")) != normalized(fields[0]) ||
+                if (selectedQuestion == null || identity(q) != identity(selectedQuestion) ||
                     q.optString("observedId") == evidenceId || at?.isAfter(now) == true) put(q)
             }
         })
-        // A successful new way forward clears the transient failed attempt on this topic.
         val failed = root.optJSONArray("failures") ?: JSONArray()
         root.put("failures", JSONArray().apply {
             for (i in 0 until failed.length()) {
                 val f = failed.optJSONObject(i) ?: continue
-                if (normalized(f.optString("topic")) != normalized(fields[0])) put(f)
+                if (f.optString("threadId") != assignedId || assignedId.isBlank()) put(f)
             }
         })
         save(characterId, root)
@@ -246,25 +296,23 @@ internal object CharacterCuriosityRuntime {
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
         val threads = root.optJSONArray("threads") ?: JSONArray()
-        val index = (0 until threads.length()).firstOrNull {
-            normalized(threads.optJSONObject(it)?.optString("topic").orEmpty()) == normalized(fields[0])
-        }
         val questions = root.optJSONArray("questions") ?: JSONArray()
-        val hasQuestions = (0 until questions.length()).any {
-            normalized(questions.optJSONObject(it)?.optString("topic").orEmpty()) == normalized(fields[0])
-        }
-        if (index == null && !hasQuestions) return
-        if (index != null) {
-            threads.optJSONObject(index)?.put("status", "dropped")
-                ?.put("releaseReason", fields[2])
-                ?.put("releasedAt", now.toString())
+        val threadEntries = entries(threads)
+        val questionEntries = entries(questions)
+        val matchQuestion = matching(questionEntries, proposal)
+        val matchThread = matching(threadEntries, proposal) ?: if (proposal?.optString("threadId").isNullOrBlank() &&
+            matchQuestion == null) threadEntries.filter {
+                normalized(it.optString("topic")) == normalized(fields[0])
+            }.singleOrNull() else null
+        if (matchQuestion == null && matchThread == null) return
+        if (matchThread != null) {
+            matchThread.put("status", "dropped")
+                .put("releaseReason", fields[2]).put("releasedAt", now.toString())
             root.put("threads", threads)
         }
         root.put("questions", JSONArray().apply {
-            for (i in 0 until questions.length()) {
-                val q = questions.optJSONObject(i) ?: continue
-                if (normalized(q.optString("topic")) != normalized(fields[0])) put(q)
-            }
+            questionEntries.filterNot { matchQuestion != null &&
+                identity(it) == identity(matchQuestion) }.forEach(::put)
         })
         save(characterId, root)
     }
@@ -278,16 +326,25 @@ internal object CharacterCuriosityRuntime {
         val fields = proposalFields(proposal) ?: return
         val root = snapshot(characterId)
         val previous = root.optJSONArray("failures") ?: JSONArray()
-        val same = (0 until previous.length()).mapNotNull(previous::optJSONObject)
-            .firstOrNull { normalized(it.optString("topic")) == normalized(fields[0]) &&
-                it.optString("action") == action }
+        val linked = matching(entries(root.optJSONArray("questions")) +
+            entries(root.optJSONArray("threads")), proposal)
+        val selectedId = linked?.let(::identity).orEmpty()
+        val same = entries(previous).firstOrNull {
+            it.optString("threadId") == selectedId &&
+                normalized(it.optString("topic")) == normalized(fields[0]) &&
+                normalized(it.optString("question")) == normalized(fields[1]) &&
+                it.optString("action") == action
+        }
         val repeats = same?.optInt("repeats", 0)?.plus(1)?.coerceAtMost(5) ?: 1
         root.put("failures", JSONArray().apply {
-            val retained = (0 until previous.length()).mapNotNull(previous::optJSONObject)
-                .filterNot { normalized(it.optString("topic")) == normalized(fields[0]) &&
+            val retained = entries(previous)
+                .filterNot { it.optString("threadId") == selectedId &&
+                    normalized(it.optString("topic")) == normalized(fields[0]) &&
+                    normalized(it.optString("question")) == normalized(fields[1]) &&
                     it.optString("action") == action }.takeLast(5)
             retained.forEach { put(it) }
-            put(JSONObject().put("topic", fields[0]).put("action", action.take(60))
+            put(JSONObject().put("threadId", selectedId).put("topic", fields[0])
+                .put("question", fields[1]).put("action", action.take(60))
                 .put("reason", reason.take(200)).put("repeats", repeats).put("at", now.toString()))
         })
         save(characterId, root)
@@ -300,8 +357,8 @@ internal object CharacterCuriosityRuntime {
             .takeLast(2).map { q ->
                 "自己仍好奇：" + q.optString("topic").take(60) +
                     "；真正的问题：" + q.optString("question").take(130) +
-                    "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
-                    "；此前真实结果=" + previousResult(characterId, state, q.optString("topic")).take(120) +
+                    "；threadId=" + identity(q) + "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
+                    "；此前真实结果=" + previousResult(characterId, state, q).take(120) +
                     "；可以自选是否实践：" + q.optString("nextStep").take(110)
             }
         val ongoing = activeThreads(characterId, state).takeLast(1)
@@ -370,7 +427,7 @@ internal object CharacterCuriosityRuntime {
                 val receipt = steps.optJSONObject(steps.length() - 1)?.optString("receipt").orEmpty()
                 appendLine("- 真正尝试过「" + t.optString("topic").take(70) + "」，最近结果=" +
                     receipt.take(120) + "；还想知道=" + t.optString("question").take(110) +
-                    "；源事件ID=" + lastRealStep(characterId, t)?.optString("evidenceId").orEmpty() +
+                    "；threadId=" + identity(t) + "；源事件ID=" + lastRealStep(characterId, t)?.optString("evidenceId").orEmpty() +
                     "；可选下一步=" + t.optString("nextStep").take(120))
             }
             pending.forEach { q ->
@@ -378,8 +435,8 @@ internal object CharacterCuriosityRuntime {
                     "」后对「" + q.optString("topic").take(70) +
                     "」感到好奇：" + q.optString("question").take(105) +
                     "；父主题=" + q.optString("parentTopic") + "；待验证假设=" + q.optString("hypothesis") +
-                    "；源事件ID=" + q.optString("observedId") + "；可选下一步=" + q.optString("nextStep") +
-                    "；此前真实结果=" + previousResult(characterId, root, q.optString("topic")).take(120) +
+                    "；threadId=" + identity(q) + "；源事件ID=" + q.optString("observedId") + "；可选下一步=" + q.optString("nextStep") +
+                    "；此前真实结果=" + previousResult(characterId, root, q).take(120) +
                     "（这个新问题尚未实践，不是客观结论）")
             }
             appendLine("兴趣影响注意、观点和话题选择，不要因此自动改变当前聊天主题；过去接触到的信息范围以真实记录为限。")
@@ -420,7 +477,7 @@ internal object CharacterCuriosityRuntime {
                 unanswered.forEach { q ->
                     appendLine("- " + q.optString("topic") + "：" + q.optString("question") +
                         "；当时确实观察到：" + q.optString("observed").take(120) +
-                        "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
+                        "；threadId=" + identity(q) + "；源事件ID=" + q.optString("observedId") + "；父主题=" + q.optString("parentTopic") +
                         "；待验证假设=" + q.optString("hypothesis") + "；可能下一步：" + q.optString("nextStep"))
                 }
             }

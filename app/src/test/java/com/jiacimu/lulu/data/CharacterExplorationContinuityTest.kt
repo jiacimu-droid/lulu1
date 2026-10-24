@@ -186,6 +186,54 @@ class CharacterExplorationContinuityTest {
         assertNotNull(parsed.javaClass.getDeclaredField("curiosities").apply { isAccessible = true }.get(parsed))
     }
 
+
+    @Test fun sameTopicIndependentQuestionsDoNotOverwriteOrStealOtherBranchReceipts() {
+        val first = question("自主贡献").put("question", "现阶段可以怎样做")
+        val second = question("自主贡献").put("question", "将来具身后哪些条件才成立")
+        CharacterExplorationContinuity.remember(context, role, null,
+            JSONArray().put(first).put(second), listOf("input"), now)
+        assertEquals(2, questions().length())
+        val oneId = questions().getJSONObject(0).getString("threadId")
+        val twoId = questions().getJSONObject(1).getString("threadId")
+        assertNotEquals(oneId, twoId)
+        val receipt = outcome("first-branch-result")
+        CharacterCuriosityRuntime.recordOutcome(role,
+            JSONObject(first.toString()).put("threadId", oneId),
+            "web_search", true, "当前方式搜索完成", receipt.id, now.plusSeconds(10))
+        val left = CharacterCuriosityRuntime.visibleQuestions(role)
+        assertEquals(1, left.size)
+        assertEquals(twoId, left.single().getString("threadId"))
+        assertEquals(1, CharacterCuriosityRuntime.activeThreads(role).size)
+        CharacterCuriosityRuntime.releaseInterest(role,
+            JSONObject(second.toString()).put("threadId", twoId).put("status", "dropped"),
+            now.plusSeconds(11))
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(role).isEmpty())
+        assertEquals(1, CharacterCuriosityRuntime.activeThreads(role).size)
+    }
+
+    @Test fun explicitThreadIdRevisesOnlyOneQuestionAndAmbiguousParentTopicNeedsIdentity() {
+        val first = question("自主贡献").put("question", "现阶段的机会")
+        val second = question("自主贡献").put("question", "未来的新条件")
+        CharacterExplorationContinuity.remember(context, role, null,
+            JSONArray().put(first).put(second), listOf("input"), now)
+        val before = CharacterCuriosityRuntime.visibleQuestions(role)
+        val id = before[0].getString("threadId")
+        assertFalse(CharacterCuriosityRuntime.recordInquiry(role,
+            question("条件分叉", parent = "自主贡献"), "input", "同一观察", now.plusSeconds(2)))
+        val revision = question("自主贡献").put("threadId", id)
+            .put("question", "现阶段到底怎么验证机会")
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(role, revision,
+            "input", "同一观察", now.plusSeconds(3)))
+        assertEquals(2, CharacterCuriosityRuntime.visibleQuestions(role).size)
+        assertTrue(CharacterCuriosityRuntime.visibleQuestions(role).any {
+            it.optString("threadId") == id && it.optString("question").contains("验证机会")
+        })
+        val child = question("条件分叉").put("parentThreadId", id)
+        assertTrue(CharacterCuriosityRuntime.recordInquiry(role, child,
+            "input", "同一观察", now.plusSeconds(4)))
+        assertEquals(id, CharacterCuriosityRuntime.visibleQuestions(role).last()
+            .optString("parentThreadId"))
+    }
     @Test fun deferredScreenQuestionAdvancesOnlyAfterTheRealConsentedObservation() {
         val q = question("屏幕能提供哪些真实线索")
         CharacterExplorationContinuity.remember(context, role, q, null, listOf("input"), now)

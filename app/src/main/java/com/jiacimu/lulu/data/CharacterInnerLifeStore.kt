@@ -601,8 +601,6 @@ object CharacterInnerLifeStore {
                             (userJustConfirmedSettlement &&
                                 RelationshipRepairContinuity.isRepairGoal(aim)) ||
                             CharacterStaleGoalPolicy.isGenericOrientation(aim) ||
-                            records.count { CharacterMotiveState.isActive(it) ||
-                                it.optString("status") == "paused" } >= 6 ||
                             sameCharacterMotive(legacyAim, aim) ||
                             records.any { sameCharacterMotive(it.optString("aim"), aim) }) continue
                         records += JSONObject().put("id", UUID.randomUUID().toString())
