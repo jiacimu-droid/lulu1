@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T01:41:04.528071+00:00",
-  "commit": "2d7479513c9cb732a8f3997e897d03b6975ba813",
+  "generatedAt": "2026-10-24T01:44:27.130982+00:00",
+  "commit": "f68d5e0c55caccd453d102ab47b70c5b060511b2",
   "branch": "main",
-  "sourceFingerprint": "61e062baf5a4e8a971300b93862600cf6f6074b733365bc29a4624a7b32ad846",
+  "sourceFingerprint": "0172fb039a8118c8105cbcc485f46b4b94fc144ef488f414036857b6846f177f",
   "summary": {
     "files": 867,
-    "lines": 165669,
+    "lines": 165687,
     "symbols": 2504
   },
   "symbolIndex": {
@@ -41,7 +41,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 58
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -89,7 +89,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 479
+        "line": 494
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -517,25 +517,25 @@
     "resolveSttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 38
+        "line": 40
       }
     ],
     "sttEngine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 39
+        "line": 41
       }
     ],
     "sttLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 43
+        "line": 45
       }
     ],
     "label": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 50
+        "line": 52
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
@@ -561,13 +561,13 @@
     "miniAsrEndpoint": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 51
+        "line": 53
       }
     ],
     "preflight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-        "line": 56
+        "line": 58
       }
     ],
     "CharacterMemoryFeatureScreen": [
@@ -2907,27 +2907,27 @@
     "pauseCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 271
+        "line": 286
       }
     ],
     "resumeCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 294
+        "line": 309
       }
     ],
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 346
+        "line": 361
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 393
+        "line": 408
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 435
+        "line": 450
       }
     ],
     "payload": [
@@ -14377,8 +14377,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
-      "lines": 82,
-      "sha256": "b7cbad3ee00b80367beef6d3a93fc72e28f8978b365fbed9db161741c8148497",
+      "lines": 84,
+      "sha256": "6e11c453c99a5eadfac98ed959da2baf1b0143c8d443e08df056c4644eb489e5",
       "symbols": [
         {
           "name": "provider",
@@ -14402,27 +14402,27 @@
         },
         {
           "name": "resolveSttEngine",
-          "line": 38
+          "line": 40
         },
         {
           "name": "sttEngine",
-          "line": 39
+          "line": 41
         },
         {
           "name": "sttLabel",
-          "line": 43
+          "line": 45
         },
         {
           "name": "label",
-          "line": 50
+          "line": 52
         },
         {
           "name": "miniAsrEndpoint",
-          "line": 51
+          "line": 53
         },
         {
           "name": "preflight",
-          "line": 56
+          "line": 58
         }
       ]
     },
@@ -16539,36 +16539,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 502,
-      "sha256": "b9b406c61ece7834c5c6784247f99406706aed51abe6cc3ca91372ac0e831e8e",
+      "lines": 518,
+      "sha256": "e79a4dc53c1be365fc6d30b384d01e54aacc312600ca80ffda173154bbccd2a6",
       "symbols": [
         {
           "name": "start",
-          "line": 58
+          "line": 64
         },
         {
           "name": "pauseCapture",
-          "line": 271
+          "line": 286
         },
         {
           "name": "resumeCapture",
-          "line": 294
+          "line": 309
         },
         {
           "name": "field",
-          "line": 346
+          "line": 361
         },
         {
           "name": "field",
-          "line": 393
+          "line": 408
         },
         {
           "name": "field",
-          "line": 435
+          "line": 450
         },
         {
           "name": "stop",
-          "line": 479
+          "line": 494
         }
       ]
     },
