@@ -46,3 +46,18 @@ internal fun CommitmentTaskStatus.isActive(): Boolean = this in setOf(
 internal fun CommitmentTask.isMisroutedLiveHangup(): Boolean =
     listOf("挂断电话", "挂电话", "挂掉电话", "结束通话", "挂断这通", "挂断本次")
         .any(goal::contains)
+
+/** Future local wall-clock recurrence: skip missed days, never replay old calls. */
+internal fun nextDailyCommitmentDue(
+    previous: java.time.Instant,
+    now: java.time.Instant,
+    zone: java.time.ZoneId,
+): java.time.Instant {
+    val local = previous.atZone(zone)
+    val today = now.atZone(zone).toLocalDate()
+    val first = local.toLocalDate().plusDays(1)
+    val date = if (today.isAfter(first)) today else first
+    var candidate = java.time.ZonedDateTime.of(date, local.toLocalTime(), zone)
+    if (!candidate.toInstant().isAfter(now.plusSeconds(5))) candidate = candidate.plusDays(1)
+    return candidate.toInstant()
+}
