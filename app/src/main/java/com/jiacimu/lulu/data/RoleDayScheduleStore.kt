@@ -178,7 +178,7 @@ object RoleDayScheduleStore {
                 tasks.take(6).forEach {
                     appendLine("- commitmentTaskId=${it.id}；约定=${it.goal}；创建=${it.createdAt}；完成条件=${it.completionCondition.take(130)}")
                 }
-                appendLine("如果自己确实想在适当时刻履约，参考对方的现实安排，自选未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真正的 activityAction。用户已指定时间并有唯一闹钟的任务不得重复建表；尚无日期则不能替用户虚构过去的提醒。")
+                appendLine("如果自己确实想在适当时刻履约，参考对方的现实安排，自己选择未来时间，plan_personal_activity 关联 commitmentTaskId、title、intent、dueAt 与真正的 activityAction。用户已指定时间并有唯一闹钟的任务不得重复建表；尚无日期则不能替用户虚构过去的提醒。")
             }
             appendLine("现在可以执行、留到日后、改变心意或者暂时什么都不做；只有程序的实际工具和回执证明完成，不得用想象中的行动填日记或制造假经历。")
         }.trim()
