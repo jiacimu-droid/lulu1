@@ -12,6 +12,7 @@ object CommitmentTaskStore {
     private const val KEY_TASKS = "tasks_v1"
 
     private var prefs: android.content.SharedPreferences? = null
+    private var appContext: Context? = null
     private val mutableTasks = MutableStateFlow<List<CommitmentTask>>(emptyList())
     private val inFlight = mutableMapOf<String, String>()
     val tasks: StateFlow<List<CommitmentTask>> = mutableTasks.asStateFlow()
@@ -19,6 +20,7 @@ object CommitmentTaskStore {
     @Synchronized
     fun initialize(context: Context) {
         if (prefs != null) return
+        appContext = context.applicationContext
         prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         mutableTasks.value = decodeCommitmentTasks(prefs?.getString(KEY_TASKS, null))
     }
@@ -131,6 +133,9 @@ object CommitmentTaskStore {
             }
         }
         if (changed) persist(next)
+        // One-time migration of unequivocal duplicate daily self-plan/call tasks.
+        // No chat events or independent commitments are deleted.
+        appContext?.let(RoleDayScheduleStore::mergeMatchingDailyCallPlans)
     }
 
     /**
@@ -265,11 +270,17 @@ object CommitmentTaskStore {
         }
     }
 
+    /** Keep the daily self-plan and clock reminder stores from double-firing. */
+    internal fun mergeDailyDuplicates() {
+        appContext?.let(RoleDayScheduleStore::mergeMatchingDailyCallPlans)
+    }
+
     /** Removing a 辞海 promise removes the executable obligation and alarm. */
     @Synchronized
     fun remove(id: String): Boolean {
         val current = mutableTasks.value.firstOrNull { it.id == id } ?: return false
         current.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+        appContext?.let { RoleDayScheduleStore.removeLinkedCommitmentPlans(it, current.characterId, id) }
         persist(mutableTasks.value.filterNot { it.id == id })
         return true
     }
