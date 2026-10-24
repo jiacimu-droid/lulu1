@@ -73,9 +73,8 @@ class DailyCommitmentRecurrenceTest {
         val same = CommitmentTaskDraft(action = "create",
             goal = "10:30督促开始今天的学习", dueAt = due, repeat = "once")
         assertTrue(sameTimedReminderTask(old, same))
-        assertFalse(sameTimedReminderTask(old,
-            same.copy(dueAt = due.plusSeconds(86400))),
-            "A separate tomorrow reminder must remain possible")
+        assertFalse("A separate tomorrow reminder must remain possible",
+            sameTimedReminderTask(old, same.copy(dueAt = due.plusSeconds(86400))))
         assertFalse(sameTimedReminderTask(old, same.copy(goal = "提醒早点休息")))
     }
 
