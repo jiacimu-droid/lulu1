@@ -518,7 +518,7 @@ fun CharacterSettingsScreenV2(
     if (chooseResidentModel) {
         ModelArchivePickerSheet(
             title = "原住民每日规划",
-            subtitle = "所有 NPC 共用这一低成本模型，每人最多每天一次；与江渡聊天模型独立。",
+            subtitle = "每日规划调用一次；每项行程到点再单独决策。居民互动使用独立低价模型。",
             selectedArchiveId = residentModelId,
             onSelect = { id ->
                 ScopedModelSelections.select(ScopedModelSelections.RESIDENT_DAILY, id)
