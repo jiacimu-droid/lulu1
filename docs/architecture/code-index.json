@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:54:04.199274+00:00",
-  "commit": "387d46f0fcdf09cb1e4e5b1a6c9487339798a1c6",
+  "generatedAt": "2026-10-24T04:54:38.172584+00:00",
+  "commit": "e418e25d898ccc73ba97134568811750f69c0f45",
   "branch": "main",
-  "sourceFingerprint": "8a99c5c06d4419afeabb33f9240adf3f7234ffa4fb6745cf9ce6c165ec98867f",
+  "sourceFingerprint": "5559e70027ac134a69061810df42f82ec2ecf7332ce80c5dcb5edef11f71d9c6",
   "summary": {
     "files": 872,
-    "lines": 167840,
+    "lines": 167862,
     "symbols": 2522
   },
   "symbolIndex": {
@@ -1933,7 +1933,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1024
+        "line": 1027
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -4421,7 +4421,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 68
+        "line": 71
       }
     ],
     "Attempt": [
@@ -6339,7 +6339,7 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 991
+        "line": 994
       }
     ],
     "age": [
@@ -20046,8 +20046,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 1112,
-      "sha256": "31c4cf4be50300af7ce8c9197977dffe537a3bc080e5eb74480cb34d18df71d3",
+      "lines": 1115,
+      "sha256": "da4a6877f97593d649b1a2046e52e73bd156987f8c6ced04d97868d6c79aa5b2",
       "symbols": [
         {
           "name": "asJson",
@@ -20059,15 +20059,15 @@
         },
         {
           "name": "capabilityContext",
-          "line": 68
+          "line": 71
         },
         {
           "name": "world",
-          "line": 991
+          "line": 994
         },
         {
           "name": "from",
-          "line": 1024
+          "line": 1027
         }
       ]
     },
@@ -28258,8 +28258,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 204,
-      "sha256": "838ac9edc7d36d1f2b1759500ddff7cc5e67a1b43899243cd2b2e1ce8033b1b0",
+      "lines": 223,
+      "sha256": "74ee040294ab51b7f7f094019ab26d5119e859d0ee1d9281f28e0ac801d5bdf9",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
