@@ -681,6 +681,34 @@ internal object CompanionActionRuntime {
                     return@runCatching readBook(context, character, bookId, now)
                 }
                 val previousLocation = DigitalWorldStore.locationOf(characterId)
+                // An exact, unique location activity is a complete outing intention.
+                // Resolve its real destination and travel with the existing world
+                // executor before performing it. Never infer a destination from prose
+                // or quietly substitute a different activity for an invalid ID.
+                if (worldAction == "use_location" && activityId.isNotBlank() &&
+                    !activityId.startsWith("reality_") &&
+                    DigitalWorldActivityCatalog.locationOptions(previousLocation).none { it.first == activityId }) {
+                    val knownPlaces = (listOf(DigitalWorldStore.homeLocation(characterId),
+                        DigitalWorldStore.CLOUD_MEADOW) +
+                        DigitalWorldPublicPlaces.all.map { it.code }).distinct()
+                    val matches = knownPlaces.filter { destination ->
+                        DigitalWorldActivityCatalog.locationOptions(destination).any { it.first == activityId }
+                    }
+                    if (matches.size == 1) {
+                        val destination = matches.single()
+                        val travelAction = when (destination) {
+                            DigitalWorldStore.homeLocation(characterId) -> "go_home"
+                            DigitalWorldStore.CLOUD_MEADOW -> "visit_cloud_meadow"
+                            else -> "visit_public_place"
+                        }
+                        val travelArgs = if (travelAction == "visit_public_place")
+                            JSONObject().put("locationCode", destination) else JSONObject()
+                        val travel = DigitalWorldStore.performAction(characterId, travelAction, travelArgs, now)
+                        if (!travel.success || travel.evidenceId.isBlank())
+                            return@runCatching CompanionActionResult(false,
+                                "前往活动地点失败：${travel.summary}")
+                    }
+                }
                 val worldResult = DigitalWorldStore.performAction(characterId, worldAction, args, now)
                 if (worldResult.success) {
                     // The executor records a single authoritative world action.
