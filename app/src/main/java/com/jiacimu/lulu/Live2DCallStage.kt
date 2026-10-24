@@ -14,6 +14,8 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageView
+import android.widget.FrameLayout
+import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -80,6 +82,10 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     // Render frames in Compose, outside the WebView surface, when Android's
     // GPU compositor displays an empty WebView in spite of positive readback.
     nativeMirrorEnabled: Boolean = false,
+    // Optional uncompressed GPU surface: Chromium draws into a private
+    // VirtualDisplay/Presentation and SurfaceView consumes its output.
+    gpuSurfaceRequested: Boolean = false,
+    onGpuSurfaceResult: (Boolean, String) -> Unit = { _, _ -> },
     framingMode: String = "full",
     qualityMode: String = "quality",
     interactionMode: String = "hand",
@@ -101,6 +107,7 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     val statusReceiver = rememberUpdatedState(onStatus)
     val webViewReceiver = rememberUpdatedState(onWebViewReady)
     val touchReceiver = rememberUpdatedState(onModelTouch)
+    val gpuSurfaceReceiver = rememberUpdatedState(onGpuSurfaceResult)
     val latestCalibrationReset = rememberUpdatedState(calibrationResetRevision)
     val latestCalibrationSize = rememberUpdatedState(calibrationSizeRevision)
     val binaryFrames = remember(context, characterId, modelUrl) {
@@ -126,6 +133,9 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
         }
     }
     LaunchedEffect(stage) { webViewReceiver.value?.invoke(stage) }
+    // Keep one stable AndroidView parent. VirtualDisplay presentation temporarily
+    // reparents the SAME WebView; no second Live2D instance or audio session.
+    val stageHost = remember(stage) { FrameLayout(context) }
     DisposableEffect(stage) {
         onDispose {
             runCatching { stage.stopLoading() }
@@ -139,12 +149,28 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
     Box(modifier.fillMaxSize()) {
         AndroidView(
             factory = {
+                if (stage.parent == null) {
+                    stageHost.addView(stage, FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    ))
+                }
                 stage.loadUrl("https://appassets.androidplatform.net/assets/live2d/stage.html")
-                stage
+                stageHost
             },
             modifier = Modifier.fillMaxSize(),
-            update = { view -> reportNativeLive2DViewport(view) },
+            update = { _ -> reportNativeLive2DViewport(stage) },
         )
+        // Existing JPEG display stays in front until PixelCopy verifies an
+        // actual native GPU frame. Failed trials restore the same WebView.
+        DisposableEffect(stage, stageHost, gpuSurfaceRequested, rendererReady.value) {
+            val presentation = if (gpuSurfaceRequested && rendererReady.value) {
+                Live2DGpuSurfacePresentation(stage, stageHost) { ok, reason ->
+                    gpuSurfaceReceiver.value(ok, reason)
+                }.also { it.start() }
+            } else null
+            onDispose { presentation?.stop() }
+        }
         if (nativeMirrorEnabled) {
             Live2DNativeFrameOverlay(
                 stage, binaryFrames, binarySupported, rendererReady.value,

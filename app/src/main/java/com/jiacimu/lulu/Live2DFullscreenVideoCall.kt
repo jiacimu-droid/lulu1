@@ -255,6 +255,10 @@ internal fun Live2DFullscreenVideoCall(
     }
     var directWebGL by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var directVerified by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    // Independent compositor path for WebViews that draw correctly offscreen
+    // but show black on the normal Android window. Always explicit opt-in.
+    var gpuSurfaceRequested by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    var gpuSurfaceVerified by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     var autoDirectAttempted by remember(modelUrl, renderRetry) { mutableStateOf(false) }
     LaunchedEffect(modelUrl, nativeFrameReady, renderRetry) {
         if (modelUrl != null && nativeFrameReady && !autoDirectAttempted) {
@@ -344,7 +348,13 @@ internal fun Live2DFullscreenVideoCall(
                 previewImmediate = cue?.immediate ?: true,
                 // Both imported models and Hiyori were verified on the actual
                 // device only through the native Compose presentation path.
-                nativeMirrorEnabled = !directWebGL,
+                nativeMirrorEnabled = !directWebGL && !gpuSurfaceVerified,
+                gpuSurfaceRequested = gpuSurfaceRequested,
+                onGpuSurfaceResult = { ok, reason ->
+                    gpuSurfaceVerified = ok
+                    if (!ok) gpuSurfaceRequested = false
+                    videoPerformance = reason
+                },
                 framingMode = framingMode,
                 qualityMode = qualityMode,
                 interactionMode = interactionMode,
@@ -667,11 +677,29 @@ internal fun Live2DFullscreenVideoCall(
                             enabled = nativeFrameReady,
                             onClick = {
                                 directWebGL = !directWebGL
+                                if (directWebGL) {
+                                    gpuSurfaceRequested = false
+                                    gpuSurfaceVerified = false
+                                }
                                 if (!directWebGL) {
                                     directVerified = false
                                     if (modelUrl != null) displayPrefs.edit()
                                         .remove("direct:$modelUrl").apply()
                                 }
+                                videoMenuExpanded = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Speed, null) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(when {
+                                gpuSurfaceVerified -> "✓ GPU 无压缩画面"
+                                gpuSurfaceRequested -> "GPU 通道验证中…"
+                                else -> "试用 GPU 无压缩画面"
+                            }) },
+                            enabled = nativeFrameReady && !directWebGL,
+                            onClick = {
+                                gpuSurfaceRequested = !gpuSurfaceRequested
+                                gpuSurfaceVerified = false
                                 videoMenuExpanded = false
                             },
                             leadingIcon = { Icon(Icons.Outlined.Speed, null) },
