@@ -38,6 +38,8 @@ data class RoleDayPlan(
     val activityArgs: String = "",
     /** Accepted long-term promise that motivated this specific time slot. */
     val commitmentTaskId: String = "",
+    /** Assigned by the real autonomous entry point, never by model-authored args. */
+    val selfInitiated: Boolean = false,
 )
 
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
@@ -69,7 +71,7 @@ object RoleDayScheduleStore {
                     o.optString("repeat", "once"), o.optString("motiveId"),
                     o.optString("targetCharacterId"), o.optString("targetResidentId"),
                     o.optString("locationCode"), o.optString("activityArgs"),
-                    o.optString("commitmentTaskId"))
+                    o.optString("commitmentTaskId"), o.optBoolean("selfInitiated", false))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -92,7 +94,8 @@ object RoleDayScheduleStore {
                 .put("targetResidentId", p.targetResidentId)
                 .put("locationCode", p.locationCode)
                 .put("activityArgs", p.activityArgs)
-                .put("commitmentTaskId", p.commitmentTaskId))
+                .put("commitmentTaskId", p.commitmentTaskId)
+                .put("selfInitiated", p.selfInitiated))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -171,6 +174,15 @@ object RoleDayScheduleStore {
             .filter { it.status == "planned" && it.dueAt.isAfter(now) }
             .minOfOrNull { it.dueAt }
 
+    /** A self-chosen ACTIVITY is an independent wake owner, not a user reminder.
+     * An isolated far-future plan cannot indefinitely disable everyday awareness. */
+    fun nextSelfDirectedWakeAt(context: Context, characterId: String, now: Instant): Instant? =
+        plans(context, characterId).asSequence()
+            .filter { it.selfInitiated && it.commitmentTaskId.isBlank() &&
+                it.status == "planned" && it.dueAt.isAfter(now) &&
+                it.dueAt <= now.plus(Duration.ofDays(1)) }
+            .minOfOrNull { it.dueAt }
+
     private fun refreshAutonomousWake(context: Context) {
         ProactivePerceptionScheduler.scheduleNextDue(context.applicationContext)
     }
@@ -204,7 +216,7 @@ object RoleDayScheduleStore {
         repeat: String = "once", motiveId: String = "",
         targetCharacterId: String = "", targetResidentId: String = "",
         locationCode: String = "", activityArgs: JSONObject = JSONObject(),
-        commitmentTaskId: String = ""): RoleDayPlan {
+        commitmentTaskId: String = "", selfInitiated: Boolean = false): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
@@ -281,7 +293,8 @@ object RoleDayScheduleStore {
             repeat = repeat, motiveId = linkedId, targetCharacterId = targetRole,
             targetResidentId = targetNative, locationCode = place,
             activityArgs = activityArgs.toString(),
-            commitmentTaskId = linkedCommitment)
+            commitmentTaskId = linkedCommitment,
+            selfInitiated = selfInitiated && linkedCommitment.isBlank())
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
@@ -465,6 +478,9 @@ object RoleDayScheduleStore {
         } ?: return null
         if (target.status == "planned") {
             persist(context, existing.map { if (it.id == planId) it.copy(status = "due") else it })
+            // The own appointment now owns the next decision; restore passive
+            // backup planning for after this appointment is processed.
+            refreshAutonomousWake(context)
         }
         return target.copy(status = "due")
     }
