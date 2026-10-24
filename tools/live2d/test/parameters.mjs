@@ -254,6 +254,40 @@ valuesById.set('ParamMouthForm', .28)
 frame()
 assert.equal(valuesById.get('ParamMouthForm'), .28,
   'after face release, imported expressions own facial parameter')
+
+const rigFace = new Map([
+  ['ParamBrowLY', 0], ['ParamBrowRY', 0], ['ParamCheekPuff', 0],
+])
+const faceRig = createVisualLayerRuntime({
+  has: (_core, id) => rigFace.has(id),
+  read: (_core, id) => rigFace.get(id),
+  write: (_core, id, value) => rigFace.set(id, value),
+})
+for (let i = 0; i < 50; i++) faceRig.update(core, {
+  deltaMs: 16, seconds: i / 60, speaking: false,
+  touchReflex: { face: { cheekPuff: .6, browLeftY: .4, browRightY: -.2 } },
+})
+assert.ok(rigFace.get('ParamCheekPuff') > .5,
+  'touch must drive the model cheek puff parameter')
+assert.ok(rigFace.get('ParamBrowLY') > .3 && rigFace.get('ParamBrowRY') < -.1,
+  'independent brow channels allow asymmetric expression')
+for (let i = 0; i < 95; i++) faceRig.update(core, {
+  deltaMs: 16, seconds: 2 + i / 60, speaking: false,
+})
+assert.ok(Math.abs(rigFace.get('ParamCheekPuff')) < .08,
+  'cheek relaxes after the pointer leaves')
+const quietHead = new Map([['ParamAngleZ', 0], ['ParamBodyAngleZ', 0]])
+const quietRig = createVisualLayerRuntime({
+  has: (_core, id) => quietHead.has(id),
+  read: (_core, id) => quietHead.get(id),
+  write: (_core, id, value) => quietHead.set(id, value),
+})
+for (let i = 0; i < 500; i++) quietRig.update(core, {
+  deltaMs: 16, seconds: i * .016, speaking: true, voiceLevel: .65,
+})
+assert.ok(Math.abs(quietHead.get('ParamAngleZ')) < .03,
+  'ordinary speech must not oscillate the head Z/neck tilt')
+
 // During an actively spoken smiling line, PCM mouth opening is independent
 // of the smile channel; touching the face temporarily owns that surface,
 // then the character's own spoken smile returns.

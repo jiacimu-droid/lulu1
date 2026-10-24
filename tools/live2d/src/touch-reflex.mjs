@@ -81,6 +81,12 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
           browForm: .24, smile: -.52, pout: .48 + force * .32,
           gazeX: -swipe * .15, gazeY: -.25 }
     if (family === 'eye') closeTouchedEye(elapsedMs < 180 ? .02 : .3)
+    if (family === 'cheek' || family === 'mouth') {
+      response.face.cheekPuff = startled ? .05 : Math.min(.38, force * .23)
+      response.face.jawOpen = startled ? .2 : 0
+      response.face[side < 0 ? 'browLeftY' : 'browRightY'] =
+        startled ? .55 : .38
+    }
     if (family === 'beast-ear') {
       response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] = -.7 * scale * recoil
     }
@@ -187,6 +193,28 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
       response.face = { eyeOpen: kiss ? .72 : .9, smile: kiss ? .2 : .06 }
   }
   if (gesture === 'stroke-up') response.pitch += 2
+  // Exploit independently modeled brows and cheek puff instead of playing
+  // the same squint on every touch. No synthetic mesh deformation: cheek
+  // pulling needs a real authored deformer and is deliberately out of scope.
+  if (family === 'cheek' && !kiss) {
+    response.face.cheekPuff = Math.min(.62,
+      (.16 + force * .35 + shy * .1) * (stroking ? 1 : .75))
+    response.face[side < 0 ? 'browLeftY' : 'browRightY'] =
+      variation === 1 ? -.15 : .22
+    response.face.pout = variation === 2 ? .16 : .06
+  } else if (family === 'nose' && !kiss) {
+    response.face.browLeftY = .24
+    response.face.browRightY = .12
+    response.face.cheekPuff = variation === 1 ? .18 : .05
+  } else if ((family === 'hair' || family === 'forehead') && soft) {
+    response.face.browLeftY = variation === 0 ? .16 : -.08
+    response.face.browRightY = variation === 2 ? .16 : .03
+  } else if ((family === 'ear' || family === 'beast-ear') && !kiss) {
+    response.face[side < 0 ? 'browLeftY' : 'browRightY'] = .26
+  } else if (family === 'mouth' && !kiss) {
+    response.face.cheekPuff = variation === 0 ? .35 : .13
+    response.face.pout = .25
+  }
   // Couple the real torso rig to each local touch. Mirror left/right and
   // follow the travel direction for central zones. Do not perform an authored
   // full-body motion: imported rigs with no torso parameters simply skip it.

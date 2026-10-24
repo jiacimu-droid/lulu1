@@ -56,6 +56,16 @@ for (const zone of TOUCH_REGIONS) {
 const kotlinZones = readFileSync(new URL('../../../app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt', import.meta.url), 'utf8')
 for (const zone of TOUCH_REGIONS) assert.ok(kotlinZones.includes('"' + zone + '" to '), zone + ' crosses the native bridge')
 
+
+const touchedCheek = touchReflexFor('cheek-left', 'stroke-right', 2,
+  { force: .7, shyness: 30 }, 280)
+assert.ok(touchedCheek.face.cheekPuff > .22 && touchedCheek.face.cheekPuff <= .62)
+assert.ok(touchedCheek.face.browLeftY > 0 && touchedCheek.face.browRightY == null)
+assert.ok(touchReflexFor('nose', 'tap', 1).face.browRightY > 0)
+assert.ok(touchReflexFor('hair', 'stroke-left', 0).face.browLeftY > 0)
+assert.ok(touchReflexFor('cheek-right', 'slap-left', 0,
+  { force: .8 }, 90).face.jawOpen > 0)
+
 const wolf = ['兽耳', '吐舌', '星星眼', '流泪', '爱心眼', '耳机', '脸红', '脸黑', '麦']
 const exp3 = id => ({ Parameters: [{ Id: id, Value: 1, Blend: 'Add' }] })
 const metadata = { '爱心眼': exp3('bq6'), '星星眼': exp3('bq19'),

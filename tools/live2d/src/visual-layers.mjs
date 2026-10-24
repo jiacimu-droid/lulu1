@@ -15,6 +15,8 @@ export const FACE_BINDINGS = Object.freeze({
   eyeOpen: ['ParamEyeLOpen', 'ParamEyeROpen'],
   browX: ['ParamBrowLX', 'ParamBrowRX'],
   browY: ['ParamBrowLY', 'ParamBrowRY'],
+  // Independent brow actuators are present in the supplied CDI3 rig.
+  browLeftY: ['ParamBrowLY'], browRightY: ['ParamBrowRY'],
   browAngle: ['ParamBrowLAngle', 'ParamBrowRAngle'],
   browForm: ['ParamBrowLForm', 'ParamBrowRForm'],
   squint: ['ParamEyeLSquint', 'ParamEyeRSquint'],
@@ -59,7 +61,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, voiceLevel = null, seconds }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, voiceLevel = null, seconds }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -67,21 +69,18 @@ export function createVisualLayerRuntime({ has, read, write }) {
     const speechEnergy = speaking ? (.4 + .6 * clamp01(
       Number.isFinite(voiceLevel) ? voiceLevel : .45)) : 0
     const idleHead = !head && !touchReflex ? {
-      // Voice-led microgestures are neutral physical motion, not a guessed
-      // emotional state. A chosen character performance always takes priority.
+      // Head Z is a chosen neck tilt, NOT a permanent sine-wave wobble.
+      // Keep the chin stable while ordinary speech animates the mouth.
       yaw: 0,
-      pitch: .25 * Math.sin(seconds * .23 + .8) +
-        speechEnergy * 1.25 * Math.sin(seconds * 1.18),
-      roll: 3.1 * Math.sin(seconds * .21 + .4) +
-        speechEnergy * 1.5 * Math.sin(seconds * .83 + 1.1),
+      pitch: .18 * Math.sin(seconds * .23 + .8) +
+        speechEnergy * .18 * Math.sin(seconds * .47),
+      roll: 0,
     } : null
     const idleBody = !body && !touchReflex ? {
-      yaw: .08 * Math.sin(seconds * .19 + .5) +
-        speechEnergy * .55 * Math.sin(seconds * .72),
-      pitch: .28 * Math.sin(seconds * .23) +
-        speechEnergy * .85 * Math.sin(seconds * 1.07),
-      roll: .35 * Math.sin(seconds * .17 + .9) +
-        speechEnergy * .7 * Math.sin(seconds * .64),
+      yaw: .06 * Math.sin(seconds * .19 + .5),
+      pitch: .23 * Math.sin(seconds * .23) +
+        speechEnergy * .18 * Math.sin(seconds * .47),
+      roll: .09 * Math.sin(seconds * .17 + .9),
     } : null
     // Authored motion files can contain head/torso movement as well as arms.
     // Sample their real pose instead of overwriting it with our resting pose.
@@ -149,7 +148,19 @@ export function createVisualLayerRuntime({ has, read, write }) {
       if (ids.some(id => !has(core, id))) continue
       // Speech amplitude articulates a selected smile; speech alone never
       // assigns a happy face to a serious, sad or otherwise neutral reply.
-      const requested = touchReflex?.face?.[key] ?? face?.[key]
+      // Only measured PCM emphasis gets a restrained one-brow lift.
+      // Never infer "happy" from sound, override chosen expressions, or
+      // impose one personality's mannerisms on every imported model.
+      const emphasis = speaking && Number.isFinite(voiceLevel) &&
+        !touchReflex && !authoredMotion && !expressionActive &&
+        face?.browY == null && face?.browLeftY == null &&
+        face?.browRightY == null && voiceLevel > .55
+        ? Math.min(.16, (voiceLevel - .55) * .36) *
+          Math.max(0, Math.sin(seconds * 2.1)) : 0
+      const speechBrow = key === 'browLeftY' ? emphasis :
+        key === 'browRightY' ? emphasis * .35 : null
+      const requested = touchReflex?.face?.[key] ?? face?.[key] ??
+        (speechBrow != null && speechBrow > .008 ? speechBrow : null)
       const eyeContact = key === 'gazeX' || key === 'gazeY'
       if (authoredMotion && requested == null) {
         delete smoothedFace[key]
