@@ -296,8 +296,16 @@ internal object CharacterCuriosityRuntime {
         val failed = root.optJSONArray("failures") ?: JSONArray()
         root.put("failures", JSONArray().apply {
             for (i in 0 until failed.length()) {
-                val f = failed.optJSONObject(i) ?: continue
-                if (f.optString("threadId") != assignedId || assignedId.isBlank()) put(f)
+                val failure = failed.optJSONObject(i) ?: continue
+                // A failed attempt made before an inquiry existed has no ID.
+                // Resolve that legacy/unlinked failure by the exact question, not
+                // its broad topic: other same-topic branches keep their feedback.
+                val sameThread = failure.optString("threadId").isNotBlank() &&
+                    failure.optString("threadId") == assignedId
+                val sameUnlinkedQuestion = failure.optString("threadId").isBlank() &&
+                    normalized(failure.optString("topic")) == normalized(fields[0]) &&
+                    normalized(failure.optString("question")) == normalized(fields[1])
+                if (!sameThread && !sameUnlinkedQuestion) put(failure)
             }
         })
         save(characterId, root)
