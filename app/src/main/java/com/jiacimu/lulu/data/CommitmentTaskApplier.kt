@@ -39,6 +39,15 @@ private suspend fun createCommitmentTask(
             task.goal.sameTaskText(draft.goal)
     }
     if (previousFromTurn != null) return
+    // Repeated model turns must not create another ringing job for the same
+    // daily clock obligation. A genuine change of time goes via reschedule + ID.
+    val existingDaily = if (draft.repeat == "daily" && draft.dueAt != null)
+        CommitmentTaskStore.active(characterId).firstOrNull { task ->
+            task.repeat == "daily" && task.dueAt != null &&
+                task.deliveryAction == draft.deliveryAction &&
+                sameDailyClockAndPurpose(task.goal, task.dueAt, draft.goal, draft.dueAt)
+        } else null
+    if (existingDaily != null) return
     val existingLexicon = LuluRepositories.lexicon.snapshot(characterId)
         .asSequence()
         .filter { it.section == LexiconSection.Promise }
@@ -84,6 +93,7 @@ private suspend fun createCommitmentTask(
         completionCondition = draft.completionCondition,
         steps = draft.steps,
         deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
+        repeat = draft.repeat,
         lastActionResult = if (needsClarification && wakeChoiceMissing)
             "已识别叫醒约定，但尚未选出真实来电或有声闹钟；没有登记叫醒任务"
             else if (needsClarification) "缺少必要条件，需要后续自然确认"
@@ -118,6 +128,7 @@ private suspend fun updateCommitmentTask(
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = draft.deliveryAction.ifBlank { current.deliveryAction },
+                repeat = draft.repeat,
                 linkedAlarmId = null,
                 lastAlarmScheduledAt = null,
                 executionToken = null,
@@ -221,4 +232,22 @@ private fun String.sameTaskText(other: String): Boolean {
     val right = other.lowercase().replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
     if (left.isBlank() || right.isBlank()) return false
     return left == right || (left.length >= 6 && right.length >= 6 && (left.contains(right) || right.contains(left)))
+}
+
+/** Exact local clock slot and shared subject; unrelated appointments stay independent. */
+internal fun sameDailyClockAndPurpose(
+    firstGoal: String, firstAt: Instant, secondGoal: String, secondAt: Instant,
+    zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+): Boolean {
+    val a = firstAt.atZone(zone)
+    val b = secondAt.atZone(zone)
+    if (a.hour != b.hour || a.minute != b.minute) return false
+    val themes = listOf(
+        listOf("睡", "晚安", "休息", "哄睡", "入眠"),
+        listOf("学习", "复习", "背书", "做题"),
+        listOf("起床", "叫醒", "晨起"),
+    )
+    return themes.any { terms ->
+        terms.any(firstGoal::contains) && terms.any(secondGoal::contains)
+    }
 }
