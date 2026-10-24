@@ -1746,13 +1746,6 @@ internal object LuluVoiceCallSession {
                 userText = if (opening || autonomousSleep || autonomousSilence) "" else spoken,
                 title = activeLabel,
                 archiveId = archiveId,
-                // Tell the shared character gateway the ACTUAL scene. Previously
-                // the default text-chat label suppressed phone-specific decisions.
-                sceneContext = if (latest.sleepMode)
-                    "正在与用户进行一对一电话，当前开启哄睡陪伴。"
-                else if (LuluCallWindowController.videoRequested.value)
-                    "正在与用户进行一对一视频电话。"
-                else "正在与用户进行一对一语音电话。",
                 silenceObservationId = observationId,
                 userEvidenceIds = turnUserEvidenceIds,
                 phoneCallId = latest.callExperienceId,
@@ -1781,7 +1774,7 @@ internal object LuluVoiceCallSession {
                         append(existingTurnEvent)
                     }
                 },
-                sceneContext = (when {
+                sceneContext = "正在与用户进行一对一实时电话。\n" + (when {
                     externalToolResult?.id?.startsWith("interaction-call-touch-") == true ->
                         "用户在本次 Live2D 视频电话中真的触摸了你的屏幕数字形象。这是新互动，不是麦克风说话；结合真实关系、性格和当下想法，你可以自主选择自然回应一句、执行有能力的 Live2D 动作或者安静，不要机械撒娇或假装实体触觉。"
                     externalToolResult != null -> "一对一电话仍然接通，先前请求的小红书检索刚刚返回真实结果。用户没有新增发言。结合最近对话与本人的情绪，决定是否自然接一句结果或暂时不说；成功才说读到了，失败只依据真实回执，不编造权限原因，不复述工具字段或重复搜索。"
