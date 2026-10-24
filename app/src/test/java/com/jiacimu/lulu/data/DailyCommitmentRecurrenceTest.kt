@@ -64,6 +64,21 @@ class DailyCommitmentRecurrenceTest {
             goal = "明天上午九点叫醒我起床").isWakeResponsibility())
     }
 
+    @Test fun paraphrasedOneTimePromisesShareOneClockButNotAnotherDate() {
+        val due = at(2026, 10, 24, 10, 30)
+        val old = CommitmentTask(characterId = "role",
+            goal = "十点半喊她学习", dueAt = due,
+            timezone = shanghai.id, deliveryAction = "send_private_message",
+            status = CommitmentTaskStatus.Scheduled)
+        val same = CommitmentTaskDraft(action = "create",
+            goal = "10:30督促开始今天的学习", dueAt = due, repeat = "once")
+        assertTrue(sameTimedReminderTask(old, same))
+        assertFalse(sameTimedReminderTask(old,
+            same.copy(dueAt = due.plusSeconds(86400))),
+            "A separate tomorrow reminder must remain possible")
+        assertFalse(sameTimedReminderTask(old, same.copy(goal = "提醒早点休息")))
+    }
+
     @Test fun sameClockAndPurposeMustMatchToDeduplicate() {
         val a = at(2026, 10, 24, 23, 30)
         assertTrue(sameDailyClockAndPurpose("每晚监督她睡觉", a,
