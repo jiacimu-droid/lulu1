@@ -1,7 +1,18 @@
 package com.jiacimu.lulu
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Color as AndroidPixelColor
+import android.graphics.Rect
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.view.PixelCopy
+import android.webkit.WebView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -33,11 +44,70 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import com.jiacimu.lulu.ai.VisionModelService
 import java.io.File
 import org.json.JSONObject
+
+/**
+ * Sample the ACTUAL Android window composition after the JPEG overlay is
+ * removed. Offscreen WebGL pixels alone cannot prove the image is visible on
+ * devices where the WebView compositor draws black. Unknown is a failure:
+ * the proven JPEG bridge remains available.
+ */
+private suspend fun probePresentedWebGL(context: Context, webView: WebView?): Int? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+        webView == null || !webView.isAttachedToWindow ||
+        webView.width < 64 || webView.height < 64) return null
+    var current: Context? = context
+    var activity: Activity? = null
+    repeat(12) {
+        if (current is Activity) {
+            activity = current as Activity
+            return@repeat
+        }
+        current = (current as? ContextWrapper)?.baseContext
+    }
+    val window = activity?.window ?: return null
+    val location = IntArray(2)
+    webView.getLocationInWindow(location)
+    val right = (location[0] + webView.width).coerceAtMost(window.decorView.width)
+    val bottom = (location[1] + webView.height).coerceAtMost(window.decorView.height)
+    if (location[0] < 0 || location[1] < 0 ||
+        right - location[0] < 64 || bottom - location[1] < 64) return null
+    val rect = Rect(location[0], location[1], right, bottom)
+    val image = Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888)
+    return suspendCancellableCoroutine { continuation ->
+        try {
+            PixelCopy.request(window, rect, image, { result ->
+                var colored: Int? = null
+                if (result == PixelCopy.SUCCESS) {
+                    var nonBackground = 0
+                    // Middle of the character, avoiding the video toolbar.
+                    for (y in 25 until 66) for (x in 21 until 75) {
+                        val pixel = image.getPixel(x, y)
+                        val red = AndroidPixelColor.red(pixel)
+                        val green = AndroidPixelColor.green(pixel)
+                        val blue = AndroidPixelColor.blue(pixel)
+                        if (maxOf(red, green, blue) > 90 ||
+                            maxOf(red, green, blue) - minOf(red, green, blue) > 28)
+                            nonBackground++
+                    }
+                    colored = nonBackground
+                }
+                image.recycle()
+                if (continuation.isActive) continuation.resume(colored)
+            }, Handler(Looper.getMainLooper()))
+        } catch (_: Exception) {
+            image.recycle()
+            if (continuation.isActive) continuation.resume(null)
+        }
+    }
+}
 
 /**
  * True portrait full-screen virtual video call; existing audio-only UI remains untouched.
@@ -181,6 +251,45 @@ internal fun Live2DFullscreenVideoCall(
     var stageStatus by remember(modelUrl) { mutableStateOf("loading") }
     var stageDetail by remember(modelUrl) { mutableStateOf("正在加载模型…") }
     var videoPerformance by remember(modelUrl) { mutableStateOf("") }
+    var rendererPerformance by remember(modelUrl) { mutableStateOf("") }
+    // WebView direct output is opt-in until it has proved visible on this
+    // particular device/model. A successful probe enables retry on later calls.
+    val displayPrefs = remember(cameraContext) {
+        cameraContext.getSharedPreferences("lulu_live2d_display_v1", Context.MODE_PRIVATE)
+    }
+    var directWebGL by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    var directVerified by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    var autoDirectAttempted by remember(modelUrl, renderRetry) { mutableStateOf(false) }
+    LaunchedEffect(modelUrl, nativeFrameReady, renderRetry) {
+        if (modelUrl != null && nativeFrameReady && !autoDirectAttempted) {
+            autoDirectAttempted = true
+            if (displayPrefs.getBoolean("direct:$modelUrl", false)) directWebGL = true
+        }
+    }
+    LaunchedEffect(directWebGL, nativeFrameReady, expressionStage, renderRetry) {
+        if (!directWebGL || !nativeFrameReady || expressionStage == null) return@LaunchedEffect
+        directVerified = false
+        // Wait for Android to compose a new WebView frame after removing the
+        // native overlay. A model-loaded JS signal alone is NOT enough.
+        delay(700)
+        val first = withTimeoutOrNull(2_000L) {
+            probePresentedWebGL(cameraContext, expressionStage)
+        }
+        if (!directWebGL) return@LaunchedEffect
+        if (first != null && first >= 100) {
+            directVerified = true
+            if (modelUrl != null) displayPrefs.edit()
+                .putBoolean("direct:$modelUrl", true).apply()
+        } else {
+            // Fail closed: keep the existing video/audio session and restore
+            // the proven JPEG/Bitmap fallback without reloading the model.
+            directWebGL = false
+            directVerified = false
+            if (modelUrl != null) displayPrefs.edit()
+                .remove("direct:$modelUrl").apply()
+            videoPerformance = "直显未验证，已恢复兼容画面"
+        }
+    }
     var reportedAngles by remember(modelUrl) { mutableStateOf("") }
     // Video can load before the call is dialed. Once Android creates the real
     // call ID, attach the already-ready renderer to that session, not the empty ID.
@@ -236,7 +345,7 @@ internal fun Live2DFullscreenVideoCall(
                 previewImmediate = cue?.immediate ?: true,
                 // Both imported models and Hiyori were verified on the actual
                 // device only through the native Compose presentation path.
-                nativeMirrorEnabled = true,
+                nativeMirrorEnabled = !directWebGL,
                 framingMode = framingMode,
                 qualityMode = qualityMode,
                 interactionMode = interactionMode,
@@ -279,9 +388,10 @@ internal fun Live2DFullscreenVideoCall(
                     // onRenderProcessGone. Never recreate it without user retry.
                     if (stageStatus == "fatal" && phase != "fatal") return@Live2DCallStage
                     if (phase == "performance") {
-                        // Diagnostic updates must NEVER overwrite stageStatus:
-                        // the native frame is still valid and must remain visible.
-                        videoPerformance = detail
+                        // GPU render cadence and Android delivered cadence are
+                        // separate measurements, not one misleading FPS.
+                        if (detail.startsWith("WebGL")) rendererPerformance = detail
+                        else videoPerformance = detail
                     } else if (phase == "parameters") {
                         reportedAngles = detail
                         Live2DVisualActionBus.stageParameters(characterId,
@@ -551,6 +661,21 @@ internal fun Live2DFullscreenVideoCall(
                             },
                             leadingIcon = { Icon(Icons.Outlined.HighQuality, null) },
                         )
+                        DropdownMenuItem(
+                            text = { Text(if (directWebGL)
+                                "✓ WebGL 直显 · 点击恢复兼容" else "试用 WebGL 直显") },
+                            enabled = nativeFrameReady,
+                            onClick = {
+                                directWebGL = !directWebGL
+                                if (!directWebGL) {
+                                    directVerified = false
+                                    if (modelUrl != null) displayPrefs.edit()
+                                        .remove("direct:$modelUrl").apply()
+                                }
+                                videoMenuExpanded = false
+                            },
+                            leadingIcon = { Icon(Icons.Outlined.Speed, null) },
+                        )
                         HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text(if (selfCameraEnabled) "关闭我的摄像头" else "打开我的摄像头") },
@@ -578,14 +703,18 @@ internal fun Live2DFullscreenVideoCall(
                             },
                             leadingIcon = { Icon(Icons.Outlined.Portrait, null) },
                         )
-                        if (videoPerformance.isNotBlank()) {
+                        if (rendererPerformance.isNotBlank() || videoPerformance.isNotBlank()) {
                             HorizontalDivider()
-                            Text(
-                                videoPerformance,
-                                fontSize = 11.sp,
-                                color = Color.DarkGray,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
-                            )
+                            if (rendererPerformance.isNotBlank()) {
+                                Text(rendererPerformance, fontSize = 11.sp,
+                                    color = Color.DarkGray,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
+                            }
+                            if (videoPerformance.isNotBlank()) {
+                                Text(videoPerformance, fontSize = 11.sp,
+                                    color = Color.DarkGray,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
+                            }
                         }
                     }
                 }
