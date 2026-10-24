@@ -170,7 +170,6 @@ fun LuluVoiceCallScreen(
 
     val voiceArchiveId = library.archiveIdFor(ModelUsage.VoiceCall)
     val activeArchive = library.archives.firstOrNull { it.id == voiceArchiveId }
-    val activeLabel = activeArchive?.let(LuluAiServices.connectionStore::archiveLabel) ?: "未连接电话模型"
     // Only messages belonging to this *connected* call may appear as call
     // captions. List position alone leaked old chat after a cold screen restore.
     val callMessages = remember(messages, state.callExperienceId, state.callStartedAt) {
