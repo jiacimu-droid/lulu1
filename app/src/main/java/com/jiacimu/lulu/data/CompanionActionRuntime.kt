@@ -514,6 +514,24 @@ internal object CompanionActionRuntime {
             }
             "plan_personal_activity" -> {
                 val due = java.time.Instant.parse(args.getString("dueAt").trim())
+                val actionName = args.optString("activityAction").trim().lowercase()
+                val proposed = RoleDayPlan(
+                    id = "", characterId = characterId,
+                    title = args.optString("title"), intent = args.optString("intent"),
+                    dueAt = due, createdAt = now,
+                    activityAction = actionName,
+                    repeat = args.optString("repeat", "once").lowercase(),
+                )
+                val existing = CommitmentTaskStore.snapshot(characterId).firstOrNull { task ->
+                    task.status in setOf(CommitmentTaskStatus.Scheduled,
+                        CommitmentTaskStatus.Running, CommitmentTaskStatus.WaitingForFeedback) &&
+                        duplicatesScheduledReminder(proposed, task)
+                }
+                if (existing != null) {
+                    return@runCatching CompanionActionResult(
+                        true, "同一事项已有定时约定，沿用原任务 ${existing.id}，没有再建立个人日程",
+                    )
+                }
                 val plan = RoleDayScheduleStore.arrange(
                     context, characterId, args.optString("title"), args.optString("intent"), due, now,
                     activityAction = args.optString("activityAction"),
