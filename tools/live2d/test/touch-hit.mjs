@@ -73,6 +73,12 @@ const hardImpact = enhanceWolfTouch(
   'cheek-right', 'slap-left', { force: 1 }, 240)
 assert.ok(hardImpact.roll < -25 && hardImpact.body.roll < -8,
   'wolf impact drives distinct neck and torso recoil')
+assert.ok(hardImpact.face.mouthX < -4, 'slap must drive mouth physics input')
+const wolfEar = enhanceWolfTouch(
+  touchReflexFor('beast-ear-left', 'stroke-right', 0, { force: .6 }, 230),
+  'beast-ear-left', 'stroke-right', { force: .6 }, 230)
+assert.equal(wolfEar.parameters.se_wuli_x_l, undefined,
+  'do not write Cubism physics ear output directly')
 const touchedCheek = touchReflexFor('cheek-left', 'stroke-right', 2,
   { force: .7, shyness: 30 }, 280)
 assert.ok(touchedCheek.face.cheekPuff > .22 && touchedCheek.face.cheekPuff <= .62)

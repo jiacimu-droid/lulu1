@@ -135,6 +135,10 @@ for (let i = 0; i < 25; i++) lips.update(core, speechValues)
 assert.ok(lip.get('ParamMouthOpenY') > .83, 'PCM must open the mouth smoothly')
 assert.ok(lip.get('ParamJawOpen') > .48, 'jaw follows mouth with its own latency')
 assert.ok(lip.get('ParamMouthPuckerWiden') > .07, "wolf secondary mouth rig is used")
+lips.reset()
+for (let i = 0; i < 24; i++) lips.update(core, { ...speechValues, wolf: true })
+assert.ok(lip.get('ParamMouthPuckerWiden') > 7 && lip.get('ParamMouthPuckerWiden') < 15,
+  'wolf mouth width must follow CDI3 -30..30 range')
 lips.update(core, { ...speechValues, level: 0 })
 assert.ok(lip.get('ParamMouthOpenY') > .2, 'silence should start closing rather than snap')
 for (let i = 0; i < 85; i++) lips.update(core, { deltaMs: 16, speaking: false })
@@ -289,6 +293,24 @@ for (let i = 0; i < 500; i++) quietRig.update(core, {
 })
 assert.ok(Math.abs(quietHead.get('ParamAngleZ')) < .03,
   'ordinary speech must not oscillate the head Z/neck tilt')
+
+// Wolf cheek touch -> real physics input; release -> imported resting pose.
+const physicalMouth = new Map([['ParamMouthX', 0]])
+const physicalMouthRig = createVisualLayerRuntime({
+  has: (_c, id) => physicalMouth.has(id),
+  read: (_c, id) => physicalMouth.get(id),
+  write: (_c, id, n) => physicalMouth.set(id, n),
+})
+for (let i = 0; i < 45; i++) physicalMouthRig.update(core, {
+  deltaMs: 16, seconds: i * .016, touchReflex: { face: { mouthX: -8 } },
+})
+assert.ok(physicalMouth.get('ParamMouthX') < -6,
+  'touch should drive meaningful wolf mouth physics input')
+for (let i = 0; i < 95; i++) physicalMouthRig.update(core, {
+  deltaMs: 16, seconds: 1 + i * .016,
+})
+assert.ok(Math.abs(physicalMouth.get('ParamMouthX')) < .05,
+  'wolf mouth input must return after contact')
 
 // During an actively spoken smiling line, PCM mouth opening is independent
 // of the smile channel; touching the face temporarily owns that surface,

@@ -22,6 +22,8 @@ export const FACE_BINDINGS = Object.freeze({
   browForm: ['ParamBrowLForm', 'ParamBrowRForm'],
   squint: ['ParamEyeLSquint', 'ParamEyeRSquint'],
   cheekPuff: ['ParamCheekPuff'], pout: ['ParamMouthFunnel'],
+  // PhysicsSetting26 input; Cubism physics owns MouthX3/X4/X5 outputs.
+  mouthX: ['ParamMouthX'],
 })
 export const BODY_BINDINGS = Object.freeze({
   yaw: 'ParamBodyAngleX', pitch: 'ParamBodyAngleY', roll: 'ParamBodyAngleZ',

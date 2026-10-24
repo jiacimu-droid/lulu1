@@ -15,7 +15,7 @@ export function isWolfRig(core, has) {
 export const WOLF_MOUTH = Object.freeze({
   attackMs: 48, releaseMs: 125, restMs: 185,
   jawGain: .82, jawAttackMs: 95, jawReleaseMs: 195,
-  widthGain: .22, funnelGain: .075, shrugGain: .065,
+  widthGain: 12, funnelGain: .075, shrugGain: .065,
   fallbackBase: .24, fallbackBeat: .4,
 })
 const clamp01 = v => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0))
@@ -47,6 +47,7 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
     pose.body.yaw = travel * 1.4 * envelope
     if (family === 'cheek') {
       pose.face.cheekPuff = elapsedMs < 230 ? .05 : .2 + force * .12
+      pose.face.mouthX = travel * (5 + 3 * force) * envelope
       pose.face[side < 0 ? 'browLeftY' : 'browRightY'] =
         elapsedMs < 230 ? .52 : .32
     }
@@ -63,6 +64,7 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   } else if (family === 'cheek' && gesture !== 'kiss') {
     pose.face.cheekPuff = Math.max(pose.face.cheekPuff ?? 0, .3 + force * .32)
     pose.face.pout = Math.max(pose.face.pout ?? 0, .13)
+    pose.face.mouthX = (side || travel) * (4.5 + 3 * force)
     pose.roll += (side || travel) * 2.5
   } else if (family === 'nose' && gesture !== 'kiss') {
     pose.face.cheekPuff = Math.max(.12, pose.face.cheekPuff ?? 0)
@@ -70,6 +72,10 @@ export function enhanceWolfTouch(base, region, gesture, state = {}, elapsedMs = 
   } else if (family === 'mouth' && gesture !== 'kiss') {
     pose.face.cheekPuff = Math.max(.25, pose.face.cheekPuff ?? 0)
     pose.face.pout = Math.max(.25, pose.face.pout ?? 0)
+    if (right || left) pose.face.mouthX = travel * (2.5 + 2 * force)
   }
+  // Physics3 owns these ear OUTPUTS; never override their simulation directly.
+  delete pose.parameters.se_wuli_x_l
+  delete pose.parameters.se_wuli_x_r
   return pose
 }
