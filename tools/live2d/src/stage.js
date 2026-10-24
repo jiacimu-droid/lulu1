@@ -47,6 +47,7 @@ let nativeStreamEnabled = false
 let nativeStreamBusy = false
 let nativeStreamTimer = null
 let nativeStreamLastFrameAt = 0
+let nativeStreamLastPostAt = 0
 let nativeStreamMaxEdge = 1024
 let nativeStreamWarned = false
 // Avoid JPEG-encoding duplicate frames when the WebView's Pixi ticker runs
@@ -69,7 +70,7 @@ function recordRenderTick(costMs, now) {
     notify('performance', 'WebGL ' + rendererFps + ' FPS · 绘制 ' +
       mean(framePerf.renderCostMs, framePerf.renders) + 'ms · 拷贝 ' +
       mean(framePerf.copyCostMs, framePerf.captures) + 'ms · JPEG ' +
-      mean(framePerf.encodeCostMs, framePerf.captures) + 'ms · 桥接 ' +
+      mean(framePerf.encodeCostMs, framePerf.captures) + 'ms · IPC往返 ' +
       mean(framePerf.ackCostMs, framePerf.captures) + 'ms')
   }
   framePerf.startedAt = now
@@ -1052,6 +1053,7 @@ function sendNativeStreamFrame() {
         if (nativeStreamEnabled) {
           // Android acknowledges AFTER decoding the frame. This backpressure
           // bounds allocations and prevents rendering work piling up.
+          nativeStreamLastPostAt = performance.now()
           bridge.postMessage(bytes)
         } else {
           nativeStreamBusy = false
@@ -1095,7 +1097,8 @@ function setNativeStreaming(enabled) {
     if (reply.startsWith('next:')) {
       const maxEdge = Number(reply.substring(5))
       const ackMs = performance.now() - nativeStreamLastFrameAt
-      framePerf.ackCostMs += ackMs
+      framePerf.ackCostMs += Math.max(0,
+        performance.now() - nativeStreamLastPostAt)
       nativeStreamAckMeanMs = nativeStreamAckMeanMs * .8 + ackMs * .2
     // Avoid wasting render/GPU readback bandwidth when JPEG transport cannot
     // sustain high cadence. Raise the ticker only after stable fast ACKs.
