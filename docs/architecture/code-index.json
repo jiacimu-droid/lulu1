@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:01:08.382346+00:00",
-  "commit": "252d13ec1d0afe28b8ed7c9d80be8f993d7a4933",
+  "generatedAt": "2026-10-24T12:02:07.684677+00:00",
+  "commit": "90ec3ca4b5f4c3adfdfd07c1a715d4deb6298aa0",
   "branch": "main",
-  "sourceFingerprint": "ca900ef2119eebab254e82f19f250cd583f630487f385300f5514ed445d765ed",
+  "sourceFingerprint": "96eafab5ff852d7b57fe9d577484a04341cf7f38dc2d5896f7fa0247848eff7d",
   "summary": {
     "files": 878,
-    "lines": 170681,
+    "lines": 170683,
     "symbols": 2556
   },
   "symbolIndex": {
@@ -19263,8 +19263,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
-      "lines": 201,
-      "sha256": "c69480764e273961caa95ee943cd1af2fc61c9042beecbf834d5ed2353971851",
+      "lines": 203,
+      "sha256": "7803ded39fca6ea300b0647ea90c4b4b238a0f4fd2c1d75b0ca814615570d714",
       "symbols": [
         {
           "name": "current",
