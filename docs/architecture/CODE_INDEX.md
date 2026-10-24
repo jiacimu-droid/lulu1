@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d4bd59c3a91488dd02b4e85525f9fabf83173880`
+- 基准提交：`476ecd15d702d6feb97d06c9e20be2f7584a0e7f`
 - 分支：`main`
 - 已索引文件：867
-- 已索引代码/文本行：165693
+- 已索引代码/文本行：165695
 - 已发现符号：2504
 
 | 文件 | 行数 | 符号数 |
@@ -616,7 +616,7 @@
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt` | 25 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 242 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 244 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 15 | 1 |
