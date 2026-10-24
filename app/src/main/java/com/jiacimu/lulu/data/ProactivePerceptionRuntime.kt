@@ -848,7 +848,8 @@ object ProactivePerceptionRuntime {
                 ))
                 if (proactiveInitiativeContext.isNotBlank()) appendLine(proactiveInitiativeContext)
                 // Old memories can spark an independent idea even without unread user input.
-                appendLine(CharacterAssociativeRecall.render(characterId, now))
+                appendLine(CharacterAssociativeRecall.render(characterId, now,
+                    includePersonaLenses = privateDialogue.isEmpty()))
                 // The gateway already includes the shared personality runtime,
                 // including relational initiatives; avoid inserting the same evidence twice.
                 appendLine(AutonomousActionTrace.render(
