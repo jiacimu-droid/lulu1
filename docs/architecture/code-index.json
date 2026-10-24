@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T05:23:29.156467+00:00",
-  "commit": "61a3186e9ce9966e1d3b00be93247f572378ef90",
+  "generatedAt": "2026-10-24T05:28:06.692383+00:00",
+  "commit": "4dccddf19da2c2173c8276ca0e6d6e7f9d5c121b",
   "branch": "main",
-  "sourceFingerprint": "81a6d2b90d6a7e4b21045d92bcffc7ab258f3c6061a4ad097ce311471280ad4b",
+  "sourceFingerprint": "a84ac74cb76e09e78650df943b768459e6dd5fabb422610c75ceca358e24f49a",
   "summary": {
     "files": 872,
-    "lines": 167931,
-    "symbols": 2523
+    "lines": 167963,
+    "symbols": 2524
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1684,6 +1684,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
         "line": 34
+      }
+    ],
+    "next": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
+        "line": 93
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
+        "line": 560
       }
     ],
     "toggleSelfCamera": [
@@ -10676,12 +10686,6 @@
         "line": 551
       }
     ],
-    "next": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 560
-      }
-    ],
     "partyFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
@@ -15339,8 +15343,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 853,
-      "sha256": "22fd4e27ac98f229d4ec2cd5df0a7360f45e11cb8dc390ce093a20bf2eaee5d6",
+      "lines": 843,
+      "sha256": "9d63a0f610cd90155372b82373394f4035ced61b40717a274abb8f2b33eacac2",
       "symbols": [
         {
           "name": "send",
@@ -15401,8 +15405,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt",
-      "lines": 82,
-      "sha256": "b55d128751ded885c18bd8ea27d5d94b80768b615f918db3d4ed77c82c9bf40c",
+      "lines": 108,
+      "sha256": "1bdd4963a7075e336c4b0a22c6bbe86219062d59afb498a2aef11403420dea21",
       "symbols": [
         {
           "name": "Sample",
@@ -15415,6 +15419,10 @@
         {
           "name": "frame",
           "line": 34
+        },
+        {
+          "name": "next",
+          "line": 93
         }
       ]
     },
@@ -27290,8 +27298,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt",
-      "lines": 35,
-      "sha256": "e80dd7541cfe29006b27c7258e01dbc5963a2a597d57008f39c9c9849a4a2155",
+      "lines": 51,
+      "sha256": "af26fe9d3af49628aef5ebbdc93b01d856de57bddb7217d92054d5a89c00cb18",
       "symbols": [
         {
           "name": "Live2DFrameStatsTest",
