@@ -293,6 +293,7 @@ internal object PrivateStateDeltaEngine {
         appraisal: JSONObject?,
         basis: JSONObject?,
         thought: String,
+        hasChosenToolAction: Boolean = false,
     ): PrivateStateDelta {
         val previousEmotion = previous.optJSONObject("emotion")
         val proposedEmotion = proposal?.optJSONObject("emotion")
@@ -339,7 +340,7 @@ internal object PrivateStateDeltaEngine {
                 // character's unspoken interpretation without changing their
                 // mood or adding a permanent motive. Require an authored
                 // causal change as well: fresh input alone is insufficient.
-                (focusChanged && appraisalChanged &&
+                (focusChanged && (appraisalChanged || hasChosenToolAction) &&
                     basis?.optString("change").orEmpty().isNotBlank())
             )
 
