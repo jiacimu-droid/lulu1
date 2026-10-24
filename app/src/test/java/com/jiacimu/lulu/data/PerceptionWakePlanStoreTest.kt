@@ -172,6 +172,21 @@ class PerceptionWakePlanStoreTest {
         }
     }
 
+    @Test fun oneDistantHobbyDoesNotCoverAnElevenHourGap() {
+        val ordinary = anchor.plusSeconds(2 * 3600)
+        val soon = anchor.plusSeconds(3 * 3600)
+        val distant = anchor.plusSeconds(11 * 3600)
+        assertEquals(soon, ProactivePerceptionRuntime.chooseAutonomousWakeTime(
+            ordinary, soon, 120))
+        assertEquals(ordinary, ProactivePerceptionRuntime.chooseAutonomousWakeTime(
+            ordinary, distant, 120))
+        assertEquals(ordinary, ProactivePerceptionRuntime.chooseAutonomousWakeTime(
+            ordinary, null, 120))
+        assertEquals(anchor.plusSeconds(3600),
+            ProactivePerceptionRuntime.chooseAutonomousWakeTime(
+                ordinary, anchor.plusSeconds(3600), 120))
+    }
+
     @Test fun onlineThinkingCadenceIsIndependentOfBackgroundTimingAndNeverFastByAccident() {
         val defaultPolicy = ProactivePerceptionPolicy()
         assertEquals(120L, defaultPolicy.baseIntervalMinutes)
