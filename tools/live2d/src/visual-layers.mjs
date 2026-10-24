@@ -62,7 +62,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     for (const key of Object.keys(smoothedFace)) delete smoothedFace[key]
   }
 
-  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, voiceLevel = null, seconds }) {
+  function update(core, { deltaMs, head, body, face, touchReflex = null, physical = null, speaking, authoredMotion = false, expressionActive = false, voiceLevel = null, seconds, wolf = false }) {
     if (!core) return
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
@@ -152,7 +152,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
       // Only measured PCM emphasis gets a restrained one-brow lift.
       // Never infer "happy" from sound, override chosen expressions, or
       // impose one personality's mannerisms on every imported model.
-      const emphasis = speaking && Number.isFinite(voiceLevel) &&
+      const emphasis = wolf && speaking && Number.isFinite(voiceLevel) &&
         !touchReflex && !authoredMotion && !expressionActive &&
         face?.browY == null && face?.browLeftY == null &&
         face?.browRightY == null && voiceLevel > .55

@@ -4,6 +4,7 @@ import vm from 'node:vm'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createSpeechExpressionGate } from '../src/speech-expression-gate.mjs'
+import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
 
 // Execute the actual Android-facing stage functions, including replacement,
 // voice gating and authored motions. No mock reimplementation of the player.
@@ -31,6 +32,9 @@ const bridge = {
   },
   performanceRuntime: createPerformanceRuntime({ now: () => clock }),
   mouthExpressionGate: createSpeechExpressionGate({ now: () => clock }),
+  speechMouth: createSpeechMouthRuntime({
+    has: () => false, write: () => false,
+  }), wolfRigActive: false,
   FACE_BINDINGS, BODY_BINDINGS,
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},

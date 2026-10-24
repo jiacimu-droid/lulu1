@@ -8,6 +8,7 @@ import { touchReflexFor, touchExpressionFor, touchExpressionWeight,
 import { createTouchResponseRuntime, touchFamily, isImpact } from '../src/touch-response.mjs'
 import { createTouchExpressionLayer } from '../src/touch-expression-layer.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
+import { isWolfRig, enhanceWolfTouch } from '../src/wolf-rig-profile.mjs'
 
 const bounds = { x: 60, y: -160, width: 250, height: 750 }
 const hit = (x, y, hits = [], authoredAreas = 0, calibration = null) =>
@@ -57,6 +58,21 @@ const kotlinZones = readFileSync(new URL('../../../app/src/main/java/com/jiacimu
 for (const zone of TOUCH_REGIONS) assert.ok(kotlinZones.includes('"' + zone + '" to '), zone + ' crosses the native bridge')
 
 
+assert.equal(isWolfRig({}, (_core, id) => new Set([
+  'ParamCheekPuff', 'ParamJawOpen', 'ParamAngleZ2', 'body_gensui_z',
+  'ParamMouthPuckerWiden', 'ParamBrowLForm',
+]).has(id)), true)
+assert.equal(isWolfRig({}, (_core, id) => id === 'ParamMouthOpenY'), false)
+const hairTilt = enhanceWolfTouch(
+  touchReflexFor('hair', 'stroke-left', 0, { force: .7 }, 300),
+  'hair', 'stroke-left', { force: .7 }, 300)
+assert.ok(hairTilt.roll < -12 && Math.abs(hairTilt.yaw) < 3,
+  'wolf soft touch tilts its neck without a sideways head shake')
+const hardImpact = enhanceWolfTouch(
+  touchReflexFor('cheek-right', 'slap-left', 0, { force: 1 }, 240),
+  'cheek-right', 'slap-left', { force: 1 }, 240)
+assert.ok(hardImpact.roll < -25 && hardImpact.body.roll < -8,
+  'wolf impact drives distinct neck and torso recoil')
 const touchedCheek = touchReflexFor('cheek-left', 'stroke-right', 2,
   { force: .7, shyness: 30 }, 280)
 assert.ok(touchedCheek.face.cheekPuff > .22 && touchedCheek.face.cheekPuff <= .62)
@@ -244,6 +260,7 @@ const bridge = {
   previewObserved: true, paused: false, calibrationVisible: false,
   performance: { now: () => stageTime }, touchResponse: stageResponse,
   touchCalibration: {}, calibratedRegion, resolveTouchRegion, touchReflexFor,
+  wolfRigActive: false, enhanceWolfTouch,
   touchExpressionFor, touchCompanionOverlayFor, isImpact,
   actualAvatarPixel: () => true, tactileContact: null,
   touchSequence: 0, touchReflex: null, touchReflexEndAt: 0,

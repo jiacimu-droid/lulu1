@@ -9,6 +9,7 @@ import { CubismParameterAccess } from './cubism-parameters.mjs'
 import { FACE_BINDINGS, BODY_BINDINGS, createVisualLayerRuntime } from './visual-layers.mjs'
 import { createPerformanceRuntime } from './speech-performance.mjs'
 import { createSpeechMouthRuntime } from './speech-mouth.mjs'
+import { isWolfRig, enhanceWolfTouch } from './wolf-rig-profile.mjs'
 import { createSpeechExpressionGate, isMouthExclusiveExpression, isEyeExclusiveExpression } from './speech-expression-gate.mjs'
 import { resolveTouchRegion, sanitizeTouchCalibration, calibratedRegion, TOUCH_REGIONS, touchZoneArea } from './touch-hit.mjs'
 import { touchReflexFor, touchExpressionFor, touchCompanionOverlayFor } from './touch-reflex.mjs'
@@ -30,6 +31,7 @@ console.info('__LULU_LIVE2D__' + JSON.stringify({
 }))
 let app
 let model
+let wolfRigActive = false
 let nativeViewport = { width: 0, height: 0 }
 let inflightModelUrl = null
 let loadSequence = 0
@@ -515,7 +517,7 @@ function applyFinalParameters(core, deltaMs) {
     authoredMotion: motionActive,
     touchReflex: tactilePose, physical: physicalState,
     speaking: playing, expressionActive: !!activeExpressionName || !!visibleTouchExpression,
-    voiceLevel: pcmAvailable ? mouth : null, seconds,
+    voiceLevel: pcmAvailable ? mouth : null, seconds, wolf: wolfRigActive,
   })
   // A natural reflex, not an invented emotional intention: this particular
   // model has an empty EyeBlink group but exposes both eyelid parameters.
@@ -563,7 +565,7 @@ function applyFinalParameters(core, deltaMs) {
   speechMouth.update(core, {
     deltaMs, speaking: playing, pcmAvailable, level: mouth,
     elapsedMs: Math.max(0, timeNow - speakingBeganAt), seed: fallbackSpeechSeed,
-    blocked: mouthExpressionGate.state().active,
+    blocked: mouthExpressionGate.state().active, wolf: wolfRigActive,
     jawOverride: tactilePose?.face?.jawOpen ?? visibleFace?.jawOpen,
     poutOverride: tactilePose?.face?.pout ?? visibleFace?.pout,
   })
@@ -743,6 +745,7 @@ async function load(modelURL) {
     // score is allowed to bleed into the next imported model.
     visualLayers.reset()
     speechMouth.reset()
+    wolfRigActive = false
     touchReflex = null
     tactileContact = null
     performanceRuntime.reset()
@@ -760,6 +763,10 @@ async function load(modelURL) {
       return
     }
     model = loaded
+    wolfRigActive = isWolfRig(model.internalModel?.coreModel, hasParameter)
+    notify('diagnostic', wolfRigActive
+      ? '小狼专属动作参数已启用'
+      : '模型未匹配小狼专属骨架，使用通用驱动')
     describeTextureLimits(model)
     if (!installFinalParameterControl(model)) throw new Error('缺少 Cubism 最终参数控制阶段')
     app.stage.addChild(model)
@@ -1160,8 +1167,12 @@ function tickTactileContact(tactileNow) {
     }
     const poseKind = tactileContact.pressed && tactileContact.kind === 'tap' &&
       tactileNow - tactileContact.start > 520 ? 'hold' : tactileContact.kind
-    touchReflex = touchReflexFor(tactileContact.region, poseKind,
-      tactileContact.ordinal, tactileContact.state, tactileNow - tactileContact.start)
+    const elapsed = tactileNow - tactileContact.start
+    const base = touchReflexFor(tactileContact.region, poseKind,
+      tactileContact.ordinal, tactileContact.state, elapsed)
+    touchReflex = wolfRigActive
+      ? enhanceWolfTouch(base, tactileContact.region, poseKind, tactileContact.state, elapsed)
+      : base
   } else { touchReflex = null; tactileContact = null }
 }
 function updateTactileExpression(region, kind, state, now) {
@@ -1262,8 +1273,10 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     : starting || !tactileContact ? now : tactileContact.start
   tactileContact = { region, kind, ordinal: touchSequence, state,
     start: contactStart, pressed: !completed, downPoint }
-  touchReflex = !completed && isImpact(kind) ? null :
+  const baseTouch = !completed && isImpact(kind) ? null :
     touchReflexFor(region, kind, touchSequence, state)
+  touchReflex = wolfRigActive && baseTouch
+    ? enhanceWolfTouch(baseTouch, region, kind, state, 0) : baseTouch
   touchReflexEndAt = now + (isImpact(kind) ? 1700 : kind === 'kiss' ? 1850
     : kind === 'hold' || kind.startsWith('stroke') ? 1000 : 550)
   // A new impact clears affectionate eyes. Petting grows with actual time
