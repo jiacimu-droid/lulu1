@@ -1514,25 +1514,38 @@ object ProactivePerceptionRuntime {
         val actionStartedAt = Instant.now()
         AutonomousPerceptionAttempts.beforeAction(appContext, characterId)
         if (batchSuperseded()) return deferSupersededDecision()
-        val execution = performAction(
-            appContext, character, decision, availableGroups, now,
-            goalReviewMode = trigger.startsWith("持续目标定时复盘"),
-            hasFreshUserMessage = messageStimulus != null,
-            explicitScreenRequest = CharacterInitiativeRuntime.isExplicitUserToolRequest(
-                onlineUnread.text, decision.tool),
-            responseEvidenceIds = onlineUnread.messageIds,
-            replyConversationIds = onlineUnread.conversationIds,
-            userText = onlineUnread.text,
-            requestId = when {
-                // A new user message is a NEW decision. Never reuse the older
-                // call-end/world-event request key while the user is waiting.
-                messageStimulus != null ->
-                    "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}-$executionVariant"
-                salientInteraction != null ->
-                    "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}-$executionVariant"
-                else -> "proactive-${now.toEpochMilli()}"
-            },
+        // The initial supersession guard above protects against stale decisions.
+        // After accepting a real user-requested search, ownership includes its
+        // actual tool receipts AND the immediate role reply, not merely the
+        // current five-minute online batch. Protect that whole accepted tail:
+        // the prior code protected search IO but lost the feedback coroutine
+        // when a newer message cancelled the parent during tool execution.
+        val protectedSearchTurn = SearchResultContinuation.requiresCompletion(
+            onlineUnread.text.isNotBlank(),
+            if (decision.action == Action.TOOL) decision.tool else "",
+            decision.sideActions,
         )
+        val execution = SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
+            performAction(
+                appContext, character, decision, availableGroups, now,
+                goalReviewMode = trigger.startsWith("持续目标定时复盘"),
+                hasFreshUserMessage = messageStimulus != null,
+                explicitScreenRequest = CharacterInitiativeRuntime.isExplicitUserToolRequest(
+                    onlineUnread.text, decision.tool),
+                responseEvidenceIds = onlineUnread.messageIds,
+                replyConversationIds = onlineUnread.conversationIds,
+                userText = onlineUnread.text,
+                requestId = when {
+                    // A new user message is a NEW decision. Never reuse the older
+                    // call-end/world-event request key while the user is waiting.
+                    messageStimulus != null ->
+                        "proactive-chat-${messageStimulus.evidenceId.hashCode().toUInt().toString(16)}-$executionVariant"
+                    salientInteraction != null ->
+                        "proactive-evidence-${salientInteraction.id.hashCode().toUInt().toString(16)}-$executionVariant"
+                    else -> "proactive-${now.toEpochMilli()}"
+                },
+            )
+        }
         currentCoroutineContext().ensureActive()
         val actionEvidenceId = if (execution.success) {
             // ToolRouter provides the exact authored bubble/post/diary ID where
