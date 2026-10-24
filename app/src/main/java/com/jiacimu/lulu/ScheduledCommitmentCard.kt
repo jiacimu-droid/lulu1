@@ -81,6 +81,7 @@ internal fun ScheduledCommitmentCard(task: CommitmentTask) {
 internal fun LegacyPromiseCard(entry: LexiconEntry) {
     var expanded by remember(entry.id) { mutableStateOf(false) }
     var editing by remember { mutableStateOf(false) }
+    var deleting by remember(entry.id) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     CharacterRecordCard {
         Text(entry.title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
@@ -90,6 +91,7 @@ internal fun LegacyPromiseCard(entry: LexiconEntry) {
         Row {
             TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "收起依据" else "查看依据") }
             TextButton(onClick = { editing = true }) { Text("编辑") }
+            TextButton(onClick = { deleting = true }) { Text("删除", color = MaterialTheme.colorScheme.error) }
             TextButton(onClick = { scope.launch { LuluRepositories.lexicon.save(entry.copy(
                 status = if (entry.status == LexiconStatus.Active) LexiconStatus.Resolved else LexiconStatus.Active,
                 updatedAt = java.time.Instant.now())) } }) {
@@ -98,6 +100,15 @@ internal fun LegacyPromiseCard(entry: LexiconEntry) {
         }
         if (expanded) CharacterEvidenceDetails(entry.characterId, entry.sourceEventIds)
     }
+    if (deleting) AlertDialog(
+        onDismissRequest = { deleting = false },
+        title = { Text("删除这条约定？") },
+        confirmButton = { TextButton(onClick = {
+            deleting = false
+            scope.launch { LuluRepositories.lexicon.delete(entry.id) }
+        }) { Text("删除") } },
+        dismissButton = { TextButton(onClick = { deleting = false }) { Text("返回") } },
+    )
     if (editing) LexiconEditorDialogV2(entry, false, onDismiss = { editing = false },
         onSave = { scope.launch { LuluRepositories.lexicon.save(it) }; editing = false },
         onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) }; editing = false })
