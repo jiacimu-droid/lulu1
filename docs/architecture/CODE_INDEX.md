@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4dccddf19da2c2173c8276ca0e6d6e7f9d5c121b`
+- 基准提交：`2ee03d17f840f4a3df2b34375744b6e6b6c4901e`
 - 分支：`main`
 - 已索引文件：872
-- 已索引代码/文本行：167963
-- 已发现符号：2524
+- 已索引代码/文本行：167931
+- 已发现符号：2523
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -97,11 +97,11 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 453 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 282 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 295 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 843 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 853 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 61 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 162 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 108 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DFrameStats.kt` | 82 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DFullscreenVideoCall.kt` | 923 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMobileTextureAdapter.kt` | 72 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DModelDiagnosticDialog.kt` | 420 | 2 |
@@ -634,7 +634,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DConversationPerformanceTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DFineTouchTest.kt` | 51 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 51 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/Live2DFrameStatsTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DMobileTextureAdapterTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DModelManifestAdapterTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DOfficialCoreInstallerTest.kt` | 58 | 1 |
