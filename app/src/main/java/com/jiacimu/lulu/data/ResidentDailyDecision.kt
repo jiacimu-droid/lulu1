@@ -80,7 +80,9 @@ internal object ResidentDailyDecision {
     )
 
     /** Model plans are proposed intentions, not actions. Registry and social facts own validity. */
-    internal fun saveAgenda(context: Context, native: DigitalWorldResident, proposal: JSONObject,
+    // The failure receipt uses a suspendable performance repository. Keep it
+    // in the caller's Worker coroutine instead of launching detached logging.
+    internal suspend fun saveAgenda(context: Context, native: DigitalWorldResident, proposal: JSONObject,
         at: Instant): List<RoleDayPlan> {
         val actor = ResidentCharacterBridge.characterId(native.id)
         val agenda = proposal.optJSONArray("agenda") ?: return emptyList()
