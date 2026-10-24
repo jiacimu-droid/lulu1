@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:16:05.880466+00:00",
-  "commit": "654c54ff195f64be3586fdfb7748f76ec03465ba",
+  "generatedAt": "2026-10-24T09:22:32.138958+00:00",
+  "commit": "46a3ff43de224b6986cd28fcfc468df6457c44e1",
   "branch": "main",
-  "sourceFingerprint": "c8fc82967efbd96faa4d75c925ae95087e9f88dd8173defa8a184fb0c22b0f61",
+  "sourceFingerprint": "58c3185a638142215eadb2ec0680ae65b83c954b1a406517781914db545e5762",
   "summary": {
     "files": 874,
-    "lines": 168842,
+    "lines": 168843,
     "symbols": 2531
   },
   "symbolIndex": {
@@ -13971,13 +13971,13 @@
     "UserMessageFavoritesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-        "line": 15
+        "line": 16
       }
     ],
     "cached": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-        "line": 21
+        "line": 22
       }
     ],
     "WakeActionPlannerTest": [
@@ -29819,16 +29819,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-      "lines": 303,
-      "sha256": "351cee5dbc597ff2b3ec687d280b46ac9bb497abec13e3027491626eb2e7f67e",
+      "lines": 304,
+      "sha256": "8d716691e0ba715ba4cc99161356e4331d74a5792de0cbb9536789f071421431",
       "symbols": [
         {
           "name": "UserMessageFavoritesTest",
-          "line": 15
+          "line": 16
         },
         {
           "name": "cached",
-          "line": 21
+          "line": 22
         }
       ]
     },
