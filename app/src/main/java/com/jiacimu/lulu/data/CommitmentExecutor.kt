@@ -141,12 +141,13 @@ internal object CommitmentExecutor {
             // Use the same character perception/decision path as normal
             // autonomous dialogue. The model may speak naturally, perform
             // allowed actions, or remain silent; never pre-commit fake prose.
-            ProactivePerceptionScheduler.scheduleManual(
-                appContext, claimedTask.characterId,
+            CompanionOnlineStore.wakeCharacter(
+                claimedTask.characterId, CompanionOnlineReason.ScheduledCommitment,
                 "已接受的定时约定刚到期：${claimedTask.goal}。" +
                     "这是系统提供的时间事实，不是你说过的话。" +
                     "结合本人真实关系与上下文，自主决定是否说话或行动；" +
                     "绝不可把系统执行文字照抄给用户。",
+                perceiveNow = true, now = now,
             )
             return
         }
