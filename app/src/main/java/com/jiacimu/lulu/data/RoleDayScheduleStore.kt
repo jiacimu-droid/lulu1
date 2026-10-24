@@ -259,13 +259,18 @@ object RoleDayScheduleStore {
                 linkedId, "", "") == linkedId) { "关联意愿必须属于本人且尚未暂停或放下" }
         }
         val existing = all(context)
-        if (repeat == "daily") {
-            require(CommitmentTaskStore.active(characterId).none { task ->
-                task.dueAt != null && task.deliveryAction == "start_call" &&
-                    task.status == CommitmentTaskStatus.Scheduled &&
-                    sameDailyClockAndPurpose(task.goal, task.dueAt, title, dueAt)
-            }) { "相同时间的每日来电约定已经存在，无需再创建另一份日程" }
-        }
+        // A user-facing promise with an alarm is the ONE executable schedule.
+        // Do not also queue a WorkManager self-plan for the same commitment.
+        // This applies to one-off study prompts as well as daily bedtime calls.
+        val proposed = RoleDayPlan(
+            id = "", characterId = characterId, title = title, intent = intent,
+            dueAt = dueAt, createdAt = now, activityAction = action, repeat = repeat,
+        )
+        require(CommitmentTaskStore.snapshot(characterId).none { task ->
+            task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running,
+                CommitmentTaskStatus.WaitingForFeedback) &&
+                duplicatesScheduledReminder(proposed, task)
+        }) { "同一件定时提醒已有约定，已保留原任务；无需重复安排个人日程" }
         require(linkedCommitment.isBlank() || existing.none {
             it.characterId == characterId && it.commitmentTaskId == linkedCommitment &&
                 it.status in setOf("planned", "due")
@@ -330,24 +335,27 @@ object RoleDayScheduleStore {
     }
 
     /**
-     * Old versions registered BOTH a daily self-plan and a one-shot incoming call
-     * for the same bedtime minute. Promote the actual phone alarm to daily and
-     * retire only an unambiguous, matching duplicate planner wake-up.
+     * Upgrade from older versions: user-facing reminders used to be written to
+     * BOTH the promise alarm store and the personal-plan WorkManager store.
+     * Keep the already armed promise and remove only the duplicate worker.
+     * Never remove the character's own reading/social/life plans.
      */
     @Synchronized
     fun mergeMatchingDailyCallPlans(context: Context) {
-        val candidates = all(context).filter { it.repeat == "daily" &&
-            it.status in setOf("planned", "due") }
+        val candidates = all(context).filter { it.status in setOf("planned", "due") }
         candidates.forEach { plan ->
             val task = CommitmentTaskStore.snapshot(plan.characterId).firstOrNull { c ->
-                c.status == CommitmentTaskStatus.Scheduled && c.deliveryAction == "start_call" &&
-                    c.dueAt != null && sameDailyClockAndPurpose(c.goal, c.dueAt, plan.title, plan.dueAt)
+                c.status == CommitmentTaskStatus.Scheduled && c.linkedAlarmId != null &&
+                    duplicatesScheduledReminder(plan, c)
             } ?: return@forEach
-            if (task.repeat != "daily") CommitmentTaskStore.update(task.id) {
-                it.copy(repeat = "daily")
+            // An older pair may have put "daily" on the plan and "once"
+            // on the promise; the single surviving alarm inherits recurrence.
+            if (plan.repeat == "daily" && task.repeat != "daily") {
+                CommitmentTaskStore.update(task.id) { current ->
+                    if (current.status != CommitmentTaskStatus.Scheduled) current
+                    else current.copy(repeat = "daily")
+                }
             }
-            // The existing call alarm remains untouched; only the duplicate
-            // personal-plan worker is removed.
             remove(context, plan.characterId, plan.id)
         }
     }
@@ -515,5 +523,39 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             ProactivePerceptionScheduler.scheduleSelfPlanned(applicationContext, role, plan.title)
             Result.success()
         }.getOrElse { Result.retry() }
+    }
+}
+
+/**
+ * The same owner-directed reminder must not create two independently waking
+ * schedules. A self-directed activity or a different topic stays independent.
+ * The promise is the executable authority; its calendar card is a projection.
+ */
+internal fun duplicatesScheduledReminder(plan: RoleDayPlan, task: CommitmentTask): Boolean {
+    if (plan.characterId != task.characterId ||
+        plan.activityAction !in setOf("send_private_message", "summon_lulu", "start_call") ||
+        task.deliveryAction !in setOf("send_private_message", "alarm_only", "start_call")) return false
+    val deadline = task.dueAt ?: return false
+    val zone = task.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+        ?: java.time.ZoneId.systemDefault()
+    val a = plan.dueAt.atZone(zone)
+    val b = deadline.atZone(zone)
+    val timeMatches = kotlin.math.abs(java.time.Duration.between(
+        a.toLocalTime(), b.toLocalTime()).seconds) <= 60L
+    if (!timeMatches) return false
+    // A repeated reminder owns the local wall-clock; otherwise require the
+    // actual SAME calendar date, not just another week's 10:30.
+    if (plan.repeat != "daily" && task.repeat != "daily" &&
+        a.toLocalDate() != b.toLocalDate()) return false
+    val groups = listOf(
+        listOf("学习", "复习", "背书", "做题", "作业", "刷题"),
+        listOf("睡觉", "睡前", "入睡", "哄睡", "晚安", "早睡", "休息"),
+        listOf("起床", "叫醒", "喊醒", "晨起"),
+        listOf("回来", "返回露露机", "叫回来"),
+    )
+    val planText = plan.title + plan.intent
+    val taskText = task.goal + task.completionCondition
+    return groups.any { words ->
+        words.any(planText::contains) && words.any(taskText::contains)
     }
 }
