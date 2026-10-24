@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:25:10.951021+00:00",
-  "commit": "825680989bd895b05aa43688d2b9299de29a6ae4",
+  "generatedAt": "2026-10-24T12:26:07.285813+00:00",
+  "commit": "d01ecf8df6af454571232b4b76082dcdafc4a907",
   "branch": "main",
-  "sourceFingerprint": "4703abc8f980953caea31694a66f12490b4d86c639f8bef825ed55da6ef6e8c2",
+  "sourceFingerprint": "be3d1abac4fe382d8b82047cc1354fb7c78bd84ad7aaab6fb5dc86f9ea144e1f",
   "summary": {
     "files": 879,
-    "lines": 170969,
+    "lines": 171050,
     "symbols": 2562
   },
   "symbolIndex": {
@@ -13291,13 +13291,13 @@
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 367
+        "line": 406
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 466
+        "line": 505
       }
     ],
     "CharacterLearningLedgerTest": [
@@ -28706,8 +28706,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt",
-      "lines": 265,
-      "sha256": "108cf7ebf995c0d806f84d457bbf820e6206aecff9ae8ca16d6eef343b4f6930",
+      "lines": 307,
+      "sha256": "7e41c2b1e15a33343ebf46feecaadc955f84a618eb22fba5c1af8a0653b946b9",
       "symbols": [
         {
           "name": "CharacterExplorationContinuityTest",
@@ -28783,8 +28783,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 626,
-      "sha256": "8acc123c87435ef4d8e48c7a57d265de6a86f22c1e2ded61b7fbe16d629601c6",
+      "lines": 665,
+      "sha256": "15976ab3623b74c7fab88fe8cc676d19fbe0f5a73babba55b096d2446143aef1",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -28792,11 +28792,11 @@
         },
         {
           "name": "social",
-          "line": 367
+          "line": 406
         },
         {
           "name": "feeling",
-          "line": 466
+          "line": 505
         }
       ]
     },
