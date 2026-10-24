@@ -30,6 +30,25 @@ class CharacterDecisionProtocolTest {
         assertTrue(p.contains("不必等用户问到这个话题"))
     }
 
+    @Test fun autonomousDiscoveryReadsRegisteredToolLinesWithoutInventingPermissions() {
+        val catalog = listOf(
+            "- web_search：已接通外部文本检索",
+            "- image_search 目前没有配置密钥",
+            "- read_xiaohongshu：已允许读取小红书",
+            "  当前可复用阅读会话=false",
+            "- send_private_message：向用户发消息",
+            "- capture_screen：需要授权",
+        ).joinToString("\n")
+        val rendered = CompanionActionRuntime.discoveryToolLines(catalog)
+        assertTrue(rendered.contains("web_search"))
+        assertTrue(rendered.contains("image_search 目前没有配置"))
+        assertTrue(rendered.contains("read_xiaohongshu"))
+        assertTrue(rendered.contains("当前可复用阅读会话=false"))
+        assertFalse(rendered.contains("send_private_message"))
+        assertFalse(rendered.contains("capture_screen"))
+        assertEquals("", CompanionActionRuntime.discoveryToolLines("- send_private_message"))
+    }
+
     @Test fun quietDecisionIsValidWithoutSpeech() {
         val quiet = JSONObject("""{"action":"silent","reason":"我现在需要自己想想"}""")
         assertEquals("silent", CharacterDecisionProtocol.chatAction(quiet))
