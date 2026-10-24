@@ -108,6 +108,7 @@ data class ModelReply(
     val deferredActions: String? = null,
     /** Structured expression choice carried separately from user-visible words. */
     val voiceBubbleTexts: List<String> = emptyList(),
+    val voiceBubbleSpeechTracks: List<String> = emptyList(),
 )
 
 class ModelConnectionStore private constructor(context: Context) {
