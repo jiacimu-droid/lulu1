@@ -1071,6 +1071,10 @@ object LuluDeviceToolBridge {
             appraisal = plan.appraisal,
             basis = plan.innerThoughtBasis,
             thought = plan.innerThought,
+            // A tool-first choice can create an unspoken thought without
+            // requiring an invented emotion or a spoken chat bubble.
+            hasChosenToolAction = plan.action == "tool" ||
+                (plannedSideActions?.length() ?: 0) > 0,
         )
         // Do not treat a decision envelope as spoken content. In particular,
         // a phone model returning only a brief must never read JSON aloud.
@@ -1680,6 +1684,9 @@ object LuluDeviceToolBridge {
                     appraisal = parsed.appraisal,
                     basis = parsed.innerThoughtBasis,
                     thought = guarded,
+                    // The observed receipt is the new stimulus for this role's
+                    // own reaction, never proof of a model-authored success.
+                    hasChosenToolAction = true,
                 )
                 parsed.copy(innerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
                     thought = guarded,
