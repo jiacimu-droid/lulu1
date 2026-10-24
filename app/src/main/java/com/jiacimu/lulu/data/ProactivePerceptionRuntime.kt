@@ -43,6 +43,7 @@ object ProactivePerceptionRuntime {
         val action: Action,
         val text: String,
         val voiceBubbleTexts: List<String> = emptyList(),
+        val bubbleDeliveryModes: List<String> = emptyList(),
         val reason: String,
         val statusText: String,
         val gesture: String,
@@ -1807,6 +1808,7 @@ object ProactivePerceptionRuntime {
         val args = if (decision.action == Action.TOOL) decision.toolArgs else JSONObject().apply {
             put("text", decision.text)
             if (decision.voiceBubbleTexts.isNotEmpty()) put("voiceBubbles", org.json.JSONArray(decision.voiceBubbleTexts))
+            if (decision.bubbleDeliveryModes.isNotEmpty()) put("bubbleDeliveries", org.json.JSONArray(decision.bubbleDeliveryModes))
             put("stickerId", decision.stickerId)
             put("nickname", decision.nickname)
             put("groupId", decision.groupId)
@@ -1932,6 +1934,7 @@ object ProactivePerceptionRuntime {
             if (destination != null) {
                 val responseArgs = JSONObject().put("text", decision.text)
                     .put("voiceBubbles", org.json.JSONArray(decision.voiceBubbleTexts))
+                    .put("bubbleDeliveries", org.json.JSONArray(decision.bubbleDeliveryModes))
                     .put("_replyEvidenceIds", org.json.JSONArray(responseEvidenceIds.toList()))
                 val replyResult = runCatching {
                     JSONObject(ToolRouter.execute(appContext, character.characterId,
@@ -2136,18 +2139,19 @@ object ProactivePerceptionRuntime {
             // bubbles even when invoked by the online perception executor.
             // Treat those as actual user-visible content, not Action.SILENT.
             text = json.optJSONArray("bubbles")?.let { bubbles ->
-                (0 until minOf(bubbles.length(), 8)).mapNotNull { i ->
+                (0 until bubbles.length()).mapNotNull { i ->
                     (bubbles.optJSONObject(i)?.optString("text")
                         ?: bubbles.optString(i)).trim().takeIf(String::isNotBlank)
                 }.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
             }.orEmpty().ifBlank { json.optString("text").trim() },
             voiceBubbleTexts = json.optJSONArray("bubbles")?.let { bubbles ->
-                (0 until minOf(bubbles.length(), 8)).mapNotNull { index ->
+                (0 until bubbles.length()).mapNotNull { index ->
                     bubbles.optJSONObject(index)?.takeIf {
                         it.optString("delivery").equals("voice", true)
                     }?.optString("text")?.trim()?.takeIf(String::isNotBlank)
                 }
             }.orEmpty(),
+            bubbleDeliveryModes = ModelStructuredOutput.bubbleDeliveryModes(json),
             reason = json.optString("reason").trim(),
             statusText = json.optString("statusText").ifBlank { json.optString("status") }.trim(),
             gesture = json.optString("gesture").ifBlank { json.optString("actionDescription") }.trim(),

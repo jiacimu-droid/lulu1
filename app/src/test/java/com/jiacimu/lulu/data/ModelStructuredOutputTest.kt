@@ -9,6 +9,53 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ModelStructuredOutputTest {
+    @Test fun allBubblesCanBeVoiceNotesInOneCharacterTurn() {
+        val words = listOf("来啦。", "坐我旁边。", "今天辛苦了。", "想听我说话吗？", "我在呢。")
+        val json = org.json.JSONObject().put("action", "message").put("bubbles",
+            org.json.JSONArray().apply {
+                words.forEach { put(org.json.JSONObject().put("text", it).put("delivery", "voice")) }
+            })
+        val modes = ModelStructuredOutput.bubbleDeliveryModes(json)
+        assertEquals(List(words.size) { "voice" }, modes)
+        val presentation = com.jiacimu.lulu.CharacterReplyPresentation(
+            content = words.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
+            bubbleDeliveryModes = modes,
+        )
+        val planned = com.jiacimu.lulu.characterOutgoingBubblePlan(presentation)
+        assertEquals(words, planned.map { it.text })
+        assertTrue(planned.all { it.voiceNote })
+        // These are five independent recordings, not one combined TTS request.
+        assertEquals(5, planned.count { it.voiceNote })
+    }
+
+    @Test fun duplicateBubbleTextStillUsesItsOwnDeliveryChoice() {
+        val words = listOf("嗯。", "嗯。", "那就这样。", "好的。")
+        val modes = listOf("text", "voice", "text", "voice")
+        val plan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = words.joinToString(com.jiacimu.lulu.SemanticBubbleSeparator),
+                bubbleDeliveryModes = modes,
+            ),
+        )
+        assertEquals(words, plan.map { it.text })
+        assertEquals(listOf(false, true, false, true), plan.map { it.voiceNote })
+    }
+
+    @Test fun voiceDeliveryCanBeEntirelyAbsentWithoutChangingText() {
+        val json = org.json.JSONObject().put("action", "message").put("bubbles",
+            org.json.JSONArray().put("第一句").put(
+                org.json.JSONObject().put("text", "第二句").put("delivery", "text")))
+        assertEquals(listOf("text", "text"), ModelStructuredOutput.bubbleDeliveryModes(json))
+        val plan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = "第一句" + com.jiacimu.lulu.SemanticBubbleSeparator + "第二句",
+                bubbleDeliveryModes = ModelStructuredOutput.bubbleDeliveryModes(json),
+            ),
+        )
+        assertEquals(2, plan.size)
+        assertFalse(plan.any { it.voiceNote })
+    }
+
     @Test fun structuredVoiceChoiceKeepsExactTranscriptAndSurroundingText() {
         val raw = """{"action":"reply","bubbles":[{"text":"先给你一个抱抱。"},{"text":"过来，亲亲你，mua～","delivery":"voice"},{"text":"好啦，今天早点休息。"}]}"""
         assertEquals(listOf("过来，亲亲你，mua～"), ModelStructuredOutput.voiceBubbleTexts(raw))

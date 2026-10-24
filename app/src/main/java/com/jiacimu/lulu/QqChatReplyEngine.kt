@@ -104,6 +104,8 @@ internal data class CharacterReplyPresentation(
     val recallBubbleNumber: Int? = null,
     val pokeUser: Boolean = false,
     val voiceBubbleTexts: List<String> = emptyList(),
+    /** Exactly one modality choice per model-authored bubble, including all-voice turns. */
+    val bubbleDeliveryModes: List<String> = emptyList(),
 )
 
 internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresentation = CharacterReplyPresentation(
@@ -125,6 +127,29 @@ private fun roleBubbleDelayMillis(characterId: String, bubble: String, index: In
     (620L + rolePacingSeed(characterId) % 520L + (bubble.length * 18L).coerceIn(180L, 1_050L) + index * 90L).coerceIn(850L, 2_500L)
 private fun roleRecallDelayMillis(characterId: String): Long = 900L + rolePacingSeed(characterId) % 650L
 
+/** Preserve the role's per-bubble choices by POSITION, never by comparing repeated wording. */
+internal data class CharacterOutgoingBubble(val text: String, val voiceNote: Boolean)
+
+internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentation): List<CharacterOutgoingBubble> {
+    val explicit = presentation.content.split(SemanticBubbleSeparator)
+        .map(::sanitizePersistedChatText).filter(String::isNotBlank)
+    if (presentation.bubbleDeliveryModes.isNotEmpty() &&
+        presentation.bubbleDeliveryModes.size == explicit.size) {
+        return explicit.mapIndexed { index, text ->
+            CharacterOutgoingBubble(text, presentation.bubbleDeliveryModes[index].equals("voice", ignoreCase = true))
+        }
+    }
+    // Backward compatibility for older callers that supplied voice utterances by content.
+    val pendingVoice = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
+    return semanticReplyBubbles(presentation.content, presentation.voiceBubbleTexts).map { bubble ->
+        val text = sanitizePersistedChatText(bubble)
+        val position = pendingVoice.indexOfFirst { it == text }
+        CharacterOutgoingBubble(text, position >= 0).also {
+            if (position >= 0) pendingVoice.removeAt(position)
+        }
+    }
+}
+
 internal suspend fun appendRoleReplyWithPacing(
     conversationId: String,
     characterId: String,
@@ -133,23 +158,21 @@ internal suspend fun appendRoleReplyWithPacing(
     actionableUserMessageIds: Set<String>? = null,
     interactionReceipt: String? = null,
 ): String {
-    val bubbles = semanticReplyBubbles(presentation.content, presentation.voiceBubbleTexts)
+    val plannedBubbles = characterOutgoingBubblePlan(presentation)
+    val bubbles = plannedBubbles.map(CharacterOutgoingBubble::text)
     if (bubbles.isEmpty()) return ""
     val before = MigratedDomainStores.chat.messages(conversationId).value
     val allowed = actionableUserMessageIds ?: currentReplyTargetUserMessages(before).mapTo(mutableSetOf(), LuluChatMessage::id)
     val quoteId = presentation.quoteMessageId?.takeIf { id -> id in allowed && before.any { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val favoriteTarget = presentation.favoriteMessageId?.takeIf { it in allowed }?.let { id -> before.firstOrNull { it.id == id && it.sender == LuluChatMessage.Sender.User } }
     val spoken = mutableListOf<LuluChatMessage>()
-    val pendingVoice = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
     val replyBatchId = UUID.randomUUID().toString()
     delay(roleTypingLeadDelayMillis(characterId))
     bubbles.forEachIndexed { index, bubble ->
         if (!currentCoroutineContext().isActive) return@forEachIndexed
         val visibleBubble = sanitizePersistedChatText(bubble)
         if (visibleBubble.isBlank()) return@forEachIndexed
-        val voicePosition = pendingVoice.indexOfFirst { it == visibleBubble }
-        val sendVoiceNote = voicePosition >= 0 && decodeQqChatImage(visibleBubble) == null
-        if (sendVoiceNote) pendingVoice.removeAt(voicePosition)
+        val sendVoiceNote = plannedBubbles[index].voiceNote && decodeQqChatImage(visibleBubble) == null
         val created = MigratedDomainStores.chat.appendCharacterMessage(
             conversationId, visibleBubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
             voiceNote = sendVoiceNote,

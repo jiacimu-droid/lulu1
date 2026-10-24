@@ -409,17 +409,32 @@ internal object CompanionActionRuntime {
                 CompanionActionResult(true, "已发送表情包：${sticker.name}", conversation.id, delivered.id)
             }
             "send_private_message" -> {
-                val text = args.optString("text").trim().take(2_000)
+                // An explicit multi-bubble turn is not one plain 2000-character message.
+                val bubbleModes = args.optJSONArray("bubbleDeliveries")?.let { modes ->
+                    (0 until modes.length()).map { index ->
+                        if (modes.optString(index).equals("voice", true)) "voice" else "text"
+                    }
+                }.orEmpty()
+                val text = args.optString("text").trim().take(if (bubbleModes.isEmpty()) 2_000 else 16_000)
                 require(text.isNotBlank()) { "私聊内容不能为空" }
                 val conversation = privateConversation(characterId, character.displayName)
                 val before = MigratedDomainStores.chat.messages(conversation.id).value.mapTo(hashSetOf()) { it.id }
                 val voiceTexts = args.optJSONArray("voiceBubbles")?.let { notes ->
                     (0 until notes.length()).mapNotNull { notes.optString(it).trim().takeIf(String::isNotBlank) }
                 }.orEmpty()
+                val presentation = com.jiacimu.lulu.parseCharacterReplyPresentation(text).let { parsed ->
+                    if (bubbleModes.isNotEmpty() &&
+                        text.split(com.jiacimu.lulu.SemanticBubbleSeparator).count(String::isNotBlank) == bubbleModes.size) {
+                        // Each voice/text choice keeps the model's actual bubble index.
+                        parsed.copy(
+                            content = com.jiacimu.lulu.stripCharacterReplyDirective(text),
+                            bubbleDeliveryModes = bubbleModes,
+                        )
+                    } else parsed.copy(voiceBubbleTexts = voiceTexts)
+                }
                 ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
                     com.jiacimu.lulu.appendRoleReplyWithPacing(conversation.id, characterId, character.displayName,
-                        com.jiacimu.lulu.parseCharacterReplyPresentation(text).copy(voiceBubbleTexts = voiceTexts),
-                     actionableUserMessageIds = replyEvidenceIds)
+                        presentation, actionableUserMessageIds = replyEvidenceIds)
                 }
                 val deliveredId = MigratedDomainStores.chat.messages(conversation.id).value
                     .lastOrNull { it.sender == LuluChatMessage.Sender.Character && it.id !in before }?.id.orEmpty()

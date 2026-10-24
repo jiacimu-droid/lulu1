@@ -167,12 +167,24 @@ internal object ModelStructuredOutput {
         return pieces.take(limit - 1) + pieces.drop(limit - 1).joinToString("")
     }
 
+    /** Position-aligned delivery decisions; the model may voice none, some, or all bubbles. */
+    fun bubbleDeliveryModes(json: JSONObject): List<String> {
+        val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
+        return (0 until bubbles.length()).mapNotNull { index ->
+            val entry = bubbles.opt(index)
+            val text = (if (entry is JSONObject) entry.optString("text") else bubbles.optString(index)).trim()
+            if (text.isBlank()) null
+            else if (entry is JSONObject && entry.optString("delivery").equals("voice", true)) "voice"
+            else "text"
+        }
+    }
+
     /** Optional per-bubble voice decision. The text is the authoritative transcript. */
     fun voiceBubbleTexts(raw: String): List<String> {
         val json = objectOrNull(raw) ?: return emptyList()
         if (json.optString("action", "reply").lowercase() !in setOf("reply", "message", "chat", "group_message")) return emptyList()
         val bubbles = json.optJSONArray("bubbles") ?: return emptyList()
-        return (0 until minOf(bubbles.length(), 8)).mapNotNull { index ->
+        return (0 until bubbles.length()).mapNotNull { index ->
             bubbles.optJSONObject(index)?.takeIf { it.optString("delivery").equals("voice", true) }
                 ?.optString("text")?.trim()?.takeIf(String::isNotBlank)
         }
