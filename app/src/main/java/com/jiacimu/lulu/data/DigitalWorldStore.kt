@@ -343,7 +343,10 @@ object DigitalWorldStore {
                     val activityId = args.optString("activityId").trim().lowercase()
                     val description = DigitalWorldActivityCatalog.locationActivitySummary(
                         character.displayName, locationCode, activityId, locationLabel(locationCode),
-                    ) ?: error("当前位置不支持这个真实活动")
+                    ) ?: error("当前位置${locationLabel(locationCode)}不支持 activityId=" +
+                        activityId.ifBlank { "(缺失)" } + "；此地可用：" +
+                        DigitalWorldActivityCatalog.locationOptions(locationCode)
+                            .joinToString("/") { it.first }.ifBlank { "(无)" })
                     DigitalWorldActivityStateStore.apply(characterId, null, activityId, description, now)
                 }
                 "handle_incident" -> {
