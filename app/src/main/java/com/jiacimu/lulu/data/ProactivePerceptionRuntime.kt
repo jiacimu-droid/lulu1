@@ -143,7 +143,7 @@ object ProactivePerceptionRuntime {
         val policy = ProactivePerceptionPolicyStore.get(characterId)
         if (!policy.enabled) return null
         val conversation = latestPrivateConversations().firstOrNull { it.characterId == characterId } ?: return null
-        dueAtFor(conversation, policy, context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE), now)
+        dueAtFor(context, conversation, policy, context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE), now)
         return PerceptionWakePlanStore.plans.value[characterId]
     }
 
@@ -156,16 +156,17 @@ object ProactivePerceptionRuntime {
             val characterId = conversation.characterId.ifBlank { "lulu" }
             val policy = ProactivePerceptionPolicyStore.get(characterId)
             if (!policy.enabled || CompanionPresenceStore.isInCall(characterId)) return@mapNotNull null
-            // A genuinely self-directed upcoming activity already owns its own
-            // durable wake worker. Do not pay again for a passive two-hour tick.
-            // Owner-requested alarms and old plans do not satisfy this condition.
-            if (!CompanionOnlineStore.isOnline(characterId, now) &&
-                RoleDayScheduleStore.nextSelfDirectedWakeAt(context, characterId, now) != null)
-                return@mapNotNull null
             // An imminent executable alarm owns its action slot, but must not
             // erase this character's *next* autonomous wake from WorkManager.
             // Re-evaluate after the promised alarm has had time to execute.
-            val ordinaryDue = dueAtFor(conversation, policy, prefs, now)
+            val ordinaryDue = dueAtFor(context, conversation, policy, prefs, now)
+            // Only a self-directed activity CLOSE ENOUGH to actually cover the
+            // next fallback window takes over. A single 11-hour-away hobby does
+            // not count as a whole day of personally planned living.
+            if (!CompanionOnlineStore.isOnline(characterId, now) &&
+                PerceptionWakePlanStore.plans.value[characterId]?.policySignature
+                    ?.contains(":self-directed=none:") == false)
+                return@mapNotNull null
             val afterAlarm = GoalDeadlinePerceptionPolicy.passiveResumeAt(
                 CommitmentTaskStore.snapshot(characterId), now)
             if (afterAlarm != null) maxOf(ordinaryDue, afterAlarm) else ordinaryDue
@@ -279,7 +280,7 @@ object ProactivePerceptionRuntime {
                     if (!force) {
                         if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
                                 CommitmentTaskStore.snapshot(characterId), now)) continue
-                        val due = dueAtFor(conversation, policy, prefs, now)
+                        val due = dueAtFor(appContext, conversation, policy, prefs, now)
                         if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
                         if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                     }
@@ -389,6 +390,7 @@ object ProactivePerceptionRuntime {
     }
 
     private fun dueAtFor(
+        context: Context,
         conversation: LuluConversation,
         policy: ProactivePerceptionPolicy,
         prefs: android.content.SharedPreferences,
@@ -404,34 +406,38 @@ object ProactivePerceptionRuntime {
         val offline = !CompanionOnlineStore.isOnline(characterId, now)
         val asleepSince = if (offline) CompanionOnlineStore.states.value[characterId]?.onlineUntil else null
         val anchor = listOfNotNull(lastChat, lastEvaluation, asleepSince).maxOrNull() ?: now
-        // Self-authored near-term plans are the primary wake authority. The
-        // adjustable passive interval is only a safety net when the role has no
-        // real plan of its own. User reminders can never silence that safety net.
-        val selfDue = if (offline)
+        // The passive interval is only a safety net between real personal
+        // activities. One distant activity alone does not cover every hour
+        // leading up to it; at most half a fallback interval of grace is
+        // allowed for a self-directed near-term activity.
+        val timingVariation = if (policy.adaptiveFrequency) {
+            val latestUserAt = messages.asSequence()
+                .filter { it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User }
+                .maxByOrNull(LuluChatMessage::createdAt)?.createdAt
+            val minutesSinceUser = latestUserAt?.let {
+                Duration.between(it, now).toMinutes().coerceAtLeast(0L)
+            }
+            val hasConcern = CharacterOpenConcernRuntime.recent(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+            ).isNotEmpty()
+            adaptivePerceptionMultiplier(
+                jitter = stableTimingVariation(characterId, anchor),
+                unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
+                pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false) && hasConcern,
+                hasConcern = hasConcern,
+                minutesSinceUserContact = minutesSinceUser,
+            )
+        } else 1.0
+        val interval = policy.intervalMinutes(timingVariation)
+        val ordinaryDue = deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy)
+        val requestedSelfDue = if (offline)
             RoleDayScheduleStore.nextSelfDirectedWakeAt(context, characterId, now) else null
-        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:self-directed=${selfDue ?: "none"}:v4"
+        val chosenDue = chooseAutonomousWakeTime(ordinaryDue, requestedSelfDue, interval)
+        val eligibleSelfDue = requestedSelfDue?.takeIf { it == chosenDue }
+        // Reconcile the old personal-only plans on upgrade, without rerolling
+        // a stable chosen deadline on every foreground clock check.
+        val signature = "${policy.normalized()}:${ZoneId.systemDefault().id}:self-directed=${eligibleSelfDue ?: "none"}:v5"
         val plan = PerceptionWakePlanStore.resolve(characterId, anchor, signature) {
-            val timingVariation = if (policy.adaptiveFrequency) {
-                val latestUserAt = messages.asSequence()
-                    .filter { it.status == LuluChatMessage.Status.Sent && it.sender == LuluChatMessage.Sender.User }
-                    .maxByOrNull(LuluChatMessage::createdAt)?.createdAt
-                val minutesSinceUser = latestUserAt?.let {
-                    Duration.between(it, now).toMinutes().coerceAtLeast(0L)
-                }
-                val hasConcern = CharacterOpenConcernRuntime.recent(
-                    CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
-                ).isNotEmpty()
-                adaptivePerceptionMultiplier(
-                    jitter = stableTimingVariation(characterId, anchor),
-                    unread = CompanionOnlineStore.unreadChatSnapshot(characterId).text.isNotBlank(),
-                    pendingConcern = prefs.getBoolean("pending_concern_promise_$characterId", false) && hasConcern,
-                    hasConcern = hasConcern,
-                    minutesSinceUserContact = minutesSinceUser,
-                )
-            } else 1.0
-            val interval = policy.intervalMinutes(timingVariation)
-            val ordinaryDue = deferPastQuietHours(anchor.plus(Duration.ofMinutes(interval)), policy)
-            val chosenDue = selfDue ?: ordinaryDue
             val selectedMinutes = Duration.between(anchor, chosenDue).toMinutes().coerceAtLeast(1L)
             PerceptionWakePlan(characterId, anchor, chosenDue, selectedMinutes, signature)
         }
@@ -439,6 +445,17 @@ object ProactivePerceptionRuntime {
             return PerceptionWakePlanStore.deferUntil(characterId, deferPastQuietHours(now, policy))?.dueAt ?: plan.dueAt
         }
         return plan.dueAt
+    }
+
+    /** Real personal activities may replace the passive tick only if they
+     * cover roughly the same near-term period. A far-away activity cannot
+     * suppress awareness for most of the day merely by being on the calendar. */
+    internal fun chooseAutonomousWakeTime(
+        ordinaryDue: Instant, selfDue: Instant?, fallbackMinutes: Long,
+    ): Instant {
+        if (selfDue == null) return ordinaryDue
+        val grace = Duration.ofMinutes((fallbackMinutes / 2L).coerceAtLeast(1L))
+        return if (!selfDue.isAfter(ordinaryDue.plus(grace))) selfDue else ordinaryDue
     }
 
     private fun stableTimingVariation(characterId: String, anchor: Instant): Double {
