@@ -73,7 +73,9 @@ data class ModelLibraryState(
 
 fun ModelLibraryState.archiveIdFor(usage: ModelUsage): String? = when (usage) {
     ModelUsage.Chat -> chatArchiveId
-    ModelUsage.VoiceCall -> if (voiceCallFollowsChat) chatArchiveId else voiceCallArchiveId
+    // Phone calls share the currently selected chat model; historical standalone
+    // phone choices remain readable for old backups but never override chat.
+    ModelUsage.VoiceCall -> chatArchiveId
     ModelUsage.Game -> gameArchiveId
 }?.takeIf { candidate -> archives.any { it.id == candidate } }
     ?: activeArchiveId?.takeIf { candidate -> archives.any { it.id == candidate } }
@@ -209,14 +211,10 @@ class ModelConnectionStore private constructor(context: Context) {
         persist(
             when (usage) {
                 ModelUsage.Chat -> current.copy(chatArchiveId = id)
-                ModelUsage.VoiceCall -> current.copy(voiceCallArchiveId = id, voiceCallFollowsChat = false)
+                ModelUsage.VoiceCall -> current.copy(chatArchiveId = id, voiceCallArchiveId = id, voiceCallFollowsChat = true)
                 ModelUsage.Game -> current.copy(gameArchiveId = id)
             },
         )
-    }
-
-    fun setVoiceCallFollowsChat(follows: Boolean) {
-        persist(mutable.value.copy(voiceCallFollowsChat = follows))
     }
 
     fun selectedArchiveId(usage: ModelUsage): String? = mutable.value.archiveIdFor(usage)
