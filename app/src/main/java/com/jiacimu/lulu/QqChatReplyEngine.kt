@@ -106,6 +106,8 @@ internal data class CharacterReplyPresentation(
     val voiceBubbleTexts: List<String> = emptyList(),
     /** Exactly one modality choice per model-authored bubble, including all-voice turns. */
     val bubbleDeliveryModes: List<String> = emptyList(),
+    /** Same order as bubbles; distinct from the public text and memory. */
+    val bubbleSpeechTracks: List<String> = emptyList(),
 )
 
 internal fun parseCharacterReplyPresentation(text: String): CharacterReplyPresentation = CharacterReplyPresentation(
@@ -128,7 +130,7 @@ private fun roleBubbleDelayMillis(characterId: String, bubble: String, index: In
 private fun roleRecallDelayMillis(characterId: String): Long = 900L + rolePacingSeed(characterId) % 650L
 
 /** Preserve the role's per-bubble choices by POSITION, never by comparing repeated wording. */
-internal data class CharacterOutgoingBubble(val text: String, val voiceNote: Boolean)
+internal data class CharacterOutgoingBubble(val text: String, val voiceNote: Boolean, val speechText: String = "")
 
 internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentation): List<CharacterOutgoingBubble> {
     val explicit = presentation.content.split(SemanticBubbleSeparator)
@@ -136,7 +138,8 @@ internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentatio
     if (presentation.bubbleDeliveryModes.isNotEmpty() &&
         presentation.bubbleDeliveryModes.size == explicit.size) {
         return explicit.mapIndexed { index, text ->
-            CharacterOutgoingBubble(text, presentation.bubbleDeliveryModes[index].equals("voice", ignoreCase = true))
+            CharacterOutgoingBubble(text, presentation.bubbleDeliveryModes[index].equals("voice", ignoreCase = true),
+                presentation.bubbleSpeechTracks.getOrNull(index).orEmpty())
         }
     }
     // Backward compatibility for older callers that supplied voice utterances by content.
@@ -176,6 +179,7 @@ internal suspend fun appendRoleReplyWithPacing(
         val created = MigratedDomainStores.chat.appendCharacterMessage(
             conversationId, visibleBubble, characterId, quoteId.takeIf { index == 0 }, replyBatchId,
             voiceNote = sendVoiceNote,
+            voiceSpeechText = if (sendVoiceNote) plannedBubbles[index].speechText else "",
         )
         // Only actual delivered bubbles influence the character's future
         // expression style. A mere planner selection is not a real message.
@@ -222,7 +226,7 @@ internal suspend fun appendRoleReplyWithPacing(
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
     // A sticker is a real visual message, never raw base64 read aloud by TTS.
-    spoken.filter { it.voiceNote }.forEach { ChatAutoVoicePlayback.prepareVoiceNote(characterId, it.id, it.content, conversationId) }
+    spoken.filter { it.voiceNote }.forEach { ChatAutoVoicePlayback.prepareVoiceNote(characterId, it.id, it.content, conversationId, it.voiceSpeechText) }
     spoken.filter { !it.voiceNote && decodeQqChatImage(it.content) == null }
         .forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
     return spoken.joinToString("\n", transform = LuluChatMessage::content)
