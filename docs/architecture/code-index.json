@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:47:55.439404+00:00",
-  "commit": "97f00661258f4210ecf75d18055d8017d91590ac",
+  "generatedAt": "2026-10-24T04:48:19.920557+00:00",
+  "commit": "39d133df8b6efe624bfe88e0b0d0990af4b9cdf2",
   "branch": "main",
-  "sourceFingerprint": "7e3d6a052b0545332469f56b29d8e62bf649e85388cc025f2fc86354270dae4d",
+  "sourceFingerprint": "3951069f837bf5dcf95437a886e374f4d7ebae6b23d080a24bac24dd594948ba",
   "summary": {
     "files": 872,
-    "lines": 167668,
+    "lines": 167676,
     "symbols": 2521
   },
   "symbolIndex": {
@@ -255,7 +255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 155
+        "line": 161
       }
     ],
     "update": [
@@ -435,7 +435,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 243
+        "line": 249
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt",
@@ -1895,7 +1895,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 113
+        "line": 119
       }
     ],
     "boundedBody": [
@@ -7371,55 +7371,55 @@
     "applyWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 106
+        "line": 112
       }
     ],
     "afterExploration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 147
+        "line": 153
       }
     ],
     "endWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 151
+        "line": 157
       }
     ],
     "number": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 157
+        "line": 163
       }
     ],
     "sensorySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 177
+        "line": 183
       }
     ],
     "onPresenceSleep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 197
+        "line": 203
       }
     ],
     "onPresenceWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 210
+        "line": 216
       }
     ],
     "onWorldActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 266
+        "line": 272
       }
     ],
     "onWorldActivityEnded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-        "line": 277
+        "line": 283
       }
     ],
     "qualifies": [
@@ -18016,8 +18016,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 77,
-      "sha256": "b7164368eb880d22a5cf2509a0fb4db77aae8be677f105609f27989f2b67b329",
+      "lines": 79,
+      "sha256": "bec126d5b1b48635413d9c5dd7202e9447bd75364962ba354fdb35118ca6b372",
       "symbols": [
         {
           "name": "render",
@@ -21129,8 +21129,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt",
-      "lines": 285,
-      "sha256": "f01805c08a32aa2fcfa87a499a986c13ef7f81129fb0500dec40e45c7a967bde",
+      "lines": 291,
+      "sha256": "59ae43cef01a99d26fdb1c4357949bcc418a478745091136c54fa96a4f76905b",
       "symbols": [
         {
           "name": "toJson",
@@ -21158,51 +21158,51 @@
         },
         {
           "name": "applyWorldActivity",
-          "line": 106
+          "line": 112
         },
         {
           "name": "bounded",
-          "line": 113
+          "line": 119
         },
         {
           "name": "afterExploration",
-          "line": 147
+          "line": 153
         },
         {
           "name": "endWorldActivity",
-          "line": 151
-        },
-        {
-          "name": "prompt",
-          "line": 155
-        },
-        {
-          "name": "number",
           "line": 157
         },
         {
+          "name": "prompt",
+          "line": 161
+        },
+        {
+          "name": "number",
+          "line": 163
+        },
+        {
           "name": "sensorySnapshot",
-          "line": 177
+          "line": 183
         },
         {
           "name": "onPresenceSleep",
-          "line": 197
+          "line": 203
         },
         {
           "name": "onPresenceWake",
-          "line": 210
+          "line": 216
         },
         {
           "name": "context",
-          "line": 243
+          "line": 249
         },
         {
           "name": "onWorldActivity",
-          "line": 266
+          "line": 272
         },
         {
           "name": "onWorldActivityEnded",
-          "line": 277
+          "line": 283
         }
       ]
     },
