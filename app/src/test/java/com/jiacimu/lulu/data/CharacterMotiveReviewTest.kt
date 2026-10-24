@@ -37,6 +37,19 @@ class CharacterMotiveReviewTest {
         assertEquals(CharacterMotiveReview.from(first), CharacterMotiveReview.from(JSONObject(first.toString())))
     }
 
+    @Test fun changedWaitingConditionDoesNotReplayAnAlreadyReviewedPastAppointment() {
+        val m = motive()
+        val plan = CharacterMotiveReview.from(m)!!
+        val now = plan.dueAt.plusSeconds(1)
+        m.put("reviewedPlan", plan.token).put("reviewedAt", now.toString())
+            .put("waitingFor", "等真实效果，而不是再执行旧动作")
+        CharacterMotiveProgress.ensureFollowUp(m, now.plusSeconds(7200), now)
+        assertTrue(CharacterMotiveReview.from(m)!!.fallback)
+        assertTrue(CharacterMotiveReview.from(m)!!.dueAt.isAfter(now))
+        CharacterMotiveProgress.applyPlan(m, JSONObject().put("nextStep", "改用另一种办法"), "revision", now)
+        assertFalse(m.has("reviewAfter"))
+    }
+
     @Test fun overnightQuietHoursMoveTheOpportunityToLocalMorning() {
         val due = Instant.parse("2026-10-18T15:30:00Z") // 23:30 in Shanghai
         assertEquals(Instant.parse("2026-10-18T23:00:00Z"), CharacterMotiveReview.eligibleAt(
@@ -61,7 +74,9 @@ class CharacterMotiveReviewTest {
         val now = Instant.parse("2026-10-18T15:30:01Z")
         assertTrue(CharacterInnerLifeStore.claimMotiveReview("review-owner", plan.id, plan.token, now))
         assertFalse(CharacterInnerLifeStore.claimMotiveReview("review-owner", plan.id, plan.token, now))
-        assertEquals(listOf("future"), CharacterMotiveReview.pending(
-            CharacterInnerLifeStore.snapshot("review-owner")).map { it.id })
+        val next = CharacterMotiveReview.pending(CharacterInnerLifeStore.snapshot("review-owner"))
+        assertEquals(setOf("g", "also-due", "future"), next.map { it.id }.toSet())
+        assertTrue(next.filter { it.id != "future" }.all { it.fallback && it.dueAt.isAfter(now) })
+        assertFalse(next.single { it.id == "future" }.fallback)
     }
 }

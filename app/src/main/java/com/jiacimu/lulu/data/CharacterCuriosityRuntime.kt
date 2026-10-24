@@ -438,12 +438,12 @@ internal object CharacterCuriosityRuntime {
      * Cross-surface handoff for chat, phone and meetings. Transient questions are not
      * rewritten as facts or promoted to permanent traits merely by being discussed.
      */
-    fun briefContext(characterId: String): String {
+    fun briefContext(characterId: String, now: Instant = Instant.now()): String {
         val root = snapshot(characterId)
         val threads = root.optJSONArray("threads") ?: JSONArray()
         val questions = root.optJSONArray("questions") ?: JSONArray()
-        val active = activeThreads(characterId, root).takeLast(2)
-        val pending = pendingQuestions(characterId, root).takeLast(2)
+        val active = attention(activeThreads(characterId, root), characterId, 2, now)
+        val pending = attention(pendingQuestions(characterId, root), characterId, 2, now)
         if (active.isEmpty() && pending.isEmpty()) return ""
         return buildString {
             appendLine("【本人尚未结束的兴趣线索｜内部连续性，不要像报告一样念出来】")
@@ -468,19 +468,28 @@ internal object CharacterCuriosityRuntime {
         }.trim()
     }
 
+    private fun attention(items: List<JSONObject>, role: String, limit: Int, now: Instant) =
+        CharacterAttentionWorkingSet.select(items, limit, now,
+            ProactivePerceptionPolicyStore.get(role).onlinePulseSeconds.toLong(),
+            identity = { identity(it) }, theme = { normalized(it.optString("topic")) })
+
     fun promptSection(
         characterId: String, displayName: String, recentActions: List<String>,
         now: Instant = Instant.now(),
     ): String {
         val profile = CharacterLifeStore.state(characterId).optJSONObject("profile")
-        val learned = CharacterDevelopmentStore.active(characterId)
-            .filter { it.kind == DevelopmentKind.Interest || it.kind == DevelopmentKind.Preference }
-            .takeLast(4)
+        val learned = CharacterAttentionWorkingSet.select(
+            CharacterDevelopmentStore.active(characterId)
+                .filter { it.kind == DevelopmentKind.Interest || it.kind == DevelopmentKind.Preference }
+                .sortedBy { it.createdAt }, 4, now,
+            ProactivePerceptionPolicyStore.get(characterId).onlinePulseSeconds.toLong(),
+            identity = { it.id }, theme = { it.slot },
+        )
         val root = snapshot(characterId)
         val threads = root.optJSONArray("threads") ?: JSONArray()
-        val active = activeThreads(characterId, root).takeLast(4)
+        val active = attention(activeThreads(characterId, root), characterId, 4, now)
         val questions = root.optJSONArray("questions") ?: JSONArray()
-        val unanswered = pendingQuestions(characterId, root).takeLast(3)
+        val unanswered = attention(pendingQuestions(characterId, root), characterId, 3, now)
         val failures = root.optJSONArray("failures") ?: JSONArray()
         val recentFailures = (0 until failures.length()).mapNotNull(failures::optJSONObject).takeLast(3)
         val lived = SharedExperienceTimeline.all(characterId).asReversed().filter {

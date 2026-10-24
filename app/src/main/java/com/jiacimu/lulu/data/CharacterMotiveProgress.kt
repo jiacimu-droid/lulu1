@@ -6,7 +6,7 @@ import java.time.Instant
 
 /** One read-only view of a motive plan; authoritative state remains in innerLife.motives. */
 internal object CharacterMotiveProgress {
-    private val planFields = listOf("nextStep", "waitingFor", "reviewAfter")
+    private val planFields = listOf("nextStep", "waitingFor", "reviewAfter", "successCondition", "stopCondition")
 
     fun applyPlan(target: JSONObject, proposal: JSONObject, evidenceId: String, now: Instant) {
         var changed = false
@@ -17,7 +17,7 @@ internal object CharacterMotiveProgress {
                 "reviewAfter" -> value.takeIf {
                     it.isBlank() || runCatching { !Instant.parse(it).isBefore(now) }.getOrDefault(false)
                 }
-                "nextStep" -> value.take(180)
+                "nextStep", "successCondition", "stopCondition" -> value.take(180)
                 else -> value.take(120)
             } ?: continue
             if (target.optString(key) != clean) {
@@ -25,7 +25,16 @@ internal object CharacterMotiveProgress {
                 changed = true
             }
         }
-        if (changed) target.put("planEvidenceId", evidenceId.take(220))
+        if (changed) {
+            target.put("planEvidenceId", evidenceId.take(220))
+            // Revising a next step does not silently book the old past clock
+            // time again. The new plan falls back to ordinary perception unless
+            // the role actually chose another future review time.
+            for (key in listOf("reviewAfter", "fallbackReviewAt")) {
+                val at = runCatching { Instant.parse(target.optString(key)) }.getOrNull()
+                if (at != null && !at.isAfter(now)) target.remove(key)
+            }
+        }
     }
 
     /** Waiting never orders a tool call. New evidence can still change the plan. */
@@ -39,10 +48,22 @@ internal object CharacterMotiveProgress {
     }
 
     fun brief(motive: JSONObject): String = buildList {
+        motive.optString("successCondition").trim().takeIf(String::isNotBlank)?.let { add("完成依据：$it") }
+        motive.optString("stopCondition").trim().takeIf(String::isNotBlank)?.let { add("停止/暂缓条件：$it") }
         motive.optString("nextStep").trim().takeIf(String::isNotBlank)?.let { add("拟议下一步：$it") }
         motive.optString("waitingFor").trim().takeIf(String::isNotBlank)?.let { add("正在等待：$it") }
         motive.optString("reviewAfter").trim().takeIf(String::isNotBlank)?.let { add("重新考虑时间：$it") }
     }.joinToString("；")
+
+    /** A recovery opportunity at the existing perception cadence, not an authored appointment. */
+    fun ensureFollowUp(motive: JSONObject, fallbackAt: Instant, now: Instant) {
+        if (!CharacterMotiveState.isActive(motive)) return
+        val explicit = runCatching { Instant.parse(motive.optString("reviewAfter")) }.getOrNull()
+        if (explicit != null && explicit.isAfter(now)) return
+        val existing = runCatching { Instant.parse(motive.optString("fallbackReviewAt")) }.getOrNull()
+        if (existing == null)
+            motive.put("fallbackReviewAt", fallbackAt.toString())
+    }
 
     /** No fuzzy match: explicit active ID, or an unambiguous same-event creation ref. */
     fun resolveMotiveId(motives: JSONArray?, proposedId: String, proposedRef: String,
@@ -62,6 +83,7 @@ internal object CharacterMotiveProgress {
     fun invalidatePlanIfSourceDeleted(motive: JSONObject, eventId: String): Boolean {
         if (motive.optString("planEvidenceId") != eventId) return false
         planFields.forEach { motive.remove(it) }
+        motive.remove("fallbackReviewAt")
         motive.remove("planEvidenceId")
         return true
     }

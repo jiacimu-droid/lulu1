@@ -18,18 +18,29 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 /** A scheduling projection of innerLife.motives, never another goal ledger. */
-internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, val token: String) {
+internal data class CharacterMotiveReview(val id: String, val dueAt: Instant, val token: String,
+                                        val fallback: Boolean = false) {
     companion object {
         fun from(motive: JSONObject): CharacterMotiveReview? {
             if (!CharacterMotiveState.isActive(motive)) return null
             val id = motive.optString("id").takeIf(String::isNotBlank) ?: return null
-            val at = runCatching { Instant.parse(motive.optString("reviewAfter")) }.getOrNull() ?: return null
-            val content = listOf(id, at.toString(), motive.optString("planEvidenceId"),
-                motive.optString("nextStep"), motive.optString("waitingFor")).joinToString("\u0000")
-            val token = MessageDigest.getInstance("SHA-256").digest(content.toByteArray())
-                .joinToString("") { "%02x".format(it) }
-            if (motive.optString("reviewedPlan") == token) return null
-            return CharacterMotiveReview(id, at, token)
+            fun candidate(field: String): CharacterMotiveReview? {
+                val at = runCatching { Instant.parse(motive.optString(field)) }.getOrNull() ?: return null
+                val fields = mutableListOf(id, at.toString(), motive.optString("planEvidenceId"),
+                    motive.optString("nextStep"), motive.optString("waitingFor"))
+                // Keep fingerprints of old, criteria-free plans compatible on upgrade.
+                if (motive.optString("successCondition").isNotBlank() || motive.optString("stopCondition").isNotBlank())
+                    fields.addAll(listOf(motive.optString("successCondition"), motive.optString("stopCondition")))
+                val content = fields.joinToString("\u0000")
+                val token = MessageDigest.getInstance("SHA-256").digest(content.toByteArray())
+                    .joinToString("") { "%02x".format(it) }
+                return CharacterMotiveReview(id, at, token, field == "fallbackReviewAt")
+            }
+            val explicit = candidate("reviewAfter")
+            val reviewedAt = runCatching { Instant.parse(motive.optString("reviewedAt")) }.getOrNull()
+            if (explicit != null && motive.optString("reviewedPlan") != explicit.token &&
+                (reviewedAt == null || explicit.dueAt.isAfter(reviewedAt))) return explicit
+            return candidate("fallbackReviewAt")
         }
 
         fun pending(state: JSONObject): List<CharacterMotiveReview> =
@@ -61,7 +72,10 @@ internal object CharacterMotiveReviewScheduler {
 
     fun schedule(context: Context, role: String, state: JSONObject, force: Boolean = false) {
         val policy = ProactivePerceptionPolicyStore.get(role)
-        val next = CharacterMotiveReview.pending(state).firstOrNull()
+        // Unscheduled wishes ride the existing ordinary perception pulse.
+        // Only the role's authored time gets a dedicated wake; otherwise a
+        // large goal set could accidentally create one paid loop per batch.
+        val next = CharacterMotiveReview.pending(state).firstOrNull { !it.fallback }
         if (!policy.enabled || next == null) { submitted.remove(role); return }
         val due = CharacterMotiveReview.eligibleAt(next.dueAt, policy, ZoneId.systemDefault())
         val signature = next.token + ":" + due.toEpochMilli()
@@ -78,6 +92,7 @@ internal object CharacterMotiveReviewScheduler {
 
     fun restore(context: Context) {
         CharacterInnerLifeStore.characterIds().forEach { role ->
+            CharacterInnerLifeStore.restoreMotiveFollowUps(role)
             schedule(context, role, CharacterInnerLifeStore.snapshot(role), force = true)
         }
     }
@@ -104,7 +119,9 @@ class CharacterMotiveReviewWorker(context: Context, params: WorkerParameters) : 
         // call/unread ownership. A busy conversation defers, never consumes it.
         ProactivePerceptionRuntime.runDueCycle(applicationContext,
             "持续动机到期复查：检查本人已保存的下一步、真实结果和新证据，自行选择继续、等待或放下",
-            targetCharacterId = role, force = true, preserveOffline = true,
+            // An authored future review is the role's own chosen wake. Cadence
+            // recovery remains a quiet background assessment, not forced online life.
+            targetCharacterId = role, force = true, preserveOffline = pending.fallback,
             motiveReviewId = id, motiveReviewToken = token)
         val remains = CharacterMotiveReview.pending(CharacterInnerLifeStore.snapshot(role))
             .any { it.id == id && it.token == token }

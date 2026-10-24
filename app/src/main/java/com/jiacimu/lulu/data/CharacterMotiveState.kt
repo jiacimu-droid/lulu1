@@ -41,19 +41,22 @@ internal object CharacterMotiveState {
             val offset = Math.floorMod(day, sorted.size.toLong()).toInt()
             return sorted.drop(offset) + sorted.take(offset)
         }
-        val urgent = all.filter {
-            it.optString("reviewAfter").takeIf(String::isNotBlank)?.let { date ->
-                runCatching { Instant.parse(date) }.getOrNull()?.let { due -> !due.isAfter(now) }
-            } == true
-        }
+        val urgent = all.filter { CharacterMotiveReview.from(it)?.dueAt?.isAfter(now) == false }
         val ordinary = all.filterNot { it in urgent }
-        if (ordinary.isEmpty()) return rotate(urgent).take(limit)
-        if (urgent.isEmpty()) return rotate(ordinary).take(limit)
+        // A personally important wish gets attention, while the other slots
+        // still rotate; priority never dispatches a tool or forces contact.
+        val important = all.maxOfOrNull { it.optInt("priority", 2) }?.takeIf { it > 2 }
+            ?.let { p -> rotate(all.filter { it.optInt("priority", 2) == p }).firstOrNull() }
+        val earliestDue = urgent.minByOrNull { CharacterMotiveReview.from(it)!!.dueAt }
+        fun focus(items: List<JSONObject>): List<JSONObject> =
+            (listOfNotNull(earliestDue, important) + items).distinctBy { it.optString("id") }.take(limit)
+        if (ordinary.isEmpty()) return focus(rotate(urgent))
+        if (urgent.isEmpty()) return focus(rotate(ordinary))
         val dueCount = minOf(urgent.size, maxOf(1, limit / 2))
         val selected = rotate(urgent).take(dueCount) + rotate(ordinary).take(limit - dueCount)
-        return if (selected.size == limit) selected else
+        return focus(if (selected.size == limit) selected else
             selected + (rotate(urgent) + rotate(ordinary)).filterNot { it in selected }
-                .take(limit - selected.size)
+                .take(limit - selected.size))
     }
 
     private fun entries(motives: JSONArray?): List<JSONObject> =

@@ -25,6 +25,7 @@ internal object CharacterMotiveDeliberation {
                 }
                 appendLine("- motiveId=" + m.optString("id") + "；想做=" +
                     m.optString("aim").take(120) + "；状态=" + stage)
+                CharacterMotiveProgress.brief(m).takeIf(String::isNotBlank)?.let { appendLine("  $it") }
                 val outcomes = m.optJSONArray("outcomes") ?: JSONArray()
                 val last = outcomes.optJSONObject(outcomes.length() - 1)
                 if (last != null) appendLine("  最近实际尝试：" +
@@ -37,6 +38,7 @@ internal object CharacterMotiveDeliberation {
             if (paused.isNotEmpty()) appendLine("暂缓而非完成：" +
                 paused.take(3).joinToString("；") { it.optString("id") + "：" + it.optString("aim").take(80) } +
                 "；没有新决定不可自动恢复。")
+            appendLine("未达成的目标继续影响本人的注意、行动和休眠取舍；重要且有下一步时可主动继续，或明确 reviewAfter 让自己届时醒来重新判断。复查不是必须联系用户；无反馈不等于成功，安静等待也可以是下一步。")
             append("多个愿望可以冲突，也可以暂时都不行动。考虑时机、感受、边界、执行条件、最近真实回执后，自己决定继续、换方案、改期、暂停或放下；不要机械按 priority 逐条执行。")
         }.trim()
     }

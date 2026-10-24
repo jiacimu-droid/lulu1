@@ -80,6 +80,7 @@ object ProactivePerceptionRuntime {
         val innerLife: JSONObject? = null,
         val appraisal: JSONObject? = null,
         val motiveId: String = "",
+        val motiveRef: String = "",
         val intentionId: String = "",
         val curiosity: JSONObject? = null,
         val curiosities: org.json.JSONArray? = null,
@@ -342,16 +343,22 @@ object ProactivePerceptionRuntime {
                     val attempt = if (onlineRevision == null && policy.enabled) {
                         AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now)
                     } else null
+                    // An ordinary chat/life perception can already assess due wishes.
+                    // Claim the captured plans only after success, so their workers
+                    // cannot charge for the same review again or consume a newer plan.
+                    val reviewState = CharacterInnerLifeStore.snapshot(characterId)
+                    val visibleMotives = CharacterMotiveState.workingSet(reviewState.optJSONArray("motives"), now)
+                        .mapTo(hashSetOf()) { it.optString("id") }
+                    val reviewedMotives = CharacterMotiveReview.pending(reviewState)
+                        .filter { it.id in visibleMotives }
                     val result = runCatching {
                         evaluateCharacter(appContext, conversation, effectiveTrigger, now,
                             requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision)
                     }
                     result.onSuccess { action ->
-                        if (motiveReviewId.isNotBlank()) {
-                            // A genuine plan revision may have replaced this old token
-                            // while deciding. Never consume the newer appointment.
+                        reviewedMotives.forEach { reviewed ->
                             CharacterInnerLifeStore.claimMotiveReview(
-                                characterId, motiveReviewId, motiveReviewToken, Instant.now())
+                                characterId, reviewed.id, reviewed.token, Instant.now(), coalesceDue = false)
                         }
                         AutonomousPerceptionAttempts.finish(appContext, attempt, failed = false)
                         evaluated += 1
@@ -555,7 +562,8 @@ object ProactivePerceptionRuntime {
         }
         if (batchSuperseded()) return deferSupersededDecision()
         val awakeReflection = CompanionOnlineStore.isOnline(characterId, now)
-        val awakeObservationId = "online-awareness-$characterId-${now.toEpochMilli()}"
+        val awakeObservationId = (if (awakeReflection) "online-awareness" else "background-awareness") +
+            "-$characterId-${now.toEpochMilli()}"
         val worldTick = if (DigitalLifeProfileStore.isEnabled(characterId)) {
             DigitalWorldLifeEventStore.tick(appContext, characterId, now)
         } else null
@@ -796,7 +804,7 @@ object ProactivePerceptionRuntime {
                     CapabilityRegistry.allows(appContext, characterId, CapabilityRegistry.find("read_health_mcp")!!, false)) {
                     appendLine("可按需选择 action=tool, tool=read_health_mcp, args={\"data_type\":\"current_status\"} 读取用户手环真实状态，不可臆造数据。")
                 }
-                if (awakeReflection) appendLine("本轮在线观察证据ID=$awakeObservationId；仅证明本轮读取时间与获准设备状态，可作为私人学习兴趣的起因，不是材料已读或技能掌握。")
+                appendLine("本轮实际观察证据ID=$awakeObservationId；仅证明本轮读取时间与获准设备状态，可作为私人兴趣或目标的起因，不是材料已读、目标完成或技能掌握。")
                 CharacterLifeFollowThroughStore.context(characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, 24))
@@ -990,11 +998,12 @@ object ProactivePerceptionRuntime {
             (onlineExpiryAtMillis > 0L &&
                 CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis)
         ) return Action.SILENT
-        if (awakeReflection) SharedExperienceTimeline.record(
+        SharedExperienceTimeline.record(
             eventId = awakeObservationId, characterId = characterId,
-            channel = "在线感知", speaker = "在线观察",
-            content = "角色处于在线窗口，本次感知实际读取了当前时间与获准读取的设备状态；新增聊天=${onlineUnread.text.isNotBlank()}；新增场景观察=${observedWorld.size}",
-            occurredAt = now, triggerExtraction = false, source = "online-awareness",
+            channel = if (awakeReflection) "在线感知" else "后台复查", speaker = "实际观察",
+            content = "本次${if (awakeReflection) "在线感知" else "后台复查"}实际读取了当前时间与获准读取的设备状态；新增聊天=${onlineUnread.text.isNotBlank()}；新增场景观察=${observedWorld.size}",
+            occurredAt = now, triggerExtraction = false,
+            source = if (awakeReflection) "online-awareness" else "background-awareness",
             evidenceKind = EventEvidenceKind.Observation)
         val initialDecision = parseDecision(result.text, actionOnly = false)
         // A malformed JSON envelope is just as much a failed model decision as
@@ -1227,6 +1236,7 @@ object ProactivePerceptionRuntime {
             mood = parsed.mood, curiosity = independentChoice.curiosity ?: parsed.curiosity,
             curiosities = parsed.curiosities,
             motiveId = independentChoice.motiveId.ifBlank { parsed.motiveId },
+            motiveRef = independentChoice.motiveRef.ifBlank { parsed.motiveRef },
             intentionId = independentChoice.intentionId.ifBlank { parsed.intentionId },
             experienceId = independentChoice.experienceId.ifBlank { parsed.experienceId },
             relationshipInitiative = parsed.relationshipInitiative,
@@ -1319,9 +1329,12 @@ object ProactivePerceptionRuntime {
         // a new user wake or call supersedes this older expiry atomically.
         if (onlineExpiryAtMillis > 0L) {
             val currentGoal = CharacterLifeStore.state(characterId).optJSONObject("intention")
-            val hasContinuingGoal = currentGoal != null &&
+            val hasContinuingGoal = CharacterMotiveState.active(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives")).isNotEmpty() ||
+                CharacterMotiveState.active(decision.innerLife?.optJSONArray("motives")).isNotEmpty() ||
+                (currentGoal != null &&
                 currentGoal.optString("stage") !in setOf("released", "completed") &&
-                currentGoal.optString("aim").isNotBlank()
+                currentGoal.optString("aim").isNotBlank())
             val hasCurrentConcerns = (CharacterInnerLifeStore.snapshot(characterId)
                 .optJSONArray("openConcerns")?.length() ?: 0) > 0
             val previousReason = prefs.getString("last_online_extension_reason_$characterId", "").orEmpty()
@@ -1431,9 +1444,9 @@ object ProactivePerceptionRuntime {
                 canonicalInnerLife, if (revisitingConflict) setOf("user") else emptySet(), now,
             )
         }
-        if (awakeReflection && emotionalAnchor.isBlank() && previousEvidence.isBlank() && canonicalInnerLife != null) {
+        if (emotionalAnchor.isBlank() && previousEvidence.isBlank() && canonicalInnerLife != null) {
             CharacterInnerLifeStore.observe(characterId, awakeObservationId,
-                "在线期间基于已知状态的内在变化，没有新增用户发言或虚构外部事件",
+                "本轮基于已知状态的内在变化，没有新增用户发言或虚构外部事件",
                 canonicalInnerLife, emptySet(), now)
         }
         // Heart voice is a sparse projection of a real private-state delta. The model may propose
@@ -1470,8 +1483,7 @@ object ProactivePerceptionRuntime {
             salientInteraction != null -> salientInteraction.id
             stimulus != null -> stimulus.evidenceId
             previousEvidence.isNotBlank() -> previousEvidence
-            awakeReflection -> awakeObservationId
-            else -> "perception:${now.toEpochMilli()}:${trigger.take(35)}"
+            else -> awakeObservationId
         }
         CharacterLearningLedger.observeInteraction(characterId, decision.experienceLearning,
             decision.learningFeedback, decision.learningChallenge, onlineUnread.messageIds)
@@ -1497,14 +1509,29 @@ object ProactivePerceptionRuntime {
         if (freshStimulus || previousEvidence.isNotBlank() ||
             decision.action != Action.SILENT || canonicalInnerLife != null) {
             CharacterInnerLifeStore.recordInnerVoice(
-                characterId, if (awakeReflection) awakeObservationId else stimulus?.evidenceId?.let { "perception:$it" }
-                    ?: "perception:${now.toEpochMilli()}:${trigger.take(35)}",
+                characterId, causalEvidenceId,
                 groundedInnerThought, now, privateDelta.fingerprint,
             )
         }
         // Exploration counts only after an executor receipt, never from model prose.
         // Snapshot every previously recorded ID, not only the latest 24: otherwise an
         // older event could be mistaken for a fresh executor receipt on a quiet turn.
+        val resolvedMotiveId = listOf(causalEvidenceId, stimulus?.evidenceId.orEmpty(),
+            previousEvidence, awakeObservationId).map { source ->
+            CharacterMotiveProgress.resolveMotiveId(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("motives"),
+                decision.motiveId, decision.motiveRef, source)
+        }.filter(String::isNotBlank).distinct().singleOrNull().orEmpty()
+        // A quiet background assessment may itself produce a personally chosen
+        // wake. The wish alone does not wake/contact anyone: this requires the
+        // SAME role to select continuation and link its actual active goal.
+        if (!awakeReflection && onlineExpiryAtMillis == 0L && resolvedMotiveId.isNotBlank() &&
+            OnlineContinuationPolicy.permits(decision.onlineChoice, decision.onlineChoiceReason,
+                decision.action != Action.SILENT, true, "", Long.MAX_VALUE) &&
+            !CompanionOnlineStore.isOnline(characterId)) {
+            CompanionOnlineStore.wakeCharacter(characterId, CompanionOnlineReason.BackgroundPerception,
+                "本人因持续目标决定醒来：${decision.onlineChoiceReason}", perceiveNow = false, now = Instant.now())
+        }
         val chosenActionSignature = AutonomousActionTrace.signature(
             action = decision.action.name.lowercase(),
             worldAction = decision.worldAction,
@@ -1538,7 +1565,7 @@ object ProactivePerceptionRuntime {
         )
         val execution = SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
             performAction(
-                appContext, character, decision, availableGroups, now,
+                appContext, character, decision.copy(motiveId = resolvedMotiveId), availableGroups, now,
                 goalReviewMode = trigger.startsWith("持续目标定时复盘"),
                 hasFreshUserMessage = messageStimulus != null,
                 explicitScreenRequest = CharacterInitiativeRuntime.isExplicitUserToolRequest(
@@ -1605,7 +1632,7 @@ object ProactivePerceptionRuntime {
             // successful attempt. Synthetic cycle IDs are not delivery proofs.
             if (!execution.success || actionEvidenceId.isNotBlank()) {
                 CharacterInnerLifeStore.recordActionResult(
-                    characterId, decision.motiveId,
+                    characterId, resolvedMotiveId,
                     if (execution.success) actionEvidenceId else
                         "proactive-failure:${now.toEpochMilli()}:${decision.action.name}",
                     decision.action.name.lowercase(), execution.success, execution.summary, now,
@@ -1717,7 +1744,7 @@ object ProactivePerceptionRuntime {
                     "未提供具体的沉默理由；本次没有执行外部行动"
                 else "本次模型未说明选择这项行动的原因"
             },
-            chosenMotiveId = decision.motiveId,
+            chosenMotiveId = resolvedMotiveId,
             alternatives = decision.alternatives,
             outcome = execution.summary,
             succeeded = execution.success,
@@ -2249,6 +2276,7 @@ object ProactivePerceptionRuntime {
             innerLife = json.optJSONObject("innerLife"),
             appraisal = json.optJSONObject("appraisal"),
             motiveId = json.optString("motiveId").trim(),
+            motiveRef = json.optString("motiveRef").trim(),
             intentionId = json.optString("intentionId").trim().take(70),
             curiosity = json.optJSONObject("curiosity"),
             curiosities = json.optJSONArray("curiosities"),

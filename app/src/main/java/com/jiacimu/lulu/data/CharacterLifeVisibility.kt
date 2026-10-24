@@ -106,7 +106,9 @@ internal object CharacterLifeVisibility {
                 }.orEmpty()
                 include(parse(motive.optString("updatedAt")) ?: parse(motive.optString("createdAt")),
                     "持续意愿", motive.optString("aim").take(180),
-                    state + "\n" + motive.optString("why").take(180) + attempt,
+                    state + "\n" + motive.optString("why").take(180) +
+                        CharacterMotiveProgress.brief(motive).takeIf(String::isNotBlank)
+                            ?.let { "\n$it" }.orEmpty() + attempt,
                     motive.optString("evidenceId"))
             }
 

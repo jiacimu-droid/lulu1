@@ -266,6 +266,16 @@ object CharacterInnerLifeStore {
     @Synchronized internal fun characterIds(): Set<String> =
         prefs?.all?.keys.orEmpty().filterNot(CharacterInnerHistoryArchive::isArchiveKey).toSet()
 
+    @Synchronized internal fun restoreMotiveFollowUps(role: String, now: Instant = Instant.now()) {
+        val root = snapshot(role)
+        val before = root.toString()
+        val next = nextMotiveReviewAt(role, root, now)
+        CharacterMotiveState.active(root.optJSONArray("motives")).forEach {
+            CharacterMotiveProgress.ensureFollowUp(it, next, now)
+        }
+        if (root.toString() != before) save(role, root)
+    }
+
     @Synchronized internal fun claimMotiveReview(role: String, id: String, token: String,
         now: Instant = Instant.now(), coalesceDue: Boolean = true): Boolean {
         val root = snapshot(role)
@@ -277,8 +287,11 @@ object CharacterInnerLifeStore {
         // One appraisal sees all currently due goals, not one paid call per goal.
         (0 until entries.length()).mapNotNull(entries::optJSONObject).forEach { item ->
             val pending = CharacterMotiveReview.from(item) ?: return@forEach
-            if (pending.id == id || (coalesceDue && !pending.dueAt.isAfter(now)))
-                item.put("reviewedPlan", pending.token).put("reviewedAt", now.toString())
+            if (pending.id == id || (coalesceDue && !pending.dueAt.isAfter(now))) {
+                if (!pending.fallback) item.put("reviewedPlan", pending.token)
+                item.put("reviewedAt", now.toString()).remove("fallbackReviewAt")
+                CharacterMotiveProgress.ensureFollowUp(item, nextMotiveReviewAt(role, root, now), now)
+            }
         }
         save(role, root)
         return true
@@ -296,6 +309,17 @@ object CharacterInnerLifeStore {
         dispatchContext?.let { context ->
             runCatching { CharacterMotiveReviewScheduler.schedule(context, id, state) }
         }
+    }
+
+    /** Coalesce recovery with this person's existing wake cadence, never one loop per wish. */
+    private fun nextMotiveReviewAt(role: String, state: JSONObject, now: Instant): Instant {
+        val interval = ProactivePerceptionPolicyStore.get(role).baseIntervalMinutes
+        val ordinary = now.plusSeconds(interval * 60L)
+        val shared = CharacterMotiveState.active(state.optJSONArray("motives")).mapNotNull {
+            runCatching { Instant.parse(it.optString("fallbackReviewAt")) }.getOrNull()
+                ?.takeIf { at -> at.isAfter(now) }
+        }.minOrNull()
+        return listOfNotNull(ordinary, shared).minOrNull()!!
     }
 
     @Synchronized internal fun beginActivityExpectation(characterId: String, receiptId: String,
@@ -330,6 +354,9 @@ object CharacterInnerLifeStore {
             before, proposal, originId, persona, action, success, verifiedReceiptId, summary, now)
         if (after.toString() != (before ?: JSONArray()).toString()) {
             root.put("motives", after)
+            CharacterMotiveState.active(after).forEach {
+                CharacterMotiveProgress.ensureFollowUp(it, nextMotiveReviewAt(characterId, root, now), now)
+            }
             save(characterId, root)
         }
     }
@@ -657,9 +684,12 @@ object CharacterInnerLifeStore {
                         if (item == null || reason.isBlank()) continue
                         if (op == "achieve") {
                             val proofId = change.optString("outcomeEvidenceId").trim()
+                            val created = runCatching { Instant.parse(item.optString("createdAt")) }.getOrNull()
                             val proof = SharedExperienceTimeline.eventsByIds(characterId, listOf(proofId))
-                                .firstOrNull { it.id == proofId && it.evidenceKind in
-                                    setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
+                                .firstOrNull { it.id == proofId && !it.occurredAt.isAfter(now) &&
+                                    (created == null || !it.occurredAt.isBefore(created)) &&
+                                    it.source !in setOf("online-awareness", "background-awareness") &&
+                                    it.evidenceKind in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) }
                             if (proof == null || !CharacterMotiveState.isActive(item)) continue
                             item.put("status", "achieved").put("closedAt", now.toString())
                                 .put("closedBecause", reason).put("closureEvidenceId", proofId)
@@ -691,6 +721,8 @@ object CharacterInnerLifeStore {
             }
         }
         root.put("motives", JSONArray().apply { records.forEach { put(it) } })
+        val followUpAt = nextMotiveReviewAt(characterId, root, now)
+        records.forEach { CharacterMotiveProgress.ensureFollowUp(it, followUpAt, now) }
         proposal.optJSONObject("social")?.let { observation ->
             val target = observation.optString("targetId")
             val thought = observation.optString("interpretation").trim().take(180)
@@ -1056,22 +1088,27 @@ object CharacterInnerLifeStore {
             .firstOrNull { it.optString("id") == motiveId } ?: return
         val previous = motive.optJSONArray("outcomes") ?: JSONArray()
         if ((0 until previous.length()).any { previous.optJSONObject(it)?.optString("id") == receiptId }) return
+        val dueReview = CharacterMotiveReview.from(motive)?.takeIf { !it.dueAt.isAfter(now) }
+        if (dueReview != null) {
+            if (!dueReview.fallback) motive.put("reviewedPlan", dueReview.token)
+            motive.put("reviewedAt", now.toString()).remove("fallbackReviewAt")
+        }
         motive.put("lastAttemptOutcome", if (success) "delivered_waiting_feedback" else "needs_review")
         motive.put("lastAttemptAt", now.toString())
         if (success && CharacterMotiveState.isActive(motive)) {
             motive.put("status", "waiting_feedback")
-            motive.put("waitingFor", "动作已送达，等待实际效果或后续反馈")
+            if (motive.optString("waitingFor").isBlank() ||
+                motive.optString("waitingFor") == "上次行动未成功，重新考虑下一步")
+                motive.put("waitingFor", "动作已送达，等待实际效果或后续反馈")
         } else if (!success && CharacterMotiveState.isActive(motive)) {
             // Failure of one execution cannot satisfy or discard a continuing goal.
             // Review via the existing motive scheduler, never blindly replay tools.
             motive.put("status", "active")
             motive.put("waitingFor", "上次行动未成功，重新考虑下一步")
-            val due = runCatching { Instant.parse(motive.optString("reviewAfter")) }.getOrNull()
-            if (due == null || !due.isAfter(now)) {
-                motive.put("reviewAfter", now.plusSeconds(120).toString())
-                motive.remove("reviewedPlan")
-            }
         }
+        // Successful delivery still needs an effect assessment. Reuse the
+        // configured perception cadence; never blindly repeat the old action.
+        CharacterMotiveProgress.ensureFollowUp(motive, nextMotiveReviewAt(characterId, root, now), now)
         motive.put("outcomes", JSONArray().apply {
             for (i in maxOf(0, previous.length() - 7) until previous.length()) put(previous.opt(i))
             put(JSONObject().put("id", receiptId).put("action", action).put("success", success)
