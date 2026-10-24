@@ -102,9 +102,14 @@ class ResidentMailCausalIntegrationTest {
         val chat = MigratedDomainStores.chat.ensureConversation(receiver, "来信处理测试")
         val letter = ResidentSocialMailbox.send(sender, receiver, "这条信仍然需要你亲自决定")
         val server = okhttp3.mockwebserver.MockWebServer()
+        val completionRequests = java.util.concurrent.atomic.AtomicInteger(0)
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
             override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
-                CompanionPresenceStore.beginCall(receiver)
+                if (request.path?.contains("/chat/completions") == true ||
+                    request.path?.endsWith("/messages") == true) {
+                    completionRequests.incrementAndGet()
+                    CompanionPresenceStore.beginCall(receiver)
+                }
                 return okhttp3.mockwebserver.MockResponse().setBody(
                     """{"choices":[{"message":{"content":"{\"action\":\"silent\",\"reason\":\"暂时不回复\"}"}}]}""")
             }
@@ -116,7 +121,10 @@ class ResidentMailCausalIntegrationTest {
             store.addArchive(config.id, "test")
             ProactivePerceptionRuntime.runDueCycle(app, "用户手动唤醒·私信处理测试",
                 receiver, force = true)
-            assertEquals(1, server.requestCount)
+            // Transport discovery/health requests are not autonomous decisions.
+            // Only model-completion requests can take ownership of this decision.
+            assertEquals(1, completionRequests.get())
+            assertTrue(CompanionPresenceStore.isInCall(receiver))
             assertEquals(listOf(letter.id), ResidentSocialMailbox.pendingIncoming(receiver).map { it.id })
         } finally {
             CompanionPresenceStore.finishCall(receiver)
