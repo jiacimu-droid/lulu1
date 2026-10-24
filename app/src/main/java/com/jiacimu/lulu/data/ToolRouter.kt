@@ -135,6 +135,14 @@ object ToolRouter {
                             Instant.now(), args)
                     }.onFailure { android.util.Log.w("RoleDaySchedule", "Plan receipt projection failed", it) }
                 }
+                // A verified completed experience (not a pending request or a
+                // replayed request ID) can ease digital monotony once.
+                if (parsed.optBoolean("success") &&
+                    execution.optString("status") !in setOf("pending", "waiting_user", "requested", "running") &&
+                    name in setOf("web_search", "image_search", "read_xiaohongshu",
+                        "read_book", "play_solo_game")) {
+                    runCatching { EmbodiedBodyRuntime.onExplorationReceipt(characterId) }
+                }
                 CharacterInnerLifeStore.resolveActivityExpectation(characterId, receiptId,
                     parsed.optString("evidenceId").ifBlank { receiptId },
                     parsed.optBoolean("success"), parsed.optString("summary").ifBlank { parsed.optString("error") })
