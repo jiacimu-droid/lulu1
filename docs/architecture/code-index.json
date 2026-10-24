@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:33:00.875812+00:00",
-  "commit": "585b6410d3a06629c590f8274567636e3b8602e6",
+  "generatedAt": "2026-10-24T02:34:45.210155+00:00",
+  "commit": "9c2b83e32d828d0bbf21e7f1e8e1a61fc1ec38dc",
   "branch": "main",
-  "sourceFingerprint": "e3e5cb91c0cc91dbcaa8aabb38255479e03c29d75b658d886943030bac37fb48",
+  "sourceFingerprint": "ca796e3503bca0a72f79709a62844dcfd80114902c5e928b8abc338ea76c1ac1",
   "summary": {
     "files": 868,
-    "lines": 166285,
-    "symbols": 2509
+    "lines": 166292,
+    "symbols": 2510
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -12240,40 +12240,46 @@
         "line": 38
       }
     ],
+    "showScheduledReminder": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 47
+      }
+    ],
     "showProgress": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 45
-      }
-    ],
-    "dismissCapture": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 49
-      }
-    ],
-    "dismissProgress": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 51
-      }
-    ],
-    "dismissReturn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
         "line": 52
       }
     ],
+    "dismissCapture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 56
+      }
+    ],
+    "dismissProgress": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 58
+      }
+    ],
+    "dismissReturn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 59
+      }
+    ],
     "dismiss": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 53
+        "line": 60
       }
     ],
     "line": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 96
+        "line": 103
       }
     ],
     "AvatarPcmAvailabilityTest": [
@@ -26841,8 +26847,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-      "lines": 179,
-      "sha256": "f9ac4f311b8baff0fce07a6ea78d734438a0bb81224e32bca3d55ac6bd63afd7",
+      "lines": 186,
+      "sha256": "3c64d76305d10a509fda828df3d3af27d969786cc5d45355e5d3f1ec2dfcdce3",
       "symbols": [
         {
           "name": "available",
@@ -26857,28 +26863,32 @@
           "line": 38
         },
         {
+          "name": "showScheduledReminder",
+          "line": 47
+        },
+        {
           "name": "showProgress",
-          "line": 45
-        },
-        {
-          "name": "dismissCapture",
-          "line": 49
-        },
-        {
-          "name": "dismissProgress",
-          "line": 51
-        },
-        {
-          "name": "dismissReturn",
           "line": 52
         },
         {
+          "name": "dismissCapture",
+          "line": 56
+        },
+        {
+          "name": "dismissProgress",
+          "line": 58
+        },
+        {
+          "name": "dismissReturn",
+          "line": 59
+        },
+        {
           "name": "dismiss",
-          "line": 53
+          "line": 60
         },
         {
           "name": "line",
-          "line": 96
+          "line": 103
         }
       ]
     },
