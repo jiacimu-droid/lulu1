@@ -483,6 +483,41 @@ class OnlineChatExperienceTest {
         OnlineChatBatchStore.cancel(context, role.characterId)
     }
 
+    @Test fun phoneAnswerOwnsOnlyTheFrozenPrivateTextAndNeverReplaysItAfterHangup() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create(
+            "电话文字交接回归", "同一人物可以同时在电话中读私聊文字")
+        val other = MigratedDomainStores.characters.create("另一个人", "独立角色")
+        val chat = MigratedDomainStores.chat.ensureConversation(role.characterId, role.displayName)
+        val group = MigratedDomainStores.chat.createGroupConversation(
+            "另一场景未读消息", listOf(role.characterId, other.characterId))
+        CompanionOnlineStore.resetCharacter(role.characterId)
+        val first = MigratedDomainStores.chat.sendUserMessage(chat.id, "二十分钟后叫醒我")
+        val groupMessage = MigratedDomainStores.chat.sendUserMessage(group.id, "群里另一个请求")
+        val frozenCallText = CompanionOnlineStore.pendingPrivateCallTextIds(
+            role.characterId, chat.id, first.createdAt.plusSeconds(1))
+        assertEquals(setOf(first.id), frozenCallText)
+        assertTrue(CompanionOnlineStore.pendingPrivateCallTextIds(
+            role.characterId, group.id, first.createdAt.plusSeconds(1)).isEmpty())
+        // Only actually played phone speech may commit this snapshot. If the
+        // phone call drops before speaking, the old request stays pending.
+        assertTrue(CompanionOnlineStore.unreadChatSnapshot(role.characterId)
+            .messageIds.contains(first.id))
+        val newer = MigratedDomainStores.chat.sendUserMessage(chat.id, "我现在已经醒了")
+        assertTrue(CompanionOnlineStore.acknowledgeDeliveredReply(
+            role.characterId, chat.id, frozenCallText))
+        val stillPending = CompanionOnlineStore.unreadChatSnapshot(role.characterId)
+        assertFalse(stillPending.messageIds.contains(first.id))
+        assertTrue(stillPending.messageIds.contains(newer.id))
+        assertTrue(stillPending.messageIds.contains(groupMessage.id))
+        assertEquals(setOf(newer.id), CompanionOnlineStore.pendingPrivateCallTextIds(
+            role.characterId, chat.id, newer.createdAt.plusSeconds(1)))
+        OnlineChatBatchStore.cancel(context, role.characterId)
+        OnlineChatBatchStore.cancel(context, other.characterId)
+    }
+
     @Test fun deliveredGroupReplyDoesNotAcknowledgeAnotherCharactersMessage() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)
