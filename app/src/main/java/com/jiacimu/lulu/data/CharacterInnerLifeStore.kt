@@ -1443,11 +1443,10 @@ object CharacterInnerLifeStore {
         val b = normalize(right)
         if (a.isBlank() || b.isBlank()) return false
         if (a == b || a.contains(b) || b.contains(a)) return true
-        if (a.length < 4 || b.length < 4) return false
-        val aPairs = a.windowed(2).toSet()
-        val bPairs = b.windowed(2).toSet()
-        val denominator = minOf(aPairs.size, bPairs.size).coerceAtLeast(1)
-        return aPairs.intersect(bPairs).size.toDouble() / denominator >= 0.68
+        // A shared topic or sentence skeleton is not the same inner voice.
+        // Exact normalized duplication was checked above; do not discard two
+        // different, independently sourced thoughts based on short bigrams.
+        return false
     }
 
     /** Durable but focused subjective state. Full introspection stays available to

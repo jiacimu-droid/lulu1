@@ -167,7 +167,18 @@ internal object CharacterCuriosityRuntime {
         }
         val existing = matching(old, proposal)
         val continuingThread = matching(existingThreads, proposal)
-        val assignedId = existing?.let(::identity) ?: continuingThread?.let(::identity) ?: UUID.randomUUID().toString()
+        // Legacy result callbacks do not carry threadId. If a new question
+        // directly follows the sole verified step for a topic, revise that
+        // question's identity rather than spawning a phantom sibling.
+        val continuedFromResult = if (existing == null && continuingThread == null &&
+            proposal?.optString("threadId").isNullOrBlank()) {
+            existingThreads.filter { thread ->
+                normalized(thread.optString("topic")) == normalized(fields[0]) &&
+                    lastRealStep(characterId, thread)?.optString("evidenceId") == observedId
+            }.singleOrNull()
+        } else null
+        val assignedId = existing?.let(::identity) ?: continuingThread?.let(::identity)
+            ?: continuedFromResult?.let(::identity) ?: UUID.randomUUID().toString()
         if (parent != null) {
             var ancestor: JSONObject? = parent
             val visited = mutableSetOf(assignedId)
