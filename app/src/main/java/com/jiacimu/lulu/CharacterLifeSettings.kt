@@ -14,8 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterLifeStore
-import com.jiacimu.lulu.data.CharacterDevelopmentStore
-import com.jiacimu.lulu.data.DevelopmentMaturity
 import com.jiacimu.lulu.data.CharacterAddressPreference
 import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.ModelStructuredOutput
@@ -30,11 +28,6 @@ internal fun CharacterLifeSettings(
     seedIdentity: String = "",
 ) {
     val states by CharacterLifeStore.states.collectAsState()
-    val growthRevision by CharacterDevelopmentStore.revisions.collectAsState()
-    val growth = remember(characterId, growthRevision) {
-        CharacterDevelopmentStore.active(characterId)
-            .sortedWith(compareBy({ it.kind.label }, { it.slot }))
-    }
     val root = remember(states, characterId) { CharacterLifeStore.state(characterId) }
     var editing by remember { mutableStateOf<String?>(null) }
     var draft by remember { mutableStateOf("") }
@@ -134,37 +127,9 @@ internal fun CharacterLifeSettings(
                 HorizontalDivider()
             }
         }
-        HorizontalDivider()
-        Text("后天形成的倾向", style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold)
-        Text("从真实经历形成的长期倾向",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (growth.isEmpty()) {
-            Text("尚无可靠的成长记录",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        growth.forEach { entry ->
-            var showEvidence by remember(characterId, entry.id) { mutableStateOf(false) }
-            Column(Modifier.fillMaxWidth().clickable { showEvidence = !showEvidence }
-                .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text("${entry.kind.label} · ${if (entry.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary)
-                Text(entry.content, style = MaterialTheme.typography.bodyMedium)
-                Text("真实依据 ${entry.evidence.size} 条 · ${if (showEvidence) "收起" else "查看依据"}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (showEvidence) {
-                    Text("来源：${entry.evidence.keys.joinToString("、").take(480)}" +
-                        if (entry.counterEvidence.isNotEmpty()) "\n反例：${entry.counterEvidence.keys.joinToString("、").take(240)}" else "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            HorizontalDivider()
-        }
+        // Evidence-backed adaptive traits are rendered once by
+        // CharacterDevelopmentSettings on the parent personality page.
+        // CharacterLifeSettings owns only the editable stable profile.
         // Short-lived mental states belong to 此刻, not the stable persona.
     }
     editing?.let { key ->
