@@ -2029,11 +2029,10 @@ object ProactivePerceptionRuntime {
             return ActionExecution(false, combinedSummary)
         if (result.success) when (decision.action) {
             Action.CALL -> result.conversationId?.let {
-                showCallNotification(appContext, it, character.displayName, decision.text)
+                showCallNotification(appContext, it, character.displayName)
             }
             Action.TOOL -> if (tool == "start_call") result.conversationId?.let {
-                showCallNotification(appContext, it, character.displayName,
-                    args.optString("text"))
+                showCallNotification(appContext, it, character.displayName)
             }
             else -> Unit
         }
@@ -2328,7 +2327,7 @@ object ProactivePerceptionRuntime {
         reason: String,
     ): Boolean {
         val title = MigratedDomainStores.characters.get(characterId).displayName
-        return showCallNotification(context.applicationContext, conversationId, title, reason)
+        return showCallNotification(context.applicationContext, conversationId, title)
     }
 
     internal fun cancelCallNotification(context: Context, conversationId: String) {
@@ -2339,7 +2338,6 @@ object ProactivePerceptionRuntime {
         context: Context,
         conversationId: String,
         title: String,
-        text: String,
     ): Boolean {
         // A deadline receiver can be the very first process entry point after reboot.
         // Channel setup must not depend on MigrationActivity having run already.
