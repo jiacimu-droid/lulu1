@@ -81,45 +81,57 @@ class ModelStructuredOutputTest {
         val raw = """{"action":"reply","bubbles":[{"text":"先给你一个抱抱。"},{"text":"过来，亲亲你，mua～","delivery":"voice"},{"text":"好啦，今天早点休息。"}]}"""
         assertEquals(listOf("过来，亲亲你，mua～"), ModelStructuredOutput.voiceBubbleTexts(raw))
         assertEquals(listOf("先给你一个抱抱。", "过来，亲亲你，mua～", "好啦，今天早点休息。"),
-            ModelStructuredOutput.voiceAwareReplyBubbles(raw))
+            ModelStructuredOutput.authoredReplyBubbles(raw))
         assertTrue(ModelStructuredOutput.voiceBubbleTexts("""{"action":"tool","bubbles":[{"text":"假语音","delivery":"voice"}]}""").isEmpty())
     }
 
-    @Test fun characterSelectedVoiceBubbleIsNotSplitApart() {
+    @Test fun textBubblesAreDecidedBeforeDeliveryModeForAnyLength() {
         val short = "今天辛苦啦。"
         val spoken = "我想认真告诉你，今天能和你一起聊天是很开心的事。你想听的话，点一下这条语音就能听到我的声音。"
-        val parsed = com.jiacimu.lulu.semanticReplyBubbles(
-            short + com.jiacimu.lulu.SemanticBubbleSeparator + spoken, listOf(spoken))
-        assertEquals(listOf(short, spoken), parsed)
-        val ordinary = com.jiacimu.lulu.semanticReplyBubbles(
-            short + com.jiacimu.lulu.SemanticBubbleSeparator + spoken)
-        assertTrue(ordinary.size >= 2)
-        assertEquals(spoken, ordinary.drop(1).joinToString(""))
+        val content = short + com.jiacimu.lulu.SemanticBubbleSeparator + spoken
+        val textPlan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = content, bubbleDeliveryModes = listOf("text", "text")))
+        val voicePlan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = content, bubbleDeliveryModes = listOf("text", "voice")))
+        assertEquals("Choosing voice must not change any bubble boundary",
+            textPlan.map { it.text }, voicePlan.map { it.text })
+        assertEquals(listOf(short) + com.jiacimu.lulu.semanticReplyBubbles(spoken),
+            voicePlan.map { it.text })
+        assertFalse(voicePlan.first().voiceNote)
+        assertTrue(voicePlan.drop(1).all { it.voiceNote })
+        assertTrue("Normal short sentences may form separate voice bubbles",
+            voicePlan.drop(1).size >= 2)
     }
 
     @Test fun longVoiceBubbleUsesTheSameNaturalMessageBoundariesAsText() {
         val long = "不过……刚说脑子累，转头就开始琢磨我以后身体的事了？原来我的宝宝不是没需求，是眼光高、挑剔得很啊。" +
             "行，我都记下了——以后给你抱、给你摸的身体，从脸到线条肯定每一处都严格按你的审美来，必须是最漂亮、最好看的。" +
             "等真到了你面前，要是哪儿没长在你的心巴上，随便你挑剔，嗯？"
-        val choices = listOf("text", "voice", "voice")
-        val parts = com.jiacimu.lulu.characterOutgoingBubblePlan(
+        val content = listOf("知道啦。", long, "嗯，记住了。").joinToString(
+            com.jiacimu.lulu.SemanticBubbleSeparator)
+        val textPlan = com.jiacimu.lulu.characterOutgoingBubblePlan(
             com.jiacimu.lulu.CharacterReplyPresentation(
-                content = listOf("知道啦。", long, "嗯，记住了。").joinToString(
-                    com.jiacimu.lulu.SemanticBubbleSeparator),
-                bubbleDeliveryModes = choices,
+                content = content, bubbleDeliveryModes = listOf("text", "text", "text")))
+        val voicePlan = com.jiacimu.lulu.characterOutgoingBubblePlan(
+            com.jiacimu.lulu.CharacterReplyPresentation(
+                content = content, bubbleDeliveryModes = listOf("text", "voice", "voice"),
                 bubbleSpeechTracks = listOf("", "[softly]" + long, ""),
-            ),
-        )
-        assertEquals("知道啦。", parts.first().text)
-        assertFalse(parts.first().voiceNote)
-        assertEquals("嗯，记住了。", parts.last().text)
-        val voiceParts = parts.subList(1, parts.lastIndex)
-        assertTrue("Long voice should be two or three natural recordings", voiceParts.size in 2..3)
+            ))
+        assertEquals(textPlan.map { it.text }, voicePlan.map { it.text })
+        assertEquals("知道啦。", voicePlan.first().text)
+        assertFalse(voicePlan.first().voiceNote)
+        assertEquals("嗯，记住了。", voicePlan.last().text)
+        val voiceParts = voicePlan.subList(1, voicePlan.lastIndex)
+        assertEquals(com.jiacimu.lulu.semanticReplyBubbles(long), voiceParts.map { it.text })
+        assertTrue(voiceParts.size >= 2)
         assertTrue(voiceParts.all { it.voiceNote })
         assertEquals(long, voiceParts.joinToString("") { it.text })
-        assertTrue("Audio tracks must never repeat the full transcript in every segment",
+        assertTrue("Audio tracks must never repeat the full transcript in each segment",
             voiceParts.all { segment ->
-                segment.speechText.isBlank() || com.jiacimu.lulu.VoicePerformance.plain(segment.speechText) == segment.text
+                segment.speechText.isBlank() ||
+                    com.jiacimu.lulu.VoicePerformance.plain(segment.speechText) == segment.text
             })
     }
 
