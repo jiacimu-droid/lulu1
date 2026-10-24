@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T02:40:50.521206+00:00",
-  "commit": "6aaaa864bc8bc502cf0500ba40231915b1ec78b6",
+  "generatedAt": "2026-10-24T02:41:04.946667+00:00",
+  "commit": "cbe917b8f711fc2fd4d43a16bdf6f7d4c49cda31",
   "branch": "main",
-  "sourceFingerprint": "f1f80b1408753b84675f4f9f40b41231de73f075c438818f0d3404688b25aaf3",
+  "sourceFingerprint": "5e1a1572fecabe1a0bb83d1eeff964d4c583cd1055d62851eb73cae66c313b52",
   "summary": {
     "files": 869,
-    "lines": 166486,
+    "lines": 166502,
     "symbols": 2512
   },
   "symbolIndex": {
@@ -5043,7 +5043,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 498
+        "line": 497
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -9479,7 +9479,7 @@
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 364
+        "line": 363
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -9489,31 +9489,31 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 407
+        "line": 406
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 422
+        "line": 421
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 462
+        "line": 461
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 474
+        "line": 473
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 505
+        "line": 504
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -23346,8 +23346,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 562,
-      "sha256": "ee59f3de03c1012023ac68d9116da7596ec2f005594a239c5e39425e0bd2cf41",
+      "lines": 578,
+      "sha256": "d430031eefa3754e9bdc54d85d90ff288f698dc8f2eb6668d6fbb89cc3e9db4a",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -23403,31 +23403,31 @@
         },
         {
           "name": "reschedule",
-          "line": 364
+          "line": 363
         },
         {
           "name": "canBegin",
-          "line": 407
+          "line": 406
         },
         {
           "name": "completeFromReceipt",
-          "line": 422
+          "line": 421
         },
         {
           "name": "markDue",
-          "line": 462
+          "line": 461
         },
         {
           "name": "dueContext",
-          "line": 474
+          "line": 473
         },
         {
           "name": "clearCharacter",
-          "line": 498
+          "line": 497
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 505
+          "line": 504
         }
       ]
     },
