@@ -20,6 +20,45 @@ class CharacterInnerLifeStoreTest {
         CharacterInnerLifeStore.clear("inside-test-b")
     }
 
+
+    @Test fun pagedHistorySurvivesHotWindowAndRetractsOldEvidence() {
+        start()
+        val role = "inner-history-paged-test"
+        CharacterInnerLifeStore.clear(role)
+        val startAt = Instant.parse("2026-10-24T10:00:00Z")
+        repeat(94) { index ->
+            CharacterInnerLifeStore.recordInnerVoice(role, "archive-source-" + index,
+                "这次新的主观念头有一个单独的线索编号" + (index * 947) + "，需要留下记录",
+                startAt.plusSeconds(index.toLong() * 90))
+        }
+        assertEquals(12, CharacterInnerLifeStore.snapshot(role).getJSONArray("innerVoices").length())
+        val all = CharacterInnerLifeStore.historySnapshot(role, 200).getJSONArray("innerVoices")
+        assertEquals(94, all.length())
+        assertEquals("archive-source-0", all.getJSONObject(0).getString("evidenceId"))
+        CharacterInnerLifeStore.invalidateEvidence("archive-source-0")
+        assertEquals(93, CharacterInnerLifeStore.historySnapshot(role, 200)
+            .getJSONArray("innerVoices").length())
+        CharacterInnerLifeStore.clear(role)
+        assertEquals(0, CharacterInnerLifeStore.historySnapshot(role, 200)
+            .getJSONArray("innerVoices").length())
+    }
+
+    @Test fun longThoughtHistoryRemainsOutsideNormalContext() {
+        start()
+        val role = "inner-history-thoughts-test"
+        CharacterInnerLifeStore.clear(role)
+        repeat(63) { index ->
+            CharacterInnerLifeStore.observe(role, "source-thought-" + index, "第" + index + "次观察",
+                JSONObject().put("thoughts", JSONArray().put(
+                    JSONObject().put("thought", "第" + index + "次经历形成不同心事"))),
+                now = Instant.parse("2026-10-24T10:00:00Z").plusSeconds(index.toLong()))
+        }
+        assertEquals(32, CharacterInnerLifeStore.snapshot(role).getJSONArray("thoughts").length())
+        assertEquals(63, CharacterInnerLifeStore.historySnapshot(role, 1000)
+            .getJSONArray("thoughts").length())
+        assertTrue(CharacterInnerLifeStore.compactContext(role).length < 10000)
+        CharacterInnerLifeStore.clear(role)
+    }
     @Test fun expiryCueReadsSameRoleEmotionWithoutCreatingSleepStateOrNewEvidence() {
         start()
         val now = Instant.parse("2026-10-23T06:00:00Z")
