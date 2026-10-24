@@ -149,38 +149,6 @@ internal object LuluVoiceCallSession {
         }
     }
 
-    /** Returns a user-visible error instead of switching to an unconfigured paid service. */
-    fun selectStt(engine: String, model: String): String? {
-        val context = appContext ?: return "通话尚未初始化"
-        val normalized = CallVoiceConfiguration.resolveSttEngine(engine)
-        if (normalized != engine) return "无法识别的语音识别渠道"
-        val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
-        val error = when (engine) {
-            "local" -> {
-                val selected = LocalWhisperModels.Model.from(model)
-                LocalWhisperTranscriber.runtimeError()
-                    ?: if (LocalWhisperModels.installedFile(context, selected) == null)
-                        "请先在语音设置下载 ${selected.title}" else null
-            }
-            "groq" -> if (prefs.getString("groq_asr_key", "").orEmpty().isBlank())
-                "请先在语音设置填写 Groq API Key" else null
-            "elevenlabs" -> if (prefs.getString("eleven_api_key", "").orEmpty().isBlank())
-                "请先在语音设置填写 ElevenLabs API Key" else null
-            "minimax" -> if (prefs.getString("minimax_api_key", "").orEmpty().isBlank())
-                "请先在语音设置填写 MiniMax API Key" else null
-            else -> "无法识别的语音识别渠道"
-        }
-        if (error != null) return error
-        val edit = prefs.edit().putString("call_stt_mode", engine)
-        when (engine) {
-            "local" -> edit.putString("local_whisper_model", LocalWhisperModels.Model.from(model).id)
-            "groq" -> edit.putString("groq_asr_model", model)
-            "elevenlabs" -> edit.putString("eleven_asr_model", CallVoiceConfiguration.elevenSttModel(model))
-        }
-        if (!edit.commit()) return "无法保存识别模型设置"
-        requestSttRefresh()
-        return null
-    }
     private var lastPhoneXhsRequest = ""
     private var lastPhoneXhsRequestAt = 0L
     private var speechQueue: LuluCallSpeechQueue? = null
