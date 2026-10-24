@@ -58,7 +58,7 @@ internal fun sanitizePersistedChatText(text: String): String =
             .replace(Regex("[ \\t]+"), " "),
     )
 
-internal fun semanticReplyBubbles(text: String, keepWholeBubbles: List<String> = emptyList()): List<String> {
+internal fun semanticReplyBubbles(text: String): List<String> {
     val normalized = normalizeLegacyBubbleTokens(text)
     // Each actual paragraph is a completed conversational beat. Preserve a
     // lone newline inside an author's sentence, but do not pack two separate
@@ -69,13 +69,6 @@ internal fun semanticReplyBubbles(text: String, keepWholeBubbles: List<String> =
         normalized.replace(Regex("""\n[ \t]*\n+"""), SemanticBubbleSeparator)
     val candidates = separated.split(SemanticBubbleSeparator)
         .map { sanitizePersistedChatText(it).trim('"') }.filter(String::isNotBlank)
-    val atomic = keepWholeBubbles.map(::sanitizePersistedChatText).toSet()
-    // A chosen voice note is one recording: never split its transcript into pseudo-bubbles.
-    if (atomic.isNotEmpty()) return candidates.flatMap { candidate ->
-        if (candidate in atomic) listOf(candidate)
-        else com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
-            listOf(candidate), maxBubbles = Int.MAX_VALUE)
-    }
     return com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
         candidates,
         // The historic 8-bubble overflow rule fused EVERY remaining paragraph
@@ -133,78 +126,46 @@ private fun roleRecallDelayMillis(characterId: String): Long = 900L + rolePacing
 internal data class CharacterOutgoingBubble(val text: String, val voiceNote: Boolean, val speechText: String = "")
 
 /**
- * A voice choice describes the delivery medium, not a license to fuse an entire paragraph
- * into one recording. Reuse the ordinary conversational boundaries, then group short beats
- * into comfortably playable voice notes. Never split a word or a technical/media payload.
+ * First create the same natural TEXT bubbles regardless of how they will be delivered.
+ * The character's delivery choice then applies to each complete bubble, never to a
+ * separately segmented audio paragraph. A turn can contain any text/voice combination.
  *
- * Split AFTER modality selection, so foreground, online, and autonomous private messages
- * all use the same rule; every resulting note is an independent persisted message and cache.
+ * A model may author one long JSON bubble; the existing normal text-bubble rules still
+ * turn its completed conversational beats into individual messages. Delivery mode and
+ * optional performance track follow the source bubble into each resulting message.
  */
-private fun readableVoiceNotes(bubble: CharacterOutgoingBubble): List<CharacterOutgoingBubble> {
-    if (!bubble.voiceNote || bubble.text.length < 90 ||
-        bubble.text.startsWith("[") || bubble.text.startsWith("⟪")) return listOf(bubble)
-    val beats = com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
-        listOf(bubble.text), maxBubbles = Int.MAX_VALUE)
-    if (beats.size < 2) return listOf(bubble)
-    // Locate the established text boundaries IN the original transcript so no
-    // audio/transcript content disappears due to trimming or punctuation normalization.
-    val cuts = mutableListOf<Int>()
-    var cursor = 0
-    for (beat in beats.dropLast(1)) {
-        val start = bubble.text.indexOf(beat, cursor)
-        if (start < 0) return listOf(bubble)
-        cursor = start + beat.length
-        cuts += cursor
-    }
-    val notes = mutableListOf<String>()
-    var from = 0
-    while (bubble.text.length - from > 90) {
-        val options = cuts.filter { it - from >= 30 && bubble.text.length - it >= 20 }
-        val next = options.minByOrNull { kotlin.math.abs(it - from - 65) } ?: break
-        notes += bubble.text.substring(from, next).trim()
-        from = next
-    }
-    notes += bubble.text.substring(from).trim()
-    if (notes.size < 2 || notes.any(String::isBlank) ||
-        notes.joinToString("").filterNot(Char::isWhitespace) !=
-            bubble.text.filterNot(Char::isWhitespace)) return listOf(bubble)
-
-    // Optional ElevenLabs directions are a separate audio track. Slice only when its
-    // spoken words match the original transcript exactly; otherwise use each visible
-    // note's own words, never repeat a whole-turn track in every short recording.
-    val track = bubble.speechText.trim()
-    val canSliceTrack = track.isNotBlank() && VoicePerformance.plain(track) == bubble.text
-    var searchFrom = 0
-    return notes.map { words ->
-        val start = bubble.text.indexOf(words, searchFrom)
-        val speech = if (canSliceTrack && start >= 0) {
-            VoicePerformance.slice(track, start, start + words.length)
-                .takeIf { VoicePerformance.plain(it) == words }.orEmpty()
-        } else ""
-        if (start >= 0) searchFrom = start + words.length
-        CharacterOutgoingBubble(words, true, speech)
-    }
-}
-
 internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentation): List<CharacterOutgoingBubble> {
-    val explicit = presentation.content.split(SemanticBubbleSeparator)
+    val authored = presentation.content.split(SemanticBubbleSeparator)
         .map(::sanitizePersistedChatText).filter(String::isNotBlank)
-    if (presentation.bubbleDeliveryModes.isNotEmpty() &&
-        presentation.bubbleDeliveryModes.size == explicit.size) {
-        return explicit.mapIndexed { index, text ->
-            CharacterOutgoingBubble(text, presentation.bubbleDeliveryModes[index].equals("voice", ignoreCase = true),
-                presentation.bubbleSpeechTracks.getOrNull(index).orEmpty())
-        }.flatMap(::readableVoiceNotes)
-    }
-    // Backward compatibility for older callers that supplied voice utterances by content.
-    val pendingVoice = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
-    return semanticReplyBubbles(presentation.content, presentation.voiceBubbleTexts).map { bubble ->
-        val text = sanitizePersistedChatText(bubble)
-        val position = pendingVoice.indexOfFirst { it == text }
-        CharacterOutgoingBubble(text, position >= 0).also {
-            if (position >= 0) pendingVoice.removeAt(position)
+    val positionAligned = presentation.bubbleDeliveryModes.size == authored.size &&
+        presentation.bubbleDeliveryModes.isNotEmpty()
+    val legacyVoiced = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
+    return authored.flatMapIndexed { sourceIndex, sourceText ->
+        // Step 1: ordinary chat presentation, independent of "voice" or "text".
+        val textBubbles = semanticReplyBubbles(sourceText)
+        // Step 2: apply the character's original mode selection to those bubbles.
+        val legacyIndex = legacyVoiced.indexOfFirst { it == sourceText }
+        val voice = if (positionAligned) {
+            presentation.bubbleDeliveryModes[sourceIndex].equals("voice", ignoreCase = true)
+        } else legacyIndex >= 0
+        if (legacyIndex >= 0) legacyVoiced.removeAt(legacyIndex)
+        val track = if (positionAligned && voice) {
+            presentation.bubbleSpeechTracks.getOrNull(sourceIndex).orEmpty().trim()
+        } else ""
+        val alignTrack = track.isNotEmpty() && VoicePerformance.plain(track) == sourceText
+        var cursor = 0
+        textBubbles.map { text ->
+            // Each voice bubble has its own audio-only direction track. Never
+            // attach the whole original performance to every resulting bubble.
+            val start = if (alignTrack) sourceText.indexOf(text, cursor) else -1
+            val speech = if (start >= 0) {
+                VoicePerformance.slice(track, start, start + text.length)
+                    .takeIf { VoicePerformance.plain(it) == text }.orEmpty()
+            } else ""
+            if (start >= 0) cursor = start + text.length
+            CharacterOutgoingBubble(text, voice, speech)
         }
-    }.flatMap(::readableVoiceNotes)
+    }
 }
 
 internal suspend fun appendRoleReplyWithPacing(
