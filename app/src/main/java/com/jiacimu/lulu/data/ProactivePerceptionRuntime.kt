@@ -725,8 +725,13 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
-                RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
-                    .takeIf(String::isNotBlank)?.let(::appendLine)
+                // Private replies already have the normal character context.
+                // Reserve the dedicated life-planning context for independent
+                // turns instead of charging it on every incoming chat bubble.
+                if (privateDialogue.isEmpty()) {
+                    RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
+                        .takeIf(String::isNotBlank)?.let(::appendLine)
+                }
                 val futurePlans = RoleDayScheduleStore.plannedContext(appContext, characterId, now)
                 if (futurePlans.isNotBlank()) {
                     appendLine("【本人的未来日程｜来源是实际存档，可维持、改期、取消，不要重复建立】")
