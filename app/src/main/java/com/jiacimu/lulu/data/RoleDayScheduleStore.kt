@@ -259,6 +259,13 @@ object RoleDayScheduleStore {
                 linkedId, "", "") == linkedId) { "关联意愿必须属于本人且尚未暂停或放下" }
         }
         val existing = all(context)
+        if (repeat == "daily") {
+            require(CommitmentTaskStore.active(characterId).none { task ->
+                task.dueAt != null && task.deliveryAction == "start_call" &&
+                    task.status == CommitmentTaskStatus.Scheduled &&
+                    sameDailyClockAndPurpose(task.goal, task.dueAt, title, dueAt)
+            }) { "相同时间的每日来电约定已经存在，无需再创建另一份日程" }
+        }
         require(linkedCommitment.isBlank() || existing.none {
             it.characterId == characterId && it.commitmentTaskId == linkedCommitment &&
                 it.status in setOf("planned", "due")
@@ -295,6 +302,54 @@ object RoleDayScheduleStore {
             .cancelUniqueWork("role-own-plan-$planId")
         refreshAutonomousWake(context)
         return true
+    }
+
+    /** Delete only the plan and its wake. Raw conversation and tool evidence remain intact. */
+    @Synchronized
+    fun remove(context: Context, characterId: String, planId: String): Boolean {
+        val old = all(context)
+        if (old.none { it.id == planId && it.characterId == characterId }) return false
+        WorkManager.getInstance(context.applicationContext)
+            .cancelUniqueWork("role-own-plan-$planId")
+        persist(context, old.filterNot { it.id == planId && it.characterId == characterId })
+        refreshAutonomousWake(context)
+        return true
+    }
+
+    @Synchronized
+    fun removeLinkedCommitmentPlans(context: Context, characterId: String, commitmentTaskId: String) {
+        if (commitmentTaskId.isBlank()) return
+        val linked = all(context).filter { it.characterId == characterId &&
+            it.commitmentTaskId == commitmentTaskId }
+        if (linked.isEmpty()) return
+        linked.forEach { WorkManager.getInstance(context.applicationContext)
+            .cancelUniqueWork("role-own-plan-${it.id}") }
+        persist(context, all(context).filterNot { it.characterId == characterId &&
+            it.commitmentTaskId == commitmentTaskId })
+        refreshAutonomousWake(context)
+    }
+
+    /**
+     * Old versions registered BOTH a daily self-plan and a one-shot incoming call
+     * for the same bedtime minute. Promote the actual phone alarm to daily and
+     * retire only an unambiguous, matching duplicate planner wake-up.
+     */
+    @Synchronized
+    fun mergeMatchingDailyCallPlans(context: Context) {
+        val candidates = all(context).filter { it.repeat == "daily" &&
+            it.status in setOf("planned", "due") }
+        candidates.forEach { plan ->
+            val task = CommitmentTaskStore.snapshot(plan.characterId).firstOrNull { c ->
+                c.status == CommitmentTaskStatus.Scheduled && c.deliveryAction == "start_call" &&
+                    c.dueAt != null && sameDailyClockAndPurpose(c.goal, c.dueAt, plan.title, plan.dueAt)
+            } ?: return@forEach
+            if (task.repeat != "daily") CommitmentTaskStore.update(task.id) {
+                it.copy(repeat = "daily")
+            }
+            // The existing call alarm remains untouched; only the duplicate
+            // personal-plan worker is removed.
+            remove(context, plan.characterId, plan.id)
+        }
     }
 
     @Synchronized
