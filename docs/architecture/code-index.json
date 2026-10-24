@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T11:57:29.088420+00:00",
-  "commit": "e862b9dbc1f6a7add80b610e96a8e7fecb069966",
+  "generatedAt": "2026-10-24T11:57:44.095759+00:00",
+  "commit": "94d962708dde6fab0893f9e65340fd51e157c5c8",
   "branch": "main",
-  "sourceFingerprint": "d1a7dfaa7ad7396f7223200d78f1174bd6d4d9b1e0b2c09168810ba762a0edb9",
+  "sourceFingerprint": "04f839dbaed17a1efaf12ae559840acfdd868e9b6e802add2cde88d11a86be91",
   "summary": {
     "files": 878,
-    "lines": 170635,
+    "lines": 170646,
     "symbols": 2556
   },
   "symbolIndex": {
@@ -12579,7 +12579,7 @@
     "ListenTogetherRoomTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt",
-        "line": 14
+        "line": 15
       }
     ],
     "Live2DAssetsTest": [
@@ -27559,12 +27559,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt",
-      "lines": 44,
-      "sha256": "2b30505d27812f70695df53924e323b9d44efa6abc2769cbc8639d693855f1e9",
+      "lines": 55,
+      "sha256": "376d35094073d6d2be26a7a3eb0e989a04fca62f3a9ab397c26818f777785058",
       "symbols": [
         {
           "name": "ListenTogetherRoomTest",
-          "line": 14
+          "line": 15
         }
       ]
     },
