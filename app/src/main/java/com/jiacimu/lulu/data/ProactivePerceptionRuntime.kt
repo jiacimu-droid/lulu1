@@ -142,7 +142,7 @@ object ProactivePerceptionRuntime {
         val policy = ProactivePerceptionPolicyStore.get(characterId)
         if (!policy.enabled) return null
         val conversation = latestPrivateConversations().firstOrNull { it.characterId == characterId } ?: return null
-        dueAtFor(context, conversation, policy, context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE), now)
+        dueAtFor(conversation, policy, context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE), now)
         return PerceptionWakePlanStore.plans.value[characterId]
     }
 
@@ -158,7 +158,7 @@ object ProactivePerceptionRuntime {
             // An imminent executable alarm owns its action slot, but must not
             // erase this character's *next* autonomous wake from WorkManager.
             // Re-evaluate after the promised alarm has had time to execute.
-            val ordinaryDue = dueAtFor(context, conversation, policy, prefs, now)
+            val ordinaryDue = dueAtFor(conversation, policy, prefs, now)
             val afterAlarm = GoalDeadlinePerceptionPolicy.passiveResumeAt(
                 CommitmentTaskStore.snapshot(characterId), now)
             if (afterAlarm != null) maxOf(ordinaryDue, afterAlarm) else ordinaryDue
@@ -272,7 +272,7 @@ object ProactivePerceptionRuntime {
                     if (!force) {
                         if (GoalDeadlinePerceptionPolicy.deferPassiveCheck(
                                 CommitmentTaskStore.snapshot(characterId), now)) continue
-                        val due = dueAtFor(appContext, conversation, policy, prefs, now)
+                        val due = dueAtFor(conversation, policy, prefs, now)
                         if (!trigger.startsWith("重要事件") && due.isAfter(now.plusSeconds(15))) continue
                         if (isQuietNow(policy, now.atZone(ZoneId.systemDefault()).toLocalTime())) continue
                     }
@@ -382,7 +382,6 @@ object ProactivePerceptionRuntime {
     }
 
     private fun dueAtFor(
-        context: Context,
         conversation: LuluConversation,
         policy: ProactivePerceptionPolicy,
         prefs: android.content.SharedPreferences,
