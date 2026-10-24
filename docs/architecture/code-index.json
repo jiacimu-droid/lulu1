@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:49:50.021443+00:00",
-  "commit": "028e3efb6d3b6f0158e4a74763d58baaff8bf4e2",
+  "generatedAt": "2026-10-24T04:50:19.958006+00:00",
+  "commit": "8681d65015f6a713b332f544421c91fe64b4e94a",
   "branch": "main",
-  "sourceFingerprint": "5f5af7519d6826f9fbd3dce1a3466ef33d374c7fdc7fd79387233287bc31bccc",
+  "sourceFingerprint": "7bf3facbef5a49ca8d991cd49d1d791cf157e6bf902c1437cff09b385287ccb1",
   "summary": {
     "files": 872,
-    "lines": 167783,
+    "lines": 167787,
     "symbols": 2521
   },
   "symbolIndex": {
@@ -18426,8 +18426,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
-      "lines": 376,
-      "sha256": "22d70acf83a2c4983f1bf06f93c2fd043fae3e0bdc408710ff4c526573d08d1c",
+      "lines": 380,
+      "sha256": "1c7f571b658c99d7c3e3e8f8e5acfe23b043609ea07135296cf7fa204ef1538b",
       "symbols": [
         {
           "name": "pendingDecisionCues",
