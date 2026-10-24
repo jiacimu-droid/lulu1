@@ -132,6 +132,60 @@ private fun roleRecallDelayMillis(characterId: String): Long = 900L + rolePacing
 /** Preserve the role's per-bubble choices by POSITION, never by comparing repeated wording. */
 internal data class CharacterOutgoingBubble(val text: String, val voiceNote: Boolean, val speechText: String = "")
 
+/**
+ * A voice choice describes the delivery medium, not a license to fuse an entire paragraph
+ * into one recording. Reuse the ordinary conversational boundaries, then group short beats
+ * into comfortably playable voice notes. Never split a word or a technical/media payload.
+ *
+ * Split AFTER modality selection, so foreground, online, and autonomous private messages
+ * all use the same rule; every resulting note is an independent persisted message and cache.
+ */
+private fun readableVoiceNotes(bubble: CharacterOutgoingBubble): List<CharacterOutgoingBubble> {
+    if (!bubble.voiceNote || bubble.text.length < 90 ||
+        bubble.text.startsWith("[") || bubble.text.startsWith("⟪")) return listOf(bubble)
+    val beats = com.jiacimu.lulu.data.ModelStructuredOutput.readableReplyBubbles(
+        listOf(bubble.text), maxBubbles = Int.MAX_VALUE)
+    if (beats.size < 2) return listOf(bubble)
+    // Locate the established text boundaries IN the original transcript so no
+    // audio/transcript content disappears due to trimming or punctuation normalization.
+    val cuts = mutableListOf<Int>()
+    var cursor = 0
+    for (beat in beats.dropLast(1)) {
+        val start = bubble.text.indexOf(beat, cursor)
+        if (start < 0) return listOf(bubble)
+        cursor = start + beat.length
+        cuts += cursor
+    }
+    val notes = mutableListOf<String>()
+    var from = 0
+    while (bubble.text.length - from > 90) {
+        val options = cuts.filter { it - from >= 30 && bubble.text.length - it >= 20 }
+        val next = options.minByOrNull { kotlin.math.abs(it - from - 65) } ?: break
+        notes += bubble.text.substring(from, next).trim()
+        from = next
+    }
+    notes += bubble.text.substring(from).trim()
+    if (notes.size < 2 || notes.any(String::isBlank) ||
+        notes.joinToString("").filterNot(Char::isWhitespace) !=
+            bubble.text.filterNot(Char::isWhitespace)) return listOf(bubble)
+
+    // Optional ElevenLabs directions are a separate audio track. Slice only when its
+    // spoken words match the original transcript exactly; otherwise use each visible
+    // note's own words, never repeat a whole-turn track in every short recording.
+    val track = bubble.speechText.trim()
+    val canSliceTrack = track.isNotBlank() && VoicePerformance.plain(track) == bubble.text
+    var searchFrom = 0
+    return notes.map { words ->
+        val start = bubble.text.indexOf(words, searchFrom)
+        val speech = if (canSliceTrack && start >= 0) {
+            VoicePerformance.slice(track, start, start + words.length)
+                .takeIf { VoicePerformance.plain(it) == words }.orEmpty()
+        } else ""
+        if (start >= 0) searchFrom = start + words.length
+        CharacterOutgoingBubble(words, true, speech)
+    }
+}
+
 internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentation): List<CharacterOutgoingBubble> {
     val explicit = presentation.content.split(SemanticBubbleSeparator)
         .map(::sanitizePersistedChatText).filter(String::isNotBlank)
@@ -140,7 +194,7 @@ internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentatio
         return explicit.mapIndexed { index, text ->
             CharacterOutgoingBubble(text, presentation.bubbleDeliveryModes[index].equals("voice", ignoreCase = true),
                 presentation.bubbleSpeechTracks.getOrNull(index).orEmpty())
-        }
+        }.flatMap(::readableVoiceNotes)
     }
     // Backward compatibility for older callers that supplied voice utterances by content.
     val pendingVoice = presentation.voiceBubbleTexts.map(::sanitizePersistedChatText).toMutableList()
@@ -150,7 +204,7 @@ internal fun characterOutgoingBubblePlan(presentation: CharacterReplyPresentatio
         CharacterOutgoingBubble(text, position >= 0).also {
             if (position >= 0) pendingVoice.removeAt(position)
         }
-    }
+    }.flatMap(::readableVoiceNotes)
 }
 
 internal suspend fun appendRoleReplyWithPacing(
