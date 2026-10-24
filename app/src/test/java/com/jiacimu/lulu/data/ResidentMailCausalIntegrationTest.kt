@@ -103,10 +103,14 @@ class ResidentMailCausalIntegrationTest {
         val letter = ResidentSocialMailbox.send(sender, receiver, "这条信仍然需要你亲自决定")
         val server = okhttp3.mockwebserver.MockWebServer()
         val completionRequests = java.util.concurrent.atomic.AtomicInteger(0)
+        val receiverName = MigratedDomainStores.characters.get(receiver).displayName
         server.dispatcher = object : okhttp3.mockwebserver.Dispatcher() {
             override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): okhttp3.mockwebserver.MockResponse {
-                if (request.path?.contains("/chat/completions") == true ||
-                    request.path?.endsWith("/messages") == true) {
+                val isCompletion = request.path?.contains("/chat/completions") == true ||
+                    request.path?.endsWith("/messages") == true
+                // The test runner also permits unrelated resident background workers.
+                // Their requests share this mock server but are NOT this receiver's decision.
+                if (isCompletion && request.body.clone().readUtf8().contains(receiverName)) {
                     completionRequests.incrementAndGet()
                     CompanionPresenceStore.beginCall(receiver)
                 }
