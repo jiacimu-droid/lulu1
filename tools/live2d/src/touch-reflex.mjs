@@ -47,23 +47,29 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   }
   if (isImpact(gesture)) {
     // First recoil in the actual direction, THEN knitted brows/pout/tears.
-    const recoil = elapsedMs < 230 ? 1 : Math.max(0, 1 - (elapsedMs - 230) / 1050)
-    // A cheek strike recoils away on that cheek's side. The gesture suffix
-    // names the hand/stroke, which is not a reliable screen-space force vector;
-    // letting it override the actual contact side reversed the face on slap-right.
-    const swipe = family === 'cheek' && side !== 0 ? side : direction || -side || -1
+    // A slap is screen-space motion: rightward swipe moves the visible head
+    // to screen right, independently of which cheek was touched.
+    // A stationary palm uses the contacted cheek only as a fallback.
+    // Hold the neck bend across low-FPS mirrored video frames, then relax.
+    const recoil = elapsedMs < 360 ? 1 :
+      Math.pow(Math.max(0, 1 - (elapsedMs - 360) / 1250), 1.15)
+    const swipe = direction || (family === 'cheek' && side !== 0 ? side : -side || -1)
+    const follow = .2 + .8 * Math.min(1, Math.max(0, elapsedMs) / 260)
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
     // A slap is a fast NECK ROLL recoil, not the whole face sliding side
     // to side on yaw. The torso follows later with a much smaller angle.
     // The impact spring has a quicker attack, a deliberately slower release.
     response.impactMotion = true
-    response.yaw = swipe * yaw * .34 * scale * recoil
-    response.roll = swipe * roll * 1.6 * scale * recoil
+    // Mostly neck rotation, not a side-to-side face translation.
+    // Respect typical rig Z limits instead of demanding unreachable angles.
+    response.yaw = swipe * yaw * .24 * scale * recoil
+    response.roll = swipe * Math.min(30, roll * 1.5 * scale) * recoil
     response.pitch = pitch * .7 * scale * recoil
+    // Shoulders follow the neck rather than preceding the hit.
     response.body = {
-      yaw: swipe * torso * .32 * scale * recoil,
-      pitch: -torso * .72 * scale * recoil,
-      roll: swipe * torso * .65 * scale * recoil,
+      yaw: swipe * torso * .24 * scale * recoil * follow,
+      pitch: -torso * .7 * scale * recoil * follow,
+      roll: swipe * torso * .6 * scale * recoil * follow,
     }
     const startled = elapsedMs < 230
     // Wide-eyed surprise first, then raised inner brows, glistening eyes and

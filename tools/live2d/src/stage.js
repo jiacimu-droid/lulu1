@@ -983,8 +983,8 @@ function drawNativeCapture(maxEdge = 960) {
   }
   // The Pixi ticker already maintains the freshest drawing buffer. The
   // capture only copies it; never invoke Cubism render a second time.
-  nativeCaptureContext.fillStyle = '#151719'
-  nativeCaptureContext.fillRect(0, 0, width, height)
+  // Pixi has an opaque full-size buffer; avoid an extra full-frame fill
+  // for each JPEG capture on the Android compatibility bridge.
   nativeCaptureContext.drawImage(app.view, 0, 0, width, height)
   return nativeCaptureCanvas
 }
@@ -1228,7 +1228,13 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   const bounds = model.getBounds()
   const manualZone = calibratedRegion(
     (x - bounds.x) / bounds.width, (y - bounds.y) / bounds.height, touchCalibration)
-  if (!manualZone && actualAvatarPixel(normalizedX, normalizedY) === false) {
+  // Anchor a completed palm sweep to the actual region hit on DOWN, not
+  // its release over the opposite cheek or empty pixels. No valid DOWN
+  // means no cached hit; regular model hit-testing still applies.
+  const impactRegion = options.phase === 'complete' && isImpact(gesture) &&
+    tactileContact?.pressed && isImpact(tactileContact.kind)
+    ? tactileContact.region : null
+  if (!impactRegion && !manualZone && actualAvatarPixel(normalizedX, normalizedY) === false) {
     touchResponse.end()
     if (tactileContact) tactileContact.pressed = false
     return { hit: false }
@@ -1236,7 +1242,7 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
   let hits = []
   try { hits = model.hitTest(x, y) || [] } catch (_) { /* optional HitAreas */ }
   const authoredAreas = Object.keys(model.internalModel?.hitAreas || {}).length
-  const region = resolveTouchRegion({ hits, authoredAreas, bounds, x, y,
+  const region = impactRegion || resolveTouchRegion({ hits, authoredAreas, bounds, x, y,
     calibration: touchCalibration })
   if (!region) {
     touchResponse.end()

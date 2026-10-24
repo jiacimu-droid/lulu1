@@ -134,8 +134,8 @@ const headRight = touchReflexFor('cheek-right', 'stroke-right')
 assert.equal(headLeft.yaw, -headRight.yaw)
 const early = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 70)
 const later = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 500)
-assert.ok(early.yaw < later.yaw && early.yaw < -3,
-  'an undirected slap moves the head strongly toward screen left')
+assert.ok(early.yaw > later.yaw && early.yaw > 2,
+  'a rightward slap pushes the head toward screen right even on the left cheek')
 assert.ok(Math.abs(early.roll) > Math.abs(early.yaw) * 2,
   'a slapped head should visibly roll at the neck, not sway horizontally')
 assert.equal(early.impactMotion, true)
@@ -143,9 +143,21 @@ assert.ok(early.face.browY > 0 && later.face.browY > 0 && later.face.pout > earl
   'startled brows soften into an aggrieved pout, not an angry scowl')
 assert.ok(touchReflexFor('cheek-left', 'slap-left').yaw < 0)
 const rightCheekStrike = touchReflexFor('cheek-right', 'slap-right', 0, { force: .55 }, 70)
-assert.ok(rightCheekStrike.yaw > 3 && rightCheekStrike.roll > 0,
-  'matching the struck cheek mirrors the recoil even when the palm gesture suffix changes')
-assert.equal(rightCheekStrike.yaw, -early.yaw)
+assert.ok(rightCheekStrike.yaw > 2 && rightCheekStrike.roll > 0,
+  'a rightward slap must go right even when hitting the right cheek')
+assert.equal(rightCheekStrike.yaw, early.yaw)
+const leftwardStrike = touchReflexFor('cheek-right', 'slap-left', 0, { force: .55 }, 70)
+assert.ok(leftwardStrike.yaw < -2 && leftwardStrike.roll < -20,
+  'leftward hand motion must override the contacted cheek side')
+assert.equal(leftwardStrike.roll, -rightCheekStrike.roll)
+assert.ok(touchReflexFor('cheek-left', 'slap').roll < 0)
+assert.ok(touchReflexFor('cheek-right', 'slap').roll > 0)
+assert.ok(Math.abs(touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 340).roll) >
+  Math.abs(touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 850).roll),
+  'the bent head remains visible for multiple native-mirror frames before settling')
+assert.ok(Math.abs(early.body.roll) < Math.abs(
+  touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 260).body.roll),
+  'shoulders must follow the head, not swing ahead of contact')
 assert.ok(touchReflexFor('cheek-left', 'slap', 0, { force: .9 }).yaw <
   touchReflexFor('cheek-left', 'slap', 0, { force: .25 }).yaw)
 const petVariants = [0, 1, 2].map(i =>
@@ -252,6 +264,20 @@ assert.equal(completedHit.force, .9)
 assert.equal(stageResponse.snapshot().shyness, 0)
 assert.ok(stageResponse.snapshot().impact > 40)
 assert.ok(bridge.touchReflex.roll < -25, 'the completed slap must visibly bend left')
+// The first real cheek contact owns the hit even if release crosses the
+// other cheek or leaves the avatar silhouette within the video viewport.
+stageResponse.reset()
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
+const acrossFace = bridge.touch(.68, .235, 'slap-right',
+  { phase: 'complete', mode: 'pat', force: .9 })
+assert.equal(acrossFace.region, 'cheek-left', 'slap is anchored to DOWN')
+assert.ok(bridge.touchReflex.roll > 20, 'rightward sweep bends the head right')
+bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
+bridge.actualAvatarPixel = nx => nx < .9
+const beyondFace = bridge.touch(.96, .235, 'slap-right',
+  { phase: 'complete', mode: 'pat', force: .9 })
+assert.equal(beyondFace.region, 'cheek-left', 'a valid strike survives release outside the face')
+bridge.actualAvatarPixel = () => true
 const beforeMiss = stageResponse.snapshot().impact
 bridge.touch(-.1, .235, 'slap', { phase: 'complete', mode: 'pat' })
 assert.equal(stageResponse.snapshot().impact, beforeMiss)

@@ -97,7 +97,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // attack at the neck, then a long recovery. A single slow spring for both
     // formerly swallowed the entire 200ms impact peak.
     const reflexPose = touchSpring.step(touchReflex, deltaMs, !touchReflex,
-      touchReflex?.impactMotion ? 540 : null)
+      touchReflex?.impactMotion ? 780 : null)
     const bodyReflex = touchBodySpring.step(touchReflex?.body, deltaMs, !touchReflex,
       touchReflex?.impactMotion ? 230 : null)
     // The original Motion3 still updates underneath a short touch or voice cue.
