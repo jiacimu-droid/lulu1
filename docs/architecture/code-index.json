@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T12:15:40.353854+00:00",
-  "commit": "fea2fda94225906546b8c0b14403a53cf1b7d394",
+  "generatedAt": "2026-10-24T12:16:04.973670+00:00",
+  "commit": "ac3735899928adc8472f65d675d2d046ebff932d",
   "branch": "main",
-  "sourceFingerprint": "a35fe7e3e72fa3d16e1287ddbabaf09937ce4ec73a10e1d14876e867256de2b5",
+  "sourceFingerprint": "e8add20adcbebfd75dda90a7090af68ba9a26aea5ade9bf80bc69df01b226dfc",
   "summary": {
     "files": 878,
     "lines": 170812,
@@ -18650,7 +18650,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
       "lines": 517,
-      "sha256": "577d58291dcd8d06d149f0b79ad56bc34094fcdb2def0ba7f6040dd0a323d952",
+      "sha256": "77334972288c81aa4c9ce581237b8aad4138968fac0258ab88f00ef054999d82",
       "symbols": [
         {
           "name": "visibleQuestions",
