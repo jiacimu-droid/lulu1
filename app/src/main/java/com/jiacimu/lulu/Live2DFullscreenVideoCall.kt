@@ -274,6 +274,9 @@ internal fun Live2DFullscreenVideoCall(
         if (!directWebGL) return@LaunchedEffect
         if (first != null && first >= 100) {
             directVerified = true
+            // The last decoded-JPEG FPS is now historical, not a direct
+            // display metric; never show it as live direct-display speed.
+            videoPerformance = "直显已验证"
             if (modelUrl != null) displayPrefs.edit()
                 .putBoolean("direct:$modelUrl", true).apply()
         } else {
