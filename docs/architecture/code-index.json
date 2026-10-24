@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:54:51.788256+00:00",
-  "commit": "c583af5b58f1acb5acb6983fbc088ad11821eb70",
+  "generatedAt": "2026-10-24T05:17:48.542132+00:00",
+  "commit": "4e4dd82d05c384179e54a0d415f9dfbba06a80a8",
   "branch": "main",
-  "sourceFingerprint": "5559e70027ac134a69061810df42f82ec2ecf7332ce80c5dcb5edef11f71d9c6",
+  "sourceFingerprint": "ac1540b10e6bcc54a9d3f0b92cb3af8d7e7707b8169e240ade0ae7f3a8ccf5eb",
   "summary": {
     "files": 872,
-    "lines": 167862,
+    "lines": 167861,
     "symbols": 2522
   },
   "symbolIndex": {
@@ -4855,31 +4855,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 101
+        "line": 100
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 163
+        "line": 162
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 165
+        "line": 164
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 180
+        "line": 179
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 185
+        "line": 184
       }
     ],
     "conciseAppraisal": [
@@ -18451,28 +18451,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 189,
-      "sha256": "e360dd2c2e6f67204306bbff541f49d05f4c4b28d45a94b4dfe39851e3e2ccb4",
+      "lines": 188,
+      "sha256": "8622b991c433934596283f5b027f5516150b880d520acc48678c023f4d1538f8",
       "symbols": [
         {
           "name": "expressionContext",
-          "line": 101
+          "line": 100
         },
         {
           "name": "usesSeparateExpression",
-          "line": 163
+          "line": 162
         },
         {
           "name": "chatAction",
-          "line": 165
+          "line": 164
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 180
+          "line": 179
         },
         {
           "name": "speechIntent",
-          "line": 185
+          "line": 184
         }
       ]
     },
@@ -23431,7 +23431,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
       "lines": 630,
-      "sha256": "840179f02a6107f9cc676cd21be9db5c67935e7c07db68fa6c0c4c5498a0dcae",
+      "sha256": "262ceba115f0645942521ce1277a40f27d47a75fd3f5f22c453adbd3168b0ed1",
       "symbols": [
         {
           "name": "RoleDayPlan",
