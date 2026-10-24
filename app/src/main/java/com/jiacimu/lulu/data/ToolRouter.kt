@@ -222,6 +222,12 @@ object ToolRouter {
         if (receipt.requestEvidenceId != original.id) return
         CharacterLearningLedger.recordApplication(characterId, execution.optJSONObject("learningApplication"),
             observed.id, "capture_screen", receipt.success, receipt.summary)
+        execution.optJSONObject("curiosity")?.let { inquiry ->
+            if (receipt.success) CharacterCuriosityRuntime.recordOutcome(characterId,
+                JSONObject(inquiry.toString()).put("status", "exploring"), "capture_screen",
+                true, receipt.summary, observed.id)
+            else CharacterCuriosityRuntime.recordFailure(characterId, inquiry, "capture_screen", receipt.summary)
+        }
         CharacterDevelopmentRuntime.request(characterId)
     }
 

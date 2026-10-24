@@ -1708,7 +1708,11 @@ object LuluDeviceToolBridge {
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow, evidenceId = actionReceipt)
                 runCatching { com.jiacimu.lulu.data.CharacterExplorationContinuity.returned(appContext, characterId,
-                    com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(result.text),
+                    com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(result.text)?.apply {
+                        put("innerThought", finalPlan.innerThought)
+                        put("innerLife", com.jiacimu.lulu.data.CharacterInnerLifeStore.withAfterglow(
+                            finalPlan.innerLife, finalPlan.afterglow, toolResult))
+                    },
                     listOf(actionReceipt, actual?.optString("evidenceId").orEmpty()).filter(String::isNotBlank)) }
                     .onFailure { android.util.Log.w("CharacterExploration", "Tool-result continuity was not saved", it) }
                 if (!finalPlan.endCall && sceneContext.contains("电话") &&

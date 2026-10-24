@@ -72,6 +72,7 @@ internal object CharacterExplorationContinuity {
     fun informativeAction(action: String): Boolean = action.lowercase() !in setOf(
         "message", "group_message", "phone_reply", "sticker", "group_sticker", "kaomoji",
         "group_kaomoji", "send_private_message", "send_group_message", "moment", "publish_moment",
+        "send_private_sticker", "send_group_sticker", "send_character_message",
         "journal", "write_journal", "silent", "")
 
     /** Interpret already-produced results through the same causal state, never a new model. */

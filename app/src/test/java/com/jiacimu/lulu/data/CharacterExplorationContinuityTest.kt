@@ -68,6 +68,9 @@ class CharacterExplorationContinuityTest {
         assertEquals(0, CharacterCuriosityRuntime.snapshot(role).optJSONArray("threads")?.length() ?: 0)
         assertEquals(2, questions().length())
         assertTrue(CharacterExplorationContinuity.context(role).contains("尚未实践"))
+        listOf("send_private_sticker", "send_group_sticker", "send_character_message").forEach {
+            assertFalse(CharacterExplorationContinuity.informativeAction(it))
+        }
     }
 
     @Test fun newQuestionOnAnExploredTopicIsKeptAlongsideItsActualPreviousResult() {
@@ -164,7 +167,8 @@ class CharacterExplorationContinuityTest {
         val threads = CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
         assertEquals("exploring", threads.getJSONObject(0).getString("status"))
         OrderedCharacterActions.execute(context, role, step, "research-step", userEvidenceIds = setOf("input"))
-        assertEquals(1, threads.getJSONObject(0).getJSONArray("steps").length())
+        assertEquals(1, CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads")
+            .getJSONObject(0).getJSONArray("steps").length())
     }
 
     @Test fun bothLivePrivateChatAndLegacyProtocolReceiveTheSameOptionalExplorationContract() {
@@ -179,5 +183,33 @@ class CharacterExplorationContinuityTest {
         }.apply { isAccessible = true }
         val parsed = method.invoke(ProactivePerceptionRuntime, raw.toString(), false)!!
         assertNotNull(parsed.javaClass.getDeclaredField("curiosities").apply { isAccessible = true }.get(parsed))
+    }
+
+    @Test fun deferredScreenQuestionAdvancesOnlyAfterTheRealConsentedObservation() {
+        val q = question("屏幕能提供哪些真实线索")
+        CharacterExplorationContinuity.remember(context, role, q, null, listOf("input"), now)
+        val requestId = "screen-inquiry"
+        val pendingId = "tool-$role-$requestId"
+        SharedExperienceTimeline.record(pendingId, role, "实际工具执行", "执行器",
+            JSONObject().put("tool", "capture_screen").put("status", "pending").put("curiosity", q)
+                .put("result", JSONObject().put("success", true).put("status", "pending").toString()).toString(),
+            now.plusSeconds(10), triggerExtraction = false, source = "tool-router", taskId = requestId,
+            evidenceKind = EventEvidenceKind.ToolResult)
+        CharacterCuriosityRuntime.recordOutcome(role, q, "capture_screen", true, "请求已发出", pendingId,
+            now.plusSeconds(10))
+        assertEquals(1, questions().length())
+        val observationId = "screen-observation-$role-$requestId"
+        SharedExperienceTimeline.record(observationId, role, "屏幕观察", "手机",
+            JSONObject().put("success", true).put("status", "observed").put("summary", "已实际识别学习页面").toString(),
+            now.plusSeconds(20), triggerExtraction = false, source = "screen-consent", taskId = requestId,
+            evidenceKind = EventEvidenceKind.Observation)
+        ToolRouter.projectDeferredScreenLearning(role, requestId, observationId)
+        ToolRouter.projectDeferredScreenLearning(role, requestId, observationId)
+        val steps = CharacterCuriosityRuntime.snapshot(role).getJSONArray("threads").getJSONObject(0).getJSONArray("steps")
+        assertEquals(1, steps.length())
+        assertEquals(observationId, steps.getJSONObject(0).getString("evidenceId"))
+        assertEquals(0, questions().length())
+        SharedExperienceTimeline.deleteEvent(pendingId)
+        assertTrue(CharacterCuriosityRuntime.activeThreads(role).isEmpty())
     }
 }
