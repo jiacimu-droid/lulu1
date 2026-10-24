@@ -52,7 +52,7 @@ private suspend fun createCommitmentTask(
             CommitmentTaskStore.update(existing.id) { current ->
                 current.copy(repeat = "daily",
                     sourceEventIds = (current.sourceEventIds + sourceEventIds).distinct())
-            }?.let(CommitmentLexiconSync::syncTask)
+            }?.let { CommitmentLexiconSync.syncTask(it) }
         }
         return
     }
