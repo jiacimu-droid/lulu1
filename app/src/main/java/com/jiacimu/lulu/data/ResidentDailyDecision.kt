@@ -240,6 +240,9 @@ internal object ResidentDailyDecision {
         val contacts = ResidentSocialMailbox.visibleContacts(characterId).map { target ->
             "$target=${MigratedDomainStores.characters.get(target).displayName}"
         }
+        val groups = MigratedDomainStores.chat.conversations.value.filter {
+            it.groupChat?.members?.contains(characterId) == true
+        }.take(6).joinToString("、") { "${it.id}=${it.title}" }
         val relations = CharacterSocialRelationship.perspectivesFor(characterId,
             ResidentSocialMailbox.visibleContacts(characterId))
         val publicMoments = MomentsStore.posts.value.asSequence()
@@ -271,6 +274,7 @@ internal object ResidentDailyDecision {
             实际在场的原住民：${witnesses.ifBlank { "未遇见" }}。
             实际在场的其他数字人物：${otherRoles.ifBlank { "无" }}。
             认识或真实相遇后才可私信的对象：${contacts.ifEmpty { listOf("暂无") }.joinToString("、")}。
+            本人确实加入的群聊 groupId：${groups.ifBlank { "暂无" }}。
             数字世界社交网络公开动态（不代表本人已经与作者见面）：
             ${publicMoments.ifBlank { "暂无" }}
             只属于你本人的最近通信：
@@ -301,6 +305,7 @@ internal object ResidentDailyDecision {
             taskIntent = "根据本人经历、心情与未尽念头安排今天，不补造他人经历",
         ))
         return listOf(facts,
+            RoleDayScheduleStore.plannedContext(appContext ?: return facts, id, at),
             CharacterRuntime.personalityRuntimeContext(id, compact = true,
                 query = facts, includeActiveCommitments = false),
             // CharacterAndScenario delivers core memories through its central
