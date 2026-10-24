@@ -4,7 +4,7 @@ const PALM_IMPACT = Object.freeze({
   hair: [7, -13, 8, 3], forehead: [10, -11, 8, 3],
   'beast-ear': [14, -5, 10, 3], ear: [21, -6, 14, 4],
   eye: [12, -6, 8, 3], nose: [4, -12, 3, 4],
-  cheek: [25, -4, 16, 3], mouth: [18, -8, 10, 4],
+  cheek: [12, -4, 23, 5], mouth: [12, -8, 14, 4],
   neck: [7, -12, 6, 6], throat: [4, -13, 4, 7],
   collarbone: [5, -8, 4, 8], chest: [5, -5, 4, 10],
   arm: [7, -3, 5, 5], hand: [5, -2, 3, 3], body: [5, -5, 4, 9],
@@ -48,27 +48,29 @@ export function touchReflexFor(region, gesture, ordinal = 0, state = {}, elapsed
   if (isImpact(gesture)) {
     // First recoil in the actual direction, THEN knitted brows/pout/tears.
     const recoil = elapsedMs < 230 ? 1 : Math.max(0, 1 - (elapsedMs - 230) / 1050)
-    const swipe = direction || -side || 1
+    const swipe = direction || (family === 'cheek' ? -1 : -side || -1)
     const [yaw, pitch, roll, torso] = PALM_IMPACT[family] || PALM_IMPACT.body
     // A slap is a fast NECK ROLL recoil, not the whole face sliding side
     // to side on yaw. The torso follows later with a much smaller angle.
     // The impact spring has a quicker attack, a deliberately slower release.
     response.impactMotion = true
-    response.yaw = swipe * yaw * .4 * scale * recoil
-    response.roll = swipe * roll * 1.5 * scale * recoil
+    response.yaw = swipe * yaw * .34 * scale * recoil
+    response.roll = swipe * roll * 1.6 * scale * recoil
     response.pitch = pitch * .7 * scale * recoil
     response.body = {
-      yaw: swipe * torso * .22 * scale * recoil,
-      pitch: -torso * .65 * scale * recoil,
-      roll: swipe * torso * .35 * scale * recoil,
+      yaw: swipe * torso * .32 * scale * recoil,
+      pitch: -torso * .72 * scale * recoil,
+      roll: swipe * torso * .65 * scale * recoil,
     }
     const startled = elapsedMs < 230
+    // Wide-eyed surprise first, then raised inner brows, glistening eyes and
+    // a trembling pout. Never convert an impact into a scowling dark face.
     response.face = startled
-      ? { eyeOpen: .14, browY: .38, browAngle: -.13, smile: -.25, pout: .1 }
-      : { eyeOpen: .62 + .15 * (1 - force), eyeSmile: -.06,
-          browY: -.2 - force * .12, browAngle: -.5,
-          browForm: -.5, smile: -.42, pout: .35 + force * .25,
-          gazeX: -swipe * .15, gazeY: -.2 }
+      ? { eyeOpen: 1, browY: .55, browAngle: .16, smile: -.18, pout: .12 }
+      : { eyeOpen: .78 + .12 * (1 - force), eyeSmile: 0,
+          browY: .36 + force * .26, browAngle: .35,
+          browForm: .24, smile: -.52, pout: .48 + force * .32,
+          gazeX: -swipe * .15, gazeY: -.25 }
     if (family === 'eye') closeTouchedEye(elapsedMs < 180 ? .02 : .3)
     if (family === 'beast-ear') {
       response.parameters[side < 0 ? 'se_wuli_x_l' : 'se_wuli_x_r'] = -.7 * scale * recoil
@@ -221,13 +223,10 @@ export function touchExpressionFor(region, names = [], ordinal = 0, gesture = 't
   const shy = state.shyness || 0
   if (isImpact(gesture)) {
     const impact = state.impact || 0
-    // A stronger strike normally looks startled/tearful or aggrieved.
-    // Darkness remains an occasional high-impact choice, not the only
-    // expression merely because the cumulative impact meter rose.
-    const veryAngry = impact >= 85 && touchForce(state.force) >= .85 &&
-      Math.abs(ordinal) % 5 === 4
-    return first(veryAngry ? ['dark', 'tear', 'surprise'] :
-      impact >= 24 ? ['tear', 'surprise', 'dark'] : ['surprise', 'tear'])
+    // This is the *local visual reflex*, not a decision to become angry.
+    // If a real tear exp3 exists use it, including after repeated strong hits.
+    // Never substitute a black-face/shadow exp3 for aggrieved crying.
+    return first(impact >= 12 ? ['tear', 'surprise'] : ['surprise', 'tear'])
   }
   const family = touchFamily(region)
   if (gesture === 'kiss' && shy >= 86 &&
@@ -241,7 +240,7 @@ export function touchExpressionWeight(name, state = {}) {
   switch (touchExpressionCategory(name)) {
     case 'blush': return Math.min(.9, Math.max(.08, (state.shyness || 0) / 115))
     case 'heart': case 'star': return Math.min(1, Math.max(.45, (state.shyness || 0) / 100))
-    case 'tear': return Math.min(.85, Math.max(.16, (state.impact || 0) / 85))
+    case 'tear': return Math.min(1, Math.max(.55, (state.impact || 0) / 62))
     case 'dark': return Math.min(.8, (state.impact || 0) / 120)
     default: return .55
   }
