@@ -73,4 +73,93 @@ internal object CharacterLifeVisibility {
         // through the shared decision runtime without being pinned to 此刻.
     }
 
+
+    /**
+     * Life Records -> 心事 is a read-only window into the existing character's
+     * subjective state. Neither a new diary nor an alternative goal/task store.
+     * Every displayed entry must still have its own role-scoped source.
+     */
+    fun matters(role: String, now: Instant = Instant.now()): List<CharacterLifeVisible> = buildList {
+        val mind = CharacterInnerLifeStore.snapshot(role)
+        fun include(at: Instant?, category: String, title: String, detail: String, id: String) {
+            if (at == null || at.isAfter(now) || id.isBlank() ||
+                detail.isBlank() || source(role, id) == null) return
+            add(CharacterLifeVisible(at, category, title, detail.trim(), id))
+        }
+        val motives = mind.optJSONArray("motives")
+        (CharacterMotiveState.active(motives) + CharacterMotiveState.paused(motives))
+            .distinctBy { it.optString("id") }.forEach { motive ->
+                val state = when (motive.optString("status")) {
+                    "paused" -> "暂缓"
+                    "waiting_feedback" -> "已经尝试，等待反馈"
+                    else -> "仍想做"
+                }
+                val last = jsonEntries(motive.optJSONArray("outcomes")).lastOrNull()
+                val attempt = last?.takeIf { outcome ->
+                    outcome.optString("id").isNotBlank() &&
+                        CharacterActionEvidence.resolve(role, outcome.optString("id")) != null
+                }?.let { outcome ->
+                    "\n最近尝试：" + outcome.optString("summary").take(180)
+                }.orEmpty()
+                include(parse(motive.optString("updatedAt")) ?: parse(motive.optString("createdAt")),
+                    "持续意愿", motive.optString("aim").take(180),
+                    state + "\n" + motive.optString("why").take(180) + attempt,
+                    motive.optString("evidenceId"))
+            }
+
+        val recentConcerns = CharacterOpenConcernRuntime.recent(mind.optJSONArray("openConcerns"), now)
+            .mapTo(hashSetOf()) { it.optString("id") }
+        jsonEntries(mind.optJSONArray("openConcerns")).forEach { concern ->
+            val detail = listOf(concern.optString("whyItMatters"),
+                concern.optString("hesitation").takeIf(String::isNotBlank)?.let { "还在权衡：$it" },
+                concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" })
+                .filter(String::isNotBlank).joinToString("\n")
+            include(parse(concern.optString("updatedAt")) ?: parse(concern.optString("createdAt")),
+                "挂心", concern.optString("focus").take(180),
+                (if (concern.optString("id") in recentConcerns) "尚未想通" else "暂时沉淀") +
+                    if (detail.isBlank()) "" else "\n$detail",
+                concern.optString("evidenceId"))
+        }
+
+        CharacterCuriosityRuntime.visibleQuestions(role).forEach { q ->
+            include(parse(q.optString("at")), "正在琢磨", q.optString("topic").take(90),
+                listOf(q.optString("question"),
+                    q.optString("hypothesis").takeIf(String::isNotBlank)?.let { "待验证：$it" },
+                    q.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" })
+                    .filter(String::isNotBlank).joinToString("\n"),
+                q.optString("observedId"))
+        }
+        CharacterCuriosityRuntime.activeThreads(role).forEach { thread ->
+            val step = jsonEntries(thread.optJSONArray("steps")).lastOrNull { entry ->
+                val evidence = CharacterActionEvidence.resolve(role, entry.optString("evidenceId"))
+                evidence != null && evidence.revision == entry.optLong("revision", evidence.revision) &&
+                    CharacterActionEvidence.supports(evidence, entry.optString("action"))
+            } ?: return@forEach
+            include(parse(step.optString("at")), "正在琢磨", thread.optString("topic").take(90),
+                listOf(thread.optString("question"),
+                    step.optString("receipt").takeIf(String::isNotBlank)?.let { "上次实际结果：$it" },
+                    thread.optString("nextStep").takeIf(String::isNotBlank)?.let { "可能下一步：$it" })
+                    .filter(String::isNotBlank).joinToString("\n"),
+                step.optString("evidenceId"))
+        }
+
+        val voices = jsonEntries(mind.optJSONArray("innerVoices"))
+        voices.forEach { voice ->
+            include(parse(voice.optString("occurredAt")), "心声", "心里想的",
+                voice.optString("thought"), voice.optString("evidenceId"))
+        }
+        jsonEntries(mind.optJSONArray("thoughts")).forEach { thought ->
+            // A separate impulse can coexist with an authored inner voice. Avoid
+            // echoing an exact projection of the same source and same words.
+            val sameVoice = voices.any { voice ->
+                voice.optString("evidenceId") == thought.optString("evidenceId") &&
+                    CharacterHeartVoicePolicy.sameMeaning(
+                        voice.optString("thought"), thought.optString("thought"))
+            }
+            if (!sameVoice) include(parse(thought.optString("at")), "心声",
+                "一闪而过的念头", thought.optString("thought"), thought.optString("evidenceId"))
+        }
+    }.distinctBy { listOf(it.category, it.title, it.detail, it.evidenceId).joinToString("|") }
+        .sortedWith(compareByDescending<CharacterLifeVisible> { it.at }.thenBy { it.title })
+
 }

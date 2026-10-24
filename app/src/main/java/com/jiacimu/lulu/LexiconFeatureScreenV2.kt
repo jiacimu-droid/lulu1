@@ -8,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +35,10 @@ import com.jiacimu.lulu.core.LexiconEntry
 import com.jiacimu.lulu.core.LexiconSection
 import com.jiacimu.lulu.core.PromiseKind
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.CharacterLifeVisibility
+import com.jiacimu.lulu.data.CharacterInnerLifeStore
+import com.jiacimu.lulu.data.CharacterCuriosityRuntime
+import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CharacterRecordDestination
 import com.jiacimu.lulu.data.WorldLifeEpisodeStore
 import com.jiacimu.lulu.data.CommitmentTaskStore
@@ -106,7 +111,7 @@ fun LexiconFeatureScreenV2(
     var editing by remember { mutableStateOf<LexiconEntry?>(null) }
     var creating by remember { mutableStateOf(false) }
     var characterMenu by remember { mutableStateOf(false) }
-    val title = when (sectionIndex) { 0 -> "日记"; 1 -> "收藏"; 2 -> "小剧场"; 3 -> "朋友圈"; else -> pageTitle }
+    val title = when (sectionIndex) { 0 -> "日记"; 1 -> "收藏"; 2 -> "小剧场"; 3 -> "朋友圈"; 4 -> "心事"; else -> pageTitle }
     val back = { if (isHome) onBack() else { sectionIndex = -1; Unit } }
     androidx.activity.compose.BackHandler(enabled = !isHome) { sectionIndex = -1 }
     LaunchedEffect(characterId, section, entries, initialDiaryTitle, initialFavoriteEntryId) {
@@ -141,7 +146,7 @@ fun LexiconFeatureScreenV2(
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             if (isHome) {
                 LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    items(listOf("小剧场" to 2, "收藏" to 1, "朋友圈" to 3), key = { it.second }) { (label, index) ->
+                    items(listOf("心事" to 4, "小剧场" to 2, "收藏" to 1, "朋友圈" to 3), key = { it.second }) { (label, index) ->
                         Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
                             border = BorderStroke(1.dp, LuluColors.Border),
                             modifier = Modifier.fillMaxWidth().clickable { sectionIndex = index }) {
@@ -157,6 +162,8 @@ fun LexiconFeatureScreenV2(
                 }
             } else if (sectionIndex == 3) {
                 MomentsScreen(characterId = characterId)
+            } else if (sectionIndex == 4) {
+                CharacterLifeMattersPage(characterId, Modifier.weight(1f))
             } else if (isLifeStory) {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
@@ -238,6 +245,57 @@ fun LexiconFeatureScreenV2(
             onDismiss = { editing = null; creating = false },
             onSave = { scope.launch { LuluRepositories.lexicon.save(it) }; editing = null; creating = false },
             onDelete = { scope.launch { LuluRepositories.lexicon.delete(entry.id) }; editing = null; creating = false })
+    }
+}
+
+
+/** The personal-life library projects existing thoughts; it never mutates motives or schedules. */
+@Composable
+private fun CharacterLifeMattersPage(characterId: String, modifier: Modifier = Modifier) {
+    val mindRevision by CharacterInnerLifeStore.revisions.collectAsState()
+    val curiosityRevision by CharacterCuriosityRuntime.revisions.collectAsState()
+    val evidenceRevision by SharedExperienceTimeline.revisions.collectAsState()
+    val entries = remember(characterId, mindRevision, curiosityRevision, evidenceRevision) {
+        CharacterLifeVisibility.matters(characterId)
+    }
+    val sections = listOf("持续意愿", "挂心", "正在琢磨", "心声")
+    LazyColumn(modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 36.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (entries.isEmpty()) {
+            item(key = "empty-matters") {
+                LexiconV2Card {
+                    Text("暂时没有留下心事", fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+        sections.forEach { section ->
+            val group = entries.filter { it.category == section }
+            if (group.isNotEmpty()) {
+                item(key = "matter-title:$section") {
+                    Text(section, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                        color = LuluColors.Ink, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp))
+                }
+                itemsIndexed(group, key = { index, entry ->
+                    "${entry.category}:${entry.evidenceId}:${entry.at}:$index"
+                }) { _, entry ->
+                    Surface(modifier = Modifier.fillMaxWidth(), color = Color.White,
+                        shape = RoundedCornerShape(18.dp),
+                        border = BorderStroke(1.dp, LuluColors.Border)) {
+                        Column(Modifier.fillMaxWidth().padding(17.dp),
+                            verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                            Text(entry.at.atZone(ZoneId.systemDefault())
+                                .format(DateTimeFormatter.ofPattern("MM月dd日 HH:mm")),
+                                fontSize = 11.sp, color = LuluColors.Muted)
+                            Text(entry.title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                                color = LuluColors.Ink)
+                            Text(entry.detail, fontSize = 13.sp, lineHeight = 22.sp,
+                                color = LuluColors.Ink)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

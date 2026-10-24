@@ -56,6 +56,45 @@ class CharacterLifeVisibilityTest {
         CharacterCuriosityRuntime.clear(role)
     }
 
+
+    @Test fun innerMattersProjectRealSourceWithoutPromotingWishToAction() {
+        val role = "life-matters-projection-test"
+        val another = "life-matters-other-role"
+        val origin = "life-matters-real-origin"
+        val at = Instant.now()
+        CharacterInnerLifeStore.clear(role)
+        CharacterCuriosityRuntime.clear(role)
+        SharedExperienceTimeline.record(origin, role, "私聊", "用户",
+            "我们聊聊故事的下一章", at, triggerExtraction = false,
+            source = "message", evidenceKind = EventEvidenceKind.UserStatement)
+        CharacterInnerLifeStore.observe(role, origin, "聊了故事",
+            JSONObject().put("thoughts", org.json.JSONArray().put(
+                JSONObject().put("thought", "这个故事的转折挺有意思")))
+                .put("motives", org.json.JSONArray().put(
+                    JSONObject().put("op", "start")
+                        .put("aim", "找时间把这本故事读到结尾")
+                        .put("why", "很想知道这条人物线会如何发展"))),
+            now = at)
+        CharacterInnerLifeStore.recordInnerVoice(role, origin,
+            "也许下一章会推翻现在的猜测", now = at)
+        CharacterCuriosityRuntime.recordInquiry(role,
+            JSONObject().put("topic", "故事伏笔").put("question", "作者为什么这样安排伏笔")
+                .put("why", "读到新的线索").put("nextStep", "有机会再去阅读"),
+            origin, "讨论故事", at)
+        val visible = CharacterLifeVisibility.matters(role, at.plusSeconds(2))
+        assertTrue(visible.any { it.category == "持续意愿" && it.title.contains("故事") })
+        assertTrue(visible.any { it.category == "正在琢磨" && it.title.contains("伏笔") })
+        assertTrue(visible.any { it.category == "心声" })
+        assertTrue(visible.all { it.evidenceId == origin })
+        assertTrue(CharacterLifeVisibility.matters(another, at.plusSeconds(2)).isEmpty())
+        // Recording a wish/question does not create a real tool receipt.
+        assertTrue(visible.none { it.detail.contains("上次实际结果") })
+        SharedExperienceTimeline.deleteEvent(origin)
+        assertTrue(CharacterLifeVisibility.matters(role, at.plusSeconds(3)).isEmpty())
+        CharacterInnerLifeStore.clear(role)
+        CharacterCuriosityRuntime.clear(role)
+    }
+
     @Test fun readingStaysInOriginalTimelineWithoutInventingAStateMoment() {
         val role = "reading-visibility-proof-test"
         val sourceId = "actual-reading-source-test"
