@@ -351,11 +351,24 @@ object ChatAutoVoicePlayback {
         UserMessageFavorites.store.entries.value.forEach { entry ->
             cachedFile(entry.messageId)?.let { audio -> runCatching { UserMessageFavorites.retainAudio(entry.messageId, audio) } }
         }
-        val files = directory.listFiles()?.filter(File::isFile).orEmpty()
-        if (files.size <= MAX_CACHE_FILES) return
-        files.sortedBy(File::lastModified)
-            .take(files.size - MAX_CACHE_FILES)
+        val protectedIds = UserMessageFavorites.store.entries.value.mapTo(hashSetOf()) { sha256(it.messageId) }
+        val activeIds = synchronized(this) {
+            (queuedOrSynthesizing.toSet() + listOfNotNull(activeRequest?.messageId))
+                .mapTo(hashSetOf(), ::sha256)
+        }
+        val files = directory.listFiles()?.filter {
+            it.isFile && it.extension in setOf("mp3", "wav")
+        }.orEmpty()
+        val removable = files.filter { it.nameWithoutExtension !in protectedIds &&
+            it.nameWithoutExtension !in activeIds }
+        removable.filter { System.currentTimeMillis() - it.lastModified() > VOICE_NOTE_RETENTION_MILLIS }
             .forEach(File::delete)
+        val currentCount = directory.listFiles()?.count {
+            it.isFile && it.extension in setOf("mp3", "wav")
+        } ?: 0
+        if (currentCount <= MAX_CACHE_FILES) return
+        removable.filter(File::exists).sortedBy(File::lastModified)
+            .take(currentCount - MAX_CACHE_FILES).forEach(File::delete)
     }
 
     /**
