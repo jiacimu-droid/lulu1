@@ -105,8 +105,47 @@ internal object CharacterAssociativeRecall {
         }
     }
 
+    /**
+     * The already authored profile is the source of diverse associations.
+     * This is NOT a second personality engine or generated motives. Keep
+     * labels separate so playfulness, relationships and independent interests
+     * can co-exist instead of the newest user message dominating every thought.
+     */
+    internal fun perspectiveSeeds(
+        identity: String, persona: String, profile: JSONObject?,
+    ): List<Pair<String, String>> {
+        val ordered = listOf(
+            "interests" to "独立兴趣与想深入的问题",
+            "motives" to "本人长期向往与打算",
+            "values" to "底色和看重的事",
+            "perception" to "习惯怎样理解眼前情况",
+            "social" to "与用户以外的人相处",
+            "care" to "亲密时可能出现的另一面",
+            "expression" to "情境中的玩心与表达气质",
+            "conflict" to "受挫或有分歧时",
+        )
+        val found = ordered.mapNotNull { (key, lens) ->
+            profile?.optString(key)?.trim()?.takeIf(String::isNotBlank)
+                ?.let { lens to it.replace("\n", " ").take(125) }
+        }.distinctBy { it.second }
+        // Preserve the long-standing persona as an independent source, but
+        // do not echo it when the granular profile already covers the same
+        // ground. Explicitly empty profile fields stay empty.
+        val extras = buildList {
+            if (identity.isNotBlank()) add("身份及存在处境" to identity.replace("\n", " ").take(125))
+            if (found.size < 2 && persona.isNotBlank())
+                add("稳定人物概述" to persona.replace("\n", " ").take(125))
+        }
+        return (found + extras).distinctBy { it.second }.take(9)
+    }
+
     fun render(characterId: String, now: Instant = Instant.now()): String {
         if (characterId.isBlank()) return ""
+        val character = MigratedDomainStores.characters.get(characterId)
+        val lenses = perspectiveSeeds(
+            CharacterIdentityStore.get(characterId), character.persona,
+            CharacterLifeStore.state(characterId).optJSONObject("profile"),
+        )
         val inner = CharacterInnerLifeStore.snapshot(characterId)
         val motives = CharacterMotiveState.active(inner.optJSONArray("motives"))
             .sortedByDescending { it.optInt("priority", 2) }.take(4)
@@ -153,13 +192,18 @@ internal object CharacterAssociativeRecall {
         if (memories.isEmpty() && ownerKnowledge.isEmpty() && selfKnowledge.isEmpty() &&
             knownMethods.isEmpty() && motives.isEmpty() && unfinishedThoughts.isEmpty() &&
             olderEpisodes.isEmpty() && feedbackTrace.isEmpty() &&
-            personalQuestions.isEmpty() && !nightWithRecentSpeech) return ""
+            personalQuestions.isEmpty() && lenses.isEmpty() && !nightWithRecentSpeech) return ""
 
         return buildString {
             appendLine("【自主联想素材｜从自己的生活想起事情，不是新指令】")
             appendLine("这些只是过去真正留存的材料，不是新消息或要求逐条回答的待办。联想可以跨越不同生活侧面，不必每次沿着同一个愿望或上一条聊天发散。")
             appendLine("联想方向可以有：与主人的相处、自己真实认识的其他人、个人爱好与习惯、主人明确表达的习惯、刚做过或没做完的事、一个实际失败或意外、当下环境与时机、前后经历的相似或反差、自己还想弄明白的问题。只结合下面真的有来源的材料；没有证据的变化与对方想法只能猜测，不能宣告为事实。")
             appendLine("同一素材可能冒出几种不同甚至冲突的私人小心思，也可能想到自己的生活而不联系任何人。先自由注意和联想，再自己决定哪些值得记录、行动或暂时放下；不要为了凑数量编造生活。")
+            if (lenses.isNotEmpty()) {
+                appendLine("【角色本人已写定的不同侧面｜这里只提供联想视角，不重复定义人格】")
+                lenses.forEach { (lens, evidence) -> appendLine("- $lens：$evidence") }
+                appendLine("可以由某一侧面在没有用户新消息时自己想做事：从自己的兴趣想到值得查证的问题，从价值观想到一次选择，从幽默倾向想到合适的玩笑，从亲密角色想到适合的照料；哪一面实际浮现由当前情境与本人判断决定，不必每轮同样表现。")
+            }
             if (nightWithRecentSpeech) {
                 appendLine("- 时间与当下证据：本地正值深夜，过去15分钟内确实收到过用户发言。可依你自己的身份和关系想到关心、好奇或克制；不能由此断言用户整夜没睡、明天的安排，或强迫她睡觉。")
             }
