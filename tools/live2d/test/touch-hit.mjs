@@ -134,13 +134,14 @@ const headRight = touchReflexFor('cheek-right', 'stroke-right')
 assert.equal(headLeft.yaw, -headRight.yaw)
 const early = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 70)
 const later = touchReflexFor('cheek-left', 'slap-right', 0, { force: .55 }, 500)
-assert.ok(early.yaw > later.yaw && early.yaw > 6)
+assert.ok(early.yaw < later.yaw && early.yaw < -3,
+  'an undirected slap moves the head strongly toward screen left')
 assert.ok(Math.abs(early.roll) > Math.abs(early.yaw) * 2,
   'a slapped head should visibly roll at the neck, not sway horizontally')
 assert.equal(early.impactMotion, true)
 assert.ok(early.face.browY > 0 && later.face.browY < 0)
 assert.ok(touchReflexFor('cheek-left', 'slap-left').yaw < 0)
-assert.ok(touchReflexFor('cheek-left', 'slap', 0, { force: .9 }).yaw >
+assert.ok(touchReflexFor('cheek-left', 'slap', 0, { force: .9 }).yaw <
   touchReflexFor('cheek-left', 'slap', 0, { force: .25 }).yaw)
 const petVariants = [0, 1, 2].map(i =>
   touchReflexFor('cheek-left', 'stroke-right', i, { shyness: 30, force: .55 }, 250))
@@ -158,8 +159,13 @@ for (let i = 0; i < 5; i++) runtime.complete('cheek-left', 'slap')
 assert.equal(touchExpressionFor('cheek-left', wolf, 0, 'slap', false, runtime.snapshot()), '流泪',
   'repeated contact should not inevitably turn every response into a dark face')
 const strongImpact = runtime.complete('cheek-left', 'slap', .9)
-assert.equal(touchExpressionFor('cheek-left', wolf, 4, 'slap', false, strongImpact), '脸黑',
-  'a high-force/high-impact reaction may still have an authored dark expression')
+assert.equal(touchExpressionFor('cheek-left', wolf, 4, 'slap', false, strongImpact), '流泪',
+  'even repeated strong contacts choose existing tears instead of an angry black face')
+assert.equal(touchExpressionFor('cheek-left', ['脸黑'], 4, 'slap', false, strongImpact), null,
+  'a black-face asset alone must never be a surrogate for crying')
+const aggrieved = touchReflexFor('cheek-left', 'slap-left', 0, strongImpact, 520)
+assert.ok(aggrieved.roll < -25 && aggrieved.face.browY > 0 &&
+  aggrieved.face.pout > .4, 'visible leftward neck bend and raised, tearful brows')
 assert.equal(touchExpressionFor('hair', ['流泪', '爱心眼', '兽耳'], 99, 'stroke'), null,
   'a missing mild expression must not fall back to an inappropriate one')
 assert.equal(touchCompanionOverlayFor('脸红', wolf, metadata, 'kiss', { shyness: 20 }), null)
@@ -232,11 +238,15 @@ stageResponse.reset()
 bridge.touch(.32, .235, 'down', { phase: 'move', mode: 'pat' })
 assert.equal(bridge.tactileContact.kind, 'slap')
 assert.equal(stageResponse.snapshot().impact, 0)
+assert.equal(bridge.touchReflex, null, 'pressing the palm must not play the hit before contact')
+bridge.tickTactileContact(stageTime)
+assert.equal(bridge.touchReflex, null, 'holding the palm must not consume the eventual recoil')
 const completedHit = bridge.touch(.32, .235, 'slap', { phase: 'complete', mode: 'pat', force: .9 })
 assert.equal(completedHit.gesture, 'slap')
 assert.equal(completedHit.force, .9)
 assert.equal(stageResponse.snapshot().shyness, 0)
 assert.ok(stageResponse.snapshot().impact > 40)
+assert.ok(bridge.touchReflex.roll < -25, 'the completed slap must visibly bend left')
 const beforeMiss = stageResponse.snapshot().impact
 bridge.touch(-.1, .235, 'slap', { phase: 'complete', mode: 'pat' })
 assert.equal(stageResponse.snapshot().impact, beforeMiss)
