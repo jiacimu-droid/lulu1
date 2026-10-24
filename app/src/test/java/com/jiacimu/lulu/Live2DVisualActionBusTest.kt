@@ -142,6 +142,8 @@ class Live2DVisualActionBusTest {
             assertEquals(1440, automatic.beats[2].durationMs)
             assertEquals(null, automatic.expression)
             assertFalse(automatic.immediate)
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamAngleZ,ParamBodyAngleX,ParamMouthForm,ParamMouthFunnel,ParamBrowLY,ParamBrowRY")
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
                 JSONObject().put("performance", JSONObject().put("feeling", "tearful"))))
             val tearful = Live2DVisualActionBus.cues.value[role]!!
