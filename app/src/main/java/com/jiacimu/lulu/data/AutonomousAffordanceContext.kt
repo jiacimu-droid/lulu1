@@ -18,9 +18,8 @@ internal object AutonomousAffordanceContext {
         currentResidents: List<Triple<String, String, String>> = emptyList(),
     ): String = buildString {
         appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
-        appendLine("不仅可以现在去做，也可以因为确实有自己的期待，决定稍后、今晚或其他合适时间再做；同一次自主决策自由选择立即执行、正式安排未来日程或暂时不行动。")
-        appendLine("- 真心决定稍后行动时，无需主人发号施令或者指定几点，由本人根据当前时间与可靠的习惯信息自己决定真实未来时刻。用 action=tool、tool=plan_personal_activity，args={\"title\":\"自己想做的事\",\"intent\":\"本人动机\",\"dueAt\":\"本人真正选定的ISO8601未来时刻\",\"activityAction\":\"已注册工具名\",\"activityArgs\":{},\"commitmentTaskId\":\"已接受持续约定时可选填ID\",\"repeat\":\"once|daily\"}。没有真实动作和时间的随口约定不是到时会执行的日程；已登记则不要重复安排。")
-        appendLine("- 安排只是持久的本人意愿，不等于提前完成；到点由本人醒来选择真实执行、改期或放下。可安排读书、交朋友、在主人同意下提醒学习/休息、请求查看屏幕或邀请回到露露机；这些都只是候选行为，绝不预设主人已经答应。所有工具到点仍经过原 ToolRouter 权限和状态核验；请求授权不等于已经看到屏幕或主人已回来。")
+        appendLine("这里列出此刻确实存在的行动机会，不是新任务或规定的日常安排；决定做、稍后安排或独处均由本人选择。")
+        appendLine("注意：下面的 reading、solo_game、digital_world 是直接决策的 action 类别；未来日程 activityAction 对应已注册的 read_book、play_solo_game、digital_world_action。日程只保存意愿，到点仍须实际执行和取得回执。")
         appendLine("【兴趣自己向外延伸】人设与长期经历里写明的兴趣即使没有用户新话题也仍属于你。若自己有真正想追的新问题，可以从本轮已配置且授权的能力里主动选：web_search(op=search_read,query=具体想弄懂的问题)了解外部资料；image_search(op=search,kind=gif|sticker,query=想看的动图或表情素材)搜图片候选；read_xiaohongshu(keyword=兴趣话题)真实阅读笔记与评论。搜图工具目前侧重 GIF/表情素材，不可当成已获得任意高清静态图或已看懂图片。未配置或权限、会话不可用则保留问题/换合法方式；不应反复请求失败接口。") 
         appendLine("真实读到的结果可让你形成新疑问、对原看法改观、准备向别人分享，或者觉得无趣就放下；只想以后看时可用同一个 plan_personal_activity 工具安排搜索的真实时间与动作，但不为了消除单调感强行搜索、更不默认把结果发给主人。")
         appendLine("- 想对某件已知小事发表意见：可以自己发朋友圈；只有真的有话想说时才做。")
@@ -72,7 +71,7 @@ internal object AutonomousAffordanceContext {
                 }
             }
         }
-        appendLine("若准备现在做，直接选择对应 action；若决定晚些做，通过本人日程工具保存真实计划与到点时间。只在心声里写「待会去」不会自动安排，也不等于已执行；若暂缓或放下，则尊重自己的真实决定。")
+        appendLine("想现在做就选有效 action；打算以后做就保存实际计划。念头不是执行回执。")
         appendLine("先看本人此刻真正想做什么，再从真实能力选择；没有可执行内容可保持安静。")
     }
 }

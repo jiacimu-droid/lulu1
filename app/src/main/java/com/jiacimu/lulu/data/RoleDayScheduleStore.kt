@@ -113,12 +113,14 @@ object RoleDayScheduleStore {
      * Exclude lifecycle and planning operations rather than inventing a second tool registry. */
     private val scheduleControlTools = setOf(
         "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity",
-        "go_offline", "write_journal", "ring_in_call_wake", "cloud_task",
+        "go_offline", "ring_in_call_wake", "cloud_task",
     )
 
-    internal fun canSchedule(action: String): Boolean =
-        action.isNotBlank() && action !in scheduleControlTools &&
-            CapabilityRegistry.find(action) != null
+    internal fun canSchedule(action: String): Boolean {
+        val registered = CapabilityRegistry.scheduledActionName(action)
+        return registered.isNotBlank() && registered !in scheduleControlTools &&
+            CapabilityRegistry.find(registered) != null
+    }
 
     /** Preserve the role's selected wall-clock slot in UTC calendar days.
      * Skipped occurrences never create a backlog of automatic messages. */
@@ -170,8 +172,8 @@ object RoleDayScheduleStore {
             } else {
                 appendLine("目前没有本人自主选择且待兑现的生活活动（用户提醒不计）。想做的事如果只停在念头里，之后不会到点发生；可在此轮本人决策中主动选择安排，或者确实决定独处与休息。")
             }
-            appendLine("若真想自己安排稍后读书、找现实存在的朋友、探索、学习或游戏，先明确具体动机、想得到的体验，再结合本地时间与真实执行能力，自选未来日期和时刻，使用 plan_personal_activity 保存；已存在有效 motiveId 时可以关联。")
-            appendLine("同一决定也可在 steps 中安排几件确实独立且想做的活动；不用等主人喊，也不必机械填满一天。不想安排时可保持安静，后续仍有可调兜底感知机会。若已经按本人意愿安排了近期活动，其真正日程工人会到点唤醒，不必每两小时额外醒来打卡。")
+            appendLine("若真想稍后读书、社交、探索或游戏，由本人根据真实动机、时间与有效能力自己选择未来时刻，通过 plan_personal_activity 保存；已有 motiveId 可关联。")
+            appendLine("同轮 steps 可以安排多件独立活动，也可以安静独处；已有近期个人日程会到点唤醒，不必另开定时打卡。")
             if (tasks.isNotEmpty()) {
                 appendLine("【已接受但尚未选择下一次行动时间的主人约定｜不是本人独处日程】")
                 appendLine("现在本地时间=${now.atZone(java.time.ZoneId.systemDefault())}；这类约定没有实际系统闹钟，不可假称已安排。")
@@ -256,7 +258,7 @@ object RoleDayScheduleStore {
             "日程需要具体想做的事与本人的动机"
         }
         require(dueAt.isAfter(now.plusSeconds(60))) { "日程需要明确的未来时间" }
-        val action = activityAction.trim().lowercase()
+        val action = CapabilityRegistry.scheduledActionName(activityAction)
         require(action.isBlank() || canSchedule(action)) { "日程动作不是已注册的可执行工具" }
         require(action.isNotBlank() || activityArgs.length() == 0) { "预选参数必须对应一个真实工具" }
         require(activityArgs.keys().asSequence().none { it == "planId" || it.startsWith("_") }) {

@@ -632,19 +632,15 @@ object ProactivePerceptionRuntime {
         val recentLifeContext = recentLifeEvents.joinToString("\n") { event ->
             "- [evidenceId=${event.id}；${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
         }
-        val lexicon = LuluRepositories.lexicon.snapshot(characterId)
         val hasPrivateConcerns = CharacterOpenConcernRuntime.recent(
             CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
         ).isNotEmpty()
-        val commitments = lexicon.filter { it.section == LexiconSection.Promise && it.status == com.jiacimu.lulu.core.LexiconStatus.Active }
-            .joinToString("\n") { "- ${it.title}：${it.content.take(400)}" }
         val previousPresence = CompanionPresenceStore.current(characterId)
-        val continuityContext = CharacterContinuityRuntime.proactiveContext(characterId, now)
         val proactiveInitiativeContext = CharacterInitiativeRuntime.proactiveContext(
             characterId = characterId,
             recentActions = recentAutonomousActions,
             hasConcern = hasPrivateConcerns,
-            hasCommitment = commitments.isNotBlank(),
+            hasCommitment = CommitmentTaskStore.active(characterId).isNotEmpty(),
             now = now,
         )
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
@@ -741,7 +737,12 @@ object ProactivePerceptionRuntime {
                         appendLine("可寻找的登记居民 itemId=${resident.id}；${resident.name}；身份=${resident.identity}；当前位置=${resident.currentLocationCode}；住宅=${resident.homeLocationCode}。若真在家，可 visit_resident_home 到门前；公共地点则用现有准确 location 前往。")
                     }
                 }
-                appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                // Independent turns receive learn_topic via the same live discovery
+                // catalogue below. A private reply can still discover learning
+                // without bringing in the entire independent-life tool catalogue.
+                if (privateDialogue.isNotEmpty()) {
+                    appendLine(AutonomousLearningRuntime.capabilityContext(appContext, characterId))
+                }
                 // The normal autonomous model previously saw generic references
                 // to search, but not the live provider/permission/argument contract.
                 // Reuse the executable registry's existing catalogue; avoid
@@ -858,7 +859,8 @@ object ProactivePerceptionRuntime {
                     }
                 }
                 appendLine("\n【长期上下文层】")
-                if (continuityContext.isNotBlank()) appendLine(continuityContext)
+                // The unified gateway already provides CharacterContinuityRuntime
+                // once, to private chat, calls, and independent decisions alike.
                 if (privateDialogue.isEmpty()) appendLine(CharacterExpressionContinuity.guide())
                 // The same persistent concerns that private chat and calls use:
                 // a chosen quiet interval must not wipe an unfinished thought.
@@ -886,15 +888,11 @@ object ProactivePerceptionRuntime {
                     appendLine("【角色最近自己的生活记录｜旧→新】")
                     appendLine(recentLifeContext)
                 }
-                 if (commitments.isNotBlank()) appendLine("【承诺与监督】\n$commitments")
-                val clockResponsibilities = CommitmentTaskStore.active(characterId)
-                if (clockResponsibilities.isNotEmpty()) {
-                    appendLine("【已接下的约定 · 程序负责执行，绝不能以日记代替】")
-                    clockResponsibilities.take(10).forEach { task ->
-                        appendLine("- 目标=${task.goal}；到期=${task.dueAt}；状态=${task.status}；动作=${task.deliveryAction}；手机闹钟ID=${task.linkedAlarmId.orEmpty()}；执行回执=${task.lastActionResult.take(160)}")
-                    }
-                    appendLine("只有带具体时间和已保存真实执行器的约定才会定时执行；dueAt=null 的长期监督没有定时器，不能当成已经安排。自己想履行某次监督，就自主选择时间、保存本人日程；不要等主人再告诉你几点。")
-                }
+                // Active responsibilities are delivered once by
+                // UnifiedMemoryOrchestrator.activeTaskContext, with their
+                // authoritative IDs, due times, statuses, and execution receipts.
+                // Do not also inject stale Promise lexicon entries or shadow them
+                // with a second, truncated list here.
                 // The gateway supplies the authoritative digital-world state once.
                 worldTick?.let {
                     appendLine("【本轮数字世界程序事件｜不可改写】")
@@ -906,7 +904,11 @@ object ProactivePerceptionRuntime {
                     appendLine("仅依据本轮确实未读的消息来决定要不要回复。更早的聊天、照片与已送达回答只是共同历史，不得作为新通知重新回答。")
                     appendLine(pendingUserContext)
                 }
-                if (privateDialogue.isEmpty() && recent.isNotBlank()) appendLine("【最近聊天与生活事件】\n$recent")
+                // WitnessedDialogue already carries the latest actually delivered
+                // words. Only use the legacy recent text when no such transcript
+                // is available; never send both copies in one independent turn.
+                if (privateDialogue.isEmpty() && witnessedDialogue.isBlank() && recent.isNotBlank())
+                    appendLine("【最近聊天与生活事件】\n$recent")
             },
             instruction = proactiveDecisionInstruction(characterId, directPrivateChat = privateDialogue.isNotEmpty()) + "\n" +
                 (if (privateDialogue.isNotEmpty()) privateConversationInstruction(privateInput, recent) + "\n" else "") +
@@ -952,7 +954,7 @@ object ProactivePerceptionRuntime {
                 currentInput = listOf(privateInput.ifBlank { onlineUnread.text }, salientInteraction?.content.orEmpty())
                     .filter(String::isNotBlank).joinToString("\n"),
                 sceneContext = "后台主动感知 · $trigger",
-                recentContext = listOf(recent, recentLifeContext, pendingUserContext, commitments)
+                recentContext = listOf(recent, recentLifeContext, pendingUserContext)
                     .filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),

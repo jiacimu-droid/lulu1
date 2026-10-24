@@ -145,7 +145,7 @@ class RoleDayScheduleStoreTest {
         assertTrue(RoleDayScheduleStore.canSchedule("summon_lulu"))
         assertTrue(RoleDayScheduleStore.canSchedule("send_private_message"))
         assertFalse(RoleDayScheduleStore.canSchedule("plan_personal_activity"))
-        assertFalse(RoleDayScheduleStore.canSchedule("write_journal"))
+        assertTrue(RoleDayScheduleStore.canSchedule("write_journal"))
         assertFalse(RoleDayScheduleStore.canSchedule("invented_tool"))
         val scheduled = plan.copy(activityAction = "capture_screen", activityArgs = "{}")
         assertTrue(RoleDayScheduleStore.canComplete(scheduled, "role-a",
@@ -157,6 +157,21 @@ class RoleDayScheduleStoreTest {
         // An unspecified old plan cannot be accidentally satisfied by an unrelated device read.
         assertFalse(RoleDayScheduleStore.canComplete(plan.copy(activityAction = ""),
             "role-a", "capture_screen", "not-an-appointment", after))
+    }
+
+    @Test fun immediateActionLabelsResolveToRegisteredScheduledTools() {
+        assertEquals("read_book", CapabilityRegistry.scheduledActionName("reading"))
+        assertEquals("play_solo_game", CapabilityRegistry.scheduledActionName("solo_game"))
+        assertEquals("digital_world_action", CapabilityRegistry.scheduledActionName("digital_world"))
+        assertEquals("publish_moment", CapabilityRegistry.scheduledActionName("moment"))
+        assertEquals("send_private_message", CapabilityRegistry.scheduledActionName("send_private_message"))
+        assertTrue(RoleDayScheduleStore.canSchedule("reading"))
+        assertTrue(RoleDayScheduleStore.canSchedule("solo_game"))
+        assertTrue(RoleDayScheduleStore.canSchedule("digital_world"))
+        assertTrue(RoleDayScheduleStore.canSchedule("write_journal"))
+        assertFalse(RoleDayScheduleStore.canSchedule("unknown_world_action"))
+        assertFalse(RoleDayScheduleStore.canSchedule("go_offline"))
+        assertFalse(RoleDayScheduleStore.canSchedule("plan_personal_activity"))
     }
 
     @Test fun undatedOngoingPromiseInvitesItsOwnerToChooseTimeWithoutFabricatingAnAlarm() {

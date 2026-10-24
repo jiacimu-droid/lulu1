@@ -35,6 +35,24 @@ object CapabilityRegistry {
     )
     fun find(name: String): Capability? = (device + application + external).firstOrNull { it.name == name }
 
+    /**
+     * A decision's immediate-action labels are not necessarily ToolRouter names.
+     * When that same decision is saved as a future appointment, resolve the
+     * existing action vocabulary here, at the registry boundary. Never invent
+     * a new ability or translate an unknown name into an arbitrary tool.
+     */
+    fun scheduledActionName(action: String): String = when (val name = action.trim().lowercase()) {
+        "reading" -> "read_book"
+        "solo_game" -> "play_solo_game"
+        "digital_world" -> "digital_world_action"
+        "moment" -> "publish_moment"
+        "group_message" -> "send_group_message"
+        "world_invite" -> "send_world_invite"
+        "game_invite" -> "send_game_invite"
+        "call" -> "start_call"
+        else -> name
+    }
+
     fun allows(context: Context, characterId: String, capability: Capability, userRequested: Boolean): Boolean {
         if (characterId.startsWith("resident:")) {
             return capability.name in setOf("digital_world_action", "publish_moment",
