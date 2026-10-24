@@ -79,8 +79,14 @@ internal object PerceptionStatusPresentation {
             !policy.enabled -> add("自动唤醒已关闭")
             plan == null -> add("下次唤醒尚未排定")
             else -> {
-                add("下次预计醒来 · ${time(plan.dueAt)}" + if (plan.dueAt <= now) " · 已到时间，等待执行" else "")
-                add("本轮间隔 · ${plan.intervalMinutes} 分钟" + if (policy.adaptiveFrequency) "（自适应）" else "")
+                if (plan.policySignature.contains(":self-directed=") &&
+                    !plan.policySignature.contains(":self-directed=none:")) {
+                    add("下次本人活动 · ${time(plan.dueAt)}" + if (plan.dueAt <= now) " · 等待系统执行" else "")
+                    add("由角色自己的日程唤醒 · 不额外安排固定间隔的感知")
+                } else {
+                    add("下次兜底感知 · ${time(plan.dueAt)}" + if (plan.dueAt <= now) " · 已到时间，等待执行" else "")
+                    add("兜底间隔 · ${plan.intervalMinutes} 分钟" + if (policy.adaptiveFrequency) "（自适应）" else "")
+                }
             }
         }
     }
