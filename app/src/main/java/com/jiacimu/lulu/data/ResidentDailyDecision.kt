@@ -171,11 +171,19 @@ internal object ResidentDailyDecision {
             source = "原住民个人日程到点", title = "${native.name} · ${plan.title.take(48)}",
             connectionOverride = selected, contextMode = CompanionContextMode.CharacterAndScenario,
             maxTokens = 700,
-        ).getOrNull() ?: return false
+        ).onFailure { error ->
+            com.jiacimu.lulu.LuluRepositories.performance.recordError(
+                source = "数字世界居民日程", title = "${native.name}的到点决策失败",
+                message = error.message.orEmpty().take(180))
+        }.getOrNull() ?: return false
         val choice = response.text.let(ModelStructuredOutput::objectOrNull) ?: return false
         return when (choice.optString("choice")) {
             "execute" -> {
-                val args = choice.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()
+                // When the model explicitly chooses to execute but leaves args
+                // unchanged, reuse its own saved proposal; live ToolRouter still
+                // rechecks location, recipient, authority and evidence.
+                val args = choice.optJSONObject("args")?.takeIf { it.length() > 0 }
+                    ?.let { JSONObject(it.toString()) } ?: JSONObject(proposedArgs.toString())
                 args.remove("_replyEvidenceIds")
                 args.put("planId", plan.id)
                 // Validate against the SAME existing plan authority before the real tool.
