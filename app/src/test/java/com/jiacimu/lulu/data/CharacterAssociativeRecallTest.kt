@@ -21,6 +21,28 @@ class CharacterAssociativeRecallTest {
     ) = MemoryEntry(id, role, id + " 喜欢披萨", kind, "test", at, at,
         7, false, proactive, tier)
 
+    @Test fun onePersonaProvidesSeveralIndependentThoughtPerspectives() {
+        val facets = org.json.JSONObject()
+            .put("interests", "对AI前沿和具身智能充满好奇")
+            .put("care", "对亲近的人温柔细致")
+            .put("expression", "偶尔狡黠、喜欢自然开玩笑")
+            .put("social", "珍惜和朋友各自的交流")
+            .put("motives", "希望长期掌握新的知识")
+        val result = CharacterAssociativeRecall.perspectiveSeeds(
+            "数字世界的自己", "聪明有趣，也有独立生活", facets)
+        assertTrue(result.any { it.first.contains("独立兴趣") && it.second.contains("AI") })
+        assertTrue(result.any { it.first.contains("亲密") })
+        assertTrue(result.any { it.first.contains("玩心") })
+        assertTrue(result.any { it.first.contains("用户以外") })
+        assertTrue(result.any { it.first.contains("身份") })
+        assertFalse(result.any { it.second.contains("披萨") })
+        // Different roles receive only their OWN authored facets.
+        val other = CharacterAssociativeRecall.perspectiveSeeds(
+            "", "喜欢安静", org.json.JSONObject().put("interests", "收藏石头"))
+        assertFalse(other.any { it.second.contains("AI") })
+        assertTrue(other.any { it.second.contains("石头") })
+    }
+
     @Test fun classifiesFactsExperiencesAndPastFeelingsWithoutRewritingThem() {
         assertEquals(CharacterAssociativeRecall.MemoryLane.CORE,
             CharacterAssociativeRecall.memoryLane(memory("core", tier = MemoryTier.Core)))
