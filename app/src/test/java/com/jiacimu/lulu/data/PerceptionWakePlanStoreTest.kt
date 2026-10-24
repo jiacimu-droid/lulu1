@@ -138,7 +138,10 @@ class PerceptionWakePlanStoreTest {
             now.plusSeconds(11 * 3600L), now = now)
         val selfActivity = RoleDayScheduleStore.arrange(context, role,
             "自己继续看书", "我还对这本书后面的故事很感兴趣",
-            now.plusSeconds(3 * 3600L), now = now, selfInitiated = true)
+            now.plusSeconds(3 * 3600L), now = now,
+            activityAction = "play_solo_game",
+            activityArgs = org.json.JSONObject().put("gameId", "memory_match"),
+            selfInitiated = true)
         try {
             val restored = RoleDayScheduleStore.plans(context, role)
             assertFalse(restored.first { it.id == ownerRequest.id }.selfInitiated)
