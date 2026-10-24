@@ -19,6 +19,67 @@ class RoleDayScheduleStoreTest {
         activityAction = "read_book",
     )
 
+    @Test fun oneOffStudyReminderIsOwnedByExactlyOnePromiseAlarm() {
+        val time = Instant.parse("2026-10-24T02:30:00Z")
+        val study = plan.copy(id = "user-study-plan", dueAt = time,
+            title = "十点半来喊用户开始学习", intent = "答应她按时督促开始学习",
+            activityAction = "send_private_message", repeat = "once")
+        val promise = CommitmentTask(characterId = study.characterId,
+            goal = "10:30提醒用户开始今天的学习", dueAt = time,
+            deliveryAction = "send_private_message", status = CommitmentTaskStatus.Scheduled,
+            linkedAlarmId = "real-alarm-1")
+        assertTrue(duplicatesScheduledReminder(study, promise))
+        assertTrue(isAuthoritativeScheduledReminder(promise))
+        assertFalse(isAuthoritativeScheduledReminder(promise.copy(linkedAlarmId = null)))
+        assertFalse(duplicatesScheduledReminder(study.copy(dueAt = time.plusSeconds(86400)), promise),
+            "One-off reminders on different dates are independent")
+        assertFalse(duplicatesScheduledReminder(study.copy(title = "和居民读书",
+            intent = "自己去图书馆读书", activityAction = "read_book"), promise))
+        assertFalse(duplicatesScheduledReminder(study.copy(title = "十点半提醒用户吃饭",
+            intent = "提醒她吃早饭"), promise))
+        assertFalse(duplicatesScheduledReminder(study.copy(characterId = "other-role"), promise))
+    }
+
+    @Test fun dailyBedtimeReminderDoesNotCreateACopyForEveryDay() {
+        val time = Instant.parse("2026-10-24T15:30:00Z")
+        val bedtime = plan.copy(dueAt = time, title = "每天晚上十一点半提醒睡觉",
+            intent = "主动监督用户准时休息", activityAction = "send_private_message",
+            repeat = "daily")
+        val promise = CommitmentTask(characterId = bedtime.characterId,
+            goal = "每晚23:30打电话督促睡觉", dueAt = time.plusSeconds(86400),
+            deliveryAction = "start_call", repeat = "daily",
+            status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "native-call-alarm")
+        assertTrue(duplicatesScheduledReminder(bedtime, promise),
+            "Same recurring wall-clock belongs to a single alarm task")
+        assertFalse(duplicatesScheduledReminder(bedtime.copy(title = "每天复习",
+            intent = "监督背书"), promise))
+    }
+
+    @Test fun creatingPersonalPlanCannotDuplicateARegisteredUserReminder() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "schedule-single-authority-test"
+        val base = Instant.now().plusSeconds(7200)
+        val task = CommitmentTask(characterId = role, goal = "提醒我开始学习",
+            dueAt = base, deliveryAction = "send_private_message",
+            status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "test-alarm")
+        CommitmentTaskStore.save(task)
+        try {
+            val blocked = runCatching {
+                RoleDayScheduleStore.arrange(context, role, "到点叫用户开始学习",
+                    "按用户要求督促她开始学习", base, activityAction = "send_private_message")
+            }
+            assertTrue(blocked.isFailure)
+            assertTrue(blocked.exceptionOrNull()?.message.orEmpty().contains("无需重复"))
+            assertTrue(RoleDayScheduleStore.plans(context, role).none {
+                it.title.contains("到点叫用户开始学习")
+            })
+            assertEquals(task.id, CommitmentTaskStore.snapshot(role).first { it.id == task.id }.id)
+        } finally {
+            CommitmentTaskStore.remove(task.id)
+        }
+    }
+
     @Test fun onlyVerifiedMatchingActivityCanCloseTheOriginalRolesPlan() {
         assertTrue(RoleDayScheduleStore.canComplete(plan, "role-a", "read_book", "reading-evidence", after))
         assertFalse(RoleDayScheduleStore.canComplete(plan, "role-b", "read_book", "reading-evidence", after))
