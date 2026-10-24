@@ -94,7 +94,7 @@ class EmbodiedBodyPhysicsTest {
         assertEquals(later, EmbodiedBodyPhysics.advance(later, later.lastAt))
     }
 
-    @Test fun monotonyGrowsOnlyWhileAwakeAndRealExplorationEasesIt() {
+    @Test fun monotonyGrowsWhileAwakeAndCanPersistAcrossSleepUntilRealExploration() {
         val awake = EmbodiedBodyPhysics.advance(EmbodiedBodyPhysics.fresh(start),
             start.plusSeconds(4 * 3600))
         assertTrue(awake.boredom > 14.0)
@@ -105,7 +105,7 @@ class EmbodiedBodyPhysicsTest {
         assertTrue(EmbodiedBodyPhysics.prompt(explored).contains("单调感"))
         val slept = EmbodiedBodyPhysics.advance(explored.copy(
             recoveryMode = "offline_sleep"), start.plusSeconds(8 * 3600))
-        assertTrue(slept.boredom < explored.boredom)
+        assertTrue("Rest should not erase the desire for a new experience", slept.boredom >= explored.boredom)
         assertEquals(slept, EmbodiedBodySnapshot.fromJson(slept.toJson()))
         assertEquals(slept, EmbodiedBodyPhysics.advance(slept, slept.lastAt))
     }
