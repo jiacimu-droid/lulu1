@@ -71,18 +71,44 @@ class PerceptionWakePlanStoreTest {
         }.intervalMinutes)
     }
 
-    @Test fun personalAppointmentsOverrideTwoHourFallbackOnlyWhileAsleep() {
-        val ordinary = anchor.plusSeconds(2 * 3600)
-        val reading = anchor.plusSeconds(3 * 3600)
-        val friendVisit = anchor.plusSeconds(6 * 3600)
-        assertEquals(reading,
-            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, reading, offline = true))
-        assertEquals(friendVisit,
-            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, friendVisit, offline = true))
-        assertEquals(ordinary,
-            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, reading, offline = false))
-        assertEquals(ordinary,
-            ProactivePerceptionRuntime.chooseAutonomousWakeTime(ordinary, null, offline = true))
+    @Test fun distantOrEarlierPersonalAppointmentsCannotPostponePassiveThinking() {
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("自主日程间隔测试").characterId
+        MigratedDomainStores.chat.ensureConversation(role, "自主日程间隔测试")
+        CompanionOnlineStore.resetCharacter(role)
+        ProactivePerceptionPolicyStore.update(role) {
+            it.copy(enabled = true, adaptiveFrequency = false,
+                quietHoursEnabled = false, intervalValue = 2,
+                intervalUnit = PerceptionIntervalUnit.Hours)
+        }
+
+        val now = Instant.now()
+        val ordinary = requireNotNull(ProactivePerceptionRuntime.wakePlanFor(context, role, now))
+        assertTrue("Two-hour fallback should not start eleven hours later",
+            ordinary.dueAt.isBefore(now.plusSeconds(3 * 3600L)))
+
+        // Plans retain their OWN durable wake workers; neither a far appointment
+        // nor an earlier one is allowed to replace the passive perception clock.
+        val late = RoleDayScheduleStore.arrange(context, role,
+            "晚上和朋友聊天", "想在今晚和朋友聊聊近况",
+            now.plusSeconds(11 * 3600L), now = now)
+        val early = RoleDayScheduleStore.arrange(context, role,
+            "下午读一会书", "想看看新书里讲了什么",
+            now.plusSeconds(3600L), now = now)
+        try {
+            assertEquals(early.dueAt, RoleDayScheduleStore.nextPlannedWakeAt(context, role, now))
+            val afterScheduling = requireNotNull(
+                ProactivePerceptionRuntime.wakePlanFor(context, role, now))
+            assertEquals("Creating personal activities must not postpone ordinary thinking",
+                ordinary.dueAt, afterScheduling.dueAt)
+            assertEquals(ordinary.policySignature, afterScheduling.policySignature)
+            assertTrue(RoleDayScheduleStore.plans(context, role).any { it.id == late.id })
+            assertTrue(RoleDayScheduleStore.plans(context, role).any { it.id == early.id })
+        } finally {
+            RoleDayScheduleStore.remove(context, role, early.id)
+            RoleDayScheduleStore.remove(context, role, late.id)
+        }
     }
 
     @Test fun onlineThinkingCadenceIsIndependentOfBackgroundTimingAndNeverFastByAccident() {
