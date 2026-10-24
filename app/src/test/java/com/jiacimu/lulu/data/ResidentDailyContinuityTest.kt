@@ -58,6 +58,16 @@ class ResidentDailyContinuityTest {
         ResidentCharacterBridge.sync(app, today)
         val actor = ResidentCharacterBridge.characterId(person.id)
         val friend = ResidentCharacterBridge.characterId(peer.id)
+        // Registration creates separate private homes, even if the input
+        // proposed a public currentLocationCode. Only confirmed world movement
+        // can establish co-presence and permission to initiate a message.
+        assertFalse(ResidentSocialMailbox.canContact(actor, friend))
+        assertNotNull(DigitalWorldExpansionStore.moveResident(person.id,
+            DigitalWorldPublicPlaces.CAFE, today))
+        assertNotNull(DigitalWorldExpansionStore.moveResident(peer.id,
+            DigitalWorldPublicPlaces.CAFE, today))
+        assertEquals(DigitalWorldPublicPlaces.CAFE, DigitalWorldStore.locationOf(actor))
+        assertEquals(DigitalWorldPublicPlaces.CAFE, DigitalWorldStore.locationOf(friend))
         assertTrue(ResidentSocialMailbox.visibleContacts(actor).contains(friend))
         fun item(clock: String, title: String, action: String, args: JSONObject,
                  recipient: String = "", place: String = "") = JSONObject()
