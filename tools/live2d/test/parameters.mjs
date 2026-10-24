@@ -187,6 +187,25 @@ valuesById.set('ParamMouthForm', .28)
 frame()
 assert.equal(valuesById.get('ParamMouthForm'), .28,
   'after face release, imported expressions own facial parameter')
+// During an actively spoken smiling line, PCM mouth opening is independent
+// of the smile channel; touching the face temporarily owns that surface,
+// then the character's own spoken smile returns.
+for (let i = 0; i < 45; i++) frame(null, null, { smile: .7, eyeSmile: .4 }, true)
+assert.ok(valuesById.get('ParamMouthForm') > .6,
+  'smile must remain on the face while audio indicates speech')
+assert.ok(valuesById.get('ParamEyeLSmile') > .32,
+  'smiling eyes accompany a smiling voice')
+for (let i = 0; i < 45; i++) {
+  seconds += .016
+  rig.update(core, { deltaMs: 16, face: { smile: .7, eyeSmile: .4 },
+    touchReflex: { yaw: -3, roll: -9, face: { smile: -.48, eyeOpen: .82 } },
+    speaking: true, voiceLevel: .4, seconds })
+}
+assert.ok(valuesById.get('ParamMouthForm') < -.3,
+  'the local facial touch should be visible even when a selected smile is speaking')
+for (let i = 0; i < 45; i++) frame(null, null, { smile: .7, eyeSmile: .4 }, true)
+assert.ok(valuesById.get('ParamMouthForm') > .55,
+  'the selected smile should smoothly return after contact ends')
 // A wink must not be flattened into two identical eyelids on release.
 valuesById.set('ParamEyeLOpen', .54)
 valuesById.set('ParamEyeROpen', 1)
