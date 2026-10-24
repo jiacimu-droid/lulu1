@@ -64,17 +64,24 @@ export function createVisualLayerRuntime({ has, read, write }) {
     // Breathing alone looks frozen in many rigs. A few sub-degree slow
     // movements keep the body alive without ever pulling eyes off camera.
     // Touch and the character's own explicit pose take precedence.
+    const speechEnergy = speaking ? (.4 + .6 * clamp01(
+      Number.isFinite(voiceLevel) ? voiceLevel : .45)) : 0
     const idleHead = !head && !touchReflex ? {
-      // Idle should tilt around the neck, not yaw as though the jaw travels
-      // left/right. Explicit speaking/character motion may still turn the head.
+      // Voice-led microgestures are neutral physical motion, not a guessed
+      // emotional state. A chosen character performance always takes priority.
       yaw: 0,
-      pitch: .25 * Math.sin(seconds * .23 + .8),
-      roll: 3.1 * Math.sin(seconds * .21 + .4),
+      pitch: .25 * Math.sin(seconds * .23 + .8) +
+        speechEnergy * 1.25 * Math.sin(seconds * 1.18),
+      roll: 3.1 * Math.sin(seconds * .21 + .4) +
+        speechEnergy * 1.5 * Math.sin(seconds * .83 + 1.1),
     } : null
     const idleBody = !body && !touchReflex ? {
-      yaw: .08 * Math.sin(seconds * .19 + .5),
-      pitch: .28 * Math.sin(seconds * .23),
-      roll: .35 * Math.sin(seconds * .17 + .9),
+      yaw: .08 * Math.sin(seconds * .19 + .5) +
+        speechEnergy * .55 * Math.sin(seconds * .72),
+      pitch: .28 * Math.sin(seconds * .23) +
+        speechEnergy * .85 * Math.sin(seconds * 1.07),
+      roll: .35 * Math.sin(seconds * .17 + .9) +
+        speechEnergy * .7 * Math.sin(seconds * .64),
     } : null
     // Authored motion files can contain head/torso movement as well as arms.
     // Sample their real pose instead of overwriting it with our resting pose.
@@ -142,7 +149,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
       if (ids.some(id => !has(core, id))) continue
       // Speech amplitude articulates a selected smile; speech alone never
       // assigns a happy face to a serious, sad or otherwise neutral reply.
-      const requested = face?.[key] ?? touchReflex?.face?.[key]
+      const requested = touchReflex?.face?.[key] ?? face?.[key]
       const eyeContact = key === 'gazeX' || key === 'gazeY'
       if (authoredMotion && requested == null) {
         delete smoothedFace[key]
@@ -178,7 +185,7 @@ export function createVisualLayerRuntime({ has, read, write }) {
         // Single-eye contact closes just that eyelid. Keep a single owner per
         // parameter so the bilateral release cannot flatten an authored wink.
         const sideKey = key === 'eyeOpen' ? (i === 0 ? 'eyeLeftOpen' : 'eyeRightOpen') : null
-        const sideTarget = sideKey ? face?.[sideKey] ?? touchReflex?.face?.[sideKey] : null
+        const sideTarget = sideKey ? touchReflex?.face?.[sideKey] ?? face?.[sideKey] : null
         const goal = sideTarget ?? target ?? (eyeContact ? 0 : state.release[i])
         state.values[i] += (goal - state.values[i]) * blend
         if (Math.abs(state.values[i] - goal) > .015) released = false
