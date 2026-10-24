@@ -203,6 +203,8 @@ internal suspend fun appendRoleReplyWithPacing(
             if (currentCoroutineContext().isActive) MigratedDomainStores.chat.retractCharacterMessage(created.id, characterLabel)
         } else {
             spoken += created
+            if (created.voiceNote) ChatAutoVoicePlayback.prepareVoiceNote(
+                characterId, created.id, created.content, conversationId, created.voiceSpeechText)
             // A persisted outgoing reply is the real receipt. Do not wait for
             // the entire background decision (which may be cancelled afterward).
             if (spoken.size == 1 && !actionableUserMessageIds.isNullOrEmpty()) {
@@ -226,7 +228,6 @@ internal suspend fun appendRoleReplyWithPacing(
         MigratedDomainStores.chat.appendSystemMessage(conversationId, "[戳一戳] $characterLabel 戳了戳你。")
     }
     // A sticker is a real visual message, never raw base64 read aloud by TTS.
-    spoken.filter { it.voiceNote }.forEach { ChatAutoVoicePlayback.prepareVoiceNote(characterId, it.id, it.content, conversationId, it.voiceSpeechText) }
     spoken.filter { !it.voiceNote && decodeQqChatImage(it.content) == null }
         .forEach { ChatAutoVoicePlayback.enqueue(characterId, it.id, it.content, conversationId) }
     return spoken.joinToString("\n", transform = LuluChatMessage::content)
