@@ -242,7 +242,11 @@ internal object CharacterCuriosityRuntime {
         val threadRecords = entries(root.optJSONArray("threads")).map { JSONObject(it.toString()) }.toMutableList()
         val pending = entries(root.optJSONArray("questions"))
         val selectedQuestion = matching(pending, proposal)
-        val match = matching(threadRecords, proposal)
+        // A revised question can have different wording but the same stable
+        // identity as an earlier explored thread. Keep all its real receipts.
+        val match = matching(threadRecords, proposal) ?: selectedQuestion?.let { pendingQuestion ->
+            threadRecords.firstOrNull { identity(it) == identity(pendingQuestion) }
+        }
         // Legacy callers that have no ID can continue a uniquely named prior topic,
         // but must never steal the history of one of several same-topic branches.
         val legacyThread = if (proposal?.optString("threadId").isNullOrBlank() &&
@@ -311,7 +315,9 @@ internal object CharacterCuriosityRuntime {
         val threadEntries = entries(threads)
         val questionEntries = entries(questions)
         val matchQuestion = matching(questionEntries, proposal)
-        val matchThread = matching(threadEntries, proposal) ?: if (proposal?.optString("threadId").isNullOrBlank() &&
+        val matchThread = matching(threadEntries, proposal) ?: matchQuestion?.let { pendingQuestion ->
+            threadEntries.firstOrNull { identity(it) == identity(pendingQuestion) }
+        } ?: if (proposal?.optString("threadId").isNullOrBlank() &&
             matchQuestion == null) threadEntries.filter {
                 normalized(it.optString("topic")) == normalized(fields[0])
             }.singleOrNull() else null
