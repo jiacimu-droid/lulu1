@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T04:04:39.495234+00:00",
-  "commit": "8029dd6e485f5827f000701910154ccbf4ec0f45",
+  "generatedAt": "2026-10-24T04:06:41.868171+00:00",
+  "commit": "1ff7b74d3af1eeaa1cbe6bbca42f1bef229ac8f8",
   "branch": "main",
-  "sourceFingerprint": "9d8f994d169a57d1e4d6130681dbfad795598fed9223d10201a38f9248dd1373",
+  "sourceFingerprint": "11e188c7db0ff8b6184c1829ae8b0f1d2a45b0e99ee1ebd513a660f0d7ed0423",
   "summary": {
     "files": 872,
-    "lines": 167220,
+    "lines": 167257,
     "symbols": 2516
   },
   "symbolIndex": {
@@ -2967,7 +2967,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 839
+        "line": 840
       }
     ],
     "import": [
@@ -8957,7 +8957,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 2253
+        "line": 2251
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -16696,12 +16696,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 965,
-      "sha256": "ae81bec5fb8d8ea068e46e5303d8c2f7bd3ffcad67d010447f3dc1de14941b49",
+      "lines": 966,
+      "sha256": "aa353d925bce24cd56b7a3a4bc5104b7c301ed234d37bb90a321a76c826af167",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 839
+          "line": 840
         }
       ]
     },
@@ -16722,8 +16722,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 383,
-      "sha256": "f6416d0384e20801bc29deff5f222e93c5a24cd947eaf9532a0dd7eaf9315adf",
+      "lines": 391,
+      "sha256": "9a3227787a588e86a4b88ad295378de1ac7510ff599cf5e8b5ee971bf90f382c",
       "symbols": []
     },
     {
@@ -22871,8 +22871,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 2320,
-      "sha256": "7bedc5b5e13cea13c4ed6b9e210d8cf6f219a4efa544530ece192f26476dc47b",
+      "lines": 2318,
+      "sha256": "a632b1e4d68a4ff9f596ce03dfb131ec11eaea809f14324209c6f6208d4a2af5",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -22904,7 +22904,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 2253
+          "line": 2251
         }
       ]
     },
@@ -29209,8 +29209,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt",
-      "lines": 194,
-      "sha256": "8192168b71f3b31bb70a8224b20a7b3eb9b108915c7a0da7631ae1e505190fe6",
+      "lines": 206,
+      "sha256": "53bf7a8948698b170f2e412bfeda127e4a3c073f5ae1c87d14007c13f0bc6b46",
       "symbols": [
         {
           "name": "ModelStructuredOutputTest",
@@ -29484,8 +29484,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt",
-      "lines": 71,
-      "sha256": "55670bb3a28ac083a920ef5badc000f27cf161cdeee1d45541328a663828dd74",
+      "lines": 89,
+      "sha256": "fb7bc1d286d3996709cba3fadeec84a21b25681975a26941a945300ccdeffad9",
       "symbols": [
         {
           "name": "ReplyReplacementTest",
