@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T10:36:09.557626+00:00",
-  "commit": "7653f18a44920d2ca633e1e44e07217c57ff4513",
+  "generatedAt": "2026-10-24T10:36:42.698912+00:00",
+  "commit": "7791ee5517b509e4ec3f5968f212712caddcd4eb",
   "branch": "main",
-  "sourceFingerprint": "d8ea0702876b93b6edb29f13680c0f6e1d93ba7d75a62130865f2da3fd934eed",
+  "sourceFingerprint": "fbf11859a217624cdaffc607e9bb02fe9e2c89bf0b140d3486e9a8e778c13dda",
   "summary": {
     "files": 874,
-    "lines": 169103,
+    "lines": 169138,
     "symbols": 2531
   },
   "symbolIndex": {
@@ -599,19 +599,19 @@
     "CharacterSettingsScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "persistDefinition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 134
+        "line": 136
       }
     ],
     "setPerceptionEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 145
+        "line": 147
       }
     ],
     "CharacterWorldBookScreenV2": [
@@ -14656,20 +14656,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 619,
-      "sha256": "b923103c6ba51e2f75c448a5f42e2df15ceb5baa18a3bec764d66bd5825fa240",
+      "lines": 654,
+      "sha256": "51d8eca268df0e516c7e58341da7aac440c6332e3dece3badaf08d49c60c2c6d",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
-          "line": 56
+          "line": 57
         },
         {
           "name": "persistDefinition",
-          "line": 134
+          "line": 136
         },
         {
           "name": "setPerceptionEnabled",
-          "line": 145
+          "line": 147
         }
       ]
     },
