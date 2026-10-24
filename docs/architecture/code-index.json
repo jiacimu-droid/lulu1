@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:35:17.451156+00:00",
-  "commit": "23cc22ad9216e23f9313a2dd63600548cb94ba78",
+  "generatedAt": "2026-10-24T10:34:49.942519+00:00",
+  "commit": "1b0491fe1c685d0ab551f8a4a3d42f8d60f84f23",
   "branch": "main",
-  "sourceFingerprint": "40fce6c0480f2eea13d38f8c22cc6eb3666e08c8ceeaff4daa250d7b7eddddfa",
+  "sourceFingerprint": "de6e8bad3c9a5f89a166994bf6848738e0e007f5d9483623498583fa7d337082",
   "summary": {
     "files": 874,
-    "lines": 168864,
+    "lines": 169033,
     "symbols": 2531
   },
   "symbolIndex": {
@@ -5555,7 +5555,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 301
+        "line": 453
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -9425,19 +9425,19 @@
     "planForApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 38
+        "line": 42
       }
     ],
     "planFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 47
+        "line": 51
       }
     ],
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 54
+        "line": 198
       }
     ],
     "plan": [
@@ -23440,24 +23440,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 331,
-      "sha256": "0cb1c3217bd24d4ea668dd7d3d15cfbeaa84b5b526702d23f32b6aaf9496d302",
+      "lines": 500,
+      "sha256": "60994a5837b54d52b2b294f624edcf36f51fa5ab55be77a8237ecfd2e7a168a9",
       "symbols": [
         {
           "name": "planForApp",
-          "line": 38
+          "line": 42
         },
         {
           "name": "planFor",
-          "line": 47
+          "line": 51
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 54
+          "line": 198
         },
         {
           "name": "schedule",
-          "line": 301
+          "line": 453
         }
       ]
     },
