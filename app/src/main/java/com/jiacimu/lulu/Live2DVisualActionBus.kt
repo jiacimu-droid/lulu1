@@ -114,6 +114,9 @@ internal object Live2DVisualActionBus {
             ${Live2DConversationPerformance.capabilityNote(supported)}
             这些名字是你主动选择的视觉意图，不是系统根据台词关键词判情绪。不要为了填字段强迫自己笑、害羞、点头；
             普通交谈的神态也可以只有轻微嘴角、眉眼、视线和身体变化，不需要每轮换整张表情或循环摆动。
+            当这句话本人确实带着笑意说，选 smile/happy/amused；确实委屈、含泪时可选 aggrieved/tearful。
+            程序会将选定的眉眼、嘴角、头颈与身体组合并随整段语音保留；PCM 嘴巴开合独立控制，不会抹掉嘴角笑意。
+            不从说话文本关键词自动推断情绪，也不强制每句都做动作。
             程序会把所选意图编成短暂的起势、变化、收敛，只操作下方确认存在的参数，随真实语音开始执行并平滑恢复。
             思考不必伴随点头，笑意不必伴随亲密；组合、强弱、是否显露由本人决定，例子不是固定人设或聊天脚本。
 
@@ -188,7 +191,13 @@ internal object Live2DVisualActionBus {
             val index = item.optInt("index", -1)
             (group to index).takeIf { it in controls.motions }
         }
+        // The character explicitly chose a tearful PERFORMANCE. If this
+        // imported model offers a real tear exp3, combine it with the same
+        // chosen face/body pose; never fabricate tears or choose dark-face.
         val selected = expression?.let { resolveExpression(it, controls.expressions) }
+            ?: if (expression == null &&
+                request.optJSONObject("performance")?.optString("feeling") == "tearful")
+                resolveExpression("流泪", controls.expressions) else null
         val allowed = availableParameters[characterId].orEmpty()
         val proposed = request.optJSONObject("head")
         fun bounded(key: String, required: String): Float? {
