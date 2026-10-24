@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -30,6 +31,16 @@ class ListenTogetherRoomTest {
         assertNotNull(track)
         assertEquals("雨中行走", track?.title)
         assertEquals("某歌手", track?.artist)
+    }
+
+    @Test fun startingSharedLocalPlaybackRequestsAnalysisOnce() {
+        val clip = "content://user-selected/audio/1"
+        assertTrue(shouldAutoAnalyzeSharedAudio(clip, "", false))
+        assertFalse(shouldAutoAnalyzeSharedAudio(clip, clip, false))
+        assertFalse(shouldAutoAnalyzeSharedAudio(clip, "", true))
+        assertFalse(shouldAutoAnalyzeSharedAudio("", "", false))
+        // A different shared file gets its own analysis, without forcing repeats on resume.
+        assertTrue(shouldAutoAnalyzeSharedAudio("content://user-selected/audio/2", clip, false))
     }
 
     @Test fun noPlayingSessionIsNotProofOfListening() {
